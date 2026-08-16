@@ -5,19 +5,48 @@
 
 `default_nettype none
 
-// Ports: the 174 nets MemD-Rev-Ca.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 174 nets MemD-Rev-Ca.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module MemD_m_Rev_m_Ca (
+    input  wire sys_clk,
+    input  wire BMux_00,
+    input  wire BMux_01,
+    input  wire BMux_02,
+    input  wire BMux_03,
+    input  wire BMux_04,
+    input  wire BMux_05,
+    input  wire BMux_06,
+    input  wire BMux_07,
+    input  wire BMux_08,
+    input  wire BMux_09,
+    input  wire BMux_10,
+    input  wire BMux_11,
+    input  wire BMux_12,
+    input  wire BMux_13,
+    input  wire BMux_14,
+    input  wire BMux_15,
     input  wire BMux_16,
     input  wire BMux_17,
     input  wire CLK_md_p_,
     input  wire DMuxClk,
+    input  wire DMuxData,
     input  wire Dad_00,
     input  wire Dad_01,
     input  wire Dbuf_u__p_,
+    input  wire ECFault,
     input  wire EcIn_0,
     input  wire EcIn_1,
     input  wire EnableFG_p_,
@@ -41,6 +70,7 @@ module MemD_m_Rev_m_Ca (
     input  wire Fin_15,
     input  wire Fin_16,
     input  wire Fin_17,
+    input  wire Fout_00,
     input  wire GDv_p_,
     input  wire GLd_p_,
     input  wire MakeD_u_CD,
@@ -52,6 +82,7 @@ module MemD_m_Rev_m_Ca (
     input  wire MakeSout_u_D,
     input  wire McrD_u__p_,
     input  wire MemClkEnable_p_a,
+    input  wire MemError,
     input  wire MemSH,
     input  wire PcFG_15,
     input  wire Sin_00,
@@ -88,6 +119,7 @@ module MemD_m_Rev_m_Ca (
     input  wire dDad_11,
     input  wire dDad_12,
     input  wire dDad_13,
+    input  wire dMD_00,
     input  wire dMDMad_0_p_,
     input  wire dMDMad_1_p_,
     input  wire dMDMad_2_p_,
@@ -96,95 +128,95 @@ module MemD_m_Rev_m_Ca (
     input  wire dPipe34Ad_1,
     input  wire dPipe34Ad_2,
     input  wire dPipe34Ad_3,
-    output wire EcOut_0,
-    output wire EcOut_1,
-    output wire EcOut_2,
-    output wire EcOut_3,
-    output wire EcOut_4,
-    output wire EcOut_5,
-    output wire EcOut_6,
-    output wire EcOut_7_p_,
-    output wire FG_0,
-    output wire FG_1,
-    output wire FG_2,
-    output wire FG_3,
-    output wire FG_4,
-    output wire FG_5,
-    output wire FG_6,
-    output wire FG_7,
-    output wire FG_8,
-    output wire Fout_01,
-    output wire Fout_02,
-    output wire Fout_03,
-    output wire Fout_04,
-    output wire Fout_05,
-    output wire Fout_06,
-    output wire Fout_07,
-    output wire Fout_08,
-    output wire Fout_09,
-    output wire Fout_10,
-    output wire Fout_11,
-    output wire Fout_12,
-    output wire Fout_13,
-    output wire Fout_14,
-    output wire Fout_15,
-    output wire Fout_16,
-    output wire Fout_17,
-    output wire Sout_00,
-    output wire Sout_01,
-    output wire Sout_02,
-    output wire Sout_03,
-    output wire Sout_04,
-    output wire Sout_05,
-    output wire Sout_06,
-    output wire Sout_07,
-    output wire Sout_08,
-    output wire Sout_09,
-    output wire Sout_10,
-    output wire Sout_11,
-    output wire Sout_12,
-    output wire Sout_13,
-    output wire Sout_14,
-    output wire Sout_15,
-    output wire dMD_01,
-    output wire dMD_02,
-    output wire dMD_03,
-    output wire dMD_04,
-    output wire dMD_05,
-    output wire dMD_06,
-    output wire dMD_07,
-    output wire dMD_08,
-    output wire dMD_09,
-    output wire dMD_10,
-    output wire dMD_11,
-    output wire dMD_12,
-    output wire dMD_13,
-    output wire dMD_14,
-    output wire dMD_15,
-    output wire dMD_16,
-    output wire dMD_17,
-    output wire dSTPerr,
-    inout  wire BMux_00,
-    inout  wire BMux_01,
-    inout  wire BMux_02,
-    inout  wire BMux_03,
-    inout  wire BMux_04,
-    inout  wire BMux_05,
-    inout  wire BMux_06,
-    inout  wire BMux_07,
-    inout  wire BMux_08,
-    inout  wire BMux_09,
-    inout  wire BMux_10,
-    inout  wire BMux_11,
-    inout  wire BMux_12,
-    inout  wire BMux_13,
-    inout  wire BMux_14,
-    inout  wire BMux_15,
-    inout  wire DMuxData,
-    inout  wire ECFault,
-    inout  wire Fout_00,
-    inout  wire MemError,
-    inout  wire dMD_00
+    output wire BMux_00__drv,
+    output wire BMux_01__drv,
+    output wire BMux_02__drv,
+    output wire BMux_03__drv,
+    output wire BMux_04__drv,
+    output wire BMux_05__drv,
+    output wire BMux_06__drv,
+    output wire BMux_07__drv,
+    output wire BMux_08__drv,
+    output wire BMux_09__drv,
+    output wire BMux_10__drv,
+    output wire BMux_11__drv,
+    output wire BMux_12__drv,
+    output wire BMux_13__drv,
+    output wire BMux_14__drv,
+    output wire BMux_15__drv,
+    output wire DMuxData__drv,
+    output wire ECFault__drv,
+    output wire EcOut_0__drv,
+    output wire EcOut_1__drv,
+    output wire EcOut_2__drv,
+    output wire EcOut_3__drv,
+    output wire EcOut_4__drv,
+    output wire EcOut_5__drv,
+    output wire EcOut_6__drv,
+    output wire EcOut_7_p___drv,
+    output wire FG_0__drv,
+    output wire FG_1__drv,
+    output wire FG_2__drv,
+    output wire FG_3__drv,
+    output wire FG_4__drv,
+    output wire FG_5__drv,
+    output wire FG_6__drv,
+    output wire FG_7__drv,
+    output wire FG_8__drv,
+    output wire Fout_00__drv,
+    output wire Fout_01__drv,
+    output wire Fout_02__drv,
+    output wire Fout_03__drv,
+    output wire Fout_04__drv,
+    output wire Fout_05__drv,
+    output wire Fout_06__drv,
+    output wire Fout_07__drv,
+    output wire Fout_08__drv,
+    output wire Fout_09__drv,
+    output wire Fout_10__drv,
+    output wire Fout_11__drv,
+    output wire Fout_12__drv,
+    output wire Fout_13__drv,
+    output wire Fout_14__drv,
+    output wire Fout_15__drv,
+    output wire Fout_16__drv,
+    output wire Fout_17__drv,
+    output wire MemError__drv,
+    output wire Sout_00__drv,
+    output wire Sout_01__drv,
+    output wire Sout_02__drv,
+    output wire Sout_03__drv,
+    output wire Sout_04__drv,
+    output wire Sout_05__drv,
+    output wire Sout_06__drv,
+    output wire Sout_07__drv,
+    output wire Sout_08__drv,
+    output wire Sout_09__drv,
+    output wire Sout_10__drv,
+    output wire Sout_11__drv,
+    output wire Sout_12__drv,
+    output wire Sout_13__drv,
+    output wire Sout_14__drv,
+    output wire Sout_15__drv,
+    output wire dMD_00__drv,
+    output wire dMD_01__drv,
+    output wire dMD_02__drv,
+    output wire dMD_03__drv,
+    output wire dMD_04__drv,
+    output wire dMD_05__drv,
+    output wire dMD_06__drv,
+    output wire dMD_07__drv,
+    output wire dMD_08__drv,
+    output wire dMD_09__drv,
+    output wire dMD_10__drv,
+    output wire dMD_11__drv,
+    output wire dMD_12__drv,
+    output wire dMD_13__drv,
+    output wire dMD_14__drv,
+    output wire dMD_15__drv,
+    output wire dMD_16__drv,
+    output wire dMD_17__drv,
+    output wire dSTPerr__drv
 );
 
   // 854 internal nets
@@ -1044,8 +1076,9 @@ module MemD_m_Rev_m_Ca (
   wire tSyn7x;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire ChkErrEn_p___c24_15;
   wire ChkErrEn_p___b21_3;
   wire ChkErrEn_p___a22_15;
@@ -1112,58 +1145,58 @@ module MemD_m_Rev_m_Ca (
   assign D_17 = D_17__j07_1 | D_17__g07_1;
   wire dMD_00__h05_2;
   wire dMD_00__h04_2;
-  assign dMD_00 = dMD_00__h05_2 | dMD_00__h04_2;
+  assign dMD_00__drv = dMD_00__h05_2 | dMD_00__h04_2;
   wire dMD_01__h05_3;
   wire dMD_01__h04_1;
-  assign dMD_01 = dMD_01__h05_3 | dMD_01__h04_1;
+  assign dMD_01__drv = dMD_01__h05_3 | dMD_01__h04_1;
   wire dMD_02__h05_4;
   wire dMD_02__h04_15;
-  assign dMD_02 = dMD_02__h05_4 | dMD_02__h04_15;
+  assign dMD_02__drv = dMD_02__h05_4 | dMD_02__h04_15;
   wire dMD_03__h05_13;
   wire dMD_03__h04_14;
-  assign dMD_03 = dMD_03__h05_13 | dMD_03__h04_14;
+  assign dMD_03__drv = dMD_03__h05_13 | dMD_03__h04_14;
   wire dMD_04__h15_2;
   wire dMD_04__h14_14;
-  assign dMD_04 = dMD_04__h15_2 | dMD_04__h14_14;
+  assign dMD_04__drv = dMD_04__h15_2 | dMD_04__h14_14;
   wire dMD_05__h15_1;
   wire dMD_05__h14_15;
-  assign dMD_05 = dMD_05__h15_1 | dMD_05__h14_15;
+  assign dMD_05__drv = dMD_05__h15_1 | dMD_05__h14_15;
   wire dMD_06__h15_15;
   wire dMD_06__h14_2;
-  assign dMD_06 = dMD_06__h15_15 | dMD_06__h14_2;
+  assign dMD_06__drv = dMD_06__h15_15 | dMD_06__h14_2;
   wire dMD_07__h15_14;
   wire dMD_07__h14_1;
-  assign dMD_07 = dMD_07__h15_14 | dMD_07__h14_1;
+  assign dMD_07__drv = dMD_07__h15_14 | dMD_07__h14_1;
   wire dMD_08__h10_14;
   wire dMD_08__h11_2;
-  assign dMD_08 = dMD_08__h10_14 | dMD_08__h11_2;
+  assign dMD_08__drv = dMD_08__h10_14 | dMD_08__h11_2;
   wire dMD_09__h11_1;
   wire dMD_09__h10_15;
-  assign dMD_09 = dMD_09__h11_1 | dMD_09__h10_15;
+  assign dMD_09__drv = dMD_09__h11_1 | dMD_09__h10_15;
   wire dMD_10__h11_15;
   wire dMD_10__h10_2;
-  assign dMD_10 = dMD_10__h11_15 | dMD_10__h10_2;
+  assign dMD_10__drv = dMD_10__h11_15 | dMD_10__h10_2;
   wire dMD_11__h11_14;
   wire dMD_11__h10_1;
-  assign dMD_11 = dMD_11__h11_14 | dMD_11__h10_1;
+  assign dMD_11__drv = dMD_11__h11_14 | dMD_11__h10_1;
   wire dMD_12__h18_14;
   wire dMD_12__h17_2;
-  assign dMD_12 = dMD_12__h18_14 | dMD_12__h17_2;
+  assign dMD_12__drv = dMD_12__h18_14 | dMD_12__h17_2;
   wire dMD_13__h18_15;
   wire dMD_13__h17_1;
-  assign dMD_13 = dMD_13__h18_15 | dMD_13__h17_1;
+  assign dMD_13__drv = dMD_13__h18_15 | dMD_13__h17_1;
   wire dMD_14__h18_2;
   wire dMD_14__h17_15;
-  assign dMD_14 = dMD_14__h18_2 | dMD_14__h17_15;
+  assign dMD_14__drv = dMD_14__h18_2 | dMD_14__h17_15;
   wire dMD_15__h18_1;
   wire dMD_15__h17_14;
-  assign dMD_15 = dMD_15__h18_1 | dMD_15__h17_14;
+  assign dMD_15__drv = dMD_15__h18_1 | dMD_15__h17_14;
   wire dMD_16__h06_2;
   wire dMD_16__h05_14;
-  assign dMD_16 = dMD_16__h06_2 | dMD_16__h05_14;
+  assign dMD_16__drv = dMD_16__h06_2 | dMD_16__h05_14;
   wire dMD_17__h06_1;
   wire dMD_17__h05_15;
-  assign dMD_17 = dMD_17__h06_1 | dMD_17__h05_15;
+  assign dMD_17__drv = dMD_17__h06_1 | dMD_17__h05_15;
   wire DontWriteMDM__h03_14;
   wire DontWriteMDM__h03_15;
   assign DontWriteMDM = DontWriteMDM__h03_14 | DontWriteMDM__h03_15;
@@ -1197,6 +1230,8 @@ module MemD_m_Rev_m_Ca (
   wire WordInError_p___c20_2;
   wire WordInError_p___d20_2;
   assign WordInError_p_ = WordInError_p___b20_15 | WordInError_p___c20_3 | WordInError_p___c20_2 | WordInError_p___d20_2;
+
+  // 71 single-driver contributions to the backplane
 
   // ---- packages
   cell_F10470 u__h__m_1c11 (
@@ -1308,22 +1343,24 @@ module MemD_m_Rev_m_Ca (
     // no connections
   ); // F10470
   cell_MC10231 u_a01 (
-    .p2(Sout_01),
+    .sys_clk(sys_clk),
+    .p2(Sout_01__drv),
     .p3(EcSout_01_p_),
     .p7(MemD07_sil_pl_7),
     .p9(clk2_p_Aa),
     .p10(MemD01_sil_pl_7),
     .p14(EcSout_00_p_),
-    .p15(Sout_00)
+    .p15(Sout_00__drv)
   ); // MC10231
   cell_MC10231 u_a02 (
-    .p2(Sout_03),
+    .sys_clk(sys_clk),
+    .p2(Sout_03__drv),
     .p3(EcSout_03_p_),
     .p7(MemD08_sil_pl_15),
     .p9(clk2_p_Aa),
     .p10(MemD08_sil_pl_2),
     .p14(EcSout_02_p_),
-    .p15(Sout_02)
+    .p15(Sout_02__drv)
   ); // MC10231
   cell_F10470 u_a03 (
     .p1(D_00__a03_1),
@@ -1407,6 +1444,7 @@ module MemD_m_Rev_m_Ca (
     .p17(D0in_16)
   ); // F10470
   cell_F10016 u_a08 (
+    .sys_clk(sys_clk),
     .p2(Dad0_11a),
     .p3(Dad0_12a),
     .p5(DontLoad0),
@@ -1438,6 +1476,7 @@ module MemD_m_Rev_m_Ca (
     .p17(D0in_08)
   ); // F10470
   cell_MC10176 u_a10 (
+    .sys_clk(sys_clk),
     .p2(D0in_00),
     .p3(D0in_01),
     .p4(D0in_04),
@@ -1472,6 +1511,7 @@ module MemD_m_Rev_m_Ca (
     .p17(D0in_09)
   ); // F10470
   cell_MC10176 u_a12 (
+    .sys_clk(sys_clk),
     .p2(MemD01_sil_pl_1),
     .p3(MemD07_sil_pl_1),
     .p4(MemD08_sil_pl_8),
@@ -1565,6 +1605,7 @@ module MemD_m_Rev_m_Ca (
     .p17(D0in_12)
   ); // F10470
   cell_F10000 u_a18 (
+    .sys_clk(sys_clk),
     .p2(tSyn2),
     .p3(tSyn3),
     .p7(dSyn3),
@@ -1595,6 +1636,7 @@ module MemD_m_Rev_m_Ca (
     .p17(D0in_13)
   ); // F10470
   cell_F10016 u_a20 (
+    .sys_clk(sys_clk),
     .p2(Syn2_p_),
     .p3(Syn7_p_),
     .p4(Syn0127_eq_0_p_),
@@ -1635,6 +1677,7 @@ module MemD_m_Rev_m_Ca (
     .p15(ChkErrEn_p___a22_15)
   ); // MC10102
   cell_F10016 u_a23 (
+    .sys_clk(sys_clk),
     .p2(MemD06_sil_pl_3),
     .p3(MemD06_sil_pl_4),
     .p5(ChkErrEn_p_),
@@ -1648,15 +1691,17 @@ module MemD_m_Rev_m_Ca (
     .p15(EccSeenError_p_)
   ); // F10016
   cell_MC10231 u_a24 (
-    .p2(Sout_07),
+    .sys_clk(sys_clk),
+    .p2(Sout_07__drv),
     .p3(EcSout_07_p_),
     .p7(MemD10_sil_pl_15),
     .p9(clk2_p_Cd),
     .p10(MemD10_sil_pl_2),
     .p14(EcSout_06_p_),
-    .p15(Sout_06)
+    .p15(Sout_06__drv)
   ); // MC10231
   cell_MC10175 u_b01 (
+    .sys_clk(sys_clk),
     .p2(Dbuf_08),
     .p3(Dbuf_09),
     .p6(DbufLd_p_a),
@@ -1668,8 +1713,8 @@ module MemD_m_Rev_m_Ca (
     .p15(Dbuf_01)
   ); // MC10175
   cell_MC10159 u_b02 (
-    .p1(BMux_09),
-    .p2(BMux_08),
+    .p1(BMux_09__drv),
+    .p2(BMux_08__drv),
     .p3(Pipe4_08),
     .p4(Dbuf_08),
     .p5(Pipe4_09),
@@ -1680,8 +1725,8 @@ module MemD_m_Rev_m_Ca (
     .p11(Dbuf_00),
     .p12(HighAD),
     .p13(Dbuf_01),
-    .p14(BMux_00),
-    .p15(BMux_01)
+    .p14(BMux_00__drv),
+    .p15(BMux_01__drv)
   ); // MC10159
   cell_MU10164 u_b03 (
     .p2(DMadr_05),
@@ -1769,6 +1814,7 @@ module MemD_m_Rev_m_Ca (
     .p15(Dad_05a)
   ); // MC10101
   cell_F10016 u_b09 (
+    .sys_clk(sys_clk),
     .p2(Dad1_11a),
     .p3(Dad1_12a),
     .p5(DontLoad1),
@@ -1780,6 +1826,7 @@ module MemD_m_Rev_m_Ca (
     .p15(Dad1_10a)
   ); // F10016
   cell_MC10176 u_b10 (
+    .sys_clk(sys_clk),
     .p2(D1in_00),
     .p3(D1in_01),
     .p4(D1in_04),
@@ -1795,6 +1842,7 @@ module MemD_m_Rev_m_Ca (
     .p15(D1in_16)
   ); // MC10176
   cell_MC10176 u_b12 (
+    .sys_clk(sys_clk),
     .p2(MemD09_sil_pl_8),
     .p3(MemD09_sil_pl_9),
     .p4(MemD10_sil_pl_8),
@@ -1874,6 +1922,7 @@ module MemD_m_Rev_m_Ca (
     .p15(dSyn5)
   ); // MC10180
   cell_MC10231 u_b18 (
+    .sys_clk(sys_clk),
     .p2(tSyn7x),
     .p7(MemD05_sil_pl_10),
     .p9(clk2_p_Cb),
@@ -1883,6 +1932,7 @@ module MemD_m_Rev_m_Ca (
     .p15(tSyn4)
   ); // MC10231
   cell_MC10231 u_b19 (
+    .sys_clk(sys_clk),
     .p2(tSyn6),
     .p3(tSyn456_p___b19_3),
     .p6(ChkPh3),
@@ -1894,6 +1944,7 @@ module MemD_m_Rev_m_Ca (
     .p15(tSyn5)
   ); // MC10231
   cell_F10000 u_b20 (
+    .sys_clk(sys_clk),
     .p4(clk2_p_Cc),
     .p5(ChkPh4_p_),
     .p6(tSyn456_p_),
@@ -1931,6 +1982,7 @@ module MemD_m_Rev_m_Ca (
     .p15(Syn3)
   ); // MC10162
   cell_F10016 u_b23 (
+    .sys_clk(sys_clk),
     .p2(MemD06_sil_pl_11),
     .p3(MemD06_sil_pl_12),
     .p5(ChkErrEn_p_),
@@ -1944,15 +1996,17 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD06_sil_pl_10)
   ); // F10016
   cell_MC10231 u_b24 (
-    .p2(Sout_05),
+    .sys_clk(sys_clk),
+    .p2(Sout_05__drv),
     .p3(EcSout_05_p_),
     .p7(MemD09_sil_pl_15),
     .p9(clk2_p_Cd),
     .p10(MemD09_sil_pl_2),
     .p14(EcSout_04_p_),
-    .p15(Sout_04)
+    .p15(Sout_04__drv)
   ); // MC10231
   cell_MC10175 u_c01 (
+    .sys_clk(sys_clk),
     .p2(Dbuf_10),
     .p3(Dbuf_11),
     .p6(DbufLd_p_a),
@@ -1964,6 +2018,7 @@ module MemD_m_Rev_m_Ca (
     .p15(Dbuf_03)
   ); // MC10175
   cell_MC10176 u_c02 (
+    .sys_clk(sys_clk),
     .p2(SinD_00),
     .p3(SinD_01),
     .p4(SinD_02),
@@ -2016,6 +2071,7 @@ module MemD_m_Rev_m_Ca (
     .p15(F_u_D_p_)
   ); // MC10101
   cell_MC10176 u_c10 (
+    .sys_clk(sys_clk),
     .p2(D1in_02),
     .p3(D1in_03),
     .p4(D1in_06),
@@ -2031,6 +2087,7 @@ module MemD_m_Rev_m_Ca (
     .p15(D1in_17)
   ); // MC10176
   cell_MC10176 u_c12 (
+    .sys_clk(sys_clk),
     .p2(MemD12_sil_pl_8),
     .p3(MemD12_sil_pl_9),
     .p4(MemD13_sil_pl_8),
@@ -2080,6 +2137,7 @@ module MemD_m_Rev_m_Ca (
     .p12(HighC)
   ); // MC10107
   cell_F10000 u_c20 (
+    .sys_clk(sys_clk),
     .p2(WordInError_p___c20_2),
     .p3(WordInError_p___c20_3),
     .p4(clk2_p_Cc),
@@ -2091,6 +2149,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD06_sil_pl_1)
   ); // F10000
   cell_MC10231 u_c21 (
+    .sys_clk(sys_clk),
     .p2(Syn3),
     .p3(Syn3_p_),
     .p6(ChkPh4_p_),
@@ -2116,6 +2175,7 @@ module MemD_m_Rev_m_Ca (
     .p15(Syn3_p_)
   ); // MC10162
   cell_F10016 u_c23 (
+    .sys_clk(sys_clk),
     .p2(MemD06_sil_pl_6),
     .p3(MemD06_sil_pl_5),
     .p5(ChkErrEn_p_),
@@ -2129,6 +2189,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD06_sil_pl_7)
   ); // F10016
   cell_MC10176 u_c24 (
+    .sys_clk(sys_clk),
     .p2(SinD_04),
     .p3(SinD_05),
     .p4(SinD_06),
@@ -2144,21 +2205,22 @@ module MemD_m_Rev_m_Ca (
     .p15(ChkErrEn_p___c24_15)
   ); // MC10176
   cell_MC10176 u_d01 (
-    .p2(EcOut_0),
-    .p3(EcOut_2),
-    .p4(EcOut_4),
+    .sys_clk(sys_clk),
+    .p2(EcOut_0__drv),
+    .p3(EcOut_2__drv),
+    .p4(EcOut_4__drv),
     .p5(MemD04_sil_pl_15),
     .p6(MemD04_sil_pl_13),
     .p7(MemD04_sil_pl_16),
     .p9(clk2_p_Aa),
     .p10(MemD04_sil_pl_17),
     .p11(MemD04_sil_pl_10),
-    .p13(EcOut_6),
-    .p14(dSTPerr)
+    .p13(EcOut_6__drv),
+    .p14(dSTPerr__drv)
   ); // MC10176
   cell_MC10159 u_d02 (
-    .p1(BMux_11),
-    .p2(BMux_10),
+    .p1(BMux_11__drv),
+    .p2(BMux_10__drv),
     .p3(Pipe4_10),
     .p4(Dbuf_10),
     .p5(Pipe4_11),
@@ -2169,8 +2231,8 @@ module MemD_m_Rev_m_Ca (
     .p11(Dbuf_02),
     .p12(HighAD),
     .p13(Dbuf_03),
-    .p14(BMux_02),
-    .p15(BMux_03)
+    .p14(BMux_02__drv),
+    .p15(BMux_03__drv)
   ); // MC10159
   cell_F10470 u_d03 (
     .p1(D_00__d03_1),
@@ -2283,6 +2345,7 @@ module MemD_m_Rev_m_Ca (
     .p17(D1in_08)
   ); // F10470
   cell_MC10176 u_d10 (
+    .sys_clk(sys_clk),
     .p2(D0in_02),
     .p3(D0in_03),
     .p4(D0in_06),
@@ -2317,6 +2380,7 @@ module MemD_m_Rev_m_Ca (
     .p17(D1in_09)
   ); // F10470
   cell_MC10176 u_d12 (
+    .sys_clk(sys_clk),
     .p2(D1in_05),
     .p3(D1in_07),
     .p4(D1in_12),
@@ -2351,6 +2415,7 @@ module MemD_m_Rev_m_Ca (
     .p17(D1in_04)
   ); // F10470
   cell_F10016 u_d14 (
+    .sys_clk(sys_clk),
     .p2(ChkW0),
     .p3(ChkW1),
     .p4(MemD05_sil_pl_2),
@@ -2513,6 +2578,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD14_sil_pl_12)
   ); // MC10113
   cell_MC10175 u_e01 (
+    .sys_clk(sys_clk),
     .p2(Dbuf_06),
     .p3(Dbuf_12),
     .p4(Dbuf_13),
@@ -2526,8 +2592,8 @@ module MemD_m_Rev_m_Ca (
     .p15(Dbuf_05)
   ); // MC10175
   cell_MC10159 u_e02 (
-    .p1(BMux_13),
-    .p2(BMux_12),
+    .p1(BMux_13__drv),
+    .p2(BMux_12__drv),
     .p3(Pipe4_12),
     .p4(Dbuf_12),
     .p5(Pipe4_13),
@@ -2538,12 +2604,12 @@ module MemD_m_Rev_m_Ca (
     .p11(Dbuf_04),
     .p12(Pipe4_05),
     .p13(Dbuf_05),
-    .p14(BMux_04),
-    .p15(BMux_05)
+    .p14(BMux_04__drv),
+    .p15(BMux_05__drv)
   ); // MC10159
   cell_MC10102 u_e03 (
-    .p2(MemError),
-    .p3(ECFault),
+    .p2(MemError__drv),
+    .p3(ECFault__drv),
     .p4(EccSeenDE_p_),
     .p5(ErrorsFromEc2),
     .p6(ErrorsFromEc2),
@@ -2586,6 +2652,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD07_sil_pl_7)
   ); // MC10158
   cell_MC10176 u_e06 (
+    .sys_clk(sys_clk),
     .p2(F_00),
     .p3(F_01),
     .p4(F_02),
@@ -2621,6 +2688,7 @@ module MemD_m_Rev_m_Ca (
     .p15(GND208)
   ); // SE10211
   cell_F10016 u_e09 (
+    .sys_clk(sys_clk),
     .p2(Dad0_11b),
     .p3(Dad0_12b),
     .p5(DontLoad0),
@@ -2633,6 +2701,7 @@ module MemD_m_Rev_m_Ca (
     .p15(Dad0_10b)
   ); // F10016
   cell_MC10176 u_e10 (
+    .sys_clk(sys_clk),
     .p2(F_08),
     .p3(F_09),
     .p4(F_10),
@@ -2653,6 +2722,7 @@ module MemD_m_Rev_m_Ca (
     .p15(GND214)
   ); // SE10212
   cell_MC10176 u_e12 (
+    .sys_clk(sys_clk),
     .p2(D0in_05),
     .p3(D0in_07),
     .p4(D0in_12),
@@ -2668,6 +2738,7 @@ module MemD_m_Rev_m_Ca (
     .p15(D0in_15)
   ); // MC10176
   cell_F10000 u_e13 (
+    .sys_clk(sys_clk),
     .p2(ChkPh2),
     .p3(ChkPh1),
     .p4(clk2_p_Ca),
@@ -2678,6 +2749,7 @@ module MemD_m_Rev_m_Ca (
     .p15(ChkPh3)
   ); // F10000
   cell_F10016 u_e14 (
+    .sys_clk(sys_clk),
     .p2(F_06),
     .p3(F_07),
     .p5(F_u_D_p_),
@@ -2715,6 +2787,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD05_sil_pl_9)
   ); // MC10158
   cell_MC10176 u_e17 (
+    .sys_clk(sys_clk),
     .p2(ChkPh2_p_),
     .p3(ChkPh5_p_),
     .p4(ChkLastPh6_p___e17_4),
@@ -2730,6 +2803,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD15_sil_pl_7)
   ); // MC10176
   cell_F10016 u_e18 (
+    .sys_clk(sys_clk),
     .p2(F_14),
     .p3(F_15),
     .p5(F_u_D_p_),
@@ -2750,6 +2824,7 @@ module MemD_m_Rev_m_Ca (
     .p15(GND230)
   ); // SE10210
   cell_MC10176 u_e20 (
+    .sys_clk(sys_clk),
     .p2(CD_00),
     .p3(CD_01),
     .p4(CD_02),
@@ -2765,6 +2840,7 @@ module MemD_m_Rev_m_Ca (
     .p15(CD_05)
   ); // MC10176
   cell_MC10176 u_e21 (
+    .sys_clk(sys_clk),
     .p2(CD_06),
     .p3(CD_07),
     .p4(CD_08),
@@ -2780,6 +2856,7 @@ module MemD_m_Rev_m_Ca (
     .p15(CD_11)
   ); // MC10176
   cell_MC10176 u_e22 (
+    .sys_clk(sys_clk),
     .p2(CD_12),
     .p3(CD_13),
     .p4(CD_14),
@@ -2820,6 +2897,7 @@ module MemD_m_Rev_m_Ca (
     .p14(DMadr_05_p_)
   ); // MC10113
   cell_MC10175 u_f01 (
+    .sys_clk(sys_clk),
     .p2(Dbuf_15),
     .p3(Dbuf_16),
     .p4(Dbuf_17),
@@ -2833,8 +2911,8 @@ module MemD_m_Rev_m_Ca (
     .p15(Dbuf_14)
   ); // MC10175
   cell_MC10159 u_f02 (
-    .p1(BMux_15),
-    .p2(BMux_14),
+    .p1(BMux_15__drv),
+    .p2(BMux_14__drv),
     .p3(Pipe4_14),
     .p4(Dbuf_14),
     .p5(Pipe4_15),
@@ -2845,8 +2923,8 @@ module MemD_m_Rev_m_Ca (
     .p11(Dbuf_06),
     .p12(Pipe4_07),
     .p13(Dbuf_07),
-    .p14(BMux_06),
-    .p15(BMux_07)
+    .p14(BMux_06__drv),
+    .p15(BMux_07__drv)
   ); // MC10159
   cell_MC10158 u_f04 (
     .p2(preDin_15),
@@ -2861,6 +2939,7 @@ module MemD_m_Rev_m_Ca (
     .p15(preDin_14)
   ); // MC10158
   cell_MC10176 u_f06 (
+    .sys_clk(sys_clk),
     .p2(MemD01_sil_pl_8),
     .p3(MemD07_sil_pl_8),
     .p4(MemD08_sil_pl_1),
@@ -2890,6 +2969,7 @@ module MemD_m_Rev_m_Ca (
     .p15(Dad_05b)
   ); // MC10101
   cell_MC10176 u_f10 (
+    .sys_clk(sys_clk),
     .p2(MemD11_sil_pl_1),
     .p3(MemD11_sil_pl_16),
     .p4(MemD12_sil_pl_1),
@@ -2913,6 +2993,7 @@ module MemD_m_Rev_m_Ca (
     .p15(GND264)
   ); // SE10210
   cell_MC10176 u_f14 (
+    .sys_clk(sys_clk),
     .p2(MemD09_sil_pl_1),
     .p3(MemD09_sil_pl_16),
     .p4(MemD10_sil_pl_1),
@@ -2943,6 +3024,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MD0__f16_15)
   ); // MU10164
   cell_MC10176 u_f18 (
+    .sys_clk(sys_clk),
     .p2(MemD13_sil_pl_1),
     .p3(MemD13_sil_pl_16),
     .p4(MemD14_sil_pl_1),
@@ -2958,6 +3040,7 @@ module MemD_m_Rev_m_Ca (
     .p15(ChkLastPh6_p___f18_15)
   ); // MC10176
   cell_F10016 u_f20 (
+    .sys_clk(sys_clk),
     .p2(G_10),
     .p3(G_11),
     .p5(GLd_p_),
@@ -2971,7 +3054,7 @@ module MemD_m_Rev_m_Ca (
     .p15(G_03)
   ); // F10016
   cell_MC10174 u_f21 (
-    .p2(FG_2),
+    .p2(FG_2__drv),
     .p3(G_02),
     .p4(F_02),
     .p5(G_10),
@@ -2983,9 +3066,10 @@ module MemD_m_Rev_m_Ca (
     .p12(F_03),
     .p13(G_03),
     .p14(EnableFG_p_),
-    .p15(FG_3)
+    .p15(FG_3__drv)
   ); // MC10174
   cell_F10016 u_f22 (
+    .sys_clk(sys_clk),
     .p2(G_08),
     .p3(G_09),
     .p5(GLd_p_),
@@ -2999,7 +3083,7 @@ module MemD_m_Rev_m_Ca (
     .p15(G_01)
   ); // F10016
   cell_MC10174 u_f23 (
-    .p2(FG_0),
+    .p2(FG_0__drv),
     .p3(G_00),
     .p4(F_00),
     .p5(G_08),
@@ -3011,12 +3095,13 @@ module MemD_m_Rev_m_Ca (
     .p12(F_01),
     .p13(G_01),
     .p14(EnableFG_p_),
-    .p15(FG_1)
+    .p15(FG_1__drv)
   ); // MC10174
   cell_MC10176 u_f24 (
-    .p2(EcOut_1),
-    .p3(EcOut_3),
-    .p4(EcOut_5),
+    .sys_clk(sys_clk),
+    .p2(EcOut_1__drv),
+    .p3(EcOut_3__drv),
+    .p4(EcOut_5__drv),
     .p5(MemD04_sil_pl_12),
     .p6(MemD04_sil_pl_14),
     .p7(MemD04_sil_pl_18),
@@ -3024,11 +3109,12 @@ module MemD_m_Rev_m_Ca (
     .p10(MemD04_sil_pl_19),
     .p11(MemD03_sil_pl_14),
     .p12(MemD03_sil_pl_13),
-    .p13(EcOut_7_p_),
+    .p13(EcOut_7_p___drv),
     .p14(D_u_Dly_p_),
     .p15(MD_u_D)
   ); // MC10176
   cell_MC10231 u_g01 (
+    .sys_clk(sys_clk),
     .p2(MemD02_sil_pl_13),
     .p3(MemD02_sil_pl_14),
     .p7(dDad_03),
@@ -3038,6 +3124,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD02_sil_pl_2)
   ); // MC10231
   cell_MC10231 u_g02 (
+    .sys_clk(sys_clk),
     .p2(MemD02_sil_pl_12),
     .p3(MemD02_sil_pl_11),
     .p7(dDad_05),
@@ -3258,6 +3345,7 @@ module MemD_m_Rev_m_Ca (
     .p17(D0in_07)
   ); // F10470
   cell_MC10176 u_g16 (
+    .sys_clk(sys_clk),
     .p2(MemD01_sil_pl_2),
     .p3(MemD01_sil_pl_3),
     .p4(MemD01_sil_pl_5),
@@ -3326,6 +3414,7 @@ module MemD_m_Rev_m_Ca (
     .p17(D0in_15)
   ); // F10470
   cell_F10016 u_g20 (
+    .sys_clk(sys_clk),
     .p2(G_12),
     .p3(G_13),
     .p5(GLd_p_),
@@ -3339,7 +3428,7 @@ module MemD_m_Rev_m_Ca (
     .p15(G_05)
   ); // F10016
   cell_MC10174 u_g21 (
-    .p2(FG_4),
+    .p2(FG_4__drv),
     .p3(G_04),
     .p4(F_04),
     .p5(G_12),
@@ -3351,7 +3440,7 @@ module MemD_m_Rev_m_Ca (
     .p12(F_05),
     .p13(G_05),
     .p14(EnableFG_p_),
-    .p15(FG_5)
+    .p15(FG_5__drv)
   ); // MC10174
   cell_SE10231 u_g22 (
     .p2(MemD03_sil_pl_4),
@@ -3376,6 +3465,7 @@ module MemD_m_Rev_m_Ca (
     .p15(DontLoad1)
   ); // MC10106
   cell_MC10176 u_g24 (
+    .sys_clk(sys_clk),
     .p2(F_u_D),
     .p3(D_u_Dbuf),
     .p4(Sout_u_D),
@@ -3391,6 +3481,7 @@ module MemD_m_Rev_m_Ca (
     .p15(D_u_CD)
   ); // MC10176
   cell_MC10231 u_h01 (
+    .sys_clk(sys_clk),
     .p2(MemD02_sil_pl_9),
     .p3(MemD02_sil_pl_10),
     .p7(dDad_07),
@@ -3400,6 +3491,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD02_sil_pl_6)
   ); // MC10231
   cell_MC10231 u_h02 (
+    .sys_clk(sys_clk),
     .p2(Dad_09),
     .p3(Dad_09_p_),
     .p7(dDad_09),
@@ -3409,6 +3501,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD02_sil_pl_7)
   ); // MC10231
   cell_MC10176 u_h03 (
+    .sys_clk(sys_clk),
     .p2(Pipe34Ad_0),
     .p3(Pipe34Ad_1),
     .p4(Pipe34Ad_2),
@@ -3467,6 +3560,7 @@ module MemD_m_Rev_m_Ca (
     .p13(WriteMDM_p_a)
   ); // F10145A
   cell_F10016 u_h07 (
+    .sys_clk(sys_clk),
     .p2(Dad1_11b),
     .p3(Dad1_12b),
     .p5(DontLoad1),
@@ -3531,6 +3625,7 @@ module MemD_m_Rev_m_Ca (
     .p15(dMD_10__h11_15)
   ); // F10145A
   cell_MC10141 u_h12 (
+    .sys_clk(sys_clk),
     .p2(MDMad_2_p_),
     .p3(MDMad_3_p_),
     .p4(clk2_p_Bc),
@@ -3639,6 +3734,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD13_sil_pl_15)
   ); // MC10158
   cell_F10016 u_h20 (
+    .sys_clk(sys_clk),
     .p2(G_14),
     .p3(G_15),
     .p5(GLd_p_),
@@ -3652,7 +3748,7 @@ module MemD_m_Rev_m_Ca (
     .p15(G_07)
   ); // F10016
   cell_MC10174 u_h21 (
-    .p2(FG_6),
+    .p2(FG_6__drv),
     .p3(G_06),
     .p4(F_06),
     .p5(G_14),
@@ -3664,7 +3760,7 @@ module MemD_m_Rev_m_Ca (
     .p12(F_07),
     .p13(G_07),
     .p14(EnableFG_p_),
-    .p15(FG_7)
+    .p15(FG_7__drv)
   ); // MC10174
   cell_MU10164 u_h22 (
     .p2(DMadr_05),
@@ -3706,6 +3802,7 @@ module MemD_m_Rev_m_Ca (
     .p14(MemD03_sil_pl_10)
   ); // MC1664
   cell_MC10176 u_i01 (
+    .sys_clk(sys_clk),
     .p2(SinD_08),
     .p3(SinD_09),
     .p4(SinD_10),
@@ -3721,6 +3818,7 @@ module MemD_m_Rev_m_Ca (
     .p15(EcSout_17)
   ); // MC10176
   cell_MC10176 u_i02 (
+    .sys_clk(sys_clk),
     .p2(MemD04_sil_pl_28),
     .p3(MemD04_sil_pl_29),
     .p4(MemD04_sil_pl_30),
@@ -3797,6 +3895,7 @@ module MemD_m_Rev_m_Ca (
     .p15(GND408)
   ); // SE10210
   cell_MC10176 u_i16 (
+    .sys_clk(sys_clk),
     .p2(MemD08_sil_pl_7),
     .p3(MemD08_sil_pl_6),
     .p4(MemD08_sil_pl_4),
@@ -3823,6 +3922,7 @@ module MemD_m_Rev_m_Ca (
     .p15(GND420)
   ); // SE10210
   cell_MC10176 u_i20 (
+    .sys_clk(sys_clk),
     .p2(MemD09_sil_pl_7),
     .p3(MemD09_sil_pl_6),
     .p4(MemD09_sil_pl_4),
@@ -3838,6 +3938,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD09_sil_pl_13)
   ); // MC10176
   cell_F10016 u_i21 (
+    .sys_clk(sys_clk),
     .p5(GLd_p_),
     .p6(HighAD),
     .p10(F_17),
@@ -3847,7 +3948,7 @@ module MemD_m_Rev_m_Ca (
     .p15(G_17)
   ); // F10016
   cell_MC10174 u_i22 (
-    .p2(FG_8),
+    .p2(FG_8__drv),
     .p3(G_16),
     .p4(F_16),
     .p5(G_17),
@@ -3857,15 +3958,17 @@ module MemD_m_Rev_m_Ca (
     .p14(EnableFG_p_)
   ); // MC10174
   cell_MC10231 u_i23 (
+    .sys_clk(sys_clk),
     .p2(DadH_u__p_),
     .p3(MemD03_sil_pl_2),
     .p6(clk0_p_D),
     .p7(bTransport)
   ); // MC10231
   cell_MC10176 u_i24 (
-    .p2(Fout_11),
-    .p3(Fout_12),
-    .p4(Fout_13),
+    .sys_clk(sys_clk),
+    .p2(Fout_11__drv),
+    .p3(Fout_12__drv),
+    .p4(Fout_13__drv),
     .p5(MemD12_sil_pl_14),
     .p6(MemD13_sil_pl_3),
     .p7(MemD13_sil_pl_14),
@@ -3873,20 +3976,22 @@ module MemD_m_Rev_m_Ca (
     .p10(MemD14_sil_pl_3),
     .p11(MemD14_sil_pl_14),
     .p12(MemD15_sil_pl_13),
-    .p13(Fout_14),
-    .p14(Fout_15),
-    .p15(Fout_17)
+    .p13(Fout_14__drv),
+    .p14(Fout_15__drv),
+    .p15(Fout_17__drv)
   ); // MC10176
   cell_MC10231 u_j01 (
-    .p2(Sout_11),
+    .sys_clk(sys_clk),
+    .p2(Sout_11__drv),
     .p3(EcSout_11_p_),
     .p7(MemD12_sil_pl_15),
     .p9(clk2_p_Ba),
     .p10(MemD12_sil_pl_2),
     .p14(EcSout_10_p_),
-    .p15(Sout_10)
+    .p15(Sout_10__drv)
   ); // MC10231
   cell_MC10176 u_j02 (
+    .sys_clk(sys_clk),
     .p2(MemD04_sil_pl_33),
     .p3(MemD04_sil_pl_34),
     .p4(DisableEc_p_),
@@ -4104,6 +4209,7 @@ module MemD_m_Rev_m_Ca (
     .p17(D1in_07)
   ); // F10470
   cell_MC10231 u_j16 (
+    .sys_clk(sys_clk),
     .p2(D_u_CDdly),
     .p3(D_u_CDdly_p_),
     .p7(D_u_CD),
@@ -4160,6 +4266,7 @@ module MemD_m_Rev_m_Ca (
     .p17(D1in_15)
   ); // F10470
   cell_MC10176 u_j20 (
+    .sys_clk(sys_clk),
     .p2(MemD10_sil_pl_7),
     .p3(MemD10_sil_pl_6),
     .p4(MemD10_sil_pl_4),
@@ -4175,6 +4282,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD10_sil_pl_13)
   ); // MC10176
   cell_MC10176 u_j21 (
+    .sys_clk(sys_clk),
     .p2(MemD14_sil_pl_7),
     .p3(MemD14_sil_pl_6),
     .p4(MemD14_sil_pl_4),
@@ -4190,6 +4298,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD14_sil_pl_13)
   ); // MC10176
   cell_MC10176 u_j22 (
+    .sys_clk(sys_clk),
     .p2(MemD15_sil_pl_6),
     .p3(MemD15_sil_pl_5),
     .p4(MemD15_sil_pl_3),
@@ -4216,9 +4325,10 @@ module MemD_m_Rev_m_Ca (
     .p15(MD5)
   ); // MU10164
   cell_MC10176 u_j24 (
-    .p2(Fout_05),
-    .p3(Fout_06),
-    .p4(Fout_07),
+    .sys_clk(sys_clk),
+    .p2(Fout_05__drv),
+    .p3(Fout_06__drv),
+    .p4(Fout_07__drv),
     .p5(MemD09_sil_pl_14),
     .p6(MemD10_sil_pl_3),
     .p7(MemD10_sil_pl_14),
@@ -4226,18 +4336,19 @@ module MemD_m_Rev_m_Ca (
     .p10(MemD11_sil_pl_3),
     .p11(MemD11_sil_pl_14),
     .p12(MemD12_sil_pl_3),
-    .p13(Fout_08),
-    .p14(Fout_09),
-    .p15(Fout_10)
+    .p13(Fout_08__drv),
+    .p14(Fout_09__drv),
+    .p15(Fout_10__drv)
   ); // MC10176
   cell_MC10231 u_k01 (
-    .p2(Sout_09),
+    .sys_clk(sys_clk),
+    .p2(Sout_09__drv),
     .p3(EcSout_09_p_),
     .p7(MemD11_sil_pl_15),
     .p9(clk2_p_Ba),
     .p10(MemD11_sil_pl_2),
     .p14(EcSout_08_p_),
-    .p15(Sout_08)
+    .p15(Sout_08__drv)
   ); // MC10231
   cell_MC10101 u_k08 (
     .p2(Dad_06c),
@@ -4253,6 +4364,7 @@ module MemD_m_Rev_m_Ca (
     .p15(Dad_13_p_)
   ); // MC10101
   cell_F10016 u_k09 (
+    .sys_clk(sys_clk),
     .p2(Dad1_11c),
     .p3(Dad1_12c),
     .p5(DontLoad1),
@@ -4290,6 +4402,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD04_sil_pl_15)
   ); // MC10180
   cell_MC10176 u_k13 (
+    .sys_clk(sys_clk),
     .p2(MemD04_sil_pl_2),
     .p3(MemD04_sil_pl_3),
     .p4(MemD04_sil_pl_4),
@@ -4355,6 +4468,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD04_sil_pl_27)
   ); // MC10158
   cell_F10000 u_k18 (
+    .sys_clk(sys_clk),
     .p2(GenPh2),
     .p3(GenPh1),
     .p4(clk2_p_Da),
@@ -4365,6 +4479,7 @@ module MemD_m_Rev_m_Ca (
     .p15(GenPh3)
   ); // F10000
   cell_MC10176 u_k19 (
+    .sys_clk(sys_clk),
     .p2(MemD11_sil_pl_7),
     .p3(MemD11_sil_pl_6),
     .p4(MemD11_sil_pl_4),
@@ -4380,6 +4495,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD11_sil_pl_13)
   ); // MC10176
   cell_MC10176 u_k20 (
+    .sys_clk(sys_clk),
     .p2(MemD12_sil_pl_7),
     .p3(MemD12_sil_pl_6),
     .p4(MemD12_sil_pl_4),
@@ -4395,6 +4511,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD12_sil_pl_13)
   ); // MC10176
   cell_MC10176 u_k21 (
+    .sys_clk(sys_clk),
     .p3(DMadr_01),
     .p4(DMadr_02),
     .p6(DMadr_02),
@@ -4420,9 +4537,10 @@ module MemD_m_Rev_m_Ca (
     .p12(MD5),
     .p13(MD6),
     .p14(MD7),
-    .p15(DMuxData)
+    .p15(DMuxData__drv)
   ); // MU10164
   cell_MC10176 u_k23 (
+    .sys_clk(sys_clk),
     .p2(SinD_12),
     .p3(SinD_13),
     .p4(SinD_14),
@@ -4436,9 +4554,10 @@ module MemD_m_Rev_m_Ca (
     .p14(D_u_CDdlydly)
   ); // MC10176
   cell_MC10176 u_k24 (
-    .p2(Fout_00),
-    .p3(Fout_01),
-    .p4(Fout_02),
+    .sys_clk(sys_clk),
+    .p2(Fout_00__drv),
+    .p3(Fout_01__drv),
+    .p4(Fout_02__drv),
     .p5(MemD01_sil_pl_6),
     .p6(MemD07_sil_pl_6),
     .p7(MemD08_sil_pl_3),
@@ -4446,9 +4565,9 @@ module MemD_m_Rev_m_Ca (
     .p10(MemD08_sil_pl_14),
     .p11(MemD09_sil_pl_3),
     .p12(MemD15_sil_pl_2),
-    .p13(Fout_03),
-    .p14(Fout_04),
-    .p15(Fout_16)
+    .p13(Fout_03__drv),
+    .p14(Fout_04__drv),
+    .p15(Fout_16__drv)
   ); // MC10176
   cell_SE10210 u_l01 (
     .p2(prepreClk2_p_b),
@@ -4483,6 +4602,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MD2)
   ); // MU10164
   cell_F10016 u_l08 (
+    .sys_clk(sys_clk),
     .p2(Dad0_11c),
     .p3(Dad0_12c),
     .p5(DontLoad0),
@@ -4532,6 +4652,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD04_sil_pl_18)
   ); // MC10180
   cell_MC10231 u_l16 (
+    .sys_clk(sys_clk),
     .p2(MemD04_sil_pl_7),
     .p6(GenPh3),
     .p7(MemD04_sil_pl_17),
@@ -4551,6 +4672,7 @@ module MemD_m_Rev_m_Ca (
     .p15(GND564)
   ); // MC10212
   cell_MC10176 u_l20 (
+    .sys_clk(sys_clk),
     .p2(MemD13_sil_pl_7),
     .p3(MemD13_sil_pl_6),
     .p4(MemD13_sil_pl_4),
@@ -4566,6 +4688,7 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD13_sil_pl_13)
   ); // MC10176
   cell_MC10176 u_l21 (
+    .sys_clk(sys_clk),
     .p2(DMadr_06),
     .p3(DMadr_07),
     .p4(DMadr_08),
@@ -4592,22 +4715,24 @@ module MemD_m_Rev_m_Ca (
     .p15(MemD21_sil_pl_2__l22_15)
   ); // MC10103
   cell_MC10231 u_l23 (
-    .p2(Sout_15),
+    .sys_clk(sys_clk),
+    .p2(Sout_15__drv),
     .p3(EcSout_15_p_),
     .p7(MemD14_sil_pl_15),
     .p9(clk2_p_Df),
     .p10(MemD14_sil_pl_2),
     .p14(EcSout_14_p_),
-    .p15(Sout_14)
+    .p15(Sout_14__drv)
   ); // MC10231
   cell_MC10231 u_l24 (
-    .p2(Sout_13),
+    .sys_clk(sys_clk),
+    .p2(Sout_13__drv),
     .p3(EcSout_13_p_),
     .p7(MemD13_sil_pl_15),
     .p9(clk2_p_Df),
     .p10(MemD13_sil_pl_2),
     .p14(EcSout_12_p_),
-    .p15(Sout_12)
+    .p15(Sout_12__drv)
   ); // MC10231
 
 endmodule

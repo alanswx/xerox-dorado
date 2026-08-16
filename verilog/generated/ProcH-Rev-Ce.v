@@ -5,18 +5,39 @@
 
 `default_nettype none
 
-// Ports: the 175 nets ProcH-Rev-Ce.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 175 nets ProcH-Rev-Ce.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module ProcH_m_Rev_m_Ce (
+    input  wire sys_clk,
+    input  wire ALUCarry,
     input  wire ALUF_0,
     input  wire ALUF_1,
     input  wire ALUF_2,
     input  wire ASEL_0_p_,
     input  wire ASEL_1_p_,
     input  wire ASEL_2_p_,
+    input  wire BMux_00,
+    input  wire BMux_01,
+    input  wire BMux_02,
+    input  wire BMux_03,
+    input  wire BMux_04,
+    input  wire BMux_05,
+    input  wire BMux_06,
+    input  wire BMux_07,
+    input  wire BMux_16,
     input  wire BNTGtCT_p_a,
     input  wire BSEL_0_p_,
     input  wire BSEL_1_p_,
@@ -24,9 +45,13 @@ module ProcH_m_Rev_m_Ce (
     input  wire CLK_ph_p_,
     input  wire CLKEnable_p_c,
     input  wire CkMdParity_p_,
+    input  wire Cnt_eq_Zero_p_,
     input  wire DMuxClk,
+    input  wire DMuxData,
     input  wire FF_0,
+    input  wire FF_0mem_p_,
     input  wire FF_1,
+    input  wire FF_1mem,
     input  wire FF_2,
     input  wire FF_3,
     input  wire FF_4,
@@ -35,19 +60,42 @@ module ProcH_m_Rev_m_Ce (
     input  wire FF_7,
     input  wire FFok_p_a,
     input  wire Freeze,
+    input  wire IOB_00,
+    input  wire IOB_01,
+    input  wire IOB_02,
+    input  wire IOB_03,
+    input  wire IOB_04,
+    input  wire IOB_05,
+    input  wire IOB_06,
+    input  wire IOB_07,
+    input  wire IOB_16,
+    input  wire IOatt,
     input  wire LC_0,
     input  wire LC_1,
     input  wire LC_2,
+    input  wire MAR_00_p_,
+    input  wire MAR_01_p_,
+    input  wire MAR_02_p_,
+    input  wire MAR_03_p_,
+    input  wire MAR_04_p_,
+    input  wire MAR_05_p_,
+    input  wire MAR_06_p_,
+    input  wire MAR_07_p_,
     input  wire MemBM_0,
     input  wire MemBM_1,
     input  wire MemBM34,
+    input  wire MemBase_0,
+    input  wire MemBase_1,
     input  wire Next_0,
     input  wire Next_1,
     input  wire Next_2,
     input  wire Next_3,
+    input  wire NextData_p_,
     input  wire NextMacro,
+    input  wire Overflow_p_,
     input  wire PRhold,
     input  wire PropCnt_p_,
+    input  wire Q_07,
     input  wire Q_08,
     input  wire RSTK_0,
     input  wire RSTK_1,
@@ -59,8 +107,18 @@ module ProcH_m_Rev_m_Ce (
     input  wire RbAdr_3,
     input  wire RbBypass,
     input  wire RbBypass_p_,
+    input  wire ResEqZero_p_,
+    input  wire ResLtZero_p_,
+    input  wire RmLtZero_p_,
     input  wire SelectRm_p_a,
     input  wire SelectStk_p_a,
+    input  wire ShA_00,
+    input  wire ShA_01,
+    input  wire ShA_02,
+    input  wire ShA_03,
+    input  wire ShA_04,
+    input  wire ShA_05,
+    input  wire ShA_06,
     input  wire ShA_08,
     input  wire ShA_09,
     input  wire ShA_10,
@@ -69,6 +127,8 @@ module ProcH_m_Rev_m_Ce (
     input  wire ShA_13,
     input  wire ShA_14,
     input  wire ShA_15,
+    input  wire Shc_02,
+    input  wire Shc_03,
     input  wire Shc_08,
     input  wire Shc_09,
     input  wire Shc_10,
@@ -91,16 +151,27 @@ module ProcH_m_Rev_m_Ce (
     input  wire StkAdr_5a,
     input  wire StkAdr_6a,
     input  wire StkAdr_7a,
+    input  wire TIOA_0,
+    input  wire TIOA_1,
+    input  wire TIOA_2,
+    input  wire TIOA_3,
+    input  wire TIOA_4,
+    input  wire TIOA_5,
+    input  wire TIOA_6,
+    input  wire TIOA_7,
     input  wire TempRef,
+    input  wire alu_07,
     input  wire alu_08,
     input  wire alu_15,
     input  wire aluC0,
+    input  wire aluCout,
     input  wire aluF0,
     input  wire aluF1,
     input  wire aluF2,
     input  wire aluF3,
     input  wire aluG1,
     input  wire aluM,
+    input  wire aluOut_eq_0_p_,
     input  wire aluP1,
     input  wire dMD_00,
     input  wire dMD_01,
@@ -111,81 +182,81 @@ module ProcH_m_Rev_m_Ce (
     input  wire dMD_06,
     input  wire dMD_07,
     input  wire dMD_16,
-    output wire FA_eq_0_p_,
-    output wire FA_eq_1_p_,
-    output wire IOPE,
-    output wire MdPE,
-    output wire MemBase_2,
-    output wire MemBase_3,
-    output wire MemBase_4,
-    output wire Pdata_15,
-    output wire RamPE,
-    output wire ShA_07,
-    output wire Shc_04b,
-    output wire Shc_05b,
-    output wire Shc_06b,
-    output wire Shc_07b,
-    output wire TestTW,
-    inout  wire ALUCarry,
-    inout  wire BMux_00,
-    inout  wire BMux_01,
-    inout  wire BMux_02,
-    inout  wire BMux_03,
-    inout  wire BMux_04,
-    inout  wire BMux_05,
-    inout  wire BMux_06,
-    inout  wire BMux_07,
-    inout  wire BMux_16,
-    inout  wire Cnt_eq_Zero_p_,
-    inout  wire DMuxData,
-    inout  wire FF_0mem_p_,
-    inout  wire FF_1mem,
-    inout  wire IOB_00,
-    inout  wire IOB_01,
-    inout  wire IOB_02,
-    inout  wire IOB_03,
-    inout  wire IOB_04,
-    inout  wire IOB_05,
-    inout  wire IOB_06,
-    inout  wire IOB_07,
-    inout  wire IOB_16,
-    inout  wire IOatt,
-    inout  wire MAR_00_p_,
-    inout  wire MAR_01_p_,
-    inout  wire MAR_02_p_,
-    inout  wire MAR_03_p_,
-    inout  wire MAR_04_p_,
-    inout  wire MAR_05_p_,
-    inout  wire MAR_06_p_,
-    inout  wire MAR_07_p_,
-    inout  wire MemBase_0,
-    inout  wire MemBase_1,
-    inout  wire NextData_p_,
-    inout  wire Overflow_p_,
-    inout  wire Q_07,
-    inout  wire ResEqZero_p_,
-    inout  wire ResLtZero_p_,
-    inout  wire RmLtZero_p_,
-    inout  wire ShA_00,
-    inout  wire ShA_01,
-    inout  wire ShA_02,
-    inout  wire ShA_03,
-    inout  wire ShA_04,
-    inout  wire ShA_05,
-    inout  wire ShA_06,
-    inout  wire Shc_02,
-    inout  wire Shc_03,
-    inout  wire TIOA_0,
-    inout  wire TIOA_1,
-    inout  wire TIOA_2,
-    inout  wire TIOA_3,
-    inout  wire TIOA_4,
-    inout  wire TIOA_5,
-    inout  wire TIOA_6,
-    inout  wire TIOA_7,
-    inout  wire alu_07,
-    inout  wire aluCout,
-    inout  wire aluOut_eq_0_p_
+    output wire ALUCarry__drv,
+    output wire BMux_00__drv,
+    output wire BMux_01__drv,
+    output wire BMux_02__drv,
+    output wire BMux_03__drv,
+    output wire BMux_04__drv,
+    output wire BMux_05__drv,
+    output wire BMux_06__drv,
+    output wire BMux_07__drv,
+    output wire BMux_16__drv,
+    output wire Cnt_eq_Zero_p___drv,
+    output wire DMuxData__drv,
+    output wire FA_eq_0_p___drv,
+    output wire FA_eq_1_p___drv,
+    output wire FF_0mem_p___drv,
+    output wire FF_1mem__drv,
+    output wire IOB_00__drv,
+    output wire IOB_01__drv,
+    output wire IOB_02__drv,
+    output wire IOB_03__drv,
+    output wire IOB_04__drv,
+    output wire IOB_05__drv,
+    output wire IOB_06__drv,
+    output wire IOB_07__drv,
+    output wire IOB_16__drv,
+    output wire IOPE__drv,
+    output wire IOatt__drv,
+    output wire MAR_00_p___drv,
+    output wire MAR_01_p___drv,
+    output wire MAR_02_p___drv,
+    output wire MAR_03_p___drv,
+    output wire MAR_04_p___drv,
+    output wire MAR_05_p___drv,
+    output wire MAR_06_p___drv,
+    output wire MAR_07_p___drv,
+    output wire MdPE__drv,
+    output wire MemBase_0__drv,
+    output wire MemBase_1__drv,
+    output wire MemBase_2__drv,
+    output wire MemBase_3__drv,
+    output wire MemBase_4__drv,
+    output wire NextData_p___drv,
+    output wire Overflow_p___drv,
+    output wire Pdata_15__drv,
+    output wire Q_07__drv,
+    output wire RamPE__drv,
+    output wire ResEqZero_p___drv,
+    output wire ResLtZero_p___drv,
+    output wire RmLtZero_p___drv,
+    output wire ShA_00__drv,
+    output wire ShA_01__drv,
+    output wire ShA_02__drv,
+    output wire ShA_03__drv,
+    output wire ShA_04__drv,
+    output wire ShA_05__drv,
+    output wire ShA_06__drv,
+    output wire ShA_07__drv,
+    output wire Shc_02__drv,
+    output wire Shc_03__drv,
+    output wire Shc_04b__drv,
+    output wire Shc_05b__drv,
+    output wire Shc_06b__drv,
+    output wire Shc_07b__drv,
+    output wire TIOA_0__drv,
+    output wire TIOA_1__drv,
+    output wire TIOA_2__drv,
+    output wire TIOA_3__drv,
+    output wire TIOA_4__drv,
+    output wire TIOA_5__drv,
+    output wire TIOA_6__drv,
+    output wire TIOA_7__drv,
+    output wire TestTW__drv,
+    output wire alu_07__drv,
+    output wire aluCout__drv,
+    output wire aluOut_eq_0_p___drv
 );
 
   // 661 internal nets
@@ -852,8 +923,9 @@ module ProcH_m_Rev_m_Ce (
   wire shmv_07;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire alua_00__b03_2;
   wire alua_00__e11_14;
   assign alua_00 = alua_00__b03_2 | alua_00__e11_14;
@@ -904,7 +976,7 @@ module ProcH_m_Rev_m_Ce (
   assign alub_07 = alub_07__e04_15 | alub_07__d02_15;
   wire aluOut_eq_0_p___d08_2;
   wire aluOut_eq_0_p___d08_15;
-  assign aluOut_eq_0_p_ = aluOut_eq_0_p___d08_2 | aluOut_eq_0_p___d08_15;
+  assign aluOut_eq_0_p___drv = aluOut_eq_0_p___d08_2 | aluOut_eq_0_p___d08_15;
   wire ASel_eq_2_s_3_p___c24_14;
   wire ASel_eq_2_s_3_p___b23_3;
   assign ASel_eq_2_s_3_p_ = ASel_eq_2_s_3_p___c24_14 | ASel_eq_2_s_3_p___b23_3;
@@ -950,7 +1022,7 @@ module ProcH_m_Rev_m_Ce (
   assign DsRd = DsRd__l09_3 | DsRd__l08_13;
   wire FA_eq_0_p___c23_4;
   wire FA_eq_0_p___d22_2;
-  assign FA_eq_0_p_ = FA_eq_0_p___c23_4 | FA_eq_0_p___d22_2;
+  assign FA_eq_0_p___drv = FA_eq_0_p___c23_4 | FA_eq_0_p___d22_2;
   wire FA_eq_0_p_a__d22_3;
   wire FA_eq_0_p_a__c23_3;
   assign FA_eq_0_p_a = FA_eq_0_p_a__d22_3 | FA_eq_0_p_a__c23_3;
@@ -976,28 +1048,28 @@ module ProcH_m_Rev_m_Ce (
   assign IOB_Perr_p_ = IOB_Perr_p___h23_15 | IOB_Perr_p___g01_2;
   wire MAR_00_p___c02_14;
   wire MAR_00_p___b02_14;
-  assign MAR_00_p_ = MAR_00_p___c02_14 | MAR_00_p___b02_14;
+  assign MAR_00_p___drv = MAR_00_p___c02_14 | MAR_00_p___b02_14;
   wire MAR_01_p___c02_15;
   wire MAR_01_p___b02_15;
-  assign MAR_01_p_ = MAR_01_p___c02_15 | MAR_01_p___b02_15;
+  assign MAR_01_p___drv = MAR_01_p___c02_15 | MAR_01_p___b02_15;
   wire MAR_02_p___c02_2;
   wire MAR_02_p___b02_2;
-  assign MAR_02_p_ = MAR_02_p___c02_2 | MAR_02_p___b02_2;
+  assign MAR_02_p___drv = MAR_02_p___c02_2 | MAR_02_p___b02_2;
   wire MAR_03_p___c02_1;
   wire MAR_03_p___b02_1;
-  assign MAR_03_p_ = MAR_03_p___c02_1 | MAR_03_p___b02_1;
+  assign MAR_03_p___drv = MAR_03_p___c02_1 | MAR_03_p___b02_1;
   wire MAR_04_p___f02_14;
   wire MAR_04_p___e02_14;
-  assign MAR_04_p_ = MAR_04_p___f02_14 | MAR_04_p___e02_14;
+  assign MAR_04_p___drv = MAR_04_p___f02_14 | MAR_04_p___e02_14;
   wire MAR_05_p___f02_15;
   wire MAR_05_p___e02_15;
-  assign MAR_05_p_ = MAR_05_p___f02_15 | MAR_05_p___e02_15;
+  assign MAR_05_p___drv = MAR_05_p___f02_15 | MAR_05_p___e02_15;
   wire MAR_06_p___f02_2;
   wire MAR_06_p___e02_2;
-  assign MAR_06_p_ = MAR_06_p___f02_2 | MAR_06_p___e02_2;
+  assign MAR_06_p___drv = MAR_06_p___f02_2 | MAR_06_p___e02_2;
   wire MAR_07_p___f02_1;
   wire MAR_07_p___e02_1;
-  assign MAR_07_p_ = MAR_07_p___f02_1 | MAR_07_p___e02_1;
+  assign MAR_07_p___drv = MAR_07_p___f02_1 | MAR_07_p___e02_1;
   wire MarMuxAEn_p___b11_15;
   wire MarMuxAEn_p___b11_2;
   assign MarMuxAEn_p_ = MarMuxAEn_p___b11_15 | MarMuxAEn_p___b11_2;
@@ -1118,7 +1190,7 @@ module ProcH_m_Rev_m_Ce (
   wire RmLtZero_p___l06_3;
   wire RmLtZero_p___l06_14;
   wire RmLtZero_p___l07_3;
-  assign RmLtZero_p_ = RmLtZero_p___l06_3 | RmLtZero_p___l06_14 | RmLtZero_p___l07_3;
+  assign RmLtZero_p___drv = RmLtZero_p___l06_3 | RmLtZero_p___l06_14 | RmLtZero_p___l07_3;
   wire shmv_00__b07_1;
   wire shmv_00__b08_1;
   assign shmv_00 = shmv_00__b07_1 | shmv_00__b08_1;
@@ -1147,6 +1219,8 @@ module ProcH_m_Rev_m_Ce (
   wire TisIFdata__c22_3;
   assign TisIFdata = TisIFdata__b20_15 | TisIFdata__c22_3;
 
+  // 64 single-driver contributions to the backplane
+
   // ---- packages
   cell_MC10102 u_a01 (
     .p2(BNTGtCT),
@@ -1173,6 +1247,7 @@ module ProcH_m_Rev_m_Ce (
     .p16(GND5)
   ); // MU10164
   cell_F10016 u_a03 (
+    .sys_clk(sys_clk),
     .p2(ProcH26_sil_pl_3__a03_2),
     .p3(ProcH26_sil_pl_3__a03_3),
     .p5(LdTaskSim_p_),
@@ -1182,10 +1257,11 @@ module ProcH_m_Rev_m_Ce (
     .p10(alub_01a),
     .p12(Freeze),
     .p13(Clock0_p_Aa),
-    .p14(TestTW),
+    .p14(TestTW__drv),
     .p15(ProcH26_sil_pl_3__a03_15)
   ); // F10016
   cell_F10016 u_a04 (
+    .sys_clk(sys_clk),
     .p2(ProcH26_sil_pl_3__a04_2),
     .p3(ProcH26_sil_pl_3__a04_3),
     .p4(ProcH26_sil_pl_2),
@@ -1255,6 +1331,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(GND18)
   ); // SE10210
   cell_MC10231 u_a10 (
+    .sys_clk(sys_clk),
     .p2(Amux0),
     .p3(MarMuxBEn_p___a10_3),
     .p7(dAmux0),
@@ -1264,6 +1341,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Amux1_p_)
   ); // MC10231
   cell_MC10231 u_a11 (
+    .sys_clk(sys_clk),
     .p2(BmuxEn_p_),
     .p3(BmuxIn_p_),
     .p7(B_u_Ext),
@@ -1282,12 +1360,12 @@ module ProcH_m_Rev_m_Ce (
     .p11(Shcr_03),
     .p12(BSel_1a),
     .p13(Shcr_02),
-    .p14(Shc_03),
-    .p15(Shc_02)
+    .p14(Shc_03__drv),
+    .p15(Shc_02__drv)
   ); // MC10173
   cell_MC10173 u_a13 (
     .p1(Shc_04a),
-    .p2(Shc_04b),
+    .p2(Shc_04b__drv),
     .p3(FF_4a),
     .p4(Shcr_04),
     .p5(FF_4a),
@@ -1298,7 +1376,7 @@ module ProcH_m_Rev_m_Ce (
     .p11(Shcr_05),
     .p12(FF_5a),
     .p13(Shcr_05),
-    .p14(Shc_05b),
+    .p14(Shc_05b__drv),
     .p15(Shc_05a)
   ); // MC10173
   cell_MC10158 u_a14 (
@@ -1362,6 +1440,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(LastNext_2_p_)
   ); // MC10158
   cell_MC10141 u_a20 (
+    .sys_clk(sys_clk),
     .p1(GND40),
     .p2(Last_2_p_),
     .p3(Last_3_p_),
@@ -1374,6 +1453,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Last_1_p_)
   ); // MC10141
   cell_MC10141 u_a21 (
+    .sys_clk(sys_clk),
     .p2(Curr_2_p_),
     .p3(Curr_3_p_),
     .p4(SHCP_p_C),
@@ -1415,7 +1495,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Next_0_p_)
   ); // MC10101
   cell_MC10174 u_b01 (
-    .p2(BMux_00),
+    .p2(BMux_00__drv),
     .p3(Q_00),
     .p4(R_00),
     .p5(T_00),
@@ -1427,7 +1507,7 @@ module ProcH_m_Rev_m_Ce (
     .p12(R_01),
     .p13(Q_01),
     .p14(BmuxEn_p_),
-    .p15(BMux_01)
+    .p15(BMux_01__drv)
   ); // MC10174
   cell_MC10159 u_b02 (
     .p1(MAR_03_p___b02_1),
@@ -1544,6 +1624,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(alub_03a)
   ); // MC1664
   cell_MC10231 u_b10 (
+    .sys_clk(sys_clk),
     .p2(Bmux0),
     .p3(Bmux0_p_),
     .p7(dBmux0),
@@ -1553,6 +1634,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Bmux1)
   ); // MC10231
   cell_MC10141 u_b11 (
+    .sys_clk(sys_clk),
     .p2(MarMuxAEn_p___b11_2),
     .p3(MarMuxBEn_p___b11_3),
     .p4(Clock1_p_Ac),
@@ -1581,7 +1663,7 @@ module ProcH_m_Rev_m_Ce (
   ); // MC10173
   cell_MC10173 u_b13 (
     .p1(Shc_06a),
-    .p2(Shc_06b),
+    .p2(Shc_06b__drv),
     .p3(FF_6a),
     .p4(Shcr_06),
     .p5(FF_6a),
@@ -1592,7 +1674,7 @@ module ProcH_m_Rev_m_Ce (
     .p11(Shcr_07),
     .p12(FF_7a),
     .p13(Shcr_07),
-    .p14(Shc_07b),
+    .p14(Shc_07b__drv),
     .p15(Shc_07a)
   ); // MC10173
   cell_MC10158 u_b14 (
@@ -1611,6 +1693,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH07_sil_pl_4)
   ); // MC10158
   cell_MC10176 u_b15 (
+    .sys_clk(sys_clk),
     .p2(QshiftR_p_),
     .p3(QshiftL_p_),
     .p5(ProcH17_sil_pl_5),
@@ -1722,7 +1805,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ASel_eq_5_s_7)
   ); // MC10101
   cell_MC10210 u_b24 (
-    .p3(FA_eq_1_p_),
+    .p3(FA_eq_1_p___drv),
     .p4(FA_eq_1_p_a),
     .p5(FFok_p_a),
     .p6(ProcH13_sil_pl_1),
@@ -1730,7 +1813,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(GND96)
   ); // MC10210
   cell_MC10174 u_c01 (
-    .p2(BMux_02),
+    .p2(BMux_02__drv),
     .p3(Q_02),
     .p4(R_02),
     .p5(T_02),
@@ -1742,7 +1825,7 @@ module ProcH_m_Rev_m_Ce (
     .p12(R_03),
     .p13(Q_03),
     .p14(BmuxEn_p_),
-    .p15(BMux_03)
+    .p15(BMux_03__drv)
   ); // MC10174
   cell_MC10159 u_c02 (
     .p1(MAR_03_p___c02_1),
@@ -1819,7 +1902,7 @@ module ProcH_m_Rev_m_Ce (
     .p12(R_00)
   ); // MC10170
   cell_MC10170 u_c07 (
-    .p2(BMux_16),
+    .p2(BMux_16__drv),
     .p3(TrueA),
     .p4(alub_07a),
     .p5(alub_06a),
@@ -1856,6 +1939,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(alub_07a)
   ); // MC1664
   cell_MC10176 u_c10 (
+    .sys_clk(sys_clk),
     .p2(Pmux0),
     .p3(Pmux1),
     .p4(Pmux2),
@@ -1871,8 +1955,9 @@ module ProcH_m_Rev_m_Ce (
     .p15(AmuxEn_p_)
   ); // MC10176
   cell_MC10141 u_c11 (
+    .sys_clk(sys_clk),
     .p2(Q_06),
-    .p3(Q_07),
+    .p3(Q_07__drv),
     .p4(QClock_p_),
     .p5(Q_08),
     .p6(alub_07a),
@@ -1886,6 +1971,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Q_05)
   ); // MC10141
   cell_MC10141 u_c12 (
+    .sys_clk(sys_clk),
     .p2(Q_02),
     .p3(Q_03),
     .p4(QClock_p_),
@@ -2025,7 +2111,7 @@ module ProcH_m_Rev_m_Ce (
     .p4(FF_6_p_a),
     .p5(FF_5_p_a),
     .p6(ProcH14_sil_pl_1),
-    .p9(NextData_p_),
+    .p9(NextData_p___drv),
     .p10(ASEL_1_p_),
     .p12(RisIFdata),
     .p13(TisIFdata),
@@ -2187,6 +2273,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH17_sil_pl_9)
   ); // MC10159
   cell_F10016 u_d16 (
+    .sys_clk(sys_clk),
     .p2(Cnt_02_p_),
     .p3(Cnt_03_p_),
     .p4(ProcH17_sil_pl_4),
@@ -2259,7 +2346,7 @@ module ProcH_m_Rev_m_Ce (
     .p2(FA_eq_3_p___d23_2),
     .p3(PreFA_eq_1_p___d23_3),
     .p4(FFok_p_a),
-    .p5(FF_1mem),
+    .p5(FF_1mem__drv),
     .p6(FF_1a),
     .p11(FA_eq_2_p_a__d23_11),
     .p12(FF_1),
@@ -2268,7 +2355,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(PreFA_eq_0)
   ); // MC10101
   cell_MC10101 u_d24 (
-    .p2(FF_0mem_p_),
+    .p2(FF_0mem_p___drv),
     .p3(FA_eq_3_p___d24_3),
     .p4(FFok_p_a),
     .p5(FF_0mem),
@@ -2279,7 +2366,7 @@ module ProcH_m_Rev_m_Ce (
     .p14(FA_eq_2_p_a__d24_14)
   ); // MC10101
   cell_MC10174 u_e01 (
-    .p2(BMux_04),
+    .p2(BMux_04__drv),
     .p3(Q_04),
     .p4(R_04),
     .p5(T_04),
@@ -2291,7 +2378,7 @@ module ProcH_m_Rev_m_Ce (
     .p12(R_05),
     .p13(Q_05),
     .p14(BmuxEn_p_),
-    .p15(BMux_05)
+    .p15(BMux_05__drv)
   ); // MC10174
   cell_MC10159 u_e02 (
     .p1(MAR_07_p___e02_1),
@@ -2372,8 +2459,8 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH04_sil_pl_2)
   ); // MC10173
   cell_MC10158 u_e07 (
-    .p1(ShA_03),
-    .p2(ShA_02),
+    .p1(ShA_03__drv),
+    .p2(ShA_02__drv),
     .p3(R_02),
     .p4(T_02),
     .p5(R_03),
@@ -2383,8 +2470,8 @@ module ProcH_m_Rev_m_Ce (
     .p11(T_00),
     .p12(R_01),
     .p13(T_01),
-    .p14(ShA_00),
-    .p15(ShA_01)
+    .p14(ShA_00__drv),
+    .p15(ShA_01__drv)
   ); // MC10158
   cell_MC10158 u_e08 (
     .p1(ShB_03),
@@ -2462,6 +2549,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH17_sil_pl_13)
   ); // MC10159
   cell_F10016 u_e16 (
+    .sys_clk(sys_clk),
     .p2(Cnt_06_p_),
     .p3(Cnt_07_p_),
     .p4(ProcH17_sil_pl_3),
@@ -2568,7 +2656,7 @@ module ProcH_m_Rev_m_Ce (
   cell_MC10181 u_e61 (
     .p2(alu_03),
     .p3(alu_02),
-    .p5(aluCout),
+    .p5(aluCout__drv),
     .p6(alu_00),
     .p7(alu_01),
     .p9(alub_00),
@@ -2587,7 +2675,7 @@ module ProcH_m_Rev_m_Ce (
     .p23(aluM)
   ); // MC10181
   cell_MC10174 u_f01 (
-    .p2(BMux_06),
+    .p2(BMux_06__drv),
     .p3(Q_06),
     .p4(R_06),
     .p5(T_06),
@@ -2599,7 +2687,7 @@ module ProcH_m_Rev_m_Ce (
     .p12(R_07),
     .p13(Q_07),
     .p14(BmuxEn_p_),
-    .p15(BMux_07)
+    .p15(BMux_07__drv)
   ); // MC10174
   cell_MC10159 u_f02 (
     .p1(MAR_07_p___f02_1),
@@ -2673,8 +2761,8 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH08_sil_pl_2)
   ); // MC10173
   cell_MC10158 u_f07 (
-    .p1(ShA_07),
-    .p2(ShA_06),
+    .p1(ShA_07__drv),
+    .p2(ShA_06__drv),
     .p3(R_06),
     .p4(T_06),
     .p5(R_07),
@@ -2684,8 +2772,8 @@ module ProcH_m_Rev_m_Ce (
     .p11(T_04),
     .p12(R_05),
     .p13(T_05),
-    .p14(ShA_04),
-    .p15(ShA_05)
+    .p14(ShA_04__drv),
+    .p15(ShA_05__drv)
   ); // MC10158
   cell_MC10158 u_f08 (
     .p1(ShB_07),
@@ -2775,6 +2863,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH03_sil_pl_3)
   ); // MC10159
   cell_F10000 u_f16 (
+    .sys_clk(sys_clk),
     .p2(MemBX_0),
     .p3(MemBX_1),
     .p4(MemBXClock_p_),
@@ -2787,8 +2876,8 @@ module ProcH_m_Rev_m_Ce (
     .p15(MB_u_Ifu_2__f16_15)
   ); // F10000
   cell_MC10173 u_f17 (
-    .p1(ResEqZero_p_),
-    .p2(ResLtZero_p_),
+    .p1(ResEqZero_p___drv),
+    .p2(ResLtZero_p___drv),
     .p3(ProcH11_sil_pl_7),
     .p4(ProcH11_sil_pl_4),
     .p5(ProcH11_sil_pl_5),
@@ -2799,8 +2888,8 @@ module ProcH_m_Rev_m_Ce (
     .p11(ProcH11_sil_pl_2),
     .p12(ProcH11_sil_pl_8),
     .p13(ProcH11_sil_pl_3),
-    .p14(Overflow_p_),
-    .p15(ALUCarry)
+    .p14(Overflow_p___drv),
+    .p15(ALUCarry__drv)
   ); // MC10173
   cell_MC10102 u_f18 (
     .p2(ProcH20_sil_pl_5),
@@ -2842,6 +2931,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH20_sil_pl_1__f20_15)
   ); // MC10100
   cell_MC10176 u_f21 (
+    .sys_clk(sys_clk),
     .p2(FFdly_3),
     .p3(FFdly_4),
     .p4(FFdly_5),
@@ -2884,7 +2974,7 @@ module ProcH_m_Rev_m_Ce (
     .p14(FF_5)
   ); // MC10161
   cell_MC10181 u_f61 (
-    .p2(alu_07),
+    .p2(alu_07__drv),
     .p3(alu_06),
     .p4(aluG2),
     .p6(alu_04),
@@ -3012,7 +3102,7 @@ module ProcH_m_Rev_m_Ce (
     .p12(alu_00),
     .p13(Q_00),
     .p14(Q_00),
-    .p15(Pdata_15)
+    .p15(Pdata_15__drv)
   ); // MC10164
   cell_MC10164 u_g09 (
     .p2(ShiftBitsEn_p_),
@@ -3025,18 +3115,20 @@ module ProcH_m_Rev_m_Ce (
     .p15(Pdata_00__g09_15)
   ); // MC10164
   cell_F10000 u_g10 (
-    .p2(TIOA_2),
-    .p3(TIOA_3),
+    .sys_clk(sys_clk),
+    .p2(TIOA_2__drv),
+    .p3(TIOA_3__drv),
     .p4(RepeatCurrB),
     .p7(ProcH23_sil_pl_13),
     .p9(ProcH23_sil_pl_12),
     .p10(ProcH23_sil_pl_11),
     .p11(ProcH23_sil_pl_10),
     .p13(PostClock0_p_Bc),
-    .p14(TIOA_0),
-    .p15(TIOA_1)
+    .p14(TIOA_0__drv),
+    .p15(TIOA_1__drv)
   ); // F10000
   cell_MC10176 u_g11 (
+    .sys_clk(sys_clk),
     .p2(TIOAdly_0),
     .p3(TIOAdly_1),
     .p4(TIOAdly_2),
@@ -3102,6 +3194,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH23_sil_pl_20)
   ); // F10145A
   cell_F10000 u_g16 (
+    .sys_clk(sys_clk),
     .p2(ShiftBitsEn_p_),
     .p9(ProcH11_sil_pl_14),
     .p10(ProcH27_sil_pl_7),
@@ -3126,6 +3219,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(MuxData5__g17_15)
   ); // MU10164
   cell_MC10176 u_g18 (
+    .sys_clk(sys_clk),
     .p2(BCWriteEn_p_),
     .p3(MBWriteEn_p_),
     .p5(ProcH11_sil_pl_1),
@@ -3183,7 +3277,8 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH27_sil_pl_10)
   ); // MC10106
   cell_MC10231 u_g22 (
-    .p2(MemBase_4),
+    .sys_clk(sys_clk),
+    .p2(MemBase_4__drv),
     .p3(MemBase_4_p_),
     .p6(Clock0_p_Dc),
     .p7(ProcH25_sil_pl_17),
@@ -3193,7 +3288,8 @@ module ProcH_m_Rev_m_Ce (
     .p15(EMU_p_)
   ); // MC10231
   cell_MC10231 u_g23 (
-    .p2(MemBase_1),
+    .sys_clk(sys_clk),
+    .p2(MemBase_1__drv),
     .p3(MemBase_1_p_),
     .p6(Clock0_p_Dc),
     .p7(ProcH25_sil_pl_10),
@@ -3201,10 +3297,11 @@ module ProcH_m_Rev_m_Ce (
     .p10(ProcH25_sil_pl_7),
     .p11(Clock0_p_Dc),
     .p14(MemBase_0_p_),
-    .p15(MemBase_0)
+    .p15(MemBase_0__drv)
   ); // MC10231
   cell_MC10231 u_g24 (
-    .p2(MemBase_3),
+    .sys_clk(sys_clk),
+    .p2(MemBase_3__drv),
     .p3(MemBase_3_p_),
     .p6(Clock0_p_Dc),
     .p7(ProcH25_sil_pl_14),
@@ -3212,31 +3309,31 @@ module ProcH_m_Rev_m_Ce (
     .p10(ProcH25_sil_pl_13),
     .p11(Clock0_p_Dc),
     .p14(MemBase_2_p_),
-    .p15(MemBase_2)
+    .p15(MemBase_2__drv)
   ); // MC10231
   cell_MC10197 u_h01 (
-    .p3(IOB_00),
-    .p4(IOB_01),
+    .p3(IOB_00__drv),
+    .p4(IOB_01__drv),
     .p6(alub_00a),
     .p7(alub_01a),
     .p9(IOBout),
     .p10(alub_02a),
     .p11(alub_03a),
-    .p13(IOB_02),
-    .p14(IOB_03)
+    .p13(IOB_02__drv),
+    .p14(IOB_03__drv)
   ); // MC10197
   cell_MC10197 u_h02 (
-    .p3(IOB_04),
-    .p4(IOB_05),
+    .p3(IOB_04__drv),
+    .p4(IOB_05__drv),
     .p6(alub_04a),
     .p7(alub_05a),
     .p9(IOBout),
     .p10(alub_06a),
     .p11(alub_07a),
     .p12(BMux_16),
-    .p13(IOB_06),
-    .p14(IOB_07),
-    .p15(IOB_16)
+    .p13(IOB_06__drv),
+    .p14(IOB_07__drv),
+    .p15(IOB_16__drv)
   ); // MC10197
   cell_MC10164 u_h03 (
     .p3(alu_05),
@@ -3305,18 +3402,20 @@ module ProcH_m_Rev_m_Ce (
     .p23(ddR_00__h06_23)
   ); // MB7071H
   cell_F10000 u_h10 (
-    .p2(TIOA_6),
-    .p3(TIOA_7),
+    .sys_clk(sys_clk),
+    .p2(TIOA_6__drv),
+    .p3(TIOA_7__drv),
     .p4(RepeatCurrB),
     .p7(ProcH23_sil_pl_17),
     .p9(ProcH23_sil_pl_16),
     .p10(ProcH23_sil_pl_15),
     .p11(ProcH23_sil_pl_14),
     .p13(PostClock0_p_Bc),
-    .p14(TIOA_4),
-    .p15(TIOA_5)
+    .p14(TIOA_4__drv),
+    .p15(TIOA_5__drv)
   ); // F10000
   cell_MC10176 u_h11 (
+    .sys_clk(sys_clk),
     .p2(TIOAdly_4),
     .p3(TIOAdly_5),
     .p4(TIOAdly_6),
@@ -3419,6 +3518,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH11_sil_pl_1__h17_15)
   ); // MC10158
   cell_MC10176 u_h18 (
+    .sys_clk(sys_clk),
     .p2(MBSelB),
     .p3(MBMux0),
     .p4(MBMux1),
@@ -3469,6 +3569,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(MuxData6__h21_15)
   ); // MU10164
   cell_MC10176 u_h22 (
+    .sys_clk(sys_clk),
     .p2(RbSelMd),
     .p3(RbSelMd_p_),
     .p4(TbSelMd),
@@ -3512,6 +3613,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(LC_1_p_a)
   ); // MC10101
   cell_MC10175 u_i01 (
+    .sys_clk(sys_clk),
     .p2(Md_02),
     .p3(Md_03),
     .p6(Clock1_p_Ba),
@@ -3523,6 +3625,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Md_01)
   ); // MC10175
   cell_MC10175 u_i02 (
+    .sys_clk(sys_clk),
     .p2(Md_06),
     .p3(Md_07),
     .p4(Md_16),
@@ -3622,6 +3725,7 @@ module ProcH_m_Rev_m_Ce (
     .p13(TbWrite_p_b)
   ); // F10145A
   cell_MC10141 u_i12 (
+    .sys_clk(sys_clk),
     .p2(CurrLast_2_p_),
     .p3(CurrLast_3_p_),
     .p4(DblClock_p_Da),
@@ -3700,6 +3804,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(GND420)
   ); // SE10210
   cell_MC10176 u_i19 (
+    .sys_clk(sys_clk),
     .p2(MBdly_0),
     .p3(MBdly_1),
     .p4(MBdly_2),
@@ -3899,6 +4004,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH27_sil_pl_1__j08_15)
   ); // F10414
   cell_MC10176 u_j11 (
+    .sys_clk(sys_clk),
     .p2(Task2Bk_0_p_),
     .p3(Task3Bk_0_p_),
     .p4(Task2Bk_1_p_),
@@ -3973,12 +4079,13 @@ module ProcH_m_Rev_m_Ce (
     .p15(GND470)
   ); // SE10210
   cell_MC10231 u_j20 (
+    .sys_clk(sys_clk),
     .p3(ProcH11_sil_pl_10),
     .p6(ReSchedWr_p_),
     .p7(FF_7a),
     .p10(IOB_Perr_p_),
     .p11(Clock1_p_Dc),
-    .p14(IOPE),
+    .p14(IOPE__drv),
     .p15(ProcH27_sil_pl_6)
   ); // MC10231
   cell_MC10164 u_j21 (
@@ -4184,6 +4291,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(MuxData4__k11_15)
   ); // MU10164
   cell_MC10176 u_k21 (
+    .sys_clk(sys_clk),
     .p2(ProcH27_sil_pl_5),
     .p3(MdPerr),
     .p4(ProcH27_sil_pl_3),
@@ -4199,6 +4307,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(TmPerr)
   ); // MC10176
   cell_MC10176 u_k22 (
+    .sys_clk(sys_clk),
     .p2(DMadr_06),
     .p3(DMadr_07),
     .p4(DMadr_08),
@@ -4215,11 +4324,11 @@ module ProcH_m_Rev_m_Ce (
   ); // MC10176
   cell_MC10102 u_k23 (
     .p2(MidasEn_01F_02F_03T_08F_p___k23_2),
-    .p3(IOatt),
+    .p3(IOatt__drv),
     .p4(DMadr_03),
     .p6(EMU_p_),
     .p7(ProcH11_sil_pl_10),
-    .p9(Cnt_eq_Zero_p_),
+    .p9(Cnt_eq_Zero_p___drv),
     .p10(CkMdParity_p_),
     .p11(Md_Perr_p_),
     .p12(ProcH17_sil_pl_4),
@@ -4229,7 +4338,7 @@ module ProcH_m_Rev_m_Ce (
   cell_MC10101 u_k24 (
     .p4(IOatt),
     .p5(IOatta),
-    .p6(MdPE),
+    .p6(MdPE__drv),
     .p7(ProcH27_sil_pl_5),
     .p9(MidasEn_01F_02F_03T_08F_p___k24_9),
     .p10(ProcH27_sil_pl_6),
@@ -4284,6 +4393,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH08_sil_pl_5)
   ); // F10145A
   cell_MC10176 u_l05 (
+    .sys_clk(sys_clk),
     .p2(RbWadr_4),
     .p3(RbWadr_5),
     .p4(RbWadr_6),
@@ -4357,6 +4467,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(MuxData3__l21_15)
   ); // MU10164
   cell_MC10176 u_l22 (
+    .sys_clk(sys_clk),
     .p3(DMadr_01),
     .p4(DMadr_02),
     .p6(DMadr_02),
@@ -4371,7 +4482,7 @@ module ProcH_m_Rev_m_Ce (
   ); // MC10176
   cell_MC10103 u_l23 (
     .p2(MidasEn_01F_02F_03T_08F_p___l23_2),
-    .p3(RamPE),
+    .p3(RamPE__drv),
     .p4(DMadr_01),
     .p5(DMadr_02),
     .p6(ProcH27_sil_pl_3),
@@ -4395,7 +4506,7 @@ module ProcH_m_Rev_m_Ce (
     .p12(MuxData5),
     .p13(MuxData6),
     .p14(MuxData7),
-    .p15(DMuxData)
+    .p15(DMuxData__drv)
   ); // MU10164
 
 endmodule

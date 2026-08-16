@@ -50,12 +50,21 @@ verilog/
   `python3 tools/sil_backplane.py` reports the backplane;
   `--ports` is the gate that the generated modules match it.
 
-**The machine is assembled but does not compute yet**: no board is instantiated in `sim.v`
-and nothing is wired to anything else. That is the next step, and it does
-NOT need the backplane schematic -- see the handoff.
+**The machine is assembled, clocked, and FPGA-shaped**: `sim.v` instantiates
+`dorado_machine` and the BaseBoard's clock tree runs (all ten `CLK.<board>'`
+nets toggle). There is **no `inout`, no multiply-driven net and no gated
+clock** anywhere -- wired-OR buses are OR trees of per-board `<net>__drv`
+contributions, and every clocked cell runs on a fabric `sys_clk` with the
+Dorado's own clock as an enable. `make machine-test` is the gate.
 
-- **`docs/verilog-handoff.md`** -- pick up from cold: the two remaining
-  Ethernet PROMs, then wiring the machine together and testing it.
+It does not compute yet: 78 of 125 cell types are still skeletons with
+correct ports and no body, so most of the machine is constant. `machine-test`
+counts how many signals move (27 today) and that number is the cell library's
+progress bar.
+
+- **`docs/verilog-handoff.md`** -- pick up from cold: the cell library,
+  starting with MC1690, the clock generator the machine is currently working
+  around.
 - `docs/verilog-from-sil.md` -- the full account and why each decision was
   made (including why pin NAMES come from PARC's dictionary while pin
   DIRECTIONS come from the wire lists).

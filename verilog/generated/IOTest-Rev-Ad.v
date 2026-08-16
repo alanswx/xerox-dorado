@@ -5,12 +5,23 @@
 
 `default_nettype none
 
-// Ports: the 87 nets IOTest-Rev-Ad.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 87 nets IOTest-Rev-Ad.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module IOTest_m_Rev_m_Ad (
+    input  wire sys_clk,
     input  wire CLK_io24_p_,
     input  wire CLKEnable_p_a,
     input  wire FinNext,
@@ -78,26 +89,26 @@ module IOTest_m_Rev_m_Ad (
     input  wire TIOA_5,
     input  wire TIOA_6,
     input  wire TIOA_7,
-    output wire Fin_00,
-    output wire Fin_01,
-    output wire Fin_02,
-    output wire Fin_03,
-    output wire Fin_04,
-    output wire Fin_05,
-    output wire Fin_06,
-    output wire Fin_07,
-    output wire Fin_08,
-    output wire Fin_09,
-    output wire Fin_10,
-    output wire Fin_11,
-    output wire Fin_12,
-    output wire Fin_13,
-    output wire Fin_14,
-    output wire Fin_15,
-    output wire Fin_16,
-    output wire Fin_17,
-    output wire SubTask_0,
-    output wire SubTask_1
+    output wire Fin_00__drv,
+    output wire Fin_01__drv,
+    output wire Fin_02__drv,
+    output wire Fin_03__drv,
+    output wire Fin_04__drv,
+    output wire Fin_05__drv,
+    output wire Fin_06__drv,
+    output wire Fin_07__drv,
+    output wire Fin_08__drv,
+    output wire Fin_09__drv,
+    output wire Fin_10__drv,
+    output wire Fin_11__drv,
+    output wire Fin_12__drv,
+    output wire Fin_13__drv,
+    output wire Fin_14__drv,
+    output wire Fin_15__drv,
+    output wire Fin_16__drv,
+    output wire Fin_17__drv,
+    output wire SubTask_0__drv,
+    output wire SubTask_1__drv
 );
 
   // 160 internal nets
@@ -263,8 +274,9 @@ module IOTest_m_Rev_m_Ad (
   wire rIOreset;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire dFin_16__e21_2;
   wire dFin_16__e22_14;
   assign dFin_16 = dFin_16__e21_2 | dFin_16__e22_14;
@@ -357,6 +369,8 @@ module IOTest_m_Rev_m_Ad (
   wire TIOA_eq_me_p___f19_14;
   assign TIOA_eq_me_p_ = TIOA_eq_me_p___e19_15 | TIOA_eq_me_p___e19_14 | TIOA_eq_me_p___e19_3 | TIOA_eq_me_p___e19_2 | TIOA_eq_me_p___f19_3 | TIOA_eq_me_p___f19_2 | TIOA_eq_me_p___f19_15 | TIOA_eq_me_p___f19_14;
 
+  // 20 single-driver contributions to the backplane
+
   // ---- packages
   cell_MC10113 u_a24 (
     .p2(NEXT_eq_me_p___a24_2),
@@ -387,6 +401,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(MeFin_p___b22_15)
   ); // MC10113
   cell_MC10176 u_b23 (
+    .sys_clk(sys_clk),
     .p2(IOtest02_sil_pl_2),
     .p3(IOtest02_sil_pl_3),
     .p4(IOtest02_sil_pl_4),
@@ -402,8 +417,8 @@ module IOTest_m_Rev_m_Ad (
     .p15(IOtest02_sil_pl_7)
   ); // MC10176
   cell_MC10102 u_b24 (
-    .p2(SubTask_0),
-    .p3(SubTask_1),
+    .p2(SubTask_0__drv),
+    .p3(SubTask_1__drv),
     .p4(NEXT_eq_me_p_),
     .p5(IOtest01_sil_pl_9),
     .p6(NEXT_eq_me_p_),
@@ -421,21 +436,22 @@ module IOTest_m_Rev_m_Ad (
     .p9(MeFinDly_p_),
     .p10(dFin_15),
     .p12(dFin_17),
-    .p14(Fin_15),
-    .p15(Fin_17)
+    .p14(Fin_15__drv),
+    .p15(Fin_17__drv)
   ); // MC10158
   cell_MC10158 u_c24 (
-    .p1(Fin_14),
-    .p2(Fin_13),
+    .p1(Fin_14__drv),
+    .p2(Fin_13__drv),
     .p3(dFin_13),
     .p5(dFin_14),
     .p9(MeFinDly_p_),
     .p10(dFin_11),
     .p12(dFin_12),
-    .p14(Fin_11),
-    .p15(Fin_12)
+    .p14(Fin_11__drv),
+    .p15(Fin_12__drv)
   ); // MC10158
   cell_MC10176 u_d01 (
+    .sys_clk(sys_clk),
     .p2(IOtest01_sil_pl_4),
     .p3(IOtest01_sil_pl_5),
     .p5(TIOA_6),
@@ -456,33 +472,35 @@ module IOTest_m_Rev_m_Ad (
     .p15(GND182)
   ); // SE10210
   cell_MC10176 u_d22 (
+    .sys_clk(sys_clk),
     .p2(MeFinDly_p_),
     .p5(MeFin_p_),
     .p9(clk2_p_Cb)
   ); // MC10176
   cell_MC10158 u_d23 (
-    .p1(Fin_10),
-    .p2(Fin_09),
+    .p1(Fin_10__drv),
+    .p2(Fin_09__drv),
     .p3(dFin_09),
     .p5(dFin_10),
     .p9(MeFinDly_p_),
     .p10(dFin_07),
     .p12(dFin_08),
-    .p14(Fin_07),
-    .p15(Fin_08)
+    .p14(Fin_07__drv),
+    .p15(Fin_08__drv)
   ); // MC10158
   cell_MC10158 u_d24 (
-    .p1(Fin_06),
-    .p2(Fin_05),
+    .p1(Fin_06__drv),
+    .p2(Fin_05__drv),
     .p3(dFin_05),
     .p5(dFin_06),
     .p9(MeFinDly_p_),
     .p10(dFin_03),
     .p12(dFin_04),
-    .p14(Fin_03),
-    .p15(Fin_04)
+    .p14(Fin_03__drv),
+    .p15(Fin_04__drv)
   ); // MC10158
   cell_MC10176 u_e01 (
+    .sys_clk(sys_clk),
     .p2(IOtest01_sil_pl_1),
     .p3(IOtest01_sil_pl_8),
     .p4(IOtest01_sil_pl_3),
@@ -510,6 +528,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(TIOA_eq_me_p___e19_15)
   ); // MC10113
   cell_F10016 u_e20 (
+    .sys_clk(sys_clk),
     .p2(MyTask_2),
     .p3(MyTask_3),
     .p5(IOBld_p_),
@@ -524,6 +543,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(MyTask_1)
   ); // F10016
   cell_F10016 u_e21 (
+    .sys_clk(sys_clk),
     .p2(dFin_16__e21_2),
     .p3(dFin_17__e21_3),
     .p5(IOBld_p_),
@@ -538,6 +558,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(MySubtask_1)
   ); // F10016
   cell_MC10176 u_e22 (
+    .sys_clk(sys_clk),
     .p2(dFin_12),
     .p3(dFin_13),
     .p4(dFin_14),
@@ -553,6 +574,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(dFin_17__e22_15)
   ); // MC10176
   cell_MC10176 u_e23 (
+    .sys_clk(sys_clk),
     .p2(dFin_06),
     .p3(dFin_07),
     .p4(dFin_08),
@@ -568,15 +590,15 @@ module IOTest_m_Rev_m_Ad (
     .p15(dFin_11)
   ); // MC10176
   cell_MC10158 u_e24 (
-    .p1(Fin_16),
-    .p2(Fin_02),
+    .p1(Fin_16__drv),
+    .p2(Fin_02__drv),
     .p3(dFin_02),
     .p5(dFin_16),
     .p9(MeFinDly_p_),
     .p10(dFin_00),
     .p12(dFin_01),
-    .p14(Fin_00),
-    .p15(Fin_01)
+    .p14(Fin_00__drv),
+    .p15(Fin_01__drv)
   ); // MC10158
   cell_SE10212 u_f12 (
     .p6(prepreFH_p_),
@@ -620,6 +642,7 @@ module IOTest_m_Rev_m_Ad (
     .p7(rFinNext_p_)
   ); // MC10117
   cell_MC10176 u_f23 (
+    .sys_clk(sys_clk),
     .p2(dFin_00),
     .p3(dFin_01),
     .p4(dFin_02),
@@ -660,6 +683,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(GND314)
   ); // SE10210
   cell_MC10135 u_g20 (
+    .sys_clk(sys_clk),
     .p2(Munch0CE_p_),
     .p3(Munch1CE_p_),
     .p4(IOBld),
@@ -668,6 +692,7 @@ module IOTest_m_Rev_m_Ad (
     .p9(clk2_p_Db)
   ); // MC10135
   cell_F10016 u_g21 (
+    .sys_clk(sys_clk),
     .p2(WordAd_2),
     .p3(WordAd_3),
     .p4(IOtest03_sil_pl_2),
@@ -767,6 +792,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(IOtest05_sil_pl_4__i21_15)
   ); // F10145A
   cell_MC10231 u_i23 (
+    .sys_clk(sys_clk),
     .p3(MeNextFout_p___i23_3),
     .p6(clk2_p_Da),
     .p7(FoutNext),
@@ -775,6 +801,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(MeNextFout_p___i23_15)
   ); // MC10231
   cell_MC10176 u_i24 (
+    .sys_clk(sys_clk),
     .p2(rFout_11),
     .p3(rFout_12),
     .p4(rFout_13),
@@ -857,6 +884,7 @@ module IOTest_m_Rev_m_Ad (
     .p14(rIOreset)
   ); // MC10113
   cell_MC10176 u_j24 (
+    .sys_clk(sys_clk),
     .p2(rFout_05),
     .p3(rFout_06),
     .p4(rFout_07),
@@ -929,6 +957,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(IOtest02_sil_pl_1__k23_15)
   ); // MC10113
   cell_MC10176 u_k24 (
+    .sys_clk(sys_clk),
     .p2(rFout_00),
     .p3(rFout_01),
     .p4(rFout_02),
@@ -974,6 +1003,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(Foo)
   ); // MC1660
   cell_F10016 u_l10 (
+    .sys_clk(sys_clk),
     .p5(IOtest06_sil_pl_5),
     .p6(HiB),
     .p11(IOtest06_sil_pl_3),

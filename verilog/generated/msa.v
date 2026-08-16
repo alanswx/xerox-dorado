@@ -5,12 +5,23 @@
 
 `default_nettype none
 
-// Ports: the 66 nets msa.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 66 nets msa.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module msa (
+    input  wire sys_clk,
     input  wire CLK_ms0Even_p_,
     input  wire ChipsAre16k,
     input  wire ChipsAre4k,
@@ -58,25 +69,25 @@ module msa (
     input  wire Sout_13,
     input  wire Sout_14,
     input  wire Sout_15,
-    output wire EcIn_0,
-    output wire EcIn_1,
-    output wire M0,
-    output wire Sin_00,
-    output wire Sin_01,
-    output wire Sin_02,
-    output wire Sin_03,
-    output wire Sin_04,
-    output wire Sin_05,
-    output wire Sin_06,
-    output wire Sin_07,
-    output wire Sin_08,
-    output wire Sin_09,
-    output wire Sin_10,
-    output wire Sin_11,
-    output wire Sin_12,
-    output wire Sin_13,
-    output wire Sin_14,
-    output wire Sin_15
+    output wire EcIn_0__drv,
+    output wire EcIn_1__drv,
+    output wire M0__drv,
+    output wire Sin_00__drv,
+    output wire Sin_01__drv,
+    output wire Sin_02__drv,
+    output wire Sin_03__drv,
+    output wire Sin_04__drv,
+    output wire Sin_05__drv,
+    output wire Sin_06__drv,
+    output wire Sin_07__drv,
+    output wire Sin_08__drv,
+    output wire Sin_09__drv,
+    output wire Sin_10__drv,
+    output wire Sin_11__drv,
+    output wire Sin_12__drv,
+    output wire Sin_13__drv,
+    output wire Sin_14__drv,
+    output wire Sin_15__drv
 );
 
   // 702 internal nets
@@ -784,8 +795,9 @@ module msa (
   wire msa12_sil_pl_9;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire msa12_sil_pl_14__g02_2;
   wire msa12_sil_pl_14__g02_1;
   assign msa12_sil_pl_14 = msa12_sil_pl_14__g02_2 | msa12_sil_pl_14__g02_1;
@@ -793,8 +805,11 @@ module msa (
   wire msa12_sil_pl_17__g25_1;
   assign msa12_sil_pl_17 = msa12_sil_pl_17__g25_2 | msa12_sil_pl_17__g25_1;
 
+  // 19 single-driver contributions to the backplane
+
   // ---- packages
   cell_MC10141 u_a01 (
+    .sys_clk(sys_clk),
     .p2(msa02_sil_pl_9),
     .p4(TtlCKa_p_),
     .p9(SO),
@@ -970,6 +985,7 @@ module msa (
     .p11(WEa)
   ); // SN74H04
   cell_SN74166 u_a13 (
+    .sys_clk(sys_clk),
     .p1(GND105),
     .p2(msa04_sil_pl_37),
     .p3(msa04_sil_pl_7),
@@ -986,6 +1002,7 @@ module msa (
     .p15(SLa)
   ); // SN74166
   cell_SN74166 u_a14 (
+    .sys_clk(sys_clk),
     .p1(GND106),
     .p2(msa06_sil_pl_29),
     .p3(msa06_sil_pl_22),
@@ -1168,6 +1185,7 @@ module msa (
     .p15(VBBa25)
   ); // MC10125
   cell_MC10141 u_a26 (
+    .sys_clk(sys_clk),
     .p2(msa02_sil_pl_11),
     .p4(TtlCKb_p_),
     .p9(SO),
@@ -1177,6 +1195,7 @@ module msa (
     .p15(msa02_sil_pl_10)
   ); // MC10141
   cell_MC10176 u_b01 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_32),
     .p3(msa04_sil_pl_33),
     .p4(msa05_sil_pl_30),
@@ -1220,6 +1239,7 @@ module msa (
   ); // SN74S174
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b04 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_3),
     .p3(WE_p_a0),
     .p4(RAS_p_a0),
@@ -1235,6 +1255,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b05 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_8),
     .p3(WE_p_a0),
     .p4(RAS_p_a0),
@@ -1250,6 +1271,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b06 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_30),
     .p3(WE_p_c0),
     .p4(RAS_p_c0),
@@ -1265,6 +1287,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b07 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_21),
     .p3(WE_p_a1),
     .p4(RAS_p_a1),
@@ -1280,6 +1303,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b08 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_38),
     .p3(WE_p_c1),
     .p4(RAS_p_c1),
@@ -1295,6 +1319,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b09 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_8),
     .p3(WE_p_a2),
     .p4(RAS_p_a2),
@@ -1310,6 +1335,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b10 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_29),
     .p3(WE_p_c2),
     .p4(RAS_p_c2),
@@ -1325,6 +1351,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b11 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_21),
     .p3(WE_p_a3),
     .p4(RAS_p_a3),
@@ -1340,6 +1367,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b12 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_32),
     .p3(WE_p_c3),
     .p4(RAS_p_c3),
@@ -1354,6 +1382,7 @@ module msa (
     .p15(CAS_p_c3)
   ); // MK4096P-6
   cell_SN74166 u_b13 (
+    .sys_clk(sys_clk),
     .p1(GND104),
     .p2(msa04_sil_pl_36),
     .p3(msa04_sil_pl_22),
@@ -1370,6 +1399,7 @@ module msa (
     .p15(SLa)
   ); // SN74166
   cell_SN74166 u_b14 (
+    .sys_clk(sys_clk),
     .p1(GND128),
     .p2(msa06_sil_pl_30),
     .p3(msa06_sil_pl_7),
@@ -1387,6 +1417,7 @@ module msa (
   ); // SN74166
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b15 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_33),
     .p3(WE_p_d3),
     .p4(RAS_p_d3),
@@ -1402,6 +1433,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b16 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_21),
     .p3(WE_p_b3),
     .p4(RAS_p_b3),
@@ -1417,6 +1449,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b17 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_29),
     .p3(WE_p_d2),
     .p4(RAS_p_d2),
@@ -1432,6 +1465,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b18 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_8),
     .p3(WE_p_b2),
     .p4(RAS_p_b2),
@@ -1447,6 +1481,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b19 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_32),
     .p3(WE_p_d1),
     .p4(RAS_p_d1),
@@ -1462,6 +1497,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b20 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_8),
     .p3(WE_p_b1),
     .p4(RAS_p_b1),
@@ -1477,6 +1513,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b21 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_37),
     .p3(WE_p_d0),
     .p4(RAS_p_d0),
@@ -1492,6 +1529,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b22 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_21),
     .p3(WE_p_b0),
     .p4(RAS_p_b0),
@@ -1507,6 +1545,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_b23 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_29),
     .p3(WE_p_b0),
     .p4(RAS_p_b0),
@@ -1552,6 +1591,7 @@ module msa (
     .p15(msa07_sil_pl_31)
   ); // MC10125
   cell_MC10176 u_b26 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_35),
     .p3(msa06_sil_pl_34),
     .p4(msa07_sil_pl_30),
@@ -1563,17 +1603,18 @@ module msa (
     .p13(msa07_sil_pl_31)
   ); // MC10176
   cell_MC10176 u_c01 (
-    .p2(Sin_00),
-    .p3(Sin_01),
-    .p4(Sin_02),
+    .sys_clk(sys_clk),
+    .p2(Sin_00__drv),
+    .p3(Sin_01__drv),
+    .p4(Sin_02__drv),
     .p5(msa04_sil_pl_31),
     .p6(msa04_sil_pl_34),
     .p7(msa05_sil_pl_37),
     .p9(msa01_sil_pl_3),
     .p10(msa05_sil_pl_31),
     .p11(msa12_sil_pl_14),
-    .p13(Sin_03),
-    .p14(EcIn_0)
+    .p13(Sin_03__drv),
+    .p14(EcIn_0__drv)
   ); // MC10176
   cell_MC10124 u_c02 (
     .p1(msa04_sil_pl_34),
@@ -1600,6 +1641,7 @@ module msa (
   ); // SN74S174
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c04 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_2),
     .p3(WE_p_c0),
     .p4(RAS_p_c0),
@@ -1615,6 +1657,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c05 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_9),
     .p3(WE_p_c0),
     .p4(RAS_p_c0),
@@ -1630,6 +1673,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c06 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_14),
     .p3(WE_p_a0),
     .p4(RAS_p_a0),
@@ -1645,6 +1689,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c07 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_20),
     .p3(WE_p_c1),
     .p4(RAS_p_c1),
@@ -1660,6 +1705,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c08 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_15),
     .p3(WE_p_a1),
     .p4(RAS_p_a1),
@@ -1675,6 +1721,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c09 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_9),
     .p3(WE_p_c2),
     .p4(RAS_p_c2),
@@ -1690,6 +1737,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c10 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_14),
     .p3(WE_p_a2),
     .p4(RAS_p_a2),
@@ -1705,6 +1753,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c11 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_20),
     .p3(WE_p_c3),
     .p4(RAS_p_c3),
@@ -1720,6 +1769,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c12 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_15),
     .p3(WE_p_a3),
     .p4(RAS_p_a3),
@@ -1734,6 +1784,7 @@ module msa (
     .p15(CAS_p_a3)
   ); // MK4096P-6
   cell_SN74166 u_c13 (
+    .sys_clk(sys_clk),
     .p1(GND126),
     .p2(msa05_sil_pl_35),
     .p3(msa05_sil_pl_7),
@@ -1750,6 +1801,7 @@ module msa (
     .p15(SLa)
   ); // SN74166
   cell_SN74166 u_c14 (
+    .sys_clk(sys_clk),
     .p1(GND150),
     .p2(msa07_sil_pl_36),
     .p3(msa07_sil_pl_7),
@@ -1767,6 +1819,7 @@ module msa (
   ); // SN74166
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c15 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_15),
     .p3(WE_p_b3),
     .p4(RAS_p_b3),
@@ -1782,6 +1835,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c16 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_20),
     .p3(WE_p_d3),
     .p4(RAS_p_d3),
@@ -1797,6 +1851,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c17 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_14),
     .p3(WE_p_b2),
     .p4(RAS_p_b2),
@@ -1812,6 +1867,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c18 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_9),
     .p3(WE_p_d2),
     .p4(RAS_p_d2),
@@ -1827,6 +1883,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c19 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_14),
     .p3(WE_p_b1),
     .p4(RAS_p_b1),
@@ -1842,6 +1899,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c20 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_9),
     .p3(WE_p_d1),
     .p4(RAS_p_d1),
@@ -1857,6 +1915,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c21 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_15),
     .p3(WE_p_b0),
     .p4(RAS_p_b0),
@@ -1872,6 +1931,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c22 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_20),
     .p3(WE_p_d0),
     .p4(RAS_p_d0),
@@ -1887,6 +1947,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_c23 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_30),
     .p3(WE_p_d0),
     .p4(RAS_p_d0),
@@ -1924,17 +1985,18 @@ module msa (
     .p15(msa07_sil_pl_38)
   ); // MC10124
   cell_MC10176 u_c26 (
-    .p2(Sin_04),
-    .p3(Sin_05),
-    .p4(Sin_06),
+    .sys_clk(sys_clk),
+    .p2(Sin_04__drv),
+    .p3(Sin_05__drv),
+    .p4(Sin_06__drv),
     .p5(msa06_sil_pl_36),
     .p6(msa06_sil_pl_33),
     .p7(msa07_sil_pl_38),
     .p9(msa01_sil_pl_11),
     .p10(msa07_sil_pl_32),
     .p11(msa12_sil_pl_17),
-    .p13(Sin_07),
-    .p14(EcIn_1)
+    .p13(Sin_07__drv),
+    .p14(EcIn_1__drv)
   ); // MC10176
   cell_MC10125 u_d01 (
     .p1(VBBk),
@@ -1960,6 +2022,7 @@ module msa (
   ); // SN74S174
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d04 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_1),
     .p3(WE_p_a0),
     .p4(RAS_p_a0),
@@ -1975,6 +2038,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d05 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_10),
     .p3(WE_p_a0),
     .p4(RAS_p_a0),
@@ -1990,6 +2054,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d06 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_13),
     .p3(WE_p_c0),
     .p4(RAS_p_c0),
@@ -2005,6 +2070,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d07 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_19),
     .p3(WE_p_a1),
     .p4(RAS_p_a1),
@@ -2020,6 +2086,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d08 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_16),
     .p3(WE_p_c1),
     .p4(RAS_p_c1),
@@ -2035,6 +2102,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d09 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_10),
     .p3(WE_p_a2),
     .p4(RAS_p_a2),
@@ -2050,6 +2118,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d10 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_13),
     .p3(WE_p_c2),
     .p4(RAS_p_c2),
@@ -2065,6 +2134,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d11 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_19),
     .p3(WE_p_a3),
     .p4(RAS_p_a3),
@@ -2080,6 +2150,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d12 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_16),
     .p3(WE_p_c3),
     .p4(RAS_p_c3),
@@ -2094,6 +2165,7 @@ module msa (
     .p15(CAS_p_c3)
   ); // MK4096P-6
   cell_SN74166 u_d13 (
+    .sys_clk(sys_clk),
     .p1(GND148),
     .p2(msa05_sil_pl_34),
     .p3(msa05_sil_pl_22),
@@ -2110,6 +2182,7 @@ module msa (
     .p15(SLa)
   ); // SN74166
   cell_SN74166 u_d14 (
+    .sys_clk(sys_clk),
     .p1(GND151),
     .p2(msa07_sil_pl_35),
     .p3(msa07_sil_pl_22),
@@ -2127,6 +2200,7 @@ module msa (
   ); // SN74166
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d15 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_16),
     .p3(WE_p_d3),
     .p4(RAS_p_d3),
@@ -2142,6 +2216,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d16 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_19),
     .p3(WE_p_b3),
     .p4(RAS_p_b3),
@@ -2157,6 +2232,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d17 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_13),
     .p3(WE_p_d2),
     .p4(RAS_p_d2),
@@ -2172,6 +2248,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d18 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_10),
     .p3(WE_p_b2),
     .p4(RAS_p_b2),
@@ -2187,6 +2264,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d19 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_13),
     .p3(WE_p_d1),
     .p4(RAS_p_d1),
@@ -2202,6 +2280,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d20 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_10),
     .p3(WE_p_b1),
     .p4(RAS_p_b1),
@@ -2217,6 +2296,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d21 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_16),
     .p3(WE_p_d0),
     .p4(RAS_p_d0),
@@ -2232,6 +2312,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d22 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_19),
     .p3(WE_p_b0),
     .p4(RAS_p_b0),
@@ -2247,6 +2328,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_d23 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_26),
     .p3(WE_p_b0),
     .p4(RAS_p_b0),
@@ -2304,6 +2386,7 @@ module msa (
     .p7(msa01_sil_pl_26)
   ); // MC10103
   cell_MC10176 u_e02 (
+    .sys_clk(sys_clk),
     .p2(c1),
     .p3(c3),
     .p4(msa01_sil_pl_13),
@@ -2313,6 +2396,7 @@ module msa (
     .p9(msa01_sil_pl_14)
   ); // MC10176
   cell_SN74166 u_e03 (
+    .sys_clk(sys_clk),
     .p1(GND22),
     .p2(GND22),
     .p3(msa12_sil_pl_7),
@@ -2330,6 +2414,7 @@ module msa (
   ); // SN74166
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e04 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_31),
     .p3(WE_p_c0),
     .p4(RAS_p_c0),
@@ -2345,6 +2430,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e05 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_11),
     .p3(WE_p_c0),
     .p4(RAS_p_c0),
@@ -2360,6 +2446,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e06 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_12),
     .p3(WE_p_a0),
     .p4(RAS_p_a0),
@@ -2375,6 +2462,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e07 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_18),
     .p3(WE_p_c1),
     .p4(RAS_p_c1),
@@ -2390,6 +2478,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e08 (
+    .sys_clk(sys_clk),
     .p2(msa04_sil_pl_17),
     .p3(WE_p_a1),
     .p4(RAS_p_a1),
@@ -2405,6 +2494,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e09 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_11),
     .p3(WE_p_c2),
     .p4(RAS_p_c2),
@@ -2420,6 +2510,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e10 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_12),
     .p3(WE_p_a2),
     .p4(RAS_p_a2),
@@ -2435,6 +2526,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e11 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_18),
     .p3(WE_p_c3),
     .p4(RAS_p_c3),
@@ -2450,6 +2542,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e12 (
+    .sys_clk(sys_clk),
     .p2(msa05_sil_pl_17),
     .p3(WE_p_a3),
     .p4(RAS_p_a3),
@@ -2488,6 +2581,7 @@ module msa (
   ); // MC10210
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e15 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_17),
     .p3(WE_p_b3),
     .p4(RAS_p_b3),
@@ -2503,6 +2597,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e16 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_18),
     .p3(WE_p_d3),
     .p4(RAS_p_d3),
@@ -2518,6 +2613,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e17 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_12),
     .p3(WE_p_b2),
     .p4(RAS_p_b2),
@@ -2533,6 +2629,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e18 (
+    .sys_clk(sys_clk),
     .p2(msa07_sil_pl_11),
     .p3(WE_p_d2),
     .p4(RAS_p_d2),
@@ -2548,6 +2645,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e19 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_12),
     .p3(WE_p_b1),
     .p4(RAS_p_b1),
@@ -2563,6 +2661,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e20 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_11),
     .p3(WE_p_d1),
     .p4(RAS_p_d1),
@@ -2578,6 +2677,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e21 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_17),
     .p3(WE_p_b0),
     .p4(RAS_p_b0),
@@ -2593,6 +2693,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e22 (
+    .sys_clk(sys_clk),
     .p2(msa06_sil_pl_18),
     .p3(WE_p_d0),
     .p4(RAS_p_d0),
@@ -2608,6 +2709,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_e23 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_42),
     .p3(WE_p_d0),
     .p4(RAS_p_d0),
@@ -2622,6 +2724,7 @@ module msa (
     .p15(CAS_p_d0)
   ); // MK4096P-6
   cell_SN74166 u_e24 (
+    .sys_clk(sys_clk),
     .p1(GND181),
     .p2(GND181),
     .p3(msa12_sil_pl_24),
@@ -2667,6 +2770,7 @@ module msa (
     .p15(ChipsAre4k)
   ); // AUGATCG16
   cell_MC10176 u_f01 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_33),
     .p3(msa12_sil_pl_34),
     .p5(EcOut_0),
@@ -2689,6 +2793,7 @@ module msa (
     .p15(VBBa)
   ); // MC10125
   cell_SN74166 u_f03 (
+    .sys_clk(sys_clk),
     .p1(GND26),
     .p2(msa12_sil_pl_15),
     .p3(GND26),
@@ -2706,6 +2811,7 @@ module msa (
   ); // SN74166
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f04 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_36),
     .p3(WE_p_a0),
     .p4(RAS_p_a0),
@@ -2721,6 +2827,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f05 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_18),
     .p3(WE_p_a0),
     .p4(RAS_p_a0),
@@ -2736,6 +2843,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f06 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_17),
     .p3(WE_p_c0),
     .p4(RAS_p_c0),
@@ -2751,6 +2859,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f07 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_11),
     .p3(WE_p_a1),
     .p4(RAS_p_a1),
@@ -2766,6 +2875,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f08 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_12),
     .p3(WE_p_c1),
     .p4(RAS_p_c1),
@@ -2781,6 +2891,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f09 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_11),
     .p3(WE_p_a2),
     .p4(RAS_p_a2),
@@ -2796,6 +2907,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f10 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_12),
     .p3(WE_p_c2),
     .p4(RAS_p_c2),
@@ -2811,6 +2923,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f11 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_18),
     .p3(WE_p_a3),
     .p4(RAS_p_a3),
@@ -2826,6 +2939,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f12 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_17),
     .p3(WE_p_c3),
     .p4(RAS_p_c3),
@@ -2865,6 +2979,7 @@ module msa (
   ); // MC10210
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f15 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_17),
     .p3(WE_p_d3),
     .p4(RAS_p_d3),
@@ -2880,6 +2995,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f16 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_18),
     .p3(WE_p_b3),
     .p4(RAS_p_b3),
@@ -2895,6 +3011,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f17 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_12),
     .p3(WE_p_d2),
     .p4(RAS_p_d2),
@@ -2910,6 +3027,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f18 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_11),
     .p3(WE_p_b2),
     .p4(RAS_p_b2),
@@ -2925,6 +3043,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f19 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_12),
     .p3(WE_p_d1),
     .p4(RAS_p_d1),
@@ -2940,6 +3059,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f20 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_11),
     .p3(WE_p_b1),
     .p4(RAS_p_b1),
@@ -2955,6 +3075,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f21 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_17),
     .p3(WE_p_d0),
     .p4(RAS_p_d0),
@@ -2970,6 +3091,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f22 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_18),
     .p3(WE_p_b0),
     .p4(RAS_p_b0),
@@ -2985,6 +3107,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_f23 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_37),
     .p3(WE_p_b0),
     .p4(RAS_p_b0),
@@ -2999,6 +3122,7 @@ module msa (
     .p15(CAS_p_b0)
   ); // MK4096P-6
   cell_SN74166 u_f24 (
+    .sys_clk(sys_clk),
     .p1(GND203),
     .p2(msa12_sil_pl_16),
     .p3(GND203),
@@ -3030,6 +3154,7 @@ module msa (
     .p15(VBBc)
   ); // MC10125
   cell_MC10176 u_f26 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_40),
     .p3(msa12_sil_pl_39),
     .p5(EcOut_1),
@@ -3037,6 +3162,7 @@ module msa (
     .p9(msa01_sil_pl_9)
   ); // MC10176
   cell_F10016 u_g01 (
+    .sys_clk(sys_clk),
     .p2(msa03_sil_pl_5),
     .p9(MemWEa),
     .p10(MemCASa),
@@ -3067,6 +3193,7 @@ module msa (
   ); // SN74S174
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g04 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_9),
     .p3(WE_p_c0),
     .p4(RAS_p_c0),
@@ -3082,6 +3209,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g05 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_19),
     .p3(WE_p_c0),
     .p4(RAS_p_c0),
@@ -3097,6 +3225,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g06 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_16),
     .p3(WE_p_a0),
     .p4(RAS_p_a0),
@@ -3112,6 +3241,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g07 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_10),
     .p3(WE_p_c1),
     .p4(RAS_p_c1),
@@ -3127,6 +3257,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g08 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_13),
     .p3(WE_p_a1),
     .p4(RAS_p_a1),
@@ -3142,6 +3273,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g09 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_10),
     .p3(WE_p_c2),
     .p4(RAS_p_c2),
@@ -3157,6 +3289,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g10 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_13),
     .p3(WE_p_a2),
     .p4(RAS_p_a2),
@@ -3172,6 +3305,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g11 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_19),
     .p3(WE_p_c3),
     .p4(RAS_p_c3),
@@ -3187,6 +3321,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g12 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_16),
     .p3(WE_p_a3),
     .p4(RAS_p_a3),
@@ -3201,6 +3336,7 @@ module msa (
     .p15(CAS_p_a3)
   ); // MK4096P-6
   cell_SN74166 u_g13 (
+    .sys_clk(sys_clk),
     .p1(GND214),
     .p2(msa09_sil_pl_35),
     .p3(msa09_sil_pl_22),
@@ -3217,6 +3353,7 @@ module msa (
     .p15(SLc)
   ); // SN74166
   cell_SN74166 u_g14 (
+    .sys_clk(sys_clk),
     .p1(GND238),
     .p2(msa11_sil_pl_34),
     .p3(msa11_sil_pl_22),
@@ -3234,6 +3371,7 @@ module msa (
   ); // SN74166
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g15 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_16),
     .p3(WE_p_b3),
     .p4(RAS_p_b3),
@@ -3249,6 +3387,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g16 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_19),
     .p3(WE_p_d3),
     .p4(RAS_p_d3),
@@ -3264,6 +3403,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g17 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_13),
     .p3(WE_p_b2),
     .p4(RAS_p_b2),
@@ -3279,6 +3419,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g18 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_10),
     .p3(WE_p_d2),
     .p4(RAS_p_d2),
@@ -3294,6 +3435,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g19 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_13),
     .p3(WE_p_b1),
     .p4(RAS_p_b1),
@@ -3309,6 +3451,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g20 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_10),
     .p3(WE_p_d1),
     .p4(RAS_p_d1),
@@ -3324,6 +3467,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g21 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_16),
     .p3(WE_p_b0),
     .p4(RAS_p_b0),
@@ -3339,6 +3483,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g22 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_19),
     .p3(WE_p_d0),
     .p4(RAS_p_d0),
@@ -3354,6 +3499,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_g23 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_18),
     .p3(WE_p_d0),
     .p4(RAS_p_d0),
@@ -3387,6 +3533,7 @@ module msa (
     .p11(GND27)
   ); // MC10124
   cell_F10016 u_g26 (
+    .sys_clk(sys_clk),
     .p2(msa03_sil_pl_6),
     .p9(MemWEb),
     .p10(MemCASb),
@@ -3406,6 +3553,7 @@ module msa (
     .p15(GND29)
   ); // MC10210
   cell_MC10176 u_h02 (
+    .sys_clk(sys_clk),
     .p2(SI),
     .p3(ECI),
     .p4(SO),
@@ -3434,6 +3582,7 @@ module msa (
   ); // SN74S174
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h04 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_13),
     .p3(WE_p_a0),
     .p4(RAS_p_a0),
@@ -3449,6 +3598,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h05 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_20),
     .p3(WE_p_a0),
     .p4(RAS_p_a0),
@@ -3464,6 +3614,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h06 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_15),
     .p3(WE_p_c0),
     .p4(RAS_p_c0),
@@ -3479,6 +3630,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h07 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_9),
     .p3(WE_p_a1),
     .p4(RAS_p_a1),
@@ -3494,6 +3646,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h08 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_14),
     .p3(WE_p_c1),
     .p4(RAS_p_c1),
@@ -3509,6 +3662,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h09 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_9),
     .p3(WE_p_a2),
     .p4(RAS_p_a2),
@@ -3524,6 +3678,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h10 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_14),
     .p3(WE_p_c2),
     .p4(RAS_p_c2),
@@ -3539,6 +3694,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h11 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_20),
     .p3(WE_p_a3),
     .p4(RAS_p_a3),
@@ -3554,6 +3710,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h12 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_15),
     .p3(WE_p_c3),
     .p4(RAS_p_c3),
@@ -3568,6 +3725,7 @@ module msa (
     .p15(CAS_p_c3)
   ); // MK4096P-6
   cell_SN74166 u_h13 (
+    .sys_clk(sys_clk),
     .p1(GND236),
     .p2(msa09_sil_pl_36),
     .p3(msa09_sil_pl_7),
@@ -3584,6 +3742,7 @@ module msa (
     .p15(SLc)
   ); // SN74166
   cell_SN74166 u_h14 (
+    .sys_clk(sys_clk),
     .p1(GND260),
     .p2(msa11_sil_pl_35),
     .p3(msa11_sil_pl_7),
@@ -3601,6 +3760,7 @@ module msa (
   ); // SN74166
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h15 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_15),
     .p3(WE_p_d3),
     .p4(RAS_p_d3),
@@ -3616,6 +3776,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h16 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_20),
     .p3(WE_p_b3),
     .p4(RAS_p_b3),
@@ -3631,6 +3792,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h17 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_14),
     .p3(WE_p_d2),
     .p4(RAS_p_d2),
@@ -3646,6 +3808,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h18 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_9),
     .p3(WE_p_b2),
     .p4(RAS_p_b2),
@@ -3661,6 +3824,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h19 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_14),
     .p3(WE_p_d1),
     .p4(RAS_p_d1),
@@ -3676,6 +3840,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h20 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_9),
     .p3(WE_p_b1),
     .p4(RAS_p_b1),
@@ -3691,6 +3856,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h21 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_15),
     .p3(WE_p_d0),
     .p4(RAS_p_d0),
@@ -3706,6 +3872,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h22 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_20),
     .p3(WE_p_b0),
     .p4(RAS_p_b0),
@@ -3721,6 +3888,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_h23 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_19),
     .p3(WE_p_b0),
     .p4(RAS_p_b0),
@@ -3767,7 +3935,7 @@ module msa (
     .p7(msa01_sil_pl_10),
     .p9(Mb0),
     .p13(msa01_sil_pl_16),
-    .p14(M0),
+    .p14(M0__drv),
     .p15(GND32)
   ); // MC10210
   cell_MC10125 u_i01 (
@@ -3811,6 +3979,7 @@ module msa (
   ); // SN74S174
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i04 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_12),
     .p3(WE_p_c0),
     .p4(RAS_p_c0),
@@ -3826,6 +3995,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i05 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_21),
     .p3(WE_p_c0),
     .p4(RAS_p_c0),
@@ -3841,6 +4011,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i06 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_37),
     .p3(WE_p_a0),
     .p4(RAS_p_a0),
@@ -3856,6 +4027,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i07 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_8),
     .p3(WE_p_c1),
     .p4(RAS_p_c1),
@@ -3871,6 +4043,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i08 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_32),
     .p3(WE_p_a1),
     .p4(RAS_p_a1),
@@ -3886,6 +4059,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i09 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_8),
     .p3(WE_p_c2),
     .p4(RAS_p_c2),
@@ -3901,6 +4075,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i10 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_29),
     .p3(WE_p_a2),
     .p4(RAS_p_a2),
@@ -3916,6 +4091,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i11 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_21),
     .p3(WE_p_c3),
     .p4(RAS_p_c3),
@@ -3931,6 +4107,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i12 (
+    .sys_clk(sys_clk),
     .p2(msa09_sil_pl_33),
     .p3(WE_p_a3),
     .p4(RAS_p_a3),
@@ -3945,6 +4122,7 @@ module msa (
     .p15(CAS_p_a3)
   ); // MK4096P-6
   cell_SN74166 u_i13 (
+    .sys_clk(sys_clk),
     .p1(GND258),
     .p2(msa08_sil_pl_30),
     .p3(msa08_sil_pl_7),
@@ -3961,6 +4139,7 @@ module msa (
     .p15(SLc)
   ); // SN74166
   cell_SN74166 u_i14 (
+    .sys_clk(sys_clk),
     .p1(GND282),
     .p2(msa10_sil_pl_30),
     .p3(msa10_sil_pl_7),
@@ -3978,6 +4157,7 @@ module msa (
   ); // SN74166
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i15 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_38),
     .p3(WE_p_b3),
     .p4(RAS_p_b3),
@@ -3993,6 +4173,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i16 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_21),
     .p3(WE_p_d3),
     .p4(RAS_p_d3),
@@ -4008,6 +4189,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i17 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_29),
     .p3(WE_p_b2),
     .p4(RAS_p_b2),
@@ -4023,6 +4205,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i18 (
+    .sys_clk(sys_clk),
     .p2(msa11_sil_pl_8),
     .p3(WE_p_d2),
     .p4(RAS_p_d2),
@@ -4038,6 +4221,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i19 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_32),
     .p3(WE_p_b1),
     .p4(RAS_p_b1),
@@ -4053,6 +4237,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i20 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_8),
     .p3(WE_p_d1),
     .p4(RAS_p_d1),
@@ -4068,6 +4253,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i21 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_37),
     .p3(WE_p_b0),
     .p4(RAS_p_b0),
@@ -4083,6 +4269,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i22 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_21),
     .p3(WE_p_d0),
     .p4(RAS_p_d0),
@@ -4098,6 +4285,7 @@ module msa (
   ); // MK4096P-6
   // NO MODEL for MK4096P-6 -- stub, ports preserved
   cell_MK4096P_6 u_i23 (
+    .sys_clk(sys_clk),
     .p2(msa12_sil_pl_20),
     .p3(WE_p_d0),
     .p4(RAS_p_d0),
@@ -4149,15 +4337,16 @@ module msa (
     .p12(WEd)
   ); // MC10125
   cell_MC10176 u_j01 (
-    .p2(Sin_08),
-    .p3(Sin_09),
-    .p4(Sin_10),
+    .sys_clk(sys_clk),
+    .p2(Sin_08__drv),
+    .p3(Sin_09__drv),
+    .p4(Sin_10__drv),
     .p5(msa08_sil_pl_36),
     .p6(msa08_sil_pl_33),
     .p7(msa09_sil_pl_38),
     .p9(SinClkc_p_),
     .p10(msa09_sil_pl_32),
-    .p13(Sin_11)
+    .p13(Sin_11__drv)
   ); // MC10176
   cell_MC10124 u_j02 (
     .p1(msa08_sil_pl_33),
@@ -4322,6 +4511,7 @@ module msa (
     .p11(WEc)
   ); // SN74H04
   cell_SN74166 u_j13 (
+    .sys_clk(sys_clk),
     .p1(GND281),
     .p2(msa08_sil_pl_29),
     .p3(msa08_sil_pl_22),
@@ -4338,6 +4528,7 @@ module msa (
     .p15(SLc)
   ); // SN74166
   cell_SN74166 u_j14 (
+    .sys_clk(sys_clk),
     .p1(GND282),
     .p2(msa10_sil_pl_29),
     .p3(msa10_sil_pl_22),
@@ -4516,17 +4707,19 @@ module msa (
     .p15(msa11_sil_pl_37)
   ); // MC10124
   cell_MC10176 u_j26 (
-    .p2(Sin_12),
-    .p3(Sin_13),
-    .p4(Sin_14),
+    .sys_clk(sys_clk),
+    .p2(Sin_12__drv),
+    .p3(Sin_13__drv),
+    .p4(Sin_14__drv),
     .p5(msa10_sil_pl_36),
     .p6(msa10_sil_pl_33),
     .p7(msa11_sil_pl_37),
     .p9(msa01_sil_pl_12),
     .p10(msa11_sil_pl_32),
-    .p13(Sin_15)
+    .p13(Sin_15__drv)
   ); // MC10176
   cell_MC10176 u_k01 (
+    .sys_clk(sys_clk),
     .p2(msa08_sil_pl_35),
     .p3(msa08_sil_pl_34),
     .p4(msa09_sil_pl_30),
@@ -4568,6 +4761,7 @@ module msa (
     .p15(msa11_sil_pl_31)
   ); // MC10125
   cell_MC10176 u_k26 (
+    .sys_clk(sys_clk),
     .p2(msa10_sil_pl_35),
     .p3(msa10_sil_pl_34),
     .p4(msa11_sil_pl_30),
@@ -4579,6 +4773,7 @@ module msa (
     .p13(msa11_sil_pl_31)
   ); // MC10176
   cell_MC10141 u_l01 (
+    .sys_clk(sys_clk),
     .p2(msa01_sil_pl_20),
     .p3(msa01_sil_pl_23),
     .p4(TtlCKc_p_),
@@ -4614,6 +4809,7 @@ module msa (
     .p12(OutCKd)
   ); // MC10125
   cell_MC10141 u_l26 (
+    .sys_clk(sys_clk),
     .p2(msa02_sil_pl_13),
     .p4(TtlCKd_p_),
     .p9(SO),

@@ -5,18 +5,47 @@
 
 `default_nettype none
 
-// Ports: the 137 nets IFU-Rev-Ch.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 137 nets IFU-Rev-Ch.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module IFU_m_Rev_m_Ch (
+    input  wire sys_clk,
     input  wire ASEL_0_p_,
+    input  wire BMux_00,
+    input  wire BMux_01,
+    input  wire BMux_02,
+    input  wire BMux_03,
+    input  wire BMux_04,
+    input  wire BMux_05,
+    input  wire BMux_06,
+    input  wire BMux_07,
+    input  wire BMux_08,
+    input  wire BMux_09,
+    input  wire BMux_10,
+    input  wire BMux_11,
+    input  wire BMux_12,
+    input  wire BMux_13,
+    input  wire BMux_14,
+    input  wire BMux_15,
     input  wire CLK_ifu_p_,
     input  wire CLKEnable_p_a,
     input  wire CountMiss,
     input  wire DMuxClk,
+    input  wire DMuxData,
     input  wire EmuOrFT_p_,
+    input  wire EnableFG_p_,
     input  wire EventA,
     input  wire EventB,
     input  wire EventC,
@@ -38,6 +67,8 @@ module IFU_m_Rev_m_Ch (
     input  wire FG_6,
     input  wire FG_7,
     input  wire FG_8,
+    input  wire GDv_p_,
+    input  wire GLd_p_,
     input  wire GenIn_00,
     input  wire GenIn_01,
     input  wire GenIn_02,
@@ -56,6 +87,8 @@ module IFU_m_Rev_m_Ch (
     input  wire GenIn_15,
     input  wire IOReset,
     input  wire IfuAWantsDifHit_p_,
+    input  wire IfuAck,
+    input  wire IfuFaultInEc2,
     input  wire IfuHold,
     input  wire IfuNextMacro_p_,
     input  wire IfuStartMap_p_,
@@ -64,90 +97,93 @@ module IFU_m_Rev_m_Ch (
     input  wire MemSH,
     input  wire NextData_p_,
     input  wire Pendulum,
+    input  wire RefOutstanding_p_,
     input  wire TempRef,
-    output wire CrryEvCntA,
-    output wire GenOut_00,
-    output wire GenOut_01,
-    output wire GenOut_02,
-    output wire GenOut_03,
-    output wire GenOut_04,
-    output wire GenOut_05,
-    output wire GenOut_06,
-    output wire GenOut_07,
-    output wire GenOut_08,
-    output wire GenOut_09,
-    output wire GenOut_10,
-    output wire GenOut_11,
-    output wire GenOut_12,
-    output wire GenOut_13,
-    output wire GenOut_14,
-    output wire GenOut_15,
-    output wire IfuAddr_04_p_,
-    output wire IfuAddr_05_p_,
-    output wire IfuAddr_06_p_,
-    output wire IfuAddr_07_p_,
-    output wire IfuAddr_08_p_,
-    output wire IfuAddr_09_p_,
-    output wire IfuAddr_10_p_,
-    output wire IfuAddr_11_p_,
-    output wire IfuAddr_12_p_,
-    output wire IfuAddr_13_p_,
-    output wire IfuData_0,
-    output wire IfuData_1,
-    output wire IfuData_2,
-    output wire IfuData_3,
-    output wire IfuData_4,
-    output wire IfuData_5,
-    output wire IfuData_6,
-    output wire IfuData_7,
-    output wire IfuRBaseSel_p_,
-    output wire JunkTW,
-    output wire MAR_00_p_,
-    output wire MAR_01_p_,
-    output wire MAR_02_p_,
-    output wire MAR_03_p_,
-    output wire MAR_04_p_,
-    output wire MAR_05_p_,
-    output wire MAR_06_p_,
-    output wire MAR_07_p_,
-    output wire MAR_08_p_,
-    output wire MAR_09_p_,
-    output wire MAR_10_p_,
-    output wire MAR_11_p_,
-    output wire MAR_12_p_,
-    output wire MAR_13_p_,
-    output wire MAR_14_p_,
-    output wire MAR_15_p_,
-    output wire MemBM_0,
-    output wire MemBM_1,
-    output wire MemBM34,
-    output wire PcFG_15,
-    output wire SignIfuData,
-    inout  wire BMux_00,
-    inout  wire BMux_01,
-    inout  wire BMux_02,
-    inout  wire BMux_03,
-    inout  wire BMux_04,
-    inout  wire BMux_05,
-    inout  wire BMux_06,
-    inout  wire BMux_07,
-    inout  wire BMux_08,
-    inout  wire BMux_09,
-    inout  wire BMux_10,
-    inout  wire BMux_11,
-    inout  wire BMux_12,
-    inout  wire BMux_13,
-    inout  wire BMux_14,
-    inout  wire BMux_15,
-    inout  wire DMuxData,
-    inout  wire EnableFG_p_,
-    inout  wire GDv_p_,
-    inout  wire GLd_p_,
-    inout  wire IfuAck,
-    inout  wire IfuFaultInEc2,
-    inout  wire RefOutstanding_p_,
-    inout  wire WantIfuHold_p_,
-    inout  wire WantIfuRef_p_
+    input  wire WantIfuHold_p_,
+    input  wire WantIfuRef_p_,
+    output wire BMux_00__drv,
+    output wire BMux_01__drv,
+    output wire BMux_02__drv,
+    output wire BMux_03__drv,
+    output wire BMux_04__drv,
+    output wire BMux_05__drv,
+    output wire BMux_06__drv,
+    output wire BMux_07__drv,
+    output wire BMux_08__drv,
+    output wire BMux_09__drv,
+    output wire BMux_10__drv,
+    output wire BMux_11__drv,
+    output wire BMux_12__drv,
+    output wire BMux_13__drv,
+    output wire BMux_14__drv,
+    output wire BMux_15__drv,
+    output wire CrryEvCntA__drv,
+    output wire DMuxData__drv,
+    output wire EnableFG_p___drv,
+    output wire GDv_p___drv,
+    output wire GLd_p___drv,
+    output wire GenOut_00__drv,
+    output wire GenOut_01__drv,
+    output wire GenOut_02__drv,
+    output wire GenOut_03__drv,
+    output wire GenOut_04__drv,
+    output wire GenOut_05__drv,
+    output wire GenOut_06__drv,
+    output wire GenOut_07__drv,
+    output wire GenOut_08__drv,
+    output wire GenOut_09__drv,
+    output wire GenOut_10__drv,
+    output wire GenOut_11__drv,
+    output wire GenOut_12__drv,
+    output wire GenOut_13__drv,
+    output wire GenOut_14__drv,
+    output wire GenOut_15__drv,
+    output wire IfuAck__drv,
+    output wire IfuAddr_04_p___drv,
+    output wire IfuAddr_05_p___drv,
+    output wire IfuAddr_06_p___drv,
+    output wire IfuAddr_07_p___drv,
+    output wire IfuAddr_08_p___drv,
+    output wire IfuAddr_09_p___drv,
+    output wire IfuAddr_10_p___drv,
+    output wire IfuAddr_11_p___drv,
+    output wire IfuAddr_12_p___drv,
+    output wire IfuAddr_13_p___drv,
+    output wire IfuData_0__drv,
+    output wire IfuData_1__drv,
+    output wire IfuData_2__drv,
+    output wire IfuData_3__drv,
+    output wire IfuData_4__drv,
+    output wire IfuData_5__drv,
+    output wire IfuData_6__drv,
+    output wire IfuData_7__drv,
+    output wire IfuFaultInEc2__drv,
+    output wire IfuRBaseSel_p___drv,
+    output wire JunkTW__drv,
+    output wire MAR_00_p___drv,
+    output wire MAR_01_p___drv,
+    output wire MAR_02_p___drv,
+    output wire MAR_03_p___drv,
+    output wire MAR_04_p___drv,
+    output wire MAR_05_p___drv,
+    output wire MAR_06_p___drv,
+    output wire MAR_07_p___drv,
+    output wire MAR_08_p___drv,
+    output wire MAR_09_p___drv,
+    output wire MAR_10_p___drv,
+    output wire MAR_11_p___drv,
+    output wire MAR_12_p___drv,
+    output wire MAR_13_p___drv,
+    output wire MAR_14_p___drv,
+    output wire MAR_15_p___drv,
+    output wire MemBM_0__drv,
+    output wire MemBM_1__drv,
+    output wire MemBM34__drv,
+    output wire PcFG_15__drv,
+    output wire RefOutstanding_p___drv,
+    output wire SignIfuData__drv,
+    output wire WantIfuHold_p___drv,
+    output wire WantIfuRef_p___drv
 );
 
   // 796 internal nets
@@ -949,8 +985,9 @@ module IFU_m_Rev_m_Ch (
   wire prepreFH_p_;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire dIA_08__i22_14;
   wire dIA_08__j23_3;
   assign dIA_08 = dIA_08__i22_14 | dIA_08__j23_3;
@@ -959,7 +996,7 @@ module IFU_m_Rev_m_Ch (
   assign dIA_09 = dIA_09__k21_3 | dIA_09__i22_15;
   wire EnableFG_p___f23_3;
   wire EnableFG_p___e24_2;
-  assign EnableFG_p_ = EnableFG_p___f23_3 | EnableFG_p___e24_2;
+  assign EnableFG_p___drv = EnableFG_p___f23_3 | EnableFG_p___e24_2;
   wire Exception__h22_15;
   wire Exception__i22_2;
   wire Exception__j22_15;
@@ -1151,18 +1188,20 @@ module IFU_m_Rev_m_Ch (
   wire WantIfuRef_p___g21_3;
   wire WantIfuRef_p___g21_14;
   wire WantIfuRef_p___g21_15;
-  assign WantIfuRef_p_ = WantIfuRef_p___g21_2 | WantIfuRef_p___g21_3 | WantIfuRef_p___g21_14 | WantIfuRef_p___g21_15;
+  assign WantIfuRef_p___drv = WantIfuRef_p___g21_2 | WantIfuRef_p___g21_3 | WantIfuRef_p___g21_14 | WantIfuRef_p___g21_15;
+
+  // 81 single-driver contributions to the backplane
 
   // ---- packages
   cell_MC10101 u_a01 (
-    .p2(MAR_00_p_),
-    .p3(MAR_08_p_),
+    .p2(MAR_00_p___drv),
+    .p3(MAR_08_p___drv),
     .p7(PcF_08),
     .p10(Ifu08_sil_pl_38),
     .p12(Mar_u_PcF_p_),
     .p13(PcF_09),
-    .p14(MAR_01_p_),
-    .p15(MAR_09_p_)
+    .p14(MAR_01_p___drv),
+    .p15(MAR_09_p___drv)
   ); // MC10101
   cell_MC10174 u_a02 (
     .p2(Ifu08_sil_pl_39),
@@ -1195,6 +1234,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu09_sil_pl_24)
   ); // MC10174
   cell_F10016 u_a04 (
+    .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_37),
     .p3(Ifu08_sil_pl_34),
     .p5(ZapFGH_p_),
@@ -1206,6 +1246,7 @@ module IFU_m_Rev_m_Ch (
     .p15(Ifu08_sil_pl_38)
   ); // F10016
   cell_F10016 u_a05 (
+    .sys_clk(sys_clk),
     .p2(NextDataCount_1),
     .p3(NextDataCount_2),
     .p5(XLd_p_),
@@ -1244,6 +1285,7 @@ module IFU_m_Rev_m_Ch (
     .p15(IfuBMux_04__a07_15)
   ); // MC10197
   cell_F10016 u_a08 (
+    .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_42),
     .p3(Ifu08_sil_pl_43),
     .p5(PcFGLd_p_),
@@ -1257,6 +1299,7 @@ module IFU_m_Rev_m_Ch (
     .p15(Ifu08_sil_pl_41)
   ); // F10016
   cell_F10016 u_a11 (
+    .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_18),
     .p3(Ifu08_sil_pl_13),
     .p5(PcJLd_p_),
@@ -1281,6 +1324,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ci6)
   ); // MC1660
   cell_MC10176 u_a13 (
+    .sys_clk(sys_clk),
     .p2(H_0),
     .p3(H_1),
     .p4(H_2),
@@ -1311,6 +1355,7 @@ module IFU_m_Rev_m_Ch (
     .p15(foo_4__a14_15)
   ); // MC10197
   cell_F10016 u_a15 (
+    .sys_clk(sys_clk),
     .p2(foo_2__a15_2),
     .p3(foo_3__a15_3),
     .p5(BrkLd_p_),
@@ -1324,6 +1369,7 @@ module IFU_m_Rev_m_Ch (
     .p15(foo_1__a15_15)
   ); // F10016
   cell_MC10176 u_a16 (
+    .sys_clk(sys_clk),
     .p2(foo_0__a16_2),
     .p3(foo_1__a16_3),
     .p4(foo_2__a16_4),
@@ -1339,7 +1385,8 @@ module IFU_m_Rev_m_Ch (
     .p15(foo_5__a16_15)
   ); // MC10176
   cell_MC10176 u_a17 (
-    .p2(IfuAck),
+    .sys_clk(sys_clk),
+    .p2(IfuAck__drv),
     .p3(ifu01_sil_pl_4__a17_3),
     .p4(TestMakeF_u_D),
     .p5(IfuBMux_10),
@@ -1347,9 +1394,10 @@ module IFU_m_Rev_m_Ch (
     .p7(IfuBMux_11),
     .p9(TestClk1_p_Cc),
     .p10(IfuBMux_09),
-    .p13(IfuFaultInEc2)
+    .p13(IfuFaultInEc2__drv)
   ); // MC10176
   cell_MC10176 u_a18 (
+    .sys_clk(sys_clk),
     .p2(NewPc1),
     .p3(AckJunkTW),
     .p4(ifu04_sil_pl_14),
@@ -1375,6 +1423,7 @@ module IFU_m_Rev_m_Ch (
     .p15(NextBeta_p_)
   ); // MC10109
   cell_F10016 u_a20 (
+    .sys_clk(sys_clk),
     .p2(ifu02_sil_pl_14),
     .p5(AlphaXLd_p_),
     .p6(IfuTrueb),
@@ -1386,6 +1435,7 @@ module IFU_m_Rev_m_Ch (
     .p15(TwoAlphaX)
   ); // F10016
   cell_MC10231 u_a21 (
+    .sys_clk(sys_clk),
     .p3(TickPeriod_p_),
     .p7(ifu04_sil_pl_22),
     .p9(SpecClk1_p_Ca),
@@ -1435,8 +1485,8 @@ module IFU_m_Rev_m_Ch (
     .p14(FF_2)
   ); // MC10161
   cell_MC10173 u_b01 (
-    .p1(BMux_00),
-    .p2(BMux_08),
+    .p1(BMux_00__drv),
+    .p2(BMux_08__drv),
     .p3(ifu09_sil_pl_19),
     .p4(EventCntB_08),
     .p5(Ifu08_sil_pl_39),
@@ -1447,8 +1497,8 @@ module IFU_m_Rev_m_Ch (
     .p11(EventCntB_09),
     .p12(Ifu08_sil_pl_36),
     .p13(EventCntB_01),
-    .p14(BMux_09),
-    .p15(BMux_01)
+    .p14(BMux_09__drv),
+    .p15(BMux_01__drv)
   ); // MC10173
   cell_MC10105 u_b02 (
     .p2(RcvdBMux_00),
@@ -1477,6 +1527,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu09_sil_pl_30)
   ); // MC10174
   cell_MC10176 u_b04 (
+    .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_23),
     .p3(ifu09_sil_pl_4),
     .p4(Ifu08_sil_pl_20),
@@ -1490,6 +1541,7 @@ module IFU_m_Rev_m_Ch (
     .p14(LengthX_eq_3_p_)
   ); // MC10176
   cell_MC10141 u_b05 (
+    .sys_clk(sys_clk),
     .p4(clk0_p_Aa),
     .p5(IfuTrue),
     .p6(ifu02_sil_pl_10),
@@ -1501,6 +1553,7 @@ module IFU_m_Rev_m_Ch (
     .p14(DSel0)
   ); // MC10141
   cell_MC10141 u_b06 (
+    .sys_clk(sys_clk),
     .p4(clk0_p_Aa),
     .p5(IfuTrue),
     .p6(ifu02_sil_pl_4),
@@ -1527,6 +1580,7 @@ module IFU_m_Rev_m_Ch (
     .p15(IfuBMux_10__b07_15)
   ); // MC10197
   cell_F10016 u_b08 (
+    .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_46),
     .p3(Ifu08_sil_pl_47),
     .p4(ifu10_sil_pl_7),
@@ -1541,6 +1595,7 @@ module IFU_m_Rev_m_Ch (
     .p15(Ifu08_sil_pl_45)
   ); // F10016
   cell_F10016 u_b11 (
+    .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_6),
     .p3(Ifu08_sil_pl_1),
     .p4(ifu10_sil_pl_8),
@@ -1566,6 +1621,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ci3)
   ); // MC1660
   cell_MC10176 u_b13 (
+    .sys_clk(sys_clk),
     .p2(H_6),
     .p3(H_7),
     .p4(HFault_p_),
@@ -1589,6 +1645,7 @@ module IFU_m_Rev_m_Ch (
     .p14(Ifu06_sil_pl_11)
   ); // MC10104
   cell_F10016 u_b15 (
+    .sys_clk(sys_clk),
     .p2(foo_6__b15_2),
     .p3(foo_7__b15_3),
     .p5(BrkLd_p_),
@@ -1602,6 +1659,7 @@ module IFU_m_Rev_m_Ch (
     .p15(foo_5__b15_15)
   ); // F10016
   cell_MC10176 u_b16 (
+    .sys_clk(sys_clk),
     .p2(foo_6__b16_2),
     .p3(foo_7__b16_3),
     .p5(IfuBMux_06),
@@ -1625,6 +1683,7 @@ module IFU_m_Rev_m_Ch (
     .p15(IfuTrue)
   ); // MC10121
   cell_MC10176 u_b18 (
+    .sys_clk(sys_clk),
     .p3(ifu04_sil_pl_12),
     .p4(ifu04_sil_pl_16),
     .p6(ifu04_sil_pl_8),
@@ -1646,6 +1705,7 @@ module IFU_m_Rev_m_Ch (
     .p14(TestLd_p_)
   ); // MC10105
   cell_MC10176 u_b20 (
+    .sys_clk(sys_clk),
     .p2(ifu01_sil_pl_1),
     .p3(NewF_p_),
     .p4(NewF),
@@ -1665,7 +1725,7 @@ module IFU_m_Rev_m_Ch (
     .p11(SawRamParityErr_p_),
     .p12(SawFGParityErr_p_),
     .p13(FGErrDly),
-    .p15(WantIfuHold_p_)
+    .p15(WantIfuHold_p___drv)
   ); // MC10117
   cell_MC1660 u_b22 (
     .p3(ifu04_sil_pl_5__b22_3),
@@ -1721,8 +1781,8 @@ module IFU_m_Rev_m_Ch (
     .p23(TurnOffAlu)
   ); // MC10181
   cell_MC10173 u_c01 (
-    .p1(BMux_02),
-    .p2(BMux_10),
+    .p1(BMux_02__drv),
+    .p2(BMux_10__drv),
     .p3(ifu09_sil_pl_30),
     .p4(EventCntB_10),
     .p5(Ifu08_sil_pl_35),
@@ -1733,8 +1793,8 @@ module IFU_m_Rev_m_Ch (
     .p11(EventCntB_11),
     .p12(Ifu08_sil_pl_32),
     .p13(EventCntB_03),
-    .p14(BMux_11),
-    .p15(BMux_03)
+    .p14(BMux_11__drv),
+    .p15(BMux_03__drv)
   ); // MC10173
   cell_MC10195 u_c02 (
     .p2(ifu10_sil_pl_4__c02_2),
@@ -1752,17 +1812,18 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu10_sil_pl_3__c02_15)
   ); // MC10195
   cell_MC10101 u_c03 (
-    .p2(MAR_02_p_),
-    .p3(MAR_10_p_),
+    .p2(MAR_02_p___drv),
+    .p3(MAR_10_p___drv),
     .p4(Ifu08_sil_pl_37),
     .p7(PcF_10),
     .p10(Ifu08_sil_pl_34),
     .p12(Mar_u_PcF_p_),
     .p13(PcF_11),
-    .p14(MAR_03_p_),
-    .p15(MAR_11_p_)
+    .p14(MAR_03_p___drv),
+    .p15(MAR_11_p___drv)
   ); // MC10101
   cell_F10016 u_c04 (
+    .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_29),
     .p3(Ifu08_sil_pl_26),
     .p4(ifu10_sil_pl_4__c04_4),
@@ -1777,7 +1838,7 @@ module IFU_m_Rev_m_Ch (
     .p15(Ifu08_sil_pl_30)
   ); // F10016
   cell_MC10106 u_c05 (
-    .p2(SignIfuData),
+    .p2(SignIfuData__drv),
     .p3(EnEventCntB),
     .p4(FA_eq_1_p_c),
     .p5(FB_eq_7_p_),
@@ -1810,6 +1871,7 @@ module IFU_m_Rev_m_Ch (
     .p15(GND110)
   ); // SE10210
   cell_F10016 u_c08 (
+    .sys_clk(sys_clk),
     .p2(ifu09_sil_pl_28),
     .p3(ifu09_sil_pl_27),
     .p4(PcFGCO_8_p_),
@@ -1824,6 +1886,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu09_sil_pl_22)
   ); // F10016
   cell_F10016 u_c11 (
+    .sys_clk(sys_clk),
     .p2(PcJ_10),
     .p3(PcJ_11),
     .p4(PcJCO_8_p_),
@@ -1838,6 +1901,7 @@ module IFU_m_Rev_m_Ch (
     .p15(PcJ_09)
   ); // F10016
   cell_MC10176 u_c13 (
+    .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_22),
     .p3(Ifu08_sil_pl_21),
     .p4(Ifu08_sil_pl_16),
@@ -1853,6 +1917,7 @@ module IFU_m_Rev_m_Ch (
     .p15(Ifu08_sil_pl_9)
   ); // MC10176
   cell_MC10176 u_c14 (
+    .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_4),
     .p3(Ifu08_sil_pl_3),
     .p4(ifu09_sil_pl_3),
@@ -1868,6 +1933,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu09_sil_pl_7)
   ); // MC10176
   cell_MC10176 u_c15 (
+    .sys_clk(sys_clk),
     .p2(Ifu06_sil_pl_5),
     .p3(TwoAlphaM),
     .p4(Ifu06_sil_pl_3),
@@ -1883,8 +1949,9 @@ module IFU_m_Rev_m_Ch (
     .p15(Ifu06_sil_pl_6)
   ); // MC10176
   cell_MC10176 u_c16 (
-    .p2(MemBM_0),
-    .p3(MemBM_1),
+    .sys_clk(sys_clk),
+    .p2(MemBM_0__drv),
+    .p3(MemBM_1__drv),
     .p4(LengthM_eq_3_p___c16_4),
     .p5(MemBK_0),
     .p6(MemBK_1),
@@ -1898,6 +1965,7 @@ module IFU_m_Rev_m_Ch (
     .p15(LengthM_eq_3_p___c16_15)
   ); // MC10176
   cell_MC10231 u_c17 (
+    .sys_clk(sys_clk),
     .p2(SawFGParityErr_p_),
     .p3(SawFGParityErr),
     .p5(ifu02_sil_pl_6),
@@ -1932,6 +2000,7 @@ module IFU_m_Rev_m_Ch (
     .p15(GND134)
   ); // SE10210
   cell_MC10176 u_c20 (
+    .sys_clk(sys_clk),
     .p2(Test_u_),
     .p3(ifu04_sil_pl_22),
     .p4(RamErrDly),
@@ -1959,6 +2028,7 @@ module IFU_m_Rev_m_Ch (
     .p15(DecHi_u__p_)
   ); // MC10195
   cell_MC10176 u_c22 (
+    .sys_clk(sys_clk),
     .p2(ReschedPending),
     .p3(NewPc_u_),
     .p4(WantResched),
@@ -2034,15 +2104,15 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_04)
   ); // MC10195
   cell_MC10101 u_d02 (
-    .p2(MAR_04_p_),
-    .p3(MAR_12_p_),
+    .p2(MAR_04_p___drv),
+    .p3(MAR_12_p___drv),
     .p4(Ifu08_sil_pl_33),
     .p7(PcF_12),
     .p10(Ifu08_sil_pl_30),
     .p12(Mar_u_PcF_p_),
     .p13(PcF_13),
-    .p14(MAR_05_p_),
-    .p15(MAR_13_p_)
+    .p14(MAR_05_p___drv),
+    .p15(MAR_13_p___drv)
   ); // MC10101
   cell_MC10174 u_d03 (
     .p2(Ifu08_sil_pl_32),
@@ -2060,6 +2130,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu09_sil_pl_25)
   ); // MC10174
   cell_F10016 u_d04 (
+    .sys_clk(sys_clk),
     .p2(PcF_10),
     .p3(PcF_11),
     .p4(ifu10_sil_pl_3__d04_4),
@@ -2074,7 +2145,7 @@ module IFU_m_Rev_m_Ch (
     .p15(PcF_09)
   ); // F10016
   cell_MC10174 u_d05 (
-    .p2(IfuData_7),
+    .p2(IfuData_7__drv),
     .p3(ifu05_sil_pl_14),
     .p4(NX_3),
     .p5(AlphaX_3),
@@ -2085,7 +2156,7 @@ module IFU_m_Rev_m_Ch (
     .p11(AlphaX_2),
     .p12(NX_2),
     .p13(ifu05_sil_pl_11),
-    .p15(IfuData_6)
+    .p15(IfuData_6__drv)
   ); // MC10174
   cell_SE10210 u_d06 (
     .p2(SpecialSH_p_Ab),
@@ -2109,6 +2180,7 @@ module IFU_m_Rev_m_Ch (
     .p14(ifu02_sil_pl_5__d07_14)
   ); // MC1672
   cell_F10016 u_d08 (
+    .sys_clk(sys_clk),
     .p2(ifu09_sil_pl_37),
     .p3(RealPcFG_15),
     .p4(PcFGCO_12_p_),
@@ -2123,6 +2195,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu09_sil_pl_36)
   ); // F10016
   cell_F10016 u_d11 (
+    .sys_clk(sys_clk),
     .p2(PcJ_14),
     .p3(PcJ_15),
     .p4(PcJCO_12_p_),
@@ -2151,6 +2224,7 @@ module IFU_m_Rev_m_Ch (
     .p15(PcJLd_p_)
   ); // MC1664
   cell_MC10176 u_d13 (
+    .sys_clk(sys_clk),
     .p2(ifu05_sil_pl_3),
     .p3(ifu05_sil_pl_4),
     .p4(ifu05_sil_pl_6),
@@ -2166,9 +2240,10 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu05_sil_pl_9)
   ); // MC10176
   cell_MC10176 u_d14 (
+    .sys_clk(sys_clk),
     .p2(LengthM_0),
     .p3(LengthM_1),
-    .p4(IfuRBaseSel_p_),
+    .p4(IfuRBaseSel_p___drv),
     .p5(LengthK_0),
     .p6(LengthK_1),
     .p7(RBaseSelK_p_),
@@ -2176,7 +2251,7 @@ module IFU_m_Rev_m_Ch (
     .p10(MemBK34),
     .p11(Ifu06_sil_pl_9),
     .p12(Ifu06_sil_pl_2),
-    .p13(MemBM34),
+    .p13(MemBM34__drv),
     .p14(Ifu06_sil_pl_1),
     .p15(Ifu06_sil_pl_8)
   ); // MC10176
@@ -2196,6 +2271,7 @@ module IFU_m_Rev_m_Ch (
     .p15(IfuMemAck)
   ); // MC10104
   cell_MC10231 u_d16 (
+    .sys_clk(sys_clk),
     .p2(BrkPending),
     .p3(BrkPending_p_),
     .p6(BrkLd_p_),
@@ -2304,8 +2380,8 @@ module IFU_m_Rev_m_Ch (
     .p14(SayNotReady__d24_14)
   ); // MC1660
   cell_MC10173 u_e01 (
-    .p1(BMux_04),
-    .p2(BMux_12),
+    .p1(BMux_04__drv),
+    .p2(BMux_12__drv),
     .p3(ifu09_sil_pl_33),
     .p4(EventCntB_12),
     .p5(Ifu08_sil_pl_31),
@@ -2316,8 +2392,8 @@ module IFU_m_Rev_m_Ch (
     .p11(EventCntB_13),
     .p12(Ifu08_sil_pl_28),
     .p13(EventCntB_05),
-    .p14(BMux_13),
-    .p15(BMux_05)
+    .p14(BMux_13__drv),
+    .p15(BMux_05__drv)
   ); // MC10173
   cell_MC10174 u_e02 (
     .p2(Ifu08_sil_pl_28),
@@ -2350,6 +2426,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu09_sil_pl_33)
   ); // MC10174
   cell_MC10176 u_e04 (
+    .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_17),
     .p3(ifu09_sil_pl_9),
     .p4(Ifu08_sil_pl_14),
@@ -2365,7 +2442,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu09_sil_pl_11)
   ); // MC10176
   cell_MC10174 u_e05 (
-    .p2(IfuData_5),
+    .p2(IfuData_5__drv),
     .p3(ifu05_sil_pl_10),
     .p4(NX_1),
     .p5(AlphaX_1),
@@ -2374,9 +2451,10 @@ module IFU_m_Rev_m_Ch (
     .p11(AlphaX_0),
     .p12(NX_0),
     .p13(ifu05_sil_pl_7),
-    .p15(IfuData_4)
+    .p15(IfuData_4__drv)
   ); // MC10174
   cell_F10016 u_e06 (
+    .sys_clk(sys_clk),
     .p2(ifu05_sil_pl_10),
     .p3(ifu05_sil_pl_7),
     .p5(AlphaXLd_p_),
@@ -2390,6 +2468,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu05_sil_pl_11)
   ); // F10016
   cell_MC10176 u_e07 (
+    .sys_clk(sys_clk),
     .p2(NX_0),
     .p3(NX_1),
     .p4(NX_2),
@@ -2440,6 +2519,7 @@ module IFU_m_Rev_m_Ch (
     .p15(GND216)
   ); // SE10210
   cell_MC10176 u_e13 (
+    .sys_clk(sys_clk),
     .p2(ifu05_sil_pl_12),
     .p3(ifu05_sil_pl_13),
     .p4(ifu09_sil_pl_12),
@@ -2495,6 +2575,7 @@ module IFU_m_Rev_m_Ch (
     .p15(dHJ_3)
   ); // MC1664
   cell_MC10231 u_e17 (
+    .sys_clk(sys_clk),
     .p2(Pause),
     .p4(NewPc_u_),
     .p5(IfuReset),
@@ -2607,8 +2688,8 @@ module IFU_m_Rev_m_Ch (
     .p23(TurnOffAlu)
   ); // MC10181
   cell_MC10173 u_f01 (
-    .p1(BMux_06),
-    .p2(BMux_14),
+    .p1(BMux_06__drv),
+    .p2(BMux_14__drv),
     .p3(ifu09_sil_pl_39),
     .p4(EventCntB_14),
     .p5(Ifu08_sil_pl_27),
@@ -2619,21 +2700,22 @@ module IFU_m_Rev_m_Ch (
     .p11(EventCntB_15),
     .p12(Ifu08_sil_pl_25),
     .p13(EventCntB_07),
-    .p14(BMux_15),
-    .p15(BMux_07)
+    .p14(BMux_15__drv),
+    .p15(BMux_07__drv)
   ); // MC10173
   cell_MC10101 u_f02 (
-    .p2(MAR_06_p_),
-    .p3(MAR_14_p_),
+    .p2(MAR_06_p___drv),
+    .p3(MAR_14_p___drv),
     .p4(Ifu08_sil_pl_29),
     .p7(PcF_14),
     .p10(Ifu08_sil_pl_26),
     .p12(Mar_u_PcF_p_),
     .p13(PcF_15),
-    .p14(MAR_07_p_),
-    .p15(MAR_15_p_)
+    .p14(MAR_07_p___drv),
+    .p15(MAR_15_p___drv)
   ); // MC10101
   cell_F10016 u_f03 (
+    .sys_clk(sys_clk),
     .p2(PcF_14),
     .p3(PcF_15),
     .p4(ifu10_sil_pl_5__f03_4),
@@ -2648,6 +2730,7 @@ module IFU_m_Rev_m_Ch (
     .p15(PcF_13)
   ); // F10016
   cell_MC10176 u_f04 (
+    .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_2),
     .p3(ifu09_sil_pl_1),
     .p4(Ifu08_sil_pl_5),
@@ -2663,17 +2746,18 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu09_sil_pl_13)
   ); // MC10176
   cell_MC10158 u_f05 (
-    .p1(IfuData_0),
-    .p2(IfuData_1),
+    .p1(IfuData_0__drv),
+    .p2(IfuData_1__drv),
     .p4(AlphaX_1),
     .p6(AlphaX_0),
     .p9(FullAlpha),
     .p11(AlphaX_3),
     .p13(AlphaX_2),
-    .p14(IfuData_3),
-    .p15(IfuData_2)
+    .p14(IfuData_3__drv),
+    .p15(IfuData_2__drv)
   ); // MC10158
   cell_F10016 u_f06 (
+    .sys_clk(sys_clk),
     .p2(AlphaX_1),
     .p3(AlphaX_0),
     .p5(AlphaXLd_p_),
@@ -2727,6 +2811,7 @@ module IFU_m_Rev_m_Ch (
     .p15(GND266)
   ); // SE10212
   cell_F10016 u_f14 (
+    .sys_clk(sys_clk),
     .p2(InstrSet_1a),
     .p3(InstrSet_1b),
     .p5(InstrSetLd_p_),
@@ -2800,6 +2885,7 @@ module IFU_m_Rev_m_Ch (
     .p15(GND278)
   ); // MC10212
   cell_MC10135 u_f20 (
+    .sys_clk(sys_clk),
     .p2(HDv),
     .p3(HDv_p_),
     .p6(ifu03_sil_pl_8),
@@ -2812,6 +2898,7 @@ module IFU_m_Rev_m_Ch (
     .p15(FDv)
   ); // MC10135
   cell_MC10135 u_f21 (
+    .sys_clk(sys_clk),
     .p2(NewJ),
     .p3(NewJ_p_),
     .p6(ifu02_sil_pl_12),
@@ -2820,7 +2907,7 @@ module IFU_m_Rev_m_Ch (
     .p10(IfuMemAck_p_),
     .p11(ifu01_sil_pl_7),
     .p13(IfuReset),
-    .p14(RefOutstanding_p_),
+    .p14(RefOutstanding_p___drv),
     .p15(RefOutstanding)
   ); // MC10135
   cell_MC1664 u_f22 (
@@ -2846,7 +2933,8 @@ module IFU_m_Rev_m_Ch (
     .p15(J_u_H_p_)
   ); // MC1660
   cell_F10016 u_f24 (
-    .p3(PcFG_15),
+    .sys_clk(sys_clk),
+    .p3(PcFG_15__drv),
     .p5(PcFGLd_p_),
     .p6(IncPcFG_p_),
     .p7(ifu09_sil_pl_40),
@@ -2917,6 +3005,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu09_sil_pl_18)
   ); // MC10174
   cell_MC10176 u_g04 (
+    .sys_clk(sys_clk),
     .p2(ifu14_sil_pl_10),
     .p3(ifu14_sil_pl_11),
     .p4(ifu14_sil_pl_12),
@@ -2930,6 +3019,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu14_sil_pl_36)
   ); // MC10176
   cell_MC10176 u_g05 (
+    .sys_clk(sys_clk),
     .p3(ifu13_sil_pl_8),
     .p4(ifu13_sil_pl_9),
     .p6(RcvdBMux_08),
@@ -2952,6 +3042,7 @@ module IFU_m_Rev_m_Ch (
     .p11(IfuTempSense)
   ); // LM3911+20K
   cell_MC10176 u_g07 (
+    .sys_clk(sys_clk),
     .p2(ifu14_sil_pl_34),
     .p3(ifu14_sil_pl_20),
     .p4(ifu14_sil_pl_21),
@@ -3116,6 +3207,7 @@ module IFU_m_Rev_m_Ch (
     .p15(bLengthK_1_p_)
   ); // MC1660
   cell_F10016 u_g19 (
+    .sys_clk(sys_clk),
     .p2(GFault_p_),
     .p3(GDv),
     .p5(GLd_p_),
@@ -3126,7 +3218,7 @@ module IFU_m_Rev_m_Ch (
     .p11(ifu03_sil_pl_4),
     .p13(dblClk_p_Dc),
     .p14(GDv_p_a),
-    .p15(GDv_p_)
+    .p15(GDv_p___drv)
   ); // F10016
   cell_MC10121 u_g20 (
     .p2(ifu03_sil_pl_6),
@@ -3154,7 +3246,7 @@ module IFU_m_Rev_m_Ch (
     .p15(WantIfuRef_p___g21_15)
   ); // MC1662
   cell_MC10119 u_g22 (
-    .p2(GLd_p_),
+    .p2(GLd_p___drv),
     .p3(ifu03_sil_pl_1),
     .p4(PcFG_15_p_),
     .p5(SH_p_),
@@ -3190,15 +3282,15 @@ module IFU_m_Rev_m_Ch (
     .p1(ifu14_sil_pl_3),
     .p2(ifu14_sil_pl_3),
     .p3(EventCntB_11),
-    .p4(GenOut_11),
-    .p5(GenOut_10),
+    .p4(GenOut_11__drv),
+    .p5(GenOut_10__drv),
     .p6(ifu14_sil_pl_3),
     .p7(EventCntB_10),
     .p9(VCC97),
     .p10(ifu14_sil_pl_3),
     .p11(EventCntB_09),
-    .p12(GenOut_09),
-    .p13(GenOut_08),
+    .p12(GenOut_09__drv),
+    .p13(GenOut_08__drv),
     .p14(ifu14_sil_pl_3),
     .p15(EventCntB_08)
   ); // MC10125
@@ -3206,19 +3298,20 @@ module IFU_m_Rev_m_Ch (
     .p1(ifu14_sil_pl_1),
     .p2(ifu14_sil_pl_1),
     .p3(EventCntB_15),
-    .p4(GenOut_15),
-    .p5(GenOut_14),
+    .p4(GenOut_15__drv),
+    .p5(GenOut_14__drv),
     .p6(ifu14_sil_pl_1),
     .p7(EventCntB_14),
     .p9(VCC97),
     .p10(ifu14_sil_pl_1),
     .p11(EventCntB_13),
-    .p12(GenOut_13),
-    .p13(GenOut_12),
+    .p12(GenOut_13__drv),
+    .p13(GenOut_12__drv),
     .p14(ifu14_sil_pl_1),
     .p15(EventCntB_12)
   ); // MC10125
   cell_F10016 u_h03 (
+    .sys_clk(sys_clk),
     .p2(EventCntB_10),
     .p3(EventCntB_11),
     .p4(ifu14_sil_pl_5),
@@ -3233,6 +3326,7 @@ module IFU_m_Rev_m_Ch (
     .p15(EventCntB_09)
   ); // F10016
   cell_F10016 u_h04 (
+    .sys_clk(sys_clk),
     .p2(EventCntB_14),
     .p3(EventCntB_15),
     .p4(ifu14_sil_pl_6),
@@ -3262,6 +3356,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu14_sil_pl_13)
   ); // MC10164
   cell_MC10176 u_h07 (
+    .sys_clk(sys_clk),
     .p2(ifu14_sil_pl_27),
     .p3(ifu14_sil_pl_26),
     .p4(ifu14_sil_pl_25),
@@ -3319,6 +3414,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_03)
   ); // F10415A
   cell_F10016 u_h11 (
+    .sys_clk(sys_clk),
     .p2(J_2a),
     .p3(J_3a),
     .p5(JLd_p_a),
@@ -3332,6 +3428,7 @@ module IFU_m_Rev_m_Ch (
     .p15(J_1a)
   ); // F10016
   cell_F10016 u_h12 (
+    .sys_clk(sys_clk),
     .p2(J_6a),
     .p3(J_7a),
     .p5(JLd_p_a),
@@ -3345,6 +3442,7 @@ module IFU_m_Rev_m_Ch (
     .p15(J_5a)
   ); // F10016
   cell_MC10231 u_h13 (
+    .sys_clk(sys_clk),
     .p2(SawRamParityErr),
     .p3(SawRamParityErr_p_),
     .p4(NewGo),
@@ -3394,6 +3492,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu02_sil_pl_5__h16_15)
   ); // MC10102
   cell_F10016 u_h17 (
+    .sys_clk(sys_clk),
     .p2(JFault),
     .p3(JFault_p_),
     .p5(JLd_p_b),
@@ -3493,15 +3592,15 @@ module IFU_m_Rev_m_Ch (
     .p1(ifu14_sil_pl_2),
     .p2(ifu14_sil_pl_2),
     .p3(EventCntB_07),
-    .p4(GenOut_07),
-    .p5(GenOut_06),
+    .p4(GenOut_07__drv),
+    .p5(GenOut_06__drv),
     .p6(ifu14_sil_pl_2),
     .p7(EventCntB_06),
     .p9(VCC109),
     .p10(ifu14_sil_pl_2),
     .p11(EventCntB_05),
-    .p12(GenOut_05),
-    .p13(GenOut_04),
+    .p12(GenOut_05__drv),
+    .p13(GenOut_04__drv),
     .p14(ifu14_sil_pl_2),
     .p15(EventCntB_04)
   ); // MC10125
@@ -3509,19 +3608,20 @@ module IFU_m_Rev_m_Ch (
     .p1(ifu14_sil_pl_4),
     .p2(ifu14_sil_pl_4),
     .p3(EventCntB_03),
-    .p4(GenOut_03),
-    .p5(GenOut_02),
+    .p4(GenOut_03__drv),
+    .p5(GenOut_02__drv),
     .p6(ifu14_sil_pl_4),
     .p7(EventCntB_02),
     .p9(VCC109),
     .p10(ifu14_sil_pl_4),
     .p11(EventCntB_01),
-    .p12(GenOut_01),
-    .p13(GenOut_00),
+    .p12(GenOut_01__drv),
+    .p13(GenOut_00__drv),
     .p14(ifu14_sil_pl_4),
     .p15(EventCntB_00)
   ); // MC10125
   cell_F10016 u_i03 (
+    .sys_clk(sys_clk),
     .p2(EventCntB_02),
     .p3(EventCntB_03),
     .p5(GenOut_u__p_),
@@ -3535,6 +3635,7 @@ module IFU_m_Rev_m_Ch (
     .p15(EventCntB_01)
   ); // F10016
   cell_F10016 u_i04 (
+    .sys_clk(sys_clk),
     .p2(EventCntB_06),
     .p3(EventCntB_07),
     .p4(ifu14_sil_pl_7),
@@ -3607,6 +3708,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_08)
   ); // F10415A
   cell_F10016 u_i11 (
+    .sys_clk(sys_clk),
     .p2(J_2b),
     .p3(J_3b),
     .p5(JLd_p_a),
@@ -3620,6 +3722,7 @@ module IFU_m_Rev_m_Ch (
     .p15(J_1b)
   ); // F10016
   cell_F10016 u_i12 (
+    .sys_clk(sys_clk),
     .p2(J_6b),
     .p3(J_7b),
     .p5(JLd_p_a),
@@ -3675,6 +3778,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_05)
   ); // F10415A
   cell_MC10231 u_i16 (
+    .sys_clk(sys_clk),
     .p2(ExceptionDispatch_p_),
     .p3(ExceptionDispatch),
     .p6(clk0_p_Da),
@@ -3725,6 +3829,7 @@ module IFU_m_Rev_m_Ch (
     .p15(GND422)
   ); // SE10210
   cell_MC10135 u_i20 (
+    .sys_clk(sys_clk),
     .p2(OneByteJumpInJ),
     .p3(OneByteJumpInJ_p_),
     .p6(JLd_p_a),
@@ -3775,13 +3880,14 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu14_sil_pl_19)
   ); // MC10118
   cell_MC10231 u_i24 (
-    .p3(IfuAddr_05_p_),
+    .sys_clk(sys_clk),
+    .p3(IfuAddr_05_p___drv),
     .p6(clk0_p_Dc),
     .p7(dIA_05),
     .p9(InstrAddrLd_p_),
     .p10(SayRamParityErr),
     .p11(clk0_p_Dc),
-    .p14(IfuAddr_10_p_)
+    .p14(IfuAddr_10_p___drv)
   ); // MC10231
   cell_MC10124 u_j01 (
     .p1(ifu13_sil_pl_15),
@@ -3838,6 +3944,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu14_sil_pl_15__j05_15)
   ); // MC1662
   cell_MC10231 u_j06 (
+    .sys_clk(sys_clk),
     .p2(IfuReset),
     .p7(IfuReset1),
     .p9(SpecClk0_p_Ba),
@@ -3857,13 +3964,14 @@ module IFU_m_Rev_m_Ch (
     .p15(GND446)
   ); // SE10210
   cell_MC10231 u_j08 (
+    .sys_clk(sys_clk),
     .p3(ifu15_sil_pl_2),
     .p4(ShutUp),
     .p7(ifu15_sil_pl_3),
     .p9(SpecClk0_p_Ba),
     .p10(ifu15_sil_pl_4),
     .p13(ShutUp),
-    .p15(JunkTW)
+    .p15(JunkTW__drv)
   ); // MC10231
   cell_F10415A u_j09 (
     .p1(NK_1),
@@ -3896,6 +4004,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_09)
   ); // F10415A
   cell_F10016 u_j11 (
+    .sys_clk(sys_clk),
     .p2(J_2c),
     .p3(J_3c),
     .p5(JLd_p_a),
@@ -3909,6 +4018,7 @@ module IFU_m_Rev_m_Ch (
     .p15(J_1c)
   ); // F10016
   cell_F10016 u_j12 (
+    .sys_clk(sys_clk),
     .p2(J_6c),
     .p3(J_7c),
     .p5(JLd_p_a),
@@ -4017,6 +4127,7 @@ module IFU_m_Rev_m_Ch (
     .p15(GND470)
   ); // SE10210
   cell_MC10231 u_j20 (
+    .sys_clk(sys_clk),
     .p2(Mar_u_PcF_p_),
     .p7(WantIfuRef_p_),
     .p9(clk1_p_Da),
@@ -4063,13 +4174,14 @@ module IFU_m_Rev_m_Ch (
     .p15(SayNotReadyOrHigher__j23_15)
   ); // MC10101
   cell_MC10231 u_j24 (
-    .p2(IfuAddr_06_p_),
+    .sys_clk(sys_clk),
+    .p2(IfuAddr_06_p___drv),
     .p6(clk0_p_Dd),
     .p7(dIA_06),
     .p9(InstrAddrLd_p_),
     .p10(SayNotReadyOrHigher),
     .p11(clk0_p_Dd),
-    .p14(IfuAddr_11_p_)
+    .p14(IfuAddr_11_p___drv)
   ); // MC10231
   cell_SIPpackage u_j46 (
     .p1(VCC126),
@@ -4100,9 +4212,10 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu13_sil_pl_23)
   ); // MC10124
   cell_F10016 u_k03 (
+    .sys_clk(sys_clk),
     .p2(EventCntA_02),
     .p3(EventCntA_03),
-    .p4(CrryEvCntA),
+    .p4(CrryEvCntA__drv),
     .p5(ifu13_sil_pl_2),
     .p6(ifu13_sil_pl_3),
     .p7(ifu13_sil_pl_18),
@@ -4120,6 +4233,7 @@ module IFU_m_Rev_m_Ch (
     .p15(GND488)
   ); // MC10212
   cell_F10016 u_k05 (
+    .sys_clk(sys_clk),
     .p2(EventCntA_14),
     .p3(EventCntA_15),
     .p4(ifu13_sil_pl_5),
@@ -4134,6 +4248,7 @@ module IFU_m_Rev_m_Ch (
     .p15(EventCntA_13)
   ); // F10016
   cell_MC10176 u_k06 (
+    .sys_clk(sys_clk),
     .p2(bEmuOrFT),
     .p3(Hold),
     .p4(ProcMemRef),
@@ -4164,6 +4279,7 @@ module IFU_m_Rev_m_Ch (
     .p15(MuxData5__k07_15)
   ); // MU10164
   cell_MC10231 u_k08 (
+    .sys_clk(sys_clk),
     .p2(TimeToWake),
     .p3(ifu15_sil_pl_1),
     .p6(Pendulum),
@@ -4203,6 +4319,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_09)
   ); // F10415A
   cell_F10016 u_k11 (
+    .sys_clk(sys_clk),
     .p2(J_2d),
     .p3(J_3d),
     .p5(JLd_p_a),
@@ -4216,6 +4333,7 @@ module IFU_m_Rev_m_Ch (
     .p15(J_1d)
   ); // F10016
   cell_F10016 u_k12 (
+    .sys_clk(sys_clk),
     .p2(J_6d),
     .p3(J_7d),
     .p5(JLd_p_a),
@@ -4286,6 +4404,7 @@ module IFU_m_Rev_m_Ch (
     .p15(MuxData5__k16_15)
   ); // MU10164
   cell_MC10176 u_k17 (
+    .sys_clk(sys_clk),
     .p2(HDvDly),
     .p3(FDvDly),
     .p4(GLdDly_p_),
@@ -4349,33 +4468,37 @@ module IFU_m_Rev_m_Ch (
     .p15(SayReschedOrHigher__k21_15)
   ); // MC10101
   cell_MC10231 u_k22 (
-    .p3(IfuAddr_08_p_),
+    .sys_clk(sys_clk),
+    .p3(IfuAddr_08_p___drv),
     .p6(clk0_p_Df),
     .p7(dIA_08),
     .p9(InstrAddrLd_p_),
     .p10(SayFGParityErrOrHigher),
     .p11(clk0_p_Df),
-    .p14(IfuAddr_13_p_)
+    .p14(IfuAddr_13_p___drv)
   ); // MC10231
   cell_MC10231 u_k23 (
-    .p2(IfuAddr_07_p_),
+    .sys_clk(sys_clk),
+    .p2(IfuAddr_07_p___drv),
     .p6(clk0_p_De),
     .p7(dIA_07),
     .p9(InstrAddrLd_p_),
     .p10(SayReschedOrHigher),
     .p11(clk0_p_De),
-    .p14(IfuAddr_12_p_)
+    .p14(IfuAddr_12_p___drv)
   ); // MC10231
   cell_MC10231 u_k24 (
-    .p3(IfuAddr_04_p_),
+    .sys_clk(sys_clk),
+    .p3(IfuAddr_04_p___drv),
     .p6(clk0_p_Db),
     .p7(dIA_04),
     .p9(InstrAddrLd_p_),
     .p10(dIA_09),
     .p11(clk0_p_Db),
-    .p14(IfuAddr_09_p_)
+    .p14(IfuAddr_09_p___drv)
   ); // MC10231
   cell_MC10231 u_l01 (
+    .sys_clk(sys_clk),
     .p3(prepreFH_p_),
     .p6(MemClkEn_p_a),
     .p7(MemSH),
@@ -4394,6 +4517,7 @@ module IFU_m_Rev_m_Ch (
     .p15(GND532)
   ); // SE10210
   cell_F10016 u_l03 (
+    .sys_clk(sys_clk),
     .p2(EventCntA_06),
     .p3(EventCntA_07),
     .p4(ifu13_sil_pl_7),
@@ -4408,6 +4532,7 @@ module IFU_m_Rev_m_Ch (
     .p15(EventCntA_05)
   ); // F10016
   cell_F10016 u_l04 (
+    .sys_clk(sys_clk),
     .p2(EventCntA_10),
     .p3(EventCntA_11),
     .p4(ifu13_sil_pl_4),
@@ -4437,6 +4562,7 @@ module IFU_m_Rev_m_Ch (
     .p15(MuxData7__l05_15)
   ); // MU10164
   cell_MC10176 u_l06 (
+    .sys_clk(sys_clk),
     .p2(EventBx),
     .p3(EventCx),
     .p4(EventDx),
@@ -4630,6 +4756,7 @@ module IFU_m_Rev_m_Ch (
     .p15(MuxData3__l18_15)
   ); // MU10164
   cell_MC10176 u_l19 (
+    .sys_clk(sys_clk),
     .p3(DMadr_01),
     .p4(DMadr_02),
     .p6(DMadr_02),
@@ -4657,6 +4784,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu01_sil_pl_7)
   ); // MC10103
   cell_MC10135 u_l21 (
+    .sys_clk(sys_clk),
     .p2(KillResponse),
     .p4(IfuReset),
     .p6(ifu01_sil_pl_6),
@@ -4664,6 +4792,7 @@ module IFU_m_Rev_m_Ch (
     .p9(dblClk_p_Da)
   ); // MC10135
   cell_MC10176 u_l22 (
+    .sys_clk(sys_clk),
     .p2(DMadr_06),
     .p3(DMadr_07),
     .p4(DMadr_08),
@@ -4700,7 +4829,7 @@ module IFU_m_Rev_m_Ch (
     .p12(MuxData5),
     .p13(MuxData6),
     .p14(MuxData7),
-    .p15(DMuxData)
+    .p15(DMuxData__drv)
   ); // MU10164
 
 endmodule

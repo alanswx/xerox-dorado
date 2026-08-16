@@ -19,6 +19,7 @@ make -C verilog proms      # proms/*.mem and the per-package images
 make -C verilog prom-test  # THE GATE: PROMs read back what the machine expects
 python3 tools/sil_backplane.py             # what the backplane is, measured
 python3 tools/sil_backplane.py --ports     # boards present the ports PARC states
+make -C verilog machine-test  # THE GATE: the assembled machine clocks
 make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 ```
 
@@ -32,13 +33,19 @@ make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 | Harness | Verilator + Dear ImGui, builds, runs, `--headless` CI mode |
 | Board port lists | **from PARC's own `.bp`**, 1,920/1,922 exact, 0 spurious |
 | Backplane top module | **generated**, 11 boards wired by name, lint clean |
+| Synthesisability | **no `inout`, no multiply-driven net, no gated clock** |
+| The machine | **instantiated in `sim.v` and clocking**; its clock tree runs |
 
-The machine is now assembled in RTL -- `verilog/generated/dorado_backplane.v`
-instantiates eleven boards, wires 501 nets between them, and every PROM
-package holds the contents PARC's BCPL computes -- but it does not COMPUTE
-yet: `sim.v` still instantiates nothing, so nothing clocks it, and the cells
-that are still skeletons leave X where their logic should be. Task A is that
-step.
+`verilog/generated/dorado_backplane.v` instantiates eleven boards and wires
+501 nets between them; `dorado_machine` resolves the 407 external ports and
+`sim.v` clocks it. **The BaseBoard's clock distribution runs end to end** --
+all ten `CLK.<board>'` nets toggle, plus the fourteen going to slots this
+configuration does not fill.
+
+It does not compute yet: 47 of 125 cell types have behaviour, so most of the
+machine is still constant. `make -C verilog machine-test` counts how many
+signals move (27 today) and is a FLOOR that should rise as the cell library
+fills in.
 
 ### What landed on 2026-08-15/16
 
@@ -112,6 +119,71 @@ step.
   (Q0..Q5), and `MakeDriveSelect` uses only bits 7..2 -- exactly those six.
 
 ---
+
+## Reference: the FPGA shape, and why it is not the physical one
+
+The target is an FPGA, which rules out two things the Dorado does natively.
+Both are handled in the GENERATOR, so the RTL stays derived rather than
+hand-adjusted.
+
+**Wired-OR buses become OR trees.** MECL 10K outputs are open emitters and
+the machine ties them together: 115 backplane nets are driven by more than
+one board, the B bus `BMux.00-15` among them (ContA, IFU, MemC, MemD, MemX
+and ProcH/ProcL all drive it). An earlier pass modelled that with `inout`
+ports and `wor` nets, which simulates correctly -- and synthesises nowhere,
+because an FPGA has no wired-OR outside its I/O ring. Now each board exports
+its CONTRIBUTION and reads the resolved bus back:
+
+```verilog
+    output wire BMux_00__drv,      // in the board
+    input  wire BMux_00
+    ...
+    assign BMux_00 = BMux_00__ContA | BMux_00__IFU | ... ;   // in the machine
+```
+
+which is exactly what the open emitters compute, in one LUT level. The gate
+is `verilator --lint-only` with `-Wno-MULTIDRIVEN` REMOVED: it reports zero.
+
+**Distributed clocks become clock enables.** The Dorado fans a clock out to
+every board and every flip-flop is clocked from that ECL net -- 1,201
+packages across ten part types. Synthesised literally that is 1,201 gated
+clocks off combinational logic, which no fabric can route. Every clocked cell
+now runs on `sys_clk`, the fabric clock, and uses the modelled clock net as
+an ENABLE:
+
+```verilog
+  reg  ck_d;
+  always @(posedge sys_clk) ck_d <= p9;
+  wire ck_en = p9 & ~ck_d;
+  always @(posedge sys_clk) if (ck_en) q <= {p12, p11, p10, p7, p6, p5};
+```
+
+Standard oversampling, faithful as long as `sys_clk` is faster than the clock
+net -- `dorado_machine` divides by four to guarantee it. Asynchronous inputs
+(MR, S/R, CL') are level-tested on the same edge, which keeps them out of the
+fabric's reset network. The two DRAM cells got the same treatment and their
+writes are synchronous now, so they INFER BLOCK RAM instead of 309 packages'
+worth of latches.
+
+`sys_clk` is threaded by the generator: a cell that declares the port gets it
+connected, and boards and the top module pass it down. It is not a Dorado
+signal and does not appear in any `.bp`.
+
+## Reference: where the clock comes from
+
+Worth knowing before trying to run the machine, because the obvious answer is
+wrong. **The master clock is GENERATED ON THE BASEBOARD, not fed to it.** Two
+MC1690 ECL flip-flops (BaseBd `g04` and `h03`) produce `StartClockPulse'` and
+`EndClockPulse`; an MC10210 at `j02` ORs those with `dStartClockPulse`; its
+outputs fan out through `l01/k01/j01/i01/h01` as `CLK.ph'`, `CLK.mc'` and the
+rest, one per slot. `CLK.InBase` is how the BaseBoard receives that
+distributed clock BACK on its own C9 -- the same pin every other board takes
+it on. Driving C9 alone reaches ten nets and stops.
+
+MC1690 has no cell model yet, so the generator is dead. `dStartClockPulse` is
+a real backplane INPUT (BaseBd C101) into the same gate, so the harness
+drives it and the whole tree moves. **Modelling MC1690 is the obvious next
+piece of the cell library**, and it would make the machine self-clocking.
 
 ## Reference: how the backplane was derived, and why by name
 
@@ -222,24 +294,32 @@ a logic part, so nothing in RTL drives them -- `Collision` and `RcvData`
 arrive from the ethernet transceiver over a cable. They are board inputs, and
 the top module exposes them.
 
-## Task A -- clock the machine in `sim.v`, and wire the PROMs
+## Task A -- fill in the cell library, starting with the clock generator
 
-`verilog/verilator/sim.v` is MiSTer's `emu` and deliberately instantiates
-NOTHING yet -- a comment there says why. The module to instantiate now exists:
-`dorado_backplane`, with 407 ports that need driving or tying off, each
-commented with what it is (a cable, or an absent board).
+The machine is assembled, clocked and gated; what stops it computing is that
+78 of 125 cell types are still skeletons with correct ports and no body.
+`make -C verilog machine-test` measures the effect directly: 27 signals move
+today, and each cell that gains behaviour should raise that.
 
-The incremental path is supported directly -- start with the two processor
-boards, which the harness already verilates in and which the C emulator knows
-best:
+**Start with MC1690**, the clock generator (BaseBd g04/h03). It is the one
+part whose absence the harness is working around -- the machine is clocked
+through `dStartClockPulse` because its own generator cannot run. Modelling it
+makes the machine self-clocking, which is both more authentic and one less
+thing for a testbench to know.
+
+After that, order by package count -- `python3 tools/sil_netlist.py --all
+chm/sil` ranks them -- and prefer the parts the processor boards use, since
+that is where the C emulator can check the answer.
+
+The incremental path is supported directly, if a smaller machine is easier to
+reason about:
 
 ```
 make -C verilog backplane MACHINE="--boards=ProcH,ProcL --module=dorado_proc"
 ```
 
 That gives 76 internal nets and 164 ports, every one labelled with the board
-it is waiting for. Add MemC/MemD/MemX, then Control A/B and the IFU, and the
-port list shrinks as the nets find their partners.
+it is waiting for.
 
 The PROMs are done: `make -C verilog proms` writes both the per-PROM images
 and the per-package slices, and the generator wires all 29 placed packages.
@@ -304,6 +384,14 @@ Cheapest first:
   watch it go red.
 - **Xerox files are CR-terminated.** `wc -l` reports 0 lines for every `.bcpl`
   and `.bp` in the archive, and a naive read gets one enormous line.
+- **A sampled probe sees one clock phase.** The harness reads probes after
+  `tick()`, which leaves the clock HIGH, so anything that follows the clock
+  combinationally reads as a constant and looks dead. That is why the machine
+  clock is divided from `sys_clk` rather than being `sys_clk`: the cells need
+  to see an edge, and the observer needs to sample between them.
+- **zsh does not word-split unquoted parameters.** `$FLAGS` reaches the
+  program as ONE argument, and Verilator reports the whole string as an
+  unknown warning. Use an array, or write the flags out.
 - **Two passes over the same netlist must agree about what a driver is.**
   `classify()` decided port direction from the CELL's port directions while
   `emit()` decided on-board wired-OR from the WIRE LIST's `o` pins. On five

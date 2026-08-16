@@ -5,12 +5,23 @@
 
 `default_nettype none
 
-// Ports: the 125 nets BaseBd-Rev-Am.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 125 nets BaseBd-Rev-Am.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module BaseBd_m_Rev_m_Am (
+    input  wire sys_clk,
     input  wire ACPABus_0_p_,
     input  wire ACPABus_1_p_,
     input  wire ACPABus_2_p_,
@@ -36,7 +47,19 @@ module BaseBd_m_Rev_m_Am (
     input  wire ACPGnd_10,
     input  wire ACPGnd_11,
     input  wire ACPGnd_12,
+    input  wire ACPI_0,
+    input  wire ACPI_1,
+    input  wire ACPI_2,
+    input  wire ACPI_3,
+    input  wire ACPI_4,
+    input  wire ACPIGnd_0,
+    input  wire ACPIGnd_1,
+    input  wire ACPIGnd_2,
+    input  wire ACPIGnd_3,
+    input  wire ACPIGnd_4,
     input  wire ACPStrb_p_,
+    input  wire BootMC_p_,
+    input  wire BootNO,
     input  wire CBTempSense,
     input  wire CICC__m_SS,
     input  wire CICC_EOS,
@@ -52,12 +75,15 @@ module BaseBd_m_Rev_m_Am (
     input  wire CPIn_2,
     input  wire CPIn_3,
     input  wire Collision,
+    input  wire DMuxClk,
+    input  wire DMuxData,
     input  wire DiskOnRet,
     input  wire LEDOnRet,
     input  wire OISData,
     input  wire OISData_p_,
     input  wire PwrOnRet,
     input  wire RcvData,
+    input  wire Sequence0_p_,
     input  wire Serial_1,
     input  wire Serial_10,
     input  wire Serial_100,
@@ -66,76 +92,80 @@ module BaseBd_m_Rev_m_Am (
     input  wire Serial_200,
     input  wire Serial_4,
     input  wire Serial_40,
+    input  wire SkipWait_p_,
+    input  wire TTLIOReset_p_,
+    input  wire TempRef,
+    input  wire UseDMD,
     input  wire XmtData_p_,
     input  wire dStartClockPulse,
-    output wire CLK_OutBase_p_,
-    output wire CLK_ca_p_,
-    output wire CLK_cb_p_,
-    output wire CLK_disk_p_,
-    output wire CLK_display_p_,
-    output wire CLK_ifu_p_,
-    output wire CLK_io20_p_,
-    output wire CLK_io21_p_,
-    output wire CLK_io22_p_,
-    output wire CLK_io23_p_,
-    output wire CLK_io24_p_,
-    output wire CLK_mc_p_,
-    output wire CLK_md_p_,
-    output wire CLK_ms0Even_p_,
-    output wire CLK_ms0Odd_p_,
-    output wire CLK_ms1Even_p_,
-    output wire CLK_ms1Odd_p_,
-    output wire CLK_ms2Even_p_,
-    output wire CLK_ms2Odd_p_,
-    output wire CLK_ms3Even_p_,
-    output wire CLK_ms3Odd_p_,
-    output wire CLK_mx_p_,
-    output wire CLK_ph_p_,
-    output wire CLK_pl_p_,
-    output wire CPAddr_0_p_,
-    output wire CPAddr_1_p_,
-    output wire CPAddr_2_p_,
-    output wire CPOut_0,
-    output wire CPOut_1,
-    output wire CPOut_2,
-    output wire CPOut_3,
-    output wire CPOut_4,
-    output wire CPOut_5,
-    output wire CPOut_6,
-    output wire CPOut_7,
-    output wire CPOut_8,
-    output wire CPStrb_p_,
-    output wire IOReset,
-    output wire KeyboardData,
-    output wire Pendulum,
-    output wire RfshPeriod,
-    output wire SetRun,
-    output wire SetRunRfsh,
-    output wire SetSS_p_,
-    output wire StartClockPulse,
-    output wire TurnOff2v,
-    output wire TurnOnDisk_p_,
-    output wire TurnOnLED_p_,
-    output wire TurnOnPwr_p_,
-    inout  wire ACPI_0,
-    inout  wire ACPI_1,
-    inout  wire ACPI_2,
-    inout  wire ACPI_3,
-    inout  wire ACPI_4,
-    inout  wire ACPIGnd_0,
-    inout  wire ACPIGnd_1,
-    inout  wire ACPIGnd_2,
-    inout  wire ACPIGnd_3,
-    inout  wire ACPIGnd_4,
-    inout  wire BootMC_p_,
-    inout  wire BootNO,
-    inout  wire DMuxClk,
-    inout  wire DMuxData,
-    inout  wire Sequence0_p_,
-    inout  wire SkipWait_p_,
-    inout  wire TTLIOReset_p_,
-    inout  wire TempRef,
-    inout  wire UseDMD
+    output wire ACPI_0__drv,
+    output wire ACPI_1__drv,
+    output wire ACPI_2__drv,
+    output wire ACPI_3__drv,
+    output wire ACPI_4__drv,
+    output wire ACPIGnd_0__drv,
+    output wire ACPIGnd_1__drv,
+    output wire ACPIGnd_2__drv,
+    output wire ACPIGnd_3__drv,
+    output wire ACPIGnd_4__drv,
+    output wire BootMC_p___drv,
+    output wire BootNO__drv,
+    output wire CLK_OutBase_p___drv,
+    output wire CLK_ca_p___drv,
+    output wire CLK_cb_p___drv,
+    output wire CLK_disk_p___drv,
+    output wire CLK_display_p___drv,
+    output wire CLK_ifu_p___drv,
+    output wire CLK_io20_p___drv,
+    output wire CLK_io21_p___drv,
+    output wire CLK_io22_p___drv,
+    output wire CLK_io23_p___drv,
+    output wire CLK_io24_p___drv,
+    output wire CLK_mc_p___drv,
+    output wire CLK_md_p___drv,
+    output wire CLK_ms0Even_p___drv,
+    output wire CLK_ms0Odd_p___drv,
+    output wire CLK_ms1Even_p___drv,
+    output wire CLK_ms1Odd_p___drv,
+    output wire CLK_ms2Even_p___drv,
+    output wire CLK_ms2Odd_p___drv,
+    output wire CLK_ms3Even_p___drv,
+    output wire CLK_ms3Odd_p___drv,
+    output wire CLK_mx_p___drv,
+    output wire CLK_ph_p___drv,
+    output wire CLK_pl_p___drv,
+    output wire CPAddr_0_p___drv,
+    output wire CPAddr_1_p___drv,
+    output wire CPAddr_2_p___drv,
+    output wire CPOut_0__drv,
+    output wire CPOut_1__drv,
+    output wire CPOut_2__drv,
+    output wire CPOut_3__drv,
+    output wire CPOut_4__drv,
+    output wire CPOut_5__drv,
+    output wire CPOut_6__drv,
+    output wire CPOut_7__drv,
+    output wire CPOut_8__drv,
+    output wire CPStrb_p___drv,
+    output wire DMuxClk__drv,
+    output wire DMuxData__drv,
+    output wire IOReset__drv,
+    output wire KeyboardData__drv,
+    output wire Pendulum__drv,
+    output wire RfshPeriod__drv,
+    output wire Sequence0_p___drv,
+    output wire SetRun__drv,
+    output wire SetRunRfsh__drv,
+    output wire SetSS_p___drv,
+    output wire SkipWait_p___drv,
+    output wire StartClockPulse__drv,
+    output wire TTLIOReset_p___drv,
+    output wire TempRef__drv,
+    output wire TurnOff2v__drv,
+    output wire TurnOnDisk_p___drv,
+    output wire TurnOnLED_p___drv,
+    output wire TurnOnPwr_p___drv,
+    output wire UseDMD__drv
 );
 
   // 555 internal nets
@@ -696,8 +726,9 @@ module BaseBd_m_Rev_m_Am (
   wire preclk0_p_;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire AHasCP__c20_7;
   wire AHasCP__c62_13;
   assign AHasCP = AHasCP__c20_7 | AHasCP__c62_13;
@@ -717,19 +748,19 @@ module BaseBd_m_Rev_m_Am (
   assign BaseBd15_sil_pl_2 = BaseBd15_sil_pl_2__c05_3 | BaseBd15_sil_pl_2__c05_5;
   wire BootNO__l62_17;
   wire BootNO__c01_1;
-  assign BootNO = BootNO__l62_17 | BootNO__c01_1;
+  assign BootNO__drv = BootNO__l62_17 | BootNO__c01_1;
   wire CLK_ifu_p___k01_3;
   wire CLK_ifu_p___k01_2;
-  assign CLK_ifu_p_ = CLK_ifu_p___k01_3 | CLK_ifu_p___k01_2;
+  assign CLK_ifu_p___drv = CLK_ifu_p___k01_3 | CLK_ifu_p___k01_2;
   wire CLK_mc_p___k01_13;
   wire CLK_mc_p___k01_4;
-  assign CLK_mc_p_ = CLK_mc_p___k01_13 | CLK_mc_p___k01_4;
+  assign CLK_mc_p___drv = CLK_mc_p___k01_13 | CLK_mc_p___k01_4;
   wire CLK_md_p___j01_3;
   wire CLK_md_p___j01_2;
-  assign CLK_md_p_ = CLK_md_p___j01_3 | CLK_md_p___j01_2;
+  assign CLK_md_p___drv = CLK_md_p___j01_3 | CLK_md_p___j01_2;
   wire CLK_mx_p___k01_12;
   wire CLK_mx_p___k01_14;
-  assign CLK_mx_p_ = CLK_mx_p___k01_12 | CLK_mx_p___k01_14;
+  assign CLK_mx_p___drv = CLK_mx_p___k01_12 | CLK_mx_p___k01_14;
   wire CPDMuxData_p___j17_4;
   wire CPDMuxData_p___j17_1;
   assign CPDMuxData_p_ = CPDMuxData_p___j17_4 | CPDMuxData_p___j17_1;
@@ -1033,6 +1064,8 @@ module BaseBd_m_Rev_m_Am (
   wire WatchdogIn__f63_15;
   assign WatchdogIn = WatchdogIn__g22_8 | WatchdogIn__f63_15;
 
+  // 63 single-driver contributions to the backplane
+
   // ---- packages
   cell_CA3140 u__h_4i19 (
     // no connections
@@ -1047,8 +1080,9 @@ module BaseBd_m_Rev_m_Am (
     // no connections
   ); // CA3140
   cell_MC10176 u_a01 (
+    .sys_clk(sys_clk),
     .p2(BaseBd12_sil_pl_8),
-    .p3(Pendulum),
+    .p3(Pendulum__drv),
     .p4(BaseBd12_sil_pl_10),
     .p5(SyncPendulum),
     .p6(BaseBd12_sil_pl_8),
@@ -1057,9 +1091,9 @@ module BaseBd_m_Rev_m_Am (
     .p10(BaseBd12_sil_pl_10),
     .p11(SyncRunRfsh),
     .p12(BaseBd12_sil_pl_9),
-    .p13(RfshPeriod),
+    .p13(RfshPeriod__drv),
     .p14(BaseBd12_sil_pl_9),
-    .p15(SetRunRfsh)
+    .p15(SetRunRfsh__drv)
   ); // MC10176
   cell_AUGATCG16 u_a02 (
     .p1(VEE26),
@@ -1235,12 +1269,12 @@ module BaseBd_m_Rev_m_Am (
     .p16(Basebd06_sil_pl_1)
   ); // AUGATCG16
   cell_MPQ6002 u_b24 (
-    .p1(ACPI_0),
+    .p1(ACPI_0__drv),
     .p2(Basebd06_sil_pl_4),
-    .p3(ACPIGnd_0),
-    .p5(ACPIGnd_1),
+    .p3(ACPIGnd_0__drv),
+    .p5(ACPIGnd_1__drv),
     .p6(Basebd06_sil_pl_5),
-    .p7(ACPI_1),
+    .p7(ACPI_1__drv),
     .p8(Basebd06_sil_pl_5),
     .p9(Basebd06_sil_pl_8),
     .p10(Basebd06_sil_pl_6),
@@ -1478,12 +1512,12 @@ module BaseBd_m_Rev_m_Am (
     .p16(Basebd06_sil_pl_12)
   ); // AUGATCG16
   cell_MPQ6002 u_c24 (
-    .p1(ACPI_2),
+    .p1(ACPI_2__drv),
     .p2(Basebd06_sil_pl_9),
-    .p3(ACPIGnd_2),
-    .p5(ACPIGnd_3),
+    .p3(ACPIGnd_2__drv),
+    .p5(ACPIGnd_3__drv),
     .p6(Basebd06_sil_pl_16),
-    .p7(ACPI_3),
+    .p7(ACPI_3__drv),
     .p8(Basebd06_sil_pl_16),
     .p9(Basebd06_sil_pl_13),
     .p10(Basebd06_sil_pl_15),
@@ -1739,9 +1773,9 @@ module BaseBd_m_Rev_m_Am (
     .p16(Basebd06_sil_pl_19)
   ); // AUGATCG16
   cell_MPQ6002 u_d24 (
-    .p1(ACPI_4),
+    .p1(ACPI_4__drv),
     .p2(Basebd06_sil_pl_17),
-    .p3(ACPIGnd_4),
+    .p3(ACPIGnd_4__drv),
     .p12(Basebd06_sil_pl_18),
     .p13(Basebd06_sil_pl_19),
     .p14(Basebd06_sil_pl_17)
@@ -1954,28 +1988,28 @@ module BaseBd_m_Rev_m_Am (
     .p24(VCC74)
   ); // i2716
   cell_MC10124 u_f01 (
-    .p3(CPAddr_1_p_),
-    .p4(CPAddr_2_p_),
+    .p3(CPAddr_1_p___drv),
+    .p4(CPAddr_2_p___drv),
     .p5(TCPABus_2),
     .p6(TTLTrue_A),
     .p7(TCPABus_1),
     .p9(VCC85),
     .p10(TCPABus_0),
     .p11(TCPBus_08),
-    .p12(CPAddr_0_p_),
-    .p14(CPOut_8)
+    .p12(CPAddr_0_p___drv),
+    .p14(CPOut_8__drv)
   ); // MC10124
   cell_MC10124 u_f02 (
-    .p1(SetRun),
-    .p4(SetSS_p_),
+    .p1(SetRun__drv),
+    .p4(SetSS_p___drv),
     .p5(Basebd03_sil_pl_1),
     .p6(TTLTrue_A),
     .p7(TSetRun),
     .p9(VCC85),
     .p10(TCPStrb),
     .p11(TKeyboardData),
-    .p12(CPStrb_p_),
-    .p14(KeyboardData)
+    .p12(CPStrb_p___drv),
+    .p14(KeyboardData__drv)
   ); // MC10124
   cell_SN74LS157 u_f06 (
     .p1(AHasCP),
@@ -2237,28 +2271,28 @@ module BaseBd_m_Rev_m_Am (
     .p40(MCA_06)
   ); // MCS6532
   cell_MC10124 u_g01 (
-    .p1(CPOut_2),
-    .p2(CPOut_3),
+    .p1(CPOut_2__drv),
+    .p2(CPOut_3__drv),
     .p5(TCPBus_03),
     .p6(TTLTrue_B),
     .p7(TCPBus_02),
     .p9(VCC97),
     .p10(TCPBus_01),
     .p11(TCPBus_00),
-    .p14(CPOut_0),
-    .p15(CPOut_1)
+    .p14(CPOut_0__drv),
+    .p15(CPOut_1__drv)
   ); // MC10124
   cell_MC10124 u_g02 (
-    .p1(CPOut_6),
-    .p2(CPOut_7),
+    .p1(CPOut_6__drv),
+    .p2(CPOut_7__drv),
     .p5(TCPBus_07),
     .p6(TTLTrue_B),
     .p7(TCPBus_06),
     .p9(VCC97),
     .p10(TCPBus_05),
     .p11(TCPBus_04),
-    .p14(CPOut_4),
-    .p15(CPOut_5)
+    .p14(CPOut_4__drv),
+    .p15(CPOut_5__drv)
   ); // MC10124
   cell_MC1690 u_g03 (
     .p2(BaseBd11_sil_pl_15),
@@ -2369,7 +2403,7 @@ module BaseBd_m_Rev_m_Am (
     .p2(BaseBd14_sil_pl_3),
     .p3(GND322),
     .p4(VEE162),
-    .p6(TempRef),
+    .p6(TempRef__drv),
     .p7(VCC105)
   ); // CA3140
   cell_SN74LS174 u_g20 (
@@ -2442,14 +2476,14 @@ module BaseBd_m_Rev_m_Am (
     .p7(VCC103)
   ); // SIPpackage
   cell_MC10210 u_h01 (
-    .p2(CLK_io20_p_),
-    .p3(CLK_display_p_),
-    .p4(CLK_io21_p_),
+    .p2(CLK_io20_p___drv),
+    .p3(CLK_display_p___drv),
+    .p4(CLK_io21_p___drv),
     .p7(BaseBd12_sil_pl_6),
     .p11(BaseBd12_sil_pl_6),
-    .p12(CLK_io23_p_),
-    .p13(CLK_io22_p_),
-    .p14(CLK_io24_p_),
+    .p12(CLK_io23_p___drv),
+    .p13(CLK_io22_p___drv),
+    .p14(CLK_io24_p___drv),
     .p15(GND338)
   ); // MC10210
   cell_MC1690 u_h03 (
@@ -2690,18 +2724,18 @@ module BaseBd_m_Rev_m_Am (
     .p24(VCC101)
   ); // i2716
   cell_MC10210 u_i01 (
-    .p2(CLK_ms2Even_p_),
-    .p3(CLK_ms1Odd_p_),
-    .p4(CLK_ms2Odd_p_),
+    .p2(CLK_ms2Even_p___drv),
+    .p3(CLK_ms1Odd_p___drv),
+    .p4(CLK_ms2Odd_p___drv),
     .p7(BaseBd12_sil_pl_5),
     .p11(BaseBd12_sil_pl_5),
-    .p12(CLK_ms3Odd_p_),
-    .p13(CLK_ms3Even_p_),
-    .p14(CLK_disk_p_),
+    .p12(CLK_ms3Odd_p___drv),
+    .p13(CLK_ms3Even_p___drv),
+    .p14(CLK_disk_p___drv),
     .p15(GND386)
   ); // MC10210
   cell_SE10211 u_i02 (
-    .p4(StartClockPulse),
+    .p4(StartClockPulse__drv),
     .p5(StartClockPulse_p_),
     .p15(GND388)
   ); // SE10211
@@ -2906,7 +2940,7 @@ module BaseBd_m_Rev_m_Am (
     .p9(GND430)
   ); // AUGATCG16
   cell_MC10124 u_i24 (
-    .p4(IOReset),
+    .p4(IOReset__drv),
     .p5(TTLIOReset_p_),
     .p6(TTLTrue_D),
     .p9(VCC120)
@@ -2958,7 +2992,7 @@ module BaseBd_m_Rev_m_Am (
     .p19(MCPABus_2),
     .p20(VCC103),
     .p22(TSetRun__i62_22),
-    .p23(SkipWait_p_),
+    .p23(SkipWait_p___drv),
     .p24(MCPStrb),
     .p25(MCIRQ_p___i62_25),
     .p26(MCD_7__i62_26),
@@ -2982,9 +3016,9 @@ module BaseBd_m_Rev_m_Am (
     .p3(CLK_md_p___j01_3),
     .p7(BaseBd12_sil_pl_4),
     .p11(BaseBd12_sil_pl_4),
-    .p12(CLK_ms0Odd_p_),
-    .p13(CLK_ms0Even_p_),
-    .p14(CLK_ms1Even_p_),
+    .p12(CLK_ms0Odd_p___drv),
+    .p13(CLK_ms0Even_p___drv),
+    .p14(CLK_ms1Even_p___drv),
     .p15(GND434)
   ); // MC10210
   cell_MC10210 u_j02 (
@@ -3139,7 +3173,7 @@ module BaseBd_m_Rev_m_Am (
     .p7(GND416),
     .p8(BaseBd09_sil_pl_1),
     .p9(BaseBd09_sil_pl_3),
-    .p10(BootMC_p_),
+    .p10(BootMC_p___drv),
     .p14(VCC128)
   ); // SN74LS01
   cell_AUGATCG16 u_j18 (
@@ -3264,7 +3298,7 @@ module BaseBd_m_Rev_m_Am (
     .p7(TEnableRfPd_p_),
     .p8(GND444),
     .p9(Basebd04_sil_pl_4),
-    .p10(TTLIOReset_p_),
+    .p10(TTLIOReset_p___drv),
     .p11(DMD_10),
     .p12(TRunRfsh),
     .p13(DMD_11),
@@ -3455,15 +3489,15 @@ module BaseBd_m_Rev_m_Am (
   cell_SN7438 u_k23 (
     .p1(Basebd04_sil_pl_10),
     .p2(Basebd04_sil_pl_10),
-    .p3(Sequence0_p_),
+    .p3(Sequence0_p___drv),
     .p4(BaseBd14_sil_pl_2),
     .p5(BaseBd14_sil_pl_2),
-    .p6(TurnOnLED_p_),
+    .p6(TurnOnLED_p___drv),
     .p7(GND632),
-    .p8(TurnOnPwr_p_),
+    .p8(TurnOnPwr_p___drv),
     .p9(TurnOnPwr),
     .p10(PwrGood),
-    .p11(TurnOnDisk_p_),
+    .p11(TurnOnDisk_p___drv),
     .p12(PwrGood),
     .p13(TurnOnDisk),
     .p14(VCC143)
@@ -3486,13 +3520,13 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC144)
   ); // CD4051
   cell_MC10210 u_l01 (
-    .p2(CLK_ca_p_),
-    .p3(CLK_OutBase_p_),
-    .p4(CLK_cb_p_),
+    .p2(CLK_ca_p___drv),
+    .p3(CLK_OutBase_p___drv),
+    .p4(CLK_cb_p___drv),
     .p7(BaseBd12_sil_pl_1),
     .p11(BaseBd12_sil_pl_1),
-    .p12(CLK_ph_p_),
-    .p13(CLK_pl_p_),
+    .p12(CLK_ph_p___drv),
+    .p13(CLK_pl_p___drv),
     .p15(GND530)
   ); // MC10210
   cell_MC10124 u_l02 (
@@ -3598,7 +3632,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC141)
   ); // SN74LS157
   cell_MPQ6002 u_l20 (
-    .p8(TurnOff2v),
+    .p8(TurnOff2v__drv),
     .p9(BaseBd14_sil_pl_4),
     .p10(BaseBd14_sil_pl_5)
   ); // MPQ6002
@@ -3652,14 +3686,14 @@ module BaseBd_m_Rev_m_Am (
     .p12(Basebd05_sil_pl_7)
   ); // MC10125
   cell_MC10124 u_l24 (
-    .p1(DMuxClk),
-    .p4(DMuxData),
+    .p1(DMuxClk__drv),
+    .p4(DMuxData__drv),
     .p5(CPDMuxData_p_),
     .p6(TTLTrue_D),
     .p7(CPDMuxClk),
     .p9(VCC144),
     .p10(CPUseDMD),
-    .p15(UseDMD)
+    .p15(UseDMD__drv)
   ); // MC10124
   cell_SIPpackage u_l49 (
     .p1(VCC141),

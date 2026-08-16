@@ -6,7 +6,8 @@
 #                 hand-written model; use `make cells-force` deliberately
 #   make proms    regenerate proms/*.mem and the per-package images
 #   make lint     every board must still elaborate under Verilator
-#   make prom-test  the PROMs read back what the machine expects
+#   make prom-test    the PROMs read back what the machine expects
+#   make machine-test the assembled machine clocks and its clock tree runs
 #
 # The inputs are all original Xerox data; see docs/verilog-from-sil.md.
 SIL     = ../chm/sil
@@ -14,7 +15,8 @@ ECLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ecldict.analyze
 TTLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ttldict.analyze
 TOOLS   = ../tools
 
-.PHONY: boards backplane proms cells cells-force lint prom-test clean-generated
+.PHONY: boards backplane proms cells cells-force lint prom-test machine-test \
+        clean-generated
 
 # PROM contents, sliced per package position from PARC's own BCPL.
 proms:
@@ -23,6 +25,10 @@ proms:
 
 prom-test:
 	@$(MAKE) -C verilator prom-test
+
+# Does the assembled machine run? Needs the harness built first.
+machine-test:
+	@$(MAKE) -C verilator machine-test
 boards: backplane
 
 # The boards first, then the top module -- it re-runs the SAME classification

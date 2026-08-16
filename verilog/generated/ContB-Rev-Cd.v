@@ -5,12 +5,27 @@
 
 `default_nettype none
 
-// Ports: the 130 nets ContB-Rev-Cd.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 130 nets ContB-Rev-Cd.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module ContB_m_Rev_m_Cd (
+    input  wire sys_clk,
+    input  wire ALUF_0,
+    input  wire ALUF_1,
+    input  wire ALUF_2,
+    input  wire ALUF_3,
     input  wire BMux_00,
     input  wire BMux_01,
     input  wire BMux_02,
@@ -31,8 +46,21 @@ module ContB_m_Rev_m_Cd (
     input  wire BMux_17,
     input  wire BNPC_02,
     input  wire BNPC_03,
+    input  wire BNPC_04,
+    input  wire BNPC_05,
+    input  wire BNPC_06,
+    input  wire BNPC_07,
+    input  wire BNPC_08,
+    input  wire BNPC_09,
+    input  wire BNPC_10,
+    input  wire BNPC_11,
+    input  wire BNPC_12,
+    input  wire BNPC_13,
+    input  wire BNPC_14,
+    input  wire BNPC_15,
     input  wire BNTGtCT_p_a,
     input  wire CBHold,
+    input  wire CBTempSense,
     input  wire CLK_cb_p_,
     input  wire CLKEnable_p_a,
     input  wire CPAddr_0_p_,
@@ -46,9 +74,16 @@ module ContB_m_Rev_m_Cd (
     input  wire CPStrb_p_,
     input  wire CRamClock,
     input  wire DMuxClk,
+    input  wire DMuxData,
     input  wire DoCBr,
+    input  wire IMLHPE_p_,
+    input  wire IMLHPEDly,
     input  wire IMRHPE_p_,
+    input  wire IMRHPEDly,
     input  wire IOPE,
+    input  wire LC_0,
+    input  wire LC_1,
+    input  wire LC_2,
     input  wire MdPE,
     input  wire MemPE,
     input  wire RamPE,
@@ -70,77 +105,96 @@ module ContB_m_Rev_m_Cd (
     input  wire TNIA_15,
     input  wire TempRef,
     input  wire UseDMD,
-    output wire ASEL_0,
-    output wire ASEL_0_p_,
-    output wire ASEL_0_p_a,
-    output wire ASEL_0_p_mem,
-    output wire ASEL_1_p_,
-    output wire ASEL_2_p_,
-    output wire BSEL_0_p_,
-    output wire BSEL_1_p_,
-    output wire BSEL_2_p_,
-    output wire CPIn_0,
-    output wire CPIn_1,
-    output wire CPIn_2,
-    output wire CPIn_3,
-    output wire Error_p_,
-    output wire RSTK_0,
-    output wire RSTK_1,
-    output wire RSTK_2,
-    output wire RSTK_3,
-    output wire StopMIRClk,
-    output wire dIMOut_07,
-    output wire dIMOut_08,
-    output wire dIMOut_09,
-    output wire dIMOut_10,
-    output wire dIMOut_11,
-    output wire dIMOut_12,
-    output wire dIMOut_13,
-    output wire dIMOut_14,
-    output wire dIMOut_15,
-    inout  wire ALUF_0,
-    inout  wire ALUF_1,
-    inout  wire ALUF_2,
-    inout  wire ALUF_3,
-    inout  wire BNPC_04,
-    inout  wire BNPC_05,
-    inout  wire BNPC_06,
-    inout  wire BNPC_07,
-    inout  wire BNPC_08,
-    inout  wire BNPC_09,
-    inout  wire BNPC_10,
-    inout  wire BNPC_11,
-    inout  wire BNPC_12,
-    inout  wire BNPC_13,
-    inout  wire BNPC_14,
-    inout  wire BNPC_15,
-    inout  wire CBTempSense,
-    inout  wire DMuxData,
-    inout  wire IMLHPE_p_,
-    inout  wire IMLHPEDly,
-    inout  wire IMRHPEDly,
-    inout  wire LC_0,
-    inout  wire LC_1,
-    inout  wire LC_2,
-    inout  wire dBlock_p_,
-    inout  wire dFF_0,
-    inout  wire dFF_1,
-    inout  wire dFF_2,
-    inout  wire dFF_3,
-    inout  wire dFF_4,
-    inout  wire dFF_5,
-    inout  wire dFF_6,
-    inout  wire dFF_7,
-    inout  wire dIMRH,
-    inout  wire dJCN_0,
-    inout  wire dJCN_1,
-    inout  wire dJCN_2,
-    inout  wire dJCN_3,
-    inout  wire dJCN_4,
-    inout  wire dJCN_5,
-    inout  wire dJCN_6,
-    inout  wire dJCN_7,
-    inout  wire rMIRa
+    input  wire dBlock_p_,
+    input  wire dFF_0,
+    input  wire dFF_1,
+    input  wire dFF_2,
+    input  wire dFF_3,
+    input  wire dFF_4,
+    input  wire dFF_5,
+    input  wire dFF_6,
+    input  wire dFF_7,
+    input  wire dIMRH,
+    input  wire dJCN_0,
+    input  wire dJCN_1,
+    input  wire dJCN_2,
+    input  wire dJCN_3,
+    input  wire dJCN_4,
+    input  wire dJCN_5,
+    input  wire dJCN_6,
+    input  wire dJCN_7,
+    input  wire rMIRa,
+    output wire ALUF_0__drv,
+    output wire ALUF_1__drv,
+    output wire ALUF_2__drv,
+    output wire ALUF_3__drv,
+    output wire ASEL_0__drv,
+    output wire ASEL_0_p___drv,
+    output wire ASEL_0_p_a__drv,
+    output wire ASEL_0_p_mem__drv,
+    output wire ASEL_1_p___drv,
+    output wire ASEL_2_p___drv,
+    output wire BNPC_04__drv,
+    output wire BNPC_05__drv,
+    output wire BNPC_06__drv,
+    output wire BNPC_07__drv,
+    output wire BNPC_08__drv,
+    output wire BNPC_09__drv,
+    output wire BNPC_10__drv,
+    output wire BNPC_11__drv,
+    output wire BNPC_12__drv,
+    output wire BNPC_13__drv,
+    output wire BNPC_14__drv,
+    output wire BNPC_15__drv,
+    output wire BSEL_0_p___drv,
+    output wire BSEL_1_p___drv,
+    output wire BSEL_2_p___drv,
+    output wire CBTempSense__drv,
+    output wire CPIn_0__drv,
+    output wire CPIn_1__drv,
+    output wire CPIn_2__drv,
+    output wire CPIn_3__drv,
+    output wire DMuxData__drv,
+    output wire Error_p___drv,
+    output wire IMLHPE_p___drv,
+    output wire IMLHPEDly__drv,
+    output wire IMRHPEDly__drv,
+    output wire LC_0__drv,
+    output wire LC_1__drv,
+    output wire LC_2__drv,
+    output wire RSTK_0__drv,
+    output wire RSTK_1__drv,
+    output wire RSTK_2__drv,
+    output wire RSTK_3__drv,
+    output wire StopMIRClk__drv,
+    output wire dBlock_p___drv,
+    output wire dFF_0__drv,
+    output wire dFF_1__drv,
+    output wire dFF_2__drv,
+    output wire dFF_3__drv,
+    output wire dFF_4__drv,
+    output wire dFF_5__drv,
+    output wire dFF_6__drv,
+    output wire dFF_7__drv,
+    output wire dIMOut_07__drv,
+    output wire dIMOut_08__drv,
+    output wire dIMOut_09__drv,
+    output wire dIMOut_10__drv,
+    output wire dIMOut_11__drv,
+    output wire dIMOut_12__drv,
+    output wire dIMOut_13__drv,
+    output wire dIMOut_14__drv,
+    output wire dIMOut_15__drv,
+    output wire dIMRH__drv,
+    output wire dJCN_0__drv,
+    output wire dJCN_1__drv,
+    output wire dJCN_2__drv,
+    output wire dJCN_3__drv,
+    output wire dJCN_4__drv,
+    output wire dJCN_5__drv,
+    output wire dJCN_6__drv,
+    output wire dJCN_7__drv,
+    output wire rMIRa__drv
 );
 
   // 446 internal nets
@@ -592,8 +646,9 @@ module ContB_m_Rev_m_Cd (
   wire sRSTK_3;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire ContB09_sil_pl_2__k03_3;
   wire ContB09_sil_pl_2__k03_2;
   wire ContB09_sil_pl_2__k03_15;
@@ -739,7 +794,7 @@ module ContB_m_Rev_m_Cd (
   wire dBlock_p___f17_1;
   wire dBlock_p___f18_1;
   wire dBlock_p___f19_1;
-  assign dBlock_p_ = dBlock_p___f16_1 | dBlock_p___f17_1 | dBlock_p___f18_1 | dBlock_p___f19_1;
+  assign dBlock_p___drv = dBlock_p___f16_1 | dBlock_p___f17_1 | dBlock_p___f18_1 | dBlock_p___f19_1;
   wire dBSEL_0__f09_1;
   wire dBSEL_0__f08_1;
   wire dBSEL_0__f07_1;
@@ -759,42 +814,42 @@ module ContB_m_Rev_m_Cd (
   wire dFF_0__a11_1;
   wire dFF_0__a14_1;
   wire dFF_0__a15_1;
-  assign dFF_0 = dFF_0__a10_1 | dFF_0__a11_1 | dFF_0__a14_1 | dFF_0__a15_1;
+  assign dFF_0__drv = dFF_0__a10_1 | dFF_0__a11_1 | dFF_0__a14_1 | dFF_0__a15_1;
   wire dFF_1__b10_1;
   wire dFF_1__b11_1;
   wire dFF_1__b14_1;
   wire dFF_1__b15_1;
-  assign dFF_1 = dFF_1__b10_1 | dFF_1__b11_1 | dFF_1__b14_1 | dFF_1__b15_1;
+  assign dFF_1__drv = dFF_1__b10_1 | dFF_1__b11_1 | dFF_1__b14_1 | dFF_1__b15_1;
   wire dFF_2__c10_1;
   wire dFF_2__c11_1;
   wire dFF_2__c14_1;
   wire dFF_2__c15_1;
-  assign dFF_2 = dFF_2__c10_1 | dFF_2__c11_1 | dFF_2__c14_1 | dFF_2__c15_1;
+  assign dFF_2__drv = dFF_2__c10_1 | dFF_2__c11_1 | dFF_2__c14_1 | dFF_2__c15_1;
   wire dFF_3__d10_1;
   wire dFF_3__d11_1;
   wire dFF_3__d14_1;
   wire dFF_3__d15_1;
-  assign dFF_3 = dFF_3__d10_1 | dFF_3__d11_1 | dFF_3__d14_1 | dFF_3__d15_1;
+  assign dFF_3__drv = dFF_3__d10_1 | dFF_3__d11_1 | dFF_3__d14_1 | dFF_3__d15_1;
   wire dFF_4__a16_1;
   wire dFF_4__a17_1;
   wire dFF_4__a18_1;
   wire dFF_4__a19_1;
-  assign dFF_4 = dFF_4__a16_1 | dFF_4__a17_1 | dFF_4__a18_1 | dFF_4__a19_1;
+  assign dFF_4__drv = dFF_4__a16_1 | dFF_4__a17_1 | dFF_4__a18_1 | dFF_4__a19_1;
   wire dFF_5__b16_1;
   wire dFF_5__b17_1;
   wire dFF_5__b18_1;
   wire dFF_5__b19_1;
-  assign dFF_5 = dFF_5__b16_1 | dFF_5__b17_1 | dFF_5__b18_1 | dFF_5__b19_1;
+  assign dFF_5__drv = dFF_5__b16_1 | dFF_5__b17_1 | dFF_5__b18_1 | dFF_5__b19_1;
   wire dFF_6__c16_1;
   wire dFF_6__c17_1;
   wire dFF_6__c18_1;
   wire dFF_6__c19_1;
-  assign dFF_6 = dFF_6__c16_1 | dFF_6__c17_1 | dFF_6__c18_1 | dFF_6__c19_1;
+  assign dFF_6__drv = dFF_6__c16_1 | dFF_6__c17_1 | dFF_6__c18_1 | dFF_6__c19_1;
   wire dFF_7__d16_1;
   wire dFF_7__d17_1;
   wire dFF_7__d18_1;
   wire dFF_7__d19_1;
-  assign dFF_7 = dFF_7__d16_1 | dFF_7__d17_1 | dFF_7__d18_1 | dFF_7__d19_1;
+  assign dFF_7__drv = dFF_7__d16_1 | dFF_7__d17_1 | dFF_7__d18_1 | dFF_7__d19_1;
   wire dIMLH__d06_1;
   wire dIMLH__d07_1;
   wire dIMLH__d08_1;
@@ -804,47 +859,47 @@ module ContB_m_Rev_m_Cd (
   wire dIMRH__e17_1;
   wire dIMRH__e18_1;
   wire dIMRH__e19_1;
-  assign dIMRH = dIMRH__e16_1 | dIMRH__e17_1 | dIMRH__e18_1 | dIMRH__e19_1;
+  assign dIMRH__drv = dIMRH__e16_1 | dIMRH__e17_1 | dIMRH__e18_1 | dIMRH__e19_1;
   wire dJCN_0__e06_1;
   wire dJCN_0__e07_1;
   wire dJCN_0__e08_1;
   wire dJCN_0__e09_1;
-  assign dJCN_0 = dJCN_0__e06_1 | dJCN_0__e07_1 | dJCN_0__e08_1 | dJCN_0__e09_1;
+  assign dJCN_0__drv = dJCN_0__e06_1 | dJCN_0__e07_1 | dJCN_0__e08_1 | dJCN_0__e09_1;
   wire dJCN_1__e10_1;
   wire dJCN_1__e11_1;
   wire dJCN_1__e14_1;
   wire dJCN_1__e15_1;
-  assign dJCN_1 = dJCN_1__e10_1 | dJCN_1__e11_1 | dJCN_1__e14_1 | dJCN_1__e15_1;
+  assign dJCN_1__drv = dJCN_1__e10_1 | dJCN_1__e11_1 | dJCN_1__e14_1 | dJCN_1__e15_1;
   wire dJCN_2__f10_1;
   wire dJCN_2__f11_1;
   wire dJCN_2__f14_1;
   wire dJCN_2__f15_1;
-  assign dJCN_2 = dJCN_2__f10_1 | dJCN_2__f11_1 | dJCN_2__f14_1 | dJCN_2__f15_1;
+  assign dJCN_2__drv = dJCN_2__f10_1 | dJCN_2__f11_1 | dJCN_2__f14_1 | dJCN_2__f15_1;
   wire dJCN_3__g10_1;
   wire dJCN_3__g11_1;
   wire dJCN_3__g14_1;
   wire dJCN_3__g15_1;
-  assign dJCN_3 = dJCN_3__g10_1 | dJCN_3__g11_1 | dJCN_3__g14_1 | dJCN_3__g15_1;
+  assign dJCN_3__drv = dJCN_3__g10_1 | dJCN_3__g11_1 | dJCN_3__g14_1 | dJCN_3__g15_1;
   wire dJCN_4__h10_1;
   wire dJCN_4__h11_1;
   wire dJCN_4__h14_1;
   wire dJCN_4__h15_1;
-  assign dJCN_4 = dJCN_4__h10_1 | dJCN_4__h11_1 | dJCN_4__h14_1 | dJCN_4__h15_1;
+  assign dJCN_4__drv = dJCN_4__h10_1 | dJCN_4__h11_1 | dJCN_4__h14_1 | dJCN_4__h15_1;
   wire dJCN_5__g16_1;
   wire dJCN_5__g17_1;
   wire dJCN_5__g18_1;
   wire dJCN_5__g19_1;
-  assign dJCN_5 = dJCN_5__g16_1 | dJCN_5__g17_1 | dJCN_5__g18_1 | dJCN_5__g19_1;
+  assign dJCN_5__drv = dJCN_5__g16_1 | dJCN_5__g17_1 | dJCN_5__g18_1 | dJCN_5__g19_1;
   wire dJCN_6__h16_1;
   wire dJCN_6__h17_1;
   wire dJCN_6__h18_1;
   wire dJCN_6__h19_1;
-  assign dJCN_6 = dJCN_6__h16_1 | dJCN_6__h17_1 | dJCN_6__h18_1 | dJCN_6__h19_1;
+  assign dJCN_6__drv = dJCN_6__h16_1 | dJCN_6__h17_1 | dJCN_6__h18_1 | dJCN_6__h19_1;
   wire dJCN_7__i16_1;
   wire dJCN_7__i17_1;
   wire dJCN_7__i18_1;
   wire dJCN_7__i19_1;
-  assign dJCN_7 = dJCN_7__i16_1 | dJCN_7__i17_1 | dJCN_7__i18_1 | dJCN_7__i19_1;
+  assign dJCN_7__drv = dJCN_7__i16_1 | dJCN_7__i17_1 | dJCN_7__i18_1 | dJCN_7__i19_1;
   wire dLC_0__j16_1;
   wire dLC_0__j17_1;
   wire dLC_0__j18_1;
@@ -986,6 +1041,8 @@ module ContB_m_Rev_m_Cd (
   wire RBMuxP__d02_15;
   assign RBMuxP = RBMuxP__d05_2 | RBMuxP__d02_15;
 
+  // 53 single-driver contributions to the backplane
+
   // ---- packages
   cell_F10415A u_a06 (
     .p1(dASEL_0__a06_1),
@@ -1101,7 +1158,7 @@ module ContB_m_Rev_m_Cd (
     .p3(TempRef),
     .p4(GND24),
     .p6(VCC54),
-    .p11(CBTempSense)
+    .p11(CBTempSense__drv)
   ); // LM3911+20K
   cell_F10415A u_a14 (
     .p1(dFF_0__a14_1),
@@ -1215,6 +1272,7 @@ module ContB_m_Rev_m_Cd (
     .p15(ContB13_sil_pl_2)
   ); // MC10197
   cell_MC10176 u_b02 (
+    .sys_clk(sys_clk),
     .p2(RBMux_00__b02_2),
     .p3(RBMux_01__b02_3),
     .p4(RBMux_02__b02_4),
@@ -1241,7 +1299,7 @@ module ContB_m_Rev_m_Cd (
     .p12(MemPEenable),
     .p13(MDPEenable),
     .p14(StopMIRClkEn),
-    .p15(CPIn_3)
+    .p15(CPIn_3__drv)
   ); // MC10164
   cell_MU10164 u_b05 (
     .p2(DMD_05),
@@ -1488,17 +1546,19 @@ module ContB_m_Rev_m_Cd (
     .p15(bdFF_2)
   ); // MC10197
   cell_MC10231 u_b23 (
+    .sys_clk(sys_clk),
     .p9(RepeatCurCc),
     .p10(dASEL_0),
     .p11(clk0_p_Ca),
     .p12(sASEL_0),
     .p13(rMIRa),
-    .p14(ASEL_0_p_a),
+    .p14(ASEL_0_p_a__drv),
     .p15(ASEL_0a)
   ); // MC10231
   cell_MC10231 u_b24 (
+    .sys_clk(sys_clk),
     .p2(ASEL_1),
-    .p3(ASEL_1_p_),
+    .p3(ASEL_1_p___drv),
     .p4(rMIRa),
     .p5(sASEL_1),
     .p6(clk0_p_Cb),
@@ -1508,8 +1568,8 @@ module ContB_m_Rev_m_Cd (
     .p11(clk0_p_Cb),
     .p12(sASEL_0),
     .p13(rMIRa),
-    .p14(ASEL_0_p_),
-    .p15(ASEL_0)
+    .p14(ASEL_0_p___drv),
+    .p15(ASEL_0__drv)
   ); // MC10231
   cell_MC10197 u_c01 (
     .p2(RBMux_05__c01_2),
@@ -1527,6 +1587,7 @@ module ContB_m_Rev_m_Cd (
     .p15(RBMux_10__c01_15)
   ); // MC10197
   cell_MC10176 u_c02 (
+    .sys_clk(sys_clk),
     .p2(RBMux_06__c02_2),
     .p3(RBMux_07__c02_3),
     .p4(RBMux_08__c02_4),
@@ -1553,9 +1614,10 @@ module ContB_m_Rev_m_Cd (
     .p12(MemPEDly),
     .p13(DoradoStopped),
     .p14(IOPEenable),
-    .p15(CPIn_2)
+    .p15(CPIn_2__drv)
   ); // MC10164
   cell_MC10176 u_c04 (
+    .sys_clk(sys_clk),
     .p2(IMRHPEenable),
     .p3(IMLHPEenable),
     .p4(IOPEenable),
@@ -1848,6 +1910,7 @@ module ContB_m_Rev_m_Cd (
     .p15(bdJCN_0)
   ); // MC10197
   cell_MC10231 u_c24 (
+    .sys_clk(sys_clk),
     .p2(IMLH),
     .p3(IMLH_p_),
     .p4(rMIRa),
@@ -1859,7 +1922,7 @@ module ContB_m_Rev_m_Cd (
     .p11(clk0_p_Cc),
     .p12(sASEL_2),
     .p13(rMIRa),
-    .p14(ASEL_2_p_),
+    .p14(ASEL_2_p___drv),
     .p15(ASEL_2)
   ); // MC10231
   cell_MC10197 u_d01 (
@@ -1876,6 +1939,7 @@ module ContB_m_Rev_m_Cd (
     .p14(RBMux_15__d01_14)
   ); // MC10197
   cell_MC10176 u_d02 (
+    .sys_clk(sys_clk),
     .p3(RBMux_12__d02_3),
     .p4(RBMux_13__d02_4),
     .p6(DMD_06),
@@ -1900,7 +1964,7 @@ module ContB_m_Rev_m_Cd (
     .p12(RAMPEDly),
     .p13(bIMLHPE),
     .p14(IMLHPEenable),
-    .p15(CPIn_1)
+    .p15(CPIn_1__drv)
   ); // MC10164
   cell_MC10164 u_d04 (
     .p3(RBMux_12),
@@ -1914,7 +1978,7 @@ module ContB_m_Rev_m_Cd (
     .p12(IOPEDly),
     .p13(bIMRHPE),
     .p14(IMRHPEenable),
-    .p15(CPIn_0)
+    .p15(CPIn_0__drv)
   ); // MC10164
   cell_MC10102 u_d05 (
     .p2(RBMuxP__d05_2),
@@ -2207,7 +2271,7 @@ module ContB_m_Rev_m_Cd (
     .p15(ContB03_sil_pl_1)
   ); // MC10170
   cell_MC10174 u_e02 (
-    .p2(dIMOut_14),
+    .p2(dIMOut_14__drv),
     .p3(bdFF_6),
     .p4(bdALUF_3),
     .p5(bdJCN_6),
@@ -2218,7 +2282,7 @@ module ContB_m_Rev_m_Cd (
     .p11(bdJCN_7),
     .p12(bdBSEL_0),
     .p13(bdFF_7),
-    .p15(dIMOut_15)
+    .p15(dIMOut_15__drv)
   ); // MC10174
   cell_MU10164 u_e03 (
     .p2(DMD_05),
@@ -2549,7 +2613,7 @@ module ContB_m_Rev_m_Cd (
     .p15(bdJCN_6)
   ); // MC10197
   cell_MC10174 u_f01 (
-    .p2(dIMOut_12),
+    .p2(dIMOut_12__drv),
     .p3(bdFF_4),
     .p4(bdALUF_1),
     .p5(bdJCN_4),
@@ -2560,10 +2624,10 @@ module ContB_m_Rev_m_Cd (
     .p11(bdJCN_5),
     .p12(bdALUF_2),
     .p13(bdFF_5),
-    .p15(dIMOut_13)
+    .p15(dIMOut_13__drv)
   ); // MC10174
   cell_MC10174 u_f02 (
-    .p2(dIMOut_10),
+    .p2(dIMOut_10__drv),
     .p3(bdFF_2),
     .p4(bdRSTK_3),
     .p5(bdJCN_2),
@@ -2574,10 +2638,10 @@ module ContB_m_Rev_m_Cd (
     .p11(bdJCN_3),
     .p12(bdALUF_0),
     .p13(bdFF_3),
-    .p15(dIMOut_11)
+    .p15(dIMOut_11__drv)
   ); // MC10174
   cell_MC10174 u_f03 (
-    .p2(dIMOut_08),
+    .p2(dIMOut_08__drv),
     .p3(bdFF_0),
     .p4(bdRSTK_1),
     .p5(bdJCN_0),
@@ -2588,7 +2652,7 @@ module ContB_m_Rev_m_Cd (
     .p11(bdJCN_1),
     .p12(bdRSTK_2),
     .p13(bdFF_1),
-    .p15(dIMOut_09)
+    .p15(dIMOut_09__drv)
   ); // MC10174
   cell_MU10164 u_f04 (
     .p2(DMD_05),
@@ -2850,9 +2914,10 @@ module ContB_m_Rev_m_Cd (
     .p15(dRA_01_p___f21_15)
   ); // MC1662
   cell_MC10176 u_f22 (
-    .p2(BNPC_04),
-    .p3(BNPC_05),
-    .p4(BNPC_06),
+    .sys_clk(sys_clk),
+    .p2(BNPC_04__drv),
+    .p3(BNPC_05__drv),
+    .p4(BNPC_06__drv),
     .p5(DMD_06),
     .p6(DMD_07),
     .p7(DMD_08),
@@ -2860,9 +2925,9 @@ module ContB_m_Rev_m_Cd (
     .p10(DMD_09),
     .p11(DMD_10),
     .p12(DMD_11),
-    .p13(BNPC_07),
-    .p14(BNPC_08),
-    .p15(BNPC_09)
+    .p13(BNPC_07__drv),
+    .p14(BNPC_08__drv),
+    .p15(BNPC_09__drv)
   ); // MC10176
   cell_MU10164 u_f23 (
     .p2(DMD_05_p_),
@@ -2897,9 +2962,10 @@ module ContB_m_Rev_m_Cd (
     .p11(bdIMRH),
     .p12(bdRSTK_0),
     .p13(bdBlock),
-    .p15(dIMOut_07)
+    .p15(dIMOut_07__drv)
   ); // MC10174
   cell_MC10176 u_g03 (
+    .sys_clk(sys_clk),
     .p2(StopMIRClkEn),
     .p5(DMD_06),
     .p6(DMD_07),
@@ -3163,9 +3229,10 @@ module ContB_m_Rev_m_Cd (
     .p15(dRA_03_p___g21_15)
   ); // MC1662
   cell_MC10176 u_g22 (
-    .p2(BNPC_10),
-    .p3(BNPC_11),
-    .p4(BNPC_12),
+    .sys_clk(sys_clk),
+    .p2(BNPC_10__drv),
+    .p3(BNPC_11__drv),
+    .p4(BNPC_12__drv),
     .p5(DMD_06),
     .p6(DMD_07),
     .p7(DMD_08),
@@ -3173,9 +3240,9 @@ module ContB_m_Rev_m_Cd (
     .p10(DMD_09),
     .p11(DMD_10),
     .p12(DMD_11),
-    .p13(BNPC_13),
-    .p14(BNPC_14),
-    .p15(BNPC_15)
+    .p13(BNPC_13__drv),
+    .p14(BNPC_14__drv),
+    .p15(BNPC_15__drv)
   ); // MC10176
   cell_MU10164 u_g23 (
     .p2(DMD_05_p_),
@@ -3191,8 +3258,9 @@ module ContB_m_Rev_m_Cd (
     .p15(MMux_04__g23_15)
   ); // MU10164
   cell_MC10231 u_g24 (
+    .sys_clk(sys_clk),
     .p2(BSEL_1),
-    .p3(BSEL_1_p_),
+    .p3(BSEL_1_p___drv),
     .p4(rMIRa),
     .p5(sBSEL_1),
     .p6(clk0_p_Dd),
@@ -3202,11 +3270,12 @@ module ContB_m_Rev_m_Cd (
     .p11(clk0_p_Dd),
     .p12(sBSEL_0),
     .p13(rMIRa),
-    .p14(BSEL_0_p_),
+    .p14(BSEL_0_p___drv),
     .p15(BSEL_0)
   ); // MC10231
   cell_MC10231 u_h01 (
-    .p3(ASEL_0_p_mem),
+    .sys_clk(sys_clk),
+    .p3(ASEL_0_p_mem__drv),
     .p4(rMIRa),
     .p5(sASEL_0),
     .p6(clk0_p_Bb),
@@ -3214,7 +3283,8 @@ module ContB_m_Rev_m_Cd (
     .p9(RepeatCurBa)
   ); // MC10231
   cell_MC10176 u_h03 (
-    .p2(rMIRa),
+    .sys_clk(sys_clk),
+    .p2(rMIRa__drv),
     .p4(MidasCRamClock),
     .p5(DMD_06),
     .p6(DMD_07),
@@ -3508,7 +3578,8 @@ module ContB_m_Rev_m_Cd (
     .p15(MMux_05__h23_15)
   ); // MU10164
   cell_MC10231 u_h24 (
-    .p2(LC_0),
+    .sys_clk(sys_clk),
+    .p2(LC_0__drv),
     .p3(LC_0_p_),
     .p4(rMIRa),
     .p5(sLC_0),
@@ -3519,11 +3590,12 @@ module ContB_m_Rev_m_Cd (
     .p11(clk0_p_Db),
     .p12(sBSEL_2),
     .p13(rMIRa),
-    .p14(BSEL_2_p_),
+    .p14(BSEL_2_p___drv),
     .p15(BSEL_2)
   ); // MC10231
   cell_MC10231 u_i01 (
-    .p2(RSTK_3),
+    .sys_clk(sys_clk),
+    .p2(RSTK_3__drv),
     .p3(RSTK_3_p_),
     .p4(rMIRa),
     .p5(sRSTK_3),
@@ -3535,7 +3607,7 @@ module ContB_m_Rev_m_Cd (
     .p12(sRSTK_2),
     .p13(rMIRa),
     .p14(RSTK_2_p_),
-    .p15(RSTK_2)
+    .p15(RSTK_2__drv)
   ); // MC10231
   cell_MC10195 u_i02 (
     .p2(bIMRHPE),
@@ -3865,7 +3937,8 @@ module ContB_m_Rev_m_Cd (
     .p15(bdBSEL_1)
   ); // MC10197
   cell_MC10231 u_i24 (
-    .p2(LC_2),
+    .sys_clk(sys_clk),
+    .p2(LC_2__drv),
     .p3(LC_2_p_),
     .p4(rMIRa),
     .p5(sLC_2),
@@ -3877,10 +3950,11 @@ module ContB_m_Rev_m_Cd (
     .p12(sLC_1),
     .p13(rMIRa),
     .p14(LC_1_p_),
-    .p15(LC_1)
+    .p15(LC_1__drv)
   ); // MC10231
   cell_MC10231 u_j01 (
-    .p2(RSTK_1),
+    .sys_clk(sys_clk),
+    .p2(RSTK_1__drv),
     .p3(RSTK_1_p_),
     .p4(rMIRa),
     .p5(sRSTK_1),
@@ -3892,7 +3966,7 @@ module ContB_m_Rev_m_Cd (
     .p12(sRSTK_0),
     .p13(rMIRa),
     .p14(RSTK_0_p_),
-    .p15(RSTK_0)
+    .p15(RSTK_0__drv)
   ); // MC10231
   cell_MC10197 u_j02 (
     .p2(bdRSTK_0),
@@ -3912,7 +3986,7 @@ module ContB_m_Rev_m_Cd (
     .p3(MidasOrRSTK_2_p_),
     .p4(MidasRSTK_2),
     .p5(bRSTK_2),
-    .p6(Error_p_),
+    .p6(Error_p___drv),
     .p9(ContB09_sil_pl_4),
     .p10(ContB09_sil_pl_2),
     .p12(MidasRSTK_3),
@@ -4154,7 +4228,7 @@ module ContB_m_Rev_m_Cd (
     .p11(ALUF_3_p_),
     .p12(BSEL_0),
     .p13(ContB09_sil_pl_1),
-    .p15(IMLHPE_p_)
+    .p15(IMLHPE_p___drv)
   ); // MC10170
   cell_MC10170 u_j21 (
     .p2(ContB09_sil_pl_1),
@@ -4195,7 +4269,8 @@ module ContB_m_Rev_m_Cd (
     .p15(MMux_01__j23_15)
   ); // MU10164
   cell_MC10231 u_j24 (
-    .p2(ALUF_1),
+    .sys_clk(sys_clk),
+    .p2(ALUF_1__drv),
     .p3(ALUF_1_p_),
     .p4(rMIRa),
     .p5(sALUF_1),
@@ -4207,7 +4282,7 @@ module ContB_m_Rev_m_Cd (
     .p12(sALUF_0),
     .p13(rMIRa),
     .p14(ALUF_0_p_),
-    .p15(ALUF_0)
+    .p15(ALUF_0__drv)
   ); // MC10231
   cell_MC10161 u_k01 (
     .p2(UseDMDEnable_p_),
@@ -4233,7 +4308,7 @@ module ContB_m_Rev_m_Cd (
     .p10(ContB09_sil_pl_3),
     .p11(StopMIRClkEn_p_),
     .p12(StopMIRClkBD),
-    .p13(StopMIRClk),
+    .p13(StopMIRClk__drv),
     .p14(StopMIRClkC),
     .p15(GND484)
   ); // MC10211
@@ -4519,7 +4594,8 @@ module ContB_m_Rev_m_Cd (
     .p15(MMux_00__k23_15)
   ); // MU10164
   cell_MC10231 u_k24 (
-    .p2(ALUF_3),
+    .sys_clk(sys_clk),
+    .p2(ALUF_3__drv),
     .p3(ALUF_3_p_),
     .p4(rMIRa),
     .p5(sALUF_3),
@@ -4531,7 +4607,7 @@ module ContB_m_Rev_m_Cd (
     .p12(sALUF_2),
     .p13(rMIRa),
     .p14(ALUF_2_p_),
-    .p15(ALUF_2)
+    .p15(ALUF_2__drv)
   ); // MC10231
   cell_SE10210 u_l01 (
     .p2(prepreclk2_p_),
@@ -4557,8 +4633,9 @@ module ContB_m_Rev_m_Cd (
     .p15(IMLHPE_p_)
   ); // MC10121
   cell_MC10176 u_l04 (
-    .p2(IMRHPEDly),
-    .p3(IMLHPEDly),
+    .sys_clk(sys_clk),
+    .p2(IMRHPEDly__drv),
+    .p3(IMLHPEDly__drv),
     .p4(IOPEDly),
     .p5(bIMRHPE),
     .p6(bIMLHPE),
@@ -4784,6 +4861,7 @@ module ContB_m_Rev_m_Cd (
     .p15(RBMux_12)
   ); // F10415A
   cell_MC10176 u_l20 (
+    .sys_clk(sys_clk),
     .p2(DMD_00),
     .p3(DMD_01),
     .p4(DMD_02),
@@ -4799,6 +4877,7 @@ module ContB_m_Rev_m_Cd (
     .p15(DMD_05)
   ); // MC10176
   cell_MC10176 u_l22 (
+    .sys_clk(sys_clk),
     .p2(DMD_06),
     .p3(DMD_07),
     .p4(DMD_08),
@@ -4825,7 +4904,7 @@ module ContB_m_Rev_m_Cd (
     .p11(MMux_04),
     .p12(MMux_05),
     .p13(MMux_06),
-    .p15(DMuxData)
+    .p15(DMuxData__drv)
   ); // MU10164
   cell_MC10103 u_l24 (
     .p2(UseDMDEnable_p_),

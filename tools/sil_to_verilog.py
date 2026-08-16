@@ -81,15 +81,21 @@ def vname(name: str) -> str:
 
 class Generator:
     def __init__(self, board, ecl: EclDict, cells: set[str],
-                 cell_dirs: dict | None = None):
+                 cell_dirs: dict | None = None,
+                 clocked: set[str] | None = None):
         self.b = board
         self.ecl = ecl
         self.cells = cells
         self.cell_dirs = cell_dirs or {}
+        self.clocked = clocked or set()
+        self.clocked_placed = 0
         self.missing: Counter = Counter()
         self.wired_or: list[tuple[str, int]] = []
         self.ports: dict[str, str] = {}      # net -> input|output|inout
         self.undriven_internal: list[str] = []
+        # Backplane nets this board DRIVES: each becomes a `<net>__drv`
+        # output carrying only this board's contribution.
+        self.exports: set[str] = set()
         self.unknown_pins: Counter = Counter()
         # package position -> the .mem holding that PROM's contents. PARC's
         # own PromCommand labels say which package each PROM is blown into;
@@ -153,15 +159,20 @@ class Generator:
 
         Direction comes from the wire list, since `.bp` does not state it:
 
-          drives and senses -> `inout`. The board contributes to the net AND
-            reads it back, which is one bidirectional connection on the real
-            board and must stay one here. 115 backplane nets are driven by
-            more than one board -- MECL open emitters wired together, the B
-            bus among them -- and a board that declared `output` would read
-            back only its own contribution instead of the bus. The top level
-            resolves these as `wor`.
-          drives only  -> `output`
-          neither      -> `input` (including a line the board only terminates)
+          senses -> `input <name>`, the RESOLVED bus arriving.
+          drives -> `output <name>__drv`, this board's CONTRIBUTION only.
+
+        A board that does both gets both ports. That is the FPGA-friendly
+        shape: no `inout`, no multiply-driven net, and the top level resolves
+        a bus as an explicit OR of the contributions -- which is what MECL
+        open emitters wired together actually compute, and what a LUT does in
+        one level. 115 backplane nets are driven by more than one board, the
+        B bus `BMux.00-15` among them (ContA, IFU, MemC, MemD, MemX and
+        ProcH/ProcL all drive it).
+
+        The earlier `inout` + `wor` form simulated correctly but is not
+        synthesisable: an FPGA has no wired-OR outside its I/O ring, and a
+        multiply-driven net is an error to every synthesis tool.
         """
         for name, net in self.b.nets.items():
             drv = self.drivers_in_rtl(name)
@@ -180,8 +191,12 @@ class Generator:
                     self.undriven_internal.append(name)
                 continue
 
-            self.ports[name] = ('inout' if (drives and senses) else
-                                'output' if drives else 'input')
+            # A net the board only terminates still has to appear, so that
+            # the port list matches what PARC's .bp states.
+            if senses or not drives:
+                self.ports[name] = 'input'
+            if drives:
+                self.exports.add(name)
 
     def emit(self) -> str:
         self.classify()
@@ -198,23 +213,34 @@ class Generator:
         A('`default_nettype none')
         A('')
 
-        inputs = sorted(n for n, d in self.ports.items() if d == 'input')
-        outputs = sorted(n for n, d in self.ports.items() if d == 'output')
-        inouts = sorted(n for n, d in self.ports.items() if d == 'inout')
-        A(f'// Ports: the {len(self.ports)} nets {self.b.name}.bp says reach a')
-        A(f'// backplane connector -- PARC\'s own statement of this module\'s')
-        A(f'// boundary, not an inference. An `inout` is a net this board both')
-        A(f'// drives and senses: MECL open emitters are wired together across')
-        A(f'// boards, so the top level must resolve those as `wor`.')
+        inputs = sorted(self.ports)
+        exports = sorted(self.exports)
+        A(f'// Ports: the {len(set(inputs) | set(exports))} nets '
+          f'{self.b.name}.bp says reach a backplane')
+        A(f'// connector -- PARC\'s own statement of this module\'s boundary,')
+        A(f'// not an inference.')
+        A('//')
+        A('// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the')
+        A('// machine\'s own clock arrives on CLK.<board>\' and is used as an')
+        A('// ENABLE inside the clocked cells, because 1,201 packages clocked')
+        A('// from combinational nets is not something an FPGA can route.')
+        A('//')
+        A('// SYNTHESISABLE SHAPE, not the physical one: a net this board')
+        A('// drives is exported as `<net>__drv`, carrying ONLY this board\'s')
+        A('// contribution, and the resolved bus arrives back on `<net>`. The')
+        A('// machine ORs the contributions. That is what MECL open emitters')
+        A('// wired together compute, and unlike an `inout` on a multiply-')
+        A('// driven net it maps to one level of LUT on an FPGA.')
         A(f'module {mod} (')
-        decl = [f'    input  wire {vname(n)}' for n in inputs] + \
-               [f'    output wire {vname(n)}' for n in outputs] + \
-               [f'    inout  wire {vname(n)}' for n in inouts]
+        decl = ['    input  wire sys_clk'] + \
+               [f'    input  wire {vname(n)}' for n in inputs] + \
+               [f'    output wire {vname(n)}__drv' for n in exports]
         A(',\n'.join(decl) if decl else '    // no backplane ports detected')
         A(');')
         A('')
 
-        internal = [n for n in sorted(self.b.nets) if n not in self.ports]
+        internal = [n for n in sorted(self.b.nets)
+                    if n not in self.ports and n not in self.exports]
         A(f'  // {len(internal)} internal nets')
         for n in internal:
             A(f'  wire {vname(n)};')
@@ -226,18 +252,31 @@ class Generator:
             for p in net['pins']:
                 pinnet[(p['pkg'], p['pin'])] = name
 
-        # Wired-OR resolution
+        # Wired-OR resolution, on-board. Several MECL outputs on one net is
+        # the design working as intended, and an explicit OR of the drivers
+        # is both what it computes and what synthesises.
+        wired = {n for n, _ in self.wired_or}
         if self.wired_or:
             A('  // ---- wired-OR nets (MECL 10K open emitters tied together)')
-            A('  // Emitted as an explicit OR of the drivers; Verilog forbids')
-            A('  // multiple continuous drivers on one wire.')
+            A('  // An explicit OR of the drivers: what the open emitters')
+            A('  // compute, and one LUT level rather than a multiply-driven')
+            A('  // net that no synthesis tool accepts.')
             for name, _n in self.wired_or:
                 drivers = self.drivers_in_rtl(name)
                 terms = ' | '.join(f'{vname(name)}__{vname(p["pkg"])}_{p["pin"]}'
                                    for p in drivers)
                 for p in drivers:
                     A(f'  wire {vname(name)}__{vname(p["pkg"])}_{p["pin"]};')
-                A(f'  assign {vname(name)} = {terms};')
+                tgt = f'{vname(name)}__drv' if name in self.exports else vname(name)
+                A(f'  assign {tgt} = {terms};')
+            A('')
+
+        # A net driven by exactly ONE pin here but exported still needs its
+        # contribution named, so the driver has somewhere to go.
+        single = [n for n in sorted(self.exports)
+                  if n not in wired]
+        if single:
+            A(f'  // {len(single)} single-driver contributions to the backplane')
             A('')
 
         A('  // ---- packages')
@@ -255,12 +294,18 @@ class Generator:
                 role = roles.get(pin)
                 if role is None:
                     self.unknown_pins[ptype] += 1
-                # a driver on a wired-OR net connects to its private stub
-                wired = any(netname == w for w, _ in self.wired_or)
+                # A driver connects to its private stub if the net has
+                # several drivers here, else straight to whatever carries
+                # this board's contribution; a receiver always reads the
+                # resolved bus.
                 isout = any(p['pkg'] == pos and p['pin'] == pin
                             for p in self.drivers_in_rtl(netname))
-                target = (f'{vname(netname)}__{vname(pos)}_{pin}'
-                          if (wired and isout) else vname(netname))
+                if isout and netname in wired:
+                    target = f'{vname(netname)}__{vname(pos)}_{pin}'
+                elif isout and netname in self.exports:
+                    target = f'{vname(netname)}__drv'
+                else:
+                    target = vname(netname)
                 conns.append(f'    .p{pin}({target})')
             cell = f'cell_{vpart(ptype)}'
             if ptype not in self.cells:
@@ -276,6 +321,9 @@ class Generator:
             elif ptype in PROM_PARTS:
                 A(f'  // PROM with no contents in the archive -- reads X')
             A(f'  {cell} {params}u_{vname(pos)} (')
+            if vpart(ptype) in self.clocked:
+                conns = ['    .sys_clk(sys_clk)'] + conns
+                self.clocked_placed += 1
             A(',\n'.join(conns) if conns else '    // no connections')
             A(f'  ); // {ptype}')
             placed += 1
@@ -288,11 +336,11 @@ class Generator:
     def report(self) -> str:
         r = [f'board {self.b.name}',
              f'  packages placed     {self.placed}',
-             f'  ports (from .{self.b.bp_source}) {len(self.ports)}'
-             f'  in {sum(1 for d in self.ports.values() if d=="input")}'
-             f' / out {sum(1 for d in self.ports.values() if d=="output")}'
-             f' / inout {sum(1 for d in self.ports.values() if d=="inout")}',
+             f'  backplane nets {len(set(self.ports) | self.exports)}'
+             f'  ({len(self.ports)} in, {len(self.exports)} contributions out)',
              f'  PROM packages wired {self.proms_wired}',
+             f'  clocked packages    {self.clocked_placed} (on sys_clk, '
+             f'ECL clock as enable)',
              f'  on-board wired-OR   {len(self.wired_or)}',
              f'  undriven internal   {len(self.undriven_internal)} '
              f'(a cell skeleton owes these a driver)',
@@ -322,6 +370,25 @@ def known_cells(cells_dir: str) -> set[str]:
 
 
 CELL_PORT_RE = re.compile(r'^\s*(input|output|inout)\s+wire\s+p(\d+)')
+SYS_CLK_RE = re.compile(r'^\s*input\s+wire\s+sys_clk\b')
+
+
+def cells_wanting_clock(cells_dir: str) -> set[str]:
+    """Cells that take the fabric clock.
+
+    A part whose real clock is a distributed ECL net is modelled on `sys_clk`
+    with the net as an ENABLE -- see any of them for why. Only those declare
+    the port, so the generator asks the file rather than keeping a list that
+    could drift from the cell library."""
+    out = set()
+    if not os.path.isdir(cells_dir):
+        return out
+    for f in os.listdir(cells_dir):
+        m = re.match(r'cell_(.+)\.v$', f)
+        if m and any(SYS_CLK_RE.match(l)
+                     for l in open(os.path.join(cells_dir, f))):
+            out.add(m.group(1))
+    return out
 
 
 def cell_port_dirs(cells_dir: str) -> dict[str, dict[int, str]]:
@@ -365,7 +432,8 @@ def main(argv: list[str]) -> int:
     ecl = EclDict()
     ecl.load(args.dict)
     gen = Generator(board, ecl, known_cells(args.cells),
-                    cell_port_dirs(args.cells))
+                    cell_port_dirs(args.cells),
+                    cells_wanting_clock(args.cells))
     text = gen.emit()
 
     if args.out:

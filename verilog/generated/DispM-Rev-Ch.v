@@ -5,12 +5,23 @@
 
 `default_nettype none
 
-// Ports: the 117 nets DispM-Rev-Ch.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 117 nets DispM-Rev-Ch.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module DispM_m_Rev_m_Ch (
+    input  wire sys_clk,
     input  wire n_24BitMode,
     input  wire A8B2,
     input  wire AItem_0,
@@ -38,6 +49,9 @@ module DispM_m_Rev_m_Ch (
     input  wire Block,
     input  wire CLK_DDM_p_,
     input  wire CLKEnable_p_b,
+    input  wire DACBlue,
+    input  wire DACGreen,
+    input  wire DACRed,
     input  wire Fout_00,
     input  wire Fout_01,
     input  wire Fout_02,
@@ -59,8 +73,27 @@ module DispM_m_Rev_m_Ch (
     input  wire FoutTask_1,
     input  wire FoutTask_2,
     input  wire FoutTask_3,
+    input  wire GNDBlue,
+    input  wire GNDGreen,
+    input  wire GNDRed,
     input  wire HBlank,
     input  wire HSync,
+    input  wire IOB_00,
+    input  wire IOB_01,
+    input  wire IOB_02,
+    input  wire IOB_03,
+    input  wire IOB_04,
+    input  wire IOB_05,
+    input  wire IOB_06,
+    input  wire IOB_07,
+    input  wire IOB_08,
+    input  wire IOB_09,
+    input  wire IOB_10,
+    input  wire IOB_11,
+    input  wire IOB_12,
+    input  wire IOB_13,
+    input  wire IOB_14,
+    input  wire IOB_15,
     input  wire IOHold,
     input  wire IOIn_p_,
     input  wire IOOut_p_,
@@ -76,6 +109,18 @@ module DispM_m_Rev_m_Ch (
     input  wire Next_1,
     input  wire Next_2,
     input  wire Next_3,
+    input  wire OISClkA,
+    input  wire OISClkA_p_,
+    input  wire OISClkB,
+    input  wire OISClkB_p_,
+    input  wire OISData_0,
+    input  wire OISData_0_p_,
+    input  wire OISData_1,
+    input  wire OISData_1_p_,
+    input  wire OISData_2,
+    input  wire OISData_2_p_,
+    input  wire OISData_3,
+    input  wire OISData_3_p_,
     input  wire RawPixelClk,
     input  wire RefIn,
     input  wire TIOA_0,
@@ -88,46 +133,47 @@ module DispM_m_Rev_m_Ch (
     input  wire TIOA_7,
     input  wire VBlank,
     input  wire VSync,
-    output wire PixelClkVCO,
-    output wire TTLCSync_p_,
-    output wire TTLHSync_p_,
-    output wire TTLVSync_p_,
-    output wire WakeAWT,
-    inout  wire DACBlue,
-    inout  wire DACGreen,
-    inout  wire DACRed,
-    inout  wire GNDBlue,
-    inout  wire GNDGreen,
-    inout  wire GNDRed,
-    inout  wire IOB_00,
-    inout  wire IOB_01,
-    inout  wire IOB_02,
-    inout  wire IOB_03,
-    inout  wire IOB_04,
-    inout  wire IOB_05,
-    inout  wire IOB_06,
-    inout  wire IOB_07,
-    inout  wire IOB_08,
-    inout  wire IOB_09,
-    inout  wire IOB_10,
-    inout  wire IOB_11,
-    inout  wire IOB_12,
-    inout  wire IOB_13,
-    inout  wire IOB_14,
-    inout  wire IOB_15,
-    inout  wire OISClkA,
-    inout  wire OISClkA_p_,
-    inout  wire OISClkB,
-    inout  wire OISClkB_p_,
-    inout  wire OISData_0,
-    inout  wire OISData_0_p_,
-    inout  wire OISData_1,
-    inout  wire OISData_1_p_,
-    inout  wire OISData_2,
-    inout  wire OISData_2_p_,
-    inout  wire OISData_3,
-    inout  wire OISData_3_p_,
-    inout  wire WakeAHT
+    input  wire WakeAHT,
+    output wire DACBlue__drv,
+    output wire DACGreen__drv,
+    output wire DACRed__drv,
+    output wire GNDBlue__drv,
+    output wire GNDGreen__drv,
+    output wire GNDRed__drv,
+    output wire IOB_00__drv,
+    output wire IOB_01__drv,
+    output wire IOB_02__drv,
+    output wire IOB_03__drv,
+    output wire IOB_04__drv,
+    output wire IOB_05__drv,
+    output wire IOB_06__drv,
+    output wire IOB_07__drv,
+    output wire IOB_08__drv,
+    output wire IOB_09__drv,
+    output wire IOB_10__drv,
+    output wire IOB_11__drv,
+    output wire IOB_12__drv,
+    output wire IOB_13__drv,
+    output wire IOB_14__drv,
+    output wire IOB_15__drv,
+    output wire OISClkA__drv,
+    output wire OISClkA_p___drv,
+    output wire OISClkB__drv,
+    output wire OISClkB_p___drv,
+    output wire OISData_0__drv,
+    output wire OISData_0_p___drv,
+    output wire OISData_1__drv,
+    output wire OISData_1_p___drv,
+    output wire OISData_2__drv,
+    output wire OISData_2_p___drv,
+    output wire OISData_3__drv,
+    output wire OISData_3_p___drv,
+    output wire PixelClkVCO__drv,
+    output wire TTLCSync_p___drv,
+    output wire TTLHSync_p___drv,
+    output wire TTLVSync_p___drv,
+    output wire WakeAHT__drv,
+    output wire WakeAWT__drv
 );
 
   // 716 internal nets
@@ -849,8 +895,9 @@ module DispM_m_Rev_m_Ch (
   wire prepreclk2_p_c;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire BMapAd_0__f04_14;
   wire BMapAd_0__f06_14;
   assign BMapAd_0 = BMapAd_0__f04_14 | BMapAd_0__f06_14;
@@ -939,15 +986,15 @@ module DispM_m_Rev_m_Ch (
   wire GNDBlue__g18_13;
   wire GNDBlue__g18_14;
   wire GNDBlue__g19_14;
-  assign GNDBlue = GNDBlue__g18_13 | GNDBlue__g18_14 | GNDBlue__g19_14;
+  assign GNDBlue__drv = GNDBlue__g18_13 | GNDBlue__g18_14 | GNDBlue__g19_14;
   wire GNDGreen__j21_14;
   wire GNDGreen__j21_13;
   wire GNDGreen__j22_14;
-  assign GNDGreen = GNDGreen__j21_14 | GNDGreen__j21_13 | GNDGreen__j22_14;
+  assign GNDGreen__drv = GNDGreen__j21_14 | GNDGreen__j21_13 | GNDGreen__j22_14;
   wire GNDRed__g21_14;
   wire GNDRed__g21_13;
   wire GNDRed__g22_14;
-  assign GNDRed = GNDRed__g21_14 | GNDRed__g21_13 | GNDRed__g22_14;
+  assign GNDRed__drv = GNDRed__g21_14 | GNDRed__g21_13 | GNDRed__g22_14;
   wire IOFetchForAWT_p___l24_14;
   wire IOFetchForAWT_p___l24_15;
   wire IOFetchForAWT_p___l24_2;
@@ -1203,6 +1250,8 @@ module DispM_m_Rev_m_Ch (
   wire UsingFIB__d21_9;
   assign UsingFIB = UsingFIB__d24_2 | UsingFIB__d21_9;
 
+  // 37 single-driver contributions to the backplane
+
   // ---- packages
   cell_AUGATCG16 u_a01 (
     .p1(DispM23_sil_pl_6),
@@ -1280,6 +1329,7 @@ module DispM_m_Rev_m_Ch (
     .p15(SGND)
   ); // AUGATCG16
   cell_MC10141 u_a07 (
+    .sys_clk(sys_clk),
     .p2(DispM10_sil_pl_8),
     .p3(DispM10_sil_pl_9),
     .p4(AltoPixelClk_p_Af),
@@ -1290,6 +1340,7 @@ module DispM_m_Rev_m_Ch (
     .p15(DispM10_sil_pl_7)
   ); // MC10141
   cell_F10016 u_a08 (
+    .sys_clk(sys_clk),
     .p4(CursorWindow_p_),
     .p5(CursorXPEn_p_),
     .p6(DispM09_sil_pl_1),
@@ -1300,6 +1351,7 @@ module DispM_m_Rev_m_Ch (
     .p13(AltoPixelClk_p_Af)
   ); // F10016
   cell_F10016 u_a09 (
+    .sys_clk(sys_clk),
     .p4(DispM09_sil_pl_10),
     .p5(CursorXPEn_p_),
     .p6(DispM09_sil_pl_2),
@@ -1310,6 +1362,7 @@ module DispM_m_Rev_m_Ch (
     .p13(AltoPixelClk_p_Af)
   ); // F10016
   cell_F10016 u_a10 (
+    .sys_clk(sys_clk),
     .p4(DispM09_sil_pl_9),
     .p5(CursorXPEn_p_),
     .p6(StopCursorCount),
@@ -1320,6 +1373,7 @@ module DispM_m_Rev_m_Ch (
     .p13(AltoPixelClk_p_Af)
   ); // F10016
   cell_F10016 u_a11 (
+    .sys_clk(sys_clk),
     .p2(AltoVSyncEn),
     .p3(AltoOddField),
     .p5(VCWPEn_p_),
@@ -1332,6 +1386,7 @@ module DispM_m_Rev_m_Ch (
     .p15(AltoVBlank)
   ); // F10016
   cell_MC10176 u_a12 (
+    .sys_clk(sys_clk),
     .p2(DispM10_sil_pl_2),
     .p3(ForceClkBLow__a12_3),
     .p4(AltoHSyncDly),
@@ -1347,6 +1402,7 @@ module DispM_m_Rev_m_Ch (
     .p15(AltoHBlankDly)
   ); // MC10176
   cell_F10016 u_a13 (
+    .sys_clk(sys_clk),
     .p2(HRomAddr_02),
     .p3(HRomAddr_03),
     .p5(ClrHRom_p_),
@@ -1355,6 +1411,7 @@ module DispM_m_Rev_m_Ch (
     .p15(HRomAddr_01)
   ); // F10016
   cell_F10016 u_a14 (
+    .sys_clk(sys_clk),
     .p2(HRomAddr_06),
     .p3(HRomAddr_07),
     .p4(DispM06_sil_pl_2),
@@ -1365,6 +1422,7 @@ module DispM_m_Rev_m_Ch (
     .p15(HRomAddr_05)
   ); // F10016
   cell_F10016 u_a15 (
+    .sys_clk(sys_clk),
     .p2(HRomAddr_10),
     .p3(HRomAddr_11),
     .p4(DispM06_sil_pl_1),
@@ -1413,6 +1471,7 @@ module DispM_m_Rev_m_Ch (
     .p15(ClrHRom_p_)
   ); // MC10103
   cell_MC10176 u_a22 (
+    .sys_clk(sys_clk),
     .p2(SIB_12),
     .p3(SIB_13),
     .p4(SIB_14),
@@ -1452,7 +1511,7 @@ module DispM_m_Rev_m_Ch (
     .p3(preprePixelClk_p_),
     .p4(BNTGtCT_p_b),
     .p7(RawPixelClk),
-    .p9(PixelClkVCO),
+    .p9(PixelClkVCO__drv),
     .p10(DispM23_sil_pl_2),
     .p11(VCOOut),
     .p12(dPixelClkVCO_p_),
@@ -1468,6 +1527,7 @@ module DispM_m_Rev_m_Ch (
     .p12(PR4)
   ); // MC12040
   cell_F10016 u_b03 (
+    .sys_clk(sys_clk),
     .p4(PhaseRef),
     .p5(PhaseRef),
     .p7(ToPixelClk_03),
@@ -1506,6 +1566,7 @@ module DispM_m_Rev_m_Ch (
     .p13(VCOOut)
   ); // F95016
   cell_MC10176 u_b07 (
+    .sys_clk(sys_clk),
     .p2(DispM10_sil_pl_4),
     .p3(DispM10_sil_pl_3),
     .p4(DispM10_sil_pl_20),
@@ -1533,6 +1594,7 @@ module DispM_m_Rev_m_Ch (
     .p15(DispM10_sil_pl_14)
   ); // MC10174
   cell_MC10141 u_b09 (
+    .sys_clk(sys_clk),
     .p4(AltoPixelClk_p_Ae),
     .p5(DispM09_sil_pl_7),
     .p6(NLCB_11),
@@ -1544,6 +1606,7 @@ module DispM_m_Rev_m_Ch (
     .p14(DispM09_sil_pl_8)
   ); // MC10141
   cell_MC10141 u_b10 (
+    .sys_clk(sys_clk),
     .p4(AltoPixelClk_p_Ae),
     .p5(DispM09_sil_pl_6),
     .p6(NLCB_15),
@@ -1569,6 +1632,7 @@ module DispM_m_Rev_m_Ch (
     .p14(AltoCursorData)
   ); // MC10104
   cell_MC10176 u_b12 (
+    .sys_clk(sys_clk),
     .p2(DispM10_sil_pl_11),
     .p3(DispM10_sil_pl_10),
     .p4(DispM10_sil_pl_13),
@@ -1584,6 +1648,7 @@ module DispM_m_Rev_m_Ch (
     .p15(DispM10_sil_pl_17)
   ); // MC10176
   cell_MC10176 u_b13 (
+    .sys_clk(sys_clk),
     .p2(AltoHSync_p_),
     .p3(AltoHSync),
     .p4(AltoHBlank),
@@ -1595,6 +1660,7 @@ module DispM_m_Rev_m_Ch (
     .p13(AltoHalfLine)
   ); // MC10176
   cell_MC10141 u_b14 (
+    .sys_clk(sys_clk),
     .p4(AltoPixelClk_p_Cb),
     .p6(SIB_15),
     .p7(LoadASR_p_),
@@ -1624,6 +1690,7 @@ module DispM_m_Rev_m_Ch (
     .p23(Fifo_12)
   ); // MB7071H
   cell_MC10231 u_b18 (
+    .sys_clk(sys_clk),
     .p3(OISRcvdData_p_),
     .p6(AltoHBlank),
     .p7(KeyboardData),
@@ -1659,6 +1726,7 @@ module DispM_m_Rev_m_Ch (
     .p15(DispM06_sil_pl_4__b20_15)
   ); // MCM10149
   cell_MC10176 u_b22 (
+    .sys_clk(sys_clk),
     .p2(SIB_06),
     .p3(SIB_07),
     .p4(SIB_08),
@@ -1674,6 +1742,7 @@ module DispM_m_Rev_m_Ch (
     .p15(SIB_11)
   ); // MC10176
   cell_MC10176 u_b23 (
+    .sys_clk(sys_clk),
     .p2(DispM08_sil_pl_3),
     .p3(DispM08_sil_pl_2),
     .p4(LastIsAWT_p_),
@@ -1745,6 +1814,7 @@ module DispM_m_Rev_m_Ch (
     .p15(AltoCSync)
   ); // MC10103
   cell_MC10141 u_c09 (
+    .sys_clk(sys_clk),
     .p4(AltoPixelClk_p_Ae),
     .p5(DispM09_sil_pl_5),
     .p6(NLCB_11),
@@ -1756,6 +1826,7 @@ module DispM_m_Rev_m_Ch (
     .p14(DispM09_sil_pl_6)
   ); // MC10141
   cell_MC10141 u_c10 (
+    .sys_clk(sys_clk),
     .p4(AltoPixelClk_p_Ae),
     .p6(NLCB_15),
     .p7(CursorLoPEn_p_),
@@ -1802,6 +1873,7 @@ module DispM_m_Rev_m_Ch (
     .p13(preAltoPixelClk_p_Cb)
   ); // MC10124
   cell_MC10141 u_c14 (
+    .sys_clk(sys_clk),
     .p4(AltoPixelClk_p_Cb),
     .p5(ASR_12),
     .p6(SIB_11),
@@ -1812,6 +1884,7 @@ module DispM_m_Rev_m_Ch (
     .p14(ASR_08)
   ); // MC10141
   cell_MC10176 u_c15 (
+    .sys_clk(sys_clk),
     .p2(FIB_12),
     .p3(FIB_13),
     .p4(FIB_14),
@@ -1880,6 +1953,7 @@ module DispM_m_Rev_m_Ch (
     .p15(CurTaskIsAWT_p_)
   ); // MC10117
   cell_F10016 u_c21 (
+    .sys_clk(sys_clk),
     .p5(ScanPEn_p_),
     .p6(True),
     .p10(NLCB_09),
@@ -1887,6 +1961,7 @@ module DispM_m_Rev_m_Ch (
     .p15(AltoPolarity)
   ); // F10016
   cell_MC10176 u_c22 (
+    .sys_clk(sys_clk),
     .p2(SIB_00),
     .p3(SIB_01),
     .p4(SIB_02),
@@ -1902,6 +1977,7 @@ module DispM_m_Rev_m_Ch (
     .p15(SIB_05)
   ); // MC10176
   cell_MC10176 u_d01 (
+    .sys_clk(sys_clk),
     .p2(TIOADly_06),
     .p3(TIOADly_07),
     .p5(TIOA_6),
@@ -1911,7 +1987,8 @@ module DispM_m_Rev_m_Ch (
     .p15(IgnoreCommands)
   ); // MC10176
   cell_MC10135 u_d02 (
-    .p2(WakeAHT),
+    .sys_clk(sys_clk),
+    .p2(WakeAHT__drv),
     .p4(AHTShutUp),
     .p6(NLCBCommand_p_),
     .p7(DispM05_sil_pl_1),
@@ -1922,8 +1999,8 @@ module DispM_m_Rev_m_Ch (
     .p14(DispM05_sil_pl_1)
   ); // MC10135
   cell_MC10105 u_d03 (
-    .p2(OISData_0_p_),
-    .p3(OISData_0),
+    .p2(OISData_0_p___drv),
+    .p3(OISData_0__drv),
     .p4(DispM10_sil_pl_2),
     .p5(DispM10_sil_pl_11),
     .p7(StartChannel_p_),
@@ -1932,22 +2009,22 @@ module DispM_m_Rev_m_Ch (
     .p11(MarginWindow_p_),
     .p12(DispM10_sil_pl_10),
     .p13(DispM10_sil_pl_2),
-    .p14(OISData_1),
-    .p15(OISData_1_p_)
+    .p14(OISData_1__drv),
+    .p15(OISData_1_p___drv)
   ); // MC10105
   cell_MC10101 u_d04 (
-    .p2(OISData_2),
-    .p3(OISData_3),
+    .p2(OISData_2__drv),
+    .p3(OISData_3__drv),
     .p4(DispM10_sil_pl_13),
-    .p5(OISData_2_p_),
-    .p6(OISData_3_p_),
+    .p5(OISData_2_p___drv),
+    .p6(OISData_3_p___drv),
     .p7(DispM10_sil_pl_15),
-    .p9(OISClkB_p_),
+    .p9(OISClkB_p___drv),
     .p10(DispM10_sil_pl_16),
-    .p11(OISClkA),
+    .p11(OISClkA__drv),
     .p13(DispM10_sil_pl_17),
-    .p14(OISClkA_p_),
-    .p15(OISClkB)
+    .p14(OISClkA_p___drv),
+    .p15(OISClkB__drv)
   ); // MC10101
   cell_SN74LS109 u_d05 (
     .p1(TTLTrue),
@@ -1972,6 +2049,7 @@ module DispM_m_Rev_m_Ch (
     .p16(GND_m_15)
   ); // SE10210
   cell_F10016 u_d08 (
+    .sys_clk(sys_clk),
     .p4(StopChannel_p_),
     .p5(WidthPEn_p_),
     .p6(DispM04_sil_pl_3),
@@ -1982,6 +2060,7 @@ module DispM_m_Rev_m_Ch (
     .p13(AltoPixelClk_p_Ab)
   ); // F10016
   cell_F10016 u_d09 (
+    .sys_clk(sys_clk),
     .p4(DispM04_sil_pl_9),
     .p5(WidthPEn_p_),
     .p6(DispM04_sil_pl_2),
@@ -1992,6 +2071,7 @@ module DispM_m_Rev_m_Ch (
     .p13(AltoPixelClk_p_Ab)
   ); // F10016
   cell_F10016 u_d10 (
+    .sys_clk(sys_clk),
     .p4(DispM04_sil_pl_11),
     .p5(WidthPEn_p_),
     .p6(AltoOff),
@@ -2016,6 +2096,7 @@ module DispM_m_Rev_m_Ch (
     .p15(AltoCBlank)
   ); // MC10103
   cell_MC10135 u_d12 (
+    .sys_clk(sys_clk),
     .p2(HWindow),
     .p3(HWindow_p_),
     .p4(IOReset),
@@ -2033,6 +2114,7 @@ module DispM_m_Rev_m_Ch (
     .p14(VCC_m_25)
   ); // K1115A
   cell_MC10141 u_d14 (
+    .sys_clk(sys_clk),
     .p4(AltoPixelClk_p_Ca),
     .p5(ASR_08),
     .p6(SIB_07),
@@ -2043,6 +2125,7 @@ module DispM_m_Rev_m_Ch (
     .p14(ASR_04)
   ); // MC10141
   cell_MC10176 u_d15 (
+    .sys_clk(sys_clk),
     .p2(FIB_06),
     .p3(FIB_07),
     .p4(FIB_08),
@@ -2098,6 +2181,7 @@ module DispM_m_Rev_m_Ch (
     .p16(GND_m_13)
   ); // SE10210
   cell_MC10231 u_d20 (
+    .sys_clk(sys_clk),
     .p2(DisplayWantsFifo),
     .p7(SIBUsed),
     .p9(clk2_p_Ca),
@@ -2122,6 +2206,7 @@ module DispM_m_Rev_m_Ch (
     .p15(LoadSIB_p_)
   ); // MC10103
   cell_MC10135 u_d23 (
+    .sys_clk(sys_clk),
     .p2(AWTReallyBlocked),
     .p5(AWTShutUp),
     .p6(CurTaskIsAWT_p_),
@@ -2150,6 +2235,7 @@ module DispM_m_Rev_m_Ch (
     .p8(OISClkB_p_)
   ); // SIPpackage
   cell_MC10176 u_e01 (
+    .sys_clk(sys_clk),
     .p2(TIOADly_00),
     .p3(TIOADly_01),
     .p4(TIOADly_02),
@@ -2189,6 +2275,7 @@ module DispM_m_Rev_m_Ch (
     .p15(AltoVideo)
   ); // MC10113
   cell_MC10231 u_e06 (
+    .sys_clk(sys_clk),
     .p2(AHTShutUp),
     .p5(IOReset),
     .p7(RIOB_15),
@@ -2212,6 +2299,7 @@ module DispM_m_Rev_m_Ch (
     .p15(HWindow_p_)
   ); // MC10161
   cell_F10016 u_e08 (
+    .sys_clk(sys_clk),
     .p2(MarginWindow_p___e08_2),
     .p3(MarginWindow_p___e08_3),
     .p4(MarginOverflow_p_),
@@ -2226,6 +2314,7 @@ module DispM_m_Rev_m_Ch (
     .p15(MarginWindow_p___e08_15)
   ); // F10016
   cell_F10016 u_e09 (
+    .sys_clk(sys_clk),
     .p2(DispM04_sil_pl_8),
     .p3(DispM04_sil_pl_6),
     .p4(DispM04_sil_pl_10),
@@ -2240,6 +2329,7 @@ module DispM_m_Rev_m_Ch (
     .p15(MarginWindow_p___e09_15)
   ); // F10016
   cell_F10016 u_e10 (
+    .sys_clk(sys_clk),
     .p4(DispM04_sil_pl_7),
     .p5(MarginPEn_p_),
     .p6(CountMarg_p_),
@@ -2250,6 +2340,7 @@ module DispM_m_Rev_m_Ch (
     .p13(AltoPixelClk_p_Aa)
   ); // F10016
   cell_F10016 u_e11 (
+    .sys_clk(sys_clk),
     .p2(NLCBAddr_2__e11_2),
     .p3(NLCBAddr_3__e11_3),
     .p4(kHWindow_p_),
@@ -2270,11 +2361,13 @@ module DispM_m_Rev_m_Ch (
     .p15(True)
   ); // MC10121
   cell_F10016 u_e13 (
+    .sys_clk(sys_clk),
     .p4(DispM03_sil_pl_1),
     .p5(LoadASR_p_),
     .p13(AltoPixelClk_p_Ca)
   ); // F10016
   cell_MC10141 u_e14 (
+    .sys_clk(sys_clk),
     .p4(AltoPixelClk_p_Ca),
     .p5(ASR_04),
     .p6(SIB_03),
@@ -2285,6 +2378,7 @@ module DispM_m_Rev_m_Ch (
     .p14(ASR_00)
   ); // MC10141
   cell_MC10176 u_e15 (
+    .sys_clk(sys_clk),
     .p2(FIB_00),
     .p3(FIB_01),
     .p4(FIB_02),
@@ -2320,6 +2414,7 @@ module DispM_m_Rev_m_Ch (
     .p23(Fifo_00)
   ); // MB7071H
   cell_F10016 u_e18 (
+    .sys_clk(sys_clk),
     .p2(ReaderPtr_2),
     .p3(ReaderPtr_3),
     .p5(ReaderPtrPEn_p_),
@@ -2334,6 +2429,7 @@ module DispM_m_Rev_m_Ch (
     .p15(ReaderPtr_1)
   ); // F10016
   cell_F10016 u_e19 (
+    .sys_clk(sys_clk),
     .p2(ReaderPtr_6),
     .p3(ReaderPtr_7),
     .p4(DispM02_sil_pl_3),
@@ -2348,6 +2444,7 @@ module DispM_m_Rev_m_Ch (
     .p15(ReaderPtr_5)
   ); // F10016
   cell_MC10231 u_e21 (
+    .sys_clk(sys_clk),
     .p2(ACurrentWCBFlag),
     .p3(ACurrentWCBFlag_p_),
     .p4(AWTShutUp),
@@ -2360,6 +2457,7 @@ module DispM_m_Rev_m_Ch (
     .p14(ANextWCBFlag_p_)
   ); // MC10231
   cell_MC10176 u_e22 (
+    .sys_clk(sys_clk),
     .p2(PixelClockCommand_p_),
     .p3(MixerCommand_p_),
     .p4(CMapCommand_p_),
@@ -2375,6 +2473,7 @@ module DispM_m_Rev_m_Ch (
     .p15(BMapCommand_p_)
   ); // MC10176
   cell_MC10135 u_e23 (
+    .sys_clk(sys_clk),
     .p2(FIBEmpty),
     .p3(FIBEmpty_p_),
     .p4(HWindow),
@@ -2387,6 +2486,7 @@ module DispM_m_Rev_m_Ch (
     .p14(SIBEmpty_p_)
   ); // MC10135
   cell_F10016 u_e24 (
+    .sys_clk(sys_clk),
     .p4(KillAWTWakeup__e24_4),
     .p5(CurTaskIsAWT_p_),
     .p6(StopWakeCount),
@@ -2403,6 +2503,7 @@ module DispM_m_Rev_m_Ch (
     .p8(OISData_2)
   ); // SIPpackage
   cell_F10016 u_f01 (
+    .sys_clk(sys_clk),
     .p2(BBuf_2),
     .p3(BBuf_3),
     .p7(BItem_3),
@@ -2415,6 +2516,7 @@ module DispM_m_Rev_m_Ch (
     .p15(BBuf_1)
   ); // F10016
   cell_F10016 u_f02 (
+    .sys_clk(sys_clk),
     .p2(BBuf_6),
     .p3(BBuf_7),
     .p7(BItem_7),
@@ -2427,6 +2529,7 @@ module DispM_m_Rev_m_Ch (
     .p15(BBuf_5)
   ); // F10016
   cell_MC10231 u_f03 (
+    .sys_clk(sys_clk),
     .p2(AltoVSync),
     .p3(AltoVSync_p_),
     .p6(DispM04_sil_pl_4),
@@ -2434,9 +2537,10 @@ module DispM_m_Rev_m_Ch (
     .p10(AWTWantsProc_p_),
     .p11(clk0_p_Ab),
     .p12(KillAWTWakeup),
-    .p14(WakeAWT)
+    .p14(WakeAWT__drv)
   ); // MC10231
   cell_F10016 u_f04 (
+    .sys_clk(sys_clk),
     .p2(BMapAd_2__f04_2),
     .p3(BMapAd_3__f04_3),
     .p7(BBuf_3),
@@ -2450,6 +2554,7 @@ module DispM_m_Rev_m_Ch (
     .p15(BMapAd_1__f04_15)
   ); // F10016
   cell_F10016 u_f05 (
+    .sys_clk(sys_clk),
     .p2(BMapAd_6__f05_2),
     .p3(BMapAd_7__f05_3),
     .p7(BBuf_7),
@@ -2462,6 +2567,7 @@ module DispM_m_Rev_m_Ch (
     .p15(BMapAd_5__f05_15)
   ); // F10016
   cell_F10016 u_f06 (
+    .sys_clk(sys_clk),
     .p2(BMapAd_2__f06_2),
     .p3(BMapAd_3__f06_3),
     .p5(LoadBMapAddr_p_),
@@ -2476,6 +2582,7 @@ module DispM_m_Rev_m_Ch (
     .p15(BMapAd_1__f06_15)
   ); // F10016
   cell_F10016 u_f07 (
+    .sys_clk(sys_clk),
     .p2(BMapAd_6__f07_2),
     .p3(BMapAd_7__f07_3),
     .p4(DispM13_sil_pl_2),
@@ -2594,6 +2701,7 @@ module DispM_m_Rev_m_Ch (
     .p15(FifoAddr_6)
   ); // MC10158
   cell_F10016 u_f18 (
+    .sys_clk(sys_clk),
     .p2(WriterPtr_2),
     .p3(WriterPtr_3),
     .p5(True),
@@ -2604,6 +2712,7 @@ module DispM_m_Rev_m_Ch (
     .p15(WriterPtr_1)
   ); // F10016
   cell_F10016 u_f19 (
+    .sys_clk(sys_clk),
     .p2(WriterPtr_6),
     .p3(WriterPtr_7),
     .p4(DispM02_sil_pl_1),
@@ -2614,6 +2723,7 @@ module DispM_m_Rev_m_Ch (
     .p15(WriterPtr_5)
   ); // F10016
   cell_MC10135 u_f20 (
+    .sys_clk(sys_clk),
     .p2(AltoOn),
     .p3(AltoOff),
     .p4(HWindow),
@@ -2637,6 +2747,7 @@ module DispM_m_Rev_m_Ch (
     .p15(AWTWantsProc_p_)
   ); // MC10118
   cell_MC10176 u_f22 (
+    .sys_clk(sys_clk),
     .p2(NLCBCommand_p_),
     .p3(AStaticsCommand_p_),
     .p5(DispM21_sil_pl_2),
@@ -2649,16 +2760,17 @@ module DispM_m_Rev_m_Ch (
     .p1(DispM22_sil_pl_1),
     .p2(DispM22_sil_pl_2),
     .p3(DispM22_sil_pl_1),
-    .p4(TTLCSync_p_),
-    .p5(TTLHSync_p_),
+    .p4(TTLCSync_p___drv),
+    .p5(TTLHSync_p___drv),
     .p6(HSync),
     .p7(DispM22_sil_pl_1),
     .p9(VCC_m_24),
     .p10(VSync),
     .p11(DispM22_sil_pl_1),
-    .p12(TTLVSync_p_)
+    .p12(TTLVSync_p___drv)
   ); // MC10125
   cell_MC10231 u_f24 (
+    .sys_clk(sys_clk),
     .p2(Held),
     .p3(Held_p_),
     .p7(IOHold),
@@ -2668,6 +2780,7 @@ module DispM_m_Rev_m_Ch (
     .p15(NextWasAWT_p_)
   ); // MC10231
   cell_F10016 u_g01 (
+    .sys_clk(sys_clk),
     .p2(ABuf_2),
     .p3(ABuf_3),
     .p5(ABufEn_p_),
@@ -2682,6 +2795,7 @@ module DispM_m_Rev_m_Ch (
     .p15(ABuf_1)
   ); // F10016
   cell_F10016 u_g02 (
+    .sys_clk(sys_clk),
     .p2(CBuf_2),
     .p3(CBuf_3),
     .p5(CBufEn_p_),
@@ -2709,6 +2823,7 @@ module DispM_m_Rev_m_Ch (
     .p14(CBlank)
   ); // MC10103
   cell_MC10231 u_g04 (
+    .sys_clk(sys_clk),
     .p2(ABufEn_p_),
     .p3(CBufEn_p_),
     .p4(KillCBuf),
@@ -2716,6 +2831,7 @@ module DispM_m_Rev_m_Ch (
     .p9(AItemClk_p_Bb)
   ); // MC10231
   cell_F10016 u_g05 (
+    .sys_clk(sys_clk),
     .p2(CMapAd_2__g05_2),
     .p3(CMapAd_3__g05_3),
     .p5(ABufEn_p_),
@@ -2778,6 +2894,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToBlue_2__g08_23)
   ); // MB7071H
   cell_F10016 u_g10 (
+    .sys_clk(sys_clk),
     .p2(MixAddr_0__g10_2),
     .p3(MixAddr_1__g10_3),
     .p5(ABufEn_p_),
@@ -2788,6 +2905,7 @@ module DispM_m_Rev_m_Ch (
     .p13(AItemClk_p_Bd)
   ); // F10016
   cell_F10016 u_g11 (
+    .sys_clk(sys_clk),
     .p3(MixAddr_2a__g11_3),
     .p5(LoadMixAddr_p_),
     .p6(DispM16_sil_pl_4),
@@ -2892,7 +3010,7 @@ module DispM_m_Rev_m_Ch (
     .p11(VCompB),
     .p12(VRef_pl_B),
     .p14(GNDBlue__g19_14),
-    .p15(DACBlue),
+    .p15(DACBlue__drv),
     .p16(GNDBlue)
   ); // MC10318
   cell_PLAT1816 u_g20 (
@@ -2936,7 +3054,7 @@ module DispM_m_Rev_m_Ch (
     .p11(VCompR),
     .p12(VRef_pl_R),
     .p14(GNDRed__g22_14),
-    .p15(DACRed),
+    .p15(DACRed__drv),
     .p16(GNDRed)
   ); // MC10318
   cell_PLAT1816 u_g23 (
@@ -2972,6 +3090,7 @@ module DispM_m_Rev_m_Ch (
     .p6(DDMTIOA_04)
   ); // SIPpackage
   cell_F10016 u_h01 (
+    .sys_clk(sys_clk),
     .p2(ABuf_6),
     .p3(ABuf_7),
     .p5(ABufEn_p_),
@@ -2986,6 +3105,7 @@ module DispM_m_Rev_m_Ch (
     .p15(ABuf_5)
   ); // F10016
   cell_F10016 u_h02 (
+    .sys_clk(sys_clk),
     .p2(CBuf_6),
     .p3(CBuf_7),
     .p5(CBufEn_p_),
@@ -3025,6 +3145,7 @@ module DispM_m_Rev_m_Ch (
     .p15(DispM16_sil_pl_3)
   ); // MC10103
   cell_F10016 u_h05 (
+    .sys_clk(sys_clk),
     .p2(CMapAd_2__h05_2),
     .p3(CMapAd_3__h05_3),
     .p5(LoadCMapAddr_p_),
@@ -3087,6 +3208,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToBlue_3__h08_23)
   ); // MB7071H
   cell_F10016 u_h10 (
+    .sys_clk(sys_clk),
     .p2(MixAddr_3a__h10_2),
     .p3(MixAddr_3b__h10_3),
     .p5(ABufEn_p_),
@@ -3101,6 +3223,7 @@ module DispM_m_Rev_m_Ch (
     .p15(MixAddr_2b__h10_15)
   ); // F10016
   cell_F10016 u_h11 (
+    .sys_clk(sys_clk),
     .p2(MixAddr_5a__h11_2),
     .p3(MixAddr_5b__h11_3),
     .p5(ABufEn_p_),
@@ -3115,6 +3238,7 @@ module DispM_m_Rev_m_Ch (
     .p15(MixAddr_4b__h11_15)
   ); // F10016
   cell_F10016 u_h12 (
+    .sys_clk(sys_clk),
     .p2(MixAddr_1__h12_2),
     .p3(MixAddr_2b__h12_3),
     .p5(LoadMixAddr_p_),
@@ -3128,6 +3252,7 @@ module DispM_m_Rev_m_Ch (
     .p15(MixAddr_0__h12_15)
   ); // F10016
   cell_F10016 u_h13 (
+    .sys_clk(sys_clk),
     .p2(MixAddr_5b__h13_2),
     .p3(MixAddr_6b__h13_3),
     .p4(DispM16_sil_pl_7),
@@ -3192,6 +3317,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToBlue_7__h18_23)
   ); // MB7071H
   cell_F10016 u_h20 (
+    .sys_clk(sys_clk),
     .p2(Blue_2),
     .p3(Blue_3),
     .p7(ToBlue_3),
@@ -3205,6 +3331,7 @@ module DispM_m_Rev_m_Ch (
     .p15(Blue_1)
   ); // F10016
   cell_F10016 u_h21 (
+    .sys_clk(sys_clk),
     .p2(Blue_6),
     .p3(Blue_7),
     .p7(ToBlue_7),
@@ -3260,6 +3387,7 @@ module DispM_m_Rev_m_Ch (
     .p15(RIOOut_p_)
   ); // MC10161
   cell_MC10176 u_i01 (
+    .sys_clk(sys_clk),
     .p2(RIOB_10),
     .p3(RIOB_11),
     .p4(RIOB_12),
@@ -3275,8 +3403,8 @@ module DispM_m_Rev_m_Ch (
     .p15(RIOB_15)
   ); // MC10176
   cell_MC10159 u_i02 (
-    .p1(IOB_15),
-    .p2(IOB_14),
+    .p1(IOB_15__drv),
+    .p2(IOB_14__drv),
     .p3(Red_2_p_),
     .p4(Blue_6_p_),
     .p5(Red_3_p_),
@@ -3287,8 +3415,8 @@ module DispM_m_Rev_m_Ch (
     .p11(Blue_4_p_),
     .p12(Red_1_p_),
     .p13(Blue_5_p_),
-    .p14(IOB_12),
-    .p15(IOB_13)
+    .p14(IOB_12__drv),
+    .p15(IOB_13__drv)
   ); // MC10159
   cell_MC10195 u_i03 (
     .p2(RIOB_02_p_),
@@ -3314,8 +3442,8 @@ module DispM_m_Rev_m_Ch (
     .p15(KillBBuf)
   ); // MC10103
   cell_MC10159 u_i05 (
-    .p1(IOB_03),
-    .p2(IOB_02),
+    .p1(IOB_03__drv),
+    .p2(IOB_02__drv),
     .p4(MType_2_p_),
     .p6(MType_3_p_),
     .p7(DoDDMInput_p_),
@@ -3323,8 +3451,8 @@ module DispM_m_Rev_m_Ch (
     .p10(OISRcvdData_p_),
     .p11(MType_0_p_),
     .p13(MType_1_p_),
-    .p14(IOB_00),
-    .p15(IOB_01)
+    .p14(IOB_00__drv),
+    .p15(IOB_01__drv)
   ); // MC10159
   cell_SE10210 u_i06 (
     .p2(clk1_p_Bb),
@@ -3501,6 +3629,7 @@ module DispM_m_Rev_m_Ch (
     .p16(GND_m_5)
   ); // SE10210
   cell_F10016 u_i20 (
+    .sys_clk(sys_clk),
     .p2(Red_2),
     .p3(Red_3),
     .p7(ToRed_3),
@@ -3513,6 +3642,7 @@ module DispM_m_Rev_m_Ch (
     .p15(Red_1)
   ); // F10016
   cell_F10016 u_i21 (
+    .sys_clk(sys_clk),
     .p2(Red_6),
     .p3(Red_7),
     .p7(ToRed_7),
@@ -3553,6 +3683,7 @@ module DispM_m_Rev_m_Ch (
     .p15(Red_2_p_)
   ); // MC10195
   cell_MC10176 u_i24 (
+    .sys_clk(sys_clk),
     .p2(ToFifo_12),
     .p3(ToFifo_13),
     .p4(ToFifo_14),
@@ -3564,6 +3695,7 @@ module DispM_m_Rev_m_Ch (
     .p13(ToFifo_15)
   ); // MC10176
   cell_MC10176 u_j01 (
+    .sys_clk(sys_clk),
     .p2(RIOB_04),
     .p3(RIOB_05),
     .p4(RIOB_06),
@@ -3579,8 +3711,8 @@ module DispM_m_Rev_m_Ch (
     .p15(RIOB_09)
   ); // MC10176
   cell_MC10159 u_j02 (
-    .p1(IOB_11),
-    .p2(IOB_10),
+    .p1(IOB_11__drv),
+    .p2(IOB_10__drv),
     .p3(Green_6_p_),
     .p4(Blue_2_p_),
     .p5(Green_7_p_),
@@ -3591,8 +3723,8 @@ module DispM_m_Rev_m_Ch (
     .p11(Blue_0_p_),
     .p12(Green_5_p_),
     .p13(Blue_1_p_),
-    .p14(IOB_08),
-    .p15(IOB_09)
+    .p14(IOB_08__drv),
+    .p15(IOB_09__drv)
   ); // MC10159
   cell_MC10105 u_j03 (
     .p2(A6B4ModeOrDHM),
@@ -3780,6 +3912,7 @@ module DispM_m_Rev_m_Ch (
     .p16(GND_m_1)
   ); // SE10210
   cell_MC10176 u_j20 (
+    .sys_clk(sys_clk),
     .p2(ToPixelClk_00),
     .p3(ToPixelClk_01),
     .p4(ToPixelClk_02),
@@ -3817,7 +3950,7 @@ module DispM_m_Rev_m_Ch (
     .p11(VCompG),
     .p12(VRef_pl_G),
     .p14(GNDGreen__j22_14),
-    .p15(DACGreen),
+    .p15(DACGreen__drv),
     .p16(GNDGreen)
   ); // MC10318
   cell_PLAT1816 u_j23 (
@@ -3835,6 +3968,7 @@ module DispM_m_Rev_m_Ch (
     .p12(RegVCCG__j23_12)
   ); // PLAT1816
   cell_MC10176 u_j24 (
+    .sys_clk(sys_clk),
     .p2(ToFifo_06),
     .p3(ToFifo_07),
     .p4(ToFifo_08),
@@ -3851,6 +3985,7 @@ module DispM_m_Rev_m_Ch (
     .p15(ToFifo_11)
   ); // MC10176
   cell_MC10176 u_k01 (
+    .sys_clk(sys_clk),
     .p2(RIOB_00),
     .p3(RIOB_01),
     .p4(RIOB_02),
@@ -3862,8 +3997,8 @@ module DispM_m_Rev_m_Ch (
     .p13(RIOB_03)
   ); // MC10176
   cell_MC10159 u_k02 (
-    .p1(IOB_07),
-    .p2(IOB_06),
+    .p1(IOB_07__drv),
+    .p2(IOB_06__drv),
     .p3(Green_2_p_),
     .p4(Red_6_p_),
     .p5(Green_3_p_),
@@ -3874,10 +4009,11 @@ module DispM_m_Rev_m_Ch (
     .p11(Red_4_p_),
     .p12(Green_1_p_),
     .p13(Red_5_p_),
-    .p14(IOB_04),
-    .p15(IOB_05)
+    .p14(IOB_04__drv),
+    .p15(IOB_05__drv)
   ); // MC10159
   cell_MC10231 u_k03 (
+    .sys_clk(sys_clk),
     .p2(DoradoHasMixer_p_),
     .p3(DoradoHasMixer),
     .p4(IOReset),
@@ -3886,6 +4022,7 @@ module DispM_m_Rev_m_Ch (
     .p9(clk1_p_Be)
   ); // MC10231
   cell_MC10231 u_k04 (
+    .sys_clk(sys_clk),
     .p2(DoradoHasCMap_p_),
     .p4(IOReset),
     .p6(CMapCommand_p_),
@@ -3897,6 +4034,7 @@ module DispM_m_Rev_m_Ch (
     .p15(DoradoHasBMap_p_)
   ); // MC10231
   cell_F10016 u_k05 (
+    .sys_clk(sys_clk),
     .p2(CMapAd_6__k05_2),
     .p3(CMapAd_7__k05_3),
     .p5(ABufEn_p_),
@@ -3959,6 +4097,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToGreen_2__k08_23)
   ); // MB7071H
   cell_F10016 u_k10 (
+    .sys_clk(sys_clk),
     .p2(MixAddr_7a__k10_2),
     .p3(MixAddr_7b__k10_3),
     .p5(ABufEn_p_),
@@ -3973,6 +4112,7 @@ module DispM_m_Rev_m_Ch (
     .p15(MixAddr_6b__k10_15)
   ); // F10016
   cell_F10016 u_k11 (
+    .sys_clk(sys_clk),
     .p2(MixAddr_7a__k11_2),
     .p3(MixAddr_7b__k11_3),
     .p7(BBuf_1),
@@ -3985,6 +4125,7 @@ module DispM_m_Rev_m_Ch (
     .p15(MixAddr_6b__k11_15)
   ); // F10016
   cell_F10016 u_k12 (
+    .sys_clk(sys_clk),
     .p2(MixAddr_9a__k12_2),
     .p3(MixerMSHalfa),
     .p4(DispM16_sil_pl_6),
@@ -4001,6 +4142,7 @@ module DispM_m_Rev_m_Ch (
     .p15(MixAddr_8a__k12_15)
   ); // F10016
   cell_F10016 u_k13 (
+    .sys_clk(sys_clk),
     .p2(MixAddr_5a__k13_2),
     .p3(MixAddr_6a__k13_3),
     .p4(DispM16_sil_pl_8),
@@ -4089,6 +4231,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToGreen_6__k18_23)
   ); // MB7071H
   cell_MC10176 u_k20 (
+    .sys_clk(sys_clk),
     .p2(ToPixelClk_04),
     .p3(ToPixelClk_05),
     .p4(ToPixelClk_06),
@@ -4105,6 +4248,7 @@ module DispM_m_Rev_m_Ch (
     .p15(ToPixelClk_09)
   ); // MC10176
   cell_F10016 u_k21 (
+    .sys_clk(sys_clk),
     .p2(Green_2),
     .p3(Green_3),
     .p7(ToGreen_3),
@@ -4117,6 +4261,7 @@ module DispM_m_Rev_m_Ch (
     .p15(Green_1)
   ); // F10016
   cell_F10016 u_k22 (
+    .sys_clk(sys_clk),
     .p2(Green_6),
     .p3(Green_7),
     .p7(ToGreen_7),
@@ -4129,6 +4274,7 @@ module DispM_m_Rev_m_Ch (
     .p15(Green_5)
   ); // F10016
   cell_MC10176 u_k24 (
+    .sys_clk(sys_clk),
     .p2(ToFifo_00),
     .p3(ToFifo_01),
     .p4(ToFifo_02),
@@ -4162,6 +4308,7 @@ module DispM_m_Rev_m_Ch (
     .p16(GND_m_0)
   ); // SE10210
   cell_F10016 u_l05 (
+    .sys_clk(sys_clk),
     .p2(CMapAd_6__l05_2),
     .p3(CMapAd_7__l05_3),
     .p4(DispM14_sil_pl_2),
@@ -4225,6 +4372,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToGreen_3__l08_23)
   ); // MB7071H
   cell_F10016 u_l10 (
+    .sys_clk(sys_clk),
     .p2(MixAddr_9a__l10_2),
     .p3(MixAddr_9b__l10_3),
     .p7(BBuf_1),
@@ -4238,6 +4386,7 @@ module DispM_m_Rev_m_Ch (
     .p15(MixAddr_8b__l10_15)
   ); // F10016
   cell_F10016 u_l11 (
+    .sys_clk(sys_clk),
     .p2(MixAddr_9a__l11_2),
     .p3(MixAddr_9b__l11_3),
     .p7(BBuf_3),
@@ -4250,6 +4399,7 @@ module DispM_m_Rev_m_Ch (
     .p15(MixAddr_8b__l11_15)
   ); // F10016
   cell_F10016 u_l12 (
+    .sys_clk(sys_clk),
     .p2(MixAddr_9b__l12_2),
     .p3(MixerMSHalfb),
     .p4(DispM16_sil_pl_5),
@@ -4349,6 +4499,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToGreen_7__l18_23)
   ); // MB7071H
   cell_MC10176 u_l20 (
+    .sys_clk(sys_clk),
     .p2(ToPixelClk_10),
     .p3(ToPixelClk_11),
     .p4(ToPixelClk_12),

@@ -906,6 +906,22 @@ brought up a board at a time. One finding fell out of it: **DispM plugs into
 DispY rather than replacing it** -- 42 nets are shared by the two display
 boards and no other -- so a colour machine has both.
 
+**The machine is assembled, clocked, and shaped for an FPGA (2026-08-16).**
+`sim.v` instantiates it and the BaseBoard's clock distribution runs end to
+end: all ten `CLK.<board>'` nets toggle. Two transformations keep it
+synthesisable, both in the generator rather than hand-applied. **Wired-OR
+buses became OR trees**: each board exports its contribution as `<net>__drv`
+and reads the resolved bus back, so there is no `inout` and no
+multiply-driven net anywhere (checked with MULTIDRIVEN un-waived: zero).
+**Distributed clocks became clock enables**: the Dorado clocks 1,201 packages
+from an ECL clock net, which would be 1,201 gated clocks on an FPGA, so every
+clocked cell runs on a fabric `sys_clk` and uses that net as an enable; the
+two DRAM cells went synchronous and now infer block RAM. Gate:
+`make -C verilog machine-test`, a floor of 27 moving signals that should rise
+as the cell library fills in. The clock source is worth knowing -- it is
+GENERATED on the BaseBoard by two MC1690 flip-flops, not fed in, and
+modelling MC1690 is the next piece.
+
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold, now
 with the port-list fix as a self-contained first task and then the work to
 wire the machine together and test it against the C emulator.

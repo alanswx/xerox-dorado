@@ -5,12 +5,23 @@
 
 `default_nettype none
 
-// Ports: the 117 nets DskEth-Rev-Cf.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 117 nets DskEth-Rev-Cf.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module DskEth_m_Rev_m_Cf (
+    input  wire sys_clk,
     input  wire BNTGtCT_p_b,
     input  wire Block,
     input  wire CLK_disk_p_,
@@ -25,6 +36,15 @@ module DskEth_m_Rev_m_Cf (
     input  wire ClockP3,
     input  wire Collision,
     input  wire DMuxClk,
+    input  wire DMuxData,
+    input  wire DataM0,
+    input  wire DataM1,
+    input  wire DataM2,
+    input  wire DataM3,
+    input  wire DataP0,
+    input  wire DataP1,
+    input  wire DataP2,
+    input  wire DataP3,
     input  wire Host_0,
     input  wire Host_1,
     input  wire Host_2,
@@ -33,6 +53,24 @@ module DskEth_m_Rev_m_Cf (
     input  wire Host_5,
     input  wire Host_6,
     input  wire Host_7,
+    input  wire IOB_00,
+    input  wire IOB_01,
+    input  wire IOB_02,
+    input  wire IOB_03,
+    input  wire IOB_04,
+    input  wire IOB_05,
+    input  wire IOB_06,
+    input  wire IOB_07,
+    input  wire IOB_08,
+    input  wire IOB_09,
+    input  wire IOB_10,
+    input  wire IOB_11,
+    input  wire IOB_12,
+    input  wire IOB_13,
+    input  wire IOB_14,
+    input  wire IOB_15,
+    input  wire IOB_16,
+    input  wire IOB_17,
     input  wire IOHold,
     input  wire IOReset,
     input  wire IOin_p_,
@@ -42,6 +80,11 @@ module DskEth_m_Rev_m_Cf (
     input  wire Next_1,
     input  wire Next_2,
     input  wire Next_3,
+    input  wire OKToSelect,
+    input  wire OS0,
+    input  wire OS1,
+    input  wire OS2,
+    input  wire OS3,
     input  wire Pendulum,
     input  wire RcvData,
     input  wire SecIndx0_p_,
@@ -68,66 +111,67 @@ module DskEth_m_Rev_m_Cf (
     input  wire TtlOnLine_p_,
     input  wire TtlReadOnly_p_,
     input  wire TtlReady_p_,
+    input  wire TtlSector_p_,
     input  wire TtlSeekInc_p_,
     input  wire TtlTerm_p_,
-    output wire ContTag_p_,
-    output wire CylinderTag_p_,
-    output wire DiskTW,
-    output wire DriveTag_p_,
-    output wire HeadTag_p_,
-    output wire IOatt,
-    output wire Select0_p_,
-    output wire Select1_p_,
-    output wire Select2_p_,
-    output wire Select3_p_,
-    output wire TagBus_0_p_,
-    output wire TagBus_00_p_,
-    output wire TagBus_000_p_,
-    output wire TagBus_1_p_,
-    output wire TagBus_2_p_,
-    output wire TagBus_3_p_,
-    output wire TagBus_4_p_,
-    output wire TagBus_5_p_,
-    output wire TagBus_6_p_,
-    output wire TagBus_7_p_,
-    output wire TagBus_8_p_,
-    output wire TagBus_9_p_,
-    output wire WakeEthRx,
-    output wire WakeEthTx,
-    output wire XmtData_p_,
-    inout  wire DMuxData,
-    inout  wire DataM0,
-    inout  wire DataM1,
-    inout  wire DataM2,
-    inout  wire DataM3,
-    inout  wire DataP0,
-    inout  wire DataP1,
-    inout  wire DataP2,
-    inout  wire DataP3,
-    inout  wire IOB_00,
-    inout  wire IOB_01,
-    inout  wire IOB_02,
-    inout  wire IOB_03,
-    inout  wire IOB_04,
-    inout  wire IOB_05,
-    inout  wire IOB_06,
-    inout  wire IOB_07,
-    inout  wire IOB_08,
-    inout  wire IOB_09,
-    inout  wire IOB_10,
-    inout  wire IOB_11,
-    inout  wire IOB_12,
-    inout  wire IOB_13,
-    inout  wire IOB_14,
-    inout  wire IOB_15,
-    inout  wire IOB_16,
-    inout  wire IOB_17,
-    inout  wire OKToSelect,
-    inout  wire OS0,
-    inout  wire OS1,
-    inout  wire OS2,
-    inout  wire OS3,
-    inout  wire TtlSector_p_
+    output wire ContTag_p___drv,
+    output wire CylinderTag_p___drv,
+    output wire DMuxData__drv,
+    output wire DataM0__drv,
+    output wire DataM1__drv,
+    output wire DataM2__drv,
+    output wire DataM3__drv,
+    output wire DataP0__drv,
+    output wire DataP1__drv,
+    output wire DataP2__drv,
+    output wire DataP3__drv,
+    output wire DiskTW__drv,
+    output wire DriveTag_p___drv,
+    output wire HeadTag_p___drv,
+    output wire IOB_00__drv,
+    output wire IOB_01__drv,
+    output wire IOB_02__drv,
+    output wire IOB_03__drv,
+    output wire IOB_04__drv,
+    output wire IOB_05__drv,
+    output wire IOB_06__drv,
+    output wire IOB_07__drv,
+    output wire IOB_08__drv,
+    output wire IOB_09__drv,
+    output wire IOB_10__drv,
+    output wire IOB_11__drv,
+    output wire IOB_12__drv,
+    output wire IOB_13__drv,
+    output wire IOB_14__drv,
+    output wire IOB_15__drv,
+    output wire IOB_16__drv,
+    output wire IOB_17__drv,
+    output wire IOatt__drv,
+    output wire OKToSelect__drv,
+    output wire OS0__drv,
+    output wire OS1__drv,
+    output wire OS2__drv,
+    output wire OS3__drv,
+    output wire Select0_p___drv,
+    output wire Select1_p___drv,
+    output wire Select2_p___drv,
+    output wire Select3_p___drv,
+    output wire TagBus_0_p___drv,
+    output wire TagBus_00_p___drv,
+    output wire TagBus_000_p___drv,
+    output wire TagBus_1_p___drv,
+    output wire TagBus_2_p___drv,
+    output wire TagBus_3_p___drv,
+    output wire TagBus_4_p___drv,
+    output wire TagBus_5_p___drv,
+    output wire TagBus_6_p___drv,
+    output wire TagBus_7_p___drv,
+    output wire TagBus_8_p___drv,
+    output wire TagBus_9_p___drv,
+    output wire TtlSector_p___drv,
+    output wire WakeEthRx__drv,
+    output wire WakeEthTx__drv,
+    output wire XmtData_p___drv
 );
 
   // 966 internal nets
@@ -1099,8 +1143,9 @@ module DskEth_m_Rev_m_Cf (
   wire sPendulum;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire CheckSumErr__b11_9;
   wire CheckSumErr__c13_2;
   wire CheckSumErr__d18_14;
@@ -1201,7 +1246,7 @@ module DskEth_m_Rev_m_Cf (
   wire OKToSelect__g03_14;
   wire OKToSelect__g03_1;
   wire OKToSelect__g03_2;
-  assign OKToSelect = OKToSelect__g16_4 | OKToSelect__g03_13 | OKToSelect__g03_14 | OKToSelect__g03_1 | OKToSelect__g03_2;
+  assign OKToSelect__drv = OKToSelect__g16_4 | OKToSelect__g03_13 | OKToSelect__g03_14 | OKToSelect__g03_1 | OKToSelect__g03_2;
   wire PDInput__g07_14;
   wire PDInput__g06_4;
   assign PDInput = PDInput__g07_14 | PDInput__g06_4;
@@ -1284,6 +1329,8 @@ module DskEth_m_Rev_m_Cf (
   wire WriteInhibit_p___b23_3;
   assign WriteInhibit_p_ = WriteInhibit_p___d20_3 | WriteInhibit_p___b23_3;
 
+  // 57 single-driver contributions to the backplane
+
   // ---- packages
   cell_SN74LS169 u_a01 (
     .p1(GND_m_52),
@@ -1317,14 +1364,14 @@ module DskEth_m_Rev_m_Cf (
     .p1(TriconD06_sil_pl_3),
     .p2(TTLTrueA),
     .p3(Sector2_p_),
-    .p5(OS3),
+    .p5(OS3__drv),
     .p6(C3),
     .p7(R3),
     .p8(GND_m_51),
     .p9(TriconD06_sil_pl_4),
     .p10(TTLTrueA),
     .p11(Sector3_p_),
-    .p13(OS2),
+    .p13(OS2__drv),
     .p14(C2),
     .p15(R2),
     .p16(VCC_m_83)
@@ -1351,14 +1398,14 @@ module DskEth_m_Rev_m_Cf (
     .p1(TriconD06_sil_pl_1),
     .p2(TTLTrueA),
     .p3(Sector0_p_),
-    .p5(OS1),
+    .p5(OS1__drv),
     .p6(C1),
     .p7(R1),
     .p8(GND_m_50),
     .p9(TriconD06_sil_pl_2),
     .p10(TTLTrueA),
     .p11(Sector1_p_),
-    .p13(OS0),
+    .p13(OS0__drv),
     .p14(C0),
     .p15(R0),
     .p16(VCC_m_82)
@@ -1502,6 +1549,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(FifoAddr_2)
   ); // MC10158
   cell_F10016 u_a15 (
+    .sys_clk(sys_clk),
     .p2(FifoWaddr_2),
     .p3(FifoWaddr_3),
     .p5(ECLTrueC),
@@ -1512,6 +1560,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(FifoWaddr_1)
   ); // F10016
   cell_F10016 u_a16 (
+    .sys_clk(sys_clk),
     .p2(FifoRaddr_2),
     .p3(FifoRaddr_3),
     .p5(ECLTrueC),
@@ -1602,6 +1651,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD03_sil_pl_1)
   ); // SG10139
   cell_F10016 u_a22 (
+    .sys_clk(sys_clk),
     .p2(TriconD03_sil_pl_8),
     .p3(TriconD03_sil_pl_9),
     .p5(ECLTrueC),
@@ -1658,6 +1708,7 @@ module DskEth_m_Rev_m_Cf (
     .p12(TriconD05_sil_pl_1)
   ); // MC10125
   cell_MC10176 u_b03 (
+    .sys_clk(sys_clk),
     .p2(TriconD10_sil_pl_21),
     .p3(TriconD10_sil_pl_35),
     .p4(TriconD10_sil_pl_36),
@@ -1673,6 +1724,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD10_sil_pl_38)
   ); // MC10176
   cell_MC10176 u_b04 (
+    .sys_clk(sys_clk),
     .p2(TriconD10_sil_pl_11),
     .p3(TriconD10_sil_pl_12),
     .p4(TriconD10_sil_pl_30),
@@ -1688,6 +1740,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(EccData_21)
   ); // MC10176
   cell_MC10176 u_b05 (
+    .sys_clk(sys_clk),
     .p2(TriconD10_sil_pl_39),
     .p3(TriconD10_sil_pl_28),
     .p4(TriconD10_sil_pl_14),
@@ -1703,6 +1756,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD10_sil_pl_34)
   ); // MC10176
   cell_MC10176 u_b06 (
+    .sys_clk(sys_clk),
     .p2(TagDone),
     .p3(TagStrobe),
     .p4(ReadData),
@@ -1742,6 +1796,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(TriconD10_sil_pl_8__b08_14)
   ); // MC10158
   cell_MC10231 u_b09 (
+    .sys_clk(sys_clk),
     .p2(CompareErr_p_),
     .p5(TriconD11_sil_pl_2),
     .p6(ShiftIn),
@@ -1751,6 +1806,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD13_sil_pl_3)
   ); // MC10231
   cell_F10016 u_b10 (
+    .sys_clk(sys_clk),
     .p4(TriconD13_sil_pl_1),
     .p5(TriconD13_sil_pl_3),
     .p13(BitClock_p_A)
@@ -1770,6 +1826,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(OutRegWrite_p_)
   ); // MC10103
   cell_MC10231 u_b12 (
+    .sys_clk(sys_clk),
     .p2(IOBParityErr),
     .p4(ClearErrors),
     .p5(TriconD11_sil_pl_1),
@@ -1811,6 +1868,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD08_sil_pl_5)
   ); // MCM10149
   cell_MC10231 u_b15 (
+    .sys_clk(sys_clk),
     .p2(TriconD08_sil_pl_10),
     .p5(FifoCl),
     .p6(InReg_u_SR_p_),
@@ -1869,6 +1927,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD03_sil_pl_1)
   ); // MC10195
   cell_F10016 u_b20 (
+    .sys_clk(sys_clk),
     .p2(ShiftIn),
     .p3(PromA4),
     .p5(CntDone_p_),
@@ -1883,6 +1942,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(ComputeECC)
   ); // F10016
   cell_F10016 u_b21 (
+    .sys_clk(sys_clk),
     .p2(RamAddr_2__b21_2),
     .p3(RamAddr_3__b21_3),
     .p4(LastRamAddr_p_),
@@ -2022,6 +2082,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(GND_m_33)
   ); // SE10212
   cell_MC10176 u_c07 (
+    .sys_clk(sys_clk),
     .p2(TriconD10_sil_pl_25),
     .p3(TriconD10_sil_pl_24),
     .p4(TriconD10_sil_pl_23),
@@ -2037,6 +2098,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD07_sil_pl_10)
   ); // MC10176
   cell_MC10176 u_c08 (
+    .sys_clk(sys_clk),
     .p2(TriconD10_sil_pl_18),
     .p3(TriconD10_sil_pl_19),
     .p4(TriconD10_sil_pl_20),
@@ -2052,6 +2114,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD10_sil_pl_31)
   ); // MC10176
   cell_MC10231 u_c09 (
+    .sys_clk(sys_clk),
     .p2(FifoParityErr),
     .p4(ClearErrors),
     .p5(TriconD09_sil_pl_8),
@@ -2120,6 +2183,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD09_sil_pl_8)
   ); // MC10197
   cell_MC10176 u_c14 (
+    .sys_clk(sys_clk),
     .p2(FifoFull),
     .p3(WriteTW_p_),
     .p4(ReadTW_p_),
@@ -2133,6 +2197,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(InRegFull)
   ); // MC10176
   cell_MC10231 u_c15 (
+    .sys_clk(sys_clk),
     .p2(FifoOverflow),
     .p4(ClearErrors),
     .p5(TriconD08_sil_pl_1),
@@ -2146,6 +2211,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(FifoUnderflow)
   ); // MC10231
   cell_MC10135 u_c16 (
+    .sys_clk(sys_clk),
     .p3(EnWriteTW_p___c16_3),
     .p5(NextBlockCl),
     .p6(TIOA_eq_Cont_p_),
@@ -2280,15 +2346,15 @@ module DskEth_m_Rev_m_Cf (
   cell_SN74125 u_d02 (
     .p1(Unit2_u_Data_p_),
     .p2(TriconD07_sil_pl_7),
-    .p3(DataP2),
+    .p3(DataP2__drv),
     .p4(Unit2_u_Data_p_),
     .p5(TriconD07_sil_pl_8),
-    .p6(DataM2),
+    .p6(DataM2__drv),
     .p7(GND_m_38),
-    .p8(DataP3),
+    .p8(DataP3__drv),
     .p9(TriconD07_sil_pl_7),
     .p10(Unit3_u_Data_p_),
-    .p11(DataM3),
+    .p11(DataM3__drv),
     .p12(TriconD07_sil_pl_8),
     .p13(Unit3_u_Data_p_),
     .p14(VCC_m_73)
@@ -2300,7 +2366,7 @@ module DskEth_m_Rev_m_Cf (
     .p4(Sector2_p_),
     .p5(Sector1_p_),
     .p6(Sector0_p_),
-    .p7(TtlSector_p_),
+    .p7(TtlSector_p___drv),
     .p8(GND_m_37),
     .p9(TriconD06_sil_pl_21),
     .p10(Selected0_p_),
@@ -2537,6 +2603,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(ClearTWs)
   ); // MC10173
   cell_MC10135 u_d20 (
+    .sys_clk(sys_clk),
     .p3(WriteInhibit_p___d20_3),
     .p4(Tag_u_IOB),
     .p7(WriteBlock_p_),
@@ -2558,6 +2625,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(TriconD04_sil_pl_4)
   ); // MCM10149
   cell_F10016 u_d22 (
+    .sys_clk(sys_clk),
     .p2(TriconD04_sil_pl_11),
     .p3(TriconD04_sil_pl_10),
     .p5(DrSelected),
@@ -2633,6 +2701,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(TIOA_2)
   ); // MC10166
   cell_MC10175 u_e02 (
+    .sys_clk(sys_clk),
     .p2(TIOA_6a),
     .p3(TIOA_7a),
     .p6(FHCP),
@@ -2656,6 +2725,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD11_sil_pl_3)
   ); // MC10109
   cell_MC10231 u_e04 (
+    .sys_clk(sys_clk),
     .p3(SeekTagTW),
     .p4(SetTagTW),
     .p5(ClearTWs),
@@ -2664,9 +2734,10 @@ module DskEth_m_Rev_m_Cf (
     .p10(TriconD11_sil_pl_3),
     .p11(Clock0_p_Bc),
     .p13(DisableRun),
-    .p15(DiskTW)
+    .p15(DiskTW__drv)
   ); // MC10231
   cell_MC10231 u_e05 (
+    .sys_clk(sys_clk),
     .p3(IndexTW),
     .p5(ClearIndexTW),
     .p6(Index_p_),
@@ -2677,6 +2748,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(SectorTW)
   ); // MC10231
   cell_MC10231 u_e06 (
+    .sys_clk(sys_clk),
     .p1(GND_m_27),
     .p2(EnCheckTW_p_),
     .p3(EnWriteTW_p___e06_3),
@@ -2704,6 +2776,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(MuxData0__e07_15)
   ); // MU10164
   cell_MC10176 u_e08 (
+    .sys_clk(sys_clk),
     .p2(DskData_12),
     .p3(DskData_13),
     .p4(DskData_14),
@@ -2733,6 +2806,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(dFifoParityErr__e09_15)
   ); // MC10170
   cell_MC10176 u_e10 (
+    .sys_clk(sys_clk),
     .p2(DskData_06),
     .p3(DskData_07),
     .p4(DskData_08),
@@ -2762,6 +2836,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(dFifoParityErr__e11_15)
   ); // MC10170
   cell_MC10176 u_e12 (
+    .sys_clk(sys_clk),
     .p2(DskData_00),
     .p3(DskData_01),
     .p4(DskData_02),
@@ -2777,6 +2852,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(DskData_05)
   ); // MC10176
   cell_MC10135 u_e13 (
+    .sys_clk(sys_clk),
     .p2(Active),
     .p3(Idle),
     .p4(ControlRegCl),
@@ -2791,6 +2867,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD08_sil_pl_9)
   ); // MC10135
   cell_MC10231 u_e14 (
+    .sys_clk(sys_clk),
     .p2(DisableRun),
     .p3(EnableRun),
     .p4(TriconD02_sil_pl_1),
@@ -2804,6 +2881,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(DebugMode)
   ); // MC10231
   cell_MC10231 u_e15 (
+    .sys_clk(sys_clk),
     .p2(BlockTillIndex),
     .p3(TriconD02_sil_pl_4),
     .p4(IndexTW),
@@ -2832,6 +2910,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ram_06)
   ); // F10145A
   cell_MC10231 u_e17 (
+    .sys_clk(sys_clk),
     .p3(MufAdr_u_IOB_p___e17_3),
     .p7(DskEth01_sil_pl_5),
     .p9(Clock0_p_Da),
@@ -3040,6 +3119,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(TIOA_5a)
   ); // MC10161
   cell_MC10176 u_f08 (
+    .sys_clk(sys_clk),
     .p2(OutPar_16),
     .p3(OutPar_17),
     .p4(RdOnlyData_p_),
@@ -3055,6 +3135,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(InReg_u_SR_p_)
   ); // MC10176
   cell_F10000 u_f09 (
+    .sys_clk(sys_clk),
     .p2(ShiftReg_14),
     .p3(ShiftReg_15),
     .p4(BitClock_p_B),
@@ -3068,6 +3149,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(ShiftReg_13)
   ); // F10000
   cell_F10000 u_f10 (
+    .sys_clk(sys_clk),
     .p2(ShiftReg_10),
     .p3(ShiftReg_11),
     .p4(BitClock_p_B),
@@ -3081,6 +3163,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(ShiftReg_09)
   ); // F10000
   cell_F10000 u_f11 (
+    .sys_clk(sys_clk),
     .p2(ShiftReg_06),
     .p3(ShiftReg_07),
     .p4(BitClock_p_B),
@@ -3094,6 +3177,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(ShiftReg_05)
   ); // F10000
   cell_F10000 u_f12 (
+    .sys_clk(sys_clk),
     .p2(ShiftReg_02),
     .p3(ShiftReg_03),
     .p4(BitClock_p_B),
@@ -3120,6 +3204,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(GND_m_24)
   ); // SE10210
   cell_F10000 u_f14 (
+    .sys_clk(sys_clk),
     .p4(ContRegCl_p_),
     .p5(Active),
     .p7(bIOB_14),
@@ -3130,6 +3215,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(ReadBlock)
   ); // F10000
   cell_F10000 u_f15 (
+    .sys_clk(sys_clk),
     .p4(ContRegCl_p_),
     .p5(Active),
     .p7(bIOB_15),
@@ -3269,15 +3355,15 @@ module DskEth_m_Rev_m_Cf (
   cell_SN7438 u_g01 (
     .p1(Select0),
     .p2(OKToSelect),
-    .p3(Select0_p_),
+    .p3(Select0_p___drv),
     .p4(Select1),
     .p5(OKToSelect),
-    .p6(Select1_p_),
+    .p6(Select1_p___drv),
     .p7(GND_m_26),
-    .p8(Select2_p_),
+    .p8(Select2_p___drv),
     .p9(OKToSelect),
     .p10(Select2),
-    .p11(Select3_p_),
+    .p11(Select3_p___drv),
     .p12(OKToSelect),
     .p13(Select3),
     .p14(VCC_m_63)
@@ -3285,15 +3371,15 @@ module DskEth_m_Rev_m_Cf (
   cell_SN74125 u_g02 (
     .p1(Unit0_u_Data_p_),
     .p2(TriconD07_sil_pl_7),
-    .p3(DataP0),
+    .p3(DataP0__drv),
     .p4(Unit0_u_Data_p_),
     .p5(TriconD07_sil_pl_8),
-    .p6(DataM0),
+    .p6(DataM0__drv),
     .p7(GND_m_25),
-    .p8(DataP1),
+    .p8(DataP1__drv),
     .p9(TriconD07_sil_pl_7),
     .p10(Unit1_u_Data_p_),
-    .p11(DataM1),
+    .p11(DataM1__drv),
     .p12(TriconD07_sil_pl_8),
     .p13(Unit1_u_Data_p_),
     .p14(VCC_m_63)
@@ -3341,6 +3427,7 @@ module DskEth_m_Rev_m_Cf (
     .p12(Host_0)
   ); // MC10170
   cell_MC10175 u_g06 (
+    .sys_clk(sys_clk),
     .p2(SingleStep),
     .p3(NoWakeups),
     .p4(PDInput__g06_4),
@@ -3491,7 +3578,7 @@ module DskEth_m_Rev_m_Cf (
     .p7(GND_m_18),
     .p8(Ether11_sil_pl_2),
     .p9(Ether11_sil_pl_2),
-    .p10(XmtData_p_),
+    .p10(XmtData_p___drv),
     .p14(VCC_m_60)
   ); // SN74S01
   cell_F9401 u_g17 (
@@ -3539,6 +3626,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(MuxData6__g19_15)
   ); // MU10164
   cell_MC10176 u_g20 (
+    .sys_clk(sys_clk),
     .p2(Ether01_sil_pl_3),
     .p3(PDNew),
     .p4(PDOld),
@@ -3554,6 +3642,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(PDEvent_1)
   ); // MC10176
   cell_F10016 u_g21 (
+    .sys_clk(sys_clk),
     .p2(PDCnt_2),
     .p3(PDCnt_3),
     .p5(PDCntCtrl),
@@ -3566,13 +3655,13 @@ module DskEth_m_Rev_m_Cf (
   cell_p_8T98 u_g22 (
     .p1(TriconD04_sil_pl_9),
     .p2(TriconD04_sil_pl_8),
-    .p3(ContTag_p_),
+    .p3(ContTag_p___drv),
     .p4(TriconD04_sil_pl_7),
-    .p5(HeadTag_p_),
+    .p5(HeadTag_p___drv),
     .p6(TriconD04_sil_pl_6),
-    .p7(CylinderTag_p_),
+    .p7(CylinderTag_p___drv),
     .p8(GND_m_16),
-    .p11(DriveTag_p_),
+    .p11(DriveTag_p___drv),
     .p12(TriconD04_sil_pl_5),
     .p13(TtlDriveTag_p_),
     .p14(TriconD04_sil_pl_5),
@@ -3583,17 +3672,17 @@ module DskEth_m_Rev_m_Cf (
   cell_p_8T98 u_g23 (
     .p1(TriconD04_sil_pl_1),
     .p2(TtlTag_1),
-    .p3(TagBus_1_p_),
+    .p3(TagBus_1_p___drv),
     .p4(TtlTag_0),
-    .p5(TagBus_0_p_),
+    .p5(TagBus_0_p___drv),
     .p6(TtlTag_00),
-    .p7(TagBus_00_p_),
+    .p7(TagBus_00_p___drv),
     .p8(GND_m_23),
-    .p9(TagBus_000_p_),
+    .p9(TagBus_000_p___drv),
     .p10(TtlTag_000),
-    .p11(TagBus_3_p_),
+    .p11(TagBus_3_p___drv),
     .p12(TtlTag_3),
-    .p13(TagBus_2_p_),
+    .p13(TagBus_2_p___drv),
     .p14(TtlTag_2),
     .p15(TriconD04_sil_pl_1),
     .p16(VCC_m_58)
@@ -3602,17 +3691,17 @@ module DskEth_m_Rev_m_Cf (
   cell_p_8T98 u_g24 (
     .p1(TriconD04_sil_pl_1),
     .p2(TtlTag_9),
-    .p3(TagBus_9_p_),
+    .p3(TagBus_9_p___drv),
     .p4(TtlTag_8),
-    .p5(TagBus_8_p_),
+    .p5(TagBus_8_p___drv),
     .p6(TtlTag_7),
-    .p7(TagBus_7_p_),
+    .p7(TagBus_7_p___drv),
     .p8(GND_m_22),
-    .p9(TagBus_6_p_),
+    .p9(TagBus_6_p___drv),
     .p10(TtlTag_6),
-    .p11(TagBus_5_p_),
+    .p11(TagBus_5_p___drv),
     .p12(TtlTag_5),
-    .p13(TagBus_4_p_),
+    .p13(TagBus_4_p___drv),
     .p14(TtlTag_4),
     .p15(TriconD04_sil_pl_1),
     .p16(VCC_m_57)
@@ -3635,7 +3724,7 @@ module DskEth_m_Rev_m_Cf (
     .p8(TTLTrueB)
   ); // SIPpackage
   cell_MC10174 u_h01 (
-    .p2(IOB_15),
+    .p2(IOB_15__drv),
     .p3(DskData_15),
     .p4(TxFifoPE),
     .p5(MufData),
@@ -3647,11 +3736,11 @@ module DskEth_m_Rev_m_Cf (
     .p12(EthStatus_17),
     .p13(DskData_17),
     .p14(DskEth03_sil_pl_1),
-    .p15(IOB_17)
+    .p15(IOB_17__drv)
   ); // MC10174
   cell_MC10174 u_h02 (
     .p1(GND_m_15),
-    .p2(IOB_13),
+    .p2(IOB_13__drv),
     .p3(DskData_13),
     .p4(TxDataLate),
     .p6(EthData_13),
@@ -3661,10 +3750,10 @@ module DskEth_m_Rev_m_Cf (
     .p12(SingleStep),
     .p13(DskData_14),
     .p14(DskEth03_sil_pl_1),
-    .p15(IOB_14)
+    .p15(IOB_14__drv)
   ); // MC10174
   cell_MC10174 u_h03 (
-    .p2(IOB_11),
+    .p2(IOB_11__drv),
     .p3(DskData_11),
     .p4(TxCollision),
     .p6(EthData_11),
@@ -3674,9 +3763,10 @@ module DskEth_m_Rev_m_Cf (
     .p12(NoWakeups),
     .p13(DskData_12),
     .p14(DskEth03_sil_pl_1),
-    .p15(IOB_12)
+    .p15(IOB_12__drv)
   ); // MC10174
   cell_MC10231 u_h04 (
+    .sys_clk(sys_clk),
     .p3(Ether05_sil_pl_1__h04_3),
     .p5(bIOReset),
     .p6(Ether05_sil_pl_4),
@@ -3701,6 +3791,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(Ether06_sil_pl_5)
   ); // MC10109
   cell_MC10231 u_h06 (
+    .sys_clk(sys_clk),
     .p2(Ether08_sil_pl_20),
     .p5(sPendulum),
     .p6(Ether08_sil_pl_21),
@@ -3722,6 +3813,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether11_sil_pl_5)
   ); // MC10124
   cell_MC10176 u_h08 (
+    .sys_clk(sys_clk),
     .p2(RxIncTrans),
     .p3(RxCRCReset),
     .p4(RxCRCClk),
@@ -3779,6 +3871,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether02_sil_pl_5)
   ); // MCM10149
   cell_MC10176 u_h12 (
+    .sys_clk(sys_clk),
     .p2(RxState_0),
     .p3(RxState_1),
     .p4(RxState_2),
@@ -3794,6 +3887,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(RxSync_p_)
   ); // MC10176
   cell_MC10176 u_h13 (
+    .sys_clk(sys_clk),
     .p2(TxState_0),
     .p3(TxState_1),
     .p4(TxState_2),
@@ -3849,6 +3943,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether09_sil_pl_5)
   ); // MCM10149
   cell_MC10176 u_h17 (
+    .sys_clk(sys_clk),
     .p2(TxGo),
     .p3(TxData__h17_3),
     .p4(TxSRCtrl_0),
@@ -3950,6 +4045,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(Next_eq_EthRx_x3f_)
   ); // MC10105
   cell_MC10176 u_h24 (
+    .sys_clk(sys_clk),
     .p2(Prev_eq_EthTx),
     .p3(Ether13_sil_pl_10),
     .p4(Prev_eq_EthRx),
@@ -3989,7 +4085,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(bIOB_15)
   ); // MC10197
   cell_MC10174 u_i02 (
-    .p2(IOB_09),
+    .p2(IOB_09__drv),
     .p3(DskData_09),
     .p4(TxOn),
     .p6(EthData_09),
@@ -3999,10 +4095,10 @@ module DskEth_m_Rev_m_Cf (
     .p12(LoopBack),
     .p13(DskData_10),
     .p14(DskEth03_sil_pl_1),
-    .p15(IOB_10)
+    .p15(IOB_10__drv)
   ); // MC10174
   cell_MC10174 u_i03 (
-    .p2(IOB_16),
+    .p2(IOB_16__drv),
     .p3(DskData_16),
     .p4(EthStatus_16),
     .p5(ECLTrueA),
@@ -4013,7 +4109,7 @@ module DskEth_m_Rev_m_Cf (
     .p12(RxOn),
     .p13(DskData_08),
     .p14(DskEth03_sil_pl_1),
-    .p15(IOB_08)
+    .p15(IOB_08__drv)
   ); // MC10174
   cell_MC10103 u_i05 (
     .p1(GND_m_13),
@@ -4052,6 +4148,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(GND_m_10)
   ); // SE10210
   cell_MC10141 u_i08 (
+    .sys_clk(sys_clk),
     .p2(RxSR_02),
     .p3(RxSR_03),
     .p4(EtherClk42_5c),
@@ -4062,6 +4159,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(RxSR_01)
   ); // MC10141
   cell_MC10141 u_i09 (
+    .sys_clk(sys_clk),
     .p2(RxSR_06),
     .p3(RxSR_07),
     .p4(EtherClk42_5c),
@@ -4072,6 +4170,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(RxSR_05)
   ); // MC10141
   cell_MC10141 u_i10 (
+    .sys_clk(sys_clk),
     .p2(RxSR_10),
     .p3(RxSR_11),
     .p4(EtherClk42_5c),
@@ -4084,6 +4183,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(RxSR_09)
   ); // MC10141
   cell_MC10141 u_i11 (
+    .sys_clk(sys_clk),
     .p2(RxSR_14),
     .p3(RxSR_15),
     .p4(EtherClk42_5c),
@@ -4122,6 +4222,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TxSREmpty_p___i13_15)
   ); // MC10136
   cell_MC10141 u_i14 (
+    .sys_clk(sys_clk),
     .p4(Clock1_p_Da),
     .p5(Ether07_sil_pl_1),
     .p6(TxFifo_03),
@@ -4133,6 +4234,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(TxData__i14_14)
   ); // MC10141
   cell_MC10141 u_i15 (
+    .sys_clk(sys_clk),
     .p4(Clock1_p_Da),
     .p5(Ether07_sil_pl_3),
     .p6(TxFifo_07),
@@ -4144,6 +4246,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(Ether07_sil_pl_1)
   ); // MC10141
   cell_MC10141 u_i16 (
+    .sys_clk(sys_clk),
     .p4(Clock1_p_Da),
     .p5(Ether07_sil_pl_2),
     .p6(TxFifo_11),
@@ -4155,6 +4258,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(Ether07_sil_pl_3)
   ); // MC10141
   cell_MC10141 u_i17 (
+    .sys_clk(sys_clk),
     .p4(Clock1_p_Da),
     .p6(TxFifo_15),
     .p7(TxSRCtrl_0),
@@ -4214,6 +4318,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(GND_m_7)
   ); // MC10210
   cell_MC10231 u_i22 (
+    .sys_clk(sys_clk),
     .p2(Ether10_sil_pl_4),
     .p3(PEOutput__i22_3),
     .p6(EtherClk170),
@@ -4264,7 +4369,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(bIOB_09)
   ); // MC10197
   cell_MC10174 u_j02 (
-    .p2(IOB_04),
+    .p2(IOB_04__drv),
     .p3(DskData_04),
     .p4(Host_4),
     .p6(EthData_04),
@@ -4274,10 +4379,10 @@ module DskEth_m_Rev_m_Cf (
     .p12(Host_5),
     .p13(DskData_05),
     .p14(DskEth03_sil_pl_1),
-    .p15(IOB_05)
+    .p15(IOB_05__drv)
   ); // MC10174
   cell_MC10174 u_j03 (
-    .p2(IOB_06),
+    .p2(IOB_06__drv),
     .p3(DskData_06),
     .p4(Host_6),
     .p6(EthData_06),
@@ -4287,9 +4392,10 @@ module DskEth_m_Rev_m_Cf (
     .p12(Host_7),
     .p13(DskData_07),
     .p14(DskEth03_sil_pl_1),
-    .p15(IOB_07)
+    .p15(IOB_07__drv)
   ); // MC10174
   cell_MC10231 u_j04 (
+    .sys_clk(sys_clk),
     .p2(TxOn),
     .p3(TxOff),
     .p4(bIOReset),
@@ -4492,6 +4598,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(GND_m_3)
   ); // SE10210
   cell_MC10135 u_j19 (
+    .sys_clk(sys_clk),
     .p3(Ether08_sil_pl_11),
     .p6(Ether08_sil_pl_10),
     .p7(Ether08_sil_pl_20),
@@ -4538,15 +4645,16 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether13_sil_pl_1__j23_15)
   ); // MC10113
   cell_MC10176 u_j24 (
+    .sys_clk(sys_clk),
     .p2(Ether13_sil_pl_8),
-    .p3(IOatt),
-    .p4(WakeEthRx),
+    .p3(IOatt__drv),
+    .p4(WakeEthRx__drv),
     .p5(Ether13_sil_pl_17),
     .p6(Ether13_sil_pl_3),
     .p7(Ether05_sil_pl_7),
     .p9(Clock0_p_Dd),
     .p10(Ether06_sil_pl_5),
-    .p13(WakeEthTx)
+    .p13(WakeEthTx__drv)
   ); // MC10176
   cell_SIPpackage u_j52 (
     .p1(ECLTrueD),
@@ -4570,7 +4678,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(bIOB_04)
   ); // MC10197
   cell_MC10174 u_k02 (
-    .p2(IOB_00),
+    .p2(IOB_00__drv),
     .p3(DskData_00),
     .p4(Host_0),
     .p6(EthData_00),
@@ -4580,10 +4688,10 @@ module DskEth_m_Rev_m_Cf (
     .p12(Host_1),
     .p13(DskData_01),
     .p14(DskEth03_sil_pl_1),
-    .p15(IOB_01)
+    .p15(IOB_01__drv)
   ); // MC10174
   cell_MC10174 u_k03 (
-    .p2(IOB_02),
+    .p2(IOB_02__drv),
     .p3(DskData_02),
     .p4(Host_2),
     .p6(EthData_02),
@@ -4593,9 +4701,10 @@ module DskEth_m_Rev_m_Cf (
     .p12(Host_3),
     .p13(DskData_03),
     .p14(DskEth03_sil_pl_1),
-    .p15(IOB_03)
+    .p15(IOB_03__drv)
   ); // MC10174
   cell_MC10135 u_k04 (
+    .sys_clk(sys_clk),
     .p2(RxBOP),
     .p3(Ether05_sil_pl_1__k04_3),
     .p4(RxOff),
@@ -4638,6 +4747,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether11_sil_pl_4)
   ); // MC10125
   cell_MC10135 u_k07 (
+    .sys_clk(sys_clk),
     .p3(Ether04_sil_pl_12),
     .p6(RxSRDump_p_),
     .p7(Ether04_sil_pl_19),
@@ -4660,6 +4770,7 @@ module DskEth_m_Rev_m_Cf (
     .p12(ECLTrueB)
   ); // MC10170
   cell_MC10176 u_k09 (
+    .sys_clk(sys_clk),
     .p2(EthData_00),
     .p3(EthData_01),
     .p4(EthData_02),
@@ -4675,6 +4786,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(EthData_05)
   ); // MC10176
   cell_MC10176 u_k10 (
+    .sys_clk(sys_clk),
     .p2(EthData_06),
     .p3(EthData_07),
     .p4(EthData_08),
@@ -4690,6 +4802,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(EthData_11)
   ); // MC10176
   cell_MC10176 u_k11 (
+    .sys_clk(sys_clk),
     .p2(EthData_12),
     .p3(EthData_13),
     .p4(EthData_14),
@@ -4730,6 +4843,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether07_sil_pl_10__k13_15)
   ); // MC10170
   cell_MC10176 u_k14 (
+    .sys_clk(sys_clk),
     .p2(Ether07_sil_pl_11),
     .p3(Ether07_sil_pl_12),
     .p4(Ether07_sil_pl_13),
@@ -4745,6 +4859,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether07_sil_pl_5)
   ); // MC10176
   cell_MC10176 u_k15 (
+    .sys_clk(sys_clk),
     .p2(Ether07_sil_pl_7),
     .p3(Ether07_sil_pl_6),
     .p4(Ether07_sil_pl_18),
@@ -4760,6 +4875,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether07_sil_pl_15)
   ); // MC10176
   cell_MC10176 u_k16 (
+    .sys_clk(sys_clk),
     .p2(Ether07_sil_pl_19),
     .p3(Ether07_sil_pl_20),
     .p4(Ether07_sil_pl_21),
@@ -4802,6 +4918,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(Ether10_sil_pl_7__k18_14)
   ); // MC10104
   cell_MC10135 u_k19 (
+    .sys_clk(sys_clk),
     .p2(Ether10_sil_pl_3),
     .p5(TxOff),
     .p6(Ether10_sil_pl_11),
@@ -4813,6 +4930,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(TxCollision)
   ); // MC10135
   cell_MC10231 u_k20 (
+    .sys_clk(sys_clk),
     .p3(Ether10_sil_pl_5),
     .p7(TxGo),
     .p9(EtherClk340),
@@ -4834,6 +4952,7 @@ module DskEth_m_Rev_m_Cf (
     .p12(RxOn)
   ); // MC10170
   cell_MC10135 u_k22 (
+    .sys_clk(sys_clk),
     .p2(TxDataLate),
     .p4(TxOff),
     .p5(bClkEn_p_),
@@ -4906,6 +5025,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether06_sil_pl_2__l03_15)
   ); // MC10195
   cell_MC10231 u_l04 (
+    .sys_clk(sys_clk),
     .p2(TxEOP),
     .p3(Ether06_sil_pl_4),
     .p4(TxGone),
@@ -4918,6 +5038,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(RxOn)
   ); // MC10231
   cell_MC10135 u_l06 (
+    .sys_clk(sys_clk),
     .p2(RxDataLate),
     .p5(bClkEn_p_),
     .p6(Ether04_sil_pl_14),
@@ -4930,6 +5051,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TxBusRegFull_p_)
   ); // MC10135
   cell_MC10231 u_l07 (
+    .sys_clk(sys_clk),
     .p2(EthData_18),
     .p3(EthData_18_p_),
     .p6(RxBusRegClk_p_),
@@ -4952,6 +5074,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(EthCtrl_u_IOB_p_)
   ); // MC10105
   cell_F10016 u_l09 (
+    .sys_clk(sys_clk),
     .p2(Ether04_sil_pl_3),
     .p3(Ether04_sil_pl_4),
     .p5(ECLTrueB),
@@ -4990,6 +5113,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(RxFifoAd_2)
   ); // MC10158
   cell_F10016 u_l12 (
+    .sys_clk(sys_clk),
     .p2(Ether04_sil_pl_6),
     .p3(Ether04_sil_pl_5),
     .p5(ECLTrueB),
@@ -5000,6 +5124,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether04_sil_pl_7)
   ); // F10016
   cell_F10016 u_l13 (
+    .sys_clk(sys_clk),
     .p2(Ether08_sil_pl_3),
     .p3(Ether08_sil_pl_4),
     .p5(ECLTrueD),
@@ -5038,6 +5163,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether08_sil_pl_23)
   ); // MCM10149
   cell_F10016 u_l16 (
+    .sys_clk(sys_clk),
     .p2(Ether08_sil_pl_14),
     .p3(Ether08_sil_pl_15),
     .p5(ECLTrueD),
@@ -5061,6 +5187,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether10_sil_pl_10)
   ); // MC10105
   cell_MC10176 u_l18 (
+    .sys_clk(sys_clk),
     .p2(RxFifoFull),
     .p3(RxFifoFull_p_),
     .p4(RxFifoEmpty),
@@ -5076,6 +5203,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TxFifoEmpty_p_)
   ); // MC10176
   cell_MC10135 u_l19 (
+    .sys_clk(sys_clk),
     .p3(Ether10_sil_pl_2),
     .p6(Ether10_sil_pl_1),
     .p7(Ether10_sil_pl_9),
@@ -5086,6 +5214,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TxGotBit)
   ); // MC10135
   cell_MC10231 u_l20 (
+    .sys_clk(sys_clk),
     .p2(Ether10_sil_pl_9),
     .p5(TxGotBit),
     .p6(EtherClk170),
@@ -5112,6 +5241,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(MuxData2__l21_15)
   ); // MU10164
   cell_MC10176 u_l22 (
+    .sys_clk(sys_clk),
     .p3(DMadr_01),
     .p4(DMadr_02),
     .p5(DMadr_01),
@@ -5126,6 +5256,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(DMadr_05)
   ); // MC10176
   cell_MC10176 u_l23 (
+    .sys_clk(sys_clk),
     .p2(DMadr_06),
     .p3(DMadr_07),
     .p4(DMadr_08),
@@ -5141,7 +5272,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(DMadr_11)
   ); // MC10176
   cell_MC10102 u_l24 (
-    .p2(DMuxData),
+    .p2(DMuxData__drv),
     .p3(DskEth01_sil_pl_4),
     .p4(DskEth01_sil_pl_4),
     .p5(MidasEn_01T_02F_03F_04F_p_),

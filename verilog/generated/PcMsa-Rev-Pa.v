@@ -5,12 +5,23 @@
 
 `default_nettype none
 
-// Ports: the 66 nets PcMsa-Rev-Pa.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 66 nets PcMsa-Rev-Pa.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module PcMsa_m_Rev_m_Pa (
+    input  wire sys_clk,
     input  wire CLK_ms0Even_p_,
     input  wire ChipsAreA,
     input  wire ChipsAreB,
@@ -58,25 +69,25 @@ module PcMsa_m_Rev_m_Pa (
     input  wire Sout_13,
     input  wire Sout_14,
     input  wire Sout_15,
-    output wire EcIn_0,
-    output wire EcIn_1,
-    output wire M0,
-    output wire Sin_00,
-    output wire Sin_01,
-    output wire Sin_02,
-    output wire Sin_03,
-    output wire Sin_04,
-    output wire Sin_05,
-    output wire Sin_06,
-    output wire Sin_07,
-    output wire Sin_08,
-    output wire Sin_09,
-    output wire Sin_10,
-    output wire Sin_11,
-    output wire Sin_12,
-    output wire Sin_13,
-    output wire Sin_14,
-    output wire Sin_15
+    output wire EcIn_0__drv,
+    output wire EcIn_1__drv,
+    output wire M0__drv,
+    output wire Sin_00__drv,
+    output wire Sin_01__drv,
+    output wire Sin_02__drv,
+    output wire Sin_03__drv,
+    output wire Sin_04__drv,
+    output wire Sin_05__drv,
+    output wire Sin_06__drv,
+    output wire Sin_07__drv,
+    output wire Sin_08__drv,
+    output wire Sin_09__drv,
+    output wire Sin_10__drv,
+    output wire Sin_11__drv,
+    output wire Sin_12__drv,
+    output wire Sin_13__drv,
+    output wire Sin_14__drv,
+    output wire Sin_15__drv
 );
 
   // 844 internal nets
@@ -926,8 +937,9 @@ module PcMsa_m_Rev_m_Pa (
   wire preClk2Sout;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire pcmsa12_sil_pl_14__j02_2;
   wire pcmsa12_sil_pl_14__j02_1;
   assign pcmsa12_sil_pl_14 = pcmsa12_sil_pl_14__j02_2 | pcmsa12_sil_pl_14__j02_1;
@@ -935,8 +947,11 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa12_sil_pl_17__c26_1;
   assign pcmsa12_sil_pl_17 = pcmsa12_sil_pl_17__c26_2 | pcmsa12_sil_pl_17__c26_1;
 
+  // 19 single-driver contributions to the backplane
+
   // ---- packages
   cell_MC10176 u_a01 (
+    .sys_clk(sys_clk),
     .p2(pcmsa04_sil_pl_31),
     .p3(pcmsa04_sil_pl_32),
     .p5(Sout_01),
@@ -979,6 +994,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND2)
   ); // DS3649
   cell_MosRam u_a04 (
+    .sys_clk(sys_clk),
     .p1(pcmsa16_sil_pl_1),
     .p2(pcmsa12_sil_pl_35),
     .p3(pcmsa16_sil_pl_12),
@@ -997,6 +1013,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND2)
   ); // MosRam
   cell_MosRam u_a05 (
+    .sys_clk(sys_clk),
     .p1(pcmsa16_sil_pl_1),
     .p2(pcmsa05_sil_pl_17),
     .p3(pcmsa16_sil_pl_12),
@@ -1015,6 +1032,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND97)
   ); // MosRam
   cell_MosRam u_a06 (
+    .sys_clk(sys_clk),
     .p1(pcmsa16_sil_pl_1),
     .p2(pcmsa05_sil_pl_18),
     .p3(pcmsa16_sil_pl_12),
@@ -1033,6 +1051,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND98)
   ); // MosRam
   cell_MosRam u_a07 (
+    .sys_clk(sys_clk),
     .p1(pcmsa16_sil_pl_1),
     .p2(pcmsa05_sil_pl_12),
     .p3(pcmsa16_sil_pl_12),
@@ -1051,6 +1070,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND99)
   ); // MosRam
   cell_MosRam u_a08 (
+    .sys_clk(sys_clk),
     .p1(pcmsa16_sil_pl_1),
     .p2(pcmsa05_sil_pl_11),
     .p3(pcmsa16_sil_pl_12),
@@ -1069,6 +1089,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND100)
   ); // MosRam
   cell_MosRam u_a09 (
+    .sys_clk(sys_clk),
     .p1(pcmsa16_sil_pl_1),
     .p2(pcmsa04_sil_pl_12),
     .p3(pcmsa16_sil_pl_12),
@@ -1087,6 +1108,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND101)
   ); // MosRam
   cell_MosRam u_a10 (
+    .sys_clk(sys_clk),
     .p1(pcmsa16_sil_pl_1),
     .p2(pcmsa04_sil_pl_11),
     .p3(pcmsa16_sil_pl_12),
@@ -1105,6 +1127,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND102)
   ); // MosRam
   cell_MosRam u_a11 (
+    .sys_clk(sys_clk),
     .p1(pcmsa16_sil_pl_1),
     .p2(pcmsa04_sil_pl_17),
     .p3(pcmsa16_sil_pl_12),
@@ -1123,6 +1146,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND105)
   ); // MosRam
   cell_MosRam u_a12 (
+    .sys_clk(sys_clk),
     .p1(pcmsa16_sil_pl_1),
     .p2(pcmsa04_sil_pl_18),
     .p3(pcmsa16_sil_pl_12),
@@ -1173,6 +1197,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND84)
   ); // DS3649
   cell_MosRam u_a15 (
+    .sys_clk(sys_clk),
     .p1(pcmsa20_sil_pl_1),
     .p2(pcmsa07_sil_pl_17),
     .p3(pcmsa20_sil_pl_12),
@@ -1191,6 +1216,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND107)
   ); // MosRam
   cell_MosRam u_a16 (
+    .sys_clk(sys_clk),
     .p1(pcmsa20_sil_pl_1),
     .p2(pcmsa07_sil_pl_18),
     .p3(pcmsa20_sil_pl_12),
@@ -1209,6 +1235,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND108)
   ); // MosRam
   cell_MosRam u_a17 (
+    .sys_clk(sys_clk),
     .p1(pcmsa20_sil_pl_1),
     .p2(pcmsa06_sil_pl_11),
     .p3(pcmsa20_sil_pl_12),
@@ -1227,6 +1254,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND109)
   ); // MosRam
   cell_MosRam u_a18 (
+    .sys_clk(sys_clk),
     .p1(pcmsa20_sil_pl_1),
     .p2(pcmsa06_sil_pl_10),
     .p3(pcmsa20_sil_pl_12),
@@ -1245,6 +1273,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND110)
   ); // MosRam
   cell_MosRam u_a19 (
+    .sys_clk(sys_clk),
     .p1(pcmsa20_sil_pl_1),
     .p2(pcmsa07_sil_pl_12),
     .p3(pcmsa20_sil_pl_12),
@@ -1263,6 +1292,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND111)
   ); // MosRam
   cell_MosRam u_a20 (
+    .sys_clk(sys_clk),
     .p1(pcmsa20_sil_pl_1),
     .p2(pcmsa07_sil_pl_11),
     .p3(pcmsa20_sil_pl_12),
@@ -1281,6 +1311,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND112)
   ); // MosRam
   cell_MosRam u_a21 (
+    .sys_clk(sys_clk),
     .p1(pcmsa20_sil_pl_1),
     .p2(pcmsa06_sil_pl_16),
     .p3(pcmsa20_sil_pl_12),
@@ -1299,6 +1330,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND113)
   ); // MosRam
   cell_MosRam u_a22 (
+    .sys_clk(sys_clk),
     .p1(pcmsa20_sil_pl_1),
     .p2(pcmsa06_sil_pl_17),
     .p3(pcmsa20_sil_pl_12),
@@ -1317,6 +1349,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND116)
   ); // MosRam
   cell_MosRam u_a23 (
+    .sys_clk(sys_clk),
     .p1(pcmsa20_sil_pl_1),
     .p2(pcmsa12_sil_pl_28),
     .p3(pcmsa20_sil_pl_12),
@@ -1366,6 +1399,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa07_sil_pl_30)
   ); // MC10125
   cell_MC10176 u_a26 (
+    .sys_clk(sys_clk),
     .p3(pcmsa07_sil_pl_30),
     .p4(pcmsa06_sil_pl_29),
     .p6(Sout_06),
@@ -1377,17 +1411,18 @@ module PcMsa_m_Rev_m_Pa (
     .p14(pcmsa07_sil_pl_29)
   ); // MC10176
   cell_MC10176 u_b01 (
-    .p2(Sin_02),
-    .p3(Sin_00),
-    .p4(EcIn_0),
+    .sys_clk(sys_clk),
+    .p2(Sin_02__drv),
+    .p3(Sin_00__drv),
+    .p4(EcIn_0__drv),
     .p5(pcmsa05_sil_pl_31),
     .p6(pcmsa04_sil_pl_29),
     .p7(pcmsa12_sil_pl_14),
     .p9(pcmsa01_sil_pl_16),
     .p11(pcmsa04_sil_pl_30),
     .p12(pcmsa05_sil_pl_32),
-    .p14(Sin_01),
-    .p15(Sin_03)
+    .p14(Sin_01__drv),
+    .p15(Sin_03__drv)
   ); // MC10176
   cell_MC10124 u_b02 (
     .p1(pcmsa05_sil_pl_32),
@@ -1417,6 +1452,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND96)
   ); // DS3649
   cell_MosRam u_b04 (
+    .sys_clk(sys_clk),
     .p1(pcmsa15_sil_pl_1),
     .p2(pcmsa12_sil_pl_1),
     .p3(pcmsa15_sil_pl_12),
@@ -1434,6 +1470,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa15_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b05 (
+    .sys_clk(sys_clk),
     .p1(pcmsa15_sil_pl_1),
     .p2(pcmsa05_sil_pl_16),
     .p3(pcmsa15_sil_pl_12),
@@ -1451,6 +1488,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa15_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b06 (
+    .sys_clk(sys_clk),
     .p1(pcmsa15_sil_pl_1),
     .p2(pcmsa05_sil_pl_19),
     .p3(pcmsa15_sil_pl_12),
@@ -1468,6 +1506,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa15_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b07 (
+    .sys_clk(sys_clk),
     .p1(pcmsa15_sil_pl_1),
     .p2(pcmsa05_sil_pl_13),
     .p3(pcmsa15_sil_pl_12),
@@ -1485,6 +1524,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa15_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b08 (
+    .sys_clk(sys_clk),
     .p1(pcmsa15_sil_pl_1),
     .p2(pcmsa05_sil_pl_10),
     .p3(pcmsa15_sil_pl_12),
@@ -1502,6 +1542,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa15_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b09 (
+    .sys_clk(sys_clk),
     .p1(pcmsa15_sil_pl_1),
     .p2(pcmsa04_sil_pl_13),
     .p3(pcmsa15_sil_pl_12),
@@ -1519,6 +1560,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa15_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b10 (
+    .sys_clk(sys_clk),
     .p1(pcmsa15_sil_pl_1),
     .p2(pcmsa04_sil_pl_10),
     .p3(pcmsa15_sil_pl_12),
@@ -1536,6 +1578,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa15_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b11 (
+    .sys_clk(sys_clk),
     .p1(pcmsa15_sil_pl_1),
     .p2(pcmsa04_sil_pl_16),
     .p3(pcmsa15_sil_pl_12),
@@ -1553,6 +1596,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa15_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b12 (
+    .sys_clk(sys_clk),
     .p1(pcmsa15_sil_pl_1),
     .p2(pcmsa04_sil_pl_19),
     .p3(pcmsa15_sil_pl_12),
@@ -1602,6 +1646,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND107)
   ); // DS3649
   cell_MosRam u_b15 (
+    .sys_clk(sys_clk),
     .p1(pcmsa19_sil_pl_1),
     .p2(pcmsa07_sil_pl_16),
     .p3(pcmsa19_sil_pl_12),
@@ -1619,6 +1664,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa19_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b16 (
+    .sys_clk(sys_clk),
     .p1(pcmsa19_sil_pl_1),
     .p2(pcmsa07_sil_pl_19),
     .p3(pcmsa19_sil_pl_12),
@@ -1636,6 +1682,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa19_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b17 (
+    .sys_clk(sys_clk),
     .p1(pcmsa19_sil_pl_1),
     .p2(pcmsa06_sil_pl_12),
     .p3(pcmsa19_sil_pl_12),
@@ -1653,6 +1700,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa19_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b18 (
+    .sys_clk(sys_clk),
     .p1(pcmsa19_sil_pl_1),
     .p2(pcmsa06_sil_pl_9),
     .p3(pcmsa19_sil_pl_12),
@@ -1670,6 +1718,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa19_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b19 (
+    .sys_clk(sys_clk),
     .p1(pcmsa19_sil_pl_1),
     .p2(pcmsa07_sil_pl_13),
     .p3(pcmsa19_sil_pl_12),
@@ -1687,6 +1736,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa19_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b20 (
+    .sys_clk(sys_clk),
     .p1(pcmsa19_sil_pl_1),
     .p2(pcmsa07_sil_pl_10),
     .p3(pcmsa19_sil_pl_12),
@@ -1704,6 +1754,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa19_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b21 (
+    .sys_clk(sys_clk),
     .p1(pcmsa19_sil_pl_1),
     .p2(pcmsa06_sil_pl_15),
     .p3(pcmsa19_sil_pl_12),
@@ -1721,6 +1772,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa19_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b22 (
+    .sys_clk(sys_clk),
     .p1(pcmsa19_sil_pl_1),
     .p2(pcmsa06_sil_pl_18),
     .p3(pcmsa19_sil_pl_12),
@@ -1738,6 +1790,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa19_sil_pl_11)
   ); // MosRam
   cell_MosRam u_b23 (
+    .sys_clk(sys_clk),
     .p1(pcmsa19_sil_pl_1),
     .p2(pcmsa12_sil_pl_29),
     .p3(pcmsa19_sil_pl_12),
@@ -1782,19 +1835,21 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa06_sil_pl_31)
   ); // MC10124
   cell_MC10176 u_b26 (
-    .p2(Sin_07),
-    .p3(Sin_05),
-    .p4(EcIn_1),
+    .sys_clk(sys_clk),
+    .p2(Sin_07__drv),
+    .p3(Sin_05__drv),
+    .p4(EcIn_1__drv),
     .p5(pcmsa07_sil_pl_32),
     .p6(pcmsa06_sil_pl_31),
     .p7(pcmsa12_sil_pl_17),
     .p9(pcmsa01_sil_pl_19),
     .p11(pcmsa06_sil_pl_30),
     .p12(pcmsa07_sil_pl_31),
-    .p14(Sin_04),
-    .p15(Sin_06)
+    .p14(Sin_04__drv),
+    .p15(Sin_06__drv)
   ); // MC10176
   cell_MC10176 u_c01 (
+    .sys_clk(sys_clk),
     .p10(LoadSoutE_p_),
     .p11(LoadEcOut_p_),
     .p12(Mod0StrEn_p_),
@@ -1808,7 +1863,7 @@ module PcMsa_m_Rev_m_Pa (
     .p4(SinClkc_p_),
     .p7(pcmsa01_sil_pl_20),
     .p11(Mb0),
-    .p13(M0),
+    .p13(M0__drv),
     .p14(ChipsAreX),
     .p15(GND10)
   ); // MC10210
@@ -1829,6 +1884,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND118)
   ); // DS3649
   cell_MosRam u_c04 (
+    .sys_clk(sys_clk),
     .p1(pcmsa14_sil_pl_1),
     .p2(pcmsa12_sil_pl_2),
     .p3(pcmsa14_sil_pl_12),
@@ -1846,6 +1902,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa14_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c05 (
+    .sys_clk(sys_clk),
     .p1(pcmsa14_sil_pl_1),
     .p2(pcmsa05_sil_pl_15),
     .p3(pcmsa14_sil_pl_12),
@@ -1863,6 +1920,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa14_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c06 (
+    .sys_clk(sys_clk),
     .p1(pcmsa14_sil_pl_1),
     .p2(pcmsa05_sil_pl_20),
     .p3(pcmsa14_sil_pl_12),
@@ -1880,6 +1938,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa14_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c07 (
+    .sys_clk(sys_clk),
     .p1(pcmsa14_sil_pl_1),
     .p2(pcmsa05_sil_pl_14),
     .p3(pcmsa14_sil_pl_12),
@@ -1897,6 +1956,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa14_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c08 (
+    .sys_clk(sys_clk),
     .p1(pcmsa14_sil_pl_1),
     .p2(pcmsa05_sil_pl_9),
     .p3(pcmsa14_sil_pl_12),
@@ -1914,6 +1974,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa14_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c09 (
+    .sys_clk(sys_clk),
     .p1(pcmsa14_sil_pl_1),
     .p2(pcmsa04_sil_pl_14),
     .p3(pcmsa14_sil_pl_12),
@@ -1931,6 +1992,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa14_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c10 (
+    .sys_clk(sys_clk),
     .p1(pcmsa14_sil_pl_1),
     .p2(pcmsa04_sil_pl_9),
     .p3(pcmsa14_sil_pl_12),
@@ -1948,6 +2010,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa14_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c11 (
+    .sys_clk(sys_clk),
     .p1(pcmsa14_sil_pl_1),
     .p2(pcmsa04_sil_pl_15),
     .p3(pcmsa14_sil_pl_12),
@@ -1965,6 +2028,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa14_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c12 (
+    .sys_clk(sys_clk),
     .p1(pcmsa14_sil_pl_1),
     .p2(pcmsa04_sil_pl_20),
     .p3(pcmsa14_sil_pl_12),
@@ -2014,6 +2078,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND129)
   ); // DS3649
   cell_MosRam u_c15 (
+    .sys_clk(sys_clk),
     .p1(pcmsa18_sil_pl_1),
     .p2(pcmsa07_sil_pl_15),
     .p3(pcmsa18_sil_pl_12),
@@ -2031,6 +2096,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa18_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c16 (
+    .sys_clk(sys_clk),
     .p1(pcmsa18_sil_pl_1),
     .p2(pcmsa07_sil_pl_20),
     .p3(pcmsa18_sil_pl_12),
@@ -2048,6 +2114,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa18_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c17 (
+    .sys_clk(sys_clk),
     .p1(pcmsa18_sil_pl_1),
     .p2(pcmsa06_sil_pl_13),
     .p3(pcmsa18_sil_pl_12),
@@ -2065,6 +2132,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa18_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c18 (
+    .sys_clk(sys_clk),
     .p1(pcmsa18_sil_pl_1),
     .p2(pcmsa06_sil_pl_8),
     .p3(pcmsa18_sil_pl_12),
@@ -2082,6 +2150,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa18_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c19 (
+    .sys_clk(sys_clk),
     .p1(pcmsa18_sil_pl_1),
     .p2(pcmsa07_sil_pl_14),
     .p3(pcmsa18_sil_pl_12),
@@ -2099,6 +2168,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa18_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c20 (
+    .sys_clk(sys_clk),
     .p1(pcmsa18_sil_pl_1),
     .p2(pcmsa07_sil_pl_9),
     .p3(pcmsa18_sil_pl_12),
@@ -2116,6 +2186,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa18_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c21 (
+    .sys_clk(sys_clk),
     .p1(pcmsa18_sil_pl_1),
     .p2(pcmsa06_sil_pl_14),
     .p3(pcmsa18_sil_pl_12),
@@ -2133,6 +2204,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa18_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c22 (
+    .sys_clk(sys_clk),
     .p1(pcmsa18_sil_pl_1),
     .p2(pcmsa06_sil_pl_19),
     .p3(pcmsa18_sil_pl_12),
@@ -2150,6 +2222,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa18_sil_pl_11)
   ); // MosRam
   cell_MosRam u_c23 (
+    .sys_clk(sys_clk),
     .p1(pcmsa18_sil_pl_1),
     .p2(pcmsa12_sil_pl_25),
     .p3(pcmsa18_sil_pl_12),
@@ -2208,6 +2281,7 @@ module PcMsa_m_Rev_m_Pa (
     .p11(GND8)
   ); // MC10124
   cell_F10016 u_d01 (
+    .sys_clk(sys_clk),
     .p1(GND13),
     .p2(pcmsa03_sil_pl_3),
     .p9(MemWEa),
@@ -2248,6 +2322,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND140)
   ); // DS3649
   cell_MosRam u_d04 (
+    .sys_clk(sys_clk),
     .p1(pcmsa13_sil_pl_1),
     .p2(pcmsa12_sil_pl_3),
     .p3(pcmsa13_sil_pl_12),
@@ -2265,6 +2340,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa13_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d05 (
+    .sys_clk(sys_clk),
     .p1(pcmsa13_sil_pl_1),
     .p2(pcmsa05_sil_pl_38),
     .p3(pcmsa13_sil_pl_12),
@@ -2282,6 +2358,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa13_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d06 (
+    .sys_clk(sys_clk),
     .p1(pcmsa13_sil_pl_1),
     .p2(pcmsa05_sil_pl_21),
     .p3(pcmsa13_sil_pl_12),
@@ -2299,6 +2376,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa13_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d07 (
+    .sys_clk(sys_clk),
     .p1(pcmsa13_sil_pl_1),
     .p2(pcmsa05_sil_pl_34),
     .p3(pcmsa13_sil_pl_12),
@@ -2316,6 +2394,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa13_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d08 (
+    .sys_clk(sys_clk),
     .p1(pcmsa13_sil_pl_1),
     .p2(pcmsa05_sil_pl_8),
     .p3(pcmsa13_sil_pl_12),
@@ -2333,6 +2412,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa13_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d09 (
+    .sys_clk(sys_clk),
     .p1(pcmsa13_sil_pl_1),
     .p2(pcmsa04_sil_pl_34),
     .p3(pcmsa13_sil_pl_12),
@@ -2350,6 +2430,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa13_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d10 (
+    .sys_clk(sys_clk),
     .p1(pcmsa13_sil_pl_1),
     .p2(pcmsa04_sil_pl_8),
     .p3(pcmsa13_sil_pl_12),
@@ -2367,6 +2448,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa13_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d11 (
+    .sys_clk(sys_clk),
     .p1(pcmsa13_sil_pl_1),
     .p2(pcmsa04_sil_pl_38),
     .p3(pcmsa13_sil_pl_12),
@@ -2384,6 +2466,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa13_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d12 (
+    .sys_clk(sys_clk),
     .p1(pcmsa13_sil_pl_1),
     .p2(pcmsa04_sil_pl_21),
     .p3(pcmsa13_sil_pl_12),
@@ -2433,6 +2516,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND151)
   ); // DS3649
   cell_MosRam u_d15 (
+    .sys_clk(sys_clk),
     .p1(pcmsa17_sil_pl_1),
     .p2(pcmsa07_sil_pl_38),
     .p3(pcmsa17_sil_pl_12),
@@ -2450,6 +2534,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa17_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d16 (
+    .sys_clk(sys_clk),
     .p1(pcmsa17_sil_pl_1),
     .p2(pcmsa07_sil_pl_28),
     .p3(pcmsa17_sil_pl_12),
@@ -2467,6 +2552,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa17_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d17 (
+    .sys_clk(sys_clk),
     .p1(pcmsa17_sil_pl_1),
     .p2(pcmsa06_sil_pl_34),
     .p3(pcmsa17_sil_pl_12),
@@ -2484,6 +2570,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa17_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d18 (
+    .sys_clk(sys_clk),
     .p1(pcmsa17_sil_pl_1),
     .p2(pcmsa06_sil_pl_32),
     .p3(pcmsa17_sil_pl_12),
@@ -2501,6 +2588,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa17_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d19 (
+    .sys_clk(sys_clk),
     .p1(pcmsa17_sil_pl_1),
     .p2(pcmsa07_sil_pl_34),
     .p3(pcmsa17_sil_pl_12),
@@ -2518,6 +2606,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa17_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d20 (
+    .sys_clk(sys_clk),
     .p1(pcmsa17_sil_pl_1),
     .p2(pcmsa07_sil_pl_8),
     .p3(pcmsa17_sil_pl_12),
@@ -2535,6 +2624,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa17_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d21 (
+    .sys_clk(sys_clk),
     .p1(pcmsa17_sil_pl_1),
     .p2(pcmsa06_sil_pl_38),
     .p3(pcmsa17_sil_pl_12),
@@ -2552,6 +2642,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa17_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d22 (
+    .sys_clk(sys_clk),
     .p1(pcmsa17_sil_pl_1),
     .p2(pcmsa06_sil_pl_27),
     .p3(pcmsa17_sil_pl_12),
@@ -2569,6 +2660,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa17_sil_pl_11)
   ); // MosRam
   cell_MosRam u_d23 (
+    .sys_clk(sys_clk),
     .p1(pcmsa17_sil_pl_1),
     .p2(pcmsa12_sil_pl_42),
     .p3(pcmsa17_sil_pl_12),
@@ -2629,6 +2721,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(d26Vbb)
   ); // MC10125
   cell_MC10176 u_e01 (
+    .sys_clk(sys_clk),
     .p9(pcmsa01_sil_pl_15),
     .p10(EcOut_0),
     .p11(EcOut_4),
@@ -2646,6 +2739,7 @@ module PcMsa_m_Rev_m_Pa (
     .p12(pcmsa12_sil_pl_12)
   ); // MC10125
   cell_SN74166 u_e03 (
+    .sys_clk(sys_clk),
     .p1(GND22),
     .p2(GND22),
     .p3(pcmsa12_sil_pl_7),
@@ -2674,6 +2768,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(VCC89)
   ); // SN74S174
   cell_SN74166 u_e05 (
+    .sys_clk(sys_clk),
     .p1(GND22),
     .p2(pcmsa05_sil_pl_36),
     .p3(pcmsa05_sil_pl_22),
@@ -2708,6 +2803,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC89)
   ); // SN74S374
   cell_SN74166 u_e07 (
+    .sys_clk(sys_clk),
     .p1(GND143),
     .p2(pcmsa05_sil_pl_37),
     .p3(pcmsa05_sil_pl_7),
@@ -2742,6 +2838,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC89)
   ); // SN74S374
   cell_SN74166 u_e09 (
+    .sys_clk(sys_clk),
     .p1(GND145),
     .p2(pcmsa04_sil_pl_37),
     .p3(pcmsa04_sil_pl_7),
@@ -2776,6 +2873,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC77)
   ); // SN74S374
   cell_SN74166 u_e11 (
+    .sys_clk(sys_clk),
     .p1(GND147),
     .p2(pcmsa04_sil_pl_36),
     .p3(pcmsa04_sil_pl_22),
@@ -2810,6 +2908,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC77)
   ); // SN74S374
   cell_MC10176 u_e13 (
+    .sys_clk(sys_clk),
     .p1(GND148),
     .p8(VEE22),
     .p9(pcmsa01_sil_pl_8),
@@ -2828,6 +2927,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND151)
   ); // MC10210
   cell_SN74166 u_e15 (
+    .sys_clk(sys_clk),
     .p1(GND151),
     .p2(pcmsa07_sil_pl_36),
     .p3(pcmsa07_sil_pl_21),
@@ -2862,6 +2962,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC78)
   ); // SN74S374
   cell_SN74166 u_e17 (
+    .sys_clk(sys_clk),
     .p1(GND153),
     .p2(pcmsa06_sil_pl_37),
     .p3(pcmsa06_sil_pl_7),
@@ -2896,6 +2997,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC110)
   ); // SN74S374
   cell_SN74166 u_e19 (
+    .sys_clk(sys_clk),
     .p1(GND155),
     .p2(pcmsa07_sil_pl_37),
     .p3(pcmsa07_sil_pl_7),
@@ -2930,6 +3032,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC110)
   ); // SN74S374
   cell_SN74166 u_e21 (
+    .sys_clk(sys_clk),
     .p1(GND157),
     .p2(pcmsa06_sil_pl_36),
     .p3(pcmsa06_sil_pl_20),
@@ -2964,6 +3067,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC110)
   ); // SN74S374
   cell_SN74166 u_e23 (
+    .sys_clk(sys_clk),
     .p1(GND182),
     .p2(GND182),
     .p3(pcmsa12_sil_pl_23),
@@ -2992,6 +3096,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa12_sil_pl_42)
   ); // SN74S174
   cell_MC10141 u_f01 (
+    .sys_clk(sys_clk),
     .p2(pcmsa02_sil_pl_7),
     .p4(TtlCKa_p_),
     .p9(SO),
@@ -3026,6 +3131,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa12_sil_pl_38)
   ); // SN74S174
   cell_SN74166 u_f04 (
+    .sys_clk(sys_clk),
     .p1(GND26),
     .p2(pcmsa12_sil_pl_15),
     .p3(GND26),
@@ -3060,6 +3166,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC111)
   ); // SN74S374
   cell_SN74166 u_f06 (
+    .sys_clk(sys_clk),
     .p1(GND208),
     .p2(pcmsa09_sil_pl_37),
     .p3(pcmsa09_sil_pl_7),
@@ -3094,6 +3201,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC111)
   ); // SN74S374
   cell_SN74166 u_f08 (
+    .sys_clk(sys_clk),
     .p1(GND210),
     .p2(pcmsa08_sil_pl_37),
     .p3(pcmsa08_sil_pl_7),
@@ -3128,6 +3236,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC111)
   ); // SN74S374
   cell_SN74166 u_f10 (
+    .sys_clk(sys_clk),
     .p1(GND212),
     .p2(pcmsa09_sil_pl_36),
     .p3(pcmsa09_sil_pl_20),
@@ -3162,6 +3271,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC143)
   ); // SN74S374
   cell_SN74166 u_f12 (
+    .sys_clk(sys_clk),
     .p1(GND215),
     .p2(pcmsa08_sil_pl_36),
     .p3(pcmsa08_sil_pl_20),
@@ -3224,6 +3334,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC144)
   ); // SN74S374
   cell_SN74166 u_f16 (
+    .sys_clk(sys_clk),
     .p1(GND218),
     .p2(pcmsa10_sil_pl_36),
     .p3(pcmsa10_sil_pl_20),
@@ -3258,6 +3369,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC144)
   ); // SN74S374
   cell_SN74166 u_f18 (
+    .sys_clk(sys_clk),
     .p1(GND220),
     .p2(pcmsa10_sil_pl_37),
     .p3(pcmsa10_sil_pl_7),
@@ -3292,6 +3404,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC132)
   ); // SN74S374
   cell_SN74166 u_f20 (
+    .sys_clk(sys_clk),
     .p1(GND222),
     .p2(pcmsa11_sil_pl_36),
     .p3(pcmsa11_sil_pl_20),
@@ -3326,6 +3439,7 @@ module PcMsa_m_Rev_m_Pa (
     .p20(VCC132)
   ); // SN74S374
   cell_SN74166 u_f22 (
+    .sys_clk(sys_clk),
     .p1(GND226),
     .p2(pcmsa11_sil_pl_37),
     .p3(pcmsa11_sil_pl_7),
@@ -3356,6 +3470,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(VCC132)
   ); // SN74S174
   cell_SN74166 u_f24 (
+    .sys_clk(sys_clk),
     .p1(GND226),
     .p2(pcmsa12_sil_pl_16),
     .p3(GND204),
@@ -3387,6 +3502,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa02_sil_pl_10)
   ); // MC10125
   cell_MC10141 u_f26 (
+    .sys_clk(sys_clk),
     .p2(pcmsa02_sil_pl_10),
     .p4(TtlCKb_p_),
     .p9(SO),
@@ -3396,6 +3512,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa02_sil_pl_11)
   ); // MC10141
   cell_MC10141 u_g01 (
+    .sys_clk(sys_clk),
     .p2(pcmsa01_sil_pl_26),
     .p3(pcmsa01_sil_pl_27),
     .p4(TtlCKc_p_),
@@ -3438,6 +3555,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND206)
   ); // DS3649
   cell_MosRam u_g04 (
+    .sys_clk(sys_clk),
     .p1(pcmsa24_sil_pl_1),
     .p2(pcmsa12_sil_pl_38),
     .p3(pcmsa24_sil_pl_12),
@@ -3455,6 +3573,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa24_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g05 (
+    .sys_clk(sys_clk),
     .p1(pcmsa24_sil_pl_1),
     .p2(pcmsa09_sil_pl_31),
     .p3(pcmsa24_sil_pl_12),
@@ -3472,6 +3591,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa24_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g06 (
+    .sys_clk(sys_clk),
     .p1(pcmsa24_sil_pl_1),
     .p2(pcmsa09_sil_pl_34),
     .p3(pcmsa24_sil_pl_12),
@@ -3489,6 +3609,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa24_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g07 (
+    .sys_clk(sys_clk),
     .p1(pcmsa24_sil_pl_1),
     .p2(pcmsa08_sil_pl_27),
     .p3(pcmsa24_sil_pl_12),
@@ -3506,6 +3627,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa24_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g08 (
+    .sys_clk(sys_clk),
     .p1(pcmsa24_sil_pl_1),
     .p2(pcmsa08_sil_pl_34),
     .p3(pcmsa24_sil_pl_12),
@@ -3523,6 +3645,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa24_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g09 (
+    .sys_clk(sys_clk),
     .p1(pcmsa24_sil_pl_1),
     .p2(pcmsa09_sil_pl_32),
     .p3(pcmsa24_sil_pl_12),
@@ -3540,6 +3663,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa24_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g10 (
+    .sys_clk(sys_clk),
     .p1(pcmsa24_sil_pl_1),
     .p2(pcmsa09_sil_pl_38),
     .p3(pcmsa24_sil_pl_12),
@@ -3557,6 +3681,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa24_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g11 (
+    .sys_clk(sys_clk),
     .p1(pcmsa24_sil_pl_1),
     .p2(pcmsa08_sil_pl_32),
     .p3(pcmsa24_sil_pl_12),
@@ -3574,6 +3699,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa24_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g12 (
+    .sys_clk(sys_clk),
     .p1(pcmsa24_sil_pl_1),
     .p2(pcmsa08_sil_pl_38),
     .p3(pcmsa24_sil_pl_12),
@@ -3623,6 +3749,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND217)
   ); // DS3649
   cell_MosRam u_g15 (
+    .sys_clk(sys_clk),
     .p1(pcmsa28_sil_pl_1),
     .p2(pcmsa10_sil_pl_27),
     .p3(pcmsa28_sil_pl_12),
@@ -3640,6 +3767,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa28_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g16 (
+    .sys_clk(sys_clk),
     .p1(pcmsa28_sil_pl_1),
     .p2(pcmsa10_sil_pl_38),
     .p3(pcmsa28_sil_pl_12),
@@ -3657,6 +3785,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa28_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g17 (
+    .sys_clk(sys_clk),
     .p1(pcmsa28_sil_pl_1),
     .p2(pcmsa10_sil_pl_28),
     .p3(pcmsa28_sil_pl_12),
@@ -3674,6 +3803,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa28_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g18 (
+    .sys_clk(sys_clk),
     .p1(pcmsa28_sil_pl_1),
     .p2(pcmsa10_sil_pl_34),
     .p3(pcmsa28_sil_pl_12),
@@ -3691,6 +3821,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa28_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g19 (
+    .sys_clk(sys_clk),
     .p1(pcmsa28_sil_pl_1),
     .p2(pcmsa11_sil_pl_32),
     .p3(pcmsa28_sil_pl_12),
@@ -3708,6 +3839,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa28_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g20 (
+    .sys_clk(sys_clk),
     .p1(pcmsa28_sil_pl_1),
     .p2(pcmsa11_sil_pl_38),
     .p3(pcmsa28_sil_pl_12),
@@ -3725,6 +3857,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa28_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g21 (
+    .sys_clk(sys_clk),
     .p1(pcmsa28_sil_pl_1),
     .p2(pcmsa11_sil_pl_31),
     .p3(pcmsa28_sil_pl_12),
@@ -3742,6 +3875,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa28_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g22 (
+    .sys_clk(sys_clk),
     .p1(pcmsa28_sil_pl_1),
     .p2(pcmsa11_sil_pl_34),
     .p3(pcmsa28_sil_pl_12),
@@ -3759,6 +3893,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa28_sil_pl_11)
   ); // MosRam
   cell_MosRam u_g23 (
+    .sys_clk(sys_clk),
     .p1(pcmsa28_sil_pl_1),
     .p2(pcmsa12_sil_pl_30),
     .p3(pcmsa28_sil_pl_12),
@@ -3807,6 +3942,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa02_sil_pl_13)
   ); // MC10125
   cell_MC10141 u_g26 (
+    .sys_clk(sys_clk),
     .p2(pcmsa02_sil_pl_13),
     .p4(TtlCKd_p_),
     .p9(SO),
@@ -3816,6 +3952,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa02_sil_pl_14)
   ); // MC10141
   cell_MC10176 u_h01 (
+    .sys_clk(sys_clk),
     .p2(pcmsa01_sil_pl_22),
     .p3(pcmsa01_sil_pl_12),
     .p4(pcmsa01_sil_pl_21),
@@ -3853,6 +3990,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND228)
   ); // DS3649
   cell_MosRam u_h04 (
+    .sys_clk(sys_clk),
     .p1(pcmsa23_sil_pl_1),
     .p2(pcmsa12_sil_pl_9),
     .p3(pcmsa23_sil_pl_12),
@@ -3870,6 +4008,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa23_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h05 (
+    .sys_clk(sys_clk),
     .p1(pcmsa23_sil_pl_1),
     .p2(pcmsa09_sil_pl_8),
     .p3(pcmsa23_sil_pl_12),
@@ -3887,6 +4026,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa23_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h06 (
+    .sys_clk(sys_clk),
     .p1(pcmsa23_sil_pl_1),
     .p2(pcmsa09_sil_pl_13),
     .p3(pcmsa23_sil_pl_12),
@@ -3904,6 +4044,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa23_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h07 (
+    .sys_clk(sys_clk),
     .p1(pcmsa23_sil_pl_1),
     .p2(pcmsa08_sil_pl_8),
     .p3(pcmsa23_sil_pl_12),
@@ -3921,6 +4062,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa23_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h08 (
+    .sys_clk(sys_clk),
     .p1(pcmsa23_sil_pl_1),
     .p2(pcmsa08_sil_pl_13),
     .p3(pcmsa23_sil_pl_12),
@@ -3938,6 +4080,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa23_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h09 (
+    .sys_clk(sys_clk),
     .p1(pcmsa23_sil_pl_1),
     .p2(pcmsa09_sil_pl_19),
     .p3(pcmsa23_sil_pl_12),
@@ -3955,6 +4098,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa23_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h10 (
+    .sys_clk(sys_clk),
     .p1(pcmsa23_sil_pl_1),
     .p2(pcmsa09_sil_pl_14),
     .p3(pcmsa23_sil_pl_12),
@@ -3972,6 +4116,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa23_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h11 (
+    .sys_clk(sys_clk),
     .p1(pcmsa23_sil_pl_1),
     .p2(pcmsa08_sil_pl_19),
     .p3(pcmsa23_sil_pl_12),
@@ -3989,6 +4134,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa23_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h12 (
+    .sys_clk(sys_clk),
     .p1(pcmsa23_sil_pl_1),
     .p2(pcmsa08_sil_pl_14),
     .p3(pcmsa23_sil_pl_12),
@@ -4038,6 +4184,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND239)
   ); // DS3649
   cell_MosRam u_h15 (
+    .sys_clk(sys_clk),
     .p1(pcmsa27_sil_pl_1),
     .p2(pcmsa10_sil_pl_19),
     .p3(pcmsa27_sil_pl_12),
@@ -4055,6 +4202,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa27_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h16 (
+    .sys_clk(sys_clk),
     .p1(pcmsa27_sil_pl_1),
     .p2(pcmsa10_sil_pl_14),
     .p3(pcmsa27_sil_pl_12),
@@ -4072,6 +4220,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa27_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h17 (
+    .sys_clk(sys_clk),
     .p1(pcmsa27_sil_pl_1),
     .p2(pcmsa10_sil_pl_8),
     .p3(pcmsa27_sil_pl_12),
@@ -4089,6 +4238,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa27_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h18 (
+    .sys_clk(sys_clk),
     .p1(pcmsa27_sil_pl_1),
     .p2(pcmsa10_sil_pl_13),
     .p3(pcmsa27_sil_pl_12),
@@ -4106,6 +4256,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa27_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h19 (
+    .sys_clk(sys_clk),
     .p1(pcmsa27_sil_pl_1),
     .p2(pcmsa11_sil_pl_19),
     .p3(pcmsa27_sil_pl_12),
@@ -4123,6 +4274,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa27_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h20 (
+    .sys_clk(sys_clk),
     .p1(pcmsa27_sil_pl_1),
     .p2(pcmsa11_sil_pl_14),
     .p3(pcmsa27_sil_pl_12),
@@ -4140,6 +4292,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa27_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h21 (
+    .sys_clk(sys_clk),
     .p1(pcmsa27_sil_pl_1),
     .p2(pcmsa11_sil_pl_8),
     .p3(pcmsa27_sil_pl_12),
@@ -4157,6 +4310,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa27_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h22 (
+    .sys_clk(sys_clk),
     .p1(pcmsa27_sil_pl_1),
     .p2(pcmsa11_sil_pl_13),
     .p3(pcmsa27_sil_pl_12),
@@ -4174,6 +4328,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa27_sil_pl_11)
   ); // MosRam
   cell_MosRam u_h23 (
+    .sys_clk(sys_clk),
     .p1(pcmsa27_sil_pl_1),
     .p2(pcmsa12_sil_pl_19),
     .p3(pcmsa27_sil_pl_12),
@@ -4222,6 +4377,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa03_sil_pl_5)
   ); // MC10125
   cell_F10016 u_h26 (
+    .sys_clk(sys_clk),
     .p2(pcmsa03_sil_pl_6),
     .p9(MemWEb),
     .p10(MemCASb),
@@ -4276,6 +4432,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND250)
   ); // DS3649
   cell_MosRam u_i04 (
+    .sys_clk(sys_clk),
     .p1(pcmsa22_sil_pl_1),
     .p2(pcmsa12_sil_pl_13),
     .p3(pcmsa22_sil_pl_12),
@@ -4293,6 +4450,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa22_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i05 (
+    .sys_clk(sys_clk),
     .p1(pcmsa22_sil_pl_1),
     .p2(pcmsa09_sil_pl_9),
     .p3(pcmsa22_sil_pl_12),
@@ -4310,6 +4468,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa22_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i06 (
+    .sys_clk(sys_clk),
     .p1(pcmsa22_sil_pl_1),
     .p2(pcmsa09_sil_pl_12),
     .p3(pcmsa22_sil_pl_12),
@@ -4327,6 +4486,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa22_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i07 (
+    .sys_clk(sys_clk),
     .p1(pcmsa22_sil_pl_1),
     .p2(pcmsa08_sil_pl_9),
     .p3(pcmsa22_sil_pl_12),
@@ -4344,6 +4504,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa22_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i08 (
+    .sys_clk(sys_clk),
     .p1(pcmsa22_sil_pl_1),
     .p2(pcmsa08_sil_pl_12),
     .p3(pcmsa22_sil_pl_12),
@@ -4361,6 +4522,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa22_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i09 (
+    .sys_clk(sys_clk),
     .p1(pcmsa22_sil_pl_1),
     .p2(pcmsa09_sil_pl_18),
     .p3(pcmsa22_sil_pl_12),
@@ -4378,6 +4540,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa22_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i10 (
+    .sys_clk(sys_clk),
     .p1(pcmsa22_sil_pl_1),
     .p2(pcmsa09_sil_pl_15),
     .p3(pcmsa22_sil_pl_12),
@@ -4395,6 +4558,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa22_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i11 (
+    .sys_clk(sys_clk),
     .p1(pcmsa22_sil_pl_1),
     .p2(pcmsa08_sil_pl_18),
     .p3(pcmsa22_sil_pl_12),
@@ -4412,6 +4576,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa22_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i12 (
+    .sys_clk(sys_clk),
     .p1(pcmsa22_sil_pl_1),
     .p2(pcmsa08_sil_pl_15),
     .p3(pcmsa22_sil_pl_12),
@@ -4461,6 +4626,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND261)
   ); // DS3649
   cell_MosRam u_i15 (
+    .sys_clk(sys_clk),
     .p1(pcmsa26_sil_pl_1),
     .p2(pcmsa10_sil_pl_18),
     .p3(pcmsa26_sil_pl_12),
@@ -4478,6 +4644,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa26_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i16 (
+    .sys_clk(sys_clk),
     .p1(pcmsa26_sil_pl_1),
     .p2(pcmsa10_sil_pl_15),
     .p3(pcmsa26_sil_pl_12),
@@ -4495,6 +4662,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa26_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i17 (
+    .sys_clk(sys_clk),
     .p1(pcmsa26_sil_pl_1),
     .p2(pcmsa10_sil_pl_9),
     .p3(pcmsa26_sil_pl_12),
@@ -4512,6 +4680,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa26_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i18 (
+    .sys_clk(sys_clk),
     .p1(pcmsa26_sil_pl_1),
     .p2(pcmsa10_sil_pl_12),
     .p3(pcmsa26_sil_pl_12),
@@ -4529,6 +4698,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa26_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i19 (
+    .sys_clk(sys_clk),
     .p1(pcmsa26_sil_pl_1),
     .p2(pcmsa11_sil_pl_18),
     .p3(pcmsa26_sil_pl_12),
@@ -4546,6 +4716,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa26_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i20 (
+    .sys_clk(sys_clk),
     .p1(pcmsa26_sil_pl_1),
     .p2(pcmsa11_sil_pl_15),
     .p3(pcmsa26_sil_pl_12),
@@ -4563,6 +4734,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa26_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i21 (
+    .sys_clk(sys_clk),
     .p1(pcmsa26_sil_pl_1),
     .p2(pcmsa11_sil_pl_9),
     .p3(pcmsa26_sil_pl_12),
@@ -4580,6 +4752,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa26_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i22 (
+    .sys_clk(sys_clk),
     .p1(pcmsa26_sil_pl_1),
     .p2(pcmsa11_sil_pl_12),
     .p3(pcmsa26_sil_pl_12),
@@ -4597,6 +4770,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa26_sil_pl_11)
   ); // MosRam
   cell_MosRam u_i23 (
+    .sys_clk(sys_clk),
     .p1(pcmsa26_sil_pl_1),
     .p2(pcmsa12_sil_pl_18),
     .p3(pcmsa26_sil_pl_12),
@@ -4645,6 +4819,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa12_sil_pl_33)
   ); // MC10125
   cell_MC10176 u_i26 (
+    .sys_clk(sys_clk),
     .p1(GND36),
     .p9(pcmsa01_sil_pl_4),
     .p10(EcOut_5),
@@ -4684,6 +4859,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND46)
   ); // DS3649
   cell_MosRam u_j04 (
+    .sys_clk(sys_clk),
     .p1(pcmsa21_sil_pl_1),
     .p2(pcmsa12_sil_pl_12),
     .p3(pcmsa21_sil_pl_12),
@@ -4702,6 +4878,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND46)
   ); // MosRam
   cell_MosRam u_j05 (
+    .sys_clk(sys_clk),
     .p1(pcmsa21_sil_pl_1),
     .p2(pcmsa09_sil_pl_10),
     .p3(pcmsa21_sil_pl_12),
@@ -4720,6 +4897,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND251)
   ); // MosRam
   cell_MosRam u_j06 (
+    .sys_clk(sys_clk),
     .p1(pcmsa21_sil_pl_1),
     .p2(pcmsa09_sil_pl_11),
     .p3(pcmsa21_sil_pl_12),
@@ -4738,6 +4916,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND252)
   ); // MosRam
   cell_MosRam u_j07 (
+    .sys_clk(sys_clk),
     .p1(pcmsa21_sil_pl_1),
     .p2(pcmsa08_sil_pl_10),
     .p3(pcmsa21_sil_pl_12),
@@ -4756,6 +4935,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND253)
   ); // MosRam
   cell_MosRam u_j08 (
+    .sys_clk(sys_clk),
     .p1(pcmsa21_sil_pl_1),
     .p2(pcmsa08_sil_pl_11),
     .p3(pcmsa21_sil_pl_12),
@@ -4774,6 +4954,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND254)
   ); // MosRam
   cell_MosRam u_j09 (
+    .sys_clk(sys_clk),
     .p1(pcmsa21_sil_pl_1),
     .p2(pcmsa09_sil_pl_17),
     .p3(pcmsa21_sil_pl_12),
@@ -4792,6 +4973,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND255)
   ); // MosRam
   cell_MosRam u_j10 (
+    .sys_clk(sys_clk),
     .p1(pcmsa21_sil_pl_1),
     .p2(pcmsa09_sil_pl_16),
     .p3(pcmsa21_sil_pl_12),
@@ -4810,6 +4992,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND256)
   ); // MosRam
   cell_MosRam u_j11 (
+    .sys_clk(sys_clk),
     .p1(pcmsa21_sil_pl_1),
     .p2(pcmsa08_sil_pl_17),
     .p3(pcmsa21_sil_pl_12),
@@ -4828,6 +5011,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND257)
   ); // MosRam
   cell_MosRam u_j12 (
+    .sys_clk(sys_clk),
     .p1(pcmsa21_sil_pl_1),
     .p2(pcmsa08_sil_pl_16),
     .p3(pcmsa21_sil_pl_12),
@@ -4878,6 +5062,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(GND282)
   ); // DS3649
   cell_MosRam u_j15 (
+    .sys_clk(sys_clk),
     .p1(pcmsa25_sil_pl_1),
     .p2(pcmsa10_sil_pl_17),
     .p3(pcmsa25_sil_pl_12),
@@ -4896,6 +5081,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND261)
   ); // MosRam
   cell_MosRam u_j16 (
+    .sys_clk(sys_clk),
     .p1(pcmsa25_sil_pl_1),
     .p2(pcmsa10_sil_pl_16),
     .p3(pcmsa25_sil_pl_12),
@@ -4914,6 +5100,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND262)
   ); // MosRam
   cell_MosRam u_j17 (
+    .sys_clk(sys_clk),
     .p1(pcmsa25_sil_pl_1),
     .p2(pcmsa10_sil_pl_10),
     .p3(pcmsa25_sil_pl_12),
@@ -4932,6 +5119,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND263)
   ); // MosRam
   cell_MosRam u_j18 (
+    .sys_clk(sys_clk),
     .p1(pcmsa25_sil_pl_1),
     .p2(pcmsa10_sil_pl_11),
     .p3(pcmsa25_sil_pl_12),
@@ -4950,6 +5138,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND264)
   ); // MosRam
   cell_MosRam u_j19 (
+    .sys_clk(sys_clk),
     .p1(pcmsa25_sil_pl_1),
     .p2(pcmsa11_sil_pl_17),
     .p3(pcmsa25_sil_pl_12),
@@ -4968,6 +5157,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND265)
   ); // MosRam
   cell_MosRam u_j20 (
+    .sys_clk(sys_clk),
     .p1(pcmsa25_sil_pl_1),
     .p2(pcmsa11_sil_pl_16),
     .p3(pcmsa25_sil_pl_12),
@@ -4986,6 +5176,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND266)
   ); // MosRam
   cell_MosRam u_j21 (
+    .sys_clk(sys_clk),
     .p1(pcmsa25_sil_pl_1),
     .p2(pcmsa11_sil_pl_10),
     .p3(pcmsa25_sil_pl_12),
@@ -5004,6 +5195,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND267)
   ); // MosRam
   cell_MosRam u_j22 (
+    .sys_clk(sys_clk),
     .p1(pcmsa25_sil_pl_1),
     .p2(pcmsa11_sil_pl_11),
     .p3(pcmsa25_sil_pl_12),
@@ -5022,6 +5214,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(GND268)
   ); // MosRam
   cell_MosRam u_j23 (
+    .sys_clk(sys_clk),
     .p1(pcmsa25_sil_pl_1),
     .p2(pcmsa12_sil_pl_39),
     .p3(pcmsa25_sil_pl_12),
@@ -5087,15 +5280,16 @@ module PcMsa_m_Rev_m_Pa (
     .p15(j26Vbb)
   ); // MC10125
   cell_MC10176 u_k01 (
-    .p2(Sin_08),
-    .p3(Sin_10),
+    .sys_clk(sys_clk),
+    .p2(Sin_08__drv),
+    .p3(Sin_10__drv),
     .p5(pcmsa08_sil_pl_29),
     .p6(pcmsa09_sil_pl_30),
     .p9(SinClkc_p_),
     .p11(pcmsa09_sil_pl_29),
     .p12(pcmsa08_sil_pl_30),
-    .p14(Sin_11),
-    .p15(Sin_09)
+    .p14(Sin_11__drv),
+    .p15(Sin_09__drv)
   ); // MC10176
   cell_MC10124 u_k02 (
     .p1(pcmsa08_sil_pl_29),
@@ -5120,17 +5314,19 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa11_sil_pl_29)
   ); // MC10124
   cell_MC10176 u_k26 (
-    .p2(Sin_15),
-    .p3(Sin_12),
+    .sys_clk(sys_clk),
+    .p2(Sin_15__drv),
+    .p3(Sin_12__drv),
     .p5(pcmsa11_sil_pl_29),
     .p6(pcmsa10_sil_pl_31),
     .p9(pcmsa01_sil_pl_6),
     .p11(pcmsa10_sil_pl_32),
     .p12(pcmsa11_sil_pl_30),
-    .p14(Sin_13),
-    .p15(Sin_14)
+    .p14(Sin_13__drv),
+    .p15(Sin_14__drv)
   ); // MC10176
   cell_MC10176 u_l01 (
+    .sys_clk(sys_clk),
     .p2(pcmsa08_sil_pl_28),
     .p3(pcmsa09_sil_pl_28),
     .p5(Sout_09),
@@ -5172,6 +5368,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(pcmsa10_sil_pl_30)
   ); // MC10125
   cell_MC10176 u_l26 (
+    .sys_clk(sys_clk),
     .p2(pcmsa10_sil_pl_30),
     .p3(pcmsa11_sil_pl_28),
     .p5(Sout_13),

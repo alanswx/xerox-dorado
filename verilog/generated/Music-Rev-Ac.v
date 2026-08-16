@@ -5,15 +5,42 @@
 
 `default_nettype none
 
-// Ports: the 38 nets Music-Rev-Ac.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 38 nets Music-Rev-Ac.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module Music_m_Rev_m_Ac (
+    input  wire sys_clk,
     input  wire CLK_ms2Even_p_,
     input  wire CLKEnable_p_c,
     input  wire DataFromSyn,
+    input  wire IOB_00,
+    input  wire IOB_01,
+    input  wire IOB_02,
+    input  wire IOB_03,
+    input  wire IOB_04,
+    input  wire IOB_05,
+    input  wire IOB_06,
+    input  wire IOB_07,
+    input  wire IOB_08,
+    input  wire IOB_09,
+    input  wire IOB_10,
+    input  wire IOB_11,
+    input  wire IOB_12,
+    input  wire IOB_13,
+    input  wire IOB_14,
+    input  wire IOB_15,
     input  wire IOReset,
     input  wire IOin_p_,
     input  wire IOout_p_,
@@ -28,27 +55,27 @@ module Music_m_Rev_m_Ac (
     input  wire TIOA_6,
     input  wire TIOA_7,
     input  wire VCC97,
-    output wire DataToSyn,
-    output wire MusicWake,
-    output wire SFTB_p_,
-    output wire TickA_p_,
-    output wire TickB_p_,
-    inout  wire IOB_00,
-    inout  wire IOB_01,
-    inout  wire IOB_02,
-    inout  wire IOB_03,
-    inout  wire IOB_04,
-    inout  wire IOB_05,
-    inout  wire IOB_06,
-    inout  wire IOB_07,
-    inout  wire IOB_08,
-    inout  wire IOB_09,
-    inout  wire IOB_10,
-    inout  wire IOB_11,
-    inout  wire IOB_12,
-    inout  wire IOB_13,
-    inout  wire IOB_14,
-    inout  wire IOB_15
+    output wire DataToSyn__drv,
+    output wire IOB_00__drv,
+    output wire IOB_01__drv,
+    output wire IOB_02__drv,
+    output wire IOB_03__drv,
+    output wire IOB_04__drv,
+    output wire IOB_05__drv,
+    output wire IOB_06__drv,
+    output wire IOB_07__drv,
+    output wire IOB_08__drv,
+    output wire IOB_09__drv,
+    output wire IOB_10__drv,
+    output wire IOB_11__drv,
+    output wire IOB_12__drv,
+    output wire IOB_13__drv,
+    output wire IOB_14__drv,
+    output wire IOB_15__drv,
+    output wire MusicWake__drv,
+    output wire SFTB_p___drv,
+    output wire TickA_p___drv,
+    output wire TickB_p___drv
 );
 
   // 129 internal nets
@@ -183,8 +210,9 @@ module Music_m_Rev_m_Ac (
   wire prepreFH_p_;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire ForMe_p___f03_15;
   wire ForMe_p___f03_14;
   wire ForMe_p___f03_3;
@@ -241,8 +269,11 @@ module Music_m_Rev_m_Ac (
   wire NxtFour_p___f07_3;
   assign NxtFour_p_ = NxtFour_p___f06_2 | NxtFour_p___f06_15 | NxtFour_p___f07_3;
 
+  // 21 single-driver contributions to the backplane
+
   // ---- packages
   cell_MC10176 u_f01 (
+    .sys_clk(sys_clk),
     .p2(Music03_sil_pl_8),
     .p3(Music03_sil_pl_1),
     .p4(Music03_sil_pl_2),
@@ -258,6 +289,7 @@ module Music_m_Rev_m_Ac (
     .p15(Music03_sil_pl_5)
   ); // MC10176
   cell_MC10176 u_f02 (
+    .sys_clk(sys_clk),
     .p2(Music03_sil_pl_7),
     .p3(Music03_sil_pl_6),
     .p5(TIOA_6),
@@ -321,6 +353,7 @@ module Music_m_Rev_m_Ac (
     .p15(Music01_sil_pl_12__f07_15)
   ); // MC10197
   cell_F10016 u_f08 (
+    .sys_clk(sys_clk),
     .p2(XTime),
     .p3(YTime),
     .p5(Running),
@@ -337,19 +370,20 @@ module Music_m_Rev_m_Ac (
     .p1(VBB1),
     .p2(VBB1),
     .p3(WTime),
-    .p4(TickA_p_),
-    .p5(TickB_p_),
+    .p4(TickA_p___drv),
+    .p5(TickB_p___drv),
     .p6(Music01_sil_pl_9),
     .p7(VBB1),
     .p9(VCC97),
     .p10(SFTB),
     .p11(VBB1),
-    .p12(SFTB_p_),
-    .p13(DataToSyn),
+    .p12(SFTB_p___drv),
+    .p13(DataToSyn__drv),
     .p14(Music01_sil_pl_14),
     .p15(VBB1)
   ); // MC10125
   cell_MC10141 u_g02 (
+    .sys_clk(sys_clk),
     .p4(Clk0_p_Bc),
     .p6(Music01_sil_pl_4),
     .p7(NxtFour_p_),
@@ -386,6 +420,7 @@ module Music_m_Rev_m_Ac (
     .p15(Music02_sil_pl_23)
   ); // F10145A
   cell_MC10231 u_g05 (
+    .sys_clk(sys_clk),
     .p2(Music01_sil_pl_9),
     .p6(Music01_sil_pl_6),
     .p7(WTime),
@@ -423,7 +458,8 @@ module Music_m_Rev_m_Ac (
     .p15(Music01_sil_pl_11__g07_15)
   ); // MC10195
   cell_MC10231 u_g08 (
-    .p2(MusicWake),
+    .sys_clk(sys_clk),
+    .p2(MusicWake__drv),
     .p4(Running_p_),
     .p6(Clk0_p_Bb),
     .p7(Music01_sil_pl_5),
@@ -445,15 +481,15 @@ module Music_m_Rev_m_Ac (
     .p15(GND312)
   ); // SE10210
   cell_MC10197 u_h01 (
-    .p2(IOB_15),
-    .p3(IOB_14),
-    .p4(IOB_13),
+    .p2(IOB_15__drv),
+    .p3(IOB_14__drv),
+    .p4(IOB_13__drv),
     .p5(Music02_sil_pl_9),
     .p6(Music02_sil_pl_8),
     .p7(Music02_sil_pl_7),
     .p9(InFromMe),
     .p10(Music02_sil_pl_6),
-    .p13(IOB_12)
+    .p13(IOB_12__drv)
   ); // MC10197
   cell_F10145A u_h02 (
     .p1(Music01_sil_pl_2__h02_1),
@@ -472,6 +508,7 @@ module Music_m_Rev_m_Ac (
     .p15(Music01_sil_pl_3__h02_15)
   ); // F10145A
   cell_MC10176 u_h03 (
+    .sys_clk(sys_clk),
     .p2(Music02_sil_pl_16),
     .p3(Music02_sil_pl_15),
     .p4(Music02_sil_pl_6),
@@ -503,6 +540,7 @@ module Music_m_Rev_m_Ac (
     .p15(Music02_sil_pl_12)
   ); // F10145A
   cell_MC10141 u_h05 (
+    .sys_clk(sys_clk),
     .p2(Music02_sil_pl_4),
     .p3(Music02_sil_pl_5),
     .p4(Clk0_p_Bc),
@@ -527,6 +565,7 @@ module Music_m_Rev_m_Ac (
     .p15(Music01_sil_pl_5__h06_15)
   ); // MC10113
   cell_F10016 u_h07 (
+    .sys_clk(sys_clk),
     .p2(SA6),
     .p3(SA7),
     .p5(Music01_sil_pl_17),
@@ -541,15 +580,15 @@ module Music_m_Rev_m_Ac (
     .p5(Running)
   ); // MC10104
   cell_MC10197 u_i01 (
-    .p2(IOB_11),
-    .p3(IOB_10),
-    .p4(IOB_09),
+    .p2(IOB_11__drv),
+    .p3(IOB_10__drv),
+    .p4(IOB_09__drv),
     .p5(Music02_sil_pl_15),
     .p6(Music02_sil_pl_16),
     .p7(Music02_sil_pl_17),
     .p9(InFromMe),
     .p10(Music02_sil_pl_18),
-    .p13(IOB_08)
+    .p13(IOB_08__drv)
   ); // MC10197
   cell_F10145A u_i02 (
     .p1(Music01_sil_pl_2__i02_1),
@@ -568,6 +607,7 @@ module Music_m_Rev_m_Ac (
     .p15(Music01_sil_pl_3__i02_15)
   ); // F10145A
   cell_MC10176 u_i03 (
+    .sys_clk(sys_clk),
     .p2(Music02_sil_pl_21),
     .p3(Music02_sil_pl_28),
     .p4(Music02_sil_pl_20),
@@ -638,15 +678,15 @@ module Music_m_Rev_m_Ac (
     .p15(GND398)
   ); // SE10210
   cell_MC10197 u_j01 (
-    .p2(IOB_07),
-    .p3(IOB_06),
-    .p4(IOB_05),
+    .p2(IOB_07__drv),
+    .p3(IOB_06__drv),
+    .p4(IOB_05__drv),
     .p5(Music02_sil_pl_19),
     .p6(Music02_sil_pl_20),
     .p7(Music02_sil_pl_28),
     .p9(InFromMe),
     .p10(Music02_sil_pl_21),
-    .p13(IOB_04)
+    .p13(IOB_04__drv)
   ); // MC10197
   cell_F10145A u_j02 (
     .p1(Music01_sil_pl_2__j02_1),
@@ -694,6 +734,7 @@ module Music_m_Rev_m_Ac (
     .p15(CE2_p_)
   ); // MC10104
   cell_F10016 u_j05 (
+    .sys_clk(sys_clk),
     .p2(INSA2),
     .p3(INSA3),
     .p5(NxtFour_p_),
@@ -714,11 +755,11 @@ module Music_m_Rev_m_Ac (
     .p15(GND444)
   ); // SE10212
   cell_MC10197 u_k01 (
-    .p2(IOB_03),
-    .p3(IOB_02),
-    .p4(IOB_01),
+    .p2(IOB_03__drv),
+    .p3(IOB_02__drv),
+    .p4(IOB_01__drv),
     .p9(InFromMe),
-    .p13(IOB_00)
+    .p13(IOB_00__drv)
   ); // MC10197
   cell_F10145A u_k02 (
     .p2(Music01_sil_pl_16),
@@ -733,6 +774,7 @@ module Music_m_Rev_m_Ac (
     .p13(Clk1WOF_p_Ba)
   ); // F10145A
   cell_F10016 u_k03 (
+    .sys_clk(sys_clk),
     .p2(SA2),
     .p3(SA3),
     .p5(Running),
@@ -757,6 +799,7 @@ module Music_m_Rev_m_Ac (
     .p15(DataFromSyn)
   ); // AUGATCG16
   cell_MC10231 u_l01 (
+    .sys_clk(sys_clk),
     .p3(prepreFH_p_),
     .p6(CLKEnable_p_c),
     .p7(MemSH),
@@ -770,6 +813,7 @@ module Music_m_Rev_m_Ac (
     .p15(GND532)
   ); // SE10210
   cell_F10016 u_l03 (
+    .sys_clk(sys_clk),
     .p2(CA2),
     .p3(CA3),
     .p5(Running),

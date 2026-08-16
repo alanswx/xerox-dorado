@@ -5,14 +5,42 @@
 
 `default_nettype none
 
-// Ports: the 184 nets MemX-Rev-Ch.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 184 nets MemX-Rev-Ch.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module MemX_m_Rev_m_Ch (
+    input  wire sys_clk,
     input  wire AfreeOrEc_p_b,
+    input  wire At_eq_Curt_p_,
     input  wire AwantsDifHit_p_,
+    input  wire BMux_00,
+    input  wire BMux_01,
+    input  wire BMux_02,
+    input  wire BMux_03,
+    input  wire BMux_04,
+    input  wire BMux_05,
+    input  wire BMux_06,
+    input  wire BMux_07,
+    input  wire BMux_08,
+    input  wire BMux_09,
+    input  wire BMux_10,
+    input  wire BMux_11,
+    input  wire BMux_12,
+    input  wire BMux_13,
+    input  wire BMux_14,
+    input  wire BMux_15,
     input  wire BMux_16,
     input  wire BMux_17,
     input  wire BNTGtCT_p_a,
@@ -22,19 +50,37 @@ module MemX_m_Rev_m_Ch (
     input  wire ChipsAre256_s_16K,
     input  wire ChipsAre64K,
     input  wire ClkEnable_p_a,
+    input  wire CountMiss,
     input  wire DMuxClk,
+    input  wire DMuxData,
+    input  wire DdataGood_p_,
     input  wire DirtyIoFetchInA_p_,
     input  wire DisHold,
     input  wire ECFault,
+    input  wire EcDcomingForCt_p_,
     input  wire EcKeepsAbusy,
+    input  wire EcWantsA,
+    input  wire ErrorsFromEc2,
+    input  wire FinNext,
+    input  wire FoutNext,
     input  wire Hita,
+    input  wire HoldMapbuf,
     input  wire IfuRefInEc1,
     input  wire IoFetchInA_p_,
     input  wire IoStoreInA,
+    input  wire LoadSinE,
+    input  wire LoadSinO,
     input  wire M0,
     input  wire M1,
     input  wire M2,
     input  wire M3,
+    input  wire MDMtag_p_,
+    input  wire MakeD_u_CD,
+    input  wire MakeD_u_Dbuf,
+    input  wire MakeF_u_D,
+    input  wire MakeFout_u_D,
+    input  wire MakeMDM_u_D_p_,
+    input  wire MakeSout_u_D,
     input  wire MapAd_0,
     input  wire MapAd_1,
     input  wire MapAd_2,
@@ -44,9 +90,15 @@ module MemX_m_Rev_m_Ch (
     input  wire MapAd_6,
     input  wire MapAd_7,
     input  wire MapAd_8,
+    input  wire MapRfsh_p_,
+    input  wire MapTroubleInEc1,
+    input  wire MapWait_m_D,
     input  wire Map_u_InPair_p_,
     input  wire Mcr_u__p_,
     input  wire MemClkEnable_p_c,
+    input  wire MemError,
+    input  wire MemPE,
+    input  wire MemRfsh,
     input  wire MemSH,
     input  wire MxHold,
     input  wire Next_0,
@@ -56,8 +108,11 @@ module MemX_m_Rev_m_Ch (
     input  wire PairFull_p_,
     input  wire PrivRefInPair,
     input  wire ProcSrn_u__p_,
+    input  wire ProcTag,
+    input  wire ProcTagInA,
     input  wire ReadInA_p_,
     input  wire RfshPeriod,
+    input  wire STfree_p_,
     input  wire SW,
     input  wire StartMap_p_,
     input  wire StkError,
@@ -72,6 +127,7 @@ module MemX_m_Rev_m_Ch (
     input  wire VicIfMiss_p_,
     input  wire VicInPair_p_,
     input  wire VicOrFS1C,
+    input  wire WPinEc1,
     input  wire _u_Config,
     input  wire _u_FaultInfo,
     input  wire _u_MD,
@@ -81,120 +137,128 @@ module MemX_m_Rev_m_Ch (
     input  wire _u_Pipe3,
     input  wire _u_Pipe4,
     input  wire dHitPerr,
+    input  wire dPipe02Ad_0,
+    input  wire dPipe02Ad_1,
+    input  wire dPipe02Ad_2,
+    input  wire dPipe02Ad_3,
+    input  wire dPipe34Ad_0,
+    input  wire dPipe34Ad_1,
+    input  wire dPipe34Ad_2,
+    input  wire dPipe34Ad_3,
     input  wire dSTPerr,
-    output wire AcanhaveMap_p_,
-    output wire EmuOrFT_p_,
-    output wire FinSubtask_0,
-    output wire FinSubtask_1,
-    output wire FinTask_0,
-    output wire FinTask_1,
-    output wire FinTask_2,
-    output wire FinTask_3,
-    output wire Fout_flt,
-    output wire FoutSubtask_0,
-    output wire FoutSubtask_1,
-    output wire FoutTask_0,
-    output wire FoutTask_1,
-    output wire FoutTask_2,
-    output wire FoutTask_3,
-    output wire IfuFaultInEc2,
-    output wire LargeHold,
-    output wire LdPipeVAdly_p_,
-    output wire LoadEcOut_p_,
-    output wire LoadSoutE_p_,
-    output wire LoadSoutO_p_,
-    output wire MakeMD_u_D_p_,
-    output wire MemAd_0,
-    output wire MemAd_1,
-    output wire MemAd_2,
-    output wire MemAd_3,
-    output wire MemAd_4,
-    output wire MemAd_5,
-    output wire MemAd_6,
-    output wire MemAd_7,
-    output wire MemAd_8,
-    output wire MemCASa,
-    output wire MemCASb,
-    output wire MemRASa,
-    output wire MemRASb,
-    output wire MemWEa,
-    output wire MemWEb,
-    output wire Mod0SinEn_p_,
-    output wire Mod0StrEn_p_,
-    output wire Mod1SinEn_p_,
-    output wire Mod1StrEn_p_,
-    output wire Mod2SinEn_p_,
-    output wire Mod2StrEn_p_,
-    output wire Mod3SinEn_p_,
-    output wire Mod3StrEn_p_,
-    output wire ShiftEcOut,
-    output wire ShiftSinE,
-    output wire ShiftSinO,
-    output wire ShiftSoutE,
-    output wire ShiftSoutO,
-    output wire StartEcChk_p_,
-    output wire StartEcGen_p_,
-    output wire TWReq15,
-    output wire Transport_p_,
-    output wire XWantsPipe,
-    output wire dMDMad_0_p_,
-    output wire dMDMad_1_p_,
-    output wire dMDMad_2_p_,
-    output wire dMDMad_3_p_,
-    output wire preMCSb,
-    inout  wire At_eq_Curt_p_,
-    inout  wire BMux_00,
-    inout  wire BMux_01,
-    inout  wire BMux_02,
-    inout  wire BMux_03,
-    inout  wire BMux_04,
-    inout  wire BMux_05,
-    inout  wire BMux_06,
-    inout  wire BMux_07,
-    inout  wire BMux_08,
-    inout  wire BMux_09,
-    inout  wire BMux_10,
-    inout  wire BMux_11,
-    inout  wire BMux_12,
-    inout  wire BMux_13,
-    inout  wire BMux_14,
-    inout  wire BMux_15,
-    inout  wire CountMiss,
-    inout  wire DMuxData,
-    inout  wire DdataGood_p_,
-    inout  wire EcDcomingForCt_p_,
-    inout  wire EcWantsA,
-    inout  wire ErrorsFromEc2,
-    inout  wire FinNext,
-    inout  wire FoutNext,
-    inout  wire HoldMapbuf,
-    inout  wire LoadSinE,
-    inout  wire LoadSinO,
-    inout  wire MDMtag_p_,
-    inout  wire MakeD_u_CD,
-    inout  wire MakeD_u_Dbuf,
-    inout  wire MakeF_u_D,
-    inout  wire MakeFout_u_D,
-    inout  wire MakeMDM_u_D_p_,
-    inout  wire MakeSout_u_D,
-    inout  wire MapRfsh_p_,
-    inout  wire MapTroubleInEc1,
-    inout  wire MapWait_m_D,
-    inout  wire MemError,
-    inout  wire MemPE,
-    inout  wire MemRfsh,
-    inout  wire ProcTag,
-    inout  wire ProcTagInA,
-    inout  wire STfree_p_,
-    inout  wire WPinEc1,
-    inout  wire dPipe02Ad_0,
-    inout  wire dPipe02Ad_1,
-    inout  wire dPipe02Ad_2,
-    inout  wire dPipe02Ad_3,
-    inout  wire dPipe34Ad_0,
-    inout  wire dPipe34Ad_1,
-    inout  wire dPipe34Ad_2,
-    inout  wire dPipe34Ad_3
+    output wire AcanhaveMap_p___drv,
+    output wire At_eq_Curt_p___drv,
+    output wire BMux_00__drv,
+    output wire BMux_01__drv,
+    output wire BMux_02__drv,
+    output wire BMux_03__drv,
+    output wire BMux_04__drv,
+    output wire BMux_05__drv,
+    output wire BMux_06__drv,
+    output wire BMux_07__drv,
+    output wire BMux_08__drv,
+    output wire BMux_09__drv,
+    output wire BMux_10__drv,
+    output wire BMux_11__drv,
+    output wire BMux_12__drv,
+    output wire BMux_13__drv,
+    output wire BMux_14__drv,
+    output wire BMux_15__drv,
+    output wire CountMiss__drv,
+    output wire DMuxData__drv,
+    output wire DdataGood_p___drv,
+    output wire EcDcomingForCt_p___drv,
+    output wire EcWantsA__drv,
+    output wire EmuOrFT_p___drv,
+    output wire ErrorsFromEc2__drv,
+    output wire FinNext__drv,
+    output wire FinSubtask_0__drv,
+    output wire FinSubtask_1__drv,
+    output wire FinTask_0__drv,
+    output wire FinTask_1__drv,
+    output wire FinTask_2__drv,
+    output wire FinTask_3__drv,
+    output wire Fout_flt__drv,
+    output wire FoutNext__drv,
+    output wire FoutSubtask_0__drv,
+    output wire FoutSubtask_1__drv,
+    output wire FoutTask_0__drv,
+    output wire FoutTask_1__drv,
+    output wire FoutTask_2__drv,
+    output wire FoutTask_3__drv,
+    output wire HoldMapbuf__drv,
+    output wire IfuFaultInEc2__drv,
+    output wire LargeHold__drv,
+    output wire LdPipeVAdly_p___drv,
+    output wire LoadEcOut_p___drv,
+    output wire LoadSinE__drv,
+    output wire LoadSinO__drv,
+    output wire LoadSoutE_p___drv,
+    output wire LoadSoutO_p___drv,
+    output wire MDMtag_p___drv,
+    output wire MakeD_u_CD__drv,
+    output wire MakeD_u_Dbuf__drv,
+    output wire MakeF_u_D__drv,
+    output wire MakeFout_u_D__drv,
+    output wire MakeMDM_u_D_p___drv,
+    output wire MakeMD_u_D_p___drv,
+    output wire MakeSout_u_D__drv,
+    output wire MapRfsh_p___drv,
+    output wire MapTroubleInEc1__drv,
+    output wire MapWait_m_D__drv,
+    output wire MemAd_0__drv,
+    output wire MemAd_1__drv,
+    output wire MemAd_2__drv,
+    output wire MemAd_3__drv,
+    output wire MemAd_4__drv,
+    output wire MemAd_5__drv,
+    output wire MemAd_6__drv,
+    output wire MemAd_7__drv,
+    output wire MemAd_8__drv,
+    output wire MemCASa__drv,
+    output wire MemCASb__drv,
+    output wire MemError__drv,
+    output wire MemPE__drv,
+    output wire MemRASa__drv,
+    output wire MemRASb__drv,
+    output wire MemRfsh__drv,
+    output wire MemWEa__drv,
+    output wire MemWEb__drv,
+    output wire Mod0SinEn_p___drv,
+    output wire Mod0StrEn_p___drv,
+    output wire Mod1SinEn_p___drv,
+    output wire Mod1StrEn_p___drv,
+    output wire Mod2SinEn_p___drv,
+    output wire Mod2StrEn_p___drv,
+    output wire Mod3SinEn_p___drv,
+    output wire Mod3StrEn_p___drv,
+    output wire ProcTag__drv,
+    output wire ProcTagInA__drv,
+    output wire STfree_p___drv,
+    output wire ShiftEcOut__drv,
+    output wire ShiftSinE__drv,
+    output wire ShiftSinO__drv,
+    output wire ShiftSoutE__drv,
+    output wire ShiftSoutO__drv,
+    output wire StartEcChk_p___drv,
+    output wire StartEcGen_p___drv,
+    output wire TWReq15__drv,
+    output wire Transport_p___drv,
+    output wire WPinEc1__drv,
+    output wire XWantsPipe__drv,
+    output wire dMDMad_0_p___drv,
+    output wire dMDMad_1_p___drv,
+    output wire dMDMad_2_p___drv,
+    output wire dMDMad_3_p___drv,
+    output wire dPipe02Ad_0__drv,
+    output wire dPipe02Ad_1__drv,
+    output wire dPipe02Ad_2__drv,
+    output wire dPipe02Ad_3__drv,
+    output wire dPipe34Ad_0__drv,
+    output wire dPipe34Ad_1__drv,
+    output wire dPipe34Ad_2__drv,
+    output wire dPipe34Ad_3__drv,
+    output wire preMCSb__drv
 );
 
   // 792 internal nets
@@ -992,16 +1056,17 @@ module MemX_m_Rev_m_Ch (
   wire sHold_p_;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire AcanhaveMap_p___g24_3;
   wire AcanhaveMap_p___f24_15;
-  assign AcanhaveMap_p_ = AcanhaveMap_p___g24_3 | AcanhaveMap_p___f24_15;
+  assign AcanhaveMap_p___drv = AcanhaveMap_p___g24_3 | AcanhaveMap_p___f24_15;
   wire At_eq_Curt_p___b22_3;
   wire At_eq_Curt_p___b22_2;
   wire At_eq_Curt_p___b22_14;
   wire At_eq_Curt_p___b22_15;
-  assign At_eq_Curt_p_ = At_eq_Curt_p___b22_3 | At_eq_Curt_p___b22_2 | At_eq_Curt_p___b22_14 | At_eq_Curt_p___b22_15;
+  assign At_eq_Curt_p___drv = At_eq_Curt_p___b22_3 | At_eq_Curt_p___b22_2 | At_eq_Curt_p___b22_14 | At_eq_Curt_p___b22_15;
   wire DirtyWE_p___g16_15;
   wire DirtyWE_p___e17_1;
   assign DirtyWE_p_ = DirtyWE_p___g16_15 | DirtyWE_p___e17_1;
@@ -1015,16 +1080,16 @@ module MemX_m_Rev_m_Ch (
   assign dMakeD_u_CD = dMakeD_u_CD__j20_13 | dMakeD_u_CD__j21_3;
   wire dMDMad_0_p___g22_2;
   wire dMDMad_0_p___g21_1;
-  assign dMDMad_0_p_ = dMDMad_0_p___g22_2 | dMDMad_0_p___g21_1;
+  assign dMDMad_0_p___drv = dMDMad_0_p___g22_2 | dMDMad_0_p___g21_1;
   wire dMDMad_1_p___g22_3;
   wire dMDMad_1_p___g21_2;
-  assign dMDMad_1_p_ = dMDMad_1_p___g22_3 | dMDMad_1_p___g21_2;
+  assign dMDMad_1_p___drv = dMDMad_1_p___g22_3 | dMDMad_1_p___g21_2;
   wire dMDMad_2_p___g22_14;
   wire dMDMad_2_p___g21_15;
-  assign dMDMad_2_p_ = dMDMad_2_p___g22_14 | dMDMad_2_p___g21_15;
+  assign dMDMad_2_p___drv = dMDMad_2_p___g22_14 | dMDMad_2_p___g21_15;
   wire dMDMad_3_p___g22_15;
   wire dMDMad_3_p___g21_14;
-  assign dMDMad_3_p_ = dMDMad_3_p___g22_15 | dMDMad_3_p___g21_14;
+  assign dMDMad_3_p___drv = dMDMad_3_p___g22_15 | dMDMad_3_p___g21_14;
   wire dMDpendOrRC__c23_3;
   wire dMDpendOrRC__c24_14;
   assign dMDpendOrRC = dMDpendOrRC__c23_3 | dMDpendOrRC__c24_14;
@@ -1036,19 +1101,19 @@ module MemX_m_Rev_m_Ch (
   wire EmuOrFT_p___a20_3;
   wire EmuOrFT_p___a20_14;
   wire EmuOrFT_p___a20_15;
-  assign EmuOrFT_p_ = EmuOrFT_p___a20_3 | EmuOrFT_p___a20_14 | EmuOrFT_p___a20_15;
+  assign EmuOrFT_p___drv = EmuOrFT_p___a20_3 | EmuOrFT_p___a20_14 | EmuOrFT_p___a20_15;
   wire ErrorsFromEc2__l06_15;
   wire ErrorsFromEc2__l06_3;
-  assign ErrorsFromEc2 = ErrorsFromEc2__l06_15 | ErrorsFromEc2__l06_3;
+  assign ErrorsFromEc2__drv = ErrorsFromEc2__l06_15 | ErrorsFromEc2__l06_3;
   wire Fout_flt__j02_15;
   wire Fout_flt__j02_14;
-  assign Fout_flt = Fout_flt__j02_15 | Fout_flt__j02_14;
+  assign Fout_flt__drv = Fout_flt__j02_15 | Fout_flt__j02_14;
   wire FoutNext__j20_4;
   wire FoutNext__j21_2;
-  assign FoutNext = FoutNext__j20_4 | FoutNext__j21_2;
+  assign FoutNext__drv = FoutNext__j20_4 | FoutNext__j21_2;
   wire MakeFout_u_D__j20_3;
   wire MakeFout_u_D__j21_15;
-  assign MakeFout_u_D = MakeFout_u_D__j20_3 | MakeFout_u_D__j21_15;
+  assign MakeFout_u_D__drv = MakeFout_u_D__j20_3 | MakeFout_u_D__j21_15;
   wire MakeTransport0__i22_15;
   wire MakeTransport0__j21_14;
   assign MakeTransport0 = MakeTransport0__i22_15 | MakeTransport0__j21_14;
@@ -1101,7 +1166,7 @@ module MemX_m_Rev_m_Ch (
   assign MD7 = MD7__k24_15 | MD7__k22_15 | MD7__h21_15;
   wire MDMtag_p___f21_2;
   wire MDMtag_p___d20_4;
-  assign MDMtag_p_ = MDMtag_p___f21_2 | MDMtag_p___d20_4;
+  assign MDMtag_p___drv = MDMtag_p___f21_2 | MDMtag_p___d20_4;
   wire MemX01_sil_pl_5__l18_2;
   wire MemX01_sil_pl_5__l18_3;
   assign MemX01_sil_pl_5 = MemX01_sil_pl_5__l18_2 | MemX01_sil_pl_5__l18_3;
@@ -1137,7 +1202,7 @@ module MemX_m_Rev_m_Ch (
   assign ModSel_0 = ModSel_0__g10_14 | ModSel_0__g10_3;
   wire ProcTag__e20_2;
   wire ProcTag__d20_3;
-  assign ProcTag = ProcTag__e20_2 | ProcTag__d20_3;
+  assign ProcTag__drv = ProcTag__e20_2 | ProcTag__d20_3;
   wire RefUsesDInMem_p___k14_3;
   wire RefUsesDInMem_p___k13_2;
   assign RefUsesDInMem_p_ = RefUsesDInMem_p___k14_3 | RefUsesDInMem_p___k13_2;
@@ -1149,7 +1214,7 @@ module MemX_m_Rev_m_Ch (
   assign STState_3 = STState_3__k16_9 | STState_3__h12_3;
   wire TWReq15__h03_2;
   wire TWReq15__h03_3;
-  assign TWReq15 = TWReq15__h03_2 | TWReq15__h03_3;
+  assign TWReq15__drv = TWReq15__h03_2 | TWReq15__h03_3;
   wire ValidMapFltInEc2_p___j03_4;
   wire ValidMapFltInEc2_p___l06_6;
   wire ValidMapFltInEc2_p___k11_15;
@@ -1165,9 +1230,11 @@ module MemX_m_Rev_m_Ch (
   wire _u_FaultInfoDly_p___j05_3;
   assign _u_FaultInfoDly_p_ = _u_FaultInfoDly_p___l01_12 | _u_FaultInfoDly_p___j05_2 | _u_FaultInfoDly_p___j05_3;
 
+  // 99 single-driver contributions to the backplane
+
   // ---- packages
   cell_MC10174 u_a01 (
-    .p2(BMux_00),
+    .p2(BMux_00__drv),
     .p3(PipeMapFnc_0_p_),
     .p4(ProcSrn_0),
     .p5(Pipe3_00),
@@ -1179,7 +1246,7 @@ module MemX_m_Rev_m_Ch (
     .p12(ProcSrn_1),
     .p13(PipeMapFnc_1_p_),
     .p14(_u_Pipes_p_),
-    .p15(BMux_01)
+    .p15(BMux_01__drv)
   ); // MC10174
   cell_MC10102 u_a02 (
     .p3(BNTGtCTASK),
@@ -1189,8 +1256,9 @@ module MemX_m_Rev_m_Ch (
     .p15(Use256_s_16KProm_p_)
   ); // MC10102
   cell_F10016 u_a03 (
-    .p2(Mod2StrEn_p_),
-    .p3(Mod3StrEn_p_),
+    .sys_clk(sys_clk),
+    .p2(Mod2StrEn_p___drv),
+    .p3(Mod3StrEn_p___drv),
     .p5(StartMem_p_a),
     .p6(TrueAC),
     .p7(MemX07_sil_pl_17),
@@ -1199,10 +1267,11 @@ module MemX_m_Rev_m_Ch (
     .p11(MemX07_sil_pl_14),
     .p12(EnableAllMods),
     .p13(Clk1_p_Aa),
-    .p14(Mod0StrEn_p_),
-    .p15(Mod1StrEn_p_)
+    .p14(Mod0StrEn_p___drv),
+    .p15(Mod1StrEn_p___drv)
   ); // F10016
   cell_MosRam u_a04 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEa),
     .p2(MemX12_sil_pl_5),
     .p3(RTMapWE_p_a),
@@ -1220,6 +1289,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_a)
   ); // MosRam
   cell_MosRam u_a05 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEa),
     .p2(MemX12_sil_pl_2),
     .p3(RTMapWE_p_a),
@@ -1237,6 +1307,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_a)
   ); // MosRam
   cell_MosRam u_a06 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEa),
     .p2(MemX12_sil_pl_7),
     .p3(RTMapWE_p_a),
@@ -1254,6 +1325,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_a)
   ); // MosRam
   cell_MosRam u_a07 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEa),
     .p2(MemX12_sil_pl_8),
     .p3(RTMapWE_p_a),
@@ -1271,6 +1343,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_a)
   ); // MosRam
   cell_MosRam u_a08 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEa),
     .p2(MemX12_sil_pl_14),
     .p3(RTMapWE_p_a),
@@ -1288,6 +1361,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_a)
   ); // MosRam
   cell_MosRam u_a09 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEa),
     .p2(MemX12_sil_pl_17),
     .p3(RTMapWE_p_a),
@@ -1305,6 +1379,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_a)
   ); // MosRam
   cell_MosRam u_a10 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEa),
     .p2(MemX12_sil_pl_12),
     .p3(RTMapWE_p_a),
@@ -1322,6 +1397,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_a)
   ); // MosRam
   cell_MosRam u_a11 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEa),
     .p2(MemX12_sil_pl_11),
     .p3(RTMapWE_p_a),
@@ -1339,6 +1415,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_a)
   ); // MosRam
   cell_MosRam u_a12 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEa),
     .p2(MemX12_sil_pl_21),
     .p3(RTMapWE_p_a),
@@ -1356,6 +1433,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_a)
   ); // MosRam
   cell_MosRam u_a13 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEa),
     .p2(MemX12_sil_pl_18),
     .p3(RTMapWE_p_a),
@@ -1374,6 +1452,7 @@ module MemX_m_Rev_m_Ch (
     .p16(GND_m_44)
   ); // MosRam
   cell_MosRam u_a14 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEa),
     .p2(MemX12_sil_pl_23),
     .p3(RTMapWE_p_a),
@@ -1391,6 +1470,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_a)
   ); // MosRam
   cell_F10016 u_a17 (
+    .sys_clk(sys_clk),
     .p5(PairLdEnable_p_),
     .p6(TrueAC),
     .p11(_u_Map),
@@ -1398,6 +1478,7 @@ module MemX_m_Rev_m_Ch (
     .p14(_u_MapInPair)
   ); // F10016
   cell_MC10141 u_a18 (
+    .sys_clk(sys_clk),
     .p2(CurTask_2),
     .p3(CurTask_3),
     .p4(Clk0_p_Cc),
@@ -1435,6 +1516,7 @@ module MemX_m_Rev_m_Ch (
     .p15(EmuOrFT_p___a20_15)
   ); // MC10113
   cell_F10016 u_a21 (
+    .sys_clk(sys_clk),
     .p2(Atask_2),
     .p3(Atask_3),
     .p5(PairLdEnable_p_),
@@ -1463,7 +1545,8 @@ module MemX_m_Rev_m_Ch (
     .p15(MemX01_sil_pl_2)
   ); // MC10158
   cell_F10016 u_a23 (
-    .p2(ProcTagInA),
+    .sys_clk(sys_clk),
+    .p2(ProcTagInA__drv),
     .p3(CacheRefInPair_p_),
     .p5(PairLdEnable_p_),
     .p6(TrueAC),
@@ -1487,6 +1570,7 @@ module MemX_m_Rev_m_Ch (
     .p14(bNext_3)
   ); // MC10197
   cell_MC10175 u_b01 (
+    .sys_clk(sys_clk),
     .p2(Mapbuf_08),
     .p3(Mapbuf_09),
     .p4(Mapbuf_02),
@@ -1500,7 +1584,7 @@ module MemX_m_Rev_m_Ch (
     .p15(Mapbuf_01)
   ); // MC10175
   cell_MC10174 u_b02 (
-    .p2(BMux_08),
+    .p2(BMux_08__drv),
     .p3(Srn0Fault),
     .p4(M0),
     .p5(Pipe3_08),
@@ -1512,21 +1596,21 @@ module MemX_m_Rev_m_Ch (
     .p12(M1),
     .p13(FaultCnt_0),
     .p14(_u_Things_p_),
-    .p15(BMux_09)
+    .p15(BMux_09__drv)
   ); // MC10174
   cell_MC10103 u_b03 (
-    .p2(LoadSoutE_p_),
-    .p3(LoadSoutO_p_),
+    .p2(LoadSoutE_p___drv),
+    .p3(LoadSoutO_p___drv),
     .p4(SH_p_Aa),
     .p5(LoadEn_p_),
     .p6(FH_p_Aa),
     .p7(LoadEn_p_),
-    .p9(ShiftSinE),
+    .p9(ShiftSinE__drv),
     .p10(SH_p_Aa),
     .p11(EcLoadEn_p_),
     .p12(SH_p_Aa),
-    .p14(LoadEcOut_p_),
-    .p15(ShiftSinO)
+    .p14(LoadEcOut_p___drv),
+    .p15(ShiftSinO__drv)
   ); // MC10103
   cell_MU10164 u_b04 (
     .p1(GND_m_43),
@@ -1754,6 +1838,7 @@ module MemX_m_Rev_m_Ch (
     .p15(At_eq_Curt_p___b22_15)
   ); // MC10113
   cell_MC10141 u_b23 (
+    .sys_clk(sys_clk),
     .p4(Clk0_p_Cd),
     .p7(RepeatCur),
     .p10(RepeatCur),
@@ -1763,14 +1848,15 @@ module MemX_m_Rev_m_Ch (
     .p15(MemX02_sil_pl_3)
   ); // MC10141
   cell_F10016 u_b24 (
+    .sys_clk(sys_clk),
     .p5(StopFinTaskLoad),
     .p6(TrueAC),
     .p10(Asubtask_1),
     .p11(Asubtask_0),
     .p12(MemX02_sil_pl_1),
     .p13(Clk1_p_Ca),
-    .p14(FinSubtask_0),
-    .p15(FinSubtask_1)
+    .p14(FinSubtask_0__drv),
+    .p15(FinSubtask_1__drv)
   ); // F10016
   cell_SIPpackage u_b42 (
     .p1(RamA0orVEEa),
@@ -1809,14 +1895,16 @@ module MemX_m_Rev_m_Ch (
     .p8(RamV_pl_a)
   ); // SIPpackage
   cell_MC10231 u_c01 (
-    .p2(MemRASa),
+    .sys_clk(sys_clk),
+    .p2(MemRASa__drv),
     .p6(Clk0_p_Aa),
     .p7(MemX07_sil_pl_4),
     .p9(MemIdlea)
   ); // MC10231
   cell_MC10176 u_c02 (
-    .p2(MemWEa),
-    .p3(MemCASa),
+    .sys_clk(sys_clk),
+    .p2(MemWEa__drv),
+    .p3(MemCASa__drv),
     .p4(MemX20_sil_pl_3),
     .p5(MemX07_sil_pl_9),
     .p6(MakeMemCAS),
@@ -1828,7 +1916,7 @@ module MemX_m_Rev_m_Ch (
     .p14(dMapbufHi_1)
   ); // MC10176
   cell_MC10174 u_c03 (
-    .p2(BMux_10),
+    .p2(BMux_10__drv),
     .p3(FaultCnt_1),
     .p4(M2),
     .p5(Pipe3_10),
@@ -1840,7 +1928,7 @@ module MemX_m_Rev_m_Ch (
     .p12(M3),
     .p13(FaultCnt_2),
     .p14(_u_Things_p_),
-    .p15(BMux_11)
+    .p15(BMux_11__drv)
   ); // MC10174
   cell_MU10164 u_c04 (
     .p2(MidasBank0_p_a),
@@ -2044,8 +2132,9 @@ module MemX_m_Rev_m_Ch (
     .p15(PipeTask_2)
   ); // F10145A
   cell_F10016 u_c22 (
-    .p2(FinTask_2),
-    .p3(FinTask_3),
+    .sys_clk(sys_clk),
+    .p2(FinTask_2__drv),
+    .p3(FinTask_3__drv),
     .p5(StopFinTaskLoad),
     .p6(TrueAC),
     .p7(Atask_3),
@@ -2054,8 +2143,8 @@ module MemX_m_Rev_m_Ch (
     .p11(Atask_0),
     .p12(MemX02_sil_pl_1),
     .p13(Clk1_p_Ca),
-    .p14(FinTask_0),
-    .p15(FinTask_1)
+    .p14(FinTask_0__drv),
+    .p15(FinTask_1__drv)
   ); // F10016
   cell_MC1662 u_c23 (
     .p2(RepeatCur),
@@ -2079,6 +2168,7 @@ module MemX_m_Rev_m_Ch (
     .p14(dMDpendOrRC__c24_14)
   ); // MC1660
   cell_MC10175 u_d01 (
+    .sys_clk(sys_clk),
     .p2(Mapbuf_10),
     .p3(Mapbuf_11),
     .p4(Mapbuf_12),
@@ -2092,7 +2182,7 @@ module MemX_m_Rev_m_Ch (
     .p15(Mapbuf_04)
   ); // MC10175
   cell_MC10174 u_d02 (
-    .p2(BMux_04),
+    .p2(BMux_04__drv),
     .p3(PipeTask_0a),
     .p4(Asrn_0),
     .p5(Pipe3_04),
@@ -2102,10 +2192,10 @@ module MemX_m_Rev_m_Ch (
     .p12(Asrn_1),
     .p13(PipeTask_1a),
     .p14(_u_Things_p_),
-    .p15(BMux_05)
+    .p15(BMux_05__drv)
   ); // MC10174
   cell_MC10174 u_d03 (
-    .p2(BMux_02),
+    .p2(BMux_02__drv),
     .p3(PipeSubTask_0a),
     .p4(ProcSrn_2),
     .p5(Pipe3_02),
@@ -2117,10 +2207,11 @@ module MemX_m_Rev_m_Ch (
     .p12(ProcSrn_3),
     .p13(PipeSubTask_1a),
     .p14(_u_Pipes_p_),
-    .p15(BMux_03),
+    .p15(BMux_03__drv),
     .p16(GND_m_28)
   ); // MC10174
   cell_MosRam u_d04 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEb),
     .p2(MemX12_sil_pl_24),
     .p3(RTMapWE_p_b),
@@ -2138,6 +2229,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_b)
   ); // MosRam
   cell_MosRam u_d05 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEb),
     .p2(MemX13_sil_pl_7),
     .p3(RTMapWE_p_b),
@@ -2156,6 +2248,7 @@ module MemX_m_Rev_m_Ch (
     .p16(GND_m_27)
   ); // MosRam
   cell_MosRam u_d06 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEb),
     .p2(MemX13_sil_pl_4),
     .p3(RTMapWE_p_b),
@@ -2173,6 +2266,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_b)
   ); // MosRam
   cell_MosRam u_d07 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEb),
     .p2(MemX13_sil_pl_9),
     .p3(RTMapWE_p_b),
@@ -2191,6 +2285,7 @@ module MemX_m_Rev_m_Ch (
     .p16(GND_m_26)
   ); // MosRam
   cell_MosRam u_d08 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEb),
     .p2(MemX13_sil_pl_10),
     .p3(RTMapWE_p_b),
@@ -2208,6 +2303,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_b)
   ); // MosRam
   cell_MosRam u_d09 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEb),
     .p2(MemX13_sil_pl_18),
     .p3(RTMapWE_p_b),
@@ -2226,6 +2322,7 @@ module MemX_m_Rev_m_Ch (
     .p16(GND_m_25)
   ); // MosRam
   cell_MosRam u_d10 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEb),
     .p2(MemX13_sil_pl_2),
     .p3(TDirtyWE_p_),
@@ -2243,6 +2340,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_b)
   ); // MosRam
   cell_MosRam u_d11 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEb),
     .p2(MemX13_sil_pl_2),
     .p3(TDirtyWE_p_),
@@ -2261,6 +2359,7 @@ module MemX_m_Rev_m_Ch (
     .p16(GND_m_24)
   ); // MosRam
   cell_MosRam u_d12 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEb),
     .p2(MemX13_sil_pl_16),
     .p3(TRefWE_p_),
@@ -2278,6 +2377,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_b)
   ); // MosRam
   cell_MosRam u_d13 (
+    .sys_clk(sys_clk),
     .p1(RamA0orVEEb),
     .p2(MemX13_sil_pl_14),
     .p3(RTMapWE_p_b),
@@ -2350,6 +2450,7 @@ module MemX_m_Rev_m_Ch (
     .p16(RTMapAd_0a)
   ); // PLAT1816
   cell_MC10176 u_d18 (
+    .sys_clk(sys_clk),
     .p2(MapRAS_p___d18_2),
     .p3(MemColSela),
     .p5(MemX14_sil_pl_8),
@@ -2392,6 +2493,7 @@ module MemX_m_Rev_m_Ch (
     .p15(PipeSubTask_0a)
   ); // MC10197
   cell_MC10141 u_d22 (
+    .sys_clk(sys_clk),
     .p2(MDMtagAd_2),
     .p3(MDMtagAd_3),
     .p4(Clk2_p_Ca),
@@ -2406,11 +2508,11 @@ module MemX_m_Rev_m_Ch (
     .p9(MemX12_sil_pl_1),
     .p10(RP_02),
     .p11(MemCad_0),
-    .p14(MemAd_0)
+    .p14(MemAd_0__drv)
   ); // MC10159
   cell_MC10159 u_d24 (
-    .p1(MemAd_4),
-    .p2(MemAd_3),
+    .p1(MemAd_4__drv),
+    .p2(MemAd_3__drv),
     .p3(RP_08),
     .p4(MemCad_3),
     .p5(RP_09),
@@ -2420,8 +2522,8 @@ module MemX_m_Rev_m_Ch (
     .p11(MemCad_1),
     .p12(RP_06),
     .p13(MemCad_2),
-    .p14(MemAd_1),
-    .p15(MemAd_2)
+    .p14(MemAd_1__drv),
+    .p15(MemAd_2__drv)
   ); // MC10159
   cell_SIPpackage u_d42 (
     .p1(RamA0orVEEb),
@@ -2460,7 +2562,7 @@ module MemX_m_Rev_m_Ch (
     .p8(RamV_pl_b)
   ); // SIPpackage
   cell_MC10174 u_e01 (
-    .p2(BMux_12),
+    .p2(BMux_12__drv),
     .p3(FaultSrn_0),
     .p4(ModSel_0),
     .p5(Pipe3_12),
@@ -2472,10 +2574,10 @@ module MemX_m_Rev_m_Ch (
     .p12(ChipsAre256_s_16K),
     .p13(FaultSrn_1),
     .p14(_u_Things_p_),
-    .p15(BMux_13)
+    .p15(BMux_13__drv)
   ); // MC10174
   cell_MC10174 u_e02 (
-    .p2(BMux_06),
+    .p2(BMux_06__drv),
     .p3(PipeTask_2a),
     .p4(Asrn_2),
     .p5(Pipe3_06),
@@ -2485,7 +2587,7 @@ module MemX_m_Rev_m_Ch (
     .p12(Asrn_3),
     .p13(PipeTask_3a),
     .p14(_u_Things_p_),
-    .p15(BMux_07)
+    .p15(BMux_07__drv)
   ); // MC10174
   cell_MC10171 u_e03 (
     .p3(MemX07_sil_pl_17),
@@ -2677,6 +2779,7 @@ module MemX_m_Rev_m_Ch (
     .p9(VCC_m_49)
   ); // MC10124
   cell_F10016 u_e18 (
+    .sys_clk(sys_clk),
     .p2(MemX14_sil_pl_9),
     .p3(MapCAS_p___e18_3),
     .p5(MapWait),
@@ -2690,8 +2793,9 @@ module MemX_m_Rev_m_Ch (
     .p15(MemX14_sil_pl_8)
   ); // F10016
   cell_MC10176 u_e19 (
+    .sys_clk(sys_clk),
     .p2(MapCAS_p___e19_2),
-    .p3(DdataGood_p_),
+    .p3(DdataGood_p___drv),
     .p4(Dtag_p_),
     .p5(MemX14_sil_pl_9),
     .p6(MemX01_sil_pl_10),
@@ -2727,6 +2831,7 @@ module MemX_m_Rev_m_Ch (
     .p15(PipeMapFnc_0_p_)
   ); // F10145A
   cell_F10016 u_e22 (
+    .sys_clk(sys_clk),
     .p2(Dtask_2),
     .p3(Dtask_3),
     .p5(AcanHaveD_p_),
@@ -2740,9 +2845,10 @@ module MemX_m_Rev_m_Ch (
     .p15(Dtask_1)
   ); // F10016
   cell_MC10176 u_e23 (
+    .sys_clk(sys_clk),
     .p2(MemX01_sil_pl_11),
-    .p3(MemWEb),
-    .p4(MemCASb),
+    .p3(MemWEb__drv),
+    .p4(MemCASb__drv),
     .p5(Ptag),
     .p6(MemX07_sil_pl_9),
     .p7(MakeMemCAS),
@@ -2755,12 +2861,14 @@ module MemX_m_Rev_m_Ch (
     .p15(HoldDelayed)
   ); // MC10176
   cell_MC10231 u_e24 (
-    .p2(MemRASb),
+    .sys_clk(sys_clk),
+    .p2(MemRASb__drv),
     .p6(Clk0_p_Ca),
     .p7(MemX07_sil_pl_4),
     .p9(MemIdle)
   ); // MC10231
   cell_MC10175 u_f01 (
+    .sys_clk(sys_clk),
     .p2(Mapbuf_07),
     .p3(Mapbuf_13),
     .p4(Mapbuf_14),
@@ -2774,7 +2882,7 @@ module MemX_m_Rev_m_Ch (
     .p15(Mapbuf_06)
   ); // MC10175
   cell_MC10174 u_f02 (
-    .p2(BMux_14),
+    .p2(BMux_14__drv),
     .p3(FaultSrn_2),
     .p4(PipeMapDirtyb),
     .p5(Pipe3_14),
@@ -2786,9 +2894,10 @@ module MemX_m_Rev_m_Ch (
     .p12(PipeMapPar),
     .p13(FaultSrn_3),
     .p14(_u_Things_p_),
-    .p15(BMux_15)
+    .p15(BMux_15__drv)
   ); // MC10174
   cell_F10016 u_f03 (
+    .sys_clk(sys_clk),
     .p2(Mod2En_p_a),
     .p3(Mod3En_p_a),
     .p5(StartMem_p_a),
@@ -2803,6 +2912,7 @@ module MemX_m_Rev_m_Ch (
     .p15(Mod1En_p_a)
   ); // F10016
   cell_F10016 u_f04 (
+    .sys_clk(sys_clk),
     .p2(ReportSE_p_),
     .p3(NoWakeups),
     .p5(Mcr_u__p_),
@@ -2923,6 +3033,7 @@ module MemX_m_Rev_m_Ch (
     .p15(Pipe3_14)
   ); // F10145A
   cell_F10016 u_f18 (
+    .sys_clk(sys_clk),
     .p2(RefWE_p_),
     .p3(MemX14_sil_pl_13),
     .p5(MapWait),
@@ -2932,10 +3043,11 @@ module MemX_m_Rev_m_Ch (
     .p10(MemX14_sil_pl_2),
     .p11(dMemRfsh),
     .p13(Clk0_p_Cf),
-    .p14(MemRfsh),
+    .p14(MemRfsh__drv),
     .p15(MemX14_sil_pl_12)
   ); // F10016
   cell_F10016 u_f19 (
+    .sys_clk(sys_clk),
     .p2(Asrn_2),
     .p3(Asrn_3),
     .p4(MemX03_sil_pl_1__f19_4),
@@ -2981,8 +3093,8 @@ module MemX_m_Rev_m_Ch (
     .p15(DcomingForCt_p_)
   ); // MC10117
   cell_MC10103 u_f23 (
-    .p2(EcDcomingForCt_p_),
-    .p3(XWantsPipe),
+    .p2(EcDcomingForCt_p___drv),
+    .p3(XWantsPipe__drv),
     .p4(EcWordRefToD_p_),
     .p5(Dt_eq_Curt_p_),
     .p6(MapWantsPipe),
@@ -2990,7 +3102,7 @@ module MemX_m_Rev_m_Ch (
     .p9(MakeMD_u_D),
     .p12(MemX01_sil_pl_6),
     .p13(DcomingForCt_p_),
-    .p15(MakeMD_u_D_p_)
+    .p15(MakeMD_u_D_p___drv)
   ); // MC10103
   cell_MC1674 u_f24 (
     .p2(CacheRef),
@@ -3003,6 +3115,7 @@ module MemX_m_Rev_m_Ch (
     .p15(AcanhaveMap_p___f24_15)
   ); // MC1674
   cell_MC10175 u_g01 (
+    .sys_clk(sys_clk),
     .p2(Mapbuf_17),
     .p3(MapbufHi_0),
     .p4(MapbufHi_1),
@@ -3043,12 +3156,14 @@ module MemX_m_Rev_m_Ch (
     .p15(TrueBD)
   ); // MC10195
   cell_F10016 u_g05 (
+    .sys_clk(sys_clk),
     .p3(RfshAd_0),
     .p5(TrueBD),
     .p6(MemX15_sil_pl_11),
     .p13(MemRfsh)
   ); // F10016
   cell_F10016 u_g06 (
+    .sys_clk(sys_clk),
     .p2(RfshAd_3),
     .p3(RfshAd_4),
     .p4(MemX15_sil_pl_12),
@@ -3059,6 +3174,7 @@ module MemX_m_Rev_m_Ch (
     .p15(RfshAd_2)
   ); // F10016
   cell_F10016 u_g07 (
+    .sys_clk(sys_clk),
     .p2(RfshAd_7),
     .p3(RfshAd_8),
     .p4(MemX15_sil_pl_1),
@@ -3249,7 +3365,8 @@ module MemX_m_Rev_m_Ch (
     .p15(dMDMad_3_p___g22_15)
   ); // MC10100
   cell_MC10176 u_g23 (
-    .p2(MakeMDM_u_D_p_),
+    .sys_clk(sys_clk),
+    .p2(MakeMDM_u_D_p___drv),
     .p3(StkWake),
     .p4(WakeEnable),
     .p5(MemX01_sil_pl_9),
@@ -3308,15 +3425,15 @@ module MemX_m_Rev_m_Ch (
     .p5(WakeEnable),
     .p6(WakeEnable),
     .p7(StkWake),
-    .p9(HoldMapbuf),
+    .p9(HoldMapbuf__drv),
     .p10(ErrorsFromEc2),
     .p11(MapPEInEc2),
     .p12(Map_u_InPair_p_),
     .p13(HoldMapbufFromMap_p_),
-    .p14(MemError)
+    .p14(MemError__drv)
   ); // MC10104
   cell_MC10174 u_h04 (
-    .p2(dPipe34Ad_0),
+    .p2(dPipe34Ad_0__drv),
     .p3(Ec2Srn_0),
     .p4(ProcSrn_0),
     .p5(Ec2Srn_0),
@@ -3327,9 +3444,10 @@ module MemX_m_Rev_m_Ch (
     .p11(Ec2Srn_1),
     .p12(ProcSrn_1),
     .p13(Ec2Srn_1),
-    .p15(dPipe34Ad_1)
+    .p15(dPipe34Ad_1__drv)
   ); // MC10174
   cell_MC10141 u_h05 (
+    .sys_clk(sys_clk),
     .p2(Pipe34Ad_2),
     .p3(Pipe34Ad_3),
     .p4(Clk0_p_Bd),
@@ -3341,6 +3459,7 @@ module MemX_m_Rev_m_Ch (
     .p15(Pipe34Ad_1)
   ); // MC10141
   cell_MC10141 u_h06 (
+    .sys_clk(sys_clk),
     .p2(ProcSrn_2),
     .p3(ProcSrn_3),
     .p4(Clk1_p_Ba),
@@ -3369,6 +3488,7 @@ module MemX_m_Rev_m_Ch (
     .p15(MD4__h07_15)
   ); // MU10164
   cell_F10000 u_h08 (
+    .sys_clk(sys_clk),
     .p2(MapPerr),
     .p3(MemX04_sil_pl_3),
     .p4(Clk0_p_Bd),
@@ -3382,6 +3502,7 @@ module MemX_m_Rev_m_Ch (
     .p15(HitPerr)
   ); // F10000
   cell_MC10141 u_h09 (
+    .sys_clk(sys_clk),
     .p2(Ec1Srn_2),
     .p3(Ec1Srn_3),
     .p4(Clk0_p_Bd),
@@ -3425,6 +3546,7 @@ module MemX_m_Rev_m_Ch (
     .p14(VictimInST)
   ); // SG10139
   cell_F10016 u_h12 (
+    .sys_clk(sys_clk),
     .p2(STState_2),
     .p3(STState_3__h12_3),
     .p5(StartST_p_),
@@ -3444,6 +3566,7 @@ module MemX_m_Rev_m_Ch (
     .p14(HoldMapbufFromMap_p_)
   ); // MC10103
   cell_MC10176 u_h14 (
+    .sys_clk(sys_clk),
     .p2(Store_u_InMap_p_),
     .p3(WriteInMap_p_),
     .p4(VicIfMissInMap_p_),
@@ -3457,6 +3580,7 @@ module MemX_m_Rev_m_Ch (
     .p14(_u_MapInMap)
   ); // MC10176
   cell_F10016 u_h15 (
+    .sys_clk(sys_clk),
     .p2(MapState_1),
     .p3(MapState_2),
     .p5(StartMap_p_),
@@ -3495,6 +3619,7 @@ module MemX_m_Rev_m_Ch (
     .p15(MemX15_sil_pl_6)
   ); // MC10158
   cell_MC10141 u_h18 (
+    .sys_clk(sys_clk),
     .p2(MemSrn_2),
     .p3(MemSrn_3),
     .p4(Clk0_p_Db),
@@ -3519,14 +3644,14 @@ module MemX_m_Rev_m_Ch (
     .p13(TrueBD)
   ); // MC10121
   cell_MC10105 u_h20 (
-    .p7(MemPE),
+    .p7(MemPE__drv),
     .p9(STPerr),
     .p10(MapPerr),
     .p11(HitPerr),
     .p12(MapFree_p_),
     .p13(NeedRfsh_p_),
     .p14(MapRfsh),
-    .p15(MapRfsh_p_)
+    .p15(MapRfsh_p___drv)
   ); // MC10105
   cell_MU10164 u_h21 (
     .p2(MidasBank0_p_b),
@@ -3544,6 +3669,7 @@ module MemX_m_Rev_m_Ch (
     .p15(MD7__h21_15)
   ); // MU10164
   cell_MC10141 u_h22 (
+    .sys_clk(sys_clk),
     .p2(MapSrn_2),
     .p3(MapSrn_3),
     .p4(Clk0_p_Da),
@@ -3557,8 +3683,8 @@ module MemX_m_Rev_m_Ch (
     .p15(MapSrn_1)
   ); // MC10141
   cell_MC10158 u_h23 (
-    .p1(dPipe02Ad_3),
-    .p2(dPipe02Ad_2),
+    .p1(dPipe02Ad_3__drv),
+    .p2(dPipe02Ad_2__drv),
     .p3(PEsrn_2),
     .p4(Asrn_2),
     .p5(PEsrn_3),
@@ -3568,10 +3694,11 @@ module MemX_m_Rev_m_Ch (
     .p11(Asrn_0),
     .p12(PEsrn_1),
     .p13(Asrn_1),
-    .p14(dPipe02Ad_0),
-    .p15(dPipe02Ad_1)
+    .p14(dPipe02Ad_0__drv),
+    .p15(dPipe02Ad_1__drv)
   ); // MC10158
   cell_MC10141 u_h24 (
+    .sys_clk(sys_clk),
     .p2(Pipe02Ad_2),
     .p3(Pipe02Ad_3),
     .p4(Clk0_p_Da),
@@ -3591,24 +3718,25 @@ module MemX_m_Rev_m_Ch (
     .p7(MemPE),
     .p10(MemX10_sil_pl_7),
     .p11(Ec2State5),
-    .p14(IfuFaultInEc2)
+    .p14(IfuFaultInEc2__drv)
   ); // MC10104
   cell_MC10103 u_i02 (
     .p2(MemX15_sil_pl_11),
-    .p3(StartEcChk_p_),
+    .p3(StartEcChk_p___drv),
     .p4(MemX15_sil_pl_1),
     .p5(MemX15_sil_pl_12),
     .p6(preEcEn_p_),
     .p7(SH_p_Ba),
-    .p9(ShiftSoutE),
+    .p9(ShiftSoutE__drv),
     .p10(SH_p_Ba),
     .p11(EnEcGen_p_),
     .p12(ShiftEn_p_),
     .p13(FH_p_Ba),
-    .p14(StartEcGen_p_)
+    .p14(StartEcGen_p___drv)
   ); // MC10103
   cell_MC10176 u_i03 (
-    .p2(LoadSinE),
+    .sys_clk(sys_clk),
+    .p2(LoadSinE__drv),
     .p3(MemX04_sil_pl_4),
     .p4(LoadEn_p_),
     .p5(dLoadSinE),
@@ -3621,7 +3749,7 @@ module MemX_m_Rev_m_Ch (
     .p14(EcLoadEn_p_)
   ); // MC10176
   cell_MC10174 u_i04 (
-    .p2(dPipe34Ad_2),
+    .p2(dPipe34Ad_2__drv),
     .p3(Ec2Srn_2),
     .p4(ProcSrn_2),
     .p5(Ec2Srn_2),
@@ -3632,9 +3760,10 @@ module MemX_m_Rev_m_Ch (
     .p11(Ec2Srn_3),
     .p12(ProcSrn_3),
     .p13(Ec2Srn_3),
-    .p15(dPipe34Ad_3)
+    .p15(dPipe34Ad_3__drv)
   ); // MC10174
   cell_MC10176 u_i05 (
+    .sys_clk(sys_clk),
     .p2(MemX05_sil_pl_1),
     .p3(MemX05_sil_pl_12),
     .p4(ShiftEn_p_),
@@ -3686,6 +3815,7 @@ module MemX_m_Rev_m_Ch (
     .p15(MD6__i08_15)
   ); // MU10164
   cell_MC10141 u_i09 (
+    .sys_clk(sys_clk),
     .p2(Ec2Srn_2),
     .p3(Ec2Srn_3),
     .p4(Clk0_p_Bd),
@@ -3699,6 +3829,7 @@ module MemX_m_Rev_m_Ch (
     .p15(Ec2Srn_1)
   ); // MC10141
   cell_F10016 u_i10 (
+    .sys_clk(sys_clk),
     .p2(MakeMemCAS),
     .p3(dLoadSinE),
     .p5(MemIdle),
@@ -3762,6 +3893,7 @@ module MemX_m_Rev_m_Ch (
     .p14(MapFnc_0_p_)
   ); // SG10139
   cell_MC10176 u_i15 (
+    .sys_clk(sys_clk),
     .p2(RefUsesD10InMap_p_),
     .p3(IOFetchInMap_p_),
     .p4(MapFnc_0_p_),
@@ -3841,9 +3973,10 @@ module MemX_m_Rev_m_Ch (
     .p15(MD5__i21_15)
   ); // MU10164
   cell_MC10176 u_i22 (
-    .p2(STfree_p_),
+    .sys_clk(sys_clk),
+    .p2(STfree_p___drv),
     .p3(StopFinTaskLoad),
-    .p4(FinNext),
+    .p4(FinNext__drv),
     .p5(preSTFree_p_),
     .p6(MemX05_sil_pl_3),
     .p7(MemX05_sil_pl_4),
@@ -3851,7 +3984,7 @@ module MemX_m_Rev_m_Ch (
     .p10(MemX05_sil_pl_5),
     .p11(MemX05_sil_pl_8),
     .p12(MemX05_sil_pl_6),
-    .p13(MakeSout_u_D),
+    .p13(MakeSout_u_D__drv),
     .p14(VictimInST__i22_14),
     .p15(MakeTransport0__i22_15)
   ); // MC10176
@@ -3869,8 +4002,8 @@ module MemX_m_Rev_m_Ch (
     .p14(MemX01_sil_pl_9)
   ); // MC10105
   cell_MC10159 u_i24 (
-    .p1(MemAd_8),
-    .p2(MemAd_7),
+    .p1(MemAd_8__drv),
+    .p2(MemAd_7__drv),
     .p3(RP_12),
     .p4(RfshAd_7),
     .p5(RP_13),
@@ -3881,12 +4014,13 @@ module MemX_m_Rev_m_Ch (
     .p11(RfshAd_5),
     .p12(RP_11),
     .p13(RfshAd_6),
-    .p14(MemAd_5),
-    .p15(MemAd_6)
+    .p14(MemAd_5__drv),
+    .p15(MemAd_6__drv)
   ); // MC10159
   cell_F10016 u_j01 (
-    .p2(Mod2SinEn_p_),
-    .p3(Mod3SinEn_p_),
+    .sys_clk(sys_clk),
+    .p2(Mod2SinEn_p___drv),
+    .p3(Mod3SinEn_p___drv),
     .p5(MemX09_sil_pl_9),
     .p6(TrueBD),
     .p7(Mod3En_p_a),
@@ -3894,11 +4028,11 @@ module MemX_m_Rev_m_Ch (
     .p10(Mod1En_p_a),
     .p11(Mod0En_p_a),
     .p13(Clk0_p_Bc),
-    .p14(Mod0SinEn_p_),
-    .p15(Mod1SinEn_p_)
+    .p14(Mod0SinEn_p___drv),
+    .p15(Mod1SinEn_p___drv)
   ); // F10016
   cell_MC10102 u_j02 (
-    .p2(ShiftSoutO),
+    .p2(ShiftSoutO__drv),
     .p3(EnableSTPerr),
     .p4(ShiftEn_p_),
     .p5(SH_p_Ba),
@@ -3912,7 +4046,8 @@ module MemX_m_Rev_m_Ch (
     .p15(Fout_flt__j02_15)
   ); // MC10102
   cell_MC10176 u_j03 (
-    .p2(LoadSinO),
+    .sys_clk(sys_clk),
+    .p2(LoadSinO__drv),
     .p3(StartEc1),
     .p4(ValidMapFltInEc2_p___j03_4),
     .p5(LoadSinE),
@@ -3975,6 +4110,7 @@ module MemX_m_Rev_m_Ch (
     .p16(GND_m_8)
   ); // SE10210
   cell_MC10135 u_j08 (
+    .sys_clk(sys_clk),
     .p2(Srn0Fault),
     .p6(_u_FaultInfoDly_p_),
     .p7(MemX03_sil_pl_4),
@@ -4013,6 +4149,7 @@ module MemX_m_Rev_m_Ch (
     .p15(MD3__j10_15)
   ); // MU10164
   cell_MC10176 u_j11 (
+    .sys_clk(sys_clk),
     .p2(RefUsesD10InMem_p_),
     .p3(IOFetchInMem_p_),
     .p4(DirtyIOFetchInMem_p_),
@@ -4028,8 +4165,9 @@ module MemX_m_Rev_m_Ch (
     .p15(MemWP)
   ); // MC10176
   cell_F10016 u_j12 (
+    .sys_clk(sys_clk),
     .p2(MemState6_p_),
-    .p3(preMCSb),
+    .p3(preMCSb__drv),
     .p5(MemIdle),
     .p6(TrueBD),
     .p7(MemX07_sil_pl_13),
@@ -4088,6 +4226,7 @@ module MemX_m_Rev_m_Ch (
     .p15(STIdle_p_)
   ); // MC10117
   cell_F10016 u_j16 (
+    .sys_clk(sys_clk),
     .p2(MemState_2),
     .p3(MemState_3),
     .p5(StartMem_p_),
@@ -4097,8 +4236,8 @@ module MemX_m_Rev_m_Ch (
     .p15(MemState_1)
   ); // F10016
   cell_MC10104 u_j17 (
-    .p2(MakeD_u_Dbuf),
-    .p3(MakeD_u_CD),
+    .p2(MakeD_u_Dbuf__drv),
+    .p3(MakeD_u_CD__drv),
     .p4(VicSTPerr_p_),
     .p5(MemX10_sil_pl_8),
     .p6(dMakeD_u_CD),
@@ -4132,6 +4271,7 @@ module MemX_m_Rev_m_Ch (
     .p16(GND_m_6)
   ); // SE10210
   cell_MC10176 u_j20 (
+    .sys_clk(sys_clk),
     .p2(MakeTransport2__j20_2),
     .p3(MakeFout_u_D__j20_3),
     .p4(FoutNext__j20_4),
@@ -4142,9 +4282,10 @@ module MemX_m_Rev_m_Ch (
     .p10(MemX09_sil_pl_4),
     .p11(MemX09_sil_pl_6),
     .p13(dMakeD_u_CD__j20_13),
-    .p14(EcWantsA)
+    .p14(EcWantsA__drv)
   ); // MC10176
   cell_F10016 u_j21 (
+    .sys_clk(sys_clk),
     .p2(FoutNext__j21_2),
     .p3(dMakeD_u_CD__j21_3),
     .p5(Ec2Idle),
@@ -4158,6 +4299,7 @@ module MemX_m_Rev_m_Ch (
     .p15(MakeFout_u_D__j21_15)
   ); // F10016
   cell_F10016 u_j22 (
+    .sys_clk(sys_clk),
     .p2(MapFree_p_),
     .p3(MapWantsPipe),
     .p5(MapWait),
@@ -4172,7 +4314,7 @@ module MemX_m_Rev_m_Ch (
   ); // F10016
   cell_MC10212 u_j23 (
     .p2(Transporta),
-    .p3(Transport_p_),
+    .p3(Transport_p___drv),
     .p4(MemX05_sil_pl_7),
     .p5(MakeTransport0),
     .p6(MakeTransport2),
@@ -4184,9 +4326,10 @@ module MemX_m_Rev_m_Ch (
     .p16(GND_m_5)
   ); // MC10212
   cell_MC10176 u_j24 (
-    .p2(FoutTask_0),
-    .p3(FoutTask_1),
-    .p4(FoutTask_2),
+    .sys_clk(sys_clk),
+    .p2(FoutTask_0__drv),
+    .p3(FoutTask_1__drv),
+    .p4(FoutTask_2__drv),
     .p5(PipeTask_0),
     .p6(PipeTask_1),
     .p7(PipeTask_2),
@@ -4194,23 +4337,25 @@ module MemX_m_Rev_m_Ch (
     .p10(PipeTask_3),
     .p11(PipeSubTask_0),
     .p12(PipeSubTask_1),
-    .p13(FoutTask_3),
-    .p14(FoutSubtask_0),
-    .p15(FoutSubtask_1)
+    .p13(FoutTask_3__drv),
+    .p14(FoutSubtask_0__drv),
+    .p15(FoutSubtask_1__drv)
   ); // MC10176
   cell_F10016 u_k01 (
+    .sys_clk(sys_clk),
     .p5(HoldDelayed),
     .p6(MemX08_sil_pl_1),
     .p13(Clk1_p_Bc),
-    .p15(LargeHold)
+    .p15(LargeHold__drv)
   ); // F10016
   cell_F10016 u_k02 (
+    .sys_clk(sys_clk),
     .p4(MemX08_sil_pl_1),
     .p5(HoldDelayed),
     .p13(Clk1_p_Bc)
   ); // F10016
   cell_MC10106 u_k03 (
-    .p2(ShiftEcOut),
+    .p2(ShiftEcOut__drv),
     .p9(ShiftEn_p_),
     .p10(FH_p_Bb),
     .p11(EcLoadEn_p_),
@@ -4235,6 +4380,7 @@ module MemX_m_Rev_m_Ch (
     .p15(MD1__k04_15)
   ); // MU10164
   cell_F10016 u_k05 (
+    .sys_clk(sys_clk),
     .p2(FaultSrn_2),
     .p3(FaultSrn_3),
     .p5(MemX03_sil_pl_3),
@@ -4289,6 +4435,7 @@ module MemX_m_Rev_m_Ch (
     .p15(MD4__k08_15)
   ); // MU10164
   cell_F10016 u_k09 (
+    .sys_clk(sys_clk),
     .p2(FaultCnt_1),
     .p3(FaultCnt_2),
     .p4(Faults),
@@ -4346,6 +4493,7 @@ module MemX_m_Rev_m_Ch (
     .p15(MD3__k12_15)
   ); // MU10164
   cell_MC10176 u_k13 (
+    .sys_clk(sys_clk),
     .p2(RefUsesDInMem_p___k13_2),
     .p3(MapPEInMem),
     .p4(RfshInMem),
@@ -4355,6 +4503,7 @@ module MemX_m_Rev_m_Ch (
     .p9(StartMemClk0_p_)
   ); // MC10176
   cell_MC10176 u_k14 (
+    .sys_clk(sys_clk),
     .p2(MemState7_p_),
     .p3(RefUsesDInMem_p___k14_3),
     .p5(MemState6_p_),
@@ -4390,6 +4539,7 @@ module MemX_m_Rev_m_Ch (
     .p14(MemX09_sil_pl_11)
   ); // MC10103
   cell_F10016 u_k17 (
+    .sys_clk(sys_clk),
     .p2(Ec1State_1),
     .p3(Ec1State_2),
     .p5(StartEc1_p_),
@@ -4397,7 +4547,7 @@ module MemX_m_Rev_m_Ch (
     .p15(Ec1State_0)
   ); // F10016
   cell_MC10109 u_k18 (
-    .p2(MapWait_m_D),
+    .p2(MapWait_m_D__drv),
     .p3(MemX06_sil_pl_4),
     .p4(EcWantsAa),
     .p5(MapWait_m_Ec2),
@@ -4406,11 +4556,11 @@ module MemX_m_Rev_m_Ch (
     .p9(MemX09_sil_pl_12),
     .p10(EcHasA_p_),
     .p11(Ec1Func_0),
-    .p15(LdPipeVAdly_p_)
+    .p15(LdPipeVAdly_p___drv)
   ); // MC10109
   cell_MC10104 u_k19 (
     .p2(MemX10_sil_pl_7),
-    .p3(MakeF_u_D),
+    .p3(MakeF_u_D__drv),
     .p4(MapTroubleInEc2),
     .p5(IfuRefInEc2),
     .p6(Ec2State5),
@@ -4424,6 +4574,7 @@ module MemX_m_Rev_m_Ch (
     .p15(ChkLastPh6)
   ); // MC10104
   cell_MC10176 u_k20 (
+    .sys_clk(sys_clk),
     .p2(EcWantsAa),
     .p3(Ec1Free_p_),
     .p4(StartEc2_p_),
@@ -4433,6 +4584,7 @@ module MemX_m_Rev_m_Ch (
     .p9(Ec1Clk0_p_b)
   ); // MC10176
   cell_F10016 u_k21 (
+    .sys_clk(sys_clk),
     .p2(MapWait_m_Ec2),
     .p5(Ec2Idle),
     .p6(TrueBD),
@@ -4503,6 +4655,7 @@ module MemX_m_Rev_m_Ch (
     .p9(CLK_mx_p_)
   ); // SE10231
   cell_MC10176 u_l03 (
+    .sys_clk(sys_clk),
     .p2(TagInEc2),
     .p3(CacheRefInEc2),
     .p4(Store_u_InEc2_p_),
@@ -4556,9 +4709,10 @@ module MemX_m_Rev_m_Ch (
     .p15(ErrorsFromEc2__l06_15)
   ); // MC10105
   cell_MC10176 u_l07 (
+    .sys_clk(sys_clk),
     .p2(MemX09_sil_pl_10),
     .p3(MapPEInEc1),
-    .p4(WPinEc1),
+    .p4(WPinEc1__drv),
     .p5(RefUsesDInMem),
     .p6(MapPEInMem),
     .p7(MemWP),
@@ -4566,7 +4720,7 @@ module MemX_m_Rev_m_Ch (
     .p10(MapTroubleInMem),
     .p11(MemX09_sil_pl_8),
     .p12(MemX09_sil_pl_5),
-    .p13(MapTroubleInEc1),
+    .p13(MapTroubleInEc1__drv),
     .p14(Ec1Func_0),
     .p15(Ec1Func_1)
   ); // MC10176
@@ -4580,6 +4734,7 @@ module MemX_m_Rev_m_Ch (
     .p14(MemX09_sil_pl_5)
   ); // MC10117
   cell_F10016 u_l10 (
+    .sys_clk(sys_clk),
     .p2(Ec2Func_0),
     .p3(Ec2Func_1),
     .p5(preStartEc2_p_),
@@ -4649,6 +4804,7 @@ module MemX_m_Rev_m_Ch (
     .p15(MD6__l14_15)
   ); // MU10164
   cell_F10016 u_l16 (
+    .sys_clk(sys_clk),
     .p2(Ec2State_1),
     .p3(Ec2State_2),
     .p5(StartEc2_p_),
@@ -4668,7 +4824,7 @@ module MemX_m_Rev_m_Ch (
     .p11(MemX10_sil_pl_10),
     .p12(Ec2State5),
     .p13(CacheRefInEc2),
-    .p14(CountMiss),
+    .p14(CountMiss__drv),
     .p15(EcWordRefToD)
   ); // MC10104
   cell_MC10104 u_l18 (
@@ -4687,6 +4843,7 @@ module MemX_m_Rev_m_Ch (
     .p15(StartMem_p_a)
   ); // MC10104
   cell_MC10176 u_l19 (
+    .sys_clk(sys_clk),
     .p2(Ec2State2),
     .p3(Ec2State3),
     .p4(Ec2State4),
@@ -4716,6 +4873,7 @@ module MemX_m_Rev_m_Ch (
     .p15(MapFree)
   ); // MC10195
   cell_MC10176 u_l21 (
+    .sys_clk(sys_clk),
     .p3(DMadr_01__l21_3),
     .p4(DMadr_02),
     .p6(DMadr_02),
@@ -4741,9 +4899,10 @@ module MemX_m_Rev_m_Ch (
     .p12(MD5),
     .p13(MD6),
     .p14(MD7),
-    .p15(DMuxData)
+    .p15(DMuxData__drv)
   ); // MU10164
   cell_MC10176 u_l23 (
+    .sys_clk(sys_clk),
     .p2(DMadr_06),
     .p3(DMadr_07),
     .p4(DMadr_08),

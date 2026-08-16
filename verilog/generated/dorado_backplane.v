@@ -8,12 +8,17 @@
 // straight-through (the BaseBoard drives CLK.ph' from C16 into ProcH's
 // C9), and 182 pin positions carry different nets on different boards.
 //
+// Each board exports its CONTRIBUTION to a net as `<net>__drv` and this
+// module ORs them -- MECL open emitters wired together, in a form that
+// synthesises. No `inout`, no multiply-driven net.
+//
 // Configuration: ProcH ProcL ContA ContB IFU MemC MemD MemX DskEth DispY BaseBd
-// 501 internal nets (83 wired-OR), 407 top-level ports.
+// 501 internal nets (83 with several contributors), 407 top-level ports.
 
 `default_nettype none
 
 module dorado_backplane (
+    input  wire sys_clk,   // fabric clock; the Dorado clock is an ENABLE inside the cells
     output wire n_24Bit                   ,  // to a backplane connector (cable)
     output wire A8B2                      ,  // awaits DispM
     input  wire ACPABus_0_p_              ,  // to a backplane connector (cable)
@@ -41,44 +46,44 @@ module dorado_backplane (
     input  wire ACPGnd_10                 ,  // to a backplane connector (cable)
     input  wire ACPGnd_11                 ,  // to a backplane connector (cable)
     input  wire ACPGnd_12                 ,  // to a backplane connector (cable)
-    inout  wire ACPI_0                    ,  // to a backplane connector (cable)
-    inout  wire ACPI_1                    ,  // to a backplane connector (cable)
-    inout  wire ACPI_2                    ,  // to a backplane connector (cable)
-    inout  wire ACPI_3                    ,  // to a backplane connector (cable)
-    inout  wire ACPI_4                    ,  // to a backplane connector (cable)
-    inout  wire ACPIGnd_0                 ,  // to a backplane connector (cable)
-    inout  wire ACPIGnd_1                 ,  // to a backplane connector (cable)
-    inout  wire ACPIGnd_2                 ,  // to a backplane connector (cable)
-    inout  wire ACPIGnd_3                 ,  // to a backplane connector (cable)
-    inout  wire ACPIGnd_4                 ,  // to a backplane connector (cable)
+    output wire ACPI_0                    ,  // to a backplane connector (cable)
+    output wire ACPI_1                    ,  // to a backplane connector (cable)
+    output wire ACPI_2                    ,  // to a backplane connector (cable)
+    output wire ACPI_3                    ,  // to a backplane connector (cable)
+    output wire ACPI_4                    ,  // to a backplane connector (cable)
+    output wire ACPIGnd_0                 ,  // to a backplane connector (cable)
+    output wire ACPIGnd_1                 ,  // to a backplane connector (cable)
+    output wire ACPIGnd_2                 ,  // to a backplane connector (cable)
+    output wire ACPIGnd_3                 ,  // to a backplane connector (cable)
+    output wire ACPIGnd_4                 ,  // to a backplane connector (cable)
     input  wire ACPStrb_p_                ,  // to a backplane connector (cable)
-    inout  wire AItem_0                   ,  // awaits DispM
-    inout  wire AItem_1                   ,  // awaits DispM
-    inout  wire AItem_2                   ,  // awaits DispM
-    inout  wire AItem_3                   ,  // awaits DispM
-    inout  wire AItem_4                   ,  // awaits DispM
-    inout  wire AItem_5                   ,  // awaits DispM
-    inout  wire AItem_6                   ,  // awaits DispM
-    inout  wire AItem_7                   ,  // awaits DispM
+    output wire AItem_0                   ,  // awaits DispM
+    output wire AItem_1                   ,  // awaits DispM
+    output wire AItem_2                   ,  // awaits DispM
+    output wire AItem_3                   ,  // awaits DispM
+    output wire AItem_4                   ,  // awaits DispM
+    output wire AItem_5                   ,  // awaits DispM
+    output wire AItem_6                   ,  // awaits DispM
+    output wire AItem_7                   ,  // awaits DispM
     output wire AItemClkEn_p_b            ,  // awaits DispM
-    inout  wire AOff                      ,  // awaits DispM
+    output wire AOff                      ,  // awaits DispM
     output wire AltoCSync_p_              ,  // to a backplane connector (cable)
     output wire AltoHSync                 ,  // to a backplane connector (cable)
     output wire AltoTTLVideo              ,  // to a backplane connector (cable)
     output wire AltoVSync_p_              ,  // to a backplane connector (cable)
     output wire BByPass                   ,  // awaits DispM
-    inout  wire BItem_0                   ,  // awaits DispM
-    inout  wire BItem_1                   ,  // awaits DispM
-    inout  wire BItem_2                   ,  // awaits DispM
-    inout  wire BItem_3                   ,  // awaits DispM
-    inout  wire BItem_4                   ,  // awaits DispM
-    inout  wire BItem_5                   ,  // awaits DispM
-    inout  wire BItem_6                   ,  // awaits DispM
-    inout  wire BItem_7                   ,  // awaits DispM
+    output wire BItem_0                   ,  // awaits DispM
+    output wire BItem_1                   ,  // awaits DispM
+    output wire BItem_2                   ,  // awaits DispM
+    output wire BItem_3                   ,  // awaits DispM
+    output wire BItem_4                   ,  // awaits DispM
+    output wire BItem_5                   ,  // awaits DispM
+    output wire BItem_6                   ,  // awaits DispM
+    output wire BItem_7                   ,  // awaits DispM
     output wire BItemClkEn_p_b            ,  // awaits DispM
-    inout  wire BOff                      ,  // awaits DispM
-    inout  wire BootMC_p_                 ,  // to a backplane connector (cable)
-    inout  wire BootNO                    ,  // to a backplane connector (cable)
+    output wire BOff                      ,  // awaits DispM
+    output wire BootMC_p_                 ,  // to a backplane connector (cable)
+    output wire BootNO                    ,  // to a backplane connector (cable)
     input  wire CICC__m_SS                ,  // to a backplane connector (cable)
     input  wire CICC_EOS                  ,  // to a backplane connector (cable)
     input  wire CIDD__m_SS                ,  // to a backplane connector (cable)
@@ -117,21 +122,21 @@ module dorado_backplane (
     output wire ContTag_p_                ,  // to a backplane connector (cable)
     output wire CrryEvCntA                ,  // to a backplane connector (cable)
     output wire Crystal                   ,  // to a backplane connector (cable)
-    inout  wire CursorData                ,  // to a backplane connector (cable)
+    output wire CursorData                ,  // to a backplane connector (cable)
     output wire CylinderTag_p_            ,  // to a backplane connector (cable)
-    inout  wire DataM0                    ,  // to a backplane connector (cable)
-    inout  wire DataM1                    ,  // to a backplane connector (cable)
-    inout  wire DataM2                    ,  // to a backplane connector (cable)
-    inout  wire DataM3                    ,  // to a backplane connector (cable)
-    inout  wire DataP0                    ,  // to a backplane connector (cable)
-    inout  wire DataP1                    ,  // to a backplane connector (cable)
-    inout  wire DataP2                    ,  // to a backplane connector (cable)
-    inout  wire DataP3                    ,  // to a backplane connector (cable)
+    output wire DataM0                    ,  // to a backplane connector (cable)
+    output wire DataM1                    ,  // to a backplane connector (cable)
+    output wire DataM2                    ,  // to a backplane connector (cable)
+    output wire DataM3                    ,  // to a backplane connector (cable)
+    output wire DataP0                    ,  // to a backplane connector (cable)
+    output wire DataP1                    ,  // to a backplane connector (cable)
+    output wire DataP2                    ,  // to a backplane connector (cable)
+    output wire DataP3                    ,  // to a backplane connector (cable)
     input  wire DcomingForCt_p_           ,  // to a backplane connector (cable)
     input  wire DiskOnRet                 ,  // to a backplane connector (cable)
     output wire DiskTW                    ,  // to a backplane connector (cable)
     output wire DriveTag_p_               ,  // to a backplane connector (cable)
-    inout  wire EcDcomingForCt_p_         ,  // to a backplane connector (cable)
+    output wire EcDcomingForCt_p_         ,  // to a backplane connector (cable)
     input  wire EcIn_0                    ,  // awaits PCMSA msa
     input  wire EcIn_1                    ,  // awaits PCMSA msa
     output wire EcOut_0                   ,  // awaits PCMSA msa
@@ -168,7 +173,7 @@ module dorado_backplane (
     input  wire Fin_15                    ,  // awaits IOTest
     input  wire Fin_16                    ,  // awaits IOTest
     input  wire Fin_17                    ,  // awaits IOTest
-    inout  wire FinNext                   ,  // awaits IOTest
+    output wire FinNext                   ,  // awaits IOTest
     output wire FinSubtask_0              ,  // awaits IOTest
     output wire FinSubtask_1              ,  // awaits IOTest
     output wire FinTask_0                 ,  // awaits IOTest
@@ -181,7 +186,7 @@ module dorado_backplane (
     input  wire FoutSubTask_0             ,  // to a backplane connector (cable)
     output wire FoutSubtask_0             ,  // awaits IOTest
     output wire FoutSubtask_1             ,  // awaits IOTest
-    inout  wire GNDFour                   ,  // to a backplane connector (cable)
+    output wire GNDFour                   ,  // to a backplane connector (cable)
     input  wire GenIn_00                  ,  // to a backplane connector (cable)
     input  wire GenIn_01                  ,  // to a backplane connector (cable)
     input  wire GenIn_02                  ,  // to a backplane connector (cable)
@@ -214,12 +219,12 @@ module dorado_backplane (
     output wire GenOut_13                 ,  // to a backplane connector (cable)
     output wire GenOut_14                 ,  // to a backplane connector (cable)
     output wire GenOut_15                 ,  // to a backplane connector (cable)
-    inout  wire HBlank                    ,  // awaits DispM
-    inout  wire HSync                     ,  // awaits DispM
-    inout  wire HalfLine                  ,  // to a backplane connector (cable)
+    output wire HBlank                    ,  // awaits DispM
+    output wire HSync                     ,  // awaits DispM
+    output wire HalfLine                  ,  // to a backplane connector (cable)
     output wire HeadTag_p_                ,  // to a backplane connector (cable)
     input  wire HoldMapBuf                ,  // to a backplane connector (cable)
-    inout  wire HoldMapbuf                ,  // to a backplane connector (cable)
+    output wire HoldMapbuf                ,  // to a backplane connector (cable)
     input  wire Host_0                    ,  // to a backplane connector (cable)
     input  wire Host_1                    ,  // to a backplane connector (cable)
     input  wire Host_2                    ,  // to a backplane connector (cable)
@@ -228,12 +233,12 @@ module dorado_backplane (
     input  wire Host_5                    ,  // to a backplane connector (cable)
     input  wire Host_6                    ,  // to a backplane connector (cable)
     input  wire Host_7                    ,  // to a backplane connector (cable)
-    inout  wire IMLHPE_p_                 ,  // to a backplane connector (cable)
-    inout  wire IMLHPEDly                 ,  // to a backplane connector (cable)
-    inout  wire IMRHPEDly                 ,  // to a backplane connector (cable)
+    output wire IMLHPE_p_                 ,  // to a backplane connector (cable)
+    output wire IMLHPEDly                 ,  // to a backplane connector (cable)
+    output wire IMRHPEDly                 ,  // to a backplane connector (cable)
     input  wire IOIn_p_                   ,  // awaits DispM
     input  wire IOOut_p_                  ,  // awaits DispM
-    inout  wire IOut_m_                   ,  // to a backplane connector (cable)
+    output wire IOut_m_                   ,  // to a backplane connector (cable)
     input  wire IfuAWantsDifHit_p_        ,  // to a backplane connector (cable)
     input  wire IfuStartMap_p_            ,  // to a backplane connector (cable)
     output wire JamVBlank                 ,  // to a backplane connector (cable)
@@ -242,15 +247,15 @@ module dorado_backplane (
     output wire LScopeFH                  ,  // to a backplane connector (cable)
     output wire LargeHold                 ,  // to a backplane connector (cable)
     output wire LoadEcOut_p_              ,  // awaits PCMSA msa
-    inout  wire LoadSinE                  ,  // awaits PCMSA msa
-    inout  wire LoadSinO                  ,  // to a backplane connector (cable)
+    output wire LoadSinE                  ,  // awaits PCMSA msa
+    output wire LoadSinO                  ,  // to a backplane connector (cable)
     output wire LoadSoutE_p_              ,  // awaits PCMSA msa
     output wire LoadSoutO_p_              ,  // to a backplane connector (cable)
     input  wire M0                        ,  // awaits PCMSA msa
     input  wire M1                        ,  // to a backplane connector (cable)
     input  wire M2                        ,  // to a backplane connector (cable)
     input  wire M3                        ,  // to a backplane connector (cable)
-    inout  wire MXHold                    ,  // to a backplane connector (cable)
+    output wire MXHold                    ,  // to a backplane connector (cable)
     output wire MemAd_0                   ,  // awaits PCMSA
     output wire MemAd_1                   ,  // awaits PCMSA msa
     output wire MemAd_2                   ,  // awaits PCMSA msa
@@ -274,25 +279,25 @@ module dorado_backplane (
     output wire Mod3SinEn_p_              ,  // to a backplane connector (cable)
     output wire Mod3StrEn_p_              ,  // to a backplane connector (cable)
     input  wire MxHold                    ,  // to a backplane connector (cable)
-    inout  wire OISClkA                   ,  // awaits DispM
-    inout  wire OISClkA_p_                ,  // awaits DispM
-    inout  wire OISClkB                   ,  // awaits DispM
-    inout  wire OISClkB_p_                ,  // awaits DispM
+    output wire OISClkA                   ,  // awaits DispM
+    output wire OISClkA_p_                ,  // awaits DispM
+    output wire OISClkB                   ,  // awaits DispM
+    output wire OISClkB_p_                ,  // awaits DispM
     input  wire OISData                   ,  // to a backplane connector (cable)
     input  wire OISData_p_                ,  // to a backplane connector (cable)
-    inout  wire OISData_0                 ,  // awaits DispM
-    inout  wire OISData_0_p_              ,  // awaits DispM
-    inout  wire OISData_1                 ,  // awaits DispM
-    inout  wire OISData_1_p_              ,  // awaits DispM
-    inout  wire OISData_2                 ,  // awaits DispM
-    inout  wire OISData_2_p_              ,  // awaits DispM
-    inout  wire OISData_3                 ,  // awaits DispM
-    inout  wire OISData_3_p_              ,  // awaits DispM
-    inout  wire OKToSelect                ,  // to a backplane connector (cable)
-    inout  wire OS0                       ,  // to a backplane connector (cable)
-    inout  wire OS1                       ,  // to a backplane connector (cable)
-    inout  wire OS2                       ,  // to a backplane connector (cable)
-    inout  wire OS3                       ,  // to a backplane connector (cable)
+    output wire OISData_0                 ,  // awaits DispM
+    output wire OISData_0_p_              ,  // awaits DispM
+    output wire OISData_1                 ,  // awaits DispM
+    output wire OISData_1_p_              ,  // awaits DispM
+    output wire OISData_2                 ,  // awaits DispM
+    output wire OISData_2_p_              ,  // awaits DispM
+    output wire OISData_3                 ,  // awaits DispM
+    output wire OISData_3_p_              ,  // awaits DispM
+    output wire OKToSelect                ,  // to a backplane connector (cable)
+    output wire OS0                       ,  // to a backplane connector (cable)
+    output wire OS1                       ,  // to a backplane connector (cable)
+    output wire OS2                       ,  // to a backplane connector (cable)
+    output wire OS3                       ,  // to a backplane connector (cable)
     input  wire PRhold                    ,  // to a backplane connector (cable)
     input  wire PixelClkVCO               ,  // awaits DispM
     output wire PrHold                    ,  // to a backplane connector (cable)
@@ -302,7 +307,7 @@ module dorado_backplane (
     input  wire RcvData                   ,  // to a backplane connector (cable)
     input  wire SW                        ,  // to a backplane connector (cable)
     output wire SWb                       ,  // to a backplane connector (cable)
-    inout  wire SWm                       ,  // to a backplane connector (cable)
+    output wire SWm                       ,  // to a backplane connector (cable)
     input  wire SecIndx0_p_               ,  // to a backplane connector (cable)
     input  wire SecIndx1_p_               ,  // to a backplane connector (cable)
     input  wire SecIndx2_p_               ,  // to a backplane connector (cable)
@@ -315,7 +320,7 @@ module dorado_backplane (
     input  wire Selected1_p_              ,  // to a backplane connector (cable)
     input  wire Selected2_p_              ,  // to a backplane connector (cable)
     input  wire Selected3_p_              ,  // to a backplane connector (cable)
-    inout  wire Sequence0_p_              ,  // to a backplane connector (cable)
+    output wire Sequence0_p_              ,  // to a backplane connector (cable)
     input  wire Serial_1                  ,  // to a backplane connector (cable)
     input  wire Serial_10                 ,  // to a backplane connector (cable)
     input  wire Serial_100                ,  // to a backplane connector (cable)
@@ -346,7 +351,7 @@ module dorado_backplane (
     input  wire Sin_13                    ,  // awaits PCMSA msa
     input  wire Sin_14                    ,  // awaits PCMSA msa
     input  wire Sin_15                    ,  // awaits PCMSA msa
-    inout  wire SkipWait_p_               ,  // to a backplane connector (cable)
+    output wire SkipWait_p_               ,  // to a backplane connector (cable)
     output wire Sout_00                   ,  // awaits PCMSA msa
     output wire Sout_01                   ,  // awaits PCMSA msa
     output wire Sout_02                   ,  // awaits PCMSA msa
@@ -367,7 +372,7 @@ module dorado_backplane (
     input  wire SubTask_1                 ,  // awaits IOTest
     input  wire Subtask_0                 ,  // to a backplane connector (cable)
     input  wire Subtask_1                 ,  // to a backplane connector (cable)
-    inout  wire TTLIOReset_p_             ,  // to a backplane connector (cable)
+    output wire TTLIOReset_p_             ,  // to a backplane connector (cable)
     input  wire TWReq_01                  ,  // to a backplane connector (cable)
     input  wire TWReq_02                  ,  // to a backplane connector (cable)
     input  wire TWReq_03                  ,  // to a backplane connector (cable)
@@ -405,114 +410,26 @@ module dorado_backplane (
     input  wire TtlOnLine_p_              ,  // to a backplane connector (cable)
     input  wire TtlReadOnly_p_            ,  // to a backplane connector (cable)
     input  wire TtlReady_p_               ,  // to a backplane connector (cable)
-    inout  wire TtlSector_p_              ,  // to a backplane connector (cable)
+    output wire TtlSector_p_              ,  // to a backplane connector (cable)
     input  wire TtlSeekInc_p_             ,  // to a backplane connector (cable)
     input  wire TtlTerm_p_                ,  // to a backplane connector (cable)
     output wire TurnOff2v                 ,  // to a backplane connector (cable)
     output wire TurnOnDisk_p_             ,  // to a backplane connector (cable)
     output wire TurnOnLED_p_              ,  // to a backplane connector (cable)
     output wire TurnOnPwr_p_              ,  // to a backplane connector (cable)
-    inout  wire VBlank                    ,  // awaits DispM
-    inout  wire VSync                     ,  // awaits DispM
-    inout  wire WakeDHT                   ,  // to a backplane connector (cable)
+    output wire VBlank                    ,  // awaits DispM
+    output wire VSync                     ,  // awaits DispM
+    output wire WakeDHT                   ,  // to a backplane connector (cable)
     output wire WakeDWT                   ,  // to a backplane connector (cable)
     output wire WakeEthRx                 ,  // to a backplane connector (cable)
     output wire WakeEthTx                 ,  // to a backplane connector (cable)
     input  wire XHsync                    ,  // to a backplane connector (cable)
-    inout  wire XSyncEn_p_                ,  // to a backplane connector (cable)
+    output wire XSyncEn_p_                ,  // to a backplane connector (cable)
     input  wire dStartClockPulse             // to a backplane connector (cable)
 );
 
-  // 83 WIRED-OR nets: MECL open emitters tied together
-  // across boards. Verilator raises MULTIDRIVEN on a `wor`, which
-  // is the point of using one, so it is waived here only.
-  /* verilator lint_off MULTIDRIVEN */
-  wor  BMux_00;
-  wor  BMux_01;
-  wor  BMux_02;
-  wor  BMux_03;
-  wor  BMux_04;
-  wor  BMux_05;
-  wor  BMux_06;
-  wor  BMux_07;
-  wor  BMux_08;
-  wor  BMux_09;
-  wor  BMux_10;
-  wor  BMux_11;
-  wor  BMux_12;
-  wor  BMux_13;
-  wor  BMux_14;
-  wor  BMux_15;
-  wor  BNPC_04;
-  wor  BNPC_05;
-  wor  BNPC_06;
-  wor  BNPC_07;
-  wor  BNPC_08;
-  wor  BNPC_09;
-  wor  BNPC_10;
-  wor  BNPC_11;
-  wor  BNPC_12;
-  wor  BNPC_13;
-  wor  BNPC_14;
-  wor  BNPC_15;
-  wor  Cnt_eq_Zero_p_;
-  wor  DMuxClk;
-  wor  DMuxData;
-  wor  IOB_00;
-  wor  IOB_01;
-  wor  IOB_02;
-  wor  IOB_03;
-  wor  IOB_04;
-  wor  IOB_05;
-  wor  IOB_06;
-  wor  IOB_07;
-  wor  IOB_08;
-  wor  IOB_09;
-  wor  IOB_10;
-  wor  IOB_11;
-  wor  IOB_12;
-  wor  IOB_13;
-  wor  IOB_14;
-  wor  IOB_15;
-  wor  IOB_16;
-  wor  IOB_17;
-  wor  IOPE;
-  wor  IOatt;
-  wor  IfuAck;
-  wor  IfuFaultInEc2;
-  wor  MAR_00_p_;
-  wor  MAR_01_p_;
-  wor  MAR_02_p_;
-  wor  MAR_03_p_;
-  wor  MAR_04_p_;
-  wor  MAR_05_p_;
-  wor  MAR_06_p_;
-  wor  MAR_07_p_;
-  wor  MAR_08_p_;
-  wor  MAR_09_p_;
-  wor  MAR_10_p_;
-  wor  MAR_11_p_;
-  wor  MAR_12_p_;
-  wor  MAR_13_p_;
-  wor  MAR_14_p_;
-  wor  MAR_15_p_;
-  wor  MakeF_u_D;
-  wor  MdPE;
-  wor  MemAd_5;
-  wor  MemAd_6;
-  wor  MemAd_7;
-  wor  MemAd_8;
-  wor  MemBase_2;
-  wor  MemBase_3;
-  wor  MemError;
-  wor  Pdata_15;
-  wor  RamPE;
-  wor  UseDMD;
-  wor  aluOut_eq_0_p_;
-  wor  rMIRa;
-  /* verilator lint_on MULTIDRIVEN */
-
-  // 418 single-driver nets
+  // 501 nets between boards, plus one contribution wire
+  // per driving board.
   wire ALUCarry;
   wire ALUF_0;
   wire ALUF_1;
@@ -528,10 +445,38 @@ module dorado_backplane (
   wire AfreeOrEc_p_b;
   wire At_eq_Curt_p_;
   wire AwantsDifHit_p_;
+  wire BMux_00;
+  wire BMux_01;
+  wire BMux_02;
+  wire BMux_03;
+  wire BMux_04;
+  wire BMux_05;
+  wire BMux_06;
+  wire BMux_07;
+  wire BMux_08;
+  wire BMux_09;
+  wire BMux_10;
+  wire BMux_11;
+  wire BMux_12;
+  wire BMux_13;
+  wire BMux_14;
+  wire BMux_15;
   wire BMux_16;
   wire BMux_17;
   wire BNPC_02;
   wire BNPC_03;
+  wire BNPC_04;
+  wire BNPC_05;
+  wire BNPC_06;
+  wire BNPC_07;
+  wire BNPC_08;
+  wire BNPC_09;
+  wire BNPC_10;
+  wire BNPC_11;
+  wire BNPC_12;
+  wire BNPC_13;
+  wire BNPC_14;
+  wire BNPC_15;
   wire BNTGtCT_p_a;
   wire BNTGtCT_p_b;
   wire BSEL_0_p_;
@@ -575,7 +520,10 @@ module dorado_backplane (
   wire CacheRef_p_;
   wire CacheRefInEc1;
   wire CkMdParity_p_;
+  wire Cnt_eq_Zero_p_;
   wire CountMiss;
+  wire DMuxClk;
+  wire DMuxData;
   wire Dad_00;
   wire Dad_01;
   wire Dbuf_u__p_;
@@ -640,10 +588,31 @@ module dorado_backplane (
   wire Hita;
   wire Hold;
   wire IMRHPE_p_;
+  wire IOB_00;
+  wire IOB_01;
+  wire IOB_02;
+  wire IOB_03;
+  wire IOB_04;
+  wire IOB_05;
+  wire IOB_06;
+  wire IOB_07;
+  wire IOB_08;
+  wire IOB_09;
+  wire IOB_10;
+  wire IOB_11;
+  wire IOB_12;
+  wire IOB_13;
+  wire IOB_14;
+  wire IOB_15;
+  wire IOB_16;
+  wire IOB_17;
   wire IOHold;
+  wire IOPE;
   wire IOReset;
+  wire IOatt;
   wire IOin_p_;
   wire IOout_p_;
+  wire IfuAck;
   wire IfuAddr_04_p_;
   wire IfuAddr_05_p_;
   wire IfuAddr_06_p_;
@@ -662,6 +631,7 @@ module dorado_backplane (
   wire IfuData_5;
   wire IfuData_6;
   wire IfuData_7;
+  wire IfuFaultInEc2;
   wire IfuHold;
   wire IfuNextMacro_p_;
   wire IfuRBaseSel_p_;
@@ -673,9 +643,26 @@ module dorado_backplane (
   wire LC_1;
   wire LC_2;
   wire LdPipeVAdly_p_;
+  wire MAR_00_p_;
+  wire MAR_01_p_;
+  wire MAR_02_p_;
+  wire MAR_03_p_;
+  wire MAR_04_p_;
+  wire MAR_05_p_;
+  wire MAR_06_p_;
+  wire MAR_07_p_;
+  wire MAR_08_p_;
+  wire MAR_09_p_;
+  wire MAR_10_p_;
+  wire MAR_11_p_;
+  wire MAR_12_p_;
+  wire MAR_13_p_;
+  wire MAR_14_p_;
+  wire MAR_15_p_;
   wire MDMtag_p_;
   wire MakeD_u_CD;
   wire MakeD_u_Dbuf;
+  wire MakeF_u_D;
   wire MakeFout_u_D;
   wire MakeMDM_u_D_p_;
   wire MakeMD_u_D_p_;
@@ -695,13 +682,21 @@ module dorado_backplane (
   wire Map_u_InPair_p_;
   wire McrD_u__p_;
   wire Mcr_u__p_;
+  wire MdPE;
+  wire MemAd_5;
+  wire MemAd_6;
+  wire MemAd_7;
+  wire MemAd_8;
   wire MemBM_0;
   wire MemBM_1;
   wire MemBM34;
   wire MemBase_0;
   wire MemBase_1;
+  wire MemBase_2;
+  wire MemBase_3;
   wire MemBase_4;
   wire MemClkEnable_p_a;
+  wire MemError;
   wire MemPE;
   wire MemRfsh;
   wire MemSH;
@@ -715,6 +710,7 @@ module dorado_backplane (
   wire Overflow_p_;
   wire PairFull_p_;
   wire PcFG_15;
+  wire Pdata_15;
   wire Pendulum;
   wire PrBlock_p_;
   wire PrHoldReq;
@@ -730,6 +726,7 @@ module dorado_backplane (
   wire RSTK_1;
   wire RSTK_2;
   wire RSTK_3;
+  wire RamPE;
   wire RbAdr_0;
   wire RbAdr_1;
   wire RbAdr_2;
@@ -827,6 +824,7 @@ module dorado_backplane (
   wire TempRef;
   wire Transport_p_;
   wire UseAsrn;
+  wire UseDMD;
   wire VicIfMiss_p_;
   wire VicInPair_p_;
   wire VicOrFS1C;
@@ -857,6 +855,7 @@ module dorado_backplane (
   wire aluF3;
   wire aluG1;
   wire aluM;
+  wire aluOut_eq_0_p_;
   wire aluP1;
   wire dBlock_p_;
   wire dDad_02;
@@ -931,9 +930,1621 @@ module dorado_backplane (
   wire dSTPerr;
   wire jcnt;
   wire preMCSb;
+  wire rMIRa;
+  wire n_24Bit__DispY;
+  wire A8B2__DispY;
+  wire ACPI_0__BaseBd;
+  wire ACPI_1__BaseBd;
+  wire ACPI_2__BaseBd;
+  wire ACPI_3__BaseBd;
+  wire ACPI_4__BaseBd;
+  wire ACPIGnd_0__BaseBd;
+  wire ACPIGnd_1__BaseBd;
+  wire ACPIGnd_2__BaseBd;
+  wire ACPIGnd_3__BaseBd;
+  wire ACPIGnd_4__BaseBd;
+  wire AItem_0__DispY;
+  wire AItem_1__DispY;
+  wire AItem_2__DispY;
+  wire AItem_3__DispY;
+  wire AItem_4__DispY;
+  wire AItem_5__DispY;
+  wire AItem_6__DispY;
+  wire AItem_7__DispY;
+  wire AItemClkEn_p_b__DispY;
+  wire ALUCarry__ProcH;
+  wire ALUF_0__ContB;
+  wire ALUF_1__ContB;
+  wire ALUF_2__ContB;
+  wire ALUF_3__ContB;
+  wire AOff__DispY;
+  wire ASEL_0__ContB;
+  wire ASEL_0_p___ContB;
+  wire ASEL_0_p_a__ContB;
+  wire ASEL_0_p_mem__ContB;
+  wire ASEL_1_p___ContB;
+  wire ASEL_2_p___ContB;
+  wire AcanhaveMap_p___MemX;
+  wire AfreeOrEc_p_b__MemC;
+  wire AltoCSync_p___DispY;
+  wire AltoHSync__DispY;
+  wire AltoTTLVideo__DispY;
+  wire AltoVSync_p___DispY;
+  wire At_eq_Curt_p___MemX;
+  wire AwantsDifHit_p___MemC;
+  wire BByPass__DispY;
+  wire BItem_0__DispY;
+  wire BItem_1__DispY;
+  wire BItem_2__DispY;
+  wire BItem_3__DispY;
+  wire BItem_4__DispY;
+  wire BItem_5__DispY;
+  wire BItem_6__DispY;
+  wire BItem_7__DispY;
+  wire BItemClkEn_p_b__DispY;
+  wire BMux_00__ContA;
+  wire BMux_00__IFU;
+  wire BMux_00__MemC;
+  wire BMux_00__MemD;
+  wire BMux_00__MemX;
+  wire BMux_00__ProcH;
+  wire BMux_01__ContA;
+  wire BMux_01__IFU;
+  wire BMux_01__MemC;
+  wire BMux_01__MemD;
+  wire BMux_01__MemX;
+  wire BMux_01__ProcH;
+  wire BMux_02__ContA;
+  wire BMux_02__IFU;
+  wire BMux_02__MemC;
+  wire BMux_02__MemD;
+  wire BMux_02__MemX;
+  wire BMux_02__ProcH;
+  wire BMux_03__ContA;
+  wire BMux_03__IFU;
+  wire BMux_03__MemC;
+  wire BMux_03__MemD;
+  wire BMux_03__MemX;
+  wire BMux_03__ProcH;
+  wire BMux_04__ContA;
+  wire BMux_04__IFU;
+  wire BMux_04__MemC;
+  wire BMux_04__MemD;
+  wire BMux_04__MemX;
+  wire BMux_04__ProcH;
+  wire BMux_05__ContA;
+  wire BMux_05__IFU;
+  wire BMux_05__MemC;
+  wire BMux_05__MemD;
+  wire BMux_05__MemX;
+  wire BMux_05__ProcH;
+  wire BMux_06__ContA;
+  wire BMux_06__IFU;
+  wire BMux_06__MemC;
+  wire BMux_06__MemD;
+  wire BMux_06__MemX;
+  wire BMux_06__ProcH;
+  wire BMux_07__ContA;
+  wire BMux_07__IFU;
+  wire BMux_07__MemC;
+  wire BMux_07__MemD;
+  wire BMux_07__MemX;
+  wire BMux_07__ProcH;
+  wire BMux_08__ContA;
+  wire BMux_08__IFU;
+  wire BMux_08__MemC;
+  wire BMux_08__MemD;
+  wire BMux_08__MemX;
+  wire BMux_08__ProcL;
+  wire BMux_09__ContA;
+  wire BMux_09__IFU;
+  wire BMux_09__MemC;
+  wire BMux_09__MemD;
+  wire BMux_09__MemX;
+  wire BMux_09__ProcL;
+  wire BMux_10__ContA;
+  wire BMux_10__IFU;
+  wire BMux_10__MemC;
+  wire BMux_10__MemD;
+  wire BMux_10__MemX;
+  wire BMux_10__ProcL;
+  wire BMux_11__ContA;
+  wire BMux_11__IFU;
+  wire BMux_11__MemC;
+  wire BMux_11__MemD;
+  wire BMux_11__MemX;
+  wire BMux_11__ProcL;
+  wire BMux_12__ContA;
+  wire BMux_12__IFU;
+  wire BMux_12__MemC;
+  wire BMux_12__MemD;
+  wire BMux_12__MemX;
+  wire BMux_12__ProcL;
+  wire BMux_13__ContA;
+  wire BMux_13__IFU;
+  wire BMux_13__MemC;
+  wire BMux_13__MemD;
+  wire BMux_13__MemX;
+  wire BMux_13__ProcL;
+  wire BMux_14__ContA;
+  wire BMux_14__IFU;
+  wire BMux_14__MemC;
+  wire BMux_14__MemD;
+  wire BMux_14__MemX;
+  wire BMux_14__ProcL;
+  wire BMux_15__ContA;
+  wire BMux_15__IFU;
+  wire BMux_15__MemC;
+  wire BMux_15__MemD;
+  wire BMux_15__MemX;
+  wire BMux_15__ProcL;
+  wire BMux_16__ProcH;
+  wire BMux_17__ProcL;
+  wire BNPC_02__ContA;
+  wire BNPC_03__ContA;
+  wire BNPC_04__ContA;
+  wire BNPC_04__ContB;
+  wire BNPC_05__ContA;
+  wire BNPC_05__ContB;
+  wire BNPC_06__ContA;
+  wire BNPC_06__ContB;
+  wire BNPC_07__ContA;
+  wire BNPC_07__ContB;
+  wire BNPC_08__ContA;
+  wire BNPC_08__ContB;
+  wire BNPC_09__ContA;
+  wire BNPC_09__ContB;
+  wire BNPC_10__ContA;
+  wire BNPC_10__ContB;
+  wire BNPC_11__ContA;
+  wire BNPC_11__ContB;
+  wire BNPC_12__ContA;
+  wire BNPC_12__ContB;
+  wire BNPC_13__ContA;
+  wire BNPC_13__ContB;
+  wire BNPC_14__ContA;
+  wire BNPC_14__ContB;
+  wire BNPC_15__ContA;
+  wire BNPC_15__ContB;
+  wire BNTGtCT_p_a__ContA;
+  wire BNTGtCT_p_b__ContA;
+  wire BOff__DispY;
+  wire BSEL_0_p___ContB;
+  wire BSEL_1_p___ContB;
+  wire BSEL_2_p___ContB;
+  wire Block__ContA;
+  wire BootMC_p___BaseBd;
+  wire BootNO__BaseBd;
+  wire CBHold__MemC;
+  wire CBTempSense__ContB;
+  wire CHoldReq__ContA;
+  wire CLK_OutBase_p___BaseBd;
+  wire CLK_ca_p___BaseBd;
+  wire CLK_cb_p___BaseBd;
+  wire CLK_disk_p___BaseBd;
+  wire CLK_display_p___BaseBd;
+  wire CLK_ifu_p___BaseBd;
+  wire CLK_io20_p___BaseBd;
+  wire CLK_io21_p___BaseBd;
+  wire CLK_io22_p___BaseBd;
+  wire CLK_io23_p___BaseBd;
+  wire CLK_io24_p___BaseBd;
+  wire CLK_mc_p___BaseBd;
+  wire CLK_md_p___BaseBd;
+  wire CLK_ms0Even_p___BaseBd;
+  wire CLK_ms0Odd_p___BaseBd;
+  wire CLK_ms1Even_p___BaseBd;
+  wire CLK_ms1Odd_p___BaseBd;
+  wire CLK_ms2Even_p___BaseBd;
+  wire CLK_ms2Odd_p___BaseBd;
+  wire CLK_ms3Even_p___BaseBd;
+  wire CLK_ms3Odd_p___BaseBd;
+  wire CLK_mx_p___BaseBd;
+  wire CLK_ph_p___BaseBd;
+  wire CLK_pl_p___BaseBd;
+  wire CLKEnable_p_a__ContA;
+  wire CLKEnable_p_b__ContA;
+  wire CLKEnable_p_c__ContA;
+  wire CPAddr_0_p___BaseBd;
+  wire CPAddr_1_p___BaseBd;
+  wire CPAddr_2_p___BaseBd;
+  wire CPIn_0__ContB;
+  wire CPIn_1__ContB;
+  wire CPIn_2__ContB;
+  wire CPIn_3__ContB;
+  wire CPOut_0__BaseBd;
+  wire CPOut_1__BaseBd;
+  wire CPOut_2__BaseBd;
+  wire CPOut_3__BaseBd;
+  wire CPOut_4__BaseBd;
+  wire CPOut_5__BaseBd;
+  wire CPOut_6__BaseBd;
+  wire CPOut_7__BaseBd;
+  wire CPOut_8__BaseBd;
+  wire CPStrb_p___BaseBd;
+  wire CRamClock__ContA;
+  wire CacheRef_p___MemC;
+  wire CacheRefInEc1__MemC;
+  wire CkMdParity_p___ProcL;
+  wire Cnt_eq_Zero_p___ProcH;
+  wire Cnt_eq_Zero_p___ProcL;
+  wire ContTag_p___DskEth;
+  wire CountMiss__MemX;
+  wire CrryEvCntA__IFU;
+  wire Crystal__DispY;
+  wire CursorData__DispY;
+  wire CylinderTag_p___DskEth;
+  wire DMuxClk__BaseBd;
+  wire DMuxClk__ContA;
+  wire DMuxData__BaseBd;
+  wire DMuxData__ContA;
+  wire DMuxData__ContB;
+  wire DMuxData__DispY;
+  wire DMuxData__DskEth;
+  wire DMuxData__IFU;
+  wire DMuxData__MemC;
+  wire DMuxData__MemD;
+  wire DMuxData__MemX;
+  wire DMuxData__ProcH;
+  wire DMuxData__ProcL;
+  wire Dad_00__MemC;
+  wire Dad_01__MemC;
+  wire DataM0__DskEth;
+  wire DataM1__DskEth;
+  wire DataM2__DskEth;
+  wire DataM3__DskEth;
+  wire DataP0__DskEth;
+  wire DataP1__DskEth;
+  wire DataP2__DskEth;
+  wire DataP3__DskEth;
+  wire Dbuf_u__p___MemC;
+  wire DdataGood_p___MemX;
+  wire DirtyIoFetchInA_p___MemC;
+  wire DisHold__MemC;
+  wire DiskTW__DskEth;
+  wire DoCBr__ContA;
+  wire DriveTag_p___DskEth;
+  wire ECFault__MemD;
+  wire EcDcomingForCt_p___MemX;
+  wire EcKeepsAbusy__MemC;
+  wire EcOut_0__MemD;
+  wire EcOut_1__MemD;
+  wire EcOut_2__MemD;
+  wire EcOut_3__MemD;
+  wire EcOut_4__MemD;
+  wire EcOut_5__MemD;
+  wire EcOut_6__MemD;
+  wire EcOut_7_p___MemD;
+  wire EcWantsA__MemX;
+  wire EmuOrFT_p___MemX;
+  wire EnableFG_p___IFU;
+  wire Error_p___ContB;
+  wire ErrorsFromEc2__MemX;
+  wire FA_eq_0_p___ProcH;
+  wire FA_eq_1_p___ProcH;
+  wire FF_0__ContA;
+  wire FF_0mem_p___ProcH;
+  wire FF_1__ContA;
+  wire FF_1mem__ProcH;
+  wire FF_2__ContA;
+  wire FF_3__ContA;
+  wire FF_4__ContA;
+  wire FF_5__ContA;
+  wire FF_6__ContA;
+  wire FF_7__ContA;
+  wire FF_eq_030__ProcL;
+  wire FFok_p_a__ContA;
+  wire FFok_p_b__ContA;
+  wire FG_0__MemD;
+  wire FG_1__MemD;
+  wire FG_2__MemD;
+  wire FG_3__MemD;
+  wire FG_4__MemD;
+  wire FG_5__MemD;
+  wire FG_6__MemD;
+  wire FG_7__MemD;
+  wire FG_8__MemD;
+  wire FastD_u_Dbuf__MemC;
+  wire FinNext__MemX;
+  wire FinSubtask_0__MemX;
+  wire FinSubtask_1__MemX;
+  wire FinTask_0__MemX;
+  wire FinTask_1__MemX;
+  wire FinTask_2__MemX;
+  wire FinTask_3__MemX;
+  wire Fout_00__MemD;
+  wire Fout_01__MemD;
+  wire Fout_02__MemD;
+  wire Fout_03__MemD;
+  wire Fout_04__MemD;
+  wire Fout_05__MemD;
+  wire Fout_06__MemD;
+  wire Fout_07__MemD;
+  wire Fout_08__MemD;
+  wire Fout_09__MemD;
+  wire Fout_10__MemD;
+  wire Fout_11__MemD;
+  wire Fout_12__MemD;
+  wire Fout_13__MemD;
+  wire Fout_14__MemD;
+  wire Fout_15__MemD;
+  wire Fout_16__MemD;
+  wire Fout_17__MemD;
+  wire Fout_flt__MemX;
+  wire FoutNext__MemX;
+  wire FoutSubtask_0__MemX;
+  wire FoutSubtask_1__MemX;
+  wire FoutTask_0__MemX;
+  wire FoutTask_1__MemX;
+  wire FoutTask_2__MemX;
+  wire FoutTask_3__MemX;
+  wire Freeze__ContA;
+  wire GDv_p___IFU;
+  wire GLd_p___IFU;
+  wire GNDFour__DispY;
+  wire GenOut_00__IFU;
+  wire GenOut_01__IFU;
+  wire GenOut_02__IFU;
+  wire GenOut_03__IFU;
+  wire GenOut_04__IFU;
+  wire GenOut_05__IFU;
+  wire GenOut_06__IFU;
+  wire GenOut_07__IFU;
+  wire GenOut_08__IFU;
+  wire GenOut_09__IFU;
+  wire GenOut_10__IFU;
+  wire GenOut_11__IFU;
+  wire GenOut_12__IFU;
+  wire GenOut_13__IFU;
+  wire GenOut_14__IFU;
+  wire GenOut_15__IFU;
+  wire HBlank__DispY;
+  wire HSync__DispY;
+  wire HalfLine__DispY;
+  wire HeadTag_p___DskEth;
+  wire Hita__MemC;
+  wire Hold__MemC;
+  wire HoldMapbuf__MemX;
+  wire IMLHPE_p___ContB;
+  wire IMLHPEDly__ContB;
+  wire IMRHPE_p___ContA;
+  wire IMRHPEDly__ContB;
+  wire IOB_00__DispY;
+  wire IOB_00__DskEth;
+  wire IOB_00__ProcH;
+  wire IOB_01__DskEth;
+  wire IOB_01__ProcH;
+  wire IOB_02__DskEth;
+  wire IOB_02__ProcH;
+  wire IOB_03__DskEth;
+  wire IOB_03__ProcH;
+  wire IOB_04__DskEth;
+  wire IOB_04__ProcH;
+  wire IOB_05__DskEth;
+  wire IOB_05__ProcH;
+  wire IOB_06__DskEth;
+  wire IOB_06__ProcH;
+  wire IOB_07__DskEth;
+  wire IOB_07__ProcH;
+  wire IOB_08__DskEth;
+  wire IOB_08__ProcL;
+  wire IOB_09__DskEth;
+  wire IOB_09__ProcL;
+  wire IOB_10__DskEth;
+  wire IOB_10__ProcL;
+  wire IOB_11__DskEth;
+  wire IOB_11__ProcL;
+  wire IOB_12__DskEth;
+  wire IOB_12__ProcL;
+  wire IOB_13__DskEth;
+  wire IOB_13__ProcL;
+  wire IOB_14__DskEth;
+  wire IOB_14__ProcL;
+  wire IOB_15__DispY;
+  wire IOB_15__DskEth;
+  wire IOB_15__ProcL;
+  wire IOB_16__DispY;
+  wire IOB_16__DskEth;
+  wire IOB_16__ProcH;
+  wire IOB_17__DispY;
+  wire IOB_17__DskEth;
+  wire IOB_17__ProcL;
+  wire IOHold__MemC;
+  wire IOPE__ProcH;
+  wire IOPE__ProcL;
+  wire IOReset__BaseBd;
+  wire IOatt__DskEth;
+  wire IOatt__ProcH;
+  wire IOin_p___ProcL;
+  wire IOout_p___ProcL;
+  wire IOut_m___DispY;
+  wire IfuAck__IFU;
+  wire IfuAck__MemC;
+  wire IfuAddr_04_p___IFU;
+  wire IfuAddr_05_p___IFU;
+  wire IfuAddr_06_p___IFU;
+  wire IfuAddr_07_p___IFU;
+  wire IfuAddr_08_p___IFU;
+  wire IfuAddr_09_p___IFU;
+  wire IfuAddr_10_p___IFU;
+  wire IfuAddr_11_p___IFU;
+  wire IfuAddr_12_p___IFU;
+  wire IfuAddr_13_p___IFU;
+  wire IfuData_0__IFU;
+  wire IfuData_1__IFU;
+  wire IfuData_2__IFU;
+  wire IfuData_3__IFU;
+  wire IfuData_4__IFU;
+  wire IfuData_5__IFU;
+  wire IfuData_6__IFU;
+  wire IfuData_7__IFU;
+  wire IfuFaultInEc2__IFU;
+  wire IfuFaultInEc2__MemX;
+  wire IfuHold__MemC;
+  wire IfuNextMacro_p___ContA;
+  wire IfuRBaseSel_p___IFU;
+  wire IfuRefInEc1__MemC;
+  wire IoFetchInA_p___MemC;
+  wire IoStoreInA__MemC;
+  wire JamVBlank__DispY;
+  wire JunkTW__IFU;
+  wire KeyboardData__BaseBd;
+  wire LC_0__ContB;
+  wire LC_1__ContB;
+  wire LC_2__ContB;
+  wire LScopeFH__ProcL;
+  wire LargeHold__MemX;
+  wire LdPipeVAdly_p___MemX;
+  wire LoadEcOut_p___MemX;
+  wire LoadSinE__MemX;
+  wire LoadSinO__MemX;
+  wire LoadSoutE_p___MemX;
+  wire LoadSoutO_p___MemX;
+  wire MAR_00_p___IFU;
+  wire MAR_00_p___ProcH;
+  wire MAR_01_p___IFU;
+  wire MAR_01_p___ProcH;
+  wire MAR_02_p___IFU;
+  wire MAR_02_p___ProcH;
+  wire MAR_03_p___IFU;
+  wire MAR_03_p___ProcH;
+  wire MAR_04_p___IFU;
+  wire MAR_04_p___ProcH;
+  wire MAR_05_p___IFU;
+  wire MAR_05_p___ProcH;
+  wire MAR_06_p___IFU;
+  wire MAR_06_p___ProcH;
+  wire MAR_07_p___IFU;
+  wire MAR_07_p___ProcH;
+  wire MAR_08_p___IFU;
+  wire MAR_08_p___ProcL;
+  wire MAR_09_p___IFU;
+  wire MAR_09_p___ProcL;
+  wire MAR_10_p___IFU;
+  wire MAR_10_p___ProcL;
+  wire MAR_11_p___IFU;
+  wire MAR_11_p___ProcL;
+  wire MAR_12_p___IFU;
+  wire MAR_12_p___ProcL;
+  wire MAR_13_p___IFU;
+  wire MAR_13_p___ProcL;
+  wire MAR_14_p___IFU;
+  wire MAR_14_p___ProcL;
+  wire MAR_15_p___IFU;
+  wire MAR_15_p___ProcL;
+  wire MDMtag_p___MemX;
+  wire MXHold__MemC;
+  wire MakeD_u_CD__MemX;
+  wire MakeD_u_Dbuf__MemX;
+  wire MakeF_u_D__MemC;
+  wire MakeF_u_D__MemX;
+  wire MakeFout_u_D__MemX;
+  wire MakeMDM_u_D_p___MemX;
+  wire MakeMD_u_D_p___MemX;
+  wire MakeSout_u_D__MemX;
+  wire MapAd_0__MemC;
+  wire MapAd_1__MemC;
+  wire MapAd_2__MemC;
+  wire MapAd_3__MemC;
+  wire MapAd_4__MemC;
+  wire MapAd_5__MemC;
+  wire MapAd_6__MemC;
+  wire MapAd_7__MemC;
+  wire MapAd_8__MemC;
+  wire MapRfsh_p___MemX;
+  wire MapTroubleInEc1__MemX;
+  wire MapWait_m_D__MemX;
+  wire Map_u_InPair_p___MemC;
+  wire McrD_u__p___MemC;
+  wire Mcr_u__p___MemC;
+  wire MdPE__ProcH;
+  wire MdPE__ProcL;
+  wire MemAd_0__MemX;
+  wire MemAd_1__MemX;
+  wire MemAd_2__MemX;
+  wire MemAd_3__MemX;
+  wire MemAd_4__MemX;
+  wire MemAd_5__MemC;
+  wire MemAd_5__MemX;
+  wire MemAd_6__MemC;
+  wire MemAd_6__MemX;
+  wire MemAd_7__MemC;
+  wire MemAd_7__MemX;
+  wire MemAd_8__MemC;
+  wire MemAd_8__MemX;
+  wire MemBM_0__IFU;
+  wire MemBM_1__IFU;
+  wire MemBM34__IFU;
+  wire MemBase_0__ProcH;
+  wire MemBase_1__ProcH;
+  wire MemBase_2__ProcH;
+  wire MemBase_2__ProcL;
+  wire MemBase_3__ProcH;
+  wire MemBase_3__ProcL;
+  wire MemBase_4__ProcH;
+  wire MemCASa__MemX;
+  wire MemCASb__MemX;
+  wire MemClkEnable_p_a__ContA;
+  wire MemClkEnable_p_b__ContA;
+  wire MemError__MemD;
+  wire MemError__MemX;
+  wire MemPE__MemX;
+  wire MemRASa__MemX;
+  wire MemRASb__MemX;
+  wire MemRfsh__MemX;
+  wire MemSH__ContA;
+  wire MemSH_p___ContA;
+  wire MemWEa__MemX;
+  wire MemWEb__MemX;
+  wire Mod0SinEn_p___MemX;
+  wire Mod0StrEn_p___MemX;
+  wire Mod1SinEn_p___MemX;
+  wire Mod1StrEn_p___MemX;
+  wire Mod2SinEn_p___MemX;
+  wire Mod2StrEn_p___MemX;
+  wire Mod3SinEn_p___MemX;
+  wire Mod3StrEn_p___MemX;
+  wire Next_0__ContA;
+  wire Next_1__ContA;
+  wire Next_2__ContA;
+  wire Next_3__ContA;
+  wire NextData_p___ProcH;
+  wire NextMacro__ContA;
+  wire OISClkA__DispY;
+  wire OISClkA_p___DispY;
+  wire OISClkB__DispY;
+  wire OISClkB_p___DispY;
+  wire OISData_0__DispY;
+  wire OISData_0_p___DispY;
+  wire OISData_1__DispY;
+  wire OISData_1_p___DispY;
+  wire OISData_2__DispY;
+  wire OISData_2_p___DispY;
+  wire OISData_3__DispY;
+  wire OISData_3_p___DispY;
+  wire OKToSelect__DskEth;
+  wire OS0__DskEth;
+  wire OS1__DskEth;
+  wire OS2__DskEth;
+  wire OS3__DskEth;
+  wire Overflow_p___ProcH;
+  wire PairFull_p___MemC;
+  wire PcFG_15__IFU;
+  wire Pdata_15__ProcH;
+  wire Pdata_15__ProcL;
+  wire Pendulum__BaseBd;
+  wire PrBlock_p___ContA;
+  wire PrHold__MemC;
+  wire PrHoldReq__ProcL;
+  wire PrivRefInPair__MemC;
+  wire ProcSrn_u__p___MemC;
+  wire ProcTag__MemX;
+  wire ProcTagInA__MemX;
+  wire PropCnt_p___ProcL;
+  wire Q_07__ProcH;
+  wire Q_08__ProcL;
+  wire QBit_p___ProcL;
+  wire RSTK_0__ContB;
+  wire RSTK_1__ContB;
+  wire RSTK_2__ContB;
+  wire RSTK_3__ContB;
+  wire RScopeClk0_p___ProcL;
+  wire RamPE__ProcH;
+  wire RamPE__ProcL;
+  wire RbAdr_0__ProcL;
+  wire RbAdr_1__ProcL;
+  wire RbAdr_2__ProcL;
+  wire RbAdr_3__ProcL;
+  wire RbBypass__ProcL;
+  wire RbBypass_p___ProcL;
+  wire ReadInA_p___MemC;
+  wire RefOutstanding_p___IFU;
+  wire ResEqZero_p___ProcH;
+  wire ResLtZero_p___ProcH;
+  wire RfshPeriod__BaseBd;
+  wire RmLtZero_p___ProcH;
+  wire RmOdd_p___ProcL;
+  wire STfree_p___MemX;
+  wire SWb__ContA;
+  wire SWm__ContA;
+  wire Select0_p___DskEth;
+  wire Select1_p___DskEth;
+  wire Select2_p___DskEth;
+  wire Select3_p___DskEth;
+  wire SelectRm_p_a__ProcL;
+  wire SelectStk_p_a__ProcL;
+  wire Sequence0_p___BaseBd;
+  wire SetRun__BaseBd;
+  wire SetRunRfsh__BaseBd;
+  wire SetSS_p___BaseBd;
+  wire ShA_00__ProcH;
+  wire ShA_01__ProcH;
+  wire ShA_02__ProcH;
+  wire ShA_03__ProcH;
+  wire ShA_04__ProcH;
+  wire ShA_05__ProcH;
+  wire ShA_06__ProcH;
+  wire ShA_07__ProcH;
+  wire ShA_08__ProcL;
+  wire ShA_09__ProcL;
+  wire ShA_10__ProcL;
+  wire ShA_11__ProcL;
+  wire ShA_12__ProcL;
+  wire ShA_13__ProcL;
+  wire ShA_14__ProcL;
+  wire ShA_15__ProcL;
+  wire Shc_02__ProcH;
+  wire Shc_03__ProcH;
+  wire Shc_04b__ProcH;
+  wire Shc_05b__ProcH;
+  wire Shc_06b__ProcH;
+  wire Shc_07b__ProcH;
+  wire Shc_08__ProcL;
+  wire Shc_09__ProcL;
+  wire Shc_10__ProcL;
+  wire Shc_11__ProcL;
+  wire Shc_12__ProcL;
+  wire Shc_13__ProcL;
+  wire Shc_14__ProcL;
+  wire Shc_15__ProcL;
+  wire ShcAlu_0__ProcL;
+  wire ShcAlu_1__ProcL;
+  wire ShcAlu_2__ProcL;
+  wire ShcAlu_3__ProcL;
+  wire ShiftEcOut__MemX;
+  wire ShiftSinE__MemX;
+  wire ShiftSinO__MemX;
+  wire ShiftSoutE__MemX;
+  wire ShiftSoutO__MemX;
+  wire SignIfuData__IFU;
+  wire SkipWait_p___BaseBd;
+  wire Sout_00__MemD;
+  wire Sout_01__MemD;
+  wire Sout_02__MemD;
+  wire Sout_03__MemD;
+  wire Sout_04__MemD;
+  wire Sout_05__MemD;
+  wire Sout_06__MemD;
+  wire Sout_07__MemD;
+  wire Sout_08__MemD;
+  wire Sout_09__MemD;
+  wire Sout_10__MemD;
+  wire Sout_11__MemD;
+  wire Sout_12__MemD;
+  wire Sout_13__MemD;
+  wire Sout_14__MemD;
+  wire Sout_15__MemD;
+  wire StartClockPulse__BaseBd;
+  wire StartCycle_p_a__ContA;
+  wire StartEcChk_p___MemX;
+  wire StartEcGen_p___MemX;
+  wire StartMap_p___MemC;
+  wire StkAdr_0a__ProcL;
+  wire StkAdr_1a__ProcL;
+  wire StkAdr_2a__ProcL;
+  wire StkAdr_3a__ProcL;
+  wire StkAdr_4a__ProcL;
+  wire StkAdr_5a__ProcL;
+  wire StkAdr_6a__ProcL;
+  wire StkAdr_7a__ProcL;
+  wire StkError__ProcL;
+  wire StopMIRClk__ContB;
+  wire Store_u_InA_p___MemC;
+  wire Store_u_InEc1_p___MemC;
+  wire SubTask_0__DispY;
+  wire TIOA_0__ProcH;
+  wire TIOA_1__ProcH;
+  wire TIOA_2__ProcH;
+  wire TIOA_3__ProcH;
+  wire TIOA_4__ProcH;
+  wire TIOA_5__ProcH;
+  wire TIOA_6__ProcH;
+  wire TIOA_7__ProcH;
+  wire TNIA_02__ContA;
+  wire TNIA_03__ContA;
+  wire TNIA_04__ContA;
+  wire TNIA_05__ContA;
+  wire TNIA_06__ContA;
+  wire TNIA_07__ContA;
+  wire TNIA_08__ContA;
+  wire TNIA_09__ContA;
+  wire TNIA_10__ContA;
+  wire TNIA_11__ContA;
+  wire TNIA_12__ContA;
+  wire TNIA_13__ContA;
+  wire TNIA_14__ContA;
+  wire TNIA_15__ContA;
+  wire TTLIOReset_p___BaseBd;
+  wire TWReq15__MemX;
+  wire TagBus_0_p___DskEth;
+  wire TagBus_00_p___DskEth;
+  wire TagBus_000_p___DskEth;
+  wire TagBus_1_p___DskEth;
+  wire TagBus_2_p___DskEth;
+  wire TagBus_3_p___DskEth;
+  wire TagBus_4_p___DskEth;
+  wire TagBus_5_p___DskEth;
+  wire TagBus_6_p___DskEth;
+  wire TagBus_7_p___DskEth;
+  wire TagBus_8_p___DskEth;
+  wire TagBus_9_p___DskEth;
+  wire TagInEc1__MemC;
+  wire TempRef__BaseBd;
+  wire TestTW__ProcH;
+  wire Transport_p___MemX;
+  wire TtlSector_p___DskEth;
+  wire TurnOff2v__BaseBd;
+  wire TurnOnDisk_p___BaseBd;
+  wire TurnOnLED_p___BaseBd;
+  wire TurnOnPwr_p___BaseBd;
+  wire UseAsrn__MemC;
+  wire UseDMD__BaseBd;
+  wire UseDMD__ContA;
+  wire VBlank__DispY;
+  wire VSync__DispY;
+  wire VicIfMiss_p___MemC;
+  wire VicInPair_p___MemC;
+  wire VicOrFS1C__MemC;
+  wire WPinEc1__MemX;
+  wire WakeDHT__DispY;
+  wire WakeDWT__DispY;
+  wire WakeEthRx__DskEth;
+  wire WakeEthTx__DskEth;
+  wire WantIfuHold_p___IFU;
+  wire WantIfuRef_p___IFU;
+  wire XSyncEn_p___DispY;
+  wire XWantsPipe__MemX;
+  wire XmtData_p___DskEth;
+  wire _u_Config__MemC;
+  wire _u_Dbuf__ContA;
+  wire _u_FaultInfo__MemC;
+  wire _u_MD__ProcL;
+  wire _u_MDI__ProcL;
+  wire _u_MDI_p___ProcL;
+  wire _u_MDdly_p___MemC;
+  wire _u_Map__ContA;
+  wire _u_Pipe2__MemC;
+  wire _u_Pipe3__MemC;
+  wire _u_Pipe4__MemC;
+  wire alu_07__ProcH;
+  wire alu_08__ProcL;
+  wire alu_15__ProcL;
+  wire aluC0__ProcL;
+  wire aluCout__ProcH;
+  wire aluF0__ProcL;
+  wire aluF1__ProcL;
+  wire aluF2__ProcL;
+  wire aluF3__ProcL;
+  wire aluG1__ProcL;
+  wire aluM__ProcL;
+  wire aluOut_eq_0_p___ProcH;
+  wire aluOut_eq_0_p___ProcL;
+  wire aluP1__ProcL;
+  wire dBlock_p___ContB;
+  wire dDad_02__MemC;
+  wire dDad_03__MemC;
+  wire dDad_04__MemC;
+  wire dDad_05__MemC;
+  wire dDad_06__MemC;
+  wire dDad_07__MemC;
+  wire dDad_08__MemC;
+  wire dDad_09__MemC;
+  wire dDad_10__MemC;
+  wire dDad_11__MemC;
+  wire dDad_12__MemC;
+  wire dDad_13__MemC;
+  wire dFF_0__ContB;
+  wire dFF_1__ContB;
+  wire dFF_2__ContB;
+  wire dFF_3__ContB;
+  wire dFF_4__ContB;
+  wire dFF_5__ContB;
+  wire dFF_6__ContB;
+  wire dFF_7__ContB;
+  wire dHitPerr__MemC;
+  wire dIMOut_07__ContB;
+  wire dIMOut_08__ContB;
+  wire dIMOut_09__ContB;
+  wire dIMOut_10__ContB;
+  wire dIMOut_11__ContB;
+  wire dIMOut_12__ContB;
+  wire dIMOut_13__ContB;
+  wire dIMOut_14__ContB;
+  wire dIMOut_15__ContB;
+  wire dIMRH__ContB;
+  wire dJCN_0__ContB;
+  wire dJCN_1__ContB;
+  wire dJCN_2__ContB;
+  wire dJCN_3__ContB;
+  wire dJCN_4__ContB;
+  wire dJCN_5__ContB;
+  wire dJCN_6__ContB;
+  wire dJCN_7__ContB;
+  wire dMD_00__MemD;
+  wire dMD_01__MemD;
+  wire dMD_02__MemD;
+  wire dMD_03__MemD;
+  wire dMD_04__MemD;
+  wire dMD_05__MemD;
+  wire dMD_06__MemD;
+  wire dMD_07__MemD;
+  wire dMD_08__MemD;
+  wire dMD_09__MemD;
+  wire dMD_10__MemD;
+  wire dMD_11__MemD;
+  wire dMD_12__MemD;
+  wire dMD_13__MemD;
+  wire dMD_14__MemD;
+  wire dMD_15__MemD;
+  wire dMD_16__MemD;
+  wire dMD_17__MemD;
+  wire dMDMad_0_p___MemX;
+  wire dMDMad_1_p___MemX;
+  wire dMDMad_2_p___MemX;
+  wire dMDMad_3_p___MemX;
+  wire dPipe02Ad_0__MemX;
+  wire dPipe02Ad_1__MemX;
+  wire dPipe02Ad_2__MemX;
+  wire dPipe02Ad_3__MemX;
+  wire dPipe34Ad_0__MemX;
+  wire dPipe34Ad_1__MemX;
+  wire dPipe34Ad_2__MemX;
+  wire dPipe34Ad_3__MemX;
+  wire dSTPerr__MemD;
+  wire jcnt__ContA;
+  wire preMCSb__MemX;
+  wire rMIRa__ContA;
+  wire rMIRa__ContB;
+
+  // ---- bus resolution: the OR a wired-OR backplane performs
+  assign n_24Bit = n_24Bit__DispY;
+  assign A8B2 = A8B2__DispY;
+  assign ACPI_0 = ACPI_0__BaseBd;
+  assign ACPI_1 = ACPI_1__BaseBd;
+  assign ACPI_2 = ACPI_2__BaseBd;
+  assign ACPI_3 = ACPI_3__BaseBd;
+  assign ACPI_4 = ACPI_4__BaseBd;
+  assign ACPIGnd_0 = ACPIGnd_0__BaseBd;
+  assign ACPIGnd_1 = ACPIGnd_1__BaseBd;
+  assign ACPIGnd_2 = ACPIGnd_2__BaseBd;
+  assign ACPIGnd_3 = ACPIGnd_3__BaseBd;
+  assign ACPIGnd_4 = ACPIGnd_4__BaseBd;
+  assign AItem_0 = AItem_0__DispY;
+  assign AItem_1 = AItem_1__DispY;
+  assign AItem_2 = AItem_2__DispY;
+  assign AItem_3 = AItem_3__DispY;
+  assign AItem_4 = AItem_4__DispY;
+  assign AItem_5 = AItem_5__DispY;
+  assign AItem_6 = AItem_6__DispY;
+  assign AItem_7 = AItem_7__DispY;
+  assign AItemClkEn_p_b = AItemClkEn_p_b__DispY;
+  assign ALUCarry = ALUCarry__ProcH;
+  assign ALUF_0 = ALUF_0__ContB;
+  assign ALUF_1 = ALUF_1__ContB;
+  assign ALUF_2 = ALUF_2__ContB;
+  assign ALUF_3 = ALUF_3__ContB;
+  assign AOff = AOff__DispY;
+  assign ASEL_0 = ASEL_0__ContB;
+  assign ASEL_0_p_ = ASEL_0_p___ContB;
+  assign ASEL_0_p_a = ASEL_0_p_a__ContB;
+  assign ASEL_0_p_mem = ASEL_0_p_mem__ContB;
+  assign ASEL_1_p_ = ASEL_1_p___ContB;
+  assign ASEL_2_p_ = ASEL_2_p___ContB;
+  assign AcanhaveMap_p_ = AcanhaveMap_p___MemX;
+  assign AfreeOrEc_p_b = AfreeOrEc_p_b__MemC;
+  assign AltoCSync_p_ = AltoCSync_p___DispY;
+  assign AltoHSync = AltoHSync__DispY;
+  assign AltoTTLVideo = AltoTTLVideo__DispY;
+  assign AltoVSync_p_ = AltoVSync_p___DispY;
+  assign At_eq_Curt_p_ = At_eq_Curt_p___MemX;
+  assign AwantsDifHit_p_ = AwantsDifHit_p___MemC;
+  assign BByPass = BByPass__DispY;
+  assign BItem_0 = BItem_0__DispY;
+  assign BItem_1 = BItem_1__DispY;
+  assign BItem_2 = BItem_2__DispY;
+  assign BItem_3 = BItem_3__DispY;
+  assign BItem_4 = BItem_4__DispY;
+  assign BItem_5 = BItem_5__DispY;
+  assign BItem_6 = BItem_6__DispY;
+  assign BItem_7 = BItem_7__DispY;
+  assign BItemClkEn_p_b = BItemClkEn_p_b__DispY;
+  assign BMux_00 = BMux_00__ContA | BMux_00__IFU | BMux_00__MemC | BMux_00__MemD | BMux_00__MemX | BMux_00__ProcH;
+  assign BMux_01 = BMux_01__ContA | BMux_01__IFU | BMux_01__MemC | BMux_01__MemD | BMux_01__MemX | BMux_01__ProcH;
+  assign BMux_02 = BMux_02__ContA | BMux_02__IFU | BMux_02__MemC | BMux_02__MemD | BMux_02__MemX | BMux_02__ProcH;
+  assign BMux_03 = BMux_03__ContA | BMux_03__IFU | BMux_03__MemC | BMux_03__MemD | BMux_03__MemX | BMux_03__ProcH;
+  assign BMux_04 = BMux_04__ContA | BMux_04__IFU | BMux_04__MemC | BMux_04__MemD | BMux_04__MemX | BMux_04__ProcH;
+  assign BMux_05 = BMux_05__ContA | BMux_05__IFU | BMux_05__MemC | BMux_05__MemD | BMux_05__MemX | BMux_05__ProcH;
+  assign BMux_06 = BMux_06__ContA | BMux_06__IFU | BMux_06__MemC | BMux_06__MemD | BMux_06__MemX | BMux_06__ProcH;
+  assign BMux_07 = BMux_07__ContA | BMux_07__IFU | BMux_07__MemC | BMux_07__MemD | BMux_07__MemX | BMux_07__ProcH;
+  assign BMux_08 = BMux_08__ContA | BMux_08__IFU | BMux_08__MemC | BMux_08__MemD | BMux_08__MemX | BMux_08__ProcL;
+  assign BMux_09 = BMux_09__ContA | BMux_09__IFU | BMux_09__MemC | BMux_09__MemD | BMux_09__MemX | BMux_09__ProcL;
+  assign BMux_10 = BMux_10__ContA | BMux_10__IFU | BMux_10__MemC | BMux_10__MemD | BMux_10__MemX | BMux_10__ProcL;
+  assign BMux_11 = BMux_11__ContA | BMux_11__IFU | BMux_11__MemC | BMux_11__MemD | BMux_11__MemX | BMux_11__ProcL;
+  assign BMux_12 = BMux_12__ContA | BMux_12__IFU | BMux_12__MemC | BMux_12__MemD | BMux_12__MemX | BMux_12__ProcL;
+  assign BMux_13 = BMux_13__ContA | BMux_13__IFU | BMux_13__MemC | BMux_13__MemD | BMux_13__MemX | BMux_13__ProcL;
+  assign BMux_14 = BMux_14__ContA | BMux_14__IFU | BMux_14__MemC | BMux_14__MemD | BMux_14__MemX | BMux_14__ProcL;
+  assign BMux_15 = BMux_15__ContA | BMux_15__IFU | BMux_15__MemC | BMux_15__MemD | BMux_15__MemX | BMux_15__ProcL;
+  assign BMux_16 = BMux_16__ProcH;
+  assign BMux_17 = BMux_17__ProcL;
+  assign BNPC_02 = BNPC_02__ContA;
+  assign BNPC_03 = BNPC_03__ContA;
+  assign BNPC_04 = BNPC_04__ContA | BNPC_04__ContB;
+  assign BNPC_05 = BNPC_05__ContA | BNPC_05__ContB;
+  assign BNPC_06 = BNPC_06__ContA | BNPC_06__ContB;
+  assign BNPC_07 = BNPC_07__ContA | BNPC_07__ContB;
+  assign BNPC_08 = BNPC_08__ContA | BNPC_08__ContB;
+  assign BNPC_09 = BNPC_09__ContA | BNPC_09__ContB;
+  assign BNPC_10 = BNPC_10__ContA | BNPC_10__ContB;
+  assign BNPC_11 = BNPC_11__ContA | BNPC_11__ContB;
+  assign BNPC_12 = BNPC_12__ContA | BNPC_12__ContB;
+  assign BNPC_13 = BNPC_13__ContA | BNPC_13__ContB;
+  assign BNPC_14 = BNPC_14__ContA | BNPC_14__ContB;
+  assign BNPC_15 = BNPC_15__ContA | BNPC_15__ContB;
+  assign BNTGtCT_p_a = BNTGtCT_p_a__ContA;
+  assign BNTGtCT_p_b = BNTGtCT_p_b__ContA;
+  assign BOff = BOff__DispY;
+  assign BSEL_0_p_ = BSEL_0_p___ContB;
+  assign BSEL_1_p_ = BSEL_1_p___ContB;
+  assign BSEL_2_p_ = BSEL_2_p___ContB;
+  assign Block = Block__ContA;
+  assign BootMC_p_ = BootMC_p___BaseBd;
+  assign BootNO = BootNO__BaseBd;
+  assign CBHold = CBHold__MemC;
+  assign CBTempSense = CBTempSense__ContB;
+  assign CHoldReq = CHoldReq__ContA;
+  assign CLK_OutBase_p_ = CLK_OutBase_p___BaseBd;
+  assign CLK_ca_p_ = CLK_ca_p___BaseBd;
+  assign CLK_cb_p_ = CLK_cb_p___BaseBd;
+  assign CLK_disk_p_ = CLK_disk_p___BaseBd;
+  assign CLK_display_p_ = CLK_display_p___BaseBd;
+  assign CLK_ifu_p_ = CLK_ifu_p___BaseBd;
+  assign CLK_io20_p_ = CLK_io20_p___BaseBd;
+  assign CLK_io21_p_ = CLK_io21_p___BaseBd;
+  assign CLK_io22_p_ = CLK_io22_p___BaseBd;
+  assign CLK_io23_p_ = CLK_io23_p___BaseBd;
+  assign CLK_io24_p_ = CLK_io24_p___BaseBd;
+  assign CLK_mc_p_ = CLK_mc_p___BaseBd;
+  assign CLK_md_p_ = CLK_md_p___BaseBd;
+  assign CLK_ms0Even_p_ = CLK_ms0Even_p___BaseBd;
+  assign CLK_ms0Odd_p_ = CLK_ms0Odd_p___BaseBd;
+  assign CLK_ms1Even_p_ = CLK_ms1Even_p___BaseBd;
+  assign CLK_ms1Odd_p_ = CLK_ms1Odd_p___BaseBd;
+  assign CLK_ms2Even_p_ = CLK_ms2Even_p___BaseBd;
+  assign CLK_ms2Odd_p_ = CLK_ms2Odd_p___BaseBd;
+  assign CLK_ms3Even_p_ = CLK_ms3Even_p___BaseBd;
+  assign CLK_ms3Odd_p_ = CLK_ms3Odd_p___BaseBd;
+  assign CLK_mx_p_ = CLK_mx_p___BaseBd;
+  assign CLK_ph_p_ = CLK_ph_p___BaseBd;
+  assign CLK_pl_p_ = CLK_pl_p___BaseBd;
+  assign CLKEnable_p_a = CLKEnable_p_a__ContA;
+  assign CLKEnable_p_b = CLKEnable_p_b__ContA;
+  assign CLKEnable_p_c = CLKEnable_p_c__ContA;
+  assign CPAddr_0_p_ = CPAddr_0_p___BaseBd;
+  assign CPAddr_1_p_ = CPAddr_1_p___BaseBd;
+  assign CPAddr_2_p_ = CPAddr_2_p___BaseBd;
+  assign CPIn_0 = CPIn_0__ContB;
+  assign CPIn_1 = CPIn_1__ContB;
+  assign CPIn_2 = CPIn_2__ContB;
+  assign CPIn_3 = CPIn_3__ContB;
+  assign CPOut_0 = CPOut_0__BaseBd;
+  assign CPOut_1 = CPOut_1__BaseBd;
+  assign CPOut_2 = CPOut_2__BaseBd;
+  assign CPOut_3 = CPOut_3__BaseBd;
+  assign CPOut_4 = CPOut_4__BaseBd;
+  assign CPOut_5 = CPOut_5__BaseBd;
+  assign CPOut_6 = CPOut_6__BaseBd;
+  assign CPOut_7 = CPOut_7__BaseBd;
+  assign CPOut_8 = CPOut_8__BaseBd;
+  assign CPStrb_p_ = CPStrb_p___BaseBd;
+  assign CRamClock = CRamClock__ContA;
+  assign CacheRef_p_ = CacheRef_p___MemC;
+  assign CacheRefInEc1 = CacheRefInEc1__MemC;
+  assign CkMdParity_p_ = CkMdParity_p___ProcL;
+  assign Cnt_eq_Zero_p_ = Cnt_eq_Zero_p___ProcH | Cnt_eq_Zero_p___ProcL;
+  assign ContTag_p_ = ContTag_p___DskEth;
+  assign CountMiss = CountMiss__MemX;
+  assign CrryEvCntA = CrryEvCntA__IFU;
+  assign Crystal = Crystal__DispY;
+  assign CursorData = CursorData__DispY;
+  assign CylinderTag_p_ = CylinderTag_p___DskEth;
+  assign DMuxClk = DMuxClk__BaseBd | DMuxClk__ContA;
+  assign DMuxData = DMuxData__BaseBd | DMuxData__ContA | DMuxData__ContB | DMuxData__DispY | DMuxData__DskEth | DMuxData__IFU | DMuxData__MemC | DMuxData__MemD | DMuxData__MemX | DMuxData__ProcH | DMuxData__ProcL;
+  assign Dad_00 = Dad_00__MemC;
+  assign Dad_01 = Dad_01__MemC;
+  assign DataM0 = DataM0__DskEth;
+  assign DataM1 = DataM1__DskEth;
+  assign DataM2 = DataM2__DskEth;
+  assign DataM3 = DataM3__DskEth;
+  assign DataP0 = DataP0__DskEth;
+  assign DataP1 = DataP1__DskEth;
+  assign DataP2 = DataP2__DskEth;
+  assign DataP3 = DataP3__DskEth;
+  assign Dbuf_u__p_ = Dbuf_u__p___MemC;
+  assign DdataGood_p_ = DdataGood_p___MemX;
+  assign DirtyIoFetchInA_p_ = DirtyIoFetchInA_p___MemC;
+  assign DisHold = DisHold__MemC;
+  assign DiskTW = DiskTW__DskEth;
+  assign DoCBr = DoCBr__ContA;
+  assign DriveTag_p_ = DriveTag_p___DskEth;
+  assign ECFault = ECFault__MemD;
+  assign EcDcomingForCt_p_ = EcDcomingForCt_p___MemX;
+  assign EcKeepsAbusy = EcKeepsAbusy__MemC;
+  assign EcOut_0 = EcOut_0__MemD;
+  assign EcOut_1 = EcOut_1__MemD;
+  assign EcOut_2 = EcOut_2__MemD;
+  assign EcOut_3 = EcOut_3__MemD;
+  assign EcOut_4 = EcOut_4__MemD;
+  assign EcOut_5 = EcOut_5__MemD;
+  assign EcOut_6 = EcOut_6__MemD;
+  assign EcOut_7_p_ = EcOut_7_p___MemD;
+  assign EcWantsA = EcWantsA__MemX;
+  assign EmuOrFT_p_ = EmuOrFT_p___MemX;
+  assign EnableFG_p_ = EnableFG_p___IFU;
+  assign Error_p_ = Error_p___ContB;
+  assign ErrorsFromEc2 = ErrorsFromEc2__MemX;
+  assign FA_eq_0_p_ = FA_eq_0_p___ProcH;
+  assign FA_eq_1_p_ = FA_eq_1_p___ProcH;
+  assign FF_0 = FF_0__ContA;
+  assign FF_0mem_p_ = FF_0mem_p___ProcH;
+  assign FF_1 = FF_1__ContA;
+  assign FF_1mem = FF_1mem__ProcH;
+  assign FF_2 = FF_2__ContA;
+  assign FF_3 = FF_3__ContA;
+  assign FF_4 = FF_4__ContA;
+  assign FF_5 = FF_5__ContA;
+  assign FF_6 = FF_6__ContA;
+  assign FF_7 = FF_7__ContA;
+  assign FF_eq_030 = FF_eq_030__ProcL;
+  assign FFok_p_a = FFok_p_a__ContA;
+  assign FFok_p_b = FFok_p_b__ContA;
+  assign FG_0 = FG_0__MemD;
+  assign FG_1 = FG_1__MemD;
+  assign FG_2 = FG_2__MemD;
+  assign FG_3 = FG_3__MemD;
+  assign FG_4 = FG_4__MemD;
+  assign FG_5 = FG_5__MemD;
+  assign FG_6 = FG_6__MemD;
+  assign FG_7 = FG_7__MemD;
+  assign FG_8 = FG_8__MemD;
+  assign FastD_u_Dbuf = FastD_u_Dbuf__MemC;
+  assign FinNext = FinNext__MemX;
+  assign FinSubtask_0 = FinSubtask_0__MemX;
+  assign FinSubtask_1 = FinSubtask_1__MemX;
+  assign FinTask_0 = FinTask_0__MemX;
+  assign FinTask_1 = FinTask_1__MemX;
+  assign FinTask_2 = FinTask_2__MemX;
+  assign FinTask_3 = FinTask_3__MemX;
+  assign Fout_00 = Fout_00__MemD;
+  assign Fout_01 = Fout_01__MemD;
+  assign Fout_02 = Fout_02__MemD;
+  assign Fout_03 = Fout_03__MemD;
+  assign Fout_04 = Fout_04__MemD;
+  assign Fout_05 = Fout_05__MemD;
+  assign Fout_06 = Fout_06__MemD;
+  assign Fout_07 = Fout_07__MemD;
+  assign Fout_08 = Fout_08__MemD;
+  assign Fout_09 = Fout_09__MemD;
+  assign Fout_10 = Fout_10__MemD;
+  assign Fout_11 = Fout_11__MemD;
+  assign Fout_12 = Fout_12__MemD;
+  assign Fout_13 = Fout_13__MemD;
+  assign Fout_14 = Fout_14__MemD;
+  assign Fout_15 = Fout_15__MemD;
+  assign Fout_16 = Fout_16__MemD;
+  assign Fout_17 = Fout_17__MemD;
+  assign Fout_flt = Fout_flt__MemX;
+  assign FoutNext = FoutNext__MemX;
+  assign FoutSubtask_0 = FoutSubtask_0__MemX;
+  assign FoutSubtask_1 = FoutSubtask_1__MemX;
+  assign FoutTask_0 = FoutTask_0__MemX;
+  assign FoutTask_1 = FoutTask_1__MemX;
+  assign FoutTask_2 = FoutTask_2__MemX;
+  assign FoutTask_3 = FoutTask_3__MemX;
+  assign Freeze = Freeze__ContA;
+  assign GDv_p_ = GDv_p___IFU;
+  assign GLd_p_ = GLd_p___IFU;
+  assign GNDFour = GNDFour__DispY;
+  assign GenOut_00 = GenOut_00__IFU;
+  assign GenOut_01 = GenOut_01__IFU;
+  assign GenOut_02 = GenOut_02__IFU;
+  assign GenOut_03 = GenOut_03__IFU;
+  assign GenOut_04 = GenOut_04__IFU;
+  assign GenOut_05 = GenOut_05__IFU;
+  assign GenOut_06 = GenOut_06__IFU;
+  assign GenOut_07 = GenOut_07__IFU;
+  assign GenOut_08 = GenOut_08__IFU;
+  assign GenOut_09 = GenOut_09__IFU;
+  assign GenOut_10 = GenOut_10__IFU;
+  assign GenOut_11 = GenOut_11__IFU;
+  assign GenOut_12 = GenOut_12__IFU;
+  assign GenOut_13 = GenOut_13__IFU;
+  assign GenOut_14 = GenOut_14__IFU;
+  assign GenOut_15 = GenOut_15__IFU;
+  assign HBlank = HBlank__DispY;
+  assign HSync = HSync__DispY;
+  assign HalfLine = HalfLine__DispY;
+  assign HeadTag_p_ = HeadTag_p___DskEth;
+  assign Hita = Hita__MemC;
+  assign Hold = Hold__MemC;
+  assign HoldMapbuf = HoldMapbuf__MemX;
+  assign IMLHPE_p_ = IMLHPE_p___ContB;
+  assign IMLHPEDly = IMLHPEDly__ContB;
+  assign IMRHPE_p_ = IMRHPE_p___ContA;
+  assign IMRHPEDly = IMRHPEDly__ContB;
+  assign IOB_00 = IOB_00__DispY | IOB_00__DskEth | IOB_00__ProcH;
+  assign IOB_01 = IOB_01__DskEth | IOB_01__ProcH;
+  assign IOB_02 = IOB_02__DskEth | IOB_02__ProcH;
+  assign IOB_03 = IOB_03__DskEth | IOB_03__ProcH;
+  assign IOB_04 = IOB_04__DskEth | IOB_04__ProcH;
+  assign IOB_05 = IOB_05__DskEth | IOB_05__ProcH;
+  assign IOB_06 = IOB_06__DskEth | IOB_06__ProcH;
+  assign IOB_07 = IOB_07__DskEth | IOB_07__ProcH;
+  assign IOB_08 = IOB_08__DskEth | IOB_08__ProcL;
+  assign IOB_09 = IOB_09__DskEth | IOB_09__ProcL;
+  assign IOB_10 = IOB_10__DskEth | IOB_10__ProcL;
+  assign IOB_11 = IOB_11__DskEth | IOB_11__ProcL;
+  assign IOB_12 = IOB_12__DskEth | IOB_12__ProcL;
+  assign IOB_13 = IOB_13__DskEth | IOB_13__ProcL;
+  assign IOB_14 = IOB_14__DskEth | IOB_14__ProcL;
+  assign IOB_15 = IOB_15__DispY | IOB_15__DskEth | IOB_15__ProcL;
+  assign IOB_16 = IOB_16__DispY | IOB_16__DskEth | IOB_16__ProcH;
+  assign IOB_17 = IOB_17__DispY | IOB_17__DskEth | IOB_17__ProcL;
+  assign IOHold = IOHold__MemC;
+  assign IOPE = IOPE__ProcH | IOPE__ProcL;
+  assign IOReset = IOReset__BaseBd;
+  assign IOatt = IOatt__DskEth | IOatt__ProcH;
+  assign IOin_p_ = IOin_p___ProcL;
+  assign IOout_p_ = IOout_p___ProcL;
+  assign IOut_m_ = IOut_m___DispY;
+  assign IfuAck = IfuAck__IFU | IfuAck__MemC;
+  assign IfuAddr_04_p_ = IfuAddr_04_p___IFU;
+  assign IfuAddr_05_p_ = IfuAddr_05_p___IFU;
+  assign IfuAddr_06_p_ = IfuAddr_06_p___IFU;
+  assign IfuAddr_07_p_ = IfuAddr_07_p___IFU;
+  assign IfuAddr_08_p_ = IfuAddr_08_p___IFU;
+  assign IfuAddr_09_p_ = IfuAddr_09_p___IFU;
+  assign IfuAddr_10_p_ = IfuAddr_10_p___IFU;
+  assign IfuAddr_11_p_ = IfuAddr_11_p___IFU;
+  assign IfuAddr_12_p_ = IfuAddr_12_p___IFU;
+  assign IfuAddr_13_p_ = IfuAddr_13_p___IFU;
+  assign IfuData_0 = IfuData_0__IFU;
+  assign IfuData_1 = IfuData_1__IFU;
+  assign IfuData_2 = IfuData_2__IFU;
+  assign IfuData_3 = IfuData_3__IFU;
+  assign IfuData_4 = IfuData_4__IFU;
+  assign IfuData_5 = IfuData_5__IFU;
+  assign IfuData_6 = IfuData_6__IFU;
+  assign IfuData_7 = IfuData_7__IFU;
+  assign IfuFaultInEc2 = IfuFaultInEc2__IFU | IfuFaultInEc2__MemX;
+  assign IfuHold = IfuHold__MemC;
+  assign IfuNextMacro_p_ = IfuNextMacro_p___ContA;
+  assign IfuRBaseSel_p_ = IfuRBaseSel_p___IFU;
+  assign IfuRefInEc1 = IfuRefInEc1__MemC;
+  assign IoFetchInA_p_ = IoFetchInA_p___MemC;
+  assign IoStoreInA = IoStoreInA__MemC;
+  assign JamVBlank = JamVBlank__DispY;
+  assign JunkTW = JunkTW__IFU;
+  assign KeyboardData = KeyboardData__BaseBd;
+  assign LC_0 = LC_0__ContB;
+  assign LC_1 = LC_1__ContB;
+  assign LC_2 = LC_2__ContB;
+  assign LScopeFH = LScopeFH__ProcL;
+  assign LargeHold = LargeHold__MemX;
+  assign LdPipeVAdly_p_ = LdPipeVAdly_p___MemX;
+  assign LoadEcOut_p_ = LoadEcOut_p___MemX;
+  assign LoadSinE = LoadSinE__MemX;
+  assign LoadSinO = LoadSinO__MemX;
+  assign LoadSoutE_p_ = LoadSoutE_p___MemX;
+  assign LoadSoutO_p_ = LoadSoutO_p___MemX;
+  assign MAR_00_p_ = MAR_00_p___IFU | MAR_00_p___ProcH;
+  assign MAR_01_p_ = MAR_01_p___IFU | MAR_01_p___ProcH;
+  assign MAR_02_p_ = MAR_02_p___IFU | MAR_02_p___ProcH;
+  assign MAR_03_p_ = MAR_03_p___IFU | MAR_03_p___ProcH;
+  assign MAR_04_p_ = MAR_04_p___IFU | MAR_04_p___ProcH;
+  assign MAR_05_p_ = MAR_05_p___IFU | MAR_05_p___ProcH;
+  assign MAR_06_p_ = MAR_06_p___IFU | MAR_06_p___ProcH;
+  assign MAR_07_p_ = MAR_07_p___IFU | MAR_07_p___ProcH;
+  assign MAR_08_p_ = MAR_08_p___IFU | MAR_08_p___ProcL;
+  assign MAR_09_p_ = MAR_09_p___IFU | MAR_09_p___ProcL;
+  assign MAR_10_p_ = MAR_10_p___IFU | MAR_10_p___ProcL;
+  assign MAR_11_p_ = MAR_11_p___IFU | MAR_11_p___ProcL;
+  assign MAR_12_p_ = MAR_12_p___IFU | MAR_12_p___ProcL;
+  assign MAR_13_p_ = MAR_13_p___IFU | MAR_13_p___ProcL;
+  assign MAR_14_p_ = MAR_14_p___IFU | MAR_14_p___ProcL;
+  assign MAR_15_p_ = MAR_15_p___IFU | MAR_15_p___ProcL;
+  assign MDMtag_p_ = MDMtag_p___MemX;
+  assign MXHold = MXHold__MemC;
+  assign MakeD_u_CD = MakeD_u_CD__MemX;
+  assign MakeD_u_Dbuf = MakeD_u_Dbuf__MemX;
+  assign MakeF_u_D = MakeF_u_D__MemC | MakeF_u_D__MemX;
+  assign MakeFout_u_D = MakeFout_u_D__MemX;
+  assign MakeMDM_u_D_p_ = MakeMDM_u_D_p___MemX;
+  assign MakeMD_u_D_p_ = MakeMD_u_D_p___MemX;
+  assign MakeSout_u_D = MakeSout_u_D__MemX;
+  assign MapAd_0 = MapAd_0__MemC;
+  assign MapAd_1 = MapAd_1__MemC;
+  assign MapAd_2 = MapAd_2__MemC;
+  assign MapAd_3 = MapAd_3__MemC;
+  assign MapAd_4 = MapAd_4__MemC;
+  assign MapAd_5 = MapAd_5__MemC;
+  assign MapAd_6 = MapAd_6__MemC;
+  assign MapAd_7 = MapAd_7__MemC;
+  assign MapAd_8 = MapAd_8__MemC;
+  assign MapRfsh_p_ = MapRfsh_p___MemX;
+  assign MapTroubleInEc1 = MapTroubleInEc1__MemX;
+  assign MapWait_m_D = MapWait_m_D__MemX;
+  assign Map_u_InPair_p_ = Map_u_InPair_p___MemC;
+  assign McrD_u__p_ = McrD_u__p___MemC;
+  assign Mcr_u__p_ = Mcr_u__p___MemC;
+  assign MdPE = MdPE__ProcH | MdPE__ProcL;
+  assign MemAd_0 = MemAd_0__MemX;
+  assign MemAd_1 = MemAd_1__MemX;
+  assign MemAd_2 = MemAd_2__MemX;
+  assign MemAd_3 = MemAd_3__MemX;
+  assign MemAd_4 = MemAd_4__MemX;
+  assign MemAd_5 = MemAd_5__MemC | MemAd_5__MemX;
+  assign MemAd_6 = MemAd_6__MemC | MemAd_6__MemX;
+  assign MemAd_7 = MemAd_7__MemC | MemAd_7__MemX;
+  assign MemAd_8 = MemAd_8__MemC | MemAd_8__MemX;
+  assign MemBM_0 = MemBM_0__IFU;
+  assign MemBM_1 = MemBM_1__IFU;
+  assign MemBM34 = MemBM34__IFU;
+  assign MemBase_0 = MemBase_0__ProcH;
+  assign MemBase_1 = MemBase_1__ProcH;
+  assign MemBase_2 = MemBase_2__ProcH | MemBase_2__ProcL;
+  assign MemBase_3 = MemBase_3__ProcH | MemBase_3__ProcL;
+  assign MemBase_4 = MemBase_4__ProcH;
+  assign MemCASa = MemCASa__MemX;
+  assign MemCASb = MemCASb__MemX;
+  assign MemClkEnable_p_a = MemClkEnable_p_a__ContA;
+  assign MemClkEnable_p_b = MemClkEnable_p_b__ContA;
+  assign MemError = MemError__MemD | MemError__MemX;
+  assign MemPE = MemPE__MemX;
+  assign MemRASa = MemRASa__MemX;
+  assign MemRASb = MemRASb__MemX;
+  assign MemRfsh = MemRfsh__MemX;
+  assign MemSH = MemSH__ContA;
+  assign MemSH_p_ = MemSH_p___ContA;
+  assign MemWEa = MemWEa__MemX;
+  assign MemWEb = MemWEb__MemX;
+  assign Mod0SinEn_p_ = Mod0SinEn_p___MemX;
+  assign Mod0StrEn_p_ = Mod0StrEn_p___MemX;
+  assign Mod1SinEn_p_ = Mod1SinEn_p___MemX;
+  assign Mod1StrEn_p_ = Mod1StrEn_p___MemX;
+  assign Mod2SinEn_p_ = Mod2SinEn_p___MemX;
+  assign Mod2StrEn_p_ = Mod2StrEn_p___MemX;
+  assign Mod3SinEn_p_ = Mod3SinEn_p___MemX;
+  assign Mod3StrEn_p_ = Mod3StrEn_p___MemX;
+  assign Next_0 = Next_0__ContA;
+  assign Next_1 = Next_1__ContA;
+  assign Next_2 = Next_2__ContA;
+  assign Next_3 = Next_3__ContA;
+  assign NextData_p_ = NextData_p___ProcH;
+  assign NextMacro = NextMacro__ContA;
+  assign OISClkA = OISClkA__DispY;
+  assign OISClkA_p_ = OISClkA_p___DispY;
+  assign OISClkB = OISClkB__DispY;
+  assign OISClkB_p_ = OISClkB_p___DispY;
+  assign OISData_0 = OISData_0__DispY;
+  assign OISData_0_p_ = OISData_0_p___DispY;
+  assign OISData_1 = OISData_1__DispY;
+  assign OISData_1_p_ = OISData_1_p___DispY;
+  assign OISData_2 = OISData_2__DispY;
+  assign OISData_2_p_ = OISData_2_p___DispY;
+  assign OISData_3 = OISData_3__DispY;
+  assign OISData_3_p_ = OISData_3_p___DispY;
+  assign OKToSelect = OKToSelect__DskEth;
+  assign OS0 = OS0__DskEth;
+  assign OS1 = OS1__DskEth;
+  assign OS2 = OS2__DskEth;
+  assign OS3 = OS3__DskEth;
+  assign Overflow_p_ = Overflow_p___ProcH;
+  assign PairFull_p_ = PairFull_p___MemC;
+  assign PcFG_15 = PcFG_15__IFU;
+  assign Pdata_15 = Pdata_15__ProcH | Pdata_15__ProcL;
+  assign Pendulum = Pendulum__BaseBd;
+  assign PrBlock_p_ = PrBlock_p___ContA;
+  assign PrHold = PrHold__MemC;
+  assign PrHoldReq = PrHoldReq__ProcL;
+  assign PrivRefInPair = PrivRefInPair__MemC;
+  assign ProcSrn_u__p_ = ProcSrn_u__p___MemC;
+  assign ProcTag = ProcTag__MemX;
+  assign ProcTagInA = ProcTagInA__MemX;
+  assign PropCnt_p_ = PropCnt_p___ProcL;
+  assign Q_07 = Q_07__ProcH;
+  assign Q_08 = Q_08__ProcL;
+  assign QBit_p_ = QBit_p___ProcL;
+  assign RSTK_0 = RSTK_0__ContB;
+  assign RSTK_1 = RSTK_1__ContB;
+  assign RSTK_2 = RSTK_2__ContB;
+  assign RSTK_3 = RSTK_3__ContB;
+  assign RScopeClk0_p_ = RScopeClk0_p___ProcL;
+  assign RamPE = RamPE__ProcH | RamPE__ProcL;
+  assign RbAdr_0 = RbAdr_0__ProcL;
+  assign RbAdr_1 = RbAdr_1__ProcL;
+  assign RbAdr_2 = RbAdr_2__ProcL;
+  assign RbAdr_3 = RbAdr_3__ProcL;
+  assign RbBypass = RbBypass__ProcL;
+  assign RbBypass_p_ = RbBypass_p___ProcL;
+  assign ReadInA_p_ = ReadInA_p___MemC;
+  assign RefOutstanding_p_ = RefOutstanding_p___IFU;
+  assign ResEqZero_p_ = ResEqZero_p___ProcH;
+  assign ResLtZero_p_ = ResLtZero_p___ProcH;
+  assign RfshPeriod = RfshPeriod__BaseBd;
+  assign RmLtZero_p_ = RmLtZero_p___ProcH;
+  assign RmOdd_p_ = RmOdd_p___ProcL;
+  assign STfree_p_ = STfree_p___MemX;
+  assign SWb = SWb__ContA;
+  assign SWm = SWm__ContA;
+  assign Select0_p_ = Select0_p___DskEth;
+  assign Select1_p_ = Select1_p___DskEth;
+  assign Select2_p_ = Select2_p___DskEth;
+  assign Select3_p_ = Select3_p___DskEth;
+  assign SelectRm_p_a = SelectRm_p_a__ProcL;
+  assign SelectStk_p_a = SelectStk_p_a__ProcL;
+  assign Sequence0_p_ = Sequence0_p___BaseBd;
+  assign SetRun = SetRun__BaseBd;
+  assign SetRunRfsh = SetRunRfsh__BaseBd;
+  assign SetSS_p_ = SetSS_p___BaseBd;
+  assign ShA_00 = ShA_00__ProcH;
+  assign ShA_01 = ShA_01__ProcH;
+  assign ShA_02 = ShA_02__ProcH;
+  assign ShA_03 = ShA_03__ProcH;
+  assign ShA_04 = ShA_04__ProcH;
+  assign ShA_05 = ShA_05__ProcH;
+  assign ShA_06 = ShA_06__ProcH;
+  assign ShA_07 = ShA_07__ProcH;
+  assign ShA_08 = ShA_08__ProcL;
+  assign ShA_09 = ShA_09__ProcL;
+  assign ShA_10 = ShA_10__ProcL;
+  assign ShA_11 = ShA_11__ProcL;
+  assign ShA_12 = ShA_12__ProcL;
+  assign ShA_13 = ShA_13__ProcL;
+  assign ShA_14 = ShA_14__ProcL;
+  assign ShA_15 = ShA_15__ProcL;
+  assign Shc_02 = Shc_02__ProcH;
+  assign Shc_03 = Shc_03__ProcH;
+  assign Shc_04b = Shc_04b__ProcH;
+  assign Shc_05b = Shc_05b__ProcH;
+  assign Shc_06b = Shc_06b__ProcH;
+  assign Shc_07b = Shc_07b__ProcH;
+  assign Shc_08 = Shc_08__ProcL;
+  assign Shc_09 = Shc_09__ProcL;
+  assign Shc_10 = Shc_10__ProcL;
+  assign Shc_11 = Shc_11__ProcL;
+  assign Shc_12 = Shc_12__ProcL;
+  assign Shc_13 = Shc_13__ProcL;
+  assign Shc_14 = Shc_14__ProcL;
+  assign Shc_15 = Shc_15__ProcL;
+  assign ShcAlu_0 = ShcAlu_0__ProcL;
+  assign ShcAlu_1 = ShcAlu_1__ProcL;
+  assign ShcAlu_2 = ShcAlu_2__ProcL;
+  assign ShcAlu_3 = ShcAlu_3__ProcL;
+  assign ShiftEcOut = ShiftEcOut__MemX;
+  assign ShiftSinE = ShiftSinE__MemX;
+  assign ShiftSinO = ShiftSinO__MemX;
+  assign ShiftSoutE = ShiftSoutE__MemX;
+  assign ShiftSoutO = ShiftSoutO__MemX;
+  assign SignIfuData = SignIfuData__IFU;
+  assign SkipWait_p_ = SkipWait_p___BaseBd;
+  assign Sout_00 = Sout_00__MemD;
+  assign Sout_01 = Sout_01__MemD;
+  assign Sout_02 = Sout_02__MemD;
+  assign Sout_03 = Sout_03__MemD;
+  assign Sout_04 = Sout_04__MemD;
+  assign Sout_05 = Sout_05__MemD;
+  assign Sout_06 = Sout_06__MemD;
+  assign Sout_07 = Sout_07__MemD;
+  assign Sout_08 = Sout_08__MemD;
+  assign Sout_09 = Sout_09__MemD;
+  assign Sout_10 = Sout_10__MemD;
+  assign Sout_11 = Sout_11__MemD;
+  assign Sout_12 = Sout_12__MemD;
+  assign Sout_13 = Sout_13__MemD;
+  assign Sout_14 = Sout_14__MemD;
+  assign Sout_15 = Sout_15__MemD;
+  assign StartClockPulse = StartClockPulse__BaseBd;
+  assign StartCycle_p_a = StartCycle_p_a__ContA;
+  assign StartEcChk_p_ = StartEcChk_p___MemX;
+  assign StartEcGen_p_ = StartEcGen_p___MemX;
+  assign StartMap_p_ = StartMap_p___MemC;
+  assign StkAdr_0a = StkAdr_0a__ProcL;
+  assign StkAdr_1a = StkAdr_1a__ProcL;
+  assign StkAdr_2a = StkAdr_2a__ProcL;
+  assign StkAdr_3a = StkAdr_3a__ProcL;
+  assign StkAdr_4a = StkAdr_4a__ProcL;
+  assign StkAdr_5a = StkAdr_5a__ProcL;
+  assign StkAdr_6a = StkAdr_6a__ProcL;
+  assign StkAdr_7a = StkAdr_7a__ProcL;
+  assign StkError = StkError__ProcL;
+  assign StopMIRClk = StopMIRClk__ContB;
+  assign Store_u_InA_p_ = Store_u_InA_p___MemC;
+  assign Store_u_InEc1_p_ = Store_u_InEc1_p___MemC;
+  assign SubTask_0 = SubTask_0__DispY;
+  assign TIOA_0 = TIOA_0__ProcH;
+  assign TIOA_1 = TIOA_1__ProcH;
+  assign TIOA_2 = TIOA_2__ProcH;
+  assign TIOA_3 = TIOA_3__ProcH;
+  assign TIOA_4 = TIOA_4__ProcH;
+  assign TIOA_5 = TIOA_5__ProcH;
+  assign TIOA_6 = TIOA_6__ProcH;
+  assign TIOA_7 = TIOA_7__ProcH;
+  assign TNIA_02 = TNIA_02__ContA;
+  assign TNIA_03 = TNIA_03__ContA;
+  assign TNIA_04 = TNIA_04__ContA;
+  assign TNIA_05 = TNIA_05__ContA;
+  assign TNIA_06 = TNIA_06__ContA;
+  assign TNIA_07 = TNIA_07__ContA;
+  assign TNIA_08 = TNIA_08__ContA;
+  assign TNIA_09 = TNIA_09__ContA;
+  assign TNIA_10 = TNIA_10__ContA;
+  assign TNIA_11 = TNIA_11__ContA;
+  assign TNIA_12 = TNIA_12__ContA;
+  assign TNIA_13 = TNIA_13__ContA;
+  assign TNIA_14 = TNIA_14__ContA;
+  assign TNIA_15 = TNIA_15__ContA;
+  assign TTLIOReset_p_ = TTLIOReset_p___BaseBd;
+  assign TWReq15 = TWReq15__MemX;
+  assign TagBus_0_p_ = TagBus_0_p___DskEth;
+  assign TagBus_00_p_ = TagBus_00_p___DskEth;
+  assign TagBus_000_p_ = TagBus_000_p___DskEth;
+  assign TagBus_1_p_ = TagBus_1_p___DskEth;
+  assign TagBus_2_p_ = TagBus_2_p___DskEth;
+  assign TagBus_3_p_ = TagBus_3_p___DskEth;
+  assign TagBus_4_p_ = TagBus_4_p___DskEth;
+  assign TagBus_5_p_ = TagBus_5_p___DskEth;
+  assign TagBus_6_p_ = TagBus_6_p___DskEth;
+  assign TagBus_7_p_ = TagBus_7_p___DskEth;
+  assign TagBus_8_p_ = TagBus_8_p___DskEth;
+  assign TagBus_9_p_ = TagBus_9_p___DskEth;
+  assign TagInEc1 = TagInEc1__MemC;
+  assign TempRef = TempRef__BaseBd;
+  assign TestTW = TestTW__ProcH;
+  assign Transport_p_ = Transport_p___MemX;
+  assign TtlSector_p_ = TtlSector_p___DskEth;
+  assign TurnOff2v = TurnOff2v__BaseBd;
+  assign TurnOnDisk_p_ = TurnOnDisk_p___BaseBd;
+  assign TurnOnLED_p_ = TurnOnLED_p___BaseBd;
+  assign TurnOnPwr_p_ = TurnOnPwr_p___BaseBd;
+  assign UseAsrn = UseAsrn__MemC;
+  assign UseDMD = UseDMD__BaseBd | UseDMD__ContA;
+  assign VBlank = VBlank__DispY;
+  assign VSync = VSync__DispY;
+  assign VicIfMiss_p_ = VicIfMiss_p___MemC;
+  assign VicInPair_p_ = VicInPair_p___MemC;
+  assign VicOrFS1C = VicOrFS1C__MemC;
+  assign WPinEc1 = WPinEc1__MemX;
+  assign WakeDHT = WakeDHT__DispY;
+  assign WakeDWT = WakeDWT__DispY;
+  assign WakeEthRx = WakeEthRx__DskEth;
+  assign WakeEthTx = WakeEthTx__DskEth;
+  assign WantIfuHold_p_ = WantIfuHold_p___IFU;
+  assign WantIfuRef_p_ = WantIfuRef_p___IFU;
+  assign XSyncEn_p_ = XSyncEn_p___DispY;
+  assign XWantsPipe = XWantsPipe__MemX;
+  assign XmtData_p_ = XmtData_p___DskEth;
+  assign _u_Config = _u_Config__MemC;
+  assign _u_Dbuf = _u_Dbuf__ContA;
+  assign _u_FaultInfo = _u_FaultInfo__MemC;
+  assign _u_MD = _u_MD__ProcL;
+  assign _u_MDI = _u_MDI__ProcL;
+  assign _u_MDI_p_ = _u_MDI_p___ProcL;
+  assign _u_MDdly_p_ = _u_MDdly_p___MemC;
+  assign _u_Map = _u_Map__ContA;
+  assign _u_Pipe2 = _u_Pipe2__MemC;
+  assign _u_Pipe3 = _u_Pipe3__MemC;
+  assign _u_Pipe4 = _u_Pipe4__MemC;
+  assign alu_07 = alu_07__ProcH;
+  assign alu_08 = alu_08__ProcL;
+  assign alu_15 = alu_15__ProcL;
+  assign aluC0 = aluC0__ProcL;
+  assign aluCout = aluCout__ProcH;
+  assign aluF0 = aluF0__ProcL;
+  assign aluF1 = aluF1__ProcL;
+  assign aluF2 = aluF2__ProcL;
+  assign aluF3 = aluF3__ProcL;
+  assign aluG1 = aluG1__ProcL;
+  assign aluM = aluM__ProcL;
+  assign aluOut_eq_0_p_ = aluOut_eq_0_p___ProcH | aluOut_eq_0_p___ProcL;
+  assign aluP1 = aluP1__ProcL;
+  assign dBlock_p_ = dBlock_p___ContB;
+  assign dDad_02 = dDad_02__MemC;
+  assign dDad_03 = dDad_03__MemC;
+  assign dDad_04 = dDad_04__MemC;
+  assign dDad_05 = dDad_05__MemC;
+  assign dDad_06 = dDad_06__MemC;
+  assign dDad_07 = dDad_07__MemC;
+  assign dDad_08 = dDad_08__MemC;
+  assign dDad_09 = dDad_09__MemC;
+  assign dDad_10 = dDad_10__MemC;
+  assign dDad_11 = dDad_11__MemC;
+  assign dDad_12 = dDad_12__MemC;
+  assign dDad_13 = dDad_13__MemC;
+  assign dFF_0 = dFF_0__ContB;
+  assign dFF_1 = dFF_1__ContB;
+  assign dFF_2 = dFF_2__ContB;
+  assign dFF_3 = dFF_3__ContB;
+  assign dFF_4 = dFF_4__ContB;
+  assign dFF_5 = dFF_5__ContB;
+  assign dFF_6 = dFF_6__ContB;
+  assign dFF_7 = dFF_7__ContB;
+  assign dHitPerr = dHitPerr__MemC;
+  assign dIMOut_07 = dIMOut_07__ContB;
+  assign dIMOut_08 = dIMOut_08__ContB;
+  assign dIMOut_09 = dIMOut_09__ContB;
+  assign dIMOut_10 = dIMOut_10__ContB;
+  assign dIMOut_11 = dIMOut_11__ContB;
+  assign dIMOut_12 = dIMOut_12__ContB;
+  assign dIMOut_13 = dIMOut_13__ContB;
+  assign dIMOut_14 = dIMOut_14__ContB;
+  assign dIMOut_15 = dIMOut_15__ContB;
+  assign dIMRH = dIMRH__ContB;
+  assign dJCN_0 = dJCN_0__ContB;
+  assign dJCN_1 = dJCN_1__ContB;
+  assign dJCN_2 = dJCN_2__ContB;
+  assign dJCN_3 = dJCN_3__ContB;
+  assign dJCN_4 = dJCN_4__ContB;
+  assign dJCN_5 = dJCN_5__ContB;
+  assign dJCN_6 = dJCN_6__ContB;
+  assign dJCN_7 = dJCN_7__ContB;
+  assign dMD_00 = dMD_00__MemD;
+  assign dMD_01 = dMD_01__MemD;
+  assign dMD_02 = dMD_02__MemD;
+  assign dMD_03 = dMD_03__MemD;
+  assign dMD_04 = dMD_04__MemD;
+  assign dMD_05 = dMD_05__MemD;
+  assign dMD_06 = dMD_06__MemD;
+  assign dMD_07 = dMD_07__MemD;
+  assign dMD_08 = dMD_08__MemD;
+  assign dMD_09 = dMD_09__MemD;
+  assign dMD_10 = dMD_10__MemD;
+  assign dMD_11 = dMD_11__MemD;
+  assign dMD_12 = dMD_12__MemD;
+  assign dMD_13 = dMD_13__MemD;
+  assign dMD_14 = dMD_14__MemD;
+  assign dMD_15 = dMD_15__MemD;
+  assign dMD_16 = dMD_16__MemD;
+  assign dMD_17 = dMD_17__MemD;
+  assign dMDMad_0_p_ = dMDMad_0_p___MemX;
+  assign dMDMad_1_p_ = dMDMad_1_p___MemX;
+  assign dMDMad_2_p_ = dMDMad_2_p___MemX;
+  assign dMDMad_3_p_ = dMDMad_3_p___MemX;
+  assign dPipe02Ad_0 = dPipe02Ad_0__MemX;
+  assign dPipe02Ad_1 = dPipe02Ad_1__MemX;
+  assign dPipe02Ad_2 = dPipe02Ad_2__MemX;
+  assign dPipe02Ad_3 = dPipe02Ad_3__MemX;
+  assign dPipe34Ad_0 = dPipe34Ad_0__MemX;
+  assign dPipe34Ad_1 = dPipe34Ad_1__MemX;
+  assign dPipe34Ad_2 = dPipe34Ad_2__MemX;
+  assign dPipe34Ad_3 = dPipe34Ad_3__MemX;
+  assign dSTPerr = dSTPerr__MemD;
+  assign jcnt = jcnt__ContA;
+  assign preMCSb = preMCSb__MemX;
+  assign rMIRa = rMIRa__ContA | rMIRa__ContB;
 
   // ---- ProcH
   ProcH_m_Rev_m_Ce b_ProcH (
+    .sys_clk(sys_clk),
     .ALUCarry(ALUCarry),
     .ALUF_0(ALUF_0),
     .ALUF_1(ALUF_1),
@@ -960,8 +2571,6 @@ module dorado_backplane (
     .Cnt_eq_Zero_p_(Cnt_eq_Zero_p_),
     .DMuxClk(DMuxClk),
     .DMuxData(DMuxData),
-    .FA_eq_0_p_(FA_eq_0_p_),
-    .FA_eq_1_p_(FA_eq_1_p_),
     .FF_0(FF_0),
     .FF_0mem_p_(FF_0mem_p_),
     .FF_1(FF_1),
@@ -983,7 +2592,6 @@ module dorado_backplane (
     .IOB_06(IOB_06),
     .IOB_07(IOB_07),
     .IOB_16(IOB_16),
-    .IOPE(IOPE),
     .IOatt(IOatt),
     .LC_0(LC_0),
     .LC_1(LC_1),
@@ -996,15 +2604,11 @@ module dorado_backplane (
     .MAR_05_p_(MAR_05_p_),
     .MAR_06_p_(MAR_06_p_),
     .MAR_07_p_(MAR_07_p_),
-    .MdPE(MdPE),
     .MemBM_0(MemBM_0),
     .MemBM_1(MemBM_1),
     .MemBM34(MemBM34),
     .MemBase_0(MemBase_0),
     .MemBase_1(MemBase_1),
-    .MemBase_2(MemBase_2),
-    .MemBase_3(MemBase_3),
-    .MemBase_4(MemBase_4),
     .Next_0(Next_0),
     .Next_1(Next_1),
     .Next_2(Next_2),
@@ -1013,7 +2617,6 @@ module dorado_backplane (
     .NextMacro(NextMacro),
     .Overflow_p_(Overflow_p_),
     .PRhold(PRhold),
-    .Pdata_15(Pdata_15),
     .PropCnt_p_(PropCnt_p_),
     .Q_07(Q_07),
     .Q_08(Q_08),
@@ -1021,7 +2624,6 @@ module dorado_backplane (
     .RSTK_1(RSTK_1),
     .RSTK_2(RSTK_2),
     .RSTK_3(RSTK_3),
-    .RamPE(RamPE),
     .RbAdr_0(RbAdr_0),
     .RbAdr_1(RbAdr_1),
     .RbAdr_2(RbAdr_2),
@@ -1040,7 +2642,6 @@ module dorado_backplane (
     .ShA_04(ShA_04),
     .ShA_05(ShA_05),
     .ShA_06(ShA_06),
-    .ShA_07(ShA_07),
     .ShA_08(ShA_08),
     .ShA_09(ShA_09),
     .ShA_10(ShA_10),
@@ -1051,10 +2652,6 @@ module dorado_backplane (
     .ShA_15(ShA_15),
     .Shc_02(Shc_02),
     .Shc_03(Shc_03),
-    .Shc_04b(Shc_04b),
-    .Shc_05b(Shc_05b),
-    .Shc_06b(Shc_06b),
-    .Shc_07b(Shc_07b),
     .Shc_08(Shc_08),
     .Shc_09(Shc_09),
     .Shc_10(Shc_10),
@@ -1086,7 +2683,6 @@ module dorado_backplane (
     .TIOA_6(TIOA_6),
     .TIOA_7(TIOA_7),
     .TempRef(TempRef),
-    .TestTW(TestTW),
     .alu_07(alu_07),
     .alu_08(alu_08),
     .alu_15(alu_15),
@@ -1108,11 +2704,87 @@ module dorado_backplane (
     .dMD_05(dMD_05),
     .dMD_06(dMD_06),
     .dMD_07(dMD_07),
-    .dMD_16(dMD_16)
+    .dMD_16(dMD_16),
+    .ALUCarry__drv(ALUCarry__ProcH),
+    .BMux_00__drv(BMux_00__ProcH),
+    .BMux_01__drv(BMux_01__ProcH),
+    .BMux_02__drv(BMux_02__ProcH),
+    .BMux_03__drv(BMux_03__ProcH),
+    .BMux_04__drv(BMux_04__ProcH),
+    .BMux_05__drv(BMux_05__ProcH),
+    .BMux_06__drv(BMux_06__ProcH),
+    .BMux_07__drv(BMux_07__ProcH),
+    .BMux_16__drv(BMux_16__ProcH),
+    .Cnt_eq_Zero_p___drv(Cnt_eq_Zero_p___ProcH),
+    .DMuxData__drv(DMuxData__ProcH),
+    .FA_eq_0_p___drv(FA_eq_0_p___ProcH),
+    .FA_eq_1_p___drv(FA_eq_1_p___ProcH),
+    .FF_0mem_p___drv(FF_0mem_p___ProcH),
+    .FF_1mem__drv(FF_1mem__ProcH),
+    .IOB_00__drv(IOB_00__ProcH),
+    .IOB_01__drv(IOB_01__ProcH),
+    .IOB_02__drv(IOB_02__ProcH),
+    .IOB_03__drv(IOB_03__ProcH),
+    .IOB_04__drv(IOB_04__ProcH),
+    .IOB_05__drv(IOB_05__ProcH),
+    .IOB_06__drv(IOB_06__ProcH),
+    .IOB_07__drv(IOB_07__ProcH),
+    .IOB_16__drv(IOB_16__ProcH),
+    .IOPE__drv(IOPE__ProcH),
+    .IOatt__drv(IOatt__ProcH),
+    .MAR_00_p___drv(MAR_00_p___ProcH),
+    .MAR_01_p___drv(MAR_01_p___ProcH),
+    .MAR_02_p___drv(MAR_02_p___ProcH),
+    .MAR_03_p___drv(MAR_03_p___ProcH),
+    .MAR_04_p___drv(MAR_04_p___ProcH),
+    .MAR_05_p___drv(MAR_05_p___ProcH),
+    .MAR_06_p___drv(MAR_06_p___ProcH),
+    .MAR_07_p___drv(MAR_07_p___ProcH),
+    .MdPE__drv(MdPE__ProcH),
+    .MemBase_0__drv(MemBase_0__ProcH),
+    .MemBase_1__drv(MemBase_1__ProcH),
+    .MemBase_2__drv(MemBase_2__ProcH),
+    .MemBase_3__drv(MemBase_3__ProcH),
+    .MemBase_4__drv(MemBase_4__ProcH),
+    .NextData_p___drv(NextData_p___ProcH),
+    .Overflow_p___drv(Overflow_p___ProcH),
+    .Pdata_15__drv(Pdata_15__ProcH),
+    .Q_07__drv(Q_07__ProcH),
+    .RamPE__drv(RamPE__ProcH),
+    .ResEqZero_p___drv(ResEqZero_p___ProcH),
+    .ResLtZero_p___drv(ResLtZero_p___ProcH),
+    .RmLtZero_p___drv(RmLtZero_p___ProcH),
+    .ShA_00__drv(ShA_00__ProcH),
+    .ShA_01__drv(ShA_01__ProcH),
+    .ShA_02__drv(ShA_02__ProcH),
+    .ShA_03__drv(ShA_03__ProcH),
+    .ShA_04__drv(ShA_04__ProcH),
+    .ShA_05__drv(ShA_05__ProcH),
+    .ShA_06__drv(ShA_06__ProcH),
+    .ShA_07__drv(ShA_07__ProcH),
+    .Shc_02__drv(Shc_02__ProcH),
+    .Shc_03__drv(Shc_03__ProcH),
+    .Shc_04b__drv(Shc_04b__ProcH),
+    .Shc_05b__drv(Shc_05b__ProcH),
+    .Shc_06b__drv(Shc_06b__ProcH),
+    .Shc_07b__drv(Shc_07b__ProcH),
+    .TIOA_0__drv(TIOA_0__ProcH),
+    .TIOA_1__drv(TIOA_1__ProcH),
+    .TIOA_2__drv(TIOA_2__ProcH),
+    .TIOA_3__drv(TIOA_3__ProcH),
+    .TIOA_4__drv(TIOA_4__ProcH),
+    .TIOA_5__drv(TIOA_5__ProcH),
+    .TIOA_6__drv(TIOA_6__ProcH),
+    .TIOA_7__drv(TIOA_7__ProcH),
+    .TestTW__drv(TestTW__ProcH),
+    .alu_07__drv(alu_07__ProcH),
+    .aluCout__drv(aluCout__ProcH),
+    .aluOut_eq_0_p___drv(aluOut_eq_0_p___ProcH)
   );
 
   // ---- ProcL
   ProcL_m_Rev_m_Ci b_ProcL (
+    .sys_clk(sys_clk),
     .ALUCarry(ALUCarry),
     .ALUF_0(ALUF_0),
     .ALUF_1(ALUF_1),
@@ -1137,7 +2809,6 @@ module dorado_backplane (
     .CLK_pl_p_(CLK_pl_p_),
     .CLKEnable_p_b(CLKEnable_p_b),
     .CkMdParity_p_(CkMdParity_p_),
-    .Cnt_eq_Zero_p_(Cnt_eq_Zero_p_),
     .DMuxClk(DMuxClk),
     .DMuxData(DMuxData),
     .FF_0(FF_0),
@@ -1148,7 +2819,6 @@ module dorado_backplane (
     .FF_5(FF_5),
     .FF_6(FF_6),
     .FF_7(FF_7),
-    .FF_eq_030(FF_eq_030),
     .FFok_p_b(FFok_p_b),
     .Freeze(Freeze),
     .IOB_08(IOB_08),
@@ -1160,9 +2830,7 @@ module dorado_backplane (
     .IOB_14(IOB_14),
     .IOB_15(IOB_15),
     .IOB_17(IOB_17),
-    .IOPE(IOPE),
     .IOin_p_(IOin_p_),
-    .IOout_p_(IOout_p_),
     .IfuData_0(IfuData_0),
     .IfuData_1(IfuData_1),
     .IfuData_2(IfuData_2),
@@ -1175,7 +2843,6 @@ module dorado_backplane (
     .LC_0(LC_0),
     .LC_1(LC_1),
     .LC_2(LC_2),
-    .LScopeFH(LScopeFH),
     .MAR_08_p_(MAR_08_p_),
     .MAR_09_p_(MAR_09_p_),
     .MAR_10_p_(MAR_10_p_),
@@ -1184,9 +2851,6 @@ module dorado_backplane (
     .MAR_13_p_(MAR_13_p_),
     .MAR_14_p_(MAR_14_p_),
     .MAR_15_p_(MAR_15_p_),
-    .MdPE(MdPE),
-    .MemBase_2(MemBase_2),
-    .MemBase_3(MemBase_3),
     .Next_0(Next_0),
     .Next_1(Next_1),
     .Next_2(Next_2),
@@ -1195,26 +2859,15 @@ module dorado_backplane (
     .PRhold(PRhold),
     .Pdata_15(Pdata_15),
     .PrBlock_p_(PrBlock_p_),
-    .PrHoldReq(PrHoldReq),
-    .PropCnt_p_(PropCnt_p_),
     .Q_07(Q_07),
     .Q_08(Q_08),
-    .QBit_p_(QBit_p_),
     .RSTK_0(RSTK_0),
     .RSTK_1(RSTK_1),
     .RSTK_2(RSTK_2),
     .RSTK_3(RSTK_3),
-    .RScopeClk0_p_(RScopeClk0_p_),
-    .RamPE(RamPE),
-    .RbAdr_0(RbAdr_0),
-    .RbAdr_1(RbAdr_1),
-    .RbAdr_2(RbAdr_2),
-    .RbAdr_3(RbAdr_3),
     .RbBypass(RbBypass),
     .RbBypass_p_(RbBypass_p_),
     .RmOdd_p_(RmOdd_p_),
-    .SelectRm_p_a(SelectRm_p_a),
-    .SelectStk_p_a(SelectStk_p_a),
     .ShA_00(ShA_00),
     .ShA_01(ShA_01),
     .ShA_02(ShA_02),
@@ -1251,14 +2904,6 @@ module dorado_backplane (
     .ShcAlu_3(ShcAlu_3),
     .SimHoldDis(SimHoldDis),
     .StartCycle_p_a(StartCycle_p_a),
-    .StkAdr_0a(StkAdr_0a),
-    .StkAdr_1a(StkAdr_1a),
-    .StkAdr_2a(StkAdr_2a),
-    .StkAdr_3a(StkAdr_3a),
-    .StkAdr_4a(StkAdr_4a),
-    .StkAdr_5a(StkAdr_5a),
-    .StkAdr_6a(StkAdr_6a),
-    .StkAdr_7a(StkAdr_7a),
     .StkError(StkError),
     .SubTask_0(SubTask_0),
     .SubTask_1(SubTask_1),
@@ -1275,10 +2920,7 @@ module dorado_backplane (
     .aluF1(aluF1),
     .aluF2(aluF2),
     .aluF3(aluF3),
-    .aluG1(aluG1),
     .aluM(aluM),
-    .aluOut_eq_0_p_(aluOut_eq_0_p_),
-    .aluP1(aluP1),
     .dMD_08(dMD_08),
     .dMD_09(dMD_09),
     .dMD_10(dMD_10),
@@ -1288,11 +2930,108 @@ module dorado_backplane (
     .dMD_14(dMD_14),
     .dMD_15(dMD_15),
     .dMD_17(dMD_17),
-    .jcnt(jcnt)
+    .jcnt(jcnt),
+    .BMux_08__drv(BMux_08__ProcL),
+    .BMux_09__drv(BMux_09__ProcL),
+    .BMux_10__drv(BMux_10__ProcL),
+    .BMux_11__drv(BMux_11__ProcL),
+    .BMux_12__drv(BMux_12__ProcL),
+    .BMux_13__drv(BMux_13__ProcL),
+    .BMux_14__drv(BMux_14__ProcL),
+    .BMux_15__drv(BMux_15__ProcL),
+    .BMux_17__drv(BMux_17__ProcL),
+    .CkMdParity_p___drv(CkMdParity_p___ProcL),
+    .Cnt_eq_Zero_p___drv(Cnt_eq_Zero_p___ProcL),
+    .DMuxData__drv(DMuxData__ProcL),
+    .FF_eq_030__drv(FF_eq_030__ProcL),
+    .IOB_08__drv(IOB_08__ProcL),
+    .IOB_09__drv(IOB_09__ProcL),
+    .IOB_10__drv(IOB_10__ProcL),
+    .IOB_11__drv(IOB_11__ProcL),
+    .IOB_12__drv(IOB_12__ProcL),
+    .IOB_13__drv(IOB_13__ProcL),
+    .IOB_14__drv(IOB_14__ProcL),
+    .IOB_15__drv(IOB_15__ProcL),
+    .IOB_17__drv(IOB_17__ProcL),
+    .IOPE__drv(IOPE__ProcL),
+    .IOin_p___drv(IOin_p___ProcL),
+    .IOout_p___drv(IOout_p___ProcL),
+    .LScopeFH__drv(LScopeFH__ProcL),
+    .MAR_08_p___drv(MAR_08_p___ProcL),
+    .MAR_09_p___drv(MAR_09_p___ProcL),
+    .MAR_10_p___drv(MAR_10_p___ProcL),
+    .MAR_11_p___drv(MAR_11_p___ProcL),
+    .MAR_12_p___drv(MAR_12_p___ProcL),
+    .MAR_13_p___drv(MAR_13_p___ProcL),
+    .MAR_14_p___drv(MAR_14_p___ProcL),
+    .MAR_15_p___drv(MAR_15_p___ProcL),
+    .MdPE__drv(MdPE__ProcL),
+    .MemBase_2__drv(MemBase_2__ProcL),
+    .MemBase_3__drv(MemBase_3__ProcL),
+    .Pdata_15__drv(Pdata_15__ProcL),
+    .PrHoldReq__drv(PrHoldReq__ProcL),
+    .PropCnt_p___drv(PropCnt_p___ProcL),
+    .Q_08__drv(Q_08__ProcL),
+    .QBit_p___drv(QBit_p___ProcL),
+    .RScopeClk0_p___drv(RScopeClk0_p___ProcL),
+    .RamPE__drv(RamPE__ProcL),
+    .RbAdr_0__drv(RbAdr_0__ProcL),
+    .RbAdr_1__drv(RbAdr_1__ProcL),
+    .RbAdr_2__drv(RbAdr_2__ProcL),
+    .RbAdr_3__drv(RbAdr_3__ProcL),
+    .RbBypass__drv(RbBypass__ProcL),
+    .RbBypass_p___drv(RbBypass_p___ProcL),
+    .RmOdd_p___drv(RmOdd_p___ProcL),
+    .SelectRm_p_a__drv(SelectRm_p_a__ProcL),
+    .SelectStk_p_a__drv(SelectStk_p_a__ProcL),
+    .ShA_08__drv(ShA_08__ProcL),
+    .ShA_09__drv(ShA_09__ProcL),
+    .ShA_10__drv(ShA_10__ProcL),
+    .ShA_11__drv(ShA_11__ProcL),
+    .ShA_12__drv(ShA_12__ProcL),
+    .ShA_13__drv(ShA_13__ProcL),
+    .ShA_14__drv(ShA_14__ProcL),
+    .ShA_15__drv(ShA_15__ProcL),
+    .Shc_08__drv(Shc_08__ProcL),
+    .Shc_09__drv(Shc_09__ProcL),
+    .Shc_10__drv(Shc_10__ProcL),
+    .Shc_11__drv(Shc_11__ProcL),
+    .Shc_12__drv(Shc_12__ProcL),
+    .Shc_13__drv(Shc_13__ProcL),
+    .Shc_14__drv(Shc_14__ProcL),
+    .Shc_15__drv(Shc_15__ProcL),
+    .ShcAlu_0__drv(ShcAlu_0__ProcL),
+    .ShcAlu_1__drv(ShcAlu_1__ProcL),
+    .ShcAlu_2__drv(ShcAlu_2__ProcL),
+    .ShcAlu_3__drv(ShcAlu_3__ProcL),
+    .StkAdr_0a__drv(StkAdr_0a__ProcL),
+    .StkAdr_1a__drv(StkAdr_1a__ProcL),
+    .StkAdr_2a__drv(StkAdr_2a__ProcL),
+    .StkAdr_3a__drv(StkAdr_3a__ProcL),
+    .StkAdr_4a__drv(StkAdr_4a__ProcL),
+    .StkAdr_5a__drv(StkAdr_5a__ProcL),
+    .StkAdr_6a__drv(StkAdr_6a__ProcL),
+    .StkAdr_7a__drv(StkAdr_7a__ProcL),
+    .StkError__drv(StkError__ProcL),
+    ._u_MD__drv(_u_MD__ProcL),
+    ._u_MDI__drv(_u_MDI__ProcL),
+    ._u_MDI_p___drv(_u_MDI_p___ProcL),
+    .alu_08__drv(alu_08__ProcL),
+    .alu_15__drv(alu_15__ProcL),
+    .aluC0__drv(aluC0__ProcL),
+    .aluF0__drv(aluF0__ProcL),
+    .aluF1__drv(aluF1__ProcL),
+    .aluF2__drv(aluF2__ProcL),
+    .aluF3__drv(aluF3__ProcL),
+    .aluG1__drv(aluG1__ProcL),
+    .aluM__drv(aluM__ProcL),
+    .aluOut_eq_0_p___drv(aluOut_eq_0_p___ProcL),
+    .aluP1__drv(aluP1__ProcL)
   );
 
   // ---- ContA
   ContA_m_Rev_m_Cd b_ContA (
+    .sys_clk(sys_clk),
     .ALUCarry(ALUCarry),
     .ASEL_0_p_a(ASEL_0_p_a),
     .BMux_00(BMux_00),
@@ -1325,15 +3064,8 @@ module dorado_backplane (
     .BNPC_13(BNPC_13),
     .BNPC_14(BNPC_14),
     .BNPC_15(BNPC_15),
-    .BNTGtCT_p_a(BNTGtCT_p_a),
-    .BNTGtCT_p_b(BNTGtCT_p_b),
     .BSEL_0_p_(BSEL_0_p_),
-    .Block(Block),
-    .CHoldReq(CHoldReq),
     .CLK_ca_p_(CLK_ca_p_),
-    .CLKEnable_p_a(CLKEnable_p_a),
-    .CLKEnable_p_b(CLKEnable_p_b),
-    .CLKEnable_p_c(CLKEnable_p_c),
     .CPAddr_0_p_(CPAddr_0_p_),
     .CPAddr_1_p_(CPAddr_1_p_),
     .CPAddr_2_p_(CPAddr_2_p_),
@@ -1347,25 +3079,12 @@ module dorado_backplane (
     .CPOut_7(CPOut_7),
     .CPOut_8(CPOut_8),
     .CPStrb_p_(CPStrb_p_),
-    .CRamClock(CRamClock),
     .Cnt_eq_Zero_p_(Cnt_eq_Zero_p_),
     .DMuxClk(DMuxClk),
     .DMuxData(DMuxData),
-    .DoCBr(DoCBr),
     .Error_p_(Error_p_),
     .FF_0(FF_0),
-    .FF_1(FF_1),
-    .FF_2(FF_2),
-    .FF_3(FF_3),
-    .FF_4(FF_4),
-    .FF_5(FF_5),
-    .FF_6(FF_6),
-    .FF_7(FF_7),
-    .FFok_p_a(FFok_p_a),
-    .FFok_p_b(FFok_p_b),
-    .Freeze(Freeze),
     .Hold(Hold),
-    .IMRHPE_p_(IMRHPE_p_),
     .IOatt(IOatt),
     .IfuAddr_04_p_(IfuAddr_04_p_),
     .IfuAddr_05_p_(IfuAddr_05_p_),
@@ -1377,29 +3096,16 @@ module dorado_backplane (
     .IfuAddr_11_p_(IfuAddr_11_p_),
     .IfuAddr_12_p_(IfuAddr_12_p_),
     .IfuAddr_13_p_(IfuAddr_13_p_),
-    .IfuNextMacro_p_(IfuNextMacro_p_),
-    .MemClkEnable_p_a(MemClkEnable_p_a),
-    .MemClkEnable_p_b(MemClkEnable_p_b),
-    .MemSH(MemSH),
-    .MemSH_p_(MemSH_p_),
-    .Next_0(Next_0),
-    .Next_1(Next_1),
-    .Next_2(Next_2),
-    .Next_3(Next_3),
-    .NextMacro(NextMacro),
     .Overflow_p_(Overflow_p_),
-    .PrBlock_p_(PrBlock_p_),
     .QBit_p_(QBit_p_),
     .ResEqZero_p_(ResEqZero_p_),
     .ResLtZero_p_(ResLtZero_p_),
     .RmLtZero_p_(RmLtZero_p_),
     .RmOdd_p_(RmOdd_p_),
-    .SWb(SWb),
     .SWm(SWm),
     .SetRun(SetRun),
     .SetRunRfsh(SetRunRfsh),
     .SetSS_p_(SetSS_p_),
-    .StartCycle_p_a(StartCycle_p_a),
     .StopMIRClk(StopMIRClk),
     .TNIA_02(TNIA_02),
     .TNIA_03(TNIA_03),
@@ -1430,10 +3136,7 @@ module dorado_backplane (
     .TWReq_13(TWReq_13),
     .TWReq_14(TWReq_14),
     .TWReq_15(TWReq_15),
-    .UseDMD(UseDMD),
     .WantIfuHold_p_(WantIfuHold_p_),
-    ._u_Dbuf(_u_Dbuf),
-    ._u_Map(_u_Map),
     .dBlock_p_(dBlock_p_),
     .dFF_0(dFF_0),
     .dFF_1(dFF_1),
@@ -1461,22 +3164,102 @@ module dorado_backplane (
     .dJCN_5(dJCN_5),
     .dJCN_6(dJCN_6),
     .dJCN_7(dJCN_7),
-    .jcnt(jcnt),
-    .rMIRa(rMIRa)
+    .rMIRa(rMIRa),
+    .BMux_00__drv(BMux_00__ContA),
+    .BMux_01__drv(BMux_01__ContA),
+    .BMux_02__drv(BMux_02__ContA),
+    .BMux_03__drv(BMux_03__ContA),
+    .BMux_04__drv(BMux_04__ContA),
+    .BMux_05__drv(BMux_05__ContA),
+    .BMux_06__drv(BMux_06__ContA),
+    .BMux_07__drv(BMux_07__ContA),
+    .BMux_08__drv(BMux_08__ContA),
+    .BMux_09__drv(BMux_09__ContA),
+    .BMux_10__drv(BMux_10__ContA),
+    .BMux_11__drv(BMux_11__ContA),
+    .BMux_12__drv(BMux_12__ContA),
+    .BMux_13__drv(BMux_13__ContA),
+    .BMux_14__drv(BMux_14__ContA),
+    .BMux_15__drv(BMux_15__ContA),
+    .BNPC_02__drv(BNPC_02__ContA),
+    .BNPC_03__drv(BNPC_03__ContA),
+    .BNPC_04__drv(BNPC_04__ContA),
+    .BNPC_05__drv(BNPC_05__ContA),
+    .BNPC_06__drv(BNPC_06__ContA),
+    .BNPC_07__drv(BNPC_07__ContA),
+    .BNPC_08__drv(BNPC_08__ContA),
+    .BNPC_09__drv(BNPC_09__ContA),
+    .BNPC_10__drv(BNPC_10__ContA),
+    .BNPC_11__drv(BNPC_11__ContA),
+    .BNPC_12__drv(BNPC_12__ContA),
+    .BNPC_13__drv(BNPC_13__ContA),
+    .BNPC_14__drv(BNPC_14__ContA),
+    .BNPC_15__drv(BNPC_15__ContA),
+    .BNTGtCT_p_a__drv(BNTGtCT_p_a__ContA),
+    .BNTGtCT_p_b__drv(BNTGtCT_p_b__ContA),
+    .Block__drv(Block__ContA),
+    .CHoldReq__drv(CHoldReq__ContA),
+    .CLKEnable_p_a__drv(CLKEnable_p_a__ContA),
+    .CLKEnable_p_b__drv(CLKEnable_p_b__ContA),
+    .CLKEnable_p_c__drv(CLKEnable_p_c__ContA),
+    .CRamClock__drv(CRamClock__ContA),
+    .DMuxClk__drv(DMuxClk__ContA),
+    .DMuxData__drv(DMuxData__ContA),
+    .DoCBr__drv(DoCBr__ContA),
+    .FF_0__drv(FF_0__ContA),
+    .FF_1__drv(FF_1__ContA),
+    .FF_2__drv(FF_2__ContA),
+    .FF_3__drv(FF_3__ContA),
+    .FF_4__drv(FF_4__ContA),
+    .FF_5__drv(FF_5__ContA),
+    .FF_6__drv(FF_6__ContA),
+    .FF_7__drv(FF_7__ContA),
+    .FFok_p_a__drv(FFok_p_a__ContA),
+    .FFok_p_b__drv(FFok_p_b__ContA),
+    .Freeze__drv(Freeze__ContA),
+    .IMRHPE_p___drv(IMRHPE_p___ContA),
+    .IfuNextMacro_p___drv(IfuNextMacro_p___ContA),
+    .MemClkEnable_p_a__drv(MemClkEnable_p_a__ContA),
+    .MemClkEnable_p_b__drv(MemClkEnable_p_b__ContA),
+    .MemSH__drv(MemSH__ContA),
+    .MemSH_p___drv(MemSH_p___ContA),
+    .Next_0__drv(Next_0__ContA),
+    .Next_1__drv(Next_1__ContA),
+    .Next_2__drv(Next_2__ContA),
+    .Next_3__drv(Next_3__ContA),
+    .NextMacro__drv(NextMacro__ContA),
+    .PrBlock_p___drv(PrBlock_p___ContA),
+    .SWb__drv(SWb__ContA),
+    .SWm__drv(SWm__ContA),
+    .StartCycle_p_a__drv(StartCycle_p_a__ContA),
+    .TNIA_02__drv(TNIA_02__ContA),
+    .TNIA_03__drv(TNIA_03__ContA),
+    .TNIA_04__drv(TNIA_04__ContA),
+    .TNIA_05__drv(TNIA_05__ContA),
+    .TNIA_06__drv(TNIA_06__ContA),
+    .TNIA_07__drv(TNIA_07__ContA),
+    .TNIA_08__drv(TNIA_08__ContA),
+    .TNIA_09__drv(TNIA_09__ContA),
+    .TNIA_10__drv(TNIA_10__ContA),
+    .TNIA_11__drv(TNIA_11__ContA),
+    .TNIA_12__drv(TNIA_12__ContA),
+    .TNIA_13__drv(TNIA_13__ContA),
+    .TNIA_14__drv(TNIA_14__ContA),
+    .TNIA_15__drv(TNIA_15__ContA),
+    .UseDMD__drv(UseDMD__ContA),
+    ._u_Dbuf__drv(_u_Dbuf__ContA),
+    ._u_Map__drv(_u_Map__ContA),
+    .jcnt__drv(jcnt__ContA),
+    .rMIRa__drv(rMIRa__ContA)
   );
 
   // ---- ContB
   ContB_m_Rev_m_Cd b_ContB (
+    .sys_clk(sys_clk),
     .ALUF_0(ALUF_0),
     .ALUF_1(ALUF_1),
     .ALUF_2(ALUF_2),
     .ALUF_3(ALUF_3),
-    .ASEL_0(ASEL_0),
-    .ASEL_0_p_(ASEL_0_p_),
-    .ASEL_0_p_a(ASEL_0_p_a),
-    .ASEL_0_p_mem(ASEL_0_p_mem),
-    .ASEL_1_p_(ASEL_1_p_),
-    .ASEL_2_p_(ASEL_2_p_),
     .BMux_00(BMux_00),
     .BMux_01(BMux_01),
     .BMux_02(BMux_02),
@@ -1510,9 +3293,6 @@ module dorado_backplane (
     .BNPC_14(BNPC_14),
     .BNPC_15(BNPC_15),
     .BNTGtCT_p_a(BNTGtCT_p_a),
-    .BSEL_0_p_(BSEL_0_p_),
-    .BSEL_1_p_(BSEL_1_p_),
-    .BSEL_2_p_(BSEL_2_p_),
     .CBHold(CBHold),
     .CBTempSense(CBTempSense),
     .CLK_cb_p_(CLK_cb_p_),
@@ -1520,10 +3300,6 @@ module dorado_backplane (
     .CPAddr_0_p_(CPAddr_0_p_),
     .CPAddr_1_p_(CPAddr_1_p_),
     .CPAddr_2_p_(CPAddr_2_p_),
-    .CPIn_0(CPIn_0),
-    .CPIn_1(CPIn_1),
-    .CPIn_2(CPIn_2),
-    .CPIn_3(CPIn_3),
     .CPOut_0(CPOut_0),
     .CPOut_1(CPOut_1),
     .CPOut_2(CPOut_2),
@@ -1534,7 +3310,6 @@ module dorado_backplane (
     .DMuxClk(DMuxClk),
     .DMuxData(DMuxData),
     .DoCBr(DoCBr),
-    .Error_p_(Error_p_),
     .IMLHPE_p_(IMLHPE_p_),
     .IMLHPEDly(IMLHPEDly),
     .IMRHPE_p_(IMRHPE_p_),
@@ -1545,14 +3320,9 @@ module dorado_backplane (
     .LC_2(LC_2),
     .MdPE(MdPE),
     .MemPE(MemPE),
-    .RSTK_0(RSTK_0),
-    .RSTK_1(RSTK_1),
-    .RSTK_2(RSTK_2),
-    .RSTK_3(RSTK_3),
     .RamPE(RamPE),
     .SW(SW),
     .StartCycle_p_a(StartCycle_p_a),
-    .StopMIRClk(StopMIRClk),
     .TNIA_02(TNIA_02),
     .TNIA_03(TNIA_03),
     .TNIA_04(TNIA_04),
@@ -1578,15 +3348,6 @@ module dorado_backplane (
     .dFF_5(dFF_5),
     .dFF_6(dFF_6),
     .dFF_7(dFF_7),
-    .dIMOut_07(dIMOut_07),
-    .dIMOut_08(dIMOut_08),
-    .dIMOut_09(dIMOut_09),
-    .dIMOut_10(dIMOut_10),
-    .dIMOut_11(dIMOut_11),
-    .dIMOut_12(dIMOut_12),
-    .dIMOut_13(dIMOut_13),
-    .dIMOut_14(dIMOut_14),
-    .dIMOut_15(dIMOut_15),
     .dIMRH(dIMRH),
     .dJCN_0(dJCN_0),
     .dJCN_1(dJCN_1),
@@ -1596,11 +3357,83 @@ module dorado_backplane (
     .dJCN_5(dJCN_5),
     .dJCN_6(dJCN_6),
     .dJCN_7(dJCN_7),
-    .rMIRa(rMIRa)
+    .rMIRa(rMIRa),
+    .ALUF_0__drv(ALUF_0__ContB),
+    .ALUF_1__drv(ALUF_1__ContB),
+    .ALUF_2__drv(ALUF_2__ContB),
+    .ALUF_3__drv(ALUF_3__ContB),
+    .ASEL_0__drv(ASEL_0__ContB),
+    .ASEL_0_p___drv(ASEL_0_p___ContB),
+    .ASEL_0_p_a__drv(ASEL_0_p_a__ContB),
+    .ASEL_0_p_mem__drv(ASEL_0_p_mem__ContB),
+    .ASEL_1_p___drv(ASEL_1_p___ContB),
+    .ASEL_2_p___drv(ASEL_2_p___ContB),
+    .BNPC_04__drv(BNPC_04__ContB),
+    .BNPC_05__drv(BNPC_05__ContB),
+    .BNPC_06__drv(BNPC_06__ContB),
+    .BNPC_07__drv(BNPC_07__ContB),
+    .BNPC_08__drv(BNPC_08__ContB),
+    .BNPC_09__drv(BNPC_09__ContB),
+    .BNPC_10__drv(BNPC_10__ContB),
+    .BNPC_11__drv(BNPC_11__ContB),
+    .BNPC_12__drv(BNPC_12__ContB),
+    .BNPC_13__drv(BNPC_13__ContB),
+    .BNPC_14__drv(BNPC_14__ContB),
+    .BNPC_15__drv(BNPC_15__ContB),
+    .BSEL_0_p___drv(BSEL_0_p___ContB),
+    .BSEL_1_p___drv(BSEL_1_p___ContB),
+    .BSEL_2_p___drv(BSEL_2_p___ContB),
+    .CBTempSense__drv(CBTempSense__ContB),
+    .CPIn_0__drv(CPIn_0__ContB),
+    .CPIn_1__drv(CPIn_1__ContB),
+    .CPIn_2__drv(CPIn_2__ContB),
+    .CPIn_3__drv(CPIn_3__ContB),
+    .DMuxData__drv(DMuxData__ContB),
+    .Error_p___drv(Error_p___ContB),
+    .IMLHPE_p___drv(IMLHPE_p___ContB),
+    .IMLHPEDly__drv(IMLHPEDly__ContB),
+    .IMRHPEDly__drv(IMRHPEDly__ContB),
+    .LC_0__drv(LC_0__ContB),
+    .LC_1__drv(LC_1__ContB),
+    .LC_2__drv(LC_2__ContB),
+    .RSTK_0__drv(RSTK_0__ContB),
+    .RSTK_1__drv(RSTK_1__ContB),
+    .RSTK_2__drv(RSTK_2__ContB),
+    .RSTK_3__drv(RSTK_3__ContB),
+    .StopMIRClk__drv(StopMIRClk__ContB),
+    .dBlock_p___drv(dBlock_p___ContB),
+    .dFF_0__drv(dFF_0__ContB),
+    .dFF_1__drv(dFF_1__ContB),
+    .dFF_2__drv(dFF_2__ContB),
+    .dFF_3__drv(dFF_3__ContB),
+    .dFF_4__drv(dFF_4__ContB),
+    .dFF_5__drv(dFF_5__ContB),
+    .dFF_6__drv(dFF_6__ContB),
+    .dFF_7__drv(dFF_7__ContB),
+    .dIMOut_07__drv(dIMOut_07__ContB),
+    .dIMOut_08__drv(dIMOut_08__ContB),
+    .dIMOut_09__drv(dIMOut_09__ContB),
+    .dIMOut_10__drv(dIMOut_10__ContB),
+    .dIMOut_11__drv(dIMOut_11__ContB),
+    .dIMOut_12__drv(dIMOut_12__ContB),
+    .dIMOut_13__drv(dIMOut_13__ContB),
+    .dIMOut_14__drv(dIMOut_14__ContB),
+    .dIMOut_15__drv(dIMOut_15__ContB),
+    .dIMRH__drv(dIMRH__ContB),
+    .dJCN_0__drv(dJCN_0__ContB),
+    .dJCN_1__drv(dJCN_1__ContB),
+    .dJCN_2__drv(dJCN_2__ContB),
+    .dJCN_3__drv(dJCN_3__ContB),
+    .dJCN_4__drv(dJCN_4__ContB),
+    .dJCN_5__drv(dJCN_5__ContB),
+    .dJCN_6__drv(dJCN_6__ContB),
+    .dJCN_7__drv(dJCN_7__ContB),
+    .rMIRa__drv(rMIRa__ContB)
   );
 
   // ---- IFU
   IFU_m_Rev_m_Ch b_IFU (
+    .sys_clk(sys_clk),
     .ASEL_0_p_(ASEL_0_p_),
     .BMux_00(BMux_00),
     .BMux_01(BMux_01),
@@ -1621,7 +3454,6 @@ module dorado_backplane (
     .CLK_ifu_p_(CLK_ifu_p_),
     .CLKEnable_p_a(CLKEnable_p_a),
     .CountMiss(CountMiss),
-    .CrryEvCntA(CrryEvCntA),
     .DMuxClk(DMuxClk),
     .DMuxData(DMuxData),
     .EmuOrFT_p_(EmuOrFT_p_),
@@ -1665,83 +3497,110 @@ module dorado_backplane (
     .GenIn_13(GenIn_13),
     .GenIn_14(GenIn_14),
     .GenIn_15(GenIn_15),
-    .GenOut_00(GenOut_00),
-    .GenOut_01(GenOut_01),
-    .GenOut_02(GenOut_02),
-    .GenOut_03(GenOut_03),
-    .GenOut_04(GenOut_04),
-    .GenOut_05(GenOut_05),
-    .GenOut_06(GenOut_06),
-    .GenOut_07(GenOut_07),
-    .GenOut_08(GenOut_08),
-    .GenOut_09(GenOut_09),
-    .GenOut_10(GenOut_10),
-    .GenOut_11(GenOut_11),
-    .GenOut_12(GenOut_12),
-    .GenOut_13(GenOut_13),
-    .GenOut_14(GenOut_14),
-    .GenOut_15(GenOut_15),
     .IOReset(IOReset),
     .IfuAWantsDifHit_p_(IfuAWantsDifHit_p_),
     .IfuAck(IfuAck),
-    .IfuAddr_04_p_(IfuAddr_04_p_),
-    .IfuAddr_05_p_(IfuAddr_05_p_),
-    .IfuAddr_06_p_(IfuAddr_06_p_),
-    .IfuAddr_07_p_(IfuAddr_07_p_),
-    .IfuAddr_08_p_(IfuAddr_08_p_),
-    .IfuAddr_09_p_(IfuAddr_09_p_),
-    .IfuAddr_10_p_(IfuAddr_10_p_),
-    .IfuAddr_11_p_(IfuAddr_11_p_),
-    .IfuAddr_12_p_(IfuAddr_12_p_),
-    .IfuAddr_13_p_(IfuAddr_13_p_),
-    .IfuData_0(IfuData_0),
-    .IfuData_1(IfuData_1),
-    .IfuData_2(IfuData_2),
-    .IfuData_3(IfuData_3),
-    .IfuData_4(IfuData_4),
-    .IfuData_5(IfuData_5),
-    .IfuData_6(IfuData_6),
-    .IfuData_7(IfuData_7),
     .IfuFaultInEc2(IfuFaultInEc2),
     .IfuHold(IfuHold),
     .IfuNextMacro_p_(IfuNextMacro_p_),
-    .IfuRBaseSel_p_(IfuRBaseSel_p_),
     .IfuStartMap_p_(IfuStartMap_p_),
-    .JunkTW(JunkTW),
-    .MAR_00_p_(MAR_00_p_),
-    .MAR_01_p_(MAR_01_p_),
-    .MAR_02_p_(MAR_02_p_),
-    .MAR_03_p_(MAR_03_p_),
-    .MAR_04_p_(MAR_04_p_),
-    .MAR_05_p_(MAR_05_p_),
-    .MAR_06_p_(MAR_06_p_),
-    .MAR_07_p_(MAR_07_p_),
-    .MAR_08_p_(MAR_08_p_),
-    .MAR_09_p_(MAR_09_p_),
-    .MAR_10_p_(MAR_10_p_),
-    .MAR_11_p_(MAR_11_p_),
-    .MAR_12_p_(MAR_12_p_),
-    .MAR_13_p_(MAR_13_p_),
-    .MAR_14_p_(MAR_14_p_),
-    .MAR_15_p_(MAR_15_p_),
     .MakeF_u_D(MakeF_u_D),
-    .MemBM_0(MemBM_0),
-    .MemBM_1(MemBM_1),
-    .MemBM34(MemBM34),
     .MemClkEn_p_a(MemClkEn_p_a),
     .MemSH(MemSH),
     .NextData_p_(NextData_p_),
-    .PcFG_15(PcFG_15),
     .Pendulum(Pendulum),
     .RefOutstanding_p_(RefOutstanding_p_),
-    .SignIfuData(SignIfuData),
     .TempRef(TempRef),
     .WantIfuHold_p_(WantIfuHold_p_),
-    .WantIfuRef_p_(WantIfuRef_p_)
+    .WantIfuRef_p_(WantIfuRef_p_),
+    .BMux_00__drv(BMux_00__IFU),
+    .BMux_01__drv(BMux_01__IFU),
+    .BMux_02__drv(BMux_02__IFU),
+    .BMux_03__drv(BMux_03__IFU),
+    .BMux_04__drv(BMux_04__IFU),
+    .BMux_05__drv(BMux_05__IFU),
+    .BMux_06__drv(BMux_06__IFU),
+    .BMux_07__drv(BMux_07__IFU),
+    .BMux_08__drv(BMux_08__IFU),
+    .BMux_09__drv(BMux_09__IFU),
+    .BMux_10__drv(BMux_10__IFU),
+    .BMux_11__drv(BMux_11__IFU),
+    .BMux_12__drv(BMux_12__IFU),
+    .BMux_13__drv(BMux_13__IFU),
+    .BMux_14__drv(BMux_14__IFU),
+    .BMux_15__drv(BMux_15__IFU),
+    .CrryEvCntA__drv(CrryEvCntA__IFU),
+    .DMuxData__drv(DMuxData__IFU),
+    .EnableFG_p___drv(EnableFG_p___IFU),
+    .GDv_p___drv(GDv_p___IFU),
+    .GLd_p___drv(GLd_p___IFU),
+    .GenOut_00__drv(GenOut_00__IFU),
+    .GenOut_01__drv(GenOut_01__IFU),
+    .GenOut_02__drv(GenOut_02__IFU),
+    .GenOut_03__drv(GenOut_03__IFU),
+    .GenOut_04__drv(GenOut_04__IFU),
+    .GenOut_05__drv(GenOut_05__IFU),
+    .GenOut_06__drv(GenOut_06__IFU),
+    .GenOut_07__drv(GenOut_07__IFU),
+    .GenOut_08__drv(GenOut_08__IFU),
+    .GenOut_09__drv(GenOut_09__IFU),
+    .GenOut_10__drv(GenOut_10__IFU),
+    .GenOut_11__drv(GenOut_11__IFU),
+    .GenOut_12__drv(GenOut_12__IFU),
+    .GenOut_13__drv(GenOut_13__IFU),
+    .GenOut_14__drv(GenOut_14__IFU),
+    .GenOut_15__drv(GenOut_15__IFU),
+    .IfuAck__drv(IfuAck__IFU),
+    .IfuAddr_04_p___drv(IfuAddr_04_p___IFU),
+    .IfuAddr_05_p___drv(IfuAddr_05_p___IFU),
+    .IfuAddr_06_p___drv(IfuAddr_06_p___IFU),
+    .IfuAddr_07_p___drv(IfuAddr_07_p___IFU),
+    .IfuAddr_08_p___drv(IfuAddr_08_p___IFU),
+    .IfuAddr_09_p___drv(IfuAddr_09_p___IFU),
+    .IfuAddr_10_p___drv(IfuAddr_10_p___IFU),
+    .IfuAddr_11_p___drv(IfuAddr_11_p___IFU),
+    .IfuAddr_12_p___drv(IfuAddr_12_p___IFU),
+    .IfuAddr_13_p___drv(IfuAddr_13_p___IFU),
+    .IfuData_0__drv(IfuData_0__IFU),
+    .IfuData_1__drv(IfuData_1__IFU),
+    .IfuData_2__drv(IfuData_2__IFU),
+    .IfuData_3__drv(IfuData_3__IFU),
+    .IfuData_4__drv(IfuData_4__IFU),
+    .IfuData_5__drv(IfuData_5__IFU),
+    .IfuData_6__drv(IfuData_6__IFU),
+    .IfuData_7__drv(IfuData_7__IFU),
+    .IfuFaultInEc2__drv(IfuFaultInEc2__IFU),
+    .IfuRBaseSel_p___drv(IfuRBaseSel_p___IFU),
+    .JunkTW__drv(JunkTW__IFU),
+    .MAR_00_p___drv(MAR_00_p___IFU),
+    .MAR_01_p___drv(MAR_01_p___IFU),
+    .MAR_02_p___drv(MAR_02_p___IFU),
+    .MAR_03_p___drv(MAR_03_p___IFU),
+    .MAR_04_p___drv(MAR_04_p___IFU),
+    .MAR_05_p___drv(MAR_05_p___IFU),
+    .MAR_06_p___drv(MAR_06_p___IFU),
+    .MAR_07_p___drv(MAR_07_p___IFU),
+    .MAR_08_p___drv(MAR_08_p___IFU),
+    .MAR_09_p___drv(MAR_09_p___IFU),
+    .MAR_10_p___drv(MAR_10_p___IFU),
+    .MAR_11_p___drv(MAR_11_p___IFU),
+    .MAR_12_p___drv(MAR_12_p___IFU),
+    .MAR_13_p___drv(MAR_13_p___IFU),
+    .MAR_14_p___drv(MAR_14_p___IFU),
+    .MAR_15_p___drv(MAR_15_p___IFU),
+    .MemBM_0__drv(MemBM_0__IFU),
+    .MemBM_1__drv(MemBM_1__IFU),
+    .MemBM34__drv(MemBM34__IFU),
+    .PcFG_15__drv(PcFG_15__IFU),
+    .RefOutstanding_p___drv(RefOutstanding_p___IFU),
+    .SignIfuData__drv(SignIfuData__IFU),
+    .WantIfuHold_p___drv(WantIfuHold_p___IFU),
+    .WantIfuRef_p___drv(WantIfuRef_p___IFU)
   );
 
   // ---- MemC
   MemC_m_Rev_m_Be b_MemC (
+    .sys_clk(sys_clk),
     .ASEL_0(ASEL_0),
     .ASEL_0_p_mem(ASEL_0_p_mem),
     .ASEL_1_p_(ASEL_1_p_),
@@ -1750,10 +3609,6 @@ module dorado_backplane (
     .AfreeOrEc_p_b(AfreeOrEc_p_b),
     .At_eq_Curt_p_(At_eq_Curt_p_),
     .AwantsDifHit_p_(AwantsDifHit_p_),
-    .BMux_00(BMux_00),
-    .BMux_01(BMux_01),
-    .BMux_02(BMux_02),
-    .BMux_03(BMux_03),
     .BMux_04(BMux_04),
     .BMux_05(BMux_05),
     .BMux_06(BMux_06),
@@ -1766,20 +3621,14 @@ module dorado_backplane (
     .BMux_13(BMux_13),
     .BMux_14(BMux_14),
     .BMux_15(BMux_15),
-    .CBHold(CBHold),
     .CHoldReq(CHoldReq),
     .CLK_mc_p_(CLK_mc_p_),
     .CLKEnable_p_b(CLKEnable_p_b),
     .CacheRef_p_(CacheRef_p_),
-    .CacheRefInEc1(CacheRefInEc1),
     .DMuxClk(DMuxClk),
     .DMuxData(DMuxData),
-    .Dad_00(Dad_00),
-    .Dad_01(Dad_01),
-    .Dbuf_u__p_(Dbuf_u__p_),
     .DcomingForCt_p_(DcomingForCt_p_),
     .DdataGood_p_(DdataGood_p_),
-    .DirtyIoFetchInA_p_(DirtyIoFetchInA_p_),
     .DisHold(DisHold),
     .EcKeepsAbusy(EcKeepsAbusy),
     .EcWantsA(EcWantsA),
@@ -1798,8 +3647,6 @@ module dorado_backplane (
     .Hita(Hita),
     .Hold(Hold),
     .HoldMapBuf(HoldMapBuf),
-    .IOHold(IOHold),
-    .IfuAck(IfuAck),
     .IfuData_0(IfuData_0),
     .IfuData_1(IfuData_1),
     .IfuData_2(IfuData_2),
@@ -1808,9 +3655,6 @@ module dorado_backplane (
     .IfuData_5(IfuData_5),
     .IfuData_6(IfuData_6),
     .IfuData_7(IfuData_7),
-    .IfuHold(IfuHold),
-    .IfuRefInEc1(IfuRefInEc1),
-    .IoFetchInA_p_(IoFetchInA_p_),
     .IoStoreInA(IoStoreInA),
     .LdPipeVAdly_p_(LdPipeVAdly_p_),
     .MAR_00_p_(MAR_00_p_),
@@ -1847,12 +3691,7 @@ module dorado_backplane (
     .MapTroubleInEc1(MapTroubleInEc1),
     .MapWait_m_D(MapWait_m_D),
     .Map_u_InPair_p_(Map_u_InPair_p_),
-    .McrD_u__p_(McrD_u__p_),
     .Mcr_u__p_(Mcr_u__p_),
-    .MemAd_5(MemAd_5),
-    .MemAd_6(MemAd_6),
-    .MemAd_7(MemAd_7),
-    .MemAd_8(MemAd_8),
     .MemBase_0(MemBase_0),
     .MemBase_1(MemBase_1),
     .MemBase_2(MemBase_2),
@@ -1862,19 +3701,14 @@ module dorado_backplane (
     .MemRfsh(MemRfsh),
     .MemSH(MemSH),
     .PairFull_p_(PairFull_p_),
-    .PrHold(PrHold),
     .PrHoldReq(PrHoldReq),
     .PrivRefInPair(PrivRefInPair),
-    .ProcSrn_u__p_(ProcSrn_u__p_),
     .ProcTag(ProcTag),
     .ProcTagInA(ProcTagInA),
-    .ReadInA_p_(ReadInA_p_),
     .RefOutstanding_p_(RefOutstanding_p_),
     .STfree_p_(STfree_p_),
     .StartMap_p_(StartMap_p_),
     .Store_u_InA_p_(Store_u_InA_p_),
-    .Store_u_InEc1_p_(Store_u_InEc1_p_),
-    .TagInEc1(TagInEc1),
     .Transport_p_(Transport_p_),
     .UseAsrn(UseAsrn),
     .VicIfMiss_p_(VicIfMiss_p_),
@@ -1883,37 +3717,107 @@ module dorado_backplane (
     .WPinEc1(WPinEc1),
     .WantIfuRef_p_(WantIfuRef_p_),
     .XWantsPipe(XWantsPipe),
-    ._u_Config(_u_Config),
-    ._u_FaultInfo(_u_FaultInfo),
     ._u_MD(_u_MD),
     ._u_MDI(_u_MDI),
     ._u_MDI_p_(_u_MDI_p_),
     ._u_MDdly_p_(_u_MDdly_p_),
-    ._u_Pipe2(_u_Pipe2),
-    ._u_Pipe3(_u_Pipe3),
-    ._u_Pipe4(_u_Pipe4),
-    .dDad_02(dDad_02),
-    .dDad_03(dDad_03),
-    .dDad_04(dDad_04),
-    .dDad_05(dDad_05),
-    .dDad_06(dDad_06),
-    .dDad_07(dDad_07),
-    .dDad_08(dDad_08),
-    .dDad_09(dDad_09),
-    .dDad_10(dDad_10),
-    .dDad_11(dDad_11),
-    .dDad_12(dDad_12),
-    .dDad_13(dDad_13),
-    .dHitPerr(dHitPerr),
     .dPipe02Ad_0(dPipe02Ad_0),
     .dPipe02Ad_1(dPipe02Ad_1),
     .dPipe02Ad_2(dPipe02Ad_2),
     .dPipe02Ad_3(dPipe02Ad_3),
-    .preMCSb(preMCSb)
+    .preMCSb(preMCSb),
+    .AfreeOrEc_p_b__drv(AfreeOrEc_p_b__MemC),
+    .AwantsDifHit_p___drv(AwantsDifHit_p___MemC),
+    .BMux_00__drv(BMux_00__MemC),
+    .BMux_01__drv(BMux_01__MemC),
+    .BMux_02__drv(BMux_02__MemC),
+    .BMux_03__drv(BMux_03__MemC),
+    .BMux_04__drv(BMux_04__MemC),
+    .BMux_05__drv(BMux_05__MemC),
+    .BMux_06__drv(BMux_06__MemC),
+    .BMux_07__drv(BMux_07__MemC),
+    .BMux_08__drv(BMux_08__MemC),
+    .BMux_09__drv(BMux_09__MemC),
+    .BMux_10__drv(BMux_10__MemC),
+    .BMux_11__drv(BMux_11__MemC),
+    .BMux_12__drv(BMux_12__MemC),
+    .BMux_13__drv(BMux_13__MemC),
+    .BMux_14__drv(BMux_14__MemC),
+    .BMux_15__drv(BMux_15__MemC),
+    .CBHold__drv(CBHold__MemC),
+    .CacheRef_p___drv(CacheRef_p___MemC),
+    .CacheRefInEc1__drv(CacheRefInEc1__MemC),
+    .DMuxData__drv(DMuxData__MemC),
+    .Dad_00__drv(Dad_00__MemC),
+    .Dad_01__drv(Dad_01__MemC),
+    .Dbuf_u__p___drv(Dbuf_u__p___MemC),
+    .DirtyIoFetchInA_p___drv(DirtyIoFetchInA_p___MemC),
+    .DisHold__drv(DisHold__MemC),
+    .EcKeepsAbusy__drv(EcKeepsAbusy__MemC),
+    .FastD_u_Dbuf__drv(FastD_u_Dbuf__MemC),
+    .Hita__drv(Hita__MemC),
+    .Hold__drv(Hold__MemC),
+    .IOHold__drv(IOHold__MemC),
+    .IfuAck__drv(IfuAck__MemC),
+    .IfuHold__drv(IfuHold__MemC),
+    .IfuRefInEc1__drv(IfuRefInEc1__MemC),
+    .IoFetchInA_p___drv(IoFetchInA_p___MemC),
+    .IoStoreInA__drv(IoStoreInA__MemC),
+    .MXHold__drv(MXHold__MemC),
+    .MakeF_u_D__drv(MakeF_u_D__MemC),
+    .MapAd_0__drv(MapAd_0__MemC),
+    .MapAd_1__drv(MapAd_1__MemC),
+    .MapAd_2__drv(MapAd_2__MemC),
+    .MapAd_3__drv(MapAd_3__MemC),
+    .MapAd_4__drv(MapAd_4__MemC),
+    .MapAd_5__drv(MapAd_5__MemC),
+    .MapAd_6__drv(MapAd_6__MemC),
+    .MapAd_7__drv(MapAd_7__MemC),
+    .MapAd_8__drv(MapAd_8__MemC),
+    .Map_u_InPair_p___drv(Map_u_InPair_p___MemC),
+    .McrD_u__p___drv(McrD_u__p___MemC),
+    .Mcr_u__p___drv(Mcr_u__p___MemC),
+    .MemAd_5__drv(MemAd_5__MemC),
+    .MemAd_6__drv(MemAd_6__MemC),
+    .MemAd_7__drv(MemAd_7__MemC),
+    .MemAd_8__drv(MemAd_8__MemC),
+    .PairFull_p___drv(PairFull_p___MemC),
+    .PrHold__drv(PrHold__MemC),
+    .PrivRefInPair__drv(PrivRefInPair__MemC),
+    .ProcSrn_u__p___drv(ProcSrn_u__p___MemC),
+    .ReadInA_p___drv(ReadInA_p___MemC),
+    .StartMap_p___drv(StartMap_p___MemC),
+    .Store_u_InA_p___drv(Store_u_InA_p___MemC),
+    .Store_u_InEc1_p___drv(Store_u_InEc1_p___MemC),
+    .TagInEc1__drv(TagInEc1__MemC),
+    .UseAsrn__drv(UseAsrn__MemC),
+    .VicIfMiss_p___drv(VicIfMiss_p___MemC),
+    .VicInPair_p___drv(VicInPair_p___MemC),
+    .VicOrFS1C__drv(VicOrFS1C__MemC),
+    ._u_Config__drv(_u_Config__MemC),
+    ._u_FaultInfo__drv(_u_FaultInfo__MemC),
+    ._u_MDdly_p___drv(_u_MDdly_p___MemC),
+    ._u_Pipe2__drv(_u_Pipe2__MemC),
+    ._u_Pipe3__drv(_u_Pipe3__MemC),
+    ._u_Pipe4__drv(_u_Pipe4__MemC),
+    .dDad_02__drv(dDad_02__MemC),
+    .dDad_03__drv(dDad_03__MemC),
+    .dDad_04__drv(dDad_04__MemC),
+    .dDad_05__drv(dDad_05__MemC),
+    .dDad_06__drv(dDad_06__MemC),
+    .dDad_07__drv(dDad_07__MemC),
+    .dDad_08__drv(dDad_08__MemC),
+    .dDad_09__drv(dDad_09__MemC),
+    .dDad_10__drv(dDad_10__MemC),
+    .dDad_11__drv(dDad_11__MemC),
+    .dDad_12__drv(dDad_12__MemC),
+    .dDad_13__drv(dDad_13__MemC),
+    .dHitPerr__drv(dHitPerr__MemC)
   );
 
   // ---- MemD
   MemD_m_Rev_m_Ca b_MemD (
+    .sys_clk(sys_clk),
     .BMux_00(BMux_00),
     .BMux_01(BMux_01),
     .BMux_02(BMux_02),
@@ -1941,25 +3845,8 @@ module dorado_backplane (
     .ECFault(ECFault),
     .EcIn_0(EcIn_0),
     .EcIn_1(EcIn_1),
-    .EcOut_0(EcOut_0),
-    .EcOut_1(EcOut_1),
-    .EcOut_2(EcOut_2),
-    .EcOut_3(EcOut_3),
-    .EcOut_4(EcOut_4),
-    .EcOut_5(EcOut_5),
-    .EcOut_6(EcOut_6),
-    .EcOut_7_p_(EcOut_7_p_),
     .EnableFG_p_(EnableFG_p_),
     .ErrorsFromEc2(ErrorsFromEc2),
-    .FG_0(FG_0),
-    .FG_1(FG_1),
-    .FG_2(FG_2),
-    .FG_3(FG_3),
-    .FG_4(FG_4),
-    .FG_5(FG_5),
-    .FG_6(FG_6),
-    .FG_7(FG_7),
-    .FG_8(FG_8),
     .FastD_u_Dbuf(FastD_u_Dbuf),
     .Fin_00(Fin_00),
     .Fin_01(Fin_01),
@@ -1980,23 +3867,6 @@ module dorado_backplane (
     .Fin_16(Fin_16),
     .Fin_17(Fin_17),
     .Fout_00(Fout_00),
-    .Fout_01(Fout_01),
-    .Fout_02(Fout_02),
-    .Fout_03(Fout_03),
-    .Fout_04(Fout_04),
-    .Fout_05(Fout_05),
-    .Fout_06(Fout_06),
-    .Fout_07(Fout_07),
-    .Fout_08(Fout_08),
-    .Fout_09(Fout_09),
-    .Fout_10(Fout_10),
-    .Fout_11(Fout_11),
-    .Fout_12(Fout_12),
-    .Fout_13(Fout_13),
-    .Fout_14(Fout_14),
-    .Fout_15(Fout_15),
-    .Fout_16(Fout_16),
-    .Fout_17(Fout_17),
     .GDv_p_(GDv_p_),
     .GLd_p_(GLd_p_),
     .MakeD_u_CD(MakeD_u_CD),
@@ -2027,22 +3897,6 @@ module dorado_backplane (
     .Sin_13(Sin_13),
     .Sin_14(Sin_14),
     .Sin_15(Sin_15),
-    .Sout_00(Sout_00),
-    .Sout_01(Sout_01),
-    .Sout_02(Sout_02),
-    .Sout_03(Sout_03),
-    .Sout_04(Sout_04),
-    .Sout_05(Sout_05),
-    .Sout_06(Sout_06),
-    .Sout_07(Sout_07),
-    .Sout_08(Sout_08),
-    .Sout_09(Sout_09),
-    .Sout_10(Sout_10),
-    .Sout_11(Sout_11),
-    .Sout_12(Sout_12),
-    .Sout_13(Sout_13),
-    .Sout_14(Sout_14),
-    .Sout_15(Sout_15),
     .StartEcChk_p_(StartEcChk_p_),
     .StartEcGen_p_(StartEcGen_p_),
     .TempRef(TempRef),
@@ -2062,23 +3916,6 @@ module dorado_backplane (
     .dDad_12(dDad_12),
     .dDad_13(dDad_13),
     .dMD_00(dMD_00),
-    .dMD_01(dMD_01),
-    .dMD_02(dMD_02),
-    .dMD_03(dMD_03),
-    .dMD_04(dMD_04),
-    .dMD_05(dMD_05),
-    .dMD_06(dMD_06),
-    .dMD_07(dMD_07),
-    .dMD_08(dMD_08),
-    .dMD_09(dMD_09),
-    .dMD_10(dMD_10),
-    .dMD_11(dMD_11),
-    .dMD_12(dMD_12),
-    .dMD_13(dMD_13),
-    .dMD_14(dMD_14),
-    .dMD_15(dMD_15),
-    .dMD_16(dMD_16),
-    .dMD_17(dMD_17),
     .dMDMad_0_p_(dMDMad_0_p_),
     .dMDMad_1_p_(dMDMad_1_p_),
     .dMDMad_2_p_(dMDMad_2_p_),
@@ -2087,12 +3924,100 @@ module dorado_backplane (
     .dPipe34Ad_1(dPipe34Ad_1),
     .dPipe34Ad_2(dPipe34Ad_2),
     .dPipe34Ad_3(dPipe34Ad_3),
-    .dSTPerr(dSTPerr)
+    .BMux_00__drv(BMux_00__MemD),
+    .BMux_01__drv(BMux_01__MemD),
+    .BMux_02__drv(BMux_02__MemD),
+    .BMux_03__drv(BMux_03__MemD),
+    .BMux_04__drv(BMux_04__MemD),
+    .BMux_05__drv(BMux_05__MemD),
+    .BMux_06__drv(BMux_06__MemD),
+    .BMux_07__drv(BMux_07__MemD),
+    .BMux_08__drv(BMux_08__MemD),
+    .BMux_09__drv(BMux_09__MemD),
+    .BMux_10__drv(BMux_10__MemD),
+    .BMux_11__drv(BMux_11__MemD),
+    .BMux_12__drv(BMux_12__MemD),
+    .BMux_13__drv(BMux_13__MemD),
+    .BMux_14__drv(BMux_14__MemD),
+    .BMux_15__drv(BMux_15__MemD),
+    .DMuxData__drv(DMuxData__MemD),
+    .ECFault__drv(ECFault__MemD),
+    .EcOut_0__drv(EcOut_0__MemD),
+    .EcOut_1__drv(EcOut_1__MemD),
+    .EcOut_2__drv(EcOut_2__MemD),
+    .EcOut_3__drv(EcOut_3__MemD),
+    .EcOut_4__drv(EcOut_4__MemD),
+    .EcOut_5__drv(EcOut_5__MemD),
+    .EcOut_6__drv(EcOut_6__MemD),
+    .EcOut_7_p___drv(EcOut_7_p___MemD),
+    .FG_0__drv(FG_0__MemD),
+    .FG_1__drv(FG_1__MemD),
+    .FG_2__drv(FG_2__MemD),
+    .FG_3__drv(FG_3__MemD),
+    .FG_4__drv(FG_4__MemD),
+    .FG_5__drv(FG_5__MemD),
+    .FG_6__drv(FG_6__MemD),
+    .FG_7__drv(FG_7__MemD),
+    .FG_8__drv(FG_8__MemD),
+    .Fout_00__drv(Fout_00__MemD),
+    .Fout_01__drv(Fout_01__MemD),
+    .Fout_02__drv(Fout_02__MemD),
+    .Fout_03__drv(Fout_03__MemD),
+    .Fout_04__drv(Fout_04__MemD),
+    .Fout_05__drv(Fout_05__MemD),
+    .Fout_06__drv(Fout_06__MemD),
+    .Fout_07__drv(Fout_07__MemD),
+    .Fout_08__drv(Fout_08__MemD),
+    .Fout_09__drv(Fout_09__MemD),
+    .Fout_10__drv(Fout_10__MemD),
+    .Fout_11__drv(Fout_11__MemD),
+    .Fout_12__drv(Fout_12__MemD),
+    .Fout_13__drv(Fout_13__MemD),
+    .Fout_14__drv(Fout_14__MemD),
+    .Fout_15__drv(Fout_15__MemD),
+    .Fout_16__drv(Fout_16__MemD),
+    .Fout_17__drv(Fout_17__MemD),
+    .MemError__drv(MemError__MemD),
+    .Sout_00__drv(Sout_00__MemD),
+    .Sout_01__drv(Sout_01__MemD),
+    .Sout_02__drv(Sout_02__MemD),
+    .Sout_03__drv(Sout_03__MemD),
+    .Sout_04__drv(Sout_04__MemD),
+    .Sout_05__drv(Sout_05__MemD),
+    .Sout_06__drv(Sout_06__MemD),
+    .Sout_07__drv(Sout_07__MemD),
+    .Sout_08__drv(Sout_08__MemD),
+    .Sout_09__drv(Sout_09__MemD),
+    .Sout_10__drv(Sout_10__MemD),
+    .Sout_11__drv(Sout_11__MemD),
+    .Sout_12__drv(Sout_12__MemD),
+    .Sout_13__drv(Sout_13__MemD),
+    .Sout_14__drv(Sout_14__MemD),
+    .Sout_15__drv(Sout_15__MemD),
+    .dMD_00__drv(dMD_00__MemD),
+    .dMD_01__drv(dMD_01__MemD),
+    .dMD_02__drv(dMD_02__MemD),
+    .dMD_03__drv(dMD_03__MemD),
+    .dMD_04__drv(dMD_04__MemD),
+    .dMD_05__drv(dMD_05__MemD),
+    .dMD_06__drv(dMD_06__MemD),
+    .dMD_07__drv(dMD_07__MemD),
+    .dMD_08__drv(dMD_08__MemD),
+    .dMD_09__drv(dMD_09__MemD),
+    .dMD_10__drv(dMD_10__MemD),
+    .dMD_11__drv(dMD_11__MemD),
+    .dMD_12__drv(dMD_12__MemD),
+    .dMD_13__drv(dMD_13__MemD),
+    .dMD_14__drv(dMD_14__MemD),
+    .dMD_15__drv(dMD_15__MemD),
+    .dMD_16__drv(dMD_16__MemD),
+    .dMD_17__drv(dMD_17__MemD),
+    .dSTPerr__drv(dSTPerr__MemD)
   );
 
   // ---- MemX
   MemX_m_Rev_m_Ch b_MemX (
-    .AcanhaveMap_p_(AcanhaveMap_p_),
+    .sys_clk(sys_clk),
     .AfreeOrEc_p_b(AfreeOrEc_p_b),
     .At_eq_Curt_p_(At_eq_Curt_p_),
     .AwantsDifHit_p_(AwantsDifHit_p_),
@@ -2131,36 +4056,16 @@ module dorado_backplane (
     .EcDcomingForCt_p_(EcDcomingForCt_p_),
     .EcKeepsAbusy(EcKeepsAbusy),
     .EcWantsA(EcWantsA),
-    .EmuOrFT_p_(EmuOrFT_p_),
     .ErrorsFromEc2(ErrorsFromEc2),
     .FinNext(FinNext),
-    .FinSubtask_0(FinSubtask_0),
-    .FinSubtask_1(FinSubtask_1),
-    .FinTask_0(FinTask_0),
-    .FinTask_1(FinTask_1),
-    .FinTask_2(FinTask_2),
-    .FinTask_3(FinTask_3),
-    .Fout_flt(Fout_flt),
     .FoutNext(FoutNext),
-    .FoutSubtask_0(FoutSubtask_0),
-    .FoutSubtask_1(FoutSubtask_1),
-    .FoutTask_0(FoutTask_0),
-    .FoutTask_1(FoutTask_1),
-    .FoutTask_2(FoutTask_2),
-    .FoutTask_3(FoutTask_3),
     .Hita(Hita),
     .HoldMapbuf(HoldMapbuf),
-    .IfuFaultInEc2(IfuFaultInEc2),
     .IfuRefInEc1(IfuRefInEc1),
     .IoFetchInA_p_(IoFetchInA_p_),
     .IoStoreInA(IoStoreInA),
-    .LargeHold(LargeHold),
-    .LdPipeVAdly_p_(LdPipeVAdly_p_),
-    .LoadEcOut_p_(LoadEcOut_p_),
     .LoadSinE(LoadSinE),
     .LoadSinO(LoadSinO),
-    .LoadSoutE_p_(LoadSoutE_p_),
-    .LoadSoutO_p_(LoadSoutO_p_),
     .M0(M0),
     .M1(M1),
     .M2(M2),
@@ -2171,7 +4076,6 @@ module dorado_backplane (
     .MakeF_u_D(MakeF_u_D),
     .MakeFout_u_D(MakeFout_u_D),
     .MakeMDM_u_D_p_(MakeMDM_u_D_p_),
-    .MakeMD_u_D_p_(MakeMD_u_D_p_),
     .MakeSout_u_D(MakeSout_u_D),
     .MapAd_0(MapAd_0),
     .MapAd_1(MapAd_1),
@@ -2187,34 +4091,11 @@ module dorado_backplane (
     .MapWait_m_D(MapWait_m_D),
     .Map_u_InPair_p_(Map_u_InPair_p_),
     .Mcr_u__p_(Mcr_u__p_),
-    .MemAd_0(MemAd_0),
-    .MemAd_1(MemAd_1),
-    .MemAd_2(MemAd_2),
-    .MemAd_3(MemAd_3),
-    .MemAd_4(MemAd_4),
-    .MemAd_5(MemAd_5),
-    .MemAd_6(MemAd_6),
-    .MemAd_7(MemAd_7),
-    .MemAd_8(MemAd_8),
-    .MemCASa(MemCASa),
-    .MemCASb(MemCASb),
     .MemClkEnable_p_c(MemClkEnable_p_c),
     .MemError(MemError),
     .MemPE(MemPE),
-    .MemRASa(MemRASa),
-    .MemRASb(MemRASb),
     .MemRfsh(MemRfsh),
     .MemSH(MemSH),
-    .MemWEa(MemWEa),
-    .MemWEb(MemWEb),
-    .Mod0SinEn_p_(Mod0SinEn_p_),
-    .Mod0StrEn_p_(Mod0StrEn_p_),
-    .Mod1SinEn_p_(Mod1SinEn_p_),
-    .Mod1StrEn_p_(Mod1StrEn_p_),
-    .Mod2SinEn_p_(Mod2SinEn_p_),
-    .Mod2StrEn_p_(Mod2StrEn_p_),
-    .Mod3SinEn_p_(Mod3SinEn_p_),
-    .Mod3StrEn_p_(Mod3StrEn_p_),
     .MxHold(MxHold),
     .Next_0(Next_0),
     .Next_1(Next_1),
@@ -2229,13 +4110,6 @@ module dorado_backplane (
     .RfshPeriod(RfshPeriod),
     .STfree_p_(STfree_p_),
     .SW(SW),
-    .ShiftEcOut(ShiftEcOut),
-    .ShiftSinE(ShiftSinE),
-    .ShiftSinO(ShiftSinO),
-    .ShiftSoutE(ShiftSoutE),
-    .ShiftSoutO(ShiftSoutO),
-    .StartEcChk_p_(StartEcChk_p_),
-    .StartEcGen_p_(StartEcGen_p_),
     .StartMap_p_(StartMap_p_),
     .StkError(StkError),
     .Store_u_InA_p_(Store_u_InA_p_),
@@ -2244,15 +4118,12 @@ module dorado_backplane (
     .Subtask_1(Subtask_1),
     .TIOA_0(TIOA_0),
     .TIOA_1(TIOA_1),
-    .TWReq15(TWReq15),
     .TagInEc1(TagInEc1),
-    .Transport_p_(Transport_p_),
     .UseAsrn(UseAsrn),
     .VicIfMiss_p_(VicIfMiss_p_),
     .VicInPair_p_(VicInPair_p_),
     .VicOrFS1C(VicOrFS1C),
     .WPinEc1(WPinEc1),
-    .XWantsPipe(XWantsPipe),
     ._u_Config(_u_Config),
     ._u_FaultInfo(_u_FaultInfo),
     ._u_MD(_u_MD),
@@ -2262,10 +4133,6 @@ module dorado_backplane (
     ._u_Pipe3(_u_Pipe3),
     ._u_Pipe4(_u_Pipe4),
     .dHitPerr(dHitPerr),
-    .dMDMad_0_p_(dMDMad_0_p_),
-    .dMDMad_1_p_(dMDMad_1_p_),
-    .dMDMad_2_p_(dMDMad_2_p_),
-    .dMDMad_3_p_(dMDMad_3_p_),
     .dPipe02Ad_0(dPipe02Ad_0),
     .dPipe02Ad_1(dPipe02Ad_1),
     .dPipe02Ad_2(dPipe02Ad_2),
@@ -2275,11 +4142,124 @@ module dorado_backplane (
     .dPipe34Ad_2(dPipe34Ad_2),
     .dPipe34Ad_3(dPipe34Ad_3),
     .dSTPerr(dSTPerr),
-    .preMCSb(preMCSb)
+    .AcanhaveMap_p___drv(AcanhaveMap_p___MemX),
+    .At_eq_Curt_p___drv(At_eq_Curt_p___MemX),
+    .BMux_00__drv(BMux_00__MemX),
+    .BMux_01__drv(BMux_01__MemX),
+    .BMux_02__drv(BMux_02__MemX),
+    .BMux_03__drv(BMux_03__MemX),
+    .BMux_04__drv(BMux_04__MemX),
+    .BMux_05__drv(BMux_05__MemX),
+    .BMux_06__drv(BMux_06__MemX),
+    .BMux_07__drv(BMux_07__MemX),
+    .BMux_08__drv(BMux_08__MemX),
+    .BMux_09__drv(BMux_09__MemX),
+    .BMux_10__drv(BMux_10__MemX),
+    .BMux_11__drv(BMux_11__MemX),
+    .BMux_12__drv(BMux_12__MemX),
+    .BMux_13__drv(BMux_13__MemX),
+    .BMux_14__drv(BMux_14__MemX),
+    .BMux_15__drv(BMux_15__MemX),
+    .CountMiss__drv(CountMiss__MemX),
+    .DMuxData__drv(DMuxData__MemX),
+    .DdataGood_p___drv(DdataGood_p___MemX),
+    .EcDcomingForCt_p___drv(EcDcomingForCt_p___MemX),
+    .EcWantsA__drv(EcWantsA__MemX),
+    .EmuOrFT_p___drv(EmuOrFT_p___MemX),
+    .ErrorsFromEc2__drv(ErrorsFromEc2__MemX),
+    .FinNext__drv(FinNext__MemX),
+    .FinSubtask_0__drv(FinSubtask_0__MemX),
+    .FinSubtask_1__drv(FinSubtask_1__MemX),
+    .FinTask_0__drv(FinTask_0__MemX),
+    .FinTask_1__drv(FinTask_1__MemX),
+    .FinTask_2__drv(FinTask_2__MemX),
+    .FinTask_3__drv(FinTask_3__MemX),
+    .Fout_flt__drv(Fout_flt__MemX),
+    .FoutNext__drv(FoutNext__MemX),
+    .FoutSubtask_0__drv(FoutSubtask_0__MemX),
+    .FoutSubtask_1__drv(FoutSubtask_1__MemX),
+    .FoutTask_0__drv(FoutTask_0__MemX),
+    .FoutTask_1__drv(FoutTask_1__MemX),
+    .FoutTask_2__drv(FoutTask_2__MemX),
+    .FoutTask_3__drv(FoutTask_3__MemX),
+    .HoldMapbuf__drv(HoldMapbuf__MemX),
+    .IfuFaultInEc2__drv(IfuFaultInEc2__MemX),
+    .LargeHold__drv(LargeHold__MemX),
+    .LdPipeVAdly_p___drv(LdPipeVAdly_p___MemX),
+    .LoadEcOut_p___drv(LoadEcOut_p___MemX),
+    .LoadSinE__drv(LoadSinE__MemX),
+    .LoadSinO__drv(LoadSinO__MemX),
+    .LoadSoutE_p___drv(LoadSoutE_p___MemX),
+    .LoadSoutO_p___drv(LoadSoutO_p___MemX),
+    .MDMtag_p___drv(MDMtag_p___MemX),
+    .MakeD_u_CD__drv(MakeD_u_CD__MemX),
+    .MakeD_u_Dbuf__drv(MakeD_u_Dbuf__MemX),
+    .MakeF_u_D__drv(MakeF_u_D__MemX),
+    .MakeFout_u_D__drv(MakeFout_u_D__MemX),
+    .MakeMDM_u_D_p___drv(MakeMDM_u_D_p___MemX),
+    .MakeMD_u_D_p___drv(MakeMD_u_D_p___MemX),
+    .MakeSout_u_D__drv(MakeSout_u_D__MemX),
+    .MapRfsh_p___drv(MapRfsh_p___MemX),
+    .MapTroubleInEc1__drv(MapTroubleInEc1__MemX),
+    .MapWait_m_D__drv(MapWait_m_D__MemX),
+    .MemAd_0__drv(MemAd_0__MemX),
+    .MemAd_1__drv(MemAd_1__MemX),
+    .MemAd_2__drv(MemAd_2__MemX),
+    .MemAd_3__drv(MemAd_3__MemX),
+    .MemAd_4__drv(MemAd_4__MemX),
+    .MemAd_5__drv(MemAd_5__MemX),
+    .MemAd_6__drv(MemAd_6__MemX),
+    .MemAd_7__drv(MemAd_7__MemX),
+    .MemAd_8__drv(MemAd_8__MemX),
+    .MemCASa__drv(MemCASa__MemX),
+    .MemCASb__drv(MemCASb__MemX),
+    .MemError__drv(MemError__MemX),
+    .MemPE__drv(MemPE__MemX),
+    .MemRASa__drv(MemRASa__MemX),
+    .MemRASb__drv(MemRASb__MemX),
+    .MemRfsh__drv(MemRfsh__MemX),
+    .MemWEa__drv(MemWEa__MemX),
+    .MemWEb__drv(MemWEb__MemX),
+    .Mod0SinEn_p___drv(Mod0SinEn_p___MemX),
+    .Mod0StrEn_p___drv(Mod0StrEn_p___MemX),
+    .Mod1SinEn_p___drv(Mod1SinEn_p___MemX),
+    .Mod1StrEn_p___drv(Mod1StrEn_p___MemX),
+    .Mod2SinEn_p___drv(Mod2SinEn_p___MemX),
+    .Mod2StrEn_p___drv(Mod2StrEn_p___MemX),
+    .Mod3SinEn_p___drv(Mod3SinEn_p___MemX),
+    .Mod3StrEn_p___drv(Mod3StrEn_p___MemX),
+    .ProcTag__drv(ProcTag__MemX),
+    .ProcTagInA__drv(ProcTagInA__MemX),
+    .STfree_p___drv(STfree_p___MemX),
+    .ShiftEcOut__drv(ShiftEcOut__MemX),
+    .ShiftSinE__drv(ShiftSinE__MemX),
+    .ShiftSinO__drv(ShiftSinO__MemX),
+    .ShiftSoutE__drv(ShiftSoutE__MemX),
+    .ShiftSoutO__drv(ShiftSoutO__MemX),
+    .StartEcChk_p___drv(StartEcChk_p___MemX),
+    .StartEcGen_p___drv(StartEcGen_p___MemX),
+    .TWReq15__drv(TWReq15__MemX),
+    .Transport_p___drv(Transport_p___MemX),
+    .WPinEc1__drv(WPinEc1__MemX),
+    .XWantsPipe__drv(XWantsPipe__MemX),
+    .dMDMad_0_p___drv(dMDMad_0_p___MemX),
+    .dMDMad_1_p___drv(dMDMad_1_p___MemX),
+    .dMDMad_2_p___drv(dMDMad_2_p___MemX),
+    .dMDMad_3_p___drv(dMDMad_3_p___MemX),
+    .dPipe02Ad_0__drv(dPipe02Ad_0__MemX),
+    .dPipe02Ad_1__drv(dPipe02Ad_1__MemX),
+    .dPipe02Ad_2__drv(dPipe02Ad_2__MemX),
+    .dPipe02Ad_3__drv(dPipe02Ad_3__MemX),
+    .dPipe34Ad_0__drv(dPipe34Ad_0__MemX),
+    .dPipe34Ad_1__drv(dPipe34Ad_1__MemX),
+    .dPipe34Ad_2__drv(dPipe34Ad_2__MemX),
+    .dPipe34Ad_3__drv(dPipe34Ad_3__MemX),
+    .preMCSb__drv(preMCSb__MemX)
   );
 
   // ---- DskEth
   DskEth_m_Rev_m_Cf b_DskEth (
+    .sys_clk(sys_clk),
     .BNTGtCT_p_b(BNTGtCT_p_b),
     .Block(Block),
     .CLK_disk_p_(CLK_disk_p_),
@@ -2293,8 +4273,6 @@ module dorado_backplane (
     .ClockP2(ClockP2),
     .ClockP3(ClockP3),
     .Collision(Collision),
-    .ContTag_p_(ContTag_p_),
-    .CylinderTag_p_(CylinderTag_p_),
     .DMuxClk(DMuxClk),
     .DMuxData(DMuxData),
     .DataM0(DataM0),
@@ -2305,9 +4283,6 @@ module dorado_backplane (
     .DataP1(DataP1),
     .DataP2(DataP2),
     .DataP3(DataP3),
-    .DiskTW(DiskTW),
-    .DriveTag_p_(DriveTag_p_),
-    .HeadTag_p_(HeadTag_p_),
     .Host_0(Host_0),
     .Host_1(Host_1),
     .Host_2(Host_2),
@@ -2336,7 +4311,6 @@ module dorado_backplane (
     .IOB_17(IOB_17),
     .IOHold(IOHold),
     .IOReset(IOReset),
-    .IOatt(IOatt),
     .IOin_p_(IOin_p_),
     .IOout_p_(IOout_p_),
     .MemSH_p_(MemSH_p_),
@@ -2355,10 +4329,6 @@ module dorado_backplane (
     .SecIndx1_p_(SecIndx1_p_),
     .SecIndx2_p_(SecIndx2_p_),
     .SecIndx3_p_(SecIndx3_p_),
-    .Select0_p_(Select0_p_),
-    .Select1_p_(Select1_p_),
-    .Select2_p_(Select2_p_),
-    .Select3_p_(Select3_p_),
     .Selected0_p_(Selected0_p_),
     .Selected1_p_(Selected1_p_),
     .Selected2_p_(Selected2_p_),
@@ -2371,18 +4341,6 @@ module dorado_backplane (
     .TIOA_5(TIOA_5),
     .TIOA_6(TIOA_6),
     .TIOA_7(TIOA_7),
-    .TagBus_0_p_(TagBus_0_p_),
-    .TagBus_00_p_(TagBus_00_p_),
-    .TagBus_000_p_(TagBus_000_p_),
-    .TagBus_1_p_(TagBus_1_p_),
-    .TagBus_2_p_(TagBus_2_p_),
-    .TagBus_3_p_(TagBus_3_p_),
-    .TagBus_4_p_(TagBus_4_p_),
-    .TagBus_5_p_(TagBus_5_p_),
-    .TagBus_6_p_(TagBus_6_p_),
-    .TagBus_7_p_(TagBus_7_p_),
-    .TagBus_8_p_(TagBus_8_p_),
-    .TagBus_9_p_(TagBus_9_p_),
     .TempRef(TempRef),
     .TtlDeviceCk_p_(TtlDeviceCk_p_),
     .TtlEndOfCyl_p_(TtlEndOfCyl_p_),
@@ -2394,15 +4352,69 @@ module dorado_backplane (
     .TtlSector_p_(TtlSector_p_),
     .TtlSeekInc_p_(TtlSeekInc_p_),
     .TtlTerm_p_(TtlTerm_p_),
-    .WakeEthRx(WakeEthRx),
-    .WakeEthTx(WakeEthTx),
-    .XmtData_p_(XmtData_p_)
+    .ContTag_p___drv(ContTag_p___DskEth),
+    .CylinderTag_p___drv(CylinderTag_p___DskEth),
+    .DMuxData__drv(DMuxData__DskEth),
+    .DataM0__drv(DataM0__DskEth),
+    .DataM1__drv(DataM1__DskEth),
+    .DataM2__drv(DataM2__DskEth),
+    .DataM3__drv(DataM3__DskEth),
+    .DataP0__drv(DataP0__DskEth),
+    .DataP1__drv(DataP1__DskEth),
+    .DataP2__drv(DataP2__DskEth),
+    .DataP3__drv(DataP3__DskEth),
+    .DiskTW__drv(DiskTW__DskEth),
+    .DriveTag_p___drv(DriveTag_p___DskEth),
+    .HeadTag_p___drv(HeadTag_p___DskEth),
+    .IOB_00__drv(IOB_00__DskEth),
+    .IOB_01__drv(IOB_01__DskEth),
+    .IOB_02__drv(IOB_02__DskEth),
+    .IOB_03__drv(IOB_03__DskEth),
+    .IOB_04__drv(IOB_04__DskEth),
+    .IOB_05__drv(IOB_05__DskEth),
+    .IOB_06__drv(IOB_06__DskEth),
+    .IOB_07__drv(IOB_07__DskEth),
+    .IOB_08__drv(IOB_08__DskEth),
+    .IOB_09__drv(IOB_09__DskEth),
+    .IOB_10__drv(IOB_10__DskEth),
+    .IOB_11__drv(IOB_11__DskEth),
+    .IOB_12__drv(IOB_12__DskEth),
+    .IOB_13__drv(IOB_13__DskEth),
+    .IOB_14__drv(IOB_14__DskEth),
+    .IOB_15__drv(IOB_15__DskEth),
+    .IOB_16__drv(IOB_16__DskEth),
+    .IOB_17__drv(IOB_17__DskEth),
+    .IOatt__drv(IOatt__DskEth),
+    .OKToSelect__drv(OKToSelect__DskEth),
+    .OS0__drv(OS0__DskEth),
+    .OS1__drv(OS1__DskEth),
+    .OS2__drv(OS2__DskEth),
+    .OS3__drv(OS3__DskEth),
+    .Select0_p___drv(Select0_p___DskEth),
+    .Select1_p___drv(Select1_p___DskEth),
+    .Select2_p___drv(Select2_p___DskEth),
+    .Select3_p___drv(Select3_p___DskEth),
+    .TagBus_0_p___drv(TagBus_0_p___DskEth),
+    .TagBus_00_p___drv(TagBus_00_p___DskEth),
+    .TagBus_000_p___drv(TagBus_000_p___DskEth),
+    .TagBus_1_p___drv(TagBus_1_p___DskEth),
+    .TagBus_2_p___drv(TagBus_2_p___DskEth),
+    .TagBus_3_p___drv(TagBus_3_p___DskEth),
+    .TagBus_4_p___drv(TagBus_4_p___DskEth),
+    .TagBus_5_p___drv(TagBus_5_p___DskEth),
+    .TagBus_6_p___drv(TagBus_6_p___DskEth),
+    .TagBus_7_p___drv(TagBus_7_p___DskEth),
+    .TagBus_8_p___drv(TagBus_8_p___DskEth),
+    .TagBus_9_p___drv(TagBus_9_p___DskEth),
+    .TtlSector_p___drv(TtlSector_p___DskEth),
+    .WakeEthRx__drv(WakeEthRx__DskEth),
+    .WakeEthTx__drv(WakeEthTx__DskEth),
+    .XmtData_p___drv(XmtData_p___DskEth)
   );
 
   // ---- DispY
   DispY_m_Rev_m_Cl b_DispY (
-    .n_24Bit(n_24Bit),
-    .A8B2(A8B2),
+    .sys_clk(sys_clk),
     .AItem_0(AItem_0),
     .AItem_1(AItem_1),
     .AItem_2(AItem_2),
@@ -2411,13 +4423,7 @@ module dorado_backplane (
     .AItem_5(AItem_5),
     .AItem_6(AItem_6),
     .AItem_7(AItem_7),
-    .AItemClkEn_p_b(AItemClkEn_p_b),
     .AOff(AOff),
-    .AltoCSync_p_(AltoCSync_p_),
-    .AltoHSync(AltoHSync),
-    .AltoTTLVideo(AltoTTLVideo),
-    .AltoVSync_p_(AltoVSync_p_),
-    .BByPass(BByPass),
     .BItem_0(BItem_0),
     .BItem_1(BItem_1),
     .BItem_2(BItem_2),
@@ -2426,13 +4432,11 @@ module dorado_backplane (
     .BItem_5(BItem_5),
     .BItem_6(BItem_6),
     .BItem_7(BItem_7),
-    .BItemClkEn_p_b(BItemClkEn_p_b),
     .BNTGtCT_p_b(BNTGtCT_p_b),
     .BOff(BOff),
     .Block(Block),
     .CLK_display_p_(CLK_display_p_),
     .CLKEnable_p_b(CLKEnable_p_b),
-    .Crystal(Crystal),
     .CursorData(CursorData),
     .DMuxClk(DMuxClk),
     .DMuxData(DMuxData),
@@ -2478,14 +4482,11 @@ module dorado_backplane (
     .IOB_13(IOB_13),
     .IOB_14(IOB_14),
     .IOB_15(IOB_15),
-    .IOB_16(IOB_16),
-    .IOB_17(IOB_17),
     .IOHold(IOHold),
     .IOIn_p_(IOIn_p_),
     .IOOut_p_(IOOut_p_),
     .IOReset(IOReset),
     .IOut_m_(IOut_m_),
-    .JamVBlank(JamVBlank),
     .KeyboardData(KeyboardData),
     .MemClkEnable_p_a(MemClkEnable_p_a),
     .MemSH_p_(MemSH_p_),
@@ -2507,7 +4508,6 @@ module dorado_backplane (
     .OISData_3_p_(OISData_3_p_),
     .PixelClkVCO(PixelClkVCO),
     .RawPixelClk(RawPixelClk),
-    .SubTask_0(SubTask_0),
     .TIOA_0(TIOA_0),
     .TIOA_1(TIOA_1),
     .TIOA_2(TIOA_2),
@@ -2520,13 +4520,71 @@ module dorado_backplane (
     .VBlank(VBlank),
     .VSync(VSync),
     .WakeDHT(WakeDHT),
-    .WakeDWT(WakeDWT),
     .XHsync(XHsync),
-    .XSyncEn_p_(XSyncEn_p_)
+    .XSyncEn_p_(XSyncEn_p_),
+    .n_24Bit__drv(n_24Bit__DispY),
+    .A8B2__drv(A8B2__DispY),
+    .AItem_0__drv(AItem_0__DispY),
+    .AItem_1__drv(AItem_1__DispY),
+    .AItem_2__drv(AItem_2__DispY),
+    .AItem_3__drv(AItem_3__DispY),
+    .AItem_4__drv(AItem_4__DispY),
+    .AItem_5__drv(AItem_5__DispY),
+    .AItem_6__drv(AItem_6__DispY),
+    .AItem_7__drv(AItem_7__DispY),
+    .AItemClkEn_p_b__drv(AItemClkEn_p_b__DispY),
+    .AOff__drv(AOff__DispY),
+    .AltoCSync_p___drv(AltoCSync_p___DispY),
+    .AltoHSync__drv(AltoHSync__DispY),
+    .AltoTTLVideo__drv(AltoTTLVideo__DispY),
+    .AltoVSync_p___drv(AltoVSync_p___DispY),
+    .BByPass__drv(BByPass__DispY),
+    .BItem_0__drv(BItem_0__DispY),
+    .BItem_1__drv(BItem_1__DispY),
+    .BItem_2__drv(BItem_2__DispY),
+    .BItem_3__drv(BItem_3__DispY),
+    .BItem_4__drv(BItem_4__DispY),
+    .BItem_5__drv(BItem_5__DispY),
+    .BItem_6__drv(BItem_6__DispY),
+    .BItem_7__drv(BItem_7__DispY),
+    .BItemClkEn_p_b__drv(BItemClkEn_p_b__DispY),
+    .BOff__drv(BOff__DispY),
+    .Crystal__drv(Crystal__DispY),
+    .CursorData__drv(CursorData__DispY),
+    .DMuxData__drv(DMuxData__DispY),
+    .GNDFour__drv(GNDFour__DispY),
+    .HBlank__drv(HBlank__DispY),
+    .HSync__drv(HSync__DispY),
+    .HalfLine__drv(HalfLine__DispY),
+    .IOB_00__drv(IOB_00__DispY),
+    .IOB_15__drv(IOB_15__DispY),
+    .IOB_16__drv(IOB_16__DispY),
+    .IOB_17__drv(IOB_17__DispY),
+    .IOut_m___drv(IOut_m___DispY),
+    .JamVBlank__drv(JamVBlank__DispY),
+    .OISClkA__drv(OISClkA__DispY),
+    .OISClkA_p___drv(OISClkA_p___DispY),
+    .OISClkB__drv(OISClkB__DispY),
+    .OISClkB_p___drv(OISClkB_p___DispY),
+    .OISData_0__drv(OISData_0__DispY),
+    .OISData_0_p___drv(OISData_0_p___DispY),
+    .OISData_1__drv(OISData_1__DispY),
+    .OISData_1_p___drv(OISData_1_p___DispY),
+    .OISData_2__drv(OISData_2__DispY),
+    .OISData_2_p___drv(OISData_2_p___DispY),
+    .OISData_3__drv(OISData_3__DispY),
+    .OISData_3_p___drv(OISData_3_p___DispY),
+    .SubTask_0__drv(SubTask_0__DispY),
+    .VBlank__drv(VBlank__DispY),
+    .VSync__drv(VSync__DispY),
+    .WakeDHT__drv(WakeDHT__DispY),
+    .WakeDWT__drv(WakeDWT__DispY),
+    .XSyncEn_p___drv(XSyncEn_p___DispY)
   );
 
   // ---- BaseBd
   BaseBd_m_Rev_m_Am b_BaseBd (
+    .sys_clk(sys_clk),
     .ACPABus_0_p_(ACPABus_0_p_),
     .ACPABus_1_p_(ACPABus_1_p_),
     .ACPABus_2_p_(ACPABus_2_p_),
@@ -2575,60 +4633,19 @@ module dorado_backplane (
     .CITT__pl_SS(CITT__pl_SS),
     .CITT_EOS(CITT_EOS),
     .CLK_InBase(CLK_InBase),
-    .CLK_OutBase_p_(CLK_OutBase_p_),
-    .CLK_ca_p_(CLK_ca_p_),
-    .CLK_cb_p_(CLK_cb_p_),
-    .CLK_disk_p_(CLK_disk_p_),
-    .CLK_display_p_(CLK_display_p_),
-    .CLK_ifu_p_(CLK_ifu_p_),
-    .CLK_io20_p_(CLK_io20_p_),
-    .CLK_io21_p_(CLK_io21_p_),
-    .CLK_io22_p_(CLK_io22_p_),
-    .CLK_io23_p_(CLK_io23_p_),
-    .CLK_io24_p_(CLK_io24_p_),
-    .CLK_mc_p_(CLK_mc_p_),
-    .CLK_md_p_(CLK_md_p_),
-    .CLK_ms0Even_p_(CLK_ms0Even_p_),
-    .CLK_ms0Odd_p_(CLK_ms0Odd_p_),
-    .CLK_ms1Even_p_(CLK_ms1Even_p_),
-    .CLK_ms1Odd_p_(CLK_ms1Odd_p_),
-    .CLK_ms2Even_p_(CLK_ms2Even_p_),
-    .CLK_ms2Odd_p_(CLK_ms2Odd_p_),
-    .CLK_ms3Even_p_(CLK_ms3Even_p_),
-    .CLK_ms3Odd_p_(CLK_ms3Odd_p_),
-    .CLK_mx_p_(CLK_mx_p_),
-    .CLK_ph_p_(CLK_ph_p_),
-    .CLK_pl_p_(CLK_pl_p_),
-    .CPAddr_0_p_(CPAddr_0_p_),
-    .CPAddr_1_p_(CPAddr_1_p_),
-    .CPAddr_2_p_(CPAddr_2_p_),
     .CPIn_0(CPIn_0),
     .CPIn_1(CPIn_1),
     .CPIn_2(CPIn_2),
     .CPIn_3(CPIn_3),
-    .CPOut_0(CPOut_0),
-    .CPOut_1(CPOut_1),
-    .CPOut_2(CPOut_2),
-    .CPOut_3(CPOut_3),
-    .CPOut_4(CPOut_4),
-    .CPOut_5(CPOut_5),
-    .CPOut_6(CPOut_6),
-    .CPOut_7(CPOut_7),
-    .CPOut_8(CPOut_8),
-    .CPStrb_p_(CPStrb_p_),
     .Collision(Collision),
     .DMuxClk(DMuxClk),
     .DMuxData(DMuxData),
     .DiskOnRet(DiskOnRet),
-    .IOReset(IOReset),
-    .KeyboardData(KeyboardData),
     .LEDOnRet(LEDOnRet),
     .OISData(OISData),
     .OISData_p_(OISData_p_),
-    .Pendulum(Pendulum),
     .PwrOnRet(PwrOnRet),
     .RcvData(RcvData),
-    .RfshPeriod(RfshPeriod),
     .Sequence0_p_(Sequence0_p_),
     .Serial_1(Serial_1),
     .Serial_10(Serial_10),
@@ -2638,21 +4655,1008 @@ module dorado_backplane (
     .Serial_200(Serial_200),
     .Serial_4(Serial_4),
     .Serial_40(Serial_40),
-    .SetRun(SetRun),
-    .SetRunRfsh(SetRunRfsh),
-    .SetSS_p_(SetSS_p_),
     .SkipWait_p_(SkipWait_p_),
-    .StartClockPulse(StartClockPulse),
     .TTLIOReset_p_(TTLIOReset_p_),
     .TempRef(TempRef),
+    .UseDMD(UseDMD),
+    .XmtData_p_(XmtData_p_),
+    .dStartClockPulse(dStartClockPulse),
+    .ACPI_0__drv(ACPI_0__BaseBd),
+    .ACPI_1__drv(ACPI_1__BaseBd),
+    .ACPI_2__drv(ACPI_2__BaseBd),
+    .ACPI_3__drv(ACPI_3__BaseBd),
+    .ACPI_4__drv(ACPI_4__BaseBd),
+    .ACPIGnd_0__drv(ACPIGnd_0__BaseBd),
+    .ACPIGnd_1__drv(ACPIGnd_1__BaseBd),
+    .ACPIGnd_2__drv(ACPIGnd_2__BaseBd),
+    .ACPIGnd_3__drv(ACPIGnd_3__BaseBd),
+    .ACPIGnd_4__drv(ACPIGnd_4__BaseBd),
+    .BootMC_p___drv(BootMC_p___BaseBd),
+    .BootNO__drv(BootNO__BaseBd),
+    .CLK_OutBase_p___drv(CLK_OutBase_p___BaseBd),
+    .CLK_ca_p___drv(CLK_ca_p___BaseBd),
+    .CLK_cb_p___drv(CLK_cb_p___BaseBd),
+    .CLK_disk_p___drv(CLK_disk_p___BaseBd),
+    .CLK_display_p___drv(CLK_display_p___BaseBd),
+    .CLK_ifu_p___drv(CLK_ifu_p___BaseBd),
+    .CLK_io20_p___drv(CLK_io20_p___BaseBd),
+    .CLK_io21_p___drv(CLK_io21_p___BaseBd),
+    .CLK_io22_p___drv(CLK_io22_p___BaseBd),
+    .CLK_io23_p___drv(CLK_io23_p___BaseBd),
+    .CLK_io24_p___drv(CLK_io24_p___BaseBd),
+    .CLK_mc_p___drv(CLK_mc_p___BaseBd),
+    .CLK_md_p___drv(CLK_md_p___BaseBd),
+    .CLK_ms0Even_p___drv(CLK_ms0Even_p___BaseBd),
+    .CLK_ms0Odd_p___drv(CLK_ms0Odd_p___BaseBd),
+    .CLK_ms1Even_p___drv(CLK_ms1Even_p___BaseBd),
+    .CLK_ms1Odd_p___drv(CLK_ms1Odd_p___BaseBd),
+    .CLK_ms2Even_p___drv(CLK_ms2Even_p___BaseBd),
+    .CLK_ms2Odd_p___drv(CLK_ms2Odd_p___BaseBd),
+    .CLK_ms3Even_p___drv(CLK_ms3Even_p___BaseBd),
+    .CLK_ms3Odd_p___drv(CLK_ms3Odd_p___BaseBd),
+    .CLK_mx_p___drv(CLK_mx_p___BaseBd),
+    .CLK_ph_p___drv(CLK_ph_p___BaseBd),
+    .CLK_pl_p___drv(CLK_pl_p___BaseBd),
+    .CPAddr_0_p___drv(CPAddr_0_p___BaseBd),
+    .CPAddr_1_p___drv(CPAddr_1_p___BaseBd),
+    .CPAddr_2_p___drv(CPAddr_2_p___BaseBd),
+    .CPOut_0__drv(CPOut_0__BaseBd),
+    .CPOut_1__drv(CPOut_1__BaseBd),
+    .CPOut_2__drv(CPOut_2__BaseBd),
+    .CPOut_3__drv(CPOut_3__BaseBd),
+    .CPOut_4__drv(CPOut_4__BaseBd),
+    .CPOut_5__drv(CPOut_5__BaseBd),
+    .CPOut_6__drv(CPOut_6__BaseBd),
+    .CPOut_7__drv(CPOut_7__BaseBd),
+    .CPOut_8__drv(CPOut_8__BaseBd),
+    .CPStrb_p___drv(CPStrb_p___BaseBd),
+    .DMuxClk__drv(DMuxClk__BaseBd),
+    .DMuxData__drv(DMuxData__BaseBd),
+    .IOReset__drv(IOReset__BaseBd),
+    .KeyboardData__drv(KeyboardData__BaseBd),
+    .Pendulum__drv(Pendulum__BaseBd),
+    .RfshPeriod__drv(RfshPeriod__BaseBd),
+    .Sequence0_p___drv(Sequence0_p___BaseBd),
+    .SetRun__drv(SetRun__BaseBd),
+    .SetRunRfsh__drv(SetRunRfsh__BaseBd),
+    .SetSS_p___drv(SetSS_p___BaseBd),
+    .SkipWait_p___drv(SkipWait_p___BaseBd),
+    .StartClockPulse__drv(StartClockPulse__BaseBd),
+    .TTLIOReset_p___drv(TTLIOReset_p___BaseBd),
+    .TempRef__drv(TempRef__BaseBd),
+    .TurnOff2v__drv(TurnOff2v__BaseBd),
+    .TurnOnDisk_p___drv(TurnOnDisk_p___BaseBd),
+    .TurnOnLED_p___drv(TurnOnLED_p___BaseBd),
+    .TurnOnPwr_p___drv(TurnOnPwr_p___BaseBd),
+    .UseDMD__drv(UseDMD__BaseBd)
+  );
+
+endmodule
+`default_nettype wire
+
+// dorado_machine -- the machine with its external connections resolved, so
+// that a testbench only has to provide a clock.
+//
+// The clock is driven into CLK.InBase and dStartClockPulse.
+// CLK.InBase is the BaseBoard's C9, where it receives the distributed
+// clock like every other board. dStartClockPulse is C101, an input to
+// the MC10210 at j02 that feeds the whole CLK.* fanout -- the same gate
+// the on-board MC1690 clock generator drives, and the only way to make
+// the tree move until that part has a cell model.
+//
+// EVERY OTHER INPUT IS TIED LOW, and that is a physical claim, not a
+// convenience: an unterminated MECL 10K input sits at VEE, which reads
+// as 0. So this is the machine with no cables attached. Mind that many
+// of these signals are ACTIVE LOW (the names ending in ') and are
+// therefore ASSERTED in this state -- a disk or ethernet model has to
+// drive them properly before anything using them means much.
+//
+// probe_val exposes 233 signals, 32 at a time;
+// dorado_backplane.probes lists which bit is which.
+module dorado_machine (
+    input  wire        sys_clk,
+    input  wire [15:0] probe_sel,
+    output wire [31:0] probe_val,
+    output wire [15:0] probe_words
+);
+
+  wire n_24Bit;
+  wire A8B2;
+  wire ACPI_0;
+  wire ACPI_1;
+  wire ACPI_2;
+  wire ACPI_3;
+  wire ACPI_4;
+  wire ACPIGnd_0;
+  wire ACPIGnd_1;
+  wire ACPIGnd_2;
+  wire ACPIGnd_3;
+  wire ACPIGnd_4;
+  wire AItem_0;
+  wire AItem_1;
+  wire AItem_2;
+  wire AItem_3;
+  wire AItem_4;
+  wire AItem_5;
+  wire AItem_6;
+  wire AItem_7;
+  wire AItemClkEn_p_b;
+  wire AOff;
+  wire AltoCSync_p_;
+  wire AltoHSync;
+  wire AltoTTLVideo;
+  wire AltoVSync_p_;
+  wire BByPass;
+  wire BItem_0;
+  wire BItem_1;
+  wire BItem_2;
+  wire BItem_3;
+  wire BItem_4;
+  wire BItem_5;
+  wire BItem_6;
+  wire BItem_7;
+  wire BItemClkEn_p_b;
+  wire BOff;
+  wire BootMC_p_;
+  wire BootNO;
+  wire CLK_OutBase_p_;
+  wire CLK_io20_p_;
+  wire CLK_io21_p_;
+  wire CLK_io22_p_;
+  wire CLK_io23_p_;
+  wire CLK_io24_p_;
+  wire CLK_ms0Even_p_;
+  wire CLK_ms0Odd_p_;
+  wire CLK_ms1Even_p_;
+  wire CLK_ms1Odd_p_;
+  wire CLK_ms2Even_p_;
+  wire CLK_ms2Odd_p_;
+  wire CLK_ms3Even_p_;
+  wire CLK_ms3Odd_p_;
+  wire ContTag_p_;
+  wire CrryEvCntA;
+  wire Crystal;
+  wire CursorData;
+  wire CylinderTag_p_;
+  wire DataM0;
+  wire DataM1;
+  wire DataM2;
+  wire DataM3;
+  wire DataP0;
+  wire DataP1;
+  wire DataP2;
+  wire DataP3;
+  wire DiskTW;
+  wire DriveTag_p_;
+  wire EcDcomingForCt_p_;
+  wire EcOut_0;
+  wire EcOut_1;
+  wire EcOut_2;
+  wire EcOut_3;
+  wire EcOut_4;
+  wire EcOut_5;
+  wire EcOut_6;
+  wire EcOut_7_p_;
+  wire FA_eq_0_p_;
+  wire FF_eq_030;
+  wire FinNext;
+  wire FinSubtask_0;
+  wire FinSubtask_1;
+  wire FinTask_0;
+  wire FinTask_1;
+  wire FinTask_2;
+  wire FinTask_3;
+  wire Fout_16;
+  wire Fout_17;
+  wire Fout_flt;
+  wire FoutSubtask_0;
+  wire FoutSubtask_1;
+  wire GNDFour;
+  wire GenOut_00;
+  wire GenOut_01;
+  wire GenOut_02;
+  wire GenOut_03;
+  wire GenOut_04;
+  wire GenOut_05;
+  wire GenOut_06;
+  wire GenOut_07;
+  wire GenOut_08;
+  wire GenOut_09;
+  wire GenOut_10;
+  wire GenOut_11;
+  wire GenOut_12;
+  wire GenOut_13;
+  wire GenOut_14;
+  wire GenOut_15;
+  wire HBlank;
+  wire HSync;
+  wire HalfLine;
+  wire HeadTag_p_;
+  wire HoldMapbuf;
+  wire IMLHPE_p_;
+  wire IMLHPEDly;
+  wire IMRHPEDly;
+  wire IOut_m_;
+  wire JamVBlank;
+  wire JunkTW;
+  wire LScopeFH;
+  wire LargeHold;
+  wire LoadEcOut_p_;
+  wire LoadSinE;
+  wire LoadSinO;
+  wire LoadSoutE_p_;
+  wire LoadSoutO_p_;
+  wire MXHold;
+  wire MemAd_0;
+  wire MemAd_1;
+  wire MemAd_2;
+  wire MemAd_3;
+  wire MemAd_4;
+  wire MemCASa;
+  wire MemCASb;
+  wire MemClkEnable_p_b;
+  wire MemRASa;
+  wire MemRASb;
+  wire MemWEa;
+  wire MemWEb;
+  wire Mod0SinEn_p_;
+  wire Mod0StrEn_p_;
+  wire Mod1SinEn_p_;
+  wire Mod1StrEn_p_;
+  wire Mod2SinEn_p_;
+  wire Mod2StrEn_p_;
+  wire Mod3SinEn_p_;
+  wire Mod3StrEn_p_;
+  wire OISClkA;
+  wire OISClkA_p_;
+  wire OISClkB;
+  wire OISClkB_p_;
+  wire OISData_0;
+  wire OISData_0_p_;
+  wire OISData_1;
+  wire OISData_1_p_;
+  wire OISData_2;
+  wire OISData_2_p_;
+  wire OISData_3;
+  wire OISData_3_p_;
+  wire OKToSelect;
+  wire OS0;
+  wire OS1;
+  wire OS2;
+  wire OS3;
+  wire PrHold;
+  wire RScopeClk0_p_;
+  wire SWb;
+  wire SWm;
+  wire Select0_p_;
+  wire Select1_p_;
+  wire Select2_p_;
+  wire Select3_p_;
+  wire Sequence0_p_;
+  wire ShiftEcOut;
+  wire ShiftSinE;
+  wire ShiftSinO;
+  wire ShiftSoutE;
+  wire ShiftSoutO;
+  wire SkipWait_p_;
+  wire Sout_00;
+  wire Sout_01;
+  wire Sout_02;
+  wire Sout_03;
+  wire Sout_04;
+  wire Sout_05;
+  wire Sout_06;
+  wire Sout_07;
+  wire Sout_08;
+  wire Sout_09;
+  wire Sout_10;
+  wire Sout_11;
+  wire Sout_12;
+  wire Sout_13;
+  wire Sout_14;
+  wire Sout_15;
+  wire StartClockPulse;
+  wire TTLIOReset_p_;
+  wire TWReq15;
+  wire TagBus_0_p_;
+  wire TagBus_00_p_;
+  wire TagBus_000_p_;
+  wire TagBus_1_p_;
+  wire TagBus_2_p_;
+  wire TagBus_3_p_;
+  wire TagBus_4_p_;
+  wire TagBus_5_p_;
+  wire TagBus_6_p_;
+  wire TagBus_7_p_;
+  wire TagBus_8_p_;
+  wire TagBus_9_p_;
+  wire TestTW;
+  wire TtlSector_p_;
+  wire TurnOff2v;
+  wire TurnOnDisk_p_;
+  wire TurnOnLED_p_;
+  wire TurnOnPwr_p_;
+  wire VBlank;
+  wire VSync;
+  wire WakeDHT;
+  wire WakeDWT;
+  wire WakeEthRx;
+  wire WakeEthTx;
+  wire XSyncEn_p_;
+
+  // The clock fanout, read out of the machine: 10 nets,
+  // BaseBoard to one slot each. These are the first thing to watch --
+  // if they are not toggling, nothing downstream can be.
+  wire CLK_ca_p__probe = u_machine.CLK_ca_p_;
+  wire CLK_cb_p__probe = u_machine.CLK_cb_p_;
+  wire CLK_disk_p__probe = u_machine.CLK_disk_p_;
+  wire CLK_display_p__probe = u_machine.CLK_display_p_;
+  wire CLK_ifu_p__probe = u_machine.CLK_ifu_p_;
+  wire CLK_mc_p__probe = u_machine.CLK_mc_p_;
+  wire CLK_md_p__probe = u_machine.CLK_md_p_;
+  wire CLK_mx_p__probe = u_machine.CLK_mx_p_;
+  wire CLK_ph_p__probe = u_machine.CLK_ph_p_;
+  wire CLK_pl_p__probe = u_machine.CLK_pl_p_;
+
+  // The Dorado clock, divided down from the fabric clock. The cells
+  // detect its EDGE, so it has to be slower than sys_clk -- four
+  // fabric cycles per Dorado clock period here. On real hardware this
+  // is what the BaseBoard's MC1690 generator produces.
+  reg [1:0] clkdiv = 2'd0;
+  always @(posedge sys_clk) clkdiv <= clkdiv + 2'd1;
+  wire dorado_clk = clkdiv[1];
+
+  wire [255:0] probe = {
+    23'd0,
+    CLK_pl_p__probe,
+    CLK_ph_p__probe,
+    CLK_mx_p__probe,
+    CLK_md_p__probe,
+    CLK_mc_p__probe,
+    CLK_ifu_p__probe,
+    CLK_display_p__probe,
+    CLK_disk_p__probe,
+    CLK_cb_p__probe,
+    CLK_ca_p__probe,
+    XSyncEn_p_,
+    WakeEthTx,
+    WakeEthRx,
+    WakeDWT,
+    WakeDHT,
+    VSync,
+    VBlank,
+    TurnOnPwr_p_,
+    TurnOnLED_p_,
+    TurnOnDisk_p_,
+    TurnOff2v,
+    TtlSector_p_,
+    TestTW,
+    TagBus_9_p_,
+    TagBus_8_p_,
+    TagBus_7_p_,
+    TagBus_6_p_,
+    TagBus_5_p_,
+    TagBus_4_p_,
+    TagBus_3_p_,
+    TagBus_2_p_,
+    TagBus_1_p_,
+    TagBus_000_p_,
+    TagBus_00_p_,
+    TagBus_0_p_,
+    TWReq15,
+    TTLIOReset_p_,
+    StartClockPulse,
+    Sout_15,
+    Sout_14,
+    Sout_13,
+    Sout_12,
+    Sout_11,
+    Sout_10,
+    Sout_09,
+    Sout_08,
+    Sout_07,
+    Sout_06,
+    Sout_05,
+    Sout_04,
+    Sout_03,
+    Sout_02,
+    Sout_01,
+    Sout_00,
+    SkipWait_p_,
+    ShiftSoutO,
+    ShiftSoutE,
+    ShiftSinO,
+    ShiftSinE,
+    ShiftEcOut,
+    Sequence0_p_,
+    Select3_p_,
+    Select2_p_,
+    Select1_p_,
+    Select0_p_,
+    SWm,
+    SWb,
+    RScopeClk0_p_,
+    PrHold,
+    OS3,
+    OS2,
+    OS1,
+    OS0,
+    OKToSelect,
+    OISData_3_p_,
+    OISData_3,
+    OISData_2_p_,
+    OISData_2,
+    OISData_1_p_,
+    OISData_1,
+    OISData_0_p_,
+    OISData_0,
+    OISClkB_p_,
+    OISClkB,
+    OISClkA_p_,
+    OISClkA,
+    Mod3StrEn_p_,
+    Mod3SinEn_p_,
+    Mod2StrEn_p_,
+    Mod2SinEn_p_,
+    Mod1StrEn_p_,
+    Mod1SinEn_p_,
+    Mod0StrEn_p_,
+    Mod0SinEn_p_,
+    MemWEb,
+    MemWEa,
+    MemRASb,
+    MemRASa,
+    MemClkEnable_p_b,
+    MemCASb,
+    MemCASa,
+    MemAd_4,
+    MemAd_3,
+    MemAd_2,
+    MemAd_1,
+    MemAd_0,
+    MXHold,
+    LoadSoutO_p_,
+    LoadSoutE_p_,
+    LoadSinO,
+    LoadSinE,
+    LoadEcOut_p_,
+    LargeHold,
+    LScopeFH,
+    JunkTW,
+    JamVBlank,
+    IOut_m_,
+    IMRHPEDly,
+    IMLHPEDly,
+    IMLHPE_p_,
+    HoldMapbuf,
+    HeadTag_p_,
+    HalfLine,
+    HSync,
+    HBlank,
+    GenOut_15,
+    GenOut_14,
+    GenOut_13,
+    GenOut_12,
+    GenOut_11,
+    GenOut_10,
+    GenOut_09,
+    GenOut_08,
+    GenOut_07,
+    GenOut_06,
+    GenOut_05,
+    GenOut_04,
+    GenOut_03,
+    GenOut_02,
+    GenOut_01,
+    GenOut_00,
+    GNDFour,
+    FoutSubtask_1,
+    FoutSubtask_0,
+    Fout_flt,
+    Fout_17,
+    Fout_16,
+    FinTask_3,
+    FinTask_2,
+    FinTask_1,
+    FinTask_0,
+    FinSubtask_1,
+    FinSubtask_0,
+    FinNext,
+    FF_eq_030,
+    FA_eq_0_p_,
+    EcOut_7_p_,
+    EcOut_6,
+    EcOut_5,
+    EcOut_4,
+    EcOut_3,
+    EcOut_2,
+    EcOut_1,
+    EcOut_0,
+    EcDcomingForCt_p_,
+    DriveTag_p_,
+    DiskTW,
+    DataP3,
+    DataP2,
+    DataP1,
+    DataP0,
+    DataM3,
+    DataM2,
+    DataM1,
+    DataM0,
+    CylinderTag_p_,
+    CursorData,
+    Crystal,
+    CrryEvCntA,
+    ContTag_p_,
+    CLK_ms3Odd_p_,
+    CLK_ms3Even_p_,
+    CLK_ms2Odd_p_,
+    CLK_ms2Even_p_,
+    CLK_ms1Odd_p_,
+    CLK_ms1Even_p_,
+    CLK_ms0Odd_p_,
+    CLK_ms0Even_p_,
+    CLK_io24_p_,
+    CLK_io23_p_,
+    CLK_io22_p_,
+    CLK_io21_p_,
+    CLK_io20_p_,
+    CLK_OutBase_p_,
+    BootNO,
+    BootMC_p_,
+    BOff,
+    BItemClkEn_p_b,
+    BItem_7,
+    BItem_6,
+    BItem_5,
+    BItem_4,
+    BItem_3,
+    BItem_2,
+    BItem_1,
+    BItem_0,
+    BByPass,
+    AltoVSync_p_,
+    AltoTTLVideo,
+    AltoHSync,
+    AltoCSync_p_,
+    AOff,
+    AItemClkEn_p_b,
+    AItem_7,
+    AItem_6,
+    AItem_5,
+    AItem_4,
+    AItem_3,
+    AItem_2,
+    AItem_1,
+    AItem_0,
+    ACPIGnd_4,
+    ACPIGnd_3,
+    ACPIGnd_2,
+    ACPIGnd_1,
+    ACPIGnd_0,
+    ACPI_4,
+    ACPI_3,
+    ACPI_2,
+    ACPI_1,
+    ACPI_0,
+    A8B2,
+    n_24Bit
+  };
+
+  dorado_backplane u_machine (
+    .sys_clk(sys_clk),
+    .n_24Bit(n_24Bit),
+    .A8B2(A8B2),
+    .ACPABus_0_p_(1'b0),
+    .ACPABus_1_p_(1'b0),
+    .ACPABus_2_p_(1'b0),
+    .ACPBus_0_p_(1'b0),
+    .ACPBus_1_p_(1'b0),
+    .ACPBus_2_p_(1'b0),
+    .ACPBus_3_p_(1'b0),
+    .ACPBus_4_p_(1'b0),
+    .ACPBus_5_p_(1'b0),
+    .ACPBus_6_p_(1'b0),
+    .ACPBus_7_p_(1'b0),
+    .ACPBus_8_p_(1'b0),
+    .ACPGnd_00(1'b0),
+    .ACPGnd_01(1'b0),
+    .ACPGnd_02(1'b0),
+    .ACPGnd_03(1'b0),
+    .ACPGnd_04(1'b0),
+    .ACPGnd_05(1'b0),
+    .ACPGnd_06(1'b0),
+    .ACPGnd_07(1'b0),
+    .ACPGnd_08(1'b0),
+    .ACPGnd_09(1'b0),
+    .ACPGnd_10(1'b0),
+    .ACPGnd_11(1'b0),
+    .ACPGnd_12(1'b0),
+    .ACPI_0(ACPI_0),
+    .ACPI_1(ACPI_1),
+    .ACPI_2(ACPI_2),
+    .ACPI_3(ACPI_3),
+    .ACPI_4(ACPI_4),
+    .ACPIGnd_0(ACPIGnd_0),
+    .ACPIGnd_1(ACPIGnd_1),
+    .ACPIGnd_2(ACPIGnd_2),
+    .ACPIGnd_3(ACPIGnd_3),
+    .ACPIGnd_4(ACPIGnd_4),
+    .ACPStrb_p_(1'b0),
+    .AItem_0(AItem_0),
+    .AItem_1(AItem_1),
+    .AItem_2(AItem_2),
+    .AItem_3(AItem_3),
+    .AItem_4(AItem_4),
+    .AItem_5(AItem_5),
+    .AItem_6(AItem_6),
+    .AItem_7(AItem_7),
+    .AItemClkEn_p_b(AItemClkEn_p_b),
+    .AOff(AOff),
+    .AltoCSync_p_(AltoCSync_p_),
+    .AltoHSync(AltoHSync),
+    .AltoTTLVideo(AltoTTLVideo),
+    .AltoVSync_p_(AltoVSync_p_),
+    .BByPass(BByPass),
+    .BItem_0(BItem_0),
+    .BItem_1(BItem_1),
+    .BItem_2(BItem_2),
+    .BItem_3(BItem_3),
+    .BItem_4(BItem_4),
+    .BItem_5(BItem_5),
+    .BItem_6(BItem_6),
+    .BItem_7(BItem_7),
+    .BItemClkEn_p_b(BItemClkEn_p_b),
+    .BOff(BOff),
+    .BootMC_p_(BootMC_p_),
+    .BootNO(BootNO),
+    .CICC__m_SS(1'b0),
+    .CICC_EOS(1'b0),
+    .CIDD__m_SS(1'b0),
+    .CIDD_EOS(1'b0),
+    .CIEE__m_SS(1'b0),
+    .CIEE_EOS(1'b0),
+    .CITT__pl_SS(1'b0),
+    .CITT_EOS(1'b0),
+    .CLK_InBase(dorado_clk),
+    .CLK_OutBase_p_(CLK_OutBase_p_),
+    .CLK_io20_p_(CLK_io20_p_),
+    .CLK_io21_p_(CLK_io21_p_),
+    .CLK_io22_p_(CLK_io22_p_),
+    .CLK_io23_p_(CLK_io23_p_),
+    .CLK_io24_p_(CLK_io24_p_),
+    .CLK_ms0Even_p_(CLK_ms0Even_p_),
+    .CLK_ms0Odd_p_(CLK_ms0Odd_p_),
+    .CLK_ms1Even_p_(CLK_ms1Even_p_),
+    .CLK_ms1Odd_p_(CLK_ms1Odd_p_),
+    .CLK_ms2Even_p_(CLK_ms2Even_p_),
+    .CLK_ms2Odd_p_(CLK_ms2Odd_p_),
+    .CLK_ms3Even_p_(CLK_ms3Even_p_),
+    .CLK_ms3Odd_p_(CLK_ms3Odd_p_),
+    .ChipsAre256_s_16K(1'b0),
+    .ChipsAre64K(1'b0),
+    .ClkEnable_p_a(1'b0),
+    .ClockM0(1'b0),
+    .ClockM1(1'b0),
+    .ClockM2(1'b0),
+    .ClockM3(1'b0),
+    .ClockP0(1'b0),
+    .ClockP1(1'b0),
+    .ClockP2(1'b0),
+    .ClockP3(1'b0),
+    .Collision(1'b0),
+    .ContTag_p_(ContTag_p_),
+    .CrryEvCntA(CrryEvCntA),
+    .Crystal(Crystal),
+    .CursorData(CursorData),
+    .CylinderTag_p_(CylinderTag_p_),
+    .DataM0(DataM0),
+    .DataM1(DataM1),
+    .DataM2(DataM2),
+    .DataM3(DataM3),
+    .DataP0(DataP0),
+    .DataP1(DataP1),
+    .DataP2(DataP2),
+    .DataP3(DataP3),
+    .DcomingForCt_p_(1'b0),
+    .DiskOnRet(1'b0),
+    .DiskTW(DiskTW),
+    .DriveTag_p_(DriveTag_p_),
+    .EcDcomingForCt_p_(EcDcomingForCt_p_),
+    .EcIn_0(1'b0),
+    .EcIn_1(1'b0),
+    .EcOut_0(EcOut_0),
+    .EcOut_1(EcOut_1),
+    .EcOut_2(EcOut_2),
+    .EcOut_3(EcOut_3),
+    .EcOut_4(EcOut_4),
+    .EcOut_5(EcOut_5),
+    .EcOut_6(EcOut_6),
+    .EcOut_7_p_(EcOut_7_p_),
+    .EventA(1'b0),
+    .EventB(1'b0),
+    .EventC(1'b0),
+    .EventD(1'b0),
+    .EventE(1'b0),
+    .ExtHoldReq(1'b0),
+    .FA_eq_0_p_(FA_eq_0_p_),
+    .FF_eq_030(FF_eq_030),
+    .Fin_00(1'b0),
+    .Fin_01(1'b0),
+    .Fin_02(1'b0),
+    .Fin_03(1'b0),
+    .Fin_04(1'b0),
+    .Fin_05(1'b0),
+    .Fin_06(1'b0),
+    .Fin_07(1'b0),
+    .Fin_08(1'b0),
+    .Fin_09(1'b0),
+    .Fin_10(1'b0),
+    .Fin_11(1'b0),
+    .Fin_12(1'b0),
+    .Fin_13(1'b0),
+    .Fin_14(1'b0),
+    .Fin_15(1'b0),
+    .Fin_16(1'b0),
+    .Fin_17(1'b0),
+    .FinNext(FinNext),
+    .FinSubtask_0(FinSubtask_0),
+    .FinSubtask_1(FinSubtask_1),
+    .FinTask_0(FinTask_0),
+    .FinTask_1(FinTask_1),
+    .FinTask_2(FinTask_2),
+    .FinTask_3(FinTask_3),
+    .Fout_16(Fout_16),
+    .Fout_17(Fout_17),
+    .Fout_flt(Fout_flt),
+    .FoutSubTask_0(1'b0),
+    .FoutSubtask_0(FoutSubtask_0),
+    .FoutSubtask_1(FoutSubtask_1),
+    .GNDFour(GNDFour),
+    .GenIn_00(1'b0),
+    .GenIn_01(1'b0),
+    .GenIn_02(1'b0),
+    .GenIn_03(1'b0),
+    .GenIn_04(1'b0),
+    .GenIn_05(1'b0),
+    .GenIn_06(1'b0),
+    .GenIn_07(1'b0),
+    .GenIn_08(1'b0),
+    .GenIn_09(1'b0),
+    .GenIn_10(1'b0),
+    .GenIn_11(1'b0),
+    .GenIn_12(1'b0),
+    .GenIn_13(1'b0),
+    .GenIn_14(1'b0),
+    .GenIn_15(1'b0),
+    .GenOut_00(GenOut_00),
+    .GenOut_01(GenOut_01),
+    .GenOut_02(GenOut_02),
+    .GenOut_03(GenOut_03),
+    .GenOut_04(GenOut_04),
+    .GenOut_05(GenOut_05),
+    .GenOut_06(GenOut_06),
+    .GenOut_07(GenOut_07),
+    .GenOut_08(GenOut_08),
+    .GenOut_09(GenOut_09),
+    .GenOut_10(GenOut_10),
+    .GenOut_11(GenOut_11),
+    .GenOut_12(GenOut_12),
+    .GenOut_13(GenOut_13),
+    .GenOut_14(GenOut_14),
+    .GenOut_15(GenOut_15),
+    .HBlank(HBlank),
+    .HSync(HSync),
+    .HalfLine(HalfLine),
+    .HeadTag_p_(HeadTag_p_),
+    .HoldMapBuf(1'b0),
+    .HoldMapbuf(HoldMapbuf),
+    .Host_0(1'b0),
+    .Host_1(1'b0),
+    .Host_2(1'b0),
+    .Host_3(1'b0),
+    .Host_4(1'b0),
+    .Host_5(1'b0),
+    .Host_6(1'b0),
+    .Host_7(1'b0),
+    .IMLHPE_p_(IMLHPE_p_),
+    .IMLHPEDly(IMLHPEDly),
+    .IMRHPEDly(IMRHPEDly),
+    .IOIn_p_(1'b0),
+    .IOOut_p_(1'b0),
+    .IOut_m_(IOut_m_),
+    .IfuAWantsDifHit_p_(1'b0),
+    .IfuStartMap_p_(1'b0),
+    .JamVBlank(JamVBlank),
+    .JunkTW(JunkTW),
+    .LEDOnRet(1'b0),
+    .LScopeFH(LScopeFH),
+    .LargeHold(LargeHold),
+    .LoadEcOut_p_(LoadEcOut_p_),
+    .LoadSinE(LoadSinE),
+    .LoadSinO(LoadSinO),
+    .LoadSoutE_p_(LoadSoutE_p_),
+    .LoadSoutO_p_(LoadSoutO_p_),
+    .M0(1'b0),
+    .M1(1'b0),
+    .M2(1'b0),
+    .M3(1'b0),
+    .MXHold(MXHold),
+    .MemAd_0(MemAd_0),
+    .MemAd_1(MemAd_1),
+    .MemAd_2(MemAd_2),
+    .MemAd_3(MemAd_3),
+    .MemAd_4(MemAd_4),
+    .MemCASa(MemCASa),
+    .MemCASb(MemCASb),
+    .MemClkEn_p_a(1'b0),
+    .MemClkEnable_p_b(MemClkEnable_p_b),
+    .MemClkEnable_p_c(1'b0),
+    .MemRASa(MemRASa),
+    .MemRASb(MemRASb),
+    .MemWEa(MemWEa),
+    .MemWEb(MemWEb),
+    .Mod0SinEn_p_(Mod0SinEn_p_),
+    .Mod0StrEn_p_(Mod0StrEn_p_),
+    .Mod1SinEn_p_(Mod1SinEn_p_),
+    .Mod1StrEn_p_(Mod1StrEn_p_),
+    .Mod2SinEn_p_(Mod2SinEn_p_),
+    .Mod2StrEn_p_(Mod2StrEn_p_),
+    .Mod3SinEn_p_(Mod3SinEn_p_),
+    .Mod3StrEn_p_(Mod3StrEn_p_),
+    .MxHold(1'b0),
+    .OISClkA(OISClkA),
+    .OISClkA_p_(OISClkA_p_),
+    .OISClkB(OISClkB),
+    .OISClkB_p_(OISClkB_p_),
+    .OISData(1'b0),
+    .OISData_p_(1'b0),
+    .OISData_0(OISData_0),
+    .OISData_0_p_(OISData_0_p_),
+    .OISData_1(OISData_1),
+    .OISData_1_p_(OISData_1_p_),
+    .OISData_2(OISData_2),
+    .OISData_2_p_(OISData_2_p_),
+    .OISData_3(OISData_3),
+    .OISData_3_p_(OISData_3_p_),
+    .OKToSelect(OKToSelect),
+    .OS0(OS0),
+    .OS1(OS1),
+    .OS2(OS2),
+    .OS3(OS3),
+    .PRhold(1'b0),
+    .PixelClkVCO(1'b0),
+    .PrHold(PrHold),
+    .PwrOnRet(1'b0),
+    .RScopeClk0_p_(RScopeClk0_p_),
+    .RawPixelClk(1'b0),
+    .RcvData(1'b0),
+    .SW(1'b0),
+    .SWb(SWb),
+    .SWm(SWm),
+    .SecIndx0_p_(1'b0),
+    .SecIndx1_p_(1'b0),
+    .SecIndx2_p_(1'b0),
+    .SecIndx3_p_(1'b0),
+    .Select0_p_(Select0_p_),
+    .Select1_p_(Select1_p_),
+    .Select2_p_(Select2_p_),
+    .Select3_p_(Select3_p_),
+    .Selected0_p_(1'b0),
+    .Selected1_p_(1'b0),
+    .Selected2_p_(1'b0),
+    .Selected3_p_(1'b0),
+    .Sequence0_p_(Sequence0_p_),
+    .Serial_1(1'b0),
+    .Serial_10(1'b0),
+    .Serial_100(1'b0),
+    .Serial_2(1'b0),
+    .Serial_20(1'b0),
+    .Serial_200(1'b0),
+    .Serial_4(1'b0),
+    .Serial_40(1'b0),
+    .ShiftEcOut(ShiftEcOut),
+    .ShiftSinE(ShiftSinE),
+    .ShiftSinO(ShiftSinO),
+    .ShiftSoutE(ShiftSoutE),
+    .ShiftSoutO(ShiftSoutO),
+    .SimHoldDis(1'b0),
+    .Sin_00(1'b0),
+    .Sin_01(1'b0),
+    .Sin_02(1'b0),
+    .Sin_03(1'b0),
+    .Sin_04(1'b0),
+    .Sin_05(1'b0),
+    .Sin_06(1'b0),
+    .Sin_07(1'b0),
+    .Sin_08(1'b0),
+    .Sin_09(1'b0),
+    .Sin_10(1'b0),
+    .Sin_11(1'b0),
+    .Sin_12(1'b0),
+    .Sin_13(1'b0),
+    .Sin_14(1'b0),
+    .Sin_15(1'b0),
+    .SkipWait_p_(SkipWait_p_),
+    .Sout_00(Sout_00),
+    .Sout_01(Sout_01),
+    .Sout_02(Sout_02),
+    .Sout_03(Sout_03),
+    .Sout_04(Sout_04),
+    .Sout_05(Sout_05),
+    .Sout_06(Sout_06),
+    .Sout_07(Sout_07),
+    .Sout_08(Sout_08),
+    .Sout_09(Sout_09),
+    .Sout_10(Sout_10),
+    .Sout_11(Sout_11),
+    .Sout_12(Sout_12),
+    .Sout_13(Sout_13),
+    .Sout_14(Sout_14),
+    .Sout_15(Sout_15),
+    .StartClockPulse(StartClockPulse),
+    .SubTask_1(1'b0),
+    .Subtask_0(1'b0),
+    .Subtask_1(1'b0),
+    .TTLIOReset_p_(TTLIOReset_p_),
+    .TWReq_01(1'b0),
+    .TWReq_02(1'b0),
+    .TWReq_03(1'b0),
+    .TWReq_04(1'b0),
+    .TWReq_05(1'b0),
+    .TWReq_06(1'b0),
+    .TWReq_07(1'b0),
+    .TWReq_08(1'b0),
+    .TWReq_09(1'b0),
+    .TWReq_10(1'b0),
+    .TWReq_11(1'b0),
+    .TWReq_12(1'b0),
+    .TWReq_13(1'b0),
+    .TWReq_14(1'b0),
+    .TWReq_15(1'b0),
+    .TWReq15(TWReq15),
+    .TagBus_0_p_(TagBus_0_p_),
+    .TagBus_00_p_(TagBus_00_p_),
+    .TagBus_000_p_(TagBus_000_p_),
+    .TagBus_1_p_(TagBus_1_p_),
+    .TagBus_2_p_(TagBus_2_p_),
+    .TagBus_3_p_(TagBus_3_p_),
+    .TagBus_4_p_(TagBus_4_p_),
+    .TagBus_5_p_(TagBus_5_p_),
+    .TagBus_6_p_(TagBus_6_p_),
+    .TagBus_7_p_(TagBus_7_p_),
+    .TagBus_8_p_(TagBus_8_p_),
+    .TagBus_9_p_(TagBus_9_p_),
+    .TermIsLF(1'b0),
+    .TestTW(TestTW),
+    .TtlDeviceCk_p_(1'b0),
+    .TtlEndOfCyl_p_(1'b0),
+    .TtlIndex_p_(1'b0),
+    .TtlOffSet_p_(1'b0),
+    .TtlOnLine_p_(1'b0),
+    .TtlReadOnly_p_(1'b0),
+    .TtlReady_p_(1'b0),
+    .TtlSector_p_(TtlSector_p_),
+    .TtlSeekInc_p_(1'b0),
+    .TtlTerm_p_(1'b0),
     .TurnOff2v(TurnOff2v),
     .TurnOnDisk_p_(TurnOnDisk_p_),
     .TurnOnLED_p_(TurnOnLED_p_),
     .TurnOnPwr_p_(TurnOnPwr_p_),
-    .UseDMD(UseDMD),
-    .XmtData_p_(XmtData_p_),
-    .dStartClockPulse(dStartClockPulse)
+    .VBlank(VBlank),
+    .VSync(VSync),
+    .WakeDHT(WakeDHT),
+    .WakeDWT(WakeDWT),
+    .WakeEthRx(WakeEthRx),
+    .WakeEthTx(WakeEthTx),
+    .XHsync(1'b0),
+    .XSyncEn_p_(XSyncEn_p_),
+    .dStartClockPulse(dorado_clk)
   );
+
+  assign probe_words = 16'd8;
+  assign probe_val = (probe_sel < probe_words)
+                   ? probe[32 * probe_sel +: 32] : 32'd0;
 
 endmodule
 `default_nettype wire

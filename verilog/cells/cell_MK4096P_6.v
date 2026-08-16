@@ -13,6 +13,7 @@
 `default_nettype none
 
 module cell_MK4096P_6 (
+    input  wire sys_clk,
     input  wire p2,
     input  wire p3,
     input  wire p4,
@@ -38,14 +39,28 @@ module cell_MK4096P_6 (
 
   wire [6:0] a = {p10, p11, p12, p6, p7, p5, p13};   // A6..A0
 
-  always @(negedge p4)  row <= a;                      // RAS'
-  always @(negedge p15) col <= a;                      // CAS'
+
+  // FPGA: ONE CLOCK, and the strobes become ENABLES.
+  //
+  // The Dorado drives this part with RAS'/CAS' strobes off the memory board.
+  // Taking those literally gives the fabric edge-triggered logic on
+  // combinational nets, and a level-sensitive write that lands in registers
+  // rather than block RAM -- 165 MosRam plus 144 MK4096 packages of it. So
+  // the strobes are oversampled on `sys_clk` and used as one-cycle enables.
+  reg ras_d, cas_d;
+  always @(posedge sys_clk) begin ras_d <= p4; cas_d <= p15; end
+  always @(posedge sys_clk) begin
+    if (~p4  & ras_d) row <= a;                      // RAS' falling
+    if (~p15 & cas_d) col <= a;                      // CAS' falling
+  end
 
   wire [13:0] addr = {row, col};
 
-  // Write is level-sensitive while both strobes are low, as on the part.
-  always @* if (!p4 && !p15 && !p3) mem[addr[11:0]] = p2;
-  always @* if (!p4 && !p15 &&  p3) dout = mem[addr[11:0]];
+  // Synchronous read and write, so this INFERS BLOCK RAM.
+  always @(posedge sys_clk) begin
+    if (!p4 && !p15 && !p3) mem[addr[11:0]] <= p2;
+    if (!p4 && !p15 &&  p3) dout <= mem[addr[11:0]];
+  end
   assign p14 = dout;
 
   // REFRESH IS NOT MODELLED. A real DRAM loses its contents without periodic

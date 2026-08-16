@@ -29,12 +29,20 @@ VENDOR2  = ../vendor/riot
 GEN      = ../generated
 SIM      = ./sim
 
-# Board RTL. Start with the two processor boards; the rest lint clean too and
-# can be added as their cells acquire behaviour.
-BOARDS  ?= ProcH-Rev-Ce ProcL-Rev-Ci
+# Board RTL: the eleven boards of a working monochrome machine, which is what
+# `dorado_backplane` instantiates. Override BOARDS to build a subset, and
+# regenerate a matching top with
+#   make -C .. backplane MACHINE="--boards=ProcH,ProcL --module=dorado_proc"
+BOARDS  ?= ProcH-Rev-Ce ProcL-Rev-Ci ContA-Rev-Cd ContB-Rev-Cd IFU-Rev-Ch \
+           MemC-Rev-Be MemD-Rev-Ca MemX-Rev-Ch DskEth-Rev-Cf DispY-Rev-Cl \
+           BaseBd-Rev-Am
 BOARD_V  = $(addprefix $(GEN)/,$(addsuffix .v,$(BOARDS)))
 
-V_SRC    = sim.v $(BOARD_V)
+# The generated top module carries both `dorado_backplane` and the
+# `dorado_machine` wrapper sim.v instantiates.
+TOP_GEN  = $(GEN)/dorado_backplane.v
+
+V_SRC    = sim.v $(TOP_GEN) $(BOARD_V)
 
 # PINMISSING is expected and benign: a cell declares every pin the part uses
 # on ANY of the sixteen boards, while an instance connects only the pins that
@@ -95,6 +103,24 @@ prom-test:
 		-Iverilog/cells --Mdir verilog/verilator/obj_proms -o tb_proms \
 		verilog/verilator/tb_proms.sv >/dev/null && \
 		./verilog/verilator/obj_proms/tb_proms | grep tb_proms
+
+# Does the assembled machine actually run? The clock the BaseBoard fans out
+# to every slot must toggle -- if it does not, nothing downstream can. This
+# is a floor, not an exact match: it should RISE as cells gain behaviour.
+.PHONY: machine-test
+MACHINE_MIN_TOGGLE ?= 27
+machine-test:
+	@cd ../.. && ./verilog/verilator/obj_dir/Vemu --headless --cycles 20000 \
+		> /tmp/dorado-machine-test.$$$$ 2>&1; \
+		cat /tmp/dorado-machine-test.$$$$; \
+		n=$$(sed -n 's/.*bits: \([0-9]*\) toggled.*/\1/p' \
+		     /tmp/dorado-machine-test.$$$$); \
+		rm -f /tmp/dorado-machine-test.$$$$; \
+		if [ "$${n:-0}" -lt $(MACHINE_MIN_TOGGLE) ]; then \
+			echo "FAIL: $$n signals toggle, expected at least $(MACHINE_MIN_TOGGLE)"; \
+			exit 1; \
+		fi; \
+		echo "machine-test: $$n signals toggle (floor $(MACHINE_MIN_TOGGLE))"
 
 # Each board lints alone; the backplane top module has to be linted WITH the
 # boards it instantiates, because Verilator resolves a module by looking for a

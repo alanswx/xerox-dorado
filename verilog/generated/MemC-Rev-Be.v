@@ -5,24 +5,53 @@
 
 `default_nettype none
 
-// Ports: the 168 nets MemC-Rev-Be.bp says reach a
-// backplane connector -- PARC's own statement of this module's
-// boundary, not an inference. An `inout` is a net this board both
-// drives and senses: MECL open emitters are wired together across
-// boards, so the top level must resolve those as `wor`.
+// Ports: the 168 nets MemC-Rev-Be.bp says reach a backplane
+// connector -- PARC's own statement of this module's boundary,
+// not an inference.
+//
+// `sys_clk` is the fabric clock. It is NOT a Dorado signal: the
+// machine's own clock arrives on CLK.<board>' and is used as an
+// ENABLE inside the clocked cells, because 1,201 packages clocked
+// from combinational nets is not something an FPGA can route.
+//
+// SYNTHESISABLE SHAPE, not the physical one: a net this board
+// drives is exported as `<net>__drv`, carrying ONLY this board's
+// contribution, and the resolved bus arrives back on `<net>`. The
+// machine ORs the contributions. That is what MECL open emitters
+// wired together compute, and unlike an `inout` on a multiply-
+// driven net it maps to one level of LUT on an FPGA.
 module MemC_m_Rev_m_Be (
+    input  wire sys_clk,
     input  wire ASEL_0,
     input  wire ASEL_0_p_mem,
     input  wire ASEL_1_p_,
     input  wire ASEL_2_p_,
     input  wire AcanhaveMap_p_,
+    input  wire AfreeOrEc_p_b,
     input  wire At_eq_Curt_p_,
+    input  wire AwantsDifHit_p_,
+    input  wire BMux_04,
+    input  wire BMux_05,
+    input  wire BMux_06,
+    input  wire BMux_07,
+    input  wire BMux_08,
+    input  wire BMux_09,
+    input  wire BMux_10,
+    input  wire BMux_11,
+    input  wire BMux_12,
+    input  wire BMux_13,
+    input  wire BMux_14,
+    input  wire BMux_15,
     input  wire CHoldReq,
     input  wire CLK_mc_p_,
     input  wire CLKEnable_p_b,
+    input  wire CacheRef_p_,
     input  wire DMuxClk,
+    input  wire DMuxData,
     input  wire DcomingForCt_p_,
     input  wire DdataGood_p_,
+    input  wire DisHold,
+    input  wire EcKeepsAbusy,
     input  wire EcWantsA,
     input  wire EmuOrFT_p_,
     input  wire ExtHoldReq,
@@ -35,6 +64,9 @@ module MemC_m_Rev_m_Be (
     input  wire FF_5,
     input  wire FF_6,
     input  wire FF_7,
+    input  wire FastD_u_Dbuf,
+    input  wire Hita,
+    input  wire Hold,
     input  wire HoldMapBuf,
     input  wire IfuData_0,
     input  wire IfuData_1,
@@ -44,6 +76,7 @@ module MemC_m_Rev_m_Be (
     input  wire IfuData_5,
     input  wire IfuData_6,
     input  wire IfuData_7,
+    input  wire IoStoreInA,
     input  wire LdPipeVAdly_p_,
     input  wire MAR_00_p_,
     input  wire MAR_01_p_,
@@ -62,11 +95,24 @@ module MemC_m_Rev_m_Be (
     input  wire MAR_14_p_,
     input  wire MAR_15_p_,
     input  wire MDMtag_p_,
+    input  wire MXHold,
     input  wire MakeD_u_CD,
     input  wire MakeD_u_Dbuf,
+    input  wire MakeF_u_D,
+    input  wire MapAd_0,
+    input  wire MapAd_1,
+    input  wire MapAd_2,
+    input  wire MapAd_3,
+    input  wire MapAd_4,
+    input  wire MapAd_5,
+    input  wire MapAd_6,
+    input  wire MapAd_7,
+    input  wire MapAd_8,
     input  wire MapRfsh_p_,
     input  wire MapTroubleInEc1,
     input  wire MapWait_m_D,
+    input  wire Map_u_InPair_p_,
+    input  wire Mcr_u__p_,
     input  wire MemBase_0,
     input  wire MemBase_1,
     input  wire MemBase_2,
@@ -75,110 +121,119 @@ module MemC_m_Rev_m_Be (
     input  wire MemClkEnable_p_a,
     input  wire MemRfsh,
     input  wire MemSH,
+    input  wire PairFull_p_,
     input  wire PrHoldReq,
+    input  wire PrivRefInPair,
     input  wire ProcTag,
     input  wire ProcTagInA,
     input  wire RefOutstanding_p_,
     input  wire STfree_p_,
+    input  wire StartMap_p_,
+    input  wire Store_u_InA_p_,
     input  wire Transport_p_,
+    input  wire UseAsrn,
+    input  wire VicIfMiss_p_,
+    input  wire VicInPair_p_,
+    input  wire VicOrFS1C,
     input  wire WPinEc1,
     input  wire WantIfuRef_p_,
     input  wire XWantsPipe,
     input  wire _u_MD,
     input  wire _u_MDI,
     input  wire _u_MDI_p_,
+    input  wire _u_MDdly_p_,
     input  wire dPipe02Ad_0,
     input  wire dPipe02Ad_1,
     input  wire dPipe02Ad_2,
     input  wire dPipe02Ad_3,
     input  wire preMCSb,
-    output wire BMux_00,
-    output wire BMux_01,
-    output wire BMux_02,
-    output wire BMux_03,
-    output wire CBHold,
-    output wire CacheRefInEc1,
-    output wire Dad_00,
-    output wire Dad_01,
-    output wire Dbuf_u__p_,
-    output wire DirtyIoFetchInA_p_,
-    output wire IOHold,
-    output wire IfuAck,
-    output wire IfuHold,
-    output wire IfuRefInEc1,
-    output wire IoFetchInA_p_,
-    output wire McrD_u__p_,
-    output wire MemAd_5,
-    output wire MemAd_6,
-    output wire MemAd_7,
-    output wire MemAd_8,
-    output wire PrHold,
-    output wire ProcSrn_u__p_,
-    output wire ReadInA_p_,
-    output wire Store_u_InEc1_p_,
-    output wire TagInEc1,
-    output wire _u_Config,
-    output wire _u_FaultInfo,
-    output wire _u_Pipe2,
-    output wire _u_Pipe3,
-    output wire _u_Pipe4,
-    output wire dDad_02,
-    output wire dDad_03,
-    output wire dDad_04,
-    output wire dDad_05,
-    output wire dDad_06,
-    output wire dDad_07,
-    output wire dDad_08,
-    output wire dDad_09,
-    output wire dDad_10,
-    output wire dDad_11,
-    output wire dDad_12,
-    output wire dDad_13,
-    output wire dHitPerr,
-    inout  wire AfreeOrEc_p_b,
-    inout  wire AwantsDifHit_p_,
-    inout  wire BMux_04,
-    inout  wire BMux_05,
-    inout  wire BMux_06,
-    inout  wire BMux_07,
-    inout  wire BMux_08,
-    inout  wire BMux_09,
-    inout  wire BMux_10,
-    inout  wire BMux_11,
-    inout  wire BMux_12,
-    inout  wire BMux_13,
-    inout  wire BMux_14,
-    inout  wire BMux_15,
-    inout  wire CacheRef_p_,
-    inout  wire DMuxData,
-    inout  wire DisHold,
-    inout  wire EcKeepsAbusy,
-    inout  wire FastD_u_Dbuf,
-    inout  wire Hita,
-    inout  wire Hold,
-    inout  wire IoStoreInA,
-    inout  wire MXHold,
-    inout  wire MakeF_u_D,
-    inout  wire MapAd_0,
-    inout  wire MapAd_1,
-    inout  wire MapAd_2,
-    inout  wire MapAd_3,
-    inout  wire MapAd_4,
-    inout  wire MapAd_5,
-    inout  wire MapAd_6,
-    inout  wire MapAd_7,
-    inout  wire MapAd_8,
-    inout  wire Map_u_InPair_p_,
-    inout  wire Mcr_u__p_,
-    inout  wire PairFull_p_,
-    inout  wire PrivRefInPair,
-    inout  wire StartMap_p_,
-    inout  wire Store_u_InA_p_,
-    inout  wire UseAsrn,
-    inout  wire VicIfMiss_p_,
-    inout  wire VicInPair_p_,
-    inout  wire VicOrFS1C,
-    inout  wire _u_MDdly_p_
+    output wire AfreeOrEc_p_b__drv,
+    output wire AwantsDifHit_p___drv,
+    output wire BMux_00__drv,
+    output wire BMux_01__drv,
+    output wire BMux_02__drv,
+    output wire BMux_03__drv,
+    output wire BMux_04__drv,
+    output wire BMux_05__drv,
+    output wire BMux_06__drv,
+    output wire BMux_07__drv,
+    output wire BMux_08__drv,
+    output wire BMux_09__drv,
+    output wire BMux_10__drv,
+    output wire BMux_11__drv,
+    output wire BMux_12__drv,
+    output wire BMux_13__drv,
+    output wire BMux_14__drv,
+    output wire BMux_15__drv,
+    output wire CBHold__drv,
+    output wire CacheRef_p___drv,
+    output wire CacheRefInEc1__drv,
+    output wire DMuxData__drv,
+    output wire Dad_00__drv,
+    output wire Dad_01__drv,
+    output wire Dbuf_u__p___drv,
+    output wire DirtyIoFetchInA_p___drv,
+    output wire DisHold__drv,
+    output wire EcKeepsAbusy__drv,
+    output wire FastD_u_Dbuf__drv,
+    output wire Hita__drv,
+    output wire Hold__drv,
+    output wire IOHold__drv,
+    output wire IfuAck__drv,
+    output wire IfuHold__drv,
+    output wire IfuRefInEc1__drv,
+    output wire IoFetchInA_p___drv,
+    output wire IoStoreInA__drv,
+    output wire MXHold__drv,
+    output wire MakeF_u_D__drv,
+    output wire MapAd_0__drv,
+    output wire MapAd_1__drv,
+    output wire MapAd_2__drv,
+    output wire MapAd_3__drv,
+    output wire MapAd_4__drv,
+    output wire MapAd_5__drv,
+    output wire MapAd_6__drv,
+    output wire MapAd_7__drv,
+    output wire MapAd_8__drv,
+    output wire Map_u_InPair_p___drv,
+    output wire McrD_u__p___drv,
+    output wire Mcr_u__p___drv,
+    output wire MemAd_5__drv,
+    output wire MemAd_6__drv,
+    output wire MemAd_7__drv,
+    output wire MemAd_8__drv,
+    output wire PairFull_p___drv,
+    output wire PrHold__drv,
+    output wire PrivRefInPair__drv,
+    output wire ProcSrn_u__p___drv,
+    output wire ReadInA_p___drv,
+    output wire StartMap_p___drv,
+    output wire Store_u_InA_p___drv,
+    output wire Store_u_InEc1_p___drv,
+    output wire TagInEc1__drv,
+    output wire UseAsrn__drv,
+    output wire VicIfMiss_p___drv,
+    output wire VicInPair_p___drv,
+    output wire VicOrFS1C__drv,
+    output wire _u_Config__drv,
+    output wire _u_FaultInfo__drv,
+    output wire _u_MDdly_p___drv,
+    output wire _u_Pipe2__drv,
+    output wire _u_Pipe3__drv,
+    output wire _u_Pipe4__drv,
+    output wire dDad_02__drv,
+    output wire dDad_03__drv,
+    output wire dDad_04__drv,
+    output wire dDad_05__drv,
+    output wire dDad_06__drv,
+    output wire dDad_07__drv,
+    output wire dDad_08__drv,
+    output wire dDad_09__drv,
+    output wire dDad_10__drv,
+    output wire dDad_11__drv,
+    output wire dDad_12__drv,
+    output wire dDad_13__drv,
+    output wire dHitPerr__drv
 );
 
   // 749 internal nets
@@ -933,8 +988,9 @@ module MemC_m_Rev_m_Be (
   wire sAad_7;
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
-  // Emitted as an explicit OR of the drivers; Verilog forbids
-  // multiple continuous drivers on one wire.
+  // An explicit OR of the drivers: what the open emitters
+  // compute, and one LUT level rather than a multiply-driven
+  // net that no synthesis tool accepts.
   wire _x28_FB_eq_6_x26_PCHP_p__x29__p___d24_14;
   wire _x28_FB_eq_6_x26_PCHP_p__x29__p___e24_10;
   assign _x28_FB_eq_6_x26_PCHP_p__x29__p_ = _x28_FB_eq_6_x26_PCHP_p__x29__p___d24_14 | _x28_FB_eq_6_x26_PCHP_p__x29__p___e24_10;
@@ -945,7 +1001,7 @@ module MemC_m_Rev_m_Be (
   wire AfreeOrEc_p_b__j13_12;
   wire AfreeOrEc_p_b__j13_2;
   wire AfreeOrEc_p_b__j14_2;
-  assign AfreeOrEc_p_b = AfreeOrEc_p_b__j13_12 | AfreeOrEc_p_b__j13_2 | AfreeOrEc_p_b__j14_2;
+  assign AfreeOrEc_p_b__drv = AfreeOrEc_p_b__j13_12 | AfreeOrEc_p_b__j13_2 | AfreeOrEc_p_b__j14_2;
   wire AwantsMapFS__k20_3;
   wire AwantsMapFS__k20_2;
   wire AwantsMapFS__k20_14;
@@ -1136,7 +1192,7 @@ module MemC_m_Rev_m_Be (
   wire Hold__e23_2;
   wire Hold__e22_3;
   wire Hold__e22_14;
-  assign Hold = Hold__e23_2 | Hold__e22_3 | Hold__e22_14;
+  assign Hold__drv = Hold__e23_2 | Hold__e22_3 | Hold__e22_14;
   wire HoldOrIP__f23_13;
   wire HoldOrIP__d23_3;
   assign HoldOrIP = HoldOrIP__f23_13 | HoldOrIP__d23_3;
@@ -1361,11 +1417,13 @@ module MemC_m_Rev_m_Be (
   assign PipeVA_31 = PipeVA_31__i02_14 | PipeVA_31__i03_14;
   wire VicOrFS1C__l19_2;
   wire VicOrFS1C__l19_3;
-  assign VicOrFS1C = VicOrFS1C__l19_2 | VicOrFS1C__l19_3;
+  assign VicOrFS1C__drv = VicOrFS1C__l19_2 | VicOrFS1C__l19_3;
   wire WantCondHold__j11_3;
   wire WantCondHold__j10_15;
   wire WantCondHold__j10_2;
   assign WantCondHold = WantCondHold__j11_3 | WantCondHold__j10_15 | WantCondHold__j10_2;
+
+  // 84 single-driver contributions to the backplane
 
   // ---- packages
   cell_F100181 u__h_1c42 (
@@ -1653,8 +1711,8 @@ module MemC_m_Rev_m_Be (
     .p15(WantProcRef_p_)
   ); // MC10162
   cell_MC10159 u_b01 (
-    .p1(BMux_09),
-    .p2(BMux_08),
+    .p1(BMux_09__drv),
+    .p2(BMux_08__drv),
     .p3(PipeVA_24),
     .p4(NewDirty),
     .p5(PipeVA_25),
@@ -1665,8 +1723,8 @@ module MemC_m_Rev_m_Be (
     .p11(HoldMapBuf),
     .p12(PipeVA_17),
     .p13(PipeFlushStore),
-    .p14(BMux_00),
-    .p15(BMux_01)
+    .p14(BMux_00__drv),
+    .p15(BMux_01__drv)
   ); // MC10159
   cell_MC10197 u_b02 (
     .p2(MemC01_sil_pl_8),
@@ -1684,6 +1742,7 @@ module MemC_m_Rev_m_Be (
     .p15(MemC10_sil_pl_8)
   ); // MC10197
   cell_MC10176 u_b03 (
+    .sys_clk(sys_clk),
     .p2(ProcVA_26),
     .p3(ProcVA_27),
     .p4(ProcVA_28),
@@ -1699,6 +1758,7 @@ module MemC_m_Rev_m_Be (
     .p15(ProcVA_31)
   ); // MC10176
   cell_MC10176 u_b05 (
+    .sys_clk(sys_clk),
     .p2(ProcVA_20),
     .p3(ProcVA_21),
     .p4(ProcVA_22),
@@ -2087,6 +2147,7 @@ module MemC_m_Rev_m_Be (
     .p15(GND128)
   ); // SE10210
   cell_MC10231 u_c17 (
+    .sys_clk(sys_clk),
     .p2(MemC16_sil_pl_4),
     .p6(clk1_p_Da),
     .p7(WantProcRef_p_),
@@ -2167,12 +2228,12 @@ module MemC_m_Rev_m_Be (
     .p7(CHoldReq),
     .p9(WantCR_p_),
     .p10(MXHold),
-    .p14(CacheRef_p_),
+    .p14(CacheRef_p___drv),
     .p15(GND144)
   ); // MC10212
   cell_MC10159 u_d01 (
-    .p1(BMux_11),
-    .p2(BMux_10),
+    .p1(BMux_11__drv),
+    .p2(BMux_10__drv),
     .p3(PipeVA_26),
     .p4(NewWP),
     .p5(PipeVA_27),
@@ -2183,10 +2244,11 @@ module MemC_m_Rev_m_Be (
     .p11(PipeTag),
     .p12(PipeVA_19),
     .p13(PipeCacheRef),
-    .p14(BMux_02),
-    .p15(BMux_03)
+    .p14(BMux_02__drv),
+    .p15(BMux_03__drv)
   ); // MC10159
   cell_MC10176 u_d02 (
+    .sys_clk(sys_clk),
     .p2(ProcVA_04),
     .p3(ProcVA_05),
     .p4(PrVA_5_s_20),
@@ -2366,6 +2428,7 @@ module MemC_m_Rev_m_Be (
     .p15(GND176)
   ); // SE10210
   cell_MC10231 u_d17 (
+    .sys_clk(sys_clk),
     .p2(IfuAckIfHit_p___d17_2),
     .p3(WantCHdly_p_),
     .p7(WantCondHold),
@@ -2427,14 +2490,14 @@ module MemC_m_Rev_m_Be (
     .p14(MemC15_sil_pl_4__d22_14)
   ); // MC10117
   cell_MC10210 u_d23 (
-    .p2(IOHold),
+    .p2(IOHold__drv),
     .p3(HoldOrIP__d23_3),
-    .p4(IfuHold),
+    .p4(IfuHold__drv),
     .p6(Hold),
     .p9(Hold),
-    .p12(PrHold),
-    .p13(MXHold),
-    .p14(CBHold),
+    .p12(PrHold__drv),
+    .p13(MXHold__drv),
+    .p14(CBHold__drv),
     .p15(GND190)
   ); // MC10210
   cell_MC10109 u_d24 (
@@ -2452,8 +2515,8 @@ module MemC_m_Rev_m_Be (
     .p15(FB_eq_6_x26_PCHP_p___d24_15)
   ); // MC10109
   cell_MC10159 u_e01 (
-    .p1(BMux_13),
-    .p2(BMux_12),
+    .p1(BMux_13__drv),
+    .p2(BMux_12__drv),
     .p3(PipeVA_28),
     .p4(NextV_0),
     .p5(PipeVA_29),
@@ -2464,8 +2527,8 @@ module MemC_m_Rev_m_Be (
     .p11(PipeStore_u__p_),
     .p12(PipeVA_21),
     .p13(PipeIfuRef),
-    .p14(BMux_04),
-    .p15(BMux_05)
+    .p14(BMux_04__drv),
+    .p15(BMux_05__drv)
   ); // MC10159
   cell_MC10197 u_e02 (
     .p2(RBMux_12),
@@ -2483,6 +2546,7 @@ module MemC_m_Rev_m_Be (
     .p15(RBMux_11)
   ); // MC10197
   cell_MC10176 u_e03 (
+    .sys_clk(sys_clk),
     .p2(ProcVA_08),
     .p3(ProcVA_09),
     .p4(ProcVA_10),
@@ -2634,13 +2698,14 @@ module MemC_m_Rev_m_Be (
     .p15(dMiss1_12_m_15__e13_15)
   ); // MC10113
   cell_MC10231 u_e14 (
-    .p2(Dad_01),
+    .sys_clk(sys_clk),
+    .p2(Dad_01__drv),
     .p6(Dbusy),
     .p7(MemC15_sil_pl_6),
     .p9(clk1_p_Da),
     .p10(MemC15_sil_pl_3),
     .p11(Dbusy),
-    .p15(Dad_00)
+    .p15(Dad_00__drv)
   ); // MC10231
   cell_MC1660 u_e15 (
     .p3(MemC15_sil_pl_2__e15_3),
@@ -2733,6 +2798,7 @@ module MemC_m_Rev_m_Be (
     .p15(dMiss1_04_m_11__e21_15)
   ); // MC10113
   cell_MC10231 u_e22 (
+    .sys_clk(sys_clk),
     .p2(RefHold_p_),
     .p3(Hold__e22_3),
     .p5(DisHold),
@@ -2744,6 +2810,7 @@ module MemC_m_Rev_m_Be (
     .p15(MDhold_p_)
   ); // MC10231
   cell_MC10231 u_e23 (
+    .sys_clk(sys_clk),
     .p2(Hold__e23_2),
     .p3(MiscHold_p_),
     .p4(DisHold),
@@ -2763,8 +2830,8 @@ module MemC_m_Rev_m_Be (
     .p15(FF_4)
   ); // MC10171
   cell_MC10159 u_f01 (
-    .p1(BMux_15),
-    .p2(BMux_14),
+    .p1(BMux_15__drv),
+    .p2(BMux_14__drv),
     .p3(PipeVA_30),
     .p4(Victim_0),
     .p5(PipeVA_31),
@@ -2775,8 +2842,8 @@ module MemC_m_Rev_m_Be (
     .p11(PipeCol_0),
     .p12(PipeVA_23),
     .p13(PipeCol_1),
-    .p14(BMux_06),
-    .p15(BMux_07)
+    .p14(BMux_06__drv),
+    .p15(BMux_07__drv)
   ); // MC10159
   cell_MC10197 u_f02 (
     .p2(RBMux_15),
@@ -2809,6 +2876,7 @@ module MemC_m_Rev_m_Be (
     .p15(dVA_12__f03_15)
   ); // MC10197
   cell_MC10175 u_f05 (
+    .sys_clk(sys_clk),
     .p2(MemC09_sil_pl_5),
     .p3(MemC09_sil_pl_9),
     .p4(MemC07_sil_pl_13),
@@ -2854,6 +2922,7 @@ module MemC_m_Rev_m_Be (
     .p15(MemC09_sil_pl_6__f07_15)
   ); // F10145A
   cell_MC10176 u_f08 (
+    .sys_clk(sys_clk),
     .p2(MemC02_sil_pl_10),
     .p3(Vacant1),
     .p4(Vacant2),
@@ -3076,7 +3145,7 @@ module MemC_m_Rev_m_Be (
     .p15(GND286)
   ); // SE10210
   cell_MC10121 u_f24 (
-    .p3(UseAsrn),
+    .p3(UseAsrn__drv),
     .p4(IfuAckIfHit_p_),
     .p6(Hit_p_a),
     .p7(WantProcRef),
@@ -3089,8 +3158,8 @@ module MemC_m_Rev_m_Be (
     .p15(Hold)
   ); // MC10121
   cell_MC10158 u_g01 (
-    .p1(dDad_05),
-    .p2(dDad_04),
+    .p1(dDad_05__drv),
+    .p2(dDad_04__drv),
     .p3(PipeVA_22),
     .p4(MemC09_sil_pl_3),
     .p5(PipeVA_23),
@@ -3100,8 +3169,8 @@ module MemC_m_Rev_m_Be (
     .p11(MemC09_sil_pl_2),
     .p12(PipeVA_21),
     .p13(dVA_21),
-    .p14(dDad_02),
-    .p15(dDad_03)
+    .p14(dDad_02__drv),
+    .p15(dDad_03__drv)
   ); // MC10158
   cell_F10145A u_g02 (
     .p1(PipeVA_21__g02_1),
@@ -3175,6 +3244,7 @@ module MemC_m_Rev_m_Be (
     .p15(NewBL__g08_15)
   ); // MC10100
   cell_MC10176 u_g09 (
+    .sys_clk(sys_clk),
     .p2(MemC02_sil_pl_6),
     .p3(BL1),
     .p4(BL2),
@@ -3250,6 +3320,7 @@ module MemC_m_Rev_m_Be (
     .p15(dVA_15__g13_15)
   ); // MC10174
   cell_MC10231 u_g14 (
+    .sys_clk(sys_clk),
     .p2(ColVic_1__g14_2),
     .p3(Col_1_p_),
     .p7(MemC15_sil_pl_6),
@@ -3286,6 +3357,7 @@ module MemC_m_Rev_m_Be (
     .p14(MemC02_sil_pl_9)
   ); // MC10171
   cell_MC10231 u_g17 (
+    .sys_clk(sys_clk),
     .p2(HitOrEc__g17_2),
     .p3(Hit_p_b),
     .p5(_u_Pipe5),
@@ -3293,7 +3365,7 @@ module MemC_m_Rev_m_Be (
     .p9(clk1_p_Dc),
     .p10(MemC15_sil_pl_1),
     .p14(Hit_p_a),
-    .p15(Hita)
+    .p15(Hita__drv)
   ); // MC10231
   cell_MC10174 u_g18 (
     .p2(dVA_08__g18_2),
@@ -3386,8 +3458,8 @@ module MemC_m_Rev_m_Be (
     .p15(FF_6_p_)
   ); // MC10195
   cell_MC10173 u_g24 (
-    .p1(MapAd_1),
-    .p2(MapAd_2),
+    .p1(MapAd_1__drv),
+    .p2(MapAd_2__drv),
     .p3(MemC08_sil_pl_6),
     .p4(PipeVA_26),
     .p5(MemC07_sil_pl_12),
@@ -3398,12 +3470,12 @@ module MemC_m_Rev_m_Be (
     .p11(PipeVA_28),
     .p12(MemC08_sil_pl_9),
     .p13(PipeVA_27),
-    .p14(MapAd_4),
-    .p15(MapAd_3)
+    .p14(MapAd_4__drv),
+    .p15(MapAd_3__drv)
   ); // MC10173
   cell_MC10158 u_h01 (
-    .p1(dDad_09),
-    .p2(dDad_08),
+    .p1(dDad_09__drv),
+    .p2(dDad_08__drv),
     .p3(PipeVA_26),
     .p4(MemC10_sil_pl_1),
     .p5(PipeVA_27),
@@ -3413,8 +3485,8 @@ module MemC_m_Rev_m_Be (
     .p11(MemC09_sil_pl_11),
     .p12(PipeVA_25),
     .p13(MemC09_sil_pl_15),
-    .p14(dDad_06),
-    .p15(dDad_07)
+    .p14(dDad_06__drv),
+    .p15(dDad_07__drv)
   ); // MC10158
   cell_F10145A u_h02 (
     .p1(PipeVA_25__h02_1),
@@ -3449,6 +3521,7 @@ module MemC_m_Rev_m_Be (
     .p15(PipeVA_26__h03_15)
   ); // F10145A
   cell_MC10175 u_h05 (
+    .sys_clk(sys_clk),
     .p2(MemC07_sil_pl_19),
     .p3(MemC07_sil_pl_20),
     .p4(MemC07_sil_pl_14),
@@ -3599,8 +3672,8 @@ module MemC_m_Rev_m_Be (
     .p11(EcHasA_p_),
     .p12(Hit_p_a),
     .p13(IfuAckIfHit_p_),
-    .p14(EcKeepsAbusy),
-    .p15(IfuAck)
+    .p14(EcKeepsAbusy__drv),
+    .p15(IfuAck__drv)
   ); // MC10102
   cell_MC10211 u_h16 (
     .p2(FastAdd_p_),
@@ -3661,7 +3734,7 @@ module MemC_m_Rev_m_Be (
     .p4(Store_u_),
     .p5(MemC18_sil_pl_5),
     .p7(AcanhaveMap_p_),
-    .p9(IoFetchInA_p_),
+    .p9(IoFetchInA_p___drv),
     .p11(Victim_1),
     .p12(IoRefInA_p_),
     .p13(IoStoreInA),
@@ -3669,6 +3742,7 @@ module MemC_m_Rev_m_Be (
     .p15(IoFetchInA)
   ); // MC10102
   cell_MC10176 u_h22 (
+    .sys_clk(sys_clk),
     .p2(VA_04),
     .p3(MemC07_sil_pl_9),
     .p4(MemC07_sil_pl_10),
@@ -3697,7 +3771,7 @@ module MemC_m_Rev_m_Be (
     .p15(MD5)
   ); // MU10164
   cell_MC10173 u_h24 (
-    .p2(MapAd_0),
+    .p2(MapAd_0__drv),
     .p3(MemC07_sil_pl_11),
     .p4(PipeVA_22),
     .p5(MemC07_sil_pl_9),
@@ -3708,12 +3782,12 @@ module MemC_m_Rev_m_Be (
     .p11(PipeVA_30),
     .p12(VA_20),
     .p13(PipeVA_29),
-    .p14(MapAd_6),
-    .p15(MapAd_5)
+    .p14(MapAd_6__drv),
+    .p15(MapAd_5__drv)
   ); // MC10173
   cell_MC10158 u_i01 (
-    .p1(dDad_13),
-    .p2(dDad_12),
+    .p1(dDad_13__drv),
+    .p2(dDad_12__drv),
     .p3(MemC10_sil_pl_9),
     .p4(MemC10_sil_pl_8),
     .p5(MemC01_sil_pl_10),
@@ -3723,8 +3797,8 @@ module MemC_m_Rev_m_Be (
     .p11(MemC10_sil_pl_4),
     .p12(MemC10_sil_pl_7),
     .p13(MemC10_sil_pl_6),
-    .p14(dDad_10),
-    .p15(dDad_11)
+    .p14(dDad_10__drv),
+    .p15(dDad_11__drv)
   ); // MC10158
   cell_F10145A u_i02 (
     .p1(PipeVA_29__i02_1),
@@ -3759,6 +3833,7 @@ module MemC_m_Rev_m_Be (
     .p15(PipeVA_30__i03_15)
   ); // F10145A
   cell_MC10175 u_i05 (
+    .sys_clk(sys_clk),
     .p2(MemC08_sil_pl_18),
     .p3(MemC08_sil_pl_19),
     .p4(MemC07_sil_pl_15),
@@ -3828,6 +3903,7 @@ module MemC_m_Rev_m_Be (
     .p15(GND402)
   ); // SE10210
   cell_MC10141 u_i10 (
+    .sys_clk(sys_clk),
     .p2(Dirty2),
     .p3(Dirty3),
     .p4(clk1_p_B),
@@ -3888,6 +3964,7 @@ module MemC_m_Rev_m_Be (
     .p15(PipeFlushStore)
   ); // F10145A
   cell_MC10176 u_i15 (
+    .sys_clk(sys_clk),
     .p2(Lfetch_u_),
     .p3(EcWantsAdly),
     .p4(MemC02_sil_pl_8),
@@ -3947,6 +4024,7 @@ module MemC_m_Rev_m_Be (
     .p12(dVA_04)
   ); // MC10170
   cell_MC10176 u_i20 (
+    .sys_clk(sys_clk),
     .p2(MemC05_sil_pl_7),
     .p3(MemC05_sil_pl_1),
     .p4(MemC05_sil_pl_8),
@@ -3962,6 +4040,7 @@ module MemC_m_Rev_m_Be (
     .p15(MemC05_sil_pl_4)
   ); // MC10176
   cell_MC10176 u_i21 (
+    .sys_clk(sys_clk),
     .p3(MiscPCHP_p___i21_3),
     .p4(MiscPCHP_p___i21_4),
     .p6(UseAsrn),
@@ -3975,7 +4054,7 @@ module MemC_m_Rev_m_Be (
     .p15(MDpending_p_)
   ); // MC10176
   cell_MC1660 u_i22 (
-    .p3(MakeF_u_D),
+    .p3(MakeF_u_D__drv),
     .p4(BLretry),
     .p5(IfuRefInA_p_),
     .p6(Dbusy),
@@ -3984,10 +4063,10 @@ module MemC_m_Rev_m_Be (
     .p11(SH_p_Bb),
     .p12(MemC18_sil_pl_4),
     .p13(BLretry),
-    .p14(FastD_u_Dbuf)
+    .p14(FastD_u_Dbuf__drv)
   ); // MC1660
   cell_MC10173 u_i23 (
-    .p2(MapAd_7),
+    .p2(MapAd_7__drv),
     .p3(VA_22),
     .p4(PipeVA_31),
     .p5(MemC07_sil_pl_10),
@@ -3997,11 +4076,11 @@ module MemC_m_Rev_m_Be (
     .p11(PipeVA_16),
     .p12(MemC07_sil_pl_11),
     .p13(VA_04),
-    .p14(MapAd_8)
+    .p14(MapAd_8__drv)
   ); // MC10173
   cell_MC10159 u_i24 (
-    .p1(MemAd_8),
-    .p2(MemAd_7),
+    .p1(MemAd_8__drv),
+    .p2(MemAd_7__drv),
     .p3(MemC10_sil_pl_2),
     .p4(VA_22),
     .p5(MemC01_sil_pl_9),
@@ -4012,8 +4091,8 @@ module MemC_m_Rev_m_Be (
     .p11(VA_20),
     .p12(MemC09_sil_pl_14),
     .p13(VA_21),
-    .p14(MemAd_5),
-    .p15(MemAd_6)
+    .p14(MemAd_5__drv),
+    .p15(MemAd_6__drv)
   ); // MC10159
   cell_MC1662 u_j01 (
     .p2(MemC19_sil_pl_4),
@@ -4030,6 +4109,7 @@ module MemC_m_Rev_m_Be (
     .p15(_u_Pipe015_p_)
   ); // MC1662
   cell_MC10176 u_j02 (
+    .sys_clk(sys_clk),
     .p2(VA_23),
     .p3(MemC09_sil_pl_22),
     .p4(MemC09_sil_pl_25),
@@ -4045,6 +4125,7 @@ module MemC_m_Rev_m_Be (
     .p15(Hib)
   ); // MC10176
   cell_MC10176 u_j03 (
+    .sys_clk(sys_clk),
     .p2(MemC08_sil_pl_6),
     .p3(MemC08_sil_pl_9),
     .p4(MemC08_sil_pl_10),
@@ -4075,6 +4156,7 @@ module MemC_m_Rev_m_Be (
     .p15(dVA_18__j04_15)
   ); // MC10197
   cell_MC10175 u_j05 (
+    .sys_clk(sys_clk),
     .p2(MemC08_sil_pl_14),
     .p3(MemC08_sil_pl_15),
     .p4(MemC07_sil_pl_16),
@@ -4180,7 +4262,7 @@ module MemC_m_Rev_m_Be (
     .p12(Hit_p_b),
     .p13(PairHasA_p_a),
     .p14(MemC05_sil_pl_9),
-    .p15(dHitPerr)
+    .p15(dHitPerr__drv)
   ); // MC10106
   cell_MC10211 u_j13 (
     .p2(AfreeOrEc_p_b__j13_2),
@@ -4207,7 +4289,8 @@ module MemC_m_Rev_m_Be (
     .p15(GND460)
   ); // MC10210
   cell_MC10231 u_j15 (
-    .p3(_u_MDdly_p_),
+    .sys_clk(sys_clk),
+    .p3(_u_MDdly_p___drv),
     .p6(IgnoreProc),
     .p7(_u_MD),
     .p9(clk1_p_Db)
@@ -4246,7 +4329,7 @@ module MemC_m_Rev_m_Be (
   ); // SE10210
   cell_MC10102 u_j19 (
     .p2(VicMem_u__p_),
-    .p3(ReadInA_p_),
+    .p3(ReadInA_p___drv),
     .p4(VicIfMiss),
     .p5(FlushInA),
     .p6(VicIfMiss),
@@ -4256,27 +4339,28 @@ module MemC_m_Rev_m_Be (
     .p11(IfuRefInA),
     .p12(HitOrEc),
     .p13(VicIfMiss_p_),
-    .p14(AwantsDifHit_p_),
+    .p14(AwantsDifHit_p___drv),
     .p15(WantVic)
   ); // MC10102
   cell_MC10101 u_j20 (
     .p2(Store_u_InA),
     .p3(IfuRefInA),
     .p4(MemC17_sil_pl_6),
-    .p5(Store_u_InA_p_),
+    .p5(Store_u_InA_p___drv),
     .p6(IfuRefInA_p_),
     .p7(MemC17_sil_pl_9),
     .p10(MemC17_sil_pl_7),
     .p11(IoStoreInA_p_),
     .p12(EcHasAb),
     .p13(MemC17_sil_pl_8),
-    .p14(IoStoreInA),
+    .p14(IoStoreInA__drv),
     .p15(FlushInA)
   ); // MC10101
   cell_MC10176 u_j21 (
+    .sys_clk(sys_clk),
     .p2(MemC17_sil_pl_6),
     .p3(MemC17_sil_pl_7),
-    .p4(Map_u_InPair_p_),
+    .p4(Map_u_InPair_p___drv),
     .p5(Store_u__p_),
     .p6(MemC17_sil_pl_5),
     .p7(Map_u__p_),
@@ -4327,6 +4411,7 @@ module MemC_m_Rev_m_Be (
     .p15(HoldOrIP)
   ); // MC10161
   cell_F10016 u_k01 (
+    .sys_clk(sys_clk),
     .p2(MemC10_sil_pl_9),
     .p3(MemC01_sil_pl_10),
     .p5(LdPipeVAdly_p_),
@@ -4340,6 +4425,7 @@ module MemC_m_Rev_m_Be (
     .p15(MemC10_sil_pl_7)
   ); // F10016
   cell_MC10141 u_k02 (
+    .sys_clk(sys_clk),
     .p2(PipeAd_2),
     .p3(PipeAd_3),
     .p4(clk0_p_A),
@@ -4366,6 +4452,7 @@ module MemC_m_Rev_m_Be (
     .p15(PipeVA_18)
   ); // F10145A
   cell_MC10176 u_k04 (
+    .sys_clk(sys_clk),
     .p2(ProcVA_14),
     .p3(ProcVA_15),
     .p4(ProcVA_16),
@@ -4428,6 +4515,7 @@ module MemC_m_Rev_m_Be (
     .p15(MemC07_sil_pl_3__k07_15)
   ); // F10145A
   cell_MC10176 u_k08 (
+    .sys_clk(sys_clk),
     .p2(dVA_u_Vic),
     .p3(ForceDirtyMiss),
     .p4(DisBR),
@@ -4440,9 +4528,10 @@ module MemC_m_Rev_m_Be (
     .p12(RMar_09),
     .p13(DisCflags),
     .p14(NoRef),
-    .p15(DisHold)
+    .p15(DisHold__drv)
   ); // MC10176
   cell_MC10176 u_k09 (
+    .sys_clk(sys_clk),
     .p2(MemC04_sil_pl_2),
     .p3(MemC04_sil_pl_1),
     .p4(MemC04_sil_pl_3),
@@ -4497,6 +4586,7 @@ module MemC_m_Rev_m_Be (
     .p15(MemC10_sil_pl_2)
   ); // MC10173
   cell_MC10135 u_k13 (
+    .sys_clk(sys_clk),
     .p2(AtookST),
     .p6(Afree_p_),
     .p7(MemC18_sil_pl_3),
@@ -4504,15 +4594,15 @@ module MemC_m_Rev_m_Be (
     .p10(Store_u__p_),
     .p11(Hia),
     .p13(clk1B),
-    .p14(Dbuf_u__p_)
+    .p14(Dbuf_u__p___drv)
   ); // MC10135
   cell_MC10104 u_k14 (
-    .p9(DirtyIoFetchInA_p_),
+    .p9(DirtyIoFetchInA_p___drv),
     .p12(HitColDirty),
     .p13(IoFetchInA)
   ); // MC10104
   cell_MC10121 u_k15 (
-    .p2(StartMap_p_),
+    .p2(StartMap_p___drv),
     .p4(Hia),
     .p7(AwantsMapFS_p_),
     .p9(NoRef),
@@ -4560,7 +4650,7 @@ module MemC_m_Rev_m_Be (
   ); // MC10195
   cell_MC10109 u_k19 (
     .p2(VicIfMiss),
-    .p3(VicIfMiss_p_),
+    .p3(VicIfMiss_p___drv),
     .p4(IfuRefInA),
     .p5(FlushStore),
     .p6(PrefetchInA),
@@ -4584,9 +4674,10 @@ module MemC_m_Rev_m_Be (
     .p14(AwantsMapFS__k20_14)
   ); // MC10101
   cell_MC10176 u_k21 (
+    .sys_clk(sys_clk),
     .p2(MemC17_sil_pl_12),
     .p3(MemC17_sil_pl_11),
-    .p4(PrivRefInPair),
+    .p4(PrivRefInPair__drv),
     .p5(MemC17_sil_pl_13),
     .p6(CacheRef_p_),
     .p7(MemC17_sil_pl_19),
@@ -4594,8 +4685,8 @@ module MemC_m_Rev_m_Be (
     .p10(MemC17_sil_pl_14),
     .p11(MemC17_sil_pl_17),
     .p12(MemC17_sil_pl_16),
-    .p13(PairFull_p_),
-    .p14(VicInPair_p_),
+    .p13(PairFull_p___drv),
+    .p14(VicInPair_p___drv),
     .p15(FSinPair_p_)
   ); // MC10176
   cell_MC10104 u_k22 (
@@ -4619,6 +4710,7 @@ module MemC_m_Rev_m_Be (
     .p14(MemC17_sil_pl_1__k23_14)
   ); // MC10101
   cell_MC10176 u_k24 (
+    .sys_clk(sys_clk),
     .p3(DMadr_01__k24_3),
     .p4(DMadr_02),
     .p6(DMadr_02),
@@ -4642,6 +4734,7 @@ module MemC_m_Rev_m_Be (
     .p15(GND530)
   ); // SE10210
   cell_MC10231 u_l02 (
+    .sys_clk(sys_clk),
     .p2(ppSH_p_),
     .p3(ppFH_p_),
     .p6(CLK_mc_p_),
@@ -4652,8 +4745,9 @@ module MemC_m_Rev_m_Be (
     .p15(Hia__l02_15)
   ); // MC10231
   cell_F10016 u_l03 (
-    .p2(Store_u_InEc1_p_),
-    .p3(IfuRefInEc1),
+    .sys_clk(sys_clk),
+    .p2(Store_u_InEc1_p___drv),
+    .p3(IfuRefInEc1__drv),
     .p5(EcHasA_p_),
     .p6(Hib),
     .p7(PipeIfuRef),
@@ -4661,8 +4755,8 @@ module MemC_m_Rev_m_Be (
     .p10(PipeCacheRef),
     .p11(PipeTag),
     .p13(clk0_p_A),
-    .p14(TagInEc1),
-    .p15(CacheRefInEc1)
+    .p14(TagInEc1__drv),
+    .p15(CacheRefInEc1__drv)
   ); // F10016
   cell_F10145A u_l04 (
     .p1(PipeCacheRef),
@@ -4707,9 +4801,10 @@ module MemC_m_Rev_m_Be (
     .p15(preFH_p_x)
   ); // MC10105
   cell_MC10176 u_l07 (
+    .sys_clk(sys_clk),
     .p2(_u_Pipe5),
-    .p3(_u_Config),
-    .p4(_u_Pipe4),
+    .p3(_u_Config__drv),
+    .p4(_u_Pipe4__drv),
     .p5(MemC19_sil_pl_11),
     .p6(MemC19_sil_pl_10),
     .p7(MemC19_sil_pl_9),
@@ -4717,8 +4812,8 @@ module MemC_m_Rev_m_Be (
     .p10(MemC19_sil_pl_7),
     .p11(MemC19_sil_pl_8),
     .p12(MemC19_sil_pl_6),
-    .p13(_u_Pipe3),
-    .p14(_u_Pipe2),
+    .p13(_u_Pipe3__drv),
+    .p14(_u_Pipe2__drv),
     .p15(MemC19_sil_pl_5)
   ); // MC10176
   cell_MC10162 u_l08 (
@@ -4737,17 +4832,18 @@ module MemC_m_Rev_m_Be (
     .p15(FA_eq_1_p_)
   ); // MC10162
   cell_MC10176 u_l09 (
+    .sys_clk(sys_clk),
     .p2(_u_Pipe0),
-    .p3(_u_FaultInfo),
-    .p4(ProcSrn_u__p_),
+    .p3(_u_FaultInfo__drv),
+    .p4(ProcSrn_u__p___drv),
     .p5(MemC19_sil_pl_2),
     .p6(MemC19_sil_pl_3),
     .p7(MemC19_sil_pl_13),
     .p9(PrClk1_p_Db),
     .p10(MemC19_sil_pl_14),
     .p11(MemC19_sil_pl_15),
-    .p13(Mcr_u__p_),
-    .p14(McrD_u__p_)
+    .p13(Mcr_u__p___drv),
+    .p14(McrD_u__p___drv)
   ); // MC10176
   cell_MC10161 u_l10 (
     .p2(FA_eq_1_p_),
@@ -4778,6 +4874,7 @@ module MemC_m_Rev_m_Be (
     .p15(MD4__l11_15)
   ); // MU10164
   cell_MC10176 u_l13 (
+    .sys_clk(sys_clk),
     .p2(AwasFree_p_),
     .p3(AcanhaveD),
     .p5(Afree_p_),
@@ -4900,9 +4997,10 @@ module MemC_m_Rev_m_Be (
     .p12(MD5),
     .p13(MD6),
     .p14(MD7),
-    .p15(DMuxData)
+    .p15(DMuxData__drv)
   ); // MU10164
   cell_MC10176 u_l24 (
+    .sys_clk(sys_clk),
     .p2(DMadr_06),
     .p3(DMadr_07),
     .p4(DMadr_08),

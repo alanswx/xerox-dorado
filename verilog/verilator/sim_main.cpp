@@ -26,6 +26,7 @@
 #include <cstring>
 #include <deque>
 #include <string>
+#include <vector>
 
 // The real machine's microinstruction is 60 ns (16.667 MHz). Every timing
 // figure in this project is quoted in microinstructions, so the harness
@@ -45,6 +46,25 @@ static void tick()
     top->clk_sys = 0; top->eval();
     top->clk_sys = 1; top->eval();
     main_time++;
+}
+
+// The machine's output and inout ports, 32 at a time. `probe_sel` is
+// combinational, so reading a word does not advance the clock -- set it,
+// re-evaluate, read. Selector 0 is the microcycle counter and 1 carries the
+// word count and reset, so the machine's own signals start at 2; the bit ->
+// signal map is generated/dorado_backplane.probes.
+static uint32_t probe_word(unsigned w)
+{
+    top->probe_sel = (uint16_t)(2 + w);
+    top->eval();
+    return (uint32_t)top->probe_val;
+}
+
+static unsigned probe_words()
+{
+    top->probe_sel = 1;
+    top->eval();
+    return (unsigned)((top->probe_val >> 1) & 0xFFFF);
 }
 
 int main(int argc, char** argv)
@@ -74,14 +94,44 @@ int main(int argc, char** argv)
     // Headless mode exists so the harness can be a GATE, not only a window:
     // it runs a fixed number of microcycles and prints what the design
     // reached, which is diffable in CI.
+    //
+    // It reports HOW MANY OF THE MACHINE'S SIGNALS TOGGLE, which is the
+    // number worth watching during bring-up. Verilator is 2-state, so an
+    // unmodelled cell contributes a constant 0 rather than an X -- counting
+    // X is not available, but counting movement is, and it says the same
+    // thing: a signal that never changes across the whole run is downstream
+    // of a cell that has no behaviour yet. As the cell library fills in, this
+    // number rises. It is a progress bar, not a pass/fail.
     if (headless) {
         if (!run_cycles) run_cycles = 1000;
-        for (uint64_t i = 0; i < run_cycles; i++) tick();
+        const unsigned words = probe_words();
+        std::vector<uint32_t> seen_ones(words, 0), seen_zeros(words, 0);
+        for (uint64_t i = 0; i < run_cycles; i++) {
+            tick();
+            for (unsigned w = 0; w < words; w++) {
+                uint32_t v = probe_word(w);
+                seen_ones[w] |= v;
+                seen_zeros[w] |= ~v;
+            }
+        }
+        unsigned toggled = 0, high = 0;
+        for (unsigned w = 0; w < words; w++) {
+            toggled += __builtin_popcount(seen_ones[w] & seen_zeros[w]);
+            high    += __builtin_popcount(seen_ones[w]);
+        }
         printf("dorado-rtl: %llu microcycles = %.3f us emulated; "
                "status_out=%u\n",
                (unsigned long long)run_cycles,
                run_cycles * kMicrocycleNs / 1000.0,
                (unsigned)top->status_out);
+        printf("dorado-rtl: machine probes %u bits: %u toggled, %u ever high\n",
+               words * 32, toggled, high);
+        // The toggle mask, so a script can name the signals against
+        // generated/dorado_backplane.probes rather than guessing from a count.
+        printf("dorado-rtl: toggle mask");
+        for (unsigned w = 0; w < words; w++)
+            printf(" %08x", seen_ones[w] & seen_zeros[w]);
+        printf("\n");
         top->final();
         delete top;
         return 0;

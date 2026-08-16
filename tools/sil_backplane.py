@@ -232,8 +232,14 @@ def ports() -> int:
         if short not in boards:
             continue
         head = open(os.path.join(GENERATED, f)).read().split(');', 1)[0]
-        emitted = set(re.findall(r'(?:input|output|inout)\s+wire\s+(\w+)',
-                                 head))
+        # A board exports `<net>__drv` (its contribution) and imports `<net>`
+        # (the resolved bus), so one backplane net can be two ports; and
+        # `sys_clk` is the fabric clock, not a Dorado signal. Compare the
+        # NETS, which is what the .bp file states.
+        emitted = {n[:-5] if n.endswith('__drv') else n
+                   for n in re.findall(
+                       r'(?:input|output|inout)\s+wire\s+(\w+)', head)
+                   if n != 'sys_clk'}
         stated = {vname(n) for n in boards[short]}
         agree = stated & emitted
         row = (len(stated), len(emitted), len(agree),
@@ -296,12 +302,13 @@ def _classify_boards(names: list[str]):
     from sil_netlist import load_board
     from sil_ecldict import EclDict
     from sil_to_verilog import (Generator, known_cells, cell_port_dirs,
-                                vname)
+                                cells_wanting_clock, vname)
     dirs = _board_dirs()
     ecl = EclDict()
     ecl.load(os.path.join(SIL, 'msa-Rev-Bg.dm!1_', 'ecldict.analyze'))
     cells_dir = os.path.join(HERE, '..', 'verilog', 'cells')
     cells, cdirs = known_cells(cells_dir), cell_port_dirs(cells_dir)
+    clocked = cells_wanting_clock(cells_dir)
     out = {}
     for short in names:
         if short not in dirs:
@@ -310,9 +317,10 @@ def _classify_boards(names: list[str]):
         d = os.path.join(SIL, dirs[short])
         wl = [f for f in os.listdir(d) if f.endswith('.wl')][0]
         b = load_board(os.path.join(d, wl))
-        g = Generator(b, ecl, cells, cdirs)
+        g = Generator(b, ecl, cells, cdirs, clocked)
         g.classify()
-        out[short] = {'module': vname(b.name), 'ports': dict(g.ports)}
+        out[short] = {'module': vname(b.name), 'ports': dict(g.ports),
+                      'exports': set(g.exports)}
     return out, vname
 
 
@@ -324,18 +332,21 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     numbers cannot join two boards and the signal NAME is the connection. See
     this file's module docstring for the evidence.
 
-    Three kinds of net come out of that:
+    SYNTHESISABLE, not physical. MECL 10K outputs are open emitters and the
+    Dorado ties them together: 115 backplane nets are driven by more than one
+    board, the B bus `BMux.00-15` among them. An FPGA has no wired-OR outside
+    its I/O ring, so instead of modelling that with `inout` and `wor` -- which
+    simulates but synthesises nowhere -- each board exports its CONTRIBUTION
+    as `<net>__drv` and this module ORs them:
 
-      * driven by SEVERAL boards -> `wor`. MECL 10K outputs are open emitters
-        and are deliberately tied together; the B bus `BMux.00-15` is driven
-        by ContA, IFU, MemC, MemD, MemX and ProcH/ProcL at once. `wor` is the
-        faithful model and Verilator simulates it correctly (verified).
-      * driven by exactly one board -> plain `wire`.
-      * reaching only one board in this configuration -> a TOP-LEVEL PORT.
-        Either it goes to a connector mounted on the backplane (the disk tag
-        bus, the ethernet transceiver, the monitor DACs, the keyboard) or the
-        board it pairs with is not in this configuration. The emitted comment
-        says which, per net, because those two mean very different things.
+        wire BMux_00 = BMux_00__ContA | BMux_00__IFU | ... ;
+
+    which is exactly what the open emitters compute, in one LUT level.
+
+    A net no board here drives becomes a top-level INPUT; a net only one board
+    touches becomes a top-level OUTPUT, because it goes to a connector on the
+    backplane (the disk tag bus, the ethernet transceiver, the monitor) or to
+    a board this configuration does not have. The emitted comment says which.
     """
     info, vname = _classify_boards(names)
     everything = load_backplane()          # all sixteen, to explain absences
@@ -345,42 +356,43 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     # longer have -- and PINMISSING is WAIVED in the lint gate, so an
     # unconnected port would float silently rather than fail. Check instead.
     for short, d in sorted(info.items()):
-        gen = os.path.join(GENERATED, d['module']
-                           .replace('_m_', '-').replace('_u_', '_') + '.v')
-        if not os.path.exists(gen):
-            gen = next((os.path.join(GENERATED, f)
-                        for f in sorted(os.listdir(GENERATED))
-                        if f.split('-Rev')[0].split('.v')[0] == short), None)
-        if not gen or not os.path.exists(gen):
+        gen = next((os.path.join(GENERATED, f)
+                    for f in sorted(os.listdir(GENERATED))
+                    if f.endswith('.v') and
+                    f.split('-Rev')[0].split('.v')[0] == short), None)
+        if not gen:
             raise SystemExit(f'{short}: no generated module; run `make -C '
                              f'verilog boards` first')
         head = open(gen).read().split(');', 1)[0]
         on_disk = set(re.findall(r'(?:input|output|inout)\s+wire\s+(\w+)', head))
-        want = {vname(n) for n in d['ports']}
+        want = ({vname(n) for n in d['ports']} |
+                {vname(n) + '__drv' for n in d['exports']} | {'sys_clk'})
         if on_disk != want:
             raise SystemExit(
                 f'{short}: {os.path.basename(gen)} is STALE -- it declares '
-                f'{len(on_disk)} ports, this classification wants {len(want)} '
-                f'({len(want - on_disk)} missing, {len(on_disk - want)} extra). '
+                f'{len(on_disk)} ports, this classification wants {len(want)}. '
                 f'Run `make -C verilog boards`.')
 
+    # net -> {board: 'in'|'drv'|'both'}
     net_boards: dict[str, dict[str, str]] = collections.defaultdict(dict)
     for short, d in info.items():
-        for net, direction in d['ports'].items():
-            net_boards[net][short] = direction
+        for net in d['ports']:
+            net_boards[net][short] = 'in'
+        for net in d['exports']:
+            net_boards[net][short] = ('both' if net_boards[net].get(short) == 'in'
+                                      else 'drv')
 
-    ports, internal = {}, {}
-    absent_partner = {}
+    contribs = {n: sorted(b for b, r in v.items() if r in ('drv', 'both'))
+                for n, v in net_boards.items()}
+    ports, internal, absent_partner = {}, {}, {}
     for net, v in net_boards.items():
-        drv = [b for b, d in v.items() if d in ('output', 'inout')]
-        if len(v) == 1 or not drv:
-            elsewhere = sorted(b for b in everything
-                               if net in everything[b] and b not in names)
-            absent_partner[net] = elsewhere
-            ports[net] = ('inout' if 'inout' in v.values() else
-                          'output' if drv else 'input')
+        if len(v) == 1 or not contribs[net]:
+            absent_partner[net] = sorted(b for b in everything
+                                         if net in everything[b]
+                                         and b not in names)
+            ports[net] = 'output' if contribs[net] else 'input'
         else:
-            internal[net] = 'wor' if len(drv) > 1 else 'wire'
+            internal[net] = len(contribs[net])
 
     L: list[str] = []
     A = L.append
@@ -394,60 +406,172 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     A("// straight-through (the BaseBoard drives CLK.ph' from C16 into ProcH's")
     A("// C9), and 182 pin positions carry different nets on different boards.")
     A("//")
+    A("// Each board exports its CONTRIBUTION to a net as `<net>__drv` and this")
+    A("// module ORs them -- MECL open emitters wired together, in a form that")
+    A("// synthesises. No `inout`, no multiply-driven net.")
+    A("//")
     A(f"// Configuration: {' '.join(names)}")
     A(f"// {len(internal)} internal nets "
-      f"({sum(1 for t in internal.values() if t == 'wor')} wired-OR), "
-      f"{len(ports)} top-level ports.")
+      f"({sum(1 for n in internal if len(contribs[n]) > 1)} with several "
+      f"contributors), {len(ports)} top-level ports.")
     A("")
     A('`default_nettype none')
     A("")
     A(f'module {module} (')
-    decl = []
+    decl = ['    input  wire sys_clk,'
+            '   // fabric clock; the Dorado clock is an ENABLE inside the cells']
     names_sorted = sorted(ports)
     for i, net in enumerate(names_sorted):
         why = ('to a backplane connector (cable)' if not absent_partner[net]
                else 'awaits ' + ' '.join(absent_partner[net]))
-        kw = {'input': 'input ', 'output': 'output', 'inout': 'inout '}[ports[net]]
-        # The comma goes BEFORE the comment, or it is inside it and gone.
+        kw = 'input ' if ports[net] == 'input' else 'output'
         comma = ',' if i < len(names_sorted) - 1 else ''
         decl.append(f'    {kw} wire {vname(net):<26}{comma:<2} // {why}')
     A('\n'.join(decl) if decl else '    // no external ports')
     A(');')
     A("")
-    wor = sorted(n for n, t in internal.items() if t == 'wor')
-    plain = sorted(n for n, t in internal.items() if t == 'wire')
-    if wor:
-        A(f'  // {len(wor)} WIRED-OR nets: MECL open emitters tied together')
-        A('  // across boards. Verilator raises MULTIDRIVEN on a `wor`, which')
-        A('  // is the point of using one, so it is waived here only.')
-        A('  /* verilator lint_off MULTIDRIVEN */')
-        for n in wor:
-            A(f'  wor  {vname(n)};')
-        A('  /* verilator lint_on MULTIDRIVEN */')
-        A("")
-    if plain:
-        A(f'  // {len(plain)} single-driver nets')
-        for n in plain:
-            A(f'  wire {vname(n)};')
-        A("")
+
+    all_nets = sorted(net_boards)
+    A(f'  // {len(internal)} nets between boards, plus one contribution wire')
+    A('  // per driving board.')
+    for net in all_nets:
+        if net in internal:
+            A(f'  wire {vname(net)};')
+    for net in all_nets:
+        for b in contribs[net]:
+            A(f'  wire {vname(net)}__{b};')
+    A("")
+    A('  // ---- bus resolution: the OR a wired-OR backplane performs')
+    for net in all_nets:
+        if not contribs[net]:
+            continue
+        expr = ' | '.join(f'{vname(net)}__{b}' for b in contribs[net])
+        A(f'  assign {vname(net)} = {expr};')
+    A("")
+
     for short in names:
         d = info[short]
         A(f'  // ---- {short}')
         A(f'  {d["module"]} b_{short} (')
-        conns = [f'    .{vname(n)}({vname(n)})' for n in sorted(d['ports'])]
+        conns = ['    .sys_clk(sys_clk)']
+        conns += [f'    .{vname(n)}({vname(n)})' for n in sorted(d['ports'])]
+        conns += [f'    .{vname(n)}__drv({vname(n)}__{short})'
+                  for n in sorted(d['exports'])]
         A(',\n'.join(conns))
         A('  );')
         A("")
     A('endmodule')
     A('`default_nettype wire')
 
+    # --- the wrapper: something the harness can clock ------------------
+    #
+    # 400-odd ports is too many to wire by hand in sim.v, and hand-wiring them
+    # would go stale the moment the board set changes.
+    wrap = f'{module}_machine' if module != 'dorado_backplane' else 'dorado_machine'
+    # WHERE THE CLOCK GOES IN, and this took tracing to get right.
+    #
+    # The obvious answer, `CLK.InBase`, is wrong on its own. The Dorado's
+    # master clock is GENERATED ON THE BASEBOARD, not fed to it: two MC1690
+    # ECL flip-flops (BaseBd g04 and h03) produce `StartClockPulse'` and
+    # `EndClockPulse`, an MC10210 at j02 ORs those with `dStartClockPulse`,
+    # and its outputs fan out through l01/k01/j01/i01/h01 as CLK.ph', CLK.mc'
+    # and the rest -- one per slot. `CLK.InBase` is how the BaseBoard receives
+    # that distributed clock BACK on its own C9, the same pin every other
+    # board takes it on. Driving C9 therefore reaches ten nets and stops.
+    #
+    # MC1690 has no cell model yet, so the generator is dead. But
+    # `dStartClockPulse` is a real backplane INPUT (BaseBd C101) into the very
+    # gate that feeds the fanout, so toggling it drives the whole clock tree
+    # exactly where the on-board generator would.
+    clk_ports = ('CLK.InBase', 'dStartClockPulse')
+    clk_tree = sorted(n for n in internal if n.startswith('CLK.'))
+    probed = ([n for n in names_sorted if ports[n] == 'output'] + clk_tree)
+    pad = (-len(probed)) % 32
+    A("")
+    A(f"// {wrap} -- the machine with its external connections resolved, so")
+    A("// that a testbench only has to provide a clock.")
+    A("//")
+    A("// The clock is driven into " + ' and '.join(clk_ports) + ".")
+    A("// CLK.InBase is the BaseBoard's C9, where it receives the distributed")
+    A("// clock like every other board. dStartClockPulse is C101, an input to")
+    A("// the MC10210 at j02 that feeds the whole CLK.* fanout -- the same gate")
+    A("// the on-board MC1690 clock generator drives, and the only way to make")
+    A("// the tree move until that part has a cell model.")
+    A("//")
+    A("// EVERY OTHER INPUT IS TIED LOW, and that is a physical claim, not a")
+    A("// convenience: an unterminated MECL 10K input sits at VEE, which reads")
+    A("// as 0. So this is the machine with no cables attached. Mind that many")
+    A("// of these signals are ACTIVE LOW (the names ending in ') and are")
+    A("// therefore ASSERTED in this state -- a disk or ethernet model has to")
+    A("// drive them properly before anything using them means much.")
+    A("//")
+    A(f"// probe_val exposes {len(probed)} signals, 32 at a time;")
+    A(f"// {os.path.basename(os.path.splitext(path)[0])}.probes lists which bit is which.")
+    A(f'module {wrap} (')
+    A('    input  wire        sys_clk,')
+    A('    input  wire [15:0] probe_sel,')
+    A('    output wire [31:0] probe_val,')
+    A('    output wire [15:0] probe_words')
+    A(');')
+    A("")
+    for n in names_sorted:
+        if ports[n] == 'output':
+            A(f'  wire {vname(n)};')
+    A("")
+    if clk_tree:
+        A(f'  // The clock fanout, read out of the machine: {len(clk_tree)} nets,')
+        A('  // BaseBoard to one slot each. These are the first thing to watch --')
+        A('  // if they are not toggling, nothing downstream can be.')
+        for n in clk_tree:
+            A(f'  wire {vname(n)}_probe = u_machine.{vname(n)};')
+        A("")
+    A('  // The Dorado clock, divided down from the fabric clock. The cells')
+    A('  // detect its EDGE, so it has to be slower than sys_clk -- four')
+    A('  // fabric cycles per Dorado clock period here. On real hardware this')
+    A('  // is what the BaseBoard\'s MC1690 generator produces.')
+    A('  reg [1:0] clkdiv = 2\'d0;')
+    A('  always @(posedge sys_clk) clkdiv <= clkdiv + 2\'d1;')
+    A('  wire dorado_clk = clkdiv[1];')
+    A("")
+    A(f'  wire [{len(probed) + pad - 1}:0] probe = {{')
+    if pad:
+        A(f'    {pad}\'d0,')
+    A(',\n'.join(f'    {vname(n)}_probe' if n in clk_tree else f'    {vname(n)}'
+                 for n in reversed(probed)))
+    A('  };')
+    A("")
+    A(f'  {module} u_machine (')
+    conns = ['    .sys_clk(sys_clk)']
+    for n in names_sorted:
+        if n in clk_ports:
+            conns.append(f'    .{vname(n)}(dorado_clk)')
+        elif ports[n] == 'input':
+            conns.append(f"    .{vname(n)}(1'b0)")
+        else:
+            conns.append(f'    .{vname(n)}({vname(n)})')
+    A(',\n'.join(conns))
+    A('  );')
+    A("")
+    A(f'  assign probe_words = 16\'d{(len(probed) + pad) // 32};')
+    A('  assign probe_val = (probe_sel < probe_words)')
+    A("                   ? probe[32 * probe_sel +: 32] : 32'd0;")
+    A('')
+    A('endmodule')
+    A('`default_nettype wire')
+
     os.makedirs(os.path.dirname(path) or '.', exist_ok=True)
     with open(path, 'w') as fh:
         fh.write('\n'.join(L) + '\n')
+    with open(os.path.splitext(path)[0] + '.probes', 'w') as fh:
+        fh.write(f'# {wrap}.probe bit -> signal. Generated with the module.\n')
+        for i, n in enumerate(probed):
+            fh.write(f'{i} {n} {ports.get(n, "internal")}\n')
 
     cable = sum(1 for n in ports if not absent_partner[n])
+    multi = sum(1 for n in internal if len(contribs[n]) > 1)
     print(f'wrote {path}: {len(names)} boards, {len(internal)} internal nets '
-          f'({len(wor)} wired-OR), {len(ports)} ports')
+          f'({multi} with several contributors), {len(ports)} ports')
+    print(f'  + {wrap}: clock in, {len(probed)} signals probeable')
     print(f'  ports: {cable} to backplane connectors (cables), '
           f'{len(ports)-cable} awaiting a board not in this configuration')
     byabsent = collections.Counter(
@@ -455,6 +579,7 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     for who, cnt in byabsent.most_common(6):
         print(f'    {cnt:>4} would connect to {who}')
     return 0
+
 
 
 def to_json(path: str) -> int:

@@ -11,6 +11,7 @@
 `default_nettype none
 
 module cell_MC10176 (
+    input  wire sys_clk,
     input  wire p9,   // C   clock, common to all six,
     input  wire p5,  // D0,
     input  wire p6,  // D1,
@@ -34,8 +35,26 @@ module cell_MC10176 (
 
   // Hex D master-slave flip-flop: six D-type stages on one common clock,
   // data transferred on the POSITIVE-going clock edge.
+
+  // FPGA: ONE CLOCK, and the ECL clock net becomes an ENABLE.
+  //
+  // The Dorado clocks this part from a distributed ECL clock net (CLK.ph'
+  // and friends, fanned out by the BaseBoard). Taking that literally gives
+  // the fabric a gated clock off combinational logic -- 1,201 packages across
+  // the machine do it -- which no FPGA can route. So every flip-flop here
+  // runs on `sys_clk` and transfers on the sys_clk edge FOLLOWING an edge of
+  // the modelled clock net. That is the usual oversampling transform, and it
+  // matches the part as long as sys_clk is faster than the clock net, which
+  // dorado_machine guarantees by dividing.
+  //
+  // Asynchronous inputs (MR, S/R, CL') are LEVEL-tested every sys_clk edge --
+  // the same treatment, and it keeps them out of the fabric's reset network.
+  reg ck_d;
+  always @(posedge sys_clk) ck_d <= p9;
+  wire ck_en = p9 & ~ck_d;
+
   reg [5:0] q;
-  always @(posedge p9) q <= {p12, p11, p10, p7, p6, p5};
+  always @(posedge sys_clk) if (ck_en) q <= {p12, p11, p10, p7, p6, p5};
   assign {p15, p14, p13, p4, p3, p2} = q;
 
   wire _unused_pins = &{1'b0, p1, p8, p16, 1'b0};
