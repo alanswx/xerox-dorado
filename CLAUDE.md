@@ -879,7 +879,7 @@ diagnostics, which were written to test the boards.
 
 **Started 2026-08-15, and further than the plan expected.** All sixteen
 boards now GENERATE from PARC's wire lists and elaborate under Verilator
-(67,960 lines, plus 4,599 of cell models); 51 cell models cover 86.5% of logic packages; the 6502 and
+(67,960 lines, plus 4,599 of cell models); 54 cell models cover 87.7% of logic packages; the 6502 and
 6532 are real cores; **all 26 PROMs are generated from PARC's own BCPL, and
 the 29 packages that hold them are wired into the RTL and read back correctly
 (`make -C verilog prom-test`)**
@@ -926,11 +926,15 @@ the VCO is substituted, for a fabric-clock divider, because an analog
 oscillator has no digital model and an FPGA has no VCO either; everything
 after it is the board's own logic. `MB7071H` is modelled too -- the 256x4 RAM
 that IS the register file: ProcH h06 is RM (`RbAdr`/`SelectRm'`), i06 is STK
-(`StkAdr`/`SelectStk'`), four packages per board for 16 bits. **One thing
-blocks most of the rest**: the library does not agree with itself about which
-OR/NOR output pin inverts (`sil_ecldict.py`'s notes, `cell_MC10101` and
-`cell_MC10210` give three answers), and PARC's net naming does not settle it.
-See `docs/verilog-handoff.md`.
+(`StkAdr`/`SelectStk'`), four packages per board for 16 bits. The OR/NOR
+polarity question that blocks most of the rest is now characterised: EclDict's
+role letters DO track the sense, proved by MC10102 (NOR) and MC10103 (OR)
+having identical pins with swapped letters, so `o` is the OR output and `OUT`
+the NOR -- except on single-sense parts, where the part name decides.
+Applying that found a real bug (`cell_MC10103` gave one gate's two outputs the
+same expression, though the datasheet says that gate has both senses) and
+leaves one cell in doubt (`cell_MC10105`, 31 packages). See
+`docs/verilog-handoff.md`.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold, now
 with the port-list fix as a self-contained first task and then the work to

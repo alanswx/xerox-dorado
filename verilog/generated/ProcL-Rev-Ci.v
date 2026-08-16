@@ -4714,6 +4714,7 @@ module ProcL_m_Rev_m_Ci (
     .p15(RSTK_3_p_a)
   ); // MC10101
   cell_MC1668 u_l06 (
+    .sys_clk(sys_clk),
     .p3(RmOdd_p___l06_3),
     .p5(DsMd),
     .p6(dMD_15),
@@ -4724,6 +4725,7 @@ module ProcL_m_Rev_m_Ci (
     .p14(RmOdd_p___l06_14)
   ); // MC1668
   cell_MC1668 u_l07 (
+    .sys_clk(sys_clk),
     .p3(RmOdd_p___l07_3),
     .p5(DsRd),
     .p6(ddR_15),

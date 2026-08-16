@@ -15,6 +15,14 @@
 // boards leave so many unconnected; Verilator drives an unconnected input to
 // 0, matching.
 
+// PIN 9 IS THE ODD ONE, and it was wrong here until 2026-08-16. The MECL
+// Pocket Book says of this part: "One of the gates has both OR and NOR
+// outputs", and EclDict marks that gate `c,IN,12,13 > c,OUT,9 > c,o,15` --
+// two different role letters, so two different senses. This cell gave pins 9
+// and 15 the same expression, which cannot be right whichever way round they
+// go. Pin 9 is taken as the NOR by the rule documented in
+// docs/verilog-handoff.md, which the mirror-image MC10102 supports.
+
 `default_nettype none
 
 module cell_MC10103 (
@@ -37,7 +45,7 @@ module cell_MC10103 (
 
   assign p2 = (p4 | p5);
   assign p3 = (p6 | p7);
-  assign p9 = (p12 | p13);
+  assign p9 = ~(p12 | p13);   // see the note above: this gate has BOTH senses
   assign p15 = (p12 | p13);
   assign p14 = (p10 | p11);
 

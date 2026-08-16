@@ -19,6 +19,19 @@ FORMAT (observed; CR-terminated like every Xerox text file):
     Signetics SE10210 in the same socket, are the same part. That is why the
     boards mix MC/MU/SE/F prefixes for one function.
 
+  POLARITY. The role letters DO track the sense, and the discriminator is a
+  pair of parts with identical pin numbers and swapped letters:
+
+      MC102 (Quad 2-input NOR)   a,IN,4,5 > a,OUT,2   ... d,OUT,15 > d,o,9
+      MC103 (Quad 2-input OR)    a,IN,4,5 > a,o,2     ... c,OUT,9  > c,o,15
+
+  Same pins, opposite functions, opposite letters. Working rule: **`o` is the
+  non-inverting (OR) output and `OUT` the inverting (NOR) one** -- EXCEPT on
+  parts with only one output sense (MC10110 OR and MC10111 NOR have identical
+  all-`OUT` blocks), where the letter cannot discriminate and the PART NAME
+  decides. See docs/verilog-handoff.md for what is and is not settled, and
+  for the one existing cell this rule contradicts.
+
   * `@` introduces a pin-definition block:
 
         @
@@ -29,8 +42,8 @@ FORMAT (observed; CR-terminated like every Xerox text file):
     One line per gate. Fields are `<gate letter>,<role>,<pins...>`, and `>`
     separates clauses for the SAME gate. Roles seen:
       IN   inputs to that gate
-      OUT  its output           (the true / OR output on OR-NOR parts)
-      o    its second output    (the complementary / NOR output)
+      OUT  its output           (see the polarity note below)
+      o    its second output    (see the polarity note below)
       c    a COMMON input, shared by every gate in the package (e.g. a clock
            or an enable), given once per gate that uses it
     A header naming several parts (`MC102, MC104`) means they share pinout.

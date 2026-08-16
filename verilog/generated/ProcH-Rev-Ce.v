@@ -4413,6 +4413,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Task3Bk_3_p_)
   ); // MC10176
   cell_MC1668 u_l06 (
+    .sys_clk(sys_clk),
     .p3(RmLtZero_p___l06_3),
     .p5(DsMd),
     .p6(dMD_00),
@@ -4423,6 +4424,7 @@ module ProcH_m_Rev_m_Ce (
     .p14(RmLtZero_p___l06_14)
   ); // MC1668
   cell_MC1668 u_l07 (
+    .sys_clk(sys_clk),
     .p3(RmLtZero_p___l07_3),
     .p5(DsRd),
     .p6(ddR_00),

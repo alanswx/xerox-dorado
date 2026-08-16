@@ -108,7 +108,7 @@ prom-test:
 # to every slot must toggle -- if it does not, nothing downstream can. This
 # is a floor, not an exact match: it should RISE as cells gain behaviour.
 .PHONY: machine-test
-MACHINE_MIN_TOGGLE ?= 30
+MACHINE_MIN_TOGGLE ?= 31
 machine-test:
 	@cd ../.. && ./verilog/verilator/obj_dir/Vemu --headless --cycles 20000 \
 		> /tmp/dorado-machine-test.$$$$ 2>&1; \

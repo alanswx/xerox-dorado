@@ -26,7 +26,7 @@ make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 | piece | state |
 |---|---|
 | Netlist reader + Verilog generator | 16/16 boards, 67,960 lines (+2,658 top, +4,599 cells), **all lint clean** |
-| Cell library | 51 cells with behaviour, **86.5%** of 3,771 logic packages |
+| Cell library | 54 cells with behaviour, **87.7%** of 3,771 logic packages |
 | 6502 | Andrew Holme's netlist-derived core (via jotego), wired into `cell_MCS6502` |
 | 6532 RIOT | MiSTer Atari 7800's, patched for Verilator. **CC BY-NC** -- see `verilog/vendor/LICENSES.md` |
 | PROMs | **26 of 26** generated, **29 packages wired into the RTL and read back correctly** |
@@ -313,44 +313,64 @@ a logic part, so nothing in RTL drives them -- `Collision` and `RcvData`
 arrive from the ethernet transceiver over a cable. They are board inputs, and
 the top module exposes them.
 
-## Blocked, and it blocks most of the cell library: OR/NOR polarity
+## Reference: OR/NOR output polarity, and what is still open
 
-**Resolve this before writing another gate cell.** Roughly a third of the
-remaining packages are OR/NOR gates, and the repository does not currently
-agree with itself about which output pin is the inverting one.
+A third of the remaining packages are OR/NOR gates, and getting the sense
+backwards produces a machine that almost works -- the outcome
+`docs/verilog-from-sil.md` calls the worst one. Here is where that stands.
 
-- `tools/sil_ecldict.py`'s format notes say role `OUT` is "the true / OR
-  output" and `o` "the complementary / NOR output".
-- `cell_MC10101` states and applies the OPPOSITE -- "the pin the dictionary
-  marks `OUT` carries the inverting (NOR) sense" -- deriving it from MC10101
-  and MC10102 sharing pin 2.
-- `cell_MC10210` then treats role `out` as NON-inverting (`assign p2 = (p5 |
-  p6 | p7)`), taking polarity from the part name instead.
+**The discriminator.** EclDict's role letters DO track the sense, and one
+pair of parts proves it: identical pin numbers, opposite functions, swapped
+letters.
 
-So both conventions are already in the library. I tried to settle it from
-PARC's own net naming -- a gate driving both `Foo` and `Foo'` says which pin
-inverts -- and the evidence is genuinely mixed: on MC10212, eight gates put
-the primed net on the `nout` pin and five put it on `out`. That test is weak
-because a gate fed with already-inverted inputs is named for its function,
-not its pin sense.
+```
+MC102 (Quad 2-input NOR)   a,IN,4,5 > a,OUT,2   ...  d,IN,12,13 > d,OUT,15 > d,o,9
+MC103 (Quad 2-input OR)    a,IN,4,5 > a,o,2     ...  c,IN,12,13 > c,OUT,9  > c,o,15
+```
 
-Ways to settle it that have not been tried:
+**The working rule**, which every cell should now follow:
 
-- The **MECL Pocket Book pinouts** in `cells/PARTS.md`, if they give pin
-  numbers rather than just function names.
-- **`chm/sil/*/​*.sil` drawings**, which are the schematics themselves --
-  a NOR output is drawn with a bubble. They need Sil or ANALYZE to read
-  (`docs/parc-feedback-todo.md` has the tooling notes).
-- The **C emulator**, for any gate whose net feeds something `cpu.c` models.
+1. `o` / `nout` is the **non-inverting (OR)** output; `OUT` is the
+   **inverting (NOR)** one.
+2. EXCEPT on a part with only one output sense -- MC10110 (OR) and MC10111
+   (NOR) have identical all-`OUT` blocks -- where the letter cannot
+   discriminate and the PART NAME decides. `cell_MC10210` and `cell_SE10211`
+   are the examples.
 
-Until then, note that the gates already written may be half wrong, and that a
-wrong-polarity gate produces a machine that almost works -- which
-`docs/verilog-from-sil.md` already warns is the worst outcome.
+Everything already in the library is consistent with this except one cell,
+and applying it found a real bug.
+
+**Fixed:** `cell_MC10103` gave pins 9 and 15 the SAME expression. The MECL
+Pocket Book says of that part "One of the gates has both OR and NOR outputs",
+and the dictionary marks them with different letters, so they cannot both be
+OR. Pin 9 is now the NOR, mirroring MC10102. That is 51 packages, 38 of them
+in the machine, and the bug was there whichever reading you prefer.
+
+**Still open -- `cell_MC10105`, 34 packages, 31 in the machine.** Its gates
+are `a,IN,4,5 > a,OUT,3 > a,o,2`, and the cell assigns p3 = OR, p2 = NOR --
+the opposite way round from the rule. It is at least self-consistent (the two
+outputs are complementary), so it is left alone rather than churned on a rule
+that is strong but not proven. It is the FIRST thing to suspect if a board
+using it misbehaves.
+
+**What did not settle it, so nobody repeats the work:**
+
+- *PARC's net naming.* A gate driving both `Foo` and `Foo'` looks decisive
+  and is not: on MC10212 eight gates put the primed net on the `nout` pin and
+  five on `out`. A gate fed already-inverted inputs is named for its function,
+  not its pin sense.
+- *The MECL Pocket Book scan* that `cells/PARTS.md` cites. Its OCR carries
+  functions and schematics but no pinout tables -- it does confirm MC10103's
+  one dual-output gate, and that MC10109 is pin-compatible with MC1660.
+
+**What would settle it:** the `.sil` drawings themselves, where a NOR output
+is drawn with a bubble (needs Sil/ANALYZE -- see `docs/parc-feedback-todo.md`),
+or the C emulator, once the datapath computes enough to diff a signal.
 
 ## Task A -- fill in the cell library
 
 The machine is assembled, self-clocking and gated; what stops it computing is
-that 74 of 125 cell types are still skeletons with correct ports and no body.
+that 71 of 125 cell types are still skeletons with correct ports and no body.
 `make -C verilog machine-test` measures the effect directly: 30 signals move
 today, and each cell that gains behaviour should raise that -- though not
 every cell shows up there, since the probe only sees the backplane and the
@@ -364,7 +384,22 @@ packages per board for the 16-bit width, and the other 62 are MemC's cache
 tags and DispM's colour tables. It writes synchronously and reads
 combinationally, which is a distributed/LUT RAM and is what the part does.
 
-For the rest, mind the polarity question above, then order by package count -- `python3 tools/sil_netlist.py --all
+Three more landed with the polarity rule: `SE10211` (11, the Signetics
+MC10211 -- NOR-only, so no ambiguity), `MC10161` (21, Binary to 1-8 Decoder
+Low, every pin named) and `MC1668` (12, dual clocked flip-flop, S/R/C/D/Q/Q'
+all named). Coverage 86.5% -> 87.7%.
+
+The ones deliberately NOT written are the OR/NOR gates whose sense rests on
+the rule alone -- `MC10109` (21), `SE10212`/`MC10212` (40), `MC1664` (19),
+`MC10117` (28). They are the biggest remaining block, ~108 packages, and they
+are one confirmed polarity away from being mechanical. `MC1664` needs its
+function too: all four gates use `o`, so the rule says OR, but PARTS.md has
+no entry for it.
+
+`MC10180` (13, dual adder) is named-pin but its M0/M1 MODE encoding is not in
+PARTS.md, so it needs the datasheet before it is worth writing.
+
+For the rest, order by package count -- `python3 tools/sil_netlist.py --all
 chm/sil` ranks them -- and prefer the parts the processor boards use, since
 that is where the C emulator can check the answer.
 
