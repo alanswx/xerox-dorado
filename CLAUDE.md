@@ -879,7 +879,7 @@ diagnostics, which were written to test the boards.
 
 **Started 2026-08-15, and further than the plan expected.** All sixteen
 boards now GENERATE from PARC's wire lists and elaborate under Verilator
-(67,960 lines, plus 4,599 of cell models); 61 cell models cover 91.1% of logic packages (92.7% of the eleven-board machine); the 6502 and
+(67,960 lines, plus 4,599 of cell models); 62 cell models cover 91.4% of logic packages (93.0% of the eleven-board machine, ALU included); the 6502 and
 6532 are real cores; **all 26 PROMs are generated from PARC's own BCPL, and
 the 29 packages that hold them are wired into the RTL and read back correctly
 (`make -C verilog prom-test`)**

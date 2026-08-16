@@ -18,6 +18,7 @@ python3 tools/dorado_proms.py --placement  # which package holds which PROM
 make -C verilog proms      # proms/*.mem and the per-package images
 make -C verilog prom-test  # THE GATE: PROMs read back what the machine expects
 python3 tools/sil_backplane.py             # what the backplane is, measured
+make -C verilog alu-test   # THE GATE: the ALU matches its datasheet
 python3 tools/sil_backplane.py --ports     # boards present the ports PARC states
 make -C verilog machine-test  # THE GATE: the assembled machine clocks
 make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
@@ -26,7 +27,7 @@ make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 | piece | state |
 |---|---|
 | Netlist reader + Verilog generator | 16/16 boards, 67,960 lines (+2,658 top, +4,599 cells), **all lint clean** |
-| Cell library | 61 cells, **91.1%** of all packages, **92.7%** of the eleven-board machine |
+| Cell library | 62 cells, **91.4%** of all packages, **93.0%** of the eleven-board machine |
 | 6502 | Andrew Holme's netlist-derived core (via jotego), wired into `cell_MCS6502` |
 | 6532 RIOT | MiSTer Atari 7800's, patched for Verilator. **CC BY-NC** -- see `verilog/vendor/LICENSES.md` |
 | PROMs | **26 of 26** generated, **29 packages wired into the RTL and read back correctly** |
@@ -370,7 +371,7 @@ The toggle total is still printed, as information rather than a threshold.
 ## Task A -- fill in the cell library
 
 The machine is assembled, self-clocking and gated; what stops it computing is
-that 64 of 125 cell types are still skeletons with correct ports and no body.
+that 63 of 125 cell types are still skeletons with correct ports and no body.
 `make -C verilog machine-test` asserts the clock still reaches every slot;
 see the note above on why it does NOT gate on how many signals move.
 
@@ -397,6 +398,31 @@ MC10180's sheet gives the mode table, and it is worth knowing what the part
 does -- a select input INVERTS its operand, so one adder does add, subtract,
 reverse-subtract and negate, with the carry-in supplying the +1.
 
+**The ALU is modelled and verified** (`MC10181`, 8 packages: two slices on
+ProcH, two on ProcL for the 16-bit datapath, four more on the IFU). Written
+as a 16-way mux straight from the datasheet's function table -- one row per
+line, so it reads against the sheet -- which is also one LUT level on an
+FPGA. `make -C verilog alu-test` checks it EXHAUSTIVELY against independent
+expressions (`A + B`, `A - B`, `A & B` written directly, not the table it was
+built from): 4,880 checks, and mutation-tested with six injected errors
+(operand order, select order, carry sense, a swapped table row, mode ignored,
+propagate using AND for OR).
+
+Two things worth keeping from writing it:
+
+- **The pin indices look reversed and are not.** EclDict names `D0` for pin
+  10, which the datasheet calls `A3`. Xerox numbers bit 0 as the MOST
+  significant throughout this machine, the same convention the PROMs use.
+- **A confirmation of the architecture docs.** `CLAUDE.md` says ALUF is a
+  4-bit pointer into ALUFM, "16 x 6 bits". Six bits per entry is exactly what
+  this part takes: S0-S3, M and Cn. The netlist and the microcode
+  documentation agree without either having been derived from the other.
+
+One mutation was NOT caught, and that was right: gating the adder's carry-in
+by M is dead code, because M already selects the logic result and forces the
+carry out. The test found redundancy rather than a bug, and the cell is
+simpler for it.
+
 **What is left in the machine** is a short list, and none of it is a gate:
 
 | part | pkgs | what it is |
@@ -406,12 +432,14 @@ reverse-subtract and negate, with the carry-in supplying the +1.
 | `MC10136` | 9 | universal hexadecimal counter |
 | `CA3140` | 9 | **op-amp** -- analog, like the VCO; expect a substitution, not a model |
 | `i2716` | 8 | 2K EPROM (the BaseBoard's, and we HAVE the dumps in `firmware/`) |
-| `MC10181` | 8 | **the 4-bit ALU** -- the one the datapath actually needs |
-| `F100181` | 8 | the Fairchild 100K ALU beside it |
+| `F100181` | 8 | the Fairchild 100K ALU on MemC -- active-low carries and an output enable, so it needs its own sheet |
 
-`MC10181` is the interesting one: `docs/sil-netlist-crosscheck.md` already
-records that the Dorado's ALU is four MC10181 slices, two per processor board,
-so this is where the C emulator's `alu()` becomes diffable against the RTL.
+With `MC10181` done, the obvious next step is no longer a cell at all: it is
+**diffing the RTL against the C emulator**. `cpu.c`'s `alu()` implements the
+Hardware Manual's Table 9 operations, and ALUFM holds the six bits that drive
+this part, so the two can be compared operation by operation -- the first
+place in this project where the 1979 netlist and the software model can
+check each other on real arithmetic.
 
 The biggest remaining parts overall -- `DS3649` (32), `SN74S174` (28),
 `SN74H04` (28) -- have ZERO packages in the eleven-board machine. They are on

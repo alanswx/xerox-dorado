@@ -104,6 +104,17 @@ prom-test:
 		verilog/verilator/tb_proms.sv >/dev/null && \
 		./verilog/verilator/obj_proms/tb_proms | grep tb_proms
 
+# Does the ALU compute what its datasheet says? cell_MC10181 is the Dorado's
+# ALU -- two slices on ProcH, two on ProcL -- and it is a transcription of the
+# datasheet's function table, so it gets checked against INDEPENDENT
+# expressions of the same functions, exhaustively over both operands.
+.PHONY: alu-test
+alu-test:
+	@cd ../.. && $(V) --binary --top-module tb_alu $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_alu -o tb_alu \
+		verilog/verilator/tb_alu.sv >/dev/null && \
+		./verilog/verilator/obj_alu/tb_alu | grep tb_alu
+
 # Does the assembled machine actually run? The gate is the CLOCK: the
 # BaseBoard generates it and fans it out to every slot, and if those nets stop
 # moving nothing downstream can compute. Deliberately NOT a toggle count --

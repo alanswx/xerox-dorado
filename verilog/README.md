@@ -30,9 +30,10 @@ verilog/
   `generated/dorado_backplane.v` wires eleven of them into a machine: 501
   internal nets, 83 of them `wor` (ECL open-emitter buses), 407 ports out to
   cables and to boards this configuration lacks. `make backplane MACHINE=--boards=ProcH,ProcL` for any subset.
-- **61 cells have behaviour: 91.1%** of 3,771 logic packages, and **92.7%**
-  of the eleven-board machine. Data sheets that settled a polarity or a mode
-  encoding are filed in `../DoradoDocs/datasheets/`. The rest are
+- **62 cells have behaviour: 91.4%** of 3,771 logic packages, and **93.0%**
+  of the eleven-board machine, the ALU included (`make alu-test`: 4,880
+  checks against its datasheet). Data sheets that settled a polarity, a mode
+  encoding or a function table are filed in `../DoradoDocs/datasheets/`. The rest are
   skeletons with correct ports.
 - **The 6502 and the RIOT are real cores** -- Andrew Holme's netlist-derived
   6502 (via jotego) and MiSTer's Atari 7800 6532. See `vendor/LICENSES.md`:
@@ -58,7 +59,7 @@ clock** anywhere -- wired-OR buses are OR trees of per-board `<net>__drv`
 contributions, and every clocked cell runs on a fabric `sys_clk` with the
 Dorado's own clock as an enable. `make machine-test` is the gate.
 
-It does not compute yet: 64 of 125 cell types are still skeletons with
+It does not compute yet: 63 of 125 cell types are still skeletons with
 correct ports and no body, so most of the machine is constant. `machine-test`
 counts how many signals move (30 today) and that number is the cell library's
 progress bar.
