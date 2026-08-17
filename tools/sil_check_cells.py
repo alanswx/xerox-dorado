@@ -34,8 +34,9 @@ against the data sheets once, so they need not be again: the `[G]` summary
 omits selects, enables and carries. MC10158 pin 9 and MC10159 pin 9 are
 SELECT and MC10159 pin 7 is ENABLE; MC10164's p2 is its enable and p7/p9/p10
 its select; MC10174 pin 14 is ENABLE and 7/9 the address; MC10180's p4/p12
-are the two carry inputs; and MC10170's p13/p14 are the `HIGH` and `LOW`
-inputs that make it a "9+2-bit" parity generator.
+are the two carry inputs; MC10170's p13/p14 are the `HIGH` and `LOW`
+inputs that make it a "9+2-bit" parity generator; and SN74LS153/SN74LS253 read
+their enable and both selects, which the summary lists for neither half.
 
 A CHECK THAT WAS ADDED HERE AND REMOVED, because its premise was false, and
 it is worth stating so nobody re-derives it. The idea was: the dictionary

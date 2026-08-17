@@ -31,7 +31,7 @@ make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 | piece | state |
 |---|---|
 | Netlist reader + Verilog generator | 16/16 boards, 67,960 lines (+2,658 top, +4,599 cells), **all lint clean** |
-| Cell library | 62 cells, **91.4%** of all packages, **93.0%** of the eleven-board machine |
+| Cell library | 80 cells, **97.7%** of the eleven-board machine's logic packages |
 | 6502 | Andrew Holme's netlist-derived core (via jotego), wired into `cell_MCS6502` |
 | 6532 RIOT | MiSTer Atari 7800's, patched for Verilator. **CC BY-NC** -- see `verilog/vendor/LICENSES.md` |
 | PROMs | **26 of 26** generated, **29 packages wired into the RTL and read back correctly** |
