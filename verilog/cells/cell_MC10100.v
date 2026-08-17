@@ -33,10 +33,20 @@ module cell_MC10100 (
     output wire p15
 );
 
-  assign p2 = ~(p4 | p5 | p9);
-  assign p3 = ~(p6 | p7);
-  assign p14 = ~(p10 | p11);
-  assign p15 = ~(p12 | p13);
+  // Quad 2-Input NOR with STROBE (cells/PARTS.md). Pin 9 is the strobe and
+  // it is an input to all four NORs: [G (4 5 9)>(2), (6 7 9)>(3),
+  // (10 11 9)>(14), (12 13 9)>(15)]. A high strobe forces every output low,
+  // which is what an extra OR input into a NOR does.
+
+  // The COMMON pin feeds EVERY gate. EclDict names it once, on the first
+  // gate, and the [G] summary spells it out per gate -- this cell used to
+  // wire it into the first gate only. Found by Tim, then by
+  // tools/sil_check_cells.py across the whole library.
+
+  assign p2  = ~(p4  | p5  | p9);
+  assign p3  = ~(p6  | p7  | p9);
+  assign p14 = ~(p10 | p11 | p9);
+  assign p15 = ~(p12 | p13 | p9);
 
 endmodule
 

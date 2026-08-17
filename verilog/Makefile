@@ -5,7 +5,8 @@
 #   make cells    (re)emit missing cell skeletons -- never overwrites a
 #                 hand-written model; use `make cells-force` deliberately
 #   make proms    regenerate proms/*.mem and the per-package images
-#   make lint     every board must still elaborate under Verilator
+#   make lint       every board must still elaborate under Verilator
+#   make cell-check every cell wires the inputs PARC says its gates have
 #   make prom-test    the PROMs read back what the machine expects
 #   make alu-test     the ALU matches its datasheet's function table
 #   make alu-diff     the RTL ALU matches the C emulator's, vector for vector
@@ -17,13 +18,18 @@ ECLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ecldict.analyze
 TTLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ttldict.analyze
 TOOLS   = ../tools
 
-.PHONY: boards backplane proms cells cells-force lint prom-test alu-test \
-        alu-diff machine-test clean-generated
+.PHONY: boards backplane proms cells cells-force lint cell-check prom-test \
+        alu-test alu-diff machine-test clean-generated
 
 # PROM contents, sliced per package position from PARC's own BCPL.
 proms:
 	@python3 $(TOOLS)/dorado_proms.py --emit-all --out proms
 	@python3 $(TOOLS)/dorado_proms.py --emit-packages proms/packages
+
+# Do the cells wire the inputs PARC says each gate has? Tim found MC10100
+# ignoring its common strobe on three of four gates; this checks all of them.
+cell-check:
+	@python3 $(TOOLS)/sil_check_cells.py
 
 prom-test:
 	@$(MAKE) -C verilator prom-test

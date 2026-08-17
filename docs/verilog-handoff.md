@@ -315,6 +315,68 @@ a logic part, so nothing in RTL drives them -- `Collision` and `RcvData`
 arrive from the ethernet transceiver over a cable. They are board inputs, and
 the top module exposes them.
 
+## Tim found a whole class of bug: the COMMON pin
+
+He read `cell_MC10100` and saw that pin 9 -- the strobe MC10100 feeds into all
+four NOR gates -- had been wired into the first gate only, and that
+`cell_MC10101` had the same fault with its common pin 12. Both cells were
+written from EclDict's PIN BLOCK, which names a common input ONCE, on the
+first gate, and leaves you to know it is shared.
+
+**The dictionary says it a second way, unambiguously.** Beside the pin blocks
+is a gate summary per part, with every gate's complete input list:
+
+```
+MC100
+[G (4 5 9)>(2), (6 7 9)>(3), (10 11 9)>(14), (12 13 9)>(15) : 1 3.3 ]
+```
+
+`tools/sil_check_cells.py` (`make -C verilog cell-check`) compares every
+combinational cell against those lists, inlining intermediate wires so a
+factored cell is checked like a flat one. It found **seven** bugs across
+**270 packages** -- Tim's two and five more:
+
+| part | pkgs | what was wrong |
+|---|---|---|
+| `MC10101` | 54 | common pin 12 in one gate of four (Tim) |
+| `MC10100` | 25 | common strobe pin 9 in one gate of four (Tim) |
+| `MC10125` | 66 | each channel read one of its two DIFFERENTIAL inputs, and the fourth channel was not modelled at all -- its output tied to zero |
+| `MC10195` | 47 | common pin 9 in one gate of six, AND the wrong function: it is an XNOR, not a NOR |
+| `MC10124` | 41 | common strobe pin 6 missing from all four gates, AND the two output senses swapped |
+| `MC1660` | 28 | my own: gate a drove pins 3 and 15, gate b drove 14 and 2 -- the two halves crossed |
+| `MC10118` | 9 | two independent gates modelled as one term feeding both outputs |
+
+The data book settled the ones where the FUNCTION mattered, not just the
+wiring -- `DoradoDocs/datasheets/ON_MECL_DataBook_DL122_rev7.pdf`, 474 pages,
+which is worth having for everything else too:
+
+- **MC10124**: "When the common strobe input is at the low logic level, it
+  forces all true outputs to a MECL low logic state" -- so each channel is
+  AND(data, strobe), both senses brought out.
+- **MC10125**: the pin assignment shows differential pairs, `AIN`/`A-bar-IN`
+  on pins 3 and 2 and so on, with one TTL output each.
+- **MC10195**: its truth table is an XNOR, and EclDict names pin 9 twice,
+  `Invert'` and `Buffer` -- the common pin CHOOSES which the part is. That is
+  the "Inverter/Buffer" in its name.
+
+**What the MC1660 fix then exposed.** With that cell correct, the machine
+stopped clocking -- and the earlier "self-clocking" result turned out to have
+depended on the bug. The BaseBoard's VCO is a transistor quad (`MPQ3303`)
+cross-coupled with an MC1660, and its job on `VCOPhase0`/`VCOPhase1` is to
+PULL THEM DOWN. A wired-OR resolves as an OR, which can only pull up, so the
+loop latches high and the clock never starts. Since the VCO is already a
+documented substitution -- an analog oscillator has no digital model -- the
+substitute now drives those nets outright: `Generator.OVERRIDE_DRIVERS`, one
+part, one net pair, stated in the generator rather than hidden in a cell.
+
+**What the checker cannot do**, so that its silence is not over-read: it
+checks CONNECTIVITY, not function -- a gate that ORs where it should AND uses
+the same pins. It skips sequential cells, since a clock is not an input in
+the `[G]` sense. And 19 cells legitimately read MORE than `[G]` lists, because
+that summary omits selects, enables and carries (MC10158's pin 9 is SELECT,
+MC10174's pin 14 is ENABLE, MC10180's carry-in); those are reported
+separately, not as errors.
+
 ## Reference: OR/NOR output polarity -- SETTLED from the datasheets
 
 A third of the packages in this machine are OR/NOR gates, and getting the

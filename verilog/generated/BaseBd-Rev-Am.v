@@ -778,6 +778,8 @@ module BaseBd_m_Rev_m_Am (
   assign DoradoSel = DoradoSel__c62_14 | DoradoSel__c20_5;
   wire GND346__h06_10;
   wire GND346__h06_12;
+  // GND346: the MPQ3303 pulls this net and
+  // overrides the wired-OR -- see OVERRIDE_DRIVERS.
   assign GND346 = GND346__h06_10 | GND346__h06_12;
   wire MCD_0__f60_17;
   wire MCD_0__e60_17;
@@ -1056,10 +1058,14 @@ module BaseBd_m_Rev_m_Am (
   assign VCC62 = VCC62__c05_12 | VCC62__c05_1;
   wire VCOPhase0__h06_7;
   wire VCOPhase0__h05_14;
-  assign VCOPhase0 = VCOPhase0__h06_7 | VCOPhase0__h05_14;
+  // VCOPhase0: the MPQ3303 pulls this net and
+  // overrides the wired-OR -- see OVERRIDE_DRIVERS.
+  assign VCOPhase0 = VCOPhase0__h06_7;
   wire VCOPhase1__h06_1;
   wire VCOPhase1__h05_2;
-  assign VCOPhase1 = VCOPhase1__h06_1 | VCOPhase1__h05_2;
+  // VCOPhase1: the MPQ3303 pulls this net and
+  // overrides the wired-OR -- see OVERRIDE_DRIVERS.
+  assign VCOPhase1 = VCOPhase1__h06_1;
   wire WatchdogIn__g22_8;
   wire WatchdogIn__f63_15;
   assign WatchdogIn = WatchdogIn__g22_8 | WatchdogIn__f63_15;

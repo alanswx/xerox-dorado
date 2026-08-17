@@ -107,6 +107,21 @@ class Generator:
         }
         self.proms_wired = 0
 
+    # A part whose drive OVERRIDES the wired-OR on its nets.
+    #
+    # MECL outputs are open emitters: they can pull a net UP, and the OR that
+    # resolves a wired-OR net is exactly right for that. `MPQ3303` is not a
+    # gate -- it is the transistor quad of the BaseBoard's VCO, and its job on
+    # `VCOPhase0`/`VCOPhase1` is to pull them DOWN. An OR cannot express a
+    # pull-down, so resolving that loop as an OR latches it high and the
+    # machine's clock never starts.
+    #
+    # Since the VCO is already a documented SUBSTITUTION (an analog oscillator
+    # has no digital model -- see cell_MPQ3303), the substitute drives those
+    # nets outright. One part, one net pair, stated here rather than hidden in
+    # a cell.
+    OVERRIDE_DRIVERS = ('MPQ3303',)
+
     # Neither a driver nor a consumer. `Term100` is a 100-ohm TERMINATING
     # RESISTOR network -- ECL terminates every line -- and an empty socket is
     # nothing at all. Reading a terminator as the board's connector is what
@@ -263,10 +278,22 @@ class Generator:
             A('  // net that no synthesis tool accepts.')
             for name, _n in self.wired_or:
                 drivers = self.drivers_in_rtl(name)
-                terms = ' | '.join(f'{vname(name)}__{vname(p["pkg"])}_{p["pin"]}'
-                                   for p in drivers)
+                # Every driver still needs its stub -- the package's pin is
+                # wired to it either way -- but an overriding driver is the
+                # only one that reaches the net.
                 for p in drivers:
                     A(f'  wire {vname(name)}__{vname(p["pkg"])}_{p["pin"]};')
+                over = [p for p in drivers
+                        if self.b.packages.get(p['pkg'], {}).get('type', '')
+                        in self.OVERRIDE_DRIVERS]
+                if over:
+                    A(f'  // {name}: the '
+                      f'{self.b.packages[over[0]["pkg"]]["type"]} pulls this '
+                      f'net and')
+                    A('  // overrides the wired-OR -- see OVERRIDE_DRIVERS.')
+                    drivers = over
+                terms = ' | '.join(f'{vname(name)}__{vname(p["pkg"])}_{p["pin"]}'
+                                   for p in drivers)
                 tgt = f'{vname(name)}__drv' if name in self.exports else vname(name)
                 A(f'  assign {tgt} = {terms};')
             A('')

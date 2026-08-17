@@ -13,6 +13,7 @@ what a cell model has to get right.
 | `MC10212.pdf` | Dual 3-input 3-output OR/NOR | the same rule again, independently: pins 3,4,12,13 barred, 2 and 14 not |
 | `MC10117.pdf` | Dual 2-wide 2-3-input OR-AND | the `u`/`v` role letters, which the OR/NOR rule does not reach: `u` inverting, `v` not. Also that pin 9 is common to both gates |
 | `MC10180.pdf` | Dual 2-bit adder/subtractor | the M0/M1 mode encoding -- a select input inverts its operand, so one part does add, subtract, reverse-subtract and negate |
+| `ON_MECL_DataBook_DL122_rev7.pdf` | the whole MECL 10K family, 474 pages | the parts no per-part sheet is mirrored for -- MC10124's common strobe, MC10125's differential inputs, MC10195's XNOR truth table |
 | `MC10181.pdf` | 4-bit ALU / function generator | the full 16-row function table, both columns -- this is the Dorado's ALU, and the table is transcribed straight into `cell_MC10181` |
 
 The polarity rule these establish is written up in `docs/verilog-handoff.md`;

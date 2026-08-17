@@ -30,6 +30,10 @@ verilog/
   `generated/dorado_backplane.v` wires eleven of them into a machine: 501
   internal nets, 83 of them `wor` (ECL open-emitter buses), 407 ports out to
   cables and to boards this configuration lacks. `make backplane MACHINE=--boards=ProcH,ProcL` for any subset.
+- **`make cell-check`** compares every combinational cell against EclDict's
+  own per-gate input lists. A PARC veteran found `cell_MC10100` ignoring its
+  common strobe on three of four gates; the check found six more like it,
+  270 packages in all.
 - **62 cells have behaviour: 91.4%** of 3,771 logic packages, and **93.0%**
   of the eleven-board machine, the ALU included (`make alu-test`: 4,880
   checks against its datasheet, and `make alu-diff`: **10,752 vectors against

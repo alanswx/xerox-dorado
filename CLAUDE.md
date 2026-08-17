@@ -880,7 +880,11 @@ diagnostics, which were written to test the boards.
 **Started 2026-08-15, and further than the plan expected.** All sixteen
 boards now GENERATE from PARC's wire lists and elaborate under Verilator
 (67,960 lines, plus 4,599 of cell models); 62 cell models cover 91.4% of logic packages (93.0% of the eleven-board
-machine); **the RTL ALU and the C emulator agree on 10,752 vectors**
+machine) -- and a PARC veteran reading one of them found a class of bug worth
+knowing about: EclDict names a gate's COMMON input once, on the first gate,
+so four cells had wired it into that gate only. `make -C verilog cell-check`
+now compares every combinational cell against the dictionary's own per-gate
+input lists and found seven bugs across 270 packages; **the RTL ALU and the C emulator agree on 10,752 vectors**
 (`make -C verilog alu-diff`) -- four MC10181 slices chained as ProcH and ProcL
 build them, against `cpu.c`'s own `alu_op()`, neither derived from the other,
 and the 6-bit ALUFM entry turns out to be exactly the part's controls

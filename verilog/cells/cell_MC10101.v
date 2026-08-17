@@ -33,14 +33,23 @@ module cell_MC10101 (
     output wire p9
 );
 
-  assign p2 = ~(p4 | p12);
-  assign p5 = (p4 | p12);
-  assign p3 = ~(p7);
-  assign p6 = (p7);
-  assign p14 = ~(p10);
-  assign p11 = (p10);
-  assign p15 = ~(p13);
-  assign p9 = (p13);
+  // Quad OR/NOR with a COMMON INPUT on pin 12 -- the data sheet labels that
+  // pin exactly that (DoradoDocs/datasheets/MC10101.pdf), and [G] puts it in
+  // every gate: (4 12)>(2 5), (7 12)>(3 6), (10 12)>(11 14), (12 13)>(9 15).
+  //
+  // Polarity by the confirmed rule: role `OUT` is the inverting output, `o`
+  // the non-inverting one. The sheet's own labels agree -- pin 2 is
+  // A-bar-OUT, pin 5 is AOUT.
+
+  // The COMMON pin feeds EVERY gate. EclDict names it once, on the first
+  // gate, and the [G] summary spells it out per gate -- this cell used to
+  // wire it into the first gate only. Found by Tim, then by
+  // tools/sil_check_cells.py across the whole library.
+
+  assign p2  = ~(p4  | p12);   assign p5  = (p4  | p12);
+  assign p3  = ~(p7  | p12);   assign p6  = (p7  | p12);
+  assign p14 = ~(p10 | p12);   assign p11 = (p10 | p12);
+  assign p15 = ~(p13 | p12);   assign p9  = (p13 | p12);
 
 endmodule
 

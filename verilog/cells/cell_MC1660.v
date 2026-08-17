@@ -42,10 +42,14 @@ module cell_MC1660 (
 
   wire a = p4 | p5 | p6 | p7;
   wire b = p10 | p11 | p12 | p13;
+  // WHICH GATE OWNS WHICH OUTPUT: [G (4 5 6 7)>(2 3), (10 11 12 13)>(14 15)].
+  // Gate a drives pins 2 AND 3, gate b drives 14 and 15 -- I had a driving
+  // 3 and 15, and b driving 14 and 2, which crossed the two halves. Caught by
+  // tools/sil_check_cells.py; it left half the clock generator's fanout stuck.
   assign p3  = ~a;      // a_OUT   (dictionary `out`  = inverting)
-  assign p15 =  a;      // a_OUTN  (dictionary `nout` = non-inverting)
+  assign p2  =  a;      // a_OUTN  (dictionary `nout` = non-inverting)
   assign p14 = ~b;      // b_OUT
-  assign p2  =  b;      // b_OUTN
+  assign p15 =  b;      // b_OUTN
 
   // Board-wired pins the dictionary does not name (power and the like)
   wire _unused_pins = &{1'b0, p8, 1'b0};
