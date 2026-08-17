@@ -60,9 +60,22 @@
  * from PARC's 1979 wire list. Nobody wrote either from the other, and all 36
  * bits have to agree.
  *
- * Output: `CP mcpbusl data cpreg mir0..mir4 running ss mirloaded`, or
- * `MIR fn data extra rstk aluf bsel lc asel block ff jcn`, hex throughout
- * except the flags.
+ * A THIRD SECTION, tagged `REG`, jams a COMPLETE microinstruction: four bytes
+ * and four extra bits, the way the BaseBoard's LoadDoradoCode does it 475 times
+ * during a cold boot. tb_mirreg.sv clears the register, issues the same four
+ * strobes and reads the field outputs -- `RSTK.0`, `ALUF.0`, `Block`, `FF.0`
+ * and the rest, which are the actual signals the datapath runs on.
+ *
+ * That last one tests the REGISTER rather than the decoders. The MIR turns out
+ * to be a bank of MC10231 set/reset flip-flops: `s<FIELD>` is the SET input,
+ * `d<FIELD>` the execute-path data, and `rMIRa` the reset. So a jam is clear
+ * the lot, then set the one bits -- which is exactly why the Control function
+ * has a ClrMIR bit, and why the four strobes accumulate instead of loading.
+ *
+ * Output: `CP mcpbusl data cpreg mir0..mir4 running ss mirloaded`,
+ * `MIR fn data extra rstk aluf bsel lc asel block ff jcn`, or
+ * `REG b1 b2 b3 b4 e0 e1 e2 e3 rstk aluf bsel lc asel block ff jcn`, hex
+ * throughout except the flags and the extra bits.
  */
 
 #include "../src/baseboard.c"
@@ -119,5 +132,37 @@ int main(void)
                        u.rstk, u.aluf, u.bsel, u.lc, u.asel,
                        u.block, u.ff, u.jcn);
             }
+    /* Complete microinstructions, jammed byte by byte. */
+    {
+        static const uint8_t words[][4] = {
+            { 0x00, 0x00, 0x00, 0x00 },
+            { 0xFF, 0xFF, 0xFF, 0xFF },
+            { 0x01, 0x02, 0x04, 0x08 },
+            { 0x80, 0x40, 0x20, 0x10 },
+            { 0x55, 0xAA, 0x55, 0xAA },
+            { 0xAA, 0x55, 0xAA, 0x55 },
+            { 0x3C, 0xC3, 0x0F, 0xF0 },
+            { 0x12, 0x34, 0x56, 0x78 },
+            { 0x9A, 0xBC, 0xDE, 0xF0 },
+        };
+        for (unsigned w = 0; w < sizeof words / sizeof *words; w++)
+            for (unsigned e = 0; e < 16; e++) {
+                dorado_uinstr u;
+                memset(&bb.mir_bytes, 0, sizeof bb.mir_bytes);
+                for (unsigned slot = 0; slot < 4; slot++) {
+                    unsigned extra = (e >> slot) & 1;
+                    bb.riot[3].pa_latch = words[w][slot];
+                    apply_mcp_strobe(&bb, (uint8_t)(((4 + slot) << 4)
+                                                    | (extra << 7) | 0x01));
+                }
+                dorado_decode_mir(bb.mir_bytes, &u);
+                printf("REG %02x %02x %02x %02x %d %d %d %d "
+                       "%x %x %x %x %x %d %02x %02x\n",
+                       words[w][0], words[w][1], words[w][2], words[w][3],
+                       (e >> 0) & 1, (e >> 1) & 1, (e >> 2) & 1, (e >> 3) & 1,
+                       u.rstk, u.aluf, u.bsel, u.lc, u.asel,
+                       u.block, u.ff, u.jcn);
+            }
+    }
     return 0;
 }

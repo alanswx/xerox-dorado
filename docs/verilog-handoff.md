@@ -22,6 +22,7 @@ make -C verilog alu-test   # THE GATE: the ALU matches its datasheet
 make -C verilog alu-diff   # THE GATE: the ALU matches the C EMULATOR
 make -C verilog cpreg-diff # THE GATE: the BOOT INTERFACE matches the C emulator
 make -C verilog mir-diff   # THE GATE: all 36 microinstruction bits match
+make -C verilog mirreg-diff # THE GATE: a jammed microinstruction reads back
 python3 tools/sil_backplane.py --ports     # boards present the ports PARC states
 make -C verilog machine-test  # THE GATE: the assembled machine clocks and SETTLES
 make -C verilog baseboard-test  # THE GATE: the BaseBoard's 6502 BOOTS
@@ -721,6 +722,64 @@ outputs** -- a decoder output is a level that stands while the strobe is
 asserted, so they are read with the strobe low and released afterwards. And
 **PARC's `.0` is the most significant bit of a field**, here as everywhere:
 `sRSTK.0` is the RSTK bit the Hardware Manual puts in iw2 rather than iw0.
+
+## A microinstruction is JAMMED INTO THE MIR AND READ BACK (2026-08-17)
+
+`make -C verilog mirreg-diff`: **144 microinstructions jammed and read back, 0
+field mismatches.**
+
+`mir-diff` proved the decoders -- which `CPOut` bit reaches which field line.
+This proves the REGISTER: that the bits stick, that four strobes accumulate,
+and that what comes out is the microinstruction the C emulator says it is. It is
+what the BaseBoard does 475 times during a cold boot, since it cannot write IM
+directly.
+
+**The MIR is a bank of set/reset flip-flops**, which the software model does not
+show. Every field bit is half an MC10231:
+
+```
+  S = s<FIELD>    the BaseBoard's jam path, from the MC10172 decoders
+  D = d<FIELD>    the execute path, from IM
+  R = rMIRa       the reset
+  C = clk0'..     the microinstruction clock
+  Q = <FIELD>     the signal the datapath runs on
+```
+
+So a jam is: reset the lot, then SET the ones the four bytes call for. That is
+exactly why the Control function carries a `ClrMIR` bit and why the four strobes
+accumulate rather than each loading a register. `ClrMIR` is `CPOut.5`, the data
+byte's bit 2 -- `data & 0x04`, precisely what the C emulator tests. All five
+Control bits check out the same way: `rStop` from `CPOut.1` (0x40, ClrStop),
+`StopAtT1` from `CPOut.2` (0x20), `Jam` from `CPOut.3` (0x10), `rCT` from
+`CPOut.6` (0x02). The sixth is a naming difference worth knowing: the bit the C
+emulator calls **Freeze** (0x08) the board calls **`NoDispatch`**.
+
+**Three things this test got wrong first, all of them instructive:**
+
+* **`rMIRa` crosses the BACKPLANE.** ContA makes it and ContB receives it, and
+  both boards drive it, so it resolves as a wired-OR. Instantiating the two
+  board modules side by side leaves ContA's own reset unconnected to its own
+  flip-flops, and nothing clears. The fix is to use
+  `sil_backplane.py --boards=ContA,ContB`, which resolves it -- so the test runs
+  a real two-board machine, and `make -C verilog lint` now elaborates that
+  configuration too.
+* **BLOCK is wired INVERTED, and it is the only field bit that is.** For every
+  other bit `s<FIELD>` goes to S and `<FIELD>` comes off Q. For BLOCK, `sBLOCK`
+  goes to **R** (on both e23 and g16), `rMIRa` goes to **S**, and `Block` comes
+  off **Q'**. The two inversions cancel, so it means the same thing -- but until
+  the backplane reset reaches that S input, `Block` sits at 1 no matter what,
+  which is what the first run showed on every vector.
+* **The claim that this test holds the microinstruction clock stopped was
+  false**, and is now stated correctly. Driving `CLK.ca'`/`CLK.cb'` with a
+  square wave toggles them 999 times and moves `clk0'Bc` ONCE: the Control
+  board's clock generator is gated by the run/stop state, which is idle here. So
+  the machine being STOPPED is why a jam sticks, and this testbench does not
+  exercise the Freeze path at all. Measured, not assumed -- the mutation that
+  should have failed passed, which is how it came to light.
+
+Five mutations were tried; four fail as they should (no ClrMIR between vectors,
+ClrMIR never released, BLOCK polarity flipped, one of the four strobes dropped)
+and the fifth is the clock one above.
 
 ## The passive packages, and what each one turned out to be (2026-08-17)
 

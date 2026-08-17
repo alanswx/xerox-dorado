@@ -13,6 +13,7 @@
 #   make alu-diff     the RTL ALU matches the C emulator's, vector for vector
 #   make cpreg-diff   the RTL boot interface matches the C emulator's
 #   make mir-diff     the RTL microinstruction load matches, all 36 bits
+#   make mirreg-diff  a microinstruction jammed into the MIR reads back right
 #   make machine-test the assembled machine clocks and its clock tree runs
 #   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs
 #
@@ -23,7 +24,7 @@ TTLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ttldict.analyze
 TOOLS   = ../tools
 
 .PHONY: boards backplane proms cells cells-force lint cell-check loop-check \
-        prom-test alu-test alu-diff cpreg-diff mir-diff machine-test \
+        prom-test alu-test alu-diff cpreg-diff mir-diff mirreg-diff machine-test \
         baseboard-test \
         clean-generated
 
@@ -66,6 +67,10 @@ cpreg-diff:
 mir-diff:
 	@$(MAKE) -C verilator mir-diff
 
+# A whole microinstruction jammed into the MIR and read back off the register.
+mirreg-diff:
+	@$(MAKE) -C verilator mirreg-diff
+
 # Does the assembled machine run? Needs the harness built first.
 machine-test:
 	@$(MAKE) -C verilator machine-test
@@ -91,6 +96,8 @@ backplane: generated-boards
 		$(MACHINE)
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_baseboard.v \
 		--boards=BaseBd --module=dorado_baseboard >/dev/null
+	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_control.v \
+		--boards=ContA,ContB --module=dorado_control >/dev/null
 
 cells:
 	@python3 $(TOOLS)/sil_emit_cells.py --sil $(SIL) \

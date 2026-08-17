@@ -172,6 +172,22 @@ mir-diff:
 		>/dev/null && ./verilog/verilator/obj_mir/tb_mir \
 			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_mir
 
+# A WHOLE MICROINSTRUCTION jammed into the register and read back, which is
+# what the BaseBoard does 475 times during a cold boot. Needs BOTH Control
+# boards wired by the backplane, because the MIR reset crosses it. See
+# tb_mirreg.sv.
+.PHONY: mirreg-diff
+mirreg-diff:
+	@$(MAKE) -s -C ../../dorado build/cpreg_vectors
+	@mkdir -p obj_cpreg
+	@cd ../.. && ./dorado/build/cpreg_vectors > verilog/verilator/obj_cpreg/cpreg.vec
+	@cd ../.. && $(V) --binary --top-module tb_mirreg $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_mirreg -o tb_mirreg \
+		verilog/verilator/tb_mirreg.sv verilog/generated/dorado_control.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		>/dev/null && ./verilog/verilator/obj_mirreg/tb_mirreg \
+			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_mirreg
+
 # Does the BaseBoard's 6502 come out of reset and fetch from its own EPROMs?
 # The whole board is real here -- Andrew Holme's netlist-derived 6502, MiSTer's
 # 6532s, the '138 that decodes Rom0'..Rom7', the eight 2716 sockets, and the
@@ -190,14 +206,17 @@ baseboard-test:
 # boards it instantiates, because Verilator resolves a module by looking for a
 # file of the same name and `ProcH_m_Rev_m_Ce` lives in `ProcH-Rev-Ce.v`.
 TOP_V    = $(GEN)/dorado_backplane.v
-# The one-board machine tb_baseboard runs. A top module, not a board, so it
-# is linted with its board rather than alone.
+# The one-board machine tb_baseboard runs, and the two-board Control machine
+# tb_mirreg runs. Top modules, not boards, so they are linted with their boards
+# rather than alone.
 BB_V     = $(GEN)/dorado_baseboard.v
+CT_V     = $(GEN)/dorado_control.v
 
 lint:
 	@ok=0; bad=0; \
 	for f in $(GEN)/*.v; do \
-		if [ "$$f" = "$(TOP_V)" ] || [ "$$f" = "$(BB_V)" ]; then continue; fi; \
+		if [ "$$f" = "$(TOP_V)" ] || [ "$$f" = "$(BB_V)" ] \
+		   || [ "$$f" = "$(CT_V)" ]; then continue; fi; \
 		if $(V) --lint-only $(V_WARN) -I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $$f >/dev/null 2>&1; then \
 			ok=$$((ok+1)); \
 		else \
@@ -220,6 +239,15 @@ lint:
 			echo "lint: one-board BaseBoard machine elaborates"; \
 		else \
 			bad=$$((bad+1)); echo "  FAIL dorado_baseboard.v"; \
+		fi; \
+	fi; \
+	if [ -f $(CT_V) ]; then \
+		if $(V) --lint-only --top-module dorado_control_machine $(V_WARN) \
+			-I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $(CT_V) \
+			$(GEN)/ContA-Rev-Cd.v $(GEN)/ContB-Rev-Cd.v >/dev/null 2>&1; then \
+			echo "lint: two-board Control machine elaborates"; \
+		else \
+			bad=$$((bad+1)); echo "  FAIL dorado_control.v"; \
 		fi; \
 	fi; \
 	test $$bad -eq 0
