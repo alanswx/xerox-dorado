@@ -4,9 +4,25 @@
 // Directions: observed in the .wl wire lists across all boards.
 // Used in 7 package position(s) across the sixteen boards.
 //
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Dual Binary to 1-4 Decoder, outputs HIGH (MECL 10K, DL122 rev 7 p.376).
+//
+// "The MC10172 is a binary-coded 2 line to dual 4 line decoder with selected
+// outputs high. With either E0 or E1 low, the corresponding selected 4 outputs
+// are low. The common enable E, when high, forces all outputs low."
+//
+// So the half enables are ACTIVE HIGH here and the common enable active low,
+// which is exactly how EclDict names them: `EQ`, `ER`, and `E'`.
+// EclDict gives both parts the same pinout, and the data book's own truth
+// table settles the polarities:
+//
+//   S1 = 7, S2 = 9         the 2-bit code; S2 is the more significant, which
+//                          the truth table confirms (A=H,B=L selects output 2)
+//   E' = 15                the COMMON enable, high disables everything
+//   Q half: enable 14, outputs 13, 12, 11, 10   (index 0..3)
+//   R half: enable  2, outputs  6,  5,  4,  3   (index 0..3)
+//
+// The data book calls the halves Q0x and Q1x, with E0 at pin 14 and E1 at
+// pin 2; EclDict's Q half is the E0 one.
 
 `default_nettype none
 
@@ -26,7 +42,18 @@ module cell_MC10172 (
     input  wire p15// E'
 );
 
-  // TODO: model this part.
+  wire [1:0] sel = {p9, p7};                // S2, S1
+  wire       en  = ~p15;                    // E high forces all outputs low
+
+  assign p13 = en & p14 & (sel == 2'd0);    // Q0
+  assign p12 = en & p14 & (sel == 2'd1);
+  assign p11 = en & p14 & (sel == 2'd2);
+  assign p10 = en & p14 & (sel == 2'd3);
+
+  assign p6  = en & p2  & (sel == 2'd0);    // R0
+  assign p5  = en & p2  & (sel == 2'd1);
+  assign p4  = en & p2  & (sel == 2'd2);
+  assign p3  = en & p2  & (sel == 2'd3);
 endmodule
 
 `default_nettype wire

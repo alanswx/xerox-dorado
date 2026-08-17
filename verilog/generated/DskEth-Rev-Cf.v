@@ -1504,6 +1504,7 @@ module DskEth_m_Rev_m_Cf (
 
   // ---- packages
   cell_SN74LS169 u_a01 (
+    .sys_clk(sys_clk),
     .p1(GND_m_52),
     .p2(TriconD06_sil_pl_1),
     .p3(TriconD06_sil_pl_8),
@@ -1518,6 +1519,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(VCC_m_83)
   ); // SN74LS169
   cell_SN74LS169 u_a02 (
+    .sys_clk(sys_clk),
     .p1(GND_m_51),
     .p2(TriconD06_sil_pl_2),
     .p3(TriconD06_sil_pl_17),
@@ -1564,6 +1566,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(VCC_m_82)
   ); // SN74123
   cell_SN74LS169 u_a06 (
+    .sys_clk(sys_clk),
     .p1(GND_m_50),
     .p2(TriconD06_sil_pl_3),
     .p3(TriconD06_sil_pl_9),
@@ -1578,6 +1581,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(VCC_m_81)
   ); // SN74LS169
   cell_SN74LS169 u_a07 (
+    .sys_clk(sys_clk),
     .p1(GND_m_49),
     .p2(TriconD06_sil_pl_4),
     .p3(TriconD06_sil_pl_16),

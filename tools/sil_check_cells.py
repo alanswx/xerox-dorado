@@ -7,6 +7,15 @@ one. `cell_MC10101` had the same bug with its common pin 12. Both were
 hand-written from the dictionary's PIN BLOCK, which names the common input
 once and leaves you to know it is shared.
 
+AND IT WAS BLIND TO 18 PARTS OF THE 112 IT CHECKS, for eight months, because
+a part may state its gates across SEVERAL `[G]` lines and this read only the
+first. `MC10113` puts its four XOR gates on one line and their common enable
+on the next; `MC10197` does the same with its strobe. Both were Tim's bug
+exactly, in 82 packages of the eleven-board machine, and this could not see
+either. Fixing the parser -- extend rather than replace, and keep the part
+names until the next name line -- found them immediately. When a checker
+reports nothing, ask what it cannot see.
+
 The dictionary says it a second way, and that way is unambiguous. Alongside
 the pin blocks, `EclDict.Analyze` carries a gate summary per part:
 
@@ -92,13 +101,18 @@ def gate_table(path: str) -> dict[str, list[tuple[set, set]]]:
                 lhs, rhs = clause.split('>', 1)
                 pins = lambda s: {int(n) for n in re.findall(r'\d+', s)}
                 gates.append((pins(lhs), pins(rhs)))
+            # EXTEND, and keep `names`. A part can state its gates in
+            # several [G] lines -- MC10166 gives its ten data inputs one and
+            # its enable another -- and clearing the names after the first
+            # dropped every later line on the floor, so the enable looked
+            # like a pin the cell had no business reading.
             for n in names:
-                out[n] = gates
-            names = []
+                out.setdefault(n, []).extend(gates)
         elif t.startswith('['):
-            names = []                      # [M ...] memory entries, not gates
+            pass                            # [M ...] and [FF ...], not gates
         elif not t.startswith(';'):
-            # a name line, possibly `MC210, MC211, MC212`
+            # a name line, possibly `MC210, MC211, MC212`; it ends the
+            # previous part's entries and starts this one's
             if re.match(r'^[A-Za-z0-9_, ]+$', t):
                 names = [x.strip() for x in t.split(',') if x.strip()]
     return out
@@ -273,11 +287,15 @@ def main(argv: list[str]) -> int:
 
         checked += 1
         for out_pin, used in sorted(gates.items()):
+            # UNION every clause that mentions this output, not the first.
+            # A part can state its gate in several: MC10166 gives its data
+            # inputs one clause and its enable another, `[G (4 5 ...)>(2 3)]`
+            # and `[G (15)>(2 3)]`, and taking only the first reported the
+            # enable as an extra pin the cell had no business reading.
             want = None
             for ins, outs in gt.get(short, []):
                 if out_pin in outs:
-                    want = ins
-                    break
+                    want = ins if want is None else (want | ins)
             if want is None:
                 continue                    # output not in the summary
             missing = want - used

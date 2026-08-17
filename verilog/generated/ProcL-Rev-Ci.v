@@ -3927,6 +3927,7 @@ module ProcL_m_Rev_m_Ci (
     .p23(ProcL02_sil_pl_1__i06_23)
   ); // MB7071H
   cell_F10414 u_i08 (
+    .sys_clk(sys_clk),
     .p1(StkAdr_0b),
     .p2(StkAdr_1b),
     .p3(StkAdr_2b),
@@ -4242,6 +4243,7 @@ module ProcL_m_Rev_m_Ci (
     .p23(ProcL06_sil_pl_1__j06_23)
   ); // MB7071H
   cell_F10414 u_j08 (
+    .sys_clk(sys_clk),
     .p1(RbAdr_0_p_),
     .p2(RbAdr_1_p_),
     .p3(RbAdr_2_p_),

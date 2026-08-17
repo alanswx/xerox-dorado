@@ -34,13 +34,33 @@ module cell_MC10113 (
     input  wire p9
 );
 
-  assign p2 = (p4 ^ p5);
-  assign p3 = (p6 ^ p7);
-  assign p14 = (p10 ^ p11);
-  assign p15 = (p12 ^ p13);
+  // Quad Exclusive OR Gate, MECL 10K, data book DL122 rev 7 p.269:
+  //
+  //   "The MC10113 is a quad Exclusive OR gate, with an ENABLE COMMON TO ALL
+  //    FOUR GATES. The outputs may be wire-ORed together to perform a 4-bit
+  //    comparison function (A = B). The enable is ACTIVE LOW."
+  //
+  // Pin 9 is that enable, and EclDict says so twice: the pin block names it
+  // once, on gate a (`a,e,9`), and the gate summary spells it out --
+  //
+  //   [G (4 5)>2, (6 7)>3, (10 11)>14, (12 13)>15]
+  //   [G 9>(2 3 14 15)]
+  //
+  // -- which is Tim's common-pin trap exactly. It went unnoticed longer than
+  // it should have because sil_check_cells only read a part's FIRST [G] line,
+  // and the enable is stated in the second.
+  //
+  // Disabled forces the output LOW, which is what makes the wire-OR
+  // comparison work: any bit that differs pulls the shared net high.
+  wire en = ~p9;
+
+  assign p2  = en & (p4  ^ p5);
+  assign p3  = en & (p6  ^ p7);
+  assign p14 = en & (p10 ^ p11);
+  assign p15 = en & (p12 ^ p13);
 
   // Board-wired pins the dictionary does not name (power and the like)
-  wire _unused_pins = &{1'b0, p1, p9, 1'b0};
+  wire _unused_pins = &{1'b0, p1, 1'b0};
 
 endmodule
 
