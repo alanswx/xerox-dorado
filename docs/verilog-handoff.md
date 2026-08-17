@@ -831,6 +831,68 @@ Nothing here contradicts the C emulator. Function 1 -- `CP=UseCPReg`,
 `ClrReady`, `GetTLink` -- is what selects between these sources and CPReg for
 some reads, and remains the one function the C model treats as a no-op.
 
+## THE FRONTIER: the machine will not START, and why (2026-08-17)
+
+The write path into the machine is proven end to end -- bus, decode, CPReg, all
+36 microinstruction bits, and the register they land in. The next thing is to
+make it EXECUTE a jammed microinstruction, and that needs the microinstruction
+clock `clk0'` to run. It does not, and the reason is worth writing down because
+it is not a bug in anything generated so far.
+
+**The clock chain itself is fine and is plain combinational logic.** On ContB,
+`clk0'Bc` comes from j05 (SE10210) off `preclk0'B`, which comes from g13 off
+`bSC'`, `ppclk2'` and `prepreclk2'`, which come from l01 -- and l01's three
+inputs are `CLK.cb'`, **`CLKEnable'a`** and **`StartCycle'a`**. SE10210 is the
+OR part (EclDict groups it with MC10110 and MC10210 on one alias line, and for
+single-sense parts the NAME decides the sense -- '110/'210 OR against '111/'211
+NOR), so while `CLKEnable'a` is high the OR output is stuck high and there is no
+clock. That is correct behaviour for an idle active-low clock.
+
+**The blocker is that the clock enable is clocked by the clock it enables.**
+`CLKEnable'a` is a wired-OR of two MC10231 halves on ContA:
+
+```
+  k01  D = dRun    clocked by preRunClk'Bb   ->  Q'  (so ~dRun)
+  k02  D = dStop   clocked by preclk2'Bb     ->  Q   (reset by rStop)
+```
+
+Both of those clocks are derived from the machine clock. So the flip-flops that
+would release the clock cannot latch until the clock runs.
+
+The escape in the real machine is asynchronous. `sPhase0` resets a row of phase
+flip-flops (j01, k03, k04, k05, l07) without a clock, and it comes from an
+MC10104 AND at ContA i04 whose inputs are **`SetRun`** and **`Phase0`** -- but
+`Phase0` is itself a phase flip-flop output, so that is circular too.
+
+**Measured, not assumed.** Driving `SetRun` on a two-board `dorado_control`
+machine with `CLK.ca'`/`CLK.cb'` running: `dRun` does go 0 -> 1, so the command
+arrives. `CLKEnable'a` stays 1, `StartCycle'a` stays 1, `DoradoStopped` stays 1,
+and `clk0'Bc` moves once in 2,000 fabric cycles. `SetSS'` changes nothing.
+
+**And neither Control board has a reset input.** Not from the backplane, not
+anywhere: the only reset-shaped net on either is ContA's board-local
+`ClearMemStop`. The whole start-up rests on what the flip-flops power up into
+and on ECL gate delays resolving the race -- which is the same class of problem
+as the VCO and the crystal, and has the same shape of answer.
+
+Two things this does NOT need, both checked: no board outside ContA and ContB is
+involved (`prepreclk'd`, `dStartCycle`, `preRunClk'Bb`, `preclk2'Bb`, `dRun`,
+`dStop` are all board-local), and the cell library is not the gap -- ContA and
+ContB have no unmodelled logic package between them.
+
+**Where to start next.** Two routes, in order of cost:
+
+1. Replay the BaseBoard's REAL sequence rather than poking signals. The C
+   emulator's `probe_full_boot` and `LoadDoradoCode` issue a specific order of
+   Control strobes and `SetRun`, and `doradocpint.masm` is the source for it.
+   That order may well be what walks the sequencer out of its dead state --
+   these tests have only ever asserted signals ad hoc.
+2. If it still will not start, give the phase flip-flops a defined power-up
+   state. That is a SUBSTITUTION and should be written as one, in the cell or
+   the generator, with the same reasoning as `cell_MPQ3303`: a real machine's
+   start-up is settled by analog behaviour a zero-delay two-state simulator does
+   not have, so it has to be stated instead of emerging.
+
 ## The passive packages, and what each one turned out to be (2026-08-17)
 
 Three of the `.lc` part types are not logic and cannot be cells, because what

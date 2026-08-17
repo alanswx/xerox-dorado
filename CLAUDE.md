@@ -999,6 +999,26 @@ enable on three boards -- and all settle, because a wired-OR term or a mux
 select breaks each in operation. Gate: `make -C verilog loop-check`, a fifth of
 a second, from the cell files.
 
+**The boot interface is cross-checked against the C emulator, three ways
+(2026-08-17).** `make -C verilog cpreg-diff` (176 strobes, 0 mismatches),
+`mir-diff` (all 36 microinstruction bits) and `mirreg-diff` (144
+microinstructions jammed into the MIR and read back). Two derivations that
+share no ancestry -- PARC's 1979 wire list and `apply_mcp_strobe`/
+`dorado_decode_mir` written from the Hardware Manual -- agree on every bit,
+and the netlist NAMES what the emulator could only call parity: MIR1's and
+MIR3's extra bits are the board's `sIMLH`/`sIMRH`. The MIR turns out to be a
+bank of MC10231 set/reset flip-flops (jam sets, `ClrMIR` resets, the execute
+path is a separate D input), which is why the four strobes accumulate. The
+reply path `CPIn.0-3` is now specified too -- four MC10164s selected by the top
+three bits of `CPOut`, giving 16 bits of `RBMux` plus `DoradoStopped` -- and
+the C emulator does not model it at all.
+
+**The frontier: the machine will not START.** The clock enable is clocked by
+the clock it enables, the asynchronous escape (`sPhase0`) depends on `Phase0`
+which is itself clock-derived, and **neither Control board has a reset input**.
+Start-up rests on power-up state and ECL gate delays -- the same class as the
+VCO. Measured: `SetRun` does reach `dRun`, but `CLKEnable'a` never clears.
+
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 
 Full plan, including what is missing and the suggested order:
