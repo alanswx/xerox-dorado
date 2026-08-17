@@ -2997,6 +2997,7 @@ module DispY_m_Rev_m_Cl (
     .p15(DispY20_sil_pl_6)
   ); // MC10158
   cell_F10145A u_g03 (
+    .sys_clk(sys_clk),
     .p1(NLCB_13),
     .p2(NLCB_12),
     .p4(RIOB_13),
@@ -3279,6 +3280,7 @@ module DispY_m_Rev_m_Cl (
     .p15(VBB1)
   ); // MC10125
   cell_F10145A u_h02 (
+    .sys_clk(sys_clk),
     .p1(NLCB_09),
     .p2(NLCB_08),
     .p4(RIOB_09),
@@ -3432,6 +3434,7 @@ module DispY_m_Rev_m_Cl (
     .p15(HRamAddr_09)
   ); // F10016
   cell_F10415A u_h14 (
+    .sys_clk(sys_clk),
     .p1(preHSync),
     .p2(HRamAddr_01),
     .p3(HRamAddr_02),
@@ -3730,6 +3733,7 @@ module DispY_m_Rev_m_Cl (
     .p15(HRamAddr_05)
   ); // F10016
   cell_F10415A u_i14 (
+    .sys_clk(sys_clk),
     .p1(preHBlank),
     .p2(HRamAddr_01),
     .p3(HRamAddr_02),
@@ -3889,6 +3893,7 @@ module DispY_m_Rev_m_Cl (
     .p15(RIOB_11)
   ); // MC10176
   cell_F10145A u_j02 (
+    .sys_clk(sys_clk),
     .p1(NLCB_05),
     .p2(NLCB_04),
     .p4(RIOB_05),
@@ -4022,6 +4027,7 @@ module DispY_m_Rev_m_Cl (
     .p15(HRamAddr_01)
   ); // F10016
   cell_F10415A u_j14 (
+    .sys_clk(sys_clk),
     .p1(preHalfLine),
     .p2(HRamAddr_01),
     .p3(HRamAddr_02),

@@ -730,6 +730,7 @@ module IOTest_m_Rev_m_Ad (
     .p12(IOB_17)
   ); // MC10197
   cell_F10145A u_h20 (
+    .sys_clk(sys_clk),
     .p1(IOtest05_sil_pl_6__h20_1),
     .p2(IOtest05_sil_pl_5__h20_2),
     .p3(Munch0CE_p_),
@@ -742,6 +743,7 @@ module IOTest_m_Rev_m_Ad (
     .p13(MunchWE_p_a)
   ); // F10145A
   cell_F10145A u_h21 (
+    .sys_clk(sys_clk),
     .p1(IOtest05_sil_pl_6__h21_1),
     .p2(IOtest05_sil_pl_5__h21_2),
     .p3(Munch1CE_p_),
@@ -777,6 +779,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(GND422)
   ); // SE10210
   cell_F10145A u_i20 (
+    .sys_clk(sys_clk),
     .p1(IOtest05_sil_pl_2__i20_1),
     .p2(IOtest05_sil_pl_3__i20_2),
     .p3(Munch0CE_p_),
@@ -793,6 +796,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(IOtest05_sil_pl_4__i20_15)
   ); // F10145A
   cell_F10145A u_i21 (
+    .sys_clk(sys_clk),
     .p1(IOtest05_sil_pl_2__i21_1),
     .p2(IOtest05_sil_pl_3__i21_2),
     .p3(Munch1CE_p_),
@@ -859,6 +863,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(GND470)
   ); // SE10210
   cell_F10145A u_j20 (
+    .sys_clk(sys_clk),
     .p1(IOtest04_sil_pl_9__j20_1),
     .p2(IOtest04_sil_pl_8__j20_2),
     .p3(Munch0CE_p_),
@@ -875,6 +880,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(IOtest04_sil_pl_7__j20_15)
   ); // F10145A
   cell_F10145A u_j21 (
+    .sys_clk(sys_clk),
     .p1(IOtest04_sil_pl_9__j21_1),
     .p2(IOtest04_sil_pl_8__j21_2),
     .p3(Munch1CE_p_),
@@ -917,6 +923,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(rFout_10)
   ); // MC10176
   cell_F10145A u_k20 (
+    .sys_clk(sys_clk),
     .p1(IOtest04_sil_pl_4__k20_1),
     .p2(IOtest04_sil_pl_5__k20_2),
     .p3(Munch0CE_p_),
@@ -933,6 +940,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(IOtest04_sil_pl_6__k20_15)
   ); // F10145A
   cell_F10145A u_k21 (
+    .sys_clk(sys_clk),
     .p1(IOtest04_sil_pl_4__k21_1),
     .p2(IOtest04_sil_pl_5__k21_2),
     .p3(Munch1CE_p_),
@@ -1030,6 +1038,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(TestOutb)
   ); // MC10106
   cell_F10145A u_l20 (
+    .sys_clk(sys_clk),
     .p1(IOtest04_sil_pl_1__l20_1),
     .p2(IOtest03_sil_pl_1__l20_2),
     .p3(Munch0CE_p_),
@@ -1046,6 +1055,7 @@ module IOTest_m_Rev_m_Ad (
     .p15(IOtest04_sil_pl_2__l20_15)
   ); // F10145A
   cell_F10145A u_l21 (
+    .sys_clk(sys_clk),
     .p1(IOtest04_sil_pl_1__l21_1),
     .p2(IOtest03_sil_pl_1__l21_2),
     .p3(Munch1CE_p_),

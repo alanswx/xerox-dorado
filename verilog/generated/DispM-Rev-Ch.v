@@ -2662,6 +2662,7 @@ module DispM_m_Rev_m_Ch (
     .p15(BMapAd_5__f07_15)
   ); // F10016
   cell_F10145A u_f08 (
+    .sys_clk(sys_clk),
     .p1(NLCB_05),
     .p2(NLCB_04),
     .p4(RIOB_05),
@@ -2676,6 +2677,7 @@ module DispM_m_Rev_m_Ch (
     .p15(NLCB_06)
   ); // F10145A
   cell_F10145A u_f09 (
+    .sys_clk(sys_clk),
     .p1(NLCB_09),
     .p2(NLCB_08),
     .p4(RIOB_09),
@@ -2690,6 +2692,7 @@ module DispM_m_Rev_m_Ch (
     .p15(NLCB_10)
   ); // F10145A
   cell_F10145A u_f10 (
+    .sys_clk(sys_clk),
     .p1(NLCB_13),
     .p2(NLCB_12),
     .p4(RIOB_13),

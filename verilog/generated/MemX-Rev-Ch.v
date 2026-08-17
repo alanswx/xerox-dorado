@@ -2171,6 +2171,7 @@ module MemX_m_Rev_m_Ch (
     .p16(GND_m_29)
   ); // SE10210
   cell_F10145A u_c21 (
+    .sys_clk(sys_clk),
     .p1(PipeTask_1),
     .p2(PipeTask_0),
     .p4(Atask_1),
@@ -2777,6 +2778,7 @@ module MemX_m_Rev_m_Ch (
     .p15(VBBe15)
   ); // MC10125
   cell_F10145A u_e16 (
+    .sys_clk(sys_clk),
     .p1(PipeMapPar),
     .p2(PipeMapDirtyb),
     .p4(MapPar),
@@ -2823,6 +2825,7 @@ module MemX_m_Rev_m_Ch (
     .p13(MemX04_sil_pl_5)
   ); // MC10176
   cell_F10145A u_e20 (
+    .sys_clk(sys_clk),
     .p1(Ptag),
     .p2(ProcTag__e20_2),
     .p4(MemX01_sil_pl_4),
@@ -2834,6 +2837,7 @@ module MemX_m_Rev_m_Ch (
     .p13(Clk0_p_Ce)
   ); // F10145A
   cell_F10145A u_e21 (
+    .sys_clk(sys_clk),
     .p1(PipeSubTask_1),
     .p2(PipeSubTask_0),
     .p4(Asubtask_1),
@@ -2975,6 +2979,7 @@ module MemX_m_Rev_m_Ch (
     .p16(GND_m_16)
   ); // SE10212
   cell_F10145A u_f13 (
+    .sys_clk(sys_clk),
     .p1(Pipe3_01),
     .p2(Pipe3_00),
     .p4(RP_01),
@@ -2991,6 +2996,7 @@ module MemX_m_Rev_m_Ch (
     .p15(Pipe3_02)
   ); // F10145A
   cell_F10145A u_f14 (
+    .sys_clk(sys_clk),
     .p1(Pipe4_00),
     .p2(Pipe4_02),
     .p4(MapRef),
@@ -3006,6 +3012,7 @@ module MemX_m_Rev_m_Ch (
     .p15(Pipe4_03)
   ); // F10145A
   cell_F10145A u_f15 (
+    .sys_clk(sys_clk),
     .p1(Pipe3_05),
     .p2(Pipe3_04),
     .p4(RP_05),
@@ -3021,6 +3028,7 @@ module MemX_m_Rev_m_Ch (
     .p15(Pipe3_06)
   ); // F10145A
   cell_F10145A u_f16 (
+    .sys_clk(sys_clk),
     .p1(Pipe3_09),
     .p2(Pipe3_08),
     .p4(RP_09),
@@ -3036,6 +3044,7 @@ module MemX_m_Rev_m_Ch (
     .p15(Pipe3_10)
   ); // F10145A
   cell_F10145A u_f17 (
+    .sys_clk(sys_clk),
     .p1(Pipe3_13),
     .p2(Pipe3_12),
     .p4(RP_13),
@@ -3092,6 +3101,7 @@ module MemX_m_Rev_m_Ch (
     .p15(MD4__f20_15)
   ); // MU10164
   cell_F10145A u_f21 (
+    .sys_clk(sys_clk),
     .p2(MDMtag_p___f21_2),
     .p5(Dtag_p_),
     .p6(MDMtagAd_3),
@@ -3322,6 +3332,7 @@ module MemX_m_Rev_m_Ch (
     .p15(DirtyWE_p___g16_15)
   ); // MC10105
   cell_MC10173 u_g18 (
+    .sys_clk(sys_clk),
     .p1(MemCad_0),
     .p5(RP_03),
     .p6(RfshAd_0),
@@ -3329,6 +3340,7 @@ module MemX_m_Rev_m_Ch (
     .p9(MemRfsh)
   ); // MC10173
   cell_MC10173 u_g19 (
+    .sys_clk(sys_clk),
     .p1(MemCad_1),
     .p2(MemCad_2),
     .p3(RP_07),

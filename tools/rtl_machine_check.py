@@ -14,18 +14,12 @@ to every slot, and if those nets stop moving nothing downstream can compute,
 whatever the cell library says. So that is what this asserts, by name, using
 the probe map the generator emits beside the RTL.
 
-KNOWN FAILURE, and it is a finding rather than a regression -- see
-docs/verilog-handoff.md. The assembled machine now stops converging: give the
-BaseBoard its `TTLTrue` resistor pack, so that its clock chain and its 6502
-actually run, and the settle loop no longer terminates. The cause is not on
-the BaseBoard. Verilator names 40 circular combinational paths across ProcH,
-ProcL, MemC, MemD, MemX, DskEth, DispY and the IFU, and every one of them
-predates this: they were harmless while the machine was idle, because an
-input that never changes cannot make a loop go round. They are gate-level
-feedback -- the design's own, built from MECL gates -- and a zero-delay
-simulator has no propagation time to break them with. This check therefore
-says so plainly instead of reporting a missing toggle mask, which is what the
-abort looks like from outside.
+IT ALSO CATCHES NON-CONVERGENCE, which is worth a separate message because
+from outside it looks like a missing toggle mask. The machine stopped settling
+once the BaseBoard genuinely ran -- combinational feedback that was harmless
+while nothing moved -- and the cause was two cells modelled as transparent
+latches that are not. `make -C verilog loop-check` asks that question directly
+now, from the cell files, so it should be the first thing run if this fires.
 
 Usage:
     ./verilog/verilator/obj_dir/Vemu --headless --cycles 20000 | \\
@@ -44,10 +38,10 @@ def main(argv: list[str]) -> int:
     sys.stdout.write(text)
 
     if 'did not converge' in text:
-        print('machine-check: THE MACHINE DID NOT CONVERGE -- gate-level '
-              'feedback with no propagation delay to break it.')
-        print('machine-check: 40 circular combinational paths, all predating '
-              'the machine being alive; see docs/verilog-handoff.md.')
+        print('machine-check: THE MACHINE DID NOT CONVERGE -- combinational '
+              'feedback somewhere.')
+        print('machine-check: run `make -C verilog loop-check`, which finds '
+              'it from the cell files.')
         return 1
     if 'toggle mask' not in text:
         print('machine-check: no toggle mask in the run output')

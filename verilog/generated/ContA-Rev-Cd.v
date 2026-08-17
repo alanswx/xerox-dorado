@@ -1568,6 +1568,7 @@ module ContA_m_Rev_m_Cd (
     .p15(CPReg_05)
   ); // MC10176
   cell_F10145A u_a04 (
+    .sys_clk(sys_clk),
     .p1(ContA06_sil_pl_2__a04_1),
     .p2(ContA06_sil_pl_4__a04_2),
     .p3(TLinkEn_p_),
@@ -1863,6 +1864,7 @@ module ContA_m_Rev_m_Cd (
     .p15(ContA06_sil_pl_2__b03_15)
   ); // MC10159
   cell_F10145A u_b04 (
+    .sys_clk(sys_clk),
     .p1(ContA07_sil_pl_2__b04_1),
     .p2(ContA07_sil_pl_4__b04_2),
     .p3(TLinkEn_p_),
@@ -2197,6 +2199,7 @@ module ContA_m_Rev_m_Cd (
     .p15(ContA07_sil_pl_2__c03_15)
   ); // MC10159
   cell_F10145A u_c04 (
+    .sys_clk(sys_clk),
     .p1(ContA09_sil_pl_2__c04_1),
     .p2(ContA08_sil_pl_2__c04_2),
     .p3(TLinkEn_p_),
@@ -2535,6 +2538,7 @@ module ContA_m_Rev_m_Cd (
     .p15(ContA09_sil_pl_2__d03_15)
   ); // MC10159
   cell_F10145A u_d04 (
+    .sys_clk(sys_clk),
     .p1(ContA11_sil_pl_2__d04_1),
     .p2(ContA10_sil_pl_2__d04_2),
     .p3(TLinkEn_p_),
@@ -2835,6 +2839,7 @@ module ContA_m_Rev_m_Cd (
     .p15(ContA11_sil_pl_2__e03_15)
   ); // MC10159
   cell_F10145A u_e04 (
+    .sys_clk(sys_clk),
     .p1(ContA05_sil_pl_3__e04_1),
     .p2(ContA05_sil_pl_2__e04_2),
     .p3(TLinkEn_p_),
@@ -4127,6 +4132,7 @@ module ContA_m_Rev_m_Cd (
     .p15(TPCAd_1_p___i12_15)
   ); // MC1662
   cell_F10145A u_i13 (
+    .sys_clk(sys_clk),
     .p1(TPC_05),
     .p2(TPC_04),
     .p4(TPCI_05),
@@ -4142,6 +4148,7 @@ module ContA_m_Rev_m_Cd (
     .p15(TPC_06)
   ); // F10145A
   cell_MC10173 u_i14 (
+    .sys_clk(sys_clk),
     .p1(ContA08_sil_pl_6),
     .p2(ContA09_sil_pl_6),
     .p4(TPC_05),
@@ -4427,6 +4434,7 @@ module ContA_m_Rev_m_Cd (
     .p15(TPCAd_3_p___j12_15)
   ); // MC1662
   cell_F10145A u_j13 (
+    .sys_clk(sys_clk),
     .p1(TPC_09),
     .p2(TPC_08),
     .p4(TPCI_09),
@@ -4442,6 +4450,7 @@ module ContA_m_Rev_m_Cd (
     .p15(TPC_10)
   ); // F10145A
   cell_MC10173 u_j14 (
+    .sys_clk(sys_clk),
     .p1(ContA12_sil_pl_6),
     .p2(ContA13_sil_pl_6),
     .p3(dIMOut_09),
@@ -4702,6 +4711,7 @@ module ContA_m_Rev_m_Cd (
     .p15(TPCI_15)
   ); // MC10176
   cell_F10145A u_k13 (
+    .sys_clk(sys_clk),
     .p1(TPC_13),
     .p2(TPC_12),
     .p4(TPCI_13),
@@ -4717,6 +4727,7 @@ module ContA_m_Rev_m_Cd (
     .p15(TPC_14)
   ); // F10145A
   cell_MC10173 u_k14 (
+    .sys_clk(sys_clk),
     .p1(ContA16_sil_pl_8),
     .p2(ContA17_sil_pl_10),
     .p3(dIMOut_13),
@@ -4987,6 +4998,7 @@ module ContA_m_Rev_m_Cd (
     .p13(TPCI_03)
   ); // MC10176
   cell_F10145A u_l13 (
+    .sys_clk(sys_clk),
     .p1(TPC_01),
     .p2(TPC_00),
     .p4(TPCI_01),
@@ -5002,6 +5014,7 @@ module ContA_m_Rev_m_Cd (
     .p15(TPC_02)
   ); // F10145A
   cell_MC10173 u_l14 (
+    .sys_clk(sys_clk),
     .p1(ContA06_sil_pl_11),
     .p2(ContA06_sil_pl_12),
     .p4(TPC_01),

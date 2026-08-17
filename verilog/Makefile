@@ -7,6 +7,7 @@
 #   make proms    regenerate proms/*.mem and the per-package images
 #   make lint       every board must still elaborate under Verilator
 #   make cell-check every cell wires the inputs PARC says its gates have
+#   make loop-check no combinational feedback beyond the one that is known
 #   make prom-test    the PROMs read back what the machine expects
 #   make alu-test     the ALU matches its datasheet's function table
 #   make alu-diff     the RTL ALU matches the C emulator's, vector for vector
@@ -19,8 +20,8 @@ ECLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ecldict.analyze
 TTLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ttldict.analyze
 TOOLS   = ../tools
 
-.PHONY: boards backplane proms cells cells-force lint cell-check prom-test \
-        alu-test alu-diff machine-test baseboard-test clean-generated
+.PHONY: boards backplane proms cells cells-force lint cell-check loop-check \
+        prom-test alu-test alu-diff machine-test baseboard-test clean-generated
 
 # PROM contents, sliced per package position from PARC's own BCPL.
 proms:
@@ -34,6 +35,14 @@ proms:
 # ignoring its common strobe on three of four gates; this checks all of them.
 cell-check:
 	@python3 $(TOOLS)/sil_check_cells.py
+
+# Combinational feedback. A loop that can oscillate stops the whole machine
+# settling, and the cause has every time been a cell modelled as a latch that
+# is not one -- so this asks the question directly, from the cell files, rather
+# than waiting for Verilator to fail to converge and name a signal on some
+# other board.
+loop-check:
+	@python3 $(TOOLS)/sil_loops.py
 
 prom-test:
 	@$(MAKE) -C verilator prom-test

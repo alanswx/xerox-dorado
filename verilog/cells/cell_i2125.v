@@ -6,9 +6,22 @@
 // infer block RAM under Quartus without an altsyncram or a clock-recovery
 // wrapper. See verilog/README.md.
 
+// SYNCHRONOUS WRITE on the fabric clock, with the part's own write level as an
+// enable -- the convention this whole design uses for a clocked element, and
+// the same change the two DRAM cells already carry.
+//
+// The part's write is ASYNCHRONOUS: it is level-sensitive on the write and
+// chip enables, so while they are asserted the stored bit follows the data
+// input. That makes a COMBINATIONAL LOOP wherever the machine writes back
+// something it computed from the same location -- read, gate, write, read --
+// which is most of a datapath. A latch is also not synthesisable on an FPGA;
+// a registered write infers memory. The READ stays combinational, which is
+// what the machine's timing assumes and what distributed RAM gives you.
+
 `default_nettype none
 
 module cell_i2125 (
+    input  wire sys_clk,
     input  wire p2,
     input  wire p3,
     input  wire p4,
@@ -30,7 +43,8 @@ module cell_i2125 (
   // A0-A9 = 2,3,4,5,6,9,10,11,12,13; CS'=1, DI=15, WE'=14, DO=7.
   reg mem [0:1023];
   wire [9:0] a = {p13,p12,p11,p10,p9,p6,p5,p4,p3,p2};
-  always @* if (!p1 && !p14) mem[a] = p15;
+  always @(posedge sys_clk)
+    if (!p1 && !p14) mem[a] <= p15;                         // CS' and WE'
   assign p7 = (!p1) ? mem[a] : 1'b0;
 
 

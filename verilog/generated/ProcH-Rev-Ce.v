@@ -1385,6 +1385,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(IOBout)
   ); // MC10231
   cell_MC10173 u_a12 (
+    .sys_clk(sys_clk),
     .p1(Shc_00),
     .p2(Shc_01),
     .p4(Shcr_01),
@@ -1399,6 +1400,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Shc_02__drv)
   ); // MC10173
   cell_MC10173 u_a13 (
+    .sys_clk(sys_clk),
     .p1(Shc_04a),
     .p2(Shc_04b__drv),
     .p3(FF_4a),
@@ -1591,6 +1593,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(alub_01__b04_15)
   ); // MC10174
   cell_MC10173 u_b05 (
+    .sys_clk(sys_clk),
     .p1(Ain_00),
     .p2(Ain_01),
     .p3(Md_01),
@@ -1681,6 +1684,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(MarMuxAEn_p___b11_15)
   ); // MC10141
   cell_MC10173 u_b12 (
+    .sys_clk(sys_clk),
     .p1(Shcr_00),
     .p2(Shcr_01),
     .p3(alub_01a),
@@ -1697,6 +1701,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Shcr_02)
   ); // MC10173
   cell_MC10173 u_b13 (
+    .sys_clk(sys_clk),
     .p1(Shc_06a),
     .p2(Shc_06b__drv),
     .p3(FF_6a),
@@ -1909,6 +1914,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(alub_03__c04_15)
   ); // MC10174
   cell_MC10173 u_c05 (
+    .sys_clk(sys_clk),
     .p1(Bin_00),
     .p2(Bin_01),
     .p3(Md_01),
@@ -2022,6 +2028,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Q_01)
   ); // MC10141
   cell_MC10173 u_c13 (
+    .sys_clk(sys_clk),
     .p1(Shcr_04),
     .p2(Shcr_05),
     .p3(alub_05a),
@@ -2211,6 +2218,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(alub_05__d04_15)
   ); // MC10174
   cell_MC10173 u_d05 (
+    .sys_clk(sys_clk),
     .p1(Ain_04),
     .p2(Ain_05),
     .p3(Md_05),
@@ -2462,6 +2470,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(alub_07__e04_15)
   ); // MC10174
   cell_MC10173 u_e05 (
+    .sys_clk(sys_clk),
     .p1(Bin_04),
     .p2(Bin_05),
     .p3(Md_05),
@@ -2478,6 +2487,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Bin_06)
   ); // MC10173
   cell_MC10173 u_e06 (
+    .sys_clk(sys_clk),
     .p1(ProcH02_sil_pl_1),
     .p2(ProcH03_sil_pl_2),
     .p3(ProcH03_sil_pl_3),
@@ -2549,6 +2559,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(aluG1)
   ); // MC10121
   cell_F10145A u_e13 (
+    .sys_clk(sys_clk),
     .p1(ProcH11_sil_pl_7),
     .p2(ProcH11_sil_pl_5),
     .p4(ProcH11_sil_pl_16),
@@ -2780,6 +2791,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Pdata_02)
   ); // MC10164
   cell_MC10173 u_f06 (
+    .sys_clk(sys_clk),
     .p1(ProcH06_sil_pl_2),
     .p2(ProcH07_sil_pl_2),
     .p3(ProcH07_sil_pl_3),
@@ -2911,6 +2923,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(MB_u_Ifu_2__f16_15)
   ); // F10000
   cell_MC10173 u_f17 (
+    .sys_clk(sys_clk),
     .p1(ResEqZero_p___drv),
     .p2(ResLtZero_p___drv),
     .p3(ProcH11_sil_pl_7),
@@ -3082,6 +3095,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Pdata_05)
   ); // MC10164
   cell_MC10173 u_g05 (
+    .sys_clk(sys_clk),
     .p1(dR_00),
     .p2(dR_01),
     .p3(ProcH03_sil_pl_1),
@@ -3098,6 +3112,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(dR_02)
   ); // MC10173
   cell_MC10173 u_g06 (
+    .sys_clk(sys_clk),
     .p1(R_00),
     .p2(R_01),
     .p3(dR_01),
@@ -3114,6 +3129,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(R_02)
   ); // MC10173
   cell_MC10173 u_g07 (
+    .sys_clk(sys_clk),
     .p1(R_04),
     .p2(R_05),
     .p3(dR_05),
@@ -3214,6 +3230,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH23_sil_pl_11)
   ); // MC10158
   cell_F10145A u_g15 (
+    .sys_clk(sys_clk),
     .p1(ProcH23_sil_pl_19),
     .p2(ProcH23_sil_pl_18),
     .p4(ProcH23_sil_pl_2),
@@ -3397,6 +3414,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Pdata_07)
   ); // MC10164
   cell_MC10173 u_h05 (
+    .sys_clk(sys_clk),
     .p1(dR_04),
     .p2(dR_05),
     .p3(ProcH07_sil_pl_1),
@@ -3512,6 +3530,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH23_sil_pl_15)
   ); // MC10158
   cell_F10145A u_h15 (
+    .sys_clk(sys_clk),
     .p1(ProcH23_sil_pl_23),
     .p2(ProcH23_sil_pl_22),
     .p4(ProcH23_sil_pl_6),
@@ -3675,6 +3694,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(Md_05)
   ); // MC10175
   cell_MC10173 u_i03 (
+    .sys_clk(sys_clk),
     .p1(T_00),
     .p2(T_01),
     .p3(dT_01),
@@ -3691,6 +3711,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(T_02)
   ); // MC10173
   cell_MC10173 u_i04 (
+    .sys_clk(sys_clk),
     .p1(T_04),
     .p2(T_05),
     .p3(dT_05),
@@ -3753,6 +3774,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH27_sil_pl_1__i08_15)
   ); // F10414
   cell_F10145A u_i11 (
+    .sys_clk(sys_clk),
     .p2(ProcH27_sil_pl_7),
     .p5(ProcH27_sil_pl_8),
     .p6(CurrLast_3_p_),
@@ -3925,6 +3947,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ShI_00)
   ); // MC10164
   cell_MC10173 u_j01 (
+    .sys_clk(sys_clk),
     .p1(dRm_00),
     .p2(dRm_01),
     .p3(Pdata_01),
@@ -3941,6 +3964,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(dRm_02)
   ); // MC10173
   cell_MC10173 u_j02 (
+    .sys_clk(sys_clk),
     .p1(dRm_04),
     .p2(dRm_05),
     .p3(Pdata_05),
@@ -3957,6 +3981,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(dRm_06)
   ); // MC10173
   cell_MC10173 u_j03 (
+    .sys_clk(sys_clk),
     .p1(dT_00),
     .p2(dT_01),
     .p3(ProcH03_sil_pl_5),
@@ -3973,6 +3998,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(dT_02)
   ); // MC10173
   cell_MC10173 u_j04 (
+    .sys_clk(sys_clk),
     .p1(dT_04),
     .p2(dT_05),
     .p3(ProcH07_sil_pl_5),
@@ -4073,6 +4099,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(MuxData3__j12_15)
   ); // MU10164
   cell_F10145A u_j16 (
+    .sys_clk(sys_clk),
     .p1(ProcH25_sil_pl_20),
     .p2(ProcH25_sil_pl_19),
     .p4(ProcH25_sil_pl_3),
@@ -4088,6 +4115,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH25_sil_pl_21)
   ); // F10145A
   cell_F10145A u_j17 (
+    .sys_clk(sys_clk),
     .p2(ProcH25_sil_pl_18),
     .p5(ProcH25_sil_pl_1),
     .p6(LastNext_3_p_),
@@ -4183,6 +4211,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ShI_01)
   ); // MC10164
   cell_MC10173 u_k01 (
+    .sys_clk(sys_clk),
     .p1(dTm_00),
     .p2(dTm_01),
     .p3(Pdata_01),
@@ -4199,6 +4228,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(dTm_02)
   ); // MC10173
   cell_MC10173 u_k02 (
+    .sys_clk(sys_clk),
     .p1(dTm_04),
     .p2(dTm_05),
     .p3(Pdata_05),
@@ -4403,6 +4433,7 @@ module ProcH_m_Rev_m_Ce (
     .p9(CLK_ph_p_)
   ); // SE10231
   cell_F10145A u_l03 (
+    .sys_clk(sys_clk),
     .p1(ProcH03_sil_pl_5),
     .p2(ProcH02_sil_pl_4),
     .p4(dTm_01),
@@ -4418,6 +4449,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH04_sil_pl_5)
   ); // F10145A
   cell_F10145A u_l04 (
+    .sys_clk(sys_clk),
     .p1(ProcH07_sil_pl_5),
     .p2(ProcH06_sil_pl_5),
     .p4(dTm_05),

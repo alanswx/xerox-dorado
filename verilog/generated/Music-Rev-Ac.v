@@ -415,6 +415,7 @@ module Music_m_Rev_m_Ac (
     .p15(ForMe_p___g03_15)
   ); // MC10113
   cell_F10145A u_g04 (
+    .sys_clk(sys_clk),
     .p1(Music02_sil_pl_24),
     .p2(Music02_sil_pl_25),
     .p3(CE0_p_),
@@ -503,6 +504,7 @@ module Music_m_Rev_m_Ac (
     .p13(IOB_12__drv)
   ); // MC10197
   cell_F10145A u_h02 (
+    .sys_clk(sys_clk),
     .p1(Music01_sil_pl_2__h02_1),
     .p2(Music01_sil_pl_1__h02_2),
     .p3(CE2_p_),
@@ -535,6 +537,7 @@ module Music_m_Rev_m_Ac (
     .p15(Music02_sil_pl_9)
   ); // MC10176
   cell_F10145A u_h04 (
+    .sys_clk(sys_clk),
     .p1(Music02_sil_pl_14),
     .p2(Music02_sil_pl_13),
     .p3(CE2_p_),
@@ -602,6 +605,7 @@ module Music_m_Rev_m_Ac (
     .p13(IOB_08__drv)
   ); // MC10197
   cell_F10145A u_i02 (
+    .sys_clk(sys_clk),
     .p1(Music01_sil_pl_2__i02_1),
     .p2(Music01_sil_pl_1__i02_2),
     .p3(CE1_p_),
@@ -634,6 +638,7 @@ module Music_m_Rev_m_Ac (
     .p15(Music02_sil_pl_17)
   ); // MC10176
   cell_F10145A u_i04 (
+    .sys_clk(sys_clk),
     .p1(Music02_sil_pl_30),
     .p2(Music02_sil_pl_29),
     .p3(CE1_p_),
@@ -700,6 +705,7 @@ module Music_m_Rev_m_Ac (
     .p13(IOB_04__drv)
   ); // MC10197
   cell_F10145A u_j02 (
+    .sys_clk(sys_clk),
     .p1(Music01_sil_pl_2__j02_1),
     .p2(Music01_sil_pl_1__j02_2),
     .p3(CE0_p_),
@@ -773,6 +779,7 @@ module Music_m_Rev_m_Ac (
     .p13(IOB_00__drv)
   ); // MC10197
   cell_F10145A u_k02 (
+    .sys_clk(sys_clk),
     .p2(Music01_sil_pl_16),
     .p4(IOB_01),
     .p5(IOB_00),

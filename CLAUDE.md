@@ -978,15 +978,25 @@ written off as "a different set or a different layout" because none had a
 plausible 6502 vector triple -- they had one all along, and they land on
 exactly the four populated sockets.
 
-**Open, and the next task: the assembled machine does not settle.** Once the
-BaseBoard really runs, `make -C verilog machine-test` stops converging -- 40
-circular combinational paths across ProcH, ProcL, MemC, MemD, MemX, DskEth,
-DispY and the IFU, all of them present before this and harmless only while
-nothing moved. They are gate chains whose PROPAGATION DELAY is the timing
-element, which is how ECL designs of this period build a delay line; a
-zero-delay simulator has none, and neither does FPGA fabric. The shape of the
-answer is the one already used for the VCO and the crystal: recognise them and
-give them a clocked delay.
+**And the assembled machine SETTLES.** It stopped converging the moment the
+BaseBoard really ran -- 40 circular combinational paths that Verilator named
+identically before and after, so its report could not say which mattered. The
+first reading, that these were the design's own gate-delay lines needing
+substituted delays, was wrong. `tools/sil_loops.py` builds the graph from the
+cell files and found two modelling mistakes, both settled by the archive:
+**six cells were transparent latches** (`F10145A`, `F10415A`, `F10470`,
+`i2125`, `MC10173`, `SN74LS259` -- level-sensitive writes and latches written
+as `always @*`, so every read-modify-write path in the machine was a loop; 405
+F10145A packages alone), now on `sys_clk` with the part's own level as an
+enable, which is this design's existing convention and took the graph from
+1,333 back edges to 40; and **`F10016`'s carry out was a gate where PARC's
+dictionary lists it under `[FF]` only**, putting a path from a counter's own
+count enable to its own carry and closing three loops on three boards. One
+structural loop remains on ProcH -- the processor's own mux chain, which the
+selects break -- and is deliberately left. Gates: `make -C verilog loop-check`
+(a fifth of a second, from the cell files) and a new `cell-check` property, a
+pin the dictionary lists only under `[FF]` may not be computed from an input
+pin.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 

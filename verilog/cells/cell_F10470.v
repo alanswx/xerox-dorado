@@ -11,9 +11,22 @@
 // wants either an altsyncram instance or a wrapper that recovers a clock
 // edge from WE'. Deferred deliberately -- see verilog/README.md.
 
+// SYNCHRONOUS WRITE on the fabric clock, with the part's own write level as an
+// enable -- the convention this whole design uses for a clocked element, and
+// the same change the two DRAM cells already carry.
+//
+// The part's write is ASYNCHRONOUS: it is level-sensitive on the write and
+// chip enables, so while they are asserted the stored bit follows the data
+// input. That makes a COMBINATIONAL LOOP wherever the machine writes back
+// something it computed from the same location -- read, gate, write, read --
+// which is most of a datapath. A latch is also not synthesisable on an FPGA;
+// a registered write infers memory. The READ stays combinational, which is
+// what the machine's timing assumes and what distributed RAM gives you.
+
 `default_nettype none
 
 module cell_F10470 (
+    input  wire sys_clk,
     input  wire p2,
     input  wire p3,
     input  wire p4,
@@ -36,7 +49,8 @@ module cell_F10470 (
   // A0-A11 = 2..8,10..14; DI=17, DO=1, CE'=16, WE'=15.
   reg mem [0:4095];
   wire [11:0] a = {p14, p13, p12, p11, p10, p8, p7, p6, p5, p4, p3, p2};
-  always @* if (!p16 && !p15) mem[a] = p17;                 // async write
+  always @(posedge sys_clk)
+    if (!p16 && !p15) mem[a] <= p17;                        // CE' and WE'
   assign p1 = (!p16) ? mem[a] : 1'b0;
 
 

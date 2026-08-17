@@ -2576,6 +2576,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(RdFifoTW__d07_14)
   ); // MC10102
   cell_F10145A u_d08 (
+    .sys_clk(sys_clk),
     .p1(TriconD09_sil_pl_6),
     .p2(TriconD09_sil_pl_5),
     .p4(TriconD09_sil_pl_38),
@@ -2591,6 +2592,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD09_sil_pl_41)
   ); // F10145A
   cell_F10145A u_d09 (
+    .sys_clk(sys_clk),
     .p1(TriconD09_sil_pl_19),
     .p2(TriconD09_sil_pl_20),
     .p4(TriconD09_sil_pl_32),
@@ -2606,6 +2608,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD09_sil_pl_18)
   ); // F10145A
   cell_F10145A u_d10 (
+    .sys_clk(sys_clk),
     .p1(TriconD09_sil_pl_16),
     .p2(TriconD09_sil_pl_15),
     .p4(TriconD09_sil_pl_29),
@@ -2621,6 +2624,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD09_sil_pl_37)
   ); // F10145A
   cell_F10145A u_d11 (
+    .sys_clk(sys_clk),
     .p1(TriconD09_sil_pl_1),
     .p2(TriconD09_sil_pl_2),
     .p4(TriconD09_sil_pl_24),
@@ -2636,6 +2640,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD09_sil_pl_3)
   ); // F10145A
   cell_F10145A u_d12 (
+    .sys_clk(sys_clk),
     .p1(TriconD09_sil_pl_12),
     .p2(TriconD09_sil_pl_11),
     .p4(TriconD09_sil_pl_21),
@@ -2710,6 +2715,7 @@ module DskEth_m_Rev_m_Cf (
     .p12(TtlRunOK)
   ); // MC10125
   cell_MC10173 u_d18 (
+    .sys_clk(sys_clk),
     .p1(PreReadData__d18_1),
     .p2(PrePreBitClock__d18_2),
     .p3(bIOB_01),
@@ -2723,6 +2729,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD11_sil_pl_2)
   ); // MC10173
   cell_MC10173 u_d19 (
+    .sys_clk(sys_clk),
     .p1(ClearIndexTW),
     .p2(ClearSectorTW),
     .p3(bIOB_05),
@@ -3006,6 +3013,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(SectorOvfl)
   ); // MC10231
   cell_F10145A u_e16 (
+    .sys_clk(sys_clk),
     .p1(Ram_05),
     .p2(Ram_04),
     .p4(bIOB_05),
@@ -3031,6 +3039,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(MufData)
   ); // MC10231
   cell_MC10173 u_e18 (
+    .sys_clk(sys_clk),
     .p2(MidasEn_05F_p_),
     .p3(bIOB_09),
     .p4(DMadr_05),
@@ -3046,6 +3055,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(MufAdr_06)
   ); // MC10173
   cell_MC10173 u_e20 (
+    .sys_clk(sys_clk),
     .p1(DriveTag),
     .p2(CylinderTag),
     .p4(bIOB_01),
@@ -3059,6 +3069,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(HeadTag)
   ); // MC10173
   cell_MC10173 u_e21 (
+    .sys_clk(sys_clk),
     .p1(Tag_000),
     .p2(Tag_00),
     .p3(Ram_05),
@@ -3297,6 +3308,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(TriconD02_sil_pl_3)
   ); // F10000
   cell_F10145A u_f16 (
+    .sys_clk(sys_clk),
     .p1(Ram_09),
     .p2(Ram_08),
     .p4(bIOB_09),
@@ -3312,6 +3324,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ram_10)
   ); // F10145A
   cell_F10145A u_f17 (
+    .sys_clk(sys_clk),
     .p1(Ram_13),
     .p2(Ram_12),
     .p4(bIOB_13),
@@ -3327,6 +3340,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ram_14)
   ); // F10145A
   cell_MC10173 u_f18 (
+    .sys_clk(sys_clk),
     .p1(MufAdr_08),
     .p2(MufAdr_09),
     .p3(bIOB_13),
@@ -3343,6 +3357,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(MufAdr_10)
   ); // MC10173
   cell_MC10173 u_f20 (
+    .sys_clk(sys_clk),
     .p1(Tag_2),
     .p2(Tag_3),
     .p3(Ram_09),
@@ -3359,6 +3374,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Tag_4)
   ); // MC10173
   cell_MC10173 u_f21 (
+    .sys_clk(sys_clk),
     .p1(Tag_6),
     .p2(Tag_7),
     .p3(Ram_13),
@@ -3524,6 +3540,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether11_sil_pl_4)
   ); // MC10158
   cell_MC10173 u_g08 (
+    .sys_clk(sys_clk),
     .p1(TriconD09_sil_pl_35),
     .p2(TriconD09_sil_pl_38),
     .p3(ShiftReg_17),
@@ -3540,6 +3557,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD09_sil_pl_39)
   ); // MC10173
   cell_MC10173 u_g09 (
+    .sys_clk(sys_clk),
     .p1(TriconD09_sil_pl_33),
     .p2(TriconD09_sil_pl_32),
     .p3(ShiftReg_13),
@@ -3556,6 +3574,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD09_sil_pl_31)
   ); // MC10173
   cell_MC10173 u_g10 (
+    .sys_clk(sys_clk),
     .p1(TriconD09_sil_pl_28),
     .p2(TriconD09_sil_pl_29),
     .p3(ShiftReg_09),
@@ -3572,6 +3591,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD09_sil_pl_30)
   ); // MC10173
   cell_MC10173 u_g11 (
+    .sys_clk(sys_clk),
     .p1(TriconD09_sil_pl_25),
     .p2(TriconD09_sil_pl_24),
     .p3(ShiftReg_05),
@@ -3588,6 +3608,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD09_sil_pl_23)
   ); // MC10173
   cell_MC10173 u_g12 (
+    .sys_clk(sys_clk),
     .p1(TriconD09_sil_pl_10),
     .p2(TriconD09_sil_pl_21),
     .p3(ShiftReg_01),
@@ -4490,6 +4511,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(GND_m_4)
   ); // SE10210
   cell_F10145A u_j08 (
+    .sys_clk(sys_clk),
     .p1(Ether03_sil_pl_8),
     .p2(Ether03_sil_pl_7),
     .p4(RxSR_01),
@@ -4505,6 +4527,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether03_sil_pl_9)
   ); // F10145A
   cell_F10145A u_j09 (
+    .sys_clk(sys_clk),
     .p1(Ether03_sil_pl_2),
     .p2(Ether03_sil_pl_1),
     .p4(RxSR_05),
@@ -4520,6 +4543,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether03_sil_pl_3)
   ); // F10145A
   cell_F10145A u_j10 (
+    .sys_clk(sys_clk),
     .p1(Ether03_sil_pl_13),
     .p2(Ether03_sil_pl_14),
     .p4(RxSR_09),
@@ -4535,6 +4559,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether03_sil_pl_12)
   ); // F10145A
   cell_F10145A u_j11 (
+    .sys_clk(sys_clk),
     .p1(Ether03_sil_pl_16),
     .p2(Ether03_sil_pl_15),
     .p4(RxSR_13),
@@ -4550,6 +4575,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether03_sil_pl_17)
   ); // F10145A
   cell_F10145A u_j12 (
+    .sys_clk(sys_clk),
     .p1(Ether03_sil_pl_6),
     .p2(Ether03_sil_pl_5),
     .p4(RxSR_17),
@@ -4563,6 +4589,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(Ether03_sil_pl_19)
   ); // F10145A
   cell_F10145A u_j13 (
+    .sys_clk(sys_clk),
     .p1(TxFifo_01),
     .p2(TxFifo_00),
     .p4(Ether07_sil_pl_12),
@@ -4578,6 +4605,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TxFifo_02)
   ); // F10145A
   cell_F10145A u_j14 (
+    .sys_clk(sys_clk),
     .p1(TxFifo_05),
     .p2(TxFifo_04),
     .p4(Ether07_sil_pl_5),
@@ -4593,6 +4621,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TxFifo_06)
   ); // F10145A
   cell_F10145A u_j15 (
+    .sys_clk(sys_clk),
     .p1(TxFifo_09),
     .p2(TxFifo_08),
     .p4(Ether07_sil_pl_17),
@@ -4608,6 +4637,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TxFifo_10)
   ); // F10145A
   cell_F10145A u_j16 (
+    .sys_clk(sys_clk),
     .p1(TxFifo_13),
     .p2(TxFifo_12),
     .p4(Ether07_sil_pl_20),
@@ -4623,6 +4653,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TxFifo_14)
   ); // F10145A
   cell_F10145A u_j17 (
+    .sys_clk(sys_clk),
     .p1(TxFifo_17),
     .p2(TxFifo_16),
     .p4(Ether07_sil_pl_9),

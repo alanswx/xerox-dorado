@@ -1437,6 +1437,7 @@ module BaseBd_m_Rev_m_Am (
     .p13(Reference)
   ); // MC10136
   cell_i2125 u_b11 (
+    .sys_clk(sys_clk),
     .p1(RS0_p_),
     .p2(RA0),
     .p3(RA1),
@@ -1455,6 +1456,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC65)
   ); // i2125
   cell_i2125 u_b12 (
+    .sys_clk(sys_clk),
     .p1(RS0_p_),
     .p2(RA0),
     .p3(RA1),
@@ -1473,6 +1475,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC66)
   ); // i2125
   cell_i2125 u_b13 (
+    .sys_clk(sys_clk),
     .p1(RS1_p_),
     .p2(RA0),
     .p3(RA1),
@@ -1491,6 +1494,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC66)
   ); // i2125
   cell_i2125 u_b14 (
+    .sys_clk(sys_clk),
     .p1(RS1_p_),
     .p2(RA0),
     .p3(RA1),
@@ -1634,6 +1638,7 @@ module BaseBd_m_Rev_m_Am (
     .p14(VCC64)
   ); // SN74LS04
   cell_i2125 u_c11 (
+    .sys_clk(sys_clk),
     .p1(RS0_p_),
     .p2(RA0),
     .p3(RA1),
@@ -1652,6 +1657,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC65)
   ); // i2125
   cell_i2125 u_c12 (
+    .sys_clk(sys_clk),
     .p1(RS0_p_),
     .p2(RA0),
     .p3(RA1),
@@ -1670,6 +1676,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC66)
   ); // i2125
   cell_i2125 u_c13 (
+    .sys_clk(sys_clk),
     .p1(RS1_p_),
     .p2(RA0),
     .p3(RA1),
@@ -1688,6 +1695,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC66)
   ); // i2125
   cell_i2125 u_c14 (
+    .sys_clk(sys_clk),
     .p1(RS1_p_),
     .p2(RA0),
     .p3(RA1),
@@ -1722,6 +1730,7 @@ module BaseBd_m_Rev_m_Am (
     .p15(CPIn_1)
   ); // MC10125
   cell_SN74LS259 u_c20 (
+    .sys_clk(sys_clk),
     .p1(RCPReg_03),
     .p2(RCPReg_02),
     .p3(RCPReg_01),
@@ -1880,6 +1889,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC76)
   ); // MC12061
   cell_i2125 u_d11 (
+    .sys_clk(sys_clk),
     .p1(RS0_p_),
     .p2(RA0),
     .p3(RA1),
@@ -1898,6 +1908,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC77)
   ); // i2125
   cell_i2125 u_d12 (
+    .sys_clk(sys_clk),
     .p1(RS0_p_),
     .p2(RA0),
     .p3(RA1),
@@ -1916,6 +1927,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC78)
   ); // i2125
   cell_i2125 u_d13 (
+    .sys_clk(sys_clk),
     .p1(RS1_p_),
     .p2(RA0),
     .p3(RA1),
@@ -1934,6 +1946,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC78)
   ); // i2125
   cell_i2125 u_d14 (
+    .sys_clk(sys_clk),
     .p1(RS1_p_),
     .p2(RA0),
     .p3(RA1),
@@ -2026,6 +2039,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC87)
   ); // SN74LS163
   cell_i2125 u_e11 (
+    .sys_clk(sys_clk),
     .p1(RS0_p_),
     .p2(RA0),
     .p3(RA1),
@@ -2044,6 +2058,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC89)
   ); // i2125
   cell_i2125 u_e12 (
+    .sys_clk(sys_clk),
     .p1(RS0_p_),
     .p2(RA0),
     .p3(RA1),
@@ -2062,6 +2077,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC90)
   ); // i2125
   cell_i2125 u_e13 (
+    .sys_clk(sys_clk),
     .p1(RS1_p_),
     .p2(RA0),
     .p3(RA1),
@@ -2080,6 +2096,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC90)
   ); // i2125
   cell_i2125 u_e14 (
+    .sys_clk(sys_clk),
     .p1(RS1_p_),
     .p2(RA0),
     .p3(RA1),
@@ -2720,6 +2737,7 @@ module BaseBd_m_Rev_m_Am (
     .p12(TKeyboardData)
   ); // MC10125
   cell_i2125 u_h11 (
+    .sys_clk(sys_clk),
     .p1(RS2_p_),
     .p2(RA0),
     .p3(RA1),
@@ -2738,6 +2756,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC113)
   ); // i2125
   cell_i2125 u_h12 (
+    .sys_clk(sys_clk),
     .p1(RS2_p_),
     .p2(RA0),
     .p3(RA1),
@@ -2756,6 +2775,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC114)
   ); // i2125
   cell_i2125 u_h13 (
+    .sys_clk(sys_clk),
     .p1(RS3_p_),
     .p2(RA0),
     .p3(RA1),
@@ -2774,6 +2794,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC114)
   ); // i2125
   cell_i2125 u_h14 (
+    .sys_clk(sys_clk),
     .p1(RS3_p_),
     .p2(RA0),
     .p3(RA1),
@@ -2915,6 +2936,7 @@ module BaseBd_m_Rev_m_Am (
     .p15(GND388)
   ); // SE10211
   cell_i2125 u_i11 (
+    .sys_clk(sys_clk),
     .p1(RS2_p_),
     .p2(RA0),
     .p3(RA1),
@@ -2933,6 +2955,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC113)
   ); // i2125
   cell_i2125 u_i12 (
+    .sys_clk(sys_clk),
     .p1(RS2_p_),
     .p2(RA0),
     .p3(RA1),
@@ -2951,6 +2974,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC114)
   ); // i2125
   cell_i2125 u_i13 (
+    .sys_clk(sys_clk),
     .p1(RS3_p_),
     .p2(RA0),
     .p3(RA1),
@@ -2969,6 +2993,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC114)
   ); // i2125
   cell_i2125 u_i14 (
+    .sys_clk(sys_clk),
     .p1(RS3_p_),
     .p2(RA0),
     .p3(RA1),
@@ -3199,6 +3224,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC124)
   ); // SN74LS251
   cell_i2125 u_j11 (
+    .sys_clk(sys_clk),
     .p1(RS2_p_),
     .p2(RA0),
     .p3(RA1),
@@ -3217,6 +3243,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC125)
   ); // i2125
   cell_i2125 u_j12 (
+    .sys_clk(sys_clk),
     .p1(RS2_p_),
     .p2(RA0),
     .p3(RA1),
@@ -3235,6 +3262,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC126)
   ); // i2125
   cell_i2125 u_j13 (
+    .sys_clk(sys_clk),
     .p1(RS3_p_),
     .p2(RA0),
     .p3(RA1),
@@ -3253,6 +3281,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC126)
   ); // i2125
   cell_i2125 u_j14 (
+    .sys_clk(sys_clk),
     .p1(RS3_p_),
     .p2(RA0),
     .p3(RA1),
@@ -3393,6 +3422,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC136)
   ); // SN74LS174
   cell_i2125 u_k11 (
+    .sys_clk(sys_clk),
     .p1(RS2_p_),
     .p2(RA0),
     .p3(RA1),
@@ -3411,6 +3441,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC137)
   ); // i2125
   cell_i2125 u_k12 (
+    .sys_clk(sys_clk),
     .p1(RS2_p_),
     .p2(RA0),
     .p3(RA1),
@@ -3429,6 +3460,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC138)
   ); // i2125
   cell_i2125 u_k13 (
+    .sys_clk(sys_clk),
     .p1(RS3_p_),
     .p2(RA0),
     .p3(RA1),
@@ -3447,6 +3479,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC138)
   ); // i2125
   cell_i2125 u_k14 (
+    .sys_clk(sys_clk),
     .p1(RS3_p_),
     .p2(RA0),
     .p3(RA1),

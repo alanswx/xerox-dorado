@@ -333,6 +333,30 @@ Each would produce plausible-looking, wrong RTL:
 - **Undriven nets.** A net with no driver on this board is a board INPUT
   arriving over the backplane; it becomes a module port, not a floating wire.
 
+## A level-sensitive part is not a latch in this design
+
+Every clocked element here runs on the fabric clock `sys_clk` with its own
+control as an ENABLE, because the Dorado clocks 1,201 packages from
+distributed ECL clock nets and an FPGA cannot route 1,201 gated clocks. That
+convention has a second consequence that took a while to surface: **it applies
+to LEVEL-sensitive parts too, not only edge-triggered ones.**
+
+`F10145A`, `F10415A`, `F10470` and `i2125` are memories whose write is
+level-sensitive; `MC10173` and `SN74LS259` are latches. Written the obvious way
+-- `always @*`, with a Verilator LATCH waiver -- they pass a level straight
+through, so a read-modify-write path becomes a COMBINATIONAL LOOP, which is
+most of a datapath. The machine had 1,333 such back edges and would not settle
+once anything started moving. On `sys_clk` with the level as an enable there
+are none, and a latch is not synthesisable on most FPGAs anyway.
+
+The related trap is a part whose output the dictionary lists under `[FF ...]`
+being modelled as a gate. `F10016`'s carry out is the case: PARC gives that
+part no `[G]` entry at all and puts pin 4 in the flip-flop's output list, so
+computing it from the count enable invents a combinational path where the part
+has none -- and it closed loops on three boards. `make -C verilog cell-check`
+checks that property across the library now, and `make -C verilog loop-check`
+finds any loop that survives, in a fifth of a second, from the cell files.
+
 ## Two bugs the elaboration caught, both worth knowing
 
 - **Net-name collisions were silently merging signals.** `CTask.0` and

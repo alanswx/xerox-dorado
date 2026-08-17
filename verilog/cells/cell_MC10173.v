@@ -13,9 +13,20 @@
 // and the latch is TRANSPARENT while C is low, latching on C high. Both are
 // the first things to check if a board using this part misbehaves.
 
+// EDGE-TRIGGERED on the fabric clock with the latch enable as an ENABLE, the
+// convention this design uses for every clocked element.
+//
+// The part is a TRANSPARENT latch: while its enable is asserted the output
+// follows the input, which is a combinational path straight through it and
+// closes a loop wherever the machine feeds a latch from something downstream
+// of it. sys_clk heavily oversamples every signal on the board, so the
+// behaviour while transparent is the same to a fabric clock's precision -- and
+// unlike a latch it synthesises.
+
 `default_nettype none
 
 module cell_MC10173 (
+    input  wire sys_clk,
     input  wire p5,  // D0,
     input  wire p3,  // D1,
     input  wire p12,  // D2,
@@ -42,10 +53,8 @@ module cell_MC10173 (
   // this is intended hardware, not the usual accident of an incomplete
   // always block. (Do not begin a comment line with the tool's own name --
   // it is parsed as a pragma.)
-  /* verilator lint_off LATCH */
   reg [3:0] q;
-  always @* if (!p7) q = d;            // transparent while C low
-  /* verilator lint_on LATCH */
+  always @(posedge sys_clk) if (!p7) q <= d;   // C low = transparent
   assign {p14, p15, p2, p1} = q;
 
 endmodule

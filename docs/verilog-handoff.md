@@ -21,9 +21,10 @@ python3 tools/sil_backplane.py             # what the backplane is, measured
 make -C verilog alu-test   # THE GATE: the ALU matches its datasheet
 make -C verilog alu-diff   # THE GATE: the ALU matches the C EMULATOR
 python3 tools/sil_backplane.py --ports     # boards present the ports PARC states
-make -C verilog machine-test  # the assembled machine clocks (KNOWN FAILURE, below)
+make -C verilog machine-test  # THE GATE: the assembled machine clocks and SETTLES
 make -C verilog baseboard-test  # THE GATE: the BaseBoard's 6502 BOOTS
 make -C verilog cell-check    # THE GATE: cells wire the inputs PARC says they do
+make -C verilog loop-check    # THE GATE: no combinational feedback but the known one
 make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 ```
 
@@ -55,11 +56,12 @@ One board of it now COMPUTES: the BaseBoard's 6502 comes out of reset,
 fetches `0xF3A7` from `0xFFFC/D`, and executes the ROM's own reset routine.
 See "The BaseBoard's 6502 boots" below. The rest is still filling in.
 
-**`machine-test` fails, and that is the finding, not a regression.** Once the
-BaseBoard genuinely runs, the assembled machine stops converging: 40 circular
-combinational paths across ProcH, ProcL, MemC, MemD, MemX, DskEth, DispY and
-the IFU -- every one of them present before any of this, and harmless only
-while nothing moved. See "The machine does not settle" below.
+**And it settles.** `machine-test` passes with the BaseBoard running: 24/24
+clock nets toggling, 37 signals moving, stable over 200,000 cycles as readily
+as 20,000. It did not, for a while, and the cause was not the design's
+gate-delay tricks but six cells modelled as transparent latches that are not,
+plus one counter's carry that PARC's dictionary says is registered. See "the
+machine did not settle" below.
 
 ### What landed on 2026-08-15/16
 
@@ -612,44 +614,87 @@ driving -- and the wired-OR already gives every driver a private stub, so it
 costs nothing and no delay. (Registering the readback instead works too and is
 wrong: it delays the read path enough to miss the ROM's hold window.)
 
-## The machine does not settle, and that is the next task
+## Fixed: the machine did not settle, and it was two latches that are not
 
-`make -C verilog machine-test` fails. Give the BaseBoard its `TTLTrue` pack --
-so that its clock chain and its 6502 actually run -- and Verilator's settle
-loop no longer terminates, at 500 iterations as readily as at 100.
+`make -C verilog machine-test` failed the moment the BaseBoard genuinely ran:
+Verilator's settle loop no longer terminated, at 500 iterations as readily as
+at 100. Verilator named 40 circular combinational paths across ProcH, ProcL,
+MemC, MemD, MemX, DskEth, DispY and the IFU -- and named the same 40 before and
+after the machine came alive, so it could not say which mattered. The first
+reading of that was that these were the design's own gate-delay tricks, which
+would have meant substituting delays. That reading was wrong.
 
-**The cause is not on the BaseBoard and is not new.** Verilator names 40
-circular combinational paths across ProcH (14), ProcL (21), MemC, MemD, MemX,
-DskEth, DispY and the IFU. Every one of them is present in the RTL generated
-before this session; they were harmless only because an input that never
-changes cannot drive a loop round. Bisecting the machine board by board, eight
-boards converge and adding MemD and MemX TOGETHER does not -- neither alone.
+`tools/sil_loops.py` builds the graph directly, from the cell files the RTL is
+emitted from: nets are nodes, and an edge exists where a package has a
+combinational path from one pin to another. Two modelling mistakes accounted
+for all of it, and the archive settles both.
 
-One of them, in full:
+**Six cells were transparent latches.** `F10145A`, `F10415A`, `F10470` and
+`i2125` are memories whose write is LEVEL-sensitive -- while the write and chip
+enables are asserted, the stored bit follows the data input -- and `MC10173`
+and `SN74LS259` are latches. Written as `always @*` they pass a level straight
+through, so every read-modify-write path in the machine was a combinational
+loop, which is most of a datapath. F10145A alone is 405 packages.
+
+Rewriting them on `sys_clk` with the part's own level as an ENABLE is not a
+new idea here: it is the convention this design already uses for every clocked
+element, and the same change its two DRAM cells already carried. `sys_clk`
+heavily oversamples every signal on the board, so the behaviour while
+transparent is the same to a fabric clock's precision -- and unlike a latch it
+synthesises. That took the graph from 1,333 back edges to 40.
+
+**`F10016`'s carry out was a gate and should be registered.** The dictionary
+states combinational paths under `[G ...]` and clocked ones under `[FF ...]`.
+`F10016` has NO `[G]` entry at all, and pin 4 appears in its `[FF]` output list
+beside the four Q pins:
 
 ```
-MemD  d14 (F10016) .4 out -> MemD05.sil+2
-      d20 (MC10195) .10 in, .13 out -> ChkLastPhOrIdle
-      -> d14 .6 in
+[FF 7 {2.2 1.1}>3, 9>2, 10>15, 11>14, (7 9 10 11)>4,
+     (5 6){2.8 .6}>(2 3 14 15 4) : CLK 13 (1 5.5) RS 12 (1 6 x x x) ]
 ```
 
-That is gate-level feedback: a chain of MECL gates whose PROPAGATION DELAY is
-the timing element, which is how ECL designs of this period build a delay.
-A zero-delay simulator has no propagation time to break it with, and an FPGA
-has no way to implement it either -- a combinational loop is not routable
-fabric. So this is a real Phase-2 design question and not only a simulation
-artifact, which is why it is written down here rather than papered over.
+It also says which inputs reach it -- the four D pins and both enables -- which
+is a carry computed from the state the counter is ENTERING and then clocked
+out, the usual ECL arrangement so a cascaded stage sees its carry in time.
+Modelled as `~(&q & ~CE')` instead, it put a combinational path from a
+package's own count enable to its own carry out, and that closed three of the
+remaining loops on three different boards: `StopWakeCount`/`KillDWTWakeup` on
+DispM and DispY, and `ChkLastPhOrIdle` on MemD, each returning through an
+MC10195.
 
-The shape of the answer is the one this project already uses twice: the VCO
-and the crystal are substituted for fabric-clock dividers because an analog
-oscillator has no digital model. A gate chain used as a delay line wants the
-same treatment -- recognised, and given a clocked delay whose length is the
-propagation the board relies on. Finding them is mechanical: the 40 paths are
-exactly what `verilator --lint-only` reports as `UNOPTFLAT ... Circular
-combinational logic`, with the packages named.
+**Two false loops were in the analysis, not the design,** and are worth knowing
+because they would mislead the next person the same way. Every MC10181 slice
+reported a two-net cycle between its own result bits -- the pin numbers on the
+left of `assign p6 = ...` were being read as pins the `always @*` block
+consumes; a part's own outputs are not its inputs. And the BaseBoard's
+`VCOPhase0`/`VCOPhase1` pair is the analog VCO's relaxation loop, which the
+MPQ3303 substitution already replaces, so nothing else on those nets is a path.
 
-Until then `tools/rtl_machine_check.py` says so explicitly rather than letting
-the abort look like a missing toggle mask.
+**One structural loop remains, on ProcH, and it is left alone:**
+
+```
+DMuxData -> DMData    (h17, MC10158)
+DMData   -> Pdata.00  (f03, MC10164)
+Pdata.00 -> MuxData2  (d11, MU10164)
+MuxData2 -> DMuxData  (l24, MU10164)
+```
+
+That is the processor's own multiplexer chain feeding back, and it is a loop
+only on paper -- the selects never route all four legs at once, so it settles.
+Cutting it would mean inserting a delay the hardware does not have, and the
+machine converges with it present, over 200,000 cycles as readily as 20,000.
+
+**`make -C verilog loop-check` is the gate**, and it costs a fifth of a second.
+It reports every board's back edges against a list of the loops that are
+understood, so a cell modelled as a latch is caught where it is written rather
+than as a non-convergence on some other board tens of thousands of cycles
+later. Reverting `cell_MC10173` to `always @*` makes it fail with ProcH and
+ProcL named.
+
+`make -C verilog cell-check` gained the second half of the same lesson: a pin
+the dictionary lists only under `[FF]`/`[L]` must not be computed from an input
+pin. That is the `F10016` bug stated as a property, checked across the whole
+library, and it fails if the carry is put back.
 
 ## Reference: why `machine-test` is not a toggle count
 

@@ -1514,6 +1514,7 @@ module IFU_m_Rev_m_Ch (
     .p14(FF_2)
   ); // MC10161
   cell_MC10173 u_b01 (
+    .sys_clk(sys_clk),
     .p1(BMux_00__drv),
     .p2(BMux_08__drv),
     .p3(ifu09_sil_pl_19),
@@ -1810,6 +1811,7 @@ module IFU_m_Rev_m_Ch (
     .p23(TurnOffAlu)
   ); // MC10181
   cell_MC10173 u_c01 (
+    .sys_clk(sys_clk),
     .p1(BMux_02__drv),
     .p2(BMux_10__drv),
     .p3(ifu09_sil_pl_30),
@@ -2409,6 +2411,7 @@ module IFU_m_Rev_m_Ch (
     .p14(SayNotReady__d24_14)
   ); // MC1660
   cell_MC10173 u_e01 (
+    .sys_clk(sys_clk),
     .p1(BMux_04__drv),
     .p2(BMux_12__drv),
     .p3(ifu09_sil_pl_33),
@@ -2717,6 +2720,7 @@ module IFU_m_Rev_m_Ch (
     .p23(TurnOffAlu)
   ); // MC10181
   cell_MC10173 u_f01 (
+    .sys_clk(sys_clk),
     .p1(BMux_06__drv),
     .p2(BMux_14__drv),
     .p3(ifu09_sil_pl_39),
@@ -3101,6 +3105,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu14_sil_pl_8)
   ); // MC10104
   cell_F10415A u_g09 (
+    .sys_clk(sys_clk),
     .p1(TwoAlphaK),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -3116,6 +3121,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_05)
   ); // F10415A
   cell_F10415A u_g10 (
+    .sys_clk(sys_clk),
     .p1(TypePauseK_p_),
     .p2(InstrSet_0b),
     .p3(InstrSet_1b),
@@ -3131,6 +3137,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_10)
   ); // F10415A
   cell_F10415A u_g11 (
+    .sys_clk(sys_clk),
     .p1(TypeJumpK_p_),
     .p2(InstrSet_0b),
     .p3(InstrSet_1b),
@@ -3170,6 +3177,7 @@ module IFU_m_Rev_m_Ch (
     .p15(GND314)
   ); // SE10210
   cell_F10415A u_g14 (
+    .sys_clk(sys_clk),
     .p1(RBaseSelK_p_),
     .p2(InstrSet_0b),
     .p3(InstrSet_1b),
@@ -3185,6 +3193,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_06)
   ); // F10415A
   cell_F10415A u_g15 (
+    .sys_clk(sys_clk),
     .p1(LengthK_0_p_),
     .p2(InstrSet_0b),
     .p3(InstrSet_1b),
@@ -3413,6 +3422,7 @@ module IFU_m_Rev_m_Ch (
     .p15(ifu14_sil_pl_35)
   ); // MC10102
   cell_F10415A u_h09 (
+    .sys_clk(sys_clk),
     .p1(SignK),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -3428,6 +3438,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_00)
   ); // F10415A
   cell_F10415A u_h10 (
+    .sys_clk(sys_clk),
     .p1(RamParity_2),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -3480,6 +3491,7 @@ module IFU_m_Rev_m_Ch (
     .p9(clk0_p_Da)
   ); // MC10231
   cell_F10415A u_h14 (
+    .sys_clk(sys_clk),
     .p1(MemBK34),
     .p2(InstrSet_0b),
     .p3(InstrSet_1b),
@@ -3707,6 +3719,7 @@ module IFU_m_Rev_m_Ch (
     .p15(GND396)
   ); // SE10210
   cell_F10415A u_i09 (
+    .sys_clk(sys_clk),
     .p1(NK_0),
     .p2(InstrSet_0b),
     .p3(InstrSet_1b),
@@ -3722,6 +3735,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_12)
   ); // F10415A
   cell_F10415A u_i10 (
+    .sys_clk(sys_clk),
     .p1(MemBK_0),
     .p2(InstrSet_0b),
     .p3(InstrSet_1b),
@@ -3777,6 +3791,7 @@ module IFU_m_Rev_m_Ch (
     .p12(RamParity_2)
   ); // MC10170
   cell_F10415A u_i14 (
+    .sys_clk(sys_clk),
     .p1(InstrAddrK_2_p_),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -3792,6 +3807,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_08)
   ); // F10415A
   cell_F10415A u_i15 (
+    .sys_clk(sys_clk),
     .p1(LengthK_1_p_),
     .p2(InstrSet_0b),
     .p3(InstrSet_1b),
@@ -4003,6 +4019,7 @@ module IFU_m_Rev_m_Ch (
     .p15(JunkTW__drv)
   ); // MC10231
   cell_F10415A u_j09 (
+    .sys_clk(sys_clk),
     .p1(NK_1),
     .p2(InstrSet_0b),
     .p3(InstrSet_1b),
@@ -4018,6 +4035,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_13)
   ); // F10415A
   cell_F10415A u_j10 (
+    .sys_clk(sys_clk),
     .p1(InstrAddrK_3_p_),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -4073,6 +4091,7 @@ module IFU_m_Rev_m_Ch (
     .p12(RamParity_0)
   ); // MC10170
   cell_F10415A u_j14 (
+    .sys_clk(sys_clk),
     .p1(InstrAddrK_4_p_),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -4088,6 +4107,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_10)
   ); // F10415A
   cell_F10415A u_j15 (
+    .sys_clk(sys_clk),
     .p1(InstrAddrK_5_p_),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -4314,6 +4334,7 @@ module IFU_m_Rev_m_Ch (
     .p14(ifu15_sil_pl_3)
   ); // MC10231
   cell_F10415A u_k09 (
+    .sys_clk(sys_clk),
     .p1(NK_2),
     .p2(InstrSet_0b),
     .p3(InstrSet_1b),
@@ -4329,6 +4350,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_14)
   ); // F10415A
   cell_F10415A u_k10 (
+    .sys_clk(sys_clk),
     .p1(MemBK_1),
     .p2(InstrSet_0b),
     .p3(InstrSet_1b),
@@ -4384,6 +4406,7 @@ module IFU_m_Rev_m_Ch (
     .p12(RamParity_1)
   ); // MC10170
   cell_F10415A u_k14 (
+    .sys_clk(sys_clk),
     .p1(InstrAddrK_6_p_),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -4399,6 +4422,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_12)
   ); // F10415A
   cell_F10415A u_k15 (
+    .sys_clk(sys_clk),
     .p1(InstrAddrK_7_p_),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -4631,6 +4655,7 @@ module IFU_m_Rev_m_Ch (
     .p15(MuxData0__l08_15)
   ); // MU10164
   cell_F10415A u_l09 (
+    .sys_clk(sys_clk),
     .p1(NK_3),
     .p2(InstrSet_0b),
     .p3(InstrSet_1b),
@@ -4646,6 +4671,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_15)
   ); // F10415A
   cell_F10415A u_l10 (
+    .sys_clk(sys_clk),
     .p1(InstrAddrK_0_p_),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -4661,6 +4687,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_06)
   ); // F10415A
   cell_F10415A u_l11 (
+    .sys_clk(sys_clk),
     .p1(InstrAddrK_1_p_),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -4676,6 +4703,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_07)
   ); // F10415A
   cell_F10415A u_l12 (
+    .sys_clk(sys_clk),
     .p1(RamParity_0),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -4691,6 +4719,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_01)
   ); // F10415A
   cell_F10415A u_l13 (
+    .sys_clk(sys_clk),
     .p1(RamParity_1),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -4706,6 +4735,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_02)
   ); // F10415A
   cell_F10415A u_l14 (
+    .sys_clk(sys_clk),
     .p1(InstrAddrK_8_p_),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
@@ -4721,6 +4751,7 @@ module IFU_m_Rev_m_Ch (
     .p15(RcvdBMux_14)
   ); // F10415A
   cell_F10415A u_l15 (
+    .sys_clk(sys_clk),
     .p1(InstrAddrK_9_p_),
     .p2(InstrSet_0a),
     .p3(InstrSet_1a),
