@@ -11,6 +11,7 @@
 #   make alu-test     the ALU matches its datasheet's function table
 #   make alu-diff     the RTL ALU matches the C emulator's, vector for vector
 #   make machine-test the assembled machine clocks and its clock tree runs
+#   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs
 #
 # The inputs are all original Xerox data; see docs/verilog-from-sil.md.
 SIL     = ../chm/sil
@@ -19,7 +20,7 @@ TTLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ttldict.analyze
 TOOLS   = ../tools
 
 .PHONY: boards backplane proms cells cells-force lint cell-check prom-test \
-        alu-test alu-diff machine-test clean-generated
+        alu-test alu-diff machine-test baseboard-test clean-generated
 
 # PROM contents, sliced per package position from PARC's own BCPL.
 proms:
@@ -47,6 +48,10 @@ alu-diff:
 # Does the assembled machine run? Needs the harness built first.
 machine-test:
 	@$(MAKE) -C verilator machine-test
+
+# Does the BaseBoard's 6502 come out of reset and fetch its reset vector?
+baseboard-test:
+	@$(MAKE) -C verilator baseboard-test
 boards: backplane
 
 # The boards first, then the top module -- it re-runs the SAME classification
@@ -63,6 +68,8 @@ MACHINE ?=
 backplane: generated-boards
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_backplane.v \
 		$(MACHINE)
+	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_baseboard.v \
+		--boards=BaseBd --module=dorado_baseboard >/dev/null
 
 cells:
 	@python3 $(TOOLS)/sil_emit_cells.py --sil $(SIL) \

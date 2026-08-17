@@ -21,7 +21,9 @@ python3 tools/sil_backplane.py             # what the backplane is, measured
 make -C verilog alu-test   # THE GATE: the ALU matches its datasheet
 make -C verilog alu-diff   # THE GATE: the ALU matches the C EMULATOR
 python3 tools/sil_backplane.py --ports     # boards present the ports PARC states
-make -C verilog machine-test  # THE GATE: the assembled machine clocks
+make -C verilog machine-test  # the assembled machine clocks (KNOWN FAILURE, below)
+make -C verilog baseboard-test  # THE GATE: the BaseBoard's 6502 BOOTS
+make -C verilog cell-check    # THE GATE: cells wire the inputs PARC says they do
 make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 ```
 
@@ -37,6 +39,7 @@ make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 | Backplane top module | **generated**, 11 boards wired by name, lint clean |
 | Synthesisability | **no `inout`, no multiply-driven net, no gated clock** |
 | The machine | **instantiated, and SELF-CLOCKING**: it generates its own clock |
+| BaseBoard 6502 | **BOOTS ITS OWN FIRMWARE** -- reset vector, then the ROM's instruction stream |
 
 `verilog/generated/dorado_backplane.v` instantiates eleven boards and wires
 501 nets between them; `dorado_machine` resolves the 407 external ports and
@@ -48,9 +51,15 @@ h05/g05 (MC1660) shape two anti-phase clocks, four MC1690s divide them into
 nets toggle, and six downstream signals with them (`MemWEa`/`MemWEb`,
 `LoadEcOut'`/`ShiftEcOut`, `LargeHold`, `TWReq15`).
 
-It does not compute yet: 75 of 125 cell types are still skeletons. `make -C
-verilog machine-test` counts how many signals move (30 today) and is a FLOOR
-that should rise as the cell library fills in.
+One board of it now COMPUTES: the BaseBoard's 6502 comes out of reset,
+fetches `0xF3A7` from `0xFFFC/D`, and executes the ROM's own reset routine.
+See "The BaseBoard's 6502 boots" below. The rest is still filling in.
+
+**`machine-test` fails, and that is the finding, not a regression.** Once the
+BaseBoard genuinely runs, the assembled machine stops converging: 40 circular
+combinational paths across ProcH, ProcL, MemC, MemD, MemX, DskEth, DispY and
+the IFU -- every one of them present before any of this, and harmless only
+while nothing moved. See "The machine does not settle" below.
 
 ### What landed on 2026-08-15/16
 
@@ -440,6 +449,207 @@ looks decisive and is not (on MC10212, eight gates put the primed net on the
 for its function, not its pin sense), and the MECL Pocket Book scan that
 `cells/PARTS.md` cites carries functions and schematics but no pinout tables.
 Go to the per-part Motorola technical data sheets instead.
+
+## The BaseBoard's 6502 boots (2026-08-17)
+
+`make -C verilog baseboard-test` is the gate. It asserts four things at once,
+and they were derived separately, from four different sources:
+
+* the 6502 addresses `0xFFFC`/`0xFFFD`;
+* `0xA7` and `0xF3` come back on `MCD`, so the vector reads `0xF3A7`;
+* it then FETCHES from `0xF3A7`; and
+* the bytes that follow are the ROM's own reset routine --
+  `CLD`, `LDX #$00`, `LDA #$00`, `STA $00,X`, `DEX`, `BNE $F3AC`, byte for byte
+  what `chm/disassembly/bb_F000-FFFF.s` disassembles at that address.
+
+The fourth check is the one that matters. A 6502 that fetches its vector but
+latches nothing still walks a plausible-looking address bus -- during bring-up
+it walked `0x0000` upward for thousands of cycles, with a healthy 5,941
+transitions -- so the gate reads the OPCODES, not the addresses.
+
+Six things had to be true together, and each was mutation-tested by breaking
+it deliberately and confirming the gate fails, each with its own message:
+
+**1. Resistor packs are not a cell, and the machine's constant 1 comes from
+one.** `SIPpackage` pins DRIVE on some boards and are the tie point on others
+-- seven of the eight are used both ways -- so no fixed set of port directions
+fits, and the cell that existed declared all eight as inputs and drove
+nothing. So `TTLTrue.A`..`E`, which BaseBd g47 supplies and every TTL counter,
+flip-flop and enable on the board counts from, sat at zero. The generator
+resolves these now (`sil_to_verilog.py sip_pull`): a SIP is resistors from a
+COMMON pin to the rest, the common is found by what it is CONNECTED to -- a
+power net, or a reference the board makes for the purpose (`True`,
+`ECLTrueA`) -- and every other pin is held there. Two exclusions matter. A net
+held by a pull-UP pack and a pull-DOWN pack at once is a resistive DIVIDER, a
+bias network at an analog input, so neither contributes and the net stays
+open: that is DskEth's `RcvData`, the Ethernet receiver's own input, which it
+would otherwise force high. And the common may never be a net the pack itself
+drives -- a pack that MAKES a reference calls it something like `TTLTrueA`,
+and taking that as its own common emits `assign X = X;`, a wire that inputs
+its own output, which Verilator accepts and which then fails to settle tens of
+thousands of cycles later on a different board.
+
+**2. The supply rails have to be stated.** A wire nobody assigns reads zero,
+and 1,010 nets across the sixteen boards are a gate's enable, preset or count
+input tied straight to VCC. `VCC`/`VDD` are 1; `GND`, `VEE` (-5.2 V), `VTT`
+(the -2 V ECL terminator) and `VBB` (-1.3 V) are 0.
+
+**3. The ROM decode is a wire-wrap strap, and the netlist states it
+geometrically.** `Rom0'`..`Rom7'` come from the '138 at g11, whose selects
+`RSA.0/1/2` are driven by nothing at all: they arrive on c07, an Augat header.
+What a header does is decided by which wires a technician wrapped onto it, and
+that is not in the netlist -- but the GEOMETRY is. Every pin in the wire list
+carries an `{x,y}`, and a jumper position is a COLUMN of pins at one x. At
+c07, `MCA.11`/`MCA.12`/`MCA.13` sit directly across from
+`RSA.0`/`RSA.1`/`RSA.2`. `tools/firmware_eproms.py` had derived exactly that
+strapping by asking what tiles the address space with 2K parts; the header
+says it outright.
+
+The generator takes a strap only where the netlist forces it (`jumper_straps`):
+a column of exactly two pins where one net has no other source on the board.
+A column of THREE is a choice and is left alone -- MemX's b14 offers
+`RTMapAd.1a` or `VCC-47`, msa's e26 picks `ChipsAre4k` against `ChipsAre16k` --
+because guessing there would be inventing a machine configuration.
+
+**4. The EPROM bytes are stored BIT-REVERSED, and the 1987 chip dumps prove
+it.** The wire list puts the 2716's pin 9 on `MCD.7` and its pin 17 on
+`MCD.0`, while the 6502's pin 26 (DB7) is on `MCD.7` and pin 33 (DB0) on
+`MCD.0`. The data sheet calls 2716 pin 9 `O0` and pin 17 `O7`, so the ROM's
+least significant output feeds the processor's most significant data bit: the
+byte arrives reversed, and the chips were blown reversed. The address lines
+are NOT crossed -- pin 19 is A10 on both the board and the data sheet -- so
+this is a deliberate data-bus reversal, not a numbering artifact.
+
+`firmware/B-08.BIN`, read bit-reversed, is byte-for-byte identical to
+`doradobaserom.mb!13`'s `0xF000` block, all 2048 of them; `B-10.BIN` reversed
+gives NMI=`0xF000`, RESET=`0xF3A7`, IRQ=`0xF2A2`, that image's own vectors. Two
+artifacts sharing no lineage -- a chip read in 1987 and a `.MB` from the
+archive -- agreeing once the bits are put back. **That retires a note in
+`tools/firmware_eproms.py` that those dumps were "a different set or a
+different layout" because none had a plausible 6502 vector triple.** They had
+one all along, and they land on exactly the four populated sockets:
+B-08 -> c61 (0xF000), B-10 -> b61 (0xF800), C-08 -> f60 (0xC000),
+C-10 -> e60 (0xC800). Only B-08 matches byte for byte; the other three are a
+later build than the archived `.MB`, which the 1987 date on the chips would
+predict.
+
+**5. Tri-state parts must contribute NOTHING when they are not driving.** The
+shared nets here resolve as an OR of their drivers, which is right for MECL
+open emitters. A TTL bus is different: one part drives and the rest are in
+high impedance, so a part that is not driving has to contribute zero and leave
+the active driver's value intact. The 2716 already did this with its CS'/PD';
+the 6502 and the 6532 did not, so every part on the bus contributed at once,
+`MCD` read `0xFF` at every address, and the ROM might as well not have been
+fitted.
+
+**6. A ROM is a registered block RAM, and here that is also the part's
+timing.** The BaseBoard enables its EPROMs from `MCClk'`, so a 2716 drives
+only while phase 2 is high -- and the processor latches the byte as that phase
+FALLS. On the real board the '138 and the 2716 take tens of nanoseconds to let
+go, which is exactly the data hold the 6502 needs. In zero-delay RTL a
+combinational output vanishes in the same instant the CPU latches: the reset
+vector was read correctly off the bus, `0xA7` then `0xF3`, and the processor
+still started at `0x0000` every time. One fabric clock of registered output
+supplies the hold, and is what an FPGA block RAM gives you anyway.
+
+**And a seventh, which is the power-on reset.** `PwrGood` is the comparator
+saying the supplies have reached their thresholds, and it is the clear input
+of the flip-flop at j08 that produces `MCReset'`. `cell_MPQ3303` asserted it
+true from the first cycle -- "the supplies are up, which for a simulated
+machine they are" -- which released the netlist 6502 before it had run a reset
+sequence at all: it came up executing `BRK` off an all-zero bus and never
+fetched a vector. Supplies ramp; it comes up low and rises.
+
+Also fixed on the way: the netlist 6502 core needs the FAST fabric clock on
+`clk` and the board's `MCPreClk` on `phi`. Both were wired to `MCPreClk`,
+which gives the 1,725-node relaxation one settling step per phase, and it
+never converges.
+
+### The parts that had to be modelled
+
+The whole BaseBoard clock and reset chain, from PARC's `TtlDict.Analyze` pin
+lists: `SN74LS04`, `SN74LS74`, `SN74LS163`, `SN74LS175`, `SN74LS259`,
+`MC12061` (the crystal oscillator -- a documented SUBSTITUTION, like the VCO,
+driving a divider off the fabric clock), plus the plain TTL family the board
+uses around them: `SN74LS00`, `SN74LS01`, `SN74LS08`, `SN74LS32`, `SN7486`,
+`SN7438`, `SN74LS139`, `SN74LS151`, `SN74LS251`, `SN74LS157`, `SN74LS253`,
+`SN74LS85`.
+
+**`SN74LS01` and `SN7438` are OPEN COLLECTOR, and the dictionary does not say
+so.** TtlDict groups parts by PINOUT, so the '01 sits with the totem-pole '02
+and '28; only the part NUMBER says the output is a pull-down with no pull-up.
+It matters because a shared net here resolves as an OR -- right for emitter
+followers, which pull UP -- and these pull DOWN onto a net a resistor holds
+high, which is an AND. There are 15 such nets across two boards and each has
+effectively one driver, so a single open-collector output plus its pull-up
+computes the gate's own function and the cells drive that; the wired-AND only
+bites if a second driver is ever added. `BootMC'` is one of them, and it is
+the D input of the 6502's reset flip-flop: with the '01 unmodelled that net
+sat low and the processor was held in reset forever.
+
+`make -C verilog cell-check` now reads **both** dictionaries. It was reading
+only `EclDict.Analyze`, which left all eighteen new 74-series cells unchecked;
+`TtlDict.Analyze` states its gates in the same `[G ...]` form. 50 cells
+checked, 0 ignoring an input.
+
+### A part that reads a bus it also drives
+
+`cell_MCS6502` and `cell_MCS6532` present the two directions separately --
+`dbo` out, `dbi` back -- because the RTL has no `inout` anywhere by design.
+Nothing in the wire list can say which companion port goes with which pins;
+that is a fact about the PART, so it is named in the generator's `READBACK`
+table and connected to the resolved nets.
+
+It must be connected to what the OTHER drivers put on the bus, not to the
+resolved net. Inside the netlist 6502 `dbo` is combinational on `dbi` -- both
+come out of the same relaxation -- so handing back the whole net is a wire
+that inputs its own output. It settles perfectly while the part is off the bus
+and stops settling the instant it drives one: the machine ran thousands of
+cycles and then failed to converge at the 6502's first `STA`, reported against
+a different board entirely. Excluding the part's own contribution is also what
+the hardware means -- a driver does not read its own drive to learn what it is
+driving -- and the wired-OR already gives every driver a private stub, so it
+costs nothing and no delay. (Registering the readback instead works too and is
+wrong: it delays the read path enough to miss the ROM's hold window.)
+
+## The machine does not settle, and that is the next task
+
+`make -C verilog machine-test` fails. Give the BaseBoard its `TTLTrue` pack --
+so that its clock chain and its 6502 actually run -- and Verilator's settle
+loop no longer terminates, at 500 iterations as readily as at 100.
+
+**The cause is not on the BaseBoard and is not new.** Verilator names 40
+circular combinational paths across ProcH (14), ProcL (21), MemC, MemD, MemX,
+DskEth, DispY and the IFU. Every one of them is present in the RTL generated
+before this session; they were harmless only because an input that never
+changes cannot drive a loop round. Bisecting the machine board by board, eight
+boards converge and adding MemD and MemX TOGETHER does not -- neither alone.
+
+One of them, in full:
+
+```
+MemD  d14 (F10016) .4 out -> MemD05.sil+2
+      d20 (MC10195) .10 in, .13 out -> ChkLastPhOrIdle
+      -> d14 .6 in
+```
+
+That is gate-level feedback: a chain of MECL gates whose PROPAGATION DELAY is
+the timing element, which is how ECL designs of this period build a delay.
+A zero-delay simulator has no propagation time to break it with, and an FPGA
+has no way to implement it either -- a combinational loop is not routable
+fabric. So this is a real Phase-2 design question and not only a simulation
+artifact, which is why it is written down here rather than papered over.
+
+The shape of the answer is the one this project already uses twice: the VCO
+and the crystal are substituted for fabric-clock dividers because an analog
+oscillator has no digital model. A gate chain used as a delay line wants the
+same treatment -- recognised, and given a clocked delay whose length is the
+propagation the board relies on. Finding them is mechanical: the 40 paths are
+exactly what `verilator --lint-only` reports as `UNOPTFLAT ... Circular
+combinational logic`, with the packages named.
+
+Until then `tools/rtl_machine_check.py` says so explicitly rather than letting
+the abort look like a missing toggle mask.
 
 ## Reference: why `machine-test` is not a toggle count
 

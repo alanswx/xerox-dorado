@@ -99,6 +99,11 @@ class Generator:
         # output carrying only this board's contribution.
         self.exports: set[str] = set()
         self.unknown_pins: Counter = Counter()
+        # (package, pin) -> the level a resistor pack holds that pin at.
+        # Computed once, before anything asks a pin which way it faces.
+        self._sips = self.sip_drives()
+        # (package, pin) -> the net a wire-wrap jumper brings to that pin.
+        self._straps = self.jumper_straps()
         # package position -> the .mem holding that PROM's contents. PARC's
         # own PromCommand labels say which package each PROM is blown into;
         # tools/dorado_proms.py resolves them and slices the word per part.
@@ -137,6 +142,273 @@ class Generator:
     # made the old port inference wrong.
     _NOT_LOGIC = ('Term', 'SpareSocket')
 
+    # A resistor pack, which is not a cell and cannot be one: its pins DRIVE
+    # on some boards and are the tie point on others (of the eight, seven are
+    # used both ways), so no fixed set of port directions fits. It is
+    # resolved here instead -- see sip_pull.
+    _RESISTOR_PACK = ('SIPpackage',)
+
+    _POWER_RE = re.compile(r'^(VCC|GND|VEE)')
+
+    # The supply rails, which the RTL has to state because a wire nobody
+    # assigns reads zero -- and a board is full of gates whose enable, preset
+    # or count input is tied straight to VCC. `VCC101` on the ROM decoder is
+    # one; there are 1,010 such nets across the sixteen boards.
+    #
+    # Everything below ground is a logic 0: VEE is -5.2 V, VTT the -2 V ECL
+    # terminator, VBB the -1.3 V reference. VDD is the +12 V analog rail and
+    # sits with VCC on the high side. Names come from the wire lists.
+    _RAIL_HIGH = re.compile(r'^(VCC|VDD)')
+    _RAIL_LOW = re.compile(r'^(GND|SGND|VEE|VTT|VBB|VSS)')
+
+    # Wire-wrap headers -- a field of jumper positions, not a part. Like the
+    # resistor packs they cannot be a cell: what a header DOES is decided by
+    # which wires a technician wrapped onto it, and that is not in the
+    # netlist. What IS in the netlist is the geometry: every pin carries an
+    # {x,y}, and a jumper position is a COLUMN of pins at one x. See
+    # jumper_straps for how much of that can honestly be resolved.
+    _JUMPER_FIELD = ('AUGAT',)
+
+    def rail_value(self, netname: str) -> str | None:
+        if self._RAIL_HIGH.match(netname):
+            return "1'b1"
+        if self._RAIL_LOW.match(netname):
+            return "1'b0"
+        return None
+
+    def read_name(self, netname: str) -> str:
+        """The identifier to READ a net by, in the emitted module.
+
+        Not always its own name. A backplane net this board only DRIVES has
+        no plain wire -- its contribution goes out on `<net>__drv` and the
+        resolved bus never comes back, because nothing here senses it. So
+        anything on this board that wants to read it (a jumper strapping it
+        somewhere, a part taking its own output back on a companion input)
+        has to name the contribution."""
+        if netname in self.exports and netname not in self.ports:
+            return f'{vname(netname)}__drv'
+        return vname(netname)
+
+    def read_excluding(self, netname: str, pos: str) -> str:
+        """What this net carries, MINUS what `pos` itself puts on it.
+
+        A part reading a bus it also drives cannot simply be handed the
+        resolved net. Inside the netlist 6502 `dbo` is combinational on `dbi`
+        -- both come out of the same relaxation of 1,725 nodes -- so wiring
+        the bus back to `dbi` is a wire that inputs its own output. It settles
+        perfectly while the part is off the bus and stops settling the instant
+        it drives one: the machine ran thousands of cycles and then failed to
+        converge at the 6502's first `STA`, reported against a different board
+        entirely.
+
+        Excluding the part's own contribution is also what the hardware means.
+        A driver does not read its own drive to know what it is driving; what
+        it needs off the bus is what everyone ELSE has put there. The
+        wired-OR already gives every driver a private stub, so this is an OR
+        of the other stubs -- no delay, and the loop cannot form.
+
+        A net driven only by this package carries nothing else, hence 0.
+        """
+        drivers = self.drivers_in_rtl(netname)
+        others = [p for p in drivers if p['pkg'] != pos]
+        if not others:
+            return "1'b0"
+        if len(drivers) > 1:            # wired-OR: each driver has a stub
+            return '(' + ' | '.join(
+                f'{vname(netname)}__{vname(p["pkg"])}_{p["pin"]}'
+                for p in others) + ')'
+        return self.read_name(netname)  # the sole driver is someone else
+
+    def _expr(self, v: str) -> str:
+        """A rail literal passes through; anything else is a net to read."""
+        return v if v.startswith("1'b") else self.read_name(v)
+
+    def _pkg_type(self, pos: str) -> str:
+        return self.b.packages.get(pos, {}).get('type', '')
+
+    def jumper_straps(self) -> dict[tuple[str, int], str]:
+        """(package, pin) -> the net a wire-wrap jumper brings to it.
+
+        The wire list gives every pin an {x,y}, and on these headers the pins
+        line up in COLUMNS -- one x, two rows. A column is one jumper
+        position: wrap a wire across it and the two nets are connected.
+
+        Which jumpers are fitted is a configuration, so only the case where
+        the netlist forces the answer is taken: a column of EXACTLY TWO pins
+        where one of the nets has no other source on the board at all. That
+        net exists to be strapped -- nothing else can ever drive it -- so the
+        jumper is fitted, and the netlist has told us so.
+
+        A column of three pins is a CHOICE and is left alone: MemX's b14
+        offers `RTMapAd.1a` or `VCC-47` on `RamA1orVCCa`, and msa's e26 picks
+        `ChipsAre4k` against `ChipsAre16k`. Guessing there would be inventing
+        a machine configuration. They are counted in the report instead.
+
+        This is what makes the BaseBoard's ROM decode work. `RSA.0/1/2` --
+        the three select inputs of the '138 that produces `Rom0'`..`Rom7'` --
+        have no driver anywhere; they sit across from `MCA.11`, `MCA.12` and
+        `MCA.13` in three two-pin columns. tools/firmware_eproms.py had
+        derived that same strapping from what tiles the address space with 2K
+        parts; the header's geometry states it outright.
+        """
+        out: dict[tuple[str, int], str] = {}
+        self.jumper_choices = 0
+        for pos in sorted(self.b.packages):
+            if not self._pkg_type(pos).startswith(self._JUMPER_FIELD):
+                continue
+            cols: dict[int, list] = {}
+            for pin, netname in self.pkg_pins(pos):
+                for p in self.b.nets[netname]['pins']:
+                    if p['pkg'] == pos and p['pin'] == pin and p['xy']:
+                        cols.setdefault(p['xy'][0], []).append(
+                            (p['xy'][1], pin, netname))
+            for x, items in cols.items():
+                if len(items) != 2:
+                    self.jumper_choices += len(items) > 2
+                    continue
+                items.sort()
+                (_, pin_a, net_a), (_, pin_b, net_b) = items
+                if net_a == net_b:
+                    continue
+                open_a = self._strappable(net_a)
+                open_b = self._strappable(net_b)
+                if open_a and not open_b:
+                    out[(pos, pin_a)] = net_b
+                elif open_b and not open_a:
+                    out[(pos, pin_b)] = net_a
+        return out
+
+    def _strappable(self, netname: str) -> bool:
+        """Nothing on this board can drive this net, and it stays here.
+
+        A rail is never the strapped side -- it is what you strap TO -- and a
+        net that leaves the board may be driven from another slot, so neither
+        qualifies."""
+        if self.rail_value(netname):
+            return False
+        if self.b.leaves_board(netname):
+            return False
+        for p in self.b.nets[netname]['pins']:
+            if p['dir'] != 'out':
+                continue
+            t = self._pkg_type(p['pkg'])
+            if t.startswith(self._JUMPER_FIELD) or t.startswith(self._NOT_LOGIC):
+                continue
+            if t.startswith(self._RESISTOR_PACK):
+                if (p['pkg'], p['pin']) in self._sips:
+                    return False
+                continue
+            return False
+        return True
+
+    # Buses the wire list calls OUTPUTS and the part also READS.
+    #
+    # A 6502's D0-D7 are one bidirectional bus, but PARC marks them `o` on
+    # this board and the RTL has no `inout` anywhere by design, so the cells
+    # present the two directions separately: the core drives `dbo` onto the
+    # net and takes `dbi` back from it. Nothing in the wire list can say that
+    # -- it is a fact about the PART -- so the companion port is named here
+    # and the generator connects it to the RESOLVED net at each pin, which is
+    # exactly what the chip's pin sees.
+    #
+    # Pins are listed MOST SIGNIFICANT FIRST, matching the concatenation.
+    # Without this the 6502 reads 0x00 forever, which is BRK: it fetches a
+    # vector, takes the interrupt, and fetches the vector again.
+    READBACK = {
+        'MCS6502': {'dbi': [26, 27, 28, 29, 30, 31, 32, 33]},   # D7..D0
+        'MCS6532': {'d_in':  [26, 27, 28, 29, 30, 31, 32, 33],  # D7..D0
+                    'pa_in': [15, 14, 13, 12, 11, 10, 9, 8],    # PA7..PA0
+                    'pb_in': [16, 17, 18, 19, 21, 22, 23, 24]}, # PB7..PB0
+    }
+
+    def sip_pull(self, pos: str) -> tuple[str | None, str]:
+        """What a resistor pack ties its pins to, as an expression.
+
+        A SIP is a set of resistors from a COMMON pin to the rest, so every
+        other pin is weakly held at whatever the common sits on. The common
+        is not at a fixed pin number -- BaseBd g47 uses pin 7, l49 and l50 use
+        pins 1 and 8 -- so it is found by what it is CONNECTED to:
+
+          * a power net (`VCC103`, `GND639`, `VEE-60`) -- a pull-up or a
+            pull-down, the usual case; or
+          * a reference net a board makes for the purpose (`True`,
+            `ECLTrueA`, `TTLHigh`), which the pack then passes on.
+
+        A pull-up matters and a pull-down does not, under the OR that resolves
+        these nets: contributing 1 forces an otherwise-open net high, which is
+        exactly what an open input sees, and contributing 0 changes nothing.
+
+        This is how the BaseBoard gets `TTLTrue.A`..`E` from g47, and those
+        are the constant 1 that its TTL counters and flip-flops count, load
+        and enable from -- so with the packs missing the 6502 cannot be
+        clocked or released from reset at all.
+
+        Returns (expression or None, why)."""
+        power, ref = None, None
+        for pin, netname in self.pkg_pins(pos):
+            if self._POWER_RE.match(netname):
+                power = '1\'b1' if netname.startswith('VCC') else '1\'b0'
+                why = netname
+            elif (re.search(r'True|High', netname) and ref is None
+                  and not self._pack_drives(pos, netname)):
+                # `and not self._pack_drives(...)`: a pack that MAKES a
+                # reference names it something like `TTLTrueA`, and taking
+                # that as the pack's own common emits `assign X = X;` -- a
+                # wire that inputs its own output. Verilator accepts it and
+                # the machine then fails to settle, tens of thousands of
+                # cycles later and on a different board.
+                ref = refwhy = netname
+        if power:
+            return power, why
+        if ref:
+            return ref, refwhy
+        return None, 'no rail or reference net at any pin'
+
+    def _pack_drives(self, pos: str, netname: str) -> bool:
+        """Is this net an OUTPUT of this package?"""
+        return any(p['pkg'] == pos and p['dir'] == 'out'
+                   for p in self.b.nets[netname]['pins'])
+
+    def pkg_pins(self, pos: str):
+        """(pin, net) for one package, from the wire list."""
+        for name, net in self.b.nets.items():
+            for p in net['pins']:
+                if p['pkg'] == pos:
+                    yield p['pin'], name
+
+    def sip_drives(self) -> dict[tuple[str, int], str]:
+        """(package, pin) -> expression, for every pack pin that holds a net.
+
+        Two pins are left out deliberately. A pin sitting ON the rail is the
+        common, not an output. And a net held by a pull-UP pack and a
+        pull-DOWN pack at once is a RESISTIVE DIVIDER -- a bias network at an
+        analog input, not a logic level -- so neither contributes and the net
+        stays open. That is what BaseBd's Midas straps and DskEth's `RcvData`
+        are; `RcvData` is the Ethernet receiver's own input, and forcing it
+        high would be inventing a signal off the wire."""
+        packs = {pos for pos, pkg in self.b.packages.items()
+                 if pkg.get('type', '').startswith(self._RESISTOR_PACK)}
+        pulls = {pos: self.sip_pull(pos)[0] for pos in packs}
+        held: dict[str, set] = {}
+        for pos in packs:
+            for pin, netname in self.pkg_pins(pos):
+                if pulls[pos] and not self._POWER_RE.match(netname):
+                    held.setdefault(netname, set()).add(pulls[pos])
+        divided = {n for n, v in held.items() if len(v) > 1}
+
+        out = {}
+        for pos in sorted(packs):
+            expr = pulls[pos]
+            if not expr:
+                continue
+            for pin, netname in self.pkg_pins(pos):
+                if self._POWER_RE.match(netname) or netname in divided:
+                    continue
+                if any(p['pkg'] == pos and p['pin'] == pin and p['dir'] == 'out'
+                       for p in self.b.nets[netname]['pins']):
+                    out[(pos, pin)] = expr
+        return out
+
     def _rtl_dir(self, p: dict) -> str | None:
         """What the EMITTED RTL does at this pin, or None if nothing.
 
@@ -147,6 +419,12 @@ class Generator:
         ptype = self.b.packages.get(p['pkg'], {}).get('type', '')
         if ptype.startswith(self._NOT_LOGIC):
             return None
+        if ptype.startswith(self._RESISTOR_PACK):
+            return ('output' if (p['pkg'], p['pin']) in self._sips
+                    else None)
+        if ptype.startswith(self._JUMPER_FIELD):
+            return ('output' if (p['pkg'], p['pin']) in self._straps
+                    else None)
         d = self.cell_dirs.get(vpart(ptype), {}).get(p['pin'])
         if d:
             return d
@@ -315,6 +593,51 @@ class Generator:
             A(f'  // {len(single)} single-driver contributions to the backplane')
             A('')
 
+        # Resistor packs. Not instantiated as cells -- see sip_pull -- so
+        # their contribution is stated here, at the level the pack's common
+        # pin sits on.
+        if self._sips:
+            A('  // ---- resistor packs (SIP): pins held at the pack\'s common')
+            for (pos, pin), expr in sorted(self._sips.items()):
+                netname = pinnet[(pos, pin)]
+                if netname in wired:
+                    tgt = f'{vname(netname)}__{vname(pos)}_{pin}'
+                elif netname in self.exports:
+                    tgt = f'{vname(netname)}__drv'
+                else:
+                    tgt = vname(netname)
+                why = self.sip_pull(pos)[1]
+                A(f'  assign {tgt} = {self._expr(expr)};'
+                  f'   // {pos}.{pin} {netname}, tied to {why}')
+            A('')
+
+        # The supply rails, stated. A wire nobody assigns reads zero, and
+        # a great many gates take an enable or a preset straight from VCC.
+        rails = [n for n in sorted(self.b.nets)
+                 if self.rail_value(n) and n not in self.ports
+                 and n not in self.exports]
+        if rails:
+            A(f'  // ---- {len(rails)} supply rails')
+            for n in rails:
+                A(f'  assign {vname(n)} = {self.rail_value(n)};')
+            A('')
+
+        # Wire-wrap jumpers. See jumper_straps for which are taken and why.
+        if self._straps:
+            A('  // ---- wire-wrap jumpers (Augat headers): the strap the'
+              ' netlist forces')
+            for (pos, pin), src in sorted(self._straps.items()):
+                netname = pinnet[(pos, pin)]
+                if netname in wired:
+                    tgt = f'{vname(netname)}__{vname(pos)}_{pin}'
+                elif netname in self.exports:
+                    tgt = f'{vname(netname)}__drv'
+                else:
+                    tgt = vname(netname)
+                A(f'  assign {tgt} = {self.read_name(src)};'
+                  f'   // {pos}.{pin}: {netname} strapped to {src}')
+            A('')
+
         A('  // ---- packages')
         placed = 0
         for pos in sorted(self.b.packages):
@@ -322,6 +645,10 @@ class Generator:
             ptype = pkg.get('type', '')
             if ptype.startswith(('SpareSocket', 'Term')):
                 continue                      # not logic
+            if ptype.startswith(self._RESISTOR_PACK):
+                continue                      # resolved above, not a cell
+            if ptype.startswith(self._JUMPER_FIELD):
+                continue                      # a jumper field, not a part
             roles = self.ecl.pin_roles(ptype)
             conns = []
             for (pk, pin), netname in sorted(pinnet.items()):
@@ -356,6 +683,12 @@ class Generator:
                 self.proms_wired += 1
             elif ptype in (*PROM_PARTS, 'i2716'):
                 A(f'  // PROM with no contents in the archive -- reads X')
+            # A bus the part drives AND reads: hand back what the OTHER
+            # drivers put on it. See read_excluding.
+            for port, pins in self.READBACK.get(vpart(ptype), {}).items():
+                bits = [self.read_excluding(pinnet[(pos, pn)], pos)
+                        if (pos, pn) in pinnet else "1'b0" for pn in pins]
+                conns.append(f'    .{port}({{{", ".join(bits)}}})')
             A(f'  {cell} {params}u_{vname(pos)} (')
             if vpart(ptype) in self.clocked:
                 conns = ['    .sys_clk(sys_clk)'] + conns

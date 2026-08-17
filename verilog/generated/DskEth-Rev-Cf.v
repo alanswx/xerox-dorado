@@ -114,6 +114,14 @@ module DskEth_m_Rev_m_Cf (
     input  wire TtlSector_p_,
     input  wire TtlSeekInc_p_,
     input  wire TtlTerm_p_,
+    output wire ClockM0__drv,
+    output wire ClockM1__drv,
+    output wire ClockM2__drv,
+    output wire ClockM3__drv,
+    output wire ClockP0__drv,
+    output wire ClockP1__drv,
+    output wire ClockP2__drv,
+    output wire ClockP3__drv,
     output wire ContTag_p___drv,
     output wire CylinderTag_p___drv,
     output wire DMuxData__drv,
@@ -152,10 +160,14 @@ module DskEth_m_Rev_m_Cf (
     output wire OS1__drv,
     output wire OS2__drv,
     output wire OS3__drv,
+    output wire SecIndx1_p___drv,
+    output wire SecIndx3_p___drv,
     output wire Select0_p___drv,
     output wire Select1_p___drv,
     output wire Select2_p___drv,
     output wire Select3_p___drv,
+    output wire Selected1_p___drv,
+    output wire Selected3_p___drv,
     output wire TagBus_0_p___drv,
     output wire TagBus_00_p___drv,
     output wire TagBus_000_p___drv,
@@ -168,7 +180,12 @@ module DskEth_m_Rev_m_Cf (
     output wire TagBus_7_p___drv,
     output wire TagBus_8_p___drv,
     output wire TagBus_9_p___drv,
+    output wire TtlDeviceCk_p___drv,
+    output wire TtlIndex_p___drv,
+    output wire TtlOnLine_p___drv,
+    output wire TtlReady_p___drv,
     output wire TtlSector_p___drv,
+    output wire TtlSeekInc_p___drv,
     output wire WakeEthRx__drv,
     output wire WakeEthTx__drv,
     output wire XmtData_p___drv
@@ -1283,6 +1300,9 @@ module DskEth_m_Rev_m_Cf (
   wire ReadError__c23_14;
   wire ReadError__b23_15;
   assign ReadError = ReadError__c23_2 | ReadError__c23_3 | ReadError__c23_14 | ReadError__b23_15;
+  wire REF__f03_2;
+  wire REF__f03_14;
+  assign REF = REF__f03_2 | REF__f03_14;
   wire RxSRFull_p___i12_3;
   wire RxSRFull_p___i12_2;
   wire RxSRFull_p___i12_14;
@@ -1316,6 +1336,15 @@ module DskEth_m_Rev_m_Cf (
   wire TriconD10_sil_pl_8__b07_1;
   wire TriconD10_sil_pl_8__b08_14;
   assign TriconD10_sil_pl_8 = TriconD10_sil_pl_8__b07_1 | TriconD10_sil_pl_8__b08_14;
+  wire TriconD15a_sil_pl_3__f06_10;
+  wire TriconD15a_sil_pl_3__f06_6;
+  assign TriconD15a_sil_pl_3 = TriconD15a_sil_pl_3__f06_10 | TriconD15a_sil_pl_3__f06_6;
+  wire TriconD15a_sil_pl_4__f06_12;
+  wire TriconD15a_sil_pl_4__f06_4;
+  assign TriconD15a_sil_pl_4 = TriconD15a_sil_pl_4__f06_12 | TriconD15a_sil_pl_4__f06_4;
+  wire TriconD15a_sil_pl_5__a18_5;
+  wire TriconD15a_sil_pl_5__a18_1;
+  assign TriconD15a_sil_pl_5 = TriconD15a_sil_pl_5__a18_5 | TriconD15a_sil_pl_5__a18_1;
   wire TxData__i14_14;
   wire TxData__h17_3;
   wire TxData__k18_2;
@@ -1329,7 +1358,149 @@ module DskEth_m_Rev_m_Cf (
   wire WriteInhibit_p___b23_3;
   assign WriteInhibit_p_ = WriteInhibit_p___d20_3 | WriteInhibit_p___b23_3;
 
-  // 57 single-driver contributions to the backplane
+  // 74 single-driver contributions to the backplane
+
+  // ---- resistor packs (SIP): pins held at the pack's common
+  assign ClockP3__drv = 1'b0;   // b41.4 ClockP3, tied to GND-43
+  assign ClockM3__drv = 1'b0;   // b41.5 ClockM3, tied to GND-43
+  assign ClockP2__drv = 1'b0;   // d41.4 ClockP2, tied to GND-30
+  assign ClockM2__drv = 1'b0;   // d41.5 ClockM2, tied to GND-30
+  assign SecIndx3_p___drv = 1'b1;   // d42.4 SecIndx3', tied to VCC-72
+  assign Selected3_p___drv = 1'b1;   // d42.5 Selected3', tied to VCC-72
+  assign TTLTrueA = 1'b1;   // d42.6 TTLTrueA, tied to VCC-72
+  assign TtlSeekInc_p___drv = 1'b1;   // d52.4 TtlSeekInc', tied to VCC-68
+  assign TtlDeviceCk_p___drv = 1'b1;   // d52.5 TtlDeviceCk', tied to VCC-68
+  assign TtlOnLine_p___drv = 1'b1;   // d52.6 TtlOnLine', tied to VCC-68
+  assign TtlReady_p___drv = 1'b1;   // d52.7 TtlReady', tied to VCC-68
+  assign TtlIndex_p___drv = 1'b1;   // d52.8 TtlIndex', tied to VCC-68
+  assign TIOA_m_Ad_0 = ECLTrueA;   // e41.4 TIOA-Ad.0, tied to ECLTrueA
+  assign TIOA_m_Ad_1 = ECLTrueA;   // e41.5 TIOA-Ad.1, tied to ECLTrueA
+  assign TIOA_m_Ad_2 = ECLTrueA;   // e41.6 TIOA-Ad.2, tied to ECLTrueA
+  assign TIOA_m_Ad_3 = ECLTrueA;   // e41.7 TIOA-Ad.3, tied to ECLTrueA
+  assign TIOA_m_Ad_4 = ECLTrueA;   // e41.8 TIOA-Ad.4, tied to ECLTrueA
+  assign TTLTrueC = 1'b1;   // e52.4 TTLTrueC, tied to VCC-64
+  assign ClockP1__drv = 1'b0;   // g41.4 ClockP1, tied to GND-15
+  assign ClockM1__drv = 1'b0;   // g41.5 ClockM1, tied to GND-15
+  assign SecIndx1_p___drv = 1'b1;   // g42.4 SecIndx1', tied to VCC-62
+  assign Selected1_p___drv = 1'b1;   // g42.5 Selected1', tied to VCC-62
+  assign TTLTrueB = 1'b1;   // g42.8 TTLTrueB, tied to VCC-62
+  assign ClockP0__drv = 1'b0;   // h41.4 ClockP0, tied to GND-15
+  assign ClockM0__drv = 1'b0;   // h41.5 ClockM0, tied to GND-15
+  assign TskAd_0 = ECLTrueD;   // j52.6 TskAd.0, tied to ECLTrueD
+  assign TskAd_1 = ECLTrueD;   // j52.7 TskAd.1, tied to ECLTrueD
+  assign TskAd_2 = ECLTrueD;   // j52.8 TskAd.2, tied to ECLTrueD
+  assign MufAd_1 = ECLTrueD;   // k52.5 MufAd.1, tied to ECLTrueD
+  assign MufAd_2 = ECLTrueD;   // k52.6 MufAd.2, tied to ECLTrueD
+  assign MufAd_3 = ECLTrueD;   // k52.7 MufAd.3, tied to ECLTrueD
+  assign MufAd_4 = ECLTrueD;   // k52.8 MufAd.4, tied to ECLTrueD
+
+  // ---- 88 supply rails
+  assign GND_m_0 = 1'b0;
+  assign GND_m_1 = 1'b0;
+  assign GND_m_10 = 1'b0;
+  assign GND_m_11 = 1'b0;
+  assign GND_m_12 = 1'b0;
+  assign GND_m_13 = 1'b0;
+  assign GND_m_14 = 1'b0;
+  assign GND_m_15 = 1'b0;
+  assign GND_m_16 = 1'b0;
+  assign GND_m_17 = 1'b0;
+  assign GND_m_18 = 1'b0;
+  assign GND_m_19 = 1'b0;
+  assign GND_m_2 = 1'b0;
+  assign GND_m_20 = 1'b0;
+  assign GND_m_21 = 1'b0;
+  assign GND_m_22 = 1'b0;
+  assign GND_m_23 = 1'b0;
+  assign GND_m_24 = 1'b0;
+  assign GND_m_25 = 1'b0;
+  assign GND_m_26 = 1'b0;
+  assign GND_m_27 = 1'b0;
+  assign GND_m_28 = 1'b0;
+  assign GND_m_29 = 1'b0;
+  assign GND_m_3 = 1'b0;
+  assign GND_m_30 = 1'b0;
+  assign GND_m_31 = 1'b0;
+  assign GND_m_32 = 1'b0;
+  assign GND_m_33 = 1'b0;
+  assign GND_m_34 = 1'b0;
+  assign GND_m_35 = 1'b0;
+  assign GND_m_36 = 1'b0;
+  assign GND_m_37 = 1'b0;
+  assign GND_m_38 = 1'b0;
+  assign GND_m_39 = 1'b0;
+  assign GND_m_4 = 1'b0;
+  assign GND_m_40 = 1'b0;
+  assign GND_m_41 = 1'b0;
+  assign GND_m_42 = 1'b0;
+  assign GND_m_43 = 1'b0;
+  assign GND_m_44 = 1'b0;
+  assign GND_m_45 = 1'b0;
+  assign GND_m_46 = 1'b0;
+  assign GND_m_47 = 1'b0;
+  assign GND_m_48 = 1'b0;
+  assign GND_m_49 = 1'b0;
+  assign GND_m_5 = 1'b0;
+  assign GND_m_50 = 1'b0;
+  assign GND_m_51 = 1'b0;
+  assign GND_m_52 = 1'b0;
+  assign GND_m_6 = 1'b0;
+  assign GND_m_7 = 1'b0;
+  assign GND_m_8 = 1'b0;
+  assign GND_m_9 = 1'b0;
+  assign VCC_m_53 = 1'b1;
+  assign VCC_m_54 = 1'b1;
+  assign VCC_m_55 = 1'b1;
+  assign VCC_m_56 = 1'b1;
+  assign VCC_m_57 = 1'b1;
+  assign VCC_m_58 = 1'b1;
+  assign VCC_m_59 = 1'b1;
+  assign VCC_m_60 = 1'b1;
+  assign VCC_m_61 = 1'b1;
+  assign VCC_m_62 = 1'b1;
+  assign VCC_m_63 = 1'b1;
+  assign VCC_m_64 = 1'b1;
+  assign VCC_m_65 = 1'b1;
+  assign VCC_m_66 = 1'b1;
+  assign VCC_m_67 = 1'b1;
+  assign VCC_m_68 = 1'b1;
+  assign VCC_m_69 = 1'b1;
+  assign VCC_m_70 = 1'b1;
+  assign VCC_m_71 = 1'b1;
+  assign VCC_m_72 = 1'b1;
+  assign VCC_m_73 = 1'b1;
+  assign VCC_m_74 = 1'b1;
+  assign VCC_m_75 = 1'b1;
+  assign VCC_m_76 = 1'b1;
+  assign VCC_m_77 = 1'b1;
+  assign VCC_m_78 = 1'b1;
+  assign VCC_m_79 = 1'b1;
+  assign VCC_m_80 = 1'b1;
+  assign VCC_m_81 = 1'b1;
+  assign VCC_m_82 = 1'b1;
+  assign VCC_m_83 = 1'b1;
+  assign VDD_m_84 = 1'b1;
+  assign VEE_m_85 = 1'b0;
+  assign VEE_m_86 = 1'b0;
+  assign VTT_m_87 = 1'b0;
+
+  // ---- wire-wrap jumpers (Augat headers): the strap the netlist forces
+  assign R0 = VCC_m_82;   // a04.1: R0 strapped to VCC-82
+  assign R1 = VCC_m_82;   // a04.3: R1 strapped to VCC-82
+  assign R2 = VCC_m_82;   // a04.5: R2 strapped to VCC-82
+  assign R3 = VCC_m_82;   // a04.7: R3 strapped to VCC-82
+  assign TriconD15a_sil_pl_5__a18_1 = GND_m_46;   // a18.1: TriconD15a.sil+5 strapped to GND-46
+  assign TriconD15a_sil_pl_5__a18_5 = VCC_m_78;   // a18.5: TriconD15a.sil+5 strapped to VCC-78
+  assign TriconD15a_sil_pl_6 = GND_m_46;   // a18.6: TriconD15a.sil+6 strapped to GND-46
+  assign TriconD15a_sil_pl_7 = GND_m_47;   // a18.9: TriconD15a.sil+7 strapped to GND-47
+  assign REF__f03_2 = VCC_m_67;   // f03.2: REF strapped to VCC-67
+  assign TriconD15a_sil_pl_1 = VEE_m_85;   // f03.12: TriconD15a.sil+1 strapped to VEE-85
+  assign REF__f03_14 = GND_m_0;   // f03.14: REF strapped to GND-0
+  assign TriconD15a_sil_pl_4__f06_4 = VDD_m_84;   // f06.4: TriconD15a.sil+4 strapped to VDD-84
+  assign TriconD15a_sil_pl_3__f06_6 = VCC_m_66;   // f06.6: TriconD15a.sil+3 strapped to VCC-66
+  assign TriconD15a_sil_pl_3__f06_10 = GND_m_27;   // f06.10: TriconD15a.sil+3 strapped to GND-27
+  assign TriconD15a_sil_pl_4__f06_12 = GND_m_27;   // f06.12: TriconD15a.sil+4 strapped to GND-27
+  assign TriconD15a_sil_pl_2 = VTT_m_87;   // f06.14: TriconD15a.sil+2 strapped to VTT-87
 
   // ---- packages
   cell_SN74LS169 u_a01 (
@@ -1376,24 +1547,6 @@ module DskEth_m_Rev_m_Cf (
     .p15(R2),
     .p16(VCC_m_83)
   ); // SN74123
-  cell_AUGATCG16 u_a04 (
-    .p1(R0),
-    .p2(R0),
-    .p3(R1),
-    .p4(R1),
-    .p5(R2),
-    .p6(R2),
-    .p7(R3),
-    .p8(R3),
-    .p9(C3),
-    .p10(VCC_m_82),
-    .p11(C2),
-    .p12(VCC_m_82),
-    .p13(C1),
-    .p14(VCC_m_82),
-    .p15(C0),
-    .p16(VCC_m_82)
-  ); // AUGATCG16
   cell_SN74123 u_a05 (
     .p1(TriconD06_sil_pl_1),
     .p2(TTLTrueA),
@@ -1590,24 +1743,6 @@ module DskEth_m_Rev_m_Cf (
     .p15(MuxData1__a17_15),
     .p16(GND_m_47)
   ); // MU10164
-  cell_AUGATCG16 u_a18 (
-    .p1(TriconD15a_sil_pl_5),
-    .p2(TriconD15a_sil_pl_6),
-    .p3(GND_m_47),
-    .p4(VCC_m_78),
-    .p5(TriconD15a_sil_pl_5),
-    .p6(TriconD15a_sil_pl_6),
-    .p7(TriconD15a_sil_pl_6),
-    .p8(GND_m_47),
-    .p9(TriconD15a_sil_pl_7),
-    .p10(TriconD15a_sil_pl_7),
-    .p11(GND_m_46),
-    .p12(VCC_m_78),
-    .p13(OKToSelect),
-    .p14(OKToSelect),
-    .p15(TriconD15a_sil_pl_5),
-    .p16(GND_m_46)
-  ); // AUGATCG16
   cell_MC10100 u_a19 (
     .p2(Tag_u_Ram),
     .p3(TriconD03_sil_pl_12),
@@ -1999,13 +2134,6 @@ module DskEth_m_Rev_m_Cf (
     .p12(HeadOvfl),
     .p13(SeekInc)
   ); // MC10124
-  cell_SIPpackage u_b41 (
-    .p1(GND_m_43),
-    .p2(DataP3),
-    .p3(DataM3),
-    .p4(ClockP3),
-    .p5(ClockM3)
-  ); // SIPpackage
   cell_MC1650 u_c01 (
     .p1(GND_m_39),
     .p2(TriconD07_sil_pl_4),
@@ -2669,31 +2797,6 @@ module DskEth_m_Rev_m_Cf (
     .p14(Ether13_sil_pl_12),
     .p15(CntDone_p_)
   ); // MC10103
-  cell_SIPpackage u_d41 (
-    .p1(GND_m_30),
-    .p2(DataP2),
-    .p3(DataM2),
-    .p4(ClockP2),
-    .p5(ClockM2)
-  ); // SIPpackage
-  cell_SIPpackage u_d42 (
-    .p1(VCC_m_72),
-    .p2(SecIndx2_p_),
-    .p3(Selected2_p_),
-    .p4(SecIndx3_p_),
-    .p5(Selected3_p_),
-    .p6(TTLTrueA)
-  ); // SIPpackage
-  cell_SIPpackage u_d52 (
-    .p1(VCC_m_68),
-    .p2(TtlTerm_p_),
-    .p3(TtlEndOfCyl_p_),
-    .p4(TtlSeekInc_p_),
-    .p5(TtlDeviceCk_p_),
-    .p6(TtlOnLine_p_),
-    .p7(TtlReady_p_),
-    .p8(TtlIndex_p_)
-  ); // SIPpackage
   cell_MC10166 u_e01 (
     .p2(DskEth02_sil_pl_1__e01_2),
     .p3(DskEth02_sil_pl_1__e01_3),
@@ -3018,20 +3121,6 @@ module DskEth_m_Rev_m_Cf (
     .p14(Tag_9),
     .p15(MuxData7__e24_15)
   ); // MU10164
-  cell_SIPpackage u_e41 (
-    .p1(ECLTrueA),
-    .p4(TIOA_m_Ad_0),
-    .p5(TIOA_m_Ad_1),
-    .p6(TIOA_m_Ad_2),
-    .p7(TIOA_m_Ad_3),
-    .p8(TIOA_m_Ad_4)
-  ); // SIPpackage
-  cell_SIPpackage u_e52 (
-    .p1(VCC_m_64),
-    .p2(TtlOffSet_p_),
-    .p3(TtlReadOnly_p_),
-    .p4(TTLTrueC)
-  ); // SIPpackage
   cell_MC1650 u_f01 (
     .p1(GND_m_26),
     .p2(TriconD07_sil_pl_9),
@@ -3059,18 +3148,6 @@ module DskEth_m_Rev_m_Cf (
     .p13(ECLTrueA),
     .p14(TriconD07_sil_pl_6)
   ); // MC1650
-  cell_AUGATCG16 u_f03 (
-    .p2(REF),
-    .p3(GND_m_0),
-    .p4(TriconD15a_sil_pl_1),
-    .p5(VEE_m_85),
-    .p6(TtlRunOK_p_),
-    .p11(VCC_m_67),
-    .p12(TriconD15a_sil_pl_1),
-    .p13(REF),
-    .p14(REF),
-    .p15(VCC_m_67)
-  ); // AUGATCG16
   cell_MC10170 u_f04 (
     .p3(bIOB_08),
     .p4(bIOB_09),
@@ -3099,20 +3176,6 @@ module DskEth_m_Rev_m_Cf (
     .p14(NotSelected),
     .p15(PrePreBitClock__f05_15)
   ); // MC10174
-  cell_AUGATCG16 u_f06 (
-    .p2(TriconD15a_sil_pl_2),
-    .p3(VTT_m_87),
-    .p4(TriconD15a_sil_pl_4),
-    .p5(GND_m_27),
-    .p6(TriconD15a_sil_pl_3),
-    .p7(GND_m_27),
-    .p10(TriconD15a_sil_pl_3),
-    .p11(VCC_m_66),
-    .p12(TriconD15a_sil_pl_4),
-    .p13(VDD_m_84),
-    .p14(TriconD15a_sil_pl_2),
-    .p15(REF)
-  ); // AUGATCG16
   cell_MC10161 u_f07 (
     .p2(TIOA_eq_Us_p_),
     .p3(TIOA_eq_Ram_p_),
@@ -3714,23 +3777,6 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD04_sil_pl_1),
     .p16(VCC_m_57)
   ); // 8T98
-  cell_SIPpackage u_g41 (
-    .p1(GND_m_15),
-    .p2(DataP1),
-    .p3(DataM1),
-    .p4(ClockP1),
-    .p5(ClockM1)
-  ); // SIPpackage
-  cell_SIPpackage u_g42 (
-    .p1(VCC_m_62),
-    .p2(SecIndx0_p_),
-    .p3(Selected0_p_),
-    .p4(SecIndx1_p_),
-    .p5(Selected1_p_),
-    .p6(RcvData),
-    .p7(Collision),
-    .p8(TTLTrueB)
-  ); // SIPpackage
   cell_MC10174 u_h01 (
     .p2(IOB_15__drv),
     .p3(DskData_15),
@@ -4068,15 +4114,6 @@ module DskEth_m_Rev_m_Cf (
     .p14(Ether13_sil_pl_7),
     .p15(Ether13_sil_pl_6)
   ); // MC10176
-  cell_SIPpackage u_h41 (
-    .p1(GND_m_15),
-    .p2(DataP0),
-    .p3(DataM0),
-    .p4(ClockP0),
-    .p5(ClockM0),
-    .p6(RcvData),
-    .p7(Collision)
-  ); // SIPpackage
   cell_MC10197 u_i01 (
     .p2(bIOB_17),
     .p3(bIOB_11),
@@ -4667,12 +4704,6 @@ module DskEth_m_Rev_m_Cf (
     .p10(Ether06_sil_pl_5),
     .p13(WakeEthTx__drv)
   ); // MC10176
-  cell_SIPpackage u_j52 (
-    .p1(ECLTrueD),
-    .p6(TskAd_0),
-    .p7(TskAd_1),
-    .p8(TskAd_2)
-  ); // SIPpackage
   cell_MC10197 u_k01 (
     .p2(bIOB_05),
     .p3(bIOB_00),
@@ -5001,13 +5032,6 @@ module DskEth_m_Rev_m_Cf (
     .p13(MufAd_2),
     .p14(DMadr_02)
   ); // MC10166
-  cell_SIPpackage u_k52 (
-    .p1(ECLTrueD),
-    .p5(MufAd_1),
-    .p6(MufAd_2),
-    .p7(MufAd_3),
-    .p8(MufAd_4)
-  ); // SIPpackage
   cell_MC1664 u_l01 (
     .p3(PrePreClock_p_),
     .p6(CLKEnable_p_a),

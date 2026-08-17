@@ -47,19 +47,8 @@ module BaseBd_m_Rev_m_Am (
     input  wire ACPGnd_10,
     input  wire ACPGnd_11,
     input  wire ACPGnd_12,
-    input  wire ACPI_0,
-    input  wire ACPI_1,
-    input  wire ACPI_2,
-    input  wire ACPI_3,
-    input  wire ACPI_4,
-    input  wire ACPIGnd_0,
-    input  wire ACPIGnd_1,
-    input  wire ACPIGnd_2,
-    input  wire ACPIGnd_3,
-    input  wire ACPIGnd_4,
     input  wire ACPStrb_p_,
     input  wire BootMC_p_,
-    input  wire BootNO,
     input  wire CBTempSense,
     input  wire CICC__m_SS,
     input  wire CICC_EOS,
@@ -92,9 +81,7 @@ module BaseBd_m_Rev_m_Am (
     input  wire Serial_200,
     input  wire Serial_4,
     input  wire Serial_40,
-    input  wire SkipWait_p_,
     input  wire TTLIOReset_p_,
-    input  wire TempRef,
     input  wire UseDMD,
     input  wire XmtData_p_,
     input  wire dStartClockPulse,
@@ -732,6 +719,21 @@ module BaseBd_m_Rev_m_Am (
   wire AHasCP__c20_7;
   wire AHasCP__c62_13;
   assign AHasCP = AHasCP__c20_7 | AHasCP__c62_13;
+  wire Basebd06_sil_pl_1__b23_16;
+  wire Basebd06_sil_pl_1__b23_15;
+  assign Basebd06_sil_pl_1 = Basebd06_sil_pl_1__b23_16 | Basebd06_sil_pl_1__b23_15;
+  wire Basebd06_sil_pl_12__c23_15;
+  wire Basebd06_sil_pl_12__c23_16;
+  assign Basebd06_sil_pl_12 = Basebd06_sil_pl_12__c23_15 | Basebd06_sil_pl_12__c23_16;
+  wire Basebd06_sil_pl_13__c23_11;
+  wire Basebd06_sil_pl_13__c23_12;
+  assign Basebd06_sil_pl_13 = Basebd06_sil_pl_13__c23_11 | Basebd06_sil_pl_13__c23_12;
+  wire Basebd06_sil_pl_19__d23_16;
+  wire Basebd06_sil_pl_19__d23_15;
+  assign Basebd06_sil_pl_19 = Basebd06_sil_pl_19__d23_16 | Basebd06_sil_pl_19__d23_15;
+  wire Basebd06_sil_pl_8__b23_12;
+  wire Basebd06_sil_pl_8__b23_11;
+  assign Basebd06_sil_pl_8 = Basebd06_sil_pl_8__b23_12 | Basebd06_sil_pl_8__b23_11;
   wire BaseBd09_sil_pl_7__a19_5;
   wire BaseBd09_sil_pl_7__a20_5;
   assign BaseBd09_sil_pl_7 = BaseBd09_sil_pl_7__a19_5 | BaseBd09_sil_pl_7__a20_5;
@@ -743,9 +745,49 @@ module BaseBd_m_Rev_m_Am (
   wire BaseBd10_sil_pl_2__k03_15;
   wire BaseBd10_sil_pl_2__k03_14;
   assign BaseBd10_sil_pl_2 = BaseBd10_sil_pl_2__k02_14 | BaseBd10_sil_pl_2__k02_3 | BaseBd10_sil_pl_2__k02_2 | BaseBd10_sil_pl_2__k02_15 | BaseBd10_sil_pl_2__k03_2 | BaseBd10_sil_pl_2__k03_15 | BaseBd10_sil_pl_2__k03_14;
+  wire BaseBd11_sil_pl_9__i03_5;
+  wire BaseBd11_sil_pl_9__i03_7;
+  assign BaseBd11_sil_pl_9 = BaseBd11_sil_pl_9__i03_5 | BaseBd11_sil_pl_9__i03_7;
+  wire BaseBd13_sil_pl_10__i18_15;
+  wire BaseBd13_sil_pl_10__i18_16;
+  assign BaseBd13_sil_pl_10 = BaseBd13_sil_pl_10__i18_15 | BaseBd13_sil_pl_10__i18_16;
+  wire BaseBd13_sil_pl_11__i18_13;
+  wire BaseBd13_sil_pl_11__i18_14;
+  assign BaseBd13_sil_pl_11 = BaseBd13_sil_pl_11__i18_13 | BaseBd13_sil_pl_11__i18_14;
+  wire BaseBd13_sil_pl_12__i18_12;
+  wire BaseBd13_sil_pl_12__i18_11;
+  assign BaseBd13_sil_pl_12 = BaseBd13_sil_pl_12__i18_12 | BaseBd13_sil_pl_12__i18_11;
+  wire BaseBd13_sil_pl_13__i18_9;
+  wire BaseBd13_sil_pl_13__i18_10;
+  assign BaseBd13_sil_pl_13 = BaseBd13_sil_pl_13__i18_9 | BaseBd13_sil_pl_13__i18_10;
+  wire BaseBd13_sil_pl_3__j20_9;
+  wire BaseBd13_sil_pl_3__j20_10;
+  assign BaseBd13_sil_pl_3 = BaseBd13_sil_pl_3__j20_9 | BaseBd13_sil_pl_3__j20_10;
+  wire BaseBd13_sil_pl_5__j22_16;
+  wire BaseBd13_sil_pl_5__j22_14;
+  assign BaseBd13_sil_pl_5 = BaseBd13_sil_pl_5__j22_16 | BaseBd13_sil_pl_5__j22_14;
+  wire BaseBd13_sil_pl_6__j22_12;
+  wire BaseBd13_sil_pl_6__j22_11;
+  assign BaseBd13_sil_pl_6 = BaseBd13_sil_pl_6__j22_12 | BaseBd13_sil_pl_6__j22_11;
+  wire BaseBd14_sil_pl_3__a02_11;
+  wire BaseBd14_sil_pl_3__a02_10;
+  assign BaseBd14_sil_pl_3 = BaseBd14_sil_pl_3__a02_11 | BaseBd14_sil_pl_3__a02_10;
+  wire BaseBd14_sil_pl_4__j19_11;
+  wire BaseBd14_sil_pl_4__j19_10;
+  assign BaseBd14_sil_pl_4 = BaseBd14_sil_pl_4__j19_11 | BaseBd14_sil_pl_4__j19_10;
   wire BaseBd15_sil_pl_2__c05_3;
   wire BaseBd15_sil_pl_2__c05_5;
   assign BaseBd15_sil_pl_2 = BaseBd15_sil_pl_2__c05_3 | BaseBd15_sil_pl_2__c05_5;
+  wire BaseBd15_sil_pl_6__d05_14;
+  wire BaseBd15_sil_pl_6__d05_13;
+  assign BaseBd15_sil_pl_6 = BaseBd15_sil_pl_6__d05_14 | BaseBd15_sil_pl_6__d05_13;
+  wire BaseBd15_sil_pl_7__d05_11;
+  wire BaseBd15_sil_pl_7__c06_11;
+  assign BaseBd15_sil_pl_7 = BaseBd15_sil_pl_7__d05_11 | BaseBd15_sil_pl_7__c06_11;
+  wire BaseBd15_sil_pl_8__c06_16;
+  wire BaseBd15_sil_pl_8__c06_14;
+  wire BaseBd15_sil_pl_8__c06_12;
+  assign BaseBd15_sil_pl_8 = BaseBd15_sil_pl_8__c06_16 | BaseBd15_sil_pl_8__c06_14 | BaseBd15_sil_pl_8__c06_12;
   wire BootNO__l62_17;
   wire BootNO__c01_1;
   assign BootNO__drv = BootNO__l62_17 | BootNO__c01_1;
@@ -1072,6 +1114,261 @@ module BaseBd_m_Rev_m_Am (
 
   // 63 single-driver contributions to the backplane
 
+  // ---- resistor packs (SIP): pins held at the pack's common
+  assign TTLTrue_A = 1'b1;   // g47.2 TTLTrue.A, tied to VCC103
+  assign TTLTrue_B = 1'b1;   // g47.3 TTLTrue.B, tied to VCC103
+  assign TTLTrue_C = 1'b1;   // g47.4 TTLTrue.C, tied to VCC103
+  assign TTLTrue_D = 1'b1;   // g47.5 TTLTrue.D, tied to VCC103
+  assign TTLTrue_E = 1'b1;   // g47.6 TTLTrue.E, tied to VCC103
+
+  // ---- 187 supply rails
+  assign GND102 = 1'b0;
+  assign GND104 = 1'b0;
+  assign GND113 = 1'b0;
+  assign GND116 = 1'b0;
+  assign GND125 = 1'b0;
+  assign GND132 = 1'b0;
+  assign GND134 = 1'b0;
+  assign GND153 = 1'b0;
+  assign GND161 = 1'b0;
+  assign GND163 = 1'b0;
+  assign GND164 = 1'b0;
+  assign GND17 = 1'b0;
+  assign GND173 = 1'b0;
+  assign GND185 = 1'b0;
+  assign GND188 = 1'b0;
+  assign GND198 = 1'b0;
+  assign GND2 = 1'b0;
+  assign GND202 = 1'b0;
+  assign GND208 = 1'b0;
+  assign GND21 = 1'b0;
+  assign GND212 = 1'b0;
+  assign GND221 = 1'b0;
+  assign GND228 = 1'b0;
+  assign GND23 = 1'b0;
+  assign GND233 = 1'b0;
+  assign GND236 = 1'b0;
+  assign GND25 = 1'b0;
+  assign GND253 = 1'b0;
+  assign GND259 = 1'b0;
+  assign GND27 = 1'b0;
+  assign GND281 = 1'b0;
+  assign GND283 = 1'b0;
+  assign GND284 = 1'b0;
+  assign GND298 = 1'b0;
+  assign GND305 = 1'b0;
+  assign GND308 = 1'b0;
+  assign GND311 = 1'b0;
+  assign GND312 = 1'b0;
+  assign GND317 = 1'b0;
+  assign GND322 = 1'b0;
+  assign GND325 = 1'b0;
+  assign GND326 = 1'b0;
+  assign GND338 = 1'b0;
+  assign GND345 = 1'b0;
+  assign GND346 = 1'b0;
+  assign GND35 = 1'b0;
+  assign GND353 = 1'b0;
+  assign GND356 = 1'b0;
+  assign GND36 = 1'b0;
+  assign GND365 = 1'b0;
+  assign GND369 = 1'b0;
+  assign GND371 = 1'b0;
+  assign GND372 = 1'b0;
+  assign GND386 = 1'b0;
+  assign GND388 = 1'b0;
+  assign GND396 = 1'b0;
+  assign GND399 = 1'b0;
+  assign GND401 = 1'b0;
+  assign GND404 = 1'b0;
+  assign GND41 = 1'b0;
+  assign GND413 = 1'b0;
+  assign GND416 = 1'b0;
+  assign GND427 = 1'b0;
+  assign GND430 = 1'b0;
+  assign GND432 = 1'b0;
+  assign GND434 = 1'b0;
+  assign GND436 = 1'b0;
+  assign GND444 = 1'b0;
+  assign GND452 = 1'b0;
+  assign GND461 = 1'b0;
+  assign GND464 = 1'b0;
+  assign GND482 = 1'b0;
+  assign GND49 = 1'b0;
+  assign GND492 = 1'b0;
+  assign GND50 = 1'b0;
+  assign GND512 = 1'b0;
+  assign GND530 = 1'b0;
+  assign GND54 = 1'b0;
+  assign GND576 = 1'b0;
+  assign GND59 = 1'b0;
+  assign GND6 = 1'b0;
+  assign GND61 = 1'b0;
+  assign GND615 = 1'b0;
+  assign GND616 = 1'b0;
+  assign GND617 = 1'b0;
+  assign GND623 = 1'b0;
+  assign GND627 = 1'b0;
+  assign GND63 = 1'b0;
+  assign GND631 = 1'b0;
+  assign GND632 = 1'b0;
+  assign GND635 = 1'b0;
+  assign GND639 = 1'b0;
+  assign GND640 = 1'b0;
+  assign GND65 = 1'b0;
+  assign GND68 = 1'b0;
+  assign GND77 = 1'b0;
+  assign GND89 = 1'b0;
+  assign VCC100 = 1'b1;
+  assign VCC101 = 1'b1;
+  assign VCC102 = 1'b1;
+  assign VCC103 = 1'b1;
+  assign VCC105 = 1'b1;
+  assign VCC106 = 1'b1;
+  assign VCC107 = 1'b1;
+  assign VCC108 = 1'b1;
+  assign VCC111 = 1'b1;
+  assign VCC113 = 1'b1;
+  assign VCC114 = 1'b1;
+  assign VCC115 = 1'b1;
+  assign VCC116 = 1'b1;
+  assign VCC117 = 1'b1;
+  assign VCC118 = 1'b1;
+  assign VCC119 = 1'b1;
+  assign VCC120 = 1'b1;
+  assign VCC122 = 1'b1;
+  assign VCC123 = 1'b1;
+  assign VCC124 = 1'b1;
+  assign VCC125 = 1'b1;
+  assign VCC126 = 1'b1;
+  assign VCC127 = 1'b1;
+  assign VCC128 = 1'b1;
+  assign VCC129 = 1'b1;
+  assign VCC130 = 1'b1;
+  assign VCC131 = 1'b1;
+  assign VCC132 = 1'b1;
+  assign VCC133 = 1'b1;
+  assign VCC134 = 1'b1;
+  assign VCC135 = 1'b1;
+  assign VCC136 = 1'b1;
+  assign VCC137 = 1'b1;
+  assign VCC138 = 1'b1;
+  assign VCC139 = 1'b1;
+  assign VCC140 = 1'b1;
+  assign VCC141 = 1'b1;
+  assign VCC142 = 1'b1;
+  assign VCC143 = 1'b1;
+  assign VCC144 = 1'b1;
+  assign VCC49 = 1'b1;
+  assign VCC50 = 1'b1;
+  assign VCC53 = 1'b1;
+  assign VCC55 = 1'b1;
+  assign VCC57 = 1'b1;
+  assign VCC58 = 1'b1;
+  assign VCC59 = 1'b1;
+  assign VCC61 = 1'b1;
+  assign VCC62 = 1'b1;
+  assign VCC63 = 1'b1;
+  assign VCC64 = 1'b1;
+  assign VCC65 = 1'b1;
+  assign VCC66 = 1'b1;
+  assign VCC67 = 1'b1;
+  assign VCC69 = 1'b1;
+  assign VCC70 = 1'b1;
+  assign VCC71 = 1'b1;
+  assign VCC74 = 1'b1;
+  assign VCC75 = 1'b1;
+  assign VCC76 = 1'b1;
+  assign VCC77 = 1'b1;
+  assign VCC78 = 1'b1;
+  assign VCC79 = 1'b1;
+  assign VCC81 = 1'b1;
+  assign VCC82 = 1'b1;
+  assign VCC83 = 1'b1;
+  assign VCC85 = 1'b1;
+  assign VCC86 = 1'b1;
+  assign VCC87 = 1'b1;
+  assign VCC88 = 1'b1;
+  assign VCC89 = 1'b1;
+  assign VCC90 = 1'b1;
+  assign VCC91 = 1'b1;
+  assign VCC93 = 1'b1;
+  assign VCC94 = 1'b1;
+  assign VCC95 = 1'b1;
+  assign VCC96 = 1'b1;
+  assign VCC97 = 1'b1;
+  assign VCC99 = 1'b1;
+  assign VDD135 = 1'b1;
+  assign VDD57 = 1'b1;
+  assign VEE162 = 1'b0;
+  assign VEE176 = 1'b0;
+  assign VEE195 = 1'b0;
+  assign VEE199 = 1'b0;
+  assign VEE219 = 1'b0;
+  assign VEE234 = 1'b0;
+  assign VEE26 = 1'b0;
+  assign VEE288 = 1'b0;
+  assign VTT105 = 1'b0;
+
+  // ---- wire-wrap jumpers (Augat headers): the strap the netlist forces
+  assign EclTemp = VCC49;   // a02.5: EclTemp strapped to VCC49
+  assign BaseBd14_sil_pl_3__a02_10 = DACOut;   // a02.10: BaseBd14.sil+3 strapped to DACOut
+  assign BaseBd14_sil_pl_3__a02_11 = TempRef__drv;   // a02.11: BaseBd14.sil+3 strapped to TempRef
+  assign Basebd06_sil_pl_8__b23_11 = VCC59;   // b23.11: Basebd06.sil+8 strapped to VCC59
+  assign Basebd06_sil_pl_8__b23_12 = Basebd06_sil_pl_7;   // b23.12: Basebd06.sil+8 strapped to Basebd06.sil+7
+  assign Basebd06_sil_pl_1__b23_15 = VCC71;   // b23.15: Basebd06.sil+1 strapped to VCC71
+  assign Basebd06_sil_pl_1__b23_16 = Basebd06_sil_pl_2;   // b23.16: Basebd06.sil+1 strapped to Basebd06.sil+2
+  assign BaseBd15_sil_pl_5 = OISData_p_;   // c06.10: BaseBd15.sil+5 strapped to OISData'
+  assign BaseBd15_sil_pl_7__c06_11 = OISData_p_;   // c06.11: BaseBd15.sil+7 strapped to OISData'
+  assign BaseBd15_sil_pl_8__c06_12 = OISData_p_;   // c06.12: BaseBd15.sil+8 strapped to OISData'
+  assign BaseBd15_sil_pl_9 = OISData;   // c06.13: BaseBd15.sil+9 strapped to OISData
+  assign BaseBd15_sil_pl_8__c06_14 = GND59;   // c06.14: BaseBd15.sil+8 strapped to GND59
+  assign BaseBd15_sil_pl_8__c06_16 = OISData;   // c06.16: BaseBd15.sil+8 strapped to OISData
+  assign Rom18_p_ = GND61;   // c07.11: Rom18' strapped to GND61
+  assign Rom21 = VCC63;   // c07.12: Rom21 strapped to VCC63
+  assign RSA_0 = MCA_11;   // c07.13: RSA.0 strapped to MCA.11
+  assign RSA_1 = MCA_12;   // c07.14: RSA.1 strapped to MCA.12
+  assign RSA_2 = MCA_13;   // c07.15: RSA.2 strapped to MCA.13
+  assign Basebd06_sil_pl_13__c23_11 = VCC71;   // c23.11: Basebd06.sil+13 strapped to VCC71
+  assign Basebd06_sil_pl_13__c23_12 = Basebd06_sil_pl_14;   // c23.12: Basebd06.sil+13 strapped to Basebd06.sil+14
+  assign Basebd06_sil_pl_12__c23_15 = VCC71;   // c23.15: Basebd06.sil+12 strapped to VCC71
+  assign Basebd06_sil_pl_12__c23_16 = Basebd06_sil_pl_11;   // c23.16: Basebd06.sil+12 strapped to Basebd06.sil+11
+  assign BaseBd15_sil_pl_7__d05_11 = VCC74;   // d05.11: BaseBd15.sil+7 strapped to VCC74
+  assign BaseBd15_sil_pl_6__d05_13 = OISData;   // d05.13: BaseBd15.sil+6 strapped to OISData
+  assign BaseBd15_sil_pl_6__d05_14 = VCC74;   // d05.14: BaseBd15.sil+6 strapped to VCC74
+  assign Basebd06_sil_pl_19__d23_15 = VCC83;   // d23.15: Basebd06.sil+19 strapped to VCC83
+  assign Basebd06_sil_pl_19__d23_16 = Basebd06_sil_pl_20;   // d23.16: Basebd06.sil+19 strapped to Basebd06.sil+20
+  assign Basebd01_sil_pl_6 = GND208;   // e08.6: Basebd01.sil+6 strapped to GND208
+  assign Basebd01_sil_pl_8 = VCC76;   // e08.7: Basebd01.sil+8 strapped to VCC76
+  assign Basebd01_sil_pl_7 = VCC76;   // e08.8: Basebd01.sil+7 strapped to VCC76
+  assign VCOCtrl1 = VEE176;   // h07.6: VCOCtrl1 strapped to VEE176
+  assign VCOCtrl = VEE199;   // h07.16: VCOCtrl strapped to VEE199
+  assign BaseBd11_sil_pl_7 = VCOLow_p_;   // i03.3: BaseBd11.sil+7 strapped to VCOLow'
+  assign BaseBd11_sil_pl_9__i03_5 = GND617;   // i03.5: BaseBd11.sil+9 strapped to GND617
+  assign BaseBd11_sil_pl_9__i03_7 = VCOHigh_p_;   // i03.7: BaseBd11.sil+9 strapped to VCOHigh'
+  assign FiltVDD = VDD135;   // i04.10: FiltVDD strapped to VDD135
+  assign BaseBd11_sil_pl_12 = GND399;   // i07.3: BaseBd11.sil+12 strapped to GND399
+  assign BaseBd11_sil_pl_11 = VCC111;   // i07.16: BaseBd11.sil+11 strapped to VCC111
+  assign BaseBd13_sil_pl_13__i18_9 = DACOut;   // i18.9: BaseBd13.sil+13 strapped to DACOut
+  assign BaseBd13_sil_pl_13__i18_10 = VEE234;   // i18.10: BaseBd13.sil+13 strapped to VEE234
+  assign BaseBd13_sil_pl_12__i18_11 = DACOut;   // i18.11: BaseBd13.sil+12 strapped to DACOut
+  assign BaseBd13_sil_pl_12__i18_12 = VTT105;   // i18.12: BaseBd13.sil+12 strapped to VTT105
+  assign BaseBd13_sil_pl_11__i18_13 = GND371;   // i18.13: BaseBd13.sil+11 strapped to GND371
+  assign BaseBd13_sil_pl_11__i18_14 = VDD57;   // i18.14: BaseBd13.sil+11 strapped to VDD57
+  assign BaseBd13_sil_pl_10__i18_15 = GND371;   // i18.15: BaseBd13.sil+10 strapped to GND371
+  assign BaseBd13_sil_pl_10__i18_16 = VCC117;   // i18.16: BaseBd13.sil+10 strapped to VCC117
+  assign BaseBd14_sil_pl_4__j19_10 = VCC129;   // j19.10: BaseBd14.sil+4 strapped to VCC129
+  assign BaseBd14_sil_pl_4__j19_11 = BaseBd14_sil_pl_6;   // j19.11: BaseBd14.sil+4 strapped to BaseBd14.sil+6
+  assign BaseBd13_sil_pl_3__j20_9 = BaseBd13_sil_pl_4;   // j20.9: BaseBd13.sil+3 strapped to BaseBd13.sil+4
+  assign BaseBd13_sil_pl_3__j20_10 = GND623;   // j20.10: BaseBd13.sil+3 strapped to GND623
+  assign BaseBd13_sil_pl_9 = GND576;   // j22.9: BaseBd13.sil+9 strapped to GND576
+  assign BaseBd13_sil_pl_6__j22_11 = GND427;   // j22.11: BaseBd13.sil+6 strapped to GND427
+  assign BaseBd13_sil_pl_6__j22_12 = BaseBd13_sil_pl_2;   // j22.12: BaseBd13.sil+6 strapped to BaseBd13.sil+2
+  assign BaseBd13_sil_pl_5__j22_14 = BaseBd13_sil_pl_1;   // j22.14: BaseBd13.sil+5 strapped to BaseBd13.sil+1
+  assign BaseBd13_sil_pl_5__j22_16 = BaseBd13_sil_pl_4;   // j22.16: BaseBd13.sil+5 strapped to BaseBd13.sil+4
+  assign BaseBd13_sil_pl_7 = VCC131;   // j23.1: BaseBd13.sil+7 strapped to VCC131
+  assign BaseBd13_sil_pl_8 = GND430;   // j23.5: BaseBd13.sil+8 strapped to GND430
+
   // ---- packages
   cell_CA3140 u__h_4i19 (
     // no connections
@@ -1101,18 +1398,6 @@ module BaseBd_m_Rev_m_Am (
     .p14(BaseBd12_sil_pl_9),
     .p15(SetRunRfsh__drv)
   ); // MC10176
-  cell_AUGATCG16 u_a02 (
-    .p1(VEE26),
-    .p2(EclTemp),
-    .p3(TempRef),
-    .p4(GND2),
-    .p5(EclTemp),
-    .p6(TempRef),
-    .p7(DACOut),
-    .p10(BaseBd14_sil_pl_3),
-    .p11(BaseBd14_sil_pl_3),
-    .p12(VCC49)
-  ); // AUGATCG16
   cell_SN74LS251 u_a19 (
     .p1(AHasCP),
     .p2(TTLTrue_C),
@@ -1137,14 +1422,6 @@ module BaseBd_m_Rev_m_Am (
     .p11(RCPReg_03),
     .p16(VCC58)
   ); // SN74LS251
-  cell_AUGATCG16 u_a24 (
-    .p1(Basebd06_sil_pl_16),
-    .p2(Basebd06_sil_pl_9),
-    .p7(Basebd06_sil_pl_17),
-    .p10(ACPI_4),
-    .p15(ACPI_2),
-    .p16(ACPI_3)
-  ); // AUGATCG16
   cell_MC10210 u_b01 (
     .p3(SyncPendulum),
     .p5(BaseBd12_sil_pl_2),
@@ -1257,24 +1534,6 @@ module BaseBd_m_Rev_m_Am (
     .p13(MCNMI_p_),
     .p16(VCC70)
   ); // SN74LS138
-  cell_AUGATCG16 u_b23 (
-    .p1(Basebd06_sil_pl_2),
-    .p2(VCC71),
-    .p3(VCC71),
-    .p4(ACPIGnd_0),
-    .p5(Basebd06_sil_pl_7),
-    .p6(VCC59),
-    .p7(VCC59),
-    .p8(ACPIGnd_1),
-    .p9(Basebd06_sil_pl_5),
-    .p10(Basebd06_sil_pl_6),
-    .p11(Basebd06_sil_pl_8),
-    .p12(Basebd06_sil_pl_8),
-    .p13(Basebd06_sil_pl_4),
-    .p14(Basebd06_sil_pl_3),
-    .p15(Basebd06_sil_pl_1),
-    .p16(Basebd06_sil_pl_1)
-  ); // AUGATCG16
   cell_MPQ6002 u_b24 (
     .p1(ACPI_0__drv),
     .p2(Basebd06_sil_pl_4),
@@ -1291,6 +1550,7 @@ module BaseBd_m_Rev_m_Am (
   ); // MPQ6002
   // PROM with no contents in the archive -- reads X
   cell_i2716 u_b60 (
+    .sys_clk(sys_clk),
     .p1(MCA_07),
     .p2(MCA_06),
     .p3(MCA_05),
@@ -1317,6 +1577,7 @@ module BaseBd_m_Rev_m_Am (
     .p24(VCC50)
   ); // i2716
   cell_i2716 #(.INIT_FILE("verilog/proms/eprom/BaseBd-b61.mem")) u_b61 (
+    .sys_clk(sys_clk),
     .p1(MCA_07),
     .p2(MCA_06),
     .p3(MCA_05),
@@ -1360,35 +1621,6 @@ module BaseBd_m_Rev_m_Am (
     .p13(BaseBd15_sil_pl_3),
     .p14(BaseBd15_sil_pl_4)
   ); // MPQ6002
-  cell_AUGATCG16 u_c06 (
-    .p1(OISData),
-    .p2(VCC63),
-    .p3(GND59),
-    .p4(OISData),
-    .p5(OISData_p_),
-    .p6(OISData_p_),
-    .p7(OISData_p_),
-    .p10(BaseBd15_sil_pl_5),
-    .p11(BaseBd15_sil_pl_7),
-    .p12(BaseBd15_sil_pl_8),
-    .p13(BaseBd15_sil_pl_9),
-    .p14(BaseBd15_sil_pl_8),
-    .p15(BootNO),
-    .p16(BaseBd15_sil_pl_8)
-  ); // AUGATCG16
-  cell_AUGATCG16 u_c07 (
-    .p1(MCA_14),
-    .p2(MCA_13),
-    .p3(MCA_12),
-    .p4(MCA_11),
-    .p5(VCC63),
-    .p6(GND61),
-    .p11(Rom18_p_),
-    .p12(Rom21),
-    .p13(RSA_0),
-    .p14(RSA_1),
-    .p15(RSA_2)
-  ); // AUGATCG16
   cell_SN74LS04 u_c08 (
     .p1(Max),
     .p2(Basebd01_sil_pl_5),
@@ -1501,24 +1733,6 @@ module BaseBd_m_Rev_m_Am (
     .p15(MCReset_p_),
     .p16(VCC70)
   ); // SN74LS259
-  cell_AUGATCG16 u_c23 (
-    .p1(Basebd06_sil_pl_11),
-    .p2(VCC71),
-    .p3(VCC71),
-    .p4(ACPIGnd_2),
-    .p5(Basebd06_sil_pl_14),
-    .p6(VCC71),
-    .p7(VCC71),
-    .p8(ACPIGnd_3),
-    .p9(Basebd06_sil_pl_16),
-    .p10(Basebd06_sil_pl_15),
-    .p11(Basebd06_sil_pl_13),
-    .p12(Basebd06_sil_pl_13),
-    .p13(Basebd06_sil_pl_9),
-    .p14(Basebd06_sil_pl_10),
-    .p15(Basebd06_sil_pl_12),
-    .p16(Basebd06_sil_pl_12)
-  ); // AUGATCG16
   cell_MPQ6002 u_c24 (
     .p1(ACPI_2__drv),
     .p2(Basebd06_sil_pl_9),
@@ -1535,6 +1749,7 @@ module BaseBd_m_Rev_m_Am (
   ); // MPQ6002
   // PROM with no contents in the archive -- reads X
   cell_i2716 u_c60 (
+    .sys_clk(sys_clk),
     .p1(MCA_07),
     .p2(MCA_06),
     .p3(MCA_05),
@@ -1561,6 +1776,7 @@ module BaseBd_m_Rev_m_Am (
     .p24(VCC62)
   ); // i2716
   cell_i2716 #(.INIT_FILE("verilog/proms/eprom/BaseBd-c61.mem")) u_c61 (
+    .sys_clk(sys_clk),
     .p1(MCA_07),
     .p2(MCA_06),
     .p3(MCA_05),
@@ -1625,23 +1841,11 @@ module BaseBd_m_Rev_m_Am (
     .p37(Ram2_p_),
     .p38(TTLTrue_C),
     .p39(MCClk),
-    .p40(MCA_06)
+    .p40(MCA_06),
+    .d_in({(MCD_7__f60_9 | MCD_7__e60_9 | MCD_7__c60_9 | MCD_7__b60_9 | MCD_7__b61_9 | MCD_7__c61_9 | MCD_7__f61_26 | MCD_7__h61_9 | MCD_7__i61_9 | MCD_7__h11_7 | MCD_7__i62_26 | MCD_7__l62_26 | MCD_7__h13_7 | MCD_7__b11_7 | MCD_7__f62_26 | MCD_7__f63_26 | MCD_7__b13_7), (MCD_6__f60_10 | MCD_6__e60_10 | MCD_6__c60_10 | MCD_6__b60_10 | MCD_6__b61_10 | MCD_6__c61_10 | MCD_6__c11_7 | MCD_6__f61_27 | MCD_6__h61_10 | MCD_6__i61_10 | MCD_6__i11_7 | MCD_6__i13_7 | MCD_6__i62_27 | MCD_6__l62_27 | MCD_6__c13_7 | MCD_6__f62_27 | MCD_6__f63_27), (MCD_5__f62_28 | MCD_5__f63_28 | MCD_5__d13_7 | MCD_5__f60_11 | MCD_5__e60_11 | MCD_5__c60_11 | MCD_5__b60_11 | MCD_5__b61_11 | MCD_5__c61_11 | MCD_5__d11_7 | MCD_5__f61_28 | MCD_5__h61_11 | MCD_5__i61_11 | MCD_5__j11_7 | MCD_5__l62_28 | MCD_5__i62_28 | MCD_5__j13_7), (MCD_4__f60_13 | MCD_4__e60_13 | MCD_4__c60_13 | MCD_4__b60_13 | MCD_4__b61_13 | MCD_4__c61_13 | MCD_4__e11_7 | MCD_4__f61_29 | MCD_4__h61_13 | MCD_4__i61_13 | MCD_4__k11_7 | MCD_4__k13_7 | MCD_4__l62_29 | MCD_4__i62_29 | MCD_4__e13_7 | MCD_4__f62_29 | MCD_4__f63_29), (MCD_3__b12_7 | MCD_3__b14_7 | MCD_3__f62_30 | MCD_3__f63_30 | MCD_3__f60_14 | MCD_3__e60_14 | MCD_3__c60_14 | MCD_3__b60_14 | MCD_3__b61_14 | MCD_3__c61_14 | MCD_3__f61_30 | MCD_3__h61_14 | MCD_3__i61_14 | MCD_3__h12_7 | MCD_3__h14_7 | MCD_3__i62_30 | MCD_3__l62_30), (MCD_2__f60_15 | MCD_2__e60_15 | MCD_2__c60_15 | MCD_2__b60_15 | MCD_2__b61_15 | MCD_2__c61_15 | MCD_2__c12_7 | MCD_2__f61_31 | MCD_2__h61_15 | MCD_2__i61_15 | MCD_2__i12_7 | MCD_2__l62_31 | MCD_2__i14_7 | MCD_2__i62_31 | MCD_2__f62_31 | MCD_2__f63_31 | MCD_2__c14_7), (MCD_1__f60_16 | MCD_1__e60_16 | MCD_1__c60_16 | MCD_1__b60_16 | MCD_1__b61_16 | MCD_1__c61_16 | MCD_1__d12_7 | MCD_1__f61_32 | MCD_1__h61_16 | MCD_1__i61_16 | MCD_1__j12_7 | MCD_1__j14_7 | MCD_1__l62_32 | MCD_1__i62_32 | MCD_1__d14_7 | MCD_1__f62_32 | MCD_1__f63_32), (MCD_0__f60_17 | MCD_0__e60_17 | MCD_0__c60_17 | MCD_0__b60_17 | MCD_0__b61_17 | MCD_0__c61_17 | MCD_0__e12_7 | MCD_0__f61_33 | MCD_0__h61_17 | MCD_0__i61_17 | MCD_0__k12_7 | MCD_0__k14_7 | MCD_0__l62_33 | MCD_0__i62_33 | MCD_0__e14_7 | MCD_0__f62_33 | MCD_0__f63_33)}),
+    .pa_in({(RCPReg_00__f19_2), (DoradoSel__c20_5), (AHasCP__c20_7), 1'b0, (RCPReg_04__f19_12), (RCPReg_05__f19_15), (RCPReg_06__f20_2), (RCPReg_07__f20_5)}),
+    .pb_in({(RCPReg_08__g20_2), (RCPReg_09__g20_5), (RCPReg_10__g20_7), (RCPReg_11__g20_10), (RCPReg_12__g20_12), (RCPReg_13__g20_15), (RCPReg_14__h20_2), (RCPReg_15__h20_5)})
   ); // MCS6532
-  cell_AUGATCG16 u_d05 (
-    .p2(GND153),
-    .p3(VCC74),
-    .p4(OISData),
-    .p5(GND153),
-    .p6(VCC74),
-    .p7(VCC74),
-    .p10(BaseBd15_sil_pl_3),
-    .p11(BaseBd15_sil_pl_7),
-    .p12(BaseBd15_sil_pl_2),
-    .p13(BaseBd15_sil_pl_6),
-    .p14(BaseBd15_sil_pl_6),
-    .p15(BaseBd15_sil_pl_4),
-    .p16(BaseBd15_sil_pl_4)
-  ); // AUGATCG16
   cell_SN74LS157 u_d06 (
     .p1(AHasCP),
     .p2(MCPStrb),
@@ -1659,6 +1863,7 @@ module BaseBd_m_Rev_m_Am (
     .p14(VCC75)
   ); // SN74LS08
   cell_MC12061 u_d08 (
+    .sys_clk(sys_clk),
     .p1(VCC76),
     .p2(Basebd01_sil_pl_2),
     .p3(Basebd01_sil_pl_3),
@@ -1771,16 +1976,6 @@ module BaseBd_m_Rev_m_Am (
     .p15(DoradoSel_p_),
     .p16(VCC82)
   ); // SN74LS253
-  cell_AUGATCG16 u_d23 (
-    .p1(Basebd06_sil_pl_20),
-    .p2(VCC83),
-    .p3(VCC83),
-    .p4(ACPIGnd_4),
-    .p13(Basebd06_sil_pl_17),
-    .p14(Basebd06_sil_pl_18),
-    .p15(Basebd06_sil_pl_19),
-    .p16(Basebd06_sil_pl_19)
-  ); // AUGATCG16
   cell_MPQ6002 u_d24 (
     .p1(ACPI_4__drv),
     .p2(Basebd06_sil_pl_17),
@@ -1816,6 +2011,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC87)
   ); // SN74LS157
   cell_SN74LS163 u_e07 (
+    .sys_clk(sys_clk),
     .p1(TTLTrue_A),
     .p2(Basebd01_sil_pl_4),
     .p3(TTLTrue_A),
@@ -1829,19 +2025,6 @@ module BaseBd_m_Rev_m_Am (
     .p15(Max),
     .p16(VCC87)
   ); // SN74LS163
-  cell_AUGATCG16 u_e08 (
-    .p1(Basebd01_sil_pl_9),
-    .p4(Basebd01_sil_pl_6),
-    .p5(MCIRQ_p_),
-    .p6(Basebd01_sil_pl_6),
-    .p7(Basebd01_sil_pl_8),
-    .p8(Basebd01_sil_pl_7),
-    .p9(VCC76),
-    .p10(VCC76),
-    .p11(GND208),
-    .p12(VCC76),
-    .p13(Basebd01_sil_pl_10)
-  ); // AUGATCG16
   cell_i2125 u_e11 (
     .p1(RS0_p_),
     .p2(RA0),
@@ -1914,20 +2097,6 @@ module BaseBd_m_Rev_m_Am (
     .p15(MCD_0),
     .p16(VCC91)
   ); // i2125
-  cell_AUGATCG16 u_e19 (
-    .p1(Basebd06_sil_pl_2),
-    .p2(Basebd06_sil_pl_7),
-    .p3(ACPI_0),
-    .p5(VCC81),
-    .p6(VCC81),
-    .p7(ACPI_1),
-    .p10(Basebd06_sil_pl_5),
-    .p11(Basebd06_sil_pl_11),
-    .p12(Basebd06_sil_pl_14),
-    .p14(Basebd06_sil_pl_4),
-    .p15(VCC93),
-    .p16(VCC93)
-  ); // AUGATCG16
   cell_SN74LS253 u_e20 (
     .p1(DoradoSel_p_),
     .p2(RCPBus_03),
@@ -1971,6 +2140,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC96)
   ); // AM2615
   cell_i2716 #(.INIT_FILE("verilog/proms/eprom/BaseBd-e60.mem")) u_e60 (
+    .sys_clk(sys_clk),
     .p1(MCA_07),
     .p2(MCA_06),
     .p3(MCA_05),
@@ -2148,10 +2318,8 @@ module BaseBd_m_Rev_m_Am (
     .p15(RCPBus_03__f24_15),
     .p16(VCC96)
   ); // AM2615
-  cell_SIPpackage u_f44 (
-    // no connections
-  ); // SIPpackage
   cell_i2716 #(.INIT_FILE("verilog/proms/eprom/BaseBd-f60.mem")) u_f60 (
+    .sys_clk(sys_clk),
     .p1(MCA_07),
     .p2(MCA_06),
     .p3(MCA_05),
@@ -2178,6 +2346,7 @@ module BaseBd_m_Rev_m_Am (
     .p24(VCC86)
   ); // i2716
   cell_MCS6502 u_f61 (
+    .sys_clk(sys_clk),
     .p2(TTLTrue_A),
     .p4(MCIRQ_p_),
     .p6(MCNMI_p_),
@@ -2211,7 +2380,8 @@ module BaseBd_m_Rev_m_Am (
     .p37(MCPreClk),
     .p38(GND259),
     .p39(MCClk),
-    .p40(MCReset_p_)
+    .p40(MCReset_p_),
+    .dbi({(MCD_7__f60_9 | MCD_7__e60_9 | MCD_7__c60_9 | MCD_7__b60_9 | MCD_7__b61_9 | MCD_7__c61_9 | MCD_7__h61_9 | MCD_7__i61_9 | MCD_7__h11_7 | MCD_7__i62_26 | MCD_7__l62_26 | MCD_7__h13_7 | MCD_7__b11_7 | MCD_7__c62_26 | MCD_7__f62_26 | MCD_7__f63_26 | MCD_7__b13_7), (MCD_6__f60_10 | MCD_6__e60_10 | MCD_6__c60_10 | MCD_6__b60_10 | MCD_6__b61_10 | MCD_6__c61_10 | MCD_6__c11_7 | MCD_6__h61_10 | MCD_6__i61_10 | MCD_6__i11_7 | MCD_6__i13_7 | MCD_6__i62_27 | MCD_6__l62_27 | MCD_6__c13_7 | MCD_6__c62_27 | MCD_6__f62_27 | MCD_6__f63_27), (MCD_5__c62_28 | MCD_5__f62_28 | MCD_5__f63_28 | MCD_5__d13_7 | MCD_5__f60_11 | MCD_5__e60_11 | MCD_5__c60_11 | MCD_5__b60_11 | MCD_5__b61_11 | MCD_5__c61_11 | MCD_5__d11_7 | MCD_5__h61_11 | MCD_5__i61_11 | MCD_5__j11_7 | MCD_5__l62_28 | MCD_5__i62_28 | MCD_5__j13_7), (MCD_4__f60_13 | MCD_4__e60_13 | MCD_4__c60_13 | MCD_4__b60_13 | MCD_4__b61_13 | MCD_4__c61_13 | MCD_4__e11_7 | MCD_4__h61_13 | MCD_4__i61_13 | MCD_4__k11_7 | MCD_4__k13_7 | MCD_4__l62_29 | MCD_4__i62_29 | MCD_4__e13_7 | MCD_4__f62_29 | MCD_4__c62_29 | MCD_4__f63_29), (MCD_3__b12_7 | MCD_3__b14_7 | MCD_3__c62_30 | MCD_3__f62_30 | MCD_3__f63_30 | MCD_3__f60_14 | MCD_3__e60_14 | MCD_3__c60_14 | MCD_3__b60_14 | MCD_3__b61_14 | MCD_3__c61_14 | MCD_3__h61_14 | MCD_3__i61_14 | MCD_3__h12_7 | MCD_3__h14_7 | MCD_3__i62_30 | MCD_3__l62_30), (MCD_2__f60_15 | MCD_2__e60_15 | MCD_2__c60_15 | MCD_2__b60_15 | MCD_2__b61_15 | MCD_2__c61_15 | MCD_2__c12_7 | MCD_2__h61_15 | MCD_2__i61_15 | MCD_2__i12_7 | MCD_2__l62_31 | MCD_2__i14_7 | MCD_2__i62_31 | MCD_2__f62_31 | MCD_2__f63_31 | MCD_2__c14_7 | MCD_2__c62_31), (MCD_1__f60_16 | MCD_1__e60_16 | MCD_1__c60_16 | MCD_1__b60_16 | MCD_1__b61_16 | MCD_1__c61_16 | MCD_1__d12_7 | MCD_1__h61_16 | MCD_1__i61_16 | MCD_1__j12_7 | MCD_1__j14_7 | MCD_1__l62_32 | MCD_1__i62_32 | MCD_1__d14_7 | MCD_1__f62_32 | MCD_1__f63_32 | MCD_1__c62_32), (MCD_0__f60_17 | MCD_0__e60_17 | MCD_0__c60_17 | MCD_0__b60_17 | MCD_0__b61_17 | MCD_0__c61_17 | MCD_0__e12_7 | MCD_0__h61_17 | MCD_0__i61_17 | MCD_0__k12_7 | MCD_0__k14_7 | MCD_0__l62_33 | MCD_0__i62_33 | MCD_0__e14_7 | MCD_0__f62_33 | MCD_0__f63_33 | MCD_0__c62_33)})
   ); // MCS6502
   cell_MCS6532 u_f62 (
     .p2(MCA_05),
@@ -2252,7 +2422,10 @@ module BaseBd_m_Rev_m_Am (
     .p37(Ram0_p_),
     .p38(TTLTrue_C),
     .p39(MCClk),
-    .p40(MCA_06)
+    .p40(MCA_06),
+    .d_in({(MCD_7__f60_9 | MCD_7__e60_9 | MCD_7__c60_9 | MCD_7__b60_9 | MCD_7__b61_9 | MCD_7__c61_9 | MCD_7__f61_26 | MCD_7__h61_9 | MCD_7__i61_9 | MCD_7__h11_7 | MCD_7__i62_26 | MCD_7__l62_26 | MCD_7__h13_7 | MCD_7__b11_7 | MCD_7__c62_26 | MCD_7__f63_26 | MCD_7__b13_7), (MCD_6__f60_10 | MCD_6__e60_10 | MCD_6__c60_10 | MCD_6__b60_10 | MCD_6__b61_10 | MCD_6__c61_10 | MCD_6__c11_7 | MCD_6__f61_27 | MCD_6__h61_10 | MCD_6__i61_10 | MCD_6__i11_7 | MCD_6__i13_7 | MCD_6__i62_27 | MCD_6__l62_27 | MCD_6__c13_7 | MCD_6__c62_27 | MCD_6__f63_27), (MCD_5__c62_28 | MCD_5__f63_28 | MCD_5__d13_7 | MCD_5__f60_11 | MCD_5__e60_11 | MCD_5__c60_11 | MCD_5__b60_11 | MCD_5__b61_11 | MCD_5__c61_11 | MCD_5__d11_7 | MCD_5__f61_28 | MCD_5__h61_11 | MCD_5__i61_11 | MCD_5__j11_7 | MCD_5__l62_28 | MCD_5__i62_28 | MCD_5__j13_7), (MCD_4__f60_13 | MCD_4__e60_13 | MCD_4__c60_13 | MCD_4__b60_13 | MCD_4__b61_13 | MCD_4__c61_13 | MCD_4__e11_7 | MCD_4__f61_29 | MCD_4__h61_13 | MCD_4__i61_13 | MCD_4__k11_7 | MCD_4__k13_7 | MCD_4__l62_29 | MCD_4__i62_29 | MCD_4__e13_7 | MCD_4__c62_29 | MCD_4__f63_29), (MCD_3__b12_7 | MCD_3__b14_7 | MCD_3__c62_30 | MCD_3__f63_30 | MCD_3__f60_14 | MCD_3__e60_14 | MCD_3__c60_14 | MCD_3__b60_14 | MCD_3__b61_14 | MCD_3__c61_14 | MCD_3__f61_30 | MCD_3__h61_14 | MCD_3__i61_14 | MCD_3__h12_7 | MCD_3__h14_7 | MCD_3__i62_30 | MCD_3__l62_30), (MCD_2__f60_15 | MCD_2__e60_15 | MCD_2__c60_15 | MCD_2__b60_15 | MCD_2__b61_15 | MCD_2__c61_15 | MCD_2__c12_7 | MCD_2__f61_31 | MCD_2__h61_15 | MCD_2__i61_15 | MCD_2__i12_7 | MCD_2__l62_31 | MCD_2__i14_7 | MCD_2__i62_31 | MCD_2__f63_31 | MCD_2__c14_7 | MCD_2__c62_31), (MCD_1__f60_16 | MCD_1__e60_16 | MCD_1__c60_16 | MCD_1__b60_16 | MCD_1__b61_16 | MCD_1__c61_16 | MCD_1__d12_7 | MCD_1__f61_32 | MCD_1__h61_16 | MCD_1__i61_16 | MCD_1__j12_7 | MCD_1__j14_7 | MCD_1__l62_32 | MCD_1__i62_32 | MCD_1__d14_7 | MCD_1__f63_32 | MCD_1__c62_32), (MCD_0__f60_17 | MCD_0__e60_17 | MCD_0__c60_17 | MCD_0__b60_17 | MCD_0__b61_17 | MCD_0__c61_17 | MCD_0__e12_7 | MCD_0__f61_33 | MCD_0__h61_17 | MCD_0__i61_17 | MCD_0__k12_7 | MCD_0__k14_7 | MCD_0__l62_33 | MCD_0__i62_33 | MCD_0__e14_7 | MCD_0__f63_33 | MCD_0__c62_33)}),
+    .pa_in({1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0}),
+    .pb_in({1'b0, 1'b0, (DMD_00__l22_2), (TCPI_0__c19_12), (TCPI_1__c19_13), (TCPI_2__c19_4), (TCPI_3__c19_5), (TDMuxData__l19_12)})
   ); // MCS6532
   cell_MCS6532 u_f63 (
     .p2(MCA_05),
@@ -2279,7 +2452,10 @@ module BaseBd_m_Rev_m_Am (
     .p37(Ram4_p_),
     .p38(TTLTrue_E),
     .p39(MCClk),
-    .p40(MCA_06)
+    .p40(MCA_06),
+    .d_in({(MCD_7__f60_9 | MCD_7__e60_9 | MCD_7__c60_9 | MCD_7__b60_9 | MCD_7__b61_9 | MCD_7__c61_9 | MCD_7__f61_26 | MCD_7__h61_9 | MCD_7__i61_9 | MCD_7__h11_7 | MCD_7__i62_26 | MCD_7__l62_26 | MCD_7__h13_7 | MCD_7__b11_7 | MCD_7__c62_26 | MCD_7__f62_26 | MCD_7__b13_7), (MCD_6__f60_10 | MCD_6__e60_10 | MCD_6__c60_10 | MCD_6__b60_10 | MCD_6__b61_10 | MCD_6__c61_10 | MCD_6__c11_7 | MCD_6__f61_27 | MCD_6__h61_10 | MCD_6__i61_10 | MCD_6__i11_7 | MCD_6__i13_7 | MCD_6__i62_27 | MCD_6__l62_27 | MCD_6__c13_7 | MCD_6__c62_27 | MCD_6__f62_27), (MCD_5__c62_28 | MCD_5__f62_28 | MCD_5__d13_7 | MCD_5__f60_11 | MCD_5__e60_11 | MCD_5__c60_11 | MCD_5__b60_11 | MCD_5__b61_11 | MCD_5__c61_11 | MCD_5__d11_7 | MCD_5__f61_28 | MCD_5__h61_11 | MCD_5__i61_11 | MCD_5__j11_7 | MCD_5__l62_28 | MCD_5__i62_28 | MCD_5__j13_7), (MCD_4__f60_13 | MCD_4__e60_13 | MCD_4__c60_13 | MCD_4__b60_13 | MCD_4__b61_13 | MCD_4__c61_13 | MCD_4__e11_7 | MCD_4__f61_29 | MCD_4__h61_13 | MCD_4__i61_13 | MCD_4__k11_7 | MCD_4__k13_7 | MCD_4__l62_29 | MCD_4__i62_29 | MCD_4__e13_7 | MCD_4__f62_29 | MCD_4__c62_29), (MCD_3__b12_7 | MCD_3__b14_7 | MCD_3__c62_30 | MCD_3__f62_30 | MCD_3__f60_14 | MCD_3__e60_14 | MCD_3__c60_14 | MCD_3__b60_14 | MCD_3__b61_14 | MCD_3__c61_14 | MCD_3__f61_30 | MCD_3__h61_14 | MCD_3__i61_14 | MCD_3__h12_7 | MCD_3__h14_7 | MCD_3__i62_30 | MCD_3__l62_30), (MCD_2__f60_15 | MCD_2__e60_15 | MCD_2__c60_15 | MCD_2__b60_15 | MCD_2__b61_15 | MCD_2__c61_15 | MCD_2__c12_7 | MCD_2__f61_31 | MCD_2__h61_15 | MCD_2__i61_15 | MCD_2__i12_7 | MCD_2__l62_31 | MCD_2__i14_7 | MCD_2__i62_31 | MCD_2__f62_31 | MCD_2__c14_7 | MCD_2__c62_31), (MCD_1__f60_16 | MCD_1__e60_16 | MCD_1__c60_16 | MCD_1__b60_16 | MCD_1__b61_16 | MCD_1__c61_16 | MCD_1__d12_7 | MCD_1__f61_32 | MCD_1__h61_16 | MCD_1__i61_16 | MCD_1__j12_7 | MCD_1__j14_7 | MCD_1__l62_32 | MCD_1__i62_32 | MCD_1__d14_7 | MCD_1__f62_32 | MCD_1__c62_32), (MCD_0__f60_17 | MCD_0__e60_17 | MCD_0__c60_17 | MCD_0__b60_17 | MCD_0__b61_17 | MCD_0__c61_17 | MCD_0__e12_7 | MCD_0__f61_33 | MCD_0__h61_17 | MCD_0__i61_17 | MCD_0__k12_7 | MCD_0__k14_7 | MCD_0__l62_33 | MCD_0__i62_33 | MCD_0__e14_7 | MCD_0__f62_33 | MCD_0__c62_33)}),
+    .pa_in({(WatchdogIn__g22_8), 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0}),
+    .pb_in({1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0})
   ); // MCS6532
   cell_MC10124 u_g01 (
     .p1(CPOut_2__drv),
@@ -2342,6 +2518,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC99)
   ); // SN74LS157
   cell_SN74LS175 u_g07 (
+    .sys_clk(sys_clk),
     .p1(MCReset_p_),
     .p2(TSetRun__g07_2),
     .p4(TCPBus_07),
@@ -2352,6 +2529,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC99)
   ); // SN74LS175
   cell_SN74LS74 u_g08 (
+    .sys_clk(sys_clk),
     .p1(TTLTrue_A),
     .p2(MCPreClk),
     .p3(Max),
@@ -2448,6 +2626,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC106)
   ); // MC14521B
   cell_SN74LS74 u_g22 (
+    .sys_clk(sys_clk),
     .p1(TTLTrue_E),
     .p2(BaseBd09_sil_pl_3),
     .p3(BaseBd09_sil_pl_8),
@@ -2481,14 +2660,6 @@ module BaseBd_m_Rev_m_Am (
     .p15(RCPBus_07__g24_15),
     .p16(VCC108)
   ); // AM2615
-  cell_SIPpackage u_g47 (
-    .p2(TTLTrue_A),
-    .p3(TTLTrue_B),
-    .p4(TTLTrue_C),
-    .p5(TTLTrue_D),
-    .p6(TTLTrue_E),
-    .p7(VCC103)
-  ); // SIPpackage
   cell_MC10210 u_h01 (
     .p2(CLK_io20_p___drv),
     .p3(CLK_display_p___drv),
@@ -2535,22 +2706,6 @@ module BaseBd_m_Rev_m_Am (
     .p13(BaseBd11_sil_pl_13),
     .p14(PwrGood)
   ); // MPQ3303
-  cell_AUGATCG16 u_h07 (
-    .p1(VEE199),
-    .p2(VCOCtrl0),
-    .p3(VCOCtrl1),
-    .p4(BaseBd11_sil_pl_6),
-    .p5(BaseBd11_sil_pl_5),
-    .p6(VCOCtrl1),
-    .p7(VCC99),
-    .p10(BootMC_p_),
-    .p11(VEE176),
-    .p12(VEE176),
-    .p13(VEE176),
-    .p14(VCOCtrl),
-    .p15(VCOCtrl),
-    .p16(VCOCtrl)
-  ); // AUGATCG16
   cell_MC10125 u_h08 (
     .p1(BaseBd14_sil_pl_1),
     .p2(BaseBd14_sil_pl_1),
@@ -2717,6 +2872,7 @@ module BaseBd_m_Rev_m_Am (
   ); // AM2615
   // PROM with no contents in the archive -- reads X
   cell_i2716 u_h61 (
+    .sys_clk(sys_clk),
     .p1(MCA_07),
     .p2(MCA_06),
     .p3(MCA_05),
@@ -2758,57 +2914,6 @@ module BaseBd_m_Rev_m_Am (
     .p5(StartClockPulse_p_),
     .p15(GND388)
   ); // SE10211
-  cell_AUGATCG16 u_i03 (
-    .p1(BaseBd11_sil_pl_7),
-    .p2(BaseBd11_sil_pl_7),
-    .p3(BaseBd11_sil_pl_7),
-    .p4(VEE195),
-    .p5(BaseBd11_sil_pl_9),
-    .p6(BaseBd11_sil_pl_9),
-    .p7(BaseBd11_sil_pl_9),
-    .p9(VCOHigh_p_),
-    .p10(VCOHigh_p_),
-    .p11(NonInvInp),
-    .p12(GND617),
-    .p13(VCOLow_p_),
-    .p14(VCOLow_p_),
-    .p15(InvInp)
-  ); // AUGATCG16
-  cell_AUGATCG16 u_i04 (
-    .p1(BaseBd11_sil_pl_10),
-    .p2(BaseBd11_sil_pl_10),
-    .p3(BaseBd11_sil_pl_8),
-    .p4(BaseBd11_sil_pl_8),
-    .p7(VDD135),
-    .p9(FiltVEE),
-    .p10(FiltVDD),
-    .p13(InvInp),
-    .p14(VCOCtrl),
-    .p15(NonInvInp)
-  ); // AUGATCG16
-  cell_AUGATCG16 u_i05 (
-    .p2(InvInp),
-    .p3(NonInvInp),
-    .p4(FiltVEE),
-    .p5(FiltVEE),
-    .p6(GND345),
-    .p7(GND345),
-    .p8(FiltVDD),
-    .p14(VCOCtrl),
-    .p15(FiltVDD)
-  ); // AUGATCG16
-  cell_AUGATCG16 u_i07 (
-    .p1(VCC111),
-    .p2(BaseBd11_sil_pl_12),
-    .p3(BaseBd11_sil_pl_12),
-    .p5(VCC111),
-    .p6(VCC111),
-    .p11(BaseBd11_sil_pl_13),
-    .p12(PwrGood),
-    .p14(GND399),
-    .p15(BaseBd11_sil_pl_11),
-    .p16(BaseBd11_sil_pl_11)
-  ); // AUGATCG16
   cell_i2125 u_i11 (
     .p1(RS2_p_),
     .p2(RA0),
@@ -2898,24 +3003,6 @@ module BaseBd_m_Rev_m_Am (
     .p15(Serial_10),
     .p16(VCC116)
   ); // SN74LS251
-  cell_AUGATCG16 u_i18 (
-    .p1(VCC117),
-    .p2(GND371),
-    .p3(VDD57),
-    .p4(GND371),
-    .p5(VTT105),
-    .p6(DACOut),
-    .p7(VEE234),
-    .p8(DACOut),
-    .p9(BaseBd13_sil_pl_13),
-    .p10(BaseBd13_sil_pl_13),
-    .p11(BaseBd13_sil_pl_12),
-    .p12(BaseBd13_sil_pl_12),
-    .p13(BaseBd13_sil_pl_11),
-    .p14(BaseBd13_sil_pl_11),
-    .p15(BaseBd13_sil_pl_10),
-    .p16(BaseBd13_sil_pl_10)
-  ); // AUGATCG16
   cell_CA3140 u_i19 (
     .p2(BaseBd13_sil_pl_11),
     .p3(DACOut),
@@ -2953,11 +3040,6 @@ module BaseBd_m_Rev_m_Am (
     .p15(Vref),
     .p16(Vref)
   ); // ADC-MC8BC
-  cell_AUGATCG16 u_i23 (
-    .p1(DACOut),
-    .p8(Vref),
-    .p9(GND430)
-  ); // AUGATCG16
   cell_MC10124 u_i24 (
     .p4(IOReset__drv),
     .p5(TTLIOReset_p_),
@@ -2966,6 +3048,7 @@ module BaseBd_m_Rev_m_Am (
   ); // MC10124
   // PROM with no contents in the archive -- reads X
   cell_i2716 u_i61 (
+    .sys_clk(sys_clk),
     .p1(MCA_07),
     .p2(MCA_06),
     .p3(MCA_05),
@@ -3029,7 +3112,10 @@ module BaseBd_m_Rev_m_Am (
     .p37(Ram3_p_),
     .p38(TTLTrue_D),
     .p39(MCClk),
-    .p40(MCA_06)
+    .p40(MCA_06),
+    .d_in({(MCD_7__f60_9 | MCD_7__e60_9 | MCD_7__c60_9 | MCD_7__b60_9 | MCD_7__b61_9 | MCD_7__c61_9 | MCD_7__f61_26 | MCD_7__h61_9 | MCD_7__i61_9 | MCD_7__h11_7 | MCD_7__l62_26 | MCD_7__h13_7 | MCD_7__b11_7 | MCD_7__c62_26 | MCD_7__f62_26 | MCD_7__f63_26 | MCD_7__b13_7), (MCD_6__f60_10 | MCD_6__e60_10 | MCD_6__c60_10 | MCD_6__b60_10 | MCD_6__b61_10 | MCD_6__c61_10 | MCD_6__c11_7 | MCD_6__f61_27 | MCD_6__h61_10 | MCD_6__i61_10 | MCD_6__i11_7 | MCD_6__i13_7 | MCD_6__l62_27 | MCD_6__c13_7 | MCD_6__c62_27 | MCD_6__f62_27 | MCD_6__f63_27), (MCD_5__c62_28 | MCD_5__f62_28 | MCD_5__f63_28 | MCD_5__d13_7 | MCD_5__f60_11 | MCD_5__e60_11 | MCD_5__c60_11 | MCD_5__b60_11 | MCD_5__b61_11 | MCD_5__c61_11 | MCD_5__d11_7 | MCD_5__f61_28 | MCD_5__h61_11 | MCD_5__i61_11 | MCD_5__j11_7 | MCD_5__l62_28 | MCD_5__j13_7), (MCD_4__f60_13 | MCD_4__e60_13 | MCD_4__c60_13 | MCD_4__b60_13 | MCD_4__b61_13 | MCD_4__c61_13 | MCD_4__e11_7 | MCD_4__f61_29 | MCD_4__h61_13 | MCD_4__i61_13 | MCD_4__k11_7 | MCD_4__k13_7 | MCD_4__l62_29 | MCD_4__e13_7 | MCD_4__f62_29 | MCD_4__c62_29 | MCD_4__f63_29), (MCD_3__b12_7 | MCD_3__b14_7 | MCD_3__c62_30 | MCD_3__f62_30 | MCD_3__f63_30 | MCD_3__f60_14 | MCD_3__e60_14 | MCD_3__c60_14 | MCD_3__b60_14 | MCD_3__b61_14 | MCD_3__c61_14 | MCD_3__f61_30 | MCD_3__h61_14 | MCD_3__i61_14 | MCD_3__h12_7 | MCD_3__h14_7 | MCD_3__l62_30), (MCD_2__f60_15 | MCD_2__e60_15 | MCD_2__c60_15 | MCD_2__b60_15 | MCD_2__b61_15 | MCD_2__c61_15 | MCD_2__c12_7 | MCD_2__f61_31 | MCD_2__h61_15 | MCD_2__i61_15 | MCD_2__i12_7 | MCD_2__l62_31 | MCD_2__i14_7 | MCD_2__f62_31 | MCD_2__f63_31 | MCD_2__c14_7 | MCD_2__c62_31), (MCD_1__f60_16 | MCD_1__e60_16 | MCD_1__c60_16 | MCD_1__b60_16 | MCD_1__b61_16 | MCD_1__c61_16 | MCD_1__d12_7 | MCD_1__f61_32 | MCD_1__h61_16 | MCD_1__i61_16 | MCD_1__j12_7 | MCD_1__j14_7 | MCD_1__l62_32 | MCD_1__d14_7 | MCD_1__f62_32 | MCD_1__f63_32 | MCD_1__c62_32), (MCD_0__f60_17 | MCD_0__e60_17 | MCD_0__c60_17 | MCD_0__b60_17 | MCD_0__b61_17 | MCD_0__c61_17 | MCD_0__e12_7 | MCD_0__f61_33 | MCD_0__h61_17 | MCD_0__i61_17 | MCD_0__k12_7 | MCD_0__k14_7 | MCD_0__l62_33 | MCD_0__e14_7 | MCD_0__f62_33 | MCD_0__f63_33 | MCD_0__c62_33)}),
+    .pa_in({1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0}),
+    .pb_in({1'b0, 1'b0, 1'b0, 1'b0, 1'b0, (TSetRun__g07_2), 1'b0, 1'b0})
   ); // MCS6532
   cell_MC10210 u_j01 (
     .p2(CLK_md_p___j01_2),
@@ -3091,6 +3177,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC123)
   ); // SN74LS251
   cell_SN74LS74 u_j08 (
+    .sys_clk(sys_clk),
     .p1(PwrGood),
     .p2(BootMC_p_),
     .p3(MCClk),
@@ -3196,32 +3283,6 @@ module BaseBd_m_Rev_m_Am (
     .p10(BootMC_p___drv),
     .p14(VCC128)
   ); // SN74LS01
-  cell_AUGATCG16 u_j18 (
-    .p7(CPDMuxData_p_),
-    .p10(VCC129)
-  ); // AUGATCG16
-  cell_AUGATCG16 u_j19 (
-    .p1(VCC129),
-    .p2(VCC129),
-    .p3(VCC129),
-    .p5(VCC129),
-    .p6(BaseBd14_sil_pl_6),
-    .p7(VCC129),
-    .p8(VCC129),
-    .p9(BaseBd14_sil_pl_5),
-    .p10(BaseBd14_sil_pl_4),
-    .p11(BaseBd14_sil_pl_4),
-    .p12(SkipWait_p_),
-    .p14(LEDOnRet),
-    .p15(DiskOnRet),
-    .p16(PwrOnRet)
-  ); // AUGATCG16
-  cell_AUGATCG16 u_j20 (
-    .p7(GND623),
-    .p8(BaseBd13_sil_pl_4),
-    .p9(BaseBd13_sil_pl_3),
-    .p10(BaseBd13_sil_pl_3)
-  ); // AUGATCG16
   cell_CA3140 u_j21 (
     .p2(BaseBd13_sil_pl_5),
     .p3(BaseBd13_sil_pl_6),
@@ -3229,33 +3290,6 @@ module BaseBd_m_Rev_m_Am (
     .p6(BaseBd13_sil_pl_4),
     .p7(VCC130)
   ); // CA3140
-  cell_AUGATCG16 u_j22 (
-    .p1(BaseBd13_sil_pl_4),
-    .p3(BaseBd13_sil_pl_1),
-    .p4(VrefBuf),
-    .p5(BaseBd13_sil_pl_2),
-    .p6(GND427),
-    .p7(VrefBuf),
-    .p8(GND576),
-    .p9(BaseBd13_sil_pl_9),
-    .p10(BaseBd13_sil_pl_9),
-    .p11(BaseBd13_sil_pl_6),
-    .p12(BaseBd13_sil_pl_6),
-    .p13(BaseBd13_sil_pl_6),
-    .p14(BaseBd13_sil_pl_5),
-    .p16(BaseBd13_sil_pl_5)
-  ); // AUGATCG16
-  cell_AUGATCG16 u_j23 (
-    .p1(BaseBd13_sil_pl_7),
-    .p2(GND632),
-    .p3(BaseBd13_sil_pl_7),
-    .p4(PwrRef),
-    .p5(BaseBd13_sil_pl_8),
-    .p6(PwrRef),
-    .p7(BaseBd13_sil_pl_8),
-    .p12(GND430),
-    .p16(VCC131)
-  ); // AUGATCG16
   cell_CD4051 u_j24 (
     .p1(CIEE_EOS),
     .p2(VEE288),
@@ -3636,6 +3670,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC136)
   ); // SN74LS251
   cell_SN74LS175 u_l18 (
+    .sys_clk(sys_clk),
     .p1(TTLTrue_D),
     .p5(TCPBus_05),
     .p7(Basebd05_sil_pl_3),
@@ -3724,24 +3759,6 @@ module BaseBd_m_Rev_m_Am (
     .p10(CPUseDMD),
     .p15(UseDMD__drv)
   ); // MC10124
-  cell_SIPpackage u_l49 (
-    .p1(VCC141),
-    .p2(Midas_00),
-    .p3(Midas_01),
-    .p4(Midas_02),
-    .p5(Midas_03),
-    .p6(Midas_04),
-    .p8(VCC141)
-  ); // SIPpackage
-  cell_SIPpackage u_l50 (
-    .p1(GND639),
-    .p2(Midas_00),
-    .p3(Midas_01),
-    .p4(Midas_02),
-    .p5(Midas_03),
-    .p6(Midas_04),
-    .p8(GND639)
-  ); // SIPpackage
   cell_MCS6532 u_l62 (
     .p2(MCA_05),
     .p3(MCA_04),
@@ -3781,7 +3798,10 @@ module BaseBd_m_Rev_m_Am (
     .p37(Ram1_p_),
     .p38(TTLTrue_D),
     .p39(MCClk),
-    .p40(MCA_06)
+    .p40(MCA_06),
+    .d_in({(MCD_7__f60_9 | MCD_7__e60_9 | MCD_7__c60_9 | MCD_7__b60_9 | MCD_7__b61_9 | MCD_7__c61_9 | MCD_7__f61_26 | MCD_7__h61_9 | MCD_7__i61_9 | MCD_7__h11_7 | MCD_7__i62_26 | MCD_7__h13_7 | MCD_7__b11_7 | MCD_7__c62_26 | MCD_7__f62_26 | MCD_7__f63_26 | MCD_7__b13_7), (MCD_6__f60_10 | MCD_6__e60_10 | MCD_6__c60_10 | MCD_6__b60_10 | MCD_6__b61_10 | MCD_6__c61_10 | MCD_6__c11_7 | MCD_6__f61_27 | MCD_6__h61_10 | MCD_6__i61_10 | MCD_6__i11_7 | MCD_6__i13_7 | MCD_6__i62_27 | MCD_6__c13_7 | MCD_6__c62_27 | MCD_6__f62_27 | MCD_6__f63_27), (MCD_5__c62_28 | MCD_5__f62_28 | MCD_5__f63_28 | MCD_5__d13_7 | MCD_5__f60_11 | MCD_5__e60_11 | MCD_5__c60_11 | MCD_5__b60_11 | MCD_5__b61_11 | MCD_5__c61_11 | MCD_5__d11_7 | MCD_5__f61_28 | MCD_5__h61_11 | MCD_5__i61_11 | MCD_5__j11_7 | MCD_5__i62_28 | MCD_5__j13_7), (MCD_4__f60_13 | MCD_4__e60_13 | MCD_4__c60_13 | MCD_4__b60_13 | MCD_4__b61_13 | MCD_4__c61_13 | MCD_4__e11_7 | MCD_4__f61_29 | MCD_4__h61_13 | MCD_4__i61_13 | MCD_4__k11_7 | MCD_4__k13_7 | MCD_4__i62_29 | MCD_4__e13_7 | MCD_4__f62_29 | MCD_4__c62_29 | MCD_4__f63_29), (MCD_3__b12_7 | MCD_3__b14_7 | MCD_3__c62_30 | MCD_3__f62_30 | MCD_3__f63_30 | MCD_3__f60_14 | MCD_3__e60_14 | MCD_3__c60_14 | MCD_3__b60_14 | MCD_3__b61_14 | MCD_3__c61_14 | MCD_3__f61_30 | MCD_3__h61_14 | MCD_3__i61_14 | MCD_3__h12_7 | MCD_3__h14_7 | MCD_3__i62_30), (MCD_2__f60_15 | MCD_2__e60_15 | MCD_2__c60_15 | MCD_2__b60_15 | MCD_2__b61_15 | MCD_2__c61_15 | MCD_2__c12_7 | MCD_2__f61_31 | MCD_2__h61_15 | MCD_2__i61_15 | MCD_2__i12_7 | MCD_2__i14_7 | MCD_2__i62_31 | MCD_2__f62_31 | MCD_2__f63_31 | MCD_2__c14_7 | MCD_2__c62_31), (MCD_1__f60_16 | MCD_1__e60_16 | MCD_1__c60_16 | MCD_1__b60_16 | MCD_1__b61_16 | MCD_1__c61_16 | MCD_1__d12_7 | MCD_1__f61_32 | MCD_1__h61_16 | MCD_1__i61_16 | MCD_1__j12_7 | MCD_1__j14_7 | MCD_1__i62_32 | MCD_1__d14_7 | MCD_1__f62_32 | MCD_1__f63_32 | MCD_1__c62_32), (MCD_0__f60_17 | MCD_0__e60_17 | MCD_0__c60_17 | MCD_0__b60_17 | MCD_0__b61_17 | MCD_0__c61_17 | MCD_0__e12_7 | MCD_0__f61_33 | MCD_0__h61_17 | MCD_0__i61_17 | MCD_0__k12_7 | MCD_0__k14_7 | MCD_0__i62_33 | MCD_0__e14_7 | MCD_0__f62_33 | MCD_0__f63_33 | MCD_0__c62_33)}),
+    .pa_in({1'b0, 1'b0, 1'b0, 1'b0, (CVDD__i19_6), 1'b0, 1'b0, (CVEE__i20_6)}),
+    .pb_in({1'b0, (BootNO__c01_1), (TCBTempSense__h08_5), (TBaseTempSense__h08_4), (MCManif_3__k08_5), (MCManif_2__k08_7), (MCManif_1__k08_10), (MCManif_0__k08_12)})
   ); // MCS6532
 
 endmodule

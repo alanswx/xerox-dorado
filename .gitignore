@@ -101,3 +101,4 @@ docs/chm-atlas/viewer/remote-inventory.js
 verilog/verilator/obj_dir/
 verilog/verilator/obj_proms/
 verilog/verilator/obj_alu/
+verilog/verilator/obj_bb/

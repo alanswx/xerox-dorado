@@ -24,6 +24,11 @@
 `default_nettype none
 
 module cell_MCS6502 (
+    // The netlist core settles by ITERATION -- one `clk` edge advances the
+    // 1,725-node relaxation by a step -- so it needs the fast fabric clock,
+    // with the board's own MCPreClk as the 6502 phase. Wiring both to
+    // MCPreClk gives the netlist one step per phase and it never converges.
+    input  wire sys_clk,
     input  wire p40,  // RESET'
     input  wire p4,   // IRQ'
     input  wire p6,   // NMI'
@@ -68,6 +73,7 @@ module cell_MCS6502 (
     input  wire p21   // GND2
 );
 
+
   wire [15:0] ab;
   wire [7:0]  dbo;
   wire        rw, sync;
@@ -75,7 +81,7 @@ module cell_MCS6502 (
   // The core wants a free-running FPGA clock plus the 6502 phase clock. On
   // this board CK2i is the phase; the harness supplies the fast clock.
   chip_6502 u_cpu (
-      .clk  (p37),
+      .clk  (sys_clk),
       .phi  (p37),
       .res  (p40),
       .so   (p38),
@@ -91,7 +97,19 @@ module cell_MCS6502 (
 
   assign {p25,p24,p23,p22,p20,p19,p18,p17,
           p16,p15,p14,p13,p12,p11,p10,p9} = ab;
-  assign {p26,p27,p28,p29,p30,p31,p32,p33} = dbo;
+  // R/W high is a READ: the CPU is listening, not driving.
+  // TRI-STATE ONTO A SHARED BUS, in a design with no `inout` anywhere. The
+  // shared nets here resolve as an OR of their drivers, which is right for the
+  // MECL open emitters that make up most of the machine. A TTL bus is
+  // different: one part drives at a time and the rest are in high impedance.
+  // The FPGA-friendly equivalent is for a part that is NOT driving to
+  // contribute ZERO to that OR, which leaves the active driver's value intact
+  // -- and that is what the 2716 already does with its CS'/PD'.
+  //
+  // Without the gate every part on the bus contributes at once. MCD read as
+  // 0xFF at every address, the 6502 fetched 0xFF as an opcode forever, and the
+  // ROM might as well not have been there.
+  assign {p26,p27,p28,p29,p30,p31,p32,p33} = rw ? 8'h00 : dbo;
   assign p34 = rw;
   assign p7  = sync;
 

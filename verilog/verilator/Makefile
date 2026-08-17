@@ -136,19 +136,36 @@ alu-diff:
 # see tools/rtl_machine_check.py for why that would punish correct cells.
 .PHONY: machine-test
 machine-test:
-	@cd ../.. && ./verilog/verilator/obj_dir/Vemu --headless --cycles 20000 \
+	@cd ../.. && ./verilog/verilator/obj_dir/Vemu --headless --cycles 20000 2>&1 \
 		| python3 tools/rtl_machine_check.py \
 			verilog/generated/dorado_backplane.probes
+
+# Does the BaseBoard's 6502 come out of reset and fetch from its own EPROMs?
+# The whole board is real here -- Andrew Holme's netlist-derived 6502, MiSTer's
+# 6532s, the '138 that decodes Rom0'..Rom7', the eight 2716 sockets, and the
+# crystal/counter/flip-flop chain that clocks and releases it.
+.PHONY: baseboard-test
+baseboard-test:
+	@cd ../.. && $(V) --binary --top-module tb_baseboard $(V_WARN) \
+		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \
+		--Mdir verilog/verilator/obj_bb -o tb_baseboard \
+		verilog/verilator/tb_baseboard.sv \
+		verilog/generated/dorado_baseboard.v \
+		verilog/generated/BaseBd-Rev-Am.v \
+		>/dev/null && ./verilog/verilator/obj_bb/tb_baseboard | grep tb_baseboard
 
 # Each board lints alone; the backplane top module has to be linted WITH the
 # boards it instantiates, because Verilator resolves a module by looking for a
 # file of the same name and `ProcH_m_Rev_m_Ce` lives in `ProcH-Rev-Ce.v`.
 TOP_V    = $(GEN)/dorado_backplane.v
+# The one-board machine tb_baseboard runs. A top module, not a board, so it
+# is linted with its board rather than alone.
+BB_V     = $(GEN)/dorado_baseboard.v
 
 lint:
 	@ok=0; bad=0; \
 	for f in $(GEN)/*.v; do \
-		if [ "$$f" = "$(TOP_V)" ]; then continue; fi; \
+		if [ "$$f" = "$(TOP_V)" ] || [ "$$f" = "$(BB_V)" ]; then continue; fi; \
 		if $(V) --lint-only $(V_WARN) -I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $$f >/dev/null 2>&1; then \
 			ok=$$((ok+1)); \
 		else \
@@ -162,6 +179,15 @@ lint:
 			echo "lint: backplane top module elaborates with its boards"; \
 		else \
 			bad=$$((bad+1)); echo "  FAIL dorado_backplane.v"; \
+		fi; \
+	fi; \
+	if [ -f $(BB_V) ]; then \
+		if $(V) --lint-only --top-module dorado_baseboard_machine $(V_WARN) \
+			-I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $(BB_V) \
+			$(GEN)/BaseBd-Rev-Am.v >/dev/null 2>&1; then \
+			echo "lint: one-board BaseBoard machine elaborates"; \
+		else \
+			bad=$$((bad+1)); echo "  FAIL dorado_baseboard.v"; \
 		fi; \
 	fi; \
 	test $$bad -eq 0

@@ -4,9 +4,13 @@
 // Directions: observed in the .wl wire lists across all boards.
 // Used in 3 package position(s) across the sixteen boards.
 //
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// 4-Bit Magnitude Comparator (TTL). TtlDict:
+//   a,X0,15 > a,X1,13 > a,X2,12 > a,X3,10     X0 is the MOST significant,
+//   a,Y0,1  > a,Y1,14 > a,Y2,11 > a,Y3,9      as PARC numbers everything
+//   a,>,4 > a,=,3 > a,<,2                     cascade inputs from the stage below
+//   a,X>Y,5 > a,X=Y,6 > a,X<Y,7
+// The cascade inputs decide only when the four bits are equal, which is what
+// chains these into a wider comparator.
 
 `default_nettype none
 
@@ -29,7 +33,14 @@ module cell_SN74LS85 (
     input  wire p16// (no name in EclDict)
 );
 
-  // TODO: model this part.
+  wire [3:0] x = {p15, p13, p12, p10};    // X0..X3, most significant first
+  wire [3:0] y = {p1,  p14, p11, p9};
+
+  assign p5 = (x > y) | ((x == y) & p4);  // X>Y
+  assign p6 =           (x == y) & p3;    // X=Y
+  assign p7 = (x < y) | ((x == y) & p2);  // X<Y
+
+  wire _unused_pins = &{1'b0, p8, p16, 1'b0};
 endmodule
 
 `default_nettype wire

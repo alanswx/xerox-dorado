@@ -798,6 +798,12 @@ module msa (
   // An explicit OR of the drivers: what the open emitters
   // compute, and one LUT level rather than a multiply-driven
   // net that no synthesis tool accepts.
+  wire msa03_sil_pl_7__e26_13;
+  wire msa03_sil_pl_7__e26_12;
+  assign msa03_sil_pl_7 = msa03_sil_pl_7__e26_13 | msa03_sil_pl_7__e26_12;
+  wire msa03_sil_pl_8__e26_11;
+  wire msa03_sil_pl_8__e26_10;
+  assign msa03_sil_pl_8 = msa03_sil_pl_8__e26_11 | msa03_sil_pl_8__e26_10;
   wire msa12_sil_pl_14__g02_2;
   wire msa12_sil_pl_14__g02_1;
   assign msa12_sil_pl_14 = msa12_sil_pl_14__g02_2 | msa12_sil_pl_14__g02_1;
@@ -806,6 +812,104 @@ module msa (
   assign msa12_sil_pl_17 = msa12_sil_pl_17__g25_2 | msa12_sil_pl_17__g25_1;
 
   // 19 single-driver contributions to the backplane
+
+  // ---- 90 supply rails
+  assign GND104 = 1'b0;
+  assign GND105 = 1'b0;
+  assign GND106 = 1'b0;
+  assign GND126 = 1'b0;
+  assign GND127 = 1'b0;
+  assign GND128 = 1'b0;
+  assign GND148 = 1'b0;
+  assign GND149 = 1'b0;
+  assign GND150 = 1'b0;
+  assign GND151 = 1'b0;
+  assign GND161 = 1'b0;
+  assign GND170 = 1'b0;
+  assign GND173 = 1'b0;
+  assign GND181 = 1'b0;
+  assign GND182 = 1'b0;
+  assign GND183 = 1'b0;
+  assign GND192 = 1'b0;
+  assign GND195 = 1'b0;
+  assign GND203 = 1'b0;
+  assign GND204 = 1'b0;
+  assign GND214 = 1'b0;
+  assign GND215 = 1'b0;
+  assign GND216 = 1'b0;
+  assign GND22 = 1'b0;
+  assign GND227 = 1'b0;
+  assign GND23 = 1'b0;
+  assign GND236 = 1'b0;
+  assign GND237 = 1'b0;
+  assign GND238 = 1'b0;
+  assign GND258 = 1'b0;
+  assign GND259 = 1'b0;
+  assign GND26 = 1'b0;
+  assign GND260 = 1'b0;
+  assign GND27 = 1'b0;
+  assign GND274 = 1'b0;
+  assign GND275 = 1'b0;
+  assign GND276 = 1'b0;
+  assign GND277 = 1'b0;
+  assign GND278 = 1'b0;
+  assign GND279 = 1'b0;
+  assign GND280 = 1'b0;
+  assign GND281 = 1'b0;
+  assign GND282 = 1'b0;
+  assign GND283 = 1'b0;
+  assign GND284 = 1'b0;
+  assign GND285 = 1'b0;
+  assign GND286 = 1'b0;
+  assign GND287 = 1'b0;
+  assign GND288 = 1'b0;
+  assign GND289 = 1'b0;
+  assign GND29 = 1'b0;
+  assign GND32 = 1'b0;
+  assign GND58 = 1'b0;
+  assign GND76 = 1'b0;
+  assign GND77 = 1'b0;
+  assign GND78 = 1'b0;
+  assign GND79 = 1'b0;
+  assign GND80 = 1'b0;
+  assign GND81 = 1'b0;
+  assign GND82 = 1'b0;
+  assign GND83 = 1'b0;
+  assign GND84 = 1'b0;
+  assign GND85 = 1'b0;
+  assign GND86 = 1'b0;
+  assign GND87 = 1'b0;
+  assign GND88 = 1'b0;
+  assign GND89 = 1'b0;
+  assign GND90 = 1'b0;
+  assign GND91 = 1'b0;
+  assign VBBa = 1'b0;
+  assign VBBa2 = 1'b0;
+  assign VBBa25 = 1'b0;
+  assign VBBb = 1'b0;
+  assign VBBc = 1'b0;
+  assign VBBd = 1'b0;
+  assign VBBe = 1'b0;
+  assign VBBf = 1'b0;
+  assign VBBg = 1'b0;
+  assign VBBh = 1'b0;
+  assign VBBi = 1'b0;
+  assign VBBj = 1'b0;
+  assign VBBk = 1'b0;
+  assign VBBl = 1'b0;
+  assign VBBm = 1'b0;
+  assign VBBn = 1'b0;
+  assign VEE130 = 1'b0;
+  assign VEE93 = 1'b0;
+  assign VEE94 = 1'b0;
+  assign VTT14 = 1'b0;
+  assign VTT8 = 1'b0;
+
+  // ---- wire-wrap jumpers (Augat headers): the strap the netlist forces
+  assign msa03_sil_pl_8__e26_10 = VTT8;   // e26.10: msa03.sil+8 strapped to VTT8
+  assign msa03_sil_pl_8__e26_11 = MemAd_2;   // e26.11: msa03.sil+8 strapped to MemAd.2
+  assign msa03_sil_pl_7__e26_12 = MemAd_2;   // e26.12: msa03.sil+7 strapped to MemAd.2
+  assign msa03_sil_pl_7__e26_13 = GND58;   // e26.13: msa03.sil+7 strapped to GND58
 
   // ---- packages
   cell_MC10141 u_a01 (
@@ -2767,20 +2871,6 @@ module msa (
     .p14(MemAd_5),
     .p15(VBBj)
   ); // MC10125
-  cell_AUGATCG16 u_e26 (
-    .p2(msa01_sil_pl_16),
-    .p3(msa01_sil_pl_16),
-    .p4(GND58),
-    .p5(MemAd_2),
-    .p6(MemAd_2),
-    .p7(VTT8),
-    .p10(msa03_sil_pl_8),
-    .p11(msa03_sil_pl_8),
-    .p12(msa03_sil_pl_7),
-    .p13(msa03_sil_pl_7),
-    .p14(ChipsAre16k),
-    .p15(ChipsAre4k)
-  ); // AUGATCG16
   cell_MC10176 u_f01 (
     .sys_clk(sys_clk),
     .p2(msa12_sil_pl_33),
@@ -2965,16 +3055,6 @@ module msa (
     .p14(msa09_sil_pl_25),
     .p15(CAS_p_c3)
   ); // MK4096P-6
-  cell_AUGATCG16 u_f13 (
-    .p1(VTT14),
-    .p2(c1),
-    .p3(c2),
-    .p4(c3),
-    .p5(c4),
-    .p6(c5),
-    .p12(GND192),
-    .p16(VTT14)
-  ); // AUGATCG16
   cell_MC10210 u_f14 (
     .p1(GND216),
     .p2(msa01_sil_pl_9),

@@ -271,6 +271,17 @@ module Music_m_Rev_m_Ac (
 
   // 21 single-driver contributions to the backplane
 
+  // ---- 9 supply rails
+  assign GND264 = 1'b0;
+  assign GND312 = 1'b0;
+  assign GND396 = 1'b0;
+  assign GND398 = 1'b0;
+  assign GND444 = 1'b0;
+  assign GND488 = 1'b0;
+  assign GND532 = 1'b0;
+  assign VBB1 = 1'b0;
+  assign VCC86 = 1'b1;
+
   // ---- packages
   cell_MC10176 u_f01 (
     .sys_clk(sys_clk),
@@ -790,14 +801,6 @@ module Music_m_Rev_m_Ac (
     .p12(Music01_sil_pl_7),
     .p13(Music01_sil_pl_13)
   ); // MC10171
-  cell_AUGATCG16 u_k05 (
-    .p2(GND488),
-    .p3(DataFromSyn),
-    .p4(GND488),
-    .p13(Syn_pl_5V),
-    .p14(Syn_pl_5V),
-    .p15(DataFromSyn)
-  ); // AUGATCG16
   cell_MC10231 u_l01 (
     .sys_clk(sys_clk),
     .p3(prepreFH_p_),

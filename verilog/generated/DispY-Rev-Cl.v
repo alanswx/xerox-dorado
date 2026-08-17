@@ -101,18 +101,6 @@ module DispY_m_Rev_m_Cl (
     input  wire Next_1,
     input  wire Next_2,
     input  wire Next_3,
-    input  wire OISClkA,
-    input  wire OISClkA_p_,
-    input  wire OISClkB,
-    input  wire OISClkB_p_,
-    input  wire OISData_0,
-    input  wire OISData_0_p_,
-    input  wire OISData_1,
-    input  wire OISData_1_p_,
-    input  wire OISData_2,
-    input  wire OISData_2_p_,
-    input  wire OISData_3,
-    input  wire OISData_3_p_,
     input  wire PixelClkVCO,
     input  wire RawPixelClk,
     input  wire TIOA_0,
@@ -1148,6 +1136,42 @@ module DispY_m_Rev_m_Cl (
   wire NLCBAddr_3__k02_3;
   wire NLCBAddr_3__k03_14;
   assign NLCBAddr_3 = NLCBAddr_3__k02_3 | NLCBAddr_3__k03_14;
+  wire OISClkA__d42_6;
+  wire OISClkA__d04_11;
+  assign OISClkA__drv = OISClkA__d42_6 | OISClkA__d04_11;
+  wire OISClkA_p___d42_3;
+  wire OISClkA_p___d04_14;
+  assign OISClkA_p___drv = OISClkA_p___d42_3 | OISClkA_p___d04_14;
+  wire OISClkB__d42_2;
+  wire OISClkB__d04_15;
+  assign OISClkB__drv = OISClkB__d42_2 | OISClkB__d04_15;
+  wire OISClkB_p___d42_8;
+  wire OISClkB_p___d04_9;
+  assign OISClkB_p___drv = OISClkB_p___d42_8 | OISClkB_p___d04_9;
+  wire OISData_0__e42_2;
+  wire OISData_0__c04_3;
+  assign OISData_0__drv = OISData_0__e42_2 | OISData_0__c04_3;
+  wire OISData_0_p___d42_7;
+  wire OISData_0_p___c04_2;
+  assign OISData_0_p___drv = OISData_0_p___d42_7 | OISData_0_p___c04_2;
+  wire OISData_1__e42_3;
+  wire OISData_1__c04_14;
+  assign OISData_1__drv = OISData_1__e42_3 | OISData_1__c04_14;
+  wire OISData_1_p___e42_5;
+  wire OISData_1_p___c04_15;
+  assign OISData_1_p___drv = OISData_1_p___e42_5 | OISData_1_p___c04_15;
+  wire OISData_2__d04_2;
+  wire OISData_2__e42_8;
+  assign OISData_2__drv = OISData_2__d04_2 | OISData_2__e42_8;
+  wire OISData_2_p___d04_5;
+  wire OISData_2_p___e42_7;
+  assign OISData_2_p___drv = OISData_2_p___d04_5 | OISData_2_p___e42_7;
+  wire OISData_3__d42_5;
+  wire OISData_3__d04_3;
+  assign OISData_3__drv = OISData_3__d42_5 | OISData_3__d04_3;
+  wire OISData_3_p___e42_6;
+  wire OISData_3_p___d04_6;
+  assign OISData_3_p___drv = OISData_3_p___e42_6 | OISData_3_p___d04_6;
   wire preprePixelClk_p___b01_3;
   wire preprePixelClk_p___b01_9;
   assign preprePixelClk_p_ = preprePixelClk_p___b01_3 | preprePixelClk_p___b01_9;
@@ -1170,7 +1194,72 @@ module DispY_m_Rev_m_Cl (
   wire TIOASaysDDC_p___e02_15;
   assign TIOASaysDDC_p_ = TIOASaysDDC_p___e03_14 | TIOASaysDDC_p___e03_3 | TIOASaysDDC_p___e02_14 | TIOASaysDDC_p___e02_3 | TIOASaysDDC_p___e02_2 | TIOASaysDDC_p___e02_15;
 
-  // 54 single-driver contributions to the backplane
+  // 42 single-driver contributions to the backplane
+
+  // ---- resistor packs (SIP): pins held at the pack's common
+  assign OISClkB__d42_2 = 1'b0;   // d42.2 OISClkB, tied to VEE100
+  assign OISClkA_p___d42_3 = 1'b0;   // d42.3 OISClkA', tied to VEE100
+  assign OISData_3__d42_5 = 1'b0;   // d42.5 OISData.3, tied to VEE100
+  assign OISClkA__d42_6 = 1'b0;   // d42.6 OISClkA, tied to VEE100
+  assign OISData_0_p___d42_7 = 1'b0;   // d42.7 OISData.0', tied to VEE100
+  assign OISClkB_p___d42_8 = 1'b0;   // d42.8 OISClkB', tied to VEE100
+  assign OISData_0__e42_2 = 1'b0;   // e42.2 OISData.0, tied to VEE301
+  assign OISData_1__e42_3 = 1'b0;   // e42.3 OISData.1, tied to VEE301
+  assign OISData_1_p___e42_5 = 1'b0;   // e42.5 OISData.1', tied to VEE301
+  assign OISData_3_p___e42_6 = 1'b0;   // e42.6 OISData.3', tied to VEE301
+  assign OISData_2_p___e42_7 = 1'b0;   // e42.7 OISData.2', tied to VEE301
+  assign OISData_2__e42_8 = 1'b0;   // e42.8 OISData.2, tied to VEE301
+  assign WakeupWait_0 = True;   // g41.2 WakeupWait.0, tied to True
+  assign WakeupWait_1 = True;   // g41.3 WakeupWait.1, tied to True
+  assign WakeupWait_3 = True;   // g41.5 WakeupWait.3, tied to True
+  assign DDCTIOA_00 = True;   // g42.2 DDCTIOA.00, tied to True
+  assign DDCTIOA_01 = True;   // g42.3 DDCTIOA.01, tied to True
+  assign DDCTIOA_03 = True;   // g42.5 DDCTIOA.03, tied to True
+  assign DDCTIOA_04 = True;   // g42.6 DDCTIOA.04, tied to True
+  assign DDCDMD_01 = True;   // k51.2 DDCDMD.01, tied to True
+  assign DDCDMD_02 = True;   // k51.3 DDCDMD.02, tied to True
+  assign DDCDMD_04 = True;   // k51.5 DDCDMD.04, tied to True
+  assign DWTTask_0 = True;   // k52.2 DWTTask.0, tied to True
+  assign DWTTask_1 = True;   // k52.3 DWTTask.1, tied to True
+  assign DWTTask_3 = True;   // k52.5 DWTTask.3, tied to True
+
+  // ---- 36 supply rails
+  assign GND108 = 1'b0;
+  assign GND110 = 1'b0;
+  assign GND132 = 1'b0;
+  assign GND134 = 1'b0;
+  assign GND156 = 1'b0;
+  assign GND158 = 1'b0;
+  assign GND180 = 1'b0;
+  assign GND241 = 1'b0;
+  assign GND264 = 1'b0;
+  assign GND266 = 1'b0;
+  assign GND312 = 1'b0;
+  assign GND314 = 1'b0;
+  assign GND396 = 1'b0;
+  assign GND398 = 1'b0;
+  assign GND422 = 1'b0;
+  assign GND444 = 1'b0;
+  assign GND468 = 1'b0;
+  assign GND470 = 1'b0;
+  assign GND532 = 1'b0;
+  assign GND577 = 1'b0;
+  assign GND8 = 1'b0;
+  assign VBB1 = 1'b0;
+  assign VCC50 = 1'b1;
+  assign VCC97 = 1'b1;
+  assign VDD74 = 1'b1;
+  assign VEE100 = 1'b0;
+  assign VEE126 = 1'b0;
+  assign VEE168 = 1'b0;
+  assign VEE192 = 1'b0;
+  assign VEE212 = 1'b0;
+  assign VEE289 = 1'b0;
+  assign VEE301 = 1'b0;
+  assign VEE307 = 1'b0;
+  assign VEE308 = 1'b0;
+  assign VEE312 = 1'b0;
+  assign VEE331 = 1'b0;
 
   // ---- packages
   cell_PLAT1816 u_a01 (
@@ -1749,8 +1838,8 @@ module DispY_m_Rev_m_Cl (
     .p15(ForceClkBLow__c03_15)
   ); // MC10176
   cell_MC10105 u_c04 (
-    .p2(OISData_0_p___drv),
-    .p3(OISData_0__drv),
+    .p2(OISData_0_p___c04_2),
+    .p3(OISData_0__c04_3),
     .p4(CBlank),
     .p5(DispY21_sil_pl_10),
     .p7(CSync),
@@ -1758,8 +1847,8 @@ module DispY_m_Rev_m_Cl (
     .p10(HSync),
     .p12(DispY21_sil_pl_9),
     .p13(CBlank),
-    .p14(OISData_1__drv),
-    .p15(OISData_1_p___drv)
+    .p14(OISData_1__c04_14),
+    .p15(OISData_1_p___c04_15)
   ); // MC10105
   cell_F10000 u_c05 (
     .sys_clk(sys_clk),
@@ -2022,18 +2111,18 @@ module DispY_m_Rev_m_Cl (
     .p15(WakeDWT__drv)
   ); // MC10231
   cell_MC10101 u_d04 (
-    .p2(OISData_2__drv),
-    .p3(OISData_3__drv),
+    .p2(OISData_2__d04_2),
+    .p3(OISData_3__d04_3),
     .p4(DispY21_sil_pl_12),
-    .p5(OISData_2_p___drv),
-    .p6(OISData_3_p___drv),
+    .p5(OISData_2_p___d04_5),
+    .p6(OISData_3_p___d04_6),
     .p7(DispY21_sil_pl_14),
-    .p9(OISClkB_p___drv),
+    .p9(OISClkB_p___d04_9),
     .p10(DispY21_sil_pl_15),
-    .p11(OISClkA__drv),
+    .p11(OISClkA__d04_11),
     .p13(DispY21_sil_pl_16),
-    .p14(OISClkA_p___drv),
-    .p15(OISClkB__drv)
+    .p14(OISClkA_p___d04_14),
+    .p15(OISClkB__d04_15)
   ); // MC10101
   cell_F10016 u_d05 (
     .sys_clk(sys_clk),
@@ -2259,15 +2348,6 @@ module DispY_m_Rev_m_Cl (
     .p14(BWantsDWT),
     .p15(Blocked_p_)
   ); // MC10195
-  cell_SIPpackage u_d42 (
-    .p1(VEE100),
-    .p2(OISClkB),
-    .p3(OISClkA_p_),
-    .p5(OISData_3),
-    .p6(OISClkA),
-    .p7(OISData_0_p_),
-    .p8(OISClkB_p_)
-  ); // SIPpackage
   cell_MC10176 u_e01 (
     .sys_clk(sys_clk),
     .p2(TIOADly_00),
@@ -2577,15 +2657,6 @@ module DispY_m_Rev_m_Cl (
     .p12(DWTShutUp),
     .p13(ProcClk0_p_b)
   ); // F10016
-  cell_SIPpackage u_e42 (
-    .p1(VEE301),
-    .p2(OISData_0),
-    .p3(OISData_1),
-    .p5(OISData_1_p_),
-    .p6(OISData_3_p_),
-    .p7(OISData_2_p_),
-    .p8(OISData_2)
-  ); // SIPpackage
   cell_MC10135 u_f01 (
     .sys_clk(sys_clk),
     .p2(WakeDHT__drv),
@@ -3191,21 +3262,6 @@ module DispY_m_Rev_m_Cl (
     .p13(TIOADly_05),
     .p15(DispY18_sil_pl_7)
   ); // MC1660
-  cell_SIPpackage u_g41 (
-    .p1(True),
-    .p2(WakeupWait_0),
-    .p3(WakeupWait_1),
-    .p4(WakeupWait_2),
-    .p5(WakeupWait_3)
-  ); // SIPpackage
-  cell_SIPpackage u_g42 (
-    .p1(True),
-    .p2(DDCTIOA_00),
-    .p3(DDCTIOA_01),
-    .p4(DDCTIOA_02),
-    .p5(DDCTIOA_03),
-    .p6(DDCTIOA_04)
-  ); // SIPpackage
   cell_MC10125 u_h01 (
     .p1(VBB1),
     .p2(VBB1),
@@ -4392,20 +4448,6 @@ module DispY_m_Rev_m_Cl (
     .p13(OddReg_15),
     .p15(DispY13_sil_pl_1)
   ); // MC10176
-  cell_SIPpackage u_k51 (
-    .p1(True),
-    .p2(DDCDMD_01),
-    .p3(DDCDMD_02),
-    .p4(DDCDMD_03),
-    .p5(DDCDMD_04)
-  ); // SIPpackage
-  cell_SIPpackage u_k52 (
-    .p1(True),
-    .p2(DWTTask_0),
-    .p3(DWTTask_1),
-    .p4(DWTTask_2),
-    .p5(DWTTask_3)
-  ); // SIPpackage
   cell_SE10231 u_l01 (
     .sys_clk(sys_clk),
     .p2(prepreFH_p_),

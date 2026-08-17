@@ -1339,6 +1339,39 @@ module ProcL_m_Rev_m_Ci (
 
   // 84 single-driver contributions to the backplane
 
+  // ---- 31 supply rails
+  assign GND132 = 1'b0;
+  assign GND142 = 1'b0;
+  assign GND16 = 1'b0;
+  assign GND18 = 1'b0;
+  assign GND180 = 1'b0;
+  assign GND2 = 1'b0;
+  assign GND264 = 1'b0;
+  assign GND266 = 1'b0;
+  assign GND312 = 1'b0;
+  assign GND314 = 1'b0;
+  assign GND394 = 1'b0;
+  assign GND40 = 1'b0;
+  assign GND420 = 1'b0;
+  assign GND44 = 1'b0;
+  assign GND442 = 1'b0;
+  assign GND468 = 1'b0;
+  assign GND5 = 1'b0;
+  assign GND500 = 1'b0;
+  assign GND530 = 1'b0;
+  assign GND544 = 1'b0;
+  assign GND546 = 1'b0;
+  assign GND556 = 1'b0;
+  assign GND86 = 1'b0;
+  assign GND92 = 1'b0;
+  assign GND96 = 1'b0;
+  assign VCC59 = 1'b1;
+  assign VEE176 = 1'b0;
+  assign VEE200 = 1'b0;
+  assign VEE224 = 1'b0;
+  assign VEE248 = 1'b0;
+  assign VEE47 = 1'b0;
+
   // ---- packages
   cell_MC10102 u_a01 (
     .p2(BNTGtCT),

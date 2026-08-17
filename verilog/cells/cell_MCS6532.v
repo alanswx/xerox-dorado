@@ -69,6 +69,7 @@ module cell_MCS6532 (
     input  wire p20   // VCC1
 );
 
+
   wire [7:0] d_out, pa_out, pb_out;
   wire       irq_n, oe;
 
@@ -91,12 +92,15 @@ module cell_MCS6532 (
       .oe    (oe)
   );
 
-  assign {p26,p27,p28,p29,p30,p31,p32,p33} = d_out;
+  // `oe` is the core's own statement that it is driving the bus this cycle
+  // -- chip selected, RW a read. Off the bus it contributes zero; see
+  // cell_MCS6502 for why that is the shape a shared TTL bus takes here.
+  assign {p26,p27,p28,p29,p30,p31,p32,p33} = oe ? d_out : 8'h00;
   assign {p15,p14,p13,p12,p11,p10,p9,p8}   = pa_out;
   assign {p16,p17,p18,p19,p21,p22,p23,p24} = pb_out;
   assign p25 = irq_n;
 
-  wire _unused = &{1'b0, p1, p20, oe, 1'b0};
+  wire _unused = &{1'b0, p1, p20, 1'b0};
 
 endmodule
 

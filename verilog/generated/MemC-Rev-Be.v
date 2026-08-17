@@ -1425,6 +1425,60 @@ module MemC_m_Rev_m_Be (
 
   // 84 single-driver contributions to the backplane
 
+  // ---- 52 supply rails
+  assign GND10 = 1'b0;
+  assign GND128 = 1'b0;
+  assign GND144 = 1'b0;
+  assign GND151 = 1'b0;
+  assign GND176 = 1'b0;
+  assign GND190 = 1'b0;
+  assign GND199 = 1'b0;
+  assign GND208 = 1'b0;
+  assign GND286 = 1'b0;
+  assign GND295 = 1'b0;
+  assign GND32 = 1'b0;
+  assign GND343 = 1'b0;
+  assign GND360 = 1'b0;
+  assign GND362 = 1'b0;
+  assign GND368 = 1'b0;
+  assign GND400 = 1'b0;
+  assign GND402 = 1'b0;
+  assign GND418 = 1'b0;
+  assign GND420 = 1'b0;
+  assign GND448 = 1'b0;
+  assign GND450 = 1'b0;
+  assign GND458 = 1'b0;
+  assign GND460 = 1'b0;
+  assign GND466 = 1'b0;
+  assign GND468 = 1'b0;
+  assign GND530 = 1'b0;
+  assign GND55 = 1'b0;
+  assign GND58 = 1'b0;
+  assign GND7 = 1'b0;
+  assign GND80 = 1'b0;
+  assign VEE101 = 1'b0;
+  assign VEE108 = 1'b0;
+  assign VEE116 = 1'b0;
+  assign VEE125 = 1'b0;
+  assign VEE14 = 1'b0;
+  assign VEE173 = 1'b0;
+  assign VEE197 = 1'b0;
+  assign VEE29 = 1'b0;
+  assign VEE290 = 1'b0;
+  assign VEE292 = 1'b0;
+  assign VEE294 = 1'b0;
+  assign VEE296 = 1'b0;
+  assign VEE298 = 1'b0;
+  assign VEE300 = 1'b0;
+  assign VEE31 = 1'b0;
+  assign VEE322 = 1'b0;
+  assign VEE38 = 1'b0;
+  assign VEE53 = 1'b0;
+  assign VEE55 = 1'b0;
+  assign VEE62 = 1'b0;
+  assign VEE72 = 1'b0;
+  assign VEE86 = 1'b0;
+
   // ---- packages
   cell_F100181 u__h_1c42 (
     // no connections

@@ -4,9 +4,9 @@
 // Directions: observed in the .wl wire lists across all boards.
 // Used in 5 package position(s) across the sixteen boards.
 //
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Hex Inverter (TTL). TtlDict: a,IN,1>a,OUT,2 and so on for six gates.
+// On the BaseBoard, c08 makes `MCClk'` from the 6502's `MCClk` -- which is
+// what strobes the ROM decoder.
 
 `default_nettype none
 
@@ -27,7 +27,10 @@ module cell_SN74LS04 (
     input  wire p14// (no name in EclDict)
 );
 
-  // TODO: model this part.
+  assign p2  = ~p1;   assign p4  = ~p3;   assign p6  = ~p5;
+  assign p8  = ~p9;   assign p10 = ~p11;  assign p12 = ~p13;
+
+  wire _unused_pins = &{1'b0, p7, p14, 1'b0};   // GND, VCC
 endmodule
 
 `default_nettype wire

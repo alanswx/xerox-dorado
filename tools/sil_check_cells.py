@@ -49,7 +49,8 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 SIL = os.path.join(HERE, '..', 'chm', 'sil')
 CELLS = os.path.join(HERE, '..', 'verilog', 'cells')
-DICT = os.path.join(SIL, 'msa-Rev-Bg.dm!1_', 'ecldict.analyze')
+DICTS = [os.path.join(SIL, 'msa-Rev-Bg.dm!1_', 'ecldict.analyze'),
+         os.path.join(SIL, 'msa-Rev-Bg.dm!1_', 'ttldict.analyze')]
 
 sys.path.insert(0, HERE)
 from sil_netlist import read_xerox_text, vpart   # noqa: E402
@@ -188,10 +189,16 @@ def main(argv: list[str]) -> int:
     ap.add_argument('--verbose', action='store_true')
     args = ap.parse_args(argv[1:])
 
-    gt = gate_table(DICT)
-    ff = clocked_table(DICT)
+    # BOTH dictionaries. The TTL one was not read until the BaseBoard's
+    # clock chain was modelled, which put eighteen 74-series parts into the
+    # library with nothing checking them -- and `TtlDict.Analyze` states its
+    # gates in exactly the same `[G ...]` form.
+    gt, ff = {}, {}
     ecl = EclDict()
-    ecl.load(DICT)
+    for d in DICTS:
+        gt.update(gate_table(d))
+        ff.update(clocked_table(d))
+        ecl.load(d)
 
     # cell file -> the dictionary short name for that part
     short_of = {}

@@ -4,9 +4,12 @@
 // Directions: observed in the .wl wire lists across all boards.
 // Used in 6 package position(s) across the sixteen boards.
 //
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Quad 2-Input Multiplexer (TTL). TtlDict:
+//   a,SB,1 > a,E',15
+//   a,D0,2 > a,B0,3 > a,D1,5 > a,B1,6 > a,D2,11 > a,B2,10 > a,D3,14 > a,B3,13
+//   a,Q0,4 > a,Q1,7 > a,Q2,9 > a,Q3,12
+// `SB` selects the B inputs; the enable is active low and forces all four
+// outputs low.
 
 `default_nettype none
 
@@ -29,7 +32,15 @@ module cell_SN74LS157 (
     input  wire p16// (no name in EclDict)
 );
 
-  // TODO: model this part.
+  wire en = ~p15;                          // E'
+  wire sb =  p1;                           // select B
+
+  assign p4  = en & (sb ? p3  : p2);       // Q0
+  assign p7  = en & (sb ? p6  : p5);       // Q1
+  assign p9  = en & (sb ? p10 : p11);      // Q2
+  assign p12 = en & (sb ? p13 : p14);      // Q3
+
+  wire _unused_pins = &{1'b0, p8, p16, 1'b0};
 endmodule
 
 `default_nettype wire

@@ -4,9 +4,11 @@
 // Directions: observed in the .wl wire lists across all boards.
 // Used in 1 package position(s) across the sixteen boards.
 //
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Quad 2-Input EXCLUSIVE-OR (TTL).
+// TtlDict groups this pinout as
+//   a,IN,1,2 > a,OUT,3   b,IN,4,5 > b,OUT,6
+//   c,IN,9,10 > c,OUT,8  d,IN,12,13 > d,OUT,11
+// Only the gates the board wires are declared.
 
 `default_nettype none
 
@@ -18,7 +20,9 @@ module cell_SN7486 (
     input  wire p14// (no name in EclDict)
 );
 
-  // TODO: model this part.
+  assign p3 = p1 ^ p2;
+
+  wire _unused_pins = &{1'b0, p7, p14, 1'b0};
 endmodule
 
 `default_nettype wire

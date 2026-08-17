@@ -33,6 +33,7 @@
 module cell_i2716 #(
     parameter INIT_FILE = ""
 ) (
+    input  wire sys_clk,
     input  wire p1,  // A3
     input  wire p2,  // A4
     input  wire p3,  // A5
@@ -73,9 +74,31 @@ module cell_i2716 #(
   reg [7:0] mem [0:2047];
   initial if (INIT_FILE != "") $readmemh(INIT_FILE, mem);
 
-  wire [7:0] d = mem[a];
-  wire       en = ~p20 & ~p18;            // CS' and PD' both low
-  assign {p17, p16, p15, p14, p13, p11, p10, p9} = en ? d : 8'h00;
+  // SYNCHRONOUS READ, which is both the FPGA form of a ROM (a block RAM has
+  // a registered output; a combinational one costs LUTs it should not) and,
+  // as it turns out, the only form that works here.
+  //
+  // The BaseBoard enables these from `MCClk'`, so a 2716 drives only while
+  // the 6502's phase 2 is high -- and the processor latches the byte as that
+  // phase FALLS. On the real board the '138 and the 2716 take tens of
+  // nanoseconds to let go, which is exactly the data hold the part needs. In
+  // zero-delay RTL a combinational output vanishes in the same instant the
+  // CPU latches: the reset vector was read correctly off the bus, 0xA7 then
+  // 0xF3, and the processor still started at 0x0000 every time. One fabric
+  // clock of registered output supplies the hold.
+  reg [7:0] d;
+  reg       en_q;
+  always @(posedge sys_clk) begin
+    d    <= mem[a];
+    en_q <= ~p20 & ~p18;                  // CS' and PD' both low
+  end
+
+  // PARC numbers these MSB-first (its `A0` is pin 19, the data sheet's A10),
+  // but the DATA pins land the same way round as the data sheet: pin 9 is O0.
+  // The board is what crosses the bus -- pin 9 goes to `MCD.7` -- so the
+  // stored byte is bit-reversed and this mapping stays straight. See
+  // tools/firmware_eproms.py.
+  assign {p17, p16, p15, p14, p13, p11, p10, p9} = en_q ? d : 8'h00;
 
   wire _unused_pins = &{1'b0, p12, p21, p24, 1'b0};   // GND, VPP, VCC
 endmodule

@@ -1203,6 +1203,34 @@ module MemX_m_Rev_m_Ch (
   wire ProcTag__e20_2;
   wire ProcTag__d20_3;
   assign ProcTag__drv = ProcTag__e20_2 | ProcTag__d20_3;
+  wire RamA0orVEEa__b14_15;
+  wire RamA0orVEEa__b14_14;
+  wire RamA0orVEEa__b13_6;
+  assign RamA0orVEEa = RamA0orVEEa__b14_15 | RamA0orVEEa__b14_14 | RamA0orVEEa__b13_6;
+  wire RamA0orVEEb__c12_15;
+  wire RamA0orVEEb__c12_14;
+  wire RamA0orVEEb__c11_6;
+  assign RamA0orVEEb = RamA0orVEEb__c12_15 | RamA0orVEEb__c12_14 | RamA0orVEEb__c11_6;
+  wire RamA1orVCCa__b14_13;
+  wire RamA1orVCCa__b14_12;
+  wire RamA1orVCCa__b13_5;
+  wire RamA1orVCCa__b13_3;
+  assign RamA1orVCCa = RamA1orVCCa__b14_13 | RamA1orVCCa__b14_12 | RamA1orVCCa__b13_5 | RamA1orVCCa__b13_3;
+  wire RamA1orVCCb__c12_13;
+  wire RamA1orVCCb__c12_12;
+  wire RamA1orVCCb__c11_5;
+  wire RamA1orVCCb__c11_3;
+  assign RamA1orVCCb = RamA1orVCCb__c12_13 | RamA1orVCCb__c12_12 | RamA1orVCCb__c11_5 | RamA1orVCCb__c11_3;
+  wire RamV_pl_a__b14_11;
+  wire RamV_pl_a__b14_10;
+  wire RamV_pl_a__b13_4;
+  wire RamV_pl_a__b13_2;
+  assign RamV_pl_a = RamV_pl_a__b14_11 | RamV_pl_a__b14_10 | RamV_pl_a__b13_4 | RamV_pl_a__b13_2;
+  wire RamV_pl_b__c12_11;
+  wire RamV_pl_b__c12_10;
+  wire RamV_pl_b__c11_4;
+  wire RamV_pl_b__c11_2;
+  assign RamV_pl_b = RamV_pl_b__c12_11 | RamV_pl_b__c12_10 | RamV_pl_b__c11_4 | RamV_pl_b__c11_2;
   wire RefUsesDInMem_p___k14_3;
   wire RefUsesDInMem_p___k13_2;
   assign RefUsesDInMem_p_ = RefUsesDInMem_p___k14_3 | RefUsesDInMem_p___k13_2;
@@ -1231,6 +1259,122 @@ module MemX_m_Rev_m_Ch (
   assign _u_FaultInfoDly_p_ = _u_FaultInfoDly_p___l01_12 | _u_FaultInfoDly_p___j05_2 | _u_FaultInfoDly_p___j05_3;
 
   // 99 single-driver contributions to the backplane
+
+  // ---- 90 supply rails
+  assign GND_m_0 = 1'b0;
+  assign GND_m_1 = 1'b0;
+  assign GND_m_10 = 1'b0;
+  assign GND_m_11 = 1'b0;
+  assign GND_m_12 = 1'b0;
+  assign GND_m_13 = 1'b0;
+  assign GND_m_14 = 1'b0;
+  assign GND_m_15 = 1'b0;
+  assign GND_m_16 = 1'b0;
+  assign GND_m_17 = 1'b0;
+  assign GND_m_18 = 1'b0;
+  assign GND_m_19 = 1'b0;
+  assign GND_m_2 = 1'b0;
+  assign GND_m_20 = 1'b0;
+  assign GND_m_21 = 1'b0;
+  assign GND_m_22 = 1'b0;
+  assign GND_m_23 = 1'b0;
+  assign GND_m_24 = 1'b0;
+  assign GND_m_25 = 1'b0;
+  assign GND_m_26 = 1'b0;
+  assign GND_m_27 = 1'b0;
+  assign GND_m_28 = 1'b0;
+  assign GND_m_29 = 1'b0;
+  assign GND_m_3 = 1'b0;
+  assign GND_m_30 = 1'b0;
+  assign GND_m_31 = 1'b0;
+  assign GND_m_32 = 1'b0;
+  assign GND_m_33 = 1'b0;
+  assign GND_m_34 = 1'b0;
+  assign GND_m_35 = 1'b0;
+  assign GND_m_36 = 1'b0;
+  assign GND_m_37 = 1'b0;
+  assign GND_m_38 = 1'b0;
+  assign GND_m_39 = 1'b0;
+  assign GND_m_4 = 1'b0;
+  assign GND_m_40 = 1'b0;
+  assign GND_m_41 = 1'b0;
+  assign GND_m_42 = 1'b0;
+  assign GND_m_43 = 1'b0;
+  assign GND_m_44 = 1'b0;
+  assign GND_m_5 = 1'b0;
+  assign GND_m_6 = 1'b0;
+  assign GND_m_7 = 1'b0;
+  assign GND_m_8 = 1'b0;
+  assign GND_m_9 = 1'b0;
+  assign VBBb11 = 1'b0;
+  assign VBBb15 = 1'b0;
+  assign VBBb5 = 1'b0;
+  assign VBBb8 = 1'b0;
+  assign VBBc13 = 1'b0;
+  assign VBBc14 = 1'b0;
+  assign VBBc15 = 1'b0;
+  assign VBBe13 = 1'b0;
+  assign VBBe14 = 1'b0;
+  assign VBBe15 = 1'b0;
+  assign VBBe4 = 1'b0;
+  assign VBBe9 = 1'b0;
+  assign VCC_m_45 = 1'b1;
+  assign VCC_m_46 = 1'b1;
+  assign VCC_m_47 = 1'b1;
+  assign VCC_m_48 = 1'b1;
+  assign VCC_m_49 = 1'b1;
+  assign VCC_m_50 = 1'b1;
+  assign VCC_m_51 = 1'b1;
+  assign VCC_m_52 = 1'b1;
+  assign VCC_m_53 = 1'b1;
+  assign VCC_m_54 = 1'b1;
+  assign VCC_m_55 = 1'b1;
+  assign VCC_m_56 = 1'b1;
+  assign VCC_m_57 = 1'b1;
+  assign VCC_m_58 = 1'b1;
+  assign VCC_m_59 = 1'b1;
+  assign VCC_m_60 = 1'b1;
+  assign VCC_m_61 = 1'b1;
+  assign VCC_m_62 = 1'b1;
+  assign VDD_m_63 = 1'b1;
+  assign VDD_m_64 = 1'b1;
+  assign VEE_m_65 = 1'b0;
+  assign VEE_m_66 = 1'b0;
+  assign VEE_m_67 = 1'b0;
+  assign VEE_m_68 = 1'b0;
+  assign VEE_m_69 = 1'b0;
+  assign VEE_m_70 = 1'b0;
+  assign VEE_m_71 = 1'b0;
+  assign VEE_m_72 = 1'b0;
+  assign VEE_m_73 = 1'b0;
+  assign VEE_m_74 = 1'b0;
+  assign VEE_m_75 = 1'b0;
+  assign VEE_m_76 = 1'b0;
+  assign VEE_m_77 = 1'b0;
+
+  // ---- wire-wrap jumpers (Augat headers): the strap the netlist forces
+  assign RamV_pl_a__b13_2 = GND_m_38;   // b13.2: RamV+a strapped to GND-38
+  assign RamA1orVCCa__b13_3 = GND_m_38;   // b13.3: RamA1orVCCa strapped to GND-38
+  assign RamV_pl_a__b13_4 = GND_m_38;   // b13.4: RamV+a strapped to GND-38
+  assign RamA1orVCCa__b13_5 = GND_m_38;   // b13.5: RamA1orVCCa strapped to GND-38
+  assign RamA0orVEEa__b13_6 = GND_m_44;   // b13.6: RamA0orVEEa strapped to GND-44
+  assign RamV_pl_a__b14_10 = VDD_m_64;   // b14.10: RamV+a strapped to VDD-64
+  assign RamV_pl_a__b14_11 = VCC_m_57;   // b14.11: RamV+a strapped to VCC-57
+  assign RamA1orVCCa__b14_12 = VCC_m_47;   // b14.12: RamA1orVCCa strapped to VCC-47
+  assign RamA1orVCCa__b14_13 = RTMapAd_1a;   // b14.13: RamA1orVCCa strapped to RTMapAd.1a
+  assign RamA0orVEEa__b14_14 = VEE_m_69;   // b14.14: RamA0orVEEa strapped to VEE-69
+  assign RamA0orVEEa__b14_15 = RTMapAd_0a;   // b14.15: RamA0orVEEa strapped to RTMapAd.0a
+  assign RamV_pl_b__c11_2 = GND_m_34;   // c11.2: RamV+b strapped to GND-34
+  assign RamA1orVCCb__c11_3 = GND_m_34;   // c11.3: RamA1orVCCb strapped to GND-34
+  assign RamV_pl_b__c11_4 = GND_m_34;   // c11.4: RamV+b strapped to GND-34
+  assign RamA1orVCCb__c11_5 = GND_m_34;   // c11.5: RamA1orVCCb strapped to GND-34
+  assign RamA0orVEEb__c11_6 = GND_m_39;   // c11.6: RamA0orVEEb strapped to GND-39
+  assign RamV_pl_b__c12_10 = VDD_m_63;   // c12.10: RamV+b strapped to VDD-63
+  assign RamV_pl_b__c12_11 = VCC_m_56;   // c12.11: RamV+b strapped to VCC-56
+  assign RamA1orVCCb__c12_12 = VCC_m_56;   // c12.12: RamA1orVCCb strapped to VCC-56
+  assign RamA1orVCCb__c12_13 = RTMapAd_1b;   // c12.13: RamA1orVCCb strapped to RTMapAd.1b
+  assign RamA0orVEEb__c12_14 = VEE_m_68;   // c12.14: RamA0orVEEb strapped to VEE-68
+  assign RamA0orVEEb__c12_15 = RTMapAd_0b;   // c12.15: RamA0orVEEb strapped to RTMapAd.0b
 
   // ---- packages
   cell_MC10174 u_a01 (
@@ -1721,33 +1865,6 @@ module MemX_m_Rev_m_Ch (
     .p14(RP_10),
     .p15(RP_09)
   ); // MC10124
-  cell_AUGATCG16 u_b13 (
-    .p2(RamV_pl_a),
-    .p3(RamA1orVCCa),
-    .p4(RamV_pl_a),
-    .p5(RamA1orVCCa),
-    .p6(RamA0orVEEa),
-    .p11(GND_m_44),
-    .p12(GND_m_38),
-    .p13(GND_m_38),
-    .p14(GND_m_38),
-    .p15(GND_m_38)
-  ); // AUGATCG16
-  cell_AUGATCG16 u_b14 (
-    .p1(VCC_m_55),
-    .p2(RTMapAd_0a),
-    .p3(VEE_m_69),
-    .p4(RTMapAd_1a),
-    .p5(VCC_m_47),
-    .p6(VCC_m_57),
-    .p7(VDD_m_64),
-    .p10(RamV_pl_a),
-    .p11(RamV_pl_a),
-    .p12(RamA1orVCCa),
-    .p13(RamA1orVCCa),
-    .p14(RamA0orVEEa),
-    .p15(RamA0orVEEa)
-  ); // AUGATCG16
   cell_MC10125 u_b15 (
     .p1(VBBb15),
     .p2(VBBb15),
@@ -1858,42 +1975,6 @@ module MemX_m_Rev_m_Ch (
     .p14(FinSubtask_0__drv),
     .p15(FinSubtask_1__drv)
   ); // F10016
-  cell_SIPpackage u_b42 (
-    .p1(RamA0orVEEa),
-    .p4(GND_m_43),
-    .p5(GND_m_3),
-    .p8(RamV_pl_a)
-  ); // SIPpackage
-  cell_SIPpackage u_b43 (
-    .p1(RamA1orVCCa),
-    .p4(GND_m_42),
-    .p5(GND_m_42),
-    .p8(RamV_pl_a)
-  ); // SIPpackage
-  cell_SIPpackage u_b44 (
-    .p1(RamA0orVEEa),
-    .p4(GND_m_41),
-    .p5(GND_m_41),
-    .p8(RamV_pl_a)
-  ); // SIPpackage
-  cell_SIPpackage u_b45 (
-    .p1(RamA1orVCCa),
-    .p4(GND_m_40),
-    .p5(GND_m_2),
-    .p8(RamV_pl_a)
-  ); // SIPpackage
-  cell_SIPpackage u_b46 (
-    .p1(RamA0orVEEa),
-    .p4(GND_m_39),
-    .p5(GND_m_39),
-    .p8(RamV_pl_a)
-  ); // SIPpackage
-  cell_SIPpackage u_b47 (
-    .p1(RamA1orVCCa),
-    .p4(GND_m_38),
-    .p5(GND_m_38),
-    .p8(RamV_pl_a)
-  ); // SIPpackage
   cell_MC10231 u_c01 (
     .sys_clk(sys_clk),
     .p2(MemRASa__drv),
@@ -1969,33 +2050,6 @@ module MemX_m_Rev_m_Ch (
     .p15(GND_m_35),
     .p16(GND_m_35)
   ); // SE10210
-  cell_AUGATCG16 u_c11 (
-    .p2(RamV_pl_b),
-    .p3(RamA1orVCCb),
-    .p4(RamV_pl_b),
-    .p5(RamA1orVCCb),
-    .p6(RamA0orVEEb),
-    .p11(GND_m_39),
-    .p12(GND_m_34),
-    .p13(GND_m_34),
-    .p14(GND_m_34),
-    .p15(GND_m_34)
-  ); // AUGATCG16
-  cell_AUGATCG16 u_c12 (
-    .p1(VCC_m_56),
-    .p2(RTMapAd_0b),
-    .p3(VEE_m_68),
-    .p4(RTMapAd_1b),
-    .p5(VCC_m_56),
-    .p6(VCC_m_56),
-    .p7(VDD_m_63),
-    .p10(RamV_pl_b),
-    .p11(RamV_pl_b),
-    .p12(RamA1orVCCb),
-    .p13(RamA1orVCCb),
-    .p14(RamA0orVEEb),
-    .p15(RamA0orVEEb)
-  ); // AUGATCG16
   cell_MC10125 u_c13 (
     .p1(VBBc13),
     .p2(VBBc13),
@@ -2525,42 +2579,6 @@ module MemX_m_Rev_m_Ch (
     .p14(MemAd_1__drv),
     .p15(MemAd_2__drv)
   ); // MC10159
-  cell_SIPpackage u_d42 (
-    .p1(RamA0orVEEb),
-    .p4(GND_m_28),
-    .p5(GND_m_28),
-    .p8(RamV_pl_b)
-  ); // SIPpackage
-  cell_SIPpackage u_d43 (
-    .p1(RamA1orVCCb),
-    .p4(GND_m_27),
-    .p5(GND_m_27),
-    .p8(RamV_pl_b)
-  ); // SIPpackage
-  cell_SIPpackage u_d44 (
-    .p1(RamA0orVEEb),
-    .p4(GND_m_26),
-    .p5(GND_m_26),
-    .p8(RamV_pl_b)
-  ); // SIPpackage
-  cell_SIPpackage u_d45 (
-    .p1(RamA1orVCCb),
-    .p4(GND_m_25),
-    .p5(GND_m_25),
-    .p8(RamV_pl_b)
-  ); // SIPpackage
-  cell_SIPpackage u_d46 (
-    .p1(RamA0orVEEb),
-    .p4(GND_m_24),
-    .p5(GND_m_24),
-    .p8(RamV_pl_b)
-  ); // SIPpackage
-  cell_SIPpackage u_d47 (
-    .p1(RamA1orVCCb),
-    .p4(GND_m_23),
-    .p5(GND_m_23),
-    .p8(RamV_pl_b)
-  ); // SIPpackage
   cell_MC10174 u_e01 (
     .p2(BMux_12__drv),
     .p3(FaultSrn_0),

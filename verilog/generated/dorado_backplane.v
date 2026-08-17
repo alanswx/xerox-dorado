@@ -110,14 +110,14 @@ module dorado_backplane (
     input  wire ChipsAre256_s_16K         ,  // to a backplane connector (cable)
     input  wire ChipsAre64K               ,  // to a backplane connector (cable)
     input  wire ClkEnable_p_a             ,  // to a backplane connector (cable)
-    input  wire ClockM0                   ,  // to a backplane connector (cable)
-    input  wire ClockM1                   ,  // to a backplane connector (cable)
-    input  wire ClockM2                   ,  // to a backplane connector (cable)
-    input  wire ClockM3                   ,  // to a backplane connector (cable)
-    input  wire ClockP0                   ,  // to a backplane connector (cable)
-    input  wire ClockP1                   ,  // to a backplane connector (cable)
-    input  wire ClockP2                   ,  // to a backplane connector (cable)
-    input  wire ClockP3                   ,  // to a backplane connector (cable)
+    output wire ClockM0                   ,  // to a backplane connector (cable)
+    output wire ClockM1                   ,  // to a backplane connector (cable)
+    output wire ClockM2                   ,  // to a backplane connector (cable)
+    output wire ClockM3                   ,  // to a backplane connector (cable)
+    output wire ClockP0                   ,  // to a backplane connector (cable)
+    output wire ClockP1                   ,  // to a backplane connector (cable)
+    output wire ClockP2                   ,  // to a backplane connector (cable)
+    output wire ClockP3                   ,  // to a backplane connector (cable)
     input  wire Collision                 ,  // to a backplane connector (cable)
     output wire ContTag_p_                ,  // to a backplane connector (cable)
     output wire CrryEvCntA                ,  // to a backplane connector (cable)
@@ -309,17 +309,17 @@ module dorado_backplane (
     output wire SWb                       ,  // to a backplane connector (cable)
     output wire SWm                       ,  // to a backplane connector (cable)
     input  wire SecIndx0_p_               ,  // to a backplane connector (cable)
-    input  wire SecIndx1_p_               ,  // to a backplane connector (cable)
+    output wire SecIndx1_p_               ,  // to a backplane connector (cable)
     input  wire SecIndx2_p_               ,  // to a backplane connector (cable)
-    input  wire SecIndx3_p_               ,  // to a backplane connector (cable)
+    output wire SecIndx3_p_               ,  // to a backplane connector (cable)
     output wire Select0_p_                ,  // to a backplane connector (cable)
     output wire Select1_p_                ,  // to a backplane connector (cable)
     output wire Select2_p_                ,  // to a backplane connector (cable)
     output wire Select3_p_                ,  // to a backplane connector (cable)
     input  wire Selected0_p_              ,  // to a backplane connector (cable)
-    input  wire Selected1_p_              ,  // to a backplane connector (cable)
+    output wire Selected1_p_              ,  // to a backplane connector (cable)
     input  wire Selected2_p_              ,  // to a backplane connector (cable)
-    input  wire Selected3_p_              ,  // to a backplane connector (cable)
+    output wire Selected3_p_              ,  // to a backplane connector (cable)
     output wire Sequence0_p_              ,  // to a backplane connector (cable)
     input  wire Serial_1                  ,  // to a backplane connector (cable)
     input  wire Serial_10                 ,  // to a backplane connector (cable)
@@ -403,15 +403,15 @@ module dorado_backplane (
     output wire TagBus_9_p_               ,  // to a backplane connector (cable)
     input  wire TermIsLF                  ,  // to a backplane connector (cable)
     output wire TestTW                    ,  // to a backplane connector (cable)
-    input  wire TtlDeviceCk_p_            ,  // to a backplane connector (cable)
+    output wire TtlDeviceCk_p_            ,  // to a backplane connector (cable)
     input  wire TtlEndOfCyl_p_            ,  // to a backplane connector (cable)
-    input  wire TtlIndex_p_               ,  // to a backplane connector (cable)
+    output wire TtlIndex_p_               ,  // to a backplane connector (cable)
     input  wire TtlOffSet_p_              ,  // to a backplane connector (cable)
-    input  wire TtlOnLine_p_              ,  // to a backplane connector (cable)
+    output wire TtlOnLine_p_              ,  // to a backplane connector (cable)
     input  wire TtlReadOnly_p_            ,  // to a backplane connector (cable)
-    input  wire TtlReady_p_               ,  // to a backplane connector (cable)
+    output wire TtlReady_p_               ,  // to a backplane connector (cable)
     output wire TtlSector_p_              ,  // to a backplane connector (cable)
-    input  wire TtlSeekInc_p_             ,  // to a backplane connector (cable)
+    output wire TtlSeekInc_p_             ,  // to a backplane connector (cable)
     input  wire TtlTerm_p_                ,  // to a backplane connector (cable)
     output wire TurnOff2v                 ,  // to a backplane connector (cable)
     output wire TurnOnDisk_p_             ,  // to a backplane connector (cable)
@@ -1166,6 +1166,14 @@ module dorado_backplane (
   wire CacheRef_p___MemC;
   wire CacheRefInEc1__MemC;
   wire CkMdParity_p___ProcL;
+  wire ClockM0__DskEth;
+  wire ClockM1__DskEth;
+  wire ClockM2__DskEth;
+  wire ClockM3__DskEth;
+  wire ClockP0__DskEth;
+  wire ClockP1__DskEth;
+  wire ClockP2__DskEth;
+  wire ClockP3__DskEth;
   wire Cnt_eq_Zero_p___ProcH;
   wire Cnt_eq_Zero_p___ProcL;
   wire ContTag_p___DskEth;
@@ -1567,12 +1575,16 @@ module dorado_backplane (
   wire STfree_p___MemX;
   wire SWb__ContA;
   wire SWm__ContA;
+  wire SecIndx1_p___DskEth;
+  wire SecIndx3_p___DskEth;
   wire Select0_p___DskEth;
   wire Select1_p___DskEth;
   wire Select2_p___DskEth;
   wire Select3_p___DskEth;
   wire SelectRm_p_a__ProcL;
   wire SelectStk_p_a__ProcL;
+  wire Selected1_p___DskEth;
+  wire Selected3_p___DskEth;
   wire Sequence0_p___BaseBd;
   wire SetRun__BaseBd;
   wire SetRunRfsh__BaseBd;
@@ -1692,7 +1704,12 @@ module dorado_backplane (
   wire TempRef__BaseBd;
   wire TestTW__ProcH;
   wire Transport_p___MemX;
+  wire TtlDeviceCk_p___DskEth;
+  wire TtlIndex_p___DskEth;
+  wire TtlOnLine_p___DskEth;
+  wire TtlReady_p___DskEth;
   wire TtlSector_p___DskEth;
+  wire TtlSeekInc_p___DskEth;
   wire TurnOff2v__BaseBd;
   wire TurnOnDisk_p___BaseBd;
   wire TurnOnLED_p___BaseBd;
@@ -1960,6 +1977,14 @@ module dorado_backplane (
   assign CacheRef_p_ = CacheRef_p___MemC;
   assign CacheRefInEc1 = CacheRefInEc1__MemC;
   assign CkMdParity_p_ = CkMdParity_p___ProcL;
+  assign ClockM0 = ClockM0__DskEth;
+  assign ClockM1 = ClockM1__DskEth;
+  assign ClockM2 = ClockM2__DskEth;
+  assign ClockM3 = ClockM3__DskEth;
+  assign ClockP0 = ClockP0__DskEth;
+  assign ClockP1 = ClockP1__DskEth;
+  assign ClockP2 = ClockP2__DskEth;
+  assign ClockP3 = ClockP3__DskEth;
   assign Cnt_eq_Zero_p_ = Cnt_eq_Zero_p___ProcH | Cnt_eq_Zero_p___ProcL;
   assign ContTag_p_ = ContTag_p___DskEth;
   assign CountMiss = CountMiss__MemX;
@@ -2296,12 +2321,16 @@ module dorado_backplane (
   assign STfree_p_ = STfree_p___MemX;
   assign SWb = SWb__ContA;
   assign SWm = SWm__ContA;
+  assign SecIndx1_p_ = SecIndx1_p___DskEth;
+  assign SecIndx3_p_ = SecIndx3_p___DskEth;
   assign Select0_p_ = Select0_p___DskEth;
   assign Select1_p_ = Select1_p___DskEth;
   assign Select2_p_ = Select2_p___DskEth;
   assign Select3_p_ = Select3_p___DskEth;
   assign SelectRm_p_a = SelectRm_p_a__ProcL;
   assign SelectStk_p_a = SelectStk_p_a__ProcL;
+  assign Selected1_p_ = Selected1_p___DskEth;
+  assign Selected3_p_ = Selected3_p___DskEth;
   assign Sequence0_p_ = Sequence0_p___BaseBd;
   assign SetRun = SetRun__BaseBd;
   assign SetRunRfsh = SetRunRfsh__BaseBd;
@@ -2421,7 +2450,12 @@ module dorado_backplane (
   assign TempRef = TempRef__BaseBd;
   assign TestTW = TestTW__ProcH;
   assign Transport_p_ = Transport_p___MemX;
+  assign TtlDeviceCk_p_ = TtlDeviceCk_p___DskEth;
+  assign TtlIndex_p_ = TtlIndex_p___DskEth;
+  assign TtlOnLine_p_ = TtlOnLine_p___DskEth;
+  assign TtlReady_p_ = TtlReady_p___DskEth;
   assign TtlSector_p_ = TtlSector_p___DskEth;
+  assign TtlSeekInc_p_ = TtlSeekInc_p___DskEth;
   assign TurnOff2v = TurnOff2v__BaseBd;
   assign TurnOnDisk_p_ = TurnOnDisk_p___BaseBd;
   assign TurnOnLED_p_ = TurnOnLED_p___BaseBd;
@@ -4352,6 +4386,14 @@ module dorado_backplane (
     .TtlSector_p_(TtlSector_p_),
     .TtlSeekInc_p_(TtlSeekInc_p_),
     .TtlTerm_p_(TtlTerm_p_),
+    .ClockM0__drv(ClockM0__DskEth),
+    .ClockM1__drv(ClockM1__DskEth),
+    .ClockM2__drv(ClockM2__DskEth),
+    .ClockM3__drv(ClockM3__DskEth),
+    .ClockP0__drv(ClockP0__DskEth),
+    .ClockP1__drv(ClockP1__DskEth),
+    .ClockP2__drv(ClockP2__DskEth),
+    .ClockP3__drv(ClockP3__DskEth),
     .ContTag_p___drv(ContTag_p___DskEth),
     .CylinderTag_p___drv(CylinderTag_p___DskEth),
     .DMuxData__drv(DMuxData__DskEth),
@@ -4390,10 +4432,14 @@ module dorado_backplane (
     .OS1__drv(OS1__DskEth),
     .OS2__drv(OS2__DskEth),
     .OS3__drv(OS3__DskEth),
+    .SecIndx1_p___drv(SecIndx1_p___DskEth),
+    .SecIndx3_p___drv(SecIndx3_p___DskEth),
     .Select0_p___drv(Select0_p___DskEth),
     .Select1_p___drv(Select1_p___DskEth),
     .Select2_p___drv(Select2_p___DskEth),
     .Select3_p___drv(Select3_p___DskEth),
+    .Selected1_p___drv(Selected1_p___DskEth),
+    .Selected3_p___drv(Selected3_p___DskEth),
     .TagBus_0_p___drv(TagBus_0_p___DskEth),
     .TagBus_00_p___drv(TagBus_00_p___DskEth),
     .TagBus_000_p___drv(TagBus_000_p___DskEth),
@@ -4406,7 +4452,12 @@ module dorado_backplane (
     .TagBus_7_p___drv(TagBus_7_p___DskEth),
     .TagBus_8_p___drv(TagBus_8_p___DskEth),
     .TagBus_9_p___drv(TagBus_9_p___DskEth),
+    .TtlDeviceCk_p___drv(TtlDeviceCk_p___DskEth),
+    .TtlIndex_p___drv(TtlIndex_p___DskEth),
+    .TtlOnLine_p___drv(TtlOnLine_p___DskEth),
+    .TtlReady_p___drv(TtlReady_p___DskEth),
     .TtlSector_p___drv(TtlSector_p___DskEth),
+    .TtlSeekInc_p___drv(TtlSeekInc_p___DskEth),
     .WakeEthRx__drv(WakeEthRx__DskEth),
     .WakeEthTx__drv(WakeEthTx__DskEth),
     .XmtData_p___drv(XmtData_p___DskEth)
@@ -4494,18 +4545,6 @@ module dorado_backplane (
     .Next_1(Next_1),
     .Next_2(Next_2),
     .Next_3(Next_3),
-    .OISClkA(OISClkA),
-    .OISClkA_p_(OISClkA_p_),
-    .OISClkB(OISClkB),
-    .OISClkB_p_(OISClkB_p_),
-    .OISData_0(OISData_0),
-    .OISData_0_p_(OISData_0_p_),
-    .OISData_1(OISData_1),
-    .OISData_1_p_(OISData_1_p_),
-    .OISData_2(OISData_2),
-    .OISData_2_p_(OISData_2_p_),
-    .OISData_3(OISData_3),
-    .OISData_3_p_(OISData_3_p_),
     .PixelClkVCO(PixelClkVCO),
     .RawPixelClk(RawPixelClk),
     .TIOA_0(TIOA_0),
@@ -4610,19 +4649,8 @@ module dorado_backplane (
     .ACPGnd_10(ACPGnd_10),
     .ACPGnd_11(ACPGnd_11),
     .ACPGnd_12(ACPGnd_12),
-    .ACPI_0(ACPI_0),
-    .ACPI_1(ACPI_1),
-    .ACPI_2(ACPI_2),
-    .ACPI_3(ACPI_3),
-    .ACPI_4(ACPI_4),
-    .ACPIGnd_0(ACPIGnd_0),
-    .ACPIGnd_1(ACPIGnd_1),
-    .ACPIGnd_2(ACPIGnd_2),
-    .ACPIGnd_3(ACPIGnd_3),
-    .ACPIGnd_4(ACPIGnd_4),
     .ACPStrb_p_(ACPStrb_p_),
     .BootMC_p_(BootMC_p_),
-    .BootNO(BootNO),
     .CBTempSense(CBTempSense),
     .CICC__m_SS(CICC__m_SS),
     .CICC_EOS(CICC_EOS),
@@ -4655,9 +4683,7 @@ module dorado_backplane (
     .Serial_200(Serial_200),
     .Serial_4(Serial_4),
     .Serial_40(Serial_40),
-    .SkipWait_p_(SkipWait_p_),
     .TTLIOReset_p_(TTLIOReset_p_),
-    .TempRef(TempRef),
     .UseDMD(UseDMD),
     .XmtData_p_(XmtData_p_),
     .dStartClockPulse(dStartClockPulse),
@@ -4751,7 +4777,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 233 signals, 32 at a time;
+// probe_val exposes 250 signals, 32 at a time;
 // dorado_backplane.probes lists which bit is which.
 module dorado_machine (
     input  wire        sys_clk,
@@ -4813,6 +4839,14 @@ module dorado_machine (
   wire CLK_ms2Odd_p_;
   wire CLK_ms3Even_p_;
   wire CLK_ms3Odd_p_;
+  wire ClockM0;
+  wire ClockM1;
+  wire ClockM2;
+  wire ClockM3;
+  wire ClockP0;
+  wire ClockP1;
+  wire ClockP2;
+  wire ClockP3;
   wire ContTag_p_;
   wire CrryEvCntA;
   wire Crystal;
@@ -4928,10 +4962,14 @@ module dorado_machine (
   wire RScopeClk0_p_;
   wire SWb;
   wire SWm;
+  wire SecIndx1_p_;
+  wire SecIndx3_p_;
   wire Select0_p_;
   wire Select1_p_;
   wire Select2_p_;
   wire Select3_p_;
+  wire Selected1_p_;
+  wire Selected3_p_;
   wire Sequence0_p_;
   wire ShiftEcOut;
   wire ShiftSinE;
@@ -4971,7 +5009,12 @@ module dorado_machine (
   wire TagBus_8_p_;
   wire TagBus_9_p_;
   wire TestTW;
+  wire TtlDeviceCk_p_;
+  wire TtlIndex_p_;
+  wire TtlOnLine_p_;
+  wire TtlReady_p_;
   wire TtlSector_p_;
+  wire TtlSeekInc_p_;
   wire TurnOff2v;
   wire TurnOnDisk_p_;
   wire TurnOnLED_p_;
@@ -4999,7 +5042,7 @@ module dorado_machine (
   wire CLK_pl_p__probe = u_machine.CLK_pl_p_;
 
   wire [255:0] probe = {
-    23'd0,
+    6'd0,
     CLK_pl_p__probe,
     CLK_ph_p__probe,
     CLK_mx_p__probe,
@@ -5021,7 +5064,12 @@ module dorado_machine (
     TurnOnLED_p_,
     TurnOnDisk_p_,
     TurnOff2v,
+    TtlSeekInc_p_,
     TtlSector_p_,
+    TtlReady_p_,
+    TtlOnLine_p_,
+    TtlIndex_p_,
+    TtlDeviceCk_p_,
     TestTW,
     TagBus_9_p_,
     TagBus_8_p_,
@@ -5061,10 +5109,14 @@ module dorado_machine (
     ShiftSinE,
     ShiftEcOut,
     Sequence0_p_,
+    Selected3_p_,
+    Selected1_p_,
     Select3_p_,
     Select2_p_,
     Select1_p_,
     Select0_p_,
+    SecIndx3_p_,
+    SecIndx1_p_,
     SWm,
     SWb,
     RScopeClk0_p_,
@@ -5180,6 +5232,14 @@ module dorado_machine (
     Crystal,
     CrryEvCntA,
     ContTag_p_,
+    ClockP3,
+    ClockP2,
+    ClockP1,
+    ClockP0,
+    ClockM3,
+    ClockM2,
+    ClockM1,
+    ClockM0,
     CLK_ms3Odd_p_,
     CLK_ms3Even_p_,
     CLK_ms2Odd_p_,
@@ -5328,14 +5388,14 @@ module dorado_machine (
     .ChipsAre256_s_16K(1'b0),
     .ChipsAre64K(1'b0),
     .ClkEnable_p_a(1'b0),
-    .ClockM0(1'b0),
-    .ClockM1(1'b0),
-    .ClockM2(1'b0),
-    .ClockM3(1'b0),
-    .ClockP0(1'b0),
-    .ClockP1(1'b0),
-    .ClockP2(1'b0),
-    .ClockP3(1'b0),
+    .ClockM0(ClockM0),
+    .ClockM1(ClockM1),
+    .ClockM2(ClockM2),
+    .ClockM3(ClockM3),
+    .ClockP0(ClockP0),
+    .ClockP1(ClockP1),
+    .ClockP2(ClockP2),
+    .ClockP3(ClockP3),
     .Collision(1'b0),
     .ContTag_p_(ContTag_p_),
     .CrryEvCntA(CrryEvCntA),
@@ -5527,17 +5587,17 @@ module dorado_machine (
     .SWb(SWb),
     .SWm(SWm),
     .SecIndx0_p_(1'b0),
-    .SecIndx1_p_(1'b0),
+    .SecIndx1_p_(SecIndx1_p_),
     .SecIndx2_p_(1'b0),
-    .SecIndx3_p_(1'b0),
+    .SecIndx3_p_(SecIndx3_p_),
     .Select0_p_(Select0_p_),
     .Select1_p_(Select1_p_),
     .Select2_p_(Select2_p_),
     .Select3_p_(Select3_p_),
     .Selected0_p_(1'b0),
-    .Selected1_p_(1'b0),
+    .Selected1_p_(Selected1_p_),
     .Selected2_p_(1'b0),
-    .Selected3_p_(1'b0),
+    .Selected3_p_(Selected3_p_),
     .Sequence0_p_(Sequence0_p_),
     .Serial_1(1'b0),
     .Serial_10(1'b0),
@@ -5621,15 +5681,15 @@ module dorado_machine (
     .TagBus_9_p_(TagBus_9_p_),
     .TermIsLF(1'b0),
     .TestTW(TestTW),
-    .TtlDeviceCk_p_(1'b0),
+    .TtlDeviceCk_p_(TtlDeviceCk_p_),
     .TtlEndOfCyl_p_(1'b0),
-    .TtlIndex_p_(1'b0),
+    .TtlIndex_p_(TtlIndex_p_),
     .TtlOffSet_p_(1'b0),
-    .TtlOnLine_p_(1'b0),
+    .TtlOnLine_p_(TtlOnLine_p_),
     .TtlReadOnly_p_(1'b0),
-    .TtlReady_p_(1'b0),
+    .TtlReady_p_(TtlReady_p_),
     .TtlSector_p_(TtlSector_p_),
-    .TtlSeekInc_p_(1'b0),
+    .TtlSeekInc_p_(TtlSeekInc_p_),
     .TtlTerm_p_(1'b0),
     .TurnOff2v(TurnOff2v),
     .TurnOnDisk_p_(TurnOnDisk_p_),

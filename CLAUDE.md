@@ -955,9 +955,40 @@ same expression. It also showed why `machine-test` must NOT gate on how many
 signals toggle: correct logic holds nets steady, so the count fell 31 -> 27
 as cells got MORE right. It gates on the clock reaching every slot instead.
 
-**Pick it up from `docs/verilog-handoff.md`** -- written to be read cold, now
-with the port-list fix as a self-contained first task and then the work to
-wire the machine together and test it against the C emulator.
+**The BaseBoard's 6502 BOOTS ITS OWN FIRMWARE in RTL (2026-08-17).**
+`make -C verilog baseboard-test` watches it read `0xF3A7` out of `0xFFFC/D`,
+fetch from there, and execute the ROM's own reset routine byte for byte
+against `chm/disassembly/bb_F000-FFFF.s`. Six things had to be true together,
+each mutation-tested: resistor packs resolved (they supply the machine's
+constant 1 and cannot be a cell, since seven of eight pins drive on some
+boards and are the tie point on others); the supply rails stated; the ROM
+decode strapped -- **the wire list's per-pin `{x,y}` coordinates state the
+wire-wrap jumpers geometrically**, confirming a strapping that had only been
+inferred; tri-state parts contributing nothing when off the bus; the EPROM a
+registered block RAM, which is also the data hold the 6502 needs; and a real
+power-on reset, because `PwrGood` asserted from cycle 0 released the processor
+before it ever ran a reset sequence.
+
+**The EPROM bytes are stored BIT-REVERSED, and the 1987 chip dumps prove it.**
+The board wires the 2716's pin 9 (O0) to the 6502's DB7, so the byte arrives
+end for end and the chips were blown that way. `firmware/B-08.BIN` read
+bit-reversed is byte-for-byte `doradobaserom.mb!13`'s 0xF000 block, all 2048;
+`B-10.BIN` reversed gives that image's own vectors. Those five dumps had been
+written off as "a different set or a different layout" because none had a
+plausible 6502 vector triple -- they had one all along, and they land on
+exactly the four populated sockets.
+
+**Open, and the next task: the assembled machine does not settle.** Once the
+BaseBoard really runs, `make -C verilog machine-test` stops converging -- 40
+circular combinational paths across ProcH, ProcL, MemC, MemD, MemX, DskEth,
+DispY and the IFU, all of them present before this and harmless only while
+nothing moved. They are gate chains whose PROPAGATION DELAY is the timing
+element, which is how ECL designs of this period build a delay line; a
+zero-delay simulator has none, and neither does FPGA fabric. The shape of the
+answer is the one already used for the VCO and the crystal: recognise them and
+give them a clocked delay.
+
+**Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 
 Full plan, including what is missing and the suggested order:
 `docs/verilog-from-sil.md`. The board-by-board cross-check of the C

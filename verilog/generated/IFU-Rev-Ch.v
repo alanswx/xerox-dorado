@@ -1192,6 +1192,35 @@ module IFU_m_Rev_m_Ch (
 
   // 81 single-driver contributions to the backplane
 
+  // ---- 27 supply rails
+  assign GND108 = 1'b0;
+  assign GND110 = 1'b0;
+  assign GND132 = 1'b0;
+  assign GND134 = 1'b0;
+  assign GND144 = 1'b0;
+  assign GND156 = 1'b0;
+  assign GND180 = 1'b0;
+  assign GND182 = 1'b0;
+  assign GND216 = 1'b0;
+  assign GND264 = 1'b0;
+  assign GND266 = 1'b0;
+  assign GND278 = 1'b0;
+  assign GND298 = 1'b0;
+  assign GND312 = 1'b0;
+  assign GND314 = 1'b0;
+  assign GND396 = 1'b0;
+  assign GND422 = 1'b0;
+  assign GND446 = 1'b0;
+  assign GND470 = 1'b0;
+  assign GND488 = 1'b0;
+  assign GND532 = 1'b0;
+  assign VCC109 = 1'b1;
+  assign VCC121 = 1'b1;
+  assign VCC126 = 1'b1;
+  assign VCC97 = 1'b1;
+  assign VCC99 = 1'b1;
+  assign VEE174 = 1'b0;
+
   // ---- packages
   cell_MC10101 u_a01 (
     .p2(MAR_00_p___drv),
@@ -4183,10 +4212,6 @@ module IFU_m_Rev_m_Ch (
     .p11(clk0_p_Dd),
     .p14(IfuAddr_11_p___drv)
   ); // MC10231
-  cell_SIPpackage u_j46 (
-    .p1(VCC126),
-    .p3(TTLHigh)
-  ); // SIPpackage
   cell_MC10124 u_k01 (
     .p1(ifu13_sil_pl_27),
     .p2(ifu13_sil_pl_24),

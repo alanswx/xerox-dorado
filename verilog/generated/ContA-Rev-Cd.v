@@ -1493,6 +1493,42 @@ module ContA_m_Rev_m_Cd (
 
   // 63 single-driver contributions to the backplane
 
+  // ---- 34 supply rails
+  assign GND132 = 1'b0;
+  assign GND134 = 1'b0;
+  assign GND156 = 1'b0;
+  assign GND158 = 1'b0;
+  assign GND180 = 1'b0;
+  assign GND188 = 1'b0;
+  assign GND234 = 1'b0;
+  assign GND236 = 1'b0;
+  assign GND264 = 1'b0;
+  assign GND266 = 1'b0;
+  assign GND278 = 1'b0;
+  assign GND281 = 1'b0;
+  assign GND284 = 1'b0;
+  assign GND286 = 1'b0;
+  assign GND288 = 1'b0;
+  assign GND312 = 1'b0;
+  assign GND314 = 1'b0;
+  assign GND326 = 1'b0;
+  assign GND328 = 1'b0;
+  assign GND36 = 1'b0;
+  assign GND394 = 1'b0;
+  assign GND396 = 1'b0;
+  assign GND398 = 1'b0;
+  assign GND4 = 1'b0;
+  assign GND420 = 1'b0;
+  assign GND44 = 1'b0;
+  assign GND444 = 1'b0;
+  assign GND446 = 1'b0;
+  assign GND468 = 1'b0;
+  assign GND470 = 1'b0;
+  assign GND530 = 1'b0;
+  assign GND544 = 1'b0;
+  assign GND88 = 1'b0;
+  assign GND92 = 1'b0;
+
   // ---- packages
   cell_MC10161 u_a01 (
     .p2(CPStrb_p_),

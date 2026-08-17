@@ -1043,6 +1043,41 @@ module ContB_m_Rev_m_Cd (
 
   // 53 single-driver contributions to the backplane
 
+  // ---- 33 supply rails
+  assign GND106 = 1'b0;
+  assign GND120 = 1'b0;
+  assign GND122 = 1'b0;
+  assign GND136 = 1'b0;
+  assign GND168 = 1'b0;
+  assign GND170 = 1'b0;
+  assign GND190 = 1'b0;
+  assign GND202 = 1'b0;
+  assign GND216 = 1'b0;
+  assign GND218 = 1'b0;
+  assign GND24 = 1'b0;
+  assign GND250 = 1'b0;
+  assign GND264 = 1'b0;
+  assign GND312 = 1'b0;
+  assign GND314 = 1'b0;
+  assign GND360 = 1'b0;
+  assign GND362 = 1'b0;
+  assign GND408 = 1'b0;
+  assign GND410 = 1'b0;
+  assign GND424 = 1'b0;
+  assign GND442 = 1'b0;
+  assign GND456 = 1'b0;
+  assign GND458 = 1'b0;
+  assign GND484 = 1'b0;
+  assign GND490 = 1'b0;
+  assign GND504 = 1'b0;
+  assign GND506 = 1'b0;
+  assign GND530 = 1'b0;
+  assign GND552 = 1'b0;
+  assign GND72 = 1'b0;
+  assign GND74 = 1'b0;
+  assign VCC54 = 1'b1;
+  assign VEE37 = 1'b0;
+
   // ---- packages
   cell_F10415A u_a06 (
     .p1(dASEL_0__a06_1),

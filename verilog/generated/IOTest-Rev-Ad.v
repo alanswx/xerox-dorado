@@ -371,6 +371,23 @@ module IOTest_m_Rev_m_Ad (
 
   // 20 single-driver contributions to the backplane
 
+  // ---- 12 supply rails
+  assign GND156 = 1'b0;
+  assign GND182 = 1'b0;
+  assign GND264 = 1'b0;
+  assign GND266 = 1'b0;
+  assign GND312 = 1'b0;
+  assign GND314 = 1'b0;
+  assign GND422 = 1'b0;
+  assign GND446 = 1'b0;
+  assign GND470 = 1'b0;
+  assign GND512 = 1'b0;
+  assign GND530 = 1'b0;
+  assign GND558 = 1'b0;
+
+  // ---- wire-wrap jumpers (Augat headers): the strap the netlist forces
+  assign IOtest06_sil_pl_2 = Foo;   // l11.15: IOtest06.sil+2 strapped to Foo
+
   // ---- packages
   cell_MC10113 u_a24 (
     .p2(NEXT_eq_me_p___a24_2),
@@ -899,17 +916,6 @@ module IOTest_m_Rev_m_Ad (
     .p14(rFout_09),
     .p15(rFout_10)
   ); // MC10176
-  cell_AUGATCG16 u_k15 (
-    .p2(SEout_02),
-    .p3(SEout_03),
-    .p4(SEout_04),
-    .p6(clk2_p_Dc),
-    .p7(IOtest06_sil_pl_1)
-  ); // AUGATCG16
-  cell_AUGATCG16 u_k16 (
-    .p2(SEout_14),
-    .p15(IOtest06_sil_pl_1)
-  ); // AUGATCG16
   cell_F10145A u_k20 (
     .p1(IOtest04_sil_pl_4__k20_1),
     .p2(IOtest04_sil_pl_5__k20_2),
@@ -972,15 +978,6 @@ module IOTest_m_Rev_m_Ad (
     .p14(rFout_04),
     .p15(rFout_16)
   ); // MC10176
-  cell_SIPpackage u_k48 (
-    .p1(GND512),
-    .p2(GND512),
-    .p3(SEout_14),
-    .p4(SEout_13),
-    .p5(SEout_12),
-    .p6(clk2_p_Dc),
-    .p7(IOtest06_sil_pl_1)
-  ); // SIPpackage
   cell_SE10210 u_l01 (
     .p2(prepreClk2_p_b),
     .p3(prepreClk2_p_a),
@@ -1011,10 +1008,6 @@ module IOTest_m_Rev_m_Ad (
     .p13(IOtest06_sil_pl_2),
     .p14(IOtest06_sil_pl_4)
   ); // F10016
-  cell_AUGATCG16 u_l11 (
-    .p2(Foo),
-    .p15(IOtest06_sil_pl_2)
-  ); // AUGATCG16
   cell_SE10210 u_l15 (
     .p2(SEref_02),
     .p3(SEref_03),
@@ -1068,9 +1061,6 @@ module IOTest_m_Rev_m_Ad (
     .p14(IOtest04_sil_pl_3__l21_14),
     .p15(IOtest04_sil_pl_2__l21_15)
   ); // F10145A
-  cell_SIPpackage u_l48 (
-    // no connections
-  ); // SIPpackage
 
 endmodule
 `default_nettype wire
