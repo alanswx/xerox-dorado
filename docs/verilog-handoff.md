@@ -781,6 +781,56 @@ Five mutations were tried; four fail as they should (no ClrMIR between vectors,
 ClrMIR never released, BLOCK polarity flipped, one of the four strobes dropped)
 and the fifth is the clock one above.
 
+## The REPLY path, specified -- and the C emulator does not model it (2026-08-17)
+
+The BaseBoard writes the machine through `CPOut`/`CPAddr`/`CPStrb'` and reads it
+through **`CPIn.0-3`**, four bits at a time. That side is not in the C emulator
+at all, so there is no oracle to diff against and no test here -- writing one
+from the netlist would only check the netlist against itself. What follows is
+the specification, which is the useful output: it is what the read side needs
+if it is ever implemented, and it is complete.
+
+Four **MC10164** eight-input multiplexers on ContB (d04, d03, c03, b03) drive
+`CPIn.0`, `.1`, `.2`, `.3`. The select is `CPOut.0/1/2` -- the TOP THREE BITS of
+the byte the BaseBoard is presenting, MSB-first as ever, so `data >> 5`. No
+strobe is involved: the path is combinational, and the BaseBoard reads it by
+setting `CPOut` and looking.
+
+That gives a 32-bit status window read as eight nibbles:
+
+```
+select | CPIn.3        CPIn.2         CPIn.1        CPIn.0
+-------+---------------------------------------------------------
+   0   | RBMux.03      RBMux.02       RBMux.01      RBMux.00
+   1   | RBMux.07      RBMux.06       RBMux.05      RBMux.04
+   2   | RBMux.11      RBMux.10       RBMux.09      RBMux.08
+   3   | RBMux.15      RBMux.14       RBMux.13      RBMux.12
+   4   | RamPEenable   MDPEDly        IMLHPEDly     IMRHPEDly
+   5   | MemPEenable   MemPEDly       RAMPEDly      IOPEDly
+   6   | MDPEenable    DoradoStopped  bIMLHPE       bIMRHPE
+   7   | StopMIRClkEn  IOPEenable     IMLHPEenable  IMRHPEenable
+```
+
+Selects 0-3 are the 16-bit **`RBMux`** read-back bus a nibble at a time -- how
+Midas reads the machine's registers -- and 4-7 are the parity-error enables and
+delays plus **`DoradoStopped`**, which is the counterpart of the C emulator's
+`dorado_running`. It is read on `CPIn.2` with select 6, and that was checked:
+the multiplexer routes it.
+
+**Two things measured while establishing this**, both worth keeping:
+
+* **The Control latch bits are where the C emulator says.** Strobing function 0
+  with one-hot data and watching ContA's j02: `rStop` follows 0x40, `Jam`
+  follows 0x10 and `NoDispatch` follows 0x08 -- the emulator's ClrStop, Jam and
+  Freeze masks exactly, with `NoDispatch` being the board's name for the third.
+* **`DoradoStopped` stays asserted throughout**, which is correct and not a
+  fault: the machine has no clock and no microcode, so it IS stopped. The run
+  logic develops only once `clk0'` runs, which needs a machine that is going.
+
+Nothing here contradicts the C emulator. Function 1 -- `CP=UseCPReg`,
+`ClrReady`, `GetTLink` -- is what selects between these sources and CPReg for
+some reads, and remains the one function the C model treats as a no-op.
+
 ## The passive packages, and what each one turned out to be (2026-08-17)
 
 Three of the `.lc` part types are not logic and cannot be cells, because what

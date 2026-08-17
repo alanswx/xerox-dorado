@@ -16,6 +16,14 @@ either. Fixing the parser -- extend rather than replace, and keep the part
 names until the next name line -- found them immediately. When a checker
 reports nothing, ask what it cannot see.
 
+Both fixes were then audited for the obvious side effect, since ANDing in a
+common pin zeroes a gate whose common pin is low. Every one of the 41 MC10197
+packages has pin 9 connected -- ten to `True`, the rest to `ECLTrueA`,
+`TrueAC`, `TrueBD`, `BMuxEnable` and other real strobes -- and the 33 MC10113
+packages that leave pin 9 unconnected are fine because that pin is an
+ACTIVE-LOW enable and a floating MECL input sits at VEE, which is low. Nothing
+was silently switched off.
+
 The dictionary says it a second way, and that way is unambiguous. Alongside
 the pin blocks, `EclDict.Analyze` carries a gate summary per part:
 
