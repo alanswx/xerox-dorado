@@ -834,6 +834,7 @@ module msa (
     .p15(VBBa2)
   ); // MC10125
   cell_SN74S174 u_a03 (
+    .sys_clk(sys_clk),
     .p1(_pl_3a),
     .p2(msa04_sil_pl_17),
     .p3(msa04_sil_pl_18),
@@ -850,6 +851,7 @@ module msa (
     .p15(msa05_sil_pl_10)
   ); // SN74S174
   cell_SN74S174 u_a04 (
+    .sys_clk(sys_clk),
     .p1(_pl_3a),
     .p2(msa05_sil_pl_11),
     .p3(msa05_sil_pl_10),
@@ -866,6 +868,7 @@ module msa (
     .p15(msa05_sil_pl_20)
   ); // SN74S174
   cell_SN74S174 u_a05 (
+    .sys_clk(sys_clk),
     .p1(_pl_3a),
     .p2(msa05_sil_pl_19),
     .p3(msa05_sil_pl_20),
@@ -1122,6 +1125,7 @@ module msa (
     .p13(TtlA5)
   ); // SN74H04
   cell_SN74S174 u_a22 (
+    .sys_clk(sys_clk),
     .p1(_pl_3b),
     .p2(msa07_sil_pl_19),
     .p3(msa07_sil_pl_20),
@@ -1138,6 +1142,7 @@ module msa (
     .p15(msa07_sil_pl_33)
   ); // SN74S174
   cell_SN74S174 u_a23 (
+    .sys_clk(sys_clk),
     .p1(_pl_3b),
     .p2(msa07_sil_pl_11),
     .p3(msa07_sil_pl_10),
@@ -1154,6 +1159,7 @@ module msa (
     .p15(msa07_sil_pl_20)
   ); // SN74S174
   cell_SN74S174 u_a24 (
+    .sys_clk(sys_clk),
     .p1(_pl_3b),
     .p2(msa06_sil_pl_12),
     .p3(msa06_sil_pl_11),
@@ -1222,6 +1228,7 @@ module msa (
     .p15(msa05_sil_pl_38)
   ); // MC10125
   cell_SN74S174 u_b03 (
+    .sys_clk(sys_clk),
     .p1(_pl_3a),
     .p2(msa04_sil_pl_13),
     .p3(msa04_sil_pl_12),
@@ -1560,6 +1567,7 @@ module msa (
     .p15(CAS_p_b0)
   ); // MK4096P-6
   cell_SN74S174 u_b24 (
+    .sys_clk(sys_clk),
     .p1(_pl_3b),
     .p2(msa06_sil_pl_16),
     .p3(msa06_sil_pl_17),
@@ -1628,6 +1636,7 @@ module msa (
     .p15(msa05_sil_pl_37)
   ); // MC10124
   cell_SN74S174 u_c03 (
+    .sys_clk(sys_clk),
     .p1(_pl_3a),
     .p4(msa04_sil_pl_8),
     .p5(msa04_sil_pl_9),
@@ -1962,6 +1971,7 @@ module msa (
     .p15(CAS_p_d0)
   ); // MK4096P-6
   cell_SN74S174 u_c24 (
+    .sys_clk(sys_clk),
     .p1(_pl_3b),
     .p4(msa06_sil_pl_21),
     .p5(msa06_sil_pl_20),
@@ -2011,6 +2021,7 @@ module msa (
     .p12(WEa)
   ); // MC10125
   cell_SN74S174 u_d03 (
+    .sys_clk(sys_clk),
     .p1(_pl_3a),
     .p2(msa12_sil_pl_2),
     .p3(msa12_sil_pl_3),
@@ -2343,6 +2354,7 @@ module msa (
     .p15(CAS_p_b0)
   ); // MK4096P-6
   cell_SN74S174 u_d24 (
+    .sys_clk(sys_clk),
     .p1(_pl_3b),
     .p2(msa12_sil_pl_30),
     .p3(msa12_sil_pl_29),
@@ -3182,6 +3194,7 @@ module msa (
     .p11(GND183)
   ); // MC10124
   cell_SN74S174 u_g03 (
+    .sys_clk(sys_clk),
     .p1(_pl_3c),
     .p2(msa12_sil_pl_13),
     .p3(msa12_sil_pl_12),
@@ -3514,6 +3527,7 @@ module msa (
     .p15(CAS_p_d0)
   ); // MK4096P-6
   cell_SN74S174 u_g24 (
+    .sys_clk(sys_clk),
     .p1(_pl_3d),
     .p2(msa12_sil_pl_19),
     .p3(msa12_sil_pl_20),
@@ -3569,6 +3583,7 @@ module msa (
     .p15(msa01_sil_pl_22)
   ); // MC10176
   cell_SN74S174 u_h03 (
+    .sys_clk(sys_clk),
     .p1(_pl_3c),
     .p4(msa08_sil_pl_21),
     .p5(msa08_sil_pl_20),
@@ -3903,6 +3918,7 @@ module msa (
     .p15(CAS_p_b0)
   ); // MK4096P-6
   cell_SN74S174 u_h24 (
+    .sys_clk(sys_clk),
     .p1(_pl_3d),
     .p4(msa10_sil_pl_21),
     .p5(msa10_sil_pl_20),
@@ -3962,6 +3978,7 @@ module msa (
     .p15(GND227)
   ); // MC10210
   cell_SN74S174 u_i03 (
+    .sys_clk(sys_clk),
     .p1(_pl_3c),
     .p2(msa08_sil_pl_16),
     .p3(msa08_sil_pl_17),
@@ -4300,6 +4317,7 @@ module msa (
     .p15(CAS_p_d0)
   ); // MK4096P-6
   cell_SN74S174 u_i24 (
+    .sys_clk(sys_clk),
     .p1(_pl_3d),
     .p2(msa10_sil_pl_16),
     .p3(msa10_sil_pl_17),
@@ -4360,6 +4378,7 @@ module msa (
     .p15(msa09_sil_pl_38)
   ); // MC10124
   cell_SN74S174 u_j03 (
+    .sys_clk(sys_clk),
     .p1(_pl_3c),
     .p2(msa08_sil_pl_12),
     .p3(msa08_sil_pl_11),
@@ -4376,6 +4395,7 @@ module msa (
     .p15(msa09_sil_pl_10)
   ); // SN74S174
   cell_SN74S174 u_j04 (
+    .sys_clk(sys_clk),
     .p1(_pl_3c),
     .p2(msa09_sil_pl_11),
     .p3(msa09_sil_pl_10),
@@ -4392,6 +4412,7 @@ module msa (
     .p15(msa09_sil_pl_20)
   ); // SN74S174
   cell_SN74S174 u_j05 (
+    .sys_clk(sys_clk),
     .p1(_pl_3c),
     .p2(msa09_sil_pl_19),
     .p3(msa09_sil_pl_20),
@@ -4648,6 +4669,7 @@ module msa (
     .p13(TtlA5)
   ); // SN74H04
   cell_SN74S174 u_j22 (
+    .sys_clk(sys_clk),
     .p1(_pl_3d),
     .p2(msa11_sil_pl_19),
     .p3(msa11_sil_pl_20),
@@ -4664,6 +4686,7 @@ module msa (
     .p15(msa11_sil_pl_38)
   ); // SN74S174
   cell_SN74S174 u_j23 (
+    .sys_clk(sys_clk),
     .p1(_pl_3d),
     .p2(msa11_sil_pl_11),
     .p3(msa11_sil_pl_10),
@@ -4680,6 +4703,7 @@ module msa (
     .p15(msa11_sil_pl_20)
   ); // SN74S174
   cell_SN74S174 u_j24 (
+    .sys_clk(sys_clk),
     .p1(_pl_3d),
     .p2(msa10_sil_pl_12),
     .p3(msa10_sil_pl_11),

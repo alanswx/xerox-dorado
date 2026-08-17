@@ -879,7 +879,7 @@ diagnostics, which were written to test the boards.
 
 **Started 2026-08-15, and further than the plan expected.** All sixteen
 boards now GENERATE from PARC's wire lists and elaborate under Verilator
-(67,960 lines, plus 4,599 of cell models); 62 cell models cover 91.4% of logic packages (93.0% of the eleven-board
+(67,960 lines, plus 4,599 of cell models); 68 cell models cover 93.4% of logic packages (94.7% of the eleven-board
 machine) -- and a PARC veteran reading one of them found a class of bug worth
 knowing about: EclDict names a gate's COMMON input once, on the first gate,
 so four cells had wired it into that gate only. `make -C verilog cell-check`

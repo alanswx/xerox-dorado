@@ -513,16 +513,38 @@ by M is dead code, because M already selects the logic result and forces the
 carry out. The test found redundancy rather than a bug, and the cell is
 simpler for it.
 
+**Six more cells landed after the audit**: `MC10162` (10, the decoder's
+active-high sibling), `SN74LS174`/`SN74S174` (16+28, hex D flip-flop -- PARC's
+TtlDict gives the whole part in one line, `[FF 3>2, 4>5, ... : CLK 9 RS 1]`),
+`MC10136` (9, the hexadecimal counter, whose four modes decode straight out of
+EclDict's `SU'`/`SD'` naming), `SN74LS138` (7, the 3-to-8 decoder) and
+`i2716` (8, the EPROM).
+
+**The BaseBoard's EPROMs are modelled but EMPTY, deliberately.** We hold the
+dumps -- `firmware/`, five 2048-byte images from Nov 1987 -- and
+`dorado/include/baseboard.h` says where they live: C-08/C-10 at
+0xC000-0xCFFF, C-12 at 0xD000-0xD7FF, B-08/B-10 at 0xF000-0xFFFF. What is
+missing is which SOCKET holds which image. The trace so far: the eight sockets
+(b60 b61 c60 c61 e60 f60 h61 i61) are chip-selected by `Rom0'`..`Rom7'` from
+the SN74LS138 at g11, whose select is `RSA.0-2`, and every socket takes
+`MCA.00` on A10 -- so they are read over the MICROCODE bus, not by the 6502
+directly. Eight sockets and five images means three are empty, and guessing
+which would be worse than leaving it. `cell_i2716` takes an `INIT_FILE` so
+this is a one-line change per socket once `RSA.0-2` is traced back.
+
+**Getting there would be worth it**: the 6502 and the RIOT are real cores, so
+with the right images in the right sockets the BaseBoard could execute its own
+boot firmware -- which is exactly what the C emulator does.
+
 **What is left in the machine** is a short list, and none of it is a gate:
 
 | part | pkgs | what it is |
 |---|---|---|
-| `SN74LS174` | 16 | TTL hex D flip-flop |
-| `MC10162` | 10 | Binary to 1-8 decoder (HIGH) -- the sibling of the 10161 already done |
-| `MC10136` | 9 | universal hexadecimal counter |
 | `CA3140` | 9 | **op-amp** -- analog, like the VCO; expect a substitution, not a model |
-| `i2716` | 8 | 2K EPROM (the BaseBoard's, and we HAVE the dumps in `firmware/`) |
 | `F100181` | 8 | the Fairchild 100K ALU on MemC -- active-low carries and an output enable, so it needs its own sheet |
+| `MC10172` | 7 | |
+| `AM2615` | 7 | |
+| `SN74LS251` | 6 | |
 
 ## The cross-check works: the netlist and the C emulator agree
 

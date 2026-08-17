@@ -4,9 +4,13 @@
 // Directions: observed in the .wl wire lists across all boards.
 // Used in 10 package position(s) across the sixteen boards.
 //
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Binary to 1-8 Decoder (HIGH) -- the sibling of MC10161, same pins, opposite
+// output sense. EclDict names them Q0..Q7 here where the 10161 has Q0'..Q7',
+// which is the whole difference: the selected line goes HIGH and the other
+// seven stay LOW.
+//
+//   S1=7, S2=9, S4=14 select; E' at 2 and 15, two active-low enables;
+//   Q0..Q7 = 6,5,4,3,13,12,11,10.
 
 `default_nettype none
 
@@ -26,7 +30,13 @@ module cell_MC10162 (
     input  wire p15// E'
 );
 
-  // TODO: model this part.
+  wire [2:0] sel = {p14, p9, p7};          // S4, S2, S1
+  wire       en  = ~(p2 | p15);            // both E' low
+  wire [7:0] q   = en ? (8'd1 << sel) : 8'h00;
+
+  assign p6  = q[0];   assign p5  = q[1];   assign p4  = q[2];
+  assign p3  = q[3];   assign p13 = q[4];   assign p12 = q[5];
+  assign p11 = q[6];   assign p10 = q[7];
 endmodule
 
 `default_nettype wire

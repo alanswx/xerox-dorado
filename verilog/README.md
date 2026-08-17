@@ -34,8 +34,8 @@ verilog/
   own per-gate input lists. A PARC veteran found `cell_MC10100` ignoring its
   common strobe on three of four gates; the check found six more like it,
   270 packages in all.
-- **62 cells have behaviour: 91.4%** of 3,771 logic packages, and **93.0%**
-  of the eleven-board machine, the ALU included (`make alu-test`: 4,880
+- **68 cells have behaviour: 93.4%** of 3,771 logic packages, and **93.0%**
+  of all packages and **94.7%** of the eleven-board machine, the ALU included (`make alu-test`: 4,880
   checks against its datasheet, and `make alu-diff`: **10,752 vectors against
   the C emulator's own alu_op(), 0 mismatches**). Data sheets that settled a polarity, a mode
   encoding or a function table are filed in `../DoradoDocs/datasheets/`. The rest are

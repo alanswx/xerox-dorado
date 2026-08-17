@@ -20,6 +20,14 @@ answer, for every cell at once, and that is what this does.
 It resolves intermediate wires first (`wire a = ~(p5|p6|p7); assign p2 = a;`),
 so a cell that factors its logic is checked the same as one that does not.
 
+THE `also reads` NOTES ARE NOT BUGS, and all of them have been checked
+against the data sheets once, so they need not be again: the `[G]` summary
+omits selects, enables and carries. MC10158 pin 9 and MC10159 pin 9 are
+SELECT and MC10159 pin 7 is ENABLE; MC10164's p2 is its enable and p7/p9/p10
+its select; MC10174 pin 14 is ENABLE and 7/9 the address; MC10180's p4/p12
+are the two carry inputs; and MC10170's p13/p14 are the `HIGH` and `LOW`
+inputs that make it a "9+2-bit" parity generator.
+
 WHAT IT CANNOT CHECK. Only combinational cells: a part with an `always` block
 is reported as skipped, because a clock or an asynchronous reset is not an
 "input to the gate" in the [G] sense. Nor does it check the FUNCTION -- a gate

@@ -2756,6 +2756,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(SLa)
   ); // SN74166
   cell_SN74S174 u_e04 (
+    .sys_clk(sys_clk),
     .p1(e4True),
     .p2(pcmsa12_sil_pl_2),
     .p3(pcmsa12_sil_pl_3),
@@ -3086,6 +3087,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(VCC110)
   ); // SN74166
   cell_SN74S174 u_e24 (
+    .sys_clk(sys_clk),
     .p1(e24True),
     .p9(pcmsa02_sil_pl_3),
     .p10(pcmsa12_sil_pl_29),
@@ -3121,6 +3123,7 @@ module PcMsa_m_Rev_m_Pa (
     .p15(f2Vbb)
   ); // MC10125
   cell_SN74S174 u_f03 (
+    .sys_clk(sys_clk),
     .p1(f3True),
     .p9(pcmsa01_sil_pl_1),
     .p10(pcmsa12_sil_pl_13),
@@ -3458,6 +3461,7 @@ module PcMsa_m_Rev_m_Pa (
     .p16(VCC132)
   ); // SN74166
   cell_SN74S174 u_f23 (
+    .sys_clk(sys_clk),
     .p1(f23True),
     .p2(pcmsa12_sil_pl_19),
     .p3(pcmsa12_sil_pl_30),

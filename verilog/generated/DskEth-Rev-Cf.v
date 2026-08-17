@@ -1439,6 +1439,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(VCC_m_81)
   ); // SN74LS169
   cell_SN74LS174 u_a08 (
+    .sys_clk(sys_clk),
     .p1(TTLTrueA),
     .p3(TtlTag_000),
     .p4(TtlTag_00),
@@ -1455,6 +1456,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(VCC_m_80)
   ); // SN74LS174
   cell_SN74LS174 u_a09 (
+    .sys_clk(sys_clk),
     .p1(TTLTrueA),
     .p3(TtlTag_000),
     .p4(TtlTag_00),
@@ -1471,6 +1473,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(VCC_m_80)
   ); // SN74LS174
   cell_SN74LS174 u_a10 (
+    .sys_clk(sys_clk),
     .p1(TTLTrueA),
     .p3(TtlTag_000),
     .p4(TtlTag_00),
@@ -1487,6 +1490,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(VCC_m_79)
   ); // SN74LS174
   cell_SN74LS174 u_a11 (
+    .sys_clk(sys_clk),
     .p1(TTLTrueA),
     .p3(TtlTag_000),
     .p4(TtlTag_00),
@@ -2248,6 +2252,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(GND_m_31)
   ); // SE10212
   cell_MC10136 u_c19 (
+    .sys_clk(sys_clk),
     .p2(TriconD03_sil_pl_11__c19_2),
     .p3(TriconD03_sil_pl_11__c19_3),
     .p5(Ram_04),
@@ -2261,6 +2266,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD03_sil_pl_11__c19_15)
   ); // MC10136
   cell_MC10136 u_c20 (
+    .sys_clk(sys_clk),
     .p2(TriconD03_sil_pl_11__c20_2),
     .p3(TriconD03_sil_pl_11__c20_3),
     .p4(TriconD03_sil_pl_4),
@@ -2275,6 +2281,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD03_sil_pl_11__c20_15)
   ); // MC10136
   cell_MC10136 u_c21 (
+    .sys_clk(sys_clk),
     .p2(TriconD03_sil_pl_11__c21_2),
     .p3(TriconD03_sil_pl_11__c21_3),
     .p4(TriconD03_sil_pl_5),
@@ -2378,6 +2385,7 @@ module DskEth_m_Rev_m_Cf (
     .p16(VCC_m_73)
   ); // SN74LS153
   cell_SN74LS174 u_d04 (
+    .sys_clk(sys_clk),
     .p1(TtlRunOK),
     .p2(TriconD05_sil_pl_6),
     .p3(TtlTag_5),
@@ -4196,6 +4204,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(RxSR_13)
   ); // MC10141
   cell_MC10136 u_i12 (
+    .sys_clk(sys_clk),
     .p2(RxSRFull_p___i12_2),
     .p3(RxSRFull_p___i12_3),
     .p5(ECLTrueB),
@@ -4209,6 +4218,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(RxSRFull_p___i12_15)
   ); // MC10136
   cell_MC10136 u_i13 (
+    .sys_clk(sys_clk),
     .p2(TxSREmpty_p___i13_2),
     .p3(TxSREmpty_p___i13_3),
     .p5(ECLTrueD),
@@ -4614,6 +4624,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(VCC_m_53)
   ); // K1115A
   cell_MC10136 u_j21 (
+    .sys_clk(sys_clk),
     .p2(EtherClk340),
     .p7(ECLTrueD),
     .p13(EClk2),

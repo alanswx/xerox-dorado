@@ -1154,6 +1154,7 @@ module BaseBd_m_Rev_m_Am (
     .p15(GND50)
   ); // MC10210
   cell_MC10136 u_b02 (
+    .sys_clk(sys_clk),
     .p2(BaseBd12_sil_pl_2),
     .p7(ECLTrue),
     .p13(Reference)
@@ -2091,6 +2092,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC91)
   ); // SN74LS139
   cell_SN74LS174 u_f19 (
+    .sys_clk(sys_clk),
     .p1(TTLTrue_C),
     .p2(RCPReg_00__f19_2),
     .p3(RCPBus_00),
@@ -2109,6 +2111,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC93)
   ); // SN74LS174
   cell_SN74LS174 u_f20 (
+    .sys_clk(sys_clk),
     .p1(TTLTrue_C),
     .p2(RCPReg_06__f20_2),
     .p3(RCPBus_06),
@@ -2415,6 +2418,7 @@ module BaseBd_m_Rev_m_Am (
     .p7(VCC105)
   ); // CA3140
   cell_SN74LS174 u_g20 (
+    .sys_clk(sys_clk),
     .p1(TTLTrue_D),
     .p2(RCPReg_08__g20_2),
     .p3(RCPBus_00),
@@ -2644,6 +2648,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC117)
   ); // SN74LS138
   cell_SN74LS174 u_h20 (
+    .sys_clk(sys_clk),
     .p1(TTLTrue_D),
     .p2(RCPReg_14__h20_2),
     .p3(RCPBus_06),
@@ -3276,6 +3281,7 @@ module BaseBd_m_Rev_m_Am (
     .p15(GND482)
   ); // MC10210
   cell_MC10136 u_k02 (
+    .sys_clk(sys_clk),
     .p2(BaseBd10_sil_pl_2__k02_2),
     .p3(BaseBd10_sil_pl_2__k02_3),
     .p4(BaseBd10_sil_pl_1),
@@ -3289,6 +3295,7 @@ module BaseBd_m_Rev_m_Am (
     .p15(BaseBd10_sil_pl_2__k02_15)
   ); // MC10136
   cell_MC10136 u_k03 (
+    .sys_clk(sys_clk),
     .p2(BaseBd10_sil_pl_2__k03_2),
     .p5(ClkRate_0),
     .p6(ClkRate_1),
@@ -3301,6 +3308,7 @@ module BaseBd_m_Rev_m_Am (
     .p15(BaseBd10_sil_pl_2__k03_15)
   ); // MC10136
   cell_SN74LS174 u_k07 (
+    .sys_clk(sys_clk),
     .p1(MCReset_p_),
     .p3(DMD_00),
     .p4(DMD_08),
@@ -3316,6 +3324,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC135)
   ); // SN74LS174
   cell_SN74LS174 u_k08 (
+    .sys_clk(sys_clk),
     .p1(MCReset_p_),
     .p3(DMD_00),
     .p4(DMD_08),
@@ -3331,6 +3340,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC136)
   ); // SN74LS174
   cell_SN74LS174 u_k09 (
+    .sys_clk(sys_clk),
     .p1(PwrGood),
     .p3(DMD_00),
     .p4(DMD_08),
@@ -3573,6 +3583,7 @@ module BaseBd_m_Rev_m_Am (
     .p9(VCC134)
   ); // MC10124
   cell_SN74LS174 u_l07 (
+    .sys_clk(sys_clk),
     .p1(MCReset_p_),
     .p3(DMD_00),
     .p4(DMD_08),
@@ -3588,6 +3599,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC135)
   ); // SN74LS174
   cell_SN74LS174 u_l08 (
+    .sys_clk(sys_clk),
     .p1(MCReset_p_),
     .p3(DMD_00),
     .p4(DMD_08),
@@ -3648,6 +3660,7 @@ module BaseBd_m_Rev_m_Am (
     .p10(BaseBd14_sil_pl_5)
   ); // MPQ6002
   cell_SN74LS174 u_l21 (
+    .sys_clk(sys_clk),
     .p1(TTLTrue_D),
     .p2(DMD_06),
     .p3(DMD_07),
@@ -3666,6 +3679,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC142)
   ); // SN74LS174
   cell_SN74LS174 u_l22 (
+    .sys_clk(sys_clk),
     .p1(TTLTrue_D),
     .p2(DMD_00__l22_2),
     .p3(DMD_01),
