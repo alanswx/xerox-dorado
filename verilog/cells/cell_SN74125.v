@@ -4,9 +4,17 @@
 // Directions: observed in the .wl wire lists across all boards.
 // Used in 2 package position(s) across the sixteen boards.
 //
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Quad Bus Buffer with three-state outputs (TTL). TtlDict:
+//   a,EN,1 > a,IN,2 > a,OUT,3      b,EN,4 > b,IN,5 > b,OUT,6
+//   c,EN,10 > c,IN,9 > c,OUT,8     d,EN,13 > d,IN,12 > d,OUT,11
+//
+// The '125's enable is ACTIVE LOW -- that is the whole difference from the
+// otherwise identical '126 -- so it is treated as such here even though the
+// dictionary spells the pin bare rather than primed.
+//
+// Off the bus a three-state output contributes ZERO rather than high
+// impedance, which is the shape every shared net takes in this design; see
+// cell_MCS6502 for why.
 
 `default_nettype none
 
@@ -27,7 +35,12 @@ module cell_SN74125 (
     input  wire p14// (no name in EclDict)
 );
 
-  // TODO: model this part.
+  assign p3  = ~p1  & p2;
+  assign p6  = ~p4  & p5;
+  assign p8  = ~p10 & p9;
+  assign p11 = ~p13 & p12;
+
+  wire _unused_pins = &{1'b0, p7, p14, 1'b0};
 endmodule
 
 `default_nettype wire

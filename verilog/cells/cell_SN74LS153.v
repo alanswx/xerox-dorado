@@ -4,9 +4,13 @@
 // Directions: observed in the .wl wire lists across all boards.
 // Used in 1 package position(s) across the sixteen boards.
 //
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Dual 4-Input Multiplexer (TTL), the totem-pole sibling of the '253.
+// TtlDict groups them:
+//   a,S2,2 > a,S1,14
+//   a,X0,6 > a,X1,5 > a,X2,4 > a,X3,3 > a,EX',1 > a,OX,7
+//   a,Y0,10 > a,Y1,11 > a,Y2,12 > a,Y3,13 > a,EY',15 > a,OY,9
+// The two halves share the select and have their own active-low enables; a
+// disabled output is LOW.
 
 `default_nettype none
 
@@ -29,7 +33,15 @@ module cell_SN74LS153 (
     input  wire p16// (no name in EclDict)
 );
 
-  // TODO: model this part.
+  wire [1:0] sel = {p2, p14};             // S2, S1
+
+  wire [3:0] x = {p3, p4, p5, p6};        // X3..X0
+  wire [3:0] y = {p13, p12, p11, p10};    // Y3..Y0
+
+  assign p7 = ~p1  & x[sel];              // OX
+  assign p9 = ~p15 & y[sel];              // OY
+
+  wire _unused_pins = &{1'b0, p8, p16, 1'b0};
 endmodule
 
 `default_nettype wire

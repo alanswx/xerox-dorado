@@ -4,9 +4,12 @@
 // Directions: observed in the .wl wire lists across all boards.
 // Used in 1 package position(s) across the sixteen boards.
 //
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Quad 2-Input NAND with OPEN-COLLECTOR outputs (TTL), the Schottky sibling
+// of the SN74LS01 -- TtlDict groups them together:
+//   a,IN,2,3 > a,OUT,1   b,IN,5,6 > b,OUT,4
+//   c,IN,8,9 > c,OUT,10  d,IN,11,12 > d,OUT,13
+// See cell_SN74LS01 for why open collector matters here and why the cell
+// still drives the gate's own function.
 
 `default_nettype none
 
@@ -24,7 +27,11 @@ module cell_SN74S01 (
     input  wire p14// (no name in EclDict)
 );
 
-  // TODO: model this part.
+  assign p1  = ~(p2 & p3);
+  assign p4  = ~(p5 & p6);
+  assign p10 = ~(p8 & p9);
+
+  wire _unused_pins = &{1'b0, p7, p14, 1'b0};
 endmodule
 
 `default_nettype wire
