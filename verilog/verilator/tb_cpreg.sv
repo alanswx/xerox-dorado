@@ -99,6 +99,7 @@ module tb_cpreg;
   endtask
 
   integer fd, n, cases, errors, shown, checked;
+  string     line, tag;
   reg [7:0]  mcpbusl, data;
   reg [15:0] want;
   reg [7:0]  m0, m1, m2, m3, m4;
@@ -114,10 +115,14 @@ module tb_cpreg;
     fd = $fopen(path, "r");
     if (fd == 0) $fatal(1, "tb_cpreg: cannot open %s", path);
 
-    n = $fscanf(fd, "%h %h %h %h %h %h %h %h %d %d %d\n",
-                mcpbusl, data, want, m0, m1, m2, m3, m4,
-                running, ss, mirloaded);
-    while (n == 11) begin
+    // The vector file carries two sections; `CP` lines are this test's.
+    while (!$feof(fd)) begin
+      void'($fgets(line, fd));
+      n = $sscanf(line, "%s %h %h %h %h %h %h %h %h %d %d %d",
+                  tag, mcpbusl, data, want, m0, m1, m2, m3, m4,
+                  running, ss, mirloaded);
+      if (n != 12 || tag != "CP") continue;
+
       cases = cases + 1;
       do_strobe(mcpbusl[6:4], data, mcpbusl[7]);
 
@@ -135,9 +140,6 @@ module tb_cpreg;
         end
       end
 
-      n = $fscanf(fd, "%h %h %h %h %h %h %h %h %d %d %d\n",
-                  mcpbusl, data, want, m0, m1, m2, m3, m4,
-                  running, ss, mirloaded);
     end
     $fclose(fd);
 

@@ -156,6 +156,22 @@ cpreg-diff:
 		>/dev/null && ./verilog/verilator/obj_cpreg/tb_cpreg \
 			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_cpreg
 
+# THE MICROINSTRUCTION LOAD PATH, all 36 bits. Six MC10172s on ContA and ContB
+# demultiplex nine CPOut lines across four function codes into the field lines,
+# and dorado_decode_mir() in disasm.c says where each byte's bits belong -- one
+# from PARC's 1979 wire list, one from the Hardware Manual. See tb_mir.sv.
+.PHONY: mir-diff
+mir-diff:
+	@$(MAKE) -s -C ../../dorado build/cpreg_vectors
+	@mkdir -p obj_cpreg
+	@cd ../.. && ./dorado/build/cpreg_vectors > verilog/verilator/obj_cpreg/cpreg.vec
+	@cd ../.. && $(V) --binary --top-module tb_mir $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_mir -o tb_mir \
+		verilog/verilator/tb_mir.sv verilog/generated/ContA-Rev-Cd.v \
+		verilog/generated/ContB-Rev-Cd.v \
+		>/dev/null && ./verilog/verilator/obj_mir/tb_mir \
+			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_mir
+
 # Does the BaseBoard's 6502 come out of reset and fetch from its own EPROMs?
 # The whole board is real here -- Andrew Holme's netlist-derived 6502, MiSTer's
 # 6532s, the '138 that decodes Rom0'..Rom7', the eight 2716 sockets, and the

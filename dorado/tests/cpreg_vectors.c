@@ -48,11 +48,25 @@
  * includes cpu.c: the test must run the emulator's REAL code, not a copy of it
  * that could drift.
  *
- * Output: one line per strobe, "mcpbusl data cpreg mir0 mir1 mir2 mir3 mir4
- * running ss mirloaded", all hex but the three flags.
+ * TWO SECTIONS. Lines tagged `CP` walk every function code with a running
+ * BaseBoard, which is what tb_cpreg.sv checks against ContA's CPReg. Lines
+ * tagged `MIR` isolate ONE microinstruction byte at a time -- mir_bytes is
+ * zeroed before each, so the fields that come out of `dorado_decode_mir` are
+ * exactly the bits that strobe sets -- which is what tb_mir.sv checks against
+ * the field lines the MC10172 demultiplexers on ContA and ContB produce.
+ *
+ * The second section is the interesting one. `dorado_decode_mir` was written
+ * from the Hardware Manual's microinstruction format; the demultiplexers come
+ * from PARC's 1979 wire list. Nobody wrote either from the other, and all 36
+ * bits have to agree.
+ *
+ * Output: `CP mcpbusl data cpreg mir0..mir4 running ss mirloaded`, or
+ * `MIR fn data extra rstk aluf bsel lc asel block ff jcn`, hex throughout
+ * except the flags.
  */
 
 #include "../src/baseboard.c"
+#include "../include/disasm.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -81,12 +95,29 @@ int main(void)
                 uint8_t mcpbusl = (uint8_t)((fn << 4) | (extra << 7) | 0x01);
                 bb.riot[3].pa_latch = data_patterns[d];
                 apply_mcp_strobe(&bb, mcpbusl);
-                printf("%02x %02x %04x %02x %02x %02x %02x %02x %d %d %d\n",
+                printf("CP %02x %02x %04x %02x %02x %02x %02x %02x %d %d %d\n",
                        mcpbusl, data_patterns[d], bb.cpreg_to_dorado,
                        bb.mir_bytes[0], bb.mir_bytes[1], bb.mir_bytes[2],
                        bb.mir_bytes[3], bb.mir_bytes[4],
                        bb.dorado_running, bb.dorado_ss_pending,
                        bb.dorado_mir_loaded);
+            }
+    /* One microinstruction byte at a time, from a cleared MIR, so the decoded
+     * fields name exactly the bits this strobe sets. */
+    for (unsigned fn = 4; fn < 8; fn++)
+        for (int extra = 0; extra < 2; extra++)
+            for (unsigned d = 0;
+                 d < sizeof data_patterns / sizeof *data_patterns; d++) {
+                dorado_uinstr u;
+                memset(&bb.mir_bytes, 0, sizeof bb.mir_bytes);
+                bb.riot[3].pa_latch = data_patterns[d];
+                apply_mcp_strobe(&bb,
+                                 (uint8_t)((fn << 4) | (extra << 7) | 0x01));
+                dorado_decode_mir(bb.mir_bytes, &u);
+                printf("MIR %u %02x %d %x %x %x %x %x %d %02x %02x\n",
+                       fn, data_patterns[d], extra,
+                       u.rstk, u.aluf, u.bsel, u.lc, u.asel,
+                       u.block, u.ff, u.jcn);
             }
     return 0;
 }

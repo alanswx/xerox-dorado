@@ -103,3 +103,4 @@ verilog/verilator/obj_proms/
 verilog/verilator/obj_alu/
 verilog/verilator/obj_bb/
 verilog/verilator/obj_cpreg/
+verilog/verilator/obj_mir/

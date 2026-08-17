@@ -21,6 +21,7 @@ python3 tools/sil_backplane.py             # what the backplane is, measured
 make -C verilog alu-test   # THE GATE: the ALU matches its datasheet
 make -C verilog alu-diff   # THE GATE: the ALU matches the C EMULATOR
 make -C verilog cpreg-diff # THE GATE: the BOOT INTERFACE matches the C emulator
+make -C verilog mir-diff   # THE GATE: all 36 microinstruction bits match
 python3 tools/sil_backplane.py --ports     # boards present the ports PARC states
 make -C verilog machine-test  # THE GATE: the assembled machine clocks and SETTLES
 make -C verilog baseboard-test  # THE GATE: the BaseBoard's 6502 BOOTS
@@ -679,8 +680,47 @@ the ninth bit of the nine-bit slot, and separately into an SN74LS175 at g07
 which latches it into `SetSS'` on the Control strobe. Same pin, two
 destinations, one of them registered.
 
-Functions 4-7, the four microinstruction bytes, are strobed elsewhere -- ContA
-a01 leaves Q0'-Q3' unconnected -- and are the obvious next test.
+## ALL 36 BITS of the microinstruction load path agree (2026-08-17)
+
+`make -C verilog mir-diff`: **88 microinstruction strobes, 0 field mismatches.**
+
+Functions 4-7 are the four microinstruction bytes, and ContA's a01 leaves
+Q0'-Q3' unconnected because they are decoded a different way. Six **MC10172**
+dual decoders -- ContA g01/h01/i01 and ContB h04/i03/i04 -- are wired as 1-to-4
+**demultiplexers**: the data bit enters on each half's ENABLE pin and the two
+select lines route it to one of four outputs. Nine `CPOut` lines times four
+function codes fan out to the thirty-six field lines `sRSTK.0-3`, `sALUF.0-3`,
+`sBSEL.0-2`, `sLC.0-2`, `sASEL.0-2`, `sBLOCK`, `sFF.0-7`, `sJCN.0-7`, `sIMLH`
+and `sIMRH`.
+
+Against that stands `dorado_decode_mir()` in `dorado/src/disasm.c`, written from
+the Hardware Manual's microinstruction format, byte by byte, from a document
+rather than a netlist. Every bit lands in the same place:
+
+| strobe | `CPOut.0` .. `CPOut.7` | `CPOut.8` |
+|---|---|---|
+| MIR0 (fn 4) | RSTK.1 RSTK.2 RSTK.3 ALUF.0 BLOCK FF.0 FF.1 FF.2 | RSTK.0 |
+| MIR1 (fn 5) | ALUF.1 ALUF.2 ALUF.3 BSEL.0 FF.3 FF.4 FF.5 FF.6 | IMLH |
+| MIR2 (fn 6) | BSEL.1 BSEL.2 LC.0 LC.1 FF.7 JCN.0 JCN.1 JCN.2 | JCN.7 |
+| MIR3 (fn 7) | LC.2 ASEL.0 ASEL.1 ASEL.2 JCN.3 JCN.4 JCN.5 JCN.6 | IMRH |
+
+which is `dorado_decode_mir`'s byte table exactly. Two of its comments are
+confirmed outright -- "MIR0's extra bit is RSTK[0]" and "MIR2's extra bit is
+JCN[7]" -- and the other two are named: what the C emulator calls the parity
+bits P015 and P1631 are the board's `sIMLH` and `sIMRH`, the IM left and right
+half.
+
+`cpreg_vectors.c` strobes ONE byte at a time from a cleared MIR, so the fields
+the C decoder reports are exactly the bits that strobe sets. Five mutations
+were tried and each fails: assembling FF LSB-first, reversing RSTK, sampling
+after the strobe releases instead of during it, leaving the function code
+uncomplemented, and swapping BSEL for LC.
+
+Two things worth keeping. **The field lines are SET inputs, not register
+outputs** -- a decoder output is a level that stands while the strobe is
+asserted, so they are read with the strobe low and released afterwards. And
+**PARC's `.0` is the most significant bit of a field**, here as everywhere:
+`sRSTK.0` is the RSTK bit the Hardware Manual puts in iw2 rather than iw0.
 
 ## The passive packages, and what each one turned out to be (2026-08-17)
 

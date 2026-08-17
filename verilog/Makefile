@@ -12,6 +12,7 @@
 #   make alu-test     the ALU matches its datasheet's function table
 #   make alu-diff     the RTL ALU matches the C emulator's, vector for vector
 #   make cpreg-diff   the RTL boot interface matches the C emulator's
+#   make mir-diff     the RTL microinstruction load matches, all 36 bits
 #   make machine-test the assembled machine clocks and its clock tree runs
 #   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs
 #
@@ -22,7 +23,8 @@ TTLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ttldict.analyze
 TOOLS   = ../tools
 
 .PHONY: boards backplane proms cells cells-force lint cell-check loop-check \
-        prom-test alu-test alu-diff cpreg-diff machine-test baseboard-test \
+        prom-test alu-test alu-diff cpreg-diff mir-diff machine-test \
+        baseboard-test \
         clean-generated
 
 # PROM contents, sliced per package position from PARC's own BCPL.
@@ -59,6 +61,10 @@ alu-diff:
 # The RTL boot interface against the C emulator's.
 cpreg-diff:
 	@$(MAKE) -C verilator cpreg-diff
+
+# The RTL microinstruction load path against the C emulator's, all 36 bits.
+mir-diff:
+	@$(MAKE) -C verilator mir-diff
 
 # Does the assembled machine run? Needs the harness built first.
 machine-test:
