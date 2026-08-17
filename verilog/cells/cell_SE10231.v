@@ -31,10 +31,26 @@ module cell_SE10231 (
     output wire p15// Q
 );
 
+
+  // THE COMMON CLOCK, pin 9 (CC), was ignored here until 2026-08-16 -- the
+  // same class of bug Tim found on the combinational cells, and the reason
+  // tools/sil_check_cells.py now reads the dictionary's [FF ...] entries too:
+  //   MC231/SE231  [FF 10 ...>(14 15) : CLK (9 11) ...]   [FF 7 ...>(2 3) : CLK (9 6) ...]
+  // Pin 9 is in BOTH clocks.
+  //
+  // The data book (DL122 rev 7, MC10231) says how the two combine: "Each
+  // flip-flop may be clocked separately by holding the common clock in the
+  // low state and using the enable inputs for the clocking function. If the
+  // common clock is to be used to clock the flip-flop, the Clock Enable
+  // inputs must be in the low state." Either can clock it while the other is
+  // held low -- an OR.
+  wire clka = p9 | p6;
+  wire clkb = p9 | p11;
+
   reg cka_d, ckb_d;
-  always @(posedge sys_clk) begin cka_d <= p6; ckb_d <= p11; end
-  wire cka_en = p6  & ~cka_d;
-  wire ckb_en = p11 & ~ckb_d;
+  always @(posedge sys_clk) begin cka_d <= clka; ckb_d <= clkb; end
+  wire cka_en = clka & ~cka_d;
+  wire ckb_en = clkb & ~ckb_d;
 
   reg qa, qb;
   always @(posedge sys_clk)
@@ -47,7 +63,6 @@ module cell_SE10231 (
   assign p2  =  qa;  assign p3  = ~qa;
   assign p15 =  qb;  assign p14 = ~qb;
 
-  wire _unused = &{1'b0, p9, 1'b0};   // CC, unused on these boards
 endmodule
 
 `default_nettype wire

@@ -369,10 +369,37 @@ documented substitution -- an analog oscillator has no digital model -- the
 substitute now drives those nets outright: `Generator.OVERRIDE_DRIVERS`, one
 part, one net pair, stated in the generator rather than hidden in a cell.
 
+**Then the same audit on the SEQUENTIAL cells**, which the first version
+skipped. The dictionary has a parallel summary for them, and it names the
+clock and asynchronous set/reset outright:
+
+```
+MC231
+[FF 10 {1.1 .8}>(14 15) : CLK (9 11) (1.5 3.7) RS (12 13) ...]
+[FF  7 {1.1 .8}>(2 3)   : CLK (9 6)  (1 3.7)   RS (5 4)   ...]
+```
+
+**Pin 9 is in BOTH clocks** -- Tim's class again, in the biggest flip-flop in
+the machine. `cell_MC10231` (152 packages) and `cell_SE10231` (8) used only
+each half's own clock pin and explicitly dismissed pin 9 as unused. The data
+book says how they combine (DL122 rev 7, MC10231): "Each flip-flop may be
+clocked separately by holding the common clock in the low state and using the
+enable inputs for the clocking function. If the common clock is to be used to
+clock the flip-flop, the Clock Enable inputs must be in the low state." Either
+can clock it while the other is held low, which is an OR.
+
+Fixing it moved the machine: `machine-test` went from 27 signals to **34**,
+and the new ones are a coherent group -- `LoadSoutE'`/`LoadSoutO'`,
+`ShiftSinE`/`ShiftSinO`/`ShiftSoutE`/`ShiftSoutO`, the memory system's
+even/odd shift path.
+
+The check is bounded by each cell's DECLARED pins, because a cell only
+declares what the boards wire: MC1690 has a second clock input that no Dorado
+board uses, and reporting that would be noise.
+
 **What the checker cannot do**, so that its silence is not over-read: it
 checks CONNECTIVITY, not function -- a gate that ORs where it should AND uses
-the same pins. It skips sequential cells, since a clock is not an input in
-the `[G]` sense. And 19 cells legitimately read MORE than `[G]` lists, because
+the same pins. And 19 cells legitimately read MORE than `[G]` lists, because
 that summary omits selects, enables and carries (MC10158's pin 9 is SELECT,
 MC10174's pin 14 is ENABLE, MC10180's carry-in); those are reported
 separately, not as errors.

@@ -883,8 +883,11 @@ boards now GENERATE from PARC's wire lists and elaborate under Verilator
 machine) -- and a PARC veteran reading one of them found a class of bug worth
 knowing about: EclDict names a gate's COMMON input once, on the first gate,
 so four cells had wired it into that gate only. `make -C verilog cell-check`
-now compares every combinational cell against the dictionary's own per-gate
-input lists and found seven bugs across 270 packages; **the RTL ALU and the C emulator agree on 10,752 vectors**
+now compares every cell against the dictionary's own per-gate input lists --
+and, for the clocked parts, against its `[FF ...]` clock and set/reset lists --
+finding NINE bugs across 430 packages, the largest being MC10231's common
+clock (152 packages), which took the running machine from 27 moving signals
+to 34; **the RTL ALU and the C emulator agree on 10,752 vectors**
 (`make -C verilog alu-diff`) -- four MC10181 slices chained as ProcH and ProcL
 build them, against `cpu.c`'s own `alu_op()`, neither derived from the other,
 and the 6-bit ALUFM entry turns out to be exactly the part's controls

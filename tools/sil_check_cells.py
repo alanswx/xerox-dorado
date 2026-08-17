@@ -81,6 +81,45 @@ def gate_table(path: str) -> dict[str, list[tuple[set, set]]]:
     return out
 
 
+def clocked_table(path: str) -> dict[str, dict[str, set]]:
+    """part -> {'CLK': pins, 'RS': pins} from the `[FF ...]` / `[L ...]` lines.
+
+    Sequential parts get their own summary, and it names the clock and the
+    asynchronous set/reset explicitly:
+
+        MC231
+        [FF 10 {1.1 .8}>(14 15) : CLK (9 11) (1.5 3.7) RS (12 13) ...]
+        [FF  7 {1.1 .8}>(2 3)   : CLK (9 6)  (1 3.7)   RS (5 4)   ...]
+
+    Note pin 9 in BOTH clocks -- the common clock, the same trap Tim found on
+    the combinational side. A part can have several such lines; the pins are
+    unioned. After `CLK` comes either a bare pin or a parenthesised list, then
+    a timing group, so the first of those two forms is the connectivity."""
+    out: dict[str, dict[str, set]] = {}
+    names: list[str] = []
+    for line in read_xerox_text(path):
+        t = line.strip()
+        if not t:
+            continue
+        if t.startswith('[FF') or t.startswith('[L '):
+            got = {}
+            for role in ('CLK', 'RS'):
+                m = re.search(rf'{role}\s*(?:\(([^)]*)\)|(\d+))', t)
+                if m:
+                    got[role] = {int(n) for n in
+                                 re.findall(r'\d+', m.group(1) or m.group(2))}
+            for n in names:
+                cur = out.setdefault(n, {})
+                for k, v in got.items():
+                    cur.setdefault(k, set()).update(v)
+        elif t.startswith('['):
+            pass                       # keep `names`: a part can have several
+        elif not t.startswith(';'):
+            if re.match(r'^[A-Za-z0-9_, ]+$', t):
+                names = [x.strip() for x in t.split(',') if x.strip()]
+    return out
+
+
 ASSIGN_RE = re.compile(r'assign\s+p(\d+)\s*=\s*([^;]+);')
 # `wire a = ...` and `wire [7:0] d = ...` alike -- missing the vector form
 # made every multiplexer look as though it read no inputs.
@@ -142,12 +181,13 @@ def main(argv: list[str]) -> int:
     args = ap.parse_args(argv[1:])
 
     gt = gate_table(DICT)
+    ff = clocked_table(DICT)
     ecl = EclDict()
     ecl.load(DICT)
 
     # cell file -> the dictionary short name for that part
     short_of = {}
-    for short in gt:
+    for short in set(gt) | set(ff):
         full = ecl.full_name(short)
         if full:
             short_of.setdefault(vpart(full.split('/')[0]), short)
@@ -161,12 +201,38 @@ def main(argv: list[str]) -> int:
             continue
         part = m.group(1)
         short = short_of.get(part)
-        if not short:
+        if not short or (short not in gt and short not in ff):
             skipped += 1
             if args.verbose:
                 print(f'  skip {part:<12} no [G] entry in the dictionary')
             continue
         gates, why = cell_gates(os.path.join(CELLS, f))
+
+        # A sequential cell cannot be checked gate by gate, but its CLOCK and
+        # asynchronous set/reset pins must at least be READ somewhere -- which
+        # is exactly the check that would have caught a missed common clock.
+        if why == 'sequential' and short in ff:
+            src = open(os.path.join(CELLS, f)).read()
+            body_ = src.split(');', 1)[1] if ');' in src else src
+            body_ = re.sub(r'//[^\n]*', '', body_)
+            body_ = re.sub(r'wire\s+_unused[^;]*;', '', body_)
+            seen = {int(x) for x in PIN_RE.findall(body_)}
+            # A cell declares only the pins the BOARDS wire, so a part with a
+            # second clock input nobody uses must not be reported. Bound the
+            # expectation by the port list.
+            declared = {int(x) for x in
+                        PIN_RE.findall(src.split(');', 1)[0])}
+            for role, pins in sorted(ff[short].items()):
+                miss = (pins & declared) - seen
+                if miss:
+                    bad += 1
+                    problems.append(
+                        f'  {part:<12} {role:<3} IGNORES '
+                        + ' '.join(f'p{p}' for p in sorted(miss))
+                        + f' -- PARC says {role} is {sorted(pins)}')
+            checked += 1
+            continue
+
         if why:
             skipped += 1
             if args.verbose:
@@ -179,7 +245,7 @@ def main(argv: list[str]) -> int:
         checked += 1
         for out_pin, used in sorted(gates.items()):
             want = None
-            for ins, outs in gt[short]:
+            for ins, outs in gt.get(short, []):
                 if out_pin in outs:
                     want = ins
                     break
