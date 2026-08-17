@@ -520,21 +520,57 @@ TtlDict gives the whole part in one line, `[FF 3>2, 4>5, ... : CLK 9 RS 1]`),
 EclDict's `SU'`/`SD'` naming), `SN74LS138` (7, the 3-to-8 decoder) and
 `i2716` (8, the EPROM).
 
-**The BaseBoard's EPROMs are modelled but EMPTY, deliberately.** We hold the
-dumps -- `firmware/`, five 2048-byte images from Nov 1987 -- and
-`dorado/include/baseboard.h` says where they live: C-08/C-10 at
-0xC000-0xCFFF, C-12 at 0xD000-0xD7FF, B-08/B-10 at 0xF000-0xFFFF. What is
-missing is which SOCKET holds which image. The trace so far: the eight sockets
-(b60 b61 c60 c61 e60 f60 h61 i61) are chip-selected by `Rom0'`..`Rom7'` from
-the SN74LS138 at g11, whose select is `RSA.0-2`, and every socket takes
-`MCA.00` on A10 -- so they are read over the MICROCODE bus, not by the 6502
-directly. Eight sockets and five images means three are empty, and guessing
-which would be worse than leaving it. `cell_i2716` takes an `INIT_FILE` so
-this is a one-line change per socket once `RSA.0-2` is traced back.
+**The BaseBoard's EPROMs are LOADED, and the socket map is established.**
 
-**Getting there would be worth it**: the 6502 and the RIOT are real cores, so
-with the right images in the right sockets the BaseBoard could execute its own
-boot firmware -- which is exactly what the C emulator does.
+`make -C verilog proms` now fills them. The contents are NOT `firmware/` --
+those five 1987 chip dumps look like the obvious source and are not usable, as
+no image has a plausible 6502 vector triple in its tail (B-10 gives
+NMI=0x0F00, IRQ=0x4F45) and nothing in this repository reads them. The C
+emulator boots `chm/dorado/doradobaserom.mb!13`, so a small program
+(`dorado/tests/baseboard_rom_dump.c`) dumps it through the emulator's OWN
+loader and `tools/firmware_eproms.py` slices it into sockets. Whatever the
+RTL's 6502 fetches is then byte-for-byte what the C one fetches.
+
+The map was derived, not guessed, and it validates itself:
+
+- The eight sockets are chip-selected by `Rom0'`..`Rom7'` from the SN74LS138
+  at g11, whose select is `RSA.0/1/2`.
+- Each socket's address pins take `MCA.10` down to `MCA.00` -- a clean 2K
+  window. (PARC names those MSB-first: the dictionary's `A0` is pin 19, the
+  sheet's A10. `cell_i2716` had that backwards until this was traced; a
+  reversed address would have scrambled the image silently.)
+- `RSA.0/1/2` are driven by no gate. They arrive on `c07`, an Augat STRAP
+  BLOCK which also brings `MCA.11/12/13/14` out. With 2K parts the only
+  strapping that tiles the space is RSA = MCA.11/12/13.
+- So Rom<n> sits at 0xC000 + n*0x800, and `baseboard.h` puts the ROM area at
+  exactly those 16K.
+
+Then the ROM agrees: its vectors are NMI=0xF000, RESET=0xF3A7, IRQ=0xF2A2,
+all inside the ROM area, and its 6,955 non-zero bytes fall in exactly four 2K
+blocks -- C000, C800, F000, F800, which is the 1981 Hardware Manual's "4
+EPROMs at F000, F800, C000, C800". Four chips in eight sockets.
+
+**The 6502 does not run yet, and the reason is specific.**
+`verilog/verilator/tb_baseboard.sv` instantiates the board alone and watches
+the address bus: it never changes. The core itself is real (Holme's
+netlist-derived 6502) and so are the RIOTs -- what is missing is the CLOCK AND
+RESET CHAIN around them, every part of it still a skeleton:
+
+| part | pkgs | role |
+|---|---|---|
+| `SN74LS74` | 3 | g08 makes `MCPreClk`, the 6502's clock; j08 drives `MCReset'` |
+| `SN74LS04` | 5 | hex inverter, incl. `MCClk` -> `MCClk'` for the ROM decoder |
+| `SN74LS163` | ? | e07 drives `Max`, which clocks g08 -- the chain runs back to here |
+| `MC14521B` | 1 | 24-stage divider off `MCPreClk` |
+| `SN74LS175` | 2 | latches on the reset path |
+| `SN74LS259` | 1 | addressable latch on the reset path |
+
+**That is the next task, and it is worth doing**: they are small standard TTL
+parts, and with them the BaseBoard would execute its own boot firmware in RTL
+-- the same code the C emulator runs, which makes it diffable the way the ALU
+now is. `tb_baseboard` is already written to report it: it looks for the 6502
+addressing 0xFFFC/D, which would mean the core, the decoder, the socket
+mapping and the image are all right at once.
 
 **What is left in the machine** is a short list, and none of it is a gate:
 

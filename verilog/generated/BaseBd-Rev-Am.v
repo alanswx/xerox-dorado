@@ -1289,6 +1289,7 @@ module BaseBd_m_Rev_m_Am (
     .p13(Basebd06_sil_pl_1),
     .p14(Basebd06_sil_pl_4)
   ); // MPQ6002
+  // PROM with no contents in the archive -- reads X
   cell_i2716 u_b60 (
     .p1(MCA_07),
     .p2(MCA_06),
@@ -1315,7 +1316,7 @@ module BaseBd_m_Rev_m_Am (
     .p23(MCA_08),
     .p24(VCC50)
   ); // i2716
-  cell_i2716 u_b61 (
+  cell_i2716 #(.INIT_FILE("verilog/proms/eprom/BaseBd-b61.mem")) u_b61 (
     .p1(MCA_07),
     .p2(MCA_06),
     .p3(MCA_05),
@@ -1532,6 +1533,7 @@ module BaseBd_m_Rev_m_Am (
     .p13(Basebd06_sil_pl_12),
     .p14(Basebd06_sil_pl_9)
   ); // MPQ6002
+  // PROM with no contents in the archive -- reads X
   cell_i2716 u_c60 (
     .p1(MCA_07),
     .p2(MCA_06),
@@ -1558,7 +1560,7 @@ module BaseBd_m_Rev_m_Am (
     .p23(MCA_08),
     .p24(VCC62)
   ); // i2716
-  cell_i2716 u_c61 (
+  cell_i2716 #(.INIT_FILE("verilog/proms/eprom/BaseBd-c61.mem")) u_c61 (
     .p1(MCA_07),
     .p2(MCA_06),
     .p3(MCA_05),
@@ -1968,7 +1970,7 @@ module BaseBd_m_Rev_m_Am (
     .p15(RCPBus_01__e24_15),
     .p16(VCC96)
   ); // AM2615
-  cell_i2716 u_e60 (
+  cell_i2716 #(.INIT_FILE("verilog/proms/eprom/BaseBd-e60.mem")) u_e60 (
     .p1(MCA_07),
     .p2(MCA_06),
     .p3(MCA_05),
@@ -2149,7 +2151,7 @@ module BaseBd_m_Rev_m_Am (
   cell_SIPpackage u_f44 (
     // no connections
   ); // SIPpackage
-  cell_i2716 u_f60 (
+  cell_i2716 #(.INIT_FILE("verilog/proms/eprom/BaseBd-f60.mem")) u_f60 (
     .p1(MCA_07),
     .p2(MCA_06),
     .p3(MCA_05),
@@ -2713,6 +2715,7 @@ module BaseBd_m_Rev_m_Am (
     .p15(RCPStrb__h24_15),
     .p16(VCC120)
   ); // AM2615
+  // PROM with no contents in the archive -- reads X
   cell_i2716 u_h61 (
     .p1(MCA_07),
     .p2(MCA_06),
@@ -2961,6 +2964,7 @@ module BaseBd_m_Rev_m_Am (
     .p6(TTLTrue_D),
     .p9(VCC120)
   ); // MC10124
+  // PROM with no contents in the archive -- reads X
   cell_i2716 u_i61 (
     .p1(MCA_07),
     .p2(MCA_06),

@@ -880,7 +880,11 @@ diagnostics, which were written to test the boards.
 **Started 2026-08-15, and further than the plan expected.** All sixteen
 boards now GENERATE from PARC's wire lists and elaborate under Verilator
 (67,960 lines, plus 4,599 of cell models); 68 cell models cover 93.4% of logic packages (94.7% of the eleven-board
-machine) -- and a PARC veteran reading one of them found a class of bug worth
+machine); **the BaseBoard's eight 2716 sockets now hold the real base ROM** --
+the socket map was derived from the LS138 decode and the c07 strap block and
+then validated three ways (the ROM's 6502 vectors all land inside ROM, and its
+bytes occupy exactly the four 2K blocks the 1981 manual names), with the image
+taken through the emulator's own loader so both models fetch the same bytes -- and a PARC veteran reading one of them found a class of bug worth
 knowing about: EclDict names a gate's COMMON input once, on the first gate,
 so four cells had wired it into that gate only. `make -C verilog cell-check`
 now compares every cell against the dictionary's own per-gate input lists --

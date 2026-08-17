@@ -25,6 +25,9 @@ TOOLS   = ../tools
 proms:
 	@python3 $(TOOLS)/dorado_proms.py --emit-all --out proms
 	@python3 $(TOOLS)/dorado_proms.py --emit-packages proms/packages
+	@$(MAKE) -s -C ../dorado build/baseboard_rom_dump
+	@cd ../dorado && ./build/baseboard_rom_dump > build/baseboard_rom_dump.txt 2>/dev/null
+	@python3 $(TOOLS)/firmware_eproms.py --emit proms/eprom
 
 # Do the cells wire the inputs PARC says each gate has? Tim found MC10100
 # ignoring its common strobe on three of four gates; this checks all of them.

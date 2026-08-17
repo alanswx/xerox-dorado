@@ -59,7 +59,16 @@ module cell_i2716 #(
     input  wire p24// (no name in EclDict)
 );
 
-  wire [10:0] a = {p8, p7, p6, p5, p4, p3, p2, p1, p23, p22, p19};  // A10..A0
+  // ADDRESS ORDER. EclDict/TtlDict name these MSB-FIRST, as everywhere in this
+  // machine: PARC's `A0` is pin 19, which the 2716 data sheet calls A10 -- the
+  // most significant bit -- and PARC's `A10` is pin 8, the sheet's A0. So the
+  // vector below runs pin 19 down to pin 8, most significant first.
+  //
+  // It is worth being exact even while INIT_FILE is empty: unlike the RAM
+  // cells, where any self-consistent order works because the same board writes
+  // and reads, a ROM is compared against an IMAGE and a reversed address would
+  // scramble it silently.
+  wire [10:0] a = {p19, p22, p23, p1, p2, p3, p4, p5, p6, p7, p8};
 
   reg [7:0] mem [0:2047];
   initial if (INIT_FILE != "") $readmemh(INIT_FILE, mem);

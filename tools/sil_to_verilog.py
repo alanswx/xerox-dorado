@@ -50,6 +50,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from sil_netlist import load_board, vpart   # noqa: E402
 from sil_ecldict import EclDict             # noqa: E402
 from dorado_proms import placement, PROM_PARTS   # noqa: E402
+import firmware_eproms                          # noqa: E402
 
 
 # Sil punctuation -> escape. INJECTIVE on purpose: `CTask.0` and `CTask=0`
@@ -66,6 +67,7 @@ _ESCAPES = [('_', '_u_'), ('.', '_'), ("'", '_p_'), ('=', '_eq_'),
 
 # Where the per-package PROM images live, repo-relative.
 PROM_DIR = 'verilog/proms/packages'
+EPROM_DIR = 'verilog/proms/eprom'
 
 
 def vname(name: str) -> str:
@@ -105,6 +107,13 @@ class Generator:
             r['pos']: f'{PROM_DIR}/{r["board"]}-{r["pos"]}.mem'
             for r in placement() if r['board'] == short
         }
+        # The BaseBoard's 2716 sockets, filled from the base ROM the C
+        # emulator boots -- see tools/firmware_eproms.py for how each socket's
+        # address was established.
+        if short == firmware_eproms.BOARD:
+            self.prom_image.update(
+                {sock: f'{EPROM_DIR}/{mem}'
+                 for sock, mem in firmware_eproms.images().items()})
         self.proms_wired = 0
 
     # A part whose drive OVERRIDES the wired-OR on its nets.
@@ -339,13 +348,13 @@ class Generator:
                 self.missing[ptype] += 1
                 A(f'  // NO MODEL for {ptype} -- stub, ports preserved')
             params = ''
-            if ptype in PROM_PARTS and pos in self.prom_image:
+            if ptype in (*PROM_PARTS, 'i2716') and pos in self.prom_image:
                 # A PROM package with contents PARC's own BCPL computes. The
                 # path is repo-relative, so run the simulation from the repo
                 # root; $readmemh fails loudly rather than silently if not.
                 params = f'#(.INIT_FILE("{self.prom_image[pos]}")) '
                 self.proms_wired += 1
-            elif ptype in PROM_PARTS:
+            elif ptype in (*PROM_PARTS, 'i2716'):
                 A(f'  // PROM with no contents in the archive -- reads X')
             A(f'  {cell} {params}u_{vname(pos)} (')
             if vpart(ptype) in self.clocked:
