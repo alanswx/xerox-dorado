@@ -989,14 +989,15 @@ cell files and found two modelling mistakes, both settled by the archive:
 as `always @*`, so every read-modify-write path in the machine was a loop; 405
 F10145A packages alone), now on `sys_clk` with the part's own level as an
 enable, which is this design's existing convention and took the graph from
-1,333 back edges to 40; and **`F10016`'s carry out was a gate where PARC's
-dictionary lists it under `[FF]` only**, putting a path from a counter's own
-count enable to its own carry and closing three loops on three boards. One
-structural loop remains on ProcH -- the processor's own mux chain, which the
-selects break -- and is deliberately left. Gates: `make -C verilog loop-check`
-(a fifth of a second, from the cell files) and a new `cell-check` property, a
-pin the dictionary lists only under `[FF]` may not be computed from an input
-pin.
+1,333 back edges to 40; -- that was the whole of it. A second theory, that `F10016`'s carry should be
+registered because the dictionary lists pin 4 only under `[FF]`, was tried and
+is WRONG and worth not re-deriving: an `[FF]` entry is a TIMING ARC from the
+clock with any gate after the register folded in, which `S169` shows by giving
+RC' its own block at 30.8 ns against the Q outputs' 16.5. Four structural loops
+remain -- the processor's mux chain and a counter carry returning to its own
+enable on three boards -- and all settle, because a wired-OR term or a mux
+select breaks each in operation. Gate: `make -C verilog loop-check`, a fifth of
+a second, from the cell files.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 

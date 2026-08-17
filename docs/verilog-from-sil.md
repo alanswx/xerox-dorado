@@ -349,13 +349,17 @@ most of a datapath. The machine had 1,333 such back edges and would not settle
 once anything started moving. On `sys_clk` with the level as an enable there
 are none, and a latch is not synthesisable on most FPGAs anyway.
 
-The related trap is a part whose output the dictionary lists under `[FF ...]`
-being modelled as a gate. `F10016`'s carry out is the case: PARC gives that
-part no `[G]` entry at all and puts pin 4 in the flip-flop's output list, so
-computing it from the count enable invents a combinational path where the part
-has none -- and it closed loops on three boards. `make -C verilog cell-check`
-checks that property across the library now, and `make -C verilog loop-check`
-finds any loop that survives, in a fifth of a second, from the cell files.
+**Do not read an `[FF ...]` entry as "this output is registered".** It is a
+TIMING ARC from the clock, and a gate after the register is folded into it
+rather than given its own `[G]`. `S169` shows it: RC' gets a second [FF] block
+with a clock-to-output delay of 30.8 ns against 16.5 ns for the Q outputs, and
+the extra 14 ns is the carry gate. `F10016`'s carry was briefly registered on
+that misreading; a synchronous counter's carry has to be combinational, or a
+cascaded stage counts a clock late.
+
+`make -C verilog loop-check` finds any loop that survives, in a fifth of a
+second, from the cell files -- so a part written as a latch is caught where it
+is written rather than as a non-convergence on another board.
 
 ## Two bugs the elaboration caught, both worth knowing
 

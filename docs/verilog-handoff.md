@@ -643,24 +643,21 @@ heavily oversamples every signal on the board, so the behaviour while
 transparent is the same to a fabric clock's precision -- and unlike a latch it
 synthesises. That took the graph from 1,333 back edges to 40.
 
-**`F10016`'s carry out was a gate and should be registered.** The dictionary
-states combinational paths under `[G ...]` and clocked ones under `[FF ...]`.
-`F10016` has NO `[G]` entry at all, and pin 4 appears in its `[FF]` output list
-beside the four Q pins:
+**A second theory was tried and is wrong**, and is recorded because it is a
+plausible misreading of the dictionary. `F10016`'s carry out is a gate,
+`~(&q & ~CE')`, which puts a path from a package's own count enable to its own
+carry -- and the dictionary lists pin 4 only in an `[FF ...]` output list,
+beside the four Q pins, with no `[G]` entry for the part at all. That looks
+like a statement that the carry is clocked, and registering it removed three
+loops.
 
-```
-[FF 7 {2.2 1.1}>3, 9>2, 10>15, 11>14, (7 9 10 11)>4,
-     (5 6){2.8 .6}>(2 3 14 15 4) : CLK 13 (1 5.5) RS 12 (1 6 x x x) ]
-```
-
-It also says which inputs reach it -- the four D pins and both enables -- which
-is a carry computed from the state the counter is ENTERING and then clocked
-out, the usual ECL arrangement so a cascaded stage sees its carry in time.
-Modelled as `~(&q & ~CE')` instead, it put a combinational path from a
-package's own count enable to its own carry out, and that closed three of the
-remaining loops on three different boards: `StopWakeCount`/`KillDWTWakeup` on
-DispM and DispY, and `ChkLastPhOrIdle` on MemD, each returning through an
-MC10195.
+It is not one. **An `[FF]` entry is a TIMING ARC from the clock, and a gate
+after the register is folded into it** rather than given its own [G]. `S169`
+shows this outright: RC' gets a SECOND [FF] block with a clock-to-output delay
+of 30.8 ns against 16.5 ns for the Q outputs, and the extra 14 ns is the carry
+gate. A synchronous counter's carry has to be combinational anyway, or a
+cascaded stage counts a clock late. The change was reverted, and the machine
+settles without it -- the latch fixes were the whole of it.
 
 **Two false loops were in the analysis, not the design,** and are worth knowing
 because they would mislead the next person the same way. Every MC10181 slice
@@ -670,7 +667,8 @@ consumes; a part's own outputs are not its inputs. And the BaseBoard's
 `VCOPhase0`/`VCOPhase1` pair is the analog VCO's relaxation loop, which the
 MPQ3303 substitution already replaces, so nothing else on those nets is a path.
 
-**One structural loop remains, on ProcH, and it is left alone:**
+**Four structural loops remain, and all of them settle.** The processor's own
+multiplexer chain feeding back:
 
 ```
 DMuxData -> DMData    (h17, MC10158)
@@ -679,10 +677,20 @@ Pdata.00 -> MuxData2  (d11, MU10164)
 MuxData2 -> DMuxData  (l24, MU10164)
 ```
 
-That is the processor's own multiplexer chain feeding back, and it is a loop
-only on paper -- the selects never route all four legs at once, so it settles.
-Cutting it would mean inserting a delay the hardware does not have, and the
-machine converges with it present, over 200,000 cycles as readily as 20,000.
+and the same shape on DispM, DispY and MemD, where a counter's carry returns to
+its own count enable through an MC10195:
+
+```
+StopWakeCount -> KillDWTWakeup   (e24 F10016, CE' to CO')
+KillDWTWakeup -> StopWakeCount   (d24 MC10195)
+```
+
+None is a loop in operation. `StopWakeCount` is a wired-OR that d24 also drives
+from two other gates, so either of those holds it; the multiplexer chain's
+selects never route all four legs at once; and the carry gate only closes at
+terminal count. They are left alone rather than cut, because a delay inserted
+there would be an invention, and the machine converges with all four present,
+over 200,000 cycles as readily as 20,000.
 
 **`make -C verilog loop-check` is the gate**, and it costs a fifth of a second.
 It reports every board's back edges against a list of the loops that are
@@ -691,10 +699,10 @@ than as a non-convergence on some other board tens of thousands of cycles
 later. Reverting `cell_MC10173` to `always @*` makes it fail with ProcH and
 ProcL named.
 
-`make -C verilog cell-check` gained the second half of the same lesson: a pin
-the dictionary lists only under `[FF]`/`[L]` must not be computed from an input
-pin. That is the `F10016` bug stated as a property, checked across the whole
-library, and it fails if the carry is put back.
+`cell-check` briefly gained a property from the second theory -- a pin listed
+only under `[FF]`/`[L]` may not be computed from an input pin -- and it was
+removed with the theory. `sil_check_cells.py` records why, so it does not get
+re-derived.
 
 ## Reference: why `machine-test` is not a toggle count
 

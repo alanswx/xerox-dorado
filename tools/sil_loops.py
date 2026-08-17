@@ -23,27 +23,35 @@ both of which the archive itself settles:
     same change its two DRAM cells already carried, the count went from 1,333
     back edges to 40.
 
-  * `F10016`'s CARRY OUT WAS A GATE AND SHOULD BE REGISTERED. The dictionary
-    states combinational paths under `[G ...]` and clocked ones under
-    `[FF ...]`; pin 4 appears only in the [FF] output list, beside the four Q
-    pins, and the part has no [G] entry at all. Modelled as `~(&q & ~CE')` it
-    put a path from that package's own enable to its own carry, which closed
-    three of the remaining loops on three different boards.
+That was the whole of it. A second theory -- that `F10016`'s carry out should
+be registered, because the dictionary lists pin 4 only in an `[FF]` output
+list -- was tried and is WRONG, and is recorded here because it is a plausible
+misreading. An `[FF]` entry is a TIMING ARC from the clock, and a gate after
+the register is folded into it rather than given a [G] entry; `S169` shows
+this outright by giving RC' its own [FF] block with a clock-to-output delay of
+30.8 ns against 16.5 ns for the Q outputs. The machine settles with the carry
+combinational, which is also the only way a cascaded counter works.
 
-    `sil_check_cells.py` now checks that property across the whole library, so
-    it cannot come back.
-
-After both, ONE structural loop remains, on ProcH:
+FOUR STRUCTURAL LOOPS REMAIN, and all of them settle. The processor's:
 
     DMuxData -> DMData    (h17, MC10158)
     DMData   -> Pdata.00  (f03, MC10164)
     Pdata.00 -> MuxData2  (d11, MU10164)
     MuxData2 -> DMuxData  (l24, MU10164)
 
-That is the processor's own multiplexer chain feeding back, and it is a loop
-only on paper: the selects never route all four legs at once, so it settles.
-It is left alone rather than cut, because a delay inserted there would be an
-invention, and the machine converges with it present.
+-- the processor's own multiplexer chain feeding back. And the same shape on
+DispM, DispY and MemD, where a counter's carry out returns to its own count
+enable through an MC10195:
+
+    StopWakeCount   -> KillDWTWakeup    (e24 F10016, CE' to CO')
+    KillDWTWakeup   -> StopWakeCount    (d24 MC10195)
+
+None of these is a loop in operation. `StopWakeCount` is a wired-OR that d24
+also drives from two other gates, so either of those holds it and the path is
+broken; the multiplexer chain's selects never route all four legs at once; and
+the carry gate only closes at terminal count. They are left alone rather than
+cut, because a delay inserted there would be an invention, and the machine
+converges with all four present -- over 200,000 cycles as readily as 20,000.
 
 HOW THE GRAPH IS BUILT. Nodes are nets; an edge net_a -> net_b exists when some
 package has a COMBINATIONAL path from a pin on net_a to a pin on net_b. The
@@ -94,6 +102,9 @@ import sil_to_verilog as gen                                    # noqa: E402
 # nets a depth-first search reports as closing them.
 KNOWN = {
     'ProcH-Rev-Ce': {'DMuxData'},
+    'DispM-Rev-Ch': {'CursorWindow\'', 'StopWakeCount'},
+    'DispY-Rev-Cl': {'CursorWindow\'', 'StopWakeCount'},
+    'MemD-Rev-Ca': {'ChkLastPhOrIdle'},
 }
 
 ASSIGN_RE = re.compile(r'assign\s+p(\d+)\s*=\s*([^;]+);')

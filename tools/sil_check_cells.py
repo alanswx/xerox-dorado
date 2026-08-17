@@ -28,25 +28,23 @@ its select; MC10174 pin 14 is ENABLE and 7/9 the address; MC10180's p4/p12
 are the two carry inputs; and MC10170's p13/p14 are the `HIGH` and `LOW`
 inputs that make it a "9+2-bit" parity generator.
 
-A THIRD CHECK, added after the machine failed to converge. The dictionary
-states combinational paths under `[G ...]` and clocked ones under `[FF ...]`
-or `[L ...]`. So a pin that appears ONLY in an [FF] output list is driven by
-the flip-flop bank, and a cell that computes it from an input pin instead has
-turned a registered output into a gate. That is not a cosmetic difference: it
-creates a combinational path through a part that should have none, and those
-close feedback loops.
+A CHECK THAT WAS ADDED HERE AND REMOVED, because its premise was false, and
+it is worth stating so nobody re-derives it. The idea was: the dictionary
+states combinational paths under `[G ...]` and clocked ones under `[FF ...]`,
+so a pin appearing ONLY in an [FF] output list must be driven by the flip-flop
+bank, and a cell computing it from an input pin has turned a register into a
+gate. It flagged `F10016`'s carry out, which looked like a real find.
 
-`F10016` did exactly this. Its carry out, pin 4, was `~(&q & ~p6)` -- a gate on
-the count enable -- where PARC lists it beside the four Q pins under
-`[FF ... : CLK 13 RS 12]` and gives the part no [G] entry at all. Three of the
-machine's remaining feedback loops were that one pin, on three boards.
+It is not true. An `[FF ...]` entry is a TIMING ARC from the clock, and a gate
+AFTER the register is folded into that arc rather than given a [G] entry.
+`S169` shows it outright: RC' gets its own [FF] block with a clock-to-output
+delay of 30.8 ns against 16.5 ns for the Q outputs, and that extra 14 ns is
+the carry gate. A synchronous counter's carry has to be combinational anyway,
+or a cascaded stage would count a clock late.
 
-A dependency on another [FF] output is fine and expected: that is a `Q'`
-derived from its own `Q`, which several cells do.
-
-WHAT IT CANNOT CHECK. The gate-by-gate check covers only combinational cells:
-a part with an `always` block is reported as skipped there, because a clock or
-an asynchronous reset is not an "input to the gate" in the [G] sense. Nor does it check the FUNCTION -- a gate
+WHAT IT CANNOT CHECK. Only combinational cells: a part with an `always` block
+is reported as skipped, because a clock or an asynchronous reset is not an
+"input to the gate" in the [G] sense. Nor does it check the FUNCTION -- a gate
 that ORs where it should AND uses the same pins. It checks connectivity, which
 is where the transcription errors have actually been.
 
@@ -145,31 +143,6 @@ def clocked_table(path: str) -> dict[str, dict[str, set]]:
     return out
 
 
-def ff_output_pins(path: str) -> dict[str, set]:
-    """part -> the pins the dictionary lists as outputs of a clocked bank.
-
-    Same `X>Y` clauses as the [G] summaries, on the left of the `:`."""
-    out: dict[str, set] = {}
-    names: list[str] = []
-    for line in read_xerox_text(path):
-        t = line.strip()
-        if not t:
-            continue
-        if t.startswith('[FF') or t.startswith('[L '):
-            pins = set()
-            for clause in t.split(':', 1)[0].split(','):
-                if '>' in clause:
-                    pins |= {int(n) for n in
-                             re.findall(r'\d+', clause.split('>', 1)[1])}
-            for n in names:
-                out.setdefault(n, set()).update(pins)
-        elif t.startswith('['):
-            pass
-        elif not t.startswith(';') and re.match(r'^[A-Za-z0-9_, ]+$', t):
-            names = [x.strip() for x in t.split(',') if x.strip()]
-    return out
-
-
 ASSIGN_RE = re.compile(r'assign\s+p(\d+)\s*=\s*([^;]+);')
 # `wire a = ...` and `wire [7:0] d = ...` alike -- missing the vector form
 # made every multiplexer look as though it read no inputs.
@@ -234,12 +207,11 @@ def main(argv: list[str]) -> int:
     # clock chain was modelled, which put eighteen 74-series parts into the
     # library with nothing checking them -- and `TtlDict.Analyze` states its
     # gates in exactly the same `[G ...]` form.
-    gt, ff, ffout = {}, {}, {}
+    gt, ff = {}, {}
     ecl = EclDict()
     for d in DICTS:
         gt.update(gate_table(d))
         ff.update(clocked_table(d))
-        ffout.update(ff_output_pins(d))
         ecl.load(d)
 
     # cell file -> the dictionary short name for that part
@@ -248,38 +220,6 @@ def main(argv: list[str]) -> int:
         full = ecl.full_name(short)
         if full:
             short_of.setdefault(vpart(full.split('/')[0]), short)
-
-    # Registered outputs that are computed from an input pin instead.
-    # sil_loops.cell_paths already resolves, for each output pin, which INPUT
-    # pins it combinationally depends on -- wires inlined, clocked blocks
-    # contributing nothing -- which is exactly the question here.
-    import sil_loops                                       # noqa: E402
-    reg_bad = 0
-    for f in sorted(os.listdir(CELLS)):
-        m = re.match(r'cell_(.+)\.v$', f)
-        if not m:
-            continue
-        short = short_of.get(m.group(1))
-        if not short or short not in ffout:
-            continue
-        gate_outs = set()
-        for _ins, outs in gt.get(short, []):
-            gate_outs |= outs
-        paths = sil_loops.cell_paths(os.path.join(CELLS, f))
-        for pin, deps in sorted(paths.items()):
-            if pin not in ffout[short] or pin in gate_outs:
-                continue
-            # depending on another clocked output is a Q' from its own Q
-            deps = deps - ffout[short]
-            if deps:
-                reg_bad += 1
-                print(f'  {m.group(1):<12} p{pin:<3} is a CLOCKED output but '
-                      f'is computed from '
-                      + ' '.join(f'p{d}' for d in sorted(deps)))
-                print(f'  {"":<12}      PARC lists it under [FF]/[L] only, '
-                      f'with no [G] entry for that pin')
-    if reg_bad:
-        print()
 
     checked = bad = skipped = 0
     problems: list[str] = []
@@ -367,8 +307,7 @@ def main(argv: list[str]) -> int:
     print(f'cell check: {checked} combinational cells against the dictionary\'s '
           f'[G] gate lists, {bad} ignoring an input, {len(notes)} reading '
           f'extra control pins, {skipped} skipped')
-    print(f'cell check: {reg_bad} clocked output(s) computed from an input pin')
-    return 1 if (bad or reg_bad) else 0
+    return 1 if bad else 0
 
 
 if __name__ == '__main__':
