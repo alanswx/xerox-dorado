@@ -140,6 +140,22 @@ machine-test:
 		| python3 tools/rtl_machine_check.py \
 			verilog/generated/dorado_backplane.probes
 
+# THE BOOT INTERFACE, RTL against the C emulator. A Dorado starts by the
+# BaseBoard's 6502 driving nine data bits, a three-bit function code and a
+# strobe across the backplane; ContA decodes it and latches CPReg. The C
+# emulator models the same protocol from PARC's doradoio.mdefs, so the two
+# check each other -- see tb_cpreg.sv.
+.PHONY: cpreg-diff
+cpreg-diff:
+	@$(MAKE) -s -C ../../dorado build/cpreg_vectors
+	@mkdir -p obj_cpreg
+	@cd ../.. && ./dorado/build/cpreg_vectors > verilog/verilator/obj_cpreg/cpreg.vec
+	@cd ../.. && $(V) --binary --top-module tb_cpreg $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_cpreg -o tb_cpreg \
+		verilog/verilator/tb_cpreg.sv verilog/generated/ContA-Rev-Cd.v \
+		>/dev/null && ./verilog/verilator/obj_cpreg/tb_cpreg \
+			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_cpreg
+
 # Does the BaseBoard's 6502 come out of reset and fetch from its own EPROMs?
 # The whole board is real here -- Andrew Holme's netlist-derived 6502, MiSTer's
 # 6532s, the '138 that decodes Rom0'..Rom7', the eight 2716 sockets, and the

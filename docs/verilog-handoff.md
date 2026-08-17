@@ -20,6 +20,7 @@ make -C verilog prom-test  # THE GATE: PROMs read back what the machine expects
 python3 tools/sil_backplane.py             # what the backplane is, measured
 make -C verilog alu-test   # THE GATE: the ALU matches its datasheet
 make -C verilog alu-diff   # THE GATE: the ALU matches the C EMULATOR
+make -C verilog cpreg-diff # THE GATE: the BOOT INTERFACE matches the C emulator
 python3 tools/sil_backplane.py --ports     # boards present the ports PARC states
 make -C verilog machine-test  # THE GATE: the assembled machine clocks and SETTLES
 make -C verilog baseboard-test  # THE GATE: the BaseBoard's 6502 BOOTS
@@ -613,6 +614,73 @@ the hardware means -- a driver does not read its own drive to learn what it is
 driving -- and the wired-OR already gives every driver a private stub, so it
 costs nothing and no delay. (Registering the readback instead works too and is
 wrong: it delays the read path enough to miss the ROM's hold window.)
+
+## The BOOT INTERFACE cross-checks against the C emulator (2026-08-17)
+
+`make -C verilog cpreg-diff`: **176 strobes from the C emulator, 44 of them
+loading CPReg, 0 mismatches.**
+
+This is how a Dorado starts, and it is the second thing in the machine to be
+checked against the software model rather than only against the netlist it came
+from. The BaseBoard's 6502 has no access to IM or to the processor's registers.
+It drives nine data bits (`CPOut.0-8`), a three-bit function code
+(`CPAddr.0'-2'`) and a strobe (`CPStrb'`) across the backplane, and CPReg, the
+microinstruction register, run and single-step are all built out of that.
+
+Two derivations meet, neither taken from the other:
+
+* the RTL, generated from PARC's wire list -- an MC10161 at ContA a01 decodes
+  the function code into `CPStrb0'`..`CPStrb3'`, and MC10176 hex flip-flops at
+  a03, f02, g02 and h02 latch `CPReg.00`-`.15` from `CPOut.0-7`;
+* `apply_mcp_strobe()` in `dorado/src/baseboard.c`, written from PARC's
+  `doradoio.mdefs` and `doradocpint.masm`.
+
+`dorado/tests/cpreg_vectors.c` includes `baseboard.c` directly, so the vectors
+come from the emulator's real decoder, and `tb_cpreg.sv` feeds the same strobes
+through the gates. Four mutations were tried and each fails: leaving the
+function code uncomplemented, reversing its bit order, sending the data byte
+LSB-first, and latching on the leading edge of the strobe.
+
+**Three things the netlist settles**, all of which had to be right for a single
+vector to pass:
+
+* **The function code arrives COMPLEMENTED and the strobes are active low.**
+  ContA's decoder takes `CPAddr.0'` on its most significant select, so function
+  0 presents 7 and comes out on Q7' -- which the board calls `CPStrb0'`. The
+  naming is self-consistent once you see why.
+* **MSB-first, here as everywhere.** `CPOut.0` is the data byte's bit 7: it
+  traces back through `TCPBus.00` to `MCPBus.00`, which is a RIOT's PA7. And
+  `CPReg.00` is the high byte's most significant bit -- which is what makes
+  ContA's `CPStrb2'` loading `CPReg.00`-`.07` the same statement as the C
+  emulator's "ABMux0 latches the HIGH byte".
+* **`SetRun` comes from data bit 0.** The BaseBoard latches `TSetRun` from
+  `TCPBus.07`, and MSB-first over `.00`-`.07` makes `.07` the least significant
+  bit. The C emulator tests `data & 0x01`. Same bit, from opposite directions.
+
+**And two things the netlist adds, which are gaps in the C model rather than
+disagreements:**
+
+* **Function 1 is not a no-op.** The C emulator calls it "Clock" and ignores
+  it. ContA's `CPStrb1'` latches three real control bits at i02:
+  `CP=UseCPReg`, `ClrReady` and `GetTLink`, from `CPOut.2`, `.3`, `.4` and
+  `.7`.
+* **A REMOTE host can drive this bus instead of the local 6502.** Three
+  SN74LS157 multiplexers on the BaseBoard (d06, e06, f06) select between
+  `MCPBus`/`MCPABus`/`MCPStrb` and `RCPBus`/`RCPABus`/`SelStrb`, which arrive
+  on AM2615 line receivers from the `ACP*` cable, under a software-set
+  `AHasCP` latch -- "A has the Control Processor". The C emulator models only
+  the local path, which is enough to boot but is not the whole interface.
+
+One correction to an internal comment, worth having: `baseboard.c` says each
+MIR byte's extra bit "rides on the SetSS line during the strobe -- this is a
+hardware multiplex". It is the same physical RIOT pin, PB7, but it is not a
+multiplex. The netlist fans it out: continuously to `MCPBus.08` -> `CPOut.8`,
+the ninth bit of the nine-bit slot, and separately into an SN74LS175 at g07
+which latches it into `SetSS'` on the Control strobe. Same pin, two
+destinations, one of them registered.
+
+Functions 4-7, the four microinstruction bytes, are strobed elsewhere -- ContA
+a01 leaves Q0'-Q3' unconnected -- and are the obvious next test.
 
 ## The passive packages, and what each one turned out to be (2026-08-17)
 
