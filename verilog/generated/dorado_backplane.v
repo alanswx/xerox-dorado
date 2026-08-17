@@ -4537,7 +4537,6 @@ module dorado_backplane (
     .IOIn_p_(IOIn_p_),
     .IOOut_p_(IOOut_p_),
     .IOReset(IOReset),
-    .IOut_m_(IOut_m_),
     .KeyboardData(KeyboardData),
     .MemClkEnable_p_a(MemClkEnable_p_a),
     .MemSH_p_(MemSH_p_),

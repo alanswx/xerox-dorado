@@ -614,6 +614,48 @@ driving -- and the wired-OR already gives every driver a private stub, so it
 costs nothing and no delay. (Registering the readback instead works too and is
 wrong: it delays the read path enough to miss the ROM's hold window.)
 
+## The passive packages, and what each one turned out to be (2026-08-17)
+
+Three of the `.lc` part types are not logic and cannot be cells, because what
+they do is decided by what a BOARD put across them, not by the part. All three
+are resolved in the generator instead, and in every case the wire list's
+per-pin `{x,y}` coordinates are what settle the geometry.
+
+| type | what it is | how it is resolved |
+|---|---|---|
+| `SIPpackage` | resistor pack, common pin to the rest | hold every other pin at the common's level; a net held by a pull-up pack AND a pull-down pack is a bias divider and gets neither |
+| `AUGATCG16` | wire-wrap header, a field of jumper positions | a column of exactly two pins where one net has no other source; three-pin columns and contested targets are a CHOICE and are refused |
+| `PLAT1816` | resistor platform, eight series resistors | pin N to pin 17-N, where the far net has no other source and the near one is driven by a digital part |
+
+**`PLAT1816` was 24 dead address lines.** The pairing is not inferred: pin N
+and pin 17-N share an x coordinate, unanimously, 122 pairs across the machine
+with no exception. On MemX three platforms carry the map DRAM's address and
+strobes through series damping resistors -- `TMapAd.0a` in on pin 1 and
+`RTMapAd.0a` out on pin 16, and so on for 24 signals -- and with the part
+unmodelled every one of those lines sat at zero.
+
+The display boards' platforms are why the conditions are there. Theirs sit in
+the video DAC's supply filtering, across `GNDBlue`, `RegVCCB`, `FilterVEEB`, a
+DAC output and two references; passing a level through those would be inventing
+a signal. What separates them is the DICTIONARY, not our modelling progress: a
+digital part carries a `[G ...]`, `[FF ...]` or `[M ...]` summary and an analog
+one carries none, and DispM's `DACBlue` comes off an MC10318, which has none.
+24 series passes taken, 98 left alone.
+
+That needed a fix in `sil_ecldict.py`, which had walked straight past the `#`
+that starts the dictionary's third section: every behaviour summary in the file
+was being attributed to whichever pin block came last, so only 3 parts had one
+instead of 168. It was also parsing those bracket lines as pin clauses, which
+invented gates named after pin numbers.
+
+**A jumper target offered more than one source is a choice.** Each column is
+two pins, so the two-pin rule fires on each -- but MemX's b13 offers
+`RamA1orVCCa` a ground while b14 offers it VCC-47 and the map address line
+`RTMapAd.1a`. The names say what that is: "RamA1 OR VCC", the size of RAM
+fitted. Taking several at once asserted a contradictory configuration, that net
+strapped to GND and VCC together. Contested targets are refused now and
+counted, along with the three-pin columns.
+
 ## Fixed: the machine did not settle, and it was two latches that are not
 
 `make -C verilog machine-test` failed the moment the BaseBoard genuinely ran:

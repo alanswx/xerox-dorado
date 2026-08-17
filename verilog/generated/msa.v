@@ -798,12 +798,6 @@ module msa (
   // An explicit OR of the drivers: what the open emitters
   // compute, and one LUT level rather than a multiply-driven
   // net that no synthesis tool accepts.
-  wire msa03_sil_pl_7__e26_13;
-  wire msa03_sil_pl_7__e26_12;
-  assign msa03_sil_pl_7 = msa03_sil_pl_7__e26_13 | msa03_sil_pl_7__e26_12;
-  wire msa03_sil_pl_8__e26_11;
-  wire msa03_sil_pl_8__e26_10;
-  assign msa03_sil_pl_8 = msa03_sil_pl_8__e26_11 | msa03_sil_pl_8__e26_10;
   wire msa12_sil_pl_14__g02_2;
   wire msa12_sil_pl_14__g02_1;
   assign msa12_sil_pl_14 = msa12_sil_pl_14__g02_2 | msa12_sil_pl_14__g02_1;
@@ -904,12 +898,6 @@ module msa (
   assign VEE94 = 1'b0;
   assign VTT14 = 1'b0;
   assign VTT8 = 1'b0;
-
-  // ---- wire-wrap jumpers (Augat headers): the strap the netlist forces
-  assign msa03_sil_pl_8__e26_10 = VTT8;   // e26.10: msa03.sil+8 strapped to VTT8
-  assign msa03_sil_pl_8__e26_11 = MemAd_2;   // e26.11: msa03.sil+8 strapped to MemAd.2
-  assign msa03_sil_pl_7__e26_12 = MemAd_2;   // e26.12: msa03.sil+7 strapped to MemAd.2
-  assign msa03_sil_pl_7__e26_13 = GND58;   // e26.13: msa03.sil+7 strapped to GND58
 
   // ---- packages
   cell_MC10141 u_a01 (

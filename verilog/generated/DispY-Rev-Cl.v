@@ -93,7 +93,6 @@ module DispY_m_Rev_m_Cl (
     input  wire IOIn_p_,
     input  wire IOOut_p_,
     input  wire IOReset,
-    input  wire IOut_m_,
     input  wire KeyboardData,
     input  wire MemClkEnable_p_a,
     input  wire MemSH_p_,
@@ -1085,10 +1084,6 @@ module DispY_m_Rev_m_Cl (
   wire DWTWantsProc__g11_3;
   wire DWTWantsProc__g11_14;
   assign DWTWantsProc = DWTWantsProc__g11_3 | DWTWantsProc__g11_14;
-  wire FilterVEE__a03_9;
-  wire FilterVEE__a03_10;
-  wire FilterVEE__a03_11;
-  assign FilterVEE = FilterVEE__a03_9 | FilterVEE__a03_10 | FilterVEE__a03_11;
   wire ForceClkBLow__e04_3;
   wire ForceClkBLow__c03_15;
   wire ForceClkBLow__c03_14;
@@ -1098,11 +1093,6 @@ module DispY_m_Rev_m_Cl (
   wire FoutTaskSaysDWT_p___l24_14;
   wire FoutTaskSaysDWT_p___l24_15;
   assign FoutTaskSaysDWT_p_ = FoutTaskSaysDWT_p___l24_2 | FoutTaskSaysDWT_p___l24_3 | FoutTaskSaysDWT_p___l24_14 | FoutTaskSaysDWT_p___l24_15;
-  wire GNDFour__a01_13;
-  wire GNDFour__a01_14;
-  wire GNDFour__a02_14;
-  wire GNDFour__a01_15;
-  assign GNDFour__drv = GNDFour__a01_13 | GNDFour__a01_14 | GNDFour__a02_14 | GNDFour__a01_15;
   wire HSync__h04_2;
   wire HSync__h04_3;
   assign HSync__drv = HSync__h04_2 | HSync__h04_3;
@@ -1175,10 +1165,6 @@ module DispY_m_Rev_m_Cl (
   wire preprePixelClk_p___b01_3;
   wire preprePixelClk_p___b01_9;
   assign preprePixelClk_p_ = preprePixelClk_p___b01_3 | preprePixelClk_p___b01_9;
-  wire RegVCC__a03_12;
-  wire RegVCC__a01_12;
-  wire RegVCC__a01_11;
-  assign RegVCC = RegVCC__a03_12 | RegVCC__a01_12 | RegVCC__a01_11;
   wire StopWakeCount__d24_3;
   wire StopWakeCount__d24_4;
   wire StopWakeCount__d24_13;
@@ -1194,7 +1180,7 @@ module DispY_m_Rev_m_Cl (
   wire TIOASaysDDC_p___e02_15;
   assign TIOASaysDDC_p_ = TIOASaysDDC_p___e03_14 | TIOASaysDDC_p___e03_3 | TIOASaysDDC_p___e02_14 | TIOASaysDDC_p___e02_3 | TIOASaysDDC_p___e02_2 | TIOASaysDDC_p___e02_15;
 
-  // 42 single-driver contributions to the backplane
+  // 43 single-driver contributions to the backplane
 
   // ---- resistor packs (SIP): pins held at the pack's common
   assign OISClkB__d42_2 = 1'b0;   // d42.2 OISClkB, tied to VEE100
@@ -1262,19 +1248,6 @@ module DispY_m_Rev_m_Cl (
   assign VEE331 = 1'b0;
 
   // ---- packages
-  cell_PLAT1816 u_a01 (
-    .p1(GNDFour),
-    .p2(VComp),
-    .p3(VRef_m_),
-    .p4(IOut_m_),
-    .p5(IOut_m_),
-    .p6(VRef_pl_),
-    .p11(RegVCC__a01_11),
-    .p12(RegVCC__a01_12),
-    .p13(GNDFour__a01_13),
-    .p14(GNDFour__a01_14),
-    .p15(GNDFour__a01_15)
-  ); // PLAT1816
   cell_MC10318 u_a02 (
     .p1(dDAC_7),
     .p2(dDAC_6),
@@ -1288,25 +1261,10 @@ module DispY_m_Rev_m_Cl (
     .p10(VRef_m_),
     .p11(VComp),
     .p12(VRef_pl_),
-    .p14(GNDFour__a02_14),
+    .p14(GNDFour__drv),
     .p15(IOut_m___drv),
     .p16(GNDFour)
   ); // MC10318
-  cell_PLAT1816 u_a03 (
-    .p1(VDD74),
-    .p2(VDD74),
-    .p3(GNDFour),
-    .p4(RegVCC),
-    .p5(GNDFour),
-    .p6(VEE289),
-    .p7(VEE289),
-    .p8(GNDFour),
-    .p9(FilterVEE__a03_9),
-    .p10(FilterVEE__a03_10),
-    .p11(FilterVEE__a03_11),
-    .p12(RegVCC__a03_12),
-    .p16(GND577)
-  ); // PLAT1816
   cell_MC10124 u_a04 (
     .p4(Crystal__drv),
     .p5(DispY25_sil_pl_1),

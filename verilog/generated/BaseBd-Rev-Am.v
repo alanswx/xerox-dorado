@@ -719,21 +719,6 @@ module BaseBd_m_Rev_m_Am (
   wire AHasCP__c20_7;
   wire AHasCP__c62_13;
   assign AHasCP = AHasCP__c20_7 | AHasCP__c62_13;
-  wire Basebd06_sil_pl_1__b23_16;
-  wire Basebd06_sil_pl_1__b23_15;
-  assign Basebd06_sil_pl_1 = Basebd06_sil_pl_1__b23_16 | Basebd06_sil_pl_1__b23_15;
-  wire Basebd06_sil_pl_12__c23_15;
-  wire Basebd06_sil_pl_12__c23_16;
-  assign Basebd06_sil_pl_12 = Basebd06_sil_pl_12__c23_15 | Basebd06_sil_pl_12__c23_16;
-  wire Basebd06_sil_pl_13__c23_11;
-  wire Basebd06_sil_pl_13__c23_12;
-  assign Basebd06_sil_pl_13 = Basebd06_sil_pl_13__c23_11 | Basebd06_sil_pl_13__c23_12;
-  wire Basebd06_sil_pl_19__d23_16;
-  wire Basebd06_sil_pl_19__d23_15;
-  assign Basebd06_sil_pl_19 = Basebd06_sil_pl_19__d23_16 | Basebd06_sil_pl_19__d23_15;
-  wire Basebd06_sil_pl_8__b23_12;
-  wire Basebd06_sil_pl_8__b23_11;
-  assign Basebd06_sil_pl_8 = Basebd06_sil_pl_8__b23_12 | Basebd06_sil_pl_8__b23_11;
   wire BaseBd09_sil_pl_7__a19_5;
   wire BaseBd09_sil_pl_7__a20_5;
   assign BaseBd09_sil_pl_7 = BaseBd09_sil_pl_7__a19_5 | BaseBd09_sil_pl_7__a20_5;
@@ -745,49 +730,9 @@ module BaseBd_m_Rev_m_Am (
   wire BaseBd10_sil_pl_2__k03_15;
   wire BaseBd10_sil_pl_2__k03_14;
   assign BaseBd10_sil_pl_2 = BaseBd10_sil_pl_2__k02_14 | BaseBd10_sil_pl_2__k02_3 | BaseBd10_sil_pl_2__k02_2 | BaseBd10_sil_pl_2__k02_15 | BaseBd10_sil_pl_2__k03_2 | BaseBd10_sil_pl_2__k03_15 | BaseBd10_sil_pl_2__k03_14;
-  wire BaseBd11_sil_pl_9__i03_5;
-  wire BaseBd11_sil_pl_9__i03_7;
-  assign BaseBd11_sil_pl_9 = BaseBd11_sil_pl_9__i03_5 | BaseBd11_sil_pl_9__i03_7;
-  wire BaseBd13_sil_pl_10__i18_15;
-  wire BaseBd13_sil_pl_10__i18_16;
-  assign BaseBd13_sil_pl_10 = BaseBd13_sil_pl_10__i18_15 | BaseBd13_sil_pl_10__i18_16;
-  wire BaseBd13_sil_pl_11__i18_13;
-  wire BaseBd13_sil_pl_11__i18_14;
-  assign BaseBd13_sil_pl_11 = BaseBd13_sil_pl_11__i18_13 | BaseBd13_sil_pl_11__i18_14;
-  wire BaseBd13_sil_pl_12__i18_12;
-  wire BaseBd13_sil_pl_12__i18_11;
-  assign BaseBd13_sil_pl_12 = BaseBd13_sil_pl_12__i18_12 | BaseBd13_sil_pl_12__i18_11;
-  wire BaseBd13_sil_pl_13__i18_9;
-  wire BaseBd13_sil_pl_13__i18_10;
-  assign BaseBd13_sil_pl_13 = BaseBd13_sil_pl_13__i18_9 | BaseBd13_sil_pl_13__i18_10;
-  wire BaseBd13_sil_pl_3__j20_9;
-  wire BaseBd13_sil_pl_3__j20_10;
-  assign BaseBd13_sil_pl_3 = BaseBd13_sil_pl_3__j20_9 | BaseBd13_sil_pl_3__j20_10;
-  wire BaseBd13_sil_pl_5__j22_16;
-  wire BaseBd13_sil_pl_5__j22_14;
-  assign BaseBd13_sil_pl_5 = BaseBd13_sil_pl_5__j22_16 | BaseBd13_sil_pl_5__j22_14;
-  wire BaseBd13_sil_pl_6__j22_12;
-  wire BaseBd13_sil_pl_6__j22_11;
-  assign BaseBd13_sil_pl_6 = BaseBd13_sil_pl_6__j22_12 | BaseBd13_sil_pl_6__j22_11;
-  wire BaseBd14_sil_pl_3__a02_11;
-  wire BaseBd14_sil_pl_3__a02_10;
-  assign BaseBd14_sil_pl_3 = BaseBd14_sil_pl_3__a02_11 | BaseBd14_sil_pl_3__a02_10;
-  wire BaseBd14_sil_pl_4__j19_11;
-  wire BaseBd14_sil_pl_4__j19_10;
-  assign BaseBd14_sil_pl_4 = BaseBd14_sil_pl_4__j19_11 | BaseBd14_sil_pl_4__j19_10;
   wire BaseBd15_sil_pl_2__c05_3;
   wire BaseBd15_sil_pl_2__c05_5;
   assign BaseBd15_sil_pl_2 = BaseBd15_sil_pl_2__c05_3 | BaseBd15_sil_pl_2__c05_5;
-  wire BaseBd15_sil_pl_6__d05_14;
-  wire BaseBd15_sil_pl_6__d05_13;
-  assign BaseBd15_sil_pl_6 = BaseBd15_sil_pl_6__d05_14 | BaseBd15_sil_pl_6__d05_13;
-  wire BaseBd15_sil_pl_7__d05_11;
-  wire BaseBd15_sil_pl_7__c06_11;
-  assign BaseBd15_sil_pl_7 = BaseBd15_sil_pl_7__d05_11 | BaseBd15_sil_pl_7__c06_11;
-  wire BaseBd15_sil_pl_8__c06_16;
-  wire BaseBd15_sil_pl_8__c06_14;
-  wire BaseBd15_sil_pl_8__c06_12;
-  assign BaseBd15_sil_pl_8 = BaseBd15_sil_pl_8__c06_16 | BaseBd15_sil_pl_8__c06_14 | BaseBd15_sil_pl_8__c06_12;
   wire BootNO__l62_17;
   wire BootNO__c01_1;
   assign BootNO__drv = BootNO__l62_17 | BootNO__c01_1;
@@ -1312,60 +1257,23 @@ module BaseBd_m_Rev_m_Am (
 
   // ---- wire-wrap jumpers (Augat headers): the strap the netlist forces
   assign EclTemp = VCC49;   // a02.5: EclTemp strapped to VCC49
-  assign BaseBd14_sil_pl_3__a02_10 = DACOut;   // a02.10: BaseBd14.sil+3 strapped to DACOut
-  assign BaseBd14_sil_pl_3__a02_11 = TempRef__drv;   // a02.11: BaseBd14.sil+3 strapped to TempRef
-  assign Basebd06_sil_pl_8__b23_11 = VCC59;   // b23.11: Basebd06.sil+8 strapped to VCC59
-  assign Basebd06_sil_pl_8__b23_12 = Basebd06_sil_pl_7;   // b23.12: Basebd06.sil+8 strapped to Basebd06.sil+7
-  assign Basebd06_sil_pl_1__b23_15 = VCC71;   // b23.15: Basebd06.sil+1 strapped to VCC71
-  assign Basebd06_sil_pl_1__b23_16 = Basebd06_sil_pl_2;   // b23.16: Basebd06.sil+1 strapped to Basebd06.sil+2
   assign BaseBd15_sil_pl_5 = OISData_p_;   // c06.10: BaseBd15.sil+5 strapped to OISData'
-  assign BaseBd15_sil_pl_7__c06_11 = OISData_p_;   // c06.11: BaseBd15.sil+7 strapped to OISData'
-  assign BaseBd15_sil_pl_8__c06_12 = OISData_p_;   // c06.12: BaseBd15.sil+8 strapped to OISData'
   assign BaseBd15_sil_pl_9 = OISData;   // c06.13: BaseBd15.sil+9 strapped to OISData
-  assign BaseBd15_sil_pl_8__c06_14 = GND59;   // c06.14: BaseBd15.sil+8 strapped to GND59
-  assign BaseBd15_sil_pl_8__c06_16 = OISData;   // c06.16: BaseBd15.sil+8 strapped to OISData
   assign Rom18_p_ = GND61;   // c07.11: Rom18' strapped to GND61
   assign Rom21 = VCC63;   // c07.12: Rom21 strapped to VCC63
   assign RSA_0 = MCA_11;   // c07.13: RSA.0 strapped to MCA.11
   assign RSA_1 = MCA_12;   // c07.14: RSA.1 strapped to MCA.12
   assign RSA_2 = MCA_13;   // c07.15: RSA.2 strapped to MCA.13
-  assign Basebd06_sil_pl_13__c23_11 = VCC71;   // c23.11: Basebd06.sil+13 strapped to VCC71
-  assign Basebd06_sil_pl_13__c23_12 = Basebd06_sil_pl_14;   // c23.12: Basebd06.sil+13 strapped to Basebd06.sil+14
-  assign Basebd06_sil_pl_12__c23_15 = VCC71;   // c23.15: Basebd06.sil+12 strapped to VCC71
-  assign Basebd06_sil_pl_12__c23_16 = Basebd06_sil_pl_11;   // c23.16: Basebd06.sil+12 strapped to Basebd06.sil+11
-  assign BaseBd15_sil_pl_7__d05_11 = VCC74;   // d05.11: BaseBd15.sil+7 strapped to VCC74
-  assign BaseBd15_sil_pl_6__d05_13 = OISData;   // d05.13: BaseBd15.sil+6 strapped to OISData
-  assign BaseBd15_sil_pl_6__d05_14 = VCC74;   // d05.14: BaseBd15.sil+6 strapped to VCC74
-  assign Basebd06_sil_pl_19__d23_15 = VCC83;   // d23.15: Basebd06.sil+19 strapped to VCC83
-  assign Basebd06_sil_pl_19__d23_16 = Basebd06_sil_pl_20;   // d23.16: Basebd06.sil+19 strapped to Basebd06.sil+20
   assign Basebd01_sil_pl_6 = GND208;   // e08.6: Basebd01.sil+6 strapped to GND208
   assign Basebd01_sil_pl_8 = VCC76;   // e08.7: Basebd01.sil+8 strapped to VCC76
   assign Basebd01_sil_pl_7 = VCC76;   // e08.8: Basebd01.sil+7 strapped to VCC76
   assign VCOCtrl1 = VEE176;   // h07.6: VCOCtrl1 strapped to VEE176
   assign VCOCtrl = VEE199;   // h07.16: VCOCtrl strapped to VEE199
   assign BaseBd11_sil_pl_7 = VCOLow_p_;   // i03.3: BaseBd11.sil+7 strapped to VCOLow'
-  assign BaseBd11_sil_pl_9__i03_5 = GND617;   // i03.5: BaseBd11.sil+9 strapped to GND617
-  assign BaseBd11_sil_pl_9__i03_7 = VCOHigh_p_;   // i03.7: BaseBd11.sil+9 strapped to VCOHigh'
   assign FiltVDD = VDD135;   // i04.10: FiltVDD strapped to VDD135
   assign BaseBd11_sil_pl_12 = GND399;   // i07.3: BaseBd11.sil+12 strapped to GND399
   assign BaseBd11_sil_pl_11 = VCC111;   // i07.16: BaseBd11.sil+11 strapped to VCC111
-  assign BaseBd13_sil_pl_13__i18_9 = DACOut;   // i18.9: BaseBd13.sil+13 strapped to DACOut
-  assign BaseBd13_sil_pl_13__i18_10 = VEE234;   // i18.10: BaseBd13.sil+13 strapped to VEE234
-  assign BaseBd13_sil_pl_12__i18_11 = DACOut;   // i18.11: BaseBd13.sil+12 strapped to DACOut
-  assign BaseBd13_sil_pl_12__i18_12 = VTT105;   // i18.12: BaseBd13.sil+12 strapped to VTT105
-  assign BaseBd13_sil_pl_11__i18_13 = GND371;   // i18.13: BaseBd13.sil+11 strapped to GND371
-  assign BaseBd13_sil_pl_11__i18_14 = VDD57;   // i18.14: BaseBd13.sil+11 strapped to VDD57
-  assign BaseBd13_sil_pl_10__i18_15 = GND371;   // i18.15: BaseBd13.sil+10 strapped to GND371
-  assign BaseBd13_sil_pl_10__i18_16 = VCC117;   // i18.16: BaseBd13.sil+10 strapped to VCC117
-  assign BaseBd14_sil_pl_4__j19_10 = VCC129;   // j19.10: BaseBd14.sil+4 strapped to VCC129
-  assign BaseBd14_sil_pl_4__j19_11 = BaseBd14_sil_pl_6;   // j19.11: BaseBd14.sil+4 strapped to BaseBd14.sil+6
-  assign BaseBd13_sil_pl_3__j20_9 = BaseBd13_sil_pl_4;   // j20.9: BaseBd13.sil+3 strapped to BaseBd13.sil+4
-  assign BaseBd13_sil_pl_3__j20_10 = GND623;   // j20.10: BaseBd13.sil+3 strapped to GND623
   assign BaseBd13_sil_pl_9 = GND576;   // j22.9: BaseBd13.sil+9 strapped to GND576
-  assign BaseBd13_sil_pl_6__j22_11 = GND427;   // j22.11: BaseBd13.sil+6 strapped to GND427
-  assign BaseBd13_sil_pl_6__j22_12 = BaseBd13_sil_pl_2;   // j22.12: BaseBd13.sil+6 strapped to BaseBd13.sil+2
-  assign BaseBd13_sil_pl_5__j22_14 = BaseBd13_sil_pl_1;   // j22.14: BaseBd13.sil+5 strapped to BaseBd13.sil+1
-  assign BaseBd13_sil_pl_5__j22_16 = BaseBd13_sil_pl_4;   // j22.16: BaseBd13.sil+5 strapped to BaseBd13.sil+4
   assign BaseBd13_sil_pl_7 = VCC131;   // j23.1: BaseBd13.sil+7 strapped to VCC131
   assign BaseBd13_sil_pl_8 = GND430;   // j23.5: BaseBd13.sil+8 strapped to GND430
 

@@ -1203,34 +1203,6 @@ module MemX_m_Rev_m_Ch (
   wire ProcTag__e20_2;
   wire ProcTag__d20_3;
   assign ProcTag__drv = ProcTag__e20_2 | ProcTag__d20_3;
-  wire RamA0orVEEa__b14_15;
-  wire RamA0orVEEa__b14_14;
-  wire RamA0orVEEa__b13_6;
-  assign RamA0orVEEa = RamA0orVEEa__b14_15 | RamA0orVEEa__b14_14 | RamA0orVEEa__b13_6;
-  wire RamA0orVEEb__c12_15;
-  wire RamA0orVEEb__c12_14;
-  wire RamA0orVEEb__c11_6;
-  assign RamA0orVEEb = RamA0orVEEb__c12_15 | RamA0orVEEb__c12_14 | RamA0orVEEb__c11_6;
-  wire RamA1orVCCa__b14_13;
-  wire RamA1orVCCa__b14_12;
-  wire RamA1orVCCa__b13_5;
-  wire RamA1orVCCa__b13_3;
-  assign RamA1orVCCa = RamA1orVCCa__b14_13 | RamA1orVCCa__b14_12 | RamA1orVCCa__b13_5 | RamA1orVCCa__b13_3;
-  wire RamA1orVCCb__c12_13;
-  wire RamA1orVCCb__c12_12;
-  wire RamA1orVCCb__c11_5;
-  wire RamA1orVCCb__c11_3;
-  assign RamA1orVCCb = RamA1orVCCb__c12_13 | RamA1orVCCb__c12_12 | RamA1orVCCb__c11_5 | RamA1orVCCb__c11_3;
-  wire RamV_pl_a__b14_11;
-  wire RamV_pl_a__b14_10;
-  wire RamV_pl_a__b13_4;
-  wire RamV_pl_a__b13_2;
-  assign RamV_pl_a = RamV_pl_a__b14_11 | RamV_pl_a__b14_10 | RamV_pl_a__b13_4 | RamV_pl_a__b13_2;
-  wire RamV_pl_b__c12_11;
-  wire RamV_pl_b__c12_10;
-  wire RamV_pl_b__c11_4;
-  wire RamV_pl_b__c11_2;
-  assign RamV_pl_b = RamV_pl_b__c12_11 | RamV_pl_b__c12_10 | RamV_pl_b__c11_4 | RamV_pl_b__c11_2;
   wire RefUsesDInMem_p___k14_3;
   wire RefUsesDInMem_p___k13_2;
   assign RefUsesDInMem_p_ = RefUsesDInMem_p___k14_3 | RefUsesDInMem_p___k13_2;
@@ -1352,29 +1324,31 @@ module MemX_m_Rev_m_Ch (
   assign VEE_m_76 = 1'b0;
   assign VEE_m_77 = 1'b0;
 
-  // ---- wire-wrap jumpers (Augat headers): the strap the netlist forces
-  assign RamV_pl_a__b13_2 = GND_m_38;   // b13.2: RamV+a strapped to GND-38
-  assign RamA1orVCCa__b13_3 = GND_m_38;   // b13.3: RamA1orVCCa strapped to GND-38
-  assign RamV_pl_a__b13_4 = GND_m_38;   // b13.4: RamV+a strapped to GND-38
-  assign RamA1orVCCa__b13_5 = GND_m_38;   // b13.5: RamA1orVCCa strapped to GND-38
-  assign RamA0orVEEa__b13_6 = GND_m_44;   // b13.6: RamA0orVEEa strapped to GND-44
-  assign RamV_pl_a__b14_10 = VDD_m_64;   // b14.10: RamV+a strapped to VDD-64
-  assign RamV_pl_a__b14_11 = VCC_m_57;   // b14.11: RamV+a strapped to VCC-57
-  assign RamA1orVCCa__b14_12 = VCC_m_47;   // b14.12: RamA1orVCCa strapped to VCC-47
-  assign RamA1orVCCa__b14_13 = RTMapAd_1a;   // b14.13: RamA1orVCCa strapped to RTMapAd.1a
-  assign RamA0orVEEa__b14_14 = VEE_m_69;   // b14.14: RamA0orVEEa strapped to VEE-69
-  assign RamA0orVEEa__b14_15 = RTMapAd_0a;   // b14.15: RamA0orVEEa strapped to RTMapAd.0a
-  assign RamV_pl_b__c11_2 = GND_m_34;   // c11.2: RamV+b strapped to GND-34
-  assign RamA1orVCCb__c11_3 = GND_m_34;   // c11.3: RamA1orVCCb strapped to GND-34
-  assign RamV_pl_b__c11_4 = GND_m_34;   // c11.4: RamV+b strapped to GND-34
-  assign RamA1orVCCb__c11_5 = GND_m_34;   // c11.5: RamA1orVCCb strapped to GND-34
-  assign RamA0orVEEb__c11_6 = GND_m_39;   // c11.6: RamA0orVEEb strapped to GND-39
-  assign RamV_pl_b__c12_10 = VDD_m_63;   // c12.10: RamV+b strapped to VDD-63
-  assign RamV_pl_b__c12_11 = VCC_m_56;   // c12.11: RamV+b strapped to VCC-56
-  assign RamA1orVCCb__c12_12 = VCC_m_56;   // c12.12: RamA1orVCCb strapped to VCC-56
-  assign RamA1orVCCb__c12_13 = RTMapAd_1b;   // c12.13: RamA1orVCCb strapped to RTMapAd.1b
-  assign RamA0orVEEb__c12_14 = VEE_m_68;   // c12.14: RamA0orVEEb strapped to VEE-68
-  assign RamA0orVEEb__c12_15 = RTMapAd_0b;   // c12.15: RamA0orVEEb strapped to RTMapAd.0b
+  // ---- series resistor platforms (PLAT): pin N to pin 17-N
+  assign RTMapAd_8b = TMapAd_8b;   // d14.9 RTMapAd.8b <- TMapAd.8b (pin 8)
+  assign RTMapAd_7b = TMapAd_7b;   // d14.10 RTMapAd.7b <- TMapAd.7b (pin 7)
+  assign RTMapAd_6b = TMapAd_6b;   // d14.11 RTMapAd.6b <- TMapAd.6b (pin 6)
+  assign RTMapAd_5b = TMapAd_5b;   // d14.12 RTMapAd.5b <- TMapAd.5b (pin 5)
+  assign RTMapAd_4b = TMapAd_4b;   // d14.13 RTMapAd.4b <- TMapAd.4b (pin 4)
+  assign RTMapAd_3b = TMapAd_3b;   // d14.14 RTMapAd.3b <- TMapAd.3b (pin 3)
+  assign RTMapAd_2b = TMapAd_2b;   // d14.15 RTMapAd.2b <- TMapAd.2b (pin 2)
+  assign RTMapAd_1b = TMapAd_1b;   // d14.16 RTMapAd.1b <- TMapAd.1b (pin 1)
+  assign RTMapAd_0b = TMapAd_0b;   // d15.9 RTMapAd.0b <- TMapAd.0b (pin 8)
+  assign RTMapWE_p_b = TMapWE_p_b;   // d15.10 RTMapWE'b <- TMapWE'b (pin 7)
+  assign RTMapRAS_p_b = TMapRAS_p_b;   // d15.11 RTMapRAS'b <- TMapRAS'b (pin 6)
+  assign RTMapCAS_p_b = TMapCAS_p_b;   // d15.12 RTMapCAS'b <- TMapCAS'b (pin 5)
+  assign RTMapCAS_p_a = TMapCAS_p_a;   // d15.13 RTMapCAS'a <- TMapCAS'a (pin 4)
+  assign RTMapRAS_p_a = TMapRAS_p_a;   // d15.14 RTMapRAS'a <- TMapRAS'a (pin 3)
+  assign RTMapWE_p_a = TMapWE_p_a;   // d15.15 RTMapWE'a <- TMapWE'a (pin 2)
+  assign RTMapAd_8a = TMapAd_8a;   // d15.16 RTMapAd.8a <- TMapAd.8a (pin 1)
+  assign RTMapAd_7a = TMapAd_7a;   // d16.9 RTMapAd.7a <- TMapAd.7a (pin 8)
+  assign RTMapAd_6a = TMapAd_6a;   // d16.10 RTMapAd.6a <- TMapAd.6a (pin 7)
+  assign RTMapAd_5a = TMapAd_5a;   // d16.11 RTMapAd.5a <- TMapAd.5a (pin 6)
+  assign RTMapAd_4a = TMapAd_4a;   // d16.12 RTMapAd.4a <- TMapAd.4a (pin 5)
+  assign RTMapAd_3a = TMapAd_3a;   // d16.13 RTMapAd.3a <- TMapAd.3a (pin 4)
+  assign RTMapAd_2a = TMapAd_2a;   // d16.14 RTMapAd.2a <- TMapAd.2a (pin 3)
+  assign RTMapAd_1a = TMapAd_1a;   // d16.15 RTMapAd.1a <- TMapAd.1a (pin 2)
+  assign RTMapAd_0a = TMapAd_0a;   // d16.16 RTMapAd.0a <- TMapAd.0a (pin 1)
 
   // ---- packages
   cell_MC10174 u_a01 (
@@ -2450,60 +2424,6 @@ module MemX_m_Rev_m_Ch (
     .p15(RTMapCAS_p_b),
     .p16(GND_m_23)
   ); // MosRam
-  cell_PLAT1816 u_d14 (
-    .p1(TMapAd_1b),
-    .p2(TMapAd_2b),
-    .p3(TMapAd_3b),
-    .p4(TMapAd_4b),
-    .p5(TMapAd_5b),
-    .p6(TMapAd_6b),
-    .p7(TMapAd_7b),
-    .p8(TMapAd_8b),
-    .p9(RTMapAd_8b),
-    .p10(RTMapAd_7b),
-    .p11(RTMapAd_6b),
-    .p12(RTMapAd_5b),
-    .p13(RTMapAd_4b),
-    .p14(RTMapAd_3b),
-    .p15(RTMapAd_2b),
-    .p16(RTMapAd_1b)
-  ); // PLAT1816
-  cell_PLAT1816 u_d15 (
-    .p1(TMapAd_8a),
-    .p2(TMapWE_p_a),
-    .p3(TMapRAS_p_a),
-    .p4(TMapCAS_p_a),
-    .p5(TMapCAS_p_b),
-    .p6(TMapRAS_p_b),
-    .p7(TMapWE_p_b),
-    .p8(TMapAd_0b),
-    .p9(RTMapAd_0b),
-    .p10(RTMapWE_p_b),
-    .p11(RTMapRAS_p_b),
-    .p12(RTMapCAS_p_b),
-    .p13(RTMapCAS_p_a),
-    .p14(RTMapRAS_p_a),
-    .p15(RTMapWE_p_a),
-    .p16(RTMapAd_8a)
-  ); // PLAT1816
-  cell_PLAT1816 u_d16 (
-    .p1(TMapAd_0a),
-    .p2(TMapAd_1a),
-    .p3(TMapAd_2a),
-    .p4(TMapAd_3a),
-    .p5(TMapAd_4a),
-    .p6(TMapAd_5a),
-    .p7(TMapAd_6a),
-    .p8(TMapAd_7a),
-    .p9(RTMapAd_7a),
-    .p10(RTMapAd_6a),
-    .p11(RTMapAd_5a),
-    .p12(RTMapAd_4a),
-    .p13(RTMapAd_3a),
-    .p14(RTMapAd_2a),
-    .p15(RTMapAd_1a),
-    .p16(RTMapAd_0a)
-  ); // PLAT1816
   cell_MC10176 u_d18 (
     .sys_clk(sys_clk),
     .p2(MapRAS_p___d18_2),

@@ -49,9 +49,6 @@ module DispM_m_Rev_m_Ch (
     input  wire Block,
     input  wire CLK_DDM_p_,
     input  wire CLKEnable_p_b,
-    input  wire DACBlue,
-    input  wire DACGreen,
-    input  wire DACRed,
     input  wire Fout_00,
     input  wire Fout_01,
     input  wire Fout_02,
@@ -949,55 +946,13 @@ module DispM_m_Rev_m_Ch (
   wire DispM06_sil_pl_7__a16_11;
   wire DispM06_sil_pl_7__b20_11;
   assign DispM06_sil_pl_7 = DispM06_sil_pl_7__a16_11 | DispM06_sil_pl_7__b20_11;
-  wire DispM23_sil_pl_10__a01_15;
-  wire DispM23_sil_pl_10__a01_13;
-  assign DispM23_sil_pl_10 = DispM23_sil_pl_10__a01_15 | DispM23_sil_pl_10__a01_13;
-  wire DispM23_sil_pl_13__a06_11;
-  wire DispM23_sil_pl_13__a06_13;
-  assign DispM23_sil_pl_13 = DispM23_sil_pl_13__a06_11 | DispM23_sil_pl_13__a06_13;
-  wire DispM23_sil_pl_3__a06_5;
-  wire DispM23_sil_pl_3__a06_3;
-  assign DispM23_sil_pl_3 = DispM23_sil_pl_3__a06_5 | DispM23_sil_pl_3__a06_3;
-  wire DispM23_sil_pl_7__a02_13;
-  wire DispM23_sil_pl_7__a02_15;
-  assign DispM23_sil_pl_7 = DispM23_sil_pl_7__a02_13 | DispM23_sil_pl_7__a02_15;
-  wire DispM23_sil_pl_8__a02_12;
-  wire DispM23_sil_pl_8__a02_14;
-  assign DispM23_sil_pl_8 = DispM23_sil_pl_8__a02_12 | DispM23_sil_pl_8__a02_14;
   wire EnableMarginReads_p___a19_3;
   wire EnableMarginReads_p___a18_14;
   assign EnableMarginReads_p_ = EnableMarginReads_p___a19_3 | EnableMarginReads_p___a18_14;
-  wire FilterVEEB__g20_11;
-  wire FilterVEEB__g20_10;
-  wire FilterVEEB__g20_9;
-  wire FilterVEEB__g18_15;
-  assign FilterVEEB = FilterVEEB__g20_11 | FilterVEEB__g20_10 | FilterVEEB__g20_9 | FilterVEEB__g18_15;
-  wire FilterVEEG__j23_9;
-  wire FilterVEEG__j23_10;
-  wire FilterVEEG__j23_11;
-  wire FilterVEEG__j21_15;
-  assign FilterVEEG = FilterVEEG__j23_9 | FilterVEEG__j23_10 | FilterVEEG__j23_11 | FilterVEEG__j21_15;
-  wire FilterVEER__g23_9;
-  wire FilterVEER__g23_10;
-  wire FilterVEER__g23_11;
-  wire FilterVEER__g21_15;
-  assign FilterVEER = FilterVEER__g23_9 | FilterVEER__g23_10 | FilterVEER__g23_11 | FilterVEER__g21_15;
   wire ForceClkBLow__b07_15;
   wire ForceClkBLow__a12_13;
   wire ForceClkBLow__a12_3;
   assign ForceClkBLow = ForceClkBLow__b07_15 | ForceClkBLow__a12_13 | ForceClkBLow__a12_3;
-  wire GNDBlue__g18_13;
-  wire GNDBlue__g18_14;
-  wire GNDBlue__g19_14;
-  assign GNDBlue__drv = GNDBlue__g18_13 | GNDBlue__g18_14 | GNDBlue__g19_14;
-  wire GNDGreen__j21_14;
-  wire GNDGreen__j21_13;
-  wire GNDGreen__j22_14;
-  assign GNDGreen__drv = GNDGreen__j21_14 | GNDGreen__j21_13 | GNDGreen__j22_14;
-  wire GNDRed__g21_14;
-  wire GNDRed__g21_13;
-  wire GNDRed__g22_14;
-  assign GNDRed__drv = GNDRed__g21_14 | GNDRed__g21_13 | GNDRed__g22_14;
   wire IOFetchForAWT_p___l24_14;
   wire IOFetchForAWT_p___l24_15;
   wire IOFetchForAWT_p___l24_2;
@@ -1126,18 +1081,6 @@ module DispM_m_Rev_m_Ch (
   wire OISData_3_p___e42_6;
   wire OISData_3_p___d04_6;
   assign OISData_3_p___drv = OISData_3_p___e42_6 | OISData_3_p___d04_6;
-  wire RegVCCB__g18_11;
-  wire RegVCCB__g18_12;
-  wire RegVCCB__g20_12;
-  assign RegVCCB = RegVCCB__g18_11 | RegVCCB__g18_12 | RegVCCB__g20_12;
-  wire RegVCCG__j21_11;
-  wire RegVCCG__j21_12;
-  wire RegVCCG__j23_12;
-  assign RegVCCG = RegVCCG__j21_11 | RegVCCG__j21_12 | RegVCCG__j23_12;
-  wire RegVCCR__g21_11;
-  wire RegVCCR__g21_12;
-  wire RegVCCR__g23_12;
-  assign RegVCCR = RegVCCR__g21_11 | RegVCCR__g21_12 | RegVCCR__g23_12;
   wire StopWakeCount__d24_4;
   wire StopWakeCount__d24_13;
   wire StopWakeCount__d24_14;
@@ -1289,7 +1232,7 @@ module DispM_m_Rev_m_Ch (
   wire UsingFIB__d21_9;
   assign UsingFIB = UsingFIB__d24_2 | UsingFIB__d21_9;
 
-  // 25 single-driver contributions to the backplane
+  // 28 single-driver contributions to the backplane
 
   // ---- resistor packs (SIP): pins held at the pack's common
   assign AltoWTask_0 = True;   // b52.2 AltoWTask.0, tied to True
@@ -1384,20 +1327,10 @@ module DispM_m_Rev_m_Ch (
   // ---- wire-wrap jumpers (Augat headers): the strap the netlist forces
   assign DispM23_sil_pl_18 = SGND;   // a01.10: DispM23.sil+18 strapped to SGND
   assign DispM23_sil_pl_14 = SGND;   // a01.11: DispM23.sil+14 strapped to SGND
-  assign DispM23_sil_pl_10__a01_13 = SGND;   // a01.13: DispM23.sil+10 strapped to SGND
   assign DispM23_sil_pl_17 = VCOCtrl;   // a01.14: DispM23.sil+17 strapped to VCOCtrl
-  assign DispM23_sil_pl_10__a01_15 = VCC_m_30;   // a01.15: DispM23.sil+10 strapped to VCC-30
-  assign DispM23_sil_pl_8__a02_12 = SGND;   // a02.12: DispM23.sil+8 strapped to SGND
-  assign DispM23_sil_pl_7__a02_13 = SGND;   // a02.13: DispM23.sil+7 strapped to SGND
-  assign DispM23_sil_pl_8__a02_14 = PR4;   // a02.14: DispM23.sil+8 strapped to PR4
-  assign DispM23_sil_pl_7__a02_15 = PR2;   // a02.15: DispM23.sil+7 strapped to PR2
   assign TTLTrue = VCC_m_29;   // a04.10: TTLTrue strapped to VCC-29
   assign DispM23_sil_pl_12 = VCOCtrl;   // a04.15: DispM23.sil+12 strapped to VCOCtrl
   assign DispM23_sil_pl_11 = SGND;   // a06.2: DispM23.sil+11 strapped to SGND
-  assign DispM23_sil_pl_3__a06_3 = SGND;   // a06.3: DispM23.sil+3 strapped to SGND
-  assign DispM23_sil_pl_3__a06_5 = SGND;   // a06.5: DispM23.sil+3 strapped to SGND
-  assign DispM23_sil_pl_13__a06_11 = VEE_m_65;   // a06.11: DispM23.sil+13 strapped to VEE-65
-  assign DispM23_sil_pl_13__a06_13 = SGND;   // a06.13: DispM23.sil+13 strapped to SGND
 
   // ---- packages
   cell_CA3140 u_a03 (
@@ -3054,19 +2987,6 @@ module DispM_m_Rev_m_Ch (
     .p22(ToBlue_6__g16_22),
     .p23(ToBlue_6__g16_23)
   ); // MB7071H
-  cell_PLAT1816 u_g18 (
-    .p1(GNDBlue),
-    .p2(VCompB),
-    .p3(VRef_m_B),
-    .p4(DACBlue),
-    .p5(DACBlue),
-    .p6(VRef_pl_B),
-    .p11(RegVCCB__g18_11),
-    .p12(RegVCCB__g18_12),
-    .p13(GNDBlue__g18_13),
-    .p14(GNDBlue__g18_14),
-    .p15(FilterVEEB__g18_15)
-  ); // PLAT1816
   cell_MC10318 u_g19 (
     .p1(Blue_7),
     .p2(Blue_6),
@@ -3080,37 +3000,10 @@ module DispM_m_Rev_m_Ch (
     .p10(VRef_m_B),
     .p11(VCompB),
     .p12(VRef_pl_B),
-    .p14(GNDBlue__g19_14),
+    .p14(GNDBlue__drv),
     .p15(DACBlue__drv),
     .p16(GNDBlue)
   ); // MC10318
-  cell_PLAT1816 u_g20 (
-    .p1(VDD_m_33),
-    .p2(VDD_m_33),
-    .p3(GNDBlue),
-    .p4(RegVCCB),
-    .p5(GNDBlue),
-    .p6(VEE_m_56),
-    .p7(VEE_m_56),
-    .p8(GNDBlue),
-    .p9(FilterVEEB__g20_9),
-    .p10(FilterVEEB__g20_10),
-    .p11(FilterVEEB__g20_11),
-    .p12(RegVCCB__g20_12)
-  ); // PLAT1816
-  cell_PLAT1816 u_g21 (
-    .p1(GNDRed),
-    .p2(VCompR),
-    .p3(VRef_m_R),
-    .p4(DACRed),
-    .p5(DACRed),
-    .p6(VRef_pl_R),
-    .p11(RegVCCR__g21_11),
-    .p12(RegVCCR__g21_12),
-    .p13(GNDRed__g21_13),
-    .p14(GNDRed__g21_14),
-    .p15(FilterVEER__g21_15)
-  ); // PLAT1816
   cell_MC10318 u_g22 (
     .p1(Red_7),
     .p2(Red_6),
@@ -3124,24 +3017,10 @@ module DispM_m_Rev_m_Ch (
     .p10(VRef_m_R),
     .p11(VCompR),
     .p12(VRef_pl_R),
-    .p14(GNDRed__g22_14),
+    .p14(GNDRed__drv),
     .p15(DACRed__drv),
     .p16(GNDRed)
   ); // MC10318
-  cell_PLAT1816 u_g23 (
-    .p1(VDD_m_32),
-    .p2(VDD_m_32),
-    .p3(GNDRed),
-    .p4(RegVCCR),
-    .p5(GNDRed),
-    .p6(VEE_m_55),
-    .p7(VEE_m_55),
-    .p8(GNDRed),
-    .p9(FilterVEER__g23_9),
-    .p10(FilterVEER__g23_10),
-    .p11(FilterVEER__g23_11),
-    .p12(RegVCCR__g23_12)
-  ); // PLAT1816
   cell_MC1660 u_g24 (
     .p2(RIOOut_p_),
     .p7(IOOut_p_),
@@ -4000,19 +3879,6 @@ module DispM_m_Rev_m_Ch (
     .p10(RIOB_03),
     .p13(ToPixelClk_03)
   ); // MC10176
-  cell_PLAT1816 u_j21 (
-    .p1(GNDGreen),
-    .p2(VCompG),
-    .p3(VRef_m_G),
-    .p4(DACGreen),
-    .p5(DACGreen),
-    .p6(VRef_pl_G),
-    .p11(RegVCCG__j21_11),
-    .p12(RegVCCG__j21_12),
-    .p13(GNDGreen__j21_13),
-    .p14(GNDGreen__j21_14),
-    .p15(FilterVEEG__j21_15)
-  ); // PLAT1816
   cell_MC10318 u_j22 (
     .p1(Green_7),
     .p2(Green_6),
@@ -4026,24 +3892,10 @@ module DispM_m_Rev_m_Ch (
     .p10(VRef_m_G),
     .p11(VCompG),
     .p12(VRef_pl_G),
-    .p14(GNDGreen__j22_14),
+    .p14(GNDGreen__drv),
     .p15(DACGreen__drv),
     .p16(GNDGreen)
   ); // MC10318
-  cell_PLAT1816 u_j23 (
-    .p1(VDD_m_31),
-    .p2(VDD_m_31),
-    .p3(GNDGreen),
-    .p4(RegVCCG),
-    .p5(GNDGreen),
-    .p6(VEE_m_49),
-    .p7(VEE_m_49),
-    .p8(GNDGreen),
-    .p9(FilterVEEG__j23_9),
-    .p10(FilterVEEG__j23_10),
-    .p11(FilterVEEG__j23_11),
-    .p12(RegVCCG__j23_12)
-  ); // PLAT1816
   cell_MC10176 u_j24 (
     .sys_clk(sys_clk),
     .p2(ToFifo_06),

@@ -104,6 +104,8 @@ class Generator:
         self._sips = self.sip_drives()
         # (package, pin) -> the net a wire-wrap jumper brings to that pin.
         self._straps = self.jumper_straps()
+        # (package, pin) -> the net a series resistor brings to that pin.
+        self._series = self.series_pass()
         # package position -> the .mem holding that PROM's contents. PARC's
         # own PromCommand labels say which package each PROM is blown into;
         # tools/dorado_proms.py resolves them and slices the word per part.
@@ -168,6 +170,50 @@ class Generator:
     # {x,y}, and a jumper position is a COLUMN of pins at one x. See
     # jumper_straps for how much of that can honestly be resolved.
     _JUMPER_FIELD = ('AUGAT',)
+
+    # A resistor PLATFORM: sixteen pins, eight resistors, pin N wired to pin
+    # 17-N. That pairing is not inferred -- every pin carries an {x,y} and the
+    # two ends of each resistor share an x, unanimously, 122 pairs across the
+    # machine with no exception. Like the SIPs and the Augat headers it cannot
+    # be a cell, because what it does depends on what a board put across it.
+    _SERIES_PACK = ('PLAT',)
+
+    def series_pass(self) -> dict[tuple[str, int], str]:
+        """(package, pin) -> the net a series resistor brings to that pin.
+
+        A series resistor PASSES a signal; it does not create one. So this is
+        taken only where the netlist forces it: the far pin's net has no other
+        source on the board, and neither end is a supply rail.
+
+        MemX is what this is for. Three platforms carry the map DRAM's address
+        and strobes through series damping resistors -- `TMapAd.0a` in on pin 1
+        and `RTMapAd.0a` out on pin 16, and so on for 24 signals -- and with
+        them unmodelled every one of those address lines sat at zero.
+
+        The display boards' platforms are the reason for the conditions. Theirs
+        sit in the video DAC's supply filtering, across `GNDBlue`, `RegVCCB`,
+        `FilterVEEB`, a DAC output and two references. Those are analog nodes
+        and a couple are rails; passing a level through them would be
+        inventing a signal, so they are left alone and counted."""
+        out: dict[tuple[str, int], str] = {}
+        self.series_skipped = 0
+        for pos in sorted(self.b.packages):
+            if not self._pkg_type(pos).startswith(self._SERIES_PACK):
+                continue
+            pins = dict(self.pkg_pins(pos))
+            for pin, netname in sorted(pins.items()):
+                far = pins.get(17 - pin)
+                if far is None or far == netname:
+                    continue
+                if self.rail_value(netname) or self.rail_value(far):
+                    self.series_skipped += 1
+                    continue
+                if (self._strappable(netname) and not self._strappable(far)
+                        and self._driven_by_digital(far)):
+                    out[(pos, pin)] = far
+                else:
+                    self.series_skipped += 1
+        return out
 
     def rail_value(self, netname: str) -> str | None:
         if self._RAIL_HIGH.match(netname):
@@ -252,6 +298,10 @@ class Generator:
         parts; the header's geometry states it outright.
         """
         out: dict[tuple[str, int], str] = {}
+        pinnet_of: dict[tuple[str, int], str] = {}
+        for name, net in self.b.nets.items():
+            for p in net['pins']:
+                pinnet_of[(p['pkg'], p['pin'])] = name
         self.jumper_choices = 0
         for pos in sorted(self.b.packages):
             if not self._pkg_type(pos).startswith(self._JUMPER_FIELD):
@@ -276,7 +326,45 @@ class Generator:
                     out[(pos, pin_a)] = net_b
                 elif open_b and not open_a:
                     out[(pos, pin_b)] = net_a
+
+        # A NET OFFERED MORE THAN ONE SOURCE is a choice too, even though each
+        # column is only two pins. MemX's b13 offers `RamA1orVCCa` a ground and
+        # b14 offers it VCC-47 and the map address line `RTMapAd.1a`; the names
+        # say it outright -- "RamA1 OR VCC" -- and it selects the size of RAM
+        # fitted. Exactly one of those jumpers is in place and the netlist does
+        # not say which, so taking any of them asserts a machine configuration,
+        # and taking several at once asserts a contradictory one: this used to
+        # emit that net strapped to GND and to VCC together.
+        #
+        # The same shape appears wherever several jumper positions meet at one
+        # Sil sheet label, which on the BaseBoard and DispM is an analog node
+        # rather than a choice. Neither wants a level invented for it.
+        target = Counter(pinnet_of[k] for k in out)
+        for k in [k for k in out if target[pinnet_of[k]] > 1]:
+            out.pop(k)
+            self.jumper_choices += 1
         return out
+
+    def _driven_by_digital(self, netname: str) -> bool:
+        """Is this net driven by a part the dictionary gives a behaviour?
+
+        A resistor in series with a LOGIC signal passes that signal on; a
+        resistor between a D/A converter's output and a supply node is an
+        analog filter, and passing a level across it would be inventing one.
+        The dictionary separates the two: a digital part carries a `[G ...]`,
+        `[FF ...]` or `[M ...]` summary and an analog one carries none. DispM's
+        `DACBlue` comes off an MC10318, which has no summary at all."""
+        for p in self.b.nets[netname]['pins']:
+            if p['dir'] != 'out':
+                continue
+            t = self._pkg_type(p['pkg'])
+            if t.startswith((self._NOT_LOGIC + self._RESISTOR_PACK
+                             + self._JUMPER_FIELD + self._SERIES_PACK)):
+                continue                      # passive; not a source
+            got = self.ecl.by_full_type(t)
+            if got and got[0] in self.ecl.behavioural:
+                return True
+        return False
 
     def _strappable(self, netname: str) -> bool:
         """Nothing on this board can drive this net, and it stays here.
@@ -292,7 +380,15 @@ class Generator:
             if p['dir'] != 'out':
                 continue
             t = self._pkg_type(p['pkg'])
-            if t.startswith(self._JUMPER_FIELD) or t.startswith(self._NOT_LOGIC):
+            # A jumper field, a terminator and a resistor platform are all
+            # PASSIVE: a pin of theirs on a net is not a source for it. Missing
+            # the platform here made every net one drives look driven, so no
+            # series resistor resolved at all -- MemX's 24 map-DRAM address
+            # lines stayed at zero -- while the display boards' analog nodes,
+            # where both ends are open, resolved the wrong way round.
+            if (t.startswith(self._JUMPER_FIELD)
+                    or t.startswith(self._NOT_LOGIC)
+                    or t.startswith(self._SERIES_PACK)):
                 continue
             if t.startswith(self._RESISTOR_PACK):
                 if (p['pkg'], p['pin']) in self._sips:
@@ -424,6 +520,9 @@ class Generator:
                     else None)
         if ptype.startswith(self._JUMPER_FIELD):
             return ('output' if (p['pkg'], p['pin']) in self._straps
+                    else None)
+        if ptype.startswith(self._SERIES_PACK):
+            return ('output' if (p['pkg'], p['pin']) in self._series
                     else None)
         d = self.cell_dirs.get(vpart(ptype), {}).get(p['pin'])
         if d:
@@ -638,6 +737,21 @@ class Generator:
                   f'   // {pos}.{pin}: {netname} strapped to {src}')
             A('')
 
+        # Resistor platforms: a series resistor passes its signal on.
+        if self._series:
+            A('  // ---- series resistor platforms (PLAT): pin N to pin 17-N')
+            for (pos, pin), src in sorted(self._series.items()):
+                netname = pinnet[(pos, pin)]
+                if netname in wired:
+                    tgt = f'{vname(netname)}__{vname(pos)}_{pin}'
+                elif netname in self.exports:
+                    tgt = f'{vname(netname)}__drv'
+                else:
+                    tgt = vname(netname)
+                A(f'  assign {tgt} = {self.read_name(src)};'
+                  f'   // {pos}.{pin} {netname} <- {src} (pin {17 - pin})')
+            A('')
+
         A('  // ---- packages')
         placed = 0
         for pos in sorted(self.b.packages):
@@ -649,6 +763,8 @@ class Generator:
                 continue                      # resolved above, not a cell
             if ptype.startswith(self._JUMPER_FIELD):
                 continue                      # a jumper field, not a part
+            if ptype.startswith(self._SERIES_PACK):
+                continue                      # a resistor platform, not a part
             roles = self.ecl.pin_roles(ptype)
             conns = []
             for (pk, pin), netname in sorted(pinnet.items()):

@@ -77,10 +77,16 @@ class EclDict:
         self.alias: dict[str, str] = {}      # short name -> full spelling
         self.equiv: dict[str, list[str]] = {}  # canonical -> second sources
         self.parts: dict[str, dict] = {}     # short name -> {gates: {...}}
+        # Short names that carry a bracketed behaviour summary -- `[G ...]`
+        # gates, `[FF ...]`/`[L ...]` clocked banks, `[M ...]` memories. A part
+        # WITHOUT one is not digital: the MC10318 on DispM is a D/A converter,
+        # and its output is a voltage, not a level.
+        self.behavioural: set[str] = set()
 
     def load(self, path: str) -> None:
         lines = read_xerox_text(path)
         in_pins = False
+        in_summaries = False
         cur: list[str] = []
         for raw in lines:
             line = raw.strip()
@@ -89,6 +95,23 @@ class EclDict:
             if line == '@':
                 in_pins = True
                 cur = []
+                continue
+            # A THIRD SECTION, which this loader used to walk straight past.
+            # After `#` the file lists each part's behaviour summaries -- a
+            # bare name line, then its `[G ...]` / `[FF ...]` / `[M ...]`
+            # lines. Without noticing the marker, `cur` stayed on whatever pin
+            # block came last and every summary in the file was attributed to
+            # that one part.
+            if line == '#':
+                in_pins = True
+                in_summaries = True
+                cur = []
+                continue
+            if in_summaries:
+                if line.startswith('['):
+                    self.behavioural.update(cur)
+                elif re.match(r'^[A-Za-z0-9_, +.\-]+$', line):
+                    cur = [p.strip() for p in line.split(',') if p.strip()]
                 continue
             if not in_pins:
                 # alias table; `>` separates second-source equivalents
@@ -113,6 +136,13 @@ class EclDict:
                 for name in cur:
                     self.parts.setdefault(name, {'gates': {}, 'shared_with':
                                                  [n for n in cur if n != name]})
+                continue
+
+            # A bracketed summary inside a pin block: record it and move on
+            # rather than parsing it as pin clauses, which invented gates
+            # named after pin numbers.
+            if line.startswith('['):
+                self.behavioural.update(cur)
                 continue
 
             # gate clauses

@@ -1300,9 +1300,6 @@ module DskEth_m_Rev_m_Cf (
   wire ReadError__c23_14;
   wire ReadError__b23_15;
   assign ReadError = ReadError__c23_2 | ReadError__c23_3 | ReadError__c23_14 | ReadError__b23_15;
-  wire REF__f03_2;
-  wire REF__f03_14;
-  assign REF = REF__f03_2 | REF__f03_14;
   wire RxSRFull_p___i12_3;
   wire RxSRFull_p___i12_2;
   wire RxSRFull_p___i12_14;
@@ -1336,15 +1333,6 @@ module DskEth_m_Rev_m_Cf (
   wire TriconD10_sil_pl_8__b07_1;
   wire TriconD10_sil_pl_8__b08_14;
   assign TriconD10_sil_pl_8 = TriconD10_sil_pl_8__b07_1 | TriconD10_sil_pl_8__b08_14;
-  wire TriconD15a_sil_pl_3__f06_10;
-  wire TriconD15a_sil_pl_3__f06_6;
-  assign TriconD15a_sil_pl_3 = TriconD15a_sil_pl_3__f06_10 | TriconD15a_sil_pl_3__f06_6;
-  wire TriconD15a_sil_pl_4__f06_12;
-  wire TriconD15a_sil_pl_4__f06_4;
-  assign TriconD15a_sil_pl_4 = TriconD15a_sil_pl_4__f06_12 | TriconD15a_sil_pl_4__f06_4;
-  wire TriconD15a_sil_pl_5__a18_5;
-  wire TriconD15a_sil_pl_5__a18_1;
-  assign TriconD15a_sil_pl_5 = TriconD15a_sil_pl_5__a18_5 | TriconD15a_sil_pl_5__a18_1;
   wire TxData__i14_14;
   wire TxData__h17_3;
   wire TxData__k18_2;
@@ -1489,17 +1477,9 @@ module DskEth_m_Rev_m_Cf (
   assign R1 = VCC_m_82;   // a04.3: R1 strapped to VCC-82
   assign R2 = VCC_m_82;   // a04.5: R2 strapped to VCC-82
   assign R3 = VCC_m_82;   // a04.7: R3 strapped to VCC-82
-  assign TriconD15a_sil_pl_5__a18_1 = GND_m_46;   // a18.1: TriconD15a.sil+5 strapped to GND-46
-  assign TriconD15a_sil_pl_5__a18_5 = VCC_m_78;   // a18.5: TriconD15a.sil+5 strapped to VCC-78
   assign TriconD15a_sil_pl_6 = GND_m_46;   // a18.6: TriconD15a.sil+6 strapped to GND-46
   assign TriconD15a_sil_pl_7 = GND_m_47;   // a18.9: TriconD15a.sil+7 strapped to GND-47
-  assign REF__f03_2 = VCC_m_67;   // f03.2: REF strapped to VCC-67
   assign TriconD15a_sil_pl_1 = VEE_m_85;   // f03.12: TriconD15a.sil+1 strapped to VEE-85
-  assign REF__f03_14 = GND_m_0;   // f03.14: REF strapped to GND-0
-  assign TriconD15a_sil_pl_4__f06_4 = VDD_m_84;   // f06.4: TriconD15a.sil+4 strapped to VDD-84
-  assign TriconD15a_sil_pl_3__f06_6 = VCC_m_66;   // f06.6: TriconD15a.sil+3 strapped to VCC-66
-  assign TriconD15a_sil_pl_3__f06_10 = GND_m_27;   // f06.10: TriconD15a.sil+3 strapped to GND-27
-  assign TriconD15a_sil_pl_4__f06_12 = GND_m_27;   // f06.12: TriconD15a.sil+4 strapped to GND-27
   assign TriconD15a_sil_pl_2 = VTT_m_87;   // f06.14: TriconD15a.sil+2 strapped to VTT-87
 
   // ---- packages
