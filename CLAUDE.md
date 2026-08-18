@@ -1034,8 +1034,18 @@ the Control section's (2,493 edges each), and a distinctive jammed
 microinstruction arrives at the datapath as `RSTK=1111 ALUF=0111 BSEL=011
 ASEL=111` -- exactly what the mir-diff table predicts, exercising the whole path
 from the BaseBoard's bus through the decoders, the register and the backplane.
-Note `BSEL'`/`ASEL'` cross complemented while `RSTK`/`ALUF`/`LC` do not. Next:
-IM, and whether a jammed Write-IM actually deposits into it.
+Note `BSEL'`/`ASEL'` cross complemented while `RSTK`/`ALUF`/`LC` do not. **IM is mapped, and it confirms the C emulator's Write-IM model exactly.** It is
+144 `F10415A` packages on ContB -- 4096 words x 36 bits, the 34-bit
+microinstruction plus two parity bits, four banks of 1024 -- and its 36 outputs
+ARE the `d<FIELD>` lines feeding the MIR's D inputs, so the core is one picture:
+IM -> d<FIELD> -> MIR -> field -> backplane -> datapath. The write enables split
+`WEL'`/`WER'` at exactly 18 bits each (iw0+RSTK.0+parity, iw1+JCN.7+parity),
+which is `cpu.c`'s Write-IM comment verbatim; `RBMux.00-15` feed eight packages
+each (the 16 bits from B), `RBMuxP` the parity, and two more nets the secondary
+bit per half. The same RBMux the BaseBoard reads through CPIn is what IM is
+written from. `dBlock'` comes out complemented, consistent with the inverted MIR
+flip-flop found earlier. Next: the Write-IM ADDRESS, which comes from
+`Link[4:15]` via the BaseBoard's `CPRegToLink#` path -- untraced so far.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 

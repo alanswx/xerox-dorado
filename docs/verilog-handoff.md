@@ -920,15 +920,66 @@ rather than assumed -- reading BSEL uncomplemented is one of the three mutations
 that fails this test, along with dropping the MIR2 strobe and splitting ClrStop
 from SetRun.
 
+## IM, mapped -- and it confirms the C emulator's Write-IM model exactly
+
+**IM is on ContB, and it is 144 `F10415A` packages.** Each is a 1024 x 1 ECL
+RAM, so 144 x 1024 = 147,456 bits = **4096 words x 36 bits**, which is the
+34-bit microinstruction plus its two parity bits. That is the same 36 the `.MB`
+format implies -- `MB_MEMORY` declares a storage width of 64 for a logical 36 --
+now confirmed from the hardware.
+
+The array's 144 packages resolve to **36 distinct data outputs, four packages
+each** (four banks of 1024), and those 36 outputs are the microinstruction, one
+signal per bit:
+
+```
+dRSTK.0-3  dALUF.0-3  dBSEL.0-2  dLC.0-2  dASEL.0-2   (17)
+dBlock'  dFF.0-7  dJCN.0-7                            (17)
+dIMLH  dIMRH                                          (2 parity)
+```
+
+**Those outputs are the `d<FIELD>` lines that feed the MIR's D inputs.** So the
+whole core is now one picture: IM -> `d<FIELD>` -> the MC10231 microinstruction
+register -> `<FIELD>` -> the backplane -> the datapath. And `dBlock'` comes out
+of IM COMPLEMENTED, which is exactly consistent with the MIR flip-flop for BLOCK
+being wired inverted (`sBLOCK` to R, output from Q') -- two independent oddities
+that agree.
+
+### The half-write is the C emulator's, bit for bit
+
+The write enables split into `WEL'` and `WER'`, and each covers **exactly 18
+bits**:
+
+```
+WEL'  dRSTK.0-3 dALUF.0-3 dBSEL.0-2 dLC.0-2 dASEL.0-2 dIMLH   = iw0 + RSTK.0 + parity
+WER'  dBlock' dFF.0-7 dJCN.0-7 dIMRH                          = iw1 + JCN.7  + parity
+```
+
+which is `cpu.c`'s Write-IM comment verbatim:
+
+> `RSTK[3]` -- half-select. 1 = LH (writes iw0 + RSTK[0] of the destination),
+> 0 = RH (writes iw1 + JCN[7] of the destination). `RSTK[2]` -- value of the
+> secondary bit. `RSTK[1]` -- parity bit.
+
+The data inputs confirm the rest of it. `RBMux.00`-`.15` each feed EIGHT
+packages (four banks x two halves) -- the 16 bits from B. `RBMuxP` feeds eight
+more: the parity bit, `RSTK[1]`. And two further nets feed four packages each,
+one per half: `MidasOrRSTK.2` and `ContB04.sil+1` -- the SECONDARY bit, which is
+`RSTK[0]` for the left half and `JCN[7]` for the right, exactly as the comment
+says.
+
+So the same `RBMux` bus the BaseBoard READS through `CPIn` is what IM is WRITTEN
+from. That is the whole jam mechanism in one sentence.
+
 ### Next
 
-The Control section sequences and the datapath is clocked and fed. What the
-machine still has nothing to do is EXECUTE: IM is absent, so the only
-microinstruction is whatever the jam left in MIR, and it runs that same one
-forever. The next rungs are IM itself -- which is on ContA and ContB, so the
-boards are already present -- and then whether a jammed Write-IM actually
-deposits into it, which is the whole point of the jam mechanism and is what
-`LoadDoradoCode` does 475 times.
+Everything needed to execute a Write-IM is now identified, and the remaining
+piece is the ADDRESS. It comes from `Link[4:15]`, and the BaseBoard loads Link
+from CPReg through a mechanism `dorado/CLAUDE.md` calls `CPRegToLink#` -- that
+path has not been traced yet, and tracing it is the next concrete task. With it,
+a jammed Write-IM can be executed and the deposit read straight out of the
+`F10415A` arrays by hierarchical reference, which would close the loop that
+`LoadDoradoCode` walks 475 times to get Boot0 into the machine.
 
 ## The passive packages, and what each one turned out to be (2026-08-17)
 
