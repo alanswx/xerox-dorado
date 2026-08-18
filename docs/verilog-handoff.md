@@ -880,18 +880,88 @@ involved (`prepreclk'd`, `dStartCycle`, `preRunClk'Bb`, `preclk2'Bb`, `dRun`,
 `dStop` are all board-local), and the cell library is not the gap -- ContA and
 ContB have no unmodelled logic package between them.
 
-**Where to start next.** Two routes, in order of cost:
+### PARC's own sequence, replayed -- and three hypotheses eliminated
 
-1. Replay the BaseBoard's REAL sequence rather than poking signals. The C
-   emulator's `probe_full_boot` and `LoadDoradoCode` issue a specific order of
-   Control strobes and `SetRun`, and `doradocpint.masm` is the source for it.
-   That order may well be what walks the sequencer out of its dead state --
-   these tests have only ever asserted signals ad hoc.
-2. If it still will not start, give the phase flip-flops a defined power-up
-   state. That is a SUBSTITUTION and should be written as one, in the cell or
-   the generator, with the same reasoning as `cell_MPQ3303`: a real machine's
-   start-up is settled by analog behaviour a zero-delay two-state simulator does
-   not have, so it has to be stated instead of emerging.
+`make -C verilog startseq` runs `DoDoradoMicroInst` exactly as the BaseBoard's
+6502 issues it, transcribed from `doradocpint.masm`:
+
+```
+  JSR WaitForCPControl                       ; gain the CP bus
+  LDAI InhibitCAHolds+ClrReady / JSR DoClock ; function 1
+  LDAI ClrStop+ClrMIR+ClrCT+Freeze / CLC     ; function 0, 0x4E, no SetSS
+  LDAI 0 / SEC / JSR DoControl               ; function 0, 0x00, SetSS
+  ... four MIR strobes, extra bit rotated into the SetSS position ...
+  LDAI SetRun / JSR DoControl                ; function 0, 0x01, SetSS
+```
+
+Every strobe lands and `dRun` follows `SetRun`, so the command path works end to
+end. `CLKEnable'a` never clears. Three hypotheses were tested and are out:
+
+1. **The authentic sequence is not the missing ingredient.** The earlier tests
+   poked signals ad hoc; this one does what the ROM does, in order, and the
+   result is the same.
+2. **`SetRunRfsh` is not it either.** ContA's l01 takes only `CLK.ca'`, so
+   `prepreclk'a/c/d` are UNGATED -- a free-running clock exists on that board --
+   and it clocks l05, whose other input is `SetRunRfsh`. Asserting it changes
+   nothing.
+3. **Nor is a complementary power-up state.** Initialising every MC10231 to
+   Q=1 instead of Q=0 leaves `CLKEnable'a` high, because the two halves of the
+   wired-OR then swap roles: k01's `Q'` clears but k02's `Q` sets.
+
+The deadlock, stated exactly: `CLKEnable'a` is a wired-OR of ContA k01's `Q'_b`
+(D = `dRun`) and k02's `Q_b` (D = `dStop`, asynchronously reset by `rStop`).
+One level down, `bCLKEnable'a = Run' | Stop` from j04, and `preRunClk'Bb` is an
+OR that `bCLKEnable'a` gates. `Run'` is the `Q'` of a flip-flop with **no set or
+reset**, clocked by a clock its own output gates. From an all-zero state there
+is no path out.
+
+**What to try next**, now that those three are eliminated:
+
+* Work forward from the free-running clock instead of backward from the stall.
+  `prepreclk'a/c/d` DO run; find which flip-flops they clock, and what state
+  those reach, and see which of them can break the j04/k01 ring.
+* Check `rStop` actually reaches k02's asynchronous reset in the emitted RTL and
+  that `cell_MC10231` honours it while its clock is static. The Control latch
+  asserts `rStop` (measured), but nothing has confirmed the reset lands.
+* Only then consider a defined power-up state, and write it as a SUBSTITUTION
+  with the reasoning `cell_MPQ3303` carries: a real machine's start-up is
+  settled by analog behaviour a zero-delay two-state simulator does not have, so
+  it has to be stated rather than emerge. Note that the naive version of this
+  was tried and is not enough on its own.
+
+### The interface is fully specified now, from PARC's own definitions
+
+`chm/dorado/expanded/doradobaserom.dm!12_/doradoio.mdefs` turns out to be a
+complete statement of the control-processor interface, and it agrees with both
+the netlist and the C emulator:
+
+```
+Control=0x00 Clock=0x10 ABMux0=0x20 ABMux1=0x30                function, bits 6:4
+MIR0=0x40 MIR1=0x50 MIR2=0x60 MIR3=0x70
+
+ClrStop=0x40 StopAtT1=0x20 Jam=0x10 Freeze=0x08                in Control
+ClrMIR=0x04 ClrCT=0x02 SetRun=0x01   SetSS=0x80                (SetSS in MCPBusL)
+
+DAddrBit=0x80 ShiftDMD=0x40 InhibitCAHolds=0x20 GetTLINK=0x10  in Clock
+UseCPReg=0x08 UseDMD=0x04 BaseAttn=0x02 ClrReady=0x01
+
+B0=0x00 B1=0x20 B2=0x40 B3=0x60 PEIM=0x80 PEMem=0xA0           CPIn readout
+Stopped=0xC0                                                   selects
+```
+
+Three things fall out of it:
+
+* **Function 1 is definitely not a no-op.** `DoDoradoMicroInst`'s FIRST action
+  is `DoClock(InhibitCAHolds+ClrReady)`. The C emulator's "Clock -- no-op" is a
+  real gap, now specified: ContA's i02 latches `GetTLink` from `CPOut.3`
+  (=0x10 GetTLINK), `CP=UseCPReg` from `CPOut.4` (=0x08 UseCPReg) and
+  `ClrReady` from `CPOut.7` (=0x01 ClrReady). Three for three against the
+  mdefs, from the netlist.
+* **The readout selects confirm the CPIn table above, by name.** `B0`-`B3` are
+  the four `RBMux` nibbles, `PEIM`/`PEMem` the two parity groups, and
+  `Stopped = 0xC0` is select 6 -- exactly where `DoradoStopped` was found.
+* **Every Control mask now has three independent sources**: PARC's mdefs, the
+  netlist, and `apply_mcp_strobe`. They agree completely.
 
 ## The passive packages, and what each one turned out to be (2026-08-17)
 

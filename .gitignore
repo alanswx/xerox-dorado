@@ -105,3 +105,4 @@ verilog/verilator/obj_bb/
 verilog/verilator/obj_cpreg/
 verilog/verilator/obj_mir/
 verilog/verilator/obj_mirreg/
+verilog/verilator/obj_startseq/

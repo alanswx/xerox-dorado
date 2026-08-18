@@ -188,6 +188,16 @@ mirreg-diff:
 		>/dev/null && ./verilog/verilator/obj_mirreg/tb_mirreg \
 			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_mirreg
 
+# PARC's own DoDoradoMicroInst, replayed. A DIAGNOSTIC, not a gate: it asserts
+# nothing and shows where the Control section stops. See tb_startseq.sv.
+.PHONY: startseq
+startseq:
+	@cd ../.. && $(V) --binary --top-module tb_startseq $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_startseq -o tb_startseq \
+		verilog/verilator/tb_startseq.sv verilog/generated/dorado_control.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		>/dev/null && ./verilog/verilator/obj_startseq/tb_startseq | grep startseq
+
 # Does the BaseBoard's 6502 come out of reset and fetch from its own EPROMs?
 # The whole board is real here -- Andrew Holme's netlist-derived 6502, MiSTer's
 # 6532s, the '138 that decodes Rom0'..Rom7', the eight 2716 sockets, and the
