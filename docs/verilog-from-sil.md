@@ -461,7 +461,7 @@ because it is a 32-entry part holding a 16-bit mask.
 | piece | state |
 |---|---|
 | Boards generated + elaborating | **16 / 16** (67,960 lines, plus 4,599 of cells) |
-| Cell models with behaviour | **68**, covering **93.4%** of 3,771 logic packages (94.7% of the eleven-board machine) |
+| Cell models with behaviour | **97**, covering **97.7%** of the eleven-board machine's logic packages. Of the 64 left, 42 are analog or mixed-signal |
 | 6502 / 6532 | netlist-derived 6502 (Holme, via jotego); MiSTer 7800 RIOT (CC BY-NC, noted) |
 | PROMs generated from PARC's BCPL | **26 / 26**, all property-checked |
 | Harness | Verilator + Dear ImGui, builds, runs, `--headless` gate |

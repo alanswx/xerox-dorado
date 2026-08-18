@@ -879,8 +879,8 @@ diagnostics, which were written to test the boards.
 
 **Started 2026-08-15, and further than the plan expected.** All sixteen
 boards now GENERATE from PARC's wire lists and elaborate under Verilator
-(67,960 lines, plus 4,599 of cell models); 68 cell models cover 93.4% of logic packages (94.7% of the eleven-board
-machine); **the BaseBoard's eight 2716 sockets now hold the real base ROM** --
+(67,960 lines, plus the cell models); the cell library covers 97.7% of the
+eleven-board machine's logic packages as of 2026-08-18; **the BaseBoard's eight 2716 sockets now hold the real base ROM** --
 the socket map was derived from the LS138 decode and the c07 strap block and
 then validated three ways (the ROM's 6502 vectors all land inside ROM, and its
 bytes occupy exactly the four 2K blocks the 1981 manual names), with the image
@@ -955,119 +955,49 @@ same expression. It also showed why `machine-test` must NOT gate on how many
 signals toggle: correct logic holds nets steady, so the count fell 31 -> 27
 as cells got MORE right. It gates on the clock reaching every slot instead.
 
-**The BaseBoard's 6502 BOOTS ITS OWN FIRMWARE in RTL (2026-08-17).**
-`make -C verilog baseboard-test` watches it read `0xF3A7` out of `0xFFFC/D`,
-fetch from there, and execute the ROM's own reset routine byte for byte
-against `chm/disassembly/bb_F000-FFFF.s`. Six things had to be true together,
-each mutation-tested: resistor packs resolved (they supply the machine's
-constant 1 and cannot be a cell, since seven of eight pins drive on some
-boards and are the tie point on others); the supply rails stated; the ROM
-decode strapped -- **the wire list's per-pin `{x,y}` coordinates state the
-wire-wrap jumpers geometrically**, confirming a strapping that had only been
-inferred; tri-state parts contributing nothing when off the bus; the EPROM a
-registered block RAM, which is also the data hold the 6502 needs; and a real
-power-on reset, because `PwrGood` asserted from cycle 0 released the processor
-before it ever ran a reset sequence.
+**A FOUR-BOARD DORADO RUNS MICROINSTRUCTION CYCLES (2026-08-18).** The write
+path into the machine is proven end to end against the C emulator; the operand
+path is one signal short. Rung by rung, each line a gate you can run:
 
-**The EPROM bytes are stored BIT-REVERSED, and the 1987 chip dumps prove it.**
-The board wires the 2716's pin 9 (O0) to the 6502's DB7, so the byte arrives
-end for end and the chips were blown that way. `firmware/B-08.BIN` read
-bit-reversed is byte-for-byte `doradobaserom.mb!13`'s 0xF000 block, all 2048;
-`B-10.BIN` reversed gives that image's own vectors. Those five dumps had been
-written off as "a different set or a different layout" because none had a
-plausible 6502 vector triple -- they had one all along, and they land on
-exactly the four populated sockets.
+| rung | gate |
+|---|---|
+| the BaseBoard's 6502 boots from its own EPROMs | `baseboard-test` |
+| it drives the control-processor bus, matching the C emulator | `cpreg-diff` |
+| all 36 microinstruction bits decode, matching the C emulator | `mir-diff` |
+| a microinstruction lands in the MIR, matching the C emulator | `mirreg-diff` |
+| the Control section executes cycles | `run-test` |
+| four boards, the microinstruction on the datapath | `datapath-test` |
+| a jammed Write-IM deposits into IM, half-select and all | `writeim-test` |
+| ...with the DATA and ADDRESS from CPReg | **open, one signal** |
 
-**And the assembled machine SETTLES.** It stopped converging the moment the
-BaseBoard really ran -- 40 circular combinational paths that Verilator named
-identically before and after, so its report could not say which mattered. The
-first reading, that these were the design's own gate-delay lines needing
-substituted delays, was wrong. `tools/sil_loops.py` builds the graph from the
-cell files and found two modelling mistakes, both settled by the archive:
-**six cells were transparent latches** (`F10145A`, `F10415A`, `F10470`,
-`i2125`, `MC10173`, `SN74LS259` -- level-sensitive writes and latches written
-as `always @*`, so every read-modify-write path in the machine was a loop; 405
-F10145A packages alone), now on `sys_clk` with the part's own level as an
-enable, which is this design's existing convention and took the graph from
-1,333 back edges to 40; -- that was the whole of it. A second theory, that `F10016`'s carry should be
-registered because the dictionary lists pin 4 only under `[FF]`, was tried and
-is WRONG and worth not re-deriving: an `[FF]` entry is a TIMING ARC from the
-clock with any gate after the register folded in, which `S169` shows by giving
-RC' its own block at 30.8 ns against the Q outputs' 16.5. Four structural loops
-remain -- the processor's mux chain and a counter carry returning to its own
-enable on three boards -- and all settle, because a wired-OR term or a mux
-select breaks each in operation. Gate: `make -C verilog loop-check`, a fifth of
-a second, from the cell files.
+Seventeen gates in all; `make -C verilog` has the list. Cell coverage is
+**97.7%** of the eleven-board machine, and of the 64 packages left 42 are
+analog. Four machine configurations are generated (`dorado_backplane` at eleven
+boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
 
-**The boot interface is cross-checked against the C emulator, three ways
-(2026-08-17).** `make -C verilog cpreg-diff` (176 strobes, 0 mismatches),
-`mir-diff` (all 36 microinstruction bits) and `mirreg-diff` (144
-microinstructions jammed into the MIR and read back). Two derivations that
-share no ancestry -- PARC's 1979 wire list and `apply_mcp_strobe`/
-`dorado_decode_mir` written from the Hardware Manual -- agree on every bit,
-and the netlist NAMES what the emulator could only call parity: MIR1's and
-MIR3's extra bits are the board's `sIMLH`/`sIMRH`. The MIR turns out to be a
-bank of MC10231 set/reset flip-flops (jam sets, `ClrMIR` resets, the execute
-path is a separate D input), which is why the four strobes accumulate. The
-reply path `CPIn.0-3` is now specified too -- four MC10164s selected by the top
-three bits of `CPOut`, giving 16 bits of `RBMux` plus `DoradoStopped` -- and
-the C emulator does not model it at all.
+**Findings worth not rediscovering**, each written up in the handoff:
 
-**THE MACHINE RUNS (2026-08-17).** `make -C verilog run-test`: over 40,000
-fabric cycles after PARC's own boot sequence, **`clk0'` 2,493 edges, `clk2'`
-4,987 -- exactly twice -- `Phase0` 2,494, `StartCycle'a` 2,494, and
-`DoradoStopped` clear.** The Control section executes microinstruction cycles;
-everything before this only proved the machine could be written to. One thing
-unlocked it and it is the only mutation that fails the test: **ClrStop and
-SetRun must go in the SAME Control byte (0x41)**, because `rStop` is a level
-that lasts only until the next Control strobe, and PARC's `DoDoradoMicroInst`
-issues them separately -- so `Stop` re-latches before the machine gets going.
-This also corrected an earlier conclusion here: the claim that the clock enable
-could never tick was WRONG (`preRunClk'Bb` toggles 187 times per 3,000 cycles
-and `Run'` does clear); the stuck term was `Stop`, not `Run'`. Two things that
-looked load-bearing are not, both measured: the microinstruction parity bits
-(they do reach the MC10170 checkers, and `IMLHPE'` tracks the MIR1 extra bit
-exactly, but the path needs `IMLHPEenable` which is 0 here) and the `Clock`
-function. **And four boards run together (`make -C verilog datapath-test`).** ContA,
-ContB, ProcH and ProcL: the processor boards' clocks step in EXACT lockstep with
-the Control section's (2,493 edges each), and a distinctive jammed
-microinstruction arrives at the datapath as `RSTK=1111 ALUF=0111 BSEL=011
-ASEL=111` -- exactly what the mir-diff table predicts, exercising the whole path
-from the BaseBoard's bus through the decoders, the register and the backplane.
-Note `BSEL'`/`ASEL'` cross complemented while `RSTK`/`ALUF`/`LC` do not. **IM is mapped, and it confirms the C emulator's Write-IM model exactly.** It is
-144 `F10415A` packages on ContB -- 4096 words x 36 bits, the 34-bit
-microinstruction plus two parity bits, four banks of 1024 -- and its 36 outputs
-ARE the `d<FIELD>` lines feeding the MIR's D inputs, so the core is one picture:
-IM -> d<FIELD> -> MIR -> field -> backplane -> datapath. The write enables split
-`WEL'`/`WER'` at exactly 18 bits each (iw0+RSTK.0+parity, iw1+JCN.7+parity),
-which is `cpu.c`'s Write-IM comment verbatim; `RBMux.00-15` feed eight packages
-each (the 16 bits from B), `RBMuxP` the parity, and two more nets the secondary
-bit per half. The same RBMux the BaseBoard reads through CPIn is what IM is
-written from. `dBlock'` comes out complemented, consistent with the inverted MIR
-flip-flop found earlier. **PARC's hand-coded IRTable is decoded** -- thirteen microinstructions in the
-five-byte jam format, and all ten with field comments decode to exactly what
-those comments say; its byte-layout comment is the mir-diff table from the other
-side. **And a jammed Write-IM deposits into IM (`make -C verilog writeim-test`),
-with `RSTK[3]` selecting the half -- checked both ways**: the right-half
-instruction sets 17 right-half cells and 0 left, the left-half one 16 left and 0
-right, across all 147,456. Getting there took retracting two wrong theories. IM
-comes up with 17 cells set, and the first test counted from time zero and called
-that a write; four mutations passed and a no-stimulus control reproduced it. The
-enables are NOT stuck either -- measured, they settle de-asserted within 2,000
-idle cycles and the array then takes nothing in 20,000 more. It is a settling
-transient, harmless (Boot0 exists to load IM), and the fix was to the test:
-settle, wipe, measure. **And the reason the write's DATA and ADDRESS come out wrong is found: A JAM
-MUST BE SINGLE-STEPPED.** The CPReg-to-B path is an MC10159 mux at ContA b02
-selected by `UseCPReg` and enabled by `B_Link'`, both from a clocked register
-fed by the FF decoders -- and `FF=Link_CPReg` is decoded at a17 from `FA=1'`,
-`FB=7'`, `FC=6'`, exactly the FA=1 FB=7 FC=6 `cpu.c` documents. Measured: with
-the jam in MIR and the machine STOPPED, FF reads 01111110 (176 octal, PARC's
-`CPRegToIM#`) and the decode asserts; free-run it and one clock later FF reads
-11111111 -- **the MIR has reloaded from IM**. Single-stepping (SetRun+SetSS
-without ClrStop, which is what `DoDoradoMicroInst` does) preserves it. This
-BOUNDS tb_run's conclusion rather than overturning it: ClrStop+SetRun together
-is right for free-running and wrong for a jam. One link remains -- ContA c17
-still does not produce `B_Link'` -- and it is a tight target.
+- **The BaseBoard's EPROMs are stored BIT-REVERSED** -- the board wires the
+  2716's pin 9 (O0) to the 6502's DB7. `firmware/B-08.BIN` read bit-reversed is
+  byte-for-byte `doradobaserom.mb!13`'s 0xF000 block, which retires the old
+  note that those 1987 dumps were "a different set".
+- **The wire list's per-pin `{x,y}` states the wire-wrap jumpers and the
+  resistor platforms geometrically** -- a jumper position is a column of pins at
+  one x; `PLAT1816` pairs pin N with pin 17-N, 122 pairs with no exception.
+- **The machine would not settle**, and it was six cells modelled as transparent
+  latches that are not, plus nothing else -- `F10145A`, `F10415A`, `F10470`,
+  `i2125`, `MC10173`, `SN74LS259`, now on `sys_clk` with the part's own level as
+  an enable. `loop-check` is the gate.
+- **`cell-check` was blind to 18 of 112 parts** because a part may state its
+  gates across several `[G]` lines; two of those had Tim's common-pin bug, in 82
+  packages.
+- **A jam must be SINGLE-STEPPED** (SetRun+SetSS, no ClrStop): free-running
+  reloads the MIR from IM one clock later. `run-test`'s "ClrStop and SetRun must
+  share a byte" is right for free-running and wrong for a jam.
+- **`doradoio.mdefs` and `doradoboot.masm` are a complete specification of the
+  control-processor interface** -- every Control mask, the `Clock` function's
+  bits, the CPIn readout selects, and an IRTable of hand-coded microinstructions
+  whose byte-layout comment is the mir-diff table from the other side.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 

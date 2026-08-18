@@ -1,73 +1,136 @@
 # Verilog from Sil: handoff
 
-2026-08-16. This file is written to be picked up cold. Read
-`docs/verilog-from-sil.md` for the background and why each decision was made.
+2026-08-18. This file is written to be picked up cold: "Where it stands" is
+the state of the machine, "START HERE" is the one open task, and "How to read
+the rest" maps the sections below. Read `docs/verilog-from-sil.md` for the
+background and why each decision was made.
 
 ---
 
 ## Where it stands
 
+**A four-board Dorado runs microinstruction cycles, and the BaseBoard's 6502
+boots its own firmware.** The write path into the machine is proven end to end
+against the C emulator; the operand path is one signal short. Everything is
+generated from PARC's own Sil wire lists, and every claim below is a gate you
+can run.
+
+### The boot chain, rung by rung
+
+| rung | state | gate |
+|---|---|---|
+| BaseBoard 6502 boots from its own EPROMs | **works** | `baseboard-test` |
+| BaseBoard drives the control-processor bus | **works**, matches the C emulator | `cpreg-diff` |
+| All 36 microinstruction bits decode | **works**, matches the C emulator | `mir-diff` |
+| A microinstruction lands in the MIR | **works**, matches the C emulator | `mirreg-diff` |
+| The Control section executes cycles | **works** | `run-test` |
+| Four boards, microinstruction on the datapath | **works** | `datapath-test` |
+| A jammed Write-IM deposits into IM | **works** (mechanism + half-select) | `writeim-test` |
+| ...with the DATA and ADDRESS from CPReg | **open -- one signal**, see below | -- |
+
+### Every gate
+
 ```
-make -C verilog boards     # 16 boards from PARC's wire lists   -> generated/
-make -C verilog cells      # cell skeletons for any new part    -> cells/
-make -C verilog lint       # THE GATE: every board, and the machine, elaborates
-make -C verilog/verilator  # the imgui harness
-./verilog/verilator/obj_dir/Vemu --headless --cycles 5000
-python3 tools/dorado_proms.py --check      # 26/26, every one property-checked
-python3 tools/dorado_proms.py --placement  # which package holds which PROM
-make -C verilog proms      # proms/*.mem and the per-package images
-make -C verilog prom-test  # THE GATE: PROMs read back what the machine expects
-python3 tools/sil_backplane.py             # what the backplane is, measured
-make -C verilog alu-test   # THE GATE: the ALU matches its datasheet
-make -C verilog alu-diff   # THE GATE: the ALU matches the C EMULATOR
-make -C verilog cpreg-diff # THE GATE: the BOOT INTERFACE matches the C emulator
-make -C verilog mir-diff   # THE GATE: all 36 microinstruction bits match
-make -C verilog mirreg-diff # THE GATE: a jammed microinstruction reads back
-make -C verilog run-test   # THE GATE: THE MACHINE RUNS -- it executes cycles
-python3 tools/sil_backplane.py --ports     # boards present the ports PARC states
-make -C verilog machine-test  # THE GATE: the assembled machine clocks and SETTLES
-make -C verilog baseboard-test  # THE GATE: the BaseBoard's 6502 BOOTS
-make -C verilog cell-check    # THE GATE: cells wire the inputs PARC says they do
-make -C verilog loop-check    # THE GATE: no combinational feedback but the known one
-make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
+make -C verilog boards          16 boards + 4 machine configurations -> generated/
+make -C verilog proms           proms/*.mem and the per-package images
+make -C verilog cells           cell skeletons for a new part (never overwrites)
+
+make -C verilog lint            every board and all four machines elaborate
+make -C verilog cell-check      cells wire the inputs PARC's [G] lists say they do
+make -C verilog loop-check      no combinational feedback beyond the known ones
+make -C verilog prom-test       PROMs read back what the machine expects
+make -C verilog alu-test        the ALU matches its datasheet
+make -C verilog alu-diff        the ALU matches the C EMULATOR, 10,752 vectors
+make -C verilog cpreg-diff      the BOOT INTERFACE matches the C emulator
+make -C verilog mir-diff        all 36 microinstruction bits match
+make -C verilog mirreg-diff     a jammed microinstruction reads back off the MIR
+make -C verilog run-test        THE MACHINE RUNS -- it executes cycles
+make -C verilog datapath-test   four boards, microinstruction on the datapath
+make -C verilog writeim-test    a jammed Write-IM deposits into IM
+make -C verilog baseboard-test  the BaseBoard's 6502 BOOTS
+make -C verilog machine-test    the assembled machine clocks and SETTLES
+
+make -C verilog startseq        DIAGNOSTIC, not a gate: PARC's boot sequence
+                                replayed, printing the Control section's state
 ```
+
+Plus, outside the Makefile: `tools/dorado_proms.py --check` (26/26 PROMs
+property-checked), `--placement` (which package holds which PROM), and
+`tools/sil_backplane.py` / `--ports` (what the backplane is, measured).
+
+### The four machine configurations
+
+`tools/sil_backplane.py` wires any subset of boards by name. `make boards`
+emits four:
+
+| module | boards | used by |
+|---|---|---|
+| `dorado_backplane` | the eleven of a working monochrome machine | `machine-test`, the imgui harness |
+| `dorado_baseboard` | BaseBd alone | `baseboard-test` |
+| `dorado_control` | ContA + ContB | `run-test`, `mirreg-diff` |
+| `dorado_proc` | ContA, ContB, ProcH, ProcL | `datapath-test`, `writeim-test` |
+
+`make -C verilog backplane MACHINE=--boards=ProcH,ProcL` builds any other.
 
 | piece | state |
 |---|---|
-| Netlist reader + Verilog generator | 16/16 boards, 67,960 lines (+2,658 top, +4,599 cells), **all lint clean** |
-| Cell library | 80 cells, **97.7%** of the eleven-board machine's logic packages |
-| 6502 | Andrew Holme's netlist-derived core (via jotego), wired into `cell_MCS6502` |
-| 6532 RIOT | MiSTer Atari 7800's, patched for Verilator. **CC BY-NC** -- see `verilog/vendor/LICENSES.md` |
-| PROMs | **26 of 26** generated, **29 packages wired into the RTL and read back correctly** |
-| Harness | Verilator + Dear ImGui, builds, runs, `--headless` CI mode |
+| Netlist reader + Verilog generator | 16/16 boards, all lint clean |
+| Cell library | **97** cells with behaviour, covering **97.7%** of the eleven-board machine's logic packages |
+| 6502 | Andrew Holme's netlist-derived core (via jotego), in `cell_MCS6502` |
+| 6532 RIOT | MiSTer Atari 7800's. **CC BY-NC** -- see `verilog/vendor/LICENSES.md` |
+| PROMs | **26 of 26** generated, 29 packages wired in and reading back correctly |
 | Board port lists | **from PARC's own `.bp`**, 1,920/1,922 exact, 0 spurious |
-| Backplane top module | **generated**, 11 boards wired by name, lint clean |
 | Synthesisability | **no `inout`, no multiply-driven net, no gated clock** |
-| The machine | **instantiated, and SELF-CLOCKING**: it generates its own clock |
-| BaseBoard 6502 | **BOOTS ITS OWN FIRMWARE** -- reset vector, then the ROM's instruction stream |
+| Harness | Verilator + Dear ImGui, `--headless` CI mode |
 
-`verilog/generated/dorado_backplane.v` instantiates eleven boards and wires
-501 nets between them; `dorado_machine` resolves the 407 external ports and
-`sim.v` runs it. **Nothing is injected: the machine makes its own clock.**
-The VCO is substituted for a fabric-clock divider -- an analog oscillator has
-no digital model -- and everything after it is the BaseBoard's own logic:
-h05/g05 (MC1660) shape two anti-phase clocks, four MC1690s divide them into
-`StartClockPulse'` and `EndClockPulse`, and j02 fans those out. All 24 clock
-nets toggle, and six downstream signals with them (`MemWEa`/`MemWEb`,
-`LoadEcOut'`/`ShiftEcOut`, `LargeHold`, `TWReq15`).
+Of the 64 packages still unmodelled, **42 are analog or mixed-signal** (op-amps,
+comparators, a DAC, a transistor array, an ADC, analog muxes) and belong as
+substitutions if at all. The 22 digital ones need datasheets this repository
+does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
+`F9401`.
 
-One board of it now COMPUTES: the BaseBoard's 6502 comes out of reset,
-fetches `0xF3A7` from `0xFFFC/D`, and executes the ROM's own reset routine.
-See "The BaseBoard's 6502 boots" below. The rest is still filling in.
+## START HERE: the one open task
 
-**And it settles.** `machine-test` passes with the BaseBoard running: 24/24
-clock nets toggling, 37 signals moving, stable over 200,000 cycles as readily
-as 20,000. It did not, for a while, and the cause was not the design's
-gate-delay tricks but six cells modelled as transparent latches that are not,
-plus one counter's carry that PARC's dictionary says is registered. See "the
-machine did not settle" below.
+With a jammed Write-IM single-stepped, `FF=Link_CPReg` asserts correctly -- but
+ContA **c17 still does not produce `B_Link'`**, so the MC10159 multiplexer at
+ContA b02 stays disabled and CPReg never reaches `BMux`. That one signal is why
+the write's data and address both come out wrong.
 
-### What landed on 2026-08-15/16
+c17 is an MC10176 clocked by `clk1'Ca`, fed through **b16**, an MC10103 that ORs
+`FF=Link_CPReg` with `CP=UseCPReg`, `FF=BDispatch`, `FF=BigBDispatch`,
+`FF=WriteLink` and `FF.3'`. Work out which of b16's four gates drives
+`ContA04.sil+2`, and what its inputs do during the single step. With that, the
+operand path opens and `writeim-test` can assert the data and the address rather
+than only the mechanism and the half-select.
+
+**Read "A jammed Write-IM deposits into IM" below first** -- it has the whole
+chain traced, and the two things that will otherwise cost you a day:
+
+* **A jam must be SINGLE-STEPPED** (SetRun+SetSS, no ClrStop). Free-running
+  reloads the MIR from IM one clock later and the jam is gone. `run-test`'s
+  finding that ClrStop and SetRun must share a Control byte is right for
+  free-running and wrong for a jam -- two different operations.
+* **Measure against a wiped baseline.** IM comes up with 17 cells set from a
+  settling transient. Counting non-zero cells from time zero makes any Write-IM
+  test pass for the wrong reason, which is exactly what happened once.
+
+## How to read the rest
+
+The sections below are in the order they were written, which is roughly the
+order the machine came up. Grouped:
+
+* **Reference** -- the FPGA shape and why it is not the physical one; where the
+  clock comes from; how the backplane was derived; OR/NOR polarity; why
+  `machine-test` is not a toggle count.
+* **The bring-up, in order** -- the BaseBoard's 6502 boots; the boot interface;
+  all 36 microinstruction bits; the MIR; the reply path; the machine runs; four
+  boards; IM mapped; PARC's hand-coded microinstructions; the Write-IM.
+* **Classes of bug worth knowing** -- Tim's COMMON pin; the passive packages;
+  the machine not settling; `MCD_0..7` double-driven.
+* **Tasks and traps** -- filling in the cell library; testing against the C
+  emulator; things that will bite; the one open licence question.
+
+## Historical: what landed on 2026-08-15/16
 
 - **The last two PROMs.** `EtherRcvr` and `EtherXmtr` are ported, so all 26
   now generate. They are the only PROMs that are genuine state machines, and
