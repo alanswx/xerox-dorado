@@ -1047,14 +1047,18 @@ written from. `dBlock'` comes out complemented, consistent with the inverted MIR
 flip-flop found earlier. **PARC's hand-coded IRTable is decoded** -- thirteen microinstructions in the
 five-byte jam format, and all ten with field comments decode to exactly what
 those comments say; its byte-layout comment is the mir-diff table from the other
-side. **But a claim that a jammed Write-IM deposits into IM has been RETRACTED**:
-17 IM cells go non-zero, but they do so with no stimulus at all and the machine
-stopped. The write enables (`WER'Aa` = `MidasOrRSTK.3 | preWE'a`) are ACTIVE LOW
-and both terms are 0 at power-up, so the array is written continuously -- the
-same two-state zero-init problem as everywhere else. Next: enumerate the
-active-low control lines that start asserted and should not, and settle each
-against the netlist; until then anything downstream of a memory write is
-unmeasurable.
+side. **And a jammed Write-IM deposits into IM (`make -C verilog writeim-test`),
+with `RSTK[3]` selecting the half -- checked both ways**: the right-half
+instruction sets 17 right-half cells and 0 left, the left-half one 16 left and 0
+right, across all 147,456. Getting there took retracting two wrong theories. IM
+comes up with 17 cells set, and the first test counted from time zero and called
+that a write; four mutations passed and a no-stimulus control reproduced it. The
+enables are NOT stuck either -- measured, they settle de-asserted within 2,000
+idle cycles and the array then takes nothing in 20,000 more. It is a settling
+transient, harmless (Boot0 exists to load IM), and the fix was to the test:
+settle, wipe, measure. Still open: the write's DATA and ADDRESS both come out
+wrong, and both originate in CPReg reaching B via `B <- RWCPReg` -- one path to
+trace, not two.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 

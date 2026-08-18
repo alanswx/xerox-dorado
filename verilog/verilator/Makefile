@@ -188,6 +188,18 @@ mirreg-diff:
 		>/dev/null && ./verilog/verilator/obj_mirreg/tb_mirreg \
 			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_mirreg
 
+# A JAMMED WRITE-IM deposits into IM, and RSTK[3] selects the half -- checked
+# both ways against a wiped array. See tb_writeim.sv for why the baseline is the
+# whole difficulty.
+.PHONY: writeim-test
+writeim-test:
+	@cd ../.. && $(V) --binary --top-module tb_writeim $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_writeim -o tb_writeim \
+		verilog/verilator/tb_writeim.sv verilog/generated/dorado_proc.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		>/dev/null && ./verilog/verilator/obj_writeim/tb_writeim | grep tb_writeim
+
 # FOUR BOARDS: Control plus both processor boards, running, with a jammed
 # microinstruction's fields on the datapath. See tb_datapath.sv.
 .PHONY: datapath-test

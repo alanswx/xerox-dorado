@@ -108,3 +108,4 @@ verilog/verilator/obj_mirreg/
 verilog/verilator/obj_startseq/
 verilog/verilator/obj_run/
 verilog/verilator/obj_datapath/
+verilog/verilator/obj_writeim/

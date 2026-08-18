@@ -1011,43 +1011,46 @@ JCN[5:7]=111). Their RSTK values confirm the half-select and secondary bit:
 `IMLH...Is0#` has RSTK=1 (RSTK[3]=1, left half), `IMLH...Is1#` RSTK=3 (left
 half, secondary 1), `IMRH...Is0#` RSTK=0 (right half), `IMRH...Is1#` RSTK=2.
 
-## RETRACTED: "a jammed Write-IM deposits into IM"
+## A jammed Write-IM deposits into IM, and RSTK[3] selects the half
 
-It does not, or at least nothing here shows that it does. Jamming
-`CPRegToIM#` and running left 17 cells of the IM array non-zero, exactly the
-right-half fields and nothing in the left, which looked conclusive. **It is an
-artifact.** Four mutations were tried and NONE failed -- not jamming the
-left-half instruction instead, not leaving the data CPReg at zero, not
-preventing the machine from starting at all. The control run settles it: with
-**no stimulus whatever**, and `DoradoStopped` still 1, the same 17 cells are
-non-zero.
+`make -C verilog writeim-test`. From a wiped array, the right-half Write-IM sets
+17 right-half cells and **0** left-half; the left-half one sets 16 left-half and
+**0** right. Checked both ways across all 147,456 cells. `RSTK[3]` selects the
+half, precisely as `cpu.c` says.
 
-The cause is the write enables. `WER'Aa` is `MidasOrRSTK.3 | preWE'a` (an
-MC10210 at ContB c05), both of which are 0 at power-up, so the ACTIVE-LOW write
-enable is asserted and the array is written continuously from whatever `RBMux`
-holds. The chip selects behave the same way. This is the same class as every
-other power-up problem in this design: a two-state simulator starting at zero
-puts every active-low control line in its asserted state.
+**Getting the BASELINE right was the whole difficulty, and the first version of
+this test was worthless because of it.** IM comes up with 17 cells set: from the
+all-zero initial state the ContB write logic asserts its active-low enables for
+a few cycles until the combinational logic settles, and the array takes a write
+of whatever `RBMux` then held. The first test counted non-zero cells from time
+zero, found 17, and called it a successful write. Four mutations passed, and a
+no-stimulus control reproduced it exactly with the machine stopped.
 
-So **a Write-IM cannot be distinguished from the idle state in this
-configuration**, and the test that claimed otherwise has been deleted rather
-than weakened. Testing one needs a machine in which `preWE'a` is genuinely
-driven by microinstruction decode -- which means executing real microcode, not
-a jam into a machine whose enables are stuck on.
+**The enables are not stuck**, which was the next wrong theory and is worth
+recording as such. MEASURED: after 2,000 idle cycles `WER'Aa`, `WEL'Aa` and
+`preWE'a` all read 1, de-asserted, and across the next 20,000 cycles the array
+takes nothing at all. It is a settling transient, not a stuck line -- and not a
+fault in the hardware either, since Boot0 exists to load IM and the machine
+never assumes IM holds anything at power-up. The fix was to the TEST: settle,
+wipe, then measure.
 
-The address path is identified but untested for the same reason: it is
-`Link[4:15]` -> `TNIA` on ContA -> the backplane -> an MC1662 multiplexer at
-ContB f21 -> `RA.01a`-`RA.10a`. `TNIA` reads zero here. It is NOT the
-multiplexer's select: `SW` comes from MemX, absent from this machine, and
-driving it either way changes nothing.
+(A third wrong theory, tried and discarded on the way: that PARC's
+`PrepareProcessor` -- which really does exist, and whose comment is "do a lot of
+microinstructions to clear out the cobwebs", forty of them -- was what settled
+the enables. It is not. Pure idle settles them just as well.)
 
-### Next
+### What it does not prove
 
-The honest next step is not another jam. It is the **power-up state of the
-control lines**: enumerate the active-low enables that start asserted and
-should not -- IM's `WEL'`/`WER'` and `CS'` are the ones found so far -- and
-decide, per line and with the netlist, what holds them off in a real machine.
-Until that is settled, anything downstream of a memory write is unmeasurable.
+The DATA does not come from CPReg: zeroing the CPReg the microinstruction is
+supposed to read leaves the written pattern unchanged. Nor does the ADDRESS --
+every write lands at IM[0] whatever CPReg holds. Both travel paths that are not
+yet working: the data through `B <- RWCPReg` to `RBMux`, and the address through
+Link to `TNIA` on ContA and an MC1662 multiplexer at ContB f21. So this
+establishes the mechanism and the half-select, not the operand.
+
+That is the next task, and it is one path rather than two: both the data and the
+address originate in **CPReg reaching B**, which is the `B <- RWCPReg` FF
+function on the processor boards. Trace that and both should follow.
 
 ## The passive packages, and what each one turned out to be (2026-08-17)
 

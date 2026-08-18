@@ -16,6 +16,7 @@
 #   make mirreg-diff  a microinstruction jammed into the MIR reads back right
 #   make run-test     THE MACHINE RUNS: the Control section executes cycles
 #   make datapath-test four boards, with the microinstruction on the datapath
+#   make writeim-test a jammed Write-IM deposits into IM, half-select and all
 #   make startseq     PARC's own boot sequence replayed (diagnostic, not a gate)
 #   make machine-test the assembled machine clocks and its clock tree runs
 #   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs
@@ -28,6 +29,7 @@ TOOLS   = ../tools
 
 .PHONY: boards backplane proms cells cells-force lint cell-check loop-check \
         prom-test alu-test alu-diff cpreg-diff mir-diff mirreg-diff run-test \
+        writeim-test \
         datapath-test \
         startseq \
         machine-test \
@@ -84,6 +86,10 @@ run-test:
 # Four boards, with a jammed microinstruction's fields reaching the datapath.
 datapath-test:
 	@$(MAKE) -C verilator datapath-test
+
+# A jammed Write-IM depositing into IM, both halves.
+writeim-test:
+	@$(MAKE) -C verilator writeim-test
 
 # PARC's own DoDoradoMicroInst replayed. A diagnostic, not a gate.
 startseq:
