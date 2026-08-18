@@ -1056,9 +1056,18 @@ that a write; four mutations passed and a no-stimulus control reproduced it. The
 enables are NOT stuck either -- measured, they settle de-asserted within 2,000
 idle cycles and the array then takes nothing in 20,000 more. It is a settling
 transient, harmless (Boot0 exists to load IM), and the fix was to the test:
-settle, wipe, measure. Still open: the write's DATA and ADDRESS both come out
-wrong, and both originate in CPReg reaching B via `B <- RWCPReg` -- one path to
-trace, not two.
+settle, wipe, measure. **And the reason the write's DATA and ADDRESS come out wrong is found: A JAM
+MUST BE SINGLE-STEPPED.** The CPReg-to-B path is an MC10159 mux at ContA b02
+selected by `UseCPReg` and enabled by `B_Link'`, both from a clocked register
+fed by the FF decoders -- and `FF=Link_CPReg` is decoded at a17 from `FA=1'`,
+`FB=7'`, `FC=6'`, exactly the FA=1 FB=7 FC=6 `cpu.c` documents. Measured: with
+the jam in MIR and the machine STOPPED, FF reads 01111110 (176 octal, PARC's
+`CPRegToIM#`) and the decode asserts; free-run it and one clock later FF reads
+11111111 -- **the MIR has reloaded from IM**. Single-stepping (SetRun+SetSS
+without ClrStop, which is what `DoDoradoMicroInst` does) preserves it. This
+BOUNDS tb_run's conclusion rather than overturning it: ClrStop+SetRun together
+is right for free-running and wrong for a jam. One link remains -- ContA c17
+still does not produce `B_Link'` -- and it is a tight target.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 

@@ -1039,18 +1039,49 @@ wipe, then measure.
 microinstructions to clear out the cobwebs", forty of them -- was what settled
 the enables. It is not. Pure idle settles them just as well.)
 
-### What it does not prove
+### What it does not prove -- and why: A JAM MUST BE SINGLE-STEPPED
 
-The DATA does not come from CPReg: zeroing the CPReg the microinstruction is
-supposed to read leaves the written pattern unchanged. Nor does the ADDRESS --
-every write lands at IM[0] whatever CPReg holds. Both travel paths that are not
-yet working: the data through `B <- RWCPReg` to `RBMux`, and the address through
-Link to `TNIA` on ContA and an MC1662 multiplexer at ContB f21. So this
-establishes the mechanism and the half-select, not the operand.
+The DATA does not come from CPReg (zeroing CPReg leaves the written pattern
+unchanged) and nor does the ADDRESS (every write lands at IM[0]). Tracing that
+produced the most useful correction of this whole sequence.
 
-That is the next task, and it is one path rather than two: both the data and the
-address originate in **CPReg reaching B**, which is the `B <- RWCPReg` FF
-function on the processor boards. Trace that and both should follow.
+**The CPReg-to-B path, fully identified.** `CPReg.00/01/08/09` feed an MC10159
+quad multiplexer at ContA b02, which drives `BMux.00/01/08/09`. Its SELECT is
+`UseCPReg` and its ACTIVE-LOW ENABLE is `B_Link'`, and both come from a clocked
+register at ContA c17 fed by the FF-field decoders. The decode itself is
+`FF=Link_CPReg` at a17, an MC10100 over **`FA=1'`, `FB=7'`, `FC=6'`** -- exactly
+the FA=1 FB=7 FC=6 that `cpu.c` documents for `B <- RWCPReg`. The hardware
+decodes FF into FA/FB/FC sub-decodes and recombines them, just as
+`ff_override_b()` does.
+
+**Why it never asserted: free-running destroys the jam.** Measured, with the jam
+in MIR and the machine STOPPED, `FF` reads `01111110` -- 176 octal, exactly
+PARC's `CPRegToIM#` -- and `FF=Link_CPReg` asserts. Start the machine with
+ClrStop+SetRun and one microinstruction clock later `FF` reads `11111111`: **the
+MIR has reloaded from IM**, because `d<FIELD>` is the execute path and IM is
+empty. The jam survives only as long as the machine is stopped.
+
+**So a jam must be SINGLE-STEPPED, and that is what `SetSS` is for.** PARC's
+`DoDoradoMicroInst` ends with `Control(SetRun, SS=ShouldSingleStep)` -- SetRun
+WITHOUT ClrStop, plus SetSS -- which executes exactly one microinstruction from
+the jam. Measured: single-stepping leaves `FF` at `01111110` and
+`FF=Link_CPReg` asserted, where free-running does not.
+
+**This corrects `tb_run`'s conclusion**, or rather bounds it. That test found
+ClrStop and SetRun had to go in one Control byte, and that is right FOR
+FREE-RUNNING -- it is how you get the machine to sequence continuously. It is
+the wrong mode for a jam. Two different operations, and conflating them is what
+cost the operand.
+
+### Next
+
+One link remains, and it is tight: with a single step, `FF=Link_CPReg` asserts
+but ContA c17 still does not produce `B_Link'`. c17 is clocked by `clk1'Ca` and
+fed through b16, an MC10103 that ORs `FF=Link_CPReg` with `CP=UseCPReg`,
+`FF=BDispatch`, `FF=BigBDispatch`, `FF=WriteLink` and `FF.3'`. Work out which of
+b16's gates drives `ContA04.sil+2` and what its inputs do during the step. With
+that, the operand path opens and `writeim-test` can assert the data and the
+address rather than only the mechanism.
 
 ## The passive packages, and what each one turned out to be (2026-08-17)
 
