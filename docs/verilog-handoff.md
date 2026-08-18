@@ -971,15 +971,83 @@ says.
 So the same `RBMux` bus the BaseBoard READS through `CPIn` is what IM is WRITTEN
 from. That is the whole jam mechanism in one sentence.
 
+## PARC's hand-coded microinstructions, decoded (2026-08-17)
+
+`doradoboot.masm` carries an **IRTable**: microinstructions hand-written in the
+five-byte format `DoDoradoMicroInst` jams, "to be jammed into IM and executed
+for their side effects". Its own comment states the byte layout --
+
+```
+0:  RSTK.0,P015,JCN.7,P1631,0,0,0,0
+1:  RSTK.1,RSTK.2,RSTK.3,ALUF.0,BLOCK,FF.0,FF.1,FF.2
+2:  ALUF.1,ALUF.2,ALUF.3,BSEL.0,FF.3,FF.4,FF.5,FF.6
+3:  BSEL.1,BSEL.2,LC.0,LC.1,FF.7,JCN.0,JCN.1,JCN.2
+4:  LC.2,ASEL.0,ASEL.1,ASEL.2,JCN.3,JCN.4,JCN.5,JCN.6
+```
+
+-- which is the `mir-diff` table exactly, arrived at from the other side, and it
+names the two parity bits `P015` and `P1631` just as `cpu.c` does.
+
+Decoded (the source is `.RDX 2`, and `X^n.` is X shifted left n):
+
+```
+Nop#            70 01 0F 4C 40      IFUReset#        60 02 0F 44 40
+CPRegToLink#    30 13 EF 04 40      Return#          60 13 E1 42 43
+IMLHRSTK.0Is0#  60 33 EF 03 4F      IMLHRSTK.0Is1#   20 73 EF 03 4F
+IMRHBLOCKIs0#   20 13 EF 03 4F      IMRHBLOCKIs1#    60 53 EF 03 4F
+QFromCPReg#     30 13 EF C4 40      TFromCPReg#      70 03 0F 04 C0
+ALUFM[0]FromQ#  30 05 09 C4 40      SetMcr#          30 02 0B 84 60
+SetHoldTaskSim# 70 13 EF 84 40
+```
+
+**All ten with field comments decode to exactly what PARC says they are** --
+`CPRegToLink#` really is `RSTK[0],ALUF[17],BSEL[0],LC[0],ASEL[4],FF[176],
+JCN[201]`, and so on. That validates the whole five-byte format independently,
+and gives a reusable vocabulary of real microinstructions to jam.
+
+Two of them are the Write-IM pair, and their `JCN=177` octal is precisely the
+encoding `cpu.c` derives from the Hardware Manual (JCN[1]=1, JCN[2:4]=7,
+JCN[5:7]=111). Their RSTK values confirm the half-select and secondary bit:
+`IMLH...Is0#` has RSTK=1 (RSTK[3]=1, left half), `IMLH...Is1#` RSTK=3 (left
+half, secondary 1), `IMRH...Is0#` RSTK=0 (right half), `IMRH...Is1#` RSTK=2.
+
+## RETRACTED: "a jammed Write-IM deposits into IM"
+
+It does not, or at least nothing here shows that it does. Jamming
+`CPRegToIM#` and running left 17 cells of the IM array non-zero, exactly the
+right-half fields and nothing in the left, which looked conclusive. **It is an
+artifact.** Four mutations were tried and NONE failed -- not jamming the
+left-half instruction instead, not leaving the data CPReg at zero, not
+preventing the machine from starting at all. The control run settles it: with
+**no stimulus whatever**, and `DoradoStopped` still 1, the same 17 cells are
+non-zero.
+
+The cause is the write enables. `WER'Aa` is `MidasOrRSTK.3 | preWE'a` (an
+MC10210 at ContB c05), both of which are 0 at power-up, so the ACTIVE-LOW write
+enable is asserted and the array is written continuously from whatever `RBMux`
+holds. The chip selects behave the same way. This is the same class as every
+other power-up problem in this design: a two-state simulator starting at zero
+puts every active-low control line in its asserted state.
+
+So **a Write-IM cannot be distinguished from the idle state in this
+configuration**, and the test that claimed otherwise has been deleted rather
+than weakened. Testing one needs a machine in which `preWE'a` is genuinely
+driven by microinstruction decode -- which means executing real microcode, not
+a jam into a machine whose enables are stuck on.
+
+The address path is identified but untested for the same reason: it is
+`Link[4:15]` -> `TNIA` on ContA -> the backplane -> an MC1662 multiplexer at
+ContB f21 -> `RA.01a`-`RA.10a`. `TNIA` reads zero here. It is NOT the
+multiplexer's select: `SW` comes from MemX, absent from this machine, and
+driving it either way changes nothing.
+
 ### Next
 
-Everything needed to execute a Write-IM is now identified, and the remaining
-piece is the ADDRESS. It comes from `Link[4:15]`, and the BaseBoard loads Link
-from CPReg through a mechanism `dorado/CLAUDE.md` calls `CPRegToLink#` -- that
-path has not been traced yet, and tracing it is the next concrete task. With it,
-a jammed Write-IM can be executed and the deposit read straight out of the
-`F10415A` arrays by hierarchical reference, which would close the loop that
-`LoadDoradoCode` walks 475 times to get Boot0 into the machine.
+The honest next step is not another jam. It is the **power-up state of the
+control lines**: enumerate the active-low enables that start asserted and
+should not -- IM's `WEL'`/`WER'` and `CS'` are the ones found so far -- and
+decide, per line and with the netlist, what holds them off in a real machine.
+Until that is settled, anything downstream of a memory write is unmeasurable.
 
 ## The passive packages, and what each one turned out to be (2026-08-17)
 
