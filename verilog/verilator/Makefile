@@ -188,6 +188,16 @@ mirreg-diff:
 		>/dev/null && ./verilog/verilator/obj_mirreg/tb_mirreg \
 			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_mirreg
 
+# THE MACHINE RUNS: the Control section executes microinstruction cycles after
+# PARC's boot sequence, with clk2' at exactly twice clk0'. See tb_run.sv.
+.PHONY: run-test
+run-test:
+	@cd ../.. && $(V) --binary --top-module tb_run $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_run -o tb_run \
+		verilog/verilator/tb_run.sv verilog/generated/dorado_control.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		>/dev/null && ./verilog/verilator/obj_run/tb_run | grep tb_run
+
 # PARC's own DoDoradoMicroInst, replayed. A DIAGNOSTIC, not a gate: it asserts
 # nothing and shows where the Control section stops. See tb_startseq.sv.
 .PHONY: startseq

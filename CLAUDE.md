@@ -1013,11 +1013,23 @@ reply path `CPIn.0-3` is now specified too -- four MC10164s selected by the top
 three bits of `CPOut`, giving 16 bits of `RBMux` plus `DoradoStopped` -- and
 the C emulator does not model it at all.
 
-**The frontier: the machine will not START.** The clock enable is clocked by
-the clock it enables, the asynchronous escape (`sPhase0`) depends on `Phase0`
-which is itself clock-derived, and **neither Control board has a reset input**.
-Start-up rests on power-up state and ECL gate delays -- the same class as the
-VCO. Measured: `SetRun` does reach `dRun`, but `CLKEnable'a` never clears.
+**THE MACHINE RUNS (2026-08-17).** `make -C verilog run-test`: over 40,000
+fabric cycles after PARC's own boot sequence, **`clk0'` 2,493 edges, `clk2'`
+4,987 -- exactly twice -- `Phase0` 2,494, `StartCycle'a` 2,494, and
+`DoradoStopped` clear.** The Control section executes microinstruction cycles;
+everything before this only proved the machine could be written to. One thing
+unlocked it and it is the only mutation that fails the test: **ClrStop and
+SetRun must go in the SAME Control byte (0x41)**, because `rStop` is a level
+that lasts only until the next Control strobe, and PARC's `DoDoradoMicroInst`
+issues them separately -- so `Stop` re-latches before the machine gets going.
+This also corrected an earlier conclusion here: the claim that the clock enable
+could never tick was WRONG (`preRunClk'Bb` toggles 187 times per 3,000 cycles
+and `Run'` does clear); the stuck term was `Stop`, not `Run'`. Two things that
+looked load-bearing are not, both measured: the microinstruction parity bits
+(they do reach the MC10170 checkers, and `IMLHPE'` tracks the MIR1 extra bit
+exactly, but the path needs `IMLHPEenable` which is 0 here) and the `Clock`
+function. Next: a machine with ProcH and ProcL in it, so the datapath sees
+`clk0'` and the MIR fields together.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 
