@@ -15,6 +15,7 @@
 #   make mir-diff     the RTL microinstruction load matches, all 36 bits
 #   make mirreg-diff  a microinstruction jammed into the MIR reads back right
 #   make run-test     THE MACHINE RUNS: the Control section executes cycles
+#   make datapath-test four boards, with the microinstruction on the datapath
 #   make startseq     PARC's own boot sequence replayed (diagnostic, not a gate)
 #   make machine-test the assembled machine clocks and its clock tree runs
 #   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs
@@ -27,6 +28,7 @@ TOOLS   = ../tools
 
 .PHONY: boards backplane proms cells cells-force lint cell-check loop-check \
         prom-test alu-test alu-diff cpreg-diff mir-diff mirreg-diff run-test \
+        datapath-test \
         startseq \
         machine-test \
         baseboard-test \
@@ -79,6 +81,10 @@ mirreg-diff:
 run-test:
 	@$(MAKE) -C verilator run-test
 
+# Four boards, with a jammed microinstruction's fields reaching the datapath.
+datapath-test:
+	@$(MAKE) -C verilator datapath-test
+
 # PARC's own DoDoradoMicroInst replayed. A diagnostic, not a gate.
 startseq:
 	@$(MAKE) -C verilator startseq
@@ -110,6 +116,8 @@ backplane: generated-boards
 		--boards=BaseBd --module=dorado_baseboard >/dev/null
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_control.v \
 		--boards=ContA,ContB --module=dorado_control >/dev/null
+	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_proc.v \
+		--boards=ContA,ContB,ProcH,ProcL --module=dorado_proc >/dev/null
 
 cells:
 	@python3 $(TOOLS)/sil_emit_cells.py --sil $(SIL) \

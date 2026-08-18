@@ -1028,8 +1028,14 @@ and `Run'` does clear); the stuck term was `Stop`, not `Run'`. Two things that
 looked load-bearing are not, both measured: the microinstruction parity bits
 (they do reach the MC10170 checkers, and `IMLHPE'` tracks the MIR1 extra bit
 exactly, but the path needs `IMLHPEenable` which is 0 here) and the `Clock`
-function. Next: a machine with ProcH and ProcL in it, so the datapath sees
-`clk0'` and the MIR fields together.
+function. **And four boards run together (`make -C verilog datapath-test`).** ContA,
+ContB, ProcH and ProcL: the processor boards' clocks step in EXACT lockstep with
+the Control section's (2,493 edges each), and a distinctive jammed
+microinstruction arrives at the datapath as `RSTK=1111 ALUF=0111 BSEL=011
+ASEL=111` -- exactly what the mir-diff table predicts, exercising the whole path
+from the BaseBoard's bus through the decoders, the register and the backplane.
+Note `BSEL'`/`ASEL'` cross complemented while `RSTK`/`ALUF`/`LC` do not. Next:
+IM, and whether a jammed Write-IM actually deposits into it.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 

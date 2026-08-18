@@ -188,6 +188,17 @@ mirreg-diff:
 		>/dev/null && ./verilog/verilator/obj_mirreg/tb_mirreg \
 			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_mirreg
 
+# FOUR BOARDS: Control plus both processor boards, running, with a jammed
+# microinstruction's fields on the datapath. See tb_datapath.sv.
+.PHONY: datapath-test
+datapath-test:
+	@cd ../.. && $(V) --binary --top-module tb_datapath $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_datapath -o tb_datapath \
+		verilog/verilator/tb_datapath.sv verilog/generated/dorado_proc.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		>/dev/null && ./verilog/verilator/obj_datapath/tb_datapath | grep tb_datapath
+
 # THE MACHINE RUNS: the Control section executes microinstruction cycles after
 # PARC's boot sequence, with clk2' at exactly twice clk0'. See tb_run.sv.
 .PHONY: run-test
@@ -231,12 +242,13 @@ TOP_V    = $(GEN)/dorado_backplane.v
 # rather than alone.
 BB_V     = $(GEN)/dorado_baseboard.v
 CT_V     = $(GEN)/dorado_control.v
+PR_V     = $(GEN)/dorado_proc.v
 
 lint:
 	@ok=0; bad=0; \
 	for f in $(GEN)/*.v; do \
 		if [ "$$f" = "$(TOP_V)" ] || [ "$$f" = "$(BB_V)" ] \
-		   || [ "$$f" = "$(CT_V)" ]; then continue; fi; \
+		   || [ "$$f" = "$(CT_V)" ] || [ "$$f" = "$(PR_V)" ]; then continue; fi; \
 		if $(V) --lint-only $(V_WARN) -I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $$f >/dev/null 2>&1; then \
 			ok=$$((ok+1)); \
 		else \
@@ -268,6 +280,16 @@ lint:
 			echo "lint: two-board Control machine elaborates"; \
 		else \
 			bad=$$((bad+1)); echo "  FAIL dorado_control.v"; \
+		fi; \
+	fi; \
+	if [ -f $(PR_V) ]; then \
+		if $(V) --lint-only --top-module dorado_proc_machine $(V_WARN) \
+			-I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $(PR_V) \
+			$(GEN)/ContA-Rev-Cd.v $(GEN)/ContB-Rev-Cd.v \
+			$(GEN)/ProcH-Rev-Ce.v $(GEN)/ProcL-Rev-Ci.v >/dev/null 2>&1; then \
+			echo "lint: four-board processor machine elaborates"; \
+		else \
+			bad=$$((bad+1)); echo "  FAIL dorado_proc.v"; \
 		fi; \
 	fi; \
 	test $$bad -eq 0

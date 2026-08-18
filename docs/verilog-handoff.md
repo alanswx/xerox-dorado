@@ -891,12 +891,44 @@ which is the two-phase relationship the whole machine is built on, and `Phase0`
 and `StartCycle'a` must each step once per `clk0'`. Those ratios came out
 2,493 / 4,987 / 2,494 / 2,494 -- within an eighth of exact on every one.
 
+## FOUR BOARDS, and the microinstruction is on the datapath (2026-08-17)
+
+`make -C verilog datapath-test`. `dorado_proc` is ContA, ContB, ProcH and ProcL
+wired by the backplane; the boot sequence is tb_run's, but the microinstruction
+jammed is a distinctive one rather than all zeros. Two questions, both answered:
+
+**The clock reaches the datapath, exactly.** ProcH's `Clock0'Bc` and ProcL's
+`Clock0'Bd` each moved 2,493 times against the Control boards' 2,493 -- asserted
+as EXACT equality, not a tolerance. The processor boards step in lockstep with
+the Control section.
+
+**And so do the fields.** Jamming `MIR0=0xE0+extra`, `MIR1=0xE0+extra`,
+`MIR2=0xC0`, `MIR3=0x70+extra` puts, at the processor:
+
+```
+  RSTK = 1111    ALUF = 0111    BSEL = 011    ASEL = 111
+```
+
+which is exactly what the `mir-diff` table predicts. That one read exercises the
+whole path end to end: the BaseBoard's nine-bit bus, the function decode, the
+MC10172 demultiplexers, the MC10231 register, and the backplane.
+
+**Some fields cross COMPLEMENTED and some do not.** `BSEL'` and `ASEL'` are
+primed on the backplane; `RSTK`, `ALUF` and `LC` are not. That is the boards'
+own choice rather than a convention, and it is read off the generated port names
+rather than assumed -- reading BSEL uncomplemented is one of the three mutations
+that fails this test, along with dropping the MIR2 strobe and splitting ClrStop
+from SetRun.
+
 ### Next
 
-The Control section sequences on its own. What it does NOT yet have is anything
-to execute: IM is absent, so the microinstruction it runs is whatever the jam
-left in MIR. The next rungs are a machine with ProcH and ProcL in it, so the
-datapath sees `clk0'` and the MIR fields together, and then IM itself.
+The Control section sequences and the datapath is clocked and fed. What the
+machine still has nothing to do is EXECUTE: IM is absent, so the only
+microinstruction is whatever the jam left in MIR, and it runs that same one
+forever. The next rungs are IM itself -- which is on ContA and ContB, so the
+boards are already present -- and then whether a jammed Write-IM actually
+deposits into it, which is the whole point of the jam mechanism and is what
+`LoadDoradoCode` does 475 times.
 
 ## The passive packages, and what each one turned out to be (2026-08-17)
 
