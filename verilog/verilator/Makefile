@@ -147,10 +147,27 @@ alu-diff:
 # moving nothing downstream can compute. Deliberately NOT a toggle count --
 # see tools/rtl_machine_check.py for why that would punish correct cells.
 .PHONY: machine-test
-machine-test:
-	@cd ../.. && ./verilog/verilator/obj_dir/Vemu --headless --cycles 20000 2>&1 \
-		| python3 tools/rtl_machine_check.py \
-			verilog/generated/dorado_backplane.probes
+# The assembled machine under the EVENT SCHEDULER -- the control for
+# machine-test, and five seconds against its several minutes. See
+# tb_converge.sv for what the pair says.
+.PHONY: converge-test
+converge-test:
+	@cd ../.. && $(V) --binary --top-module tb_converge $(V_WARN) \
+		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \
+		--Mdir verilog/verilator/obj_converge -o tb_converge \
+		verilog/verilator/tb_converge.sv \
+		verilog/generated/dorado_backplane.v $(BOARD_V:../%=verilog/%) \
+		>/dev/null && { out=$$(./verilog/verilator/obj_converge/tb_converge 2>&1); \
+		  rc=$$?; echo "$$out" | grep tb_converge; exit $$rc; }
+
+# THE HARNESS IS A DEPENDENCY, not an assumption. This used to run whatever
+# ./obj_dir/Vemu happened to be lying there, and on 2026-08-18 that turned out
+# to be a binary a week older than the cell library it was supposed to be
+# testing. Rebuild first; `make all` is incremental.
+machine-test: all
+	@cd ../.. && { out=$$(./verilog/verilator/obj_dir/Vemu --headless --cycles 20000 2>&1); \
+	  echo "$$out" | python3 tools/rtl_machine_check.py \
+			verilog/generated/dorado_backplane.probes; }
 
 # THE BOOT INTERFACE, RTL against the C emulator. A Dorado starts by the
 # BaseBoard's 6502 driving nine data bits, a three-bit function code and a

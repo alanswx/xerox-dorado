@@ -51,7 +51,8 @@ make -C verilog run-test        THE MACHINE RUNS -- it executes cycles
 make -C verilog datapath-test   four boards, microinstruction on the datapath
 make -C verilog writeim-test    a jammed Write-IM deposits into IM
 make -C verilog baseboard-test  the BaseBoard's 6502 BOOTS
-make -C verilog machine-test    the assembled machine clocks and SETTLES
+make -C verilog converge-test   the assembled machine SETTLES and its clock runs
+make -C verilog machine-test    the same under the imgui harness -- FAILING, see below
 
 make -C verilog startseq        DIAGNOSTIC, not a gate: PARC's boot sequence
                                 replayed, printing the Control section's state
@@ -1341,6 +1342,37 @@ input, and `RbAdr.4-7'`, the RM address.
 
 With it fixed, `dRA` tracks `TNIA` exactly and `CPRegToLink#` works end to end:
 `CPReg=002A` -> `BMux=ffd5` -> `Link[4:15]=fd5`.
+
+### `machine-test` was testing a week-old binary, and the machine does not settle
+
+Two separate things, and the first hid the second.
+
+**The gate ran a prebuilt `obj_dir/Vemu` and never rebuilt it.** On 2026-08-18
+that binary was dated a week earlier -- it had been reporting on RTL from
+before several cell fixes, and passing. `machine-test` depends on `all` now.
+
+**Rebuilt, the assembled eleven-board machine does not converge.** It is
+PRE-EXISTING and not the cell work above: stashing all four of this session's
+cell changes and rebuilding gives the identical failure. Recorded as measured,
+with the three things that narrow it:
+
+* `--converge-limit 2000` does not help, so it is an OSCILLATION, not slow
+  settling.
+* **The same RTL settles fine under Verilator's event scheduler.**
+  `make -C verilog converge-test` builds `dorado_machine` with the same eleven
+  boards and runs 20,000 cycles with `CLK.ph'` toggling 2,501 times, both with
+  an `always #1` clock and with an explicit `sys_clk = 0; #1; sys_clk = 1; #1;`
+  loop. So the boards are not obviously at fault -- the difference is
+  `--binary` (event scheduler) against `--cc` plus C++ `eval()`.
+* Sweeping `probe_sel` the way the harness does is not it either; that was
+  tried.
+* `loop-check` still passes, so the candidates are the four structural loops it
+  knows about and accepts: the processor's multiplexer chain feeding back, and
+  a counter's carry returning to its own count enable on DispM, DispY and MemD.
+
+`converge-test` builds in about five seconds against the harness's several
+minutes of imgui C++, so it is the one to iterate on. The pair of gates is the
+finding: one green, one red, same RTL.
 
 ### And `cell_MC10159` drove its outputs HIGH when disabled
 

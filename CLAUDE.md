@@ -1006,6 +1006,14 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   `SetMidasStopMIRClk` ("turn on MIR debug feature"). A microinstruction the
   BaseBoard put in the MIR did not come from IM and fails its parity, so the
   "freeze the MIR on a parity error" debug feature is ALSO the jam mechanism.
+- **`machine-test` was running a week-old prebuilt binary**, so it had been
+  reporting on RTL from before several cell fixes. It rebuilds now -- and
+  rebuilt, the assembled eleven-board machine DOES NOT CONVERGE. That is
+  pre-existing (stashing this session's four cell changes reproduces it) and
+  it is an oscillation, not slow settling (`--converge-limit 2000` does not
+  help). The same RTL settles fine under Verilator's event scheduler, which
+  the new five-second `make -C verilog converge-test` asserts, so the
+  difference is the evaluation model rather than the boards.
 - **A disabled `MC10159` must drive its outputs LOW, and the cell drove them
   HIGH** -- 67 packages. The data sheet's truth table has it in the last row,
   and it is the whole point of an enable on a part whose open-emitter outputs

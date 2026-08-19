@@ -20,7 +20,8 @@
 #   make writeim-test a jammed Write-IM deposits into IM, half-select and all
 #   make operand-test ...and its DATA comes from CPReg (the MIR clock held)
 #   make startseq     PARC's own boot sequence replayed (diagnostic, not a gate)
-#   make machine-test the assembled machine clocks and its clock tree runs
+#   make converge-test the assembled machine settles, and its clock runs
+#   make machine-test the assembled machine under the imgui harness
 #   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs
 #
 # The inputs are all original Xerox data; see docs/verilog-from-sil.md.
@@ -34,7 +35,7 @@ TOOLS   = ../tools
         writeim-test operand-test \
         datapath-test \
         startseq \
-        machine-test \
+        converge-test machine-test \
         baseboard-test \
         clean-generated
 
@@ -102,7 +103,11 @@ operand-test:
 startseq:
 	@$(MAKE) -C verilator startseq
 
-# Does the assembled machine run? Needs the harness built first.
+# The assembled machine settles and its clock runs -- fast, event-scheduler.
+converge-test:
+	@$(MAKE) -C verilator converge-test
+
+# Does the assembled machine run? Rebuilds the harness it tests.
 machine-test:
 	@$(MAKE) -C verilator machine-test
 

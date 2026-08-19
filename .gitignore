@@ -110,3 +110,4 @@ verilog/verilator/obj_run/
 verilog/verilator/obj_datapath/
 verilog/verilator/obj_writeim/
 verilog/verilator/obj_operand/
+verilog/verilator/obj_converge/
