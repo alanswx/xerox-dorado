@@ -70,6 +70,32 @@ ASSIGN_RE = re.compile(r'assign\s+p(\d+)\s*=\s*([^;]+);')
 
 SIL = os.path.join(HERE, '..', 'chm', 'sil')
 
+# Two parts are SECOND SOURCES of each other when the number matches once the
+# family and speed letters are stripped: MC10164/MU10164, MC10210/SE10210,
+# SN74LS01/SN74S01. A shared pin block does NOT mean that -- TtlDict groups by
+# PINOUT, which is why `H01, H02, LS01, LS02, LS28, ...` sit on one line and
+# why EclDict has `MC102, MC104` (a NOR and an AND).
+def part_number(part):
+    m = re.match(r'^(?:SN74|SN|MC|MU|SE|F|i)(?:LS|ALS|AS|S|H|N)?(\d+)', part)
+    return m.group(1) if m else part
+
+
+# Pairs that really are different parts but for which one model is right, each
+# with its reason. Nothing goes here without one.
+SAME_MODEL_OK = {
+    # The '253 is the THREE-STATE '153. This RTL has no `inout` anywhere by
+    # design (see the FPGA-shape note in docs/verilog-handoff.md), so the third
+    # state cannot be represented and the enable forces 0 on both, which is the
+    # '153's behaviour. Recorded rather than silenced.
+    ('SN74LS153', 'SN74LS253'),
+    # The '38 is the OPEN-COLLECTOR '00. The handoff records why one model is
+    # right here: "each has effectively one driver, so a single open-collector
+    # output plus its pull-up computes the gate's own function ... the
+    # wired-AND only bites if a second driver is ever added". If one ever is,
+    # this entry is the place the assumption is written down.
+    ('SN7438', 'SN74LS00'),
+}
+
 
 
 def naming_evidence():
@@ -155,6 +181,11 @@ def expr_for(path):
 
 
 def to_python(e):
+    # Reduction operators and concatenations (`&{1'b0, p1, ...}`, the
+    # `_unused_pins` idiom) are not boolean expressions and must not be
+    # evaluated as Python.
+    if '{' in e or '}' in e or '?' in e:
+        return None
     """Verilog bit expression -> Python int expression.
 
     `&`, `|`, `^` already have Verilog's precedence in Python. `~` does not
@@ -269,10 +300,94 @@ def main(argv=None):
                                 f"are not complements")
                 continue
 
+    # ---- SIBLING PARTS: same pinout, same gates, different part number ----
+    #
+    # MC1662 and MC1664 have IDENTICAL `[G]` summaries and identical pin
+    # blocks, and the dictionary separates them by role letter alone -- `OUT`
+    # on one, `o` on the other. They are a NOR/OR pair, and `cell_MC1662` was
+    # a copy of `cell_MC1664`: 33 packages computing OR where the part NORs,
+    # which turned ContB's IM address multiplexer into a constant. Neither
+    # `cell-check` (connectivity is right) nor the complement check above
+    # (only one output sense, so no pair to compare) can see that.
+    #
+    # Two properties, and the second is only asserted where the roles differ:
+    #   * two different part numbers with the same pinout must not have the
+    #     same model -- they are different parts;
+    #   * if one marks a pin `OUT` where the other marks it `o`, the two
+    #     models must be complements.
+    sig = {}
+    for part, short in short_of.items():
+        g = ecl.parts[short]['gates']
+        key = tuple(sorted(
+            (tuple(sorted(gg.get('in', []) + gg.get('common', []))),
+             tuple(sorted(gg.get('out', []) + gg.get('nout', []))))
+            for gg in g.values()))
+        roles = tuple(sorted(
+            (pin, 'OUT') for gg in g.values() for pin in gg.get('out', [])
+        )) + tuple(sorted(
+            (pin, 'o') for gg in g.values() for pin in gg.get('nout', [])))
+        sig.setdefault(key, []).append((part, roles))
+
+    exprs_by_part = {}
+    for fn in sorted(os.listdir(CELLS)):
+        if fn.startswith('cell_') and fn.endswith('.v'):
+            e = expr_for(os.path.join(CELLS, fn))
+            if e:
+                exprs_by_part[fn[len('cell_'):-len('.v')]] = e
+
+    for key, group in sig.items():
+        if len(key) == 0:
+            continue
+        have = [(p, r) for p, r in group if p in exprs_by_part]
+        for i in range(len(have)):
+            for j in range(i + 1, len(have)):
+                pa, ra = have[i]
+                pb, rb = have[j]
+                ea, eb = exprs_by_part[pa], exprs_by_part[pb]
+                pins = sorted(set(ea) & set(eb))
+                if not pins:
+                    continue
+                if part_number(pa) == part_number(pb):
+                    continue            # second source of the same part
+                if (pa, pb) in SAME_MODEL_OK or (pb, pa) in SAME_MODEL_OK:
+                    continue
+                # SEMANTICALLY identical, not textually: a copied cell that
+                # picked up a stray pair of parentheses is still a copy.
+                # An expression this cannot evaluate (a ternary multiplexer, a
+                # concatenation) means the pair CANNOT BE COMPARED -- not that
+                # it is different and not that it is the same. Saying "same"
+                # there is what made MC10158/MC10159 and SN7438/SN74LS00 look
+                # like copies when the first pair is correctly two models.
+                same = True
+                for q in pins:
+                    ka, kb = to_python(ea[q]), to_python(eb[q])
+                    if ka is None or kb is None:
+                        same = None
+                        break
+                    ins = sorted({int(x) for x in re.findall(r'\bp(\d+)\b', ea[q])} |
+                                 {int(x) for x in re.findall(r'\bp(\d+)\b', eb[q])})
+                    if not ins or len(ins) > 16:
+                        same = False
+                        break
+                    va = [evaluate(ka, ins, n) for n in range(1 << len(ins))]
+                    vb = [evaluate(kb, ins, n) for n in range(1 << len(ins))]
+                    if None in va or None in vb:
+                        same = None
+                        break
+                    if va != vb:
+                        same = False
+                        break
+                if same is True:
+                    bad += 1
+                    problems.append(
+                        f"{pa} and {pb} share a pinout and a [G] summary but "
+                        f"have the SAME model -- two part numbers are two parts "
+                        f"(roles {'differ' if ra != rb else 'agree'})")
+
     for p in problems:
         print("  " + p)
     print(f"sil_check_polarity: {checked} cells, {pairs} both-sense gates, "
-          f"{bad} wrong")
+          f"{len(sig)} distinct pinouts, {bad} wrong")
     return 1 if bad else 0
 
 

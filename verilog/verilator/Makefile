@@ -20,6 +20,15 @@
 # The RTL under ../generated is GENERATED from PARC's Sil wire lists by
 # tools/sil_to_verilog.py -- do not edit it; regenerate.
 
+# EVERY TEST RULE ENDS IN `| grep`, and a pipeline's exit status is the LAST
+# command's -- so a testbench that hit `$$fatal` still left the rule green.
+# Found 2026-08-18, when a cell fix broke two tests that both reported PASS.
+#
+# `SHELL := /bin/bash` + `.SHELLFLAGS := -o pipefail -c` is the usual fix and
+# it does NOTHING here: macOS ships GNU Make 3.81 and `.SHELLFLAGS` arrived in
+# 3.82, so make quietly ignored it -- the same failure mode again. Each rule
+# captures the status explicitly instead, which works in any make and any sh.
+#
 V        = verilator
 TOP      = --top-module emu
 RTL      = ../rtl
@@ -102,7 +111,8 @@ prom-test:
 	@cd ../.. && $(V) --binary --top-module tb_proms $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_proms -o tb_proms \
 		verilog/verilator/tb_proms.sv >/dev/null && \
-		./verilog/verilator/obj_proms/tb_proms | grep tb_proms
+		{ out=$$(./verilog/verilator/obj_proms/tb_proms 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_proms; exit $$rc; }
 
 # Does the ALU compute what its datasheet says? cell_MC10181 is the Dorado's
 # ALU -- two slices on ProcH, two on ProcL -- and it is a transcription of the
@@ -113,7 +123,8 @@ alu-test:
 	@cd ../.. && $(V) --binary --top-module tb_alu $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_alu -o tb_alu \
 		verilog/verilator/tb_alu.sv >/dev/null && \
-		./verilog/verilator/obj_alu/tb_alu | grep tb_alu
+		{ out=$$(./verilog/verilator/obj_alu/tb_alu 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_alu; exit $$rc; }
 
 # THE CROSS-CHECK the whole approach is for: four MC10181 slices chained into
 # the 16-bit ALU, against vectors the C emulator's own alu_op() produces. The
@@ -127,8 +138,9 @@ alu-diff:
 	@cd ../.. && $(V) --binary --top-module tb_alu_vs_c $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_alu -o tb_alu_vs_c \
 		verilog/verilator/tb_alu_vs_c.sv >/dev/null && \
-		./verilog/verilator/obj_alu/tb_alu_vs_c \
-			+vectors=verilog/verilator/obj_alu/alu.vec | grep tb_alu_vs_c
+		{ out=$$(./verilog/verilator/obj_alu/tb_alu_vs_c \
+			+vectors=verilog/verilator/obj_alu/alu.vec 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_alu_vs_c; exit $$rc; }
 
 # Does the assembled machine actually run? The gate is the CLOCK: the
 # BaseBoard generates it and fans it out to every slot, and if those nets stop
@@ -153,8 +165,8 @@ cpreg-diff:
 	@cd ../.. && $(V) --binary --top-module tb_cpreg $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_cpreg -o tb_cpreg \
 		verilog/verilator/tb_cpreg.sv verilog/generated/ContA-Rev-Cd.v \
-		>/dev/null && ./verilog/verilator/obj_cpreg/tb_cpreg \
-			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_cpreg
+		>/dev/null && { out=$$(./verilog/verilator/obj_cpreg/tb_cpreg \
+			+vectors=verilog/verilator/obj_cpreg/cpreg.vec 2>&1); rc=$$?; echo "$$out" | grep tb_cpreg; exit $$rc; }
 
 # THE MICROINSTRUCTION LOAD PATH, all 36 bits. Six MC10172s on ContA and ContB
 # demultiplex nine CPOut lines across four function codes into the field lines,
@@ -169,8 +181,8 @@ mir-diff:
 		-Iverilog/cells --Mdir verilog/verilator/obj_mir -o tb_mir \
 		verilog/verilator/tb_mir.sv verilog/generated/ContA-Rev-Cd.v \
 		verilog/generated/ContB-Rev-Cd.v \
-		>/dev/null && ./verilog/verilator/obj_mir/tb_mir \
-			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_mir
+		>/dev/null && { out=$$(./verilog/verilator/obj_mir/tb_mir \
+			+vectors=verilog/verilator/obj_cpreg/cpreg.vec 2>&1); rc=$$?; echo "$$out" | grep tb_mir; exit $$rc; }
 
 # A WHOLE MICROINSTRUCTION jammed into the register and read back, which is
 # what the BaseBoard does 475 times during a cold boot. Needs BOTH Control
@@ -185,8 +197,8 @@ mirreg-diff:
 		-Iverilog/cells --Mdir verilog/verilator/obj_mirreg -o tb_mirreg \
 		verilog/verilator/tb_mirreg.sv verilog/generated/dorado_control.v \
 		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
-		>/dev/null && ./verilog/verilator/obj_mirreg/tb_mirreg \
-			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_mirreg
+		>/dev/null && { out=$$(./verilog/verilator/obj_mirreg/tb_mirreg \
+			+vectors=verilog/verilator/obj_cpreg/cpreg.vec 2>&1); rc=$$?; echo "$$out" | grep tb_mirreg; exit $$rc; }
 
 # THE JAM'S OPERAND: the data written into IM comes from CPReg, once the MIR
 # clock is held by PARC's own two manifold words. This is the half writeim-test
@@ -198,7 +210,7 @@ operand-test:
 		verilog/verilator/tb_operand.sv verilog/generated/dorado_proc.v \
 		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
 		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
-		>/dev/null && ./verilog/verilator/obj_operand/tb_operand | grep tb_operand
+		>/dev/null && { out=$$(./verilog/verilator/obj_operand/tb_operand 2>&1); rc=$$?; echo "$$out" | grep tb_operand; exit $$rc; }
 
 # A JAMMED WRITE-IM deposits into IM, and RSTK[3] selects the half -- checked
 # both ways against a wiped array. See tb_writeim.sv for why the baseline is the
@@ -210,7 +222,7 @@ writeim-test:
 		verilog/verilator/tb_writeim.sv verilog/generated/dorado_proc.v \
 		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
 		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
-		>/dev/null && ./verilog/verilator/obj_writeim/tb_writeim | grep tb_writeim
+		>/dev/null && { out=$$(./verilog/verilator/obj_writeim/tb_writeim 2>&1); rc=$$?; echo "$$out" | grep tb_writeim; exit $$rc; }
 
 # FOUR BOARDS: Control plus both processor boards, running, with a jammed
 # microinstruction's fields on the datapath. See tb_datapath.sv.
@@ -221,7 +233,7 @@ datapath-test:
 		verilog/verilator/tb_datapath.sv verilog/generated/dorado_proc.v \
 		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
 		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
-		>/dev/null && ./verilog/verilator/obj_datapath/tb_datapath | grep tb_datapath
+		>/dev/null && { out=$$(./verilog/verilator/obj_datapath/tb_datapath 2>&1); rc=$$?; echo "$$out" | grep tb_datapath; exit $$rc; }
 
 # THE MACHINE RUNS: the Control section executes microinstruction cycles after
 # PARC's boot sequence, with clk2' at exactly twice clk0'. See tb_run.sv.
@@ -231,7 +243,7 @@ run-test:
 		-Iverilog/cells --Mdir verilog/verilator/obj_run -o tb_run \
 		verilog/verilator/tb_run.sv verilog/generated/dorado_control.v \
 		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
-		>/dev/null && ./verilog/verilator/obj_run/tb_run | grep tb_run
+		>/dev/null && { out=$$(./verilog/verilator/obj_run/tb_run 2>&1); rc=$$?; echo "$$out" | grep tb_run; exit $$rc; }
 
 # PARC's own DoDoradoMicroInst, replayed. A DIAGNOSTIC, not a gate: it asserts
 # nothing and shows where the Control section stops. See tb_startseq.sv.
@@ -241,7 +253,7 @@ startseq:
 		-Iverilog/cells --Mdir verilog/verilator/obj_startseq -o tb_startseq \
 		verilog/verilator/tb_startseq.sv verilog/generated/dorado_control.v \
 		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
-		>/dev/null && ./verilog/verilator/obj_startseq/tb_startseq | grep startseq
+		>/dev/null && { out=$$(./verilog/verilator/obj_startseq/tb_startseq 2>&1); rc=$$?; echo "$$out" | grep startseq; exit $$rc; }
 
 # Does the BaseBoard's 6502 come out of reset and fetch from its own EPROMs?
 # The whole board is real here -- Andrew Holme's netlist-derived 6502, MiSTer's
@@ -255,7 +267,7 @@ baseboard-test:
 		verilog/verilator/tb_baseboard.sv \
 		verilog/generated/dorado_baseboard.v \
 		verilog/generated/BaseBd-Rev-Am.v \
-		>/dev/null && ./verilog/verilator/obj_bb/tb_baseboard | grep tb_baseboard
+		>/dev/null && { out=$$(./verilog/verilator/obj_bb/tb_baseboard 2>&1); rc=$$?; echo "$$out" | grep tb_baseboard; exit $$rc; }
 
 # Each board lints alone; the backplane top module has to be linted WITH the
 # boards it instantiates, because Verilator resolves a module by looking for a

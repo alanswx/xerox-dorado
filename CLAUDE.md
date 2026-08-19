@@ -969,7 +969,7 @@ path is one signal short. Rung by rung, each line a gate you can run:
 | four boards, the microinstruction on the datapath | `datapath-test` |
 | a jammed Write-IM deposits into IM, half-select and all | `writeim-test` |
 | ...with the DATA from CPReg | `operand-test` |
-| ...with the ADDRESS from CPReg | **open** |
+| ...with the ADDRESS from CPReg | **partly**: the address moves, Link loads |
 
 Eighteen gates in all; `make -C verilog` has the list. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
@@ -1006,6 +1006,19 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   `SetMidasStopMIRClk` ("turn on MIR debug feature"). A microinstruction the
   BaseBoard put in the MIR did not come from IM and fails its parity, so the
   "freeze the MIR on a parity error" debug feature is ALSO the jam mechanism.
+- **`cell_MC1662` modelled the OR part and MC1662 is the NOR** -- 33 packages,
+  and six of them are ContB's IM ADDRESS multiplexer, which is a 2:1 select
+  only as NORs. As ORs it degenerated and every jammed Write-IM landed at
+  IM[0]. MC1662/MC1664 are a complementary pair with one pinout and one `[G]`
+  summary, separated by the role letter alone; `cell_MC1664`'s own comment
+  already said so. With it fixed, `dRA` tracks `TNIA` and `CPRegToLink#` puts
+  CPReg into Link.
+- **The gates were not gating.** Every Verilog test rule ended in `| grep`, and
+  a pipeline's status is the last command's, so `$fatal` left the rule green --
+  two tests reported PASS in a sweep and FAIL by hand in the same minute. The
+  standard `.SHELLFLAGS := -o pipefail` fix does NOTHING on macOS, which ships
+  GNU Make 3.81 (`.SHELLFLAGS` arrived in 3.82). The rules capture `$?`
+  explicitly now.
 - **"EclDict role `OUT` is the inverting output" does not generalise**, and
   PARC's net naming cannot settle it either -- nine MC10121 packages prime the
   same pin unanimously and are wrong. What settles it is the MECL data book's

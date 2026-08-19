@@ -56,6 +56,7 @@ module tb_writeim;
   reg [8:0] cpout  = 9'd0;
   reg       strb_n = 1'b1;
   reg       setrun = 1'b0, setss_n = 1'b1;
+  reg       dmd = 1'b0, dmc = 1'b0, udmd = 1'b0;
 
   dorado_proc m (
       .sys_clk(sys_clk),
@@ -75,12 +76,35 @@ module tb_writeim;
       strb_n = 1'b1; repeat (4) @(posedge sys_clk);
     end
   endtask
+  // PARC's SetMufflerAddress, and the two words doradomufman.masm writes just
+  // after the supplies come up. They HOLD THE MIR, which is what makes a jam
+  // survive its own first clock -- see tb_operand.sv for the whole chain.
+  // Forced because BaseBd l24 drives DMuxData/DMuxClk/UseDMD and this
+  // configuration has no BaseBoard.
+  integer kk;
+  task manifold(input [11:0] word);
+    begin
+      for (kk = 11; kk >= 0; kk = kk - 1) begin
+        dmd = word[kk];
+        repeat (4) @(posedge sys_clk); dmc = 1'b1;
+        repeat (4) @(posedge sys_clk); dmc = 1'b0;
+        repeat (4) @(posedge sys_clk);
+      end
+      udmd = 1'b1; repeat (12) @(posedge sys_clk);
+      udmd = 1'b0; repeat (12) @(posedge sys_clk);
+    end
+  endtask
+
   task setcpreg(input [15:0] v);
     begin strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0); end
   endtask
   task jam1(input [7:0] b0, input [7:0] b1, input [7:0] b2,
             input [7:0] b3, input [7:0] b4);
     begin
+      // Stop first: with the MIR clock held, a running machine repeats the
+      // jammed instruction forever, so the next jam starts from rest.
+      setrun = 0; setss_n = 1;
+      repeat (400) @(posedge sys_clk);
       strobe(3'd0, 8'h4E, 1'b0); setrun = 0;   // ClrStop+ClrMIR+ClrCT+Freeze
       strobe(3'd0, 8'h00, 1'b1); setss_n = 0;
       strobe(3'd4, b1, b0[7]); strobe(3'd5, b2, b0[6]);
@@ -97,7 +121,13 @@ module tb_writeim;
   integer i, right_hits, left_hits;
 
   initial begin
+    force m.DMuxData = dmd;
+    force m.DMuxClk  = dmc;
+    force m.UseDMD   = udmd;
     repeat (2000) @(posedge sys_clk);          // let the logic settle
+    manifold(12'h030);                         // DisableDoradoErrors
+    manifold(12'h1E0);                         // SetMidasStopMIRClk
+    if (m.StopMIRClk !== 1'b1) $fatal(1, "the MIR clock is not held");
     if (m.b_ContB.WER_p_Aa !== 1'b1 || m.b_ContB.WEL_p_Aa !== 1'b1)
       $fatal(1, "the IM write enables did not settle de-asserted");
     for (i=0;i<1024;i=i+1) m.b_ContB.u_a06.mem[i] = 1'b0;
@@ -246,7 +276,7 @@ module tb_writeim;
     for (i=0;i<1024;i=i+1) m.b_ContB.u_l19.mem[i] = 1'b0;
 
     strobe(3'd1, 8'h21, 1'b0);                 // Clock: InhibitCAHolds+ClrReady
-    setcpreg(16'hFFFF);
+    setcpreg(16'h0000);   // BMux inverts, so this is the all-ones pattern
     jamnop(8'h20, 8'h13, 8'hEF, 8'h03, 8'h4F); // CPRegToIM#, RIGHT half
 
     right_hits = 0; left_hits = 0;
@@ -545,7 +575,7 @@ module tb_writeim;
     for (i=0;i<1024;i=i+1) m.b_ContB.u_l17.mem[i] = 1'b0;
     for (i=0;i<1024;i=i+1) m.b_ContB.u_l18.mem[i] = 1'b0;
     for (i=0;i<1024;i=i+1) m.b_ContB.u_l19.mem[i] = 1'b0;
-    setcpreg(16'hFFFF);
+    setcpreg(16'h0000);   // BMux inverts, so this is the all-ones pattern
     jamnop(8'h60, 8'h33, 8'hEF, 8'h03, 8'h4F); // IMLHRSTK.0Is0#, LEFT half
     right_hits = 0; left_hits = 0;
     for (i=0;i<1024;i=i+1) if (m.b_ContB.u_a06.mem[i]) left_hits = left_hits + 1;

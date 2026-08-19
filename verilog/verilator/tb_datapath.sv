@@ -37,6 +37,7 @@ module tb_datapath;
   reg [8:0] cpout  = 9'd0;
   reg       strb_n = 1'b1;
   reg       setrun = 1'b0, setss_n = 1'b1;
+  reg       dmd = 1'b0, dmc = 1'b0, udmd = 1'b0;
 
   dorado_proc m (
       .sys_clk(sys_clk),
@@ -47,6 +48,24 @@ module tb_datapath;
       .CPOut_6(cpout[2]), .CPOut_7(cpout[1]), .CPOut_8(cpout[0]),
       .CPStrb_p_(strb_n), .SetRun(setrun), .SetSS_p_(setss_n)
   );
+
+  // PARC's SetMufflerAddress: twelve bits MSB-first into ContB's shift chain,
+  // then the ManClk pulse DoClock(UseDMD)/DoClock(0) makes. `DMuxData`,
+  // `DMuxClk` and `UseDMD` are forced because BaseBd l24 drives all three and
+  // this configuration has no BaseBoard. See tb_operand.sv.
+  integer k;
+  task manifold(input [11:0] word);
+    begin
+      for (k = 11; k >= 0; k = k - 1) begin
+        dmd = word[k];
+        repeat (4) @(posedge sys_clk); dmc = 1'b1;
+        repeat (4) @(posedge sys_clk); dmc = 1'b0;
+        repeat (4) @(posedge sys_clk);
+      end
+      udmd = 1'b1; repeat (12) @(posedge sys_clk);
+      udmd = 1'b0; repeat (12) @(posedge sys_clk);
+    end
+  endtask
 
   task strobe(input [2:0] fn, input [7:0] data, input ss);
     begin
@@ -72,7 +91,18 @@ module tb_datapath;
   reg     p0, pph, ppl;
 
   initial begin
+    force m.DMuxData = dmd;
+    force m.DMuxClk  = dmc;
+    force m.UseDMD   = udmd;
     repeat (60) @(posedge sys_clk);
+
+    // HOLD THE MIR, which is what makes a jam survive its own first clock --
+    // the two manifold words doradomufman.masm writes just after the supplies
+    // come up. Without them the MIR reloads from IM and the fields read here
+    // are whatever IM holds, which is why this test used to depend on the IM
+    // address being stuck at 0 (a cell_MC1662 bug, fixed 2026-08-18).
+    manifold(12'h030);          // DisableDoradoErrors
+    manifold(12'h1E0);          // SetMidasStopMIRClk
 
     strobe(3'd1, 8'h21, 1'b0);
     strobe(3'd0, 8'h4E, 1'b0); setrun = 0;
@@ -92,12 +122,16 @@ module tb_datapath;
     n0 = 0; nph = 0; npl = 0;
     for (i = 0; i < RUN; i = i + 1) begin
       @(posedge sys_clk);
-      if (m.b_ContB.clk0_p_Bc  !== p0)  begin n0  = n0  + 1; p0  = m.b_ContB.clk0_p_Bc;  end
+      // ContA's clk0'Ca, NOT ContB's clk0'Bc: the latter is the MIR clock
+      // (ContB j05 takes StopMIRClkBD), which the manifold hold above stops on
+      // purpose. ContA c19's h*clk0'Ca is gated the same way; d18's clk0'Ca is
+      // not, and it is the microinstruction clock the datapath runs on.
+      if (m.b_ContA.clk0_p_Ca  !== p0)  begin n0  = n0  + 1; p0  = m.b_ContA.clk0_p_Ca;  end
       if (m.b_ProcH.Clock0_p_Bc !== pph) begin nph = nph + 1; pph = m.b_ProcH.Clock0_p_Bc; end
       if (m.b_ProcL.Clock0_p_Bd !== ppl) begin npl = npl + 1; ppl = m.b_ProcL.Clock0_p_Bd; end
     end
 
-    $display("tb_datapath: clk0' %0d edges, ProcH Clock0'Bc %0d, ProcL Clock0'Bd %0d",
+    $display("tb_datapath: clk0'Ca %0d edges, ProcH Clock0'Bc %0d, ProcL Clock0'Bd %0d",
              n0, nph, npl);
     $display("tb_datapath: at the processor -- RSTK=%b ALUF=%b BSEL=%b ASEL=%b, DoradoStopped=%b",
              rstk, aluf, bsel, asel, m.b_ContB.DoradoStopped);

@@ -27,7 +27,7 @@ can run.
 | Four boards, microinstruction on the datapath | **works** | `datapath-test` |
 | A jammed Write-IM deposits into IM | **works** (mechanism + half-select) | `writeim-test` |
 | ...with the DATA from CPReg | **works** | `operand-test` |
-| ...with the ADDRESS from CPReg | **open**, see below | -- |
+| ...with the ADDRESS from CPReg | **partly** -- the address moves and Link loads; TNIA still ORs in other sources | -- |
 
 ### Every gate
 
@@ -94,33 +94,43 @@ does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 
 ## START HERE: the one open task
 
-**The jam's DATA now comes from CPReg** (`operand-test`). What is left is the
-ADDRESS: every write still lands at IM[0].
+**The jam's DATA comes from CPReg** (`operand-test`), and the ADDRESS path is
+now open as far as `Link`: jamming `CPRegToLink#` with `CPReg=002A` puts `ffd5`
+on BMux (the complement, as ContA b02's MC10159 gives) and `Link[4:15]` reads
+`fd5`. The IM address is no longer stuck at 0 -- `dRA` tracks `TNIA` exactly
+and writes land at real addresses.
 
-The address travels a different chain from the data -- `Link` to `TNIA` on
-ContA, then an MC1662 multiplexer at ContB f21 into IM's address lines -- and
-PARC's IRTable drives it the way the pair of entries implies: jam
-`CPRegToLink#` (`30 13 EF 04 40`) with the address in CPReg, then
-`CPRegToIM#` with the data. `c17` now latches `Link<-BMuxa`/`Link<-BMuxb`
-correctly (both read 1 in `operand-test`), so the load enable is there; what
-has not been traced is where those go and whether Link survives the stop
-between the two jams, which `jam_write` now takes deliberately.
+**What is left is that `TNIA` is not `Link`.** TNIA is a wired-OR of several
+sources per bit, each an MC10121 OR-AND whose other legs must be held off by
+their selects. During a Write-IM `Return'c` is 0, which is right -- that is the
+leg carrying `Link.04'..Link.15'` -- but the measured TNIA has extra bits set
+where Link has none, so at least one other source is still contributing. Start
+at ContA g22/g24 and i21/i22 (TNIA.04-.11) and find which select is not
+de-asserting; `IFUNext'c`, `CondBr'c`, `LongJump'a` and the MC10159 legs are
+the candidates. `tb_operand` already has the two-jam sequence to extend.
 
-Start by extending `tb_operand` with the two-jam sequence and watching `Link`
-and `TNIA` -- everything upstream of them is now a passing gate.
+The C emulator says where this must end up, and the netlist already agrees with
+it: `cpu.c` takes the Write-IM address from `cpu->link_at_issue & 0xFFF`, and
+ContA feeds `Link.04'..Link.15'` -- exactly Link[4:15], twelve bits for 4096
+words -- into TNIA through the `Return'` leg.
 
-**Read "A jammed Write-IM deposits into IM" and "The jam's operand" below
-first.** The two things that will otherwise cost you a day:
+**Read "The jam's operand" and "The IM address" below first.** Four things that
+will otherwise cost you a day:
 
 * **A jam must be SINGLE-STEPPED** (SetRun+SetSS, no ClrStop). Free-running
   reloads the MIR from IM one clock later and the jam is gone. `run-test`'s
   finding that ClrStop and SetRun must share a Control byte is right for
-  free-running and wrong for a jam -- two different operations. (And with the
-  MIR clock held, a free-running machine repeats the jammed instruction
-  forever, so a second jam has to start from rest.)
-* **Measure against a wiped baseline.** IM comes up with 17 cells set from a
-  settling transient. Counting non-zero cells from time zero makes any
-  Write-IM test pass for the wrong reason, which is exactly what happened once.
+  free-running and wrong for a jam -- two different operations.
+* **A jam only survives at all because the MIR CLOCK IS HELD**, and that takes
+  two manifold words PARC's boot ROM writes at power-up. Every testbench that
+  jams now writes them; one that does not is measuring whatever IM holds.
+* **With the MIR held, a running machine repeats the jammed instruction
+  forever**, so a second jam has to start from rest.
+* **Measure against a wiped baseline**, and pick a CPReg value whose COMPLEMENT
+  has bits in it. IM comes up with cells set from a settling transient, and
+  `CPReg=FFFF` reaches the array as `0000`, so a write of zeros is
+  indistinguishable from no write at all -- which is what made the left-half
+  Write-IM look broken for an afternoon.
 
 ## How to read the rest
 
@@ -1276,11 +1286,97 @@ different path and gated by `SetRun`.)
   NAND.
 
 `make -C verilog cell-check` now also runs **`tools/sil_check_polarity.py`**,
-which asserts the one property that IS universal: where the dictionary gives a
-gate both an `OUT` pin and an `o` pin, the two must be exact complements,
-evaluated over every input assignment of the cell's own expressions. 56 cells,
-28 both-sense gates, 0 wrong; mutation-tested by putting the MC10104 and
-MC10102 faults back.
+which asserts the two properties that ARE universal, both by evaluating the
+cells' own expressions over every input assignment:
+
+* where the dictionary gives one gate both an `OUT` pin and an `o` pin, the two
+  must be exact complements; and
+* two parts that share a pinout and a `[G]` summary but are NOT second sources
+  of each other must not have the same model -- which is what `cell_MC1662`
+  copied from `cell_MC1664` was.
+
+Second sources are recognised by part number with the family and speed letters
+stripped (`MC10164`/`MU10164`, `SN74LS01`/`SN74S01`), not by the shared pin
+block -- TtlDict groups by PINOUT, which is why `H01, H02, LS01, LS02, LS28`
+sit on one line. Two genuinely-different pairs that legitimately share a model
+are named with their reasons rather than silenced. 56 cells, 28 both-sense
+gates, 47 distinct pinouts, 0 wrong; mutation-tested by putting the MC10104,
+MC10102 and MC1662 faults back.
+
+It reports rather than asserts the DIRECTION, and two false positives of its
+own are worth knowing: an expression it cannot evaluate (a ternary multiplexer,
+a concatenation) means the pair cannot be COMPARED -- calling that "the same"
+made MC10158/MC10159 look like copies when they are correctly two models.
+
+### The IM ADDRESS, traced -- and `cell_MC1662` was the OR part's model
+
+Every jammed Write-IM landed at IM[0], and the cause was one cell.
+
+The path, from the array back:
+
+```
+IM (F10415A)  addressed by RA.01a..RA.10a + four chip selects
+   RA.nn      ContB a12/b12/../l12, MC10211 NOR buffers of
+   dRA.00'-11'  ContB e20/f20/f21/g20/g21/h20, SIX MC1662 packages:
+                dRA.nn' = gate(TNIA.mm, SWa) wired-OR gate(SW'a, BNPC.mm)
+   TNIA.04-15   from ContA -- twelve bits, 4096 words
+   BNPC         the per-task saved PC; `SW` selects between them
+```
+
+**`cell_MC1662` computed OR.** MC1662 and MC1664 are a complementary pair with
+the SAME pinout and the same `[G]` summary, and the dictionary separates them
+by role letter alone -- `OUT` on the '62, `o` on the '64 -- which is exactly
+what that letter is for. `cell_MC1664`'s own comment already said it ("the
+MECL III pairing where MC1662 is the NOR part"); this file had simply been
+written as a copy of it. The data book is no help: the MC1662 sheet was DELETED
+from DL122 rev 7.
+
+The circuit settles it independently. Those six packages are a 2:1 multiplexer,
+which they are only as NORs. As ORs the second leg is `SW'a | BNPC`, and `SW'a`
+is 1 whenever the machine is not task-switching, so every `dRA'` sticks high and
+IM is addressed at 0 whatever TNIA holds. **33 packages**, across ContA, ContB,
+IFU, MemC, MemX, ProcH and ProcL -- ProcH/ProcL's are `alub.00-15`, the ALU's B
+input, and `RbAdr.4-7'`, the RM address.
+
+With it fixed, `dRA` tracks `TNIA` exactly and `CPRegToLink#` works end to end:
+`CPReg=002A` -> `BMux=ffd5` -> `Link[4:15]=fd5`.
+
+### Two gates were passing for the wrong reason, and this exposed both
+
+`datapath-test` and `writeim-test` both jam and then FREE-RUN, which the
+handoff says destroys a jam. They passed only because the MIR kept reloading
+IM[0] -- the same cell bug. With a working address the machine walks IM and
+they failed.
+
+Both now do what a BaseBoard does before it ever jams: write the two manifold
+words that hold the MIR. `datapath-test` also had to move its clock probe from
+ContB's `clk0'Bc` to ContA's `clk0'Ca`, because the former IS the MIR clock
+(ContB j05 takes `StopMIRClkBD`) and the hold stops it on purpose. And
+`writeim-test` needed its `setcpreg(16'hFFFF)` changed to `16'h0000`: BMux
+inverts, so `FFFF` reached the array as `0000` and a left-half write of zeros
+counted as no write. It now reports 34 right-half cells for the right-half jam
+and 16 left-half for the left, with `RBMux=ffff` at a real address.
+
+### The gates were not gating: `$fatal` left every rule green
+
+Every test rule ended in `| grep tb_x`, and a pipeline's exit status is the
+LAST command's. A testbench that hit `$fatal` printed its assertion and the
+rule still succeeded -- which is how the two tests above reported PASS in a
+sweep and FAIL when run by hand, in the same minute.
+
+**The obvious fix does nothing here.** `SHELL := /bin/bash` with
+`.SHELLFLAGS := -o pipefail -c` is the standard answer, and macOS ships **GNU
+Make 3.81** -- `.SHELLFLAGS` arrived in 3.82, so make ignores it silently. The
+same failure mode twice in one afternoon. All twelve rules capture the status
+explicitly instead:
+
+```make
+{ out=$$(./verilog/verilator/obj_x/tb_x 2>&1); rc=$$?; \
+  echo "$$out" | grep tb_x; exit $$rc; }
+```
+
+which works in any make and any sh. Mutation-tested by turning three tests'
+`$finish` into `$fatal` and watching the rules go red.
 
 ### Correction: "role `OUT` is the INVERTING output" does NOT generalise
 
