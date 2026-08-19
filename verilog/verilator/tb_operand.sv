@@ -114,6 +114,43 @@ module tb_operand;
   integer i, hits, hits_a, hits_b;
   reg [15:0] pat_a, pat_b;
 
+  // Link[4:15] -- twelve bits, the whole IM address space, and exactly what
+  // cpu.c takes the Write-IM address from (`link_at_issue & 0xFFF`). PARC
+  // numbers the register MSB-first, so .04 is the top bit.
+  wire [11:0] link_hi = ~{m.b_ContA.Link_04_p_, m.b_ContA.Link_05_p_,
+                          m.b_ContA.Link_06_p_, m.b_ContA.Link_07_p_,
+                          m.b_ContA.Link_08_p_, m.b_ContA.Link_09_p_,
+                          m.b_ContA.Link_10_p_, m.b_ContA.Link_11_p_,
+                          m.b_ContA.Link_12_p_, m.b_ContA.Link_13_p_,
+                          m.b_ContA.Link_14_p_, m.b_ContA.Link_15_p_};
+  wire [11:0] tnia = {m.TNIA_04, m.TNIA_05, m.TNIA_06, m.TNIA_07,
+                      m.TNIA_08, m.TNIA_09, m.TNIA_10, m.TNIA_11,
+                      m.TNIA_12, m.TNIA_13, m.TNIA_14, m.TNIA_15};
+  // dRA' is the address as ContB's multiplexer leaves it; the MC10211 buffers
+  // invert it again into the array's RA lines.
+  wire [11:0] dra = ~{m.b_ContB.dRA_00_p_, m.b_ContB.dRA_01_p_,
+                      m.b_ContB.dRA_02_p_, m.b_ContB.dRA_03_p_,
+                      m.b_ContB.dRA_04_p_, m.b_ContB.dRA_05_p_,
+                      m.b_ContB.dRA_06_p_, m.b_ContB.dRA_07_p_,
+                      m.b_ContB.dRA_08_p_, m.b_ContB.dRA_09_p_,
+                      m.b_ContB.dRA_10_p_, m.b_ContB.dRA_11_p_};
+
+  // Jam CPRegToLink# -- PARC's IRTable, `30 13 EF 04 40`.
+  task jam_link(input [15:0] v);
+    begin
+      setrun = 0; setss_n = 1;
+      repeat (400) @(posedge sys_clk);
+      strobe(3'd1, 8'h21, 1'b0);
+      strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0);
+      strobe(3'd0, 8'h4E, 1'b0); setrun = 0; setss_n = 1;
+      strobe(3'd0, 8'h00, 1'b1); setss_n = 0;
+      strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b0);
+      strobe(3'd6, 8'h04, 1'b0); strobe(3'd7, 8'h40, 1'b0);
+      strobe(3'd0, 8'h41, 1'b1); setrun = 1;
+      repeat (600) @(posedge sys_clk);
+    end
+  endtask
+
   task wipe_im;
     begin
       for (i=0;i<1024;i=i+1) m.b_ContB.u_a06.mem[i] = 1'b0;
@@ -419,7 +456,28 @@ module tb_operand;
     if (hits_a == hits_b)
       $fatal(1, "IM took the same pattern for two different CPReg values -- the operand is not CPReg's");
 
-    $display("tb_operand: the jam's operand comes from CPReg, and PARC's own two manifold words are what hold the MIR.");
+    // ---- THE ADDRESS ----
+    //
+    // `CPRegToLink#` loads Link from BMux, and during a Write-IM the `Return'`
+    // leg of ContA's MC10121 selectors carries Link[4:15] into TNIA, which
+    // ContB's MC1662 multiplexer passes to the array.
+    jam_link(16'h002A);
+    $display("tb_operand: CPRegToLink# CPReg=002a -> BMux=%h Link[4:15]=%h", bmux, link_hi);
+    if (bmux !== ~16'h002A)  $fatal(1, "CPReg did not reach BMux for the Link jam");
+    if (link_hi !== 12'hFD5) $fatal(1, "Link did not load from BMux");
+
+    jam_write(16'hA53C);
+    $display("tb_operand: during Write-IM -- Link[4:15]=%h TNIA=%h dRA=%h Return'c=%b",
+             link_hi, tnia, dra, m.b_ContA.Return_p_c);
+    if (m.b_ContA.Return_p_c !== 1'b0)
+      $fatal(1, "Return' is not selecting the Link leg during a Write-IM");
+    // TNIA is a WIRED-OR of up to four sources per bit. Equality here says
+    // every other one is silent -- which is what a disabled MC10159 must be,
+    // and was not until its data sheet's last truth-table row was modelled.
+    if (tnia !== link_hi) $fatal(1, "TNIA is not Link -- another source is driving it");
+    if (dra  !== tnia)    $fatal(1, "TNIA did not reach the IM address lines");
+
+    $display("tb_operand: the jam's operand comes from CPReg, its address from Link, and PARC's own two manifold words are what hold the MIR.");
     $finish;
   end
 

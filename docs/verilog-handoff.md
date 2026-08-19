@@ -27,7 +27,7 @@ can run.
 | Four boards, microinstruction on the datapath | **works** | `datapath-test` |
 | A jammed Write-IM deposits into IM | **works** (mechanism + half-select) | `writeim-test` |
 | ...with the DATA from CPReg | **works** | `operand-test` |
-| ...with the ADDRESS from CPReg | **partly** -- the address moves and Link loads; TNIA still ORs in other sources | -- |
+| ...with the ADDRESS from CPReg | **works** -- Link -> TNIA -> the array's address lines | `operand-test` |
 
 ### Every gate
 
@@ -92,45 +92,46 @@ substitutions if at all. The 22 digital ones need datasheets this repository
 does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 `F9401`.
 
-## START HERE: the one open task
+## START HERE
 
-**The jam's DATA comes from CPReg** (`operand-test`), and the ADDRESS path is
-now open as far as `Link`: jamming `CPRegToLink#` with `CPReg=002A` puts `ffd5`
-on BMux (the complement, as ContA b02's MC10159 gives) and `Link[4:15]` reads
-`fd5`. The IM address is no longer stuck at 0 -- `dRA` tracks `TNIA` exactly
-and writes land at real addresses.
+**The whole jam path works.** `operand-test` asserts it end to end: the two
+manifold words hold the MIR, `CPRegToIM#` puts CPReg's complement on BMux and
+RBMux and a different pattern into IM for each of two CPReg values, and
+`CPRegToLink#` loads Link from BMux (`002A` -> `ffd5` -> `Link[4:15]=fd5`)
+after which `TNIA` equals `Link[4:15]` exactly and `dRA` equals `TNIA` --
+which, because TNIA is a wired-OR of up to four sources per bit, is also the
+statement that every other source is silent.
 
-**What is left is that `TNIA` is not `Link`.** TNIA is a wired-OR of several
-sources per bit, each an MC10121 OR-AND whose other legs must be held off by
-their selects. During a Write-IM `Return'c` is 0, which is right -- that is the
-leg carrying `Link.04'..Link.15'` -- but the measured TNIA has extra bits set
-where Link has none, so at least one other source is still contributing. Start
-at ContA g22/g24 and i21/i22 (TNIA.04-.11) and find which select is not
-de-asserting; `IFUNext'c`, `CondBr'c`, `LongJump'a` and the MC10159 legs are
-the candidates. `tb_operand` already has the two-jam sequence to extend.
+The natural next task is **Boot0**: the BaseBoard's own loader jams
+`CPRegToLink#`/`CPRegToIM#` pairs 475 times to fill IM, and every piece of that
+is now a passing gate. Two things it will need that are not done:
 
-The C emulator says where this must end up, and the netlist already agrees with
-it: `cpu.c` takes the Write-IM address from `cpu->link_at_issue & 0xFFF`, and
-ContA feeds `Link.04'..Link.15'` -- exactly Link[4:15], twelve bits for 4096
-words -- into TNIA through the `Return'` leg.
+* **Real single-stepping.** `operand-test` free-runs with the MIR held, which
+  repeats one instruction forever -- fine for asserting a datapath, wrong for a
+  sequence. Both IRTable entries carry `FF=176` (`Link<-CPReg` puts CPReg on B
+  AND loads Link from it), so a free-running `CPRegToIM#` overwrites the
+  address the preceding `CPRegToLink#` set up. The hardware uses the
+  issue-time Link, which is what `cpu.c` models as `link_at_issue`; getting
+  that right means one microinstruction per jam.
+* **The reply path.** `CPIn.0-3` is specified in full below and has no model on
+  the C side to diff against, so it is netlist-only work.
 
-**Read "The jam's operand" and "The IM address" below first.** Four things that
-will otherwise cost you a day:
+**Four things that will otherwise cost you a day:**
 
 * **A jam must be SINGLE-STEPPED** (SetRun+SetSS, no ClrStop). Free-running
-  reloads the MIR from IM one clock later and the jam is gone. `run-test`'s
-  finding that ClrStop and SetRun must share a Control byte is right for
-  free-running and wrong for a jam -- two different operations.
+  reloads the MIR from IM one clock later. `run-test`'s finding that ClrStop
+  and SetRun must share a Control byte is right for free-running and wrong for
+  a jam -- two different operations.
 * **A jam only survives at all because the MIR CLOCK IS HELD**, and that takes
   two manifold words PARC's boot ROM writes at power-up. Every testbench that
-  jams now writes them; one that does not is measuring whatever IM holds.
+  jams writes them now; one that does not is measuring whatever IM holds.
 * **With the MIR held, a running machine repeats the jammed instruction
   forever**, so a second jam has to start from rest.
-* **Measure against a wiped baseline**, and pick a CPReg value whose COMPLEMENT
-  has bits in it. IM comes up with cells set from a settling transient, and
+* **Measure against a wiped baseline, and pick a CPReg value whose COMPLEMENT
+  has bits in it.** IM comes up with cells set from a settling transient, and
   `CPReg=FFFF` reaches the array as `0000`, so a write of zeros is
-  indistinguishable from no write at all -- which is what made the left-half
-  Write-IM look broken for an afternoon.
+  indistinguishable from no write -- which is what made the left-half Write-IM
+  look broken for an afternoon.
 
 ## How to read the rest
 
@@ -1340,6 +1341,54 @@ input, and `RbAdr.4-7'`, the RM address.
 
 With it fixed, `dRA` tracks `TNIA` exactly and `CPRegToLink#` works end to end:
 `CPReg=002A` -> `BMux=ffd5` -> `Link[4:15]=fd5`.
+
+### And `cell_MC10159` drove its outputs HIGH when disabled
+
+With the address moving, `TNIA` still was not `Link`. Probing each of TNIA's
+wired-OR contributions separately -- the generator gives every driver its own
+stub, `TNIA_04__g24_3` beside `TNIA_04__g22_14` -- answered it in one run:
+
+```
+bit  Link  TNIA  contributions
+ .04    1     1    g24_3=1 g22_14=1
+ .05    0     1    h24_3=0 g22_15=1        <- Link says 0, the bus says 1
+ .06    1     1    g23_3=1 g22_2=1
+ .07    0     1    h23_3=0 g22_1=1
+ .08    1     1    h22_3=1 i22_2=0 i21_14=1
+ ...
+```
+
+**All twelve MC10121 selectors carried Link EXACTLY RIGHT.** Every wrong bit
+came from two packages, ContA g22 and i21, both MC10159 multiplexers, both
+reading 1 where they should have been silent.
+
+`DoradoDocs/datasheets/MC10159.pdf` has the truth table, and its last row is
+the one that was missing:
+
+```
+Enable  Select  D0  D1   Q
+   L       L     X   L   H
+   L       L     X   H   L
+   L       H     L   X   H
+   L       H     H   X   L
+   H       X     X   X   L      <- DISABLED: the outputs go LOW
+```
+
+A disabled MECL part drives its outputs LOW, which is the entire point of an
+enable on a part whose open-emitter outputs are tied into a wired-OR: a
+disabled driver must contribute NOTHING. The cell had `~(en & mux)`, which
+reads 1 when disabled and so held every bus it sat on to all ones. **67
+packages**, 25 of them on ContA. With it fixed, `TNIA` is `Link[4:15]` bit for
+bit.
+
+The same sheet also confirms the select polarity that `cell_MC10158` and
+`cell_MC10159` both carried a "VERIFY" comment about: SELECT high routes
+D00/D10/D20/D30 (pins 6, 4, 13, 11), which is what both cells already did.
+
+**The lesson is about the probe, not the part.** Four sessions of "TNIA is
+wrong" would have said nothing; one run printing each driver's own stub said
+which package and left eleven others exonerated. When a wired-OR reads wrong,
+split it.
 
 ### Two gates were passing for the wrong reason, and this exposed both
 

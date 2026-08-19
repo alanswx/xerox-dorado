@@ -8,8 +8,12 @@
 // LOW), which is why the boards leave so many pins unconnected; Verilator
 // treats an unconnected input as 0, which matches.
 //
-// VERIFY: the select POLARITY is taken from the pin name -- PARC calls it
-// `SB`, read as "select B", so SB high routes the B inputs. The MECL Pocket
+// The select POLARITY is confirmed by the MC10159 data sheet
+// (DoradoDocs/datasheets/MC10159.pdf), which shares this pinout: SELECT high
+// enables D00/D10/D20/D30 (pins 6, 4, 13, 11), low enables D01/D11/D21/D31.
+// This part has NO enable -- the dictionary gives it `SB` and no `E'` -- so
+// the disabled-outputs-low row of that table does not apply here.
+// Historical note, kept because the comment used to ask to VERIFY it: The MECL Pocket
 // Book gives the part as "Quad 2-Input Multiplexer" without reproducing the
 // truth table here. If a board's behaviour disagrees, this is the line to
 // check first, and the inverting sibling MC10159 shares the convention.

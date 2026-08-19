@@ -969,7 +969,7 @@ path is one signal short. Rung by rung, each line a gate you can run:
 | four boards, the microinstruction on the datapath | `datapath-test` |
 | a jammed Write-IM deposits into IM, half-select and all | `writeim-test` |
 | ...with the DATA from CPReg | `operand-test` |
-| ...with the ADDRESS from CPReg | **partly**: the address moves, Link loads |
+| ...with the ADDRESS from CPReg | `operand-test` (Link -> TNIA -> IM) |
 
 Eighteen gates in all; `make -C verilog` has the list. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
@@ -1006,6 +1006,15 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   `SetMidasStopMIRClk` ("turn on MIR debug feature"). A microinstruction the
   BaseBoard put in the MIR did not come from IM and fails its parity, so the
   "freeze the MIR on a parity error" debug feature is ALSO the jam mechanism.
+- **A disabled `MC10159` must drive its outputs LOW, and the cell drove them
+  HIGH** -- 67 packages. The data sheet's truth table has it in the last row,
+  and it is the whole point of an enable on a part whose open-emitter outputs
+  are wired-ORed: a disabled driver contributes NOTHING. Two disabled
+  multiplexers were holding eight of TNIA's twelve bits high while all twelve
+  MC10121 selectors carried Link exactly right. **When a wired-OR reads wrong,
+  probe each driver's own stub** -- the generator emits one per driver
+  (`TNIA_04__g24_3` beside `TNIA_04__g22_14`), and one run named the package
+  and exonerated eleven others.
 - **`cell_MC1662` modelled the OR part and MC1662 is the NOR** -- 33 packages,
   and six of them are ContB's IM ADDRESS multiplexer, which is a 2:1 select
   only as NORs. As ORs it degenerated and every jammed Write-IM landed at
