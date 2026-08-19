@@ -970,6 +970,7 @@ path is one signal short. Rung by rung, each line a gate you can run:
 | a jammed Write-IM deposits into IM, half-select and all | `writeim-test` |
 | ...with the DATA from CPReg | `operand-test` |
 | ...with the ADDRESS from CPReg | `operand-test` (Link -> TNIA -> IM) |
+| the machine SINGLE-STEPS microinstructions | `step-test` |
 
 Eighteen gates in all; `make -C verilog` has the list. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
@@ -1006,6 +1007,14 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   `SetMidasStopMIRClk` ("turn on MIR debug feature"). A microinstruction the
   BaseBoard put in the MIR did not come from IM and fails its parity, so the
   "freeze the MIR on a parity error" debug feature is ALSO the jam mechanism.
+- **A single step is at least TWO Control strobes**, and the first step out of
+  a stop is only HALF a microinstruction. `rStop` is a LEVEL that lasts until
+  the next Control strobe, so ClrStop+SetRun issued once and left free-runs;
+  a following strobe without ClrStop is what lets the machine stop again. And
+  the phase generator comes out of reset with `StartCycle` cleared, so the
+  first window is the clk0 half only -- which is exactly why PARC's
+  `DoIRTableInstAndNop` never jams an IRTable entry without a Nop after it
+  ("the Nop holds CPReg constant through T3 of the PREVIOUS instruction").
 - **`machine-test` was running a week-old prebuilt binary**, so it had been
   reporting on RTL from before several cell fixes. It rebuilds now -- and
   rebuilt, the assembled eleven-board machine DOES NOT CONVERGE. That is

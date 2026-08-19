@@ -28,6 +28,7 @@ can run.
 | A jammed Write-IM deposits into IM | **works** (mechanism + half-select) | `writeim-test` |
 | ...with the DATA from CPReg | **works** | `operand-test` |
 | ...with the ADDRESS from CPReg | **works** -- Link -> TNIA -> the array's address lines | `operand-test` |
+| The machine SINGLE-STEPS microinstructions | **works** | `step-test` |
 
 ### Every gate
 
@@ -95,44 +96,42 @@ does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 
 ## START HERE
 
-**The whole jam path works.** `operand-test` asserts it end to end: the two
-manifold words hold the MIR, `CPRegToIM#` puts CPReg's complement on BMux and
-RBMux and a different pattern into IM for each of two CPReg values, and
-`CPRegToLink#` loads Link from BMux (`002A` -> `ffd5` -> `Link[4:15]=fd5`)
-after which `TNIA` equals `Link[4:15]` exactly and `dRA` equals `TNIA` --
-which, because TNIA is a wired-OR of up to four sources per bit, is also the
-statement that every other source is silent.
+**The machine single-steps microinstructions** (`step-test`) and **the whole
+jam path works** (`operand-test`). A step is exactly one microinstruction --
+`clk0'` twice, `clk1'` twice, `clk2'` four times, `Stop` set again -- and a
+jammed `CPRegToLink#` executes, putting CPReg into Link.
 
-The natural next task is **Boot0**: the BaseBoard's own loader jams
-`CPRegToLink#`/`CPRegToIM#` pairs 475 times to fill IM, and every piece of that
-is now a passing gate. Two things it will need that are not done:
+So **Boot0 is the next task and every piece of it is now a passing gate**: the
+BaseBoard's loader jams a `CPRegToLink#`/`CPRegToIM#` pair and steps it, 475
+times, to fill IM. What remains is to drive that sequence and read IM back --
+and the read side is the one part with no model on the C emulator's side to
+diff against, so the `CPIn.0-3` specification below is what to build from.
 
-* **Real single-stepping.** `operand-test` free-runs with the MIR held, which
-  repeats one instruction forever -- fine for asserting a datapath, wrong for a
-  sequence. Both IRTable entries carry `FF=176` (`Link<-CPReg` puts CPReg on B
-  AND loads Link from it), so a free-running `CPRegToIM#` overwrites the
-  address the preceding `CPRegToLink#` set up. The hardware uses the
-  issue-time Link, which is what `cpu.c` models as `link_at_issue`; getting
-  that right means one microinstruction per jam.
-* **The reply path.** `CPIn.0-3` is specified in full below and has no model on
-  the C side to diff against, so it is netlist-only work.
+**Five things that will otherwise cost you a day:**
 
-**Four things that will otherwise cost you a day:**
-
-* **A jam must be SINGLE-STEPPED** (SetRun+SetSS, no ClrStop). Free-running
-  reloads the MIR from IM one clock later. `run-test`'s finding that ClrStop
-  and SetRun must share a Control byte is right for free-running and wrong for
-  a jam -- two different operations.
-* **A jam only survives at all because the MIR CLOCK IS HELD**, and that takes
-  two manifold words PARC's boot ROM writes at power-up. Every testbench that
-  jams writes them now; one that does not is measuring whatever IM holds.
-* **With the MIR held, a running machine repeats the jammed instruction
-  forever**, so a second jam has to start from rest.
+* **A step is at least TWO Control strobes**: one carrying ClrStop+SetRun, and
+  a following one WITHOUT ClrStop. `rStop` is a LEVEL that lasts until the next
+  Control strobe; with no second strobe it holds the stop latch reset and the
+  machine free-runs (26 `clk0'` edges where a step gives 2). PARC issues three
+  and only the first two matter -- measured, because the comment that claimed
+  all three were load-bearing had a mutation that passed.
+* **The first step out of a stop is HALF a microinstruction** -- `clk0'` and no
+  `clk1'` -- because the phase generator comes out of reset with `StartCycle`
+  cleared. Every step after it is whole. This is what PARC's
+  `DoIRTableInstAndNop` accounts for: it never jams an IRTable entry alone, and
+  its comment says why, "the Nop holds CPReg constant through T3 of the
+  PREVIOUS instruction". The Dorado is pipelined; an instruction's later phases
+  run while the next one is in the MIR.
+* **A jam only survives at all because the MIR CLOCK IS HELD**, which takes two
+  manifold words PARC's boot ROM writes at power-up. Every testbench that jams
+  writes them; one that does not is measuring whatever IM holds.
+* **The machine runs DURING the Control strobes.** Count clocks continuously --
+  a window opened after the last strobe sees nothing at all, which reads
+  exactly like a machine that has stopped dead.
 * **Measure against a wiped baseline, and pick a CPReg value whose COMPLEMENT
   has bits in it.** IM comes up with cells set from a settling transient, and
   `CPReg=FFFF` reaches the array as `0000`, so a write of zeros is
-  indistinguishable from no write -- which is what made the left-half Write-IM
-  look broken for an afternoon.
+  indistinguishable from no write.
 
 ## How to read the rest
 
@@ -1342,6 +1341,41 @@ input, and `RbAdr.4-7'`, the RM address.
 
 With it fixed, `dRA` tracks `TNIA` exactly and `CPRegToLink#` works end to end:
 `CPReg=002A` -> `BMux=ffd5` -> `Link[4:15]=fd5`.
+
+### The machine single-steps, and `rStop` is why it took three tries
+
+`make -C verilog step-test`. Steps two through five are each **`clk0'` 2,
+`clk1'` 2, `clk2'` 4, `Stop` 1** -- one microinstruction, stopping again -- and
+`Link[4:15]` reads `fd5` throughout, which is `CPReg=002A` complemented: the
+jammed `CPRegToLink#` executed.
+
+Three things had to be understood, and each first presented as the machine
+being broken:
+
+* **`SetRun` alone runs half a microinstruction.** PARC's
+  `DoDoradoMicroInst` ends with SetRun and SS and no ClrStop, and that gives
+  `clk0'` twice and `clk1'` not at all. It is not a fault: the phase generator
+  comes out of reset with `sPhase0` held and `StartCycle` cleared, so the first
+  window is the clk0 half. Every step after it is whole -- and PARC's
+  `DoIRTableInstAndNop` says as much, jamming a Nop after every IRTable entry
+  because "the Nop holds CPReg constant through T3 of the PREVIOUS
+  instruction".
+* **`ClrStop+SetRun` on its own FREE-RUNS.** `rStop` is a LEVEL out of ContA
+  j02 latched from `CPOut.1`, and it lasts until the next Control strobe.
+  Issued once and left, it holds the stop latch reset for ever: 26 `clk0'`
+  edges in a window where a step gives 2, with `Stop` still 0. A following
+  Control strobe without ClrStop is what lets the machine stop again. This is
+  the other half of `run-test`'s finding -- sharing the byte is how you START,
+  letting ClrStop go is how you STOP.
+* **The machine runs during the strobes.** The first version counted clocks in
+  a window opened after the last strobe and measured zero of everything, which
+  looks exactly like a machine that never started. Count continuously.
+
+And one correction made by a mutation that PASSED: the comment first claimed
+all three of PARC's strobes were load-bearing. Dropping the middle one still
+steps correctly, because `Control(0)` withdraws ClrStop just as
+`Control(SetRun)` does -- it is the FOLLOWING STROBE that matters, not its
+data. The gate now mutates by removing every following strobe, which does fail.
 
 ### `machine-test` was testing a week-old binary, and the machine does not settle
 

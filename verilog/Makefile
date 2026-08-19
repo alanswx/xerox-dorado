@@ -19,6 +19,7 @@
 #   make datapath-test four boards, with the microinstruction on the datapath
 #   make writeim-test a jammed Write-IM deposits into IM, half-select and all
 #   make operand-test ...and its DATA comes from CPReg (the MIR clock held)
+#   make step-test    the machine SINGLE-STEPS microinstructions
 #   make startseq     PARC's own boot sequence replayed (diagnostic, not a gate)
 #   make converge-test the assembled machine settles, and its clock runs
 #   make machine-test the assembled machine under the imgui harness
@@ -32,7 +33,7 @@ TOOLS   = ../tools
 
 .PHONY: boards backplane proms cells cells-force lint cell-check loop-check \
         prom-test alu-test alu-diff cpreg-diff mir-diff mirreg-diff run-test \
-        writeim-test operand-test \
+        writeim-test operand-test step-test \
         datapath-test \
         startseq \
         converge-test machine-test \
@@ -98,6 +99,10 @@ writeim-test:
 # And its operand: the DATA comes from CPReg, once the MIR clock is held.
 operand-test:
 	@$(MAKE) -C verilator operand-test
+
+# One microinstruction at a time -- the primitive Boot0 is built out of.
+step-test:
+	@$(MAKE) -C verilator step-test
 
 # PARC's own DoDoradoMicroInst replayed. A diagnostic, not a gate.
 startseq:

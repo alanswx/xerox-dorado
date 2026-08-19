@@ -160,6 +160,17 @@ converge-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_converge/tb_converge 2>&1); \
 		  rc=$$?; echo "$$out" | grep tb_converge; exit $$rc; }
 
+# ONE MICROINSTRUCTION AT A TIME -- the primitive Boot0 is built out of.
+.PHONY: step-test
+step-test:
+	@cd ../.. && $(V) --binary --top-module tb_step $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_step -o tb_step \
+		verilog/verilator/tb_step.sv verilog/generated/dorado_proc.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_step/tb_step 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_step; exit $$rc; }
+
 # THE HARNESS IS A DEPENDENCY, not an assumption. This used to run whatever
 # ./obj_dir/Vemu happened to be lying there, and on 2026-08-18 that turned out
 # to be a binary a week older than the cell library it was supposed to be
