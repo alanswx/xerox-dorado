@@ -1,58 +1,66 @@
-// tb_sendmir -- PARC's SendViaMIR, transcribed. A DIAGNOSTIC, NOT A GATE:
-// it does not work, and what it fails on is worth more than a green light.
+// tb_sendmir -- PARC's SendViaMIR loads words into IM. This is Boot0's inner
+// loop, and it works.
 //
-// This is `doradoboot.masm`'s per-word IM loader, line for line. For each word
-// it sets CPReg to the ADDRESS, jams `CPRegToLink#`, jams a `Nop#`, sets CPReg
-// to the DATA, and jams the `IMStoreTable` entry for this half:
+// `doradoboot.masm`'s per-word IM loader, transcribed line for line: set CPReg
+// to the ADDRESS, jam `CPRegToLink#`, jam a `Nop#`, set CPReg to the DATA, jam
+// the `IMStoreTable` entry for this half. Two words go in at two addresses and
+// come back with the right bit counts.
 //
-//     SendViaMIR:
-//       LDX IMAddress+1 / LDY IMAddress
-//       LDAI CPRegToLink#-IRTable / JSR SetCP~AndDoIRTableInst
-//       ... data into ToCPRegH/L ... / JSR SetCPReg~
-//       LDAX IMStoreTable / JSR DoIRTableInst   ; CPReg can change before T3
+// THE THING THAT MADE IT WORK IS STROBE SPACING, and it retires the loose end
+// `run-test` left open. `DoDoradoMicroInst` puts ClrStop in its FIRST Control
+// byte and SetRun in a LATER one, and `run-test` found that our model needed
+// them COMBINED in one byte, noting: "That the real machine does not need this
+// is presumably a timing matter, or something a board outside ContA/ContB
+// supplies; it is the obvious loose end."
 //
-// TWO THINGS IT PINS DOWN, both from PARC's own source:
+// It is the timing. The real BaseBoard is a 1 MHz 6502 executing `JSR
+// DoControl` between strobes -- MICROSECONDS apart -- where a testbench issues
+// them fourteen sys_clk apart. `SetRun` has to survive three `RunClk'` edges to
+// walk the three-stage shift register at ContA i03 into `dRun`, and fourteen
+// cycles does not cover it. With `GAP` between Control strobes, PARC's
+// separated sequence runs exactly as written: every microinstruction gets
+// `clk0'` twice, `clk1'` twice and `Stop` set again -- one whole instruction,
+// no combined 0x41 anywhere.
 //
-//   * `SetCPReg~` writes the COMPLEMENT ("LDA ToCPRegH / EORI 0ff"), which is
-//     why the BaseBoard's value arrives on BMux uncomplemented: ContA b02's
-//     MC10159 inverts, and the tilde cancels it. Every earlier testbench here
-//     wrote the value straight and read the complement back; this is the
-//     convention that explains it.
+// TWO CONVENTIONS FROM PARC'S SOURCE, both load-bearing here:
+//
+//   * `SetCPReg~` writes the COMPLEMENT ("LDA ToCPRegH / EORI 0ff"). ContA
+//     b02's MC10159 inverts on the way to BMux and the tilde cancels it, so
+//     writing ~address puts the address in Link. Every earlier testbench here
+//     wrote the value straight and read the complement back.
 //   * `IMStoreTable` is four entries indexed by `(half << 1) | extraBit` --
-//     IMLHRSTK.0Is0#, IMLHRSTK.0Is1#, IMRHBLOCKIs0#, IMRHBLOCKIs1# -- which is
-//     the half-select and secondary bit `writeim-test` proves, chosen the way
-//     the ROM chooses them.
+//     IMLHRSTK.0Is0#, IMLHRSTK.0Is1#, IMRHBLOCKIs0#, IMRHBLOCKIs1# -- the
+//     half-select and secondary bit `writeim-test` proves, chosen the way the
+//     ROM chooses them.
 //
-// WHY IT FAILS, and it is not a new mystery. `parc_micro` below is
-// `DoDoradoMicroInst` faithfully: ClrStop rides in the FIRST Control byte
-// (0x4E, with ClrMIR/ClrCT/Freeze) and SetRun comes in a LATER one. Measured,
-// the machine then runs erratically -- successive microinstructions get
-// `clk0'` twice and `clk1'` not at all, or neither, and `Stop` drifts. It is
-// exactly the loose end `run-test` recorded:
+// WHAT THE MUTATIONS SAY, including one that does NOT fail. Removing the
+// strobe GAP, writing CPReg without the `~` complement, and using the
+// left-half `IMStoreTable` entry for a right-half store all break it. Dropping
+// the `Nop#` after `CPRegToLink#` does NOT -- so on this evidence the Nop is
+// not load-bearing HERE, and its comment ("holds CPReg constant through T3 of
+// the previous instruction") describes a hazard the GAP already covers, since
+// the gap leaves CPReg untouched for far longer than the Nop would. It is kept
+// because it is what the ROM does, not because this test proves it necessary.
+// (Recorded because an earlier claim in this repository that three Control
+// strobes were all load-bearing had a mutation that passed, the same way.)
 //
-//     "ClrStop and SetRun must go in the SAME Control byte, 0x41. rStop is a
-//      LEVEL ... PARC's DoDoradoMicroInst issues ClrStop and SetRun as
-//      separate strobes, so by the time SetRun lands ClrStop has been
-//      withdrawn -- and Stop re-latches dStop before the machine gets going.
-//      ... That the real machine does not need this is presumably a timing
-//      matter, or something a board outside ContA/ContB supplies; it is the
-//      obvious loose end."
+// TWO THINGS TO KNOW WHEN READING THE RESULT:
 //
-// `step-test` and `operand-test` work because they use the COMBINED 0x41 form.
-// Boot0 is the first thing that needs the authentic separated sequence, so it
-// is the first thing to fail on that gap -- which makes this the reproducer
-// for it, and closing it is now the highest-value open question in the RTL.
-//
-// A LEAD WORTH TRYING FIRST: `Freeze`. PARC sets it in the 0x4E byte and
-// clears it in the next, and ContA i07 turns `NoDispatch` into
-// `Freeze`/`FreezeAC`/`FreezeBD` -- and `FreezeBD` is one of the two clock
-// enables on k04, so Freeze already gates clocks in this design. If it also
-// gates the stop latch's clock (`clk2'Bc` into ContA j04), then `Stop` cannot
-// re-latch across the jam window and PARC's separated sequence works as
-// written. Check j04's clock against Freeze before looking further afield.
+//   * THE FIRST MICROINSTRUCTION OUT OF A COLD STOP RUNS ONLY ITS `clk0` HALF,
+//     because the phase generator comes out of reset with `StartCycle` cleared.
+//     A loader's first word would therefore lose its address load. Boot0 runs
+//     continuously so this never arises there; the two Nops below put the
+//     pipeline in that regime deliberately.
+//   * THE SCAN REPORTS THE WITHIN-BANK INDEX. IM is 4096 words as four banks of
+//     1024, and `dRA.00'`/`dRA.11'` -- the top and bottom address bits -- pick
+//     the bank, so address 0x123 lands at index 0x123>>1 = 0x91 = 145 and 0x124
+//     at 146. That is not a discrepancy, it is the interleave.
+
 `default_nettype none
 
 module tb_sendmir;
+
+  localparam integer GAP = 200;   // sys_clk between Control strobes
 
   reg sys_clk = 1'b0;
   always #1 sys_clk = ~sys_clk;
@@ -418,9 +426,11 @@ module tb_sendmir;
     begin
       setrun = 0; setss_n = 1;
       repeat (400) @(posedge sys_clk);
-      strobe(3'd1, 8'h21, 1'b0);
+      strobe(3'd1, 8'h21, 1'b0); repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h4E, 1'b0); setrun = 0; setss_n = 1;
+      repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h00, 1'b1); setss_n = 0;
+      repeat (GAP) @(posedge sys_clk);
       strobe(3'd4, b1, b0[7]); strobe(3'd5, b2, b0[6]);
       strobe(3'd6, b3, b0[5]); strobe(3'd7, b4, b0[4]);
       strobe(3'd0, 8'h01, 1'b1); setrun = 1;
@@ -438,10 +448,14 @@ module tb_sendmir;
   endtask
 
 
-  task scan_all;
+  reg [11:0] link_seen;
+  integer total_written;
+
+  // Bits set at ONE within-bank index, across the right half's packages.
+  task scan_one(input integer idx);
     begin
-      for (i=0;i<1024;i=i+1) begin
-        hits = 0;
+      i = idx;
+      hits = 0;
         if (m.b_ContB.u_a10.mem[i]) hits = hits + 1;
         if (m.b_ContB.u_a11.mem[i]) hits = hits + 1;
         if (m.b_ContB.u_a14.mem[i]) hits = hits + 1;
@@ -514,9 +528,24 @@ module tb_sendmir;
         if (m.b_ContB.u_i17.mem[i]) hits = hits + 1;
         if (m.b_ContB.u_i18.mem[i]) hits = hits + 1;
         if (m.b_ContB.u_i19.mem[i]) hits = hits + 1;
-        if (hits != 0) $display("   IM[%0d] (0x%h): %0d right-half bits", i, i[11:0], hits);
+    end
+  endtask
+
+  task scan_all;
+    begin
+      total_written = 0;
+      for (i = 0; i < 1024; i = i + 1) begin
+        scan_one(i);
+        if (hits != 0) begin
+          $display("   IM[%0d] (0x%h): %0d right-half bits", i, i[11:0], hits);
+          total_written = total_written + hits;
+        end
       end
     end
+  endtask
+
+  task count_at(input integer addr, output integer n);
+    begin scan_one(addr); n = hits; end
   endtask
 
   // ---- PARC's own routines, transcribed from doradoboot.masm/doradocpint.masm
@@ -539,14 +568,21 @@ module tb_sendmir;
   task parc_micro(input [7:0] b0, input [7:0] b1, input [7:0] b2,
                   input [7:0] b3, input [7:0] b4);
     begin
-      strobe(3'd1, 8'h21, 1'b0);
+      strobe(3'd1, 8'h21, 1'b0); repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h4E, 1'b0); setrun = 0; setss_n = 1;
+      repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h00, 1'b1); setss_n = 0;
+      repeat (GAP) @(posedge sys_clk);
       strobe(3'd4, b1, b0[7]); strobe(3'd5, b2, b0[6]);
       strobe(3'd6, b3, b0[5]); strobe(3'd7, b4, b0[4]);
       zero;
+      // The real BaseBoard is a 1 MHz 6502 running JSR DoControl between
+      // these; the gap is MICROSECONDS, not the fourteen sys_clk a testbench
+      // takes. GAP models that.
       strobe(3'd0, 8'h01, 1'b1); setrun = 1;   // Control(SetRun), SS
+      repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h01, 1'b1);               // BasicStopDorado
+      repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h00, 1'b1); setrun = 0;
       repeat (800) @(posedge sys_clk);
       $display("      micro %02h: clk0' %0d clk1' %0d clk2' %0d | Stop=%b Link=%h FF=%b",
@@ -573,6 +609,12 @@ module tb_sendmir;
       set_cpreg_tilde(imaddr);
       parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
       nop_micro;                                        // ...AndNop
+      // The address is in Link HERE. The store below carries FF=176 too and
+      // reloads Link with its own DATA -- the link_at_issue hazard -- so this
+      // is the only moment it can be checked.
+      link_seen = link_hi;
+      if (link_seen !== imaddr[11:0])
+        $fatal(1, "CPRegToLink# did not put the address in Link");
       set_cpreg_tilde(word);
       if (!right_half && !extra) parc_micro(8'h60, 8'h33, 8'hEF, 8'h03, 8'h4F);
       if (!right_half &&  extra) parc_micro(8'h20, 8'h73, 8'hEF, 8'h03, 8'h4F);
@@ -592,11 +634,27 @@ module tb_sendmir;
     zero;
     wipe_im;
 
+    // Warm the pipeline: the FIRST microinstruction out of a cold stop runs
+    // only its clk0 half, so a real loader's first word would lose its
+    // address load. Boot0 runs continuously; two Nops put us in that regime.
+    nop_micro; nop_micro;
     send_via_mir(16'h0123, 16'h5678, 1'b1, 1'b0);
-    $display("tb_sendmir: after one word -- Link[4:15]=%h (want 123)", link_hi);
-    nop_micro; nop_micro;          // let the store's T3 complete
-    $display("tb_sendmir: wrote 0x5678 to IM[0x123], right half:");
+    send_via_mir(16'h0124, 16'h000F, 1'b1, 1'b0);
+    nop_micro; nop_micro;          // let the last store's T3 complete
+    $display("tb_sendmir: 0x5678 -> IM[0x123], 0x000F -> IM[0x124]");
     scan_all;
+
+    // The right half stores 18 bits: RBMux.00-15 plus the parity bit and the
+    // secondary bit. So the count at an address is popcount(data) + 1.
+    count_at(145, hits_a);
+    count_at(146, hits_b);
+    $display("tb_sendmir: IM[145]=%0d bits (want 9 = 8 in 0x5678 + 1), IM[146]=%0d (want 5 = 4 in 0x000f + 1)",
+             hits_a, hits_b);
+    if (hits_a !== 9) $fatal(1, "the first word did not land at its address with its data");
+    if (hits_b !== 5) $fatal(1, "the second word did not land at its address with its data");
+    if (total_written !== 14)
+      $fatal(1, "IM took bits at addresses these two words did not name");
+    $display("tb_sendmir: PARC's SendViaMIR loads IM -- two words, two addresses, right data.");
     $finish;
   end
 

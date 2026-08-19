@@ -21,7 +21,7 @@
 #   make operand-test ...and its DATA comes from CPReg (the MIR clock held)
 #   make step-test    the machine SINGLE-STEPS microinstructions
 #   make startseq     PARC's own boot sequence replayed (diagnostic, not a gate)
-#   make sendmir      PARC's IM loader replayed (diagnostic, not a gate yet)
+#   make sendmir      PARC's IM LOADER: words go into IM at their addresses
 #   make converge-test the assembled machine settles, and its clock runs
 #   make machine-test the assembled machine under the imgui harness
 #   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs
@@ -105,7 +105,7 @@ operand-test:
 step-test:
 	@$(MAKE) -C verilator step-test
 
-# PARC's SendViaMIR replayed. A DIAGNOSTIC, not a gate: it does not pass yet.
+# PARC's SendViaMIR: Boot0's inner loop, loading words into IM.
 sendmir:
 	@$(MAKE) -C verilator sendmir
 

@@ -971,6 +971,7 @@ path is one signal short. Rung by rung, each line a gate you can run:
 | ...with the DATA from CPReg | `operand-test` |
 | ...with the ADDRESS from CPReg | `operand-test` (Link -> TNIA -> IM) |
 | the machine SINGLE-STEPS microinstructions | `step-test` |
+| PARC's SendViaMIR loads words into IM | `sendmir` -- Boot0's inner loop |
 
 Eighteen gates in all; `make -C verilog` has the list. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
@@ -1007,6 +1008,21 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   `SetMidasStopMIRClk` ("turn on MIR debug feature"). A microinstruction the
   BaseBoard put in the MIR did not come from IM and fails its parity, so the
   "freeze the MIR on a parity error" debug feature is ALSO the jam mechanism.
+- **Three memory cells had their address bits BACKWARDS** -- `F10415A` (IM,
+  144 packages), `F10145A` (405, the biggest cell in the machine) and `F10470`
+  (the DRAM) assembled the address LSB-first where PARC wires it MSB-first.
+  For IM it is proved without appeal to convention: pin 2 takes `RA.01a`,
+  which comes from `TNIA.05`, the second most significant bit. A Write-IM
+  addressing 195 deposited at 780 -- 195 with its ten bits reversed. Nothing
+  caught it because a consistently reversed address is a PERMUTATION, which
+  only bites when IM is compared with something external, i.e. Boot0.
+- **Boot0's inner loop WORKS, and the `run-test` loose end was strobe SPACING.**
+  `DoDoradoMicroInst` puts ClrStop in its first Control byte and SetRun in a
+  later one, which our model seemed to need combined; the real BaseBoard is a
+  1 MHz 6502 running `JSR DoControl` between strobes, and `SetRun` must survive
+  three `RunClk'` edges to reach `dRun` through ContA i03. Space the strobes
+  and PARC's sequence runs as written. `make -C verilog sendmir` loads two
+  words into IM at their addresses.
 - **Three memory cells had their address bits BACKWARDS** -- `F10415A` (IM,
   144 packages), `F10145A` (405, the biggest cell in the machine) and `F10470`
   (the DRAM) assembled the address LSB-first where PARC wires it MSB-first.

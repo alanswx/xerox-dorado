@@ -29,6 +29,7 @@ can run.
 | ...with the DATA from CPReg | **works** | `operand-test` |
 | ...with the ADDRESS from CPReg | **works** -- Link -> TNIA -> the array's address lines | `operand-test` |
 | The machine SINGLE-STEPS microinstructions | **works** | `step-test` |
+| PARC's SendViaMIR loads words into IM | **works** -- Boot0's inner loop | `sendmir` |
 
 ### Every gate
 
@@ -94,67 +95,50 @@ substitutions if at all. The 22 digital ones need datasheets this repository
 does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 `F9401`.
 
-## START HERE: close the `run-test` loose end -- Boot0 is waiting on it
+## START HERE: Boot0's inner loop works -- drive the whole block next
 
-Everything under Boot0 is a passing gate: the machine single-steps
-microinstructions (`step-test`), a jam's DATA comes from CPReg and its ADDRESS
-from Link (`operand-test`), the MIR is held by PARC's own two manifold words,
-and `make -C verilog sendmir` is `SendViaMIR` transcribed line for line from
-`doradoboot.masm`.
+`make -C verilog sendmir` is `doradoboot.masm`'s per-word IM loader,
+transcribed line for line, and it works: two words go in at two addresses and
+come back with the right bit counts. **The `run-test` loose end is closed, and
+it was strobe SPACING** -- see below.
 
-**It fails on the loose end `run-test` recorded, and that is now the single
-highest-value question in the RTL.** `DoDoradoMicroInst` puts ClrStop in its
-FIRST Control byte (0x4E, with ClrMIR/ClrCT/Freeze) and SetRun in a LATER one.
-`rStop` is a level that lasts only until the next Control strobe, so in this
-model `Stop` re-latches before SetRun lands: successive microinstructions get
-`clk0'` twice and `clk1'` not at all, or neither, and `Stop` drifts.
-`step-test` and `operand-test` work only because they use the COMBINED 0x41
-form, which is not what the hardware does. Boot0 is the first thing that needs
-the authentic sequence, so it is the first thing to fail on the gap --
-`sendmir` is the reproducer.
+What is left is the block loader around it: `LoadDoradoCode` walks
+`Boot0Block` (data pointer, first IM location, length in 17-byte hunks,
+checksum, breakpoints) calling `SendViaMIR` per word. Transcribe that, feed it
+a real `.MB`, and diff IM against what `cpu.c`'s loader puts in `im[]` for the
+same input -- the first whole-subsystem cross-check against the C emulator, and
+the reason the address-order fix below had to happen first.
 
-**Try `Freeze` first.** PARC sets it in the 0x4E byte and clears it in the
-next, ContA i07 turns `NoDispatch` into `Freeze`/`FreezeAC`/`FreezeBD`, and
-`FreezeBD` is already one of the two clock enables on k04 -- so Freeze gates
-clocks in this design today. If it also gates the stop latch's clock
-(`clk2'Bc` into ContA j04), `Stop` cannot re-latch across the jam window and
-PARC's separated sequence works as written. Check j04's clock against Freeze
-before looking further afield; the handoff's own guess was "a timing matter, or
-something a board outside ContA/ContB supplies".
+**Five things that will otherwise cost you a day:**
 
-**Two things `sendmir` already pins down, both from PARC's source:**
-
-* **`SetCPReg~` writes the COMPLEMENT** ("LDA ToCPRegH / EORI 0ff"), which is
-  why the BaseBoard's value arrives on BMux uncomplemented -- ContA b02's
-  MC10159 inverts and the tilde cancels it. Every earlier testbench here wrote
-  the value straight and read the complement back; this is the convention that
-  explains it.
-* **`IMStoreTable` is four entries indexed by `(half << 1) | extraBit`** --
-  IMLHRSTK.0Is0#, IMLHRSTK.0Is1#, IMRHBLOCKIs0#, IMRHBLOCKIs1# -- which is the
-  half-select and secondary bit `writeim-test` proves, chosen the way the ROM
-  chooses them.
-
-**Six things that will otherwise cost you a day:**
-
-* **A step is at least TWO Control strobes** in the combined form: ClrStop+
-  SetRun, then a following one WITHOUT ClrStop. With no second strobe `rStop`
-  stays asserted and the machine free-runs (26 `clk0'` edges where a step gives
-  2).
-* **The first step out of a stop is HALF a microinstruction** -- `clk0'` and no
-  `clk1'` -- because the phase generator comes out of reset with `StartCycle`
-  cleared. Every step after it is whole.
-* **A jam only survives at all because the MIR CLOCK IS HELD**, which takes two
+* **CONTROL STROBES MUST BE SPACED.** The real BaseBoard is a 1 MHz 6502
+  running `JSR DoControl` between them -- microseconds apart -- and `SetRun`
+  has to survive three `RunClk'` edges to walk ContA i03's three-stage shift
+  register into `dRun`. Fourteen sys_clk does not cover it. With a gap, PARC's
+  SEPARATED ClrStop/SetRun sequence runs exactly as written: every
+  microinstruction gets `clk0'` twice, `clk1'` twice and `Stop` set again. The
+  combined 0x41 byte that `run-test` and `step-test` use is a workaround for
+  the missing gap, not something the hardware needs.
+* **`SetCPReg~` writes the COMPLEMENT** ("LDA ToCPRegH / EORI 0ff"). ContA
+  b02's MC10159 inverts on the way to BMux and the tilde cancels it, so writing
+  ~address puts the address in Link. Testbenches that write the value straight
+  read the complement back, which is what every earlier one here did.
+* **The first microinstruction out of a cold stop runs only its `clk0` half**,
+  because the phase generator comes out of reset with `StartCycle` cleared. A
+  loader's first word loses its address load unless the pipeline is warmed;
+  Boot0 runs continuously so this is a testbench concern only.
+* **The IM scan index is the WITHIN-BANK index.** IM is four banks of 1024 and
+  `dRA.00'`/`dRA.11'` -- the top and bottom address bits -- pick the bank, so
+  address 0x123 lands at 0x123>>1 = 145. Not a discrepancy, the interleave.
+* **A jam only survives because the MIR CLOCK IS HELD**, which takes the two
   manifold words PARC's boot ROM writes at power-up.
-* **The machine runs DURING the Control strobes.** Count clocks continuously; a
-  window opened after the last strobe sees nothing, which reads exactly like a
-  machine that has stopped dead. (Widening the window 4x is how that was ruled
-  out as the explanation for the erratic stepping above -- it is real.)
-* **Measure against a wiped baseline, and pick a CPReg value whose COMPLEMENT
-  has bits in it.** `CPReg=FFFF` reaches the array as `0000`, so a write of
-  zeros is indistinguishable from no write.
-* **When a wired-OR reads wrong, split it.** The generator gives every driver
-  its own stub (`TNIA_04__g24_3` beside `TNIA_04__g22_14`); printing all of
-  them per bit named the guilty package in one run.
+
+**And the `link_at_issue` hazard is real and still unmodelled.** `CPRegToIM#`
+carries `FF=176` like `CPRegToLink#`, so it reloads Link with its own DATA as
+it executes; the address is only readable between the two jams. It does not
+bite `sendmir` because the write completes before the reload, but anything
+reading Link after a store gets the data. `cpu.c` models this as
+`link_at_issue`.
 
 ## How to read the rest
 
