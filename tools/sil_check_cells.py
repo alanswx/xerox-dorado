@@ -37,14 +37,33 @@ answer, for every cell at once, and that is what this does.
 It resolves intermediate wires first (`wire a = ~(p5|p6|p7); assign p2 = a;`),
 so a cell that factors its logic is checked the same as one that does not.
 
-THE `also reads` NOTES ARE NOT BUGS, and all of them have been checked
-against the data sheets once, so they need not be again: the `[G]` summary
-omits selects, enables and carries. MC10158 pin 9 and MC10159 pin 9 are
-SELECT and MC10159 pin 7 is ENABLE; MC10164's p2 is its enable and p7/p9/p10
-its select; MC10174 pin 14 is ENABLE and 7/9 the address; MC10180's p4/p12
-are the two carry inputs; MC10170's p13/p14 are the `HIGH` and `LOW`
-inputs that make it a "9+2-bit" parity generator; and SN74LS153/SN74LS253 read
-their enable and both selects, which the summary lists for neither half.
+THE `also reads` NOTES ARE MOSTLY NOT BUGS -- the `[G]` summary omits selects,
+enables and carries. MC10158 pin 9 and MC10159 pin 9 are SELECT and MC10159
+pin 7 is ENABLE; MC10164's p2 is its enable and p7/p9/p10 its select; MC10174
+pin 14 is ENABLE and 7/9 the address; MC10180's p4/p12 are the two carry
+inputs; and SN74LS153/SN74LS253 read their enable and both selects, which the
+summary lists for neither half.
+
+BUT ONE OF THEM WAS A BUG, AND THE NOTE HID IT. This file used to claim all of
+them "have been checked against the data sheets once, so they need not be
+again", and listed MC10170's p13/p14 among them. The summary does NOT omit
+those pins -- it lists them, against a DIFFERENT OUTPUT:
+
+    MC170
+    [G (3 4 5 6 7 9 10 11 12)>2 ]     the nine data bits -> A
+    [G (3 4 5 6 7 9 10 11 12)>15]     the nine data bits -> B
+    [G (13 14)>15 ]                   the two CONTROLS   -> B only
+
+`cell_MC10170` XORed the controls into BOTH outputs, so the local parity on
+pin 2 was wrong wherever a package cascades -- which is every one that matters,
+since the cascade is how ContB j21+j20 make an 18-bit check out of two 9-bit
+ones. Motorola's sheet (1978 MECL book p.123) calls it "an 11-bit parity
+circuit, segmented into 9 data bits and 2 control bits", with the controls
+there to "expand parity to larger numbers of bits".
+
+So a pin the summary names against ANOTHER output is now an ERROR, not a note:
+that is a contradiction rather than an omission, and it is the one case where
+the dictionary is telling you something the note would swallow.
 
 A CHECK THAT WAS ADDED HERE AND REMOVED, because its premise was false, and
 it is worth stating so nobody re-derives it. The idea was: the dictionary
@@ -315,10 +334,26 @@ def main(argv: list[str]) -> int:
                                 + ' '.join(f'p{p}' for p in sorted(missing))
                                 + f' -- PARC says that gate reads {sorted(want)}')
             elif extra:
-                notes.append(f'  {part:<12} p{out_pin:<3} also reads '
-                             + ' '.join(f'p{p}' for p in sorted(extra))
-                             + '  (a select, enable or carry the [G] summary '
-                               'does not list)')
+                # Is any of them named by the summary against a DIFFERENT
+                # output of this same part? Then the dictionary is not silent
+                # about the pin -- it is contradicting the cell.
+                elsewhere = set()
+                for ins2, outs2 in gt.get(short, []):
+                    if out_pin in outs2:
+                        continue
+                    elsewhere |= (extra & ins2)
+                if elsewhere:
+                    bad += 1
+                    problems.append(
+                        f'  {part:<12} p{out_pin:<3} reads '
+                        + ' '.join(f'p{p}' for p in sorted(elsewhere))
+                        + ', which PARC lists against ANOTHER output of this '
+                          'part -- not an omission, a contradiction')
+                if extra - elsewhere:
+                    notes.append(f'  {part:<12} p{out_pin:<3} also reads '
+                                 + ' '.join(f'p{p}' for p in sorted(extra - elsewhere))
+                                 + '  (a select, enable or carry the [G] summary '
+                                   'does not list)')
 
     if problems:
         print('CELLS THAT IGNORE AN INPUT PARC SAYS THE GATE HAS:')

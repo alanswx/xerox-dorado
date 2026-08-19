@@ -160,6 +160,17 @@ converge-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_converge/tb_converge 2>&1); \
 		  rc=$$?; echo "$$out" | grep tb_converge; exit $$rc; }
 
+# Do PARC's IRTable entries satisfy our IM parity generators? A DIAGNOSTIC --
+# they do not, and tb_parity.sv says what is ruled out and where to look.
+.PHONY: parity-probe
+parity-probe:
+	@cd ../.. && $(V) --binary --top-module tb_parity $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_parity -o tb_parity \
+		verilog/verilator/tb_parity.sv verilog/generated/dorado_proc.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		>/dev/null && ./verilog/verilator/obj_parity/tb_parity | grep tb_parity
+
 # THE MACHINE EXECUTES MICROCODE OUT OF IM.
 .PHONY: exec-test
 exec-test:
