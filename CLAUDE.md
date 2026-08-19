@@ -1007,6 +1007,15 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   `SetMidasStopMIRClk` ("turn on MIR debug feature"). A microinstruction the
   BaseBoard put in the MIR did not come from IM and fails its parity, so the
   "freeze the MIR on a parity error" debug feature is ALSO the jam mechanism.
+- **Boot0 is the open rung, and a probe already narrowed it.** `CPRegToIM#`
+  carries `FF=176`, which means BOTH halves of `Link<-CPReg` -- it puts CPReg
+  on B *and* reloads Link from it -- so by the time the write fires the address
+  register holds `~data`, which is the hazard `cpu.c` models as
+  `link_at_issue`. And the write is several steps late: `preWE'` waits on
+  `CRamClock`, whose D is `Phase2'`, and the five-stage Phase ring advances at
+  most one stage per step. Measured over eight steps the write fires at 3, 5
+  and 6, and lands at neither Link value. PARC's Nop-after-jam is demonstrable:
+  without it the pending write deposits during the NEXT jam's byte-strobing.
 - **A single step is at least TWO Control strobes**, and the first step out of
   a stop is only HALF a microinstruction. `rStop` is a LEVEL that lasts until
   the next Control strobe, so ClrStop+SetRun issued once and left free-runs;

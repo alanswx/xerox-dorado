@@ -94,20 +94,51 @@ substitutions if at all. The 22 digital ones need datasheets this repository
 does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 `F9401`.
 
-## START HERE
+## START HERE: Boot0, and what a probe already measured
 
-**The machine single-steps microinstructions** (`step-test`) and **the whole
-jam path works** (`operand-test`). A step is exactly one microinstruction --
-`clk0'` twice, `clk1'` twice, `clk2'` four times, `Stop` set again -- and a
-jammed `CPRegToLink#` executes, putting CPReg into Link.
+Everything below Boot0 is a passing gate: the machine single-steps
+microinstructions (`step-test`), a jam's DATA comes from CPReg and its ADDRESS
+from Link (`operand-test`), and the MIR is held by PARC's own two manifold
+words. **Boot0 itself does not work yet**, and a probe has already narrowed it
+to one question. Four things were measured; start from them rather than
+repeating them.
 
-So **Boot0 is the next task and every piece of it is now a passing gate**: the
-BaseBoard's loader jams a `CPRegToLink#`/`CPRegToIM#` pair and steps it, 475
-times, to fill IM. What remains is to drive that sequence and read IM back --
-and the read side is the one part with no model on the C emulator's side to
-diff against, so the `CPIn.0-3` specification below is what to build from.
+**1. `CPRegToIM#` reloads Link with its own DATA as it executes.** Both IRTable
+entries carry `FF=176`, and `Link<-CPReg` means BOTH halves of its name: put
+CPReg on B *and* load Link from B. So by the time the write fires, the address
+register holds `~data`, not the address the preceding `CPRegToLink#` put there
+(measured: Link goes to `987`, which is `~0x5678` bits 4:15). This is exactly
+the hazard `cpu.c` models as **`link_at_issue`** -- "use the issue-time
+snapshot" -- and the RTL question is where the hardware latches the address so
+that the same-instruction reload cannot reach it.
 
-**Five things that will otherwise cost you a day:**
+**2. The write is several steps late, because it waits on the PHASE ring.**
+`preWE'` comes from `CRamClock`, which is ContA j01 half A: `D = Phase2'`,
+clock `preCRamClock`, asynchronous SET `WIM'`. `Phase0..Phase4` is a five-stage
+ring clocked by `clk2'`, and one step advances it at most one stage. Measured
+across eight steps of a single jammed `CPRegToIM#`: `WIM'` asserts immediately
+and stays asserted, the ring walks `10000 -> 10000 -> 01000 -> 00001 -> 10000
+-> 00100 -> ...`, and `WER'` fires at steps 3, 5 and 6. So a Write-IM is not a
+one-step operation, and the ring does not advance once per step, which is the
+next thing to understand.
+
+**3. The address the write actually uses is neither Link value.** With the
+intended address `55f` and the reloaded one `987`, the deposit landed at
+`IM[780]` = `0x30C`. So it is sampled at a third moment. Capture `dRA` at the
+`WER'` edge and work back through TNIA.
+
+**4. PARC's Nop is real and it is demonstrable.** Without a Nop between pairs,
+the pending write from one `CPRegToIM#` fires during the NEXT jam's MIR
+byte-strobing and deposits that jam's operand at a stale address (measured:
+`RBMux=f55f` at `RA=0x3ff`). Inserting the Nop removes it entirely -- which is
+`DoIRTableInstAndNop`'s comment demonstrated, "the Nop holds CPReg constant
+through T3 of the PREVIOUS instruction".
+
+Also worth knowing: **the first jam/step pair after a cold stop does not
+take.** Link stays `fff` and a second pair is needed. That is consistent with
+(2) -- the phase ring starts from reset -- but it has not been pinned down.
+
+**Six things that will otherwise cost you a day:**
 
 * **A step is at least TWO Control strobes**: one carrying ClrStop+SetRun, and
   a following one WITHOUT ClrStop. `rStop` is a LEVEL that lasts until the next
@@ -117,11 +148,7 @@ diff against, so the `CPIn.0-3` specification below is what to build from.
   all three were load-bearing had a mutation that passed.
 * **The first step out of a stop is HALF a microinstruction** -- `clk0'` and no
   `clk1'` -- because the phase generator comes out of reset with `StartCycle`
-  cleared. Every step after it is whole. This is what PARC's
-  `DoIRTableInstAndNop` accounts for: it never jams an IRTable entry alone, and
-  its comment says why, "the Nop holds CPReg constant through T3 of the
-  PREVIOUS instruction". The Dorado is pipelined; an instruction's later phases
-  run while the next one is in the MIR.
+  cleared. Every step after it is whole.
 * **A jam only survives at all because the MIR CLOCK IS HELD**, which takes two
   manifold words PARC's boot ROM writes at power-up. Every testbench that jams
   writes them; one that does not is measuring whatever IM holds.
@@ -132,6 +159,10 @@ diff against, so the `CPIn.0-3` specification below is what to build from.
   has bits in it.** IM comes up with cells set from a settling transient, and
   `CPReg=FFFF` reaches the array as `0000`, so a write of zeros is
   indistinguishable from no write.
+* **When a wired-OR reads wrong, split it.** The generator gives every driver
+  its own stub (`TNIA_04__g24_3` beside `TNIA_04__g22_14`); printing all of
+  them per bit named the guilty package in one run and exonerated eleven
+  others.
 
 ## How to read the rest
 
