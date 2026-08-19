@@ -968,9 +968,10 @@ path is one signal short. Rung by rung, each line a gate you can run:
 | the Control section executes cycles | `run-test` |
 | four boards, the microinstruction on the datapath | `datapath-test` |
 | a jammed Write-IM deposits into IM, half-select and all | `writeim-test` |
-| ...with the DATA and ADDRESS from CPReg | **open, one signal** |
+| ...with the DATA from CPReg | `operand-test` |
+| ...with the ADDRESS from CPReg | **open** |
 
-Seventeen gates in all; `make -C verilog` has the list. Cell coverage is
+Eighteen gates in all; `make -C verilog` has the list. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
 boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
@@ -994,6 +995,23 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
 - **A jam must be SINGLE-STEPPED** (SetRun+SetSS, no ClrStop): free-running
   reloads the MIR from IM one clock later. `run-test`'s "ClrStop and SetRun must
   share a byte" is right for free-running and wrong for a jam.
+- **A jam executes only because the MIR CLOCK IS HELD, and PARC's boot ROM
+  arranges that at power-up.** The blocker was never the FF decode -- that was
+  right all along, and `B<-Link'` comes from ContA a13, not from b16. Within a
+  microinstruction the MIR loads from IM (on `h*clk0'`) BEFORE the register
+  that acts on the FF field clocks (on `clk1'`), so a jam is overwritten
+  before it can do anything. What holds it is `StopMIRClk`, and that needs two
+  MANIFOLD words `doradomufman.masm` writes once, just after the supplies come
+  up: `DisableDoradoErrors` ("all except IM parity errors disabled") and
+  `SetMidasStopMIRClk` ("turn on MIR debug feature"). A microinstruction the
+  BaseBoard put in the MIR did not come from IM and fails its parity, so the
+  "freeze the MIR on a parity error" debug feature is ALSO the jam mechanism.
+- **"EclDict role `OUT` is the inverting output" does not generalise**, and
+  PARC's net naming cannot settle it either -- nine MC10121 packages prime the
+  same pin unanimously and are wrong. What settles it is the MECL data book's
+  logic diagram read BY COORDINATES: the overbars are in a font the PDF does
+  not embed, but the inverting bubble rasterises and `pdftotext -bbox` gives
+  each pin label's y.
 - **`doradoio.mdefs` and `doradoboot.masm` are a complete specification of the
   control-processor interface** -- every Control mask, the `Clock` function's
   bits, the CPIn readout selects, and an IRTable of hand-coded microinstructions

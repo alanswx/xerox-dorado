@@ -6,7 +6,8 @@
 #                 hand-written model; use `make cells-force` deliberately
 #   make proms    regenerate proms/*.mem and the per-package images
 #   make lint       every board must still elaborate under Verilator
-#   make cell-check every cell wires the inputs PARC says its gates have
+#   make cell-check every cell wires the inputs PARC says its gates have,
+#                 and a both-sense gate's two outputs are complements
 #   make loop-check no combinational feedback beyond the one that is known
 #   make prom-test    the PROMs read back what the machine expects
 #   make alu-test     the ALU matches its datasheet's function table
@@ -17,6 +18,7 @@
 #   make run-test     THE MACHINE RUNS: the Control section executes cycles
 #   make datapath-test four boards, with the microinstruction on the datapath
 #   make writeim-test a jammed Write-IM deposits into IM, half-select and all
+#   make operand-test ...and its DATA comes from CPReg (the MIR clock held)
 #   make startseq     PARC's own boot sequence replayed (diagnostic, not a gate)
 #   make machine-test the assembled machine clocks and its clock tree runs
 #   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs
@@ -29,7 +31,7 @@ TOOLS   = ../tools
 
 .PHONY: boards backplane proms cells cells-force lint cell-check loop-check \
         prom-test alu-test alu-diff cpreg-diff mir-diff mirreg-diff run-test \
-        writeim-test \
+        writeim-test operand-test \
         datapath-test \
         startseq \
         machine-test \
@@ -48,6 +50,7 @@ proms:
 # ignoring its common strobe on three of four gates; this checks all of them.
 cell-check:
 	@python3 $(TOOLS)/sil_check_cells.py
+	@python3 $(TOOLS)/sil_check_polarity.py
 
 # Combinational feedback. A loop that can oscillate stops the whole machine
 # settling, and the cause has every time been a cell modelled as a latch that
@@ -90,6 +93,10 @@ datapath-test:
 # A jammed Write-IM depositing into IM, both halves.
 writeim-test:
 	@$(MAKE) -C verilator writeim-test
+
+# And its operand: the DATA comes from CPReg, once the MIR clock is held.
+operand-test:
+	@$(MAKE) -C verilator operand-test
 
 # PARC's own DoDoradoMicroInst replayed. A diagnostic, not a gate.
 startseq:

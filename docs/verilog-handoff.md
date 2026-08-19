@@ -26,7 +26,8 @@ can run.
 | The Control section executes cycles | **works** | `run-test` |
 | Four boards, microinstruction on the datapath | **works** | `datapath-test` |
 | A jammed Write-IM deposits into IM | **works** (mechanism + half-select) | `writeim-test` |
-| ...with the DATA and ADDRESS from CPReg | **open -- one signal**, see below | -- |
+| ...with the DATA from CPReg | **works** | `operand-test` |
+| ...with the ADDRESS from CPReg | **open**, see below | -- |
 
 ### Every gate
 
@@ -36,7 +37,9 @@ make -C verilog proms           proms/*.mem and the per-package images
 make -C verilog cells           cell skeletons for a new part (never overwrites)
 
 make -C verilog lint            every board and all four machines elaborate
-make -C verilog cell-check      cells wire the inputs PARC's [G] lists say they do
+make -C verilog cell-check      cells wire the inputs PARC's [G] lists say they
+                                do, and a both-sense gate's two outputs are
+                                complements of each other
 make -C verilog loop-check      no combinational feedback beyond the known ones
 make -C verilog prom-test       PROMs read back what the machine expects
 make -C verilog alu-test        the ALU matches its datasheet
@@ -68,7 +71,7 @@ emits four:
 | `dorado_backplane` | the eleven of a working monochrome machine | `machine-test`, the imgui harness |
 | `dorado_baseboard` | BaseBd alone | `baseboard-test` |
 | `dorado_control` | ContA + ContB | `run-test`, `mirreg-diff` |
-| `dorado_proc` | ContA, ContB, ProcH, ProcL | `datapath-test`, `writeim-test` |
+| `dorado_proc` | ContA, ContB, ProcH, ProcL | `datapath-test`, `writeim-test`, `operand-test` |
 
 `make -C verilog backplane MACHINE=--boards=ProcH,ProcL` builds any other.
 
@@ -91,28 +94,33 @@ does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 
 ## START HERE: the one open task
 
-With a jammed Write-IM single-stepped, `FF=Link_CPReg` asserts correctly -- but
-ContA **c17 still does not produce `B_Link'`**, so the MC10159 multiplexer at
-ContA b02 stays disabled and CPReg never reaches `BMux`. That one signal is why
-the write's data and address both come out wrong.
+**The jam's DATA now comes from CPReg** (`operand-test`). What is left is the
+ADDRESS: every write still lands at IM[0].
 
-c17 is an MC10176 clocked by `clk1'Ca`, fed through **b16**, an MC10103 that ORs
-`FF=Link_CPReg` with `CP=UseCPReg`, `FF=BDispatch`, `FF=BigBDispatch`,
-`FF=WriteLink` and `FF.3'`. Work out which of b16's four gates drives
-`ContA04.sil+2`, and what its inputs do during the single step. With that, the
-operand path opens and `writeim-test` can assert the data and the address rather
-than only the mechanism and the half-select.
+The address travels a different chain from the data -- `Link` to `TNIA` on
+ContA, then an MC1662 multiplexer at ContB f21 into IM's address lines -- and
+PARC's IRTable drives it the way the pair of entries implies: jam
+`CPRegToLink#` (`30 13 EF 04 40`) with the address in CPReg, then
+`CPRegToIM#` with the data. `c17` now latches `Link<-BMuxa`/`Link<-BMuxb`
+correctly (both read 1 in `operand-test`), so the load enable is there; what
+has not been traced is where those go and whether Link survives the stop
+between the two jams, which `jam_write` now takes deliberately.
 
-**Read "A jammed Write-IM deposits into IM" below first** -- it has the whole
-chain traced, and the two things that will otherwise cost you a day:
+Start by extending `tb_operand` with the two-jam sequence and watching `Link`
+and `TNIA` -- everything upstream of them is now a passing gate.
+
+**Read "A jammed Write-IM deposits into IM" and "The jam's operand" below
+first.** The two things that will otherwise cost you a day:
 
 * **A jam must be SINGLE-STEPPED** (SetRun+SetSS, no ClrStop). Free-running
   reloads the MIR from IM one clock later and the jam is gone. `run-test`'s
   finding that ClrStop and SetRun must share a Control byte is right for
-  free-running and wrong for a jam -- two different operations.
+  free-running and wrong for a jam -- two different operations. (And with the
+  MIR clock held, a free-running machine repeats the jammed instruction
+  forever, so a second jam has to start from rest.)
 * **Measure against a wiped baseline.** IM comes up with 17 cells set from a
-  settling transient. Counting non-zero cells from time zero makes any Write-IM
-  test pass for the wrong reason, which is exactly what happened once.
+  settling transient. Counting non-zero cells from time zero makes any
+  Write-IM test pass for the wrong reason, which is exactly what happened once.
 
 ## How to read the rest
 
@@ -482,14 +490,22 @@ that summary omits selects, enables and carries (MC10158's pin 9 is SELECT,
 MC10174's pin 14 is ENABLE, MC10180's carry-in); those are reported
 separately, not as errors.
 
-## Reference: OR/NOR output polarity -- SETTLED from the datasheets
+## Reference: OR/NOR output polarity -- for the OR/NOR family only
+
+> **BOUNDED 2026-08-18.** This rule is right for the OR/NOR parts it was
+> derived from and **does not generalise** -- MC10104's `OUT` pins carry the
+> AND and MC10121's `OUT` pin the plain OR-AND. Nor can PARC's net naming
+> decide it, unanimity notwithstanding. See "Correction: role `OUT` is the
+> INVERTING output does NOT generalise" above for what does: the data book's
+> logic diagram, read by coordinates.
 
 A third of the packages in this machine are OR/NOR gates, and getting the
-sense backwards produces a machine that almost works. The rule is now
-confirmed against Motorola's own sheets, so cells can be written mechanically.
+sense backwards produces a machine that almost works. The rule below is
+confirmed against Motorola's own sheets for that family, so those cells can be
+written mechanically.
 
-**EclDict role `OUT` is the INVERTING (NOR) output. Role `o` is the
-non-inverting (OR) output.**
+**For an OR/NOR part, EclDict role `OUT` is the INVERTING (NOR) output and
+role `o` the non-inverting (OR) output.**
 
 | part | EclDict | datasheet pin labels |
 |---|---|---|
@@ -944,6 +960,13 @@ Both were measured, because both were assumed first:
   setting either wrong does NOT stop the machine here; it runs 40,000 cycles
   either way. The path needs `IMLHPEenable`, which comes off the Midas
   diagnostic-mux chain and is 0 in this configuration.
+
+  > **This one turned out to be load-bearing after all, and the last sentence
+  > is why.** Enable it -- `DisableDoradoErrors`, one of the two manifold
+  > words PARC's boot ROM writes at power-up -- and the parity path becomes
+  > the thing that FREEZES THE MIR, which is what lets a jammed
+  > microinstruction execute at all. See "What holds the MIR" above. It is
+  > still true that it does not stop the machine; it stops the MIR clock.
 * **The `Clock` function.** `DoDoradoMicroInst` opens with
   `DoClock(InhibitCAHolds+ClrReady)`; removing it changes nothing.
 
@@ -1136,15 +1159,156 @@ FREE-RUNNING -- it is how you get the machine to sequence continuously. It is
 the wrong mode for a jam. Two different operations, and conflating them is what
 cost the operand.
 
-### Next
+### The operand: it was never the FF decode, it was the MIR CLOCK
 
-One link remains, and it is tight: with a single step, `FF=Link_CPReg` asserts
-but ContA c17 still does not produce `B_Link'`. c17 is clocked by `clk1'Ca` and
-fed through b16, an MC10103 that ORs `FF=Link_CPReg` with `CP=UseCPReg`,
-`FF=BDispatch`, `FF=BigBDispatch`, `FF=WriteLink` and `FF.3'`. Work out which of
-b16's gates drives `ContA04.sil+2` and what its inputs do during the step. With
-that, the operand path opens and `writeim-test` can assert the data and the
-address rather than only the mechanism.
+`make -C verilog operand-test`. **The jammed microinstruction's DATA comes from
+CPReg**: `CPReg=a53c` puts `5ac3` on BMux and RBMux, `CPReg=1234` puts `edcb`,
+and IM takes a different pattern for each.
+
+The section this replaces said the open task was "work out which of b16's gates
+drives `ContA04.sil+2`". **Three things about that were wrong**, and all three
+came from following the wrong net.
+
+* **`B<-Link'` does not come from b16 at all.** It is ContA **a13** pin 2, an
+  MC10102 gate a = `NOR(FF=ReadLink, FF=Link_CPReg)`, driving `ContA04.sil+4`
+  into c17 pin 7 -- and MC10176's `[FF 5>2, 6>3, 7>4, ...]` makes pin 7 the D
+  input whose Q is pin 4, which is `B<-Link'`. b16 feeds c17's OTHER inputs:
+  pins 5 and 6 (both `ContA04.sil+2`, giving `Link<-BMuxa` and `Link<-BMuxb`)
+  and pin 10 (`ContA04.sil+5`, giving `UseCPReg`).
+* **b16's decode needed no work.** The dictionary states it outright --
+  `MC103: a,IN,4,5>a,o,2 ; b,IN,6,7>b,o,3 ; c,IN,12,13>c,OUT,9>c,o,15 ;
+  d,IN,10,11>d,o,14`. Gates a AND b both drive `ContA04.sil+2`, an on-board
+  wired-OR making one 4-input OR of `FF=WriteLink`, `FF=Link_CPReg`,
+  `FF=BigBDispatch` and `FF=BDispatch`; gate c gives
+  `ContA04.sil+5 = OR(CP=UseCPReg, FF=Link_CPReg)`.
+* **The combinational half was already right.** `ContA04.sil+4` goes 1 -> 0 at
+  the exact moment `FF=Link_CPReg` asserts. Measured.
+
+**What was actually wrong is that c17 never clocked.** `clk1'Ca` gets ZERO
+edges while a jam is in the MIR -- single-stepped and free-running alike. The
+clock tree is fine: free-running it runs 1,240 edges, in step with `clk0'Ca`.
+
+**Because within one microinstruction the MIR loads FIRST.** The order is
+`h*clk0'` rises and the MIR takes `d<FIELD>` from IM, then `clk1'` rises and
+c17 latches what the FF field decodes to. Coming out of a stop, clk0 is always
+first. So IM overwrites the BaseBoard's jam half a microinstruction before the
+register that would act on it ever clocks. Measured: free-running, `FF` goes
+`01111110` -> `11111111` at fabric cycle 206 and `clk1'` does not pulse until
+214.
+
+### What holds the MIR: PARC's boot ROM sets it at power-up, through the manifold
+
+`h*clk0'Ca` is ContA **c19**, and it is an OR of three things:
+
+```
+h*clk0'Ca = RepeatCurC | StopMIRClk | preclk0'Cb
+```
+
+`RepeatCurC` is the microcode's own hold (ContA f20, off `CAHold'` and
+`SwitchUp`) and the BaseBoard cannot reach it. `StopMIRClk` is ContB **k02**:
+
+```
+StopMIRClk = NOR(ContB09.sil+3, StopMIRClkEn')
+```
+
+where `ContB09.sil+3` (ContB l03, an MC10121) is the **IM parity-error** term,
+built from `IMLHPE'`/`IMRHPE'` -- the MC10170 generators at j20/j21 -- and their
+enables; and `StopMIRClkEn` is ContB **g03**, an MC10176 whose D is `DMD.06`
+and whose clock is `ManClk.7'`. Both come off the **manifold**, and PARC's boot
+ROM sets both, once, in `doradomufman.masm`'s `InitManifolds` -- the group
+"invoked as a group just after the power supplies are up and stable":
+
+```
+DisableDoradoErrors  .ADR (ParityEnables+030)^4   ; all except IM parity errors disabled
+SetMidasStopMIRClk   .ADR (MidasStopMIRClk+20)^4  ; turn on MIR debug feature
+```
+
+**So the "MIR debug feature" -- freeze the MIR on an IM parity error, so the
+failing microinstruction is still there for Midas to read -- is ALSO what makes
+a jam executable.** A microinstruction the BaseBoard put into the MIR did not
+come from IM and does not satisfy IM's parity, so the MIR clock stops and the
+jam survives its own first clock. Measured: with the jam in the MIR,
+`IMLHPE'` and `IMRHPE'` both read 0.
+
+### The manifold, decoded -- and it agrees with PARC's table three ways
+
+`tb_operand` drives it the way the BaseBoard does, so the decode is a gate
+rather than a reading. `SetMufflerAddress` shifts **twelve bits, MSB first**,
+each on a Clock strobe carrying `ShiftDMD` plus the bit in `DAddrBit`; the
+BaseBoard turns those into `DMuxData`/`DMuxClk`; ContB's l22 and l20 (two
+MC10176s) are the shift register, clocked by `bDMuxClk'` = `~DMuxClk`, so the
+FIRST bit in ends at `DMD.00` and the last at `DMD.11`. Then `DoClock(UseDMD)`
+/ `DoClock(0)` pulses `ManClk`.
+
+| DMD | what it is | checked by |
+|---|---|---|
+| `.00 .01 .02` | board select; ContB answers to 000, which is `UseDMDEnable' = DMD.00\|.01\|.02` | matches `ControlBManifold = 0` |
+| `.03 .04 .05` | register number, decoded by k01 into `ManClk.0'`..`.7'` | `ParityEnables` is 0 and `MidasStopMIRClk` is `7^6`; both land |
+| `.06` .. `.11` | the six data bits, MSB first | `030` sets EXACTLY `IMLHPEenable` and `IMRHPEenable` and none of the other four -- PARC's comment, bit for bit |
+
+`ManClk.0'` clocks ContB **c04**, which IS the ParityEnables register
+(`IMRHPEenable`, `IMLHPEenable`, `IOPEenable`, `RamPEenable`, `MemPEenable`,
+`MDPEenable` off its six Qs); `ManClk.7'` clocks g03, which is `StopMIRClkEn`.
+Five mutations fail the gate: dropping either manifold word, shifting the
+twelve bits LSB-first, reading BMux uncomplemented, and dropping a MIR strobe.
+
+**BMux carries the COMPLEMENT of CPReg**, and that is the part, not a bug:
+EclDict gives ContA b02's MC10159 `Q0'..Q3'`, four inverting outputs. Reading
+it uncomplemented is one of the mutations.
+
+`DMuxData`, `DMuxClk` and `UseDMD` are FORCED in the testbench because
+**BaseBd l24 drives all three** and `dorado_proc` has no BaseBoard. They are
+backplane signals a BaseBoard would supply, not internal state. (ContA drives
+them too, from the microcode's `FF=UseDMD` and the Midas connector, which is a
+different path and gated by `SetRun`.)
+
+### Two cell bugs found on the way, both on this path
+
+* **`cell_MC10121`, 44 packages** -- and one of them is ContB l03, which gates
+  the MIR clock. Pin 10 was ANDed in as a term of its own; it is **shared
+  between two OR groups**. The data book's DIP table labels it `A2IN, A3IN`,
+  exactly as MC10117's pin 9 is `A2IN, B2IN` (which `cell_MC10117` already
+  handles), and EclDict says it the way it always says a common input -- once,
+  under role `c`. **Tim's common-pin class again**, and `cell-check` could not
+  see it: the gate does read all eleven pins, only the grouping was wrong.
+* **`cell_MC10104` gate d** gave BOTH its outputs the same expression -- the
+  fault the handoff already records for `cell_MC10103`. p15 is the AND, p9 the
+  NAND.
+
+`make -C verilog cell-check` now also runs **`tools/sil_check_polarity.py`**,
+which asserts the one property that IS universal: where the dictionary gives a
+gate both an `OUT` pin and an `o` pin, the two must be exact complements,
+evaluated over every input assignment of the cell's own expressions. 56 cells,
+28 both-sense gates, 0 wrong; mutation-tested by putting the MC10104 and
+MC10102 faults back.
+
+### Correction: "role `OUT` is the INVERTING output" does NOT generalise
+
+The Reference section below states that rule. It holds for the OR/NOR family it
+was derived from and **fails on two parts checked here**: on MC10104 the `OUT`
+pins carry the AND and `o` the NAND, and on MC10121 pin 2 (`OUT`) is the plain
+OR-AND while pin 3 (`o`) is the OR-AND-INVERT.
+
+**PARC's net naming cannot settle it either, and this is worth knowing because
+it looks as though it can.** Of the eighteen MC10121 packages that use both
+outputs, nine name them as a complementary pair, and all nine put the primed
+name on pin 2 -- unanimous, four different boards, and WRONG. Nine packages
+likewise prime pin 9 of an MC10102, whose pin 15 is certainly the NOR. A net is
+named for the sense its designer treats as primary, not for which pin inverts.
+
+**What does settle it is the data book's LOGIC DIAGRAM, read by coordinates.**
+The pin labels' overbars are in a font the PDF does not embed -- they render as
+empty boxes and extract without the bar -- but the inverting BUBBLE rasterises
+fine and `pdftotext -bbox` gives every pin label's y in points. Match the two:
+
+```
+pdftotext -f <page> -l <page> -bbox DL122_rev7.pdf -    # label y, in points
+pdftoppm  -r 400 -f <page> -l <page> -x .. -y .. -png DL122_rev7.pdf out
+```
+
+For MC10121 (book page 284, PDF page 286) the labels sit at y=326.5 and
+y=336.1 and the arrows at y=324.9 (plain) and y=335.2 (bubbled); for MC10104
+(PDF page 251) gate d's bubble is on pin 9, whose label is above pin 15's.
 
 ## The passive packages, and what each one turned out to be (2026-08-17)
 

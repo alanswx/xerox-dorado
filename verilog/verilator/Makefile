@@ -188,6 +188,18 @@ mirreg-diff:
 		>/dev/null && ./verilog/verilator/obj_mirreg/tb_mirreg \
 			+vectors=verilog/verilator/obj_cpreg/cpreg.vec | grep tb_mirreg
 
+# THE JAM'S OPERAND: the data written into IM comes from CPReg, once the MIR
+# clock is held by PARC's own two manifold words. This is the half writeim-test
+# says it does not prove. See tb_operand.sv.
+.PHONY: operand-test
+operand-test:
+	@cd ../.. && $(V) --binary --top-module tb_operand $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_operand -o tb_operand \
+		verilog/verilator/tb_operand.sv verilog/generated/dorado_proc.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		>/dev/null && ./verilog/verilator/obj_operand/tb_operand | grep tb_operand
+
 # A JAMMED WRITE-IM deposits into IM, and RSTK[3] selects the half -- checked
 # both ways against a wiped array. See tb_writeim.sv for why the baseline is the
 # whole difficulty.

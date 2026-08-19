@@ -38,7 +38,22 @@ module cell_MC10104 (
   assign p3 = (p6 & p7);
   assign p14 = (p10 & p11);
   assign p15 = (p12 & p13);
-  assign p9 = (p12 & p13);
+  // Gate d brings out BOTH senses, and this gave them the same expression --
+  // the same fault the handoff records for cell_MC10103, which "gave one
+  // gate's two outputs the same expression, which cannot be right for a gate
+  // the datasheet says has both". EclDict marks p15 `OUT` and p9 `o`.
+  //
+  // WHICH way round is not the blanket "OUT is inverting" rule: MC10102 and
+  // MC10104 SHARE one dictionary pin block and differ only by part name, so
+  // the name decides the function and `o` is its complement -- MC10102 is the
+  // NOR (p15 = NOR, p9 = OR) and MC10104 is the AND (p15 = AND, p9 = NAND).
+  // PARC's usage agrees: of the eleven packages that use both, eight name
+  // them as a complementary pair and seven put the PRIMED name on p9
+  // (DispM c12, IFU d15, MemX g13/i20/j17/k19/l17). The eighth, MemX l18,
+  // is reversed -- a gate fed already-inverted inputs, named for its
+  // function rather than its pin sense, which is the caveat the handoff
+  // already records for MC10212.
+  assign p9 = ~(p12 & p13);
 
   // Board-wired pins the dictionary does not name (power and the like)
   wire _unused_pins = &{1'b0, p16, 1'b0};
