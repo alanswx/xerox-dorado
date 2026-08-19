@@ -972,7 +972,7 @@ path is one signal short. Rung by rung, each line a gate you can run:
 | ...with the ADDRESS from CPReg | `operand-test` (Link -> TNIA -> IM) |
 | the machine SINGLE-STEPS microinstructions | `step-test` |
 | PARC's SendViaMIR loads words into IM | `sendmir` -- Boot0's inner loop |
-| PARC's BLOCK LOADER walks a hunk into IM | `boot0-test` -- read back word for word |
+| PARC's BLOCK LOADER walks REAL MICROCODE into IM | `boot0-test` -- and IM MATCHES THE C EMULATOR |
 
 Eighteen gates in all; `make -C verilog` has the list. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
@@ -1026,7 +1026,12 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   17-byte HUNK into IM -- four microinstructions, both halves, four consecutive
   addresses -- and reads all eight half-words back out of the array. A hunk is
   17 bytes because eight half-microinstructions of seventeen bits is 136 bits.
-  Next: feed it real hunks from a `.MB` and diff IM against `cpu.c`'s `im[]`.
+  **And it runs on REAL MICROCODE**: 16 hunks of Xerox's own `AEmu.mb!2`,
+  packed through the C emulator's `.MB` loader, walked in through the
+  control-processor bus, and all 128 half-words read back out of the modelled
+  ECL array. The two sides share no code -- `mb.c`/`microcode.c` against 4,096
+  words of RTL generated from PARC's wire lists. That is the first
+  whole-subsystem cross-check between the two models.
 - **Three memory cells had their address bits BACKWARDS** -- `F10415A` (IM,
   144 packages), `F10145A` (405, the biggest cell in the machine) and `F10470`
   (the DRAM) assembled the address LSB-first where PARC wires it MSB-first.

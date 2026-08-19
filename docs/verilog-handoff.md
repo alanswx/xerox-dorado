@@ -30,7 +30,7 @@ can run.
 | ...with the ADDRESS from CPReg | **works** -- Link -> TNIA -> the array's address lines | `operand-test` |
 | The machine SINGLE-STEPS microinstructions | **works** | `step-test` |
 | PARC's SendViaMIR loads words into IM | **works** -- Boot0's inner loop | `sendmir` |
-| PARC's BLOCK LOADER walks a hunk into IM | **works** -- read back word for word | `boot0-test` |
+| PARC's BLOCK LOADER walks REAL MICROCODE into IM | **works**, and it MATCHES THE C EMULATOR -- 16 hunks, 128 half-words | `boot0-test` |
 
 ### Every gate
 
@@ -96,55 +96,57 @@ substitutions if at all. The 22 digital ones need datasheets this repository
 does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 `F9401`.
 
-## START HERE: feed the block loader a real .MB and diff IM against the C emulator
+## START HERE
 
-**Boot0's loader works, both levels of it.** `make -C verilog boot0-test`
-walks a 17-byte HUNK into IM -- four microinstructions, both halves each, at
-four consecutive addresses -- and reads all eight half-words back out of the
-array by name. `make -C verilog sendmir` is the per-word layer underneath it.
+**Boot0's loader works on real microcode, and IM matches the C emulator.**
+`make -C verilog boot0-test` packs Xerox's own `AEmu.mb!2` into PARC's 17-byte
+hunks through the C emulator's `.MB` loader, walks 16 of them into IM through
+the BaseBoard's control-processor bus, and reads all **128 half-words** back
+out of the modelled ECL array -- data bits and secondary bit both. The two
+sides share no code: one is `mb.c` and `microcode.c`, the other is 4,096 words
+of RTL generated from PARC's wire lists.
 
-**A hunk is 17 bytes and that number is exact**: one `ExtraBits` byte plus
-eight half-microinstructions of two bytes each, and eight halves of seventeen
-bits is 136 bits. Four microinstructions per hunk. Both halves of an
-instruction go to the SAME IMAddress; the address steps once per instruction,
-not per half.
+That is the whole-subsystem cross-check this branch was working toward. What is
+left of Boot0 proper is the outer wrapper -- `SendIMBlockToDorado` reading
+`Boot0Block`'s length/checksum/breakpoint fields, and the breakpoint insertion
+in `SendAHunk` -- neither of which the loader needs to place words correctly.
 
-What is left is the outer loop and the payload: `SendIMBlockToDorado` reads
-`Boot0Block` (data pointer, first IM location, length in hunks, checksum,
-breakpoint count and table) and calls `SendAHunk` per hunk. Transcribe that,
-feed it real hunks from a `.MB`, and **diff IM against what `cpu.c`'s loader
-puts in `im[]` for the same input**. That is the first whole-subsystem
-cross-check against the C emulator, and it is why the address-order fix below
-had to land first -- a permuted address is invisible until you compare with
-something external.
+**After that, the interesting targets are:**
 
-`tb_boot0.sv` is GENERATED from ContB's wire list, so the readback names every
-slot: pin 15 is the data line, pin 13 the `WEL'`/`WER'` half, pin 14 the chip
-select and so the bank. Extend the same generator for the payload.
+* **`machine-test`**, the one red gate: the assembled eleven-board machine does
+  not converge under the C++ `eval()` model though it does under the event
+  scheduler (`converge-test`). Pre-existing, and it blocks any whole-machine
+  run.
+* **More C cross-checks**, now that the pattern is established: `memory.c`
+  against MemC/MemD/MemX, and the shifter against the LMASK/RMASK PROMs.
+* **The cell library**, 98.0% of the eleven-board machine, and the datasheets
+  for almost everything still missing are now in `DoradoDocs/datasheets/`.
 
-**Six things that will otherwise cost you a day:**
+**Seven things that will otherwise cost you a day:**
 
 * **CONTROL STROBES MUST BE SPACED.** The real BaseBoard is a 1 MHz 6502
   running `JSR DoControl` between them, and `SetRun` must survive three
-  `RunClk'` edges to walk ContA i03's three-stage shift register into `dRun`.
-  Fourteen sys_clk does not cover it, and without the gap nothing loads at all
-  (`0 of 8`). With it, PARC's SEPARATED ClrStop/SetRun runs exactly as written
-  -- the combined 0x41 byte `run-test` and `step-test` use is a workaround for
+  `RunClk'` edges to walk ContA i03's shift register into `dRun`. Fourteen
+  sys_clk does not cover it and NOTHING loads. With a gap, PARC's SEPARATED
+  ClrStop/SetRun runs as written -- the combined 0x41 byte is a workaround for
   the missing gap, not something the hardware needs.
 * **`SetCPReg~` writes the COMPLEMENT** ("LDA ToCPRegH / EORI 0ff"). ContA
   b02's MC10159 inverts on the way to BMux and the tilde cancels it.
+* **A hunk is 17 bytes and that number is exact**: one ExtraBits byte plus
+  eight half-microinstructions of two bytes, and eight halves of SEVENTEEN bits
+  is 136. Four microinstructions per hunk, both halves of one instruction at
+  the SAME IMAddress, the address stepping once per instruction.
 * **The first microinstruction out of a cold stop runs only its `clk0` half**,
-  so a loader's first word loses its address load unless the pipeline is
-  warmed. Boot0 runs continuously; a testbench must send two Nops first.
-* **IM IS INTERLEAVED.** The low address bit picks the BANK, not the index, so
-  0x100..0x103 land at indices 0x80, 0x80, 0x81, 0x81 in alternating banks.
-  Address 0x123 is at index 0x123>>1 = 145.
-* **Pick byte-ASYMMETRIC test data.** The first version of `boot0-test` used
-  1111/2222/... and the mutation that swaps the two data bytes PASSED against
-  it -- with equal halves there is nothing to swap. PARC sends the HIGH byte
-  first, and only asymmetric words test it.
-* **A jam only survives because the MIR CLOCK IS HELD**, which takes the two
-  manifold words PARC's boot ROM writes at power-up.
+  so a loader's first word loses its address load unless the pipeline is warmed.
+* **IM IS INTERLEAVED.** The LOW address bit picks the BANK, so 0x100..0x103
+  land at indices 0x80, 0x80, 0x81, 0x81. Address 0x123 is at index 145.
+* **The right half's secondary bit is stored COMPLEMENTED**, because BLOCK is
+  the one field bit the MIR wires inverted. Measured: all 64 left secondary
+  bits matched and all 64 right ones were the complement.
+* **Pick byte-ASYMMETRIC test data, and check more than the data bits.** Two
+  mutations slipped through this gate before it was finished -- swapping the
+  two data bytes (invisible against 1111/2222/...) and reversing the ExtraBits
+  shift (invisible while only the sixteen data bits were read back).
 
 ## How to read the rest
 

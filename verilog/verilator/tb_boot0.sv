@@ -626,6 +626,52 @@ module tb_boot0;
     rd_R3 = {m.b_ContB.u_a15.mem[idx], m.b_ContB.u_b15.mem[idx], m.b_ContB.u_c15.mem[idx], m.b_ContB.u_d15.mem[idx], m.b_ContB.u_a19.mem[idx], m.b_ContB.u_b19.mem[idx], m.b_ContB.u_c19.mem[idx], m.b_ContB.u_d19.mem[idx], m.b_ContB.u_e09.mem[idx], m.b_ContB.u_e15.mem[idx], m.b_ContB.u_f15.mem[idx], m.b_ContB.u_g15.mem[idx], m.b_ContB.u_h15.mem[idx], m.b_ContB.u_g19.mem[idx], m.b_ContB.u_h19.mem[idx], m.b_ContB.u_i19.mem[idx]};
   endfunction
 
+  function sec_L0(input integer idx);
+    sec_L0 = m.b_ContB.u_i06.mem[idx];
+  endfunction
+  function sec_R0(input integer idx);
+    sec_R0 = m.b_ContB.u_f16.mem[idx];
+  endfunction
+  function sec_L1(input integer idx);
+    sec_L1 = m.b_ContB.u_i07.mem[idx];
+  endfunction
+  function sec_R1(input integer idx);
+    sec_R1 = m.b_ContB.u_f17.mem[idx];
+  endfunction
+  function sec_L2(input integer idx);
+    sec_L2 = m.b_ContB.u_i08.mem[idx];
+  endfunction
+  function sec_R2(input integer idx);
+    sec_R2 = m.b_ContB.u_f18.mem[idx];
+  endfunction
+  function sec_L3(input integer idx);
+    sec_L3 = m.b_ContB.u_i09.mem[idx];
+  endfunction
+  function sec_R3(input integer idx);
+    sec_R3 = m.b_ContB.u_f19.mem[idx];
+  endfunction
+
+  // The SECONDARY bit of a half -- RSTK[0] on the left, BLOCK on the right --
+  // which the array stores beside the sixteen data bits. Checking only the
+  // data leaves it unverified: a mutation that reversed the ExtraBits shift
+  // passed until this was added.
+  function sec_at(input integer bank, input right, input integer idx);
+    begin
+      sec_at = 1'bx;
+      if (!right) begin
+        case (bank)
+          0: sec_at = sec_L0(idx); 1: sec_at = sec_L1(idx);
+          2: sec_at = sec_L2(idx); 3: sec_at = sec_L3(idx);
+        endcase
+      end else begin
+        case (bank)
+          0: sec_at = sec_R0(idx); 1: sec_at = sec_R1(idx);
+          2: sec_at = sec_R2(idx); 3: sec_at = sec_R3(idx);
+        endcase
+      end
+    end
+  endfunction
+
   // Search every bank for a word at one index. Returns the bank, or -1.
   function integer find_word(input integer idx, input right, input [15:0] want);
     begin
@@ -669,6 +715,13 @@ module tb_boot0;
   integer bnk, nfound, w;
   reg [15:0] expect_l [0:3];
   reg [15:0] expect_r [0:3];
+
+  // ---- REAL MICROCODE, from the C emulator's own .MB loader ---------------
+  integer fd, nf, hunks, halves, bad;
+  string  path, tag, line;
+  integer ha;
+  reg [7:0]  b [0:16];
+  reg [15:0] hw [0:7];
 
   initial begin
     force m.DMuxData = dmd;
@@ -722,8 +775,72 @@ module tb_boot0;
 
     $display("tb_boot0: %0d of 8 half-words read back correctly", nfound);
     if (nfound !== 8)
-      $fatal(1, "the hunk did not land in IM word for word");
-    $display("tb_boot0: PARC's block loader walks a hunk into IM.");
+      $fatal(1, "the synthetic hunk did not land in IM word for word");
+
+    // ---- and now REAL MICROCODE -----------------------------------------
+    //
+    // dorado/tests/boot0_hunks.c packs Xerox's own AEmu.mb into PARC's hunk
+    // format through the C emulator's .MB loader, and prints the half-words
+    // the array should end up holding. The two sides share no code: one is
+    // mb.c and microcode.c, the other is 4,096 words of modelled ECL RAM
+    // reached through the BaseBoard's control-processor bus.
+    if (!$value$plusargs("vectors=%s", path)) path = "boot0.vec";
+    fd = $fopen(path, "r");
+    if (fd == 0) $fatal(1, "tb_boot0: cannot open %s", path);
+
+    hunks = 0; halves = 0; bad = 0;
+    while (!$feof(fd)) begin
+      void'($fgets(line, fd));
+      nf = $sscanf(line,
+        "%s %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h",
+        tag, ha, b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8],
+        b[9], b[10], b[11], b[12], b[13], b[14], b[15], b[16],
+        hw[0], hw[1], hw[2], hw[3], hw[4], hw[5], hw[6], hw[7]);
+      if (nf != 27 || tag != "HUNK") continue;
+
+      wipe_im;
+      nop_micro; nop_micro;              // warm the pipeline
+      for (w = 0; w < 17; w = w + 1) hunk[w] = b[w];
+      send_a_hunk(ha[15:0]);
+      nop_micro; nop_micro;              // let the last store's T3 complete
+
+      hunks = hunks + 1;
+      for (w = 0; w < 4; w = w + 1) begin
+        halves = halves + 2;
+        // b[0] IS the eight secondary bits, MSB first, one per half -- so the
+        // ExtraBits byte checks itself against what the array stored.
+        bnk = find_word((ha + w) >> 1, 1'b0, hw[2*w]);
+        if (bnk < 0) begin
+          bad = bad + 1;
+          $display("tb_boot0: IM[0x%h] left  want %h -- NOT FOUND", ha + w, hw[2*w]);
+        end else if (sec_at(bnk, 1'b0, (ha + w) >> 1) !== b[0][7 - 2*w]) begin
+          bad = bad + 1;
+          $display("tb_boot0: IM[0x%h] left  secondary bit wrong", ha + w);
+        end
+        bnk = find_word((ha + w) >> 1, 1'b1, hw[2*w+1]);
+        if (bnk < 0) begin
+          bad = bad + 1;
+          $display("tb_boot0: IM[0x%h] right want %h -- NOT FOUND", ha + w, hw[2*w+1]);
+        // COMPLEMENTED, and only on the right. The right half's secondary is
+        // BLOCK, and BLOCK is the one field bit the MIR wires inverted --
+        // `sBLOCK` to R, `rMIRa` to S, `Block` off Q' -- so the array holds
+        // `dBlock'`. Measured: all 64 left secondary bits matched and all 64
+        // right ones were the complement, which is a systematic inversion and
+        // not noise. See docs/verilog-handoff.md, "BLOCK is wired INVERTED"
+        // and "dBlock' comes out of IM COMPLEMENTED".
+        end else if (sec_at(bnk, 1'b1, (ha + w) >> 1) === b[0][6 - 2*w]) begin
+          bad = bad + 1;
+          $display("tb_boot0: IM[0x%h] right secondary bit wrong", ha + w);
+        end
+      end
+    end
+    $fclose(fd);
+
+    $display("tb_boot0: REAL MICROCODE -- %0d hunks, %0d half-words, %0d wrong",
+             hunks, halves, bad);
+    if (hunks == 0) $fatal(1, "no hunks in the vector file");
+    if (bad != 0)   $fatal(1, "IM does not match the C emulator's .MB loader");
+    $display("tb_boot0: PARC's block loader walks real microcode into IM, and it matches the C emulator.");
     $finish;
   end
 
