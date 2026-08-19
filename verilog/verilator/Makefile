@@ -160,6 +160,17 @@ converge-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_converge/tb_converge 2>&1); \
 		  rc=$$?; echo "$$out" | grep tb_converge; exit $$rc; }
 
+# How far down the datapath does a value get? A DIAGNOSTIC -- to the B bus,
+# not yet to T. tb_compute.sv says exactly where it stops and what to try.
+.PHONY: compute-probe
+compute-probe:
+	@cd ../.. && $(V) --binary --top-module tb_compute $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_compute -o tb_compute \
+		verilog/verilator/tb_compute.sv verilog/generated/dorado_proc.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		>/dev/null; ./verilog/verilator/obj_compute/tb_compute 2>&1 | grep -E "tb_compute|after the"
+
 # Do PARC's IRTable entries satisfy our IM parity generators? A DIAGNOSTIC --
 # they do not, and tb_parity.sv says what is ruled out and where to look.
 .PHONY: parity-probe

@@ -97,61 +97,92 @@ substitutions if at all. The 22 digital ones need datasheets this repository
 does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 `F9401`.
 
-## START HERE
+## START HERE: two open questions, both localised to one hop
 
-**The machine executes microcode out of IM.** `make -C verilog exec-test` loads
-real AEmu microcode through the BaseBoard's control-processor bus, releases the
-MIR clock, puts the start address in Link and jams a `Return#` -- PARC's own
-`LoadDoradoCode` startup -- and the machine free-runs: 1,242 `clk0'` cycles in
-20,000, `Stop` clear throughout, eight distinct `TNIA` values and nine distinct
-decoded `FF` fields as it sequences through what it was given.
+The machine loads IM from real `.MB` hunks, matches the C emulator word for
+word, and **executes** microcode out of it (`boot0-test`, `exec-test`). Two
+things are open, and each is now one hop rather than a search.
 
-**The one thing standing between that and PARC's real boot is PARITY.** The
-test has to CLEAR the IM parity enables before running. With them on the
-machine executes exactly one instruction and stops, and `InitManifolds` leaves
-them on for the whole of PARC's boot. So either their IRTable entries carry
-parity that satisfies the generator -- the five-byte format has explicit P015
-and P1631 bits, and `Nop#` = `70 01 0F 4C 40` sets both -- or our MC10170
-parity generators on ContB j20/j21 compute something different. **Checking a
-known IRTable entry's parity by hand against j20/j21 is the way in, and it is
-the next task.**
+### 1. Parity: PARC's IRTable entries fail our generators
 
-`mir-diff` already found that the parity bits "really do reach two MC10170
-parity generators on ContB" and that setting them wrong did not stop the
-machine THERE only because the enables were off. They are on now, and it
-matters.
+`make -C verilog parity-probe` jams each of PARC's thirteen IRTable
+microinstructions and reads the parity generators with the jam STILL IN THE
+MIR: **all thirteen fail, both halves.** That is why `exec-test` has to clear
+the IM parity enables, which `InitManifolds` leaves on.
 
-**After that:** `machine-test` is the one red gate (the assembled eleven-board
-machine does not converge under the C++ `eval()` model though it does under the
-event scheduler); `memory.c` against MemC/MemD/MemX and the shifter against the
-LMASK/RMASK PROMs are the next C cross-checks; and the cell library is at 98.0%
-with datasheets for almost everything missing now in `DoradoDocs/datasheets/`.
+Ruled out: instructions FETCHED FROM IM check out fine (`exec-test` runs 1,242
+cycles with `Error'` high), because those carry parity our own Write-IM path
+generated. The disagreement is specifically with parity PARC computed.
+`cell_MC10170` had a real bug -- it folded its two CONTROL inputs into both
+outputs when they reach pin 15 only, breaking the cascade that makes an 18-bit
+check out of two 9-bit ones -- and fixing it did not change the result, so it
+was not the cause.
 
-**Eight things that will otherwise cost you a day:**
+**Next:** take `Nop#` and work its eighteen right-half bits through ContA e19
+and e18 by hand, then the left through ContB j21 and j20. The two halves are
+wired with a deliberate mix of primed and unprimed nets (`ALUF.0'` beside
+`bRSTK.0`, `JCN.0'` beside `JCN.2`), which is how PARC gets the convention it
+wants; one of those is inverted where it should not be, or P015/P1631 is the
+other way round.
 
-* **ONCE `Stop` SETS IT GATES THE CLOCK THAT WOULD CLEAR IT.** `bCLKEnable' =
-  Stop | Run'` gates `clk2'`, and `clk2'` is the stop latch's own clock, so a
-  machine with `dStop` = 0, `Run'` = 0 and `Stop` = 1 is stuck until `rStop`
-  (ClrStop). That state looks impossible and is not.
-* **A parity error stops the machine outright**, through
-  `dStop = ~[(bpreStartC'b + ContA31.sil+5) . (bpreStartC'b + Error')]` --
-  independently of the single-step chain.
-* **CONTROL STROBES MUST BE SPACED.** The BaseBoard is a 1 MHz 6502 running
-  `JSR DoControl` between them and `SetRun` must survive three `RunClk'` edges.
-  Without a gap nothing loads at all.
-* **`SetCPReg~` writes the COMPLEMENT**; ContA b02's MC10159 inverts and the
-  tilde cancels it.
-* **A hunk is 17 bytes and that is exact**: one ExtraBits byte plus eight
-  half-microinstructions of SEVENTEEN bits.
-* **IM IS INTERLEAVED** -- the LOW address bit picks the bank, so address 0x123
-  sits at index 145.
-* **The right half's secondary bit is stored COMPLEMENTED**, BLOCK being the
-  one field bit the MIR wires inverted.
-* **Check more than the obvious, and pick asymmetric data.** Three mutations
-  passed against these gates before they were finished: swapping two data bytes
-  (invisible against 1111/2222/...), reversing the ExtraBits shift (invisible
-  while only data bits were read back), and releasing the MIR clock explicitly
-  (redundant once the parity enables are cleared).
+### 2. The datapath: a value reaches the B bus but not T
+
+`make -C verilog compute-probe` jams PARC's `TFromCPReg#` and reads T out of
+the sixteen MC10173 latches. Right after the jam:
+
+```
+BMux=1234  T=0000  LC=001  B<-Link'=0  UseCPReg=1  ALUF=0000
+```
+
+So the operand crosses four boards onto the machine-wide B bus, uncomplemented,
+with the field controls exactly as the microinstruction asks -- LC=1 selects
+the T load, ALUF=0 selects ALUFM entry 0. **T stays 0.**
+
+`TFromCPReg#` carries PARC's own warning, "requires ALUFM[0]=B", because T is
+loaded THROUGH THE ALU; `LoadDoradoCode` sets ALUFM[0] to 25 octal before it
+loads a word, and `compute-probe` replays that. It still does not load, so the
+remaining hop is one of: ALUFM[0] never took 25 octal (**check that first, it
+is one probe and the likeliest**); the ALU is not passing B (its cell is
+verified against the C emulator by `alu-diff`, but as four MC10181 slices in a
+TESTBENCH, never as ProcH and ProcL wire them -- this would be the first thing
+to exercise that); or the T latches are not enabled (MC10173s taking
+`dT.nn`/`dTm.nn` with `PreSHCP'B` and `TbBypass`, so follow `dT.00` back from
+ProcH i03 pin 5).
+
+**Read PARC's IRTable field comments before decoding bytes by hand.** They
+state the fields outright -- `TFromCPReg#` is
+`RSTK[0],ALUF[0],BSEL[0],LC[1],ASEL[4],FF[176],JCN[201]` -- and an arithmetic
+slip reading byte 3 sent this chase off after the wrong FF decode for a while.
+
+### Then
+
+`machine-test` is the one red gate (the assembled machine does not converge
+under the C++ `eval()` model though it does under the event scheduler);
+`memory.c` against MemC/MemD/MemX is the next C cross-check; the cell library
+is at 98.0% with datasheets for almost everything missing now in
+`DoradoDocs/datasheets/`.
+
+**Nine things that will otherwise cost you a day:**
+
+* **MEASURE PARITY WITH THE JAM STILL IN THE MIR.** The generators are
+  combinational off it, so the machine must be STOPPED. Running first reloads
+  the MIR from IM and measures the parity of whatever was there -- that read
+  the left half passing and the right failing, and both were an artifact.
+* **`Error'` = 0 IS an error**, settled by function not by the prime in the
+  name: it feeds `dStop` and stops the machine.
+* **ONCE `Stop` SETS IT GATES THE CLOCK THAT WOULD CLEAR IT.**
+  `bCLKEnable' = Stop | Run'` gates `clk2'`, the stop latch's own clock, so
+  `dStop`=0, `Run'`=0, `Stop`=1 is a real state and only ClrStop escapes.
+* **CONTROL STROBES MUST BE SPACED** -- the BaseBoard is a 1 MHz 6502 and
+  `SetRun` must survive three `RunClk'` edges. Without a gap nothing loads.
+* **`SetCPReg~` writes the COMPLEMENT**, and `SetCPReg` does not: the ALU
+  function code goes in uncomplemented, the address and data complemented.
+* **A hunk is 17 bytes and that is exact**; **IM is INTERLEAVED**, the low
+  address bit picking the bank; **the right half's secondary bit is stored
+  COMPLEMENTED**, BLOCK being the one field bit the MIR wires inverted.
+* **The first microinstruction out of a cold stop runs only its `clk0` half.**
+* **Check more than the obvious, and pick asymmetric data.** Four mutations
+  passed against these gates before they were finished.
 
 ## How to read the rest
 

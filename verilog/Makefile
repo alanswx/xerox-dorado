@@ -37,7 +37,7 @@ TOOLS   = ../tools
 .PHONY: boards backplane proms cells cells-force lint cell-check loop-check \
         prom-test alu-test alu-diff cpreg-diff mir-diff mirreg-diff run-test \
         writeim-test operand-test step-test sendmir boot0-test exec-test \
-        parity-probe \
+        parity-probe compute-probe \
         datapath-test \
         startseq \
         converge-test machine-test \
@@ -107,6 +107,10 @@ operand-test:
 # One microinstruction at a time -- the primitive Boot0 is built out of.
 step-test:
 	@$(MAKE) -C verilator step-test
+
+# How far down the datapath does a value get? Diagnostic: to B, not yet to T.
+compute-probe:
+	@$(MAKE) -C verilator compute-probe
 
 # Do PARC's IRTable entries satisfy our IM parity generators? Diagnostic.
 parity-probe:
