@@ -724,3 +724,55 @@ Alternatives:
   `DiabloDrive.cs` (Diablo image format); `AltoInfo/.../Disks/*.dsk`.
 - `dorado/include/disk.h`, `dorado/src/disk.c` (current Trident pack + the
   Format-RAM machinery to make framing-driven).
+
+#### Update 2026-06-21 — disk-delivery TIMING ruled out; M[062] is a DATA divergence
+
+Added an env override on the revolution time (disk.c `disk_cycles_per_rev()`,
+default = the `DORADO_DISK_CYCLES_PER_REV` #define of 277778, gate-safe;
+test_disk 11/11, default boot unchanged) to test the "D2 DMA-delivery timing"
+hypothesis directly. (The override shipped as **`DORADO_DISK_FAST_REV`**, in
+`3fe8ae1d`; this note was written against a working copy that spelled it
+`DORADO_DISK_CYCLES_PER_REV`, which is the #define's name and never was the
+environment variable's. Corrected 2026-08-19 -- the sweep below was run with
+what is now `DORADO_DISK_FAST_REV`, as the 1x..32x figures and the
+`DORADO_DISK_FAST_REV=290` experiment earlier in this file both use.)
+
+- **Disk-speed sweep (1x..32x faster), Alto disk boot, 200M cyc:** faster disk
+  loads strictly MORE blocks (diskreads 58 -> 655) but **renders 0 px in every
+  case** — no display list is ever installed. So disk-delivery *speed* is not
+  the fix; the boot stalls (the M[051] disk-completion spin) before rendering
+  regardless of how fast the data arrives.
+- **`DORADO_LOAD_TRACE_VA="62,62"` (the actual M[062] reads):** at BOTH default
+  and 32x-fast disk the booted OS reads `M[062]` = **0 (dominant) or `X0400`
+  counter values** (`70400`, `70504`, ... stepping by ~`020000`) — and the DSK
+  task (task 14, `pc=0o3323`) is the writer of those `X0400` values. The OS
+  **never** reads salto's `020324`. So the earlier framing ("the correct
+  `020324` is DMA'd ~193K cyc too late") is misleading: `M[062]` holds
+  genuinely *different data* in ours, not the right value delivered late. Our
+  DSK DMA deposits disk counter/pointer data into `M[062]`; salto keeps a
+  program-computed `020324` there.
+
+=> The remaining divergence is **disk DMA target-addressing / block mapping**
+(why disk-loaded data lands in `M[062]` at all, vs salto using it as a program
+variable), or the disk-control-block (KCB/KBLK) content the OS derives the DMA
+address from — NOT delivery timing and NOT the status muffler. Next step: trace
+the DSK-task store *addresses* around `M[062]` (is it a contiguous disk buffer,
+i.e. the DMA base/length is off by a segment, or an isolated wrong target from a
+diverged KCB data pointer?), and cross-check the KCB data-pointer the OS sets up
+for that read against salto.
+
+Answer to that next step (2026-06-21): the DSK task writes a **contiguous
+buffer `M[040]..M[077]`** — `M[062]` is one word of a disk *data buffer*, not an
+isolated wrong target. So the OS pointed this disk read's data buffer at
+`M[040]`, whereas salto's read targets a different buffer (leaving `M[062]` a
+program variable). The OS therefore computed a **different KCB data pointer**,
+which cascades from the initial **disk-control block state** the `MEMDUMP_AT=0`
+diff already flagged: `M[521]` (KCB ptr) salto 1 / ours 0, `M[522]` (KBLK
+status) salto 007410 / ours 017400 (sector field + bit-12 noDataXfer),
+`M[604..605]` salto 400/1 / ours 0/0. So the true root is **the DiskBoot
+KCB/KBLK convention / the idle disk status the controller reports**, not
+delivery timing. The hard part (consistent with the earlier poke experiment):
+the microcode re-derives this state from the controller each sector, so the fix
+is in the controller's reported idle status (the noDataXfer bit + sector field
+that build `M[522]=007410`) and the boot KCB pointer — and it is shared with the
+Cedar path, so regression-test `make run-cedar`.
