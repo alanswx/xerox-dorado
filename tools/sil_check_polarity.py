@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Do the cells get OR/NOR POLARITY right, per gate, against EclDict?
+"""Do the cells follow the conventions EclDict states -- polarity, and address order?
 
 `sil_check_cells.py` checks CONNECTIVITY -- that a gate reads the input pins
 PARC's `[G ...]` summary says it does. It says so itself: "it checks
@@ -67,6 +67,14 @@ CELLS = os.path.join(HERE, '..', 'verilog', 'cells')
 
 
 ASSIGN_RE = re.compile(r'assign\s+p(\d+)\s*=\s*([^;]+);')
+ADDR_RE = re.compile(r'(?:wire|reg)\s*\[\d+:0\]\s*a\w*\s*=\s*\{([^}]*)\}')
+
+# Memory cells whose address is NOT numbered MSB-first, each with its reason.
+ADDR_LSB_FIRST = {
+    # The BaseBoard's own scratch RAM, addressed by the 6502 over RA0..RA9,
+    # where 0 is the LEAST significant -- a processor bus, not a PARC field.
+    'i2125': "6502 address bus: RA0 is the least significant",
+}
 
 SIL = os.path.join(HERE, '..', 'chm', 'sil')
 
@@ -384,10 +392,56 @@ def main(argv=None):
                         f"have the SAME model -- two part numbers are two parts "
                         f"(roles {'differ' if ra != rb else 'agree'})")
 
+    # ---- ADDRESS BIT ORDER on the memories ----
+    #
+    # PARC numbers every field MSB-first -- `RSTK.0` is the top RSTK bit,
+    # `TNIA.04` the top address bit -- and the dictionary's A-numbering follows:
+    # its `A0` is the MOST significant address pin. A cell that assembles the
+    # address the other way still WORKS, because a consistent reversal is a
+    # permutation and reads undo what writes did; it bites only when the memory
+    # is compared with something external. Three cells had it backwards --
+    # F10415A (IM), F10145A (405 packages) and F10470 -- and nothing caught
+    # them for exactly that reason.
+    naddr = 0
+    for fn in sorted(os.listdir(CELLS)):
+        if not fn.startswith('cell_') or not fn.endswith('.v'):
+            continue
+        part = fn[len('cell_'):-len('.v')]
+        got = ecl.by_full_type(part)
+        if not got:
+            continue
+        apins = {}
+        for g in got[1]['gates'].values():
+            for role, pins_ in g.get('other', []):
+                m = re.fullmatch(r'A(\d+)', role)
+                if m and pins_:
+                    apins[int(m.group(1))] = pins_[0]
+        if len(apins) < 2:
+            continue
+        src = open(os.path.join(CELLS, fn)).read()
+        m = ADDR_RE.search(src)
+        if not m:
+            continue
+        order = [int(x) for x in re.findall(r'\bp(\d+)\b', m.group(1))]
+        if not order:
+            continue
+        naddr += 1
+        want_msb = apins[min(apins)]          # the dictionary's A0
+        want_lsb = apins[max(apins)]
+        expect = want_lsb if part in ADDR_LSB_FIRST else want_msb
+        if order[0] != expect:
+            bad += 1
+            why = (f" ({ADDR_LSB_FIRST[part]})" if part in ADDR_LSB_FIRST
+                   else "; PARC's A0 is the MOST significant")
+            problems.append(
+                f"{part}: the address is assembled with p{order[0]} first, but "
+                f"the most significant pin is p{expect}{why} -- a reversed "
+                f"address permutes the memory silently")
+
     for p in problems:
         print("  " + p)
     print(f"sil_check_polarity: {checked} cells, {pairs} both-sense gates, "
-          f"{len(sig)} distinct pinouts, {bad} wrong")
+          f"{len(sig)} distinct pinouts, {naddr} addressed memories, {bad} wrong")
     return 1 if bad else 0
 
 

@@ -1341,8 +1341,11 @@ are named with their reasons rather than silenced. 56 cells, 28 both-sense
 gates, 47 distinct pinouts, 0 wrong; mutation-tested by putting the MC10104,
 MC10102 and MC1662 faults back.
 
-It reports rather than asserts the DIRECTION, and two false positives of its
-own are worth knowing: an expression it cannot evaluate (a ternary multiplexer,
+It also checks ADDRESS BIT ORDER on the memories -- see "The memories had their
+address bits backwards" above.
+
+It reports rather than asserts the OUTPUT DIRECTION, and two false positives of
+its own are worth knowing: an expression it cannot evaluate (a ternary multiplexer,
 a concatenation) means the pair cannot be COMPARED -- calling that "the same"
 made MC10158/MC10159 look like copies when they are correctly two models.
 
@@ -1397,9 +1400,19 @@ which is 195 with its ten bits reversed. Fixed, it deposits at 195.
 
 `cell_F10145A` (**405 packages**, the biggest cell in the machine -- the 16x4
 ECL register file behind TLink) and `cell_F10470` (the DRAM) had the same
-inversion and are fixed with it. `cell_i2125` does NOT: its address is the
-BaseBoard's own `RA0..RA9` off a 6502 bus, where 0 is the least significant,
-and its cell is right.
+inversion and are fixed with it. **The other seven addressed memories were
+audited and are right**: `MB7071H` (RM and STK -- ProcH h06 takes `RbAdr.0` on
+the dictionary's A0 pin), `F10414` (STK, which says `// A0..A7, MSB first` in
+its own comment), `i2716`, and the three PROM parts, whose bit order
+`prom-test` already pins. `cell_i2125` is the one genuine exception and is
+named as such: its address is the BaseBoard's own `RA0..RA9` off a 6502 bus,
+where 0 is the LEAST significant.
+
+`sil_check_polarity.py` checks this now, so it cannot come back: for every
+cell whose dictionary entry names `A0..An`, the address expression's first
+element must be the pin the dictionary calls `A0`, with `i2125` exempted by
+name and reason. Mutation-tested by reversing five memories' addresses in turn;
+each is caught.
 
 **The convention is stated by the repository's own cells.** `cell_F10414` --
 the same family, the same board, the STK register file -- carries the comment
