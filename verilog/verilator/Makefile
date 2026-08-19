@@ -160,6 +160,17 @@ converge-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_converge/tb_converge 2>&1); \
 		  rc=$$?; echo "$$out" | grep tb_converge; exit $$rc; }
 
+# PARC's SendViaMIR transcribed. A DIAGNOSTIC, not a gate -- it does not pass,
+# and tb_sendmir.sv says what it fails on and why that is the useful part.
+.PHONY: sendmir
+sendmir:
+	@cd ../.. && $(V) --binary --top-module tb_sendmir $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_sendmir -o tb_sendmir \
+		verilog/verilator/tb_sendmir.sv verilog/generated/dorado_proc.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		>/dev/null && ./verilog/verilator/obj_sendmir/tb_sendmir
+
 # ONE MICROINSTRUCTION AT A TIME -- the primitive Boot0 is built out of.
 .PHONY: step-test
 step-test:

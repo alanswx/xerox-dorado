@@ -94,81 +94,67 @@ substitutions if at all. The 22 digital ones need datasheets this repository
 does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 `F9401`.
 
-## START HERE: Boot0, and what a probe already measured
+## START HERE: close the `run-test` loose end -- Boot0 is waiting on it
 
-Everything below Boot0 is a passing gate: the machine single-steps
+Everything under Boot0 is a passing gate: the machine single-steps
 microinstructions (`step-test`), a jam's DATA comes from CPReg and its ADDRESS
-from Link (`operand-test`), and the MIR is held by PARC's own two manifold
-words. **Boot0 itself does not work yet**, and a probe has already narrowed it
-to one question. Four things were measured; start from them rather than
-repeating them.
+from Link (`operand-test`), the MIR is held by PARC's own two manifold words,
+and `make -C verilog sendmir` is `SendViaMIR` transcribed line for line from
+`doradoboot.masm`.
 
-**1. `CPRegToIM#` reloads Link with its own DATA as it executes.** Both IRTable
-entries carry `FF=176`, and `Link<-CPReg` means BOTH halves of its name: put
-CPReg on B *and* load Link from B. So by the time the write fires, the address
-register holds `~data`, not the address the preceding `CPRegToLink#` put there
-(measured: Link goes to `987`, which is `~0x5678` bits 4:15). This is exactly
-the hazard `cpu.c` models as **`link_at_issue`** -- "use the issue-time
-snapshot" -- and the RTL question is where the hardware latches the address so
-that the same-instruction reload cannot reach it.
+**It fails on the loose end `run-test` recorded, and that is now the single
+highest-value question in the RTL.** `DoDoradoMicroInst` puts ClrStop in its
+FIRST Control byte (0x4E, with ClrMIR/ClrCT/Freeze) and SetRun in a LATER one.
+`rStop` is a level that lasts only until the next Control strobe, so in this
+model `Stop` re-latches before SetRun lands: successive microinstructions get
+`clk0'` twice and `clk1'` not at all, or neither, and `Stop` drifts.
+`step-test` and `operand-test` work only because they use the COMBINED 0x41
+form, which is not what the hardware does. Boot0 is the first thing that needs
+the authentic sequence, so it is the first thing to fail on the gap --
+`sendmir` is the reproducer.
 
-**2. The write is several steps late, because it waits on the PHASE ring.**
-`preWE'` comes from `CRamClock`, which is ContA j01 half A: `D = Phase2'`,
-clock `preCRamClock`, asynchronous SET `WIM'`. `Phase0..Phase4` is a five-stage
-ring clocked by `clk2'`, and one step advances it at most one stage. Measured
-across eight steps of a single jammed `CPRegToIM#`: `WIM'` asserts immediately
-and stays asserted, the ring walks `10000 -> 10000 -> 01000 -> 00001 -> 10000
--> 00100 -> ...`, and `WER'` fires at steps 3, 5 and 6. So a Write-IM is not a
-one-step operation, and the ring does not advance once per step, which is the
-next thing to understand.
+**Try `Freeze` first.** PARC sets it in the 0x4E byte and clears it in the
+next, ContA i07 turns `NoDispatch` into `Freeze`/`FreezeAC`/`FreezeBD`, and
+`FreezeBD` is already one of the two clock enables on k04 -- so Freeze gates
+clocks in this design today. If it also gates the stop latch's clock
+(`clk2'Bc` into ContA j04), `Stop` cannot re-latch across the jam window and
+PARC's separated sequence works as written. Check j04's clock against Freeze
+before looking further afield; the handoff's own guess was "a timing matter, or
+something a board outside ContA/ContB supplies".
 
-**3. The address IS Link -- and the "third moment" this used to claim was my
-own scan reading a bit-reversed index.** Logging at the `WER'` edge gives
-`dRA = TNIA = Link = 987` on every pulse, all three agreeing. The deposit
-appeared at `IM[780]` while the address lines said `195`, and 780 is 195 with
-its ten bits turned round: `cell_F10415A` assembled the address LSB-first. See
-"The memories had their address bits backwards" below. Fixed, the deposit
-lands at `IM[195]`.
+**Two things `sendmir` already pins down, both from PARC's source:**
 
-So the address question reduces to (1) alone: the write uses the RELOADED
-Link, and the hardware must be taking the issue-time value somewhere.
-
-**4. PARC's Nop is real and it is demonstrable.** Without a Nop between pairs,
-the pending write from one `CPRegToIM#` fires during the NEXT jam's MIR
-byte-strobing and deposits that jam's operand at a stale address (measured:
-`RBMux=f55f` at `RA=0x3ff`). Inserting the Nop removes it entirely -- which is
-`DoIRTableInstAndNop`'s comment demonstrated, "the Nop holds CPReg constant
-through T3 of the PREVIOUS instruction".
-
-Also worth knowing: **the first jam/step pair after a cold stop does not
-take.** Link stays `fff` and a second pair is needed. That is consistent with
-(2) -- the phase ring starts from reset -- but it has not been pinned down.
+* **`SetCPReg~` writes the COMPLEMENT** ("LDA ToCPRegH / EORI 0ff"), which is
+  why the BaseBoard's value arrives on BMux uncomplemented -- ContA b02's
+  MC10159 inverts and the tilde cancels it. Every earlier testbench here wrote
+  the value straight and read the complement back; this is the convention that
+  explains it.
+* **`IMStoreTable` is four entries indexed by `(half << 1) | extraBit`** --
+  IMLHRSTK.0Is0#, IMLHRSTK.0Is1#, IMRHBLOCKIs0#, IMRHBLOCKIs1# -- which is the
+  half-select and secondary bit `writeim-test` proves, chosen the way the ROM
+  chooses them.
 
 **Six things that will otherwise cost you a day:**
 
-* **A step is at least TWO Control strobes**: one carrying ClrStop+SetRun, and
-  a following one WITHOUT ClrStop. `rStop` is a LEVEL that lasts until the next
-  Control strobe; with no second strobe it holds the stop latch reset and the
-  machine free-runs (26 `clk0'` edges where a step gives 2). PARC issues three
-  and only the first two matter -- measured, because the comment that claimed
-  all three were load-bearing had a mutation that passed.
+* **A step is at least TWO Control strobes** in the combined form: ClrStop+
+  SetRun, then a following one WITHOUT ClrStop. With no second strobe `rStop`
+  stays asserted and the machine free-runs (26 `clk0'` edges where a step gives
+  2).
 * **The first step out of a stop is HALF a microinstruction** -- `clk0'` and no
   `clk1'` -- because the phase generator comes out of reset with `StartCycle`
   cleared. Every step after it is whole.
 * **A jam only survives at all because the MIR CLOCK IS HELD**, which takes two
-  manifold words PARC's boot ROM writes at power-up. Every testbench that jams
-  writes them; one that does not is measuring whatever IM holds.
-* **The machine runs DURING the Control strobes.** Count clocks continuously --
-  a window opened after the last strobe sees nothing at all, which reads
-  exactly like a machine that has stopped dead.
+  manifold words PARC's boot ROM writes at power-up.
+* **The machine runs DURING the Control strobes.** Count clocks continuously; a
+  window opened after the last strobe sees nothing, which reads exactly like a
+  machine that has stopped dead. (Widening the window 4x is how that was ruled
+  out as the explanation for the erratic stepping above -- it is real.)
 * **Measure against a wiped baseline, and pick a CPReg value whose COMPLEMENT
-  has bits in it.** IM comes up with cells set from a settling transient, and
-  `CPReg=FFFF` reaches the array as `0000`, so a write of zeros is
-  indistinguishable from no write.
+  has bits in it.** `CPReg=FFFF` reaches the array as `0000`, so a write of
+  zeros is indistinguishable from no write.
 * **When a wired-OR reads wrong, split it.** The generator gives every driver
   its own stub (`TNIA_04__g24_3` beside `TNIA_04__g22_14`); printing all of
-  them per bit named the guilty package in one run and exonerated eleven
-  others.
+  them per bit named the guilty package in one run.
 
 ## How to read the rest
 

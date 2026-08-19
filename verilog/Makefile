@@ -21,6 +21,7 @@
 #   make operand-test ...and its DATA comes from CPReg (the MIR clock held)
 #   make step-test    the machine SINGLE-STEPS microinstructions
 #   make startseq     PARC's own boot sequence replayed (diagnostic, not a gate)
+#   make sendmir      PARC's IM loader replayed (diagnostic, not a gate yet)
 #   make converge-test the assembled machine settles, and its clock runs
 #   make machine-test the assembled machine under the imgui harness
 #   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs
@@ -33,7 +34,7 @@ TOOLS   = ../tools
 
 .PHONY: boards backplane proms cells cells-force lint cell-check loop-check \
         prom-test alu-test alu-diff cpreg-diff mir-diff mirreg-diff run-test \
-        writeim-test operand-test step-test \
+        writeim-test operand-test step-test sendmir \
         datapath-test \
         startseq \
         converge-test machine-test \
@@ -103,6 +104,10 @@ operand-test:
 # One microinstruction at a time -- the primitive Boot0 is built out of.
 step-test:
 	@$(MAKE) -C verilator step-test
+
+# PARC's SendViaMIR replayed. A DIAGNOSTIC, not a gate: it does not pass yet.
+sendmir:
+	@$(MAKE) -C verilator sendmir
 
 # PARC's own DoDoradoMicroInst replayed. A diagnostic, not a gate.
 startseq:
