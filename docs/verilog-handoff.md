@@ -30,6 +30,7 @@ can run.
 | ...with the ADDRESS from CPReg | **works** -- Link -> TNIA -> the array's address lines | `operand-test` |
 | The machine SINGLE-STEPS microinstructions | **works** | `step-test` |
 | PARC's SendViaMIR loads words into IM | **works** -- Boot0's inner loop | `sendmir` |
+| PARC's BLOCK LOADER walks a hunk into IM | **works** -- read back word for word | `boot0-test` |
 
 ### Every gate
 
@@ -95,50 +96,55 @@ substitutions if at all. The 22 digital ones need datasheets this repository
 does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 `F9401`.
 
-## START HERE: Boot0's inner loop works -- drive the whole block next
+## START HERE: feed the block loader a real .MB and diff IM against the C emulator
 
-`make -C verilog sendmir` is `doradoboot.masm`'s per-word IM loader,
-transcribed line for line, and it works: two words go in at two addresses and
-come back with the right bit counts. **The `run-test` loose end is closed, and
-it was strobe SPACING** -- see below.
+**Boot0's loader works, both levels of it.** `make -C verilog boot0-test`
+walks a 17-byte HUNK into IM -- four microinstructions, both halves each, at
+four consecutive addresses -- and reads all eight half-words back out of the
+array by name. `make -C verilog sendmir` is the per-word layer underneath it.
 
-What is left is the block loader around it: `LoadDoradoCode` walks
-`Boot0Block` (data pointer, first IM location, length in 17-byte hunks,
-checksum, breakpoints) calling `SendViaMIR` per word. Transcribe that, feed it
-a real `.MB`, and diff IM against what `cpu.c`'s loader puts in `im[]` for the
-same input -- the first whole-subsystem cross-check against the C emulator, and
-the reason the address-order fix below had to happen first.
+**A hunk is 17 bytes and that number is exact**: one `ExtraBits` byte plus
+eight half-microinstructions of two bytes each, and eight halves of seventeen
+bits is 136 bits. Four microinstructions per hunk. Both halves of an
+instruction go to the SAME IMAddress; the address steps once per instruction,
+not per half.
 
-**Five things that will otherwise cost you a day:**
+What is left is the outer loop and the payload: `SendIMBlockToDorado` reads
+`Boot0Block` (data pointer, first IM location, length in hunks, checksum,
+breakpoint count and table) and calls `SendAHunk` per hunk. Transcribe that,
+feed it real hunks from a `.MB`, and **diff IM against what `cpu.c`'s loader
+puts in `im[]` for the same input**. That is the first whole-subsystem
+cross-check against the C emulator, and it is why the address-order fix below
+had to land first -- a permuted address is invisible until you compare with
+something external.
+
+`tb_boot0.sv` is GENERATED from ContB's wire list, so the readback names every
+slot: pin 15 is the data line, pin 13 the `WEL'`/`WER'` half, pin 14 the chip
+select and so the bank. Extend the same generator for the payload.
+
+**Six things that will otherwise cost you a day:**
 
 * **CONTROL STROBES MUST BE SPACED.** The real BaseBoard is a 1 MHz 6502
-  running `JSR DoControl` between them -- microseconds apart -- and `SetRun`
-  has to survive three `RunClk'` edges to walk ContA i03's three-stage shift
-  register into `dRun`. Fourteen sys_clk does not cover it. With a gap, PARC's
-  SEPARATED ClrStop/SetRun sequence runs exactly as written: every
-  microinstruction gets `clk0'` twice, `clk1'` twice and `Stop` set again. The
-  combined 0x41 byte that `run-test` and `step-test` use is a workaround for
+  running `JSR DoControl` between them, and `SetRun` must survive three
+  `RunClk'` edges to walk ContA i03's three-stage shift register into `dRun`.
+  Fourteen sys_clk does not cover it, and without the gap nothing loads at all
+  (`0 of 8`). With it, PARC's SEPARATED ClrStop/SetRun runs exactly as written
+  -- the combined 0x41 byte `run-test` and `step-test` use is a workaround for
   the missing gap, not something the hardware needs.
 * **`SetCPReg~` writes the COMPLEMENT** ("LDA ToCPRegH / EORI 0ff"). ContA
-  b02's MC10159 inverts on the way to BMux and the tilde cancels it, so writing
-  ~address puts the address in Link. Testbenches that write the value straight
-  read the complement back, which is what every earlier one here did.
+  b02's MC10159 inverts on the way to BMux and the tilde cancels it.
 * **The first microinstruction out of a cold stop runs only its `clk0` half**,
-  because the phase generator comes out of reset with `StartCycle` cleared. A
-  loader's first word loses its address load unless the pipeline is warmed;
-  Boot0 runs continuously so this is a testbench concern only.
-* **The IM scan index is the WITHIN-BANK index.** IM is four banks of 1024 and
-  `dRA.00'`/`dRA.11'` -- the top and bottom address bits -- pick the bank, so
-  address 0x123 lands at 0x123>>1 = 145. Not a discrepancy, the interleave.
+  so a loader's first word loses its address load unless the pipeline is
+  warmed. Boot0 runs continuously; a testbench must send two Nops first.
+* **IM IS INTERLEAVED.** The low address bit picks the BANK, not the index, so
+  0x100..0x103 land at indices 0x80, 0x80, 0x81, 0x81 in alternating banks.
+  Address 0x123 is at index 0x123>>1 = 145.
+* **Pick byte-ASYMMETRIC test data.** The first version of `boot0-test` used
+  1111/2222/... and the mutation that swaps the two data bytes PASSED against
+  it -- with equal halves there is nothing to swap. PARC sends the HIGH byte
+  first, and only asymmetric words test it.
 * **A jam only survives because the MIR CLOCK IS HELD**, which takes the two
   manifold words PARC's boot ROM writes at power-up.
-
-**And the `link_at_issue` hazard is real and still unmodelled.** `CPRegToIM#`
-carries `FF=176` like `CPRegToLink#`, so it reloads Link with its own DATA as
-it executes; the address is only readable between the two jams. It does not
-bite `sendmir` because the write completes before the reload, but anything
-reading Link after a store gets the data. `cpu.c` models this as
-`link_at_issue`.
 
 ## How to read the rest
 

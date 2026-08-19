@@ -160,6 +160,17 @@ converge-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_converge/tb_converge 2>&1); \
 		  rc=$$?; echo "$$out" | grep tb_converge; exit $$rc; }
 
+# PARC's BLOCK LOADER: a 17-byte hunk walked into IM, read back word for word.
+.PHONY: boot0-test
+boot0-test:
+	@cd ../.. && $(V) --binary --top-module tb_boot0 $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_boot0 -o tb_boot0 \
+		verilog/verilator/tb_boot0.sv verilog/generated/dorado_proc.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_boot0/tb_boot0 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_boot0; exit $$rc; }
+
 # PARC's SendViaMIR: Boot0's inner loop, loading words into IM.
 .PHONY: sendmir
 sendmir:

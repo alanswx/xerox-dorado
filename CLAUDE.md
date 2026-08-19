@@ -972,6 +972,7 @@ path is one signal short. Rung by rung, each line a gate you can run:
 | ...with the ADDRESS from CPReg | `operand-test` (Link -> TNIA -> IM) |
 | the machine SINGLE-STEPS microinstructions | `step-test` |
 | PARC's SendViaMIR loads words into IM | `sendmir` -- Boot0's inner loop |
+| PARC's BLOCK LOADER walks a hunk into IM | `boot0-test` -- read back word for word |
 
 Eighteen gates in all; `make -C verilog` has the list. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
@@ -1021,8 +1022,11 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   later one, which our model seemed to need combined; the real BaseBoard is a
   1 MHz 6502 running `JSR DoControl` between strobes, and `SetRun` must survive
   three `RunClk'` edges to reach `dRun` through ContA i03. Space the strobes
-  and PARC's sequence runs as written. `make -C verilog sendmir` loads two
-  words into IM at their addresses.
+  and PARC's sequence runs as written. `make -C verilog boot0-test` walks a
+  17-byte HUNK into IM -- four microinstructions, both halves, four consecutive
+  addresses -- and reads all eight half-words back out of the array. A hunk is
+  17 bytes because eight half-microinstructions of seventeen bits is 136 bits.
+  Next: feed it real hunks from a `.MB` and diff IM against `cpu.c`'s `im[]`.
 - **Three memory cells had their address bits BACKWARDS** -- `F10415A` (IM,
   144 packages), `F10145A` (405, the biggest cell in the machine) and `F10470`
   (the DRAM) assembled the address LSB-first where PARC wires it MSB-first.

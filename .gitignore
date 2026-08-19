@@ -113,3 +113,4 @@ verilog/verilator/obj_operand/
 verilog/verilator/obj_converge/
 verilog/verilator/obj_step/
 verilog/verilator/obj_sendmir/
+verilog/verilator/obj_boot0/
