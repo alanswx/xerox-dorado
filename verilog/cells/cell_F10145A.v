@@ -47,7 +47,15 @@ module cell_F10145A (
   // A0-A3 = 10,9,7,6 address; D0-D3 = 5,4,11,12 data in;
   // Q0-Q3 = 2,1,15,14 data out; CE'=3 chip enable, WE'=13 write enable.
   reg [3:0] mem [0:15];
-  wire [3:0] a = {p6, p7, p9, p10};
+  //
+  // ADDRESS BIT ORDER: A0 IS THE MOST SIGNIFICANT. PARC numbers every field
+  // MSB-first -- `RSTK.0` is the top RSTK bit, `TNIA.04` the top address bit --
+  // and the dictionary's A-numbering follows suit. `cell_F10414`, the same
+  // family on the same board, says so in its own comment ("A0..A7, MSB
+  // first"), and `cell_i2716` was corrected for exactly this ("PARC names
+  // those MSB-first: the dictionary's A0 is pin 19, the sheet's A10 ... a
+  // reversed address would have scrambled the image silently").
+  wire [3:0] a = {p10, p9, p7, p6};   // A0=p10 .. A3=p6
   always @(posedge sys_clk)
     if (!p3 && !p13) mem[a] <= {p12, p11, p4, p5};          // WE' and CE'
   wire [3:0] q = mem[a];

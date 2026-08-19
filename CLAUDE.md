@@ -1007,6 +1007,14 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   `SetMidasStopMIRClk` ("turn on MIR debug feature"). A microinstruction the
   BaseBoard put in the MIR did not come from IM and fails its parity, so the
   "freeze the MIR on a parity error" debug feature is ALSO the jam mechanism.
+- **Three memory cells had their address bits BACKWARDS** -- `F10415A` (IM,
+  144 packages), `F10145A` (405, the biggest cell in the machine) and `F10470`
+  (the DRAM) assembled the address LSB-first where PARC wires it MSB-first.
+  For IM it is proved without appeal to convention: pin 2 takes `RA.01a`,
+  which comes from `TNIA.05`, the second most significant bit. A Write-IM
+  addressing 195 deposited at 780 -- 195 with its ten bits reversed. Nothing
+  caught it because a consistently reversed address is a PERMUTATION, which
+  only bites when IM is compared with something external, i.e. Boot0.
 - **Boot0 is the open rung, and a probe already narrowed it.** `CPRegToIM#`
   carries `FF=176`, which means BOTH halves of `Link<-CPReg` -- it puts CPReg
   on B *and* reloads Link from it -- so by the time the write fires the address
@@ -1014,7 +1022,7 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   `link_at_issue`. And the write is several steps late: `preWE'` waits on
   `CRamClock`, whose D is `Phase2'`, and the five-stage Phase ring advances at
   most one stage per step. Measured over eight steps the write fires at 3, 5
-  and 6, and lands at neither Link value. PARC's Nop-after-jam is demonstrable:
+  and 6, at the RELOADED Link. PARC's Nop-after-jam is demonstrable:
   without it the pending write deposits during the NEXT jam's byte-strobing.
 - **A single step is at least TWO Control strobes**, and the first step out of
   a stop is only HALF a microinstruction. `rStop` is a LEVEL that lasts until

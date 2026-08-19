@@ -122,10 +122,16 @@ and stays asserted, the ring walks `10000 -> 10000 -> 01000 -> 00001 -> 10000
 one-step operation, and the ring does not advance once per step, which is the
 next thing to understand.
 
-**3. The address the write actually uses is neither Link value.** With the
-intended address `55f` and the reloaded one `987`, the deposit landed at
-`IM[780]` = `0x30C`. So it is sampled at a third moment. Capture `dRA` at the
-`WER'` edge and work back through TNIA.
+**3. The address IS Link -- and the "third moment" this used to claim was my
+own scan reading a bit-reversed index.** Logging at the `WER'` edge gives
+`dRA = TNIA = Link = 987` on every pulse, all three agreeing. The deposit
+appeared at `IM[780]` while the address lines said `195`, and 780 is 195 with
+its ten bits turned round: `cell_F10415A` assembled the address LSB-first. See
+"The memories had their address bits backwards" below. Fixed, the deposit
+lands at `IM[195]`.
+
+So the address question reduces to (1) alone: the write uses the RELOADED
+Link, and the hardware must be taking the issue-time value somewhere.
 
 **4. PARC's Nop is real and it is demonstrable.** Without a Nop between pairs,
 the pending write from one `CPRegToIM#` fires during the NEXT jam's MIR
@@ -1372,6 +1378,41 @@ input, and `RbAdr.4-7'`, the RM address.
 
 With it fixed, `dRA` tracks `TNIA` exactly and `CPRegToLink#` works end to end:
 `CPReg=002A` -> `BMux=ffd5` -> `Link[4:15]=fd5`.
+
+### The memories had their address bits backwards
+
+Three memory cells assembled their address LSB-first when PARC wires them
+MSB-first. **`cell_F10415A` is IM** -- 144 packages -- and it is the one with
+proof that owes nothing to convention:
+
+* the board wires pin 2 to `RA.01a` and pin 12 to `RA.10a`;
+* `RA.01a` comes from `dRA.01'`, which ContB's multiplexer takes from
+  `TNIA.05`, the SECOND MOST significant address bit, while `RA.10a` traces to
+  `TNIA.14`, the second least;
+* so pin 2 carries the more significant bit -- and the cell had it as the
+  least.
+
+Measured: a Write-IM whose address lines read **195** deposited at **780**,
+which is 195 with its ten bits reversed. Fixed, it deposits at 195.
+
+`cell_F10145A` (**405 packages**, the biggest cell in the machine -- the 16x4
+ECL register file behind TLink) and `cell_F10470` (the DRAM) had the same
+inversion and are fixed with it. `cell_i2125` does NOT: its address is the
+BaseBoard's own `RA0..RA9` off a 6502 bus, where 0 is the least significant,
+and its cell is right.
+
+**The convention is stated by the repository's own cells.** `cell_F10414` --
+the same family, the same board, the STK register file -- carries the comment
+`// A0..A7, MSB first`, and `cell_i2716` was corrected for exactly this before
+("PARC names those MSB-first: the dictionary's A0 is pin 19, the sheet's A10
+... a reversed address would have scrambled the image silently").
+
+**Why nothing caught it.** A consistently reversed address is a PERMUTATION:
+writes and reads use the same mapping, so a machine that only reads back what
+it wrote behaves identically, and `writeim-test` counts bits rather than
+addresses while `operand-test` asserts `dRA == TNIA` rather than where the bits
+land. It bites the moment IM is compared against something external -- a `.MB`
+file, or the C emulator -- which is exactly what Boot0 is for.
 
 ### The machine single-steps, and `rStop` is why it took three tries
 
