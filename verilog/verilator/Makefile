@@ -160,6 +160,22 @@ converge-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_converge/tb_converge 2>&1); \
 		  rc=$$?; echo "$$out" | grep tb_converge; exit $$rc; }
 
+# THE MACHINE EXECUTES MICROCODE OUT OF IM.
+.PHONY: exec-test
+exec-test:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks
+	@mkdir -p obj_exec
+	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 4 \
+		> verilog/verilator/obj_exec/exec.vec
+	@cd ../.. && $(V) --binary --top-module tb_exec $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_exec -o tb_exec \
+		verilog/verilator/tb_exec.sv verilog/generated/dorado_proc.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_exec/tb_exec \
+		    +vectors=verilog/verilator/obj_exec/exec.vec 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_exec; exit $$rc; }
+
 # PARC's BLOCK LOADER: a 17-byte hunk walked into IM, read back word for word.
 .PHONY: boot0-test
 boot0-test:

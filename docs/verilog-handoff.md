@@ -31,6 +31,7 @@ can run.
 | The machine SINGLE-STEPS microinstructions | **works** | `step-test` |
 | PARC's SendViaMIR loads words into IM | **works** -- Boot0's inner loop | `sendmir` |
 | PARC's BLOCK LOADER walks REAL MICROCODE into IM | **works**, and it MATCHES THE C EMULATOR -- 16 hunks, 128 half-words | `boot0-test` |
+| **THE MACHINE EXECUTES MICROCODE OUT OF IM** | **works** -- free-running, sequencing, 1,242 cycles | `exec-test` |
 
 ### Every gate
 
@@ -98,55 +99,59 @@ does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 
 ## START HERE
 
-**Boot0's loader works on real microcode, and IM matches the C emulator.**
-`make -C verilog boot0-test` packs Xerox's own `AEmu.mb!2` into PARC's 17-byte
-hunks through the C emulator's `.MB` loader, walks 16 of them into IM through
-the BaseBoard's control-processor bus, and reads all **128 half-words** back
-out of the modelled ECL array -- data bits and secondary bit both. The two
-sides share no code: one is `mb.c` and `microcode.c`, the other is 4,096 words
-of RTL generated from PARC's wire lists.
+**The machine executes microcode out of IM.** `make -C verilog exec-test` loads
+real AEmu microcode through the BaseBoard's control-processor bus, releases the
+MIR clock, puts the start address in Link and jams a `Return#` -- PARC's own
+`LoadDoradoCode` startup -- and the machine free-runs: 1,242 `clk0'` cycles in
+20,000, `Stop` clear throughout, eight distinct `TNIA` values and nine distinct
+decoded `FF` fields as it sequences through what it was given.
 
-That is the whole-subsystem cross-check this branch was working toward. What is
-left of Boot0 proper is the outer wrapper -- `SendIMBlockToDorado` reading
-`Boot0Block`'s length/checksum/breakpoint fields, and the breakpoint insertion
-in `SendAHunk` -- neither of which the loader needs to place words correctly.
+**The one thing standing between that and PARC's real boot is PARITY.** The
+test has to CLEAR the IM parity enables before running. With them on the
+machine executes exactly one instruction and stops, and `InitManifolds` leaves
+them on for the whole of PARC's boot. So either their IRTable entries carry
+parity that satisfies the generator -- the five-byte format has explicit P015
+and P1631 bits, and `Nop#` = `70 01 0F 4C 40` sets both -- or our MC10170
+parity generators on ContB j20/j21 compute something different. **Checking a
+known IRTable entry's parity by hand against j20/j21 is the way in, and it is
+the next task.**
 
-**After that, the interesting targets are:**
+`mir-diff` already found that the parity bits "really do reach two MC10170
+parity generators on ContB" and that setting them wrong did not stop the
+machine THERE only because the enables were off. They are on now, and it
+matters.
 
-* **`machine-test`**, the one red gate: the assembled eleven-board machine does
-  not converge under the C++ `eval()` model though it does under the event
-  scheduler (`converge-test`). Pre-existing, and it blocks any whole-machine
-  run.
-* **More C cross-checks**, now that the pattern is established: `memory.c`
-  against MemC/MemD/MemX, and the shifter against the LMASK/RMASK PROMs.
-* **The cell library**, 98.0% of the eleven-board machine, and the datasheets
-  for almost everything still missing are now in `DoradoDocs/datasheets/`.
+**After that:** `machine-test` is the one red gate (the assembled eleven-board
+machine does not converge under the C++ `eval()` model though it does under the
+event scheduler); `memory.c` against MemC/MemD/MemX and the shifter against the
+LMASK/RMASK PROMs are the next C cross-checks; and the cell library is at 98.0%
+with datasheets for almost everything missing now in `DoradoDocs/datasheets/`.
 
-**Seven things that will otherwise cost you a day:**
+**Eight things that will otherwise cost you a day:**
 
-* **CONTROL STROBES MUST BE SPACED.** The real BaseBoard is a 1 MHz 6502
-  running `JSR DoControl` between them, and `SetRun` must survive three
-  `RunClk'` edges to walk ContA i03's shift register into `dRun`. Fourteen
-  sys_clk does not cover it and NOTHING loads. With a gap, PARC's SEPARATED
-  ClrStop/SetRun runs as written -- the combined 0x41 byte is a workaround for
-  the missing gap, not something the hardware needs.
-* **`SetCPReg~` writes the COMPLEMENT** ("LDA ToCPRegH / EORI 0ff"). ContA
-  b02's MC10159 inverts on the way to BMux and the tilde cancels it.
-* **A hunk is 17 bytes and that number is exact**: one ExtraBits byte plus
-  eight half-microinstructions of two bytes, and eight halves of SEVENTEEN bits
-  is 136. Four microinstructions per hunk, both halves of one instruction at
-  the SAME IMAddress, the address stepping once per instruction.
-* **The first microinstruction out of a cold stop runs only its `clk0` half**,
-  so a loader's first word loses its address load unless the pipeline is warmed.
-* **IM IS INTERLEAVED.** The LOW address bit picks the BANK, so 0x100..0x103
-  land at indices 0x80, 0x80, 0x81, 0x81. Address 0x123 is at index 145.
-* **The right half's secondary bit is stored COMPLEMENTED**, because BLOCK is
-  the one field bit the MIR wires inverted. Measured: all 64 left secondary
-  bits matched and all 64 right ones were the complement.
-* **Pick byte-ASYMMETRIC test data, and check more than the data bits.** Two
-  mutations slipped through this gate before it was finished -- swapping the
-  two data bytes (invisible against 1111/2222/...) and reversing the ExtraBits
-  shift (invisible while only the sixteen data bits were read back).
+* **ONCE `Stop` SETS IT GATES THE CLOCK THAT WOULD CLEAR IT.** `bCLKEnable' =
+  Stop | Run'` gates `clk2'`, and `clk2'` is the stop latch's own clock, so a
+  machine with `dStop` = 0, `Run'` = 0 and `Stop` = 1 is stuck until `rStop`
+  (ClrStop). That state looks impossible and is not.
+* **A parity error stops the machine outright**, through
+  `dStop = ~[(bpreStartC'b + ContA31.sil+5) . (bpreStartC'b + Error')]` --
+  independently of the single-step chain.
+* **CONTROL STROBES MUST BE SPACED.** The BaseBoard is a 1 MHz 6502 running
+  `JSR DoControl` between them and `SetRun` must survive three `RunClk'` edges.
+  Without a gap nothing loads at all.
+* **`SetCPReg~` writes the COMPLEMENT**; ContA b02's MC10159 inverts and the
+  tilde cancels it.
+* **A hunk is 17 bytes and that is exact**: one ExtraBits byte plus eight
+  half-microinstructions of SEVENTEEN bits.
+* **IM IS INTERLEAVED** -- the LOW address bit picks the bank, so address 0x123
+  sits at index 145.
+* **The right half's secondary bit is stored COMPLEMENTED**, BLOCK being the
+  one field bit the MIR wires inverted.
+* **Check more than the obvious, and pick asymmetric data.** Three mutations
+  passed against these gates before they were finished: swapping two data bytes
+  (invisible against 1111/2222/...), reversing the ExtraBits shift (invisible
+  while only data bits were read back), and releasing the MIR clock explicitly
+  (redundant once the parity enables are cleared).
 
 ## How to read the rest
 

@@ -973,6 +973,7 @@ path is one signal short. Rung by rung, each line a gate you can run:
 | the machine SINGLE-STEPS microinstructions | `step-test` |
 | PARC's SendViaMIR loads words into IM | `sendmir` -- Boot0's inner loop |
 | PARC's BLOCK LOADER walks REAL MICROCODE into IM | `boot0-test` -- and IM MATCHES THE C EMULATOR |
+| **THE MACHINE EXECUTES MICROCODE OUT OF IM** | `exec-test` -- free-running and sequencing |
 
 Eighteen gates in all; `make -C verilog` has the list. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
@@ -1032,6 +1033,18 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   ECL array. The two sides share no code -- `mb.c`/`microcode.c` against 4,096
   words of RTL generated from PARC's wire lists. That is the first
   whole-subsystem cross-check between the two models.
+- **AND THE MACHINE EXECUTES IT.** `make -C verilog exec-test` releases the MIR
+  clock, puts the start address in Link and jams a `Return#` -- PARC's own
+  `LoadDoradoCode` startup -- and the machine free-runs out of IM: 1,242
+  `clk0'` cycles in 20,000, `Stop` clear, eight distinct `TNIA` values and nine
+  distinct decoded `FF` fields as it sequences. The one thing between that and
+  PARC's real boot is PARITY: the test must CLEAR the IM parity enables, which
+  `InitManifolds` leaves ON, or the machine executes one instruction and stops.
+  Either PARC's IRTable entries carry parity the generator accepts or our
+  MC10170s on ContB j20/j21 differ -- that is the next question. And note **once
+  `Stop` sets it gates the clock that would clear it** (`bCLKEnable' = Stop |
+  Run'` gates `clk2'`, the stop latch's own clock), so `dStop`=0, `Run'`=0,
+  `Stop`=1 is a real state and only ClrStop escapes it.
 - **Three memory cells had their address bits BACKWARDS** -- `F10415A` (IM,
   144 packages), `F10145A` (405, the biggest cell in the machine) and `F10470`
   (the DRAM) assembled the address LSB-first where PARC wires it MSB-first.

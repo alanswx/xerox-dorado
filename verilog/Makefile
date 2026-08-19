@@ -23,6 +23,7 @@
 #   make startseq     PARC's own boot sequence replayed (diagnostic, not a gate)
 #   make sendmir      PARC's IM LOADER: words go into IM at their addresses
 #   make boot0-test   PARC's BLOCK LOADER: a 17-byte hunk walked into IM
+#   make exec-test    THE MACHINE EXECUTES MICROCODE OUT OF IM
 #   make converge-test the assembled machine settles, and its clock runs
 #   make machine-test the assembled machine under the imgui harness
 #   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs
@@ -35,7 +36,7 @@ TOOLS   = ../tools
 
 .PHONY: boards backplane proms cells cells-force lint cell-check loop-check \
         prom-test alu-test alu-diff cpreg-diff mir-diff mirreg-diff run-test \
-        writeim-test operand-test step-test sendmir boot0-test \
+        writeim-test operand-test step-test sendmir boot0-test exec-test \
         datapath-test \
         startseq \
         converge-test machine-test \
@@ -105,6 +106,10 @@ operand-test:
 # One microinstruction at a time -- the primitive Boot0 is built out of.
 step-test:
 	@$(MAKE) -C verilator step-test
+
+# THE MACHINE EXECUTES MICROCODE OUT OF IM.
+exec-test:
+	@$(MAKE) -C verilator exec-test
 
 # PARC's block loader: a 17-byte hunk walked into IM, read back word for word.
 boot0-test:
