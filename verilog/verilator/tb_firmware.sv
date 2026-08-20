@@ -1,179 +1,146 @@
 // tb_firmware -- LET THE REAL FIRMWARE DRIVE THE MACHINE.
 //
-// Every gate up to now has had the TESTBENCH play BaseBoard: it strobed the
-// control-processor bus by hand, replaying sequences transcribed out of
+// Every other gate here has the TESTBENCH play BaseBoard, strobing the
+// control-processor bus by hand from sequences transcribed out of
 // `doradoboot.masm`. This one does not. It brings up BaseBd + ContA + ContB +
-// ProcH + ProcL as one machine -- `dorado_boot`, generated like the others by
-// tools/sil_backplane.py -- and lets the BaseBoard's 6502 run its OWN firmware
-// out of its OWN EPROMs, then watches what it does to the Dorado.
+// ProcH + ProcL as one machine -- `dorado_boot`, generated like the other
+// configurations by tools/sil_backplane.py -- and lets the BaseBoard's 6502
+// run its OWN firmware out of its OWN EPROMs, then watches what it does.
 //
-// A DIAGNOSTIC, not a gate. WHAT IT SAYS NOW:
+// A DIAGNOSTIC, not a gate. Two build-time switches:
+//   +define+LONG_RUN       260 M sys_clk instead of 4 M, enough to cross a
+//                          real watchdog interval (2^21 MCPreClk cycles)
+//   +define+G22_DISARMED   pokes g22's FF1 to Q=1 at time zero, the disarmed
+//                          half of the watchdog's cycle -- an EXPERIMENT, to
+//                          separate "reset by the watchdog" from everything
+//                          else. Off by default.
 //
-//     ROM 33818, RAM 16459, I/O 30 addresses; ROM span f248..ffff
-//     MCPreClk edges 99999, divider Q21 edges 0, toggle-FF edges 1
-//     WatchdogIn 1, WatchdogOut 37, XOR 36, BootMC' 36
-//     reset-vector fetches: 19, every 211,440 sys_clk
-//     **CPStrb' edges 37  --  IT IS DRIVING THE DORADO**
+// ---------------------------------------------------------------- WHAT IT SAYS
 //
-// The firmware reaches the control-processor bus. That took one fix, in the
-// GENERATOR rather than in a cell: `WEAK_PORT_DRIVERS` in sil_to_verilog.py.
+//                         4 M armed   4 M disarmed   260 M armed
+//   MCReset' assertions      19            1            397
+//   CPStrb' edges            37          450         27,674
+//   PACIFYWATCHDOG F692       0            5            240
+//   DMuxClk edges             0            0              0
 //
-// WHY IT IS A NET PROPERTY, NOT A CELL ONE. A 6532 port pin is high-Z with an
-// internal pull-up when its DDR makes it an input, and the MiSTer core says so
-// directly -- `PA_out = out_a | ~dir_a`, an input pin reading back 1, with the
-// comment that the output "must be fed back to input ... for the chip to read
-// properly". That is a WIRE-AND convention; these nets resolve as wired-OR, so
-// the pull-up won instead of losing and pinned every such net HIGH.
-//
-// Masking it inside the cell with the DDR does NOT work -- it holds the 6502
-// in reset, because `WatchdogOut` is a net whose ONLY driver is the RIOT and
-// whose pull-up is real. The rule has to be per-net: the pull-up loses where
-// something else drives, and stands where nothing does. The generator already
-// knows each net's driver set.
-//
-// It is sound because of what those nets ARE. Across the machine 33 nets have
-// a 6532 port pin sharing with another driver, and in EVERY one the other
-// driver is a real totem-pole part ('174, '259, '01, '157, '175, '74,
-// MC10125) or a strap, with the 6532 pin as the READER: `RCPReg.00-15` -- how
-// the BaseBoard reads the Dorado's CP register back -- plus `MCManif.0-3`,
-// `TCPI.0-3`, the temperature senses and `WatchdogIn`. Every one of those was
-// stuck high before.
-//
-// STILL OPEN, AND MEASURED. The watchdog resets the processor every 211,440
-// sys_clk (19 times here), so it drives the Dorado only in bursts between
-// restarts, and `DMuxClk` is still 0 -- no manifold word shifted yet.
-//
-// WHAT TRIPS IT IS A ONE-CYCLE GLITCH, NOT THE TIMER. The trace shows
-// `WatchdogOut` driven LOW for exactly one MCClk cycle (215,518 -> 215,598)
-// while the firmware sets up the RIOT -- the DDR is written before the output
-// register, so the pin drives whatever ORA holds -- and that transient spikes
-// the g23 XOR, pulls `BootMC'` low, and j08 latches a reset 521 sys_clk later.
-// `BaseBd09.sil+3` (g22's FF1 Q') is 1 throughout, which is what lets the
-// spike through: j17 NANDs the XOR against it, so Q' = 0 would mask it
-// entirely.
-//
-// AND THAT IS CONFIRMED. Build with `+define+G22_DISARMED` -- the initial
-// block below pokes g22's FF1 to Q = 1, i.e. Q' = 0, the disarmed half of its
-// cycle -- and the firmware gets twelve times further:
-//
-//                      default      G22_DISARMED
-//     reset-vector       19              7
-//     CPStrb' edges      37            450
-//
-// So g22's power-up state genuinely gates how far the firmware gets. The
-// design tolerates either state on real hardware -- FF1 is a toggle clocked by
-// the timer, so it alternates armed/disarmed every interval (~1 s), and the
-// firmware has a whole disarmed window to reach `PacifyWatchdog` and pin the
-// XOR at 0 for good. Our simulation never gets that far because the interval
-// is 2^21 cycles and the probe runs 4 M.
-//
-// THERE IS NO SECOND RESET SOURCE -- that was this probe's own instrument
-// lying. It counted a "reset" whenever 0xFFFC appeared on the address bus,
-// which is NOT the same as one: with the watchdog disarmed it reported seven
-// while `MCReset'` never left 1 and `BootMC'` never moved at all. Counting
-// `MCReset'` falling edges instead gives **exactly one** assertion -- the
-// power-on reset -- and nothing after it. The firmware then runs continuously
-// and drives the Dorado, 450 CPStrb' edges.
-//
-//                      default      G22_DISARMED
-//     MCReset' asserts   19               1
-//     CPStrb' edges      37             450
-//
-// g22's POWER-UP STATE MATTERS, BUT "GIVE IT TIME" IS NOT THE ANSWER -- that
-// prediction was made here and is REFUTED by measurement. The reasoning was:
-// FF1 is a toggle clocked by the timer, so it alternates armed/disarmed every
-// interval; a machine that comes up armed should be reset only until the first
-// Q21 edge flips it, after which the firmware has a whole disarmed window to
-// reach `PacifyWatchdog` and pin the XOR at 0 for good. Running 260 M sys_clk
-// with `+define+LONG_RUN` crosses three such edges. It does not settle:
-//
-//     MCPreClk cycles          3,249,999
-//     divider Q21 edges                3   the timer DID fire, three times
-//     g22 toggle-FF edges              3   so DISARMED WINDOWS EXISTED
-//     MCReset' assertions            397   and the resets CONTINUED
-//     CPStrb' edges               27,674
-//
-// Each disarmed window is 2^20 MCPreClk cycles -- about a million 6502 cycles
-// of completely free running -- and the firmware still never pacifies. So it
-// is not being starved of time; it never reaches `PacifyWatchdog` at all.
-//
-// WHERE IT ACTUALLY SPENDS A DISARMED WINDOW: MEASURING THE POWER SUPPLIES.
-// The histogram from the `G22_DISARMED` build names one loop --
-//
-//     F84A: EOR $A9 / STA $0400   write a trial value to the DAC
-//     F84F: LDA #$02 / STA $AA
-//     F853: DEC $AA / BNE $F853   a short settling delay
-//     F857: LDA ($A6),Y / AND $A8 read the comparator
-//     F85B: BEQ / LDA $A9
-//     F85F: EOR $0400 / ROR $A9   keep or drop the bit, shift the mask
-//     F864: BNE $F84A             ... eight times
-//     F86C: JMP ENABLEMIDAS
-//
-// -- which is a SUCCESSIVE-APPROXIMATION A/D CONVERSION. `doradoio.mdefs`
-// names both ports: `DAC = 400+PA` (`DACDDRValue = AllOutput`) and
-// `Comparators = 480+PA`. The surrounding code calls `READMUFFLER` and
-// `SETMUFFLERADDRESS`, so the firmware is stepping the muffler address and
-// converting one analog channel after another: the supply voltages and
-// currents `doradomufman.masm` waits on before it will bring the Dorado up.
-//
-// THE MACHINE SURVIVES ITS OWN WATCHDOG. `+define+LONG_RUN` with the resets
-// bucketed by watchdog window (each Q21 edge starts a new bucket):
+// THE BASEBOARD BOOTS ITSELF PAST POWER-UP. In the 260 M run, resets bucketed
+// by watchdog window (each Q21 edge starts a bucket):
 //
 //   window 0  from           0   g22FF1Q'=1 ARMED      resets 397
 //   window 1  from  83,886,119   g22FF1Q'=1 ARMED      resets   0
 //   window 2  from 167,772,199   g22FF1Q'=0 disarmed   resets   0
 //   window 3  from 251,658,279   g22FF1Q'=0 disarmed   resets   0
-//   PACIFYWATCHDOG (F692) visits 240      CPStrb' edges 27,674
 //
-// EVERY reset is in window 0. After the first Q21 edge: none, across 176 M
-// sys_clk -- INCLUDING WINDOW 1, WHICH IS STILL ARMED. So the firmware gets
-// far enough to pacify, the XOR stays 0 from then on, and the watchdog is
-// satisfied for the rest of the run. That is the design working as intended.
+// EVERY reset is in window 0. After the first watchdog interval there are
+// none, across 176 M sys_clk -- including window 1, which is still ARMED. The
+// firmware gets far enough to pacify, the XOR stays 0 from then on, and the
+// watchdog is satisfied for the rest of the run. That is the design working.
 //
-// TWO OF THIS FILE'S EARLIER CLAIMS WERE WRONG, IN OPPOSITE DIRECTIONS, and
-// both from reading a TOTAL instead of a DISTRIBUTION:
+// ------------------------------------------- WHAT MADE IT REACH THE DORADO
 //
-//   * "give it time" was recorded here as REFUTED because a 260 M run still
-//     showed 397 resets. It is not refuted -- those 397 all happened before
-//     the first watchdog interval elapsed. The run did settle; the total said
-//     nothing about when.
-//   * the claim that it "never reaches PacifyWatchdog" holds only for the
-//     4 M armed window. Over a long run it reaches it 240 times.
+// One fix, and it belongs in the GENERATOR rather than a cell:
+// `WEAK_PORT_DRIVERS` in tools/sil_to_verilog.py, symmetric to the existing
+// `OVERRIDE_DRIVERS`.
 //
-// THE MANIFOLD PATH, TRACED BY ROUTINE AND MEASURED. All numbers from the
-// `G22_DISARMED` build (no resets, so the firmware runs freely):
+// A 6532 port pin is high-Z with an internal pull-up when its DDR makes it an
+// input, and the core states that directly -- `PA_out = out_a | ~dir_a`, an
+// input pin reading back 1, with the comment that the output "must be fed back
+// to input ... for the chip to read properly". That is a WIRE-AND convention;
+// these nets resolve as WIRED-OR, so the pull-up won instead of losing and
+// pinned every such net HIGH.
 //
-//     SETMANIFOLD              F95A    4 visits
-//     SETMUFFLERADDRESS        F9D0    4
-//     TRYGETTINGMUFMANCONTROL  FA0E   52
-//     WAITFORCPCONTROL         FA1F    4
-//     DATUMTOMANIFOLD          F977    0     (a different entry; not used here)
-//     READMUFFLER              F986    0
-//     TSetRun                          0     the MufMan gate PASSES
-//     TDMuxClk / TDMuxData      0 edges       DMuxClk 0 edges
-//     CPStrb'                        450 edges
+// It has to be per-NET, not per-cell. Masking inside the cell with the DDR
+// holds the 6502 in reset, because `WatchdogOut` is a net whose ONLY driver is
+// the RIOT and whose pull-up is real. The rule is: the pull-up loses where
+// something else drives, and stands where nothing does -- which is information
+// the generator already has.
+//
+// It is sound because of what those nets are. Across the machine 33 nets have
+// a 6532 port pin sharing with another driver, and in EVERY one the other
+// driver is a real totem-pole part ('174, '259, '01, '157, '175, '74,
+// MC10125) or a strap, with the 6532 pin as the READER: `RCPReg.00-15` -- how
+// the BaseBoard reads the Dorado's CP register back -- plus `MCManif.0-3`,
+// `TCPI.0-3`, the temperature senses and `WatchdogIn`. All were stuck high.
+//
+// ------------------------------------------------------------- THE WATCHDOG
+//
+// The chain, every part of it in the RTL:
+//
+//   g21  MC14521B 24-stage divider -- THE TIMER. Reset tied low, `MCPreClk`
+//        into In2, Q21 (pin 13) out to `BaseBd09.sil+8`. So the interval is
+//        MCPreClk / 2^21, of order a second. (It was an unmodelled skeleton
+//        until this was written; the cell comes from the data sheet.)
+//   g22  SN74LS74 pair, both wired as TOGGLES. FF1 is clocked by that Q21, so
+//        it alternates ARMED (Q'=1) and disarmed (Q'=0) every interval.
+//   g23  SN7486 XOR of `WatchdogIn` against `WatchdogOut` -- the pacify test.
+//   j17  SN74LS01 open-collector NAND of those two, driving `BootMC'`,
+//        wire-ORed with a jumper strap at h07.
+//   j08  SN74LS74: D = `BootMC'`, clock = `MCClk`, async `PwrGood`, output
+//        `MCReset'`.
+//   f63  MCS6532 RIOT: PA7 out as `WatchdogIn`, PA6 in as `WatchdogOut`.
+//        `PacifyWatchdog` (doradocontinuous.masm) echoes one onto the other.
+//
+// WHAT TRIPS IT IS A ONE-CYCLE GLITCH, NOT THE TIMER. `WatchdogOut` is driven
+// LOW for exactly one MCClk cycle (215,518 -> 215,598) while the firmware sets
+// up the RIOT -- the DDR is written before the output register, so the pin
+// drives whatever ORA holds. That transient spikes the g23 XOR, pulls
+// `BootMC'` low, and j08 latches a reset 521 sys_clk later. It only gets
+// through because g22's FF1 Q' is 1; with the machine in its disarmed half,
+// j17 masks the XOR entirely and the glitch is harmless. Hence the 397 resets
+// confined to window 0, and none afterwards once the firmware pacifies.
+//
+// `SkipWait'` reads 1, which WOULD make `PacifyWatchdogIfJumper` skip -- but
+// that entry is never used; the firmware calls `PacifyWatchdog` directly.
+//
+// -------------------------------------------------------- THE MANIFOLD PATH
+//
+// Traced by ROUTINE, in the disarmed build where the firmware runs freely:
+//
+//   SETMANIFOLD              F95A    4 visits
+//   SETMUFFLERADDRESS        F9D0    4
+//   TRYGETTINGMUFMANCONTROL  FA0E   52
+//   WAITFORCPCONTROL         FA1F    4
+//   DATUMTOMANIFOLD          F977    0   (a different entry; unused here)
+//   TSetRun                          0   the MufMan gate PASSES
 //
 // `SetManifold` calls `SetMufflerAddress`, which calls
-// `TryGettingMufManControl` and gives up on carry set -- that routine reads
+// `TryGettingMufManControl` and gives up on carry set. That routine reads
 // `MCPBusL & SetRunIn` (bit 2, the net `TSetRun`) and fails when the bit is
-// SET. It reads 0 here, so the gate passes and the routine proceeds.
+// SET -- it reads 0, so the gate passes and the routine proceeds.
 //
-// AND THE SHIFT DOES NOT USE THE `DMux*` NETS. `SetMufflerAddress`'s inner
-// loop at F9F6 writes `$0580` and `$0582` -- `MCPBusH` and `MCPBusL`, i.e. the
+// THE SHIFT DOES NOT USE THE `DMux*` NETS. `SetMufflerAddress`'s inner loop at
+// F9F6 writes `$0580` and `$0582` -- `MCPBusH` and `MCPBusL`, the
 // CONTROL-PROCESSOR BUS (`MCPABus` function code plus `MCPStrobe`) -- twelve
-// times. So a manifold word travels the same path as everything else the
-// BaseBoard sends the Dorado, and `CPStrb'` is exactly where it shows up.
-// `DMuxClk`/`DMuxData` are the ECL backplane nets on the far side of l19/l24;
-// whether they should move for THIS path is not established here, and the
-// earlier note in this file that "no manifold word has been shifted" was
-// inferred from watching them rather than from the routine.
+// times. A manifold word travels the same path as everything else the
+// BaseBoard sends the Dorado, and `CPStrb'` is where it shows up.
 //
-// SO THE OPEN QUESTION IS NARROWER AND HONESTLY STATED: the firmware reaches
-// `SetManifold`, passes the MufMan gate, and drives the CP bus. What is NOT
-// established is whether the twelve-bit muffler address it strobes out is
-// decoded on the Dorado side into `DMuxData`/`DMuxClk`. Measure the CP-bus
-// function codes the BaseBoard actually sends (`cpreg-diff` already decodes
-// them) and check them against `SetMufflerAddress`'s writes.
+// OPEN QUESTION, stated narrowly: the firmware reaches `SetManifold`, passes
+// the MufMan gate and drives the CP bus. Whether the twelve-bit muffler
+// address it strobes out is DECODED on the Dorado side into
+// `DMuxData`/`DMuxClk` is NOT established. Measure the CP-bus function codes
+// the BaseBoard actually sends -- `cpreg-diff` already decodes them -- against
+// `SetMufflerAddress`'s writes.
+//
+// ---------------------------------------------------- ALSO WORTH KNOWING
+//
+// The firmware's hot loop (F84A..F864) is a SUCCESSIVE-APPROXIMATION A/D
+// conversion: write `DAC = 400+PA`, settle, read `Comparators = 480+PA`,
+// shift. Its analog chain is unmodelled -- CA3140 op-amps (g18, i19, i20,
+// i21, j21), CD4051 analog muxes (i2125, j24, k24), AUGATCG16 resistor
+// platforms. That is a fact about the RTL; it is a CYCLE COUNT and not a
+// proven blocker, since the firmware demonstrably proceeds past it.
+//
+// THREE INSTRUMENT TRAPS THIS PROBE WALKED INTO, all the same shape -- a proxy
+// measured instead of the thing, each of which produced a confident and wrong
+// conclusion that survived several rounds of reasoning:
+//
+//   * counting `0xFFFC` on the address bus as a RESET. It is not one; the
+//     firmware reads ROM there. Count `MCReset'` falling edges.
+//   * reading a TOTAL as a DISTRIBUTION. "397 resets over 260 M" looked like a
+//     machine that never settles; bucketed by window, all 397 are in the first
+//     one and the machine settles permanently after it.
+//   * inferring the manifold path from a plausible-looking net (`DMuxClk`)
+//     instead of reading what the firmware WRITES. The path is the CP bus.
 
 `default_nettype none
 `define BB  m.u_machine.b_BaseBd
