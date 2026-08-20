@@ -282,9 +282,38 @@ strap, with the 6532 pin as the READER: **`RCPReg.00-15`** -- how the BaseBoard
 reads the Dorado's CP register back -- plus `MCManif.0-3`, `TCPI.0-3`, the
 temperature senses and `WatchdogIn`. All of them were stuck high before.
 
-**Still open:** the watchdog resets the processor every 211,440 sys_clk (19
-times in the probe's window), so the firmware drives the Dorado only in bursts
-between restarts, and `DMuxClk` is still 0 -- no manifold word shifted yet.
+**Still open, and now measured.** The watchdog resets the processor every
+211,440 sys_clk (19 times in the probe's window), so the firmware drives the
+Dorado in bursts between restarts, and `DMuxClk` is still 0.
+
+**What trips it is a ONE-CYCLE GLITCH, not the timer.** The trace shows
+`WatchdogOut` driven low for exactly one MCClk cycle (215,518 -> 215,598) while
+the firmware sets up the RIOT -- the DDR is written before the output register,
+so the pin drives whatever ORA holds -- and that transient spikes the g23 XOR,
+pulls `BootMC'` low, and j08 latches a reset 521 sys_clk later. `g22`'s FF1
+`Q'` is 1 throughout, which is what lets the spike through: j17 NANDs the XOR
+against it, so `Q' = 0` masks it entirely.
+
+**Confirmed by experiment.** Build `firmware-probe` with `+define+G22_DISARMED`
+-- the testbench pokes g22's FF1 to `Q = 1`, the disarmed half of its cycle --
+and the firmware gets twelve times further:
+
+| | default | `G22_DISARMED` |
+|---|---|---|
+| reset-vector fetches | 19 | **7** |
+| `CPStrb'` edges | 37 | **450** |
+
+The design tolerates either power-up state on real hardware: FF1 is a toggle
+clocked by the timer, so it alternates armed/disarmed every interval (~1 s),
+and the firmware has a whole disarmed window to reach `PacifyWatchdog` and pin
+the XOR at 0 for good. Our simulation never gets that far because the interval
+is 2^21 cycles and the probe runs 4 M.
+
+**NEXT, and it is now TWO questions.** (1) Give g22 a defensible power-up
+state, or run long enough to cross a real timer interval. (2) **Seven resets
+remain even with the watchdog disarmed**, so there is a second reset source not
+yet identified -- with FF1 held at `Q' = 0`, `BootMC'` should be high always,
+and it is not.
 
 **And g22's POWER-UP STATE matters too.** j17 NANDs the XOR against
 g22's `Q'`, so a `Q'` of 0 masks the XOR entirely and only a real timer expiry
