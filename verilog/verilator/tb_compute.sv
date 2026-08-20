@@ -32,18 +32,36 @@
 //     LDXI 25o / LDAI QFromCPReg#-IRTable / JSR SetCPAndDoIRTableInst
 //     LDAI ALUFM[0]FromQ#-IRTable / JSR DoIRTableInst
 //
-// which `alufm0_is_b` below replays, note WITHOUT the tilde -- the ALU
-// function code goes in uncomplemented. It does not make T load, so the
-// remaining hop is one of:
+// which `alufm0_is_b` below replays. IT DOES NOT TAKE, and the probe now says
+// exactly how far it gets:
 //
-//   * ALUFM[0] never actually took 25 octal (check the ALUFM contents first --
-//     that is one probe and it is the likeliest);
-//   * the ALU is not passing B (its cell is verified against the C emulator by
-//     `alu-diff`, but as four MC10181 slices in a TESTBENCH, never as ProcH and
-//     ProcL wire them -- this would be the first thing to exercise that);
-//   * or the T latches are not being enabled. They are MC10173s taking
-//     `dT.nn`/`dTm.nn` with `PreSHCP'B` and `TbBypass` as controls, so follow
-//     `dT.00` back from ProcH i03 pin 5.
+//     ALUFWrite' edges 2        one clean write pulse
+//     ALUFM addr A0..A3 = 0000  addressed at entry 0, which is right
+//     ALUFM[0] = 000000         AND THE DATA IS ZERO
+//
+// So ALUFM is a 16x4 pair of F10145As at ProcL e13/e14, its address and write
+// enable are correct, and the six bits it stores come from `alub` -- the ALU's
+// B input -- at pins carrying alub.08/11/12/13/14/15. At the write, alub is
+// 000000.
+//
+// TWO SEPARATE THINGS ARE WRONG ON THE Q PATH, and they are not the same
+// thing:
+//
+//   1. `QFromCPReg#` leaves Q = 008a where 25 octal is 0015. So the CPReg -> Q
+//      hop delivers SOMETHING but not the right value -- and trying the
+//      prologue with the tilde form as well makes no difference, so this is
+//      not the complement convention.
+//   2. By the time `ALUFM[0]FromQ#` executes, Q reads 0000. Whatever Q held is
+//      gone before the instruction that is supposed to store it runs.
+//
+// Neither is the ALU. `alu-diff` verifies four MC10181 slices in a TESTBENCH,
+// never as ProcH and ProcL wire them, so the ALU in the machine is still
+// unexercised -- but it cannot be blamed for a zero that arrives at ALUFM's
+// data pins.
+//
+// AFTER THE Q PATH, the last hop is still unexamined: the T latches are
+// MC10173s taking `dT.nn`/`dTm.nn` with `PreSHCP'B` and `TbBypass` as
+// controls, so follow `dT.00` back from ProcH i03 pin 5.
 //
 // THE CORRECTION THAT GOT THIS FAR. `TFromCPReg#` looked at first as though it
 // used a different FF decode from `CPRegToLink#` -- FF=177, ReadLink, rather
@@ -57,6 +75,13 @@
 
 
 module tb_compute;
+
+  // Try the prologue both ways: +define+TILDE selects SetCPReg~.
+`ifdef TILDE
+  localparam USE_TILDE = 1'b1;
+`else
+  localparam USE_TILDE = 1'b0;
+`endif
 
   localparam integer GAP = 200;   // sys_clk between Control strobes
 
@@ -623,6 +648,26 @@ module tb_compute;
 
 
   reg [15:0] bmux_after_jam;
+
+  // ALUFM is ProcL e13/e14 -- two F10145A 16x4 register files giving the six
+  // bits {Cn,S3,S2,S1,S0,M} the MC10181 takes. Read the entry directly, and
+  // watch ALUFWrite'.
+  integer nalufw; reg palufw;
+  reg [5:0] alub_at_write; reg [15:0] q_at_write;
+  wire [15:0] q_reg = {m.b_ProcH.Q_00, m.b_ProcH.Q_01, m.b_ProcH.Q_02, m.b_ProcH.Q_03,
+                       m.b_ProcH.Q_04, m.b_ProcH.Q_05, m.b_ProcH.Q_06, m.b_ProcL.Q_07,
+                       m.b_ProcL.Q_08, m.b_ProcL.Q_09, m.b_ProcL.Q_10, m.b_ProcL.Q_11,
+                       m.b_ProcL.Q_12, m.b_ProcL.Q_13, m.b_ProcL.Q_14, m.b_ProcL.Q_15};
+  always @(posedge sys_clk) begin
+    if (m.b_ProcL.ALUFWrite_p_ !== palufw) begin
+      nalufw = nalufw + 1; palufw = m.b_ProcL.ALUFWrite_p_;
+    end
+    if (m.b_ProcL.ALUFWrite_p_ == 1'b0) begin
+      alub_at_write <= {m.b_ProcL.alub_15a, m.b_ProcL.alub_14a, m.b_ProcL.alub_13a,
+                        m.b_ProcL.alub_12a, m.b_ProcL.alub_11a, m.b_ProcL.alub_08a};
+      q_at_write <= q_reg;
+    end
+  end
   wire [15:0] t_reg = {m.b_ProcH.T_00, m.b_ProcH.T_01, m.b_ProcH.T_02, m.b_ProcH.T_03,
                        m.b_ProcH.T_04, m.b_ProcH.T_05, m.b_ProcH.T_06, m.b_ProcH.T_07,
                        m.b_ProcL.T_08, m.b_ProcL.T_09, m.b_ProcL.T_10, m.b_ProcL.T_11,
@@ -639,13 +684,16 @@ module tb_compute;
   //
   // Note SetCPAndDoIRTableInst, NOT the tilde form: the ALU function code goes
   // in UNCOMPLEMENTED.
-  task alufm0_is_b;
+  task alufm0_is_b(input TILDE);
     begin
-      strobe(3'd2, 8'h00, 1'b0);
-      strobe(3'd3, 8'h15, 1'b0);                     // 25 octal
+      if (TILDE) set_cpreg_tilde(16'h0015);          // 25 octal, complemented
+      else begin strobe(3'd2, 8'h00, 1'b0); strobe(3'd3, 8'h15, 1'b0); end
       parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40); // QFromCPReg#
       nop_micro;                                     // ...AndNop
+      $display("      after QFromCPReg#: Q=%h BMux=%h", q_reg, bmux);
       parc_micro(8'h30, 8'h05, 8'h09, 8'hC4, 8'h40); // ALUFM[0]FromQ#
+      $display("      at the ALUFM write: alub{15,14,13,12,11,08}=%b Q=%h",
+               alub_at_write, q_at_write);
     end
   endtask
 
@@ -675,7 +723,22 @@ module tb_compute;
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca; p2 = m.b_ContA.clk2_p_Bc;
     zero;
     nop_micro; nop_micro;         // warm the pipeline
-    alufm0_is_b;
+    nalufw = 0; palufw = m.b_ProcL.ALUFWrite_p_;
+    alufm0_is_b(USE_TILDE);
+    $display("tb_compute: prologue with %s -- ALUFWrite' edges %0d",
+             USE_TILDE ? "SetCPReg~ (complemented)" : "SetCPReg (plain)", nalufw);
+    $display("tb_compute: ALUFM addr pins A0..A3 = %b %b %b %b (p10,p9,p7,p6=ALUF.3)",
+             m.b_ProcL.ProcL11_sil_pl_3, m.b_ProcL.ProcL11_sil_pl_2,
+             m.b_ProcL.ProcL11_sil_pl_1, m.b_ProcL.ALUF_3);
+    $display("tb_compute: ALUFM[0] e13 mem = %b%b%b%b  e14 mem = %b%b",
+             m.b_ProcL.u_e13.mem[0][3], m.b_ProcL.u_e13.mem[0][2],
+             m.b_ProcL.u_e13.mem[0][1], m.b_ProcL.u_e13.mem[0][0],
+             m.b_ProcL.u_e14.mem[0][1], m.b_ProcL.u_e14.mem[0][0]);
+    $display("tb_compute: ALUFdec=%b%b%b%b%b%b -> aluF3..0=%b%b%b%b aluM=%b aluC=%b",
+             m.b_ProcL.ALUFdec_5, m.b_ProcL.ALUFdec_4, m.b_ProcL.ALUFdec_3,
+             m.b_ProcL.ALUFdec_2, m.b_ProcL.ALUFdec_1, m.b_ProcL.ALUFdec_0,
+             m.b_ProcL.aluF3, m.b_ProcL.aluF2, m.b_ProcL.aluF1, m.b_ProcL.aluF0,
+             m.b_ProcL.aluM, m.b_ProcL.aluC);
 
     t_from_cpreg(16'h1234);
     $display("tb_compute: TFromCPReg# 1234 -> BMux=%h T=%h", bmux, t_reg);

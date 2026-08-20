@@ -140,14 +140,36 @@ the T load, ALUF=0 selects ALUFM entry 0. **T stays 0.**
 
 `TFromCPReg#` carries PARC's own warning, "requires ALUFM[0]=B", because T is
 loaded THROUGH THE ALU; `LoadDoradoCode` sets ALUFM[0] to 25 octal before it
-loads a word, and `compute-probe` replays that. It still does not load, so the
-remaining hop is one of: ALUFM[0] never took 25 octal (**check that first, it
-is one probe and the likeliest**); the ALU is not passing B (its cell is
-verified against the C emulator by `alu-diff`, but as four MC10181 slices in a
-TESTBENCH, never as ProcH and ProcL wire them -- this would be the first thing
-to exercise that); or the T latches are not enabled (MC10173s taking
-`dT.nn`/`dTm.nn` with `PreSHCP'B` and `TbBypass`, so follow `dT.00` back from
-ProcH i03 pin 5).
+loads a word, and `compute-probe` replays that.
+
+**ALUFM[0] does NOT take 25 octal -- checked, and it is all zeros.** ALUFM is
+two F10145As at ProcL e13/e14, and the probe reports:
+
+```
+ALUFWrite' edges 2        one clean write pulse
+ALUFM addr A0..A3 = 0000  addressed at entry 0, which is right
+ALUFM[0] = 000000         AND THE DATA IS ZERO
+```
+
+So the address and the write enable are right; the six bits it stores come
+from `alub`, the ALU's B input, and at the write `alub` is zero.
+
+**TWO SEPARATE THINGS ARE WRONG ON THE Q PATH**, and they are not the same
+fault:
+
+1. `QFromCPReg#` leaves **Q = 008a** where 25 octal is 0015 -- the CPReg -> Q
+   hop delivers something, but not the right value. Running the prologue with
+   the tilde form as well makes no difference, so it is not the complement
+   convention.
+2. By the time `ALUFM[0]FromQ#` executes, **Q reads 0000**. Whatever Q held is
+   gone before the instruction meant to store it runs.
+
+Neither is the ALU, which cannot be blamed for a zero arriving at ALUFM's data
+pins -- though note the ALU IN THE MACHINE is still unexercised: `alu-diff`
+verifies four MC10181 slices in a TESTBENCH, never as ProcH and ProcL wire
+them. **Start at the CPReg -> Q hop.** After that the last step is the T
+latches themselves, MC10173s taking `dT.nn`/`dTm.nn` with `PreSHCP'B` and
+`TbBypass`, so follow `dT.00` back from ProcH i03 pin 5.
 
 **Read PARC's IRTable field comments before decoding bytes by hand.** They
 state the fields outright -- `TFromCPReg#` is
