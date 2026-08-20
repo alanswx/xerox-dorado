@@ -1028,9 +1028,12 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   g23 (an SN7486 XORing `WatchdogIn` against `WatchdogOut`) -> j17 -> `BootMC'`
   -> j08 -> `MCReset'`. Measured: the TIMER is not the cause -- Q21 divides by
   2^21 and is correctly silent -- the resets track `WatchdogOut` one-for-one.
-  What arms the watchdog is g22's Q' powering up at 1; on the real board its
-  state comes from the POWER-UP SEQUENCE (`PwrGood`). Model that and the
-  firmware should run.
+  What arms the watchdog is g22's Q' powering up at 1. And the 6532's
+  `PA_out = out_a | ~dir_a` is NOT a bug -- it is the PULL-UP of a high-Z
+  input pin, right for `WatchdogOut` (sole driver) and wrong for `WatchdogIn`
+  (g22 drives it too, and a totem-pole output beats a pull-up). So the fix is
+  PER-NET, not per-cell, and belongs in the generator, which already knows
+  each net's drivers.
 - **PARC's microinstruction parity is ODD parity over each 17-bit HALF** --
   left = RSTK/ALUF/BSEL/LC/ASEL -> P015, right = BLOCK/FF/JCN -> P1631, the
   bit being `~XOR` of the other seventeen. Fitted against PARC's own IRTable:

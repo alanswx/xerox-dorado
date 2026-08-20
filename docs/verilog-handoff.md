@@ -258,29 +258,33 @@ track **`WatchdogOut` one-for-one** instead: the firmware writes that port
 during startup, each write flips the XOR, and the XOR reaches `BootMC'`
 unopposed.
 
-**Two things are in the way, and one has a known fix that costs a gate.**
+**The blocker is `BootMC'`, and the 6532's input-pin convention is why.**
+Measured in the one-board machine: `MCReset' = 0`, `PwrGood = 1`,
+`TTLTrue.E = 1` -- so the power-up gate is fine and **`BootMC'` is simply low**.
+j17 NANDs the g23 XOR against g22's `Q'`, so `BootMC'` is low exactly when the
+XOR says WatchdogIn != WatchdogOut AND g22's `Q'` is 1.
 
-**(1) The 6532 drives its INPUT pins high.** `M6532.sv` computes
-`PA_out = out_a | ~dir_a`, so a pin the DDR marks as an input reads back 1 --
-the core's own comment says the output "must be fed back to input ... for the
-chip to read properly", a convention that assumes the pin is wire-ANDed with an
-external open-collector driver. These boards' nets are modelled as **wired-OR**,
-so that 1 pins the net high. BaseBd f63 PA7 is `WatchdogIn`, an INPUT per
-`WatchdogDDRValue`, really driven by g22 -- and the pin's contribution hides it
-completely. Masking with the DDR (expose `dir_a`/`dir_b`, drive
-`pa_out & pa_dir`) **does** fix the reset storm -- reset-vector fetches go from
-19 to ZERO -- but then breaks `baseboard-test`, where in the ONE-board machine
-the 6502 never leaves reset, because something there depends on those high
-contributions. Same shape as the MC10170 parity fix: right in isolation, with a
-consequence elsewhere to work out first. Find what in `dorado_baseboard` reads a
-6532 input pin and needs it high.
+**A CORRECTION to the previous commit, which claimed masking the 6532's port
+drive with its DDR "fixes the reset storm, 19 fetches to ZERO".** It does not.
+Zero reset-vector fetches means the 6502 **never started** -- it is held in
+reset, which is worse than restarting. The 62,496 ROM accesses and the
+`fffe`/`ffff` hits that looked like an IRQ storm are what the bus does with the
+processor held down, not a further-along machine. That reading was wrong.
 
-**(2) With that fix in, the machine takes a perpetual INTERRUPT** -- the hot
-addresses become `fffe`/`ffff`, the IRQ/BRK vector, 12,499 times, alongside
-12,499 accesses in the 9xxx RIOT page. So the reset storm is replaced by an IRQ
-storm, and the next question is which RIOT interrupt source asserts: the
-interval timer, or the PA7 edge detect the same core wires to
-`pa7 = dir_a[7] ? PA_out[7] : PA_in[7]`, which the DDR fix necessarily changes.
+**What the DDR mask actually breaks, and the real shape of the fix.** The
+core's `PA_out = out_a | ~dir_a` is not a bug: it is **the pull-up of a
+high-Z input pin**, and a 6532 port pin configured as an input really does
+present a logic 1. That is RIGHT for `WatchdogOut`, whose only driver is the
+RIOT (f63.14) -- masking it removes the pull-up, the net reads 0, the XOR goes
+1, and `BootMC'` sticks low. It is WRONG for `WatchdogIn`, which g22 also
+drives (g22.8, a totem-pole '74 output that in reality beats a pull-up) -- and
+in a wired-OR net model the RIOT's 1 wins instead, hiding the watchdog.
+
+Neither net has a physical pull-up resistor; the pull-up is inside the 6532.
+So **the fix is per-NET, not per-cell**, and belongs in the generator: a 6532
+port pin should contribute `out & dir` where the net has another driver, and
+its pull-up where it is the sole driver. `tools/sil_backplane.py` already knows
+each net's driver set, which is exactly the information needed.
 
 **And g22's POWER-UP STATE matters too.** j17 NANDs the XOR against
 g22's `Q'`, so a `Q'` of 0 masks the XOR entirely and only a real timer expiry
