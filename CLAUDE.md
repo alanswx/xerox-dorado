@@ -1029,6 +1029,15 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   `WEAK_PORT_DRIVERS` in the generator, symmetric to `OVERRIDE_DRIVERS`: the
   pull-up loses where something else drives, stands where nothing does. With
   it, the real firmware reaches the control-processor bus.
+- **The real firmware is stuck MEASURING THE POWER SUPPLIES, not on the
+  watchdog.** Its hot loop is a successive-approximation A/D conversion --
+  write `DAC = 400+PA`, settle, read `Comparators = 480+PA`, shift -- stepping
+  muffler channels for the rails `doradomufman.masm` waits on. The comparators
+  are seven **AM2615** dual differential line receivers on the BaseBoard
+  (e23, e24, f23, f24, g24, h23, h24) and `cell_AM2615` is an unmodelled
+  skeleton, so no rail ever reads in range. Modelling it is a SUBSTITUTION
+  like the VCO. The watchdog and g22's power-up state are symptoms downstream
+  of this.
 - **The real firmware runs, and the WATCHDOG is what stops it.** `dorado_boot`
   (BaseBd+ContA+ContB+ProcH+ProcL) lets the 6502 run its own EPROMs; it is
   reset every 211,440 sys_clk, exactly periodic, and never reaches the Dorado.

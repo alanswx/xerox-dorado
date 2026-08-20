@@ -339,14 +339,43 @@ Each disarmed window is 2^20 MCPreClk cycles -- **about a million 6502 cycles
 of completely free running** -- and the firmware still never pacifies. It is
 not being starved of time; **it never reaches `PacifyWatchdog` at all.**
 
-**NEXT:** find where it actually spends a disarmed window. The page histogram
-this probe already prints, taken over a `LONG_RUN`, will say -- it was filtered
-out of the run above. The likely answer is the power-sequencing loop in
-`doradomufman.masm`, which walks a table of PowerManifold values and waits on
-voltage and current comparators the RTL does not model (h06 is an MPQ3303
-transistor quad, already a documented analog substitution for the VCO). If so,
-`PwrGood` and its comparators are the next thing to model, and the watchdog is
-downstream of that rather than the root.
+**WHERE IT SPENDS A DISARMED WINDOW: MEASURING THE POWER SUPPLIES.** The
+histogram from the `G22_DISARMED` build names one loop, and the disassembly
+settles what it is:
+
+```
+F84A: EOR $A9 / STA $0400     write a trial value to the DAC
+F84F: LDA #$02 / STA $AA
+F853: DEC $AA / BNE $F853     a short settling delay
+F857: LDA ($A6),Y / AND $A8   read the comparator
+F85B: BEQ / LDA $A9
+F85F: EOR $0400 / ROR $A9     keep or drop the bit, shift the mask
+F864: BNE $F84A               ... eight times
+F86C: JMP ENABLEMIDAS
+```
+
+That is a **successive-approximation A/D conversion**. `doradoio.mdefs` names
+both ports -- `DAC = 400+PA` (`DACDDRValue = AllOutput`) and
+`Comparators = 480+PA` -- and the surrounding code calls `READMUFFLER` and
+`SETMUFFLERADDRESS`, so the firmware is stepping the muffler address and
+converting one analog channel after another: the supply voltages and currents
+`doradomufman.masm` waits on before it will bring the Dorado up.
+
+**THE COMPARATORS ARE NOT MODELLED.** On the BaseBoard they are seven
+**AM2615** packages -- e23, e24, f23, f24, g24, h23, h24 -- dual differential
+line receivers (`DoradoDocs/datasheets/AM2615.pdf`), fourteen comparators, and
+`cell_AM2615.v` is still a `TODO: model this part` skeleton. Every conversion
+reads the same dead answer, no rail ever measures in range, and the firmware
+never leaves power sequencing. **That is why it never reaches
+`PacifyWatchdog`, and why g22's power-up state looked like the blocker when it
+is a symptom.**
+
+**NEXT: this is a SUBSTITUTION**, the same category as the VCO (see
+`cell_MPQ3303` and `OVERRIDE_DRIVERS`) -- an analog chain has no digital model,
+so the substitute has to answer the way healthy supplies would. Read what the
+firmware does with each channel (`ReadMufflerField`, the `F6DF`/`F6E0` table it
+indexes at F804, and the range checks after `READMUFFLER`) and make
+`cell_AM2615` return comparator results consistent with rails that are up.
 
 **And g22's POWER-UP STATE matters too.** j17 NANDs the XOR against
 g22's `Q'`, so a `Q'` of 0 masks the XOR entirely and only a real timer expiry
