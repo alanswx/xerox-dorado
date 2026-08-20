@@ -1023,9 +1023,14 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
 - **The real firmware runs, and the WATCHDOG is what stops it.** `dorado_boot`
   (BaseBd+ContA+ContB+ProcH+ProcL) lets the 6502 run its own EPROMs; it is
   reset every 211,440 sys_clk, exactly periodic, and never reaches the Dorado.
-  The handshake is `PacifyWatchdog` echoing `WatchdogIn` (bit 7) to
-  `WatchdogOut` (bit 6) at `Watchdog = 600+PA`, a 6532 RIOT port. That is the
-  shortest path to the machine booting itself.
+  The chain is g21 (an MC14521B 24-stage divider -- the timer, and it was an
+  unmodelled SKELETON until now) -> g22 (an SN74LS74 wired as a toggle FF) ->
+  g23 (an SN7486 XORing `WatchdogIn` against `WatchdogOut`) -> j17 -> `BootMC'`
+  -> j08 -> `MCReset'`. Measured: the TIMER is not the cause -- Q21 divides by
+  2^21 and is correctly silent -- the resets track `WatchdogOut` one-for-one.
+  What arms the watchdog is g22's Q' powering up at 1; on the real board its
+  state comes from the POWER-UP SEQUENCE (`PwrGood`). Model that and the
+  firmware should run.
 - **PARC's microinstruction parity is ODD parity over each 17-bit HALF** --
   left = RSTK/ALUF/BSEL/LC/ASEL -> P015, right = BLOCK/FF/JCN -> P1631, the
   bit being `~XOR` of the other seventeen. Fitted against PARC's own IRTable:

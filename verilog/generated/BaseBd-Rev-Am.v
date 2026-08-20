@@ -2542,6 +2542,7 @@ module BaseBd_m_Rev_m_Am (
     .p16(VCC106)
   ); // SN74LS174
   cell_MC14521B u_g21 (
+    .sys_clk(sys_clk),
     .p2(GND615),
     .p3(GND615),
     .p5(VCC106),

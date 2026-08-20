@@ -34,29 +34,43 @@
 // expects the firmware to echo it on bit 6; when the echo stops, it resets
 // the processor.
 //
-// THE RESET CHAIN IS FULLY TRACED, and every part of it is already in the RTL:
+// THE RESET CHAIN IS FULLY TRACED AND NOW FULLY MEASURED. Every part of it is
+// in the RTL, and as of this session the timer is actually modelled:
 //
-//   g22   SN74LS74 pair on the BaseBd09 sheet -- the watchdog timer itself,
-//         with `WatchdogIn` fed back into it
-//   j17   SN74LS01 (open-collector NAND) takes the timer's output on pin 9
-//         (`BaseBd09.sil+3`) and drives `BootMC'`, wire-ORed with a jumper
-//         strap at h07 (an AUGATCG16 platform, i.e. a wire-wrap position)
-//   j08   SN74LS74 with D = `BootMC'`, clock = `MCClk`, async in = `PwrGood`,
-//         output `MCReset'` -- the 6502's reset
-//   f63   the MCS6532 RIOT holding the port: PA7 out as `WatchdogIn`, PA6 in
-//         as `WatchdogOut`, which is what `PacifyWatchdog` writes
+//   g21   MC14521B 24-stage divider -- THE WATCHDOG TIMER. Reset tied low,
+//         `MCPreClk` into In2, and **Q21 on pin 13** out to `BaseBd09.sil+8`.
+//         It was an unmodelled skeleton until now; the cell is written from
+//         the data sheet (DoradoDocs/datasheets/MC14521B.pdf).
+//   g22   SN74LS74 wired as a TOGGLE flip-flop (1D tied to 1Q'), clocked by
+//         that Q21 -- so it flips once per watchdog interval
+//   g23   SN7486 XOR of `WatchdogIn` against `WatchdogOut` -- the pacify
+//         comparison itself
+//   j17   SN74LS01 open-collector NAND of those two, driving `BootMC'`,
+//         wire-ORed with a jumper strap at h07
+//   j08   SN74LS74, D = `BootMC'`, clock = `MCClk`, async `PwrGood`, output
+//         `MCReset'`
+//   f63   MCS6532 RIOT: PA7 out as `WatchdogIn`, PA6 in as `WatchdogOut`
 //
-// So nothing is missing; the firmware is simply not pacifying in time. THE
-// HYPOTHESIS TO TEST NEXT IS THAT OUR WATCHDOG PERIOD IS FAR TOO SHORT. The
-// 6502 is a 1 MHz part, and 211,440 sys_clk is only a few thousand of its
-// cycles once the BaseBoard's divider chain is taken into account -- far less
-// than the startup path needs, since in that window the firmware only gets
-// through the reset routine and into MIDASSETUP (`JSR $F248`, the source of
-// the f254..f257 visits). PARC's own code refers to a `Timer100ms`, so the
-// real period is likely two orders of magnitude longer.
+// WHAT IT MEASURES NOW, and it is no longer the timer:
 //
-// Measure MCClk against sys_clk first, then the g22 chain's divide ratio, and
-// compare with what the firmware needs to reach its first `JSR PacifyWatchdog`.
+//     MCPreClk edges 99999, divider Q21 edges 0, toggle-FF edges 1
+//     WatchdogIn 1, WatchdogOut 37, XOR 36, BootMC' 36
+//     resets: 19, every 211,440 sys_clk (= 2,643 MCClk cycles)
+//
+// MCPreClk runs at one cycle per 80 sys_clk, so Q21 -- a divide by 2^21 -- is
+// CORRECTLY quiet across the whole run: the watchdog interval is of order a
+// second and should not fire here at all. The resets track `WatchdogOut`
+// one-for-one instead. The firmware writes that port during startup, each
+// write flips the XOR, and the XOR reaches `BootMC'` unopposed.
+//
+// SO THE REMAINING QUESTION IS THE TOGGLE FLIP-FLOP'S POWER-UP STATE. j17
+// NANDs the XOR against g22's Q', so a Q' of 0 masks the XOR entirely and only
+// a real timer expiry can reset the processor -- which is the whole point of
+// the design. Our SN74LS74 comes up with Q = 0, hence Q' = 1, which arms the
+// watchdog from the first instruction. On the real board g22 has neither its
+// preset nor its clear asserted (pins 1 and 4 both go to `TTLTrue.E`), so the
+// state is set by the power-up sequence -- `PwrGood`, which is also j08's
+// asynchronous input. That sequencing is the thing to model next.
 
 `default_nettype none
 `define BB  m.u_machine.b_BaseBd
@@ -86,6 +100,11 @@ module tb_firmware;
   integer hot [0:4095];      // per-address counts for the F000..FFFF page
   integer j, best, besta;
   integer n_reset = 0, last_reset = 0;
+  integer n_mcclk = 0, n_wdin = 0, n_bootmc = 0;
+  integer n_pre = 0, n_div = 0, n_tog = 0, n_xor = 0, n_wdout = 0;
+  reg p_pre = 1'b0, p_div = 1'b0, p_tog = 1'b0, p_xor = 1'b0, p_wdout = 1'b0;
+  reg p_mcclk = 1'b0, p_wdin = 1'b0, p_bootmc = 1'b1;
+  integer mcclk_at_reset = 0;
 
   initial begin
     for (i = 0; i < 16; i = i + 1) bucket[i] = 0;
@@ -107,12 +126,21 @@ module tb_firmware;
         if (mca == 16'hFFFC) begin
           n_reset = n_reset + 1;
           if (n_reset > 1)
-            $display("tb_firmware:   RESET #%0d at sys_clk %0d (%0d since the last)",
-                     n_reset, i, i - last_reset);
+            $display("tb_firmware:   RESET #%0d at sys_clk %0d (%0d since the last, %0d MCClk edges)",
+                     n_reset, i, i - last_reset, n_mcclk - mcclk_at_reset);
           last_reset = i;
+          mcclk_at_reset = n_mcclk;
         end
       end
       // Does it touch the Dorado at all?
+      if (`BB.MCPreClk !== p_pre) begin p_pre = `BB.MCPreClk; n_pre = n_pre + 1; end
+      if (`BB.BaseBd09_sil_pl_8 !== p_div) begin p_div = `BB.BaseBd09_sil_pl_8; n_div = n_div + 1; end
+      if (`BB.BaseBd09_sil_pl_3 !== p_tog) begin p_tog = `BB.BaseBd09_sil_pl_3; n_tog = n_tog + 1; end
+      if (`BB.BaseBd09_sil_pl_1 !== p_xor) begin p_xor = `BB.BaseBd09_sil_pl_1; n_xor = n_xor + 1; end
+      if (`BB.WatchdogOut !== p_wdout) begin p_wdout = `BB.WatchdogOut; n_wdout = n_wdout + 1; end
+      if (`BB.MCClk !== p_mcclk) begin p_mcclk = `BB.MCClk; n_mcclk = n_mcclk + 1; end
+      if (`BB.WatchdogIn !== p_wdin) begin p_wdin = `BB.WatchdogIn; n_wdin = n_wdin + 1; end
+      if (`BB.BootMC_p_ !== p_bootmc) begin p_bootmc = `BB.BootMC_p_; n_bootmc = n_bootmc + 1; end
       if (m.u_machine.CPStrb_p_ !== p_cpstrb) begin p_cpstrb = m.u_machine.CPStrb_p_; n_cpstrb = n_cpstrb + 1; end
       if (m.u_machine.DMuxClk   !== p_dmuxclk) begin p_dmuxclk = m.u_machine.DMuxClk;  n_dmuxclk = n_dmuxclk + 1; end
     end
@@ -135,6 +163,12 @@ module tb_firmware;
         hot[besta] = 0;
       end
     end
+    $display("tb_firmware: MCClk edges %0d in 4,000,000 sys_clk -> 1 MCClk cycle = %0d sys_clk",
+             n_mcclk, (n_mcclk > 1) ? (4000000*2)/n_mcclk : 0);
+    $display("tb_firmware: MCPreClk edges %0d, divider Q21 edges %0d, toggle-FF edges %0d",
+             n_pre, n_div, n_tog);
+    $display("tb_firmware: WatchdogIn edges %0d, WatchdogOut edges %0d, XOR edges %0d, BootMC' edges %0d",
+             n_wdin, n_wdout, n_xor, n_bootmc);
     $display("tb_firmware: reset-vector fetches: %0d -- the processor is RESTARTING, not looping.", n_reset);
     $display("tb_firmware: I/O addresses touched: %0d distinct", n_io);
     $display("tb_firmware: CPStrb' edges %0d, DMuxClk edges %0d", n_cpstrb, n_dmuxclk);
