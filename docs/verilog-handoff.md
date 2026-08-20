@@ -361,41 +361,38 @@ both ports -- `DAC = 400+PA` (`DACDDRValue = AllOutput`) and
 converting one analog channel after another: the supply voltages and currents
 `doradomufman.masm` waits on before it will bring the Dorado up.
 
-**IT DOES REACH `PacifyWatchdog` -- an earlier version of this section was
-wrong.** It said the unmodelled analog chain meant the firmware "never leaves
-power sequencing ... which is why it never reaches `PacifyWatchdog`". Measured,
-with the routine addresses taken from the disassembly:
+**THE MACHINE SURVIVES ITS OWN WATCHDOG.** `+define+LONG_RUN`, with resets
+bucketed by watchdog window (each Q21 edge starts a bucket):
 
-| | default (armed) | `G22_DISARMED` |
-|---|---|---|
-| `PACIFYWATCHDOG` F692 visits | 0 | **5** |
-| `PACIFYWATCHDOGIFJUMPER` F68B | 0 | 0 |
-| `MCReset'` assertions | 19 | 1 |
-| `CPStrb'` edges | 37 | 450 |
+| window | from | g22 FF1 `Q'` | resets |
+|---|---|---|---|
+| 0 | 0 | 1 — **ARMED** | **397** |
+| 1 | 83,886,119 | 1 — ARMED | **0** |
+| 2 | 167,772,199 | 0 — disarmed | 0 |
+| 3 | 251,658,279 | 0 — disarmed | 0 |
 
-When it can run, it pacifies. It never gets there in the armed build only
-because it is reset first. `SkipWait'` reads 1 -- which *would* make
-`PacifyWatchdogIfJumper` skip -- but that entry is never used; the firmware
-calls `PacifyWatchdog` directly, so the jumper is not in the path.
+`PACIFYWATCHDOG` (F692) visits **240**; `CPStrb'` edges **27,674**.
 
-**What is actually established, which is less than the last three notes here
-claimed:**
+**Every reset is in window 0.** After the first Q21 edge there are none, across
+176 M sys_clk — **including window 1, which is still ARMED**. The firmware gets
+far enough to pacify, the XOR stays 0 from then on, and the watchdog is
+satisfied for the rest of the run. That is the design working as intended, and
+it means **the BaseBoard boots itself past power-up without intervention**.
 
-* **g22 armed at power-up** causes a reset before the firmware finishes
-  starting up, and it then never gets far enough to pacify. Disarmed, it runs
-  continuously and pacifies. Measured both ways.
-* **The ADC loop at F84A is where it spends most of its cycles.** That is a
-  cycle count, NOT evidence that it blocks -- it is a monitoring loop and the
-  firmware demonstrably proceeds past it.
-* **The analog chain is unmodelled** -- CA3140 (g18, i19, i20, i21, j21),
-  CD4051 (i2125, j24, k24) and the AUGATCG16 resistor platforms are skeletons.
-  That is a fact about the RTL. **Its effect on booting is not established**,
-  and should not be asserted again without measuring it.
+**Two earlier claims here were wrong, in opposite directions, both from reading
+a TOTAL instead of a DISTRIBUTION:**
 
-**NEXT:** the long run (260 M, three Q21 edges, 397 resets) still needs
-explaining. Once the firmware pacifies in a disarmed window the XOR should stay
-0 and survive re-arming, so why do resets continue? Log the reset times against
-the Q21 edges and see whether they cluster in the armed halves.
+* "give it time" was recorded as REFUTED because a 260 M run still showed 397
+  resets. It is not refuted — those 397 all happened before the first watchdog
+  interval elapsed. The run did settle; the total said nothing about *when*.
+* "it never reaches `PacifyWatchdog`" holds only for the 4 M armed window. Over
+  a long run it reaches it 240 times.
+
+**WHAT IS STILL NOT HAPPENING:** `DMuxClk` edges 0. The firmware drives CPReg
+hard (27,674 strobes) but has never shifted a manifold word — and
+`InitManifolds` is how `doradomufman.masm` brings the Dorado's boards up. That
+is the next thing to look at, as a measurement: does the firmware reach
+`SetManifold` at all?
 
 **And g22's POWER-UP STATE matters too.** j17 NANDs the XOR against
 g22's `Q'`, so a `Q'` of 0 masks the XOR entirely and only a real timer expiry
