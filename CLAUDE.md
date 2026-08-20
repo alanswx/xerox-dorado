@@ -1029,17 +1029,13 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   `WEAK_PORT_DRIVERS` in the generator, symmetric to `OVERRIDE_DRIVERS`: the
   pull-up loses where something else drives, stands where nothing does. With
   it, the real firmware reaches the control-processor bus.
-- **The real firmware is stuck MEASURING THE POWER SUPPLIES, not on the
-  watchdog.** Its hot loop is a successive-approximation A/D conversion --
-  write `DAC = 400+PA`, settle, read `Comparators = 480+PA`, shift -- stepping
-  muffler channels for the rails `doradomufman.masm` waits on. The comparators
-  are **CA3140** op-amps (g18, i19, i20, i21, j21) fed through **CD4051**
-  analog multiplexers (i2125, j24, k24) and AUGATCG16 resistor platforms --
-  all unmodelled skeletons -- so no rail ever reads in range. It is a
-  SUBSTITUTION like the VCO, but NOT a per-cell one: a comparator whose inputs
-  the RTL knows only as 0/1 has nothing to compare, so the substitute must
-  test the DAC's DIGITAL value (`DAC = 400+PA`) against a per-channel target. The watchdog and g22's power-up state are symptoms downstream
-  of this.
+- **The real firmware reaches `PacifyWatchdog` when it can run.** With g22
+  disarmed it pacifies 5 times, takes ONE reset (power-on) and drives the
+  Dorado; armed, it is reset first and never gets there. Its hot loop is a
+  successive-approximation A/D conversion (write `DAC = 400+PA`, settle, read
+  `Comparators = 480+PA`, shift) whose chain -- CA3140 op-amps, CD4051 analog
+  muxes, AUGATCG16 resistor platforms -- is unmodelled; but that is a cycle
+  count, NOT a proven blocker, and claiming otherwise was a mistake made twice.
 - **The real firmware runs, and the WATCHDOG is what stops it.** `dorado_boot`
   (BaseBd+ContA+ContB+ProcH+ProcL) lets the 6502 run its own EPROMs; it is
   reset every 211,440 sys_clk, exactly periodic, and never reaches the Dorado.

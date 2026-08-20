@@ -116,38 +116,40 @@
 // converting one analog channel after another: the supply voltages and
 // currents `doradomufman.masm` waits on before it will bring the Dorado up.
 //
-// THE MEASUREMENT CHAIN IS NOT MODELLED, and it is a genuinely ANALOG one.
-// (An earlier note here blamed the AM2615s. That was wrong -- read their
-// wiring: `ACPBus.n'` in, `RCPBus.n` out, `ACPStrb'` to `RCPStrb`. They are
-// exactly what the part is, differential LINE RECEIVERS for the
-// control-processor bus, and have nothing to do with the A/D.)
+// IT DOES REACH `PacifyWatchdog` -- AN EARLIER CLAIM HERE WAS WRONG. This
+// header previously said the unmodelled analog chain meant "the firmware never
+// leaves power sequencing ... which is why it never reaches PacifyWatchdog".
+// Measured, with the routine addresses out of the disassembly:
 //
-// What actually implements it, all of it skeletons:
+//                            default (armed)   G22_DISARMED
+//     PACIFYWATCHDOG F692          0                 5
+//     PACIFYWATCHDOGIFJUMPER F68B  0                 0
+//     MCReset' assertions         19                 1
+//     CPStrb' edges               37               450
 //
-//   CA3140  g18, i19, i20, i21, j21   CMOS op-amps. i21 buffers `DACOut`;
-//                                     i19 compares `DACOut` (+, pin 3)
-//                                     against `BaseBd13.sil+11` (-, pin 2)
-//                                     and outputs `CVDD`; i20 outputs `CVEE`.
-//                                     `CVDD`/`CVEE` land on the RIOT at l62
-//                                     PA -- which is `Comparators = 480+PA`.
-//   CD4051  i2125, j24, k24           analog multiplexers: the channel
-//                                     selector the muffler address steps.
-//   AUGATCG16  i18, i23, a02          resistor platforms -- the dividers that
-//                                     scale each rail. `BaseBd13.sil+11` and
-//                                     `+13` come from i18 and nowhere else.
+// So when it can run, it pacifies. It never gets there in the armed build only
+// because it is reset first. `SkipWait'` reads 1 -- which WOULD make
+// `PacifyWatchdogIfJumper` skip -- but that entry is never used; the firmware
+// calls `PacifyWatchdog` directly, so the jumper is not in the path.
 //
-// So every conversion reads a dead comparator, no rail measures in range, and
-// the firmware never leaves power sequencing.
+// WHAT IS ACTUALLY ESTABLISHED, and it is less than the last three notes here
+// claimed:
 //
-// NEXT, AND SCOPE IT HONESTLY. This is a SUBSTITUTION in the same category as
-// the VCO (cell_MPQ3303, OVERRIDE_DRIVERS): an analog chain has no digital
-// model. But note it cannot be done cell-by-cell -- a CA3140 comparing two
-// nets the RTL only knows as 0/1 has nothing to compare. The substitute needs
-// the DAC's DIGITAL value (the RIOT port at `DAC = 400+PA`) tested against a
-// per-channel target, so it is a small behavioural model spanning the DAC
-// port, the CD4051 channel select and the comparator output, not four cells.
-// Read `ReadMufflerField`, the F6DF/F6E0 table indexed at F804, and the range
-// checks after `READMUFFLER` to get the targets each channel must return.
+//   * g22 armed at power-up causes a reset before the firmware finishes
+//     starting up, and it then never gets far enough to pacify. Disarmed, it
+//     runs continuously and pacifies. That much is measured both ways.
+//   * The ADC loop at F84A is where it spends most of its cycles. That is a
+//     cycle count, NOT evidence that it blocks: it is a monitoring loop and
+//     the firmware demonstrably proceeds past it.
+//   * The analog chain IS unmodelled -- CA3140 (g18, i19, i20, i21, j21),
+//     CD4051 (i2125, j24, k24) and the AUGATCG16 resistor platforms are all
+//     skeletons. That is a fact about the RTL. Its effect on booting is NOT
+//     established, and should not be asserted again without measuring it.
+//
+// NEXT: the long run (260 M, three Q21 edges, 397 resets) still needs
+// explaining -- once the firmware pacifies in a disarmed window the XOR should
+// stay 0 and survive re-arming, so why do resets continue? Log the reset times
+// against the Q21 edges and see whether they cluster in the armed halves.
 
 `default_nettype none
 `define BB  m.u_machine.b_BaseBd
@@ -291,6 +293,10 @@ module tb_firmware;
              n_pre, n_div, n_tog);
     $display("tb_firmware: WatchdogIn edges %0d, WatchdogOut edges %0d, XOR edges %0d, BootMC' edges %0d",
              n_wdin, n_wdout, n_xor, n_bootmc);
+    $display("tb_firmware: SkipWait'(the PacifyWatchdogIfJumper gate)=%b  -- 1 means the firmware SKIPS pacifying",
+             m.u_machine.SkipWait_p_);
+    $display("tb_firmware: PACIFYWATCHDOG(F692) visits %0d, PACIFYWATCHDOGIFJUMPER(F68B) visits %0d",
+             hot[16'h692], hot[16'h68B]);
     $display("tb_firmware: MCReset' ASSERTIONS: %0d   (0xFFFC seen on the bus %0d times -- not the same thing)",
              n_mcreset, n_reset);
     $display("tb_firmware: I/O addresses touched: %0d distinct", n_io);
