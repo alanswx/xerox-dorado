@@ -160,16 +160,20 @@ converge-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_converge/tb_converge 2>&1); \
 		  rc=$$?; echo "$$out" | grep tb_converge; exit $$rc; }
 
-# How far down the datapath does a value get? A DIAGNOSTIC -- to the B bus,
-# not yet to T. tb_compute.sv says exactly where it stops and what to try.
-.PHONY: compute-probe
-compute-probe:
+# THE MACHINE COMPUTES: PARC's own ALU prologue on four boards -- 25 octal
+# from CPReg into Q, held across an instruction, and stored into ALUFM[0].
+# Note the exit code is captured EXPLICITLY: a %Fatal line contains the string
+# "tb_compute", so piping straight into grep would report a failed assertion
+# as a pass.
+.PHONY: compute-test
+compute-test:
 	@cd ../.. && $(V) --binary --top-module tb_compute $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_compute -o tb_compute \
 		verilog/verilator/tb_compute.sv verilog/generated/dorado_proc.v \
 		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
 		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
-		>/dev/null; ./verilog/verilator/obj_compute/tb_compute 2>&1 | grep -E "tb_compute|after the"
+		>/dev/null && { out=$$(./verilog/verilator/obj_compute/tb_compute 2>&1); \
+		  rc=$$?; echo "$$out" | grep -E "tb_compute|Assertion"; exit $$rc; }
 
 # Do PARC's IRTable entries satisfy our IM parity generators? A DIAGNOSTIC --
 # they do not, and tb_parity.sv says what is ruled out and where to look.

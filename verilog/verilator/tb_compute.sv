@@ -1,75 +1,77 @@
-// tb_compute -- how far a value gets down the datapath. A DIAGNOSTIC, not a
-// gate: it reaches the B bus across four boards and does NOT reach T, and the
-// point is exactly where it stops.
+// tb_compute -- THE MACHINE COMPUTES. PARC's own ALU prologue, replayed on
+// four boards: a value crosses from the BaseBoard into CPReg, onto the B bus,
+// into Q, and out of Q into ALUFM -- and ALUFM reads back the function PARC
+// says it wrote.
 //
-// Everything below this proved the machine could be WRITTEN and could SEQUENCE.
-// `exec-test` shows it fetching microinstructions from IM and branching around
-// them; it shows nothing about the datapath. This is the smallest thing that
-// asks about the datapath: PARC's own `TFromCPReg#` (IRTable, `70 03 0F 04 C0`,
-// "T_RWCPReg"), jammed and stepped, with T read out of the sixteen MC10173
-// latches that hold it -- ProcH i03/i04 for T.00-.07, ProcL i03/i04 for
-// T.08-.15.
-//
-// WHAT WORKS, and it is further than any gate here goes. Right after the jam:
-//
-//     BMux=1234  T=0000  LC=001  B<-Link'=0  UseCPReg=1  ALUF=0000
-//
-// So the value crosses the BaseBoard's nine-bit control bus into CPReg on
-// ContA, through the FF decode at a17 and the MC10159 multiplexer at b02, onto
-// the machine-wide B bus with BOTH processor boards attached -- uncomplemented,
-// because `SetCPReg~` wrote the complement -- and the field controls are
-// exactly what the microinstruction asks for: LC=1 selects the T load and
-// ALUF=0 selects ALUFM entry 0. `operand-test` reads BMux on the Control
-// boards; this reads it with the datapath hanging off it.
-//
-// WHAT DOES NOT: T stays 0.
-//
-// WHY THAT IS THE INTERESTING PART. `TFromCPReg#` carries its own warning in
-// PARC's source -- "requires ALUFM[0]=B" -- because T IS LOADED THROUGH THE
-// ALU. LoadDoradoCode sets that up before it loads a single word:
+// LoadDoradoCode does this before it loads a single word of microcode, because
+// `TFromCPReg#` carries the warning "requires ALUFM[0]=B" -- T is loaded
+// THROUGH the ALU, so entry 0 has to hold the function that passes B first:
 //
 //     "Set up ALUFM[0] with a 25o, which is the logical function B"
 //     LDXI 25o / LDAI QFromCPReg#-IRTable / JSR SetCPAndDoIRTableInst
 //     LDAI ALUFM[0]FromQ#-IRTable / JSR DoIRTableInst
 //
-// which `alufm0_is_b` below replays. IT DOES NOT TAKE, and the probe now says
-// exactly how far it gets:
+// `alufm0_is_b` below is that, instruction for instruction. Note
+// SetCPAndDoIRTableInst, NOT the tilde form: the ALU function code goes in
+// uncomplemented.
 //
-//     ALUFWrite' edges 2        one clean write pulse
-//     ALUFM addr A0..A3 = 0000  addressed at entry 0, which is right
-//     ALUFM[0] = 000000         AND THE DATA IS ZERO
+// WHAT THIS GATES, and why each check is here rather than a pixel-style
+// "something moved" count:
 //
-// So ALUFM is a 16x4 pair of F10145As at ProcL e13/e14, its address and write
-// enable are correct, and the six bits it stores come from `alub` -- the ALU's
-// B input -- at pins carrying alub.08/11/12/13/14/15. At the write, alub is
-// 000000.
+//   Q == 0015 after QFromCPReg#      25 octal, the value PARC sends.
+//   Q == 0015 still, one instruction later.
+//   ALUFM[0] == 010101               25 octal read MSB-first, off the F10145A
+//                                    storage at ProcL e13/e14 -- not off a bus.
 //
-// TWO SEPARATE THINGS ARE WRONG ON THE Q PATH, and they are not the same
-// thing:
+// EACH ONE CAUGHT A CELL BUG, and neither bug was visible to any other gate --
+// all eighteen passed with both of them in place.
 //
-//   1. `QFromCPReg#` leaves Q = 008a where 25 octal is 0015. So the CPReg -> Q
-//      hop delivers SOMETHING but not the right value -- and trying the
-//      prologue with the tilde form as well makes no difference, so this is
-//      not the complement convention.
-//   2. By the time `ALUFM[0]FromQ#` executes, Q reads 0000. Whatever Q held is
-//      gone before the instruction that is supposed to store it runs.
+//   Q's value catches cell_MC10141. The four-bit universal shift register had
+//   its PARALLEL ENTRY wired Q0<-D3, Q1<-D0, Q2<-D1, Q3<-D2, so every nibble
+//   loaded ROTATED ONE PLACE: 0015 arrived as 008a, which is what this probe
+//   measured for weeks. The datasheet truth table (two Motorola books, they
+//   agree) says Parallel Entry is Q0<-D0 .. Q3<-D3, flat. 60 packages.
 //
-// Neither is the ALU. `alu-diff` verifies four MC10181 slices in a TESTBENCH,
-// never as ProcH and ProcL wire them, so the ALU in the machine is still
-// unexercised -- but it cannot be blamed for a zero that arrives at ALUFM's
-// data pins.
+//   Q's SURVIVAL catches cell_MC10119. The four-wide OR-AND gate's pin 10 is
+//   shared by two of its OR groups -- it is a 4-3-3-3 part with only twelve
+//   input pins -- and modelling it as a standalone AND term instead pulled the
+//   whole output low whenever pin 10 was low. On ProcH b17/c17 pin 10 is
+//   FA=0', so EVERY microinstruction with FA=0, including PARC's own Nop,
+//   asserted QshiftL'/QshiftR'. Both asserted is PARALLEL ENTRY on the
+//   MC10141, so Q was reloaded from a dead B bus every single cycle and could
+//   not survive to be stored. 10 packages.
 //
-// AFTER THE Q PATH, the last hop is still unexamined: the T latches are
-// MC10173s taking `dT.nn`/`dTm.nn` with `PreSHCP'B` and `TbBypass` as
-// controls, so follow `dT.00` back from ProcH i03 pin 5.
+// THE PIPELINE IS REAL AND THE NOPS ARE NOT PADDING. The Qshift controls come
+// out of a register (ProcH b15) clocked by Clock1', while the MC10141's own
+// clock QClock' is gated off PreClock1' -- which is EARLIER. So the controls in
+// force at any load edge are the ones the PREVIOUS instruction latched:
+// decode in cycle N, act in cycle N+1. That is why PARC follows each of these
+// with a Nop, and why its comment for DoIRTableInstAndNop -- "the Nop holds
+// CPReg constant through T3 of the previous instruction" -- is load-bearing.
+// Q is not loaded by QFromCPReg#; it is loaded by the Nop after it.
 //
-// THE CORRECTION THAT GOT THIS FAR. `TFromCPReg#` looked at first as though it
-// used a different FF decode from `CPRegToLink#` -- FF=177, ReadLink, rather
-// than 176, Link<-CPReg -- and that was an arithmetic slip reading byte 3.
-// PARC states the fields outright in the IRTable comments
-// ("RSTK[0],ALUF[0],BSEL[0],LC[1],ASEL[4],FF[176],JCN[201]") and they are worth
-// reading before decoding the bytes by hand: the two instructions differ in LC
-// and BSEL, not in FF.
+// WHAT THIS GATE DOES NOT COVER, found by mutating the fixes it exists to
+// catch. Swapping the MC10141's two SHIFT modes against each other still
+// passes here, because PARC's prologue only ever uses PARALLEL ENTRY -- Q's
+// shift paths are what the microcode's shift/cycle operations use, and nothing
+// in the suite drives one yet. The corrected cell is right on three
+// independent sources (both Motorola books, and EclDict's own [FF] arcs, which
+// pair DR/pin 5 with Q3/pin 3 and DL/pin 13 with Q0/pin 14 -- the mutation
+// contradicts all three), but it is ARGUED, not gated. Mechanising it is a
+// contained task: `sil_check_cells.py` already parses the [FF] lines for their
+// CLK and RS pins and throws the per-output data-input arcs away, and those
+// arcs are exactly a per-output dependency list for the clocked parts, the
+// same check it already applies to combinational ones.
+//
+// STILL OPEN, and deliberately not asserted here: T comes back COMPLEMENTED.
+// TFromCPReg# with 1234 leaves T=edcb and with a55a leaves T=5aa5. The ALU is
+// not the suspect -- ALUFM[0] now genuinely holds 25 octal, `alu-diff` matches
+// the C emulator on 10,752 vectors, and the C emulator's own alu_op has
+// `case 025: result = b;`. So the inversion is downstream, in the T load path:
+// the MC10173 latches taking dT.nn/dTm.nn under PreSHCP'B and TbBypass.
+// Follow dT.00 back from ProcH i03 pin 5. This gate asserts only that T MOVES
+// and that two different values give two different results, so it cannot pass
+// on a stuck latch while the polarity is settled.
 
 `default_nettype none
 
@@ -654,6 +656,36 @@ module tb_compute;
   // watch ALUFWrite'.
   integer nalufw; reg palufw;
   reg [5:0] alub_at_write; reg [15:0] q_at_write;
+  reg [15:0] q_after_load, q_after_hold;
+  reg [15:0] t_first, t_second;
+  // ALUFM entry 0 as PARC numbers it: ALUFdec.0 is the HIGH bit.
+  // e13 stores ALUFdec.0-.3 in its Q0-Q3, e14 stores .4-.5 -- and .0 is the
+  // HIGH bit, so the MSB of the entry is e13's Q0 and the LSB is e14's Q1.
+  wire [5:0] alufm0 = {m.b_ProcL.u_e13.mem[0][0], m.b_ProcL.u_e13.mem[0][1],
+                       m.b_ProcL.u_e13.mem[0][2], m.b_ProcL.u_e13.mem[0][3],
+                       m.b_ProcL.u_e14.mem[0][0], m.b_ProcL.u_e14.mem[0][1]};
+
+  // TRACE: every change of Q or of the signals that control it. Printing on a
+  // change of Q ALONE reads the controls a cycle late -- the NBA region means
+  // a read in another always block sees the pre-edge value -- so log the whole
+  // set and let the ORDER of the lines say which moved first.
+  reg qtrace = 0;
+  wire [24:0] qsig = {q_reg, m.b_ProcH.QClock_p_,
+                      m.b_ProcH.QshiftL_p_, m.b_ProcH.QshiftR_p_,
+                      m.b_ProcH.Bmux0, m.b_ProcH.Bmux1,
+                      m.b_ProcH.alub_00a, m.b_ProcH.alub_01a,
+                      m.b_ProcH.alub_02a, m.b_ProcH.alub_03a};
+  reg [24:0] qsig_d;
+  integer qtick = 0;
+  always @(posedge sys_clk) begin
+    qtick <= qtick + 1;
+    qsig_d <= qsig;
+    if (qtrace && qsig !== qsig_d)
+      $display("      [t%0d] Q=%h QClock'=%b Qshift{L,R}'=%b%b Bmux{0,1}=%b%b alub.00a-03a=%b%b%b%b",
+               qtick, qsig[24:9], qsig[8], qsig[7], qsig[6], qsig[5], qsig[4],
+               qsig[3], qsig[2], qsig[1], qsig[0]);
+  end
+
   wire [15:0] q_reg = {m.b_ProcH.Q_00, m.b_ProcH.Q_01, m.b_ProcH.Q_02, m.b_ProcH.Q_03,
                        m.b_ProcH.Q_04, m.b_ProcH.Q_05, m.b_ProcH.Q_06, m.b_ProcL.Q_07,
                        m.b_ProcL.Q_08, m.b_ProcL.Q_09, m.b_ProcL.Q_10, m.b_ProcL.Q_11,
@@ -691,9 +723,19 @@ module tb_compute;
       parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40); // QFromCPReg#
       nop_micro;                                     // ...AndNop
       $display("      after QFromCPReg#: Q=%h BMux=%h", q_reg, bmux);
+      q_after_load = q_reg;
+      qtrace = 1;
+      $display("      before ALUFM[0]FromQ#: Bmux{0,1}=%b%b BmuxEn'=%b Qshift{L,R}'=%b%b Q=%h",
+               m.b_ProcH.Bmux0, m.b_ProcH.Bmux1, m.b_ProcH.BmuxEn_p_,
+               m.b_ProcH.QshiftL_p_, m.b_ProcH.QshiftR_p_, q_reg);
       parc_micro(8'h30, 8'h05, 8'h09, 8'hC4, 8'h40); // ALUFM[0]FromQ#
       $display("      at the ALUFM write: alub{15,14,13,12,11,08}=%b Q=%h",
                alub_at_write, q_at_write);
+      qtrace = 0;
+      q_after_hold = q_reg;
+      $display("      after  ALUFM[0]FromQ#: Bmux{0,1}=%b%b BmuxEn'=%b Qshift{L,R}'=%b%b Q=%h",
+               m.b_ProcH.Bmux0, m.b_ProcH.Bmux1, m.b_ProcH.BmuxEn_p_,
+               m.b_ProcH.QshiftL_p_, m.b_ProcH.QshiftR_p_, q_reg);
     end
   endtask
 
@@ -741,19 +783,47 @@ module tb_compute;
              m.b_ProcL.aluM, m.b_ProcL.aluC);
 
     t_from_cpreg(16'h1234);
+    t_first = t_reg;
     $display("tb_compute: TFromCPReg# 1234 -> BMux=%h T=%h", bmux, t_reg);
     if (bmux_after_jam !== 16'h1234)
       $fatal(1, "the value did not reach the B bus -- that part DOES work, so this is a regression");
-    if (t_reg !== 16'h1234)
-      $display("tb_compute: T did not take it. That is the open question -- see the header.");
 
     t_from_cpreg(16'hA55A);
+    t_second = t_reg;
     $display("tb_compute: TFromCPReg# a55a -> BMux=%h T=%h", bmux, t_reg);
     if (bmux_after_jam !== 16'hA55A)
       $fatal(1, "a second value did not reach the B bus -- a stuck bus would pass one");
 
-    $display("tb_compute: the operand reaches the B BUS across four boards, both values.");
-    $display("tb_compute: it does NOT reach T -- the ALU hop is the open question.");
+    // ---- the gate ----------------------------------------------------
+    // 25 octal into Q, off PARC's own QFromCPReg#. Catches the MC10141
+    // parallel-entry rotation, which delivered 008a for 0015.
+    if (q_after_load !== 16'h0015)
+      $fatal(1, "Q took %h, not 0015 (25 octal). If it is 008a, cell_MC10141's parallel entry is rotated a place.",
+             q_after_load);
+
+    // ...and it is still there one instruction later. Catches the MC10119
+    // shared-pin bug, which made every FA=0 instruction reload Q from a dead
+    // B bus.
+    if (q_after_hold !== 16'h0015)
+      $fatal(1, "Q was %h by the end of ALUFM[0]FromQ#, not 0015 -- something reloaded it. Check QshiftL'/QshiftR' on a Nop: both asserted is PARALLEL ENTRY.",
+             q_after_hold);
+
+    // ...and ALUFM entry 0 holds it, read out of the F10145A storage itself.
+    // PARC numbers MSB first, so ALUFdec.0 is the high bit: 010101 = 25 octal.
+    if (alufm0 !== 6'b010101)
+      $fatal(1, "ALUFM[0] = %b, not 010101 (25 octal, the logical function B)", alufm0);
+
+    // T moves, and two different operands give two different results, so this
+    // cannot pass on a stuck latch. Its POLARITY is the open question -- see
+    // the header -- so the value itself is not asserted yet.
+    if (t_first === t_second)
+      $fatal(1, "T read %h for both operands -- the latch is stuck, not loading", t_first);
+    if (t_first === 16'h0000 || t_second === 16'h0000)
+      $fatal(1, "T stayed 0000 for an operand -- it is not being loaded at all");
+
+    $display("tb_compute: Q takes 25 octal from CPReg, HOLDS it, and ALUFM[0] stores it.");
+    $display("tb_compute: T loads too, complemented -- polarity is the open question.");
+    $display("tb_compute: THE MACHINE COMPUTES -- four boards, PARC's own ALU prologue.");
     $finish;
   end
 

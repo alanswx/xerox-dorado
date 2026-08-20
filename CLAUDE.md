@@ -955,9 +955,10 @@ same expression. It also showed why `machine-test` must NOT gate on how many
 signals toggle: correct logic holds nets steady, so the count fell 31 -> 27
 as cells got MORE right. It gates on the clock reaching every slot instead.
 
-**A FOUR-BOARD DORADO RUNS MICROINSTRUCTION CYCLES (2026-08-18).** The write
-path into the machine is proven end to end against the C emulator; the operand
-path is one signal short. Rung by rung, each line a gate you can run:
+**A FOUR-BOARD DORADO RUNS MICROINSTRUCTION CYCLES, AND COMPUTES
+(2026-08-18/19).** The write path into the machine is proven end to end against
+the C emulator, and the datapath now carries a value through Q and into ALUFM;
+one polarity is left. Rung by rung, each line a gate you can run:
 
 | rung | gate |
 |---|---|
@@ -974,8 +975,14 @@ path is one signal short. Rung by rung, each line a gate you can run:
 | PARC's SendViaMIR loads words into IM | `sendmir` -- Boot0's inner loop |
 | PARC's BLOCK LOADER walks REAL MICROCODE into IM | `boot0-test` -- and IM MATCHES THE C EMULATOR |
 | **THE MACHINE EXECUTES MICROCODE OUT OF IM** | `exec-test` -- free-running and sequencing |
+| **THE MACHINE COMPUTES** -- 25 octal from CPReg into Q, held, stored into ALUFM[0] | `compute-test` -- PARC's own ALU prologue |
+| ...and T loads through the ALU, COMPLEMENTED | `compute-test` -- the one open datapath signal |
 
-Eighteen gates in all; `make -C verilog` has the list. Cell coverage is
+Nineteen gates in all; `make -C verilog` has the list. The open signal is T's
+POLARITY: `TFromCPReg#` loads T but inverted (1234 gives edcb), and the ALU is
+ruled out -- ALUFM[0] genuinely holds 25 octal, which the C emulator's `alu_op`
+defines as `result = b`, and `alu-diff` matches it on 10,752 vectors. The
+suspects are the MC10173 latches taking `dT.nn`/`dTm.nn`. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
 boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
@@ -995,7 +1002,24 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   an enable. `loop-check` is the gate.
 - **`cell-check` was blind to 18 of 112 parts** because a part may state its
   gates across several `[G]` lines; two of those had Tim's common-pin bug, in 82
-  packages.
+  packages. It is blind to a THIRD form of it: a cell can read exactly the right
+  pins and still GROUP them wrongly. `cell_MC10119` ANDed its shared pin 10 as a
+  separate term instead of putting it in two OR groups -- the part is a 4-3-3-3,
+  thirteen input slots across twelve pins -- which forced the output low for
+  every FA=0 microinstruction, PARC's own Nop included, and reloaded Q from a
+  dead bus every cycle. `cell_MC10141` meanwhile loaded its parallel entry
+  ROTATED one place, turning 25 octal into 008a, in 60 packages.
+- **PARC's dictionary and Motorola disagree on the MC10141's pin NAMES, and
+  neither is wrong** -- EclDict swaps DL/DR and calls S1/S2 SL'/SR', two swaps
+  consistent with each other, because it is only which end of a 16-bit register
+  you call "left". The board reads correctly under PARC's names; a CELL must
+  implement the datasheet's function per PIN NUMBER.
+- **The nops in PARC's boot sequences are not padding.** Control signals come
+  out of registers clocked by `Clock1'` while the datapath registers clock off
+  the EARLIER `PreClock1'`, so the controls in force at any load edge are the
+  ones the PREVIOUS instruction latched. Q is not loaded by `QFromCPReg#`; it is
+  loaded by the Nop after it -- and a probe sampling right after an instruction
+  reads one cycle early.
 - **A jam must be SINGLE-STEPPED** (SetRun+SetSS, no ClrStop): free-running
   reloads the MIR from IM one clock later. `run-test`'s "ClrStop and SetRun must
   share a byte" is right for free-running and wrong for a jam.

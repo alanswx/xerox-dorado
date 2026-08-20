@@ -11,7 +11,7 @@ background and why each decision was made.
 
 **A four-board Dorado runs microinstruction cycles, and the BaseBoard's 6502
 boots its own firmware.** The write path into the machine is proven end to end
-against the C emulator; the operand path is one signal short. Everything is
+against the C emulator; the datapath computes, and one polarity is left. Everything is
 generated from PARC's own Sil wire lists, and every claim below is a gate you
 can run.
 
@@ -32,6 +32,8 @@ can run.
 | PARC's SendViaMIR loads words into IM | **works** -- Boot0's inner loop | `sendmir` |
 | PARC's BLOCK LOADER walks REAL MICROCODE into IM | **works**, and it MATCHES THE C EMULATOR -- 16 hunks, 128 half-words | `boot0-test` |
 | **THE MACHINE EXECUTES MICROCODE OUT OF IM** | **works** -- free-running, sequencing, 1,242 cycles | `exec-test` |
+| **THE MACHINE COMPUTES** | **works** -- Q takes 25 octal from CPReg, holds it, ALUFM[0] stores it | `compute-test` |
+| ...and T loads through the ALU | **complemented** -- the one open datapath signal | `compute-test` |
 
 ### Every gate
 
@@ -54,12 +56,22 @@ make -C verilog mirreg-diff     a jammed microinstruction reads back off the MIR
 make -C verilog run-test        THE MACHINE RUNS -- it executes cycles
 make -C verilog datapath-test   four boards, microinstruction on the datapath
 make -C verilog writeim-test    a jammed Write-IM deposits into IM
+make -C verilog operand-test    ...with its DATA and ADDRESS from CPReg
+make -C verilog step-test       the machine SINGLE-STEPS microinstructions
+make -C verilog sendmir         PARC's SendViaMIR loads words into IM
+make -C verilog boot0-test      PARC's BLOCK LOADER walks real microcode into IM
+make -C verilog exec-test       THE MACHINE EXECUTES MICROCODE OUT OF IM
+make -C verilog compute-test    THE MACHINE COMPUTES -- PARC's ALU prologue:
+                                25 octal from CPReg into Q, held, then stored
+                                into ALUFM[0]
 make -C verilog baseboard-test  the BaseBoard's 6502 BOOTS
 make -C verilog converge-test   the assembled machine SETTLES and its clock runs
 make -C verilog machine-test    the same under the imgui harness -- FAILING, see below
 
 make -C verilog startseq        DIAGNOSTIC, not a gate: PARC's boot sequence
                                 replayed, printing the Control section's state
+make -C verilog parity-probe    DIAGNOSTIC, not a gate: do PARC's IRTable
+                                entries satisfy our IM parity generators? (no)
 ```
 
 Plus, outside the Makefile: `tools/dorado_proms.py --check` (26/26 PROMs
@@ -97,7 +109,7 @@ substitutions if at all. The 22 digital ones need datasheets this repository
 does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 `F9401`.
 
-## START HERE: two open questions, both localised to one hop
+## START HERE: two open questions, both localised to one signal
 
 The machine loads IM from real `.MB` hunks, matches the C emulator word for
 word, and **executes** microcode out of it (`boot0-test`, `exec-test`). Two
@@ -125,51 +137,77 @@ wired with a deliberate mix of primed and unprimed nets (`ALUF.0'` beside
 wants; one of those is inverted where it should not be, or P015/P1631 is the
 other way round.
 
-### 2. The datapath: a value reaches the B bus but not T
+### 2. The datapath: T loads, but COMPLEMENTED
 
-`make -C verilog compute-probe` jams PARC's `TFromCPReg#` and reads T out of
-the sixteen MC10173 latches. Right after the jam:
-
-```
-BMux=1234  T=0000  LC=001  B<-Link'=0  UseCPReg=1  ALUF=0000
-```
-
-So the operand crosses four boards onto the machine-wide B bus, uncomplemented,
-with the field controls exactly as the microinstruction asks -- LC=1 selects
-the T load, ALUF=0 selects ALUFM entry 0. **T stays 0.**
-
-`TFromCPReg#` carries PARC's own warning, "requires ALUFM[0]=B", because T is
-loaded THROUGH THE ALU; `LoadDoradoCode` sets ALUFM[0] to 25 octal before it
-loads a word, and `compute-probe` replays that.
-
-**ALUFM[0] does NOT take 25 octal -- checked, and it is all zeros.** ALUFM is
-two F10145As at ProcL e13/e14, and the probe reports:
+`make -C verilog compute-test` replays PARC's own ALU prologue on four boards.
+**Q, ALUFM and T all work now**; what is left is one polarity.
 
 ```
-ALUFWrite' edges 2        one clean write pulse
-ALUFM addr A0..A3 = 0000  addressed at entry 0, which is right
-ALUFM[0] = 000000         AND THE DATA IS ZERO
+after QFromCPReg#: Q=0015          25 octal, the value PARC sends
+ALUFM[0] = 010101                  25 octal, read MSB-first off the F10145As
+TFromCPReg# 1234 -> T=edcb         and a55a -> T=5aa5
 ```
 
-So the address and the write enable are right; the six bits it stores come
-from `alub`, the ALU's B input, and at the write `alub` is zero.
+`TFromCPReg#` carries PARC's warning "requires ALUFM[0]=B" because T is loaded
+THROUGH THE ALU, and ALUFM[0] genuinely holds 25 octal now, which the C
+emulator's own `alu_op` defines as `case 025: result = b;`. So the ALU is not
+the suspect -- **T is coming back inverted, so the fault is downstream in the T
+load path**: the MC10173 latches taking `dT.nn`/`dTm.nn` under `PreSHCP'B` and
+`TbBypass`. Follow `dT.00` back from ProcH i03 pin 5.
 
-**TWO SEPARATE THINGS ARE WRONG ON THE Q PATH**, and they are not the same
-fault:
+`compute-test` asserts Q and ALUFM exactly, and asserts only that T MOVES and
+that two operands give two different results -- so it cannot pass on a stuck
+latch while the polarity is settled.
 
-1. `QFromCPReg#` leaves **Q = 008a** where 25 octal is 0015 -- the CPReg -> Q
-   hop delivers something, but not the right value. Running the prologue with
-   the tilde form as well makes no difference, so it is not the complement
-   convention.
-2. By the time `ALUFM[0]FromQ#` executes, **Q reads 0000**. Whatever Q held is
-   gone before the instruction meant to store it runs.
+#### What getting here cost, and the two cell bugs it found
 
-Neither is the ALU, which cannot be blamed for a zero arriving at ALUFM's data
-pins -- though note the ALU IN THE MACHINE is still unexercised: `alu-diff`
-verifies four MC10181 slices in a TESTBENCH, never as ProcH and ProcL wire
-them. **Start at the CPReg -> Q hop.** After that the last step is the T
-latches themselves, MC10173s taking `dT.nn`/`dTm.nn` with `PreSHCP'B` and
-`TbBypass`, so follow `dT.00` back from ProcH i03 pin 5.
+Both were invisible to all eighteen other gates; every one of them passed with
+both bugs in place.
+
+* **`cell_MC10141` loaded its PARALLEL ENTRY rotated one place** -- wired
+  `Q0<-D3, Q1<-D0, Q2<-D1, Q3<-D2` where the truth table says `Q0<-D0 .. Q3<-D3`
+  flat. That is the whole of the old "Q = 008a where 25 octal is 0015": run 0015
+  through a per-nibble rotate and you get 008a exactly. **60 packages.**
+  The cell had carried a `VERIFY` note saying its mode encoding came from the
+  pin names rather than a truth table, and it was right to.
+
+* **`cell_MC10119` modelled a SHARED pin as a standalone AND term.** Pin 10 of
+  the four-wide OR-AND belongs to TWO of its OR groups -- the part is a
+  4-3-3-3, thirteen input slots across twelve pins, and the thirteenth is pin
+  10 counted twice. ANDing it separately instead pulls the output low whenever
+  pin 10 is low; on ProcH b17/c17 that pin is `FA=0'`, so **every**
+  microinstruction with FA=0 -- PARC's own `Nop#` among them -- asserted
+  `QshiftL'`/`QshiftR'`, and both asserted is PARALLEL ENTRY on the MC10141. Q
+  was reloaded from a dead B bus every cycle. **10 packages.** This is the same
+  class as the MC10121 shared pin, and `cell-check` cannot see it: the cell
+  reads all the right PINS, it just groups them wrongly.
+
+**PARC's DICTIONARY DISAGREES WITH MOTOROLA ON THE MC10141's PIN NAMES, and
+neither is wrong.** EclDict calls pin 5 `DL` and pin 13 `DR` (Motorola: `DR`
+and `DL`), and pin 10 `SL'`, pin 7 `SR'` (Motorola: `S1`, `S2`). The two swaps
+are consistent with each other -- the mode PARC calls shift-left is selected by
+its `SL'` and consumes its `DL` -- so it is only which end of a 16-bit register
+you call "left". The board reads correctly under PARC's names; the CELL must
+implement Motorola's function per PIN NUMBER. Do not reconcile them.
+
+**THE NOPS IN PARC'S SEQUENCES ARE NOT PADDING.** The Qshift controls come out
+of a register (ProcH b15) clocked by `Clock1'`, while the MC10141's own clock
+`QClock'` is gated off `PreClock1'`, which is EARLIER. So the controls in force
+at any load edge are the ones the PREVIOUS instruction latched: decode in cycle
+N, act in cycle N+1. **Q is not loaded by `QFromCPReg#`; it is loaded by the Nop
+after it.** PARC's comment on `DoIRTableInstAndNop` -- "the Nop holds CPReg
+constant through T3 of the previous instruction" -- is load-bearing, and a
+probe that samples right after an instruction is reading one cycle early.
+
+**A KNOWN HOLE.** Mutating the MC10141's two SHIFT modes against each other
+still passes `compute-test`, because this prologue only ever uses parallel
+entry and nothing in the suite drives a Q shift. The corrected cell agrees with
+three independent sources (both Motorola books and EclDict's own `[FF]` arcs,
+which pair DR/pin 5 with Q3/pin 3 and DL/pin 13 with Q0/pin 14), but that is
+ARGUED, not gated. Closing it is contained: `sil_check_cells.py` already parses
+the `[FF]` lines for their CLK and RS pins and **throws the per-output
+data-input arcs away** -- and those arcs are exactly the per-output dependency
+list it already checks combinational parts against.
 
 **Read PARC's IRTable field comments before decoding bytes by hand.** They
 state the fields outright -- `TFromCPReg#` is

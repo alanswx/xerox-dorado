@@ -24,6 +24,7 @@
 #   make sendmir      PARC's IM LOADER: words go into IM at their addresses
 #   make boot0-test   PARC's BLOCK LOADER: a 17-byte hunk walked into IM
 #   make exec-test    THE MACHINE EXECUTES MICROCODE OUT OF IM
+#   make compute-test THE MACHINE COMPUTES: Q takes 25o and ALUFM[0] stores it
 #   make converge-test the assembled machine settles, and its clock runs
 #   make machine-test the assembled machine under the imgui harness
 #   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs
@@ -37,7 +38,7 @@ TOOLS   = ../tools
 .PHONY: boards backplane proms cells cells-force lint cell-check loop-check \
         prom-test alu-test alu-diff cpreg-diff mir-diff mirreg-diff run-test \
         writeim-test operand-test step-test sendmir boot0-test exec-test \
-        parity-probe compute-probe \
+        parity-probe compute-test \
         datapath-test \
         startseq \
         converge-test machine-test \
@@ -108,9 +109,9 @@ operand-test:
 step-test:
 	@$(MAKE) -C verilator step-test
 
-# How far down the datapath does a value get? Diagnostic: to B, not yet to T.
-compute-probe:
-	@$(MAKE) -C verilator compute-probe
+# THE MACHINE COMPUTES: PARC's own ALU prologue, Q and ALUFM verified.
+compute-test:
+	@$(MAKE) -C verilator compute-test
 
 # Do PARC's IRTable entries satisfy our IM parity generators? Diagnostic.
 parity-probe:
