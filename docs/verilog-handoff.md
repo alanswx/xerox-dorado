@@ -258,7 +258,31 @@ track **`WatchdogOut` one-for-one** instead: the firmware writes that port
 during startup, each write flips the XOR, and the XOR reaches `BootMC'`
 unopposed.
 
-**So the open question is g22's POWER-UP STATE.** j17 NANDs the XOR against
+**Two things are in the way, and one has a known fix that costs a gate.**
+
+**(1) The 6532 drives its INPUT pins high.** `M6532.sv` computes
+`PA_out = out_a | ~dir_a`, so a pin the DDR marks as an input reads back 1 --
+the core's own comment says the output "must be fed back to input ... for the
+chip to read properly", a convention that assumes the pin is wire-ANDed with an
+external open-collector driver. These boards' nets are modelled as **wired-OR**,
+so that 1 pins the net high. BaseBd f63 PA7 is `WatchdogIn`, an INPUT per
+`WatchdogDDRValue`, really driven by g22 -- and the pin's contribution hides it
+completely. Masking with the DDR (expose `dir_a`/`dir_b`, drive
+`pa_out & pa_dir`) **does** fix the reset storm -- reset-vector fetches go from
+19 to ZERO -- but then breaks `baseboard-test`, where in the ONE-board machine
+the 6502 never leaves reset, because something there depends on those high
+contributions. Same shape as the MC10170 parity fix: right in isolation, with a
+consequence elsewhere to work out first. Find what in `dorado_baseboard` reads a
+6532 input pin and needs it high.
+
+**(2) With that fix in, the machine takes a perpetual INTERRUPT** -- the hot
+addresses become `fffe`/`ffff`, the IRQ/BRK vector, 12,499 times, alongside
+12,499 accesses in the 9xxx RIOT page. So the reset storm is replaced by an IRQ
+storm, and the next question is which RIOT interrupt source asserts: the
+interval timer, or the PA7 edge detect the same core wires to
+`pa7 = dir_a[7] ? PA_out[7] : PA_in[7]`, which the DDR fix necessarily changes.
+
+**And g22's POWER-UP STATE matters too.** j17 NANDs the XOR against
 g22's `Q'`, so a `Q'` of 0 masks the XOR entirely and only a real timer expiry
 can reset the processor -- which is the whole point of the design. Our
 SN74LS74 comes up with Q = 0, hence Q' = 1, arming the watchdog from the first
