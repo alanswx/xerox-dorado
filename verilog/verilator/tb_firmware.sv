@@ -108,18 +108,46 @@
 // `MCPBusL & SetRunIn` (bit 2, the net `TSetRun`) and fails when the bit is
 // SET -- it reads 0, so the gate passes and the routine proceeds.
 //
-// THE SHIFT DOES NOT USE THE `DMux*` NETS. `SetMufflerAddress`'s inner loop at
-// F9F6 writes `$0580` and `$0582` -- `MCPBusH` and `MCPBusL`, the
-// CONTROL-PROCESSOR BUS (`MCPABus` function code plus `MCPStrobe`) -- twelve
-// times. A manifold word travels the same path as everything else the
-// BaseBoard sends the Dorado, and `CPStrb'` is where it shows up.
+// The shift does not use the `DMux*` nets. `SetMufflerAddress`'s inner loop at
+// F9F6 sets `MCPBusL = $10` -- function code 1, `Clock` -- then writes
+// `MCPBusH` and pulses `MCPStrb` twelve times. i62 is that RIOT: PA drives
+// `MCPBus.00-07`, PB7 `MCPBus.08`, PB6-4 `MCPABus.0-2`, PB0 `MCPStrb`. A
+// manifold word therefore goes out as ordinary CP-bus transactions, and the
+// BaseBoard's own k22/k17 decode them into `CPDMuxData`/`CPDMuxClk`, through
+// l19 and the l24 TTL-to-ECL translator, onto the backplane as
+// `DMuxData`/`DMuxClk`.
 //
-// OPEN QUESTION, stated narrowly: the firmware reaches `SetManifold`, passes
-// the MufMan gate and drives the CP bus. Whether the twelve-bit muffler
-// address it strobes out is DECODED on the Dorado side into
-// `DMuxData`/`DMuxClk` is NOT established. Measure the CP-bus function codes
-// the BaseBoard actually sends -- `cpreg-diff` already decodes them -- against
-// `SetMufflerAddress`'s writes.
+// ------------- AND THE CP-BUS TRAFFIC IS NOT THE MANIFOLD SHIFT -------------
+//
+// Measured at every `MCPStrb` rising edge, function code read MSB-FIRST as
+// PARC numbers it ({MCPABus.0, .1, .2}):
+//
+//     MCPStrb rising edges 225      fn 0 (Control) 116, fn 7 (MIR3) 109
+//     CPDMuxClk edges 0, CPDMuxData edges 0
+//
+//     strobe 2 at 1,424,958 (last ROM addr ff82): fn=0 data=001000000
+//     strobe 3 at 1,425,438 (last ROM addr ff82): fn=7 data=101000000
+//     strobe 4 at 1,426,398 (last ROM addr ff82): fn=0 data=000000000
+//     ... alternating fn 0 / fn 7, last ROM address ff82 EVERY TIME
+//
+// NO `Clock` STROBE (fn 1) IS EVER SENT -- which is what `SetMufflerAddress`
+// would produce -- and `FF7C..FF87` is all `00`, i.e. BRK: UNUSED FILLER ROM.
+// The processor is fetching from filler at every one of these strobes, and
+// `FF00` (1024 visits) and `FF80` (669) are among the hottest addresses in the
+// run. The `fffe`/`ffff` traffic noticed earlier is consistent with BRK
+// vectoring rather than with an interrupt storm.
+//
+// SO "IT IS DRIVING THE DORADO" OVERSTATES THIS. The strobes are real CP-bus
+// transactions and the count is real, but they are Control and MIR3 only, none
+// of them the manifold shift, and the PC is in unused ROM when they happen.
+// What is established is narrower: the BaseBoard boots, survives its watchdog,
+// reaches `SetManifold` four times with the MufMan gate passing -- and then
+// execution ends up in filler.
+//
+// NEXT: find where it leaves real code. Log the last ROM address before the
+// first fetch at `FF00`/`FF80`, or watch for the first fetch outside the
+// routines the disassembly names. A measurement, not a theory, and it should
+// come before any further claim about what the firmware is doing.
 //
 // ---------------------------------------------------- ALSO WORTH KNOWING
 //
@@ -162,6 +190,7 @@ module tb_firmware;
   integer n_cpstrb = 0, n_manclk = 0, n_dmuxclk = 0;
   reg     p_cpstrb = 1'b1, p_manclk = 1'b1, p_dmuxclk = 1'b0;
   reg [15:0] pc_lo = 16'hFFFF, pc_hi = 16'h0000, last_a = 16'h0;
+  reg [15:0] last_rom = 16'h0;
   integer n_rom = 0, n_ram = 0, n_io = 0;
 
   // Where does it SPEND its time? A 16-bucket histogram over the 64K space is
@@ -185,8 +214,9 @@ module tb_firmware;
   reg     p_q21 = 1'b0;
   integer n_mcclk = 0, n_wdin = 0, n_bootmc = 0;
   integer n_pre = 0, n_div = 0, n_tog = 0, n_xor = 0, n_wdout = 0;
-  integer n_tclk = 0, n_tdat = 0;
-  reg p_tclk = 1'b0, p_tdat = 1'b0;
+  integer n_tclk = 0, n_tdat = 0, n_cpdc = 0, n_cpdd = 0, n_mcpstrb = 0;
+  reg p_tclk = 1'b0, p_tdat = 1'b0, p_cpdc = 1'b0, p_cpdd = 1'b0, p_mcpstrb = 1'b0;
+  integer fn_seen [0:7];
   reg p_pre = 1'b0, p_div = 1'b0, p_tog = 1'b0, p_xor = 1'b0, p_wdout = 1'b0;
   reg p_mcclk = 1'b0, p_wdin = 1'b0, p_bootmc = 1'b1;
   integer mcclk_at_reset = 0;
@@ -204,6 +234,7 @@ module tb_firmware;
     end
     win_armed[0] = 1'b1;   // g22 comes up armed unless G22_DISARMED
     for (i = 0; i < 4096; i = i + 1) hot[i] = 0;
+    for (i = 0; i < 8; i = i + 1) fn_seen[i] = 0;
 
     // Long enough to cross a real watchdog interval (2^21 MCPreClk cycles at
     // 80 sys_clk each = ~168 M) with +define+LONG_RUN.
@@ -223,7 +254,10 @@ module tb_firmware;
           if (mca < pc_lo) pc_lo = mca;
           if (mca > pc_hi) pc_hi = mca;
         end
-        if (mca >= 16'hF000) hot[mca - 16'hF000] = hot[mca - 16'hF000] + 1;
+        if (mca >= 16'hF000) begin
+          hot[mca - 16'hF000] = hot[mca - 16'hF000] + 1;
+          last_rom = mca;
+        end
         if (mca == 16'hFFFC) begin
           n_reset = n_reset + 1;
           if (n_reset > 1 && n_reset < 9)
@@ -248,6 +282,23 @@ module tb_firmware;
             $display("tb_firmware:   MCReset' ASSERTED #%0d at %0d (+%0d)",
                      n_mcreset, i, i - last_mcreset);
           last_mcreset = i;
+        end
+      end
+      if (`BB.CPDMuxClk  !== p_cpdc) begin p_cpdc = `BB.CPDMuxClk;  n_cpdc = n_cpdc + 1; end
+      if (`BB.CPDMuxData !== p_cpdd) begin p_cpdd = `BB.CPDMuxData; n_cpdd = n_cpdd + 1; end
+      if (`BB.MCPStrb !== p_mcpstrb) begin
+        p_mcpstrb = `BB.MCPStrb;
+        if (p_mcpstrb) begin            // rising strobe: latch the function code
+          n_mcpstrb = n_mcpstrb + 1;
+          fn_seen[{`BB.MCPABus_0, `BB.MCPABus_1, `BB.MCPABus_2}] =
+            fn_seen[{`BB.MCPABus_0, `BB.MCPABus_1, `BB.MCPABus_2}] + 1;
+          if (n_mcpstrb <= 8)
+            $display("tb_firmware:   strobe %0d at %0d (last ROM addr %04h): fn=%0d data=%b%b%b%b%b%b%b%b%b",
+                     n_mcpstrb, i, last_rom,
+                     {`BB.MCPABus_0, `BB.MCPABus_1, `BB.MCPABus_2},
+                     `BB.MCPBus_08, `BB.MCPBus_00, `BB.MCPBus_01, `BB.MCPBus_02,
+                     `BB.MCPBus_03, `BB.MCPBus_04, `BB.MCPBus_05, `BB.MCPBus_06,
+                     `BB.MCPBus_07);
         end
       end
       if (`BB.TDMuxClk  !== p_tclk) begin p_tclk = `BB.TDMuxClk;  n_tclk = n_tclk + 1; end
@@ -319,6 +370,14 @@ module tb_firmware;
              hot[16'h95A], hot[16'h977], hot[16'h986], hot[16'h9D0]);
     $display("tb_firmware: TDMuxClk edges %0d, TDMuxData edges %0d (the TTL side of the manifold chain)",
              n_tclk, n_tdat);
+    $display("tb_firmware: MCPStrb rising edges %0d; CP-BUS FUNCTION CODES seen:", n_mcpstrb);
+    for (j = 0; j < 8; j = j + 1)
+      if (fn_seen[j] != 0)
+        $display("tb_firmware:   fn %0d (%s) : %0d",
+                 j, (j==0)?"Control":(j==1)?"Clock":(j==2)?"ABMux0":(j==3)?"ABMux1":
+                    (j==4)?"MIR0":(j==5)?"MIR1":(j==6)?"MIR2":"MIR3", fn_seen[j]);
+    $display("tb_firmware: CPDMuxClk edges %0d, CPDMuxData edges %0d (BaseBoard's own DMux decode)",
+             n_cpdc, n_cpdd);
     $display("tb_firmware: TSetRun(= MCPBusL bit SetRunIn, the TryGettingMufManControl gate)=%b",
              `BB.TSetRun);
     $display("tb_firmware: TRYGETTINGMUFMANCONTROL(FA0E) visits %0d, WAITFORCPCONTROL(FA1F) %0d",
@@ -330,7 +389,8 @@ module tb_firmware;
     if (n_cpstrb == 0 && n_dmuxclk == 0)
       $display("tb_firmware: it has NOT reached the Dorado yet -- still in the BaseBoard's own code.");
     else
-      $display("tb_firmware: IT IS DRIVING THE DORADO.");
+      $display("tb_firmware: CP-bus strobes seen -- but read the function codes and the");
+      $display("tb_firmware:   PC above before calling that 'driving the Dorado'.");
     $finish;
   end
 endmodule

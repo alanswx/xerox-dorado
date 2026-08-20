@@ -36,7 +36,7 @@ can run.
 | ...and T loads through the ALU | **works** -- 1234 gives 1234, a55a gives a55a, exact | `compute-test` |
 | **TWO OPERANDS: the ALU as the BOARDS wire it** | **works** -- all 24 entries of HM Table 9 match the C emulator, carry chain and all | `compute-test` |
 | **RM, the per-task register file** | **works** -- four addresses written and read, and each lands where the address pins say | `compute-test` |
-| **the REAL firmware runs the machine** | **works** -- the BaseBoard boots itself past power-up, pacifies its watchdog and drives the CP bus | `firmware-probe` |
+| the REAL firmware runs the machine | boots itself past power-up and pacifies its watchdog; reaches `SetManifold`, then ends up executing filler ROM | `firmware-probe` |
 
 ### Every gate
 
@@ -218,7 +218,7 @@ to separate it from everything else).
 | | 4 M armed | 4 M disarmed | 260 M armed |
 |---|---|---|---|
 | `MCReset'` assertions | 19 | 1 | 397 |
-| `CPStrb'` edges | 37 | 450 | 27,674 |
+| `CPStrb'` edges | 37 | 450 | 27,674 | (Control and MIR3 only — see below) |
 | `PACIFYWATCHDOG` F692 | 0 | 5 | 240 |
 | `DMuxClk` edges | 0 | 0 | 0 |
 
@@ -285,7 +285,7 @@ resets confined to window 0 and none afterwards.
 `SkipWait'` reads 1, which *would* make `PacifyWatchdogIfJumper` skip — but
 that entry is never used; the firmware calls `PacifyWatchdog` directly.
 
-#### The manifold path
+#### The manifold path — and what the CP-bus traffic actually is
 
 Traced by **routine**, in the disarmed build:
 
@@ -302,17 +302,45 @@ Traced by **routine**, in the disarmed build:
 `MCPBusL & SetRunIn` (bit 2, the net `TSetRun`) and fails when the bit is SET —
 it reads **0**, so the gate passes.
 
-**The shift does not use the `DMux*` nets.** `SetMufflerAddress`'s inner loop
-at F9F6 writes `$0580` and `$0582` — `MCPBusH` and `MCPBusL`, the
-**control-processor bus** (`MCPABus` function code plus `MCPStrobe`) — twelve
-times. A manifold word travels the same path as everything else the BaseBoard
-sends the Dorado, and `CPStrb'` is where it shows up.
+The shift does **not** use the `DMux*` nets. `SetMufflerAddress`'s inner loop
+at F9F6 sets `MCPBusL = $10` — **function code 1, `Clock`** — then writes
+`MCPBusH` and pulses `MCPStrb` twelve times. `i62` is that RIOT: PA drives
+`MCPBus.00-07`, PB7 `MCPBus.08`, PB6-4 `MCPABus.0-2`, PB0 `MCPStrb`. So a
+manifold word goes out as ordinary CP-bus transactions, and the BaseBoard's own
+k22/k17 decode them into `CPDMuxData`/`CPDMuxClk`, through l19 and the l24
+TTL-to-ECL translator, onto the backplane as `DMuxData`/`DMuxClk`.
 
-**OPEN QUESTION, narrowly:** the firmware reaches `SetManifold`, passes the
-gate and drives the CP bus. Whether the twelve-bit muffler address it strobes
-out is **decoded on the Dorado side** into `DMuxData`/`DMuxClk` is not
-established. Measure the CP-bus function codes the BaseBoard actually sends —
-`cpreg-diff` already decodes them — against `SetMufflerAddress`'s writes.
+**But the CP-bus traffic is not the manifold shift.** Measured at every
+`MCPStrb` rising edge, function code read MSB-first as PARC numbers it:
+
+```
+MCPStrb rising edges 225     fn 0 (Control) 116, fn 7 (MIR3) 109
+CPDMuxClk edges 0, CPDMuxData edges 0
+
+strobe 2 at 1,424,958 (last ROM addr ff82): fn=0 data=001000000
+strobe 3 at 1,425,438 (last ROM addr ff82): fn=7 data=101000000
+strobe 4 at 1,426,398 (last ROM addr ff82): fn=0 data=000000000
+... alternating fn 0 / fn 7, last ROM address ff82 EVERY TIME
+```
+
+**No `Clock` strobe (fn 1) is ever sent** — which is what `SetMufflerAddress`
+produces — and **`FF7C..FF87` is all `00`, i.e. `BRK`: unused filler ROM.** The
+processor is fetching from filler at every one of those strobes, and `FF00`
+(1024 visits) and `FF80` (669) are among the hottest addresses in the run. The
+`fffe`/`ffff` traffic noticed earlier is consistent with BRK vectoring, not an
+interrupt storm.
+
+**So "it is driving the Dorado" overstates this.** The strobes are real CP-bus
+transactions and the count is real, but they are Control and MIR3 only, none of
+them the manifold shift, and the PC is in unused ROM when they happen. What is
+established is narrower: **the BaseBoard boots, survives its watchdog, reaches
+`SetManifold` four times with the MufMan gate passing — and then execution ends
+up in filler.**
+
+**NEXT:** find where it leaves real code. Log the last ROM address before the
+first fetch at `FF00`/`FF80`, or watch for the first fetch outside the routines
+the disassembly names. A measurement, not a theory, and it should come before
+any further claim about what the firmware is doing.
 
 #### Also worth knowing
 
