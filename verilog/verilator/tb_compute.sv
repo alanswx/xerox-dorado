@@ -1,7 +1,7 @@
 // tb_compute -- THE MACHINE COMPUTES. PARC's own ALU prologue, replayed on
 // four boards: a value crosses from the BaseBoard into CPReg, onto the B bus,
-// into Q, and out of Q into ALUFM -- and ALUFM reads back the function PARC
-// says it wrote.
+// into Q, and out of Q into ALUFM -- ALUFM reads back the function PARC says
+// it wrote, and a second value then goes through the ALU into T.
 //
 // LoadDoradoCode does this before it loads a single word of microcode, because
 // `TFromCPReg#` carries the warning "requires ALUFM[0]=B" -- T is loaded
@@ -22,6 +22,7 @@
 //   Q == 0015 still, one instruction later.
 //   ALUFM[0] == 010101               25 octal read MSB-first, off the F10145A
 //                                    storage at ProcL e13/e14 -- not off a bus.
+//   T == 1234 and T == a55a          loaded THROUGH the ALU, exact, both values.
 //
 // EACH ONE CAUGHT A CELL BUG, and neither bug was visible to any other gate --
 // all eighteen passed with both of them in place.
@@ -63,15 +64,27 @@
 // arcs are exactly a per-output dependency list for the clocked parts, the
 // same check it already applies to combinational ones.
 //
-// STILL OPEN, and deliberately not asserted here: T comes back COMPLEMENTED.
-// TFromCPReg# with 1234 leaves T=edcb and with a55a leaves T=5aa5. The ALU is
-// not the suspect -- ALUFM[0] now genuinely holds 25 octal, `alu-diff` matches
-// the C emulator on 10,752 vectors, and the C emulator's own alu_op has
-// `case 025: result = b;`. So the inversion is downstream, in the T load path:
-// the MC10173 latches taking dT.nn/dTm.nn under PreSHCP'B and TbBypass.
-// Follow dT.00 back from ProcH i03 pin 5. This gate asserts only that T MOVES
-// and that two different values give two different results, so it cannot pass
-// on a stuck latch while the polarity is settled.
+// T LOADS THROUGH THE ALU AND TAKES THE OPERAND EXACTLY -- 1234 gives 1234
+// and a55a gives a55a. It briefly looked COMPLEMENTED, and that was the
+// probe's own fault: it drove CPReg with `SetCPReg~` (which writes the
+// complement) and then compared T against the value BEFORE that complement.
+//
+// THE CONVENTION, which is worth having straight because it explains PARC's
+// own code. BMux carries the complement of CPReg; the ALU's B operand `alub`
+// is taken off BMux through an MC1662 NOR, which inverts it back; the ALU
+// passes it (ALUFM[0] = 25 octal = "the logical function B"); and T is loaded
+// from that. So T ends up equal to CPReg, while a value travelling the
+// un-inverted path -- IM write data -- ends up equal to the complement of
+// CPReg. THAT IS WHY PARC USES A DIFFERENT SETTER FOR EACH: `SendViaMIR`
+// sends IM data with `SetCPReg~`, and `PrepareProcessor` loads T with the
+// plain `SetCPReg`:
+//
+//     LDXI 103o / LDAI TFromCPReg#-IRTable / JSR SetCPAndDoIRTableInst
+//
+// This gate drives T the plain way, as PARC does, and asserts the exact value.
+// Reversing EITHER of the MC10173's two conventions -- SB's sense, or which
+// clock level is transparent -- makes it fail, so both are gated here rather
+// than merely read off the datasheet.
 
 `default_nettype none
 
@@ -86,6 +99,13 @@ module tb_compute;
 `endif
 
   localparam integer GAP = 200;   // sys_clk between Control strobes
+  // PARC loads T with the PLAIN SetCPReg (PrepareProcessor). +define+TTILDE
+  // runs it the other way for comparison.
+`ifdef TTILDE
+  localparam T_PLAIN = 1'b0;
+`else
+  localparam T_PLAIN = 1'b1;
+`endif
 
   reg sys_clk = 1'b0;
   always #1 sys_clk = ~sys_clk;
@@ -586,6 +606,16 @@ module tb_compute;
     end
   endtask
 
+  // PARC's PLAIN SetCPReg -- the byte as it stands. `SetCPReg~` complements
+  // (EORI 0ff); this does not, and PrepareProcessor uses THIS one for
+  // TFromCPReg#: "LDXI 103o / LDAI TFromCPReg# / JSR SetCPAndDoIRTableInst".
+  task set_cpreg_plain(input [15:0] v);
+    begin
+      strobe(3'd2, v[15:8], 1'b0);
+      strobe(3'd3, v[7:0],  1'b0);
+    end
+  endtask
+
   // DoDoradoMicroInst, single-step variant: DoClock(InhibitCAHolds+ClrReady),
   // Control(ClrStop+ClrMIR+ClrCT+Freeze) SS=0, Control(0) SS=1, the four MIR
   // bytes, Control(SetRun) SS=1, then BasicStopDorado's Control(SetRun) SS=1
@@ -665,6 +695,24 @@ module tb_compute;
                        m.b_ProcL.u_e13.mem[0][2], m.b_ProcL.u_e13.mem[0][3],
                        m.b_ProcL.u_e14.mem[0][0], m.b_ProcL.u_e14.mem[0][1]};
 
+  // TRACE the T chain, hop by hop, for the low four bits. The path is
+  //   alua/alub -> MC10181 alu.nn -> Pdata.nn -> (k01, Md select) -> dTm.nn
+  //   -> l03 F10145A register file, addressed by the TASK NUMBER -> dT.nn
+  //   -> (i03, TbBypass) -> T.nn
+  // so an inversion anywhere shows up as one hop where the nibble flips.
+  task show_tchain(input [63:0] tag);
+    $display("      %0s alub=%b%b%b%b alua=%b%b%b%b alu=%b%b%b%b Pdata=%b%b%b%b dTm=%b%b%b%b dT=%b%b%b%b T=%b%b%b%b  TbBypass=%b TbSelMd=%b",
+             tag,
+             m.b_ProcH.alub_00, m.b_ProcH.alub_01, m.b_ProcH.alub_02, m.b_ProcH.alub_03,
+             m.b_ProcH.alua_00, m.b_ProcH.alua_01, m.b_ProcH.alua_02, m.b_ProcH.alua_03,
+             m.b_ProcH.alu_00,  m.b_ProcH.alu_01,  m.b_ProcH.alu_02,  m.b_ProcH.alu_03,
+             m.b_ProcH.Pdata_00, m.b_ProcH.Pdata_01, m.b_ProcH.Pdata_02, m.b_ProcH.Pdata_03,
+             m.b_ProcH.dTm_00,  m.b_ProcH.dTm_01,  m.b_ProcH.dTm_02,  m.b_ProcH.dTm_03,
+             m.b_ProcH.dT_00,   m.b_ProcH.dT_01,   m.b_ProcH.dT_02,   m.b_ProcH.dT_03,
+             m.b_ProcH.T_00,    m.b_ProcH.T_01,    m.b_ProcH.T_02,    m.b_ProcH.T_03,
+             m.b_ProcH.TbBypass, m.b_ProcH.TbSelMd);
+  endtask
+
   // TRACE: every change of Q or of the signals that control it. Printing on a
   // change of Q ALONE reads the controls a cycle late -- the NBA region means
   // a read in another always block sees the pre-edge value -- so log the whole
@@ -743,14 +791,16 @@ module tb_compute;
   // constant through T3 of the instruction before it.
   task t_from_cpreg(input [15:0] v);
     begin
-      set_cpreg_tilde(v);
+      if (T_PLAIN) set_cpreg_plain(v); else set_cpreg_tilde(v);
       parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);
       bmux_after_jam = bmux;
+      show_tchain("jam ");
       $display("   after the jam: BMux=%h T=%h LC=%b%b%b B<-Link'=%b UseCPReg=%b ALUF=%b%b%b%b",
                bmux, t_reg, m.LC_0, m.LC_1, m.LC_2,
                m.b_ContA.B_u_Link_p_, m.b_ContA.UseCPReg,
                m.ALUF_0, m.ALUF_1, m.ALUF_2, m.ALUF_3);
       nop_micro;
+      show_tchain("nop ");
       $display("   after the nop: BMux=%h T=%h", bmux, t_reg);
     end
   endtask
@@ -785,14 +835,20 @@ module tb_compute;
     t_from_cpreg(16'h1234);
     t_first = t_reg;
     $display("tb_compute: TFromCPReg# 1234 -> BMux=%h T=%h", bmux, t_reg);
-    if (bmux_after_jam !== 16'h1234)
-      $fatal(1, "the value did not reach the B bus -- that part DOES work, so this is a regression");
+    // BMux carries the COMPLEMENT of CPReg, and the ALU's own operand `alub`
+    // re-inverts it, so T ends up equal to CPReg. That is not a quirk of the
+    // model -- it is why PARC uses `SetCPReg~` to send IM data (which travels
+    // the un-inverted path) and PLAIN `SetCPReg` for TFromCPReg#.
+    if (bmux_after_jam !== ~16'h1234)
+      $fatal(1, "B bus carried %h, expected %h (the complement of CPReg)",
+             bmux_after_jam, ~16'h1234);
 
     t_from_cpreg(16'hA55A);
     t_second = t_reg;
     $display("tb_compute: TFromCPReg# a55a -> BMux=%h T=%h", bmux, t_reg);
-    if (bmux_after_jam !== 16'hA55A)
-      $fatal(1, "a second value did not reach the B bus -- a stuck bus would pass one");
+    if (bmux_after_jam !== ~16'hA55A)
+      $fatal(1, "B bus carried %h for a second value, expected %h",
+             bmux_after_jam, ~16'hA55A);
 
     // ---- the gate ----------------------------------------------------
     // 25 octal into Q, off PARC's own QFromCPReg#. Catches the MC10141
@@ -813,16 +869,14 @@ module tb_compute;
     if (alufm0 !== 6'b010101)
       $fatal(1, "ALUFM[0] = %b, not 010101 (25 octal, the logical function B)", alufm0);
 
-    // T moves, and two different operands give two different results, so this
-    // cannot pass on a stuck latch. Its POLARITY is the open question -- see
-    // the header -- so the value itself is not asserted yet.
-    if (t_first === t_second)
-      $fatal(1, "T read %h for both operands -- the latch is stuck, not loading", t_first);
-    if (t_first === 16'h0000 || t_second === 16'h0000)
-      $fatal(1, "T stayed 0000 for an operand -- it is not being loaded at all");
+    // T takes the operand EXACTLY, both values -- so a stuck latch cannot pass.
+    if (t_first !== 16'h1234)
+      $fatal(1, "T took %h, not 1234", t_first);
+    if (t_second !== 16'hA55A)
+      $fatal(1, "T took %h, not a55a", t_second);
 
     $display("tb_compute: Q takes 25 octal from CPReg, HOLDS it, and ALUFM[0] stores it.");
-    $display("tb_compute: T loads too, complemented -- polarity is the open question.");
+    $display("tb_compute: T loads through the ALU and takes the operand exactly.");
     $display("tb_compute: THE MACHINE COMPUTES -- four boards, PARC's own ALU prologue.");
     $finish;
   end

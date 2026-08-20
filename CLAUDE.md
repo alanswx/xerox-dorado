@@ -976,13 +976,10 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | PARC's BLOCK LOADER walks REAL MICROCODE into IM | `boot0-test` -- and IM MATCHES THE C EMULATOR |
 | **THE MACHINE EXECUTES MICROCODE OUT OF IM** | `exec-test` -- free-running and sequencing |
 | **THE MACHINE COMPUTES** -- 25 octal from CPReg into Q, held, stored into ALUFM[0] | `compute-test` -- PARC's own ALU prologue |
-| ...and T loads through the ALU, COMPLEMENTED | `compute-test` -- the one open datapath signal |
+| ...and T loads through the ALU, EXACTLY | `compute-test` -- 1234 gives 1234, a55a gives a55a |
 
-Nineteen gates in all; `make -C verilog` has the list. The open signal is T's
-POLARITY: `TFromCPReg#` loads T but inverted (1234 gives edcb), and the ALU is
-ruled out -- ALUFM[0] genuinely holds 25 octal, which the C emulator's `alu_op`
-defines as `result = b`, and `alu-diff` matches it on 10,752 vectors. The
-suspects are the MC10173 latches taking `dT.nn`/`dTm.nn`. Cell coverage is
+Nineteen gates in all; `make -C verilog` has the list. **The datapath is
+done**; parity is the one open item in the boot chain. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
 boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
@@ -1020,6 +1017,13 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   ones the PREVIOUS instruction latched. Q is not loaded by `QFromCPReg#`; it is
   loaded by the Nop after it -- and a probe sampling right after an instruction
   reads one cycle early.
+- **B and T carry OPPOSITE senses of CPReg, and PARC's code says so.** BMux is
+  the complement of CPReg; `alub` is taken off it through an MC1662 NOR which
+  inverts it back, so T ends up EQUAL to CPReg while IM write data ends up
+  equal to its COMPLEMENT. That is exactly why `SendViaMIR` sends IM data with
+  `SetCPReg~` and `PrepareProcessor` loads T with the plain `SetCPReg`. A probe
+  that uses the wrong one makes a working T look inverted -- which cost a
+  detour before `compute-test` drove it PARC's way.
 - **A jam must be SINGLE-STEPPED** (SetRun+SetSS, no ClrStop): free-running
   reloads the MIR from IM one clock later. `run-test`'s "ClrStop and SetRun must
   share a byte" is right for free-running and wrong for a jam.

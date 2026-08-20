@@ -9,9 +9,9 @@ background and why each decision was made.
 
 ## Where it stands
 
-**A four-board Dorado runs microinstruction cycles, and the BaseBoard's 6502
-boots its own firmware.** The write path into the machine is proven end to end
-against the C emulator; the datapath computes, and one polarity is left. Everything is
+**A four-board Dorado runs microinstruction cycles, executes microcode out of
+IM, and COMPUTES.** The write path and the datapath are both proven end to end
+against the C emulator. Parity is the one thing left in the boot chain. Everything is
 generated from PARC's own Sil wire lists, and every claim below is a gate you
 can run.
 
@@ -33,7 +33,7 @@ can run.
 | PARC's BLOCK LOADER walks REAL MICROCODE into IM | **works**, and it MATCHES THE C EMULATOR -- 16 hunks, 128 half-words | `boot0-test` |
 | **THE MACHINE EXECUTES MICROCODE OUT OF IM** | **works** -- free-running, sequencing, 1,242 cycles | `exec-test` |
 | **THE MACHINE COMPUTES** | **works** -- Q takes 25 octal from CPReg, holds it, ALUFM[0] stores it | `compute-test` |
-| ...and T loads through the ALU | **complemented** -- the one open datapath signal | `compute-test` |
+| ...and T loads through the ALU | **works** -- 1234 gives 1234, a55a gives a55a, exact | `compute-test` |
 
 ### Every gate
 
@@ -109,11 +109,14 @@ substitutions if at all. The 22 digital ones need datasheets this repository
 does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 `F9401`.
 
-## START HERE: two open questions, both localised to one signal
+## START HERE: one open question
 
 The machine loads IM from real `.MB` hunks, matches the C emulator word for
-word, and **executes** microcode out of it (`boot0-test`, `exec-test`). Two
-things are open, and each is now one hop rather than a search.
+word, **executes** microcode out of it, and **computes** -- Q, ALUFM and T all
+verified against PARC's own boot sequence (`boot0-test`, `exec-test`,
+`compute-test`). ONE thing in the boot chain is open. Section 2 below is kept
+because what it cost is worth not paying twice, but it is a gate now, not a
+question.
 
 ### 1. Parity: PARC's IRTable entries fail our generators
 
@@ -137,27 +140,43 @@ wired with a deliberate mix of primed and unprimed nets (`ALUF.0'` beside
 wants; one of those is inverted where it should not be, or P015/P1631 is the
 other way round.
 
-### 2. The datapath: T loads, but COMPLEMENTED
+### 2. The datapath: DONE -- and this is now a gate, not an open question
 
-`make -C verilog compute-test` replays PARC's own ALU prologue on four boards.
-**Q, ALUFM and T all work now**; what is left is one polarity.
+`make -C verilog compute-test` replays PARC's own ALU prologue on four boards
+and the whole datapath works:
 
 ```
 after QFromCPReg#: Q=0015          25 octal, the value PARC sends
 ALUFM[0] = 010101                  25 octal, read MSB-first off the F10145As
-TFromCPReg# 1234 -> T=edcb         and a55a -> T=5aa5
+TFromCPReg# 1234 -> T=1234         and a55a -> T=a55a, exact, through the ALU
 ```
 
 `TFromCPReg#` carries PARC's warning "requires ALUFM[0]=B" because T is loaded
-THROUGH THE ALU, and ALUFM[0] genuinely holds 25 octal now, which the C
-emulator's own `alu_op` defines as `case 025: result = b;`. So the ALU is not
-the suspect -- **T is coming back inverted, so the fault is downstream in the T
-load path**: the MC10173 latches taking `dT.nn`/`dTm.nn` under `PreSHCP'B` and
-`TbBypass`. Follow `dT.00` back from ProcH i03 pin 5.
+THROUGH THE ALU, so the prologue has to run first; with ALUFM[0] holding 25
+octal -- which the C emulator's `alu_op` defines as `case 025: result = b;` --
+the operand passes through and lands in T.
 
-`compute-test` asserts Q and ALUFM exactly, and asserts only that T MOVES and
-that two operands give two different results -- so it cannot pass on a stuck
-latch while the polarity is settled.
+**T looked COMPLEMENTED for a while and was not; the probe was.** It drove
+CPReg with `SetCPReg~`, which writes the complement, and then compared T
+against the value BEFORE that complement. Do not go hunting the MC10173s.
+
+**THE POLARITY CONVENTION, which explains PARC's own code.** `BMux` carries
+the complement of CPReg; the ALU's B operand `alub` is taken off BMux through
+an MC1662 NOR, which inverts it back; the ALU passes it; T is loaded from that.
+So **T ends up equal to CPReg, while IM write data -- which travels the
+un-inverted path -- ends up equal to the COMPLEMENT of CPReg.** That is why
+PARC uses a different setter for each: `SendViaMIR` sends IM data with
+`SetCPReg~`, and `PrepareProcessor` loads T with the plain `SetCPReg`
+(`LDXI 103o / LDAI TFromCPReg# / JSR SetCPAndDoIRTableInst`). Both halves are
+now gated -- `boot0-test` for the IM path against the C emulator, `compute-test`
+for the T path.
+
+**Two more conventions closed on the way.** `cell_MC10173` (81 packages) had
+carried a `VERIFY` note saying its select sense and its transparent-clock level
+were read from pin names rather than a truth table. Both are now read off the
+data book (p.3-79) -- SB high selects the datasheet's D_0 pins, and the latch
+is transparent while the clock is LOW -- and both are GATED: reversing either
+makes `compute-test` fail, because T is loaded through that part.
 
 #### What getting here cost, and the two cell bugs it found
 
@@ -216,11 +235,18 @@ slip reading byte 3 sent this chase off after the wrong FF decode for a while.
 
 ### Then
 
-`machine-test` is the one red gate (the assembled machine does not converge
-under the C++ `eval()` model though it does under the event scheduler);
-`memory.c` against MemC/MemD/MemX is the next C cross-check; the cell library
-is at 98.0% with datasheets for almost everything missing now in
-`DoradoDocs/datasheets/`.
+With the datapath gated, the natural next rungs are **RM and STK** (the MB7071H
+register file at ProcH h06/i06, which `datapath-test` reaches but nothing
+exercises) and **a microinstruction that computes on TWO operands** -- every
+gate so far moves ONE value, so an A operand has never been driven.
+
+Also open: `machine-test` is the one red gate (the assembled machine does not
+converge under the C++ `eval()` model though it does under the event
+scheduler); `memory.c` against MemC/MemD/MemX is the next C cross-check; the
+cell library is at 97.7% with datasheets for almost everything missing now in
+`DoradoDocs/datasheets/`; and `sil_check_cells.py` still throws away the
+per-output data-input arcs in the dictionary's `[FF]` lines, which is the check
+that would have caught both of this session's cell bugs mechanically.
 
 **Nine things that will otherwise cost you a day:**
 
