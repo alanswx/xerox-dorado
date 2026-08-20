@@ -117,46 +117,51 @@
 // l19 and the l24 TTL-to-ECL translator, onto the backplane as
 // `DMuxData`/`DMuxClk`.
 //
-// ------------------ THE SHIFT RUNS; THE FUNCTION CODE READS WRONG -----------
+// ------------------ THE MANIFOLD CHAIN SHIFTS -------------------------------
 //
 // MEASURE THE PC WITH SYNC, NOT THE ADDRESS BUS. The 6502's SYNC output (cell
-// pin 7; the board leaves it unconnected, so probe it inside the instance)
-// marks an OPCODE FETCH. Ungated, the address bus shows data reads too -- and
-// that is how `FF00` (1024) and `FF80` (669) came to look like a PC parked in
-// filler, when `FEF0..FF10` disassembles as DATA, not code. They are table
-// reads. Gated on SYNC the ten most-EXECUTED addresses are all F84A..F865, the
-// ADCONVERT loop, and nothing near FFxx appears at all.
+// pin 7; the board leaves it unconnected, so probe inside the instance) marks
+// an OPCODE FETCH. Ungated, the address bus shows data reads too -- which is
+// how `FF00` (1024) and `FF80` (669) came to look like a PC parked in filler,
+// when `FEF0..FF10` disassembles as DATA. They are table reads. Gated on SYNC
+// the most-executed addresses are all F84A..F865, the ADCONVERT loop.
 //
-// AND THE STROBES COME FROM THE SHIFT ITSELF:
+// AND ONE GENERATOR FIX MADE THE MANIFOLD CHAIN RUN. A 6532 PORT PIN READS ITS
+// OWN PIN. `read_excluding` drops a package's own contribution -- right for a
+// gate, which does not read its own output; wrong for a port pin, where the
+// chip reads the PIN and an OUTPUT pin is whatever the chip itself drives. The
+// MiSTer core says so outright: "NOTE that port output must be fed back to
+// input ... in order for the chip to read properly". `READBACK_OWN_PIN` in
+// tools/sil_to_verilog.py now wires `pa_in`/`pb_in` from the RESOLVED net.
 //
-//   strobe 2 at 1,424,958 (last FETCH f9fd): fn=0 data=001000000
-//   strobe 3 at 1,425,438 (last FETCH fa00): fn=7 data=101000000
-//   strobe 4 at 1,426,398 (last FETCH fa08): fn=0 data=000000000
-//   strobe 5 at 1,426,878 (last FETCH fa0b): fn=7 data=100000000
+// What it cost while wrong: every read-modify-write on a port read ZERO for
+// its own output bits. BaseBd i62 is MCPBusL, and `SetMufflerAddress` pulses
+// the CP-bus strobe with `INC $0582` / `DEC $0582` -- reading 0x00 instead of
+// 0x10 turned those into 0x01 and 0xFF, so the three `MCPABus` function bits
+// read 0 then 7 instead of a constant 1, and the BaseBoard's own k22/k17 never
+// decoded a DMux pulse.
 //
-// F9FD/FA00/FA08/FA0B are inside the F9F6 subroutine -- `STA $0580`,
-// `INC $0582`, `DEC $0582`, twice per bit. So `SetMufflerAddress` IS running
-// and IS strobing the CP bus, and the data bits marching through
-// `MCPBus.00/.01/.08` are the muffler address being shifted out. An earlier
-// note here said the CP-bus traffic "is not the manifold shift" and that the
-// PC was in filler ROM. Both were wrong, and both came from reading the
-// address bus as if it were the program counter.
+// WITH IT, THE MUFFLER ADDRESS SHIFTS OUT:
 //
-// WHAT IS ACTUALLY ANOMALOUS, and it is one thing: **the function code**.
-// F9D8 sets `MCPBusL = $10`, so bits 6/5/4 -- `MCPABus.0/.1/.2` -- should read
-// 0/0/1, i.e. function 1, `Clock`, on every strobe. Measured, MSB-first as
-// PARC numbers it, they alternate **0 and 7**: all three low, then all three
-// high. Never 1. And `CPDMuxClk`/`CPDMuxData` never move, which follows -- the
-// BaseBoard's k22/k17 decode the Clock function, and it never sees one.
+//     strobe 2 (fetch f9fd) dir_b=f1 out_b=13: fn=1 data=001000000
+//     strobe 3 (fetch fa08) dir_b=f1 out_b=13: fn=1 data=000000000
+//     ... 24 strobes, all fn 1 (Clock) = twelve bits, two strobes each
 //
-// A field that reads all-zero or all-one, alternating, is the signature of the
-// three pins not carrying the output register at all. `MCPBusLDDRValue` is
-// `IsOutput*(80+MCPABus+MCPStrobe)` = 0xF1, so bits 7,6,5,4,0 ARE outputs and
-// 3,2,1 inputs; all three function bits should be driven. The MiSTer core
-// computes `PB_out = out_b | ~dir_b`, so a pin whose DDR bit is 0 reads back 1
-// -- all-ones is exactly what these three would give if their DDR bits were
-// clear. So the first thing to check is whether the DDR write reaches the
-// model: log `$0583` (MCPBusL's DDR) and `out_b` around F9D8.
+//     CPDMuxClk edges 24    the BaseBoard's own decode fires
+//     TDMuxClk  edges 24    through l19
+//     DMuxClk   edges 24    onto the BACKPLANE, to every board
+//     READMUFFLER F986 1 visit, SETMUFFLERADDRESS F9D0 1
+//
+// `out_b = 0x13` is `$10` plus the input bits reading back, exactly as a
+// read-modify-write on a 6532 should. `MCPBus.00` is the DATA bit and
+// `MCPBus.01` the clock (`LDA #$80 / ROR A` sets bit 7 or 6, `AND #$BF` clears
+// bit 6), and `CPDMuxData` stays still here only because the address bits
+// shifted so far are zeros.
+//
+// So the BaseBoard now clocks the muffler chain on the backplane. What has NOT
+// been shown is the far end: whether ContA/ContB shift those bits into their
+// DMD registers and act on them. That is the next measurement -- watch
+// ContB's `DMD.00-11` while this runs.
 //
 // ---------------------------------------------------- ALSO WORTH KNOWING
 //
@@ -315,8 +320,9 @@ module tb_firmware;
           fn_seen[{`BB.MCPABus_0, `BB.MCPABus_1, `BB.MCPABus_2}] =
             fn_seen[{`BB.MCPABus_0, `BB.MCPABus_1, `BB.MCPABus_2}] + 1;
           if (n_mcpstrb <= 8)
-            $display("tb_firmware:   strobe %0d at %0d (last FETCH %04h, last ROM addr %04h): fn=%0d data=%b%b%b%b%b%b%b%b%b",
-                     n_mcpstrb, i, last_fetch, last_rom,
+            $display("tb_firmware:   strobe %0d at %0d (fetch %04h) dir_b=%02h out_b=%02h: fn=%0d data=%b%b%b%b%b%b%b%b%b",
+                     n_mcpstrb, i, last_fetch,
+                     `BB.u_i62.u_riot.dir_b, `BB.u_i62.u_riot.out_b,
                      {`BB.MCPABus_0, `BB.MCPABus_1, `BB.MCPABus_2},
                      `BB.MCPBus_08, `BB.MCPBus_00, `BB.MCPBus_01, `BB.MCPBus_02,
                      `BB.MCPBus_03, `BB.MCPBus_04, `BB.MCPBus_05, `BB.MCPBus_06,

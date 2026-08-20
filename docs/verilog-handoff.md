@@ -310,44 +310,48 @@ manifold word goes out as ordinary CP-bus transactions, and the BaseBoard's own
 k22/k17 decode them into `CPDMuxData`/`CPDMuxClk`, through l19 and the l24
 TTL-to-ECL translator, onto the backplane as `DMuxData`/`DMuxClk`.
 
-**The shift runs — measure the PC with SYNC, not the address bus.** The 6502's
-SYNC output marks an opcode fetch. Ungated, the address bus shows data reads
-too, which is how `FF00` (1024) and `FF80` (669) came to look like a PC parked
-in filler when `FEF0..FF10` disassembles as **data**. Gated on SYNC, the ten
-most-executed addresses are all F84A..F865 — the ADCONVERT loop — and nothing
-near FFxx appears.
+**Measure the PC with SYNC, not the address bus.** The 6502's SYNC output marks
+an opcode fetch. Ungated, the address bus shows data reads too — which is how
+`FF00` (1024) and `FF80` (669) came to look like a PC parked in filler, when
+`FEF0..FF10` disassembles as **data**. Gated on SYNC, the most-executed
+addresses are all F84A..F865, the ADCONVERT loop.
 
-And the strobes come from the shift itself:
+**And one generator fix made the manifold chain run: a 6532 port pin reads its
+own pin.** `read_excluding` drops a package's own contribution — right for a
+gate, which does not read its own output; wrong for a port pin, where the chip
+reads the **pin**, and an output pin is whatever the chip itself drives. The
+core says so outright: *"NOTE that port output must be fed back to input ... in
+order for the chip to read properly."* `READBACK_OWN_PIN` in
+`tools/sil_to_verilog.py` now wires `pa_in`/`pb_in` from the **resolved net**.
+
+What it cost while wrong: every read-modify-write on a port read **zero** for
+its own output bits. BaseBd i62 is MCPBusL, and `SetMufflerAddress` pulses the
+CP-bus strobe with `INC $0582` / `DEC $0582` — reading 0x00 instead of 0x10
+turned those into 0x01 and 0xFF, so the three `MCPABus` function bits read 0
+then 7 instead of a constant 1, and k22/k17 never decoded a DMux pulse.
+
+**With it, the muffler address shifts out:**
 
 ```
-strobe 2 at 1,424,958 (last FETCH f9fd): fn=0 data=001000000
-strobe 3 at 1,425,438 (last FETCH fa00): fn=7 data=101000000
-strobe 4 at 1,426,398 (last FETCH fa08): fn=0 data=000000000
-strobe 5 at 1,426,878 (last FETCH fa0b): fn=7 data=100000000
+strobe 2 (fetch f9fd) dir_b=f1 out_b=13: fn=1 data=001000000
+strobe 3 (fetch fa08) dir_b=f1 out_b=13: fn=1 data=000000000
+... 24 strobes, all fn 1 (Clock) = twelve bits, two strobes each
+
+CPDMuxClk edges 24    the BaseBoard's own decode fires
+TDMuxClk  edges 24    through l19
+DMuxClk   edges 24    onto the BACKPLANE, to every board
+READMUFFLER F986 1 visit, SETMUFFLERADDRESS F9D0 1
 ```
 
-F9FD/FA00/FA08/FA0B are inside the F9F6 subroutine — `STA $0580`,
-`INC $0582`, `DEC $0582`, twice per bit. **`SetMufflerAddress` is running and
-is strobing the CP bus**, and the bits marching through `MCPBus.00/.01/.08`
-are the muffler address going out. An earlier version of this section said the
-CP-bus traffic "is not the manifold shift" and that the PC was in filler ROM.
-Both were wrong, and both came from reading the address bus as a program
-counter.
+`out_b = 0x13` is `$10` plus the input bits reading back — exactly what a
+read-modify-write on a 6532 should give. `MCPBus.00` is the data bit and
+`MCPBus.01` the clock; `CPDMuxData` stays still here only because the address
+bits shifted so far are zeros.
 
-**What is actually anomalous is one thing: the function code.** F9D8 sets
-`MCPBusL = $10`, so bits 6/5/4 — `MCPABus.0/.1/.2` — should read 0/0/1,
-function **1 = `Clock`**, on every strobe. Measured MSB-first they alternate
-**0 and 7**: all three low, then all three high. Never 1. `CPDMuxClk`/
-`CPDMuxData` never moving follows directly — k22/k17 decode the `Clock`
-function and never see one.
-
-A field reading all-zero or all-one is the signature of those pins not
-carrying the output register. `MCPBusLDDRValue` is
-`IsOutput*(80+MCPABus+MCPStrobe)` = `0xF1`, so bits 7,6,5,4,0 **are** outputs.
-The core computes `PB_out = out_b | ~dir_b`, so a pin whose DDR bit is clear
-reads back 1 — all-ones is exactly what these three would give with their DDR
-bits clear. **First thing to check: does the DDR write reach the model?** Log
-`$0583` (MCPBusL's DDR) and `out_b` around F9D8.
+**So the BaseBoard now clocks the muffler chain on the backplane.** What has
+**not** been shown is the far end: whether ContA/ContB shift those bits into
+their DMD registers and act on them. Next measurement — watch ContB's
+`DMD.00-11` while this runs.
 
 #### Also worth knowing
 

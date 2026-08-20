@@ -441,6 +441,27 @@ class Generator:
                     'pb_in': [16, 17, 18, 19, 21, 22, 23, 24]}, # PB7..PB0
     }
 
+    # ...and these read their OWN pin, not just what others drive onto it.
+    #
+    # A gate does not read its own output, which is why `read_excluding` drops
+    # the package's own contribution. A 6532 PORT PIN is not a gate output: the
+    # chip reads the PIN, and for a pin its DDR makes an OUTPUT the pin is
+    # whatever the chip itself is driving. The MiSTer core states the
+    # requirement outright -- "NOTE that port output must be fed back to input
+    # ... in order for the chip to read properly".
+    #
+    # Without it, every read-modify-write on a port reads ZERO for its own
+    # output bits. BaseBd i62 is MCPBusL, and `SetMufflerAddress` pulses the
+    # CP-bus strobe with `INC $0582` / `DEC $0582`: reading 0x00 instead of
+    # 0x10 made those produce 0x01 and 0xFF, so the three `MCPABus` function
+    # bits read 0 then 7 instead of a constant 1 (`Clock`) and the BaseBoard's
+    # own k22/k17 never decoded a DMux pulse.
+    #
+    # No combinational loop: the port output comes from the core's `out_b`/
+    # `dir_b` REGISTERS, so the path net -> pb_in -> ... -> out_b -> net is
+    # broken by a flip-flop. `loop-check` covers it.
+    READBACK_OWN_PIN = {('MCS6532', 'pa_in'), ('MCS6532', 'pb_in')}
+
     def sip_pull(self, pos: str) -> tuple[str | None, str]:
         """What a resistor pack ties its pins to, as an expression.
 
@@ -839,7 +860,9 @@ class Generator:
             # A bus the part drives AND reads: hand back what the OTHER
             # drivers put on it. See read_excluding.
             for port, pins in self.READBACK.get(vpart(ptype), {}).items():
-                bits = [self.read_excluding(pinnet[(pos, pn)], pos)
+                own = (vpart(ptype), port) in self.READBACK_OWN_PIN
+                bits = [(self.read_name(pinnet[(pos, pn)]) if own
+                         else self.read_excluding(pinnet[(pos, pn)], pos))
                         if (pos, pn) in pinnet else "1'b0" for pn in pins]
                 conns.append(f'    .{port}({{{", ".join(bits)}}})')
             A(f'  {cell} {params}u_{vname(pos)} (')
