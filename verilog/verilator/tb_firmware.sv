@@ -67,11 +67,26 @@
 // XOR at 0 for good. Our simulation never gets that far because the interval
 // is 2^21 cycles and the probe runs 4 M.
 //
-// NEXT, and note it is now TWO questions: (1) give g22 a defensible power-up
-// state, or run long enough to cross a real timer interval; and (2) SEVEN
-// RESETS REMAIN even with the watchdog disarmed, so there is a second reset
-// source that has not been identified -- with FF1 held at Q' = 0, `BootMC'`
-// should be high always, and it is not.
+// THERE IS NO SECOND RESET SOURCE -- that was this probe's own instrument
+// lying. It counted a "reset" whenever 0xFFFC appeared on the address bus,
+// which is NOT the same as one: with the watchdog disarmed it reported seven
+// while `MCReset'` never left 1 and `BootMC'` never moved at all. Counting
+// `MCReset'` falling edges instead gives **exactly one** assertion -- the
+// power-on reset -- and nothing after it. The firmware then runs continuously
+// and drives the Dorado, 450 CPStrb' edges.
+//
+//                      default      G22_DISARMED
+//     MCReset' asserts   19               1
+//     CPStrb' edges      37             450
+//
+// SO g22's POWER-UP STATE IS THE WHOLE BLOCKER, and the design's own answer to
+// it is TIME. FF1 is a toggle clocked by the timer, so it alternates
+// armed/disarmed every interval; a machine that comes up armed is reset until
+// the first Q21 edge flips it, and then the firmware has a full disarmed
+// window to reach `PacifyWatchdog` and pin the XOR at 0 for good. The interval
+// is 2^21 MCPreClk cycles at 80 sys_clk each, about 168 M -- forty times
+// longer than this probe's default window, which is why it never gets there.
+// `+define+LONG_RUN` runs 260 M to cross it.
 
 `default_nettype none
 `define BB  m.u_machine.b_BaseBd
@@ -101,6 +116,11 @@ module tb_firmware;
   integer hot [0:4095];      // per-address counts for the F000..FFFF page
   integer j, best, besta;
   integer n_reset = 0, last_reset = 0;
+  // A RESET IS `MCReset'` GOING LOW, not 0xFFFC appearing on the address bus.
+  // Counting the address was wrong: with the watchdog disarmed it reported
+  // seven "resets" while MCReset' never left 1 and BootMC' never moved.
+  integer n_mcreset = 0, last_mcreset = 0;
+  reg p_mcreset = 1'b1;
   integer n_mcclk = 0, n_wdin = 0, n_bootmc = 0;
   integer n_pre = 0, n_div = 0, n_tog = 0, n_xor = 0, n_wdout = 0;
   reg p_pre = 1'b0, p_div = 1'b0, p_tog = 1'b0, p_xor = 1'b0, p_wdout = 1'b0;
@@ -118,7 +138,13 @@ module tb_firmware;
     for (i = 0; i < 16; i = i + 1) bucket[i] = 0;
     for (i = 0; i < 4096; i = i + 1) hot[i] = 0;
 
+    // Long enough to cross a real watchdog interval (2^21 MCPreClk cycles at
+    // 80 sys_clk each = ~168 M) with +define+LONG_RUN.
+`ifdef LONG_RUN
+    for (i = 0; i < 260_000_000; i = i + 1) begin
+`else
     for (i = 0; i < 4_000_000; i = i + 1) begin
+`endif
       @(posedge sys_clk);
       if (mca !== last_a) begin
         last_a = mca;
@@ -133,16 +159,29 @@ module tb_firmware;
         if (mca >= 16'hF000) hot[mca - 16'hF000] = hot[mca - 16'hF000] + 1;
         if (mca == 16'hFFFC) begin
           n_reset = n_reset + 1;
-          if (n_reset > 1 && n_reset < 6)
+          if (n_reset > 1 && n_reset < 9)
             $display("tb_firmware:   RESET #%0d at %0d (+%0d): WatchdogIn=%b WatchdogOut=%b XOR=%b g22Q'=%b BootMC'=%b",
                      n_reset, i, i - last_reset,
                      `BB.WatchdogIn, `BB.WatchdogOut, `BB.BaseBd09_sil_pl_1,
                      `BB.BaseBd09_sil_pl_3, `BB.BootMC_p_);
+          if (n_reset > 1 && n_reset < 9)
+            $display("tb_firmware:            PwrGood=%b MCReset'=%b g22FF1Q=%b",
+                     `BB.PwrGood, `BB.MCReset_p_, m.u_machine.b_BaseBd.u_g22.qa);
           last_reset = i;
           mcclk_at_reset = n_mcclk;
         end
       end
       // Does it touch the Dorado at all?
+      if (`BB.MCReset_p_ !== p_mcreset) begin
+        p_mcreset = `BB.MCReset_p_;
+        if (!p_mcreset) begin
+          n_mcreset = n_mcreset + 1;
+          if (n_mcreset < 6)
+            $display("tb_firmware:   MCReset' ASSERTED #%0d at %0d (+%0d)",
+                     n_mcreset, i, i - last_mcreset);
+          last_mcreset = i;
+        end
+      end
       if (`BB.MCPreClk !== p_pre) begin p_pre = `BB.MCPreClk; n_pre = n_pre + 1; end
       if (`BB.BaseBd09_sil_pl_8 !== p_div) begin p_div = `BB.BaseBd09_sil_pl_8; n_div = n_div + 1; end
       if (`BB.BaseBd09_sil_pl_3 !== p_tog) begin p_tog = `BB.BaseBd09_sil_pl_3; n_tog = n_tog + 1; end
@@ -156,12 +195,18 @@ module tb_firmware;
       end
       if (`BB.MCClk !== p_mcclk) begin p_mcclk = `BB.MCClk; n_mcclk = n_mcclk + 1; end
       if (`BB.WatchdogIn !== p_wdin) begin p_wdin = `BB.WatchdogIn; n_wdin = n_wdin + 1; end
-      if (`BB.BootMC_p_ !== p_bootmc) begin p_bootmc = `BB.BootMC_p_; n_bootmc = n_bootmc + 1; end
+      if (`BB.BootMC_p_ !== p_bootmc) begin
+        p_bootmc = `BB.BootMC_p_; n_bootmc = n_bootmc + 1;
+        if (n_bootmc < 10)
+          $display("tb_firmware:   BootMC' -> %b at %0d (XOR=%b g22FF1Q'=%b WdIn=%b WdOut=%b)",
+                   `BB.BootMC_p_, i, `BB.BaseBd09_sil_pl_1, `BB.BaseBd09_sil_pl_3,
+                   `BB.WatchdogIn, `BB.WatchdogOut);
+      end
       if (m.u_machine.CPStrb_p_ !== p_cpstrb) begin p_cpstrb = m.u_machine.CPStrb_p_; n_cpstrb = n_cpstrb + 1; end
       if (m.u_machine.DMuxClk   !== p_dmuxclk) begin p_dmuxclk = m.u_machine.DMuxClk;  n_dmuxclk = n_dmuxclk + 1; end
     end
 
-    $display("tb_firmware: 4,000,000 sys_clk of the REAL firmware running.");
+    $display("tb_firmware: %0d sys_clk of the REAL firmware running.", i);
     $display("tb_firmware: bus activity -- %0d ROM, %0d RAM/zero-page, %0d I/O addresses",
              n_rom, n_ram, n_io);
     $display("tb_firmware: ROM addresses touched span %04h..%04h", pc_lo, pc_hi);
@@ -185,7 +230,8 @@ module tb_firmware;
              n_pre, n_div, n_tog);
     $display("tb_firmware: WatchdogIn edges %0d, WatchdogOut edges %0d, XOR edges %0d, BootMC' edges %0d",
              n_wdin, n_wdout, n_xor, n_bootmc);
-    $display("tb_firmware: reset-vector fetches: %0d -- the processor is RESTARTING, not looping.", n_reset);
+    $display("tb_firmware: MCReset' ASSERTIONS: %0d   (0xFFFC seen on the bus %0d times -- not the same thing)",
+             n_mcreset, n_reset);
     $display("tb_firmware: I/O addresses touched: %0d distinct", n_io);
     $display("tb_firmware: CPStrb' edges %0d, DMuxClk edges %0d", n_cpstrb, n_dmuxclk);
     if (n_cpstrb == 0 && n_dmuxclk == 0)

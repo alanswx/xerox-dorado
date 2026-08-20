@@ -309,11 +309,25 @@ and the firmware has a whole disarmed window to reach `PacifyWatchdog` and pin
 the XOR at 0 for good. Our simulation never gets that far because the interval
 is 2^21 cycles and the probe runs 4 M.
 
-**NEXT, and it is now TWO questions.** (1) Give g22 a defensible power-up
-state, or run long enough to cross a real timer interval. (2) **Seven resets
-remain even with the watchdog disarmed**, so there is a second reset source not
-yet identified -- with FF1 held at `Q' = 0`, `BootMC'` should be high always,
-and it is not.
+**THERE IS NO SECOND RESET SOURCE** -- that was the probe's own instrument
+lying, and it is worth recording as a trap. It counted a "reset" whenever
+`0xFFFC` appeared on the address bus, which is not the same thing: with the
+watchdog disarmed it reported seven while `MCReset'` never left 1 and
+`BootMC'` never moved at all. Counting `MCReset'` FALLING EDGES instead gives
+**exactly one** assertion -- the power-on reset -- and nothing after it.
+
+| | default | `G22_DISARMED` |
+|---|---|---|
+| `MCReset'` assertions | 19 | **1** |
+| `CPStrb'` edges | 37 | **450** |
+
+**So g22's power-up state is the whole blocker, and the design's own answer to
+it is TIME.** FF1 is a toggle clocked by the timer, so it alternates
+armed/disarmed every interval; a machine that comes up armed is reset until the
+first Q21 edge flips it, after which the firmware has a full disarmed window to
+reach `PacifyWatchdog` and pin the XOR at 0 for good. The interval is 2^21
+MCPreClk cycles at 80 sys_clk each -- about 168 M, forty times the probe's
+default window. `+define+LONG_RUN` runs 260 M to cross it.
 
 **And g22's POWER-UP STATE matters too.** j17 NANDs the XOR against
 g22's `Q'`, so a `Q'` of 0 masks the XOR entirely and only a real timer expiry
