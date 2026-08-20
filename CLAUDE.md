@@ -979,7 +979,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | ...and T loads through the ALU, EXACTLY | `compute-test` -- 1234 gives 1234, a55a gives a55a |
 | **...and it COMPUTES ON TWO OPERANDS** -- A from T, B from CPReg | `compute-test` -- all 24 entries of HM Table 9 match the C emulator |
 | RM, the per-task register file, writes and reads back | `compute-test` -- and each value lands where the address pins say |
-| the REAL firmware runs a five-board machine | `firmware-probe` -- but the WATCHDOG resets it every 211,440 sys_clk |
+| **the REAL firmware DRIVES THE DORADO** | `firmware-probe` -- 37 CPStrb' edges; still watchdog-reset every 211,440 sys_clk |
 
 Nineteen gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
@@ -1020,6 +1020,15 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   ones the PREVIOUS instruction latched. Q is not loaded by `QFromCPReg#`; it is
   loaded by the Nop after it -- and a probe sampling right after an instruction
   reads one cycle early.
+- **A 6532 port pin's pull-up is a NET property, not a cell one.** The core's
+  `PA_out = out_a | ~dir_a` is the pull-up of a high-Z input pin -- a WIRE-AND
+  convention -- and these nets resolve as wired-OR, so it won instead of losing
+  and pinned 33 nets HIGH, `RCPReg.00-15` (the CP register read back) among
+  them. Masking it inside the cell HOLDS THE 6502 IN RESET, because
+  `WatchdogOut`'s only driver is the RIOT and its pull-up is real. The fix is
+  `WEAK_PORT_DRIVERS` in the generator, symmetric to `OVERRIDE_DRIVERS`: the
+  pull-up loses where something else drives, stands where nothing does. With
+  it, the real firmware reaches the control-processor bus.
 - **The real firmware runs, and the WATCHDOG is what stops it.** `dorado_boot`
   (BaseBd+ContA+ContB+ProcH+ProcL) lets the 6502 run its own EPROMs; it is
   reset every 211,440 sys_clk, exactly periodic, and never reaches the Dorado.

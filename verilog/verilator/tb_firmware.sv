@@ -7,97 +7,42 @@
 // tools/sil_backplane.py -- and lets the BaseBoard's 6502 run its OWN firmware
 // out of its OWN EPROMs, then watches what it does to the Dorado.
 //
-// A DIAGNOSTIC, not a gate, and here is what it currently says:
+// A DIAGNOSTIC, not a gate. WHAT IT SAYS NOW:
 //
-//     bus activity -- 33818 ROM, 16459 RAM/zero-page, 30 I/O addresses
-//     ROM addresses touched span f248..ffff
-//     the ten ROM addresses it visits most: f3ac..f3b1, 4864 visits each
-//     reset-vector fetches: 19
-//     CPStrb' edges 0, DMuxClk edges 0
-//
-// SO THE FIRMWARE RUNS, AND THE WATCHDOG KEEPS RESETTING IT. `f3ac..f3b1` is
-// the zero-page clear loop at the top of the reset routine
-// (`STA $00,X / DEX / BNE $F3AC`), and 4864 visits is 19 x 256 -- one pass per
-// reset. The resets are exactly periodic: **every 211,440 sys_clk**, which is
-// a hardware timer, not a firmware loop. It never reaches the Dorado at all --
-// no CPReg strobe, no manifold shift.
-//
-// THE HANDSHAKE IT IS FAILING is `PacifyWatchdog` in `doradocontinuous.masm`:
-//
-//     LDA Watchdog / ANDI WatchdogIn / RORA  ; carries WatchdogIn to WatchdogOut
-//     STA WatchdogTemp / SEI / LDA Watchdog
-//     ANDI 0ff-WatchdogOut / ORA WatchdogTemp / STA Watchdog / CLI
-//
-// and `doradoio.mdefs` gives the register: `Watchdog = 600+PA` -- a 6532 RIOT
-// port -- with `WatchdogIn = 80` (bit 7, an input) and `WatchdogOut = 40`
-// (bit 6, an output, per `WatchdogDDRValue`). The hardware drives bit 7 and
-// expects the firmware to echo it on bit 6; when the echo stops, it resets
-// the processor.
-//
-// THE RESET CHAIN IS FULLY TRACED AND NOW FULLY MEASURED. Every part of it is
-// in the RTL, and as of this session the timer is actually modelled:
-//
-//   g21   MC14521B 24-stage divider -- THE WATCHDOG TIMER. Reset tied low,
-//         `MCPreClk` into In2, and **Q21 on pin 13** out to `BaseBd09.sil+8`.
-//         It was an unmodelled skeleton until now; the cell is written from
-//         the data sheet (DoradoDocs/datasheets/MC14521B.pdf).
-//   g22   SN74LS74 wired as a TOGGLE flip-flop (1D tied to 1Q'), clocked by
-//         that Q21 -- so it flips once per watchdog interval
-//   g23   SN7486 XOR of `WatchdogIn` against `WatchdogOut` -- the pacify
-//         comparison itself
-//   j17   SN74LS01 open-collector NAND of those two, driving `BootMC'`,
-//         wire-ORed with a jumper strap at h07
-//   j08   SN74LS74, D = `BootMC'`, clock = `MCClk`, async `PwrGood`, output
-//         `MCReset'`
-//   f63   MCS6532 RIOT: PA7 out as `WatchdogIn`, PA6 in as `WatchdogOut`
-//
-// WHAT IT MEASURES NOW, and it is no longer the timer:
-//
+//     ROM 33818, RAM 16459, I/O 30 addresses; ROM span f248..ffff
 //     MCPreClk edges 99999, divider Q21 edges 0, toggle-FF edges 1
 //     WatchdogIn 1, WatchdogOut 37, XOR 36, BootMC' 36
-//     resets: 19, every 211,440 sys_clk (= 2,643 MCClk cycles)
+//     reset-vector fetches: 19, every 211,440 sys_clk
+//     **CPStrb' edges 37  --  IT IS DRIVING THE DORADO**
 //
-// MCPreClk runs at one cycle per 80 sys_clk, so Q21 -- a divide by 2^21 -- is
-// CORRECTLY quiet across the whole run: the watchdog interval is of order a
-// second and should not fire here at all. The resets track `WatchdogOut`
-// one-for-one instead. The firmware writes that port during startup, each
-// write flips the XOR, and the XOR reaches `BootMC'` unopposed.
+// The firmware reaches the control-processor bus. That took one fix, in the
+// GENERATOR rather than in a cell: `WEAK_PORT_DRIVERS` in sil_to_verilog.py.
 //
-// THE BLOCKER IS `BootMC'`, AND THE 6532's INPUT-PIN CONVENTION IS WHY.
-// Measured in the one-board machine: MCReset'=0, PwrGood=1, TTLTrue.E=1 -- the
-// power-up gate is fine and BootMC' is simply LOW. j17 NANDs the g23 XOR
-// against g22's Q', so BootMC' is low exactly when WatchdogIn != WatchdogOut
-// and g22's Q' is 1.
+// WHY IT IS A NET PROPERTY, NOT A CELL ONE. A 6532 port pin is high-Z with an
+// internal pull-up when its DDR makes it an input, and the MiSTer core says so
+// directly -- `PA_out = out_a | ~dir_a`, an input pin reading back 1, with the
+// comment that the output "must be fed back to input ... for the chip to read
+// properly". That is a WIRE-AND convention; these nets resolve as wired-OR, so
+// the pull-up won instead of losing and pinned every such net HIGH.
 //
-// A CORRECTION. An earlier note here said masking the 6532's port drive with
-// its DDR "fixes the reset storm, 19 fetches to ZERO". IT DOES NOT. Zero
-// reset-vector fetches means the 6502 NEVER STARTED -- held in reset, which is
-// worse than restarting -- and the fffe/ffff hits that looked like an IRQ
-// storm are what the bus does with the processor held down.
-//
-// THE REAL SHAPE OF THE FIX. `PA_out = out_a | ~dir_a` in the core is not a
-// bug: it is THE PULL-UP OF A HIGH-Z INPUT PIN, and a 6532 port pin set as an
-// input really does present a 1. That is RIGHT for `WatchdogOut`, whose only
-// driver is the RIOT (f63.14) -- mask it and the net reads 0, the XOR goes 1,
-// and BootMC' sticks low. It is WRONG for `WatchdogIn`, which g22 also drives
-// (g22.8, a totem-pole '74 output that in reality beats a pull-up), because in
-// a wired-OR net model the RIOT's 1 wins and the watchdog is invisible.
-//
-// Neither net has a physical pull-up resistor; the pull-up is inside the 6532.
-// So THE FIX IS PER-NET, NOT PER-CELL, and belongs in the generator: a 6532
-// port pin should contribute `out & dir` where the net has another driver, and
-// its pull-up where it is the sole driver. tools/sil_backplane.py already
+// Masking it inside the cell with the DDR does NOT work -- it holds the 6502
+// in reset, because `WatchdogOut` is a net whose ONLY driver is the RIOT and
+// whose pull-up is real. The rule has to be per-net: the pull-up loses where
+// something else drives, and stands where nothing does. The generator already
 // knows each net's driver set.
 //
-// SO THE TOGGLE FLIP-FLOP'S POWER-UP STATE MATTERS TOO.
-// SO THE REMAINING QUESTION IS THE TOGGLE FLIP-FLOP'S POWER-UP STATE. j17
-// NANDs the XOR against g22's Q', so a Q' of 0 masks the XOR entirely and only
-// a real timer expiry can reset the processor -- which is the whole point of
-// the design. Our SN74LS74 comes up with Q = 0, hence Q' = 1, which arms the
-// watchdog from the first instruction. On the real board g22 has neither its
-// preset nor its clear asserted (pins 1 and 4 both go to `TTLTrue.E`), so the
-// state is set by the power-up sequence -- `PwrGood`, which is also j08's
-// asynchronous input. That sequencing is the thing to model next.
+// It is sound because of what those nets ARE. Across the machine 33 nets have
+// a 6532 port pin sharing with another driver, and in EVERY one the other
+// driver is a real totem-pole part ('174, '259, '01, '157, '175, '74,
+// MC10125) or a strap, with the 6532 pin as the READER: `RCPReg.00-15` -- how
+// the BaseBoard reads the Dorado's CP register back -- plus `MCManif.0-3`,
+// `TCPI.0-3`, the temperature senses and `WatchdogIn`. Every one of those was
+// stuck high before.
+//
+// STILL OPEN: the watchdog still resets the processor every 211,440 sys_clk
+// (19 times here), so it drives the Dorado only in bursts between restarts,
+// and `DMuxClk` is still 0 -- no manifold word has been shifted yet. The
+// reset chain and what is known about it is below.
 
 `default_nettype none
 `define BB  m.u_machine.b_BaseBd
