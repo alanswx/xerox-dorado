@@ -34,6 +34,7 @@ can run.
 | **THE MACHINE EXECUTES MICROCODE OUT OF IM** | **works** -- free-running, sequencing, 1,242 cycles | `exec-test` |
 | **THE MACHINE COMPUTES** | **works** -- Q takes 25 octal from CPReg, holds it, ALUFM[0] stores it | `compute-test` |
 | ...and T loads through the ALU | **works** -- 1234 gives 1234, a55a gives a55a, exact | `compute-test` |
+| **TWO OPERANDS: the ALU as the BOARDS wire it** | **works** -- all 24 entries of HM Table 9 match the C emulator, carry chain and all | `compute-test` |
 
 ### Every gate
 
@@ -170,6 +171,35 @@ PARC uses a different setter for each: `SendViaMIR` sends IM data with
 (`LDXI 103o / LDAI TFromCPReg# / JSR SetCPAndDoIRTableInst`). Both halves are
 now gated -- `boot0-test` for the IM path against the C emulator, `compute-test`
 for the T path.
+
+### The ALU, in the machine
+
+`compute-test` ends by computing: **A from T, B from CPReg, the function from
+ALUFM, result back into T** -- and sweeping every entry of HM Table 9, all 16
+logical and all 8 arithmetic, against the C emulator's own `alu_op()`.
+
+This is the first thing to exercise the ALU AS THE BOARDS WIRE IT. `alu-diff`
+matches the C emulator on 10,752 vectors but builds four MC10181 slices in a
+TESTBENCH; here they are ProcH's and ProcL's own with the carry chain running
+`f61 -> e61 ->` across the backplane, and `A+B = b78e` only comes out right if
+carries ripple through all four.
+
+Getting to the A side took changing **one field** of PARC's `TFromCPReg#`:
+`ASEL[4]` is A<-RM/STK -- which is why `alua` read 0000 in every earlier probe
+-- and `ASEL[6]` is A<-T, so byte 4 goes `C0` -> `E0`. The check that the
+encoding is right is that `doradoboot.masm`'s stated byte layout reproduces
+PARC's own `C0` for `ASEL[4]`.
+
+**THE ALUFM ENTRY IS NOT A CONTIGUOUS FIELD OF B**, and this cost an hour.
+HM Table 11d: **"ALUFMEM <- B.8, B[11:15]"**. The entry's MSB -- the ALU's
+CARRY IN -- comes from `B.08`, the other five from `B[11:15]`. Every LOGICAL
+entry is <= 037 octal and lands entirely in those five bits, so the logical
+half of the sweep passed while `A+1` did not: writing the carry at bit 5 of B
+puts it nowhere. The wire list says so directly (ALUFM's data pins carry
+`alub.08/11/12/13/14/15`, not six contiguous bits) and `cpu.c` documents the
+same mapping from the same table. Reversing the sense of the MC10107 that
+makes `aluCin` is caught by the arithmetic half and NOT by the logical half --
+nor by `alu-test` or `alu-diff`, which never see that gate.
 
 **Two more conventions closed on the way.** `cell_MC10173` (81 packages) had
 carried a `VERIFY` note saying its select sense and its transparent-clock level

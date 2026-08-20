@@ -977,6 +977,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **THE MACHINE EXECUTES MICROCODE OUT OF IM** | `exec-test` -- free-running and sequencing |
 | **THE MACHINE COMPUTES** -- 25 octal from CPReg into Q, held, stored into ALUFM[0] | `compute-test` -- PARC's own ALU prologue |
 | ...and T loads through the ALU, EXACTLY | `compute-test` -- 1234 gives 1234, a55a gives a55a |
+| **...and it COMPUTES ON TWO OPERANDS** -- A from T, B from CPReg | `compute-test` -- all 24 entries of HM Table 9 match the C emulator |
 
 Nineteen gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
@@ -1017,6 +1018,11 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   ones the PREVIOUS instruction latched. Q is not loaded by `QFromCPReg#`; it is
   loaded by the Nop after it -- and a probe sampling right after an instruction
   reads one cycle early.
+- **The ALUFM entry is NOT a contiguous field of B.** HM Table 11d says
+  "ALUFMEM <- B.8, B[11:15]" -- the entry's MSB, which is the ALU's CARRY IN,
+  comes from B.08 and the other five from B[11:15]. Every LOGICAL entry is
+  <= 037 octal and lands in those five bits, so a sweep can pass all sixteen
+  logical functions and still have the carry going nowhere.
 - **B and T carry OPPOSITE senses of CPReg, and PARC's code says so.** BMux is
   the complement of CPReg; `alub` is taken off it through an MC1662 NOR which
   inverts it back, so T ends up EQUAL to CPReg while IM write data ends up

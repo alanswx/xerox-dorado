@@ -23,6 +23,9 @@
 //   ALUFM[0] == 010101               25 octal read MSB-first, off the F10145A
 //                                    storage at ProcL e13/e14 -- not off a bus.
 //   T == 1234 and T == a55a          loaded THROUGH the ALU, exact, both values.
+//   all 24 ALU functions              A from T, B from CPReg, result back into
+//                                     T -- every logical and arithmetic entry
+//                                     of HM Table 9, against the C emulator.
 //
 // EACH ONE CAUGHT A CELL BUG, and neither bug was visible to any other gate --
 // all eighteen passed with both of them in place.
@@ -50,6 +53,29 @@
 // with a Nop, and why its comment for DoIRTableInstAndNop -- "the Nop holds
 // CPReg constant through T3 of the previous instruction" -- is load-bearing.
 // Q is not loaded by QFromCPReg#; it is loaded by the Nop after it.
+//
+// TWO OPERANDS, AND THE ALU AS THE BOARDS WIRE IT. Everything above moves ONE
+// value. The sweep at the end computes: A from T, B from CPReg, the function
+// from ALUFM, result back into T. It reaches the A side by changing exactly
+// one field of PARC's `TFromCPReg#` -- ASEL[4] (A<-RM/STK, which is why alua
+// read 0000 in every earlier probe) becomes ASEL[6] (A<-T), so byte 4 goes C0
+// -> E0. That the byte layout in `doradoboot.masm` reproduces PARC's own C0
+// for ASEL[4] is the check that the encoding is right.
+//
+// This is the first thing to exercise the ALU IN THE MACHINE. `alu-diff`
+// matches the C emulator on 10,752 vectors but builds four MC10181 slices in a
+// TESTBENCH; here they are ProcH's and ProcL's own, with the carry chain
+// running f61 -> e61 -> across the backplane, and all 24 entries of HM Table 9
+// agree with the C emulator's alu_op() -- including A+B, which only comes out
+// right if carries ripple across all four slices.
+//
+// THE ALUFM ENTRY IS NOT A CONTIGUOUS FIELD OF B. HM Table 11d says
+// "ALUFMEM <- B.8, B[11:15]": the entry's MSB, which is the ALU's CARRY IN,
+// comes from B.08, and the other five from B[11:15]. Every LOGICAL entry is
+// <= 037 octal and so lands entirely in those low five bits, which is why the
+// logical half of this sweep passed while `A+1` did not -- writing the carry
+// at bit 5 of B puts it nowhere. `alufm_word()` below does the mapping, and
+// cpu.c documents the same one from the same table.
 //
 // WHAT THIS GATE DOES NOT COVER, found by mutating the fixes it exists to
 // catch. Swapping the MC10141's two SHIFT modes against each other still
@@ -687,7 +713,9 @@ module tb_compute;
   integer nalufw; reg palufw;
   reg [5:0] alub_at_write; reg [15:0] q_at_write;
   reg [15:0] q_after_load, q_after_hold;
-  reg [15:0] t_first, t_second;
+  reg [15:0] t_first, t_second, t_before_op;
+  integer fi; reg [5:0] afn; reg [15:0] aexp;
+  localparam [15:0] AV = 16'hA55A, BV = 16'h1234;
   // ALUFM entry 0 as PARC numbers it: ALUFdec.0 is the HIGH bit.
   // e13 stores ALUFdec.0-.3 in its Q0-Q3, e14 stores .4-.5 -- and .0 is the
   // HIGH bit, so the MSB of the entry is e13's Q0 and the LSB is e14's Q1.
@@ -764,10 +792,20 @@ module tb_compute;
   //
   // Note SetCPAndDoIRTableInst, NOT the tilde form: the ALU function code goes
   // in UNCOMPLEMENTED.
-  task alufm0_is_b(input TILDE);
+  // HM Table 11d: "ALUFMEM <- B.8, B[11:15]". The six-bit entry is NOT a
+  // contiguous field of B -- its MSB, which is the ALU's CARRY IN, is taken
+  // from B.08 while the other five come from B[11:15]. So every LOGICAL entry
+  // (all <= 037 octal) happens to be its own bit pattern in the low five bits,
+  // and only the ARITHMETIC ones with a carry need bit .08 = C bit 7.
+  // The C emulator's cpu.c documents the same mapping from the same table.
+  function [15:0] alufm_word(input [5:0] e);
+    alufm_word = {8'd0, e[5], 2'd0, e[4:0]};   // B.08 = carry, B[11:15] = rest
+  endfunction
+
+  task alufm0_is(input [15:0] fn, input TILDE);
     begin
-      if (TILDE) set_cpreg_tilde(16'h0015);          // 25 octal, complemented
-      else begin strobe(3'd2, 8'h00, 1'b0); strobe(3'd3, 8'h15, 1'b0); end
+      if (TILDE) set_cpreg_tilde(fn);
+      else set_cpreg_plain(fn);
       parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40); // QFromCPReg#
       nop_micro;                                     // ...AndNop
       $display("      after QFromCPReg#: Q=%h BMux=%h", q_reg, bmux);
@@ -805,6 +843,21 @@ module tb_compute;
     end
   endtask
 
+  // PARC's TFromCPReg# with ONE field changed: ASEL[4] (A<-RM/STK) becomes
+  // ASEL[6] (A<-T), so the ALU gets a real second operand. Byte 4 is
+  //   LC.2, ASEL.0, ASEL.1, ASEL.2, JCN.3, JCN.4, JCN.5, JCN.6
+  // and PARC's own ASEL[4] byte is C0, which is what that layout gives for
+  // LC.2=1, ASEL=100 -- so ASEL=110 is E0. Everything else is unchanged.
+  task t_from_a_op_b(input [15:0] v);
+    begin
+      set_cpreg_plain(v);
+      parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hE0);
+      show_tchain("jam ");
+      nop_micro;
+      show_tchain("nop ");
+    end
+  endtask
+
   initial begin
     force m.DMuxData = dmd;
     force m.DMuxClk  = dmc;
@@ -816,7 +869,7 @@ module tb_compute;
     zero;
     nop_micro; nop_micro;         // warm the pipeline
     nalufw = 0; palufw = m.b_ProcL.ALUFWrite_p_;
-    alufm0_is_b(USE_TILDE);
+    alufm0_is(alufm_word(6'o25), USE_TILDE);   // 25 octal = the logical function B
     $display("tb_compute: prologue with %s -- ALUFWrite' edges %0d",
              USE_TILDE ? "SetCPReg~ (complemented)" : "SetCPReg (plain)", nalufw);
     $display("tb_compute: ALUFM addr pins A0..A3 = %b %b %b %b (p10,p9,p7,p6=ALUF.3)",
@@ -874,6 +927,77 @@ module tb_compute;
       $fatal(1, "T took %h, not 1234", t_first);
     if (t_second !== 16'hA55A)
       $fatal(1, "T took %h, not a55a", t_second);
+
+    // ---- TWO OPERANDS, AND THE ALU IN THE MACHINE ----------------------
+    // Everything above moves ONE value. This computes: A comes from T, B from
+    // CPReg, the function from ALUFM -- and the result goes back into T.
+    //
+    // It also exercises the ALU AS THE BOARDS WIRE IT, which nothing did
+    // before: `alu-diff` matches the C emulator on 10,752 vectors but builds
+    // four MC10181 slices in a TESTBENCH, never as ProcH and ProcL chain them.
+    // All sixteen LOGICAL entries of HM Table 9 are swept here, with the
+    // expected values taken from the C emulator's own alu_op().
+    for (fi = 0; fi < 16; fi = fi + 1) begin
+      afn = 6'(fi*2 + 1);                       // 01,03,05 .. 37 octal
+      case (afn)
+        6'o01: aexp = ~AV;            6'o03: aexp = ~AV | ~BV;
+        6'o05: aexp = ~AV |  BV;      6'o07: aexp = 16'hFFFF;
+        6'o11: aexp = ~AV & ~BV;      6'o13: aexp = ~BV;
+        6'o15: aexp = ~(AV ^ BV);     6'o17: aexp =  AV | ~BV;
+        6'o21: aexp = ~AV &  BV;      6'o23: aexp =  AV ^  BV;
+        6'o25: aexp =  BV;            6'o27: aexp =  AV |  BV;
+        6'o31: aexp = 16'h0000;       6'o33: aexp =  AV & ~BV;
+        6'o35: aexp =  AV &  BV;      6'o37: aexp =  AV;
+      endcase
+
+      alufm0_is(alufm_word(6'o25), 1'b0);       // 25 octal = B, so T can load
+      t_from_cpreg(AV);                         // A operand into T
+      if (t_reg !== AV)
+        $fatal(1, "could not stage the A operand: T=%h, wanted %h", t_reg, AV);
+
+      alufm0_is(alufm_word(afn), 1'b0);         // the function under test
+      if (alufm0 !== afn)
+        $fatal(1, "ALUFM[0] = %b, not %b (%0o octal)", alufm0, afn, afn);
+      if (t_reg !== AV)
+        $fatal(1, "loading ALUFM disturbed T: %h, wanted %h", t_reg, AV);
+
+      t_from_a_op_b(BV);                        // T <- ALUFM[0](T, CPReg)
+      $display("tb_compute:   ALUFM[0]=%02o octal  %h op %h -> %h  (expect %h)%s",
+               afn, AV, BV, t_reg, aexp, (t_reg === aexp) ? "" : "   <-- WRONG");
+      if (t_reg !== aexp)
+        $fatal(1, "ALU entry %0o octal: got %h, the C emulator's alu_op says %h",
+               afn, t_reg, aexp);
+    end
+    // The ARITHMETIC half of Table 9. The entry's high bit is the carry-in,
+    // so `A+B' is 014 octal and `A-B' is 022 with that bit set = 062.
+    for (fi = 0; fi < 8; fi = fi + 1) begin
+      case (fi)
+        0: begin afn = 6'o000; aexp =  AV;              end  // A
+        1: begin afn = 6'o040; aexp =  AV + 16'd1;      end  // A + 1
+        2: begin afn = 6'o006; aexp =  AV + AV;         end  // 2A
+        3: begin afn = 6'o014; aexp =  AV + BV;         end  // A + B
+        4: begin afn = 6'o054; aexp =  AV + BV + 16'd1; end  // A + B + 1
+        5: begin afn = 6'o022; aexp =  AV - BV - 16'd1; end  // A - B - 1
+        6: begin afn = 6'o062; aexp =  AV - BV;         end  // A - B
+        7: begin afn = 6'o036; aexp =  AV - 16'd1;      end  // A - 1
+      endcase
+
+      alufm0_is(alufm_word(6'o25), 1'b0);
+      t_from_cpreg(AV);
+      alufm0_is(alufm_word(afn), 1'b0);
+      if (alufm0 !== afn)
+        $fatal(1, "ALUFM[0] = %b, not %b (%0o octal)", alufm0, afn, afn);
+      t_from_a_op_b(BV);
+      $display("tb_compute:   ALUFM[0]=%02o octal  %h op %h -> %h  (expect %h)%s",
+               afn, AV, BV, t_reg, aexp, (t_reg === aexp) ? "" : "   <-- WRONG");
+      if (t_reg !== aexp)
+        $fatal(1, "ALU entry %0o octal: got %h, the C emulator's alu_op says %h",
+               afn, t_reg, aexp);
+    end
+    $display("tb_compute: and all 8 ARITHMETIC entries too, carry in and out.");
+
+    $display("tb_compute: all 16 LOGICAL ALU functions agree with the C emulator,");
+    $display("tb_compute:   computed on the real ProcH/ProcL slices, A from T and B from CPReg.");
 
     $display("tb_compute: Q takes 25 octal from CPReg, HOLDS it, and ALUFM[0] stores it.");
     $display("tb_compute: T loads through the ALU and takes the operand exactly.");
