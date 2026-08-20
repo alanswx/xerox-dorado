@@ -26,6 +26,9 @@
 //   all 24 ALU functions              A from T, B from CPReg, result back into
 //                                     T -- every logical and arithmetic entry
 //                                     of HM Table 9, against the C emulator.
+//   RM at four addresses              written, read back, and landing where
+//                                     the address pins say -- not just
+//                                     round-tripping through a permutation.
 //
 // EACH ONE CAUGHT A CELL BUG, and neither bug was visible to any other gate --
 // all eighteen passed with both of them in place.
@@ -76,6 +79,33 @@
 // logical half of this sweep passed while `A+1` did not -- writing the carry
 // at bit 5 of B puts it nowhere. `alufm_word()` below does the mapping, and
 // cpu.c documents the same one from the same table.
+//
+// RM, THE PER-TASK REGISTER FILE. The last block of the datapath. `LC[6]` is
+// "RM/STK <- Pd", so with ALUFM[0] = B the operand goes straight from CPReg
+// into RM; reading it back takes `ASEL[4]` (A<-RM/STK) with ALUFM[0] = 37
+// octal (A) and `LC[1]`. Four addresses, four values, written and read.
+//
+// A WRITE-THEN-READ ALONE WOULD PROVE LITTLE, so the PHYSICAL address is
+// checked too. RM's address pins take `RbAdr.0-.3` unprimed but
+// `RbAdr.4'-.7'` PRIMED, and a mis-modelled polarity there is a consistent
+// PERMUTATION -- it reads back perfectly and is still wrong. That is exactly
+// the trap that hid the IM address reversal until Boot0 compared IM with
+// something external, and nothing external ever sees RM.
+//
+// What the hardware actually does: **the low four address bits are ~RSTK**.
+// `RbAdr.4'` is driven by an MC1662 NOR (ProcH k08) from `RSTK.0` -- a 2:1
+// read/write address mux whose other input is `RbWadr` -- so the RSTK half of
+// the address reaches the RAM complemented, which is what its primed name
+// says. Three independent things agree: `mir-diff` proves RSTK is right in the
+// MIR, the wire list shows the NOR, and this measures ~RSTK end to end. It is
+// harmless to the machine (a permutation within each RBase bank) but it MUST
+// be applied if RM is ever diffed against the C emulator, whose RM[n] is
+// index n.
+//
+// The high four bits are RBase and are only checked for CONSTANCY here -- that
+// RSTK does not bleed into them. They come from an MC10231's TRUE output on
+// ProcL (g10) across the backplane and read 15 in this configuration; nothing
+// in the IRTable loads RBase, so which value that represents is not settled.
 //
 // WHAT THIS GATE DOES NOT COVER, found by mutating the fixes it exists to
 // catch. Swapping the MC10141's two SHIFT modes against each other still
@@ -673,6 +703,36 @@ module tb_compute;
     end
   endtask
 
+  // A GENERAL MICROINSTRUCTION, from the byte layout doradoboot.masm states:
+  //   0: RSTK.0, P015, JCN.7, P1631, 0,0,0,0
+  //   1: RSTK.1, RSTK.2, RSTK.3, ALUF.0, BLOCK, FF.0, FF.1, FF.2
+  //   2: ALUF.1, ALUF.2, ALUF.3, BSEL.0, FF.3, FF.4, FF.5, FF.6
+  //   3: BSEL.1, BSEL.2, LC.0, LC.1, FF.7, JCN.0, JCN.1, JCN.2
+  //   4: LC.2, ASEL.0, ASEL.1, ASEL.2, JCN.3, JCN.4, JCN.5, JCN.6
+  // PARC numbers every field MSB-FIRST, so RSTK.0 is the MSB of rstk and
+  // JCN.7 the LSB of jcn. This encoder reproduces ALL THIRTEEN IRTable entries
+  // byte for byte (parity bits aside, which PARC states per instruction), so
+  // it is checked against PARC's own hand-coding rather than trusted.
+  // P015/P1631 are left at 1: a jammed instruction fails IM parity anyway --
+  // that is the jam mechanism -- and the enables are cleared here.
+  function [39:0] mi(input [3:0] rstk, input [3:0] aluf, input [2:0] bsel,
+                     input [2:0] lc,   input [2:0] asel, input [7:0] ff,
+                     input [7:0] jcn,  input block);
+    reg [7:0] b0, b1, b2, b3, b4;
+    begin
+      b0 = {rstk[3], 1'b1,    jcn[0],  1'b1,    4'b0000};
+      b1 = {rstk[2], rstk[1], rstk[0], aluf[3], block, ff[7], ff[6], ff[5]};
+      b2 = {aluf[2], aluf[1], aluf[0], bsel[2], ff[4], ff[3], ff[2], ff[1]};
+      b3 = {bsel[1], bsel[0], lc[2],   lc[1],   ff[0], jcn[7], jcn[6], jcn[5]};
+      b4 = {lc[0],   asel[2], asel[1], asel[0], jcn[4], jcn[3], jcn[2], jcn[1]};
+      mi = {b0, b1, b2, b3, b4};
+    end
+  endfunction
+
+  task jam_mi(input [39:0] m);
+    begin parc_micro(m[39:32], m[31:24], m[23:16], m[15:8], m[7:0]); end
+  endtask
+
   task nop_micro;
     begin parc_micro(8'h70, 8'h01, 8'h0F, 8'h4C, 8'h40); end
   endtask
@@ -712,9 +772,25 @@ module tb_compute;
   // watch ALUFWrite'.
   integer nalufw; reg palufw;
   reg [5:0] alub_at_write; reg [15:0] q_at_write;
+
+  // The RM address AS THE CELL SEES IT, latched when the write strobe asserts.
+  // h06's address pins are RbAdr.0-.3 then RbAdr.4'-.7' -- the high half
+  // arrives PRIMED, which is why this is measured rather than assumed.
+  wire [7:0] rbadr_now = {m.b_ProcH.RbAdr_0, m.b_ProcH.RbAdr_1,
+                          m.b_ProcH.RbAdr_2, m.b_ProcH.RbAdr_3,
+                          m.b_ProcH.RbAdr_4_p_, m.b_ProcH.RbAdr_5_p_,
+                          m.b_ProcH.RbAdr_6_p_, m.b_ProcH.RbAdr_7_p_};
+  reg [7:0] rbadr_at_write; reg rbw_d = 1'b1;
+  always @(posedge sys_clk) begin
+    rbw_d <= m.b_ProcH.RbWrite_p_a;
+    if (rbw_d && !m.b_ProcH.RbWrite_p_a) rbadr_at_write <= rbadr_now;
+  end
   reg [15:0] q_after_load, q_after_hold;
   reg [15:0] t_first, t_second, t_before_op;
-  integer fi; reg [5:0] afn; reg [15:0] aexp;
+  integer fi, ai; reg [5:0] afn; reg [15:0] aexp;
+  reg [3:0] rstk_n; reg [15:0] rm_val; integer rm_seen;
+  reg [3:0] rbase_seen;          // measured, not assumed
+  reg seen_addr [0:255];
   localparam [15:0] AV = 16'hA55A, BV = 16'h1234;
   // ALUFM entry 0 as PARC numbers it: ALUFdec.0 is the HIGH bit.
   // e13 stores ALUFdec.0-.3 in its Q0-Q3, e14 stores .4-.5 -- and .0 is the
@@ -995,6 +1071,56 @@ module tb_compute;
                afn, t_reg, aexp);
     end
     $display("tb_compute: and all 8 ARITHMETIC entries too, carry in and out.");
+
+    // ---- RM: the per-task register file -------------------------------
+    // LC[6] is "RM/STK <- Pd" and RM's address is RBase<<4 | RSTK (HM p.88),
+    // so with ALUFM[0] = B the operand goes straight from CPReg into RM[RSTK].
+    // Reading it back needs ASEL[4] (A<-RM/STK), ALUFM[0] = 37 octal (A) and
+    // LC[1] (T<-Pd).
+    //
+    // A write-then-read alone would NOT be worth much: RM's address pins take
+    // RbAdr.0-.3 unprimed but RbAdr.4'-.7' PRIMED, so a mis-modelled polarity
+    // is a consistent PERMUTATION -- it would read back perfectly and still be
+    // wrong, exactly the trap that hid the IM address reversal. So the
+    // PHYSICAL address is checked too, against RBase<<4 | RSTK.
+    for (ai = 0; ai < 256; ai = ai + 1) seen_addr[ai] = 1'b0;
+    for (fi = 0; fi < 4; fi = fi + 1) begin
+      rstk_n  = 4'(fi * 5);                       // 0, 5, 12, 15
+      rm_val  = 16'hC000 + 16'(fi * 16'h1111);
+      rm_seen = -1;
+
+      alufm0_is(alufm_word(6'o25), 1'b0);         // ALUFM[0] = B
+      set_cpreg_plain(rm_val);
+      jam_mi(mi(rstk_n, 4'd0, 3'd0, 3'd6, 3'd4, 8'o176, 8'o201, 1'b0));
+      nop_micro;                                  // the write lands here
+
+      // Which PHYSICAL cell took it? h06 holds RM bits .00-.03.
+      // The cell that is newly non-zero is the one this write went to.
+      rm_seen = -1;
+      for (ai = 0; ai < 256; ai = ai + 1)
+        if (m.b_ProcH.u_h06.mem[ai] !== 4'b0000 && !seen_addr[ai]) begin
+          rm_seen = ai; seen_addr[ai] = 1'b1;
+        end
+
+      alufm0_is(alufm_word(6'o37), 1'b0);         // ALUFM[0] = A
+      jam_mi(mi(rstk_n, 4'd0, 3'd0, 3'd1, 3'd4, 8'o176, 8'o201, 1'b0));
+      nop_micro;
+
+      $display("tb_compute:   RM[RBase<<4|%02o] <- %h  read back T=%h  landed at %0d, address pins said %0d",
+               rstk_n, rm_val, t_reg, rm_seen, rbadr_at_write);
+      if (t_reg !== rm_val)
+        $fatal(1, "RM[%02o]: wrote %h, read back %h", rstk_n, rm_val, t_reg);
+      if (rm_seen[3:0] !== ~rstk_n)
+        $fatal(1, "RM[%02o] landed at low nibble %0d, expected ~RSTK = %0d",
+               rstk_n, rm_seen[3:0], ~rstk_n);
+      if (fi == 0) rbase_seen = 4'(rm_seen[7:4]);
+      else if (rm_seen[7:4] !== rbase_seen)
+        $fatal(1, "RSTK bled into the RBase half of the address: %0d, was %0d",
+               rm_seen[7:4], rbase_seen);
+
+    end
+    $display("tb_compute: RM writes and reads back at four addresses; the low four");
+    $display("tb_compute:   address bits are ~RSTK (the MC1662 NOR mux) and RBase reads %0d.", rbase_seen);
 
     $display("tb_compute: all 16 LOGICAL ALU functions agree with the C emulator,");
     $display("tb_compute:   computed on the real ProcH/ProcL slices, A from T and B from CPReg.");

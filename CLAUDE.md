@@ -978,6 +978,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **THE MACHINE COMPUTES** -- 25 octal from CPReg into Q, held, stored into ALUFM[0] | `compute-test` -- PARC's own ALU prologue |
 | ...and T loads through the ALU, EXACTLY | `compute-test` -- 1234 gives 1234, a55a gives a55a |
 | **...and it COMPUTES ON TWO OPERANDS** -- A from T, B from CPReg | `compute-test` -- all 24 entries of HM Table 9 match the C emulator |
+| RM, the per-task register file, writes and reads back | `compute-test` -- and each value lands where the address pins say |
 
 Nineteen gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
@@ -1018,6 +1019,17 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   ones the PREVIOUS instruction latched. Q is not loaded by `QFromCPReg#`; it is
   loaded by the Nop after it -- and a probe sampling right after an instruction
   reads one cycle early.
+- **A general microinstruction encoder exists now, and it is CHECKED.**
+  `tb_compute.sv`'s `mi()` builds the five bytes from the field values per the
+  layout `doradoboot.masm` states, and reproduces all THIRTEEN IRTable entries
+  byte for byte (parity aside). Build new microinstructions with it rather than
+  hand-assembling them -- and it yields `P015`/`P1631` for all thirteen, which
+  is the dataset the open parity question needs.
+- **RM's low four address bits are ~RSTK**, from an MC1662 NOR at ProcH k08.
+  Harmless (a permutation within each RBase bank) but it must be applied if RM
+  is ever diffed against the C emulator, whose RM[n] is index n. A
+  write-then-read test cannot see this; the physical landing address must be
+  checked, exactly as with the IM address reversal.
 - **The ALUFM entry is NOT a contiguous field of B.** HM Table 11d says
   "ALUFMEM <- B.8, B[11:15]" -- the entry's MSB, which is the ALU's CARRY IN,
   comes from B.08 and the other five from B[11:15]. Every LOGICAL entry is

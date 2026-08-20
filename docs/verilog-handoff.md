@@ -35,6 +35,7 @@ can run.
 | **THE MACHINE COMPUTES** | **works** -- Q takes 25 octal from CPReg, holds it, ALUFM[0] stores it | `compute-test` |
 | ...and T loads through the ALU | **works** -- 1234 gives 1234, a55a gives a55a, exact | `compute-test` |
 | **TWO OPERANDS: the ALU as the BOARDS wire it** | **works** -- all 24 entries of HM Table 9 match the C emulator, carry chain and all | `compute-test` |
+| **RM, the per-task register file** | **works** -- four addresses written and read, and each lands where the address pins say | `compute-test` |
 
 ### Every gate
 
@@ -171,6 +172,42 @@ PARC uses a different setter for each: `SendViaMIR` sends IM data with
 (`LDXI 103o / LDAI TFromCPReg# / JSR SetCPAndDoIRTableInst`). Both halves are
 now gated -- `boot0-test` for the IM path against the C emulator, `compute-test`
 for the T path.
+
+### RM, and a general microinstruction encoder
+
+`compute-test` writes RM (`LC[6]` = "RM/STK <- Pd") and reads it back
+(`ASEL[4]` = A<-RM/STK with ALUFM[0] = 37 octal = A), at four addresses with
+four values.
+
+**It also checks the PHYSICAL address**, because a write-then-read alone proves
+little: RM's address pins take `RbAdr.0-.3` unprimed but `RbAdr.4'-.7'`
+PRIMED, and a mis-modelled polarity there is a consistent PERMUTATION -- it
+round-trips perfectly and is still wrong. That is the trap that hid the IM
+address reversal until Boot0 compared IM against something external, and
+**nothing external ever sees RM**.
+
+**The low four address bits are `~RSTK`.** `RbAdr.4'` comes from an MC1662 NOR
+at ProcH k08 -- a 2:1 read/write address mux whose other input is `RbWadr` --
+so the RSTK half reaches the RAM complemented, as its primed name says. Three
+independent things agree: `mir-diff` proves RSTK is right in the MIR, the wire
+list shows the NOR, and the gate measures `~RSTK` end to end. Harmless to the
+machine (a permutation within each RBase bank) but **it must be applied if RM
+is ever diffed against the C emulator**, whose `RM[n]` is index n. The high
+four bits are RBase, checked only for constancy; they come from an MC10231's
+true output on ProcL g10 across the backplane and read 15 here, and nothing in
+the IRTable loads RBase, so which value that represents is not settled.
+
+**A GENERAL MICROINSTRUCTION ENCODER**, which is what made this reachable.
+`tb_compute.sv`'s `mi()` builds the five bytes from
+`(rstk, aluf, bsel, lc, asel, ff, jcn, block)` per the layout `doradoboot.masm`
+states, and it **reproduces all thirteen IRTable entries byte for byte** --
+parity bits aside, which PARC states per instruction. So it is checked against
+PARC's own hand-coding rather than trusted, and any future microinstruction can
+be built with it instead of hand-assembled.
+
+(That validation also, incidentally, extracts `P015`/`P1631` for all thirteen
+entries alongside their field values -- which is the dataset the open parity
+question needs.)
 
 ### The ALU, in the machine
 
