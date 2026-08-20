@@ -979,7 +979,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | ...and T loads through the ALU, EXACTLY | `compute-test` -- 1234 gives 1234, a55a gives a55a |
 | **...and it COMPUTES ON TWO OPERANDS** -- A from T, B from CPReg | `compute-test` -- all 24 entries of HM Table 9 match the C emulator |
 | RM, the per-task register file, writes and reads back | `compute-test` -- and each value lands where the address pins say |
-| **the REAL firmware DRIVES THE DORADO** | `firmware-probe` -- 37 CPStrb' edges; still watchdog-reset every 211,440 sys_clk |
+| the REAL firmware boots itself past power-up | `firmware-probe` -- pacifies its watchdog; reaches SetManifold, then executes filler ROM |
 
 Nineteen gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
@@ -1035,11 +1035,11 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   firmware pacifies (240 `PacifyWatchdog` visits) and the watchdog stays
   satisfied. Two earlier notes claimed the opposite, both from reading a TOTAL
   instead of a DISTRIBUTION -- bucket by time before concluding a run has not
-  settled. Still open: it reaches `SetManifold` (4x) and passes the MufMan gate
-  (`TSetRun`=0), and `SetMufflerAddress` shifts the muffler address over the
-  CP BUS (`$0580`/`$0582` = MCPBusH/L), not the `DMux*` nets -- so whether that
-  word is decoded on the Dorado side is the open question, not whether it is
-  sent.
+  settled. Still open, and narrower than it looked: it reaches `SetManifold` (4x) with
+  the MufMan gate passing, and the shift would go over the CP BUS as function
+  code 1 (`Clock`) -- but NO fn-1 strobe is ever sent, only Control and MIR3,
+  and at every strobe the PC is in `FF7C..FF87`, which is `00`/BRK FILLER ROM.
+  So execution leaves real code somewhere before the shift; find where.
 - **The real firmware runs, and the WATCHDOG is what stops it.** `dorado_boot`
   (BaseBd+ContA+ContB+ProcH+ProcL) lets the 6502 run its own EPROMs; it is
   reset every 211,440 sys_clk, exactly periodic, and never reaches the Dorado.
