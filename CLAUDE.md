@@ -979,7 +979,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | ...and T loads through the ALU, EXACTLY | `compute-test` -- 1234 gives 1234, a55a gives a55a |
 | **...and it COMPUTES ON TWO OPERANDS** -- A from T, B from CPReg | `compute-test` -- all 24 entries of HM Table 9 match the C emulator |
 | RM, the per-task register file, writes and reads back | `compute-test` -- and each value lands where the address pins say |
-| the REAL firmware boots and shifts a manifold word | `firmware-probe` -- pacifies its watchdog and runs SetMufflerAddress; the CP-bus FUNCTION CODE reads wrong |
+| **the REAL firmware clocks the MANIFOLD CHAIN on the backplane** | `firmware-probe` -- 24 Clock strobes, DMuxClk reaching every board |
 
 Nineteen gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
@@ -1020,6 +1020,16 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   ones the PREVIOUS instruction latched. Q is not loaded by `QFromCPReg#`; it is
   loaded by the Nop after it -- and a probe sampling right after an instruction
   reads one cycle early.
+- **A 6532 PORT PIN READS ITS OWN PIN.** `read_excluding` drops a package's own
+  contribution -- right for a gate, wrong for a port pin, where the chip reads
+  the PIN and an output pin is what the chip itself drives (the core says so:
+  "port output must be fed back to input"). Without it every read-modify-write
+  on a port read ZERO for its own output bits, so `INC $0582`/`DEC $0582` in
+  SetMufflerAddress produced 0x01/0xFF instead of 0x11/0x10 and the CP-bus
+  function code never read `Clock`. `READBACK_OWN_PIN` in the generator fixes
+  it, and the BaseBoard now clocks the muffler chain onto the backplane.
+- **MEASURE THE PC WITH SYNC**, not the address bus: the bus includes DATA
+  READS, which made ROM table lookups look like a PC parked in filler.
 - **A 6532 port pin's pull-up is a NET property, not a cell one.** The core's
   `PA_out = out_a | ~dir_a` is the pull-up of a high-Z input pin -- a WIRE-AND
   convention -- and these nets resolve as wired-OR, so it won instead of losing
