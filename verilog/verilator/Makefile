@@ -359,6 +359,21 @@ startseq:
 # 6532s, the '138 that decodes Rom0'..Rom7', the eight 2716 sockets, and the
 # crystal/counter/flip-flop chain that clocks and releases it.
 .PHONY: baseboard-test
+# LET THE REAL FIRMWARE DRIVE THE MACHINE -- BaseBd + ContA + ContB + ProcH +
+# ProcL, with the 6502 running its own EPROMs. A DIAGNOSTIC, not a gate.
+.PHONY: firmware-probe
+firmware-probe:
+	@cd ../.. && $(V) --binary --top-module tb_firmware $(V_WARN) \
+		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \
+		--Mdir verilog/verilator/obj_fw -o tb_firmware \
+		verilog/verilator/tb_firmware.sv \
+		verilog/generated/dorado_boot.v \
+		verilog/generated/BaseBd-Rev-Am.v verilog/generated/ContA-Rev-Cd.v \
+		verilog/generated/ContB-Rev-Cd.v verilog/generated/ProcH-Rev-Ce.v \
+		verilog/generated/ProcL-Rev-Ci.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_fw/tb_firmware 2>&1); \
+		  rc=$$?; echo "$$out" | grep -E "tb_firmware|Assertion"; exit $$rc; }
+
 baseboard-test:
 	@cd ../.. && $(V) --binary --top-module tb_baseboard $(V_WARN) \
 		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \
@@ -378,12 +393,15 @@ TOP_V    = $(GEN)/dorado_backplane.v
 BB_V     = $(GEN)/dorado_baseboard.v
 CT_V     = $(GEN)/dorado_control.v
 PR_V     = $(GEN)/dorado_proc.v
+# The five-board machine tb_firmware runs: BaseBd + ContA + ContB + ProcH + ProcL.
+BT_V     = $(GEN)/dorado_boot.v
 
 lint:
 	@ok=0; bad=0; \
 	for f in $(GEN)/*.v; do \
 		if [ "$$f" = "$(TOP_V)" ] || [ "$$f" = "$(BB_V)" ] \
-		   || [ "$$f" = "$(CT_V)" ] || [ "$$f" = "$(PR_V)" ]; then continue; fi; \
+		   || [ "$$f" = "$(CT_V)" ] || [ "$$f" = "$(PR_V)" ] \
+		   || [ "$$f" = "$(BT_V)" ]; then continue; fi; \
 		if $(V) --lint-only $(V_WARN) -I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $$f >/dev/null 2>&1; then \
 			ok=$$((ok+1)); \
 		else \
@@ -415,6 +433,17 @@ lint:
 			echo "lint: two-board Control machine elaborates"; \
 		else \
 			bad=$$((bad+1)); echo "  FAIL dorado_control.v"; \
+		fi; \
+	fi; \
+	if [ -f $(BT_V) ]; then \
+		if $(V) --lint-only --top-module dorado_boot_machine $(V_WARN) \
+			-I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $(BT_V) \
+			$(GEN)/BaseBd-Rev-Am.v $(GEN)/ContA-Rev-Cd.v \
+			$(GEN)/ContB-Rev-Cd.v $(GEN)/ProcH-Rev-Ce.v \
+			$(GEN)/ProcL-Rev-Ci.v >/dev/null 2>&1; then \
+			echo "lint: five-board boot machine elaborates"; \
+		else \
+			bad=$$((bad+1)); echo "  FAIL dorado_boot.v"; \
 		fi; \
 	fi; \
 	if [ -f $(PR_V) ]; then \
