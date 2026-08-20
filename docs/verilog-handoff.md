@@ -361,21 +361,33 @@ both ports -- `DAC = 400+PA` (`DACDDRValue = AllOutput`) and
 converting one analog channel after another: the supply voltages and currents
 `doradomufman.masm` waits on before it will bring the Dorado up.
 
-**THE COMPARATORS ARE NOT MODELLED.** On the BaseBoard they are seven
-**AM2615** packages -- e23, e24, f23, f24, g24, h23, h24 -- dual differential
-line receivers (`DoradoDocs/datasheets/AM2615.pdf`), fourteen comparators, and
-`cell_AM2615.v` is still a `TODO: model this part` skeleton. Every conversion
-reads the same dead answer, no rail ever measures in range, and the firmware
-never leaves power sequencing. **That is why it never reaches
-`PacifyWatchdog`, and why g22's power-up state looked like the blocker when it
-is a symptom.**
+**THE MEASUREMENT CHAIN IS NOT MODELLED, and it is genuinely ANALOG.** (An
+earlier version of this section blamed the AM2615s. That was wrong -- their
+wiring is `ACPBus.n'` in, `RCPBus.n` out, `ACPStrb'` to `RCPStrb`: they are
+exactly what the part is, differential LINE RECEIVERS for the
+control-processor bus, with nothing to do with the A/D. Read the wiring before
+blaming a part.)
 
-**NEXT: this is a SUBSTITUTION**, the same category as the VCO (see
-`cell_MPQ3303` and `OVERRIDE_DRIVERS`) -- an analog chain has no digital model,
-so the substitute has to answer the way healthy supplies would. Read what the
-firmware does with each channel (`ReadMufflerField`, the `F6DF`/`F6E0` table it
-indexes at F804, and the range checks after `READMUFFLER`) and make
-`cell_AM2615` return comparator results consistent with rails that are up.
+What actually implements it, all of them skeletons:
+
+| part | packages | role |
+|---|---|---|
+| **CA3140** | g18, i19, i20, i21, j21 | CMOS op-amps. i21 buffers `DACOut`; i19 compares `DACOut` (+, pin 3) against `BaseBd13.sil+11` (-, pin 2) and outputs `CVDD`; i20 outputs `CVEE`. Both land on the RIOT at l62 PA -- which is `Comparators = 480+PA` |
+| **CD4051** | i2125, j24, k24 | analog multiplexers -- the channel selector the muffler address steps |
+| **AUGATCG16** | i18, i23, a02 | resistor platforms: the dividers that scale each rail. `BaseBd13.sil+11` and `+13` come from i18 and nowhere else |
+
+So every conversion reads a dead comparator, no rail measures in range, and the
+firmware never leaves power sequencing.
+
+**NEXT, SCOPED HONESTLY.** This is a SUBSTITUTION in the same category as the
+VCO (`cell_MPQ3303`, `OVERRIDE_DRIVERS`) -- an analog chain has no digital
+model. But it **cannot be done cell by cell**: a CA3140 comparing two nets the
+RTL knows only as 0/1 has nothing to compare. The substitute needs the DAC's
+DIGITAL value (the RIOT port at `DAC = 400+PA`) tested against a per-channel
+target, so it is a small behavioural model spanning the DAC port, the CD4051
+channel select and the comparator output -- not four cells. Read
+`ReadMufflerField`, the `F6DF`/`F6E0` table indexed at F804, and the range
+checks after `READMUFFLER` to get the targets each channel must return.
 
 **And g22's POWER-UP STATE matters too.** j17 NANDs the XOR against
 g22's `Q'`, so a `Q'` of 0 masks the XOR entirely and only a real timer expiry

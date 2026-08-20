@@ -1033,10 +1033,12 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   watchdog.** Its hot loop is a successive-approximation A/D conversion --
   write `DAC = 400+PA`, settle, read `Comparators = 480+PA`, shift -- stepping
   muffler channels for the rails `doradomufman.masm` waits on. The comparators
-  are seven **AM2615** dual differential line receivers on the BaseBoard
-  (e23, e24, f23, f24, g24, h23, h24) and `cell_AM2615` is an unmodelled
-  skeleton, so no rail ever reads in range. Modelling it is a SUBSTITUTION
-  like the VCO. The watchdog and g22's power-up state are symptoms downstream
+  are **CA3140** op-amps (g18, i19, i20, i21, j21) fed through **CD4051**
+  analog multiplexers (i2125, j24, k24) and AUGATCG16 resistor platforms --
+  all unmodelled skeletons -- so no rail ever reads in range. It is a
+  SUBSTITUTION like the VCO, but NOT a per-cell one: a comparator whose inputs
+  the RTL knows only as 0/1 has nothing to compare, so the substitute must
+  test the DAC's DIGITAL value (`DAC = 400+PA`) against a per-channel target. The watchdog and g22's power-up state are symptoms downstream
   of this.
 - **The real firmware runs, and the WATCHDOG is what stops it.** `dorado_boot`
   (BaseBd+ContA+ContB+ProcH+ProcL) lets the 6502 run its own EPROMs; it is
