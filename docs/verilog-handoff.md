@@ -310,37 +310,44 @@ manifold word goes out as ordinary CP-bus transactions, and the BaseBoard's own
 k22/k17 decode them into `CPDMuxData`/`CPDMuxClk`, through l19 and the l24
 TTL-to-ECL translator, onto the backplane as `DMuxData`/`DMuxClk`.
 
-**But the CP-bus traffic is not the manifold shift.** Measured at every
-`MCPStrb` rising edge, function code read MSB-first as PARC numbers it:
+**The shift runs — measure the PC with SYNC, not the address bus.** The 6502's
+SYNC output marks an opcode fetch. Ungated, the address bus shows data reads
+too, which is how `FF00` (1024) and `FF80` (669) came to look like a PC parked
+in filler when `FEF0..FF10` disassembles as **data**. Gated on SYNC, the ten
+most-executed addresses are all F84A..F865 — the ADCONVERT loop — and nothing
+near FFxx appears.
+
+And the strobes come from the shift itself:
 
 ```
-MCPStrb rising edges 225     fn 0 (Control) 116, fn 7 (MIR3) 109
-CPDMuxClk edges 0, CPDMuxData edges 0
-
-strobe 2 at 1,424,958 (last ROM addr ff82): fn=0 data=001000000
-strobe 3 at 1,425,438 (last ROM addr ff82): fn=7 data=101000000
-strobe 4 at 1,426,398 (last ROM addr ff82): fn=0 data=000000000
-... alternating fn 0 / fn 7, last ROM address ff82 EVERY TIME
+strobe 2 at 1,424,958 (last FETCH f9fd): fn=0 data=001000000
+strobe 3 at 1,425,438 (last FETCH fa00): fn=7 data=101000000
+strobe 4 at 1,426,398 (last FETCH fa08): fn=0 data=000000000
+strobe 5 at 1,426,878 (last FETCH fa0b): fn=7 data=100000000
 ```
 
-**No `Clock` strobe (fn 1) is ever sent** — which is what `SetMufflerAddress`
-produces — and **`FF7C..FF87` is all `00`, i.e. `BRK`: unused filler ROM.** The
-processor is fetching from filler at every one of those strobes, and `FF00`
-(1024 visits) and `FF80` (669) are among the hottest addresses in the run. The
-`fffe`/`ffff` traffic noticed earlier is consistent with BRK vectoring, not an
-interrupt storm.
+F9FD/FA00/FA08/FA0B are inside the F9F6 subroutine — `STA $0580`,
+`INC $0582`, `DEC $0582`, twice per bit. **`SetMufflerAddress` is running and
+is strobing the CP bus**, and the bits marching through `MCPBus.00/.01/.08`
+are the muffler address going out. An earlier version of this section said the
+CP-bus traffic "is not the manifold shift" and that the PC was in filler ROM.
+Both were wrong, and both came from reading the address bus as a program
+counter.
 
-**So "it is driving the Dorado" overstates this.** The strobes are real CP-bus
-transactions and the count is real, but they are Control and MIR3 only, none of
-them the manifold shift, and the PC is in unused ROM when they happen. What is
-established is narrower: **the BaseBoard boots, survives its watchdog, reaches
-`SetManifold` four times with the MufMan gate passing — and then execution ends
-up in filler.**
+**What is actually anomalous is one thing: the function code.** F9D8 sets
+`MCPBusL = $10`, so bits 6/5/4 — `MCPABus.0/.1/.2` — should read 0/0/1,
+function **1 = `Clock`**, on every strobe. Measured MSB-first they alternate
+**0 and 7**: all three low, then all three high. Never 1. `CPDMuxClk`/
+`CPDMuxData` never moving follows directly — k22/k17 decode the `Clock`
+function and never see one.
 
-**NEXT:** find where it leaves real code. Log the last ROM address before the
-first fetch at `FF00`/`FF80`, or watch for the first fetch outside the routines
-the disassembly names. A measurement, not a theory, and it should come before
-any further claim about what the firmware is doing.
+A field reading all-zero or all-one is the signature of those pins not
+carrying the output register. `MCPBusLDDRValue` is
+`IsOutput*(80+MCPABus+MCPStrobe)` = `0xF1`, so bits 7,6,5,4,0 **are** outputs.
+The core computes `PB_out = out_b | ~dir_b`, so a pin whose DDR bit is clear
+reads back 1 — all-ones is exactly what these three would give with their DDR
+bits clear. **First thing to check: does the DDR write reach the model?** Log
+`$0583` (MCPBusL's DDR) and `out_b` around F9D8.
 
 #### Also worth knowing
 

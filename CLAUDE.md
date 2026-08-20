@@ -979,7 +979,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | ...and T loads through the ALU, EXACTLY | `compute-test` -- 1234 gives 1234, a55a gives a55a |
 | **...and it COMPUTES ON TWO OPERANDS** -- A from T, B from CPReg | `compute-test` -- all 24 entries of HM Table 9 match the C emulator |
 | RM, the per-task register file, writes and reads back | `compute-test` -- and each value lands where the address pins say |
-| the REAL firmware boots itself past power-up | `firmware-probe` -- pacifies its watchdog; reaches SetManifold, then executes filler ROM |
+| the REAL firmware boots and shifts a manifold word | `firmware-probe` -- pacifies its watchdog and runs SetMufflerAddress; the CP-bus FUNCTION CODE reads wrong |
 
 Nineteen gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
@@ -1035,11 +1035,14 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   firmware pacifies (240 `PacifyWatchdog` visits) and the watchdog stays
   satisfied. Two earlier notes claimed the opposite, both from reading a TOTAL
   instead of a DISTRIBUTION -- bucket by time before concluding a run has not
-  settled. Still open, and narrower than it looked: it reaches `SetManifold` (4x) with
-  the MufMan gate passing, and the shift would go over the CP BUS as function
-  code 1 (`Clock`) -- but NO fn-1 strobe is ever sent, only Control and MIR3,
-  and at every strobe the PC is in `FF7C..FF87`, which is `00`/BRK FILLER ROM.
-  So execution leaves real code somewhere before the shift; find where.
+  settled. Still open, and narrower again: `SetMufflerAddress` RUNS -- the strobes come
+  from F9FD/FA00/FA08/FA0B inside its F9F6 shift loop -- but the CP-bus
+  function code reads 0 and 7 alternating where `MCPBusL = $10` should give a
+  constant 1 (`Clock`), so the BaseBoard's k22/k17 never decode a DMux pulse.
+  A field reading all-zero/all-one is the signature of pins not carrying the
+  output register; check whether the DDR write reaches the RIOT model.
+  MEASURE THE PC WITH SYNC: the address bus includes DATA READS, which made
+  FF00/FF80 table lookups look like a PC parked in filler ROM.
 - **The real firmware runs, and the WATCHDOG is what stops it.** `dorado_boot`
   (BaseBd+ContA+ContB+ProcH+ProcL) lets the 6502 run its own EPROMs; it is
   reset every 211,440 sys_clk, exactly periodic, and never reaches the Dorado.

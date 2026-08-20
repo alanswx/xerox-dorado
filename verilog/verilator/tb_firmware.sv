@@ -117,37 +117,46 @@
 // l19 and the l24 TTL-to-ECL translator, onto the backplane as
 // `DMuxData`/`DMuxClk`.
 //
-// ------------- AND THE CP-BUS TRAFFIC IS NOT THE MANIFOLD SHIFT -------------
+// ------------------ THE SHIFT RUNS; THE FUNCTION CODE READS WRONG -----------
 //
-// Measured at every `MCPStrb` rising edge, function code read MSB-FIRST as
-// PARC numbers it ({MCPABus.0, .1, .2}):
+// MEASURE THE PC WITH SYNC, NOT THE ADDRESS BUS. The 6502's SYNC output (cell
+// pin 7; the board leaves it unconnected, so probe it inside the instance)
+// marks an OPCODE FETCH. Ungated, the address bus shows data reads too -- and
+// that is how `FF00` (1024) and `FF80` (669) came to look like a PC parked in
+// filler, when `FEF0..FF10` disassembles as DATA, not code. They are table
+// reads. Gated on SYNC the ten most-EXECUTED addresses are all F84A..F865, the
+// ADCONVERT loop, and nothing near FFxx appears at all.
 //
-//     MCPStrb rising edges 225      fn 0 (Control) 116, fn 7 (MIR3) 109
-//     CPDMuxClk edges 0, CPDMuxData edges 0
+// AND THE STROBES COME FROM THE SHIFT ITSELF:
 //
-//     strobe 2 at 1,424,958 (last ROM addr ff82): fn=0 data=001000000
-//     strobe 3 at 1,425,438 (last ROM addr ff82): fn=7 data=101000000
-//     strobe 4 at 1,426,398 (last ROM addr ff82): fn=0 data=000000000
-//     ... alternating fn 0 / fn 7, last ROM address ff82 EVERY TIME
+//   strobe 2 at 1,424,958 (last FETCH f9fd): fn=0 data=001000000
+//   strobe 3 at 1,425,438 (last FETCH fa00): fn=7 data=101000000
+//   strobe 4 at 1,426,398 (last FETCH fa08): fn=0 data=000000000
+//   strobe 5 at 1,426,878 (last FETCH fa0b): fn=7 data=100000000
 //
-// NO `Clock` STROBE (fn 1) IS EVER SENT -- which is what `SetMufflerAddress`
-// would produce -- and `FF7C..FF87` is all `00`, i.e. BRK: UNUSED FILLER ROM.
-// The processor is fetching from filler at every one of these strobes, and
-// `FF00` (1024 visits) and `FF80` (669) are among the hottest addresses in the
-// run. The `fffe`/`ffff` traffic noticed earlier is consistent with BRK
-// vectoring rather than with an interrupt storm.
+// F9FD/FA00/FA08/FA0B are inside the F9F6 subroutine -- `STA $0580`,
+// `INC $0582`, `DEC $0582`, twice per bit. So `SetMufflerAddress` IS running
+// and IS strobing the CP bus, and the data bits marching through
+// `MCPBus.00/.01/.08` are the muffler address being shifted out. An earlier
+// note here said the CP-bus traffic "is not the manifold shift" and that the
+// PC was in filler ROM. Both were wrong, and both came from reading the
+// address bus as if it were the program counter.
 //
-// SO "IT IS DRIVING THE DORADO" OVERSTATES THIS. The strobes are real CP-bus
-// transactions and the count is real, but they are Control and MIR3 only, none
-// of them the manifold shift, and the PC is in unused ROM when they happen.
-// What is established is narrower: the BaseBoard boots, survives its watchdog,
-// reaches `SetManifold` four times with the MufMan gate passing -- and then
-// execution ends up in filler.
+// WHAT IS ACTUALLY ANOMALOUS, and it is one thing: **the function code**.
+// F9D8 sets `MCPBusL = $10`, so bits 6/5/4 -- `MCPABus.0/.1/.2` -- should read
+// 0/0/1, i.e. function 1, `Clock`, on every strobe. Measured, MSB-first as
+// PARC numbers it, they alternate **0 and 7**: all three low, then all three
+// high. Never 1. And `CPDMuxClk`/`CPDMuxData` never move, which follows -- the
+// BaseBoard's k22/k17 decode the Clock function, and it never sees one.
 //
-// NEXT: find where it leaves real code. Log the last ROM address before the
-// first fetch at `FF00`/`FF80`, or watch for the first fetch outside the
-// routines the disassembly names. A measurement, not a theory, and it should
-// come before any further claim about what the firmware is doing.
+// A field that reads all-zero or all-one, alternating, is the signature of the
+// three pins not carrying the output register at all. `MCPBusLDDRValue` is
+// `IsOutput*(80+MCPABus+MCPStrobe)` = 0xF1, so bits 7,6,5,4,0 ARE outputs and
+// 3,2,1 inputs; all three function bits should be driven. The MiSTer core
+// computes `PB_out = out_b | ~dir_b`, so a pin whose DDR bit is 0 reads back 1
+// -- all-ones is exactly what these three would give if their DDR bits were
+// clear. So the first thing to check is whether the DDR write reaches the
+// model: log `$0583` (MCPBusL's DDR) and `out_b` around F9D8.
 //
 // ---------------------------------------------------- ALSO WORTH KNOWING
 //
@@ -190,7 +199,9 @@ module tb_firmware;
   integer n_cpstrb = 0, n_manclk = 0, n_dmuxclk = 0;
   reg     p_cpstrb = 1'b1, p_manclk = 1'b1, p_dmuxclk = 1'b0;
   reg [15:0] pc_lo = 16'hFFFF, pc_hi = 16'h0000, last_a = 16'h0;
-  reg [15:0] last_rom = 16'h0;
+  reg [15:0] last_rom = 16'h0, last_fetch = 16'h0;
+  integer hotx [0:4095];
+  integer n_fetch = 0;
   integer n_rom = 0, n_ram = 0, n_io = 0;
 
   // Where does it SPEND its time? A 16-bucket histogram over the 64K space is
@@ -233,7 +244,7 @@ module tb_firmware;
       bucket[i] = 0; win_start[i] = 0; win_resets[i] = 0; win_armed[i] = 1'b0;
     end
     win_armed[0] = 1'b1;   // g22 comes up armed unless G22_DISARMED
-    for (i = 0; i < 4096; i = i + 1) hot[i] = 0;
+    for (i = 0; i < 4096; i = i + 1) begin hot[i] = 0; hotx[i] = 0; end
     for (i = 0; i < 8; i = i + 1) fn_seen[i] = 0;
 
     // Long enough to cross a real watchdog interval (2^21 MCPreClk cycles at
@@ -244,8 +255,19 @@ module tb_firmware;
     for (i = 0; i < 4_000_000; i = i + 1) begin
 `endif
       @(posedge sys_clk);
+      // SYNC marks an OPCODE FETCH. Without it the address bus shows data
+      // reads too, and this histogram counted table lookups as if they were
+      // execution -- which is how `FF00`/`FF80` came to look like a PC parked
+      // in filler when FEF0..FF10 disassembles as data, not code.
       if (mca !== last_a) begin
         last_a = mca;
+        if (`BB.u_f61.p7) begin
+          if (mca >= 16'hF000) begin
+            hotx[mca - 16'hF000] = hotx[mca - 16'hF000] + 1;
+            last_fetch = mca;
+          end
+          n_fetch = n_fetch + 1;
+        end
         bucket[mca[15:12]] = bucket[mca[15:12]] + 1;
         if (mca < 16'h1000)                        n_ram = n_ram + 1;
         else if (mca >= 16'hC000)                  n_rom = n_rom + 1;
@@ -293,8 +315,8 @@ module tb_firmware;
           fn_seen[{`BB.MCPABus_0, `BB.MCPABus_1, `BB.MCPABus_2}] =
             fn_seen[{`BB.MCPABus_0, `BB.MCPABus_1, `BB.MCPABus_2}] + 1;
           if (n_mcpstrb <= 8)
-            $display("tb_firmware:   strobe %0d at %0d (last ROM addr %04h): fn=%0d data=%b%b%b%b%b%b%b%b%b",
-                     n_mcpstrb, i, last_rom,
+            $display("tb_firmware:   strobe %0d at %0d (last FETCH %04h, last ROM addr %04h): fn=%0d data=%b%b%b%b%b%b%b%b%b",
+                     n_mcpstrb, i, last_fetch, last_rom,
                      {`BB.MCPABus_0, `BB.MCPABus_1, `BB.MCPABus_2},
                      `BB.MCPBus_08, `BB.MCPBus_00, `BB.MCPBus_01, `BB.MCPBus_02,
                      `BB.MCPBus_03, `BB.MCPBus_04, `BB.MCPBus_05, `BB.MCPBus_06,
@@ -341,7 +363,17 @@ module tb_firmware;
     for (i = 0; i < 16; i = i + 1)
       if (bucket[i] != 0)
         $display("tb_firmware:   %01hxxx : %0d", i, bucket[i]);
-    $display("tb_firmware: the ten ROM addresses it visits most (i.e. the loop):");
+    $display("tb_firmware: %0d opcode FETCHES (SYNC high). The ten most-EXECUTED ROM addresses:", n_fetch);
+    for (i = 0; i < 10; i = i + 1) begin
+      best = 0; besta = 0;
+      for (j = 0; j < 4096; j = j + 1)
+        if (hotx[j] > best) begin best = hotx[j]; besta = j; end
+      if (best > 0) begin
+        $display("tb_firmware:   %04h  %0d fetches", 16'hF000 + besta[15:0], best);
+        hotx[besta] = 0;
+      end
+    end
+    $display("tb_firmware: the ten ROM addresses it ADDRESSES most (fetches AND data reads):");
     for (i = 0; i < 10; i = i + 1) begin
       best = 0; besta = 0;
       for (j = 0; j < 4096; j = j + 1)
