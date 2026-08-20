@@ -63,35 +63,31 @@
 // one-for-one instead. The firmware writes that port during startup, each
 // write flips the XOR, and the XOR reaches `BootMC'` unopposed.
 //
-// TWO THINGS ARE IN THE WAY, and one of them is a modelling bug with a known
-// fix that is NOT applied because it costs a gate.
+// THE BLOCKER IS `BootMC'`, AND THE 6532's INPUT-PIN CONVENTION IS WHY.
+// Measured in the one-board machine: MCReset'=0, PwrGood=1, TTLTrue.E=1 -- the
+// power-up gate is fine and BootMC' is simply LOW. j17 NANDs the g23 XOR
+// against g22's Q', so BootMC' is low exactly when WatchdogIn != WatchdogOut
+// and g22's Q' is 1.
 //
-// (1) THE 6532 DRIVES ITS INPUT PINS HIGH. `M6532.sv` computes
-//     `PA_out = out_a | ~dir_a`, so a pin the DDR marks as an INPUT reads back
-//     1 -- the core's own comment says the output "must be fed back to input
-//     ... for the chip to read properly", a convention that assumes the pin is
-//     wire-ANDed with an external open-collector driver. These boards' nets
-//     are modelled as wired-OR, so that 1 PINS THE NET HIGH. BaseBd f63 PA7 is
-//     `WatchdogIn`, an INPUT per `WatchdogDDRValue` in doradoio.mdefs, really
-//     driven by the watchdog flip-flop at g22 -- and the pin's contribution
-//     hides it completely.
+// A CORRECTION. An earlier note here said masking the 6532's port drive with
+// its DDR "fixes the reset storm, 19 fetches to ZERO". IT DOES NOT. Zero
+// reset-vector fetches means the 6502 NEVER STARTED -- held in reset, which is
+// worse than restarting -- and the fffe/ffff hits that looked like an IRQ
+// storm are what the bus does with the processor held down.
 //
-//     Masking the contribution with the DDR (expose `dir_a`/`dir_b` from the
-//     core, drive `pa_out & pa_dir`) DOES fix the reset storm: reset-vector
-//     fetches go from 19 to ZERO. But it then breaks `baseboard-test` -- in
-//     the ONE-board machine the 6502 never leaves reset at all -- because
-//     something there depends on those high contributions. Same shape as the
-//     MC10170 parity fix: correct in isolation, with a consequence elsewhere
-//     that has to be worked out first. Find what in `dorado_baseboard` reads a
-//     6532 input pin and needs it high.
+// THE REAL SHAPE OF THE FIX. `PA_out = out_a | ~dir_a` in the core is not a
+// bug: it is THE PULL-UP OF A HIGH-Z INPUT PIN, and a 6532 port pin set as an
+// input really does present a 1. That is RIGHT for `WatchdogOut`, whose only
+// driver is the RIOT (f63.14) -- mask it and the net reads 0, the XOR goes 1,
+// and BootMC' sticks low. It is WRONG for `WatchdogIn`, which g22 also drives
+// (g22.8, a totem-pole '74 output that in reality beats a pull-up), because in
+// a wired-OR net model the RIOT's 1 wins and the watchdog is invisible.
 //
-// (2) WITH THAT FIX IN, THE MACHINE TAKES A PERPETUAL INTERRUPT. The hot
-//     addresses become `fffe`/`ffff` -- the IRQ/BRK vector -- 12,499 times,
-//     alongside 12,499 accesses in the 9xxx RIOT page. So the reset storm is
-//     replaced by an IRQ storm, and the next question is which RIOT interrupt
-//     source is asserting: the interval timer, or the PA7 edge detect that
-//     this same core wires to `pa7 = dir_a[7] ? PA_out[7] : PA_in[7]`, which
-//     the DDR fix necessarily changes.
+// Neither net has a physical pull-up resistor; the pull-up is inside the 6532.
+// So THE FIX IS PER-NET, NOT PER-CELL, and belongs in the generator: a 6532
+// port pin should contribute `out & dir` where the net has another driver, and
+// its pull-up where it is the sole driver. tools/sil_backplane.py already
+// knows each net's driver set.
 //
 // SO THE TOGGLE FLIP-FLOP'S POWER-UP STATE MATTERS TOO.
 // SO THE REMAINING QUESTION IS THE TOGGLE FLIP-FLOP'S POWER-UP STATE. j17
