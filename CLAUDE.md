@@ -1019,6 +1019,19 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   ones the PREVIOUS instruction latched. Q is not loaded by `QFromCPReg#`; it is
   loaded by the Nop after it -- and a probe sampling right after an instruction
   reads one cycle early.
+- **PARC's microinstruction parity is ODD parity over each 17-bit HALF** --
+  left = RSTK/ALUF/BSEL/LC/ASEL -> P015, right = BLOCK/FF/JCN -> P1631, the
+  bit being `~XOR` of the other seventeen. Fitted against PARC's own IRTable:
+  13/13 on both bits, where even parity matches 0/13. The one-line cell fix
+  that makes all thirteen PASS our checkers (`cell_MC10170`'s B output is a
+  plain XOR, not an XNOR) regresses four other gates through `SignedCarry` and
+  the IM-write-parity path, so it is NOT committed -- see
+  `docs/verilog-handoff.md` and the header of `tb_parity.sv`.
+- **Manifold register 0 is not "the parity enables".** `12'h030` is
+  `DisableDoradoErrors`; writing `12'h000` to it re-ENABLES every error class
+  rather than turning parity off. Doing that to four jam-based testbenches
+  broke them in a way that looked exactly like fallout from an unrelated cell
+  change -- they still failed with that change reverted.
 - **A general microinstruction encoder exists now, and it is CHECKED.**
   `tb_compute.sv`'s `mi()` builds the five bytes from the field values per the
   layout `doradoboot.masm` states, and reproduces all THIRTEEN IRTable entries

@@ -25,6 +25,7 @@
 #   make boot0-test   PARC's BLOCK LOADER: a 17-byte hunk walked into IM
 #   make exec-test    THE MACHINE EXECUTES MICROCODE OUT OF IM
 #   make compute-test THE MACHINE COMPUTES: Q takes 25o and ALUFM[0] stores it
+
 #   make converge-test the assembled machine settles, and its clock runs
 #   make machine-test the assembled machine under the imgui harness
 #   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs

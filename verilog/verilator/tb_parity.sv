@@ -1,44 +1,66 @@
-// tb_parity -- do PARC's own IRTable microinstructions satisfy our IM parity
-// generators? A DIAGNOSTIC, not a gate: they do not, and the number that
-// matters is that ALL THIRTEEN fail, both halves.
+// tb_parity -- do PARC's thirteen IRTable microinstructions satisfy our IM
+// parity generators? A DIAGNOSTIC: they do NOT, all thirteen, both halves.
+// What follows is everything established about why, so the next attempt starts
+// from the answer rather than the symptom.
 //
-// This is the question `exec-test` runs into. That test has to CLEAR the IM
-// parity enables before the machine will run, and `InitManifolds` leaves them
-// ON for the whole of PARC's boot while jamming IRTable instructions
-// constantly. So either those entries carry parity our generators should
-// accept, or the generators are wrong.
+// PARC'S RULE IS ODD PARITY OVER EACH 17-BIT HALF, and this is settled by pure
+// computation against PARC's own table -- no RTL involved. The two parity bits
+// P015 and P1631 sit in byte 0 of the DoDoradoMicroInst format (bits 6 and 4),
+// and `doradoboot.masm` states both the fields AND the bytes for all thirteen
+// entries, so the rule can simply be fitted:
 //
-// MEASURE WITH THE JAM STILL IN THE MIR. The parity generators are
-// combinational off the MIR, so the machine must be STOPPED when they are
-// read. The first version of this file ran each entry first and then sampled,
-// by which time the MIR had reloaded from a wiped IM -- it reported the left
-// half passing on all thirteen and the right failing on eleven, and BOTH
-// halves of that were an artifact. Held properly, all thirteen fail both.
+//     left  17 bits = RSTK(4) ALUF(4) BSEL(3) LC(3) ASEL(3)  -> P015
+//     right 17 bits = BLOCK(1) FF(8) JCN(8)                  -> P1631
+//     parity bit = ~(XOR of those 17), i.e. ODD parity including the bit
 //
-// WHAT THE SIGNALS MEAN, settled by function rather than by the primes in the
-// names: `Error'` = 0 IS an error. `dStop` is
-// `~[(bpreStartC'b + ContA31.sil+5) . (bpreStartC'b + Error')]`, so `Error'`
-// low can drive `dStop` high and stop the machine, which is exactly what
-// `exec-test` sees at the instant it starts.
+// That reproduces PARC's stated P015 for 13/13 entries and P1631 for 13/13.
+// Even parity matches 0/13. The split is exactly the hunk format's two 17-bit
+// halves (8 half-microinstructions x 17 bits = the 136-bit hunk), and the
+// checker's own input lists confirm the domains: ContA e19+e18 take JCN(8),
+// FF(8), CABlock and IMRH; ContB j21+j20 take BSEL, LC, ASEL, RSTK, ALUF and
+// IMLH'. IMRH and IMLH ARE the parity bits, so each checker sees 17 data + 1.
 //
-// WHAT IS ALREADY RULED OUT: instructions FETCHED FROM IM check out fine
-// (`exec-test` runs 1,242 cycles with `Error'` high throughout). Those carry
-// parity our own Write-IM path generated, so they are self-consistent by
-// construction. The disagreement is specifically with parity PARC computed.
+// (The thirteen entries all have RSTK.0 = 0 and BLOCK = 0, so this data cannot
+// say whether those two bits are inside the parity domain or outside it.)
 //
-// ONE REAL BUG WAS FOUND ON THE WAY AND IS FIXED -- `cell_MC10170` folded its
-// two CONTROL inputs into both outputs when they reach pin 15 only, which
-// broke the cascade that makes an 18-bit check out of two 9-bit ones. It did
-// not change this result, so it was not the cause, but it was wrong.
+// THE CELL FIX THAT MAKES ALL THIRTEEN PASS, and why it is not committed.
+// `cell_MC10170`'s B output is written `~(par9 ^ p13 ^ p14)`. The data sheet
+// (1978 MECL book p.123, rendered) draws B as a PLAIN three-input XOR of the
+// two control pins with the odd-parity tree -- no bubble, the same symbol as
+// the four gates that build the tree. The inversion its truth table shows
+// comes from the NOMINAL control levels the same diagram labels, "Control (1)
+// 13 High, Inputs (2) 14 Low": with pin 13 HIGH and pin 14 LOW,
+// B = XOR(1, 0, A) = ~A, which is the table exactly. Writing that inversion
+// into the gate is right only at those levels, and the Dorado never uses them
+// -- ContA e18 leaves pin 13 unconnected and takes the cascade on pin 14.
 //
-// WHERE TO GO NEXT. The thirteen entries here are known-good vectors, and the
-// two halves are wired with a deliberate MIX of primed and unprimed nets
-// (`ALUF.0'` beside `bRSTK.0`, `JCN.0'` beside `JCN.2`) which is how PARC gets
-// the convention it wants. Take one entry -- `Nop#` is the simplest -- and
-// work its eighteen right-half bits through ContA e19 and e18 by hand against
-// the data sheet, then the eighteen left-half bits through ContB j21 and j20.
-// One of those nets is inverted where it should not be, or the P015/P1631
-// convention is the other way round.
+// There is also an argument that needs no data sheet: PARC's machine ran with
+// IM parity errors ENABLED (`InitManifolds` leaves them on), so a correct
+// microinstruction MUST read PE' = 1. With `p15 = par9 ^ p13 ^ p14` all
+// thirteen do; with the `~` none do.
+//
+// SO WHY IS IT NOT COMMITTED. Changing it regresses four gates --
+// `datapath-test`, `operand-test`, `step-test`, `sendmir` -- and they stay
+// broken even with the IM parity enables CLEARED, so the damage is not via the
+// parity check at all. The blast radius is small and known: of the 41 MC10170
+// packages in the machine, only FOUR use pin 15 --
+//
+//     ContA e18  -> IMRHPE'            the right-half IM parity check
+//     ContB j20  -> IMLHPE'            the left-half IM parity check
+//     ContB e01  -> ContB03.sil+1      IM WRITE parity (its controls are
+//                                      BMux.16/17, the parity bits on the B
+//                                      bus), thence to d05, an MC10102
+//     ProcH d13  -> SignedCarry        NOT a parity signal at all
+//
+// -- so the next step is to work out which of those two non-checker uses our
+// other cells are currently compensating for. `SignedCarry` has an independent
+// oracle in the C emulator's overflow logic (HM section 3.7, QW7), and the
+// ContB e01 path can be read off `writeim-test`, which does still pass.
+//
+// One more thing this session established, in tb_compute.sv: a general
+// microinstruction encoder `mi()` that reproduces all thirteen IRTable entries
+// byte for byte, and now computes P015/P1631 by the rule above.
+
 `default_nettype none
 
 
@@ -786,10 +808,14 @@ module tb_parity;
     end
   endtask
 
+  integer bad_parity = 0;
+
   task try_entry(input string nm, input [7:0] b0, input [7:0] b1,
                  input [7:0] b2, input [7:0] b3, input [7:0] b4);
     begin
       jam_only(b0, b1, b2, b3, b4);
+      if (m.b_ContB.IMLHPE_p_ !== 1'b1 || m.b_ContB.IMRHPE_p_ !== 1'b1)
+        bad_parity = bad_parity + 1;
       $display("tb_parity: %-16s IMLHPE'=%b IMRHPE'=%b | FF=%b bFF=%b%b%b%b%b%b%b%b CABlock=%b IMRH=%b | e19out=%b",
                nm, m.b_ContB.IMLHPE_p_, m.b_ContB.IMRHPE_p_,
                ~{m.b_ContA.FF_0_p_,m.b_ContA.FF_1_p_,m.b_ContA.FF_2_p_,m.b_ContA.FF_3_p_,
@@ -824,6 +850,9 @@ module tb_parity;
     try_entry("ALUFM[0]FromQ#", 8'h30, 8'h05, 8'h09, 8'hC4, 8'h40);
     try_entry("SetMcr#",        8'h30, 8'h02, 8'h0B, 8'h84, 8'h60);
     try_entry("SetHoldTaskSim#",8'h70, 8'h13, 8'hEF, 8'h84, 8'h40);
+
+    $display("tb_parity: %0d of PARC's 13 entries FAIL the IM parity check.", bad_parity);
+    $display("tb_parity: PARC's rule is ODD parity over each 17-bit half -- see the header.");
     $finish;
   end
 endmodule

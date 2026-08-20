@@ -175,8 +175,9 @@ compute-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_compute/tb_compute 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_compute|Assertion"; exit $$rc; }
 
-# Do PARC's IRTable entries satisfy our IM parity generators? A DIAGNOSTIC --
-# they do not, and tb_parity.sv says what is ruled out and where to look.
+# PARC's IRTable entries against the IM parity generators. A DIAGNOSTIC, not a
+# gate: all thirteen still FAIL, and tb_parity.sv now says exactly why and what
+# the one-line fix costs elsewhere.
 .PHONY: parity-probe
 parity-probe:
 	@cd ../.. && $(V) --binary --top-module tb_parity $(V_WARN) \
@@ -184,7 +185,8 @@ parity-probe:
 		verilog/verilator/tb_parity.sv verilog/generated/dorado_proc.v \
 		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
 		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
-		>/dev/null && ./verilog/verilator/obj_parity/tb_parity | grep tb_parity
+		>/dev/null && { out=$$(./verilog/verilator/obj_parity/tb_parity 2>&1); \
+		  rc=$$?; echo "$$out" | grep -E "tb_parity|Assertion"; exit $$rc; }
 
 # THE MACHINE EXECUTES MICROCODE OUT OF IM.
 .PHONY: exec-test

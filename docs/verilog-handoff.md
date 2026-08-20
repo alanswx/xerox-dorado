@@ -120,58 +120,69 @@ verified against PARC's own boot sequence (`boot0-test`, `exec-test`,
 because what it cost is worth not paying twice, but it is a gate now, not a
 question.
 
-### 1. Parity: PARC's IRTable entries fail our generators
+### 1. Parity: the RULE is now known, and the fix is one line with a catch
 
 `make -C verilog parity-probe` jams each of PARC's thirteen IRTable
 microinstructions and reads the parity generators with the jam STILL IN THE
-MIR: **all thirteen fail, both halves.** That is why `exec-test` has to clear
-the IM parity enables, which `InitManifolds` leaves on.
+MIR: **all thirteen fail, both halves.**
 
-Ruled out: instructions FETCHED FROM IM check out fine (`exec-test` runs 1,242
-cycles with `Error'` high), because those carry parity our own Write-IM path
-generated. The disagreement is specifically with parity PARC computed.
-`cell_MC10170` had a real bug -- it folded its two CONTROL inputs into both
-outputs when they reach pin 15 only, breaking the cascade that makes an 18-bit
-check out of two 9-bit ones -- and fixing it did not change the result, so it
-was not the cause.
-
-**Next:** take `Nop#` and work its eighteen right-half bits through ContA e19
-and e18 by hand, then the left through ContB j21 and j20. The two halves are
-wired with a deliberate mix of primed and unprimed nets (`ALUF.0'` beside
-`bRSTK.0`, `JCN.0'` beside `JCN.2`), which is how PARC gets the convention it
-wants; one of those is inverted where it should not be, or P015/P1631 is the
-other way round.
-
-### 2. The datapath: DONE -- and this is now a gate, not an open question
-
-`make -C verilog compute-test` replays PARC's own ALU prologue on four boards
-and the whole datapath works:
+**PARC'S RULE IS ODD PARITY OVER EACH 17-BIT HALF.** This is settled by pure
+computation against PARC's own table -- no RTL involved. `doradoboot.masm`
+states both the FIELDS and the BYTES for all thirteen entries, and P015/P1631
+live in byte 0 (bits 6 and 4), so the rule can simply be fitted:
 
 ```
-after QFromCPReg#: Q=0015          25 octal, the value PARC sends
-ALUFM[0] = 010101                  25 octal, read MSB-first off the F10145As
-TFromCPReg# 1234 -> T=1234         and a55a -> T=a55a, exact, through the ALU
+left  17 bits = RSTK(4) ALUF(4) BSEL(3) LC(3) ASEL(3)  -> P015
+right 17 bits = BLOCK(1) FF(8) JCN(8)                  -> P1631
+parity bit = ~(XOR of those 17)   i.e. ODD parity including the bit itself
 ```
 
-`TFromCPReg#` carries PARC's warning "requires ALUFM[0]=B" because T is loaded
-THROUGH THE ALU, so the prologue has to run first; with ALUFM[0] holding 25
-octal -- which the C emulator's `alu_op` defines as `case 025: result = b;` --
-the operand passes through and lands in T.
+That reproduces PARC's stated **P015 for 13/13 and P1631 for 13/13**; even
+parity matches 0/13. The split is exactly the hunk format's two 17-bit halves,
+and the checkers' own input lists confirm the domains -- ContA e19+e18 take
+JCN, FF, CABlock and **IMRH**; ContB j21+j20 take BSEL, LC, ASEL, RSTK, ALUF
+and **IMLH'**. Those two ARE the parity bits, so each checker sees 17 data + 1.
+(All thirteen entries have RSTK.0 = 0 and BLOCK = 0, so the data cannot say
+whether those two bits are inside the domain or outside it.)
 
-**T looked COMPLEMENTED for a while and was not; the probe was.** It drove
-CPReg with `SetCPReg~`, which writes the complement, and then compared T
-against the value BEFORE that complement. Do not go hunting the MC10173s.
+**THE ONE-LINE FIX, AND WHY IT IS NOT COMMITTED.** `cell_MC10170`'s B output is
+`~(par9 ^ p13 ^ p14)`. The data sheet (1978 MECL book p.123) draws B as a PLAIN
+three-input XOR of the two controls with the odd-parity tree -- no bubble, the
+same symbol as the four gates building the tree. The inversion its truth table
+shows comes from the NOMINAL control levels the same diagram labels, "Control
+(1) 13 High, Inputs (2) 14 Low": at pin 13 HIGH and pin 14 LOW,
+`B = XOR(1,0,A) = ~A`, the table exactly. Baking that inversion into the gate
+is right only at those levels and the Dorado never uses them -- ContA e18
+leaves pin 13 unconnected and takes the cascade on pin 14. There is also an
+argument needing no data sheet: PARC ran with IM parity errors ENABLED, so a
+correct microinstruction MUST read `PE' = 1`. With `p15 = par9 ^ p13 ^ p14`
+**all thirteen do**; with the `~`, none do.
 
-**THE POLARITY CONVENTION, which explains PARC's own code.** `BMux` carries
-the complement of CPReg; the ALU's B operand `alub` is taken off BMux through
-an MC1662 NOR, which inverts it back; the ALU passes it; T is loaded from that.
-So **T ends up equal to CPReg, while IM write data -- which travels the
-un-inverted path -- ends up equal to the COMPLEMENT of CPReg.** That is why
-PARC uses a different setter for each: `SendViaMIR` sends IM data with
-`SetCPReg~`, and `PrepareProcessor` loads T with the plain `SetCPReg`
-(`LDXI 103o / LDAI TFromCPReg# / JSR SetCPAndDoIRTableInst`). Both halves are
-now gated -- `boot0-test` for the IM path against the C emulator, `compute-test`
-for the T path.
+Changing it, however, **regresses `datapath-test`, `operand-test`, `step-test`
+and `sendmir` -- and they stay broken with the IM parity enables CLEARED**, so
+the damage is not via the parity check at all. The blast radius is small and
+known: of the 41 MC10170 packages, only FOUR use pin 15.
+
+| package | pin 15 drives | what it is |
+|---|---|---|
+| ContA e18 | `IMRHPE'` | right-half IM parity check |
+| ContB j20 | `IMLHPE'` | left-half IM parity check |
+| ContB e01 | `ContB03.sil+1` -> d05 | IM WRITE parity; its controls are `BMux.16/17`, the parity bits on the B bus |
+| ProcH d13 | `SignedCarry` | **not a parity signal at all** |
+
+**Next:** work out which of the two non-checker uses our other cells are
+currently compensating for. `SignedCarry` has an independent oracle in the C
+emulator's overflow logic (HM section 3.7, QW7), and the ContB e01 path can be
+read against `writeim-test`, which still passes either way. Full write-up, with
+the measurements, is the header of `verilog/verilator/tb_parity.sv`.
+
+**A trap worth recording, because it cost a wrong diagnosis here.** Register 0
+of the manifold is not "the parity enables" -- `12'h030` is
+`DisableDoradoErrors`, and writing `12'h000` to the same register does not
+"turn parity off", it re-ENABLES every Dorado error class. Patching the
+jam-based testbenches that way broke four of them, which then looked exactly
+like fallout from the cell change and was not: the same four still failed with
+the cell reverted. Change ONE thing at a time when a fix touches 41 packages.
 
 ### RM, and a general microinstruction encoder
 
