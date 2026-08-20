@@ -20,6 +20,14 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__sys_clk;
         CData/*0:0*/ tb_firmware__DOT__p_cpstrb;
         CData/*0:0*/ tb_firmware__DOT__p_dmuxclk;
+        CData/*0:0*/ tb_firmware__DOT__p_pre;
+        CData/*0:0*/ tb_firmware__DOT__p_div;
+        CData/*0:0*/ tb_firmware__DOT__p_tog;
+        CData/*0:0*/ tb_firmware__DOT__p_xor;
+        CData/*0:0*/ tb_firmware__DOT__p_wdout;
+        CData/*0:0*/ tb_firmware__DOT__p_mcclk;
+        CData/*0:0*/ tb_firmware__DOT__p_wdin;
+        CData/*0:0*/ tb_firmware__DOT__p_bootmc;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__BNTGtCT_p_b;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__CLK_InBase;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__FA_eq_0_p_;
@@ -73,6 +81,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__BNPC_14;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__BNPC_15;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__Cnt_eq_Zero_p_;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__DMuxClk;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__DMuxData;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__IOPE;
@@ -81,8 +91,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__RamPE;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__aluOut_eq_0_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__rMIRa;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__BMux_16___05FProcH;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__BMux_17___05FProcL;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__BNPC_02___05FContA;
@@ -139,6 +147,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__TNIA_06___05FContA;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__TNIA_07___05FContA;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__TNIA_08___05FContA;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__TNIA_09___05FContA;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__TNIA_10___05FContA;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__TNIA_11___05FContA;
@@ -147,8 +157,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__TNIA_14___05FContA;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__TNIA_15___05FContA;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__TTLIOReset_p___05F_BaseBd;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__aluCout___05FProcH;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__aluF0___05FProcL;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__aluF1___05FProcL;
@@ -177,7 +185,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseAttn_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd09_sil_pl_3;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd09_sil_pl_7;
-        CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd09_sil_pl_8;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd11_sil_pl_2;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd14_sil_pl_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd15_sil_pl_4;
@@ -206,6 +213,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_05;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_06;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_07;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_08;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_09;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_10;
@@ -213,8 +222,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_13;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_14;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_15;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCClk;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_0;
@@ -272,6 +279,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_2___05Fi12_7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_2___05Fi14_7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_2___05Fc14_7;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_3___05Fh12_7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_3___05Fh14_7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_4___05Fk11_7;
@@ -279,8 +288,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_4___05Fe13_7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_5___05Fd13_7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_5___05Fd11_7;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_5___05Fj11_7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_5___05Fj13_7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCD_6___05Fi11_7;
@@ -338,6 +345,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT____Vcellinp__u_f62__d_in;
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT____Vcellinp__u_f63__d_in;
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT____Vcellinp__u_i62__d_in;
+    };
+    struct {
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT____Vcellinp__u_l62__d_in;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT____VdfgRegularize_h103ffefd_0_0;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT____VdfgRegularize_h103ffefd_0_3;
@@ -345,8 +354,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT____VdfgRegularize_h103ffefd_0_8;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT____VdfgRegularize_h103ffefd_0_9;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT____VdfgRegularize_h103ffefd_0_10;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT____VdfgRegularize_h103ffefd_0_12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT____VdfgRegularize_h103ffefd_0_15;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT____VdfgRegularize_h103ffefd_0_17;
@@ -404,6 +411,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_b60__DOT__d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_b60__DOT__en_q;
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_b61__DOT__d;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_b61__DOT__en_q;
         CData/*2:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_c20__DOT__sel;
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_c20__DOT__q;
@@ -411,8 +420,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_c60__DOT__en_q;
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_c61__DOT__d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_c61__DOT__en_q;
-    };
-    struct {
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_c62__DOT__d_out;
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_c62__DOT__pa_out;
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_c62__DOT__pb_out;
@@ -470,6 +477,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*4:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____Vcellinp__mux_alu_out_1490__s;
         CData/*4:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____Vcellinp__mux_alu_out_1123__s;
         CData/*1:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____Vcellinp__mux_alua_1142__s;
+    };
+    struct {
         CData/*2:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____Vcellinp__mux_alub_1432__s;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_4;
@@ -477,8 +486,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_14;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_39;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_63;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_65;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_70;
@@ -536,6 +543,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_222;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_224;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_225;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_226;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_227;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_228;
@@ -543,8 +552,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_230;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_231;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_232;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_233;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_234;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__logic_00__DOT____VdfgRegularize_h852b33e4_0_235;
@@ -602,6 +609,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g04__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g05__DOT__p4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g05__DOT__p5;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g05__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g07__DOT__ck_d;
         CData/*1:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g07__DOT__q;
@@ -609,10 +618,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g08__DOT__qa;
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g11__DOT__q;
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g14__DOT__q;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g20__DOT__ck_d;
         CData/*5:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g20__DOT__q;
+        CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__ck_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__ckb_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__qa;
@@ -667,6 +675,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*5:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_k08__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_k09__DOT__p14;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_k09__DOT__ck_d;
+    };
+    struct {
         CData/*5:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_k09__DOT__q;
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_k18__DOT__q;
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_k19__DOT__q;
@@ -675,8 +685,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_l01__DOT__p9;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_l01__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_l07__DOT__p14;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_l07__DOT__ck_d;
         CData/*5:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_l07__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_l08__DOT__p14;
@@ -733,6 +741,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CIA_09_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CIA_10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CIA_10_p_;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CIA_11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CIA_11_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CIA_12;
@@ -741,8 +751,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CIA_13_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CIA_14;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CIA_14_p_;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CIA_15;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CIA_15_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CIAInc_00;
@@ -799,6 +807,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA09_sil_pl_5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA10_sil_pl_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA10_sil_pl_5;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA11_sil_pl_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA11_sil_pl_5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA12_sil_pl_1;
@@ -807,8 +817,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA13_sil_pl_5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA14_sil_pl_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA14_sil_pl_3;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA14_sil_pl_6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA15_sil_pl_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA15_sil_pl_5;
@@ -865,6 +873,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__Jam;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__Link_u_BMuxa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__Link_u_BMuxb;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__Link_u_CIAInc;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__LoadLink_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__LocalBr_p_a;
@@ -873,8 +883,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__PEnc_eq_CT_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__PEncGtTrueNext_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__PEncLtTrueNext_p_;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__PreEmpting_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__RBMux_04;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__RBMux_12;
@@ -931,6 +939,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ToPE_02;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ToPE_03;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ToPE_04;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ToPE_05;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ToPE_06;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ToPE_07;
@@ -939,8 +949,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ToPE_10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ToPE_11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ToPE_12;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ToPE_13;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ToPE_14;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ToPE_15;
@@ -997,6 +1005,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__sBLOCK;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__sJCN_2;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__sJCN_3;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__sPhase0;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_13;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3;
@@ -1005,8 +1015,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA05_sil_pl_3___05Fe04_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA06_sil_pl_2___05Fa04_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA06_sil_pl_4___05Fa04_2;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA07_sil_pl_2___05Fb04_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA07_sil_pl_4___05Fb04_2;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ContA08_sil_pl_2___05Fc04_2;
@@ -1063,6 +1071,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*5:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a12__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a15__DOT__p12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a18__DOT__p6;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a18__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a18__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a18__DOT__p11;
@@ -1071,8 +1081,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a19__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a21__DOT__p13;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a22__DOT__p6;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a22__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a22__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a22__DOT__p11;
@@ -1129,6 +1137,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_b23__DOT__clkb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_b23__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_b23__DOT__ckb_d;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_b23__DOT__qa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_b23__DOT__qb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_b24__DOT__p6;
@@ -1137,8 +1147,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_b24__DOT__clkb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_b24__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_b24__DOT__ckb_d;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_b24__DOT__qa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_b24__DOT__qb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_c01__DOT__p7;
@@ -1195,6 +1203,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_d06__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_d09__DOT__p4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_d09__DOT__p7;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_d09__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_d09__DOT__p5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_d09__DOT__clk;
@@ -1203,8 +1213,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_d10__DOT__p4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_d10__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_d10__DOT__p10;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_d12__DOT__p4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_d12__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_d12__DOT__p13;
@@ -1261,6 +1269,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_e14__DOT__p12;
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_e14__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_e14__DOT__ck_d;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_e15__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_e18__DOT__p13;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_e21__DOT__p5;
@@ -1269,8 +1279,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_e23__DOT__clka;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_e23__DOT__clkb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_e23__DOT__cka_d;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_e23__DOT__ckb_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_e23__DOT__qa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_e23__DOT__qb;
@@ -1327,6 +1335,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_f14__DOT__clka;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_f14__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_f14__DOT__ckb_d;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_f14__DOT__qa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_f14__DOT__qb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_f15__DOT__p6;
@@ -1335,8 +1345,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_f15__DOT__p11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_f15__DOT__p13;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_f15__DOT__clka;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_f15__DOT__clkb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_f15__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_f15__DOT__ckb_d;
@@ -1393,6 +1401,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g16__DOT__clkb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g16__DOT__ckb_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g16__DOT__qb;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g18__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g19__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g19__DOT__p7;
@@ -1401,8 +1411,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g20__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g20__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g20__DOT__p10;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g20__DOT__p11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g23__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g23__DOT__p15;
@@ -1459,6 +1467,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_h24__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_i01__DOT____VdfgRegularize_h7927e3b8_0_0;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_i02__DOT__p11;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_i02__DOT__p12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_i02__DOT__ck_d;
         CData/*5:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_i02__DOT__q;
@@ -1467,8 +1477,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_i05__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_i05__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_i06__DOT__p5;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_i06__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_i06__DOT__p9;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_i07__DOT__p5;
@@ -1525,6 +1533,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j07__DOT__p11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j08__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j08__DOT__p11;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j08__DOT__clka;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j08__DOT__clkb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j08__DOT__cka_d;
@@ -1533,8 +1543,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j08__DOT__qb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j09__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j09__DOT__p11;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j09__DOT__clka;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j09__DOT__clkb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j09__DOT__cka_d;
@@ -1591,6 +1599,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_k02__DOT__qb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_k03__DOT__p12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_k03__DOT__p9;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_k03__DOT__clkb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_k03__DOT__ckb_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_k03__DOT__qb;
@@ -1599,8 +1609,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_k04__DOT__p12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_k04__DOT__clka;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_k04__DOT__clkb;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_k04__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_k04__DOT__ckb_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_k04__DOT__qa;
@@ -1657,6 +1665,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_l02__DOT__p9;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_l02__DOT__clka;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_l02__DOT__clkb;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_l02__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_l02__DOT__ckb_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_l02__DOT__qa;
@@ -1665,8 +1675,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_l05__DOT__p4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_l05__DOT__p5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_l05__DOT__clka;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_l05__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_l05__DOT__qa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_l06__DOT__clka;
@@ -1723,6 +1731,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__CS2_p_ACa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__CS2_p_ACc;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__CS2_p_BDa;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__CS2_p_BDc;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__CS3_p_ACa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__CS3_p_ACc;
@@ -1731,8 +1741,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__ContB04_sil_pl_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__ContB12_sil_pl_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__ContB13_sil_pl_1;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__DMD_00;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__DMD_01;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__DMD_02;
@@ -1789,6 +1797,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__RamPEenable;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__RepeatCurBa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__RepeatCurCc;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__StopMIRClkEn;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__True;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__WEL_p_Aa;
@@ -1797,8 +1807,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__WEL_p_Dj;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__WER_p_Aa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__WER_p_Ab;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__WER_p_Cc;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__WER_p_Da;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__bIMLHPE;
@@ -1855,6 +1863,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__dBSEL_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__dBSEL_2;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__dIMLH;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__dLC_0;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__dLC_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__dLC_2;
@@ -1863,8 +1873,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__dRSTK_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__dRSTK_2;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__dRSTK_3;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__sASEL_0;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__ContB12_sil_pl_2___05Fl24_15;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__CS0_p_ACa___05Fd22_6;
@@ -1921,6 +1929,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c12__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c12__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c12__DOT__p11;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c13__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c13__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c13__DOT__p10;
@@ -1929,8 +1939,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c22__DOT__p9;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c24__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c24__DOT__ckb_d;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c24__DOT__qa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c24__DOT__qb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_d02__DOT__p5;
@@ -1987,6 +1995,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g03__DOT__ck_d;
         CData/*5:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g03__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g04__DOT__p9;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g04__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g12__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g12__DOT__p7;
@@ -1995,8 +2005,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g13__DOT__p9;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g13__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g22__DOT__ck_d;
-    };
-    struct {
         CData/*5:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g22__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g23__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g23__DOT__p5;
@@ -2053,6 +2061,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_j01__DOT__qa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_j01__DOT__qb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_j03__DOT__p11;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_j05__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_j05__DOT__p9;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_j05__DOT__p11;
@@ -2061,8 +2071,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_j12__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_j12__DOT__p11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_j13__DOT__p6;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_j13__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_j13__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_j13__DOT__p11;
@@ -2119,6 +2127,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__BSel_2_p_a;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__BSel_eq_2_s_6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__B_u_Ext_p_;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Clock0_p_Aa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Clock0_p_Bb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Clock0_p_Da;
@@ -2127,8 +2137,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Clock1_p_Ca;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Clock1_p_Da;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Clock1Bd;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__CntClock_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Curr_eq_Next_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__DMadr_01;
@@ -2185,6 +2193,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__MBdly_0;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__MBdly_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__MBdly_2;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__MBdly_3;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__MBdly_4_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__MarMuxAEn_p_;
@@ -2193,8 +2203,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Pdata_00;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Pdata_01;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Pdata_02;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Pdata_03;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Pdata_04;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__Pdata_05;
@@ -2251,6 +2259,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ProcH23_sil_pl_4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ProcH23_sil_pl_5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ProcH23_sil_pl_6;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ProcH23_sil_pl_7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ProcH23_sil_pl_8;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ProcH23_sil_pl_9;
@@ -2259,8 +2269,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ProcH24_sil_pl_3;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ProcH24_sil_pl_4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ProcH25_sil_pl_1;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ProcH25_sil_pl_18;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ProcH25_sil_pl_19;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ProcH25_sil_pl_2;
@@ -2317,6 +2325,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__TempSense;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__TisIFdata;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__TmPerr;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__TrueA;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__alua_00;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__alua_01;
@@ -2325,8 +2335,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__alua_04;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__alua_05;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__alua_06;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__alua_07;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__alub_00;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__alub_00a;
@@ -2383,6 +2391,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_a08__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_a08__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_a08__DOT__p11;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_a09__DOT__p11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_a10__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_a10__DOT__p4;
@@ -2391,8 +2401,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_a10__DOT__p13;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_a10__DOT__p12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_a10__DOT__clka;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_a10__DOT__clkb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_a10__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_a10__DOT__ckb_d;
@@ -2449,6 +2457,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b10__DOT__clkb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b10__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b10__DOT__ckb_d;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b10__DOT__qa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b10__DOT__qb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b11__DOT__p5;
@@ -2457,8 +2467,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b11__DOT__p7;
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b11__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b11__DOT__ck_d;
-    };
-    struct {
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b12__DOT__q;
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b13__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b15__DOT__p7;
@@ -2515,6 +2523,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_d15__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_d15__DOT__p4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_d15__DOT__p13;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_d15__DOT__p11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_d15__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_d16__DOT__p12;
@@ -2523,8 +2533,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_d17__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_d17__DOT__p5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_d17__DOT__p4;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_d17__DOT__p3;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_d17__DOT__p11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_d17__DOT__p12;
@@ -2581,6 +2589,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_f16__DOT__p12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_f16__DOT__p5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_f16__DOT__clk;
+    };
+    struct {
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_f16__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_f16__DOT__ck_d;
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_f17__DOT__q;
@@ -2589,8 +2599,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_f19__DOT__p11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_f19__DOT__p12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_f21__DOT__ck_d;
-    };
-    struct {
         CData/*5:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_f21__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_f23__DOT__p12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_f24__DOT__p2;
@@ -2647,6 +2655,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_g22__DOT__p5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_g22__DOT__p13;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_g22__DOT__p12;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_g22__DOT__clka;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_g22__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_g22__DOT__ckb_d;
@@ -2655,8 +2665,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_g23__DOT__p4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_g23__DOT__p5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_g23__DOT__p13;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_g23__DOT__p12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_g23__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_g23__DOT__ckb_d;
@@ -2713,6 +2721,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_i12__DOT__p5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_i12__DOT__p13;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_i12__DOT__p10;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_i12__DOT__p7;
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_i12__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_i12__DOT__ck_d;
@@ -2721,8 +2731,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*1:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_i15__DOT__sel;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_i16__DOT__p14;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_i17__DOT__p14;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_i18__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_i18__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_i18__DOT__p10;
@@ -2779,6 +2787,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_l01__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_l01__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_l02__DOT__clka;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_l02__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_l02__DOT__qa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_l03__DOT__p3;
@@ -2787,8 +2797,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*5:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_l05__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_l06__DOT__p4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_l06__DOT__p13;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_l06__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_l06__DOT__ckb_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_l06__DOT__qa;
@@ -2845,6 +2853,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__DMadr_03;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__DMadr_04;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__DMadr_05;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__DMadr_06;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__DMadr_07;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__DMadr_08;
@@ -2853,8 +2863,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__DMadr_11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__DblClock_p_Ba;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__FA_eq_0_p_a;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__FA_eq_1_p_a;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__FA_eq_2_p_a;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__FA_eq_3_p_;
@@ -2911,6 +2919,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL10_sil_pl_3;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL10_sil_pl_4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL12_sil_pl_2;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL14_sil_pl_2;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL16_sil_pl_4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL16_sil_pl_6;
@@ -2919,8 +2929,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL17_sil_pl_3;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL17_sil_pl_9;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL18_sil_pl_8;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL20_sil_pl_4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL23_sil_pl_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL23_sil_pl_3;
@@ -2977,6 +2985,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ShcWriteEn_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__Shift_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__StkP_0;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__StkP_1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__StkP_2;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__StkP_3;
@@ -2985,8 +2995,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__StkPMux1;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__StkPSaveEn_p_;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__StkPWriteEn_p_;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__StkSel_p_a;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__StkSelSaved;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__StkWSel_p_;
@@ -3043,6 +3051,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL05_sil_pl_1___05Fh06_20;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL05_sil_pl_1___05Fi06_20;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL06_sil_pl_1___05Fj06_23;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL06_sil_pl_1___05Fk06_23;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL07_sil_pl_1___05Fj06_22;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL07_sil_pl_1___05Fk06_22;
@@ -3051,8 +3061,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL11_sil_pl_1___05Ff21_11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL11_sil_pl_1___05Fb24_4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL11_sil_pl_2___05Ff21_6;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL11_sil_pl_3___05Ff21_5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL12_sil_pl_1___05Fa24_9;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL12_sil_pl_1___05Fa24_11;
@@ -3109,6 +3117,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_a21__DOT__ck_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_a22__DOT__p9;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_a24__DOT__p12;
+    };
+    struct {
         CData/*1:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_b01__DOT__sel;
         CData/*1:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_b03__DOT__sel;
         CData/*1:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_b04__DOT__sel;
@@ -3117,8 +3127,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_b05__DOT__p13;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_b05__DOT__p11;
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_b05__DOT__q;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_b08__DOT__p14;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_b09__DOT__p5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_b09__DOT__p6;
@@ -3175,6 +3183,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_c21__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_c23__DOT__p5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_c23__DOT__p6;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_c23__DOT__p10;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_c24__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_c24__DOT__p11;
@@ -3183,8 +3193,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_d08__DOT__p9;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_d15__DOT__p12;
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_d15__DOT__q;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_d15__DOT__ck_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_d17__DOT__ck_d;
         CData/*5:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_d17__DOT__q;
@@ -3241,6 +3249,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_f18__DOT__p15;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_f19__DOT__p2;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_f19__DOT__p10;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_f19__DOT__p11;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_f19__DOT__p12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_f21__DOT__p12;
@@ -3249,8 +3259,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_f24__DOT__p15;
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_f24__DOT__q;
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_f61__DOT__F;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_g02__DOT__p2;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_g03__DOT__p2;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_g04__DOT__p2;
@@ -3307,6 +3315,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h04__DOT__p4;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h04__DOT__p2;
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h05__DOT__q;
+    };
+    struct {
         CData/*7:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h06__DOT__a;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h10__DOT__p6;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h10__DOT__p4;
@@ -3315,8 +3325,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h10__DOT__p13;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h10__DOT__p12;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h10__DOT__clka;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h10__DOT__clkb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h10__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h10__DOT__ckb_d;
@@ -3373,6 +3381,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i15__DOT__ck_d;
         CData/*5:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i15__DOT__q;
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i16__DOT__q;
+    };
+    struct {
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i17__DOT__q;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i18__DOT__p5;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i18__DOT__p6;
@@ -3381,8 +3391,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i22__DOT__p2;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i23__DOT__p2;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i24__DOT__p2;
-    };
-    struct {
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_j01__DOT__q;
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_j02__DOT__q;
         CData/*3:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_j03__DOT__q;
@@ -3439,6 +3447,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l06__DOT__p13;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l06__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l06__DOT__ckb_d;
+    };
+    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l06__DOT__qa;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l06__DOT__qb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l07__DOT__p4;
@@ -3447,8 +3457,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l07__DOT__cka_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l07__DOT__ckb_d;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l07__DOT__qa;
-    };
-    struct {
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l07__DOT__qb;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l08__DOT__p7;
         CData/*0:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l09__DOT__p10;
@@ -3505,6 +3513,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_65;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_66;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_67;
+    };
+    struct {
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_68;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_72;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_73;
@@ -3513,8 +3523,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_77;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_78;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_79;
-    };
-    struct {
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_82;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_88;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_89;
@@ -3571,6 +3579,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*7:0*/ __VdfgRegularize_hebeb780c_0_4;
         CData/*7:0*/ __VdfgRegularize_hebeb780c_0_5;
         CData/*7:0*/ __VdfgRegularize_hebeb780c_0_6;
+    };
+    struct {
         CData/*7:0*/ __VdfgRegularize_hebeb780c_0_7;
         CData/*7:0*/ __VdfgRegularize_hebeb780c_0_8;
         CData/*7:0*/ __VdfgRegularize_hebeb780c_0_9;
@@ -3579,8 +3589,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         CData/*7:0*/ __VdfgRegularize_hebeb780c_0_12;
         CData/*0:0*/ __VdfgRegularize_hebeb780c_0_15;
         CData/*0:0*/ __VdfgRegularize_hebeb780c_0_16;
-    };
-    struct {
         CData/*7:0*/ __VdfgRegularize_hebeb780c_0_23;
         CData/*3:0*/ __Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_e07__DOT__q;
         CData/*0:0*/ __Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_h04__DOT__q;
@@ -3615,8 +3623,19 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         IData/*31:0*/ tb_firmware__DOT__n_io;
         IData/*31:0*/ tb_firmware__DOT__n_reset;
         IData/*31:0*/ tb_firmware__DOT__last_reset;
+        IData/*31:0*/ tb_firmware__DOT__n_mcclk;
+        IData/*31:0*/ tb_firmware__DOT__n_wdin;
+        IData/*31:0*/ tb_firmware__DOT__n_bootmc;
+        IData/*31:0*/ tb_firmware__DOT__n_pre;
+        IData/*31:0*/ tb_firmware__DOT__n_div;
+        IData/*31:0*/ tb_firmware__DOT__n_tog;
+        IData/*31:0*/ tb_firmware__DOT__n_xor;
+        IData/*31:0*/ tb_firmware__DOT__n_wdout;
+        IData/*31:0*/ tb_firmware__DOT__mcclk_at_reset;
         VlWide<54>/*1724:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__no;
         VlWide<54>/*1724:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f61__DOT__u_cpu__DOT__q;
+        IData/*23:0*/ tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt;
+        IData/*23:0*/ __Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt;
         IData/*31:0*/ __VactIterCount;
         VlUnpacked<IData/*31:0*/, 16> tb_firmware__DOT__bucket;
         VlUnpacked<IData/*31:0*/, 4096> tb_firmware__DOT__hot;
@@ -3626,6 +3645,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_b14__DOT__mem;
         VlUnpacked<CData/*7:0*/, 2048> tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_b60__DOT__mem;
         VlUnpacked<CData/*7:0*/, 2048> tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_b61__DOT__mem;
+    };
+    struct {
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_c11__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_c12__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_c13__DOT__mem;
@@ -3645,8 +3666,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         VlUnpacked<CData/*7:0*/, 2048> tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f60__DOT__mem;
         VlUnpacked<CData/*7:0*/, 128> tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f62__DOT__u_riot__DOT__riot_ram;
         VlUnpacked<CData/*7:0*/, 128> tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f63__DOT__u_riot__DOT__riot_ram;
-    };
-    struct {
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_h11__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_h12__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_h13__DOT__mem;
@@ -3692,6 +3711,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_b07__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_b08__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_b09__DOT__mem;
+    };
+    struct {
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_b10__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_b11__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_b14__DOT__mem;
@@ -3711,8 +3732,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c16__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c17__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c18__DOT__mem;
-    };
-    struct {
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_c19__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_d06__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_d07__DOT__mem;
@@ -3758,6 +3777,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g11__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g14__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g15__DOT__mem;
+    };
+    struct {
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g16__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g17__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_g18__DOT__mem;
@@ -3777,8 +3798,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_i06__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_i07__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_i08__DOT__mem;
-    };
-    struct {
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_i09__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_i10__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_i11__DOT__mem;
@@ -3824,6 +3843,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_l17__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_l18__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContB__DOT__u_l19__DOT__mem;
+    };
+    struct {
         VlUnpacked<CData/*7:0*/, 32> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b07__DOT__mem;
         VlUnpacked<CData/*7:0*/, 32> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_b08__DOT__mem;
         VlUnpacked<CData/*3:0*/, 16> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__u_e13__DOT__mem;
@@ -3843,8 +3864,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_firmware___024root final {
         VlUnpacked<CData/*7:0*/, 32> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_b07__DOT__mem;
         VlUnpacked<CData/*7:0*/, 32> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_b08__DOT__mem;
         VlUnpacked<CData/*3:0*/, 16> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_e13__DOT__mem;
-    };
-    struct {
         VlUnpacked<CData/*3:0*/, 16> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_e14__DOT__mem;
         VlUnpacked<CData/*3:0*/, 16> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_g15__DOT__mem;
         VlUnpacked<CData/*3:0*/, 256> tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_h06__DOT__mem;

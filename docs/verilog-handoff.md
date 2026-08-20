@@ -233,25 +233,40 @@ writes it back. `doradoio.mdefs` gives the register: **`Watchdog = 600+PA`**, a
 (bit 6, output per `WatchdogDDRValue`). The hardware drives bit 7 and expects
 the firmware to echo it on bit 6; when the echo stops it resets the processor.
 
-**The reset chain is fully traced, and every part of it is already in the
-RTL** -- nothing is missing:
+**The reset chain is fully traced AND now fully measured**, and the timer in it
+is modelled as of this session:
 
 | package | part | role |
 |---|---|---|
-| g22 | SN74LS74 pair | the watchdog timer, with `WatchdogIn` fed back in |
-| j17 | SN74LS01 (open collector) | takes the timer output and drives `BootMC'`, wire-ORed with a jumper strap at h07 |
+| g21 | **MC14521B 24-stage divider** | **the watchdog timer** -- Reset tied low, `MCPreClk` into In2, **Q21 (pin 13)** out. Was an unmodelled skeleton; now written from the data sheet |
+| g22 | SN74LS74 as a TOGGLE flip-flop (1D tied to 1Q') | clocked by that Q21, so it flips once per watchdog interval |
+| g23 | SN7486 | XOR of `WatchdogIn` against `WatchdogOut` -- the pacify comparison |
+| j17 | SN74LS01 (open collector) | NANDs those two to drive `BootMC'`, wire-ORed with a jumper strap at h07 |
 | j08 | SN74LS74 | D = `BootMC'`, clock = `MCClk`, async `PwrGood`, output `MCReset'` |
-| f63 | MCS6532 RIOT | PA7 out as `WatchdogIn`, PA6 in as `WatchdogOut` -- what `PacifyWatchdog` writes |
+| f63 | MCS6532 RIOT | PA7 out as `WatchdogIn`, PA6 in as `WatchdogOut` |
 
-**So the firmware is simply not pacifying in time, and the hypothesis to test
-next is that our watchdog period is far too short.** The 6502 is a 1 MHz part,
-and 211,440 sys_clk is only a few thousand of its cycles once the BaseBoard's
-divider chain is accounted for -- far less than the startup path needs, since
-in that window the firmware only reaches MIDASSETUP (`JSR $F248`, the source of
-the `f254..f257` visits). PARC's own code refers to a `Timer100ms`, so the real
-period is probably two orders of magnitude longer. Measure `MCClk` against
-`sys_clk`, then the g22 chain's divide ratio, and compare with what the
-firmware needs to reach its first `JSR PacifyWatchdog`.
+```
+MCPreClk edges 99999, divider Q21 edges 0, toggle-FF edges 1
+WatchdogIn 1, WatchdogOut 37, XOR 36, BootMC' 36
+resets: 19, every 211,440 sys_clk (= 2,643 MCClk cycles)
+```
+
+**The timer is NOT the cause, and the measurement says so.** MCPreClk runs at
+one cycle per 80 sys_clk, so Q21 -- a divide by 2^21 -- is correctly silent
+across the whole run; the watchdog interval is of order a second. The resets
+track **`WatchdogOut` one-for-one** instead: the firmware writes that port
+during startup, each write flips the XOR, and the XOR reaches `BootMC'`
+unopposed.
+
+**So the open question is g22's POWER-UP STATE.** j17 NANDs the XOR against
+g22's `Q'`, so a `Q'` of 0 masks the XOR entirely and only a real timer expiry
+can reset the processor -- which is the whole point of the design. Our
+SN74LS74 comes up with Q = 0, hence Q' = 1, arming the watchdog from the first
+instruction. On the real board g22 has neither preset nor clear asserted (pins
+1 and 4 both go to `TTLTrue.E`), so the state is set by the power-up sequence
+-- `PwrGood`, which is also j08's asynchronous input, and which
+`doradomufman.masm` walks a table of PowerManifold values to establish.
+**Model that sequencing and the firmware should run.**
 
 ### RM, and a general microinstruction encoder
 

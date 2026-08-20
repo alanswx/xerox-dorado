@@ -539,6 +539,10 @@ void Vtb_firmware___024root___nba_sequent__TOP__1(Vtb_firmware___024root* vlSelf
     CData/*7:0*/ __VdfgRegularize_hebeb780c_0_22;
     __VdfgRegularize_hebeb780c_0_22 = 0;
     // Body
+    vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__SHSelect_p_D 
+        = (1U & ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i18__DOT__p5) 
+                 | ((~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL30_sil_pl_1)) 
+                    | (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i18__DOT__p6))));
     vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__aluCin 
         = (1U & ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_f16__DOT__q) 
                  ^ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__aluC)));

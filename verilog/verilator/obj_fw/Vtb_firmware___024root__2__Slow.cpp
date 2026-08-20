@@ -90,6 +90,23 @@ VL_ATTR_COLD void Vtb_firmware___024root___ctor_var_reset(Vtb_firmware___024root
     }
     vlSelf->tb_firmware__DOT__n_reset = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 5276880739342954300ull);
     vlSelf->tb_firmware__DOT__last_reset = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 928150143137459749ull);
+    vlSelf->tb_firmware__DOT__n_mcclk = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 13485920785232132012ull);
+    vlSelf->tb_firmware__DOT__n_wdin = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14710071846707253699ull);
+    vlSelf->tb_firmware__DOT__n_bootmc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 16178756845004220827ull);
+    vlSelf->tb_firmware__DOT__n_pre = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 10996663891055151914ull);
+    vlSelf->tb_firmware__DOT__n_div = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 204032030913761263ull);
+    vlSelf->tb_firmware__DOT__n_tog = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11694128661571766625ull);
+    vlSelf->tb_firmware__DOT__n_xor = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 2314516277134399749ull);
+    vlSelf->tb_firmware__DOT__n_wdout = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 10208794649551543294ull);
+    vlSelf->tb_firmware__DOT__p_pre = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9923897490641751104ull);
+    vlSelf->tb_firmware__DOT__p_div = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3673143204408965346ull);
+    vlSelf->tb_firmware__DOT__p_tog = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10321023344749382843ull);
+    vlSelf->tb_firmware__DOT__p_xor = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6526871344822324656ull);
+    vlSelf->tb_firmware__DOT__p_wdout = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5498663815531273844ull);
+    vlSelf->tb_firmware__DOT__p_mcclk = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 606882188931789953ull);
+    vlSelf->tb_firmware__DOT__p_wdin = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2275016674085837462ull);
+    vlSelf->tb_firmware__DOT__p_bootmc = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14304610374933049767ull);
+    vlSelf->tb_firmware__DOT__mcclk_at_reset = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 2043326610010414748ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__BNTGtCT_p_b = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2594117208781275419ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__CLK_InBase = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16947234790912559799ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__FA_eq_0_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10703713946419901147ull);
@@ -243,7 +260,6 @@ VL_ATTR_COLD void Vtb_firmware___024root___ctor_var_reset(Vtb_firmware___024root
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseAttn_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1638529547087777125ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd09_sil_pl_3 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9280909565559531918ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd09_sil_pl_7 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5169868428581438481ull);
-    vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd09_sil_pl_8 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3102551555140382550ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd11_sil_pl_2 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6930125292560627933ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd14_sil_pl_1 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14651910225718906358ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd15_sil_pl_4 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4551550439943523045ull);
@@ -747,6 +763,8 @@ VL_ATTR_COLD void Vtb_firmware___024root___ctor_var_reset(Vtb_firmware___024root
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g14__DOT__q = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 10839918541292356100ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g20__DOT__ck_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13914671073630765312ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g20__DOT__q = VL_SCOPED_RAND_RESET_I(6, __VscopeHash, 12444740447455056464ull);
+    vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt = VL_SCOPED_RAND_RESET_I(24, __VscopeHash, 11204334694430902941ull);
+    vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__ck_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16061116503429814276ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__cka_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16639073943306986490ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__ckb_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3538527336273807737ull);
     vlSelf->tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__qa = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16408574441472523050ull);
@@ -4244,6 +4262,7 @@ VL_ATTR_COLD void Vtb_firmware___024root___ctor_var_reset(Vtb_firmware___024root
     vlSelf->__VdfgRegularize_hebeb780c_0_20 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_23 = 0;
     vlSelf->__Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_e07__DOT__q = 0;
+    vlSelf->__Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt = 0;
     vlSelf->__Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_h04__DOT__q = 0;
     vlSelf->__Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_h06__DOT__por = 0;
     for (int __Vi0 = 0; __Vi0 < 2; ++__Vi0) {

@@ -2334,8 +2334,9 @@ void Vtb_firmware___024root___nba_sequent__TOP__3(Vtb_firmware___024root* vlSelf
     vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g16__DOT__clkb 
         = ((IData)(tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__h_x2a_clk0_p_Ca) 
            | (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_g16__DOT__p9));
-    if (((~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__cka_d)) 
-         & (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd09_sil_pl_8))) {
+    if ((1U & ((~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__cka_d)) 
+               & (vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt 
+                  >> 0x00000014U)))) {
         vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__qa 
             = vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd09_sil_pl_3;
     }
@@ -2595,7 +2596,8 @@ void Vtb_firmware___024root___nba_sequent__TOP__3(Vtb_firmware___024root* vlSelf
     vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd09_sil_pl_3 
         = (1U & (~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__qa)));
     vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__cka_d 
-        = vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__BaseBd09_sil_pl_8;
+        = (1U & (vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt 
+                 >> 0x00000014U));
     if (((~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g08__DOT__cka_d)) 
          & (0x0fU == (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_e07__DOT__q)))) {
         vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g08__DOT__qa 
@@ -2632,6 +2634,8 @@ void Vtb_firmware___024root___nba_sequent__TOP__3(Vtb_firmware___024root* vlSelf
     vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_b60__DOT__a 
         = (((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_10) 
             << 0x0000000aU) | (IData)(__VdfgRegularize_hebeb780c_0_17));
+    vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt 
+        = vlSelfRef.__Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt;
     __VdfgRegularize_hebeb780c_0_18 = (((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_12) 
                                         << 0x0000000cU) 
                                        | (((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_11) 

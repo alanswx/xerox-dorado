@@ -90,7 +90,7 @@ VlCoroutine Vtb_firmware___024root___eval_initial__TOP__Vtiming__0(Vtb_firmware_
                                                              nullptr, 
                                                              "@(posedge tb_firmware.sys_clk)", 
                                                              "verilog/verilator/tb_firmware.sv", 
-                                                             95);
+                                                             100);
         if (((((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_15) 
                << 0x0000000fU) | (IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_20)) 
              != (IData)(vlSelfRef.tb_firmware__DOT__last_a))) {
@@ -148,15 +148,85 @@ VlCoroutine Vtb_firmware___024root___eval_initial__TOP__Vtiming__0(Vtb_firmware_
                 vlSelfRef.tb_firmware__DOT__n_reset 
                     = ((IData)(1U) + vlSelfRef.tb_firmware__DOT__n_reset);
                 if (VL_UNLIKELY((VL_LTS_III(32, 1U, vlSelfRef.tb_firmware__DOT__n_reset)))) {
-                    VL_WRITEF_NX("tb_firmware:   RESET #%0d at sys_clk %0d (%0d since the last)\n",0,
+                    VL_WRITEF_NX("tb_firmware:   RESET #%0d at sys_clk %0d (%0d since the last, %0d MCClk edges)\n",0,
                                  32,vlSelfRef.tb_firmware__DOT__n_reset,
                                  32,tb_firmware__DOT__i,
                                  32,(tb_firmware__DOT__i 
-                                     - vlSelfRef.tb_firmware__DOT__last_reset));
+                                     - vlSelfRef.tb_firmware__DOT__last_reset),
+                                 32,(vlSelfRef.tb_firmware__DOT__n_mcclk 
+                                     - vlSelfRef.tb_firmware__DOT__mcclk_at_reset));
                 }
                 vlSelfRef.tb_firmware__DOT__last_reset 
                     = tb_firmware__DOT__i;
+                vlSelfRef.tb_firmware__DOT__mcclk_at_reset 
+                    = vlSelfRef.tb_firmware__DOT__n_mcclk;
             }
+        }
+        if (((1U & (~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g08__DOT__qa))) 
+             != (IData)(vlSelfRef.tb_firmware__DOT__p_pre))) {
+            vlSelfRef.tb_firmware__DOT__p_pre = (1U 
+                                                 & (~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g08__DOT__qa)));
+            vlSelfRef.tb_firmware__DOT__n_pre = ((IData)(1U) 
+                                                 + vlSelfRef.tb_firmware__DOT__n_pre);
+        }
+        if (((1U & (vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt 
+                    >> 0x00000014U)) != (IData)(vlSelfRef.tb_firmware__DOT__p_div))) {
+            vlSelfRef.tb_firmware__DOT__p_div = (1U 
+                                                 & (vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt 
+                                                    >> 0x00000014U));
+            vlSelfRef.tb_firmware__DOT__n_div = ((IData)(1U) 
+                                                 + vlSelfRef.tb_firmware__DOT__n_div);
+        }
+        if (((1U & (~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__qa))) 
+             != (IData)(vlSelfRef.tb_firmware__DOT__p_tog))) {
+            vlSelfRef.tb_firmware__DOT__p_tog = (1U 
+                                                 & (~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__qa)));
+            vlSelfRef.tb_firmware__DOT__n_tog = ((IData)(1U) 
+                                                 + vlSelfRef.tb_firmware__DOT__n_tog);
+        }
+        if (((1U & ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__WatchdogIn) 
+                    ^ ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f63__DOT__pa_out) 
+                       >> 6U))) != (IData)(vlSelfRef.tb_firmware__DOT__p_xor))) {
+            vlSelfRef.tb_firmware__DOT__p_xor = (1U 
+                                                 & ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__WatchdogIn) 
+                                                    ^ 
+                                                    ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f63__DOT__pa_out) 
+                                                     >> 6U)));
+            vlSelfRef.tb_firmware__DOT__n_xor = ((IData)(1U) 
+                                                 + vlSelfRef.tb_firmware__DOT__n_xor);
+        }
+        if (((1U & ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f63__DOT__pa_out) 
+                    >> 6U)) != (IData)(vlSelfRef.tb_firmware__DOT__p_wdout))) {
+            vlSelfRef.tb_firmware__DOT__p_wdout = (1U 
+                                                   & ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f63__DOT__pa_out) 
+                                                      >> 6U));
+            vlSelfRef.tb_firmware__DOT__n_wdout = ((IData)(1U) 
+                                                   + vlSelfRef.tb_firmware__DOT__n_wdout);
+        }
+        if (((1U & (~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g08__DOT__qa))) 
+             != (IData)(vlSelfRef.tb_firmware__DOT__p_mcclk))) {
+            vlSelfRef.tb_firmware__DOT__p_mcclk = (1U 
+                                                   & (~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g08__DOT__qa)));
+            vlSelfRef.tb_firmware__DOT__n_mcclk = ((IData)(1U) 
+                                                   + vlSelfRef.tb_firmware__DOT__n_mcclk);
+        }
+        if (((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__WatchdogIn) 
+             != (IData)(vlSelfRef.tb_firmware__DOT__p_wdin))) {
+            vlSelfRef.tb_firmware__DOT__p_wdin = vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__WatchdogIn;
+            vlSelfRef.tb_firmware__DOT__n_wdin = ((IData)(1U) 
+                                                  + vlSelfRef.tb_firmware__DOT__n_wdin);
+        }
+        if (((1U & (~ ((~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__qa)) 
+                       & ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__WatchdogIn) 
+                          ^ ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f63__DOT__pa_out) 
+                             >> 6U))))) != (IData)(vlSelfRef.tb_firmware__DOT__p_bootmc))) {
+            vlSelfRef.tb_firmware__DOT__p_bootmc = 
+                (1U & (~ ((~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g22__DOT__qa)) 
+                          & ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__WatchdogIn) 
+                             ^ ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_f63__DOT__pa_out) 
+                                >> 6U)))));
+            vlSelfRef.tb_firmware__DOT__n_bootmc = 
+                ((IData)(1U) + vlSelfRef.tb_firmware__DOT__n_bootmc);
         }
         if (((1U & (~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__TCPStrb))) 
              != (IData)(vlSelfRef.tb_firmware__DOT__p_cpstrb))) {
@@ -504,7 +574,17 @@ VlCoroutine Vtb_firmware___024root___eval_initial__TOP__Vtiming__0(Vtb_firmware_
                                          & tb_firmware__DOT__besta)] = 0U;
     }
     tb_firmware__DOT__i = 0x0000000aU;
-    VL_WRITEF_NX("tb_firmware: reset-vector fetches: %0d -- the processor is RESTARTING, not looping.\ntb_firmware: I/O addresses touched: %0d distinct\ntb_firmware: CPStrb' edges %0d, DMuxClk edges %0d\n",0,
+    VL_WRITEF_NX("tb_firmware: MCClk edges %0d in 4,000,000 sys_clk -> 1 MCClk cycle = %0d sys_clk\ntb_firmware: MCPreClk edges %0d, divider Q21 edges %0d, toggle-FF edges %0d\ntb_firmware: WatchdogIn edges %0d, WatchdogOut edges %0d, XOR edges %0d, BootMC' edges %0d\ntb_firmware: reset-vector fetches: %0d -- the processor is RESTARTING, not looping.\ntb_firmware: I/O addresses touched: %0d distinct\ntb_firmware: CPStrb' edges %0d, DMuxClk edges %0d\n",0,
+                 32,vlSelfRef.tb_firmware__DOT__n_mcclk,
+                 32,(VL_LTS_III(32, 1U, vlSelfRef.tb_firmware__DOT__n_mcclk)
+                      ? VL_DIVS_III(32, (IData)(0x007a1200U), vlSelfRef.tb_firmware__DOT__n_mcclk)
+                      : 0U),32,vlSelfRef.tb_firmware__DOT__n_pre,
+                 32,vlSelfRef.tb_firmware__DOT__n_div,
+                 32,vlSelfRef.tb_firmware__DOT__n_tog,
+                 32,vlSelfRef.tb_firmware__DOT__n_wdin,
+                 32,vlSelfRef.tb_firmware__DOT__n_wdout,
+                 32,vlSelfRef.tb_firmware__DOT__n_xor,
+                 32,vlSelfRef.tb_firmware__DOT__n_bootmc,
                  32,vlSelfRef.tb_firmware__DOT__n_reset,
                  32,vlSelfRef.tb_firmware__DOT__n_io,
                  32,vlSelfRef.tb_firmware__DOT__n_cpstrb,
@@ -515,7 +595,7 @@ VlCoroutine Vtb_firmware___024root___eval_initial__TOP__Vtiming__0(Vtb_firmware_
     } else {
         VL_WRITEF_NX("tb_firmware: IT IS DRIVING THE DORADO.\n",0);
     }
-    VL_FINISH_MT("verilog/verilator/tb_firmware.sv", 145, "");
+    VL_FINISH_MT("verilog/verilator/tb_firmware.sv", 165, "");
     co_return;}
 
 VlCoroutine Vtb_firmware___024root___eval_initial__TOP__Vtiming__1(Vtb_firmware___024root* vlSelf) {
@@ -3755,6 +3835,8 @@ void Vtb_firmware___024root___nba_sequent__TOP__0(Vtb_firmware___024root* vlSelf
         = vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l16__DOT__q;
     __Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l18__DOT__q 
         = vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l18__DOT__q;
+    vlSelfRef.__Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt 
+        = vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt;
     __Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a09__DOT__q 
         = vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a09__DOT__q;
     __Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j15__DOT__q 
@@ -5350,6 +5432,11 @@ void Vtb_firmware___024root___nba_sequent__TOP__0(Vtb_firmware___024root* vlSelf
                      << 3U) | ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l15__DOT__qb) 
                                << 2U)) | (((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__StkP_5) 
                                            << 1U) | (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__StkP_4))));
+    }
+    if (((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g08__DOT__qa) 
+         & (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__ck_d))) {
+        vlSelfRef.__Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt 
+            = (0x00ffffffU & ((IData)(1U) + vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__cnt));
     }
     if (vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__ClrReady) {
         __Vdly__tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a09__DOT__q = 0U;
@@ -9496,6 +9583,8 @@ void Vtb_firmware___024root___nba_sequent__TOP__0(Vtb_firmware___024root* vlSelf
         = vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l16__DOT__clk;
     vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l18__DOT__ck_d 
         = vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_l16__DOT__clk;
+    vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g21__DOT__ck_d 
+        = (1U & (~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__u_g08__DOT__qa)));
     vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a09__DOT__ck_d 
         = vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_a09__DOT__clk;
     vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ContA__DOT__u_j15__DOT__ck_d 
@@ -12304,8 +12393,4 @@ void Vtb_firmware___024root___nba_sequent__TOP__0(Vtb_firmware___024root* vlSelf
     vlSelfRef.__VdfgRegularize_h4af1c392_0_174 = (1U 
                                                   & ((~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ASel_eq_6_s_7_p_)) 
                                                      | (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcH__DOT__ASel_eq_5_s_7_p_)));
-    vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__SHSelect_p_D 
-        = (1U & ((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i18__DOT__p5) 
-                 | ((~ (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__ProcL30_sil_pl_1)) 
-                    | (IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_ProcL__DOT__u_i18__DOT__p6))));
 }
