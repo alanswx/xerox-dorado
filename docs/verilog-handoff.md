@@ -388,11 +388,39 @@ a TOTAL instead of a DISTRIBUTION:**
 * "it never reaches `PacifyWatchdog`" holds only for the 4 M armed window. Over
   a long run it reaches it 240 times.
 
-**WHAT IS STILL NOT HAPPENING:** `DMuxClk` edges 0. The firmware drives CPReg
-hard (27,674 strobes) but has never shifted a manifold word — and
-`InitManifolds` is how `doradomufman.masm` brings the Dorado's boards up. That
-is the next thing to look at, as a measurement: does the firmware reach
-`SetManifold` at all?
+**THE MANIFOLD PATH, traced by routine and measured** (`G22_DISARMED` build,
+no resets, firmware running freely):
+
+| routine | addr | visits |
+|---|---|---|
+| `SETMANIFOLD` | F95A | 4 |
+| `SETMUFFLERADDRESS` | F9D0 | 4 |
+| `TRYGETTINGMUFMANCONTROL` | FA0E | 52 |
+| `WAITFORCPCONTROL` | FA1F | 4 |
+| `DATUMTOMANIFOLD` | F977 | 0 (different entry, unused here) |
+
+plus `TSetRun` = **0**, `TDMuxClk`/`TDMuxData` **0 edges**, `DMuxClk` **0
+edges**, `CPStrb'` **450 edges**.
+
+`SetManifold` calls `SetMufflerAddress`, which calls
+`TryGettingMufManControl` and gives up on carry set. That routine reads
+`MCPBusL & SetRunIn` (bit 2, the net `TSetRun`) and fails when the bit is SET —
+**it reads 0, so the gate passes** and the routine proceeds.
+
+**And the shift does not use the `DMux*` nets at all.**
+`SetMufflerAddress`'s inner loop at F9F6 writes `$0580` and `$0582` —
+`MCPBusH` and `MCPBusL`, the **control-processor bus** (`MCPABus` function code
+plus `MCPStrobe`) — twelve times. A manifold word travels the same path as
+everything else the BaseBoard sends the Dorado, and `CPStrb'` is where it shows
+up. The earlier note here that "no manifold word has been shifted" was inferred
+from watching `DMuxClk` rather than from the routine, and does not follow.
+
+**The open question, narrowly:** the firmware reaches `SetManifold`, passes the
+MufMan gate and drives the CP bus. What is **not** established is whether the
+twelve-bit muffler address it strobes out is decoded on the Dorado side into
+`DMuxData`/`DMuxClk`. Measure the CP-bus function codes the BaseBoard actually
+sends — `cpreg-diff` already decodes them — and check them against
+`SetMufflerAddress`'s writes.
 
 **And g22's POWER-UP STATE matters too.** j17 NANDs the XOR against
 g22's `Q'`, so a `Q'` of 0 masks the XOR entirely and only a real timer expiry
