@@ -321,13 +321,32 @@ watchdog disarmed it reported seven while `MCReset'` never left 1 and
 | `MCReset'` assertions | 19 | **1** |
 | `CPStrb'` edges | 37 | **450** |
 
-**So g22's power-up state is the whole blocker, and the design's own answer to
-it is TIME.** FF1 is a toggle clocked by the timer, so it alternates
-armed/disarmed every interval; a machine that comes up armed is reset until the
-first Q21 edge flips it, after which the firmware has a full disarmed window to
-reach `PacifyWatchdog` and pin the XOR at 0 for good. The interval is 2^21
-MCPreClk cycles at 80 sys_clk each -- about 168 M, forty times the probe's
-default window. `+define+LONG_RUN` runs 260 M to cross it.
+**"Give it time" was predicted here and is REFUTED.** The reasoning was that
+FF1 is a toggle clocked by the timer, so a machine coming up armed should be
+reset only until the first Q21 edge flips it, after which the firmware has a
+whole disarmed window to reach `PacifyWatchdog`. `+define+LONG_RUN` runs 260 M
+sys_clk and crosses three such edges. It does not settle:
+
+```
+MCPreClk cycles          3,249,999
+divider Q21 edges                3   the timer DID fire, three times
+g22 toggle-FF edges              3   so DISARMED WINDOWS EXISTED
+MCReset' assertions            397   and the resets CONTINUED
+CPStrb' edges               27,674
+```
+
+Each disarmed window is 2^20 MCPreClk cycles -- **about a million 6502 cycles
+of completely free running** -- and the firmware still never pacifies. It is
+not being starved of time; **it never reaches `PacifyWatchdog` at all.**
+
+**NEXT:** find where it actually spends a disarmed window. The page histogram
+this probe already prints, taken over a `LONG_RUN`, will say -- it was filtered
+out of the run above. The likely answer is the power-sequencing loop in
+`doradomufman.masm`, which walks a table of PowerManifold values and waits on
+voltage and current comparators the RTL does not model (h06 is an MPQ3303
+transistor quad, already a documented analog substitution for the VCO). If so,
+`PwrGood` and its comparators are the next thing to model, and the watchdog is
+downstream of that rather than the root.
 
 **And g22's POWER-UP STATE matters too.** j17 NANDs the XOR against
 g22's `Q'`, so a `Q'` of 0 masks the XOR entirely and only a real timer expiry
