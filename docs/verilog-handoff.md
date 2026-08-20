@@ -36,6 +36,7 @@ can run.
 | ...and T loads through the ALU | **works** -- 1234 gives 1234, a55a gives a55a, exact | `compute-test` |
 | **TWO OPERANDS: the ALU as the BOARDS wire it** | **works** -- all 24 entries of HM Table 9 match the C emulator, carry chain and all | `compute-test` |
 | **RM, the per-task register file** | **works** -- four addresses written and read, and each lands where the address pins say | `compute-test` |
+| **the REAL firmware driving a five-board machine** | runs, but the WATCHDOG resets it every 211,440 sys_clk before it reaches the Dorado | `firmware-probe` |
 
 ### Every gate
 
@@ -201,6 +202,43 @@ of the manifold is not "the parity enables" -- `12'h030` is
 jam-based testbenches that way broke four of them, which then looked exactly
 like fallout from the cell change and was not: the same four still failed with
 the cell reverted. Change ONE thing at a time when a fix touches 41 packages.
+
+### The real firmware, and the one thing between it and the machine
+
+Every gate here has had the TESTBENCH play BaseBoard, strobing the
+control-processor bus by hand from sequences transcribed out of
+`doradoboot.masm`. `make -C verilog firmware-probe` does not: it brings up
+**BaseBd + ContA + ContB + ProcH + ProcL** as one machine (`dorado_boot`,
+generated like the others) and lets the 6502 run its OWN firmware out of its
+OWN EPROMs.
+
+```
+bus activity -- 33818 ROM, 16459 RAM/zero-page, 30 I/O addresses
+ROM addresses touched span f248..ffff
+the ten it visits most: f3ac..f3b1, 4864 visits each
+reset-vector fetches: 19
+CPStrb' edges 0, DMuxClk edges 0
+```
+
+**The firmware runs, and the WATCHDOG keeps resetting it.** `f3ac..f3b1` is the
+zero-page clear loop at the top of the reset routine
+(`STA $00,X / DEX / BNE $F3AC`), and 4864 visits is 19 x 256 -- one pass per
+reset. The resets are exactly periodic, **every 211,440 sys_clk**, which is a
+hardware timer and not a firmware loop. It never touches the Dorado at all.
+
+The handshake it is failing is `PacifyWatchdog` (`doradocontinuous.masm`),
+which reads the watchdog port, rotates `WatchdogIn` into `WatchdogOut` and
+writes it back. `doradoio.mdefs` gives the register: **`Watchdog = 600+PA`**, a
+6532 RIOT port, **`WatchdogIn = 80`** (bit 7, input) and **`WatchdogOut = 40`**
+(bit 6, output per `WatchdogDDRValue`). The hardware drives bit 7 and expects
+the firmware to echo it on bit 6; when the echo stops it resets the processor.
+
+**NEXT, and this is the shortest path to the machine booting itself:** find
+whether the RTL models that timer and its echo, and if so why the firmware is
+not satisfying it. In 211,440 sys_clk it only gets through the reset routine
+and into MIDASSETUP (`JSR $F248` -- the source of the `f254..f257` visits), so
+it may simply never reach a pacify call before the timer fires. Either way it
+is now ONE named blocker rather than a guess about power sequencing.
 
 ### RM, and a general microinstruction encoder
 

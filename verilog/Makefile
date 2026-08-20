@@ -43,7 +43,7 @@ TOOLS   = ../tools
         datapath-test \
         startseq \
         converge-test machine-test \
-        baseboard-test \
+        baseboard-test firmware-probe \
         clean-generated
 
 # PROM contents, sliced per package position from PARC's own BCPL.
@@ -145,6 +145,10 @@ machine-test:
 # Does the BaseBoard's 6502 come out of reset and fetch its reset vector?
 baseboard-test:
 	@$(MAKE) -C verilator baseboard-test
+
+# The REAL firmware driving BaseBd+ContA+ContB+ProcH+ProcL. Diagnostic.
+firmware-probe:
+	@$(MAKE) -C verilator firmware-probe
 boards: backplane
 
 # The boards first, then the top module -- it re-runs the SAME classification
@@ -167,6 +171,8 @@ backplane: generated-boards
 		--boards=ContA,ContB --module=dorado_control >/dev/null
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_proc.v \
 		--boards=ContA,ContB,ProcH,ProcL --module=dorado_proc >/dev/null
+	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_boot.v \
+		--boards=BaseBd,ContA,ContB,ProcH,ProcL --module=dorado_boot >/dev/null
 
 cells:
 	@python3 $(TOOLS)/sil_emit_cells.py --sil $(SIL) \

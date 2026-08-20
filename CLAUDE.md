@@ -979,6 +979,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | ...and T loads through the ALU, EXACTLY | `compute-test` -- 1234 gives 1234, a55a gives a55a |
 | **...and it COMPUTES ON TWO OPERANDS** -- A from T, B from CPReg | `compute-test` -- all 24 entries of HM Table 9 match the C emulator |
 | RM, the per-task register file, writes and reads back | `compute-test` -- and each value lands where the address pins say |
+| the REAL firmware runs a five-board machine | `firmware-probe` -- but the WATCHDOG resets it every 211,440 sys_clk |
 
 Nineteen gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
@@ -1019,6 +1020,12 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   ones the PREVIOUS instruction latched. Q is not loaded by `QFromCPReg#`; it is
   loaded by the Nop after it -- and a probe sampling right after an instruction
   reads one cycle early.
+- **The real firmware runs, and the WATCHDOG is what stops it.** `dorado_boot`
+  (BaseBd+ContA+ContB+ProcH+ProcL) lets the 6502 run its own EPROMs; it is
+  reset every 211,440 sys_clk, exactly periodic, and never reaches the Dorado.
+  The handshake is `PacifyWatchdog` echoing `WatchdogIn` (bit 7) to
+  `WatchdogOut` (bit 6) at `Watchdog = 600+PA`, a 6532 RIOT port. That is the
+  shortest path to the machine booting itself.
 - **PARC's microinstruction parity is ODD parity over each 17-bit HALF** --
   left = RSTK/ALUF/BSEL/LC/ASEL -> P015, right = BLOCK/FF/JCN -> P1631, the
   bit being `~XOR` of the other seventeen. Fitted against PARC's own IRTable:
