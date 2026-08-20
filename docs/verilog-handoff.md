@@ -233,12 +233,25 @@ writes it back. `doradoio.mdefs` gives the register: **`Watchdog = 600+PA`**, a
 (bit 6, output per `WatchdogDDRValue`). The hardware drives bit 7 and expects
 the firmware to echo it on bit 6; when the echo stops it resets the processor.
 
-**NEXT, and this is the shortest path to the machine booting itself:** find
-whether the RTL models that timer and its echo, and if so why the firmware is
-not satisfying it. In 211,440 sys_clk it only gets through the reset routine
-and into MIDASSETUP (`JSR $F248` -- the source of the `f254..f257` visits), so
-it may simply never reach a pacify call before the timer fires. Either way it
-is now ONE named blocker rather than a guess about power sequencing.
+**The reset chain is fully traced, and every part of it is already in the
+RTL** -- nothing is missing:
+
+| package | part | role |
+|---|---|---|
+| g22 | SN74LS74 pair | the watchdog timer, with `WatchdogIn` fed back in |
+| j17 | SN74LS01 (open collector) | takes the timer output and drives `BootMC'`, wire-ORed with a jumper strap at h07 |
+| j08 | SN74LS74 | D = `BootMC'`, clock = `MCClk`, async `PwrGood`, output `MCReset'` |
+| f63 | MCS6532 RIOT | PA7 out as `WatchdogIn`, PA6 in as `WatchdogOut` -- what `PacifyWatchdog` writes |
+
+**So the firmware is simply not pacifying in time, and the hypothesis to test
+next is that our watchdog period is far too short.** The 6502 is a 1 MHz part,
+and 211,440 sys_clk is only a few thousand of its cycles once the BaseBoard's
+divider chain is accounted for -- far less than the startup path needs, since
+in that window the firmware only reaches MIDASSETUP (`JSR $F248`, the source of
+the `f254..f257` visits). PARC's own code refers to a `Timer100ms`, so the real
+period is probably two orders of magnitude longer. Measure `MCClk` against
+`sys_clk`, then the g22 chain's divide ratio, and compare with what the
+firmware needs to reach its first `JSR PacifyWatchdog`.
 
 ### RM, and a general microinstruction encoder
 

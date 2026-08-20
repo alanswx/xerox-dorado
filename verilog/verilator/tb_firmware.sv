@@ -34,12 +34,29 @@
 // expects the firmware to echo it on bit 6; when the echo stops, it resets
 // the processor.
 //
-// NEXT: find out whether our RTL models that timer and its echo at all, and if
-// it does, why the firmware is not satisfying it -- in 211,440 sys_clk it only
-// gets through the reset routine and into MIDASSETUP (`JSR $F248`, which is
-// where the f254..f257 visits come from), so it may simply never reach a
-// pacify call. Either way this is now ONE named blocker between the real
-// firmware and the machine, rather than a guess about power sequencing.
+// THE RESET CHAIN IS FULLY TRACED, and every part of it is already in the RTL:
+//
+//   g22   SN74LS74 pair on the BaseBd09 sheet -- the watchdog timer itself,
+//         with `WatchdogIn` fed back into it
+//   j17   SN74LS01 (open-collector NAND) takes the timer's output on pin 9
+//         (`BaseBd09.sil+3`) and drives `BootMC'`, wire-ORed with a jumper
+//         strap at h07 (an AUGATCG16 platform, i.e. a wire-wrap position)
+//   j08   SN74LS74 with D = `BootMC'`, clock = `MCClk`, async in = `PwrGood`,
+//         output `MCReset'` -- the 6502's reset
+//   f63   the MCS6532 RIOT holding the port: PA7 out as `WatchdogIn`, PA6 in
+//         as `WatchdogOut`, which is what `PacifyWatchdog` writes
+//
+// So nothing is missing; the firmware is simply not pacifying in time. THE
+// HYPOTHESIS TO TEST NEXT IS THAT OUR WATCHDOG PERIOD IS FAR TOO SHORT. The
+// 6502 is a 1 MHz part, and 211,440 sys_clk is only a few thousand of its
+// cycles once the BaseBoard's divider chain is taken into account -- far less
+// than the startup path needs, since in that window the firmware only gets
+// through the reset routine and into MIDASSETUP (`JSR $F248`, the source of
+// the f254..f257 visits). PARC's own code refers to a `Timer100ms`, so the
+// real period is likely two orders of magnitude longer.
+//
+// Measure MCClk against sys_clk first, then the g22 chain's divide ratio, and
+// compare with what the firmware needs to reach its first `JSR PacifyWatchdog`.
 
 `default_nettype none
 `define BB  m.u_machine.b_BaseBd

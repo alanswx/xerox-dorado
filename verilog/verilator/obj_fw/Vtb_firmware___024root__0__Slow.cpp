@@ -122,7 +122,7 @@ VL_ATTR_COLD void Vtb_firmware___024root___eval_settle(Vtb_firmware___024root* v
 #ifdef VL_DEBUG
             Vtb_firmware___024root___dump_triggers__stl(vlSelfRef.__VstlTriggered, "stl"s);
 #endif
-            VL_FATAL_MT("verilog/verilator/tb_firmware.sv", 23, "", "Settle region did not converge after 100 tries");
+            VL_FATAL_MT("verilog/verilator/tb_firmware.sv", 64, "", "Settle region did not converge after 100 tries");
         }
         __VstlIterCount = ((IData)(1U) + __VstlIterCount);
     } while (Vtb_firmware___024root___eval_phase__stl(vlSelf));

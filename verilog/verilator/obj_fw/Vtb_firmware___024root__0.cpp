@@ -90,7 +90,7 @@ VlCoroutine Vtb_firmware___024root___eval_initial__TOP__Vtiming__0(Vtb_firmware_
                                                              nullptr, 
                                                              "@(posedge tb_firmware.sys_clk)", 
                                                              "verilog/verilator/tb_firmware.sv", 
-                                                             54);
+                                                             95);
         if (((((IData)(vlSelfRef.tb_firmware__DOT__m__DOT__u_machine__DOT__b_BaseBd__DOT__MCA_15) 
                << 0x0000000fU) | (IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_20)) 
              != (IData)(vlSelfRef.tb_firmware__DOT__last_a))) {
@@ -515,7 +515,7 @@ VlCoroutine Vtb_firmware___024root___eval_initial__TOP__Vtiming__0(Vtb_firmware_
     } else {
         VL_WRITEF_NX("tb_firmware: IT IS DRIVING THE DORADO.\n",0);
     }
-    VL_FINISH_MT("verilog/verilator/tb_firmware.sv", 104, "");
+    VL_FINISH_MT("verilog/verilator/tb_firmware.sv", 145, "");
     co_return;}
 
 VlCoroutine Vtb_firmware___024root___eval_initial__TOP__Vtiming__1(Vtb_firmware___024root* vlSelf) {
@@ -527,7 +527,7 @@ VlCoroutine Vtb_firmware___024root___eval_initial__TOP__Vtiming__1(Vtb_firmware_
         co_await vlSelfRef.__VdlySched.delay(1ULL, 
                                              nullptr, 
                                              "verilog/verilator/tb_firmware.sv", 
-                                             26);
+                                             67);
         vlSelfRef.tb_firmware__DOT__sys_clk = (1U & 
                                                (~ (IData)(vlSelfRef.tb_firmware__DOT__sys_clk)));
     }
