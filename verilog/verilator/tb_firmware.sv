@@ -116,40 +116,35 @@
 // converting one analog channel after another: the supply voltages and
 // currents `doradomufman.masm` waits on before it will bring the Dorado up.
 //
-// IT DOES REACH `PacifyWatchdog` -- AN EARLIER CLAIM HERE WAS WRONG. This
-// header previously said the unmodelled analog chain meant "the firmware never
-// leaves power sequencing ... which is why it never reaches PacifyWatchdog".
-// Measured, with the routine addresses out of the disassembly:
+// THE MACHINE SURVIVES ITS OWN WATCHDOG. `+define+LONG_RUN` with the resets
+// bucketed by watchdog window (each Q21 edge starts a new bucket):
 //
-//                            default (armed)   G22_DISARMED
-//     PACIFYWATCHDOG F692          0                 5
-//     PACIFYWATCHDOGIFJUMPER F68B  0                 0
-//     MCReset' assertions         19                 1
-//     CPStrb' edges               37               450
+//   window 0  from           0   g22FF1Q'=1 ARMED      resets 397
+//   window 1  from  83,886,119   g22FF1Q'=1 ARMED      resets   0
+//   window 2  from 167,772,199   g22FF1Q'=0 disarmed   resets   0
+//   window 3  from 251,658,279   g22FF1Q'=0 disarmed   resets   0
+//   PACIFYWATCHDOG (F692) visits 240      CPStrb' edges 27,674
 //
-// So when it can run, it pacifies. It never gets there in the armed build only
-// because it is reset first. `SkipWait'` reads 1 -- which WOULD make
-// `PacifyWatchdogIfJumper` skip -- but that entry is never used; the firmware
-// calls `PacifyWatchdog` directly, so the jumper is not in the path.
+// EVERY reset is in window 0. After the first Q21 edge: none, across 176 M
+// sys_clk -- INCLUDING WINDOW 1, WHICH IS STILL ARMED. So the firmware gets
+// far enough to pacify, the XOR stays 0 from then on, and the watchdog is
+// satisfied for the rest of the run. That is the design working as intended.
 //
-// WHAT IS ACTUALLY ESTABLISHED, and it is less than the last three notes here
-// claimed:
+// TWO OF THIS FILE'S EARLIER CLAIMS WERE WRONG, IN OPPOSITE DIRECTIONS, and
+// both from reading a TOTAL instead of a DISTRIBUTION:
 //
-//   * g22 armed at power-up causes a reset before the firmware finishes
-//     starting up, and it then never gets far enough to pacify. Disarmed, it
-//     runs continuously and pacifies. That much is measured both ways.
-//   * The ADC loop at F84A is where it spends most of its cycles. That is a
-//     cycle count, NOT evidence that it blocks: it is a monitoring loop and
-//     the firmware demonstrably proceeds past it.
-//   * The analog chain IS unmodelled -- CA3140 (g18, i19, i20, i21, j21),
-//     CD4051 (i2125, j24, k24) and the AUGATCG16 resistor platforms are all
-//     skeletons. That is a fact about the RTL. Its effect on booting is NOT
-//     established, and should not be asserted again without measuring it.
+//   * "give it time" was recorded here as REFUTED because a 260 M run still
+//     showed 397 resets. It is not refuted -- those 397 all happened before
+//     the first watchdog interval elapsed. The run did settle; the total said
+//     nothing about when.
+//   * the claim that it "never reaches PacifyWatchdog" holds only for the
+//     4 M armed window. Over a long run it reaches it 240 times.
 //
-// NEXT: the long run (260 M, three Q21 edges, 397 resets) still needs
-// explaining -- once the firmware pacifies in a disarmed window the XOR should
-// stay 0 and survive re-arming, so why do resets continue? Log the reset times
-// against the Q21 edges and see whether they cluster in the armed halves.
+// WHAT IS STILL NOT HAPPENING: `DMuxClk` edges 0. The firmware drives CPReg
+// hard (27,674 strobes) but has never shifted a manifold word, and
+// `InitManifolds` is how `doradomufman.masm` brings the Dorado's boards up.
+// That is the next thing to look at, and it is a measurement, not a theory:
+// find whether the firmware reaches `SetManifold` at all.
 
 `default_nettype none
 `define BB  m.u_machine.b_BaseBd
@@ -184,6 +179,14 @@ module tb_firmware;
   // seven "resets" while MCReset' never left 1 and BootMC' never moved.
   integer n_mcreset = 0, last_mcreset = 0;
   reg p_mcreset = 1'b1;
+  // Resets bucketed by watchdog window: each Q21 edge flips g22's FF1, so the
+  // machine alternates armed (Q'=1) and disarmed (Q'=0). This asks directly
+  // whether the 397 resets of the long run cluster in the armed halves.
+  integer win = 0;
+  integer win_start [0:15];
+  integer win_resets [0:15];
+  reg     win_armed  [0:15];
+  reg     p_q21 = 1'b0;
   integer n_mcclk = 0, n_wdin = 0, n_bootmc = 0;
   integer n_pre = 0, n_div = 0, n_tog = 0, n_xor = 0, n_wdout = 0;
   reg p_pre = 1'b0, p_div = 1'b0, p_tog = 1'b0, p_xor = 1'b0, p_wdout = 1'b0;
@@ -198,7 +201,10 @@ module tb_firmware;
 `ifdef G22_DISARMED
     m.u_machine.b_BaseBd.u_g22.qa = 1'b1;
 `endif
-    for (i = 0; i < 16; i = i + 1) bucket[i] = 0;
+    for (i = 0; i < 16; i = i + 1) begin
+      bucket[i] = 0; win_start[i] = 0; win_resets[i] = 0; win_armed[i] = 1'b0;
+    end
+    win_armed[0] = 1'b1;   // g22 comes up armed unless G22_DISARMED
     for (i = 0; i < 4096; i = i + 1) hot[i] = 0;
 
     // Long enough to cross a real watchdog interval (2^21 MCPreClk cycles at
@@ -239,6 +245,7 @@ module tb_firmware;
         p_mcreset = `BB.MCReset_p_;
         if (!p_mcreset) begin
           n_mcreset = n_mcreset + 1;
+          win_resets[win] = win_resets[win] + 1;
           if (n_mcreset < 6)
             $display("tb_firmware:   MCReset' ASSERTED #%0d at %0d (+%0d)",
                      n_mcreset, i, i - last_mcreset);
@@ -246,7 +253,13 @@ module tb_firmware;
         end
       end
       if (`BB.MCPreClk !== p_pre) begin p_pre = `BB.MCPreClk; n_pre = n_pre + 1; end
-      if (`BB.BaseBd09_sil_pl_8 !== p_div) begin p_div = `BB.BaseBd09_sil_pl_8; n_div = n_div + 1; end
+      if (`BB.BaseBd09_sil_pl_8 !== p_div) begin
+        p_div = `BB.BaseBd09_sil_pl_8; n_div = n_div + 1;
+        if (win < 15) begin
+          win = win + 1; win_start[win] = i; win_resets[win] = 0;
+          win_armed[win] = `BB.BaseBd09_sil_pl_3;
+        end
+      end
       if (`BB.BaseBd09_sil_pl_3 !== p_tog) begin p_tog = `BB.BaseBd09_sil_pl_3; n_tog = n_tog + 1; end
       if (`BB.BaseBd09_sil_pl_1 !== p_xor) begin p_xor = `BB.BaseBd09_sil_pl_1; n_xor = n_xor + 1; end
       if (`BB.WatchdogOut !== p_wdout) begin
@@ -293,6 +306,11 @@ module tb_firmware;
              n_pre, n_div, n_tog);
     $display("tb_firmware: WatchdogIn edges %0d, WatchdogOut edges %0d, XOR edges %0d, BootMC' edges %0d",
              n_wdin, n_wdout, n_xor, n_bootmc);
+    $display("tb_firmware: RESETS PER WATCHDOG WINDOW (a window is one Q21 edge to the next):");
+    for (j = 0; j <= win; j = j + 1)
+      $display("tb_firmware:   window %0d  from %0d  g22FF1Q'=%b (%s)  resets %0d",
+               j, win_start[j], win_armed[j], win_armed[j] ? "ARMED" : "disarmed",
+               win_resets[j]);
     $display("tb_firmware: SkipWait'(the PacifyWatchdogIfJumper gate)=%b  -- 1 means the firmware SKIPS pacifying",
              m.u_machine.SkipWait_p_);
     $display("tb_firmware: PACIFYWATCHDOG(F692) visits %0d, PACIFYWATCHDOGIFJUMPER(F68B) visits %0d",

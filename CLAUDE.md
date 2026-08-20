@@ -1029,13 +1029,14 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   `WEAK_PORT_DRIVERS` in the generator, symmetric to `OVERRIDE_DRIVERS`: the
   pull-up loses where something else drives, stands where nothing does. With
   it, the real firmware reaches the control-processor bus.
-- **The real firmware reaches `PacifyWatchdog` when it can run.** With g22
-  disarmed it pacifies 5 times, takes ONE reset (power-on) and drives the
-  Dorado; armed, it is reset first and never gets there. Its hot loop is a
-  successive-approximation A/D conversion (write `DAC = 400+PA`, settle, read
-  `Comparators = 480+PA`, shift) whose chain -- CA3140 op-amps, CD4051 analog
-  muxes, AUGATCG16 resistor platforms -- is unmodelled; but that is a cycle
-  count, NOT a proven blocker, and claiming otherwise was a mistake made twice.
+- **The BaseBoard boots itself past power-up.** Over a 260 M-cycle run all 397
+  resets fall in the FIRST watchdog window; after the first Q21 edge there are
+  none across 176 M sys_clk, including a window that is still ARMED. The
+  firmware pacifies (240 `PacifyWatchdog` visits) and the watchdog stays
+  satisfied. Two earlier notes claimed the opposite, both from reading a TOTAL
+  instead of a DISTRIBUTION -- bucket by time before concluding a run has not
+  settled. Still open: `DMuxClk` is 0, so no manifold word has ever been
+  shifted, and `InitManifolds` is how the Dorado's boards come up.
 - **The real firmware runs, and the WATCHDOG is what stops it.** `dorado_boot`
   (BaseBd+ContA+ContB+ProcH+ProcL) lets the 6502 run its own EPROMs; it is
   reset every 211,440 sys_clk, exactly periodic, and never reaches the Dorado.
