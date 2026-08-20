@@ -140,11 +140,40 @@
 //   * the claim that it "never reaches PacifyWatchdog" holds only for the
 //     4 M armed window. Over a long run it reaches it 240 times.
 //
-// WHAT IS STILL NOT HAPPENING: `DMuxClk` edges 0. The firmware drives CPReg
-// hard (27,674 strobes) but has never shifted a manifold word, and
-// `InitManifolds` is how `doradomufman.masm` brings the Dorado's boards up.
-// That is the next thing to look at, and it is a measurement, not a theory:
-// find whether the firmware reaches `SetManifold` at all.
+// THE MANIFOLD PATH, TRACED BY ROUTINE AND MEASURED. All numbers from the
+// `G22_DISARMED` build (no resets, so the firmware runs freely):
+//
+//     SETMANIFOLD              F95A    4 visits
+//     SETMUFFLERADDRESS        F9D0    4
+//     TRYGETTINGMUFMANCONTROL  FA0E   52
+//     WAITFORCPCONTROL         FA1F    4
+//     DATUMTOMANIFOLD          F977    0     (a different entry; not used here)
+//     READMUFFLER              F986    0
+//     TSetRun                          0     the MufMan gate PASSES
+//     TDMuxClk / TDMuxData      0 edges       DMuxClk 0 edges
+//     CPStrb'                        450 edges
+//
+// `SetManifold` calls `SetMufflerAddress`, which calls
+// `TryGettingMufManControl` and gives up on carry set -- that routine reads
+// `MCPBusL & SetRunIn` (bit 2, the net `TSetRun`) and fails when the bit is
+// SET. It reads 0 here, so the gate passes and the routine proceeds.
+//
+// AND THE SHIFT DOES NOT USE THE `DMux*` NETS. `SetMufflerAddress`'s inner
+// loop at F9F6 writes `$0580` and `$0582` -- `MCPBusH` and `MCPBusL`, i.e. the
+// CONTROL-PROCESSOR BUS (`MCPABus` function code plus `MCPStrobe`) -- twelve
+// times. So a manifold word travels the same path as everything else the
+// BaseBoard sends the Dorado, and `CPStrb'` is exactly where it shows up.
+// `DMuxClk`/`DMuxData` are the ECL backplane nets on the far side of l19/l24;
+// whether they should move for THIS path is not established here, and the
+// earlier note in this file that "no manifold word has been shifted" was
+// inferred from watching them rather than from the routine.
+//
+// SO THE OPEN QUESTION IS NARROWER AND HONESTLY STATED: the firmware reaches
+// `SetManifold`, passes the MufMan gate, and drives the CP bus. What is NOT
+// established is whether the twelve-bit muffler address it strobes out is
+// decoded on the Dorado side into `DMuxData`/`DMuxClk`. Measure the CP-bus
+// function codes the BaseBoard actually sends (`cpreg-diff` already decodes
+// them) and check them against `SetMufflerAddress`'s writes.
 
 `default_nettype none
 `define BB  m.u_machine.b_BaseBd
@@ -189,6 +218,8 @@ module tb_firmware;
   reg     p_q21 = 1'b0;
   integer n_mcclk = 0, n_wdin = 0, n_bootmc = 0;
   integer n_pre = 0, n_div = 0, n_tog = 0, n_xor = 0, n_wdout = 0;
+  integer n_tclk = 0, n_tdat = 0;
+  reg p_tclk = 1'b0, p_tdat = 1'b0;
   reg p_pre = 1'b0, p_div = 1'b0, p_tog = 1'b0, p_xor = 1'b0, p_wdout = 1'b0;
   reg p_mcclk = 1'b0, p_wdin = 1'b0, p_bootmc = 1'b1;
   integer mcclk_at_reset = 0;
@@ -252,6 +283,8 @@ module tb_firmware;
           last_mcreset = i;
         end
       end
+      if (`BB.TDMuxClk  !== p_tclk) begin p_tclk = `BB.TDMuxClk;  n_tclk = n_tclk + 1; end
+      if (`BB.TDMuxData !== p_tdat) begin p_tdat = `BB.TDMuxData; n_tdat = n_tdat + 1; end
       if (`BB.MCPreClk !== p_pre) begin p_pre = `BB.MCPreClk; n_pre = n_pre + 1; end
       if (`BB.BaseBd09_sil_pl_8 !== p_div) begin
         p_div = `BB.BaseBd09_sil_pl_8; n_div = n_div + 1;
@@ -315,6 +348,14 @@ module tb_firmware;
              m.u_machine.SkipWait_p_);
     $display("tb_firmware: PACIFYWATCHDOG(F692) visits %0d, PACIFYWATCHDOGIFJUMPER(F68B) visits %0d",
              hot[16'h692], hot[16'h68B]);
+    $display("tb_firmware: SETMANIFOLD(F95A) %0d  DATUMTOMANIFOLD(F977) %0d  READMUFFLER(F986) %0d  SETMUFFLERADDRESS(F9D0) %0d",
+             hot[16'h95A], hot[16'h977], hot[16'h986], hot[16'h9D0]);
+    $display("tb_firmware: TDMuxClk edges %0d, TDMuxData edges %0d (the TTL side of the manifold chain)",
+             n_tclk, n_tdat);
+    $display("tb_firmware: TSetRun(= MCPBusL bit SetRunIn, the TryGettingMufManControl gate)=%b",
+             `BB.TSetRun);
+    $display("tb_firmware: TRYGETTINGMUFMANCONTROL(FA0E) visits %0d, WAITFORCPCONTROL(FA1F) %0d",
+             hot[16'hA0E], hot[16'hA1F]);
     $display("tb_firmware: MCReset' ASSERTIONS: %0d   (0xFFFC seen on the bus %0d times -- not the same thing)",
              n_mcreset, n_reset);
     $display("tb_firmware: I/O addresses touched: %0d distinct", n_io);

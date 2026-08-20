@@ -1035,8 +1035,11 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   firmware pacifies (240 `PacifyWatchdog` visits) and the watchdog stays
   satisfied. Two earlier notes claimed the opposite, both from reading a TOTAL
   instead of a DISTRIBUTION -- bucket by time before concluding a run has not
-  settled. Still open: `DMuxClk` is 0, so no manifold word has ever been
-  shifted, and `InitManifolds` is how the Dorado's boards come up.
+  settled. Still open: it reaches `SetManifold` (4x) and passes the MufMan gate
+  (`TSetRun`=0), and `SetMufflerAddress` shifts the muffler address over the
+  CP BUS (`$0580`/`$0582` = MCPBusH/L), not the `DMux*` nets -- so whether that
+  word is decoded on the Dorado side is the open question, not whether it is
+  sent.
 - **The real firmware runs, and the WATCHDOG is what stops it.** `dorado_boot`
   (BaseBd+ContA+ContB+ProcH+ProcL) lets the 6502 run its own EPROMs; it is
   reset every 211,440 sys_clk, exactly periodic, and never reaches the Dorado.
