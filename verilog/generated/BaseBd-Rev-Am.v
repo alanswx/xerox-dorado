@@ -718,7 +718,8 @@ module BaseBd_m_Rev_m_Am (
   // net that no synthesis tool accepts.
   wire AHasCP__c20_7;
   wire AHasCP__c62_13;
-  assign AHasCP = AHasCP__c20_7 | AHasCP__c62_13;
+  // AHasCP: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign AHasCP = AHasCP__c20_7;
   wire BaseBd09_sil_pl_7__a19_5;
   wire BaseBd09_sil_pl_7__a20_5;
   assign BaseBd09_sil_pl_7 = BaseBd09_sil_pl_7__a19_5 | BaseBd09_sil_pl_7__a20_5;
@@ -735,7 +736,8 @@ module BaseBd_m_Rev_m_Am (
   assign BaseBd15_sil_pl_2 = BaseBd15_sil_pl_2__c05_3 | BaseBd15_sil_pl_2__c05_5;
   wire BootNO__l62_17;
   wire BootNO__c01_1;
-  assign BootNO__drv = BootNO__l62_17 | BootNO__c01_1;
+  // BootNO: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign BootNO__drv = BootNO__c01_1;
   wire CLK_ifu_p___k01_3;
   wire CLK_ifu_p___k01_2;
   assign CLK_ifu_p___drv = CLK_ifu_p___k01_3 | CLK_ifu_p___k01_2;
@@ -753,16 +755,20 @@ module BaseBd_m_Rev_m_Am (
   assign CPDMuxData_p_ = CPDMuxData_p___j17_4 | CPDMuxData_p___j17_1;
   wire CVDD__l62_11;
   wire CVDD__i19_6;
-  assign CVDD = CVDD__l62_11 | CVDD__i19_6;
+  // CVDD: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign CVDD = CVDD__i19_6;
   wire CVEE__l62_8;
   wire CVEE__i20_6;
-  assign CVEE = CVEE__l62_8 | CVEE__i20_6;
+  // CVEE: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign CVEE = CVEE__i20_6;
   wire DMD_00__f62_18;
   wire DMD_00__l22_2;
-  assign DMD_00 = DMD_00__f62_18 | DMD_00__l22_2;
+  // DMD.00: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign DMD_00 = DMD_00__l22_2;
   wire DoradoSel__c62_14;
   wire DoradoSel__c20_5;
-  assign DoradoSel = DoradoSel__c62_14 | DoradoSel__c20_5;
+  // DoradoSel: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign DoradoSel = DoradoSel__c20_5;
   wire GND346__h06_10;
   wire GND346__h06_12;
   // GND346: the MPQ3303 pulls this net and
@@ -928,16 +934,20 @@ module BaseBd_m_Rev_m_Am (
   assign MCIRQ_p_ = MCIRQ_p___l62_25 | MCIRQ_p___i62_25 | MCIRQ_p___c62_25 | MCIRQ_p___f62_25 | MCIRQ_p___f63_25;
   wire MCManif_0__l62_24;
   wire MCManif_0__k08_12;
-  assign MCManif_0 = MCManif_0__l62_24 | MCManif_0__k08_12;
+  // MCManif.0: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign MCManif_0 = MCManif_0__k08_12;
   wire MCManif_1__l62_23;
   wire MCManif_1__k08_10;
-  assign MCManif_1 = MCManif_1__l62_23 | MCManif_1__k08_10;
+  // MCManif.1: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign MCManif_1 = MCManif_1__k08_10;
   wire MCManif_2__l62_22;
   wire MCManif_2__k08_7;
-  assign MCManif_2 = MCManif_2__l62_22 | MCManif_2__k08_7;
+  // MCManif.2: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign MCManif_2 = MCManif_2__k08_7;
   wire MCManif_3__l62_21;
   wire MCManif_3__k08_5;
-  assign MCManif_3 = MCManif_3__l62_21 | MCManif_3__k08_5;
+  // MCManif.3: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign MCManif_3 = MCManif_3__k08_5;
   wire RCPABus_0__f23_2;
   wire RCPABus_0__f23_1;
   assign RCPABus_0 = RCPABus_0__f23_2 | RCPABus_0__f23_1;
@@ -976,70 +986,91 @@ module BaseBd_m_Rev_m_Am (
   assign RCPBus_08 = RCPBus_08__h24_2 | RCPBus_08__h24_1;
   wire RCPReg_00__c62_15;
   wire RCPReg_00__f19_2;
-  assign RCPReg_00 = RCPReg_00__c62_15 | RCPReg_00__f19_2;
+  // RCPReg.00: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_00 = RCPReg_00__f19_2;
   wire RCPReg_04__c62_11;
   wire RCPReg_04__f19_12;
-  assign RCPReg_04 = RCPReg_04__c62_11 | RCPReg_04__f19_12;
+  // RCPReg.04: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_04 = RCPReg_04__f19_12;
   wire RCPReg_05__c62_10;
   wire RCPReg_05__f19_15;
-  assign RCPReg_05 = RCPReg_05__c62_10 | RCPReg_05__f19_15;
+  // RCPReg.05: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_05 = RCPReg_05__f19_15;
   wire RCPReg_06__c62_9;
   wire RCPReg_06__f20_2;
-  assign RCPReg_06 = RCPReg_06__c62_9 | RCPReg_06__f20_2;
+  // RCPReg.06: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_06 = RCPReg_06__f20_2;
   wire RCPReg_07__c62_8;
   wire RCPReg_07__f20_5;
-  assign RCPReg_07 = RCPReg_07__c62_8 | RCPReg_07__f20_5;
+  // RCPReg.07: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_07 = RCPReg_07__f20_5;
   wire RCPReg_08__c62_16;
   wire RCPReg_08__g20_2;
-  assign RCPReg_08 = RCPReg_08__c62_16 | RCPReg_08__g20_2;
+  // RCPReg.08: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_08 = RCPReg_08__g20_2;
   wire RCPReg_09__c62_17;
   wire RCPReg_09__g20_5;
-  assign RCPReg_09 = RCPReg_09__c62_17 | RCPReg_09__g20_5;
+  // RCPReg.09: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_09 = RCPReg_09__g20_5;
   wire RCPReg_10__c62_18;
   wire RCPReg_10__g20_7;
-  assign RCPReg_10 = RCPReg_10__c62_18 | RCPReg_10__g20_7;
+  // RCPReg.10: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_10 = RCPReg_10__g20_7;
   wire RCPReg_11__c62_19;
   wire RCPReg_11__g20_10;
-  assign RCPReg_11 = RCPReg_11__c62_19 | RCPReg_11__g20_10;
+  // RCPReg.11: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_11 = RCPReg_11__g20_10;
   wire RCPReg_12__c62_21;
   wire RCPReg_12__g20_12;
-  assign RCPReg_12 = RCPReg_12__c62_21 | RCPReg_12__g20_12;
+  // RCPReg.12: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_12 = RCPReg_12__g20_12;
   wire RCPReg_13__c62_22;
   wire RCPReg_13__g20_15;
-  assign RCPReg_13 = RCPReg_13__c62_22 | RCPReg_13__g20_15;
+  // RCPReg.13: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_13 = RCPReg_13__g20_15;
   wire RCPReg_14__c62_23;
   wire RCPReg_14__h20_2;
-  assign RCPReg_14 = RCPReg_14__c62_23 | RCPReg_14__h20_2;
+  // RCPReg.14: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_14 = RCPReg_14__h20_2;
   wire RCPReg_15__c62_24;
   wire RCPReg_15__h20_5;
-  assign RCPReg_15 = RCPReg_15__c62_24 | RCPReg_15__h20_5;
+  // RCPReg.15: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign RCPReg_15 = RCPReg_15__h20_5;
   wire RCPStrb__h24_14;
   wire RCPStrb__h24_15;
   assign RCPStrb = RCPStrb__h24_14 | RCPStrb__h24_15;
   wire TBaseTempSense__l62_19;
   wire TBaseTempSense__h08_4;
-  assign TBaseTempSense = TBaseTempSense__l62_19 | TBaseTempSense__h08_4;
+  // TBaseTempSense: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign TBaseTempSense = TBaseTempSense__h08_4;
   wire TCBTempSense__h08_5;
   wire TCBTempSense__l62_18;
-  assign TCBTempSense = TCBTempSense__h08_5 | TCBTempSense__l62_18;
+  // TCBTempSense: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign TCBTempSense = TCBTempSense__h08_5;
   wire TCPI_0__f62_19;
   wire TCPI_0__c19_12;
-  assign TCPI_0 = TCPI_0__f62_19 | TCPI_0__c19_12;
+  // TCPI.0: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign TCPI_0 = TCPI_0__c19_12;
   wire TCPI_1__f62_21;
   wire TCPI_1__c19_13;
-  assign TCPI_1 = TCPI_1__f62_21 | TCPI_1__c19_13;
+  // TCPI.1: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign TCPI_1 = TCPI_1__c19_13;
   wire TCPI_2__f62_22;
   wire TCPI_2__c19_4;
-  assign TCPI_2 = TCPI_2__f62_22 | TCPI_2__c19_4;
+  // TCPI.2: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign TCPI_2 = TCPI_2__c19_4;
   wire TCPI_3__f62_23;
   wire TCPI_3__c19_5;
-  assign TCPI_3 = TCPI_3__f62_23 | TCPI_3__c19_5;
+  // TCPI.3: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign TCPI_3 = TCPI_3__c19_5;
   wire TDMuxData__f62_24;
   wire TDMuxData__l19_12;
-  assign TDMuxData = TDMuxData__f62_24 | TDMuxData__l19_12;
+  // TDMuxData: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign TDMuxData = TDMuxData__l19_12;
   wire TSetRun__g07_2;
   wire TSetRun__i62_22;
-  assign TSetRun = TSetRun__g07_2 | TSetRun__i62_22;
+  // TSetRun: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign TSetRun = TSetRun__g07_2;
   wire VCC62__c05_12;
   wire VCC62__c05_1;
   assign VCC62 = VCC62__c05_12 | VCC62__c05_1;
@@ -1055,7 +1086,8 @@ module BaseBd_m_Rev_m_Am (
   assign VCOPhase1 = VCOPhase1__h06_1;
   wire WatchdogIn__g22_8;
   wire WatchdogIn__f63_15;
-  assign WatchdogIn = WatchdogIn__g22_8 | WatchdogIn__f63_15;
+  // WatchdogIn: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign WatchdogIn = WatchdogIn__g22_8;
 
   // 63 single-driver contributions to the backplane
 

@@ -138,6 +138,30 @@ class Generator:
     # a cell.
     OVERRIDE_DRIVERS = ('MPQ3303',)
 
+    # ...and the opposite: a driver that LOSES to any other on its net.
+    #
+    # A 6532's port pin is high-Z with an internal pull-up when its DDR makes
+    # it an input, and the MiSTer core states that convention directly --
+    # `PA_out = out_a | ~dir_a`, an input pin reading back 1, with the comment
+    # that the output "must be fed back to input ... for the chip to read
+    # properly". That is a WIRE-AND convention. These nets are resolved as
+    # wired-OR, so the pull-up would win instead of losing, pinning the net
+    # high and hiding whatever really drives it.
+    #
+    # The DDR is runtime state, so the generator cannot ask it. It does not
+    # need to: across the whole machine there are 33 nets where a 6532 port pin
+    # shares with another driver, and in EVERY one the other driver is a real
+    # totem-pole part ('174, '259, '01, '157, '175, '74, MC10125) or a strap,
+    # and the 6532 pin is the READER -- `RCPReg.00-15` (the CP register read
+    # back from the Dorado), `MCManif.0-3`, `TCPI.0-3`, the temperature senses,
+    # `WatchdogIn`. So a shared net means the pin is an input, and its pull-up
+    # must lose. Where the 6532 is the SOLE driver the pull-up stands, which
+    # matters: `WatchdogOut` is such a net, and dropping its pull-up holds the
+    # 6502 in reset.
+    WEAK_PORT_DRIVERS = {'MCS6532': frozenset(
+        [8, 9, 10, 11, 12, 13, 14, 15,          # PA0..PA7
+         16, 17, 18, 19, 21, 22, 23, 24])}      # PB0..PB7
+
     # Neither a driver nor a consumer. `Term100` is a 100-ohm TERMINATING
     # RESISTOR network -- ECL terminates every line -- and an empty socket is
     # nothing at all. Reading a terminator as the board's connector is what
@@ -529,6 +553,11 @@ class Generator:
             return d
         return 'output' if p['dir'] == 'out' else 'input'
 
+    def _weak_port(self, p: dict) -> bool:
+        """Is this driver a pull-up that any real driver overrides?"""
+        t = self.b.packages.get(p['pkg'], {}).get('type', '')
+        return p['pin'] in self.WEAK_PORT_DRIVERS.get(t, ())
+
     def drivers_in_rtl(self, name: str) -> list[dict]:
         """The pins that actually DRIVE this net in the emitted RTL.
 
@@ -669,6 +698,14 @@ class Generator:
                 # only one that reaches the net.
                 for p in drivers:
                     A(f'  wire {vname(name)}__{vname(p["pkg"])}_{p["pin"]};')
+                # A weak (pull-up) driver loses to any real one -- see
+                # WEAK_PORT_DRIVERS. Its stub is still emitted above; it just
+                # does not reach the net.
+                strong = [p for p in drivers if not self._weak_port(p)]
+                if strong and len(strong) != len(drivers):
+                    A(f'  // {name}: a 6532 port pin here is an INPUT (its '
+                      f'pull-up loses)')
+                    drivers = strong
                 over = [p for p in drivers
                         if self.b.packages.get(p['pkg'], {}).get('type', '')
                         in self.OVERRIDE_DRIVERS]

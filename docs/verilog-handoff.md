@@ -36,7 +36,7 @@ can run.
 | ...and T loads through the ALU | **works** -- 1234 gives 1234, a55a gives a55a, exact | `compute-test` |
 | **TWO OPERANDS: the ALU as the BOARDS wire it** | **works** -- all 24 entries of HM Table 9 match the C emulator, carry chain and all | `compute-test` |
 | **RM, the per-task register file** | **works** -- four addresses written and read, and each lands where the address pins say | `compute-test` |
-| **the REAL firmware driving a five-board machine** | runs, but the WATCHDOG resets it every 211,440 sys_clk before it reaches the Dorado | `firmware-probe` |
+| **the REAL firmware DRIVES THE DORADO** | 37 CPStrb' edges -- it reaches the control-processor bus; still watchdog-reset every 211,440 sys_clk | `firmware-probe` |
 
 ### Every gate
 
@@ -258,33 +258,33 @@ track **`WatchdogOut` one-for-one** instead: the firmware writes that port
 during startup, each write flips the XOR, and the XOR reaches `BootMC'`
 unopposed.
 
-**The blocker is `BootMC'`, and the 6532's input-pin convention is why.**
-Measured in the one-board machine: `MCReset' = 0`, `PwrGood = 1`,
-`TTLTrue.E = 1` -- so the power-up gate is fine and **`BootMC'` is simply low**.
-j17 NANDs the g23 XOR against g22's `Q'`, so `BootMC'` is low exactly when the
-XOR says WatchdogIn != WatchdogOut AND g22's `Q'` is 1.
+**THE FIRMWARE NOW REACHES THE CONTROL-PROCESSOR BUS** -- `CPStrb' edges 37`.
+One fix did it, and it belongs in the GENERATOR, not a cell:
+`WEAK_PORT_DRIVERS` in `tools/sil_to_verilog.py`.
 
-**A CORRECTION to the previous commit, which claimed masking the 6532's port
-drive with its DDR "fixes the reset storm, 19 fetches to ZERO".** It does not.
-Zero reset-vector fetches means the 6502 **never started** -- it is held in
-reset, which is worse than restarting. The 62,496 ROM accesses and the
-`fffe`/`ffff` hits that looked like an IRQ storm are what the bus does with the
-processor held down, not a further-along machine. That reading was wrong.
+A 6532 port pin is high-Z with an internal pull-up when its DDR makes it an
+input, and the core says so directly: `PA_out = out_a | ~dir_a`, with the
+comment that the output "must be fed back to input ... for the chip to read
+properly". That is a **wire-AND** convention; these nets resolve as
+**wired-OR**, so the pull-up won instead of losing and pinned every such net
+HIGH.
 
-**What the DDR mask actually breaks, and the real shape of the fix.** The
-core's `PA_out = out_a | ~dir_a` is not a bug: it is **the pull-up of a
-high-Z input pin**, and a 6532 port pin configured as an input really does
-present a logic 1. That is RIGHT for `WatchdogOut`, whose only driver is the
-RIOT (f63.14) -- masking it removes the pull-up, the net reads 0, the XOR goes
-1, and `BootMC'` sticks low. It is WRONG for `WatchdogIn`, which g22 also
-drives (g22.8, a totem-pole '74 output that in reality beats a pull-up) -- and
-in a wired-OR net model the RIOT's 1 wins instead, hiding the watchdog.
+**Masking it inside the cell does not work** -- it holds the 6502 in reset,
+because `WatchdogOut` is a net whose ONLY driver is the RIOT and whose pull-up
+is real. The rule has to be per-net: the pull-up loses where something else
+drives and stands where nothing does. The generator already knows each net's
+driver set, so this is symmetric to the existing `OVERRIDE_DRIVERS`.
 
-Neither net has a physical pull-up resistor; the pull-up is inside the 6532.
-So **the fix is per-NET, not per-cell**, and belongs in the generator: a 6532
-port pin should contribute `out & dir` where the net has another driver, and
-its pull-up where it is the sole driver. `tools/sil_backplane.py` already knows
-each net's driver set, which is exactly the information needed.
+It is sound because of what those nets are. Across the machine **33 nets** have
+a 6532 port pin sharing with another driver, and in every one the other driver
+is a real totem-pole part ('174, '259, '01, '157, '175, '74, MC10125) or a
+strap, with the 6532 pin as the READER: **`RCPReg.00-15`** -- how the BaseBoard
+reads the Dorado's CP register back -- plus `MCManif.0-3`, `TCPI.0-3`, the
+temperature senses and `WatchdogIn`. All of them were stuck high before.
+
+**Still open:** the watchdog resets the processor every 211,440 sys_clk (19
+times in the probe's window), so the firmware drives the Dorado only in bursts
+between restarts, and `DMuxClk` is still 0 -- no manifold word shifted yet.
 
 **And g22's POWER-UP STATE matters too.** j17 NANDs the XOR against
 g22's `Q'`, so a `Q'` of 0 masks the XOR entirely and only a real timer expiry
