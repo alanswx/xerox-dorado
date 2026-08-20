@@ -158,23 +158,41 @@ argument needing no data sheet: PARC ran with IM parity errors ENABLED, so a
 correct microinstruction MUST read `PE' = 1`. With `p15 = par9 ^ p13 ^ p14`
 **all thirteen do**; with the `~`, none do.
 
-Changing it, however, **regresses `datapath-test`, `operand-test`, `step-test`
-and `sendmir` -- and they stay broken with the IM parity enables CLEARED**, so
-the damage is not via the parity check at all. The blast radius is small and
-known: of the 41 MC10170 packages, only FOUR use pin 15.
+Changing it, however, **regresses five jam-based gates** -- `datapath-test`,
+`operand-test`, `step-test`, `sendmir` and `compute-test` -- measured with that
+cell as the ONLY change, while `parity-probe` itself goes green. Of the 41
+MC10170 packages, only FOUR use pin 15 at all:
 
 | package | pin 15 drives | what it is |
 |---|---|---|
 | ContA e18 | `IMRHPE'` | right-half IM parity check |
 | ContB j20 | `IMLHPE'` | left-half IM parity check |
-| ContB e01 | `ContB03.sil+1` -> d05 | IM WRITE parity; its controls are `BMux.16/17`, the parity bits on the B bus |
+| ContB e01 | `ContB03.sil+1` -> d05 -> **`RBMuxP`** | B-BUS parity; its controls are `BMux.16/17`, the parity bits riding that bus |
 | ProcH d13 | `SignedCarry` | **not a parity signal at all** |
 
-**Next:** work out which of the two non-checker uses our other cells are
-currently compensating for. `SignedCarry` has an independent oracle in the C
-emulator's overflow logic (HM section 3.7, QW7), and the ContB e01 path can be
-read against `writeim-test`, which still passes either way. Full write-up, with
-the measurements, is the header of `verilog/verilator/tb_parity.sv`.
+**THE CHEAP EXPLANATION WAS TESTED AND IS WRONG.** The obvious guess is that
+those five jam SYNTHETIC microinstructions whose P015/P1631 were arbitrary, so
+a correct checker rightly errors on them. Giving `mi()` the odd-parity rule
+changes nothing -- all five still fail -- and `tb_datapath`'s hand-built
+instruction already carries the correct bits (1 and 1). Do not spend time
+there again.
+
+**THE COUPLING IS THROUGH B-BUS PARITY, and the failure signature says so.**
+With the fix, `compute-test` reports `T took 1200, not 1234`: ProcH's half of T
+is right and **ProcL's half is zeroed**. ProcL uses no MC10170 pin 15 at all,
+so this is not a local effect -- the bridge is ContB e01, whose two CONTROL
+inputs are `BMux.16`/`BMux.17` and whose output reaches ContB d05, an MC10102
+driving `RBMuxP`, the B-bus parity bit itself. Flip the cell and the processor
+boards see a bad-parity B bus.
+
+**So the next step is the B-bus parity chain, not the IM checkers.** Make
+`RBMuxP` and the `*.Perr'` generators on ProcH/ProcL (`R.Perr'`, `T.Perr'`,
+`Md.Perr'`, `IOB.Perr'`, all MC10170 pin-2 outputs, which this change does NOT
+touch) consistent with the corrected B output, then re-run. `SignedCarry` at
+ProcH d13 needs its own check against the C emulator's overflow logic (HM
+section 3.7, QW7). And `mi()`'s parity computation should land TOGETHER with
+the cell fix, never before it -- with the present cell a CORRECT parity bit is
+exactly what the checker rejects.
 
 **A trap worth recording, because it cost a wrong diagnosis here.** Register 0
 of the manifold is not "the parity enables" -- `12'h030` is
