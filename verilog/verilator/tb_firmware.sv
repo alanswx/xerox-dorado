@@ -39,10 +39,39 @@
 // `TCPI.0-3`, the temperature senses and `WatchdogIn`. Every one of those was
 // stuck high before.
 //
-// STILL OPEN: the watchdog still resets the processor every 211,440 sys_clk
-// (19 times here), so it drives the Dorado only in bursts between restarts,
-// and `DMuxClk` is still 0 -- no manifold word has been shifted yet. The
-// reset chain and what is known about it is below.
+// STILL OPEN, AND MEASURED. The watchdog resets the processor every 211,440
+// sys_clk (19 times here), so it drives the Dorado only in bursts between
+// restarts, and `DMuxClk` is still 0 -- no manifold word shifted yet.
+//
+// WHAT TRIPS IT IS A ONE-CYCLE GLITCH, NOT THE TIMER. The trace shows
+// `WatchdogOut` driven LOW for exactly one MCClk cycle (215,518 -> 215,598)
+// while the firmware sets up the RIOT -- the DDR is written before the output
+// register, so the pin drives whatever ORA holds -- and that transient spikes
+// the g23 XOR, pulls `BootMC'` low, and j08 latches a reset 521 sys_clk later.
+// `BaseBd09.sil+3` (g22's FF1 Q') is 1 throughout, which is what lets the
+// spike through: j17 NANDs the XOR against it, so Q' = 0 would mask it
+// entirely.
+//
+// AND THAT IS CONFIRMED. Build with `+define+G22_DISARMED` -- the initial
+// block below pokes g22's FF1 to Q = 1, i.e. Q' = 0, the disarmed half of its
+// cycle -- and the firmware gets twelve times further:
+//
+//                      default      G22_DISARMED
+//     reset-vector       19              7
+//     CPStrb' edges      37            450
+//
+// So g22's power-up state genuinely gates how far the firmware gets. The
+// design tolerates either state on real hardware -- FF1 is a toggle clocked by
+// the timer, so it alternates armed/disarmed every interval (~1 s), and the
+// firmware has a whole disarmed window to reach `PacifyWatchdog` and pin the
+// XOR at 0 for good. Our simulation never gets that far because the interval
+// is 2^21 cycles and the probe runs 4 M.
+//
+// NEXT, and note it is now TWO questions: (1) give g22 a defensible power-up
+// state, or run long enough to cross a real timer interval; and (2) SEVEN
+// RESETS REMAIN even with the watchdog disarmed, so there is a second reset
+// source that has not been identified -- with FF1 held at Q' = 0, `BootMC'`
+// should be high always, and it is not.
 
 `default_nettype none
 `define BB  m.u_machine.b_BaseBd
@@ -79,6 +108,13 @@ module tb_firmware;
   integer mcclk_at_reset = 0;
 
   initial begin
+    // EXPERIMENT: does g22's toggle flip-flop coming up with Q=1 (so Q'=0,
+    // watchdog DISARMED until the first timer interval) let the firmware run?
+    // The cell powers up Q=0, hence Q'=1, which lets a transient XOR spike
+    // through to BootMC'.
+`ifdef G22_DISARMED
+    m.u_machine.b_BaseBd.u_g22.qa = 1'b1;
+`endif
     for (i = 0; i < 16; i = i + 1) bucket[i] = 0;
     for (i = 0; i < 4096; i = i + 1) hot[i] = 0;
 
@@ -97,9 +133,11 @@ module tb_firmware;
         if (mca >= 16'hF000) hot[mca - 16'hF000] = hot[mca - 16'hF000] + 1;
         if (mca == 16'hFFFC) begin
           n_reset = n_reset + 1;
-          if (n_reset > 1)
-            $display("tb_firmware:   RESET #%0d at sys_clk %0d (%0d since the last, %0d MCClk edges)",
-                     n_reset, i, i - last_reset, n_mcclk - mcclk_at_reset);
+          if (n_reset > 1 && n_reset < 6)
+            $display("tb_firmware:   RESET #%0d at %0d (+%0d): WatchdogIn=%b WatchdogOut=%b XOR=%b g22Q'=%b BootMC'=%b",
+                     n_reset, i, i - last_reset,
+                     `BB.WatchdogIn, `BB.WatchdogOut, `BB.BaseBd09_sil_pl_1,
+                     `BB.BaseBd09_sil_pl_3, `BB.BootMC_p_);
           last_reset = i;
           mcclk_at_reset = n_mcclk;
         end
@@ -109,7 +147,13 @@ module tb_firmware;
       if (`BB.BaseBd09_sil_pl_8 !== p_div) begin p_div = `BB.BaseBd09_sil_pl_8; n_div = n_div + 1; end
       if (`BB.BaseBd09_sil_pl_3 !== p_tog) begin p_tog = `BB.BaseBd09_sil_pl_3; n_tog = n_tog + 1; end
       if (`BB.BaseBd09_sil_pl_1 !== p_xor) begin p_xor = `BB.BaseBd09_sil_pl_1; n_xor = n_xor + 1; end
-      if (`BB.WatchdogOut !== p_wdout) begin p_wdout = `BB.WatchdogOut; n_wdout = n_wdout + 1; end
+      if (`BB.WatchdogOut !== p_wdout) begin
+        p_wdout = `BB.WatchdogOut; n_wdout = n_wdout + 1;
+        if (n_wdout < 8)
+          $display("tb_firmware:   WatchdogOut -> %b at %0d (In=%b XOR=%b q22Q'=%b BootMC'=%b)",
+                   `BB.WatchdogOut, i, `BB.WatchdogIn, `BB.BaseBd09_sil_pl_1,
+                   `BB.BaseBd09_sil_pl_3, `BB.BootMC_p_);
+      end
       if (`BB.MCClk !== p_mcclk) begin p_mcclk = `BB.MCClk; n_mcclk = n_mcclk + 1; end
       if (`BB.WatchdogIn !== p_wdin) begin p_wdin = `BB.WatchdogIn; n_wdin = n_wdin + 1; end
       if (`BB.BootMC_p_ !== p_bootmc) begin p_bootmc = `BB.BootMC_p_; n_bootmc = n_bootmc + 1; end
