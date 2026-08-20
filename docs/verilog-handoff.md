@@ -348,10 +348,30 @@ read-modify-write on a 6532 should give. `MCPBus.00` is the data bit and
 `MCPBus.01` the clock; `CPDMuxData` stays still here only because the address
 bits shifted so far are zeros.
 
-**So the BaseBoard now clocks the muffler chain on the backplane.** What has
-**not** been shown is the far end: whether ContA/ContB shift those bits into
-their DMD registers and act on them. Next measurement — watch ContB's
-`DMD.00-11` while this runs.
+**So the BaseBoard now clocks the muffler chain on the backplane.**
+
+**The far end is measured, and the measurement is inconclusive** — worth
+stating rather than reading either way. ContB's twelve-bit shift register and
+its latch:
+
+```
+DMuxClk edges 24            the clock reaches the backplane
+ContB DMD changes 0         its shift register never moves
+ContB ManClk.0' pulses 1    at time 1 only, i.e. power-up, DMD=000
+```
+
+A dead register looks **exactly** like a register being fed zeros. Every data
+bit shifted in this window was 0 — `MCPBus.00` is the data bit and it is never
+set across the 24 strobes, so the muffler address being sent is all zeros — and
+shifting zeros into a zero register changes nothing. This says nothing yet
+about whether ContA/ContB act on the chain.
+
+**To settle it,** catch a shift whose address is *not* zero: run
+`+define+G22_DISARMED +define+LONG_RUN` so the firmware walks more muffler
+channels, and watch `CPDMuxData` (the BaseBoard's own data bit) alongside
+ContB's `DMD`. If `CPDMuxData` toggles and `DMD` still does not, the far end is
+genuinely not shifting; if neither toggles, the addresses are still zero and
+the run was too short.
 
 #### Also worth knowing
 

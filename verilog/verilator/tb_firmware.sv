@@ -158,10 +158,28 @@
 // bit 6), and `CPDMuxData` stays still here only because the address bits
 // shifted so far are zeros.
 //
-// So the BaseBoard now clocks the muffler chain on the backplane. What has NOT
-// been shown is the far end: whether ContA/ContB shift those bits into their
-// DMD registers and act on them. That is the next measurement -- watch
-// ContB's `DMD.00-11` while this runs.
+// So the BaseBoard now clocks the muffler chain on the backplane.
+//
+// THE FAR END IS MEASURED BUT THE MEASUREMENT IS INCONCLUSIVE, and that is
+// worth stating rather than reading either way. ContB's twelve-bit shift
+// register and its latch are probed here:
+//
+//     DMuxClk edges 24            the clock reaches the backplane
+//     ContB DMD changes 0         its shift register never moves
+//     ContB ManClk.0' pulses 1    at time 1 only, i.e. power-up, DMD=000
+//
+// A dead register looks EXACTLY like a register being fed zeros: every data
+// bit shifted in this window was 0 -- `MCPBus.00` is the data bit and it is
+// never set in the 24 strobes, so the muffler address being sent is all
+// zeros -- and shifting zeros into a zero register changes nothing. So this
+// says nothing yet about whether ContA/ContB act on the chain.
+//
+// To settle it, catch a shift whose address is NOT zero: run
+// `+define+G22_DISARMED +define+LONG_RUN` so the firmware walks more muffler
+// channels, and watch `CPDMuxData` (the BaseBoard's own data bit) as well as
+// ContB's `DMD`. If `CPDMuxData` toggles and `DMD` still does not, the far end
+// is genuinely not shifting; if neither toggles, the addresses are still zero
+// and the test has not run long enough.
 //
 // ---------------------------------------------------- ALSO WORTH KNOWING
 //
@@ -231,6 +249,17 @@ module tb_firmware;
   integer n_mcclk = 0, n_wdin = 0, n_bootmc = 0;
   integer n_pre = 0, n_div = 0, n_tog = 0, n_xor = 0, n_wdout = 0;
   integer n_tclk = 0, n_tdat = 0, n_cpdc = 0, n_cpdd = 0, n_mcpstrb = 0;
+  // The FAR END: ContB's twelve-bit muffler shift register, and the ManClk
+  // pulse that latches an address once it is in.
+  wire [11:0] dmd = {m.u_machine.b_ContB.DMD_00, m.u_machine.b_ContB.DMD_01,
+                     m.u_machine.b_ContB.DMD_02, m.u_machine.b_ContB.DMD_03,
+                     m.u_machine.b_ContB.DMD_04, m.u_machine.b_ContB.DMD_05,
+                     m.u_machine.b_ContB.DMD_06, m.u_machine.b_ContB.DMD_07,
+                     m.u_machine.b_ContB.DMD_08, m.u_machine.b_ContB.DMD_09,
+                     m.u_machine.b_ContB.DMD_10, m.u_machine.b_ContB.DMD_11};
+  reg [11:0] dmd_p = 12'h000;
+  integer n_dmd = 0, n_cbmanclk = 0;
+  reg p_cbmanclk = 1'b1;
   reg p_tclk = 1'b0, p_tdat = 1'b0, p_cpdc = 1'b0, p_cpdd = 1'b0, p_mcpstrb = 1'b0;
   integer fn_seen [0:7];
   reg p_pre = 1'b0, p_div = 1'b0, p_tog = 1'b0, p_xor = 1'b0, p_wdout = 1'b0;
@@ -309,6 +338,20 @@ module tb_firmware;
             $display("tb_firmware:   MCReset' ASSERTED #%0d at %0d (+%0d)",
                      n_mcreset, i, i - last_mcreset);
           last_mcreset = i;
+        end
+      end
+      if (dmd !== dmd_p) begin
+        if (n_dmd < 14)
+          $display("tb_firmware:   ContB DMD %03h -> %03h at %0d", dmd_p, dmd, i);
+        dmd_p = dmd; n_dmd = n_dmd + 1;
+      end
+      if (m.u_machine.b_ContB.ManClk_0_p_ !== p_cbmanclk) begin
+        p_cbmanclk = m.u_machine.b_ContB.ManClk_0_p_;
+        if (!p_cbmanclk) begin
+          n_cbmanclk = n_cbmanclk + 1;
+          if (n_cbmanclk < 6)
+            $display("tb_firmware:   ContB ManClk.0' pulse %0d at %0d, DMD=%03h",
+                     n_cbmanclk, i, dmd);
         end
       end
       if (`BB.CPDMuxClk  !== p_cpdc) begin p_cpdc = `BB.CPDMuxClk;  n_cpdc = n_cpdc + 1; end
@@ -416,6 +459,8 @@ module tb_firmware;
                     (j==4)?"MIR0":(j==5)?"MIR1":(j==6)?"MIR2":"MIR3", fn_seen[j]);
     $display("tb_firmware: CPDMuxClk edges %0d, CPDMuxData edges %0d (BaseBoard's own DMux decode)",
              n_cpdc, n_cpdd);
+    $display("tb_firmware: ContB DMD changes %0d, ManClk.0' pulses %0d, final DMD=%03h",
+             n_dmd, n_cbmanclk, dmd);
     $display("tb_firmware: TSetRun(= MCPBusL bit SetRunIn, the TryGettingMufManControl gate)=%b",
              `BB.TSetRun);
     $display("tb_firmware: TRYGETTINGMUFMANCONTROL(FA0E) visits %0d, WAITFORCPCONTROL(FA1F) %0d",
