@@ -3596,7 +3596,7 @@ module MemX_m_Rev_m_Ch (
   cell_MC10105 u_h20 (
     .p7(MemPE__drv),
     .p9(STPerr),
-    .p10(MapPerr),
+    .p10(1'b0),
     .p11(HitPerr),
     .p12(MapFree_p_),
     .p13(NeedRfsh_p_),

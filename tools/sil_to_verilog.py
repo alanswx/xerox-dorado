@@ -580,6 +580,34 @@ class Generator:
         ('BaseBd', 'Midas.03'), ('BaseBd', 'Midas.04'),
     }
 
+    # A PIN CAN BE BROKEN OFF A LOGIC CHIP TOO, not just a resistor pack, and
+    # again only the schematic says so. MemX carries a sheet headed "Dorado
+    # Memory Extension Board / Stuffing and Configuration Instructions"
+    # (Memx23.sil, dated 10/29/79 -- the date the wire list names) whose
+    # instruction 2 is unconditional:
+    #
+    #     2. Break h20.10 before stuffing. Label this chip as MemX-h20.
+    #
+    # h20 is an MC10105 and pin 10 carries `MapPerr`, so with the pin present
+    # the memory-parity summary is (STPerr | MapPerr | HitPerr); broken, a map
+    # parity error does not raise it. MapPerr keeps its other two consumers
+    # (g49.2, k08.5), so the signal is not lost -- only this term.
+    #
+    # A broken MECL input is not floating: 10K inputs have an internal pulldown
+    # to VEE, which is why the ECL symbol sheet's rule for a genuinely unused
+    # input is "ALL UNUSED INPUTS MUST BE TIED TO VEE". So the pin reads 0.
+    #
+    # NOT here, deliberately: the same sheet's instruction 1, "If 256 chips are
+    # NOT installed in the Memory Storage Arrays (MSA), then break g10.6". That
+    # one is CONDITIONAL on how much memory the machine was built with, and
+    # `ChipsAre256/16K` and `ChipsAre64K` are backplane INPUTS to MemX rather
+    # than straps on it, so the configuration arrives from outside the board
+    # and is not ours to pick from the documents. Its blue wire (k4.6/k4.5/k4.4
+    # to k4.16) and the b14/c12 jumper sockets are the same choice.
+    BROKEN_PACKAGE_PINS = {
+        ('MemX', 'h20'): frozenset({10}),
+    }
+
     def sip_pull(self, pos: str) -> tuple[str | None, str]:
         """What a resistor pack ties its pins to, as an expression.
 
@@ -996,6 +1024,11 @@ class Generator:
                     target = f'{vname(netname)}__drv'
                 else:
                     target = vname(netname)
+                if pin in self.BROKEN_PACKAGE_PINS.get(
+                        (self.b.name.split('-Rev')[0], pos), frozenset()):
+                    # leg broken off before stuffing: an open MECL input
+                    # sits at VEE, so it reads 0 and the net is not connected
+                    target = "1'b0"
                 conns.append(f'    .p{pin}({target})')
             cell = f'cell_{vpart(ptype)}'
             if ptype not in self.cells:
