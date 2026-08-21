@@ -77,9 +77,28 @@
 // DIFFER, so the register reloads whenever the encoder's answer changes. It is
 // a load-on-change, independent of whether a switch is allowed.
 //
-// Actually SWITCHING -- CTask changing, `Switcha`, `BNTGtCT'` -- needs tasking
-// turned on by a microinstruction (`FF=TaskingOn` exists on ContA), and that
-// is the next step, not this one.
+// AND IT SWITCHES. The machine is started with TaskingOn rather than PARC's
+// TaskingOff, and then CTask is required to BE the task that asked.
+//
+// The encoding is not guessed. ContA a16, an MC10100, decodes
+//
+//     FF=TaskingOn  = ~(FB=4' | FC=3' | FA=1')   -> FA=1, FB=4, FC=3 = 143 oct
+//     FF=TaskingOff = ~(FB=4' | FC=2' | FA=1')   -> FA=1, FB=4, FC=2 = 142 oct
+//
+// and 142 is exactly the FF the IRTable states for `Return#`
+// ("TaskingOff,Return; ... FF[142]"), so the decode checks against PARC's own
+// table. FF.7 lives in byte 3 bit 3 of the five-byte format, so 0x42 | 0x08 =
+// 0x4A turns Return# into TaskingOn,Return -- verified by decoding both byte
+// strings back through the layout doradoboot.masm states.
+//
+// The control is the same run with 0x42 instead of 0x4A: `TaskingIsOff'` reads
+// 0, BNT still tracks the encoder to 15, and CTask STAYS AT 0. One bit of one
+// microinstruction decides whether the machine switches, and nothing else
+// changes.
+//
+// Still to come: the per-task STATE -- TPC, and T / MemBase / Link replicated
+// sixteen ways. Switching to a task whose TPC was never initialised is why
+// this test looks only at CTask and not at where the machine then goes.
 
 `default_nettype none
 
@@ -180,6 +199,8 @@ module tb_taskrun;
                      m.b_ContA.BNT_2,  m.b_ContA.BNT_3};
   wire [3:0] penc = {m.b_ContA.PEnc_0, m.b_ContA.PEnc_1,
                      m.b_ContA.PEnc_2, m.b_ContA.PEnc_3};
+  wire [3:0] ctask = {m.b_ContA.CTask_0, m.b_ContA.CTask_1,
+                      m.b_ContA.CTask_2, m.b_ContA.CTask_3};
   reg [15:0] pat_a, pat_b;
 
   // Link[4:15] -- twelve bits, the whole IM address space, and exactly what
@@ -885,7 +906,13 @@ module tb_taskrun;
     nop_micro;
     $display("tb_taskrun: Link[4:15]=%h", link_hi);
 
-    parc_run(8'h60, 8'h13, 8'hE1, 8'h42, 8'h43);      // Return#, free-running
+    // TaskingOn,Return. PARC's Return# is 60 13 E1 42 43 = "TaskingOff,Return"
+    // with FF[142]; ContA a16 decodes FF=TaskingOn as FA=1,FB=4,FC=3 = 143
+    // octal and FF=TaskingOff as FC=2 = 142, which is exactly the IRTable's
+    // stated FF for Return#. FF.7 lives in byte 3 bit 3, so 0x42 | 0x08 = 0x4A
+    // turns 142 into 143 -- checked by decoding both back through the byte
+    // layout doradoboot.masm states.
+    parc_run(8'h60, 8'h13, 8'hE1, 8'h4A, 8'h43);      // TaskingOn,Return
 
     n0a = 0;
     p0 = m.b_ContA.clk0_p_Ca;
@@ -901,9 +928,14 @@ module tb_taskrun;
     for (tk = 15; tk >= 1; tk = tk - 1) begin
       req = 15'd0; req[tk] = 1'b1;
       repeat (600) @(posedge sys_clk);          // several microinstructions
-      if (bnt !== tk[3:0] || penc !== tk[3:0]) begin
-        $display("tb_taskrun: FAIL task %0d requested -> PEnc %0d, BNT %0d",
-                 tk, penc, bnt);
+      $display("tb_taskrun: req task %2d -> PEnc %2d BNT %2d CTask %2d  Switcha=%b BNTGtCT'=%b TaskingIsOff'=%b",
+               tk, penc, bnt, ctask, m.b_ContA.Switcha,
+               m.b_ContA.BNTGtCT_p_a__drv, m.b_ContA.TaskingIsOff_p_);
+      if (bnt !== tk[3:0] || penc !== tk[3:0]) tbad = tbad + 1;
+      // THE SWITCH ITSELF: with tasking on, the machine must be RUNNING the
+      // task that asked for it.
+      if (ctask !== tk[3:0]) begin
+        $display("tb_taskrun: FAIL -- task %0d requested but CTask is %0d", tk, ctask);
         tbad = tbad + 1;
       end
     end
@@ -925,7 +957,7 @@ module tb_taskrun;
     end
 
     if (tbad != 0) $fatal(1, "the BNT register does not follow the priority encoder");
-    $display("tb_taskrun: PASS -- BNT loads in a running machine, all 15 tasks + fallback");
+    $display("tb_taskrun: PASS -- BNT loads and the machine SWITCHES to all 15 tasks");
     $finish;
   end
 

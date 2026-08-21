@@ -64,10 +64,11 @@ polarity blind spot. Full account, written to be read cold: the header of
 The wakeup path was wired to nothing (see `BACKPLANE_WAKEUP_JUMPERS`), and now
 has two gates: `task-test` for the combinational priority encoder against
 `cpu.c`'s `task_bnt()` over 23 patterns, and `taskrun-test` for the BNT
-REGISTER in a machine that is actually executing microcode out of IM. What
-remains is the SWITCH itself -- `Switcha`, `BNTGtCT'` and CTask changing --
-which needs `FF=TaskingOn`, plus the per-task state (TPC, and T / MemBase /
-Link replicated per task).
+REGISTER in a machine that is actually executing microcode out of IM. `taskrun-test` also shows the machine SWITCHING -- started with
+`TaskingOn` (FF = 143 octal, decoded off ContA a16 and checked against the
+IRTable's 142 for `TaskingOff`), CTask becomes the task that asked, for all
+fifteen, and with `TaskingOff` it does not. What remains is the per-task STATE:
+TPC, and T / MemBase / Link replicated sixteen ways.
 
 Original note: sixteen tasks, replicated T / TPC / MemBase / Link, a priority
 scheduler and wakeup latches. I/O microcode deadlocks

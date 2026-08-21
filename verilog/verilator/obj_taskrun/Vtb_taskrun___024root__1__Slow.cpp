@@ -3511,7 +3511,6 @@ VL_ATTR_COLD void Vtb_taskrun___024root___ctor_var_reset(Vtb_taskrun___024root* 
     vlSelf->__VdfgRegularize_h4af1c392_0_3 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_4 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_5 = 0;
-    vlSelf->__VdfgRegularize_h4af1c392_0_7 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_9 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_10 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_11 = 0;
@@ -3577,6 +3576,7 @@ VL_ATTR_COLD void Vtb_taskrun___024root___ctor_var_reset(Vtb_taskrun___024root* 
     vlSelf->__VdfgRegularize_hebeb780c_0_4 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_5 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_6 = 0;
+    vlSelf->__VdfgRegularize_hebeb780c_0_7 = 0;
     for (int __Vi0 = 0; __Vi0 < 1; ++__Vi0) {
         vlSelf->__VstlTriggered[__Vi0] = 0;
     }

@@ -2949,7 +2949,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_taskrun___024root final {
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_3;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_4;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_5;
-        CData/*7:0*/ __VdfgRegularize_h4af1c392_0_7;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_9;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_10;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_11;
@@ -2985,9 +2984,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_taskrun___024root final {
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_70;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_71;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_73;
+        CData/*0:0*/ __VdfgRegularize_h4af1c392_0_74;
     };
     struct {
-        CData/*0:0*/ __VdfgRegularize_h4af1c392_0_74;
         CData/*2:0*/ __VdfgRegularize_h4af1c392_0_76;
         CData/*2:0*/ __VdfgRegularize_h4af1c392_0_78;
         CData/*0:0*/ __VdfgRegularize_h4af1c392_0_79;
@@ -3014,8 +3013,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_taskrun___024root final {
         CData/*2:0*/ __VdfgRegularize_hebeb780c_0_2;
         CData/*0:0*/ __VdfgRegularize_hebeb780c_0_3;
         CData/*0:0*/ __VdfgRegularize_hebeb780c_0_4;
-        CData/*7:0*/ __VdfgRegularize_hebeb780c_0_5;
+        CData/*2:0*/ __VdfgRegularize_hebeb780c_0_5;
         CData/*7:0*/ __VdfgRegularize_hebeb780c_0_6;
+        CData/*7:0*/ __VdfgRegularize_hebeb780c_0_7;
         CData/*0:0*/ __VstlFirstIteration;
         CData/*0:0*/ __Vtrigprevexpr___TOP__tb_taskrun__DOT__m__DOT__DMuxData__0;
         CData/*0:0*/ __Vtrigprevexpr___TOP__tb_taskrun__DOT__m__DOT__DMuxData__VforceEn__0;
