@@ -276,15 +276,36 @@
 //    never issued it, and with every microinstruction failing parity the MIR
 //    was frozen anyway, so nothing noticed.
 //
-//    TRIED, AND IT IS NOT A ONE-LINE FIX: adding those two strobes with the
-//    corrected cell moves the failure rather than curing it -- the first jam
-//    step still runs its one clk0 window and stops, but the NEXT step then
-//    clocks nothing at all and Stop reads 0. The reason is that these
-//    testbenches model SetRun and SetSS TWICE, once as strobe data bits and
-//    once as the `setrun`/`setss_n` ports they drive directly, so inserting a
-//    strobe does not reproduce PARC's control sequence faithfully. Reconcile
-//    that dual modelling FIRST -- decide which of the two is the real control
-//    path in our RTL -- and only then replay DoradoMICommon exactly.
+//    THE DUAL MODELLING IS NOW RECONCILED, and it was not the answer either.
+//    `SetRun` and `SetSS'` are BACKPLANE wires, not CP-bus lines: BaseBd f02
+//    (an MC10124 TTL-to-ECL translator) drives them, and what it translates is
+//    latched by g07, an SN74LS175 clocked by `TControlStrb'` --
+//    `TCPBus.07 -> TSetRun` and `TCPBus.08 -> SetSS'`. Over the nine CP-bus
+//    bits, MSB first, .07 is the low bit of the Control byte (doradoio.mdefs
+//    `SetRun = 1`) and .08 is the ninth bit, where DoControl's carry lands.
+//    So a Control strobe already carries both, and the testbenches were
+//    keeping a second, unsynchronised copy in the `setrun`/`setss_n` ports.
+//    It agreed by luck in `jam_step` and did NOT in `step_again`, which sends
+//    three Control strobes and updates neither port -- holding SetRun asserted
+//    across a strobe that clears it.
+//
+//    g07 is modelled in the strobe task now, in eight testbenches, and all 25
+//    targets pass. With the CURRENT cell it is behaviour-preserving; with the
+//    corrected cell step-test still fails, but DIFFERENTLY and more usefully:
+//    the jam now single-steps correctly (Stop = 1 after exactly two clk0
+//    edges) and it is the OPERAND that is wrong -- Link reads 002 where CPReg
+//    held 002A. Same shape as tb_operand's `BMux=0000`. So the single-step
+//    chain is fine and the CPReg-to-B path is what the parity error has been
+//    propping up.
+//
+//    A BLIND SPOT WORTH KNOWING, found by mutation-testing that model:
+//    latching SetRun from the wrong CP-bus bit IS caught, but INVERTING the
+//    SetSS polarity is NOT -- step-test passes either way. `SetSS'` has
+//    exactly one consumer on ContA, i03.5 of the MC10176 that is the run/step
+//    latch (SetRun goes to i03.10 of the same package), so the wire is
+//    connected and something else is deciding. That is suspicious given PARC
+//    makes SetSS the entire difference between DoDoradoMicroInst and
+//    RunDoradoInstructionStream, and it is the next thing to pull on.
 //
 //    Two things from PARC's source that bound the problem. IM parity is ON
 //    throughout: `DisableDoradoErrors = ParityEnables+030` is commented "all
@@ -352,12 +373,31 @@ module tb_parity;
       .CPStrb_p_(strb_n), .SetRun(setrun), .SetSS_p_(setss_n)
   );
 
+  // THE BASEBOARD'S CONTROL REGISTER, modelled here because this machine has no
+  // BaseBoard. `SetRun` and `SetSS'` are BACKPLANE wires, not CP-bus lines --
+  // BaseBd f02 (an MC10124 TTL-to-ECL translator) drives them, and what it
+  // translates is latched by g07, an SN74LS175 clocked by `TControlStrb'`:
+  //
+  //     g07 .p9  = TControlStrb'   (clock -- so it latches on strobe RELEASE)
+  //     g07 .p4  = TCPBus.07  -> .p2 TSetRun          -> f02 -> SetRun
+  //     g07 .p5  = TCPBus.08  -> .p7 (Q')             -> f02 -> SetSS'
+  //
+  // PARC numbers MSB first, so over the nine CP-bus bits .07 is the low bit of
+  // the eight-bit Control byte -- `SetRun = 1` in doradoio.mdefs -- and .08 is
+  // the ninth bit, where DoControl's CARRY lands ("LDAI Control^1 / RORA"),
+  // i.e. SetSS. So a Control strobe ALREADY carries both, and setting the
+  // ports by hand as well was a second, unsynchronised copy of the same state.
   task strobe(input [2:0] fn, input [7:0] data, input ss);
     begin
       addr_n = ~fn; cpout = {data, ss};
       repeat (4) @(posedge sys_clk);
       strb_n = 1'b0; repeat (6) @(posedge sys_clk);
-      strb_n = 1'b1; repeat (4) @(posedge sys_clk);
+      strb_n = 1'b1;
+      if (fn == 3'd0) begin           // Control: g07 clocks on release
+        setrun  =  data[0];
+        setss_n = ~ss;
+      end
+      repeat (4) @(posedge sys_clk);
     end
   endtask
 
@@ -421,11 +461,11 @@ module tb_parity;
       repeat (400) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0);
       strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0);
-      strobe(3'd0, 8'h4E, 1'b0); setrun = 0; setss_n = 1;
-      strobe(3'd0, 8'h00, 1'b1); setss_n = 0;
+      strobe(3'd0, 8'h4E, 1'b0);
+      strobe(3'd0, 8'h00, 1'b1);
       strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b0);
       strobe(3'd6, 8'h04, 1'b0); strobe(3'd7, 8'h40, 1'b0);
-      strobe(3'd0, 8'h41, 1'b1); setrun = 1;
+      strobe(3'd0, 8'h41, 1'b1);
       repeat (600) @(posedge sys_clk);
     end
   endtask
@@ -668,11 +708,11 @@ module tb_parity;
       repeat (400) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0);                       // Clock: InhibitCAHolds+ClrReady
       strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0);
-      strobe(3'd0, 8'h4E, 1'b0); setrun = 0; setss_n = 1;
-      strobe(3'd0, 8'h00, 1'b1); setss_n = 0;
+      strobe(3'd0, 8'h4E, 1'b0);
+      strobe(3'd0, 8'h00, 1'b1);
       strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b0);
       strobe(3'd6, 8'h03, 1'b1); strobe(3'd7, 8'h4F, 1'b0);
-      strobe(3'd0, 8'h41, 1'b1); setrun = 1;
+      strobe(3'd0, 8'h41, 1'b1);
       repeat (600) @(posedge sys_clk);
     end
   endtask
@@ -695,13 +735,13 @@ module tb_parity;
       setrun = 0; setss_n = 1;
       repeat (400) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0); repeat (GAP) @(posedge sys_clk);
-      strobe(3'd0, 8'h4E, 1'b0); setrun = 0; setss_n = 1;
+      strobe(3'd0, 8'h4E, 1'b0);
       repeat (GAP) @(posedge sys_clk);
-      strobe(3'd0, 8'h00, 1'b1); setss_n = 0;
+      strobe(3'd0, 8'h00, 1'b1);
       repeat (GAP) @(posedge sys_clk);
       strobe(3'd4, b1, b0[7]); strobe(3'd5, b2, b0[6]);
       strobe(3'd6, b3, b0[5]); strobe(3'd7, b4, b0[4]);
-      strobe(3'd0, 8'h01, 1'b1); setrun = 1;
+      strobe(3'd0, 8'h01, 1'b1);
     end
   endtask
 
@@ -837,9 +877,9 @@ module tb_parity;
                   input [7:0] b3, input [7:0] b4);
     begin
       strobe(3'd1, 8'h21, 1'b0); repeat (GAP) @(posedge sys_clk);
-      strobe(3'd0, 8'h4E, 1'b0); setrun = 0; setss_n = 1;
+      strobe(3'd0, 8'h4E, 1'b0);
       repeat (GAP) @(posedge sys_clk);
-      strobe(3'd0, 8'h00, 1'b1); setss_n = 0;
+      strobe(3'd0, 8'h00, 1'b1);
       repeat (GAP) @(posedge sys_clk);
       strobe(3'd4, b1, b0[7]); strobe(3'd5, b2, b0[6]);
       strobe(3'd6, b3, b0[5]); strobe(3'd7, b4, b0[4]);
@@ -847,11 +887,11 @@ module tb_parity;
       // The real BaseBoard is a 1 MHz 6502 running JSR DoControl between
       // these; the gap is MICROSECONDS, not the fourteen sys_clk a testbench
       // takes. GAP models that.
-      strobe(3'd0, 8'h01, 1'b1); setrun = 1;   // Control(SetRun), SS
+      strobe(3'd0, 8'h01, 1'b1);   // Control(SetRun), SS
       repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h01, 1'b1);               // BasicStopDorado
       repeat (GAP) @(posedge sys_clk);
-      strobe(3'd0, 8'h00, 1'b1); setrun = 0;
+      strobe(3'd0, 8'h00, 1'b1);
       repeat (800) @(posedge sys_clk);
       $display("      micro %02h: clk0' %0d clk1' %0d clk2' %0d | Stop=%b Link=%h FF=%b",
         b1, n0, n1, n2, m.b_ContA.Stop, link_hi,
@@ -1022,9 +1062,9 @@ module tb_parity;
                 input [7:0] b3, input [7:0] b4);
     begin
       strobe(3'd1, 8'h00, 1'b0); repeat (GAP) @(posedge sys_clk);
-      strobe(3'd0, 8'h4E, 1'b0); setrun = 0; setss_n = 1;
+      strobe(3'd0, 8'h4E, 1'b0);
       repeat (GAP) @(posedge sys_clk);
-      strobe(3'd0, 8'h00, 1'b1); setss_n = 0;
+      strobe(3'd0, 8'h00, 1'b1);
       repeat (GAP) @(posedge sys_clk);
       strobe(3'd4, b1, b0[7]); strobe(3'd5, b2, b0[6]);
       strobe(3'd6, b3, b0[5]); strobe(3'd7, b4, b0[4]);
@@ -1032,7 +1072,7 @@ module tb_parity;
       // to walk the deasserted SS through before SetRun lands.
       setss_n = 1;
       repeat (GAP) @(posedge sys_clk);
-      strobe(3'd0, 8'h01, 1'b0); setrun = 1;
+      strobe(3'd0, 8'h01, 1'b0);
     end
   endtask
 
