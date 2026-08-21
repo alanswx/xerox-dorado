@@ -619,6 +619,22 @@ slip reading byte 3 sent this chase off after the wrong FF decode for a while.
 
 ### Then
 
+Three cells landed from datasheets Alan supplied (`F10016.pdf`, `F100181.pdf`,
+`ADC-MC8BC.pdf`) plus one identified from a bitsavers schematic note. The
+F10016 fixed `machine-test`. **`cell_F100181`** (8 packages, all MemC -- the
+memory board's address arithmetic) is modelled but **nothing exercises it
+yet**, and two of its conventions are assumed rather than confirmed: the
+carry-in polarity and the output-latch sense, both flagged in the cell.
+**`cell_K1115A`** is the 20 MHz crystal oscillator on DispY a05 and DskEth j20
+(driving `EClk0`), a SUBSTITUTION like the VCO with the divisor a documented
+choice, not a measurement.
+
+Still missing as datasheets: nothing critical. `PLAT1816` is an Augat resistor
+platform, not a chip. Eleven parts remain unmodelled but their datasheets are
+already in `DoradoDocs/datasheets/` -- CA3140 x9, AM2615 x7, MPQ6002 x5,
+MC1650 x4, MC10163 x4, CD4051 x3, 8T98 x3, MC1672 x3, MC10182 x3 -- so those
+are work, not a blocker.
+
 With the datapath gated, the natural next rungs are **RM and STK** (the MB7071H
 register file at ProcH h06/i06, which `datapath-test` reaches but nothing
 exercises) and **a microinstruction that computes on TWO operands** -- every
