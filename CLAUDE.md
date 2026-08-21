@@ -980,6 +980,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **...and it COMPUTES ON TWO OPERANDS** -- A from T, B from CPReg | `compute-test` -- all 24 entries of HM Table 9 match the C emulator |
 | RM, the per-task register file, writes and reads back | `compute-test` -- and each value lands where the address pins say |
 | **the REAL firmware clocks the MANIFOLD CHAIN on the backplane** | `firmware-probe` -- 24 Clock strobes, DMuxClk reaching every board |
+| the MEMORY section is in a machine and clocked | `mem-test` -- seven boards; each memory board's local clock follows its MemClkEnable' |
 
 Nineteen gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
@@ -1020,6 +1021,18 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   ones the PREVIOUS instruction latched. Q is not loaded by `QFromCPReg#`; it is
   loaded by the Nop after it -- and a probe sampling right after an instruction
   reads one cycle early.
+- **SIX BACKPLANE LINES ARE SPELLED TWO WAYS, and one is the memory hold.**
+  PARC capitalised inconsistently and this backplane is wired by NAME, so a
+  spelling difference leaves a line unconnected. `PrHold` (MemC) and `PRhold`
+  (ProcH/ProcL) are ONE WIRE -- #07-E.42, #s05-E.42, #s04-E.42 -- so the memory
+  section could not hold the processor at all. CASE-INSENSITIVE MATCHING WOULD
+  BE WRONG: three case-variant backplane groups sit on DIFFERENT pins, and
+  outside the backplane 63 names differ only by case, mostly per-board LOCAL
+  clock fan-out. The rule is narrow -- merge only where every board agrees on
+  the pin -- and lives as a six-entry table, `BACKPLANE_CASE_ALIASES`.
+- **The memory boards' clocks are GATED by `MemClkEnable'` from ContA**, so a
+  dead local clock out of reset is CORRECT. Assert the consistency (clock runs
+  iff enabled), not that it runs.
 - **A 6532 PORT PIN READS ITS OWN PIN.** `read_excluding` drops a package's own
   contribution -- right for a gate, wrong for a port pin, where the chip reads
   the PIN and an output pin is what the chip itself drives (the core says so:

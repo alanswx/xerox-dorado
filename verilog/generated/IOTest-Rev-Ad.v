@@ -50,7 +50,7 @@ module IOTest_m_Rev_m_Ad (
     input  wire Fout_16,
     input  wire Fout_17,
     input  wire FoutNext,
-    input  wire FoutSubtask_0,
+    input  wire FoutSubTask_0,
     input  wire FoutSubtask_1,
     input  wire FoutTask_0,
     input  wire FoutTask_1,
@@ -902,7 +902,7 @@ module IOTest_m_Rev_m_Ad (
     .p4(FoutSubtask_1),
     .p5(MySubtask_1),
     .p6(MySubtask_0),
-    .p7(FoutSubtask_0),
+    .p7(FoutSubTask_0),
     .p11(IOReset),
     .p14(rIOreset)
   ); // MC10113

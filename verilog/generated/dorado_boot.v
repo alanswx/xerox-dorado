@@ -177,7 +177,7 @@ module dorado_boot (
     output wire NextData_p_               ,  // awaits IFU
     input  wire OISData                   ,  // to a backplane connector (cable)
     input  wire OISData_p_                ,  // to a backplane connector (cable)
-    input  wire PRhold                    ,  // to a backplane connector (cable)
+    input  wire PRhold                    ,  // awaits MemC
     output wire Pendulum                  ,  // awaits DskEth IFU
     output wire PrHoldReq                 ,  // awaits MemC
     input  wire PwrOnRet                  ,  // to a backplane connector (cable)
@@ -201,8 +201,8 @@ module dorado_boot (
     output wire SkipWait_p_               ,  // to a backplane connector (cable)
     output wire StartClockPulse           ,  // to a backplane connector (cable)
     output wire StkError                  ,  // awaits MemX
-    input  wire SubTask_0                 ,  // awaits DispY IOTest
-    input  wire SubTask_1                 ,  // awaits IOTest
+    input  wire SubTask_0                 ,  // awaits DispY IOTest MemX
+    input  wire SubTask_1                 ,  // awaits IOTest MemX
     output wire TIOA_0                    ,  // awaits DispM DispY DskEth IOTest MemX Music
     output wire TIOA_1                    ,  // awaits DispM DispY DskEth IOTest MemX Music
     output wire TIOA_2                    ,  // awaits DispM DispY DskEth IOTest Music

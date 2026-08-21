@@ -36,6 +36,7 @@ can run.
 | ...and T loads through the ALU | **works** -- 1234 gives 1234, a55a gives a55a, exact | `compute-test` |
 | **TWO OPERANDS: the ALU as the BOARDS wire it** | **works** -- all 24 entries of HM Table 9 match the C emulator, carry chain and all | `compute-test` |
 | **RM, the per-task register file** | **works** -- four addresses written and read, and each lands where the address pins say | `compute-test` |
+| **the MEMORY section is in a machine and clocked** | **works** -- seven boards; each memory board's local clock follows its `MemClkEnable'` | `mem-test` |
 | the REAL firmware runs the machine | boots itself past power-up and pacifies its watchdog; reaches `SetManifold`, then ends up executing filler ROM | `firmware-probe` |
 
 ### Every gate
@@ -393,6 +394,64 @@ survived several rounds of reasoning:
   first one and it settles permanently after.
 * inferring the manifold path from a plausible-looking net (`DMuxClk`) instead
   of reading what the firmware **writes**. The path is the CP bus.
+
+### The memory section, and a backplane line that was not connected
+
+`make -C verilog mem-test` is the first rung for MemC/MemD/MemX, and
+deliberately the same one the processor started on: a machine that elaborates,
+with the boards clocked. `dorado_mem` is **ContA + ContB + ProcH + ProcL +
+MemC + MemD + MemX** -- the Control and Processor boards are there because a
+memory reference does not exist without them.
+
+**The memory clocks are GATED**, which is the first thing to know. Each board
+fans its backplane clock (`CLK.mc'`, `CLK.md'`, `CLK.mx'`) out through a first
+stage that ANDs it with `MemClkEnable'`, driven by a pair of MC10231 flip-flops
+on ContA. So a dead local clock out of reset is CORRECT, and "the clock runs"
+is the wrong thing to assert. The gate asserts the consistency instead -- a
+board's local clock runs **iff** its enable is asserted:
+
+```
+MemC  MemClkEnable'a=1  local clock 0 edges     correctly gated off
+MemD  MemClkEnable'a=1  local clock 0 edges     correctly gated off
+MemX  MemClkEnable'c=0  local clock 1250        running
+```
+
+**MemX is a finding:** its enables are undriven. ContA drives `MemClkEnable'a`
+and `'b`; MemX asks for `'c`, which no board drives, so its clock runs only
+because an unconnected net floats to the enabled state. The pins do not settle
+it either -- all three memory boards take theirs on C12 while ContA drives on
+C17 and C20, exactly the non-straight-through backplane this machine models by
+wiring on NAME. Whether `'c` is a third fan-out copy spelled differently or a
+separate line is not established.
+
+#### SIX BACKPLANE LINES WERE SPELLED TWO WAYS, and one was the memory hold
+
+Found while chasing the above, and it is the first real defect in the memory
+section. PARC's draughtsmen were not consistent about capitalisation, and this
+backplane is wired by NAME, so a spelling difference silently leaves a line
+unconnected:
+
+**`PrHold` on MemC and `PRhold` on ProcH/ProcL are ONE WIRE** -- `#07-E.42`,
+`#s05-E.42`, `#s04-E.42`: same connector, same pin, three slots. Before this,
+MemC drove `PrHold` into nothing and the processor read `PRhold` from nothing,
+so **the memory section could not hold the processor at all.**
+
+| one line, two spellings | genuinely separate (different pins) |
+|---|---|
+| `PrHold` / `PRhold` — MemC → ProcH, ProcL | `CLKEnable'a` C16 vs `ClkEnable'a` C8 |
+| `MxHold` / `MXHold` — MemX ↔ MemC | `IOin'` E71 vs `IOIn'` E70 |
+| `HoldMapbuf` / `HoldMapBuf` — MemX ↔ MemC | `IOout'` E74 vs `IOOut'` E71 |
+| `Subtask.0`, `Subtask.1`, `FoutSubtask.0` — MemX ↔ ProcL, DispY | |
+
+**Case-insensitive matching would be WRONG**, which is why this is a six-entry
+table (`BACKPLANE_CASE_ALIASES` in `tools/sil_netlist.py`) and not a rule.
+Among backplane nets there are nine case-variant groups and **three sit on
+different pins** -- separate lines that merely look alike. Outside the backplane
+it would be far worse: **63** net names differ only by case, mostly per-board
+LOCAL clock fan-out such as `Clk0'Aa` on MemX against `clk0'Aa` on IFU, and
+merging those would tie every board's clock distribution together. The rule is
+narrow and checkable: merge a case variant only where every board using it
+agrees on the pin. No board carries both spellings, so no rename collides.
 
 ### RM, and a general microinstruction encoder
 

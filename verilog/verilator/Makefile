@@ -374,6 +374,20 @@ firmware-probe:
 		>/dev/null && { out=$$(./verilog/verilator/obj_fw/tb_firmware 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_firmware|Assertion"; exit $$rc; }
 
+# THE MEMORY SECTION IS IN THE MACHINE and its clock runs -- the first rung
+# for MemC/MemD/MemX, the same one the processor started on.
+.PHONY: mem-test
+mem-test:
+	@cd ../.. && $(V) --binary --top-module tb_mem $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_mem -o tb_mem \
+		verilog/verilator/tb_mem.sv verilog/generated/dorado_mem.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_mem/tb_mem 2>&1); \
+		  rc=$$?; echo "$$out" | grep -E "tb_mem|Assertion"; exit $$rc; }
+
 baseboard-test:
 	@cd ../.. && $(V) --binary --top-module tb_baseboard $(V_WARN) \
 		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \
@@ -395,13 +409,15 @@ CT_V     = $(GEN)/dorado_control.v
 PR_V     = $(GEN)/dorado_proc.v
 # The five-board machine tb_firmware runs: BaseBd + ContA + ContB + ProcH + ProcL.
 BT_V     = $(GEN)/dorado_boot.v
+# The seven-board memory machine tb_mem runs.
+MM_V     = $(GEN)/dorado_mem.v
 
 lint:
 	@ok=0; bad=0; \
 	for f in $(GEN)/*.v; do \
 		if [ "$$f" = "$(TOP_V)" ] || [ "$$f" = "$(BB_V)" ] \
 		   || [ "$$f" = "$(CT_V)" ] || [ "$$f" = "$(PR_V)" ] \
-		   || [ "$$f" = "$(BT_V)" ]; then continue; fi; \
+		   || [ "$$f" = "$(BT_V)" ] || [ "$$f" = "$(MM_V)" ]; then continue; fi; \
 		if $(V) --lint-only $(V_WARN) -I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $$f >/dev/null 2>&1; then \
 			ok=$$((ok+1)); \
 		else \
@@ -433,6 +449,18 @@ lint:
 			echo "lint: two-board Control machine elaborates"; \
 		else \
 			bad=$$((bad+1)); echo "  FAIL dorado_control.v"; \
+		fi; \
+	fi; \
+	if [ -f $(MM_V) ]; then \
+		if $(V) --lint-only --top-module dorado_mem_machine $(V_WARN) \
+			-I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $(MM_V) \
+			$(GEN)/ContA-Rev-Cd.v $(GEN)/ContB-Rev-Cd.v \
+			$(GEN)/ProcH-Rev-Ce.v $(GEN)/ProcL-Rev-Ci.v \
+			$(GEN)/MemC-Rev-Be.v $(GEN)/MemD-Rev-Ca.v \
+			$(GEN)/MemX-Rev-Ch.v >/dev/null 2>&1; then \
+			echo "lint: seven-board memory machine elaborates"; \
+		else \
+			bad=$$((bad+1)); echo "  FAIL dorado_mem.v"; \
 		fi; \
 	fi; \
 	if [ -f $(BT_V) ]; then \
