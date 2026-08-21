@@ -424,6 +424,23 @@ C17 and C20, exactly the non-straight-through backplane this machine models by
 wiring on NAME. Whether `'c` is a third fan-out copy spelled differently or a
 separate line is not established.
 
+**What turns the memory clocks on, and a smaller reproduction of
+`machine-test`'s failure.** `MemClkEnable'a` is a wired-OR of two MC10231s on
+ContA: one latches **`dMemRun`** (set by `RunRefresh`, which comes from
+`WantRunRfsh`, which comes from **`SetRunRfsh` -- a backplane line the
+BASEBOARD drives**), the other latches **`dStop`**. So the memory clocks come
+on when the machine RUNS and refresh is asked for, which is why they are off in
+every jam-mode test.
+
+`+define+MEM_RUN` runs run-test's own start sequence and then asserts
+`SetRunRfsh` as the BaseBoard would. The result is
+**`Active region did not converge after 100 tries`** -- the SAME failure
+`machine-test` has on the eleven-board machine, **reproduced on seven**, which
+is a far smaller thing to debug. `loop-check` passes, so it is not a
+combinational loop the cell files can show; it is a machine-level oscillation
+that appears only once the memory clocks are enabled. The experiment sits
+behind a define so the gate proper stays on the property it can prove.
+
 #### SIX BACKPLANE LINES WERE SPELLED TWO WAYS, and one was the memory hold
 
 Found while chasing the above, and it is the first real defect in the memory

@@ -1030,6 +1030,12 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   outside the backplane 63 names differ only by case, mostly per-board LOCAL
   clock fan-out. The rule is narrow -- merge only where every board agrees on
   the pin -- and lives as a six-entry table, `BACKPLANE_CASE_ALIASES`.
+- **Enabling the memory clocks reproduces `machine-test`'s non-convergence on
+  SEVEN boards instead of eleven.** `MemClkEnable'a` is a wired-OR of `dMemRun`
+  (from `SetRunRfsh`, a line the BASEBOARD drives) and `dStop`, so the memory
+  clocks come on when the machine RUNS -- and `mem-test +define+MEM_RUN` then
+  fails to converge. `loop-check` passes, so it is a machine-level oscillation,
+  not a cell-level loop. A much smaller repro to debug.
 - **The memory boards' clocks are GATED by `MemClkEnable'` from ContA**, so a
   dead local clock out of reset is CORRECT. Assert the consistency (clock runs
   iff enabled), not that it runs.
