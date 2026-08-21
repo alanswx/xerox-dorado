@@ -1185,26 +1185,34 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   (g22 drives it too, and a totem-pole output beats a pull-up). So the fix is
   PER-NET, not per-cell, and belongs in the generator, which already knows
   each net's drivers.
-- **PARC's microinstruction parity is ODD parity over each 17-bit HALF** --
-  left = RSTK/ALUF/BSEL/LC/ASEL -> P015, right = BLOCK/FF/JCN -> P1631, the
-  bit being `~XOR` of the other seventeen. Fitted against PARC's own IRTable:
-  13/13 on both bits, where even parity matches 0/13. The one-line cell fix
-  (`cell_MC10170`'s B output is a plain XOR, not an XNOR) takes the IRTable
-  from 13/13 FAILING the check to **0/13 failing**, and is supported by the
-  data sheet's geometry -- but it is still NOT committed, because four gates
-  regress. What the 2026-08-20 pass added: **the parity chain is traced end to
-  end** (`IMLHPE'`/`IMRHPE'` + their enables -> ContB `l03` -> `k02`, which
-  makes BOTH `StopMIRClk` and `preWE'` -- the MIR hold and the IM write enable
-  are the same gate); **`SignedCarry` cannot settle the cell** (ProcH d13 is
-  not a parity generator but a 5-input XOR computing the signed-overflow
-  identity `V = Cout ^ A ^ B ^ R` plus the ALU's S0 to correct add vs
-  subtract, and BOTH polarities are self-consistent); and **the regression is
-  not via `StopMIRClk`**, which A/Bs identical -- it is the FF decode, with
-  `BMux=0000` against a wiped IM, i.e. the MIR reloaded and the jam lost.
-  Resolve the contradiction first: if a PASSING check means "no error", PARC's
-  own jams would be overwritten too, so either `PE'`=1 IS the error state or
-  the checker never sees the jammed word's own parity bits. See the header of
-  `tb_parity.sv`, which is written to be read cold.
+- **A JAM SURVIVES BY FAILING ITS PARITY, so PARC's IRTable entries carry
+  failing parity ON PURPOSE.** This inverts a premise the project chased for
+  weeks. Computed from the gates, not assumed: ContB `l03` (OR-AND) and `k02`
+  give `StopMIRClk = ~(y | StopMIRClkEn')`, so with the enables on, no error
+  leaves the MIR unheld and an error holds it -- `PE'`=0 IS the error state.
+  The MIR is MC10231 flip-flops holding `IMLH`/`IMRH` beside the data, and the
+  CP bus sets those two bits itself (`tb_mir`'s 36 field lines end `sIMLH`,
+  `sIMRH`; PARC's five-byte format carries P015/P1631 in byte 0). So a jammed
+  instruction MUST error or it is overwritten from IM -- "13/13 fail the
+  check" is CORRECT, `cell_MC10170`'s `~` is behaviourally right, and the four
+  gates that break when it is "fixed" are telling the truth. **Do not change
+  that cell.** The rule fitted from the IRTable (odd parity over each 17-bit
+  half) is the JAM convention.
+
+- **The real parity bug is that IM-WRITTEN microcode fails the check**, which
+  is why `exec-test` must turn IM parity off. Measured: with the enables left
+  on as `InitManifolds` leaves them, the machine runs 2 `clk0'` edges and
+  stops with `StopMIRClk`=0 and `Stop`=1 -- the error stopping the machine,
+  not the MIR being held. The write path is traced and its generators verified:
+  ProcH/ProcL `c07` pin 2 make `BMux.16/17` as `TrueA ^ alub`, ContB `e01`
+  xors that pair with `bRSTK.1`/`MidasOrRSTK.2`, `d05` NORs it into `RBMuxP`.
+  `TrueA` is a real constant 1 (a spare MC10102 gate with both inputs open),
+  and the two `TrueA` terms CANCEL, leaving
+  `RBMuxP = bRSTK.1 ^ MidasOrRSTK.2 ^ XOR(16 B bits)` -- an EVEN-parity bit,
+  the opposite convention from a jam, which is consistent. Next measurement:
+  write a known half-word through the real path and compare the stored
+  `IMLH`/`IMRH` against `XOR(17 data bits)`. Full account in the header of
+  `tb_parity.sv`.
 - **Manifold register 0 is not "the parity enables".** `12'h030` is
   `DisableDoradoErrors`; writing `12'h000` to it re-ENABLES every error class
   rather than turning parity off. Doing that to four jam-based testbenches
