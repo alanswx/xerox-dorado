@@ -123,6 +123,77 @@
 //    before touching the cell again: it decides whether 13/13 passing is the
 //    goal or the bug.
 //
+// ------------------------------------------------------------------------
+// THE 2026-08-21 PASS SETTLED IT, AND THE PREMISE OF THIS FILE IS BACKWARDS.
+//
+// A. THE MIR IS HELD ONLY ON A PARITY ERROR, computed from the gates rather
+//    than assumed. ContB l03 (MC10121, OR-AND) makes
+//
+//      y = (IMRHPEen' | IMLHPE' | IMRHPE') & (IMLHPEen' | IMLHPE' | IMRHPE')
+//        & (IMRHPE'   | 0       | IMRHPEen') & (0 | IMLHPEen' | IMLHPE')
+//
+//    and k02 (MC10211) makes StopMIRClk = ~(y | StopMIRClkEn'). With the
+//    enables ON (en' = 0): no error (PE' = 1) gives y = 1 and StopMIRClk = 0,
+//    NOT held; an error (PE' = 0) gives y = 0 and StopMIRClk = 1, HELD. So
+//    PE' = 0 IS the error state, and a jam survives only by erroring.
+//
+// B. A JAM SETS THE PARITY BITS ITSELF. The MIR is built from MC10231 flip
+//    flops -- IMRH comes from ContA e23, FF.0 from a24, CABlock from g16, all
+//    MC10231 -- so the checker reads the parity bit out of the MIR beside its
+//    data, not out of IM. And the CP bus delivers it: tb_mir enumerates the
+//    thirty-six field lines the six MC10172 demultiplexers drive, and the last
+//    two are `sIMLH` and `sIMRH`. PARC's five-byte format carries P015 and
+//    P1631 in byte 0 for exactly this reason.
+//
+// C. THEREFORE PARC'S IRTABLE ENTRIES CARRY FAILING PARITY ON PURPOSE, and
+//    "13/13 FAIL the check" is the CORRECT behaviour, not the bug this file
+//    was written to chase. They are a table of instructions meant to be
+//    JAMMED, a jam only survives while the MIR is held, and the MIR is held
+//    only on an error. The rule fitted at the top of this file is the JAM
+//    convention. The current `~` cell produces it, which is why every jam gate
+//    passes today and why the "corrected" cell breaks four of them.
+//
+// D. THE REAL BUG IS A DIFFERENT ONE, and it is now isolated: MICROCODE
+//    WRITTEN INTO IM THROUGH THE REAL WRITE PATH FAILS THE CHECK. Measured --
+//    tb_exec with `manifold(12'h000)` removed, i.e. the parity enables left ON
+//    as InitManifolds leaves them, runs 2 clk0' edges and stops with
+//    StopMIRClk = 0 and Stop = 1. That is the parity error stopping the
+//    machine, not the MIR being held. It is why exec-test has to turn IM
+//    parity off to run at all.
+//
+// E. THE WRITE PATH IS TRACED AND ITS GENERATORS CHECK OUT.
+//
+//      ProcH c07 (MC10170) .p2 -> BMux.16 : TrueA ^ alub.00a-07a
+//      ProcL c07 (MC10170) .p2 -> BMux.17 : TrueA ^ alub.08a-15a
+//      ContB e01 (MC10170) .p15: data bRSTK.1, MidasOrRSTK.2; controls
+//                                BMux.17, BMux.16 -> ContB03.sil+1
+//      ContB d05 (MC10102) .p2 : RBMuxP = ~(ContB03.sil+1 | MidasSW)
+//
+//    Pin 2 is output A, the plain nine-input XOR, which the disputed fix does
+//    not touch -- so the write path and the checker are independent. TrueA is
+//    a constant 1 (ProcH/ProcL a01, an MC10102 whose pin-14 gate has both
+//    inputs open), verified in the RTL, and it makes each half an ODD parity
+//    bit. The two TrueA terms CANCEL when e01 xors the pair, leaving
+//
+//      RBMuxP = bRSTK.1 ^ MidasOrRSTK.2 ^ XOR(the 16 B-bus bits)
+//
+//    with MidasSW = 0. So the stored bit is an EVEN-parity bit over the
+//    half-word, the opposite convention from the jammed one -- which is
+//    consistent with (C) and is probably right.
+//
+// F. NEXT MEASUREMENT, and it is a narrow one. Write a KNOWN half-word into IM
+//    through the real path, then read back the stored IMLH/IMRH and compare it
+//    with XOR(the 17 data bits). That separates "the write path stores the
+//    wrong bit" from "the checker rejects the right bit". Everything upstream
+//    of RBMuxP is now verified, so the remaining suspects are what bRSTK.1 and
+//    MidasOrRSTK.2 carry during a Write-IM -- they should supply the 17th bit
+//    of the half -- and whether RBMuxP reaches IMLH/IMRH intact.
+//
+//    Do NOT touch cell_MC10170 to chase this. Under (C) the current cell is
+//    behaviourally right, and the four gates that break are telling the truth.
+//
+// ------------------------------------------------------------------------
+//
 // Everything else about the fix still stands -- the data sheet's geometry, and
 // that with `p15 = par9 ^ p13 ^ p14` all thirteen entries satisfy the rule
 // fitted from PARC's own table while with the `~` none do. It is still NOT
