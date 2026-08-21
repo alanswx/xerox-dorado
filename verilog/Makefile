@@ -153,6 +153,9 @@ muffler-test:
 strap-test:
 	@$(MAKE) -C verilator strap-test
 
+osc-test:
+	@$(MAKE) -C verilator osc-test
+
 # The memory section in a machine, with its clock running.
 mem-test:
 	@$(MAKE) -C verilator mem-test

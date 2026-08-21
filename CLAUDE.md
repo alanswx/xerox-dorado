@@ -1114,9 +1114,14 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   binary -- so `cell_MC10181`'s decode must not be reused for it. Eight
   packages, all on MemC, the memory board's address arithmetic.
   Datasheet: `DoradoDocs/datasheets/F100181.pdf`.
-- **K1115A is a 20 MHz CRYSTAL OSCILLATOR**, not a logic part -- the DispY
-  schematic on bitsavers says so outright, and the wire list matches (a05, and
-  DskEth j20 driving `EClk0`). Modelled as a SUBSTITUTION like the VCO.
+- **K1115A is a CRYSTAL OSCILLATOR**, not a logic part, and the four positions
+  run at THREE different frequencies -- DispY a05 50 MHz, DispM c05 10 MHz
+  (the VCO), DispM d13 20 MHz, DskEth j20 unstated. `CELL_PARAMS` passes each
+  one its own value; before that the generator had no per-position parameters
+  and all four ran alike. The cell is a PHASE ACCUMULATOR because an integer
+  divisor of the 266.667 MHz sys_clk gives 1 : 1.86 : 4.33 where the parts are
+  1 : 2 : 5. Gate: `make -C verilog osc-test`. (The 20 MHz on the bitsavers
+  DispY scan is the superseded Rev Ci sheet; the built Rev Cl says 50.)
 - **`machine-test` IS GREEN: it was `cell_F10016`'s terminal count.** MemD wires
   an F10016's TC through an inverting MC10195 back to that counter's own CE, and
   the cell gated TC with CE -- `TC = ~TC` at terminal count, an oscillator that
