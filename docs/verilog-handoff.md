@@ -2608,6 +2608,29 @@ Not only resistor packs. MemX's "Stuffing and Configuration Instructions"
   256K choice. Decide the machine's memory configuration first, then apply one
   column of that table as a set.
 
+### The crystal oscillators run at their own frequencies
+
+Four K1115A positions across three boards, and the configuration sheets give
+each a different value. Until `CELL_PARAMS` existed the generator instantiated
+every cell without parameters, so all four ran at one rate.
+
+| position | value | source |
+|---|---|---|
+| DispY a05 | 50 MHz | DispY31.sil Rev Cl note 5 (the Rev Ci scan says 20) |
+| DispM c05 | 10 MHz, the VCO | DispM30.sil Rev Ch |
+| DispM d13 | 20 MHz | same sheet, "20 MHz for Alto / 50 MHz for LF" |
+| DskEth j20 | not stated | Ether12.sil draws it on EClk0 with no value |
+
+d13 is taken as the Alto-style 20: DispM's two monitor modes are 640x480 and
+1024x768, a 2.5x pixel-rate ratio which is exactly 50/20, and the C emulator's
+head reports the 640x480 "standard" one.
+
+`cell_K1115A` is a PHASE ACCUMULATOR, not an integer divider. sys_clk is
+266.667 MHz (16 to a 60 ns microinstruction), so the divisors for these would
+be 13.33, 6.67 and 2.67; rounded, they give 1 : 1.86 : 4.33 where the parts
+are 1 : 2 : 5. The accumulator carries the remainder, and `osc-test` measures
+9.99 MHz at c05 with the ratios exact.
+
 ### Not yet read
 
 Only two sheets are headed "Configuration Information" -- the BaseBoard's is

@@ -406,6 +406,14 @@ strap-test:
 		verilog/generated/IFU-Rev-Ch.v verilog/generated/DskEth-Rev-Cf.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_strap/tb_strap 2>&1); rc=$$?; echo "$$out" | grep tb_strap; exit $$rc; }
 
+osc-test:
+	@cd ../.. && $(V) --binary --top-module tb_osc $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated \
+		--Mdir verilog/verilator/obj_osc -o tb_osc \
+		verilog/verilator/tb_osc.sv \
+		verilog/generated/DispM-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_osc/tb_osc 2>&1); rc=$$?; echo "$$out" | grep tb_osc; exit $$rc; }
+
 baseboard-test:
 	@cd ../.. && $(V) --binary --top-module tb_baseboard $(V_WARN) \
 		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \

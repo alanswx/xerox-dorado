@@ -20,21 +20,32 @@
 // derives its output from the fabric clock. Everything downstream of it is the
 // board's own logic.
 //
-// THE DIVISOR IS A CHOICE, not a measurement, and it is currently ONE choice
-// for all four positions -- the generator instantiates cells without
-// per-position parameters, so DispM's 10 MHz VCO and DispY's 50 MHz pixel
-// clock presently run at the same rate. That is wrong for any test that cares
-// about the RATIO between them; it is harmless only because no gate exercises
-// these boards' timing yet. Fixing it means teaching the generator a
-// per-(board, position) parameter override, not editing this default. The
-// other testbenches divide `sys_clk` by 16 for the Dorado clock, whose
-// microinstruction rate is 16.67 MHz (60 ns), so DIV = 13 is about 20.5 MHz
-// in those terms.
+// THE FREQUENCY IS SET PER POSITION -- see CELL_PARAMS in
+// tools/sil_to_verilog.py, which passes FREQ_KHZ at each instantiation.
+//
+// It is a PHASE ACCUMULATOR rather than an integer divider, because an
+// integer divisor of sys_clk cannot express these three values. The
+// testbenches run 16 sys_clk to a 60 ns microinstruction, so sys_clk is
+// 266.667 MHz and the divisors for 10, 20 and 50 MHz would be 13.33, 6.67 and
+// 2.67 -- rounded to 13, 7 and 3 they give a ratio of 1 : 1.86 : 4.33 where
+// the parts are 1 : 2 : 5, an 13 percent error on the fastest. The
+// accumulator carries the remainder instead, so the AVERAGE frequency is
+// right to within one sys_clk of jitter per edge.
+//
+// (An earlier note here derived a divisor from the FULL period rather than
+// the half and so was out by two -- it called DIV = 13 "20 MHz" when that is
+// about 10.)
+//
+// Gate: make -C verilog osc-test, which counts edges and requires the three
+// known positions to come out 1 : 2 : 5.
 
 `default_nettype none
 
 module cell_K1115A #(
-    parameter integer DIV = 13
+    // DskEth j20 keeps this default: Ether12.sil draws it driving EClk0 with
+    // no value stated, and the 23.530 MHz elsewhere in DskEth belongs to a
+    // different xtalosc in the parts list.
+    parameter integer FREQ_KHZ = 20000
 ) (
     input  wire sys_clk,
     output wire p8,     // oscillator output
@@ -42,11 +53,19 @@ module cell_K1115A #(
     input  wire p14     // VCC
 );
 
-  integer n = 0;
+  // 16 sys_clk to a 60 ns microinstruction.
+  localparam integer SYS_KHZ = 266667;
+  localparam integer STEP    = 2 * FREQ_KHZ;   // two edges to a period
+
+  integer acc = 0;
   reg     osc = 1'b0;
   always @(posedge sys_clk) begin
-    if (n >= (DIV - 1)) begin n <= 0; osc <= ~osc; end
-    else                       n <= n + 1;
+    if (acc + STEP >= SYS_KHZ) begin
+      acc <= acc + STEP - SYS_KHZ;
+      osc <= ~osc;
+    end else begin
+      acc <= acc + STEP;
+    end
   end
   assign p8 = osc;
 

@@ -604,6 +604,36 @@ class Generator:
     # than straps on it, so the configuration arrives from outside the board
     # and is not ours to pick from the documents. Its blue wire (k4.6/k4.5/k4.4
     # to k4.16) and the b14/c12 jumper sockets are the same choice.
+    # Per-position cell parameters, for parts whose VALUE is a property of the
+    # component fitted rather than of the part type. So far that is the
+    # crystal oscillators: four K1115A positions across three boards, and the
+    # configuration sheets give each a different frequency.
+    #
+    #   DispY  a05  50 MHz        DispY31.sil Rev Cl 3/25/82 note 5 -- and
+    #                             note the older Rev Ci scan says 20, which is
+    #                             why the sheet has to be the one the wire
+    #                             list names.
+    #   DispM  c05  10 MHz, VCO   DispM30.sil Rev Ch 11/09/82
+    #   DispM  d13  20 MHz Alto / 50 MHz LF, same sheet. Taken as 20: the
+    #                             board's two monitor modes are 640x480 and
+    #                             1024x768, a 2.5x pixel-rate ratio which is
+    #                             exactly 50/20, and the C emulator's head
+    #                             reports the 640x480 "standard" one
+    #                             (include/dispm.h DORADO_DISPM_STANDARD).
+    #   DskEth j20  no value on Ether12.sil, so it keeps the default. The
+    #                             23.530 MHz on DskEth sheet 7 belongs to a
+    #                             separate xtalosc in the parts list.
+    #
+    # The cell takes a frequency, not a divisor: an integer divisor of the
+    # 266.667 MHz sys_clk cannot express these three (13.33, 6.67 and 2.67),
+    # and rounding them gives a 1 : 1.86 : 4.33 ratio where the parts are
+    # 1 : 2 : 5. cell_K1115A carries the remainder in a phase accumulator.
+    CELL_PARAMS = {
+        ('DispY', 'a05'): {'FREQ_KHZ': 50000},
+        ('DispM', 'c05'): {'FREQ_KHZ': 10000},
+        ('DispM', 'd13'): {'FREQ_KHZ': 20000},
+    }
+
     BROKEN_PACKAGE_PINS = {
         ('MemX', 'h20'): frozenset({10}),
     }
@@ -1043,6 +1073,13 @@ class Generator:
                 self.proms_wired += 1
             elif ptype in (*PROM_PARTS, 'i2716'):
                 A(f'  // PROM with no contents in the archive -- reads X')
+            extra = self.CELL_PARAMS.get((self.b.name.split('-Rev')[0], pos))
+            if extra:
+                # A value that belongs to the fitted component, not the part
+                # type -- see CELL_PARAMS.
+                params = ('#(' + ', '.join(f'.{k}({v})'
+                                           for k, v in sorted(extra.items()))
+                          + ') ')
             # A bus the part drives AND reads: hand back what the OTHER
             # drivers put on it. See read_excluding.
             for port, pins in self.READBACK.get(vpart(ptype), {}).items():
