@@ -68,12 +68,31 @@ module tb_writeim;
       .CPStrb_p_(strb_n), .SetRun(setrun), .SetSS_p_(setss_n)
   );
 
+  // THE BASEBOARD'S CONTROL REGISTER, modelled here because this machine has no
+  // BaseBoard. `SetRun` and `SetSS'` are BACKPLANE wires, not CP-bus lines --
+  // BaseBd f02 (an MC10124 TTL-to-ECL translator) drives them, and what it
+  // translates is latched by g07, an SN74LS175 clocked by `TControlStrb'`:
+  //
+  //     g07 .p9  = TControlStrb'   (clock -- so it latches on strobe RELEASE)
+  //     g07 .p4  = TCPBus.07  -> .p2 TSetRun          -> f02 -> SetRun
+  //     g07 .p5  = TCPBus.08  -> .p7 (Q')             -> f02 -> SetSS'
+  //
+  // PARC numbers MSB first, so over the nine CP-bus bits .07 is the low bit of
+  // the eight-bit Control byte -- `SetRun = 1` in doradoio.mdefs -- and .08 is
+  // the ninth bit, where DoControl's CARRY lands ("LDAI Control^1 / RORA"),
+  // i.e. SetSS. So a Control strobe ALREADY carries both, and setting the
+  // ports by hand as well was a second, unsynchronised copy of the same state.
   task strobe(input [2:0] fn, input [7:0] data, input ss);
     begin
       addr_n = ~fn; cpout = {data, ss};
       repeat (4) @(posedge sys_clk);
       strb_n = 1'b0; repeat (6) @(posedge sys_clk);
-      strb_n = 1'b1; repeat (4) @(posedge sys_clk);
+      strb_n = 1'b1;
+      if (fn == 3'd0) begin           // Control: g07 clocks on release
+        setrun  =  data[0];
+        setss_n = ~ss;
+      end
+      repeat (4) @(posedge sys_clk);
     end
   endtask
   // PARC's SetMufflerAddress, and the two words doradomufman.masm writes just
@@ -105,11 +124,11 @@ module tb_writeim;
       // jammed instruction forever, so the next jam starts from rest.
       setrun = 0; setss_n = 1;
       repeat (400) @(posedge sys_clk);
-      strobe(3'd0, 8'h4E, 1'b0); setrun = 0;   // ClrStop+ClrMIR+ClrCT+Freeze
-      strobe(3'd0, 8'h00, 1'b1); setss_n = 0;
+      strobe(3'd0, 8'h4E, 1'b0);   // ClrStop+ClrMIR+ClrCT+Freeze
+      strobe(3'd0, 8'h00, 1'b1);
       strobe(3'd4, b1, b0[7]); strobe(3'd5, b2, b0[6]);
       strobe(3'd6, b3, b0[5]); strobe(3'd7, b4, b0[4]);
-      strobe(3'd0, 8'h41, 1'b1); setrun = 1;   // ClrStop AND SetRun, see tb_run
+      strobe(3'd0, 8'h41, 1'b1);   // ClrStop AND SetRun, see tb_run
       repeat (400) @(posedge sys_clk);
     end
   endtask

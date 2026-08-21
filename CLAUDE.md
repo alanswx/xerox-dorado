@@ -1198,15 +1198,26 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   parity on purpose because the freeze IS the jam mechanism; the inference was
   seductive and does not follow.
 
-- **Our jam is one `DoControl` short of PARC's**, which is the likeliest
-  reason `cell_MC10170`'s disputed `~` cannot be removed. `jam_step` matches
-  `DoradoMICommon` through its SetRun strobe and then stops; PARC follows with
-  `BasicStopDorado` -- `DoControl(SetRun, SetSS)` then `DoControl(0, SetSS)`,
-  "clear SetRun but don't ClrStop" -- which is what stops the machine after
-  the one instruction. With every microinstruction failing parity the MIR was
-  frozen regardless, so nothing noticed. Adding the two strobes is NOT a
-  one-line fix: the testbenches model SetRun/SetSS both as strobe data bits
-  and as ports they drive directly, so reconcile that dual modelling first.
+- **`SetRun` and `SetSS'` are BACKPLANE wires, and the testbenches were
+  keeping a second copy of them.** BaseBd f02 (MC10124) drives both; what it
+  translates is latched by g07, an SN74LS175 clocked by `TControlStrb'`, from
+  `TCPBus.07` (the Control byte's low bit, `SetRun = 1`) and `TCPBus.08` (the
+  ninth CP-bus bit, where `DoControl`'s carry lands = SetSS). So a Control
+  strobe already carries both. The `setrun`/`setss_n` ports agreed by luck in
+  `jam_step` and did NOT in `step_again`, which sends three Control strobes and
+  updates neither -- holding SetRun asserted across a strobe that clears it.
+  g07 is modelled in the strobe task now, in eight testbenches; 25/25 pass.
+  **Mutation-tested, with one blind spot that matters**: latching SetRun from
+  the wrong bit is caught, INVERTING SetSS is not, though `SetSS'` reaches
+  ContA i03.5 (the MC10176 run/step latch, whose pin 10 takes SetRun). PARC
+  makes SetSS the whole difference between single-step and free-run, so
+  something else is currently deciding it -- that is the next thread.
+
+- **With that reconciled, the disputed `cell_MC10170` fix fails DIFFERENTLY**,
+  and more usefully: the jam single-steps correctly (Stop=1 after exactly two
+  `clk0'` edges) and the OPERAND is wrong -- Link reads 002 where CPReg held
+  002A, the same shape as `tb_operand`'s `BMux=0000`. So the single-step chain
+  is sound and it is the CPReg-to-B path the parity error has been propping up.
 - **The real parity bug is that IM-WRITTEN microcode fails the check**, which
   is why `exec-test` must turn IM parity off. Measured: with the enables left
   on as `InitManifolds` leaves them, the machine runs 2 `clk0'` edges and
