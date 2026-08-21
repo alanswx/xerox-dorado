@@ -1030,8 +1030,15 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   outside the backplane 63 names differ only by case, mostly per-board LOCAL
   clock fan-out. The rule is narrow -- merge only where every board agrees on
   the pin -- and lives as a six-entry table, `BACKPLANE_CASE_ALIASES`.
-- **Enabling the memory clocks reproduces `machine-test`'s non-convergence on
-  SEVEN boards instead of eleven.** `MemClkEnable'a` is a wired-OR of `dMemRun`
+- **`machine-test` IS GREEN: it was `cell_F10016`'s terminal count.** MemD wires
+  an F10016's TC through an inverting MC10195 back to that counter's own CE, and
+  the cell gated TC with CE -- `TC = ~TC` at terminal count, an oscillator that
+  stopped the whole machine converging. The Fairchild data sheet
+  (`DoradoDocs/datasheets/F10016.pdf`) is explicit: CE is "Count Enable (LOW to
+  Count)", TC is "Terminal Count (10016 LOW at HHHH)" -- a function of the Q
+  state ALONE. The eight TC->CE cascades in the machine work correctly that
+  way. One line, 226 packages, and the memory boards now clock.
+- **How it was found:** `MemClkEnable'a` is a wired-OR of `dMemRun`
   (from `SetRunRfsh`, a line the BASEBOARD drives) and `dStop`, so the memory
   clocks come on when the machine RUNS -- and `mem-test +define+MEM_RUN` then
   fails to converge. `loop-check` passes, so it is a machine-level oscillation,
