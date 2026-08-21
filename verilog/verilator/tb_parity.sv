@@ -145,7 +145,10 @@
 //    two are `sIMLH` and `sIMRH`. PARC's five-byte format carries P015 and
 //    P1631 in byte 0 for exactly this reason.
 //
-// C. THEREFORE PARC'S IRTABLE ENTRIES CARRY FAILING PARITY ON PURPOSE, and
+// C. RETRACTED THE SAME DAY -- see (I). What (C) claimed, and what is wrong
+//    with it, is kept because the reasoning is seductive:
+//
+//    THEREFORE PARC'S IRTABLE ENTRIES CARRY FAILING PARITY ON PURPOSE, and
 //    "13/13 FAIL the check" is the CORRECT behaviour, not the bug this file
 //    was written to chase. They are a table of instructions meant to be
 //    JAMMED, a jam only survives while the MIR is held, and the MIR is held
@@ -181,7 +184,127 @@
 //    half-word, the opposite convention from the jammed one -- which is
 //    consistent with (C) and is probably right.
 //
-// F. NEXT MEASUREMENT, and it is a narrow one. Write a KNOWN half-word into IM
+// F. MEASURED 2026-08-21, and the write path is EXONERATED.
+//
+//    A copy of tb_sendmir was made to read the stored bits directly. RBMuxP is
+//    the data input (pin 15) of eight F10415A packages -- d06-d09 make dIMLH,
+//    e16-e19 make dIMRH, four each because IM is 4096 words in four banks of
+//    1024x1. After SendViaMIR writes 0x5678 to IM[0x123] and 0x000F to
+//    IM[0x124]:
+//
+//      addr 145: dIMRH e16..e19 = 0 0 0 0   dIMLH d06..d09 = 0 0 0 0
+//      addr 146: dIMRH e16..e19 = 0 0 0 0   dIMLH d06..d09 = 0 0 0 0
+//      XOR(0x5678) = 0   XOR(0x000f) = 0
+//
+//    Both data words XOR to 0 and both stored bits are 0, so THE WRITE PATH
+//    STORES EVEN PARITY -- the stored bit equals the XOR of the data, which is
+//    what the algebra in (E) predicts once the two TrueA terms cancel.
+//
+//    And the seventeenth bit IS covered. e01's two extra data terms are
+//    exactly the bits that do not travel on the sixteen-line B bus:
+//    `MidasOrRSTK.2` is itself a stored IM bit (the data input of i06-i09) and
+//    `bRSTK.1` also feeds j20, the left-half checker. The writing
+//    microinstruction's RSTK field supplies them -- the same field whose bit 3
+//    selects which half is written.
+//
+//    THE CHECKER COMPUTES WHAT THE ALGEBRA SAYS, verified against a
+//    hand-evaluated prediction in the same run:
+//
+//      bFF = 00111111  CABlock = 0  IMRH = 1  e19out = 1
+//      IMRHPE' measured 0, predicted 0 = ~(XOR(bFF,CABlock) ^ e19out)
+//
+//    Note what those numbers are: XOR of the seventeen data bits is 0 while
+//    IMRH is 1, so the check FAILS -- and it should, because at that point the
+//    MIR holds a JAMMED Nop, not an IM word. That is (C) confirmed by direct
+//    measurement rather than inference.
+//
+//    So for a word that came from IM the check passes BY CONSTRUCTION: stored
+//    = XOR(data) makes IMRHPE' = ~(XOR ^ stored) = ~0 = 1, for any data. Which
+//    means the exec-test failure in (D) is NOT the write parity and NOT the
+//    checker -- both are now measured correct.
+//
+// I. (C) IS WRONG, AND PARC'S OWN SOURCE SAYS SO. The jam mechanism is the
+//    SINGLE-STEP CHAIN, not a parity freeze. `doradocpint.masm` has one jam
+//    routine with two entry points, and the only difference is a flag:
+//
+//      RunDoradoInstructionStream:  ... LDAI 0   -> ShouldSingleStep = 0
+//      DoDoradoMicroInst:           ... LDAI 1   -> ShouldSingleStep = 1
+//      DoradoMICommon:  STA ShouldSingleStep
+//        ClrStop+ClrMIR+ClrCT+Freeze (CLC, no SetSS); then 0 (SEC, SetSS)
+//        ... strobe the five bytes into MIR0..MIR3 ...
+//        LDA ShouldSingleStep
+//        LSRA                  ; bit 0 into CARRY, which is the SetSS flag
+//        LDAI SetRun
+//        JSR DoControl         ; SetRun, with SetSS = ShouldSingleStep
+//        LDA ShouldSingleStep
+//        BEQ DontStopDorado    ; free-running: do not stop it again
+//        BNE BasicStopDorado   ; single-step: SetRun+SetSS, then drop SetRun
+//
+//    So a single-stepped jam is held by SetSS, and a jam meant to START a
+//    program -- the `Return#` in LoadDoradoCode -- is deliberately FREE-RUN
+//    with SetSS clear, so it executes and the MIR then reloads from IM. That
+//    is the desired behaviour, not a failure. A jam never needs an indefinite
+//    MIR hold, so it never needs to fail its parity, so (C)'s inference does
+//    not follow.
+//
+//    `SetMidasStopMIRClk` is what its own comment calls it in
+//    doradomufman.masm -- "turn on MIR debug feature" -- and it is a debug
+//    aid, separate from jamming.
+//
+//    WHICH LEAVES THE REAL QUESTION SHARPER THAN BEFORE: if SetSS is what
+//    holds a single-stepped jam, why do datapath-test, operand-test,
+//    step-test and sendmir need the parity error? The likeliest answer is now
+//    that OUR single-step chain is incomplete and the always-on parity error
+//    has been masking the gap -- with the `~` cell every microinstruction
+//    errors, so the MIR is frozen unconditionally and SetSS never has to work.
+//    Correcting the cell would then not be "breaking four gates" but exposing
+//    a real defect those gates were passing over.
+//
+//    AND OUR JAM IS ONE DoControl SHORT OF PARC'S. Compared byte for byte,
+//    tb_step's `jam_step` does
+//
+//      Clock 0x21 | Control 0x4E ss=0 | Control 0x00 ss=1 | MIR0..3
+//                 | Control 0x01 ss=1 (SetRun)
+//
+//    which matches DoradoMICommon down to and including its SetRun strobe --
+//    and then stops. PARC follows that with BasicStopDorado's two:
+//
+//      DoControl(SetRun, SEC)   ; keep SetRun asserted and assert SetSS
+//      DoControl(0,      SEC)   ; clear SetRun but don't ClrStop, keep SetSS
+//
+//    That pair is what stops the machine after the one instruction. Ours has
+//    never issued it, and with every microinstruction failing parity the MIR
+//    was frozen anyway, so nothing noticed.
+//
+//    TRIED, AND IT IS NOT A ONE-LINE FIX: adding those two strobes with the
+//    corrected cell moves the failure rather than curing it -- the first jam
+//    step still runs its one clk0 window and stops, but the NEXT step then
+//    clocks nothing at all and Stop reads 0. The reason is that these
+//    testbenches model SetRun and SetSS TWICE, once as strobe data bits and
+//    once as the `setrun`/`setss_n` ports they drive directly, so inserting a
+//    strobe does not reproduce PARC's control sequence faithfully. Reconcile
+//    that dual modelling FIRST -- decide which of the two is the real control
+//    path in our RTL -- and only then replay DoradoMICommon exactly.
+//
+//    Two things from PARC's source that bound the problem. IM parity is ON
+//    throughout: `DisableDoradoErrors = ParityEnables+030` is commented "all
+//    except IM parity errors disabled". And Boot0 is jammed into IM via MIR
+//    and then RUN, so its IM words must pass the check with parity enabled --
+//    which (F) shows they do, by construction.
+//
+// G. NEXT MEASUREMENT, and it is a narrow one. Instrument tb_exec at the point
+//    it stops with the parity enables left on: print IMLH/IMRH, the seventeen
+//    data bits each checker sees, and the IM address, and compare the stored
+//    bit at that address with XOR of the data. Candidates, in order: the MIR
+//    latching data and parity from DIFFERENT cycles (dIMLH/dIMRH are separate
+//    MC10231 D inputs clocked by h*clk0'); the loader in exec-test writing by
+//    a path SendViaMIR does not exercise; or the first instruction executed
+//    still being the jammed Return#, whose error is correct and is simply
+//    stopping the machine because `Stop` is not cleared afterwards. That last
+//    one would make the whole thing a testbench sequencing issue rather than
+//    an RTL bug, and it is the cheapest to check.
+//
+// H. SUPERSEDED NEXT-MEASUREMENT (kept so it is not repeated). Write a KNOWN half-word into IM
 //    through the real path, then read back the stored IMLH/IMRH and compare it
 //    with XOR(the 17 data bits). That separates "the write path stores the
 //    wrong bit" from "the checker rejects the right bit". Everything upstream
