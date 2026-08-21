@@ -56,16 +56,30 @@ module cell_F10016 (
   end
   assign {p3, p2, p15, p14} = q;
 
-  // CO' is a GATE on the state and the count enable, which is what lets a
-  // cascaded stage see the carry in the same clock. It was briefly registered
-  // here, on a misreading of the dictionary: `F10016` has only an `[FF ...]`
-  // entry and pin 4 appears in its output list, which looked like a statement
-  // that the carry is clocked. It is not -- an [FF] entry is a TIMING ARC from
-  // the clock, and a gate after the register is folded into it. `S169` shows
-  // this outright by giving RC' its own [FF] block with a different
-  // clock-to-output delay, 30.8 ns against 16.5 ns for the Q outputs: the
-  // extra 14 ns is the gate.
-  assign p4 = ~(&q & ~p6);                     // CO' active low on terminal count
+  // PIN 4 IS `TC`, TERMINAL COUNT, AND IT IS NOT GATED BY `CE`. The Fairchild
+  // data sheet (DoradoDocs/datasheets/F10016.pdf) names the pins outright:
+  //
+  //     CE   Count Enable (LOW to Count)
+  //     TC   Terminal Count (10010, LOW at HLLH; 10016 LOW at HHHH)
+  //
+  // -- TC is defined by the Q state alone. The part carries its own expansion
+  // logic ("INTERNAL COUNT ENABLE - FOR HIGHEST SPEED EXPANSION", and "up to
+  // nine devices can be cascaded"), so a cascade works by feeding TC into the
+  // next stage's CE: TC goes LOW at HHHH, CE is LOW to count, so the upper
+  // stage counts exactly when the lower one is at terminal. Eight such
+  // cascades exist in the machine -- IFU has a three-stage chain, plus ProcH,
+  // MemX and DispM.
+  //
+  // GATING IT WITH CE WAS THE LONG-STANDING CONVERGENCE BUG. MemD wires this
+  // counter's TC (d14 pin 4) through an MC10195 whose select pin is
+  // unconnected -- so an inverter -- straight back to the same counter's own
+  // CE (d14 pin 6): a count-and-stop, stable, and exactly what the data sheet
+  // supports. With TC gated by CE that reduces at terminal count to
+  // `TC = ~TC`, and the whole machine failed to converge. `machine-test` had
+  // been red for that reason, and the seven-board `mem-test +define+MEM_RUN`
+  // reproduces it in a smaller machine.
+  //
+  assign p4 = ~(&q);                           // TC: LOW at HHHH, and NOT gated by CE
 
 
   // Board-wired pins the dictionary does not name (power and the like)

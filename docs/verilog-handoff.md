@@ -70,7 +70,7 @@ make -C verilog compute-test    THE MACHINE COMPUTES -- PARC's ALU prologue:
                                 into ALUFM[0]
 make -C verilog baseboard-test  the BaseBoard's 6502 BOOTS
 make -C verilog converge-test   the assembled machine SETTLES and its clock runs
-make -C verilog machine-test    the same under the imgui harness -- FAILING, see below
+make -C verilog machine-test    the same under the imgui harness
 
 make -C verilog startseq        DIAGNOSTIC, not a gate: PARC's boot sequence
                                 replayed, printing the Control section's state
@@ -424,8 +424,7 @@ C17 and C20, exactly the non-straight-through backplane this machine models by
 wiring on NAME. Whether `'c` is a third fan-out copy spelled differently or a
 separate line is not established.
 
-**What turns the memory clocks on, and a smaller reproduction of
-`machine-test`'s failure.** `MemClkEnable'a` is a wired-OR of two MC10231s on
+**What turns the memory clocks on, and THE FIX FOR `machine-test`.** `MemClkEnable'a` is a wired-OR of two MC10231s on
 ContA: one latches **`dMemRun`** (set by `RunRefresh`, which comes from
 `WantRunRfsh`, which comes from **`SetRunRfsh` -- a backplane line the
 BASEBOARD drives**), the other latches **`dStop`**. So the memory clocks come
@@ -433,15 +432,36 @@ on when the machine RUNS and refresh is asked for, which is why they are off in
 every jam-mode test.
 
 `+define+MEM_RUN` runs run-test's own start sequence and then asserts
-`SetRunRfsh` as the BaseBoard would. The result is
-**`Active region did not converge after 100 tries`** -- the SAME failure
-`machine-test` has on the eleven-board machine, **reproduced on seven**, which
-is a far smaller thing to debug. `loop-check` passes, so it is not a
-combinational loop the cell files can show; it is a machine-level oscillation
-that appears only once the memory clocks are enabled. The experiment sits
-behind a define so the gate proper stays on the property it can prove.
+`SetRunRfsh` as the BaseBoard would. That first produced
+`Active region did not converge` -- the same failure `machine-test` had on the
+eleven-board machine, reproduced on seven, which is what made it findable.
 
-#### SIX BACKPLANE LINES WERE SPELLED TWO WAYS, and one was the memory hold
+**IT WAS `cell_F10016`'s TERMINAL COUNT, and the data sheet settles it.**
+Verilator's `UNOPTFLAT` warning (which the gates suppress) named the loop:
+MemD's `d14` is an F10016 counter whose `TC` output (pin 4) runs through `d20`,
+an MC10195 whose select pin is unconnected -- so an inverter -- straight back
+to that same counter's own `CE` (pin 6). The cell had
+
+```
+assign p4 = ~(&q & ~p6);      // TC gated by CE
+```
+
+which at terminal count reduces to `TC = ~TC`. An oscillator. The Fairchild
+data sheet (`DoradoDocs/datasheets/F10016.pdf`) names the pins outright --
+**`CE` Count Enable (LOW to Count)**, **`TC` Terminal Count (10016 LOW at
+HHHH)** -- so TC is a function of the Q state ALONE. The part carries its own
+expansion logic ("INTERNAL COUNT ENABLE - FOR HIGHEST SPEED EXPANSION"), and
+the eight `TC -> CE` cascades in the machine (IFU has a three-stage chain, plus
+ProcH, MemX, DispM) work correctly that way: TC goes low at HHHH, CE is low to
+count, so the upper stage counts exactly when the lower one is at terminal.
+MemD's own arrangement is then a stable count-and-stop.
+
+With `assign p4 = ~(&q)`: the memory boards clock (`MemClkEnable'a=0`, 1250
+edges on MemC, MemD and MemX), the seven-board machine converges, and
+**`machine-test` passes** -- 24/24 clock nets toggling. 226 F10016 packages
+across the machine, one line.
+
+#### SIX BACKPLANE LINES WERE SPELLED TWO WAYS#### SIX BACKPLANE LINES WERE SPELLED TWO WAYS, and one was the memory hold
 
 Found while chasing the above, and it is the first real defect in the memory
 section. PARC's draughtsmen were not consistent about capitalisation, and this
