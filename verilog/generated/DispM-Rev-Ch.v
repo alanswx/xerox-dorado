@@ -1782,6 +1782,7 @@ module DispM_m_Rev_m_Ch (
     .p16(GND_m_21)
   ); // MC10124
   cell_K1115A u_c05 (
+    .sys_clk(sys_clk),
     .p7(GND_m_22),
     .p8(DispM23_sil_pl_16),
     .p14(VCC_m_28)
@@ -2122,6 +2123,7 @@ module DispM_m_Rev_m_Ch (
     .p14(AHTWantsProc_p_)
   ); // MC10135
   cell_K1115A u_d13 (
+    .sys_clk(sys_clk),
     .p7(GND_m_18),
     .p8(DispM25_sil_pl_1),
     .p14(VCC_m_25)

@@ -1481,28 +1481,28 @@ module MemC_m_Rev_m_Be (
 
   // ---- packages
   cell_F100181 u__h_1c42 (
-    // no connections
+    .sys_clk(sys_clk)
   ); // F100181
   cell_F100181 u__h_1c43 (
-    // no connections
+    .sys_clk(sys_clk)
   ); // F100181
   cell_F100181 u__h_1f42 (
-    // no connections
+    .sys_clk(sys_clk)
   ); // F100181
   cell_F100181 u__h_1i42 (
-    // no connections
+    .sys_clk(sys_clk)
   ); // F100181
   cell_F100181 u__h_5b42 (
-    // no connections
+    .sys_clk(sys_clk)
   ); // F100181
   cell_F100181 u__h_5b43 (
-    // no connections
+    .sys_clk(sys_clk)
   ); // F100181
   cell_F100181 u__h_5e42 (
-    // no connections
+    .sys_clk(sys_clk)
   ); // F100181
   cell_F100181 u__h_5h42 (
-    // no connections
+    .sys_clk(sys_clk)
   ); // F100181
   cell_MC10195 u_a01 (
     .p2(DMadr_01__a01_2),

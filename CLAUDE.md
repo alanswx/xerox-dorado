@@ -1030,6 +1030,14 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   outside the backplane 63 names differ only by case, mostly per-board LOCAL
   clock fan-out. The rule is narrow -- merge only where every board agrees on
   the pin -- and lives as a six-entry table, `BACKPLANE_CASE_ALIASES`.
+- **The F100181 is NOT the 74181/MC10181 function set.** It has its own
+  sixteen-entry table -- S3 selects arithmetic from logic, S2 selects BCD from
+  binary -- so `cell_MC10181`'s decode must not be reused for it. Eight
+  packages, all on MemC, the memory board's address arithmetic.
+  Datasheet: `DoradoDocs/datasheets/F100181.pdf`.
+- **K1115A is a 20 MHz CRYSTAL OSCILLATOR**, not a logic part -- the DispY
+  schematic on bitsavers says so outright, and the wire list matches (a05, and
+  DskEth j20 driving `EClk0`). Modelled as a SUBSTITUTION like the VCO.
 - **`machine-test` IS GREEN: it was `cell_F10016`'s terminal count.** MemD wires
   an F10016's TC through an inverting MC10195 back to that counter's own CE, and
   the cell gated TC with CE -- `TC = ~TC` at terminal count, an oscillator that

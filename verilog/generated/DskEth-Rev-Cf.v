@@ -4671,6 +4671,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(sPendulum)
   ); // MC10135
   cell_K1115A u_j20 (
+    .sys_clk(sys_clk),
     .p7(GND_m_8),
     .p8(EClk0),
     .p14(VCC_m_53)
