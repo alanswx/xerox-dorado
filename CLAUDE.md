@@ -1185,20 +1185,28 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   (g22 drives it too, and a totem-pole output beats a pull-up). So the fix is
   PER-NET, not per-cell, and belongs in the generator, which already knows
   each net's drivers.
-- **A JAM SURVIVES BY FAILING ITS PARITY, so PARC's IRTable entries carry
-  failing parity ON PURPOSE.** This inverts a premise the project chased for
-  weeks. Computed from the gates, not assumed: ContB `l03` (OR-AND) and `k02`
-  give `StopMIRClk = ~(y | StopMIRClkEn')`, so with the enables on, no error
-  leaves the MIR unheld and an error holds it -- `PE'`=0 IS the error state.
-  The MIR is MC10231 flip-flops holding `IMLH`/`IMRH` beside the data, and the
-  CP bus sets those two bits itself (`tb_mir`'s 36 field lines end `sIMLH`,
-  `sIMRH`; PARC's five-byte format carries P015/P1631 in byte 0). So a jammed
-  instruction MUST error or it is overwritten from IM -- "13/13 fail the
-  check" is CORRECT, `cell_MC10170`'s `~` is behaviourally right, and the four
-  gates that break when it is "fixed" are telling the truth. **Do not change
-  that cell.** The rule fitted from the IRTable (odd parity over each 17-bit
-  half) is the JAM convention.
+- **A jam is held by the SINGLE-STEP CHAIN, not by a parity error** --
+  `doradocpint.masm` settles it. One routine, two entry points, differing only
+  in a flag: `DoDoradoMicroInst` passes 1, `RunDoradoInstructionStream` passes
+  0, and `LSRA` shifts that bit into the carry that IS the SetSS flag on the
+  following `DoControl(SetRun)`. So a single-stepped jam is held by SetSS, and
+  the `Return#` that STARTS a program is deliberately free-run with SetSS
+  clear so it executes and the MIR then reloads from IM. A jam never needs an
+  indefinite MIR hold. (`SetMidasStopMIRClk` is what `doradomufman.masm` calls
+  it -- "turn on MIR debug feature" -- and is separate.) **This retracts a
+  claim made earlier the same day**, that PARC's IRTable entries carry failing
+  parity on purpose because the freeze IS the jam mechanism; the inference was
+  seductive and does not follow.
 
+- **Our jam is one `DoControl` short of PARC's**, which is the likeliest
+  reason `cell_MC10170`'s disputed `~` cannot be removed. `jam_step` matches
+  `DoradoMICommon` through its SetRun strobe and then stops; PARC follows with
+  `BasicStopDorado` -- `DoControl(SetRun, SetSS)` then `DoControl(0, SetSS)`,
+  "clear SetRun but don't ClrStop" -- which is what stops the machine after
+  the one instruction. With every microinstruction failing parity the MIR was
+  frozen regardless, so nothing noticed. Adding the two strobes is NOT a
+  one-line fix: the testbenches model SetRun/SetSS both as strobe data bits
+  and as ports they drive directly, so reconcile that dual modelling first.
 - **The real parity bug is that IM-WRITTEN microcode fails the check**, which
   is why `exec-test` must turn IM parity off. Measured: with the enables left
   on as `InitManifolds` leaves them, the machine runs 2 `clk0'` edges and
