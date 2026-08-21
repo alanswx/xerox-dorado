@@ -462,6 +462,48 @@ class Generator:
     # broken by a flip-flop. `loop-check` covers it.
     READBACK_OWN_PIN = {('MCS6532', 'pa_in'), ('MCS6532', 'pb_in')}
 
+
+    # A SIP's LEGS CAN BE CUT, and only the schematic says which.
+    #
+    # A resistor SIP is a set of resistors from a common pin to the rest, so
+    # `sip_pull` holds every other pin at whatever the common sits on. But the
+    # boards break individual legs to leave particular pins alone, and the wire
+    # list cannot express that -- the pin is still listed, it just has no
+    # resistor behind it any more. The SCHEMATIC states it, on a per-board
+    # "Configuration Information" sheet.
+    #
+    # DispY's (DoradoDocs/schematics/DispY.pdf page 31, "Rev Ci, K. Pier,
+    # 11/02/79") reads:
+    #
+    #     3. SIPs are 100 ohm terminator package with legs broken:
+    #          location | break legs
+    #          g41      | 3,4,5
+    #          g42      | none
+    #          k51      | 4,5
+    #          k52      | 3
+    #
+    # All four have pin 1 on `True`, so they are pull-UPS, and a pull-up is
+    # exactly the case `sip_pull` says matters under the OR that resolves these
+    # nets. Without the cuts, `WakeupWait.1/2/3` (g41), `DDCDMD.03/04` (k51) and
+    # `DWTTask.1` (k52) were being forced HIGH -- task wakeups, the display's
+    # manifold data, and the display word task's number.
+    #
+    # The same sheet also settles two parts: `PLAT1816` at a01/a03 is NOT a chip
+    # but a platform of discrete components (a 3K/120/180 ohm and 0.1uF DAC
+    # network at a01, a 78L05 regulator with 12 mH and 22 mF filtering at a03),
+    # and `MC10318` at a02 is the D/A converter those feed. Neither needs a
+    # digital model.
+    #
+    # EVERY BOARD HAS SUCH A SHEET. Only DispY's has been read; the others are
+    # in DoradoDocs/schematics/ and doradodrawings/ and should be checked the
+    # same way before their boards are trusted.
+    SIP_BROKEN_LEGS = {
+        ('DispY', 'g41'): frozenset({3, 4, 5}),
+        ('DispY', 'g42'): frozenset(),
+        ('DispY', 'k51'): frozenset({4, 5}),
+        ('DispY', 'k52'): frozenset({3}),
+    }
+
     def sip_pull(self, pos: str) -> tuple[str | None, str]:
         """What a resistor pack ties its pins to, as an expression.
 
@@ -532,7 +574,10 @@ class Generator:
         pulls = {pos: self.sip_pull(pos)[0] for pos in packs}
         held: dict[str, set] = {}
         for pos in packs:
+            broken = self.SIP_BROKEN_LEGS.get((self.b.name.split('-Rev')[0], pos), frozenset())
             for pin, netname in self.pkg_pins(pos):
+                if pin in broken:
+                    continue
                 if pulls[pos] and not self._POWER_RE.match(netname):
                     held.setdefault(netname, set()).add(pulls[pos])
         divided = {n for n, v in held.items() if len(v) > 1}
@@ -542,7 +587,10 @@ class Generator:
             expr = pulls[pos]
             if not expr:
                 continue
+            broken = self.SIP_BROKEN_LEGS.get((self.b.name.split('-Rev')[0], pos), frozenset())
             for pin, netname in self.pkg_pins(pos):
+                if pin in broken:
+                    continue            # leg cut: this pin is not pulled
                 if self._POWER_RE.match(netname) or netname in divided:
                     continue
                 if any(p['pkg'] == pos and p['pin'] == pin and p['dir'] == 'out'

@@ -1030,6 +1030,16 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   outside the backplane 63 names differ only by case, mostly per-board LOCAL
   clock fan-out. The rule is narrow -- merge only where every board agrees on
   the pin -- and lives as a six-entry table, `BACKPLANE_CASE_ALIASES`.
+- **A SIP's LEGS CAN BE CUT, and only the SCHEMATIC says which.** The wire list
+  still lists the pin; it just has no resistor behind it. DispY's
+  "Configuration Information" sheet (`DoradoDocs/schematics/DispY.pdf` p.31)
+  gives the table -- g41 breaks 3,4,5; k51 breaks 4,5; k52 breaks 3 -- and all
+  four SIPs pull to `True`, so without the cuts `WakeupWait.1/3`,
+  `DDCDMD.04` and `DWTTask.1` were forced HIGH. `SIP_BROKEN_LEGS` in
+  `sil_to_verilog.py`. **EVERY BOARD HAS SUCH A SHEET** and only DispY's has
+  been read -- check the others before trusting their boards. The same page
+  also settles that `PLAT1816` is a platform of DISCRETE COMPONENTS (a DAC
+  resistor network at a01, a 78L05 regulator at a03), not a chip.
 - **The F100181 is NOT the 74181/MC10181 function set.** It has its own
   sixteen-entry table -- S3 selects arithmetic from logic, S2 selects BCD from
   binary -- so `cell_MC10181`'s decode must not be reused for it. Eight
