@@ -982,7 +982,9 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **the REAL firmware clocks the MANIFOLD CHAIN on the backplane** | `firmware-probe` -- 24 Clock strobes, DMuxClk reaching every board |
 | the MEMORY section is in a machine and clocked | `mem-test` -- seven boards; each memory board's local clock follows its MemClkEnable' |
 
-Nineteen gates in all; `make -C verilog` has the list. **The datapath is
+| **the TASK PRIORITY ENCODER agrees with the C emulator** | `task-test` -- 23 request patterns, highest-numbered task wins |
+
+Twenty-six gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
@@ -1086,6 +1088,39 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   the BaseBoard cannot answer a muffler read at all. Gate:
   `make -C verilog muffler-test`, which sweeps all sixteen addresses and
   requires exactly one to select the board.
+
+- **THE TASK WAKEUPS ARE ROUTED BY A BACKPLANE JUMPER, and none of them was
+  connected.** Every I/O board puts its wakeup on the SAME two pins, C120 and
+  C121, under its own local name -- DispY `WakeDWT`/`WakeDHT`, DispM
+  `WakeAWT`/`WakeAHT`, DskEth `WakeEthRx`/`WakeEthTx` -- while ContA receives
+  `TWReq.01`..`TWReq.15` on pins of its own. Nothing matches by name OR by pin,
+  and our backplane wires by name, so all fifteen request lines went nowhere.
+  `Backplane.pdf` (BPRight04.sil 7/24/80) shows pins 120/121 carrying
+  `TWReq.xx*` across the generic I/O slots, annotated **"for desired Task wake
+  up"** -- the routing is a JUMPER, so a board's task number is a property of
+  its SLOT. Which is exactly why each board carries a task-number STRAP: the
+  strap tells the board what the jumper tells the backplane, and the two must
+  agree, so **the strap is the authority for which line to wire**. DispM
+  `WakeAWT` -> `TWReq.09` (AltoWTask = 9, "Task 9D = 11B"), DispY `WakeDWT` ->
+  `TWReq.11` (DWTTask = 1011), MemX `TWReq15` -> `TWReq.15` (the fault task is
+  15, HM section 4.1 and `include/memory.h`). `BACKPLANE_WAKEUP_JUMPERS`. The
+  head tasks and DskEth's two ethernet lines are NOT wired: nothing yet says
+  which line they take.
+
+- **A PIN NUMBER IS NOT A WIRE ON THIS BACKPLANE.** Chasing the above, C132 is
+  `TWReq.11` on ContA, `TIOA.3` on ProcH, `IfuData.3` on the IFU and `TWReq15`
+  on MemX -- four different signals at one connector position. The rule already
+  recorded ("the name is the connection", and merge case-variants only where
+  every board agrees on the pin) exists for precisely this; a first pass here
+  read MemX's pin as proving it was ContA's `TWReq.11` and was wrong.
+
+- **`BNT` is a REGISTER, so a static bench cannot gate it.** ContA h08/h09 are
+  MC10141 shift registers whose parallel load needs `BNextRegsEn'` low on both
+  select pins and `clk0'` running -- i.e. the machine EXECUTING. What is
+  combinational is `PEnc`/`bPEnc`, the encode of the fifteen request lines, and
+  that is what `task-test` gates: 23 patterns, all agreeing with `cpu.c`'s
+  `task_bnt()` (highest-numbered requester wins, task 0 always available).
+  Wiring BNT, `Switcha` and `BNTGtCT'` needs a running-machine testbench.
 
 - **A PIN CAN BE BROKEN OFF A LOGIC CHIP TOO.** MemX's "Stuffing and
   Configuration Instructions" (`Memx23.sil`, 10/29/79) says "Break h20.10

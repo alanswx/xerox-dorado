@@ -157,8 +157,8 @@ module DispM_m_Rev_m_Ch (
     output wire TTLCSync_p___drv,
     output wire TTLHSync_p___drv,
     output wire TTLVSync_p___drv,
-    output wire WakeAHT__drv,
-    output wire WakeAWT__drv
+    output wire TWReq_09__drv,
+    output wire WakeAHT__drv
 );
 
   // 716 internal nets
@@ -2535,7 +2535,7 @@ module DispM_m_Rev_m_Ch (
     .p10(AWTWantsProc_p_),
     .p11(clk0_p_Ab),
     .p12(KillAWTWakeup),
-    .p14(WakeAWT__drv)
+    .p14(TWReq_09__drv)
   ); // MC10231
   cell_F10016 u_f04 (
     .sys_clk(sys_clk),

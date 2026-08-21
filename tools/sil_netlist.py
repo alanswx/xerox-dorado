@@ -118,9 +118,51 @@ BACKPLANE_CASE_ALIASES = {
 }
 
 
+# THE TASK WAKEUPS ARE ROUTED BY A BACKPLANE JUMPER, not by matching names or
+# pins, and that is why none of them was connected. Every I/O board puts its
+# wakeup request on the SAME two connector pins -- C120 and C121 -- under its
+# own local name, and ContA receives fifteen lines `TWReq.01`..`TWReq.15` on
+# quite different pins of its own (C44..C140). `Backplane.pdf` (BPRight04.sil,
+# 7/24/80) shows pins 120/121 carrying `TWReq.xx*` across the generic I/O
+# slots, with the note "for desired Task wake up" -- the `xx` is chosen when
+# the machine is wired. The display slots get dedicated names on those pins,
+# `DispMwtTW`/`DispMhtTW` and `DispYwtTW`/`DispYhtTW`, word task and head task.
+#
+# So a board's task number is a property of its SLOT, which is exactly why each
+# board also carries a task-number STRAP (see SIP_BROKEN_LEGS in
+# sil_to_verilog.py) -- the strap tells the board what the jumper tells the
+# backplane, and the two have to agree. That makes the strap the authority for
+# which line to wire, and the mapping self-checking:
+#
+#   DispM  WakeAWT  -> TWReq.09   AltoWTask strap = 1001 = 9; DispM30.sil says
+#                                 outright "for Task 9D = 11B"
+#   DispY  WakeDWT  -> TWReq.11   DWTTask strap = 1011 = 11
+#   MemX   TWReq15  -> TWReq.15   the fault task is task 15 -- HM section 4.1
+#                                 ("task 0 = emulator, task 15 = fault task")
+#                                 and the C emulator's include/memory.h, and
+#                                 MemX's own net name says 15
+#
+# NOT wired yet, because nothing yet says which line they take: the two HEAD
+# tasks (DispM WakeAHT, DispY WakeDHT, both on C121) and DskEth's WakeEthRx /
+# WakeEthTx. DskEth's strap is an I/O ADDRESS, not a task number, so its task
+# has to come from elsewhere -- the C emulator has DORADO_DISK_TASK = 014
+# octal = 12 decimal for the disk, but DskEth's two lines here are the ETHERNET
+# ones, and the disk's wakeup is not among the nets this board drives.
+BACKPLANE_WAKEUP_JUMPERS = {
+    'WakeAWT': 'TWReq.09',
+    'WakeDWT': 'TWReq.11',
+    'TWReq15': 'TWReq.15',
+}
+
+
 def canon_net(name: str) -> str:
-    """The canonical spelling of a backplane net -- see BACKPLANE_CASE_ALIASES."""
-    return BACKPLANE_CASE_ALIASES.get(name, name)
+    """The canonical spelling of a backplane net.
+
+    Two corrections: a handful of lines PARC capitalised inconsistently
+    (BACKPLANE_CASE_ALIASES), and the task wakeups, which the backplane routes
+    by jumper rather than by name (BACKPLANE_WAKEUP_JUMPERS)."""
+    name = BACKPLANE_CASE_ALIASES.get(name, name)
+    return BACKPLANE_WAKEUP_JUMPERS.get(name, name)
 
 
 class Board:

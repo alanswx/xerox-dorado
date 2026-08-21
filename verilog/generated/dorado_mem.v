@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ContA ContB ProcH ProcL MemC MemD MemX
-// 370 internal nets (44 with several contributors), 270 top-level ports.
+// 371 internal nets (44 with several contributors), 268 top-level ports.
 
 `default_nettype none
 
@@ -283,15 +283,13 @@ module dorado_mem (
     input  wire TWReq_12                  ,  // to a backplane connector (cable)
     input  wire TWReq_13                  ,  // to a backplane connector (cable)
     input  wire TWReq_14                  ,  // to a backplane connector (cable)
-    input  wire TWReq_15                  ,  // to a backplane connector (cable)
-    output wire TWReq15                   ,  // to a backplane connector (cable)
     input  wire TempRef                   ,  // awaits BaseBd DskEth IFU
     output wire TestTW                    ,  // to a backplane connector (cable)
     input  wire WantIfuHold_p_            ,  // awaits IFU
     input  wire WantIfuRef_p_                // awaits IFU
 );
 
-  // 370 nets between boards, plus one contribution wire
+  // 371 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -556,6 +554,7 @@ module dorado_mem (
   wire TNIA_13;
   wire TNIA_14;
   wire TNIA_15;
+  wire TWReq_15;
   wire TagInEc1;
   wire Transport_p_;
   wire UseAsrn;
@@ -1169,7 +1168,7 @@ module dorado_mem (
   wire TNIA_13__ContA;
   wire TNIA_14__ContA;
   wire TNIA_15__ContA;
-  wire TWReq15__MemX;
+  wire TWReq_15__MemX;
   wire TagInEc1__MemC;
   wire TestTW__ProcH;
   wire Transport_p___MemX;
@@ -1693,7 +1692,7 @@ module dorado_mem (
   assign TNIA_13 = TNIA_13__ContA;
   assign TNIA_14 = TNIA_14__ContA;
   assign TNIA_15 = TNIA_15__ContA;
-  assign TWReq15 = TWReq15__MemX;
+  assign TWReq_15 = TWReq_15__MemX;
   assign TagInEc1 = TagInEc1__MemC;
   assign TestTW = TestTW__ProcH;
   assign Transport_p_ = Transport_p___MemX;
@@ -3332,7 +3331,7 @@ module dorado_mem (
     .ShiftSoutO__drv(ShiftSoutO__MemX),
     .StartEcChk_p___drv(StartEcChk_p___MemX),
     .StartEcGen_p___drv(StartEcGen_p___MemX),
-    .TWReq15__drv(TWReq15__MemX),
+    .TWReq_15__drv(TWReq_15__MemX),
     .Transport_p___drv(Transport_p___MemX),
     .WPinEc1__drv(WPinEc1__MemX),
     .XWantsPipe__drv(XWantsPipe__MemX),
@@ -3371,7 +3370,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 150 signals, 32 at a time;
+// probe_val exposes 149 signals, 32 at a time;
 // dorado_mem.probes lists which bit is which.
 module dorado_mem_machine (
     input  wire        sys_clk,
@@ -3528,13 +3527,11 @@ module dorado_mem_machine (
   wire TIOA_5;
   wire TIOA_6;
   wire TIOA_7;
-  wire TWReq15;
   wire TestTW;
 
   wire [159:0] probe = {
-    10'd0,
+    11'd0,
     TestTW,
-    TWReq15,
     TIOA_7,
     TIOA_6,
     TIOA_5,
@@ -3951,8 +3948,6 @@ module dorado_mem_machine (
     .TWReq_12(1'b0),
     .TWReq_13(1'b0),
     .TWReq_14(1'b0),
-    .TWReq_15(1'b0),
-    .TWReq15(TWReq15),
     .TempRef(1'b0),
     .TestTW(TestTW),
     .WantIfuHold_p_(1'b0),
