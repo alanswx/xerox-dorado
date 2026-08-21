@@ -1,0 +1,12 @@
+Vtb_task__main.o: \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_task/Vtb_task__pch.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_config.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilatedos.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_types.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_funcs.h \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_task/Vtb_task__Syms.h \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_task/Vtb_task.h \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_task/Vtb_task___024root.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_timing.h \
+  Vtb_task__main.cpp Vtb_task.h

@@ -169,10 +169,10 @@ module DispY_m_Rev_m_Cl (
     output wire OISData_3__drv,
     output wire OISData_3_p___drv,
     output wire SubTask_0__drv,
+    output wire TWReq_11__drv,
     output wire VBlank__drv,
     output wire VSync__drv,
     output wire WakeDHT__drv,
-    output wire WakeDWT__drv,
     output wire XSyncEn_p___drv
 );
 
@@ -2066,7 +2066,7 @@ module DispY_m_Rev_m_Cl (
     .p10(DWTWantsProc),
     .p11(clk0_p_Ab),
     .p13(KillDWTWakeup),
-    .p15(WakeDWT__drv)
+    .p15(TWReq_11__drv)
   ); // MC10231
   cell_MC10101 u_d04 (
     .p2(OISData_2__d04_2),

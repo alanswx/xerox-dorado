@@ -414,6 +414,14 @@ osc-test:
 		verilog/generated/DispM-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_osc/tb_osc 2>&1); rc=$$?; echo "$$out" | grep tb_osc; exit $$rc; }
 
+task-test:
+	@cd ../.. && $(V) --binary --top-module tb_task $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated \
+		--Mdir verilog/verilator/obj_task -o tb_task \
+		verilog/verilator/tb_task.sv verilog/generated/dorado_control.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_task/tb_task 2>&1); rc=$$?; echo "$$out" | grep tb_task; exit $$rc; }
+
 baseboard-test:
 	@cd ../.. && $(V) --binary --top-module tb_baseboard $(V_WARN) \
 		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \

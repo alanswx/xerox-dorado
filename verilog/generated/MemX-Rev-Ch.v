@@ -242,7 +242,7 @@ module MemX_m_Rev_m_Ch (
     output wire ShiftSoutO__drv,
     output wire StartEcChk_p___drv,
     output wire StartEcGen_p___drv,
-    output wire TWReq15__drv,
+    output wire TWReq_15__drv,
     output wire Transport_p___drv,
     output wire WPinEc1__drv,
     output wire XWantsPipe__drv,
@@ -1212,9 +1212,9 @@ module MemX_m_Rev_m_Ch (
   wire STState_3__k16_9;
   wire STState_3__h12_3;
   assign STState_3 = STState_3__k16_9 | STState_3__h12_3;
-  wire TWReq15__h03_2;
-  wire TWReq15__h03_3;
-  assign TWReq15__drv = TWReq15__h03_2 | TWReq15__h03_3;
+  wire TWReq_15__h03_2;
+  wire TWReq_15__h03_3;
+  assign TWReq_15__drv = TWReq_15__h03_2 | TWReq_15__h03_3;
   wire ValidMapFltInEc2_p___j03_4;
   wire ValidMapFltInEc2_p___l06_6;
   wire ValidMapFltInEc2_p___k11_15;
@@ -3369,8 +3369,8 @@ module MemX_m_Rev_m_Ch (
     .p15(MD2__h02_15)
   ); // MU10164
   cell_MC10104 u_h03 (
-    .p2(TWReq15__h03_2),
-    .p3(TWReq15__h03_3),
+    .p2(TWReq_15__h03_2),
+    .p3(TWReq_15__h03_3),
     .p4(Faults),
     .p5(WakeEnable),
     .p6(WakeEnable),

@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ProcH ProcL ContA ContB IFU MemC MemD MemX DskEth DispY BaseBd
-// 505 internal nets (83 with several contributors), 397 top-level ports.
+// 507 internal nets (83 with several contributors), 393 top-level ports.
 
 `default_nettype none
 
@@ -373,12 +373,9 @@ module dorado_backplane (
     input  wire TWReq_08                  ,  // to a backplane connector (cable)
     input  wire TWReq_09                  ,  // to a backplane connector (cable)
     input  wire TWReq_10                  ,  // to a backplane connector (cable)
-    input  wire TWReq_11                  ,  // to a backplane connector (cable)
     input  wire TWReq_12                  ,  // to a backplane connector (cable)
     input  wire TWReq_13                  ,  // to a backplane connector (cable)
     input  wire TWReq_14                  ,  // to a backplane connector (cable)
-    input  wire TWReq_15                  ,  // to a backplane connector (cable)
-    output wire TWReq15                   ,  // to a backplane connector (cable)
     output wire TagBus_0_p_               ,  // to a backplane connector (cable)
     output wire TagBus_00_p_              ,  // to a backplane connector (cable)
     output wire TagBus_000_p_             ,  // to a backplane connector (cable)
@@ -410,7 +407,6 @@ module dorado_backplane (
     output wire VBlank                    ,  // awaits DispM
     output wire VSync                     ,  // awaits DispM
     output wire WakeDHT                   ,  // to a backplane connector (cable)
-    output wire WakeDWT                   ,  // to a backplane connector (cable)
     output wire WakeEthRx                 ,  // to a backplane connector (cable)
     output wire WakeEthTx                 ,  // to a backplane connector (cable)
     input  wire XHsync                    ,  // to a backplane connector (cable)
@@ -418,7 +414,7 @@ module dorado_backplane (
     input  wire dStartClockPulse             // to a backplane connector (cable)
 );
 
-  // 505 nets between boards, plus one contribution wire
+  // 507 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -814,6 +810,8 @@ module dorado_backplane (
   wire TNIA_13;
   wire TNIA_14;
   wire TNIA_15;
+  wire TWReq_11;
+  wire TWReq_15;
   wire TagInEc1;
   wire TempRef;
   wire Transport_p_;
@@ -1685,7 +1683,8 @@ module dorado_backplane (
   wire TNIA_14__ContA;
   wire TNIA_15__ContA;
   wire TTLIOReset_p___BaseBd;
-  wire TWReq15__MemX;
+  wire TWReq_11__DispY;
+  wire TWReq_15__MemX;
   wire TagBus_0_p___DskEth;
   wire TagBus_00_p___DskEth;
   wire TagBus_000_p___DskEth;
@@ -1726,7 +1725,6 @@ module dorado_backplane (
   wire VicOrFS1C__MemC;
   wire WPinEc1__MemX;
   wire WakeDHT__DispY;
-  wire WakeDWT__DispY;
   wire WakeEthRx__DskEth;
   wire WakeEthTx__DskEth;
   wire WantIfuHold_p___IFU;
@@ -2439,7 +2437,8 @@ module dorado_backplane (
   assign TNIA_14 = TNIA_14__ContA;
   assign TNIA_15 = TNIA_15__ContA;
   assign TTLIOReset_p_ = TTLIOReset_p___BaseBd;
-  assign TWReq15 = TWReq15__MemX;
+  assign TWReq_11 = TWReq_11__DispY;
+  assign TWReq_15 = TWReq_15__MemX;
   assign TagBus_0_p_ = TagBus_0_p___DskEth;
   assign TagBus_00_p_ = TagBus_00_p___DskEth;
   assign TagBus_000_p_ = TagBus_000_p___DskEth;
@@ -2479,7 +2478,6 @@ module dorado_backplane (
   assign VicOrFS1C = VicOrFS1C__MemC;
   assign WPinEc1 = WPinEc1__MemX;
   assign WakeDHT = WakeDHT__DispY;
-  assign WakeDWT = WakeDWT__DispY;
   assign WakeEthRx = WakeEthRx__DskEth;
   assign WakeEthTx = WakeEthTx__DskEth;
   assign WantIfuHold_p_ = WantIfuHold_p___IFU;
@@ -4282,7 +4280,7 @@ module dorado_backplane (
     .ShiftSoutO__drv(ShiftSoutO__MemX),
     .StartEcChk_p___drv(StartEcChk_p___MemX),
     .StartEcGen_p___drv(StartEcGen_p___MemX),
-    .TWReq15__drv(TWReq15__MemX),
+    .TWReq_15__drv(TWReq_15__MemX),
     .Transport_p___drv(Transport_p___MemX),
     .WPinEc1__drv(WPinEc1__MemX),
     .XWantsPipe__drv(XWantsPipe__MemX),
@@ -4631,10 +4629,10 @@ module dorado_backplane (
     .OISData_3__drv(OISData_3__DispY),
     .OISData_3_p___drv(OISData_3_p___DispY),
     .SubTask_0__drv(SubTask_0__DispY),
+    .TWReq_11__drv(TWReq_11__DispY),
     .VBlank__drv(VBlank__DispY),
     .VSync__drv(VSync__DispY),
     .WakeDHT__drv(WakeDHT__DispY),
-    .WakeDWT__drv(WakeDWT__DispY),
     .XSyncEn_p___drv(XSyncEn_p___DispY)
   );
 
@@ -4794,7 +4792,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 254 signals, 32 at a time;
+// probe_val exposes 252 signals, 32 at a time;
 // dorado_backplane.probes lists which bit is which.
 module dorado_machine (
     input  wire        sys_clk,
@@ -5012,7 +5010,6 @@ module dorado_machine (
   wire Sout_15;
   wire StartClockPulse;
   wire TTLIOReset_p_;
-  wire TWReq15;
   wire TagBus_0_p_;
   wire TagBus_00_p_;
   wire TagBus_000_p_;
@@ -5043,7 +5040,6 @@ module dorado_machine (
   wire VBlank;
   wire VSync;
   wire WakeDHT;
-  wire WakeDWT;
   wire WakeEthRx;
   wire WakeEthTx;
   wire XSyncEn_p_;
@@ -5063,7 +5059,7 @@ module dorado_machine (
   wire CLK_pl_p__probe = u_machine.CLK_pl_p_;
 
   wire [255:0] probe = {
-    2'd0,
+    4'd0,
     CLK_pl_p__probe,
     CLK_ph_p__probe,
     CLK_mx_p__probe,
@@ -5077,7 +5073,6 @@ module dorado_machine (
     XSyncEn_p_,
     WakeEthTx,
     WakeEthRx,
-    WakeDWT,
     WakeDHT,
     VSync,
     VBlank,
@@ -5108,7 +5103,6 @@ module dorado_machine (
     TagBus_000_p_,
     TagBus_00_p_,
     TagBus_0_p_,
-    TWReq15,
     TTLIOReset_p_,
     StartClockPulse,
     Sout_15,
@@ -5676,12 +5670,9 @@ module dorado_machine (
     .TWReq_08(1'b0),
     .TWReq_09(1'b0),
     .TWReq_10(1'b0),
-    .TWReq_11(1'b0),
     .TWReq_12(1'b0),
     .TWReq_13(1'b0),
     .TWReq_14(1'b0),
-    .TWReq_15(1'b0),
-    .TWReq15(TWReq15),
     .TagBus_0_p_(TagBus_0_p_),
     .TagBus_00_p_(TagBus_00_p_),
     .TagBus_000_p_(TagBus_000_p_),
@@ -5713,7 +5704,6 @@ module dorado_machine (
     .VBlank(VBlank),
     .VSync(VSync),
     .WakeDHT(WakeDHT),
-    .WakeDWT(WakeDWT),
     .WakeEthRx(WakeEthRx),
     .WakeEthTx(WakeEthTx),
     .XHsync(1'b0),

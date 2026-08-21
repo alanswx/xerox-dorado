@@ -156,6 +156,9 @@ strap-test:
 osc-test:
 	@$(MAKE) -C verilator osc-test
 
+task-test:
+	@$(MAKE) -C verilator task-test
+
 # The memory section in a machine, with its clock running.
 mem-test:
 	@$(MAKE) -C verilator mem-test
