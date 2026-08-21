@@ -444,6 +444,23 @@ refdecode-test:
 		verilog/verilator/tb_refdecode.sv verilog/generated/MemC-Rev-Be.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_refdec/tb_refdecode 2>&1); rc=$$?; echo "$$out" | grep tb_refdecode; exit $$rc; }
 
+memrun-test:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks
+	@mkdir -p obj_memrun
+	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 4 \
+		> verilog/verilator/obj_memrun/memrun.vec
+	@cd ../.. && $(V) --binary --top-module tb_memrun $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated \
+		--Mdir verilog/verilator/obj_memrun -o tb_memrun \
+		verilog/verilator/tb_memrun.sv verilog/generated/dorado_mem.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_memrun/tb_memrun \
+		    +vectors=verilog/verilator/obj_memrun/memrun.vec 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_memrun; exit $$rc; }
+
 baseboard-test:
 	@cd ../.. && $(V) --binary --top-module tb_baseboard $(V_WARN) \
 		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \

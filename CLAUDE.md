@@ -987,8 +987,9 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **THE MACHINE SWITCHES TASKS** -- CTask becomes the task that asked | `taskrun-test` -- all 15, and with TaskingOff it does not |
 | ...and each task KEEPS ITS OWN PC and LINK | `taskrun-test` -- TPC[15] survives task 7; the startup Link lands in slot 0 alone |
 | **the MEMORY SECTION's front door** -- ASEL 0-3 is a storage reference | `refdecode-test` -- 16 cases against the C emulator's rule |
+| **the memory boards RUN, and the microcode ASKS THEM for storage** | `memrun-test` -- seven boards, MemC clocked in step, ASEL=0 with `WantProcRef'` asserted |
 
-Twenty-eight gates in all; `make -C verilog` has the list. **The datapath is
+Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
@@ -1102,9 +1103,20 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   independent derivation. The KIND decoder is a24, an MC10162 one-of-eight
   addressed by `{ASEL.1, ASEL.2, FF.1mem}`. Gate: `refdecode-test`. Pinning
   the full (ASEL, FF[0:1]) -> kind table against `cpu.c`'s dispatch needs the
-  board's other inputs driven (`Dbusy`, `CacheRefInA'`, `WantCR`), because
-  `Lfetch_`/`Store_` are qualified by them rather than being raw decoder
-  outputs -- that is the next step.
+  board's other inputs driven (`Dbusy`, `CacheRefInA'`, `WantCR`) -- and those
+  are INTERNAL to MemC, so they cannot be forced from ports. **They come from a
+  running machine**, which `memrun-test` now provides: `dorado_mem`, seven
+  boards, tb_exec's startup, MemC's clock running 187 edges against the
+  processor's 181. With microcode executing, all four settle to defined levels
+  and THE MICROCODE ASKS FOR STORAGE -- the four AEmu hunks present ASEL=0,
+  `WantProcRef'` asserts, and MemC responds with `Dbusy` and `WantCR` set. So
+  the front-door rule now holds against an ASEL the machine chose for itself.
+  Next is the kind table, then MAR and an actual access.
+
+- **`dorado_mem` has THREE MORE CLOCK PORTS than `dorado_proc`** -- `CLK_mc'`,
+  `CLK_md'`, `CLK_mx'`, because the BaseBoard fans the clock to every slot.
+  Leaving them undriven gives MemC zero local clock edges with BOTH its enables
+  already asserted, which looks exactly like a gating bug and is not one.
 
 - **`_Map` cross-checks between the two models.** ContA b17 decodes it as
   FA=0, FB=3, FC=1 = 0o31, and `cpu.c`'s comment on `DM_REF_RMAP` says the read

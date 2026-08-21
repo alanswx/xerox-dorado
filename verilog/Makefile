@@ -165,6 +165,9 @@ taskrun-test:
 refdecode-test:
 	@$(MAKE) -C verilator refdecode-test
 
+memrun-test:
+	@$(MAKE) -C verilator memrun-test
+
 # The memory section in a machine, with its clock running.
 mem-test:
 	@$(MAKE) -C verilator mem-test

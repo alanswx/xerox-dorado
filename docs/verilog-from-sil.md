@@ -84,9 +84,12 @@ The front door is mapped and gated: a reference enters through ASEL, MemC's
 b24 makes `WantProcRef' = IgnoreProc | ASEL.0`, and `refdecode-test` shows that
 asserting for exactly ASEL 0-3 -- the C emulator's rule, independently derived.
 The kind decoder is a24, an MC10162 one-of-eight on `{ASEL.1, ASEL.2,
-FF.1mem}`. Next: drive the board's qualifying inputs (`Dbusy`, `CacheRefInA'`,
-`WantCR`) so the full (ASEL, FF[0:1]) -> kind table can be checked against
-`cpu.c`'s dispatch, then MAR and an actual access.
+FF.1mem}`. Those qualifying inputs (`Dbusy`, `CacheRefInA'`, `WantCR`, `IgnoreProc`) turn
+out to be INTERNAL to MemC, so they come from a running machine rather than
+from ports -- which `memrun-test` now provides: seven boards, tb_exec's
+startup, MemC clocked in step with the processor, and the running microcode
+presenting ASEL=0 with `WantProcRef'` asserted. Next: the full (ASEL, FF[0:1])
+-> kind table against `cpu.c`'s dispatch, then MAR and an actual access.
 
 Original note: MemC + MemD + MemX are in a machine and clocked (`mem-test`),
 but **nothing has ever issued a reference**. Map, cache, Pipe, MAR/VA and the hold logic are all
