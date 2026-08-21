@@ -82,6 +82,47 @@ def read_xerox_text(path: str) -> list[str]:
     return raw.replace('\r\n', '\n').replace('\r', '\n').split('\n')
 
 
+# SIX BACKPLANE LINES ARE SPELLED TWO WAYS, and one of them is the memory
+# section's hold on the processor.
+#
+# PARC's draughtsmen were not consistent about capitalisation, and this
+# backplane is wired BY NAME -- it is not straight-through, 182 pin positions
+# carry different nets on different boards -- so a spelling difference silently
+# leaves a line unconnected. `PrHold` on MemC and `PRhold` on ProcH/ProcL are
+# ONE WIRE: `#07-E.42`, `#s05-E.42`, `#s04-E.42`, same connector and pin in
+# three slots. Until this, MemC drove `PrHold` into nothing and the processor
+# read `PRhold` from nothing, so the memory section could not hold the
+# processor at all.
+#
+# CASE-INSENSITIVE MATCHING WOULD BE WRONG, which is why this is a table.
+# Among backplane nets there are nine case-variant groups and THREE sit on
+# DIFFERENT pins -- `CLKEnable'a` (C16) vs `ClkEnable'a` (C8), `IOIn'` (E70) vs
+# `IOin'` (E71), `IOOut'` (E71) vs `IOout'` (E74). Those are separate lines
+# that merely look alike. Outside the backplane it would be far worse: 63 net
+# names differ only by case, mostly per-board LOCAL clock fan-out such as
+# `Clk0'Aa` on MemX against `clk0'Aa` on IFU, and merging those would tie every
+# board's clock distribution together.
+#
+# So the rule is narrow: merge a case variant ONLY where every board that uses
+# it agrees on the pin. That yields exactly these six. No board carries both
+# spellings, so the rename cannot collide with a local net.
+# `tools/sil_backplane.py --case-variants` re-derives the list from the .bp
+# files and fails if it no longer matches.
+BACKPLANE_CASE_ALIASES = {
+    'PrHold':        'PRhold',        # E42  MemC -> ProcH, ProcL
+    'MxHold':        'MXHold',        #      MemX <-> MemC
+    'HoldMapbuf':    'HoldMapBuf',    #      MemX <-> MemC
+    'Subtask.0':     'SubTask.0',     #      MemX <-> ProcL, DispY
+    'Subtask.1':     'SubTask.1',     #      MemX <-> ProcL
+    'FoutSubtask.0': 'FoutSubTask.0', #      MemX <-> DispY
+}
+
+
+def canon_net(name: str) -> str:
+    """The canonical spelling of a backplane net -- see BACKPLANE_CASE_ALIASES."""
+    return BACKPLANE_CASE_ALIASES.get(name, name)
+
+
 class Board:
     def __init__(self, name: str):
         self.name = name
@@ -96,6 +137,7 @@ class Board:
         self.bp_mismatch: list[tuple[str, set, set]] = []
 
     # ---- .wl -----------------------------------------------------------
+
     def load_wl(self, path: str) -> None:
         lines = read_xerox_text(path)
         net = None
@@ -128,7 +170,7 @@ class Board:
                     continue
                 m = NET_HEAD_RE.match(line.strip())
                 if m:
-                    net_name = m.group(1)
+                    net_name = canon_net(m.group(1))
                     net = {'id': int(m.group(3)) if m.group(3) else None,
                            'length': int(m.group(2)), 'pins': []}
                     self.nets[net_name] = net
@@ -209,6 +251,7 @@ class Board:
             if ':' not in line:
                 continue
             name, pins = line.split(':', 1)
+            name = canon_net(name.strip())
             name = name.strip()
             if not name:
                 continue

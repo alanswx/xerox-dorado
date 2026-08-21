@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ProcH ProcL ContA ContB IFU MemC MemD MemX DskEth DispY BaseBd
-// 501 internal nets (83 with several contributors), 407 top-level ports.
+// 505 internal nets (83 with several contributors), 397 top-level ports.
 
 `default_nettype none
 
@@ -108,7 +108,7 @@ module dorado_backplane (
     output wire CLK_ms3Even_p_            ,  // to a backplane connector (cable)
     output wire CLK_ms3Odd_p_             ,  // to a backplane connector (cable)
     input  wire ChipsAre256_s_16K         ,  // to a backplane connector (cable)
-    input  wire ChipsAre64K               ,  // to a backplane connector (cable)
+    input  wire ChipsAre64K               ,  // awaits msa
     input  wire ClkEnable_p_a             ,  // to a backplane connector (cable)
     output wire ClockM0                   ,  // to a backplane connector (cable)
     output wire ClockM1                   ,  // to a backplane connector (cable)
@@ -183,8 +183,6 @@ module dorado_backplane (
     output wire Fout_16                   ,  // awaits IOTest
     output wire Fout_17                   ,  // awaits IOTest
     output wire Fout_flt                  ,  // to a backplane connector (cable)
-    input  wire FoutSubTask_0             ,  // to a backplane connector (cable)
-    output wire FoutSubtask_0             ,  // awaits IOTest
     output wire FoutSubtask_1             ,  // awaits IOTest
     output wire GNDFour                   ,  // to a backplane connector (cable)
     input  wire GenIn_00                  ,  // to a backplane connector (cable)
@@ -223,8 +221,6 @@ module dorado_backplane (
     output wire HSync                     ,  // awaits DispM
     output wire HalfLine                  ,  // to a backplane connector (cable)
     output wire HeadTag_p_                ,  // to a backplane connector (cable)
-    input  wire HoldMapBuf                ,  // to a backplane connector (cable)
-    output wire HoldMapbuf                ,  // to a backplane connector (cable)
     input  wire Host_0                    ,  // to a backplane connector (cable)
     input  wire Host_1                    ,  // to a backplane connector (cable)
     input  wire Host_2                    ,  // to a backplane connector (cable)
@@ -255,7 +251,6 @@ module dorado_backplane (
     input  wire M1                        ,  // to a backplane connector (cable)
     input  wire M2                        ,  // to a backplane connector (cable)
     input  wire M3                        ,  // to a backplane connector (cable)
-    output wire MXHold                    ,  // to a backplane connector (cable)
     output wire MemAd_0                   ,  // awaits PCMSA
     output wire MemAd_1                   ,  // awaits PCMSA msa
     output wire MemAd_2                   ,  // awaits PCMSA msa
@@ -278,7 +273,6 @@ module dorado_backplane (
     output wire Mod2StrEn_p_              ,  // to a backplane connector (cable)
     output wire Mod3SinEn_p_              ,  // to a backplane connector (cable)
     output wire Mod3StrEn_p_              ,  // to a backplane connector (cable)
-    input  wire MxHold                    ,  // to a backplane connector (cable)
     output wire OISClkA                   ,  // awaits DispM
     output wire OISClkA_p_                ,  // awaits DispM
     output wire OISClkB                   ,  // awaits DispM
@@ -298,9 +292,7 @@ module dorado_backplane (
     output wire OS1                       ,  // to a backplane connector (cable)
     output wire OS2                       ,  // to a backplane connector (cable)
     output wire OS3                       ,  // to a backplane connector (cable)
-    input  wire PRhold                    ,  // to a backplane connector (cable)
     input  wire PixelClkVCO               ,  // awaits DispM
-    output wire PrHold                    ,  // to a backplane connector (cable)
     input  wire PwrOnRet                  ,  // to a backplane connector (cable)
     output wire RScopeClk0_p_             ,  // to a backplane connector (cable)
     input  wire RawPixelClk               ,  // awaits DispM
@@ -370,8 +362,6 @@ module dorado_backplane (
     output wire Sout_15                   ,  // awaits PCMSA msa
     output wire StartClockPulse           ,  // to a backplane connector (cable)
     input  wire SubTask_1                 ,  // awaits IOTest
-    input  wire Subtask_0                 ,  // to a backplane connector (cable)
-    input  wire Subtask_1                 ,  // to a backplane connector (cable)
     output wire TTLIOReset_p_             ,  // to a backplane connector (cable)
     input  wire TWReq_01                  ,  // to a backplane connector (cable)
     input  wire TWReq_02                  ,  // to a backplane connector (cable)
@@ -428,7 +418,7 @@ module dorado_backplane (
     input  wire dStartClockPulse             // to a backplane connector (cable)
 );
 
-  // 501 nets between boards, plus one contribution wire
+  // 505 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -578,6 +568,7 @@ module dorado_backplane (
   wire Fout_14;
   wire Fout_15;
   wire FoutNext;
+  wire FoutSubTask_0;
   wire FoutTask_0;
   wire FoutTask_1;
   wire FoutTask_2;
@@ -587,6 +578,7 @@ module dorado_backplane (
   wire GLd_p_;
   wire Hita;
   wire Hold;
+  wire HoldMapBuf;
   wire IMRHPE_p_;
   wire IOB_00;
   wire IOB_01;
@@ -660,6 +652,7 @@ module dorado_backplane (
   wire MAR_14_p_;
   wire MAR_15_p_;
   wire MDMtag_p_;
+  wire MXHold;
   wire MakeD_u_CD;
   wire MakeD_u_Dbuf;
   wire MakeF_u_D;
@@ -708,6 +701,7 @@ module dorado_backplane (
   wire NextData_p_;
   wire NextMacro;
   wire Overflow_p_;
+  wire PRhold;
   wire PairFull_p_;
   wire PcFG_15;
   wire Pdata_15;
@@ -1280,7 +1274,7 @@ module dorado_backplane (
   wire Fout_17__MemD;
   wire Fout_flt__MemX;
   wire FoutNext__MemX;
-  wire FoutSubtask_0__MemX;
+  wire FoutSubTask_0__MemX;
   wire FoutSubtask_1__MemX;
   wire FoutTask_0__MemX;
   wire FoutTask_1__MemX;
@@ -1312,7 +1306,7 @@ module dorado_backplane (
   wire HeadTag_p___DskEth;
   wire Hita__MemC;
   wire Hold__MemC;
-  wire HoldMapbuf__MemX;
+  wire HoldMapBuf__MemX;
   wire IMLHPE_p___ContB;
   wire IMLHPEDly__ContB;
   wire IMRHPE_p___ContA;
@@ -1536,13 +1530,13 @@ module dorado_backplane (
   wire OS2__DskEth;
   wire OS3__DskEth;
   wire Overflow_p___ProcH;
+  wire PRhold__MemC;
   wire PairFull_p___MemC;
   wire PcFG_15__IFU;
   wire Pdata_15__ProcH;
   wire Pdata_15__ProcL;
   wire Pendulum__BaseBd;
   wire PrBlock_p___ContA;
-  wire PrHold__MemC;
   wire PrHoldReq__ProcL;
   wire PrivRefInPair__MemC;
   wire ProcSrn_u__p___MemC;
@@ -2079,7 +2073,7 @@ module dorado_backplane (
   assign Fout_17 = Fout_17__MemD;
   assign Fout_flt = Fout_flt__MemX;
   assign FoutNext = FoutNext__MemX;
-  assign FoutSubtask_0 = FoutSubtask_0__MemX;
+  assign FoutSubTask_0 = FoutSubTask_0__MemX;
   assign FoutSubtask_1 = FoutSubtask_1__MemX;
   assign FoutTask_0 = FoutTask_0__MemX;
   assign FoutTask_1 = FoutTask_1__MemX;
@@ -2111,7 +2105,7 @@ module dorado_backplane (
   assign HeadTag_p_ = HeadTag_p___DskEth;
   assign Hita = Hita__MemC;
   assign Hold = Hold__MemC;
-  assign HoldMapbuf = HoldMapbuf__MemX;
+  assign HoldMapBuf = HoldMapBuf__MemX;
   assign IMLHPE_p_ = IMLHPE_p___ContB;
   assign IMLHPEDly = IMLHPEDly__ContB;
   assign IMRHPE_p_ = IMRHPE_p___ContA;
@@ -2284,12 +2278,12 @@ module dorado_backplane (
   assign OS2 = OS2__DskEth;
   assign OS3 = OS3__DskEth;
   assign Overflow_p_ = Overflow_p___ProcH;
+  assign PRhold = PRhold__MemC;
   assign PairFull_p_ = PairFull_p___MemC;
   assign PcFG_15 = PcFG_15__IFU;
   assign Pdata_15 = Pdata_15__ProcH | Pdata_15__ProcL;
   assign Pendulum = Pendulum__BaseBd;
   assign PrBlock_p_ = PrBlock_p___ContA;
-  assign PrHold = PrHold__MemC;
   assign PrHoldReq = PrHoldReq__ProcL;
   assign PrivRefInPair = PrivRefInPair__MemC;
   assign ProcSrn_u__p_ = ProcSrn_u__p___MemC;
@@ -3815,8 +3809,8 @@ module dorado_backplane (
     .MemAd_6__drv(MemAd_6__MemC),
     .MemAd_7__drv(MemAd_7__MemC),
     .MemAd_8__drv(MemAd_8__MemC),
+    .PRhold__drv(PRhold__MemC),
     .PairFull_p___drv(PairFull_p___MemC),
-    .PrHold__drv(PrHold__MemC),
     .PrivRefInPair__drv(PrivRefInPair__MemC),
     .ProcSrn_u__p___drv(ProcSrn_u__p___MemC),
     .ReadInA_p___drv(ReadInA_p___MemC),
@@ -4094,7 +4088,7 @@ module dorado_backplane (
     .FinNext(FinNext),
     .FoutNext(FoutNext),
     .Hita(Hita),
-    .HoldMapbuf(HoldMapbuf),
+    .HoldMapBuf(HoldMapBuf),
     .IfuRefInEc1(IfuRefInEc1),
     .IoFetchInA_p_(IoFetchInA_p_),
     .IoStoreInA(IoStoreInA),
@@ -4105,6 +4099,7 @@ module dorado_backplane (
     .M2(M2),
     .M3(M3),
     .MDMtag_p_(MDMtag_p_),
+    .MXHold(MXHold),
     .MakeD_u_CD(MakeD_u_CD),
     .MakeD_u_Dbuf(MakeD_u_Dbuf),
     .MakeF_u_D(MakeF_u_D),
@@ -4130,7 +4125,6 @@ module dorado_backplane (
     .MemPE(MemPE),
     .MemRfsh(MemRfsh),
     .MemSH(MemSH),
-    .MxHold(MxHold),
     .Next_0(Next_0),
     .Next_1(Next_1),
     .Next_2(Next_2),
@@ -4148,8 +4142,8 @@ module dorado_backplane (
     .StkError(StkError),
     .Store_u_InA_p_(Store_u_InA_p_),
     .Store_u_InEc1_p_(Store_u_InEc1_p_),
-    .Subtask_0(Subtask_0),
-    .Subtask_1(Subtask_1),
+    .SubTask_0(SubTask_0),
+    .SubTask_1(SubTask_1),
     .TIOA_0(TIOA_0),
     .TIOA_1(TIOA_1),
     .TagInEc1(TagInEc1),
@@ -4210,13 +4204,13 @@ module dorado_backplane (
     .FinTask_3__drv(FinTask_3__MemX),
     .Fout_flt__drv(Fout_flt__MemX),
     .FoutNext__drv(FoutNext__MemX),
-    .FoutSubtask_0__drv(FoutSubtask_0__MemX),
+    .FoutSubTask_0__drv(FoutSubTask_0__MemX),
     .FoutSubtask_1__drv(FoutSubtask_1__MemX),
     .FoutTask_0__drv(FoutTask_0__MemX),
     .FoutTask_1__drv(FoutTask_1__MemX),
     .FoutTask_2__drv(FoutTask_2__MemX),
     .FoutTask_3__drv(FoutTask_3__MemX),
-    .HoldMapbuf__drv(HoldMapbuf__MemX),
+    .HoldMapBuf__drv(HoldMapBuf__MemX),
     .IfuFaultInEc2__drv(IfuFaultInEc2__MemX),
     .LargeHold__drv(LargeHold__MemX),
     .LdPipeVAdly_p___drv(LdPipeVAdly_p___MemX),
@@ -4776,7 +4770,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 250 signals, 32 at a time;
+// probe_val exposes 246 signals, 32 at a time;
 // dorado_backplane.probes lists which bit is which.
 module dorado_machine (
     input  wire        sys_clk,
@@ -4882,7 +4876,6 @@ module dorado_machine (
   wire Fout_16;
   wire Fout_17;
   wire Fout_flt;
-  wire FoutSubtask_0;
   wire FoutSubtask_1;
   wire GNDFour;
   wire GenOut_00;
@@ -4905,7 +4898,6 @@ module dorado_machine (
   wire HSync;
   wire HalfLine;
   wire HeadTag_p_;
-  wire HoldMapbuf;
   wire IMLHPE_p_;
   wire IMLHPEDly;
   wire IMRHPEDly;
@@ -4919,7 +4911,6 @@ module dorado_machine (
   wire LoadSinO;
   wire LoadSoutE_p_;
   wire LoadSoutO_p_;
-  wire MXHold;
   wire MemAd_0;
   wire MemAd_1;
   wire MemAd_2;
@@ -4957,7 +4948,6 @@ module dorado_machine (
   wire OS1;
   wire OS2;
   wire OS3;
-  wire PrHold;
   wire RScopeClk0_p_;
   wire SWb;
   wire SWm;
@@ -5041,7 +5031,7 @@ module dorado_machine (
   wire CLK_pl_p__probe = u_machine.CLK_pl_p_;
 
   wire [255:0] probe = {
-    6'd0,
+    10'd0,
     CLK_pl_p__probe,
     CLK_ph_p__probe,
     CLK_mx_p__probe,
@@ -5119,7 +5109,6 @@ module dorado_machine (
     SWm,
     SWb,
     RScopeClk0_p_,
-    PrHold,
     OS3,
     OS2,
     OS1,
@@ -5157,7 +5146,6 @@ module dorado_machine (
     MemAd_2,
     MemAd_1,
     MemAd_0,
-    MXHold,
     LoadSoutO_p_,
     LoadSoutE_p_,
     LoadSinO,
@@ -5171,7 +5159,6 @@ module dorado_machine (
     IMRHPEDly,
     IMLHPEDly,
     IMLHPE_p_,
-    HoldMapbuf,
     HeadTag_p_,
     HalfLine,
     HSync,
@@ -5194,7 +5181,6 @@ module dorado_machine (
     GenOut_00,
     GNDFour,
     FoutSubtask_1,
-    FoutSubtask_0,
     Fout_flt,
     Fout_17,
     Fout_16,
@@ -5460,8 +5446,6 @@ module dorado_machine (
     .Fout_16(Fout_16),
     .Fout_17(Fout_17),
     .Fout_flt(Fout_flt),
-    .FoutSubTask_0(1'b0),
-    .FoutSubtask_0(FoutSubtask_0),
     .FoutSubtask_1(FoutSubtask_1),
     .GNDFour(GNDFour),
     .GenIn_00(1'b0),
@@ -5500,8 +5484,6 @@ module dorado_machine (
     .HSync(HSync),
     .HalfLine(HalfLine),
     .HeadTag_p_(HeadTag_p_),
-    .HoldMapBuf(1'b0),
-    .HoldMapbuf(HoldMapbuf),
     .Host_0(1'b0),
     .Host_1(1'b0),
     .Host_2(1'b0),
@@ -5532,7 +5514,6 @@ module dorado_machine (
     .M1(1'b0),
     .M2(1'b0),
     .M3(1'b0),
-    .MXHold(MXHold),
     .MemAd_0(MemAd_0),
     .MemAd_1(MemAd_1),
     .MemAd_2(MemAd_2),
@@ -5555,7 +5536,6 @@ module dorado_machine (
     .Mod2StrEn_p_(Mod2StrEn_p_),
     .Mod3SinEn_p_(Mod3SinEn_p_),
     .Mod3StrEn_p_(Mod3StrEn_p_),
-    .MxHold(1'b0),
     .OISClkA(OISClkA),
     .OISClkA_p_(OISClkA_p_),
     .OISClkB(OISClkB),
@@ -5575,9 +5555,7 @@ module dorado_machine (
     .OS1(OS1),
     .OS2(OS2),
     .OS3(OS3),
-    .PRhold(1'b0),
     .PixelClkVCO(1'b0),
-    .PrHold(PrHold),
     .PwrOnRet(1'b0),
     .RScopeClk0_p_(RScopeClk0_p_),
     .RawPixelClk(1'b0),
@@ -5647,8 +5625,6 @@ module dorado_machine (
     .Sout_15(Sout_15),
     .StartClockPulse(StartClockPulse),
     .SubTask_1(1'b0),
-    .Subtask_0(1'b0),
-    .Subtask_1(1'b0),
     .TTLIOReset_p_(TTLIOReset_p_),
     .TWReq_01(1'b0),
     .TWReq_02(1'b0),

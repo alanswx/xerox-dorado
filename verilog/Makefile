@@ -29,6 +29,7 @@
 #   make converge-test the assembled machine settles, and its clock runs
 #   make machine-test the assembled machine under the imgui harness
 #   make baseboard-test the BaseBoard's 6502 boots from its own EPROMs
+#   make mem-test     MemC/MemD/MemX in a machine, with the clock running
 #
 # The inputs are all original Xerox data; see docs/verilog-from-sil.md.
 SIL     = ../chm/sil
@@ -43,7 +44,7 @@ TOOLS   = ../tools
         datapath-test \
         startseq \
         converge-test machine-test \
-        baseboard-test firmware-probe \
+        baseboard-test firmware-probe mem-test \
         clean-generated
 
 # PROM contents, sliced per package position from PARC's own BCPL.
@@ -146,6 +147,10 @@ machine-test:
 baseboard-test:
 	@$(MAKE) -C verilator baseboard-test
 
+# The memory section in a machine, with its clock running.
+mem-test:
+	@$(MAKE) -C verilator mem-test
+
 # The REAL firmware driving BaseBd+ContA+ContB+ProcH+ProcL. Diagnostic.
 firmware-probe:
 	@$(MAKE) -C verilator firmware-probe
@@ -173,6 +178,9 @@ backplane: generated-boards
 		--boards=ContA,ContB,ProcH,ProcL --module=dorado_proc >/dev/null
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_boot.v \
 		--boards=BaseBd,ContA,ContB,ProcH,ProcL --module=dorado_boot >/dev/null
+	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_mem.v \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX \
+		--module=dorado_mem >/dev/null
 
 cells:
 	@python3 $(TOOLS)/sil_emit_cells.py --sil $(SIL) \

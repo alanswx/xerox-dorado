@@ -125,7 +125,7 @@ module dorado_proc (
     output wire MemSH                     ,  // awaits IFU MemC MemD MemX Music
     output wire MemSH_p_                  ,  // awaits DispM DispY DskEth IOTest
     output wire NextData_p_               ,  // awaits IFU
-    input  wire PRhold                    ,  // to a backplane connector (cable)
+    input  wire PRhold                    ,  // awaits MemC
     output wire PrHoldReq                 ,  // awaits MemC
     output wire RScopeClk0_p_             ,  // to a backplane connector (cable)
     input  wire SW                        ,  // awaits MemX
@@ -137,8 +137,8 @@ module dorado_proc (
     input  wire SignIfuData               ,  // awaits IFU
     input  wire SimHoldDis                ,  // to a backplane connector (cable)
     output wire StkError                  ,  // awaits MemX
-    input  wire SubTask_0                 ,  // awaits DispY IOTest
-    input  wire SubTask_1                 ,  // awaits IOTest
+    input  wire SubTask_0                 ,  // awaits DispY IOTest MemX
+    input  wire SubTask_1                 ,  // awaits IOTest MemX
     output wire TIOA_0                    ,  // awaits DispM DispY DskEth IOTest MemX Music
     output wire TIOA_1                    ,  // awaits DispM DispY DskEth IOTest MemX Music
     output wire TIOA_2                    ,  // awaits DispM DispY DskEth IOTest Music

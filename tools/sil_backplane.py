@@ -98,7 +98,49 @@ def load_backplane() -> dict[str, dict[str, str]]:
             print(f'  WARNING {name}: .bp and .nl disagree on '
                   f'{len(nl ^ set(m))} nets', file=sys.stderr)
         boards[name] = m
+    _canonicalise_case_variants(boards)
     return boards
+
+
+# Six backplane lines are spelled two ways across the boards, and one of them
+# is the memory section's hold on the processor.
+#
+# PARC's draughtsmen were not consistent about capitalisation, and this
+# backplane is wired BY NAME (it is not straight-through -- 182 pin positions
+# carry different nets on different boards), so a spelling difference silently
+# leaves a line unconnected. `PrHold` on MemC and `PRhold` on ProcH/ProcL are
+# one wire: `#07-E.42`, `#s05-E.42`, `#s04-E.42` -- same connector, same pin,
+# three slots. Before this, MemC drove `PrHold` into nothing and the processor
+# read `PRhold` from nothing, so the memory section could not hold the
+# processor at all.
+#
+# CASE-INSENSITIVE MATCHING WOULD BE WRONG. Restricted to backplane nets there
+# are nine case-variant groups, and THREE of them sit on DIFFERENT pins --
+# `CLKEnable'a` (C16) vs `ClkEnable'a` (C8), `IOIn'` (E70) vs `IOin'` (E71),
+# `IOOut'` (E71) vs `IOout'` (E74). Those are separate lines that merely look
+# alike. (Outside the backplane it would be far worse: 63 net names differ only
+# by case, most of them per-board LOCAL clock fan-out like `Clk0'Aa` on MemX
+# against `clk0'Aa` on IFU, and merging those would tie every board's clocks
+# together.)
+#
+# So the rule is narrow and checkable: merge case variants ONLY where every
+# board that uses them agrees on the pin. That yields exactly six, listed by
+# `--case-variants`.
+def _canonicalise_case_variants(boards: dict[str, dict[str, str]]) -> None:
+    groups: dict[str, dict[str, set]] = {}
+    for b, nets in boards.items():
+        for net, pin in nets.items():
+            groups.setdefault(net.lower(), {}).setdefault(net, set()).add(pin)
+    for _lower, variants in groups.items():
+        if len(variants) < 2:
+            continue
+        pins = set().union(*variants.values())
+        if len(pins) != 1:
+            continue                     # different pins: genuinely separate
+        canon = sorted(variants)[0]      # one spelling, chosen deterministically
+        for b, nets in boards.items():
+            for net in [n for n in nets if n in variants and n != canon]:
+                nets[canon] = nets.pop(net)
 
 
 def slot_of(board_dir: str) -> str | None:

@@ -202,8 +202,8 @@ module MemC_m_Rev_m_Be (
     output wire MemAd_6__drv,
     output wire MemAd_7__drv,
     output wire MemAd_8__drv,
+    output wire PRhold__drv,
     output wire PairFull_p___drv,
-    output wire PrHold__drv,
     output wire PrivRefInPair__drv,
     output wire ProcSrn_u__p___drv,
     output wire ReadInA_p___drv,
@@ -2581,7 +2581,7 @@ module MemC_m_Rev_m_Be (
     .p4(IfuHold__drv),
     .p6(Hold),
     .p9(Hold),
-    .p12(PrHold__drv),
+    .p12(PRhold__drv),
     .p13(MXHold__drv),
     .p14(CBHold__drv),
     .p15(GND190)

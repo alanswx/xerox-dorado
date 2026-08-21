@@ -118,3 +118,4 @@ verilog/verilator/obj_boot0/
 verilog/verilator/obj_exec/
 verilog/verilator/obj_parity/
 verilog/verilator/obj_compute/
+verilog/verilator/obj_mem/
