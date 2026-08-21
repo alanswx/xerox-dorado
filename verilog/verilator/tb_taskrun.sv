@@ -96,9 +96,17 @@
 // microinstruction decides whether the machine switches, and nothing else
 // changes.
 //
-// Still to come: the per-task STATE -- TPC, and T / MemBase / Link replicated
-// sixteen ways. Switching to a task whose TPC was never initialised is why
-// this test looks only at CTask and not at where the machine then goes.
+// AND EACH TASK KEEPS ITS OWN PC. TPC is four F10145A packages -- sixteen
+// words of four bits, l13 holding TPC.00-03, i13 04-07, j13 08-11, k13 12-15 --
+// addressed by `TPCAd`, which is shown here to follow the current task. The
+// check that matters is not that the array exists but that it is SEPARATE
+// storage: task 15 is run, its slot recorded, task 7 is then run, and task
+// 15's slot must be untouched. A machine with one program counter would have
+// overwritten it. Guarded against passing vacuously in both directions -- an
+// all-zero array would satisfy "unchanged" without storing anything, and two
+// slots reading alike would satisfy it without being separate.
+//
+// Still to come: T, MemBase and Link, which are also replicated per task.
 
 `default_nettype none
 
@@ -195,12 +203,27 @@ module tb_taskrun;
 
   integer i, hits, hits_a, hits_b;
   integer tk, tbad;
+  reg [15:0] tpc15, tpc15b, tpc7;
   wire [3:0] bnt  = {m.b_ContA.BNT_0,  m.b_ContA.BNT_1,
                      m.b_ContA.BNT_2,  m.b_ContA.BNT_3};
   wire [3:0] penc = {m.b_ContA.PEnc_0, m.b_ContA.PEnc_1,
                      m.b_ContA.PEnc_2, m.b_ContA.PEnc_3};
   wire [3:0] ctask = {m.b_ContA.CTask_0, m.b_ContA.CTask_1,
                       m.b_ContA.CTask_2, m.b_ContA.CTask_3};
+  // TPCAd is active low: the address the per-task PC memory is reading.
+  wire [3:0] tpcad = ~{m.b_ContA.TPCAd_0_p_, m.b_ContA.TPCAd_1_p_,
+                       m.b_ContA.TPCAd_2_p_, m.b_ContA.TPCAd_3_p_};
+
+  // THE PER-TASK PC MEMORY, read straight out of the array. Four F10145A
+  // packages, sixteen words of four bits each: l13 holds TPC.00-03, i13
+  // TPC.04-07, j13 TPC.08-11, k13 TPC.12-15, and the cell drives
+  // {p14,p15,p1,p2} from q so q[0] is the LOW-numbered (most significant)
+  // bit of each group. IM is 4096 words, so TPC.04-15 are the address and
+  // TPC.00-03 sit above it.
+  function [15:0] tpc_of(input [3:0] t);
+    tpc_of = {m.b_ContA.u_l13.mem[t], m.b_ContA.u_i13.mem[t],
+              m.b_ContA.u_j13.mem[t], m.b_ContA.u_k13.mem[t]};
+  endfunction
   reg [15:0] pat_a, pat_b;
 
   // Link[4:15] -- twelve bits, the whole IM address space, and exactly what
@@ -928,9 +951,8 @@ module tb_taskrun;
     for (tk = 15; tk >= 1; tk = tk - 1) begin
       req = 15'd0; req[tk] = 1'b1;
       repeat (600) @(posedge sys_clk);          // several microinstructions
-      $display("tb_taskrun: req task %2d -> PEnc %2d BNT %2d CTask %2d  Switcha=%b BNTGtCT'=%b TaskingIsOff'=%b",
-               tk, penc, bnt, ctask, m.b_ContA.Switcha,
-               m.b_ContA.BNTGtCT_p_a__drv, m.b_ContA.TaskingIsOff_p_);
+      $display("tb_taskrun: req task %2d -> PEnc %2d BNT %2d CTask %2d TPCAd %2d",
+               tk, penc, bnt, ctask, tpcad);
       if (bnt !== tk[3:0] || penc !== tk[3:0]) tbad = tbad + 1;
       // THE SWITCH ITSELF: with tasking on, the machine must be RUNNING the
       // task that asked for it.
@@ -956,8 +978,42 @@ module tb_taskrun;
       tbad = tbad + 1;
     end
 
+    // ---- PER-TASK STATE: one task running must not disturb another's PC.
+    //
+    // Run task 15 for a while and remember what its TPC slot holds; run task 7
+    // for a while; then look at task 15's slot again. A machine with ONE
+    // program counter would have overwritten it.
+    req = 15'd0; req[15] = 1'b1;
+    repeat (1200) @(posedge sys_clk);
+    tpc15 = tpc_of(4'd15);
+    req = 15'd0; req[7] = 1'b1;
+    repeat (1200) @(posedge sys_clk);
+    tpc7 = tpc_of(4'd7);
+    tpc15b = tpc_of(4'd15);
+    $display("tb_taskrun: TPC[15]=%h before running task 7, %h after; TPC[7]=%h",
+             tpc15, tpc15b, tpc7);
+    if (tpc15b !== tpc15) begin
+      $display("tb_taskrun: FAIL -- running task 7 changed task 15's saved PC");
+      tbad = tbad + 1;
+    end
+    if (tpcad !== 4'd7) begin
+      $display("tb_taskrun: FAIL -- TPCAd is %0d while task 7 runs", tpcad);
+      tbad = tbad + 1;
+    end
+    // Neither half of that may pass vacuously: an all-zero TPC array would
+    // satisfy "unchanged" without storing anything, and two slots reading
+    // alike would satisfy it without being separate slots.
+    if (tpc15 === 16'h0000) begin
+      $display("tb_taskrun: FAIL -- TPC[15] is zero, so 'unchanged' proves nothing");
+      tbad = tbad + 1;
+    end
+    if (tpc7 === tpc15) begin
+      $display("tb_taskrun: FAIL -- TPC[7] and TPC[15] read alike; are these one slot?");
+      tbad = tbad + 1;
+    end
+
     if (tbad != 0) $fatal(1, "the BNT register does not follow the priority encoder");
-    $display("tb_taskrun: PASS -- BNT loads and the machine SWITCHES to all 15 tasks");
+    $display("tb_taskrun: PASS -- switches to all 15 tasks, and each keeps its own PC");
     $finish;
   end
 
