@@ -57,9 +57,77 @@
 // oracle in the C emulator's overflow logic (HM section 3.7, QW7), and the
 // ContB e01 path can be read off `writeim-test`, which does still pass.
 //
-// One more thing this session established, in tb_compute.sv: a general
+// One more thing an earlier session established, in tb_compute.sv: a general
 // microinstruction encoder `mi()` that reproduces all thirteen IRTable entries
 // byte for byte, and now computes P015/P1631 by the rule above.
+//
+// ------------------------------------------------------------------------
+// WHAT THE 2026-08-20 PASS ADDED. Two of the three questions above are now
+// answered, and the third is much narrower.
+//
+// 1. THE PARITY SIGNALS REALLY DO GATE THE MIR CLOCK, traced end to end
+//    through the netlists rather than assumed:
+//
+//      ContA e18.15 -> IMRHPE'  ]                      ContB09.sil+3
+//      ContB j20.15 -> IMLHPE'  ]-> ContB l03 (MC10121) ------------> k02.10
+//      with IMLHPEenable' / IMRHPEenable' on l03's other inputs
+//
+//      ContB k02 (MC10211): .p10 = ContB09.sil+3, .p11 = StopMIRClkEn'
+//                           .p13 = StopMIRClk, .p12/.p14 = StopMIRClkBD/C
+//                           .p2/.p3/.p4 = preWE'c / preWE'a / preWE'b
+//
+//    So one gate makes BOTH the MIR clock hold and the IM write enable out of
+//    the parity error and its enable. "Freeze the MIR on a parity error" and
+//    the jam mechanism are the same wire.
+//
+// 2. `SignedCarry` DOES NOT SETTLE THE CELL, though the header above hoped it
+//    would. ProcH d13 is not a parity generator at all -- it is wired as a
+//    5-input XOR: p3 alub.00a, p4 alua.00, p9 aluF0, p13 alu.00, p14 aluCout,
+//    every other data pin open. Those are exactly the terms of the signed
+//    overflow identity V = Cout ^ A_sign ^ B_sign ^ R_sign, plus the ALU's S0
+//    select -- and S0 is what distinguishes add from subtract, which is the
+//    one place that identity needs a correction. e14 (MC10158) then selects
+//    between aluCout and SignedCarry on aluM, the arithmetic/logic mode bit.
+//    Beautiful, and useless as an oracle: BOTH polarities are self-consistent
+//    across add and subtract, so the C emulator's overflow can confirm the
+//    wiring but not the sense.
+//
+// 3. THE REGRESSION IS NOT VIA StopMIRClk. A/B on tb_operand, same probe,
+//    only the cell changed:
+//
+//      corrected (plain XOR): StopMIRClkEn=1 StopMIRClk=1
+//                             B<-Link'=1 UseCPReg=0 BMux=0000 RBMux=0000
+//      current   (XNOR):      StopMIRClkEn=1 StopMIRClk=1
+//                             B<-Link'=0 UseCPReg=1 BMux=5ac3 RBMux=5ac3
+//
+//    StopMIRClk reads the SAME in both. What differs is the FF decode, and
+//    `BMux=0000` against an IM that the test wiped to zeros is the signature
+//    of the MIR being RELOADED FROM IM -- the jam lost, exactly the failure
+//    mode the handoff describes for a free-running machine.
+//
+//    So the probe's StopMIRClk reading is not telling the truth about whether
+//    the clock is held -- either it is sampled at the wrong point in the
+//    cycle, or the hold needs more than that level. Start there: instrument
+//    the MIR's actual clock edges across a jam, in both cell versions, rather
+//    than the level of StopMIRClk.
+//
+// 4. AND A CONTRADICTION WORTH RESOLVING FIRST, because it may dissolve the
+//    whole problem. With the corrected cell all thirteen IRTable entries PASS
+//    the check (parity-probe reports "0 of 13 FAIL", IMLHPE'=IMRHPE'=1). But
+//    PARC jams those same entries, and a jam only survives if something holds
+//    the MIR. If a passing parity check means "no error", PARC's own jams
+//    would be overwritten too -- so either PE' = 1 is the ERROR state despite
+//    the prime, or the checker does not see the jammed word's own parity bits
+//    (it may read IMLH/IMRH from the IM output register, which during a jam
+//    still holds the OLD address's bits and so cannot match). Settle that
+//    before touching the cell again: it decides whether 13/13 passing is the
+//    goal or the bug.
+//
+// Everything else about the fix still stands -- the data sheet's geometry, and
+// that with `p15 = par9 ^ p13 ^ p14` all thirteen entries satisfy the rule
+// fitted from PARC's own table while with the `~` none do. It is still NOT
+// committed, because datapath-test, operand-test, step-test and sendmir fail
+// with it and writeim-test, boot0-test and exec-test do not.
 
 `default_nettype none
 

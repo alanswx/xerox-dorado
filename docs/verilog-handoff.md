@@ -2641,3 +2641,12 @@ one, so do NOT apply it), MemX's configuration PLATs, ProcL's parallel
 discrete resistors, and per-position oscillator frequencies (DispY a05 50 MHz,
 DispM c05 10 MHz, DispM d13 20/50 MHz -- all four currently share one divisor).
 
+## The test jumper that is correctly absent
+
+ProcH's Task Simulator sheet says "To enable this test circuit be sure there
+is a jumper to connect TestTW (109) to ContA pin (140)". `TestTW` is a ProcH
+backplane OUTPUT and ContA has nothing of that name, so the jumper is NOT in
+the generated machine -- which is right, it is fitted by hand when you want
+the test circuit. Worth knowing before someone reads a board output that goes
+nowhere as a missing connection.
+
