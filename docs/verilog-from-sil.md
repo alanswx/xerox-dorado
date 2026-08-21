@@ -78,10 +78,18 @@ without it, so nothing past stage 2 works until it does. It is also the
 cheapest way to find out whether the Control section is really right, and
 `cpu.c`'s scheduler is an exact oracle.
 
-### 3. The memory subsystem -- the biggest block of work
+### 3. The memory subsystem -- STARTED 2026-08-21
 
-MemC + MemD + MemX are in a machine and clocked (`mem-test`), but **nothing has
-ever issued a reference**. Map, cache, Pipe, MAR/VA and the hold logic are all
+The front door is mapped and gated: a reference enters through ASEL, MemC's
+b24 makes `WantProcRef' = IgnoreProc | ASEL.0`, and `refdecode-test` shows that
+asserting for exactly ASEL 0-3 -- the C emulator's rule, independently derived.
+The kind decoder is a24, an MC10162 one-of-eight on `{ASEL.1, ASEL.2,
+FF.1mem}`. Next: drive the board's qualifying inputs (`Dbusy`, `CacheRefInA'`,
+`WantCR`) so the full (ASEL, FF[0:1]) -> kind table can be checked against
+`cpu.c`'s dispatch, then MAR and an actual access.
+
+Original note: MemC + MemD + MemX are in a machine and clocked (`mem-test`),
+but **nothing has ever issued a reference**. Map, cache, Pipe, MAR/VA and the hold logic are all
 unexercised. Stage 3 is entirely gated on this. The C emulator is a ready-made
 oracle here exactly as it was for the ALU and IM.
 
