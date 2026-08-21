@@ -159,6 +159,9 @@ osc-test:
 task-test:
 	@$(MAKE) -C verilator task-test
 
+taskrun-test:
+	@$(MAKE) -C verilator taskrun-test
+
 # The memory section in a machine, with its clock running.
 mem-test:
 	@$(MAKE) -C verilator mem-test

@@ -1,0 +1,12 @@
+Vtb_taskrun__Syms__Slow.o: \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_taskrun/Vtb_taskrun__pch.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_config.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilatedos.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_types.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_funcs.h \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_taskrun/Vtb_taskrun__Syms.h \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_taskrun/Vtb_taskrun.h \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_taskrun/Vtb_taskrun___024root.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_timing.h \
+  Vtb_taskrun__Syms__Slow.cpp Vtb_taskrun__pch.h

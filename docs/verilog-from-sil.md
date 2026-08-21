@@ -59,10 +59,18 @@ path**, which the always-on parity error has been propping up, plus a SetSS
 polarity blind spot. Full account, written to be read cold: the header of
 `verilog/verilator/tb_parity.sv`.
 
-### 2. Tasking -- the biggest untested risk
+### 2. Tasking -- STARTED 2026-08-21
 
-Sixteen tasks, replicated T / TPC / MemBase / Link, a priority scheduler and
-wakeup latches. **There is no gate for it at all.** I/O microcode deadlocks
+The wakeup path was wired to nothing (see `BACKPLANE_WAKEUP_JUMPERS`), and now
+has two gates: `task-test` for the combinational priority encoder against
+`cpu.c`'s `task_bnt()` over 23 patterns, and `taskrun-test` for the BNT
+REGISTER in a machine that is actually executing microcode out of IM. What
+remains is the SWITCH itself -- `Switcha`, `BNTGtCT'` and CTask changing --
+which needs `FF=TaskingOn`, plus the per-task state (TPC, and T / MemBase /
+Link replicated per task).
+
+Original note: sixteen tasks, replicated T / TPC / MemBase / Link, a priority
+scheduler and wakeup latches. I/O microcode deadlocks
 without it, so nothing past stage 2 works until it does. It is also the
 cheapest way to find out whether the Control section is really right, and
 `cpu.c`'s scheduler is an exact oracle.

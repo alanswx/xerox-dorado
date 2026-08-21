@@ -422,6 +422,21 @@ task-test:
 		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_task/tb_task 2>&1); rc=$$?; echo "$$out" | grep tb_task; exit $$rc; }
 
+taskrun-test:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks
+	@mkdir -p obj_taskrun
+	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 4 \
+		> verilog/verilator/obj_taskrun/taskrun.vec
+	@cd ../.. && $(V) --binary --top-module tb_taskrun $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated \
+		--Mdir verilog/verilator/obj_taskrun -o tb_taskrun \
+		verilog/verilator/tb_taskrun.sv verilog/generated/dorado_proc.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_taskrun/tb_taskrun \
+		    +vectors=verilog/verilator/obj_taskrun/taskrun.vec 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_taskrun; exit $$rc; }
+
 baseboard-test:
 	@cd ../.. && $(V) --binary --top-module tb_baseboard $(V_WARN) \
 		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \

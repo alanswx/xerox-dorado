@@ -983,8 +983,9 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | the MEMORY section is in a machine and clocked | `mem-test` -- seven boards; each memory board's local clock follows its MemClkEnable' |
 
 | **the TASK PRIORITY ENCODER agrees with the C emulator** | `task-test` -- 23 request patterns, highest-numbered task wins |
+| ...and the BNT REGISTER loads in a RUNNING machine | `taskrun-test` -- all 15 tasks, fallback to the emulator, fault task wins |
 
-Twenty-six gates in all; `make -C verilog` has the list. **The datapath is
+Twenty-seven gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
@@ -1120,7 +1121,16 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   combinational is `PEnc`/`bPEnc`, the encode of the fifteen request lines, and
   that is what `task-test` gates: 23 patterns, all agreeing with `cpu.c`'s
   `task_bnt()` (highest-numbered requester wins, task 0 always available).
-  Wiring BNT, `Switcha` and `BNTGtCT'` needs a running-machine testbench.
+  **BNT is gated now too** (`taskrun-test`): tb_exec's startup is reused --
+  four hunks of `AEmu.mb` walked into IM, MIR clock released, a free-running
+  `Return#` -- and with the machine fetching from IM the register is shown to
+  follow the encoder for all fifteen tasks, to fall back to the emulator when
+  the requests are withdrawn, and to give 15 to the fault task against a
+  competing 1. It follows WITHOUT tasking being on, because ContA h10 is an
+  MC10166 comparing BNT against PEnc: `BNextRegsEn'` asserts exactly when they
+  DIFFER, so the register is a load-on-change. `Switcha`/`BNTGtCT'` and CTask
+  actually switching still need `FF=TaskingOn`, since `Return#` is
+  "TaskingOff,Return" -- that is the next step.
 
 - **A PIN CAN BE BROKEN OFF A LOGIC CHIP TOO.** MemX's "Stuffing and
   Configuration Instructions" (`Memx23.sil`, 10/29/79) says "Break h20.10
