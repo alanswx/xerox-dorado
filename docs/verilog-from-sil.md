@@ -10,6 +10,107 @@ should not have to be rediscovered.
 the schematic PDFs. We have the gate-level netlist of every board, with pin
 directions.**
 
+---
+
+# ROADMAP TO BOOT (current: 2026-08-21)
+
+Read this first; everything below it is the history of how the generator and
+cell library got built. Gate names are `make -C verilog <name>`.
+
+## What "boot" means here
+
+The real machine's chain has five stages, and the RTL is partway through the
+second.
+
+| stage | what happens | status |
+|---|---|---|
+| 0 | BaseBoard 6502 powers up, sets manifolds, takes the CP bus | **done** -- `baseboard-test`, `muffler-test`, `firmware-probe` |
+| 1 | It jams microinstructions and walks **Boot0** into IM via the MIR | **done** -- `boot0-test` walks real `AEmu.mb` hunks in; IM matches the C emulator |
+| 2 | Boot0 **runs inside the Dorado** and takes Boot1 over CPReg | **partial** -- the machine executes from IM (`exec-test`) but only with IM parity DISABLED |
+| 3 | **Initial** sizes storage, builds the Map, loads a world | not started -- gated on the memory subsystem |
+| 4 | The world runs: disk or ethernet, then display | not started -- the I/O boards exist, nothing is on the other end |
+
+## What is solid
+
+- **100% cell coverage**: 3771 of 3771 logic packages across the eleven-board
+  machine, in 125 part types. No skeletons left.
+- **The machine assembles and clocks**: eleven boards elaborate, `machine-test`
+  shows the clock reaching all 24 clock nets.
+- **The datapath computes**, and against an independent oracle: all 24 ALU
+  functions agree with `cpu.c` over 10,752 vectors (`alu-diff`), plus T, Q,
+  ALUFM and RM (`compute-test`).
+- **The whole write path is proven**: CP bus, all 36 MIR bits, jams,
+  single-stepping, Write-IM, and Boot0's block loader -- each diffed against
+  the C emulator, which shares no code with the RTL.
+- **Board identity is right**: the configuration straps give each board its
+  slow-I/O address and task number, and two of them are confirmed by the C
+  emulator independently (`strap-test`).
+
+## What is left, in dependency order
+
+### 1. IM parity -- the immediate blocker, and now narrow
+
+`exec-test` has to turn IM parity off to run at all, and PARC's boot leaves it
+ON (`DisableDoradoErrors = ParityEnables+030`, "all except IM parity errors
+disabled"). Everything around it has been measured and cleared: the single-step
+chain is sound, the write path stores even parity correctly, and the checker
+computes exactly `~(XOR(17 data) ^ IMRH)`. What is left is the **CPReg-to-B
+path**, which the always-on parity error has been propping up, plus a SetSS
+polarity blind spot. Full account, written to be read cold: the header of
+`verilog/verilator/tb_parity.sv`.
+
+### 2. Tasking -- the biggest untested risk
+
+Sixteen tasks, replicated T / TPC / MemBase / Link, a priority scheduler and
+wakeup latches. **There is no gate for it at all.** I/O microcode deadlocks
+without it, so nothing past stage 2 works until it does. It is also the
+cheapest way to find out whether the Control section is really right, and
+`cpu.c`'s scheduler is an exact oracle.
+
+### 3. The memory subsystem -- the biggest block of work
+
+MemC + MemD + MemX are in a machine and clocked (`mem-test`), but **nothing has
+ever issued a reference**. Map, cache, Pipe, MAR/VA and the hold logic are all
+unexercised. Stage 3 is entirely gated on this. The C emulator is a ready-made
+oracle here exactly as it was for the ALU and IM.
+
+### 4. IFU
+
+The board generates and elaborates; there is no gate. Needed for emulator
+microcode (opcode dispatch), so it blocks stage 4 rather than stage 3.
+
+### 5. I/O device backends -- routinely underestimated
+
+The RTL models the CONTROLLER boards (DskEth, DispY, DispM). A boot needs
+something on the OTHER END: a Trident pack, an Ethernet peer, a monitor. Those
+have to be written as bus-functional models for simulation, or as fabric
+peripherals on an FPGA. The C emulator already implements all three, so the
+behaviour is specified, but the plumbing is new work.
+
+## The strategic point, which changes what to aim for
+
+**A full operating-system boot will not happen in simulation.** The Cedar
+desktop takes on the order of 40 billion microinstructions in the C emulator;
+gate-level Verilator across eleven boards is many orders of magnitude slower
+than that. So the two targets are different things:
+
+- **Simulation proves the chain stage by stage** -- Boot0, then Boot1, then
+  Initial's first instructions, then one memory reference, then one task
+  switch. Each gets its own gate, each cross-checked against the C emulator.
+  This is where correctness is established.
+- **An FPGA is where anything actually boots.** The generator already emits
+  synthesisable RTL (wired-OR became OR trees, distributed clocks became clock
+  enables, the DRAM cells infer block RAM, zero multiply-driven nets). But
+  synthesis, fit and timing have never been run, and that is its own phase.
+
+Do not spend effort trying to make a simulation boot an OS. Spend it on
+per-stage gates plus the FPGA path.
+
+## Suggested next move
+
+**Tasking, before memory.** Smaller, entirely untested, everything downstream
+depends on it, and the oracle already exists.
+
 ## What is actually in the archive
 
 `chm/sil/<Board>-Rev-Xx.dm!N_/`, sixteen boards:

@@ -2650,3 +2650,15 @@ the generated machine -- which is right, it is fitted by hand when you want
 the test circuit. Worth knowing before someone reads a board output that goes
 nowhere as a missing connection.
 
+## Where the boot stands (2026-08-21)
+
+The five-stage chain, what is done and what blocks the rest, is now written up
+as the ROADMAP TO BOOT at the top of . Short version:
+stages 0 and 1 are done and cross-checked against the C emulator, stage 2 runs
+only with IM parity disabled, and stages 3 and 4 are gated on the memory
+subsystem and on I/O device backends respectively. Next move is TASKING, which
+has no gate at all and which everything downstream needs.
+
+And the thing that changes what to aim for: a full OS boot will not happen in
+simulation at gate level. Simulation proves the chain stage by stage; an FPGA
+is where anything boots.
