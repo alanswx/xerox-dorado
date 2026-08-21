@@ -1189,10 +1189,22 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   left = RSTK/ALUF/BSEL/LC/ASEL -> P015, right = BLOCK/FF/JCN -> P1631, the
   bit being `~XOR` of the other seventeen. Fitted against PARC's own IRTable:
   13/13 on both bits, where even parity matches 0/13. The one-line cell fix
-  that makes all thirteen PASS our checkers (`cell_MC10170`'s B output is a
-  plain XOR, not an XNOR) regresses four other gates through `SignedCarry` and
-  the IM-write-parity path, so it is NOT committed -- see
-  `docs/verilog-handoff.md` and the header of `tb_parity.sv`.
+  (`cell_MC10170`'s B output is a plain XOR, not an XNOR) takes the IRTable
+  from 13/13 FAILING the check to **0/13 failing**, and is supported by the
+  data sheet's geometry -- but it is still NOT committed, because four gates
+  regress. What the 2026-08-20 pass added: **the parity chain is traced end to
+  end** (`IMLHPE'`/`IMRHPE'` + their enables -> ContB `l03` -> `k02`, which
+  makes BOTH `StopMIRClk` and `preWE'` -- the MIR hold and the IM write enable
+  are the same gate); **`SignedCarry` cannot settle the cell** (ProcH d13 is
+  not a parity generator but a 5-input XOR computing the signed-overflow
+  identity `V = Cout ^ A ^ B ^ R` plus the ALU's S0 to correct add vs
+  subtract, and BOTH polarities are self-consistent); and **the regression is
+  not via `StopMIRClk`**, which A/Bs identical -- it is the FF decode, with
+  `BMux=0000` against a wiped IM, i.e. the MIR reloaded and the jam lost.
+  Resolve the contradiction first: if a PASSING check means "no error", PARC's
+  own jams would be overwritten too, so either `PE'`=1 IS the error state or
+  the checker never sees the jammed word's own parity bits. See the header of
+  `tb_parity.sv`, which is written to be read cold.
 - **Manifold register 0 is not "the parity enables".** `12'h030` is
   `DisableDoradoErrors`; writing `12'h000` to it re-ENABLES every error class
   rather than turning parity off. Doing that to four jam-based testbenches
