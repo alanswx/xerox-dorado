@@ -67,8 +67,9 @@ has two gates: `task-test` for the combinational priority encoder against
 REGISTER in a machine that is actually executing microcode out of IM. `taskrun-test` also shows the machine SWITCHING -- started with
 `TaskingOn` (FF = 143 octal, decoded off ContA a16 and checked against the
 IRTable's 142 for `TaskingOff`), CTask becomes the task that asked, for all
-fifteen, and with `TaskingOff` it does not. What remains is the per-task STATE:
-TPC, and T / MemBase / Link replicated sixteen ways.
+fifteen, and with `TaskingOff` it does not. TPC is done too -- four F10145A packages addressed by `TPCAd`, and the gate
+shows the storage is genuinely per-task (task 15's slot survives task 7
+running). What remains is T, MemBase and Link, also replicated sixteen ways.
 
 Original note: sixteen tasks, replicated T / TPC / MemBase / Link, a priority
 scheduler and wakeup latches. I/O microcode deadlocks
