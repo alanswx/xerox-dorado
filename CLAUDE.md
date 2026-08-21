@@ -1030,16 +1030,72 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   outside the backplane 63 names differ only by case, mostly per-board LOCAL
   clock fan-out. The rule is narrow -- merge only where every board agrees on
   the pin -- and lives as a six-entry table, `BACKPLANE_CASE_ALIASES`.
-- **A SIP's LEGS CAN BE CUT, and only the SCHEMATIC says which.** The wire list
-  still lists the pin; it just has no resistor behind it. DispY's
-  "Configuration Information" sheet (`DoradoDocs/schematics/DispY.pdf` p.31)
-  gives the table -- g41 breaks 3,4,5; k51 breaks 4,5; k52 breaks 3 -- and all
-  four SIPs pull to `True`, so without the cuts `WakeupWait.1/3`,
-  `DDCDMD.04` and `DWTTask.1` were forced HIGH. `SIP_BROKEN_LEGS` in
-  `sil_to_verilog.py`. **EVERY BOARD HAS SUCH A SHEET** and only DispY's has
-  been read -- check the others before trusting their boards. The same page
-  also settles that `PLAT1816` is a platform of DISCRETE COMPONENTS (a DAC
-  resistor network at a01, a 78L05 regulator at a03), not a chip.
+- **A SIP'S LEGS CAN BE CUT, and that is where a board's IDENTITY lives.**
+  The wire list still lists the pin; it just has no resistor behind it, so the
+  cut is invisible in the netlist and sits on the board's configuration sheet
+  instead. What the cuts set is not decoration -- it is each board's slow-I/O
+  ADDRESS and TASK NUMBER. They are modelled and gated now
+  (`make -C verilog strap-test`), and two sheets state the ANSWER, so the
+  straps check themselves:
+
+  | board | strap | reads | schematic says |
+  |---|---|---|---|
+  | DispM | g41 leg 6 cut | `DDMTIOA` = 36B -> **0360-0367** | "making DDMTIOA = 360B" |
+  | DispM | b52 legs 3,4 cut | `AltoWTask` = 1001 = **9** | "for Task 9D = 11B" |
+  | DskEth | e41 legs 4-7 cut | `TIOA-Ad` = 1 -> **010-017** | "* Standard addresses are 10-17" |
+  | DispY | g42 no legs cut | `DDCTIOA` = 37B -> 0370-0377 | (no stated result) |
+
+  **And the C emulator agrees, independently**: `include/dispm.h` has
+  `DISPM_TIOA_BOARD 0360`, `include/disk.h` has `DISK_TIOA_DISKCONTROL 010`
+  ("Disk uses task 14 octal exclusively, on TIOA 10-14 octal"). Neither model
+  was derived from the other. The encoding falls out of the DskEth table,
+  which lists all 32 ranges: a cut leg is 0, an intact one is 1, MSB first,
+  and the 5-bit field is the top of an 8-bit address whose low three bits
+  select the register.
+
+- **TAKE THE SHEET THE WIRE LIST NAMES -- the PDFs are other revisions.** Each
+  `.wl` header lists every constituent `.sil` file with its own Rev and Date.
+  `DoradoDocs/schematics/DispY.pdf` is `DispY31.sil Rev Ci 11/02/79`; the wire
+  list says `Rev Cl 3/25/82`. Two and a half years apart, and **g41's cut list
+  changed between them** (3,4,5 -> 4,5), so a first pass took the wrong table
+  and dropped a pull that is really there. The per-revision scans in
+  `DoradoDocs/doradodrawings/` carry the built sheet --
+  `DispY-Rev-Cl.press!1.pdf` matched the wire list exactly. That sheet also
+  revises the oscillator from 20 MHz to **50 MHz** and says to LEAVE a02 BLANK
+  (no MC10318).
+
+- **A resistor leg has no direction, and Sil's letter on one is not evidence.**
+  `sip_drives` required the wire list to call a pack pin `out`, and pin 4 of an
+  8-pin SIP is routinely marked `in` -- so 18 nets across five boards had NO
+  driver at all: six strap bits (including `DDMTIOA.02`, without which the
+  address reads 320B and the schematic's own arithmetic fails), the IFU's
+  reference net `TTLHigh` sitting at 0, and six ACTIVE-LOW DskEth drive-status
+  lines (`Selected0'`, `TtlReadOnly'`, `TtlEndOfCyl'`, ...) reading ASSERTED,
+  which fabricates a disk that is not attached. A leg is a source of last
+  resort now: where something else drives the net it stays off, because these
+  resolve through an OR tree and a pull-up would nail the net high forever.
+
+- **A pull-up and a pull-down on the same net are not always a divider.** That
+  reading is right for DskEth's `RcvData` (a real bias network at the Ethernet
+  receiver's input) and wrong for a CONFIGURATION STRAP, where the pull-down
+  pack gives every line its default 0 and the pull-up pack has legs only where
+  a 1 is wanted. The BaseBoard's `Midas.00-04` are the second kind, and they
+  set **the BaseBoard's own muffler number, 9** -- k20 compares the muffler
+  address `DMD.04..01` against the strap and drives `BaseMuf'`, the enable on
+  the LS151 that sources `CPDMuxData`. Left open, `BaseMuf'` never asserts and
+  the BaseBoard cannot answer a muffler read at all. Gate:
+  `make -C verilog muffler-test`, which sweeps all sixteen addresses and
+  requires exactly one to select the board.
+
+- **EVERY BOARD HAS SUCH A SHEET, and not all are titled the same.** Only two
+  are headed "Configuration Information"; DskEth's IOA table is on an ordinary
+  reference sheet and the BaseBoard's is headed "Stuffing Information", so
+  search by CONTENT (`cut`, `legs`, `jumper`, `SIP`, `oscillator`) across
+  `DoradoDocs/schematics/` and `doradodrawings/`. Still unread: MemC's "cut the
+  4 107 legs marked X" (an OPTIONAL conversion of parity into VA.4 -- the built
+  board is the un-converted one, so do NOT apply it), MemX's configuration
+  PLATs, and ProcL's parallel discrete resistors.
+
 - **The F100181 is NOT the 74181/MC10181 function set.** It has its own
   sixteen-entry table -- S3 selects arithmetic from logic, S2 selects BCD from
   binary -- so `cell_MC10181`'s decode must not be reused for it. Eight

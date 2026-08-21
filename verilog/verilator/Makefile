@@ -388,6 +388,24 @@ mem-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_mem/tb_mem 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_mem|Assertion"; exit $$rc; }
 
+muffler-test:
+	@cd ../.. && $(V) --binary --top-module tb_muffler $(V_WARN) \
+		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \
+		--Mdir verilog/verilator/obj_muf -o tb_muffler \
+		verilog/verilator/tb_muffler.sv \
+		verilog/generated/dorado_baseboard.v \
+		verilog/generated/BaseBd-Rev-Am.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_muf/tb_muffler 2>&1); rc=$$?; echo "$$out" | grep tb_muffler; exit $$rc; }
+
+strap-test:
+	@cd ../.. && $(V) --binary --top-module tb_strap $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated \
+		--Mdir verilog/verilator/obj_strap -o tb_strap \
+		verilog/verilator/tb_strap.sv \
+		verilog/generated/DispM-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v \
+		verilog/generated/IFU-Rev-Ch.v verilog/generated/DskEth-Rev-Cf.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_strap/tb_strap 2>&1); rc=$$?; echo "$$out" | grep tb_strap; exit $$rc; }
+
 baseboard-test:
 	@cd ../.. && $(V) --binary --top-module tb_baseboard $(V_WARN) \
 		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \

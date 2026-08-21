@@ -1192,6 +1192,9 @@ module IFU_m_Rev_m_Ch (
 
   // 81 single-driver contributions to the backplane
 
+  // ---- resistor packs (SIP): pins held at the pack's common
+  assign TTLHigh = 1'b1;   // j46.3 TTLHigh, tied to VCC126
+
   // ---- 27 supply rails
   assign GND108 = 1'b0;
   assign GND110 = 1'b0;

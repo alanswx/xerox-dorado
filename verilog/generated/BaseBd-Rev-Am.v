@@ -1097,6 +1097,11 @@ module BaseBd_m_Rev_m_Am (
   assign TTLTrue_C = 1'b1;   // g47.4 TTLTrue.C, tied to VCC103
   assign TTLTrue_D = 1'b1;   // g47.5 TTLTrue.D, tied to VCC103
   assign TTLTrue_E = 1'b1;   // g47.6 TTLTrue.E, tied to VCC103
+  assign Midas_01 = 1'b1;   // l49.3 Midas.01, tied to VCC141
+  assign Midas_04 = 1'b1;   // l49.6 Midas.04, tied to VCC141
+  assign Midas_00 = 1'b0;   // l50.2 Midas.00, tied to GND639
+  assign Midas_02 = 1'b0;   // l50.4 Midas.02, tied to GND639
+  assign Midas_03 = 1'b0;   // l50.5 Midas.03, tied to GND639
 
   // ---- 187 supply rails
   assign GND102 = 1'b0;

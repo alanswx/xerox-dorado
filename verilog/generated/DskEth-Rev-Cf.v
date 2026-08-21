@@ -160,13 +160,17 @@ module DskEth_m_Rev_m_Cf (
     output wire OS1__drv,
     output wire OS2__drv,
     output wire OS3__drv,
+    output wire SecIndx0_p___drv,
     output wire SecIndx1_p___drv,
+    output wire SecIndx2_p___drv,
     output wire SecIndx3_p___drv,
     output wire Select0_p___drv,
     output wire Select1_p___drv,
     output wire Select2_p___drv,
     output wire Select3_p___drv,
+    output wire Selected0_p___drv,
     output wire Selected1_p___drv,
+    output wire Selected2_p___drv,
     output wire Selected3_p___drv,
     output wire TagBus_0_p___drv,
     output wire TagBus_00_p___drv,
@@ -181,11 +185,15 @@ module DskEth_m_Rev_m_Cf (
     output wire TagBus_8_p___drv,
     output wire TagBus_9_p___drv,
     output wire TtlDeviceCk_p___drv,
+    output wire TtlEndOfCyl_p___drv,
     output wire TtlIndex_p___drv,
+    output wire TtlOffSet_p___drv,
     output wire TtlOnLine_p___drv,
+    output wire TtlReadOnly_p___drv,
     output wire TtlReady_p___drv,
     output wire TtlSector_p___drv,
     output wire TtlSeekInc_p___drv,
+    output wire TtlTerm_p___drv,
     output wire WakeEthRx__drv,
     output wire WakeEthTx__drv,
     output wire XmtData_p___drv
@@ -1346,29 +1354,33 @@ module DskEth_m_Rev_m_Cf (
   wire WriteInhibit_p___b23_3;
   assign WriteInhibit_p_ = WriteInhibit_p___d20_3 | WriteInhibit_p___b23_3;
 
-  // 74 single-driver contributions to the backplane
+  // 82 single-driver contributions to the backplane
 
   // ---- resistor packs (SIP): pins held at the pack's common
   assign ClockP3__drv = 1'b0;   // b41.4 ClockP3, tied to GND-43
   assign ClockM3__drv = 1'b0;   // b41.5 ClockM3, tied to GND-43
   assign ClockP2__drv = 1'b0;   // d41.4 ClockP2, tied to GND-30
   assign ClockM2__drv = 1'b0;   // d41.5 ClockM2, tied to GND-30
+  assign SecIndx2_p___drv = 1'b1;   // d42.2 SecIndx2', tied to VCC-72
+  assign Selected2_p___drv = 1'b1;   // d42.3 Selected2', tied to VCC-72
   assign SecIndx3_p___drv = 1'b1;   // d42.4 SecIndx3', tied to VCC-72
   assign Selected3_p___drv = 1'b1;   // d42.5 Selected3', tied to VCC-72
   assign TTLTrueA = 1'b1;   // d42.6 TTLTrueA, tied to VCC-72
+  assign TtlTerm_p___drv = 1'b1;   // d52.2 TtlTerm', tied to VCC-68
+  assign TtlEndOfCyl_p___drv = 1'b1;   // d52.3 TtlEndOfCyl', tied to VCC-68
   assign TtlSeekInc_p___drv = 1'b1;   // d52.4 TtlSeekInc', tied to VCC-68
   assign TtlDeviceCk_p___drv = 1'b1;   // d52.5 TtlDeviceCk', tied to VCC-68
   assign TtlOnLine_p___drv = 1'b1;   // d52.6 TtlOnLine', tied to VCC-68
   assign TtlReady_p___drv = 1'b1;   // d52.7 TtlReady', tied to VCC-68
   assign TtlIndex_p___drv = 1'b1;   // d52.8 TtlIndex', tied to VCC-68
-  assign TIOA_m_Ad_0 = ECLTrueA;   // e41.4 TIOA-Ad.0, tied to ECLTrueA
-  assign TIOA_m_Ad_1 = ECLTrueA;   // e41.5 TIOA-Ad.1, tied to ECLTrueA
-  assign TIOA_m_Ad_2 = ECLTrueA;   // e41.6 TIOA-Ad.2, tied to ECLTrueA
-  assign TIOA_m_Ad_3 = ECLTrueA;   // e41.7 TIOA-Ad.3, tied to ECLTrueA
   assign TIOA_m_Ad_4 = ECLTrueA;   // e41.8 TIOA-Ad.4, tied to ECLTrueA
+  assign TtlOffSet_p___drv = 1'b1;   // e52.2 TtlOffSet', tied to VCC-64
+  assign TtlReadOnly_p___drv = 1'b1;   // e52.3 TtlReadOnly', tied to VCC-64
   assign TTLTrueC = 1'b1;   // e52.4 TTLTrueC, tied to VCC-64
   assign ClockP1__drv = 1'b0;   // g41.4 ClockP1, tied to GND-15
   assign ClockM1__drv = 1'b0;   // g41.5 ClockM1, tied to GND-15
+  assign SecIndx0_p___drv = 1'b1;   // g42.2 SecIndx0', tied to VCC-62
+  assign Selected0_p___drv = 1'b1;   // g42.3 Selected0', tied to VCC-62
   assign SecIndx1_p___drv = 1'b1;   // g42.4 SecIndx1', tied to VCC-62
   assign Selected1_p___drv = 1'b1;   // g42.5 Selected1', tied to VCC-62
   assign TTLTrueB = 1'b1;   // g42.8 TTLTrueB, tied to VCC-62
