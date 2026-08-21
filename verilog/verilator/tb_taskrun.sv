@@ -106,7 +106,22 @@
 // all-zero array would satisfy "unchanged" without storing anything, and two
 // slots reading alike would satisfy it without being separate.
 //
-// Still to come: T, MemBase and Link, which are also replicated per task.
+// AND THE OTHER PER-TASK FILES ARE INDEXED TOO. ContA a04-e04 hold Link,
+// addressed by `TLinkAd`; ProcH and ProcL carry files addressed by `CurrLast'`
+// and `LastNext'`, two different task numbers because the Dorado pipelines the
+// switch and its stages do not agree on which task is current. All four
+// addresses -- TPCAd, TLinkAd, CurrLast, LastNext -- are required to follow
+// the requesting task.
+//
+// For Link the CONTENT check has to be made differently from TPC's, and the
+// difference is instructive. TPC advances every instruction, so each task's
+// slot fills in by itself. Link changes only on an explicit `Link<-`, which
+// this microcode never executes -- so Link[7] and Link[15] reading alike
+// proves nothing, because neither was ever written. What proves it is the
+// STARTUP: `CPRegToLink#` puts the start address in Link while the machine is
+// in task 0, and slot 0 then reads fffb0 against f7f70 everywhere else.
+//
+// Still to come: T and MemBase, on the Processor and Memory boards.
 
 `default_nettype none
 
@@ -204,6 +219,7 @@ module tb_taskrun;
   integer i, hits, hits_a, hits_b;
   integer tk, tbad;
   reg [15:0] tpc15, tpc15b, tpc7;
+  reg [19:0] link15, link15b, link7;
   wire [3:0] bnt  = {m.b_ContA.BNT_0,  m.b_ContA.BNT_1,
                      m.b_ContA.BNT_2,  m.b_ContA.BNT_3};
   wire [3:0] penc = {m.b_ContA.PEnc_0, m.b_ContA.PEnc_1,
@@ -220,9 +236,31 @@ module tb_taskrun;
   // {p14,p15,p1,p2} from q so q[0] is the LOW-numbered (most significant)
   // bit of each group. IM is 4096 words, so TPC.04-15 are the address and
   // TPC.00-03 sit above it.
+  // The OTHER per-task register files, and their own task addresses. ContA
+  // a04-e04 hold Link, addressed by `TLinkAd`; ProcH and ProcL carry files
+  // addressed by `CurrLast'` and `LastNext'` -- two different task numbers,
+  // because the Dorado pipelines the switch and the stages do not agree on
+  // which task is current.
+  wire [3:0] tlinkad  =  {m.b_ContA.TLinkAd_0, m.b_ContA.TLinkAd_1,
+                          m.b_ContA.TLinkAd_2, m.b_ContA.TLinkAd_3};
+  wire [3:0] currlast = ~{m.b_ProcH.CurrLast_0_p_, m.b_ProcH.CurrLast_1_p_,
+                          m.b_ProcH.CurrLast_2_p_, m.b_ProcH.CurrLast_3_p_};
+  wire [3:0] lastnext = ~{m.b_ProcH.LastNext_0_p_, m.b_ProcH.LastNext_1_p_,
+                          m.b_ProcH.LastNext_2_p_, m.b_ProcH.LastNext_3_p_};
+
   function [15:0] tpc_of(input [3:0] t);
     tpc_of = {m.b_ContA.u_l13.mem[t], m.b_ContA.u_i13.mem[t],
               m.b_ContA.u_j13.mem[t], m.b_ContA.u_k13.mem[t]};
+  endfunction
+
+  // Link, all five packages. Their outputs are unnamed sheet-local nets, so
+  // the bit order is not recoverable from names -- but the claim being tested
+  // is that the storage is PER TASK, and for that the whole twenty bits
+  // compared slot against slot is enough.
+  function [19:0] link_of(input [3:0] t);
+    link_of = {m.b_ContA.u_a04.mem[t], m.b_ContA.u_b04.mem[t],
+               m.b_ContA.u_c04.mem[t], m.b_ContA.u_d04.mem[t],
+               m.b_ContA.u_e04.mem[t]};
   endfunction
   reg [15:0] pat_a, pat_b;
 
@@ -951,13 +989,22 @@ module tb_taskrun;
     for (tk = 15; tk >= 1; tk = tk - 1) begin
       req = 15'd0; req[tk] = 1'b1;
       repeat (600) @(posedge sys_clk);          // several microinstructions
-      $display("tb_taskrun: req task %2d -> PEnc %2d BNT %2d CTask %2d TPCAd %2d",
-               tk, penc, bnt, ctask, tpcad);
+      $display("tb_taskrun: req task %2d -> CTask %2d TPCAd %2d TLinkAd %2d CurrLast %2d LastNext %2d",
+               tk, ctask, tpcad, tlinkad, currlast, lastnext);
       if (bnt !== tk[3:0] || penc !== tk[3:0]) tbad = tbad + 1;
       // THE SWITCH ITSELF: with tasking on, the machine must be RUNNING the
       // task that asked for it.
       if (ctask !== tk[3:0]) begin
         $display("tb_taskrun: FAIL -- task %0d requested but CTask is %0d", tk, ctask);
+        tbad = tbad + 1;
+      end
+      // EVERY per-task register file must be indexed by that task: the PC
+      // (TPCAd), Link (TLinkAd), and the two the Processor boards use --
+      // CurrLast and LastNext, which differ from CTask only mid-switch.
+      if (tpcad !== tk[3:0] || tlinkad !== tk[3:0] ||
+          currlast !== tk[3:0] || lastnext !== tk[3:0]) begin
+        $display("tb_taskrun: FAIL -- task %0d: TPCAd %0d TLinkAd %0d CurrLast %0d LastNext %0d",
+                 tk, tpcad, tlinkad, currlast, lastnext);
         tbad = tbad + 1;
       end
     end
@@ -985,15 +1032,20 @@ module tb_taskrun;
     // program counter would have overwritten it.
     req = 15'd0; req[15] = 1'b1;
     repeat (1200) @(posedge sys_clk);
-    tpc15 = tpc_of(4'd15);
+    tpc15 = tpc_of(4'd15); link15 = link_of(4'd15);
     req = 15'd0; req[7] = 1'b1;
     repeat (1200) @(posedge sys_clk);
-    tpc7 = tpc_of(4'd7);
-    tpc15b = tpc_of(4'd15);
+    tpc7 = tpc_of(4'd7); link7 = link_of(4'd7);
+    tpc15b = tpc_of(4'd15); link15b = link_of(4'd15);
     $display("tb_taskrun: TPC[15]=%h before running task 7, %h after; TPC[7]=%h",
              tpc15, tpc15b, tpc7);
     if (tpc15b !== tpc15) begin
       $display("tb_taskrun: FAIL -- running task 7 changed task 15's saved PC");
+      tbad = tbad + 1;
+    end
+    $display("tb_taskrun: Link[15]=%h before, %h after; Link[7]=%h", link15, link15b, link7);
+    if (link15b !== link15) begin
+      $display("tb_taskrun: FAIL -- running task 7 changed task 15's saved Link");
       tbad = tbad + 1;
     end
     if (tpcad !== 4'd7) begin
@@ -1007,13 +1059,24 @@ module tb_taskrun;
       $display("tb_taskrun: FAIL -- TPC[15] is zero, so 'unchanged' proves nothing");
       tbad = tbad + 1;
     end
+    // Link is only written by an explicit Link<-, and this microcode never
+    // does one, so Link[7] and Link[15] holding the SAME value proves nothing
+    // either way -- neither slot was written. What does prove it is the
+    // startup: `CPRegToLink#` puts the start address in Link while the machine
+    // is in task 0, so slot 0 must differ from the slots nobody wrote.
+    $display("tb_taskrun: Link[0]=%h (written at startup, in task 0) vs %h elsewhere",
+             link_of(4'd0), link15);
+    if (link_of(4'd0) === link15) begin
+      $display("tb_taskrun: FAIL -- the startup Link<- did not land in task 0's slot alone");
+      tbad = tbad + 1;
+    end
     if (tpc7 === tpc15) begin
       $display("tb_taskrun: FAIL -- TPC[7] and TPC[15] read alike; are these one slot?");
       tbad = tbad + 1;
     end
 
     if (tbad != 0) $fatal(1, "the BNT register does not follow the priority encoder");
-    $display("tb_taskrun: PASS -- switches to all 15 tasks, and each keeps its own PC");
+    $display("tb_taskrun: PASS -- switches to all 15 tasks; PC and Link are per-task");
     $finish;
   end
 

@@ -985,7 +985,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **the TASK PRIORITY ENCODER agrees with the C emulator** | `task-test` -- 23 request patterns, highest-numbered task wins |
 | ...and the BNT REGISTER loads in a RUNNING machine | `taskrun-test` -- all 15 tasks, fallback to the emulator, fault task wins |
 | **THE MACHINE SWITCHES TASKS** -- CTask becomes the task that asked | `taskrun-test` -- all 15, and with TaskingOff it does not |
-| ...and each task KEEPS ITS OWN PC | `taskrun-test` -- TPC[15] survives task 7 running |
+| ...and each task KEEPS ITS OWN PC and LINK | `taskrun-test` -- TPC[15] survives task 7; the startup Link lands in slot 0 alone |
 
 Twenty-seven gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is

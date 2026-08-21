@@ -69,7 +69,8 @@ REGISTER in a machine that is actually executing microcode out of IM. `taskrun-t
 IRTable's 142 for `TaskingOff`), CTask becomes the task that asked, for all
 fifteen, and with `TaskingOff` it does not. TPC is done too -- four F10145A packages addressed by `TPCAd`, and the gate
 shows the storage is genuinely per-task (task 15's slot survives task 7
-running). What remains is T, MemBase and Link, also replicated sixteen ways.
+running). Link is done too (ContA a04-e04, addressed by `TLinkAd`), and all four
+per-task addresses are gated. What remains is T and MemBase.
 
 Original note: sixteen tasks, replicated T / TPC / MemBase / Link, a priority
 scheduler and wakeup latches. I/O microcode deadlocks
