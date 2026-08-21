@@ -986,8 +986,9 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | ...and the BNT REGISTER loads in a RUNNING machine | `taskrun-test` -- all 15 tasks, fallback to the emulator, fault task wins |
 | **THE MACHINE SWITCHES TASKS** -- CTask becomes the task that asked | `taskrun-test` -- all 15, and with TaskingOff it does not |
 | ...and each task KEEPS ITS OWN PC and LINK | `taskrun-test` -- TPC[15] survives task 7; the startup Link lands in slot 0 alone |
+| **the MEMORY SECTION's front door** -- ASEL 0-3 is a storage reference | `refdecode-test` -- 16 cases against the C emulator's rule |
 
-Twenty-seven gates in all; `make -C verilog` has the list. **The datapath is
+Twenty-eight gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
@@ -1091,6 +1092,24 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   the BaseBoard cannot answer a muffler read at all. Gate:
   `make -C verilog muffler-test`, which sweeps all sixteen addresses and
   requires exactly one to select the board.
+
+- **A MEMORY REFERENCE ENTERS THROUGH ASEL, and the gates say so.** MemC takes
+  `ASEL.0-2` straight off the backplane, plus `FF.0mem'`/`FF.1mem`, and b24 (an
+  MC10103 quad OR) makes `WantProcRef' = IgnoreProc | ASEL.0`. PARC numbers a
+  field MSB first, so ASEL.0 is 0 exactly when ASEL <= 3 -- which is the C
+  emulator's rule verbatim (`include/memory.h`: "when ASEL is a memory
+  reference (ASEL = 0..3 with FF[0:1] decoding the kind)"), from an
+  independent derivation. The KIND decoder is a24, an MC10162 one-of-eight
+  addressed by `{ASEL.1, ASEL.2, FF.1mem}`. Gate: `refdecode-test`. Pinning
+  the full (ASEL, FF[0:1]) -> kind table against `cpu.c`'s dispatch needs the
+  board's other inputs driven (`Dbusy`, `CacheRefInA'`, `WantCR`), because
+  `Lfetch_`/`Store_` are qualified by them rather than being raw decoder
+  outputs -- that is the next step.
+
+- **`_Map` cross-checks between the two models.** ContA b17 decodes it as
+  FA=0, FB=3, FC=1 = 0o31, and `cpu.c`'s comment on `DM_REF_RMAP` says the read
+  form "carries the ReadMap function (FA forced 0, FB=3, FC=1 -- the FF[2:7]
+  subfield decodes to 0o31)". No shared code, same number.
 
 - **THE TASK WAKEUPS ARE ROUTED BY A BACKPLANE JUMPER, and none of them was
   connected.** Every I/O board puts its wakeup on the SAME two pins, C120 and

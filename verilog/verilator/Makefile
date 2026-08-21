@@ -437,6 +437,13 @@ taskrun-test:
 		    +vectors=verilog/verilator/obj_taskrun/taskrun.vec 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_taskrun; exit $$rc; }
 
+refdecode-test:
+	@cd ../.. && $(V) --binary --top-module tb_refdecode $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated \
+		--Mdir verilog/verilator/obj_refdec -o tb_refdecode \
+		verilog/verilator/tb_refdecode.sv verilog/generated/MemC-Rev-Be.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_refdec/tb_refdecode 2>&1); rc=$$?; echo "$$out" | grep tb_refdecode; exit $$rc; }
+
 baseboard-test:
 	@cd ../.. && $(V) --binary --top-module tb_baseboard $(V_WARN) \
 		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \
