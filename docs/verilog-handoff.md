@@ -2543,3 +2543,60 @@ discovered. If it ever binds, the preferred fix is porting our own:
 `dorado/src/baseboard.c` already models the 6532 well enough to run the real
 BaseBoard EPROMs, so it is a validated spec written in this repository with
 no third-party licence at all.
+
+## Configuration straps: where each board's identity lives
+
+A board's slow-I/O address and task number are not in its wire list. They are
+set by cutting legs off a resistor SIP, and the netlist still lists the pin --
+it just has no resistor behind it. The fact lives on the board's configuration
+sheet, and `SIP_BROKEN_LEGS` in `tools/sil_to_verilog.py` carries the tables.
+
+Gated by `make -C verilog strap-test` and `make -C verilog muffler-test`:
+
+| board | pack | cut | field | reads | source |
+|---|---|---|---|---|---|
+| DispM | g41 | 6 | `DDMTIOA` | 36B -> 0360-0367 | "making DDMTIOA = 360B" |
+| DispM | b52 | 3,4 | `AltoWTask` | 1001 = 9 | "for Task 9D = 11B" |
+| DskEth | e41 | 4,5,6,7 | `TIOA-Ad` | 1 -> 010-017 | "* Standard addresses are 10-17" |
+| DispY | g41 | 4,5 | `WakeupWait` | 1100 | DispY31.sil Rev Cl |
+| DispY | g42 | none | `DDCTIOA` | 37B -> 0370-0377 | DispY31.sil Rev Cl |
+| DispY | k51 | 4,5 | `DDCDMD` | 1100 | DispY31.sil Rev Cl |
+| DispY | k52 | 3 | `DWTTask` | 1011 = 11 | DispY31.sil Rev Cl |
+| BaseBd | l49 | 2,4,5,7 | `Midas` | 1001 = 9 | "all pins cut except 1, 3, 6, & 8" |
+
+Three of them state the ANSWER on the sheet, so they check themselves. The
+encoding comes from the DskEth table, which lists all 32 ranges: **a cut leg
+is 0, an intact one is 1, MSB first**, and the five-bit field is the top of an
+eight-bit address whose low three bits select the register within the device.
+
+**The C emulator agrees and was not consulted.** `include/dispm.h` defines
+`DORADO_DISPM_TIOA_BOARD 0360`; `include/disk.h` defines
+`DORADO_DISK_TIOA_DISKCONTROL 010` with the comment "Disk uses task 14 octal
+exclusively, on TIOA 10-14 octal". Two models, no shared code, same addresses.
+
+### Three traps
+
+1. **Take the sheet the wire list names.** Every `.wl` header lists its
+   constituent `.sil` files with Rev and Date. The scanned
+   `DoradoDocs/schematics/DispY.pdf` is Rev Ci 11/02/79 while the wire list is
+   Rev Cl 3/25/82, and g41's cut list CHANGED between them (3,4,5 -> 4,5). The
+   per-revision scans in `DoradoDocs/doradodrawings/` have the built one.
+2. **A resistor leg has no direction.** Sil marks pin 4 of an 8-pin SIP `in`
+   as a matter of drawing convention. Requiring `out` left 18 nets with no
+   driver at all, including the IFU's `TTLHigh` and six active-low DskEth
+   drive-status lines that then read ASSERTED -- a disk that is not there.
+3. **A pull-up against a pull-down is not always a divider.** For DskEth's
+   `RcvData` it is (an analog bias at the receiver input). For the BaseBoard's
+   `Midas` straps it is not: the pull-down pack sets the default 0 and the
+   pull-up pack has legs only where a 1 is wanted.
+
+### Not yet read
+
+Only two sheets are headed "Configuration Information" -- the BaseBoard's is
+"Stuffing Information" and DskEth's IOA table is on a plain reference sheet --
+so search by content. Outstanding: MemC's "cut the 4 107 legs marked X" (an
+OPTIONAL conversion of parity into VA.4; the built board is the un-converted
+one, so do NOT apply it), MemX's configuration PLATs, ProcL's parallel
+discrete resistors, and per-position oscillator frequencies (DispY a05 50 MHz,
+DispM c05 10 MHz, DispM d13 20/50 MHz -- all four currently share one divisor).
+

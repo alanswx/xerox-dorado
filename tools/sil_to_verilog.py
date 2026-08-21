@@ -475,6 +475,13 @@ class Generator:
     # DispY's (DoradoDocs/schematics/DispY.pdf page 31, "Rev Ci, K. Pier,
     # 11/02/79") reads:
     #
+    # TAKE THE SHEET THE WIRE LIST NAMES. Each `.wl` header lists every
+    # constituent `.sil` file with its own Rev and Date, and the scanned
+    # `DoradoDocs/schematics/DispY.pdf` is Rev Ci 11/02/79 while the wire list
+    # says `File=DispY31.sil Rev=Cl Date=3/25/82` -- two and a half years
+    # apart, and g41's cut list CHANGED between them (3,4,5 -> 4,5). The
+    # per-revision scans in `DoradoDocs/doradodrawings/` carry the built one.
+    #
     #     3. SIPs are 100 ohm terminator package with legs broken:
     #          location | break legs
     #          g41      | 3,4,5
@@ -498,10 +505,79 @@ class Generator:
     # in DoradoDocs/schematics/ and doradodrawings/ and should be checked the
     # same way before their boards are trusted.
     SIP_BROKEN_LEGS = {
-        ('DispY', 'g41'): frozenset({3, 4, 5}),
+        # BaseBd l49, stated TWICE and consistently: the stuffing sheet
+        # (BaseBd17.sil) says "Location l49 must be loaded with a SIP having
+        # pins 2,4,5,&7 cut", and the sheet that draws it (Basebd04.sil,
+        # "Muffler and Manifold", PDF page 8) labels the same pack
+        # "Terminator with all pins cut except 1, 3, 6, & 8". Pins 1 and 8
+        # are the VCC commons, so the surviving legs are pin 3 = Midas.01
+        # and pin 6 = Midas.04.
+        ('BaseBd', 'l49'): frozenset({2, 4, 5, 7}),
+        ('DispY', 'g41'): frozenset({4, 5}),
         ('DispY', 'g42'): frozenset(),
         ('DispY', 'k51'): frozenset({4, 5}),
         ('DispY', 'k52'): frozenset({3}),
+
+        # DispM, from DispM30.sil Rev Ch 11/09/82 -- again the revision the
+        # wire list names. This sheet states the RESULT of each cut, so the
+        # straps check themselves against PARC's MSB-first field numbering:
+        #
+        #   "SIP in location g41 is 100 ohm terminator with leg 6 cut
+        #    (making DDMTIOA = 360B)".  g41 pin 1 is `True`; pins 2..6 are
+        #    DDMTIOA.00..04. Cutting leg 6 drops DDMTIOA.04, leaving
+        #    11110 = 36B -- and 360B is 36B with a low octal digit for the
+        #    register select, so the board answers at 360B..367B. That is
+        #    where the C emulator already finds it (presence reads
+        #    "360B=3 361B=1").
+        #
+        #   "SIP in location b52 is 100 ohm terminator with legs 3 and 4 cut
+        #    for Task 9D = 11B".  b52 pins 2..5 are AltoWTask.0..3; cutting
+        #    legs 3 and 4 leaves 1001 = 9 decimal = 11 octal, exactly as
+        #    stated.
+        ('DispM', 'g41'): frozenset({6}),
+        ('DispM', 'b52'): frozenset({3, 4}),
+
+        # DskEth, from Ether12.sil's reference sheet (DskEth.pdf sheet 7) --
+        # not a "Configuration Information" page at all, which is why it has
+        # to be searched for by content:
+        #
+        #     Cut SIP legs at e41 to set the IOA bus addresses for the board.
+        #   * Standard addresses are 10-17.
+        #
+        # followed by a table of all 32 ranges against which of P4..P8 to cut.
+        # e41 pins 4..8 are TIOA-Ad.0..4, so the columns ARE the pins, and the
+        # table states the encoding outright: a cut leg is 0, an intact one is
+        # 1, MSB first. Check it at both ends -- 000-007 cuts all five, and
+        # 170-177 cuts P4 alone for 01111 = 17B. The starred standard row
+        # 010-017 cuts P4,P5,P6,P7, leaving 00001 = 1, and 010B..017B is that
+        # with the low octal digit selecting the register. Uncut the board
+        # would sit at 370B..377B.
+        ('DskEth', 'e41'): frozenset({4, 5, 6, 7}),
+    }
+
+    # Where a pull-UP pack and a pull-DOWN pack hold the SAME net, the
+    # default reading is a resistive divider -- a bias network at an analog
+    # input -- and the net is left open (see sip_drives). That is right for
+    # DskEth's `RcvData`, which is the Ethernet receiver's own input off the
+    # wire. It is NOT right for a CONFIGURATION STRAP, where the pull-down
+    # pack supplies the default 0 on every line and the pull-up pack has legs
+    # only on the lines that are meant to read 1 -- so the pull-up wins.
+    #
+    # The BaseBoard's Midas straps are that second thing, and the schematic
+    # says so rather than leaving it to be inferred: Basebd04.sil draws l50
+    # as a full pack to GND and l49 as one to VCC "with all pins cut except
+    # 1, 3, 6, & 8". Electrically the pull-up does win -- these feed an
+    # SN74LS85's B inputs, which draw 20 uA when high, so the divider sits at
+    # about VCC/2 = 2.5 V against a 2.0 V VIH.
+    #
+    # The result is the BaseBoard's own MUFFLER NUMBER. k20 compares the
+    # muffler address DMD.04..01 against {Midas.04,03,02,01} = 1001 = 9 and
+    # drives `BaseMuf'`, which is the enable on k22 (the LS151 that sources
+    # `CPDMuxData`) and on k19. Left open, `BaseMuf'` never asserts and the
+    # BaseBoard can never answer a muffler read at all.
+    SIP_STRAP_PULLUP_WINS = {
+        ('BaseBd', 'Midas.00'), ('BaseBd', 'Midas.01'), ('BaseBd', 'Midas.02'),
+        ('BaseBd', 'Midas.03'), ('BaseBd', 'Midas.04'),
     }
 
     def sip_pull(self, pos: str) -> tuple[str | None, str]:
@@ -580,7 +656,9 @@ class Generator:
                     continue
                 if pulls[pos] and not self._POWER_RE.match(netname):
                     held.setdefault(netname, set()).add(pulls[pos])
-        divided = {n for n, v in held.items() if len(v) > 1}
+        board = self.b.name.split('-Rev')[0]
+        divided = {n for n, v in held.items()
+                   if len(v) > 1 and (board, n) not in self.SIP_STRAP_PULLUP_WINS}
 
         out = {}
         for pos in sorted(packs):
@@ -593,8 +671,35 @@ class Generator:
                     continue            # leg cut: this pin is not pulled
                 if self._POWER_RE.match(netname) or netname in divided:
                     continue
-                if any(p['pkg'] == pos and p['pin'] == pin and p['dir'] == 'out'
-                       for p in self.b.nets[netname]['pins']):
+                if (expr == "1'b0"
+                        and (board, netname) in self.SIP_STRAP_PULLUP_WINS
+                        and len(held.get(netname, ())) > 1):
+                    continue        # strap: the pull-up on this net wins
+                # A leg the wire list calls `out` is a source. So is one it
+                # calls `in`, when nothing else on the net drives it -- a
+                # resistor has no direction, and Sil's letter on a pack pin
+                # records how the sheet drew it, not what the part does.
+                #
+                # The schematic PROVES this rather than it being a guess.
+                # DispM30.sil states "leg 6 cut (making DDMTIOA = 360B)", and
+                # 360B needs DDMTIOA.02 high -- but .02 hangs on g41 pin 4,
+                # which the wire list marks `in`, so nothing sourced it and
+                # the field read 320B. The same pin-4 artifact leaves five
+                # more strap bits open on DispY and DispM, the IFU's
+                # reference net `TTLHigh` at 0, and six active-low DskEth
+                # drive-status lines (`Selected0'`, `TtlReadOnly'`,
+                # `TtlEndOfCyl'`, ...) reading ASSERTED, which fabricates a
+                # drive that is not there.
+                #
+                # Source of last resort only: where something else drives the
+                # net, the pull is left off, because these are resolved by an
+                # OR tree and a pull-up would nail the net high forever.
+                is_out = any(q['pkg'] == pos and q['pin'] == pin and q['dir'] == 'out'
+                             for q in self.b.nets[netname]['pins'])
+                others = any(q['dir'] == 'out' and
+                             not (q['pkg'] == pos and q['pin'] == pin)
+                             for q in self.b.nets[netname]['pins'])
+                if (is_out or (not others and netname != self.sip_pull(pos)[1])):
                     out[(pos, pin)] = expr
         return out
 

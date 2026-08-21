@@ -1236,7 +1236,6 @@ module DispM_m_Rev_m_Ch (
 
   // ---- resistor packs (SIP): pins held at the pack's common
   assign AltoWTask_0 = True;   // b52.2 AltoWTask.0, tied to True
-  assign AltoWTask_1 = True;   // b52.3 AltoWTask.1, tied to True
   assign AltoWTask_3 = True;   // b52.5 AltoWTask.3, tied to True
   assign OISClkB__d42_2 = 1'b0;   // d42.2 OISClkB, tied to VEE-60
   assign OISClkA_p___d42_3 = 1'b0;   // d42.3 OISClkA', tied to VEE-60
@@ -1252,8 +1251,8 @@ module DispM_m_Rev_m_Ch (
   assign OISData_2__e42_8 = 1'b0;   // e42.8 OISData.2, tied to VEE-58
   assign DDMTIOA_00 = True;   // g41.2 DDMTIOA.00, tied to True
   assign DDMTIOA_01 = True;   // g41.3 DDMTIOA.01, tied to True
+  assign DDMTIOA_02 = True;   // g41.4 DDMTIOA.02, tied to True
   assign DDMTIOA_03 = True;   // g41.5 DDMTIOA.03, tied to True
-  assign DDMTIOA_04 = True;   // g41.6 DDMTIOA.04, tied to True
 
   // ---- 67 supply rails
   assign GND_m_0 = 1'b0;

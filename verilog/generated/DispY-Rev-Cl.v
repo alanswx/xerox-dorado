@@ -1196,13 +1196,16 @@ module DispY_m_Rev_m_Cl (
   assign OISData_2_p___e42_7 = 1'b0;   // e42.7 OISData.2', tied to VEE301
   assign OISData_2__e42_8 = 1'b0;   // e42.8 OISData.2, tied to VEE301
   assign WakeupWait_0 = True;   // g41.2 WakeupWait.0, tied to True
+  assign WakeupWait_1 = True;   // g41.3 WakeupWait.1, tied to True
   assign DDCTIOA_00 = True;   // g42.2 DDCTIOA.00, tied to True
   assign DDCTIOA_01 = True;   // g42.3 DDCTIOA.01, tied to True
+  assign DDCTIOA_02 = True;   // g42.4 DDCTIOA.02, tied to True
   assign DDCTIOA_03 = True;   // g42.5 DDCTIOA.03, tied to True
   assign DDCTIOA_04 = True;   // g42.6 DDCTIOA.04, tied to True
   assign DDCDMD_01 = True;   // k51.2 DDCDMD.01, tied to True
   assign DDCDMD_02 = True;   // k51.3 DDCDMD.02, tied to True
   assign DWTTask_0 = True;   // k52.2 DWTTask.0, tied to True
+  assign DWTTask_2 = True;   // k52.4 DWTTask.2, tied to True
   assign DWTTask_3 = True;   // k52.5 DWTTask.3, tied to True
 
   // ---- 36 supply rails

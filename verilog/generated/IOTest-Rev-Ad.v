@@ -371,6 +371,11 @@ module IOTest_m_Rev_m_Ad (
 
   // 20 single-driver contributions to the backplane
 
+  // ---- resistor packs (SIP): pins held at the pack's common
+  assign SEout_14 = 1'b0;   // k48.3 SEout.14, tied to GND512
+  assign SEout_13 = 1'b0;   // k48.4 SEout.13, tied to GND512
+  assign SEout_12 = 1'b0;   // k48.5 SEout.12, tied to GND512
+
   // ---- 12 supply rails
   assign GND156 = 1'b0;
   assign GND182 = 1'b0;

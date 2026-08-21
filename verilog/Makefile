@@ -147,6 +147,12 @@ machine-test:
 baseboard-test:
 	@$(MAKE) -C verilator baseboard-test
 
+muffler-test:
+	@$(MAKE) -C verilator muffler-test
+
+strap-test:
+	@$(MAKE) -C verilator strap-test
+
 # The memory section in a machine, with its clock running.
 mem-test:
 	@$(MAKE) -C verilator mem-test
