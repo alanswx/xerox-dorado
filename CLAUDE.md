@@ -1087,6 +1087,19 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   `make -C verilog muffler-test`, which sweeps all sixteen addresses and
   requires exactly one to select the board.
 
+- **A PIN CAN BE BROKEN OFF A LOGIC CHIP TOO.** MemX's "Stuffing and
+  Configuration Instructions" (`Memx23.sil`, 10/29/79) says "Break h20.10
+  before stuffing" -- h20 is an MC10105 and pin 10 carries `MapPerr`, so the
+  memory-parity summary is `STPerr | HitPerr`, not `STPerr | MapPerr |
+  HitPerr`. An open MECL input sits at VEE and reads 0 (hence the symbol
+  sheet's "ALL UNUSED INPUTS MUST BE TIED TO VEE"). `BROKEN_PACKAGE_PINS`.
+  The same sheet's instruction 1 is deliberately NOT applied: "if 256 chips
+  are NOT installed in the MSA, break g10.6" is conditional on how much memory
+  the machine was built with, and `ChipsAre256/16K` / `ChipsAre64K` are
+  backplane INPUTS to MemX, so that configuration arrives from outside the
+  board. Same for its blue wire (k4.6/k4.5/k4.4 to k4.16) and the b14/c12
+  jumper sockets -- a 16K/64K/256K RAM choice nobody has made yet.
+
 - **EVERY BOARD HAS SUCH A SHEET, and not all are titled the same.** Only two
   are headed "Configuration Information"; DskEth's IOA table is on an ordinary
   reference sheet and the BaseBoard's is headed "Stuffing Information", so

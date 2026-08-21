@@ -2590,6 +2590,24 @@ exclusively, on TIOA 10-14 octal". Two models, no shared code, same addresses.
    `Midas` straps it is not: the pull-down pack sets the default 0 and the
    pull-up pack has legs only where a 1 is wanted.
 
+### Pins broken off logic chips
+
+Not only resistor packs. MemX's "Stuffing and Configuration Instructions"
+(`Memx23.sil`, 10/29/79) gives two, and only one is ours to apply:
+
+* **Applied.** "2. Break h20.10 before stuffing." h20 is an MC10105 and pin 10
+  is `MapPerr`, so `MemPE` is `STPerr | HitPerr`. MapPerr keeps its other two
+  consumers (g49.2, k08.5); only this term goes. An open MECL 10K input has an
+  internal pulldown to VEE and reads 0. `BROKEN_PACKAGE_PINS` in the generator.
+* **NOT applied, on purpose.** "1. If 256 chips are NOT installed in the MSA,
+  then break g10.6." That is conditional on how much memory the machine was
+  built with, and `ChipsAre256/16K` / `ChipsAre64K` are backplane INPUTS to
+  MemX rather than straps on it -- the configuration comes from outside the
+  board. The sheet's blue wire (k4.6 / k4.5 / k4.4 to k4.16), the b14 and c12
+  jumper sockets, and the PLAT capacitor values are all the same 16K / 64K /
+  256K choice. Decide the machine's memory configuration first, then apply one
+  column of that table as a set.
+
 ### Not yet read
 
 Only two sheets are headed "Configuration Information" -- the BaseBoard's is
