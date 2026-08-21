@@ -40,6 +40,26 @@
 // wired by NAME to model. Whether `'c` is a third fan-out copy PARC's wire list
 // spells differently, or a genuinely separate line, is not established here.
 //
+// STARTING THE MACHINE MAKES IT OSCILLATE, and that is the most useful thing
+// this gate has found. `+define+MEM_RUN` runs run-test's own start sequence
+// (Clock, ClrStop+ClrMIR+ClrCT+Freeze, SetSS, ClrStop+SetRun) and then asserts
+// `SetRunRfsh` -- a backplane line the BASEBOARD drives, and the one that
+// makes ContA assert `WantRunRfsh` -> `RunRefresh` -> `dMemRun`, which is half
+// of `MemClkEnable'`. The other half is `dStop`, so the memory clocks come on
+// when the machine RUNS and refresh is asked for. With no BaseBoard in this
+// configuration the testbench drives that line itself, exactly as the
+// BaseBoard would.
+//
+// The result is `Active region did not converge after 100 tries` -- the SAME
+// failure `machine-test` has on the eleven-board machine, reproduced here on
+// SEVEN, which is a much smaller thing to debug. Note `loop-check` passes, so
+// it is not a combinational loop the cell files can show; it is a machine-level
+// oscillation that only appears once the memory clocks are enabled.
+//
+// That is why the experiment is behind a define: the gate proper stays on the
+// property it can prove, and the convergence failure is recorded rather than
+// left as a red gate.
+//
 // It is a floor, not a claim that the memory section works: nothing here
 // issues a reference, reads the Map, or touches the cache.
 
@@ -61,6 +81,11 @@ module tb_mem;
   reg [8:0] cpout  = 9'd0;
   reg       strb_n = 1'b1;
   reg       setrun = 1'b0, setss_n = 1'b1;
+  // `SetRunRfsh` is a backplane line the BASEBOARD drives -- it is what makes
+  // ContA assert `WantRunRfsh`, which sets `RunRefresh` and `dMemRun`, which
+  // is half of `MemClkEnable'`. There is no BaseBoard in this configuration,
+  // so the testbench drives it exactly as the BaseBoard would.
+  reg       setrunrfsh = 1'b0;
 
   dorado_mem m (
       .sys_clk(sys_clk),
@@ -70,8 +95,20 @@ module tb_mem;
       .CPOut_0(cpout[8]), .CPOut_1(cpout[7]), .CPOut_2(cpout[6]),
       .CPOut_3(cpout[5]), .CPOut_4(cpout[4]), .CPOut_5(cpout[3]),
       .CPOut_6(cpout[2]), .CPOut_7(cpout[1]), .CPOut_8(cpout[0]),
-      .CPStrb_p_(strb_n), .SetRun(setrun), .SetSS_p_(setss_n)
+      .CPStrb_p_(strb_n), .SetRun(setrun), .SetSS_p_(setss_n),
+      .SetRunRfsh(setrunrfsh)
   );
+
+  localparam integer GAP = 200;
+  integer k;
+  task strobe(input [2:0] fn, input [7:0] data, input ss);
+    begin
+      addr_n = ~fn; cpout = {ss, data}; setss_n = ~ss;
+      repeat (4) @(posedge sys_clk); strb_n = 1'b0;
+      repeat (8) @(posedge sys_clk); strb_n = 1'b1;
+      repeat (GAP) @(posedge sys_clk);
+    end
+  endtask
 
   // The local clock fan-out on each memory board.
   integer nc, nd, nx, i;
@@ -114,6 +151,33 @@ module tb_mem;
     $display("tb_mem: each memory board's local clock follows its MemClkEnable'.");
     $display("tb_mem: MemC and MemD are correctly held off by ContA; MemX runs because");
     $display("tb_mem:   its MemClkEnable'c has no driver in the machine -- see the header.");
+
+    // ---- NOW START THE MACHINE -------------------------------------------
+`ifdef MEM_RUN
+    // MemClkEnable'a is a wired-OR of two MC10231s on ContA: one latches
+    // `dMemRun` (set by `RunRefresh`), the other `dStop`. So the memory clocks
+    // come on when the machine RUNS. This is run-test's own start sequence.
+    strobe(3'd1, 8'h21, 1'b0);              // Clock: InhibitCAHolds+ClrReady
+    strobe(3'd0, 8'h4E, 1'b0); setrun = 0;  // ClrStop+ClrMIR+ClrCT+Freeze
+    strobe(3'd0, 8'h00, 1'b1); setss_n = 0; // undo the clears, SetSS
+    strobe(3'd0, 8'h41, 1'b1); setrun = 1;  // ClrStop AND SetRun together
+    setrunrfsh = 1'b1;                      // ...and what the BaseBoard asserts
+    repeat (400) @(posedge sys_clk);
+
+    pc = m.b_MemC.clk0_p_A; pd = m.b_MemD.clk0_p_B; px = m.b_MemX.Clk0_p_Aa;
+    nc = 0; nd = 0; nx = 0;
+    for (i = 0; i < 20000; i = i + 1) begin
+      @(posedge sys_clk);
+      if (m.b_MemC.clk0_p_A  !== pc) begin nc = nc + 1; pc = m.b_MemC.clk0_p_A;  end
+      if (m.b_MemD.clk0_p_B  !== pd) begin nd = nd + 1; pd = m.b_MemD.clk0_p_B;  end
+      if (m.b_MemX.Clk0_p_Aa !== px) begin nx = nx + 1; px = m.b_MemX.Clk0_p_Aa; end
+    end
+    $display("tb_mem: machine RUNNING -- MemClkEnable'a=%b, local clock edges MemC %0d, MemD %0d, MemX %0d",
+             m.b_MemC.MemClkEnable_p_a, nc, nd, nx);
+    if (nc == 0 || nd == 0)
+      $fatal(1, "the memory clocks did not start when the machine ran (MemC %0d, MemD %0d)", nc, nd);
+    $display("tb_mem: THE MEMORY BOARDS CLOCK WHEN THE MACHINE RUNS.");
+`endif
     $finish;
   end
 endmodule
