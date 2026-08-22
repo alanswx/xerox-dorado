@@ -2862,13 +2862,41 @@ Two things remain, both small and both stated by measurement:
    `MosRam` packages d11/d13, reached through MC10124 TTL-to-ECL translators
    at e17/e10, so `MapWP` and `MapDirty` are literally the stored bits.)
 
-   **Next:** write a map entry for the referenced address **with correct
-   parity** -- any value will not do. Either through `←Map` (FA=0, FB=3,
-   FC=1 = `0o31` at ContA `b17`, the same number `cpu.c`'s `DM_REF_RMAP`
-   comment derives independently; ASEL = 000 with FF.0 = 0, FF.1 = 1) or by
-   preloading the `MosRam` arrays the way `tb_boot0` preloads IM. Note this is
-   the same MC10170 whose polarity is the open IM-parity question, so a fix
-   here may bear on that too.
+6. **And the map read path is strobed off by one net, `THi`.** Writing a map
+   entry would not have helped -- the entry never reaches the logic.
+
+   Measured, in order: the map array **is** strobed (RAS' 31 edges, CAS' 21,
+   read condition on 579 of 3000 cycles) and its output **is** live
+   (`u_a04.p14` = 1, `u_d11.p14` = 1, and the nets they drive both read 1).
+   Preloading all 21 bit planes changes **nothing** downstream -- `MapWP'`,
+   `MapDirty'` and `MapEven'` stay exactly as they were.
+
+   The break is the MC10124 TTL-to-ECL translators. `cell_MC10124` is right
+   (`p12 = ~(p10 & p6)`) and **pin 6 is the common strobe**, which the data
+   book describes exactly: *"when the common strobe input is at the low logic
+   level, it forces all true outputs to a MECL low logic state and all
+   inverting outputs to a MECL high logic state."* That is precisely what we
+   see -- `MapDirty'` and `MapWP'` both stuck high.
+
+   That strobe is **`THi`**, feeding pin 6 of **five** MC10124s (b06, b09,
+   b12, e07, e10) -- the whole map read path. It comes from e15, an MC10125,
+   as `THi = p15 & ~p14`, where pin 15 is `VBBe15` and **pin 14 is open**.
+
+   **`VBB` is the ECL bias reference** -- the switching threshold, not a logic
+   signal. Physically VBB against an open input (sitting at VEE, low) reads
+   **high**, which is how this channel manufactures a constant TTL high; the
+   net is named for it. Our model has the undriven bias net at 0, so `THi` is
+   0 and the map is strobed off.
+
+   **The fix is per-pin, not per-net**, which is why it is not applied yet.
+   One VBB net reaches both sides of these differential pairs: on e15 channel
+   a it is the *inverting* input (`p4 = p3 & ~p2`, p2 = VBB) where it must
+   read 0 so the real signal decides, and on channel d it is the *true* input
+   where it must read 1. A single constant cannot do both. The rule that is
+   right -- **"VBB loses to a real signal and beats an open pin"** -- belongs
+   in the generator beside `OVERRIDE_DRIVERS` and `WEAK_PORT_DRIVERS`. This is
+   the same family as the IFU's `TTLHigh` sitting at 0 that the `sip_drives`
+   fix caught; **41 MC10124 packages** are affected, so it wants its own gate.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting
