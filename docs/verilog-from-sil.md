@@ -111,8 +111,10 @@ The next three steps, in order:
    the IO kinds are qualified by whether the current task is an I/O task --
    which `cpu.c` conditions on identically -- so they need the machine running
    in such a task. Tasking now makes that reachable.
-2. **An actual access**, through the Map and the cache, with the Pipe recording
-   it. The boundary is now exact: the microcode asks (`WantProcRef'` asserts)
+2. **DONE (2026-08-22): the memory section runs DRAM cycles** -- RAS and CAS
+   strobe, MapState steps, no holds, from PARC's own startup. These are REFRESH
+   cycles, so a PROCESSOR reference reaching the Pipe is the next step, then
+   the storage array. Superseded note: the microcode asks (`WantProcRef'` asserts)
    and nothing completes -- the Pipe pointer does not move over a whole run,
    and `PRhold` -- the memory-to-processor hold -- is CLEAR before the machine
    starts and comes UP during the run, with none of the three hold requests

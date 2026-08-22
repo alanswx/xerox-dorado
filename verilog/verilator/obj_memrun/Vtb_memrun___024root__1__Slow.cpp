@@ -13005,7 +13005,11 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->__VdfgRegularize_h4af1c392_0_136 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_137 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_139 = 0;
-    vlSelf->__Vtask_tb_memrun__DOT__manifold__285__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7 = 0;
+    vlSelf->__Vtask_tb_memrun__DOT__parc_micro__138__b1 = 0;
+    vlSelf->__Vtask_tb_memrun__DOT__parc_micro__138__tb_memrun__DOT__unnamedblk1_21__DOT____Vrepeat20 = 0;
+    vlSelf->__Vtask_tb_memrun__DOT__parc_micro__138__tb_memrun__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
+    vlSelf->__Vtask_tb_memrun__DOT__parc_micro__138__tb_memrun__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
+    vlSelf->__Vtask_tb_memrun__DOT__manifold__312__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;
