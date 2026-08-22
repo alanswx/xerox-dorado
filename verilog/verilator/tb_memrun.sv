@@ -337,7 +337,32 @@
 //     which is the next question, and the one a storage model is finally
 //     relevant to.
 //
-//     WHY IS DisHold 0? It is the MCR bit PARC's PrepareProcessor sets --
+//     WHY IS DisHold 0, AND WHAT WAS TRIED. PARC's PrepareProcessor sets it
+//     with LDXI 103o / TFromCPReg# / SetMcr#, and TFromCPReg# in turn needs
+//     PARC's ALU prologue -- "requires ALUFM[0]=B", set up by LDXI 25o /
+//     QFromCPReg# / ALUFM[0]FromQ#. Both sequences are issued here now, with
+//     the bytes decoded from doradoboot.masm's radix-2 IRTable and the decoder
+//     validated against CPRegToLink# (30 13 EF 04 40), which this bench
+//     already used.
+//
+//     THEY DO NOT TAKE. Measured at the jam itself: Q = 0000 after
+//     QFromCPReg#, T = 0000 after TFromCPReg#, DisHold 0 after SetMcr#. So the
+//     prologue's FIRST step already fails, and everything after it is moot.
+//
+//     Two explanations ruled out by measurement:
+//       * The jams are not being overwritten from IM -- they are issued while
+//         SetMidasStopMIRClk is on and BEFORE the MIR clock is released, which
+//         is also where PARC does PrepareProcessor.
+//       * The memory section is NOT holding the processor at that moment:
+//         PRhold = 0, Hold = 0, and MDhold'/MiscHold'/RefHold' all read 1
+//         (deasserted). A hold would have explained it neatly and does not.
+//
+//     WHAT IS DIFFERENT: `tb_compute` runs this exact prologue successfully on
+//     `dorado_proc` (four boards) and gates it. This bench runs on
+//     `dorado_mem` (seven). So the next step is to DIFF THE TWO BENCHES'
+//     PREAMBLES rather than to theorise -- tb_compute was built specifically
+//     to make the ALU prologue work and may do setup this one inherited
+//     nothing of.
 //     "Clear out MCR to DisHold, NoWakeups", LDXI 103o / TFromCPReg# /
 //     SetMcr#. tb_memrun issues that sequence and DisHold stays 0, so the MCR
 //     write is not taking effect. MemC k08, an MC10176, is the register that
@@ -1268,6 +1293,38 @@ module tb_memrun;
     repeat (2000) @(posedge sys_clk);
     manifold(12'h030);
     manifold(12'h1E0);                    // SetMidasStopMIRClk ON, to load
+    // PARC'S ALU PROLOGUE, and TFromCPReg# does not work without it. Its own
+    // IRTable comment says "requires ALUFM[0]=B", and LoadDoradoCode sets that
+    // up first:
+    //     LDXI 25o / QFromCPReg# / ALUFM[0]FromQ#
+    // "Set up ALUFM[0] with a 25o, which is the logical function B." Without
+    // it T stays 0000 and the MCR write below writes nothing -- which is
+    // exactly what was measured.
+    set_cpreg_plain(16'h0015);                        // 25 octal
+    parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40);    // QFromCPReg#
+    nop_micro;                                        // DoIRTableInstAndNop
+    parc_micro(8'h30, 8'h05, 8'h09, 8'hC4, 8'h40);    // ALUFM[0]FromQ#
+
+    set_cpreg_plain(16'h0043);                        // 103 octal
+    parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);    // TFromCPReg#
+    nop_micro;
+    $display("tb_memrun: at the jam -- PRhold=%b Hold=%b MDhold'=%b MiscHold'=%b RefHold'=%b",
+             m.PRhold, m.b_MemC.Hold, m.b_MemC.MDhold_p_, m.b_MemC.MiscHold_p_,
+             m.b_MemC.RefHold_p_);
+    $display("tb_memrun: after TFromCPReg# -- T=%h (want 0043), Q=%h",
+             {m.b_ProcH.T_00, m.b_ProcH.T_01, m.b_ProcH.T_02, m.b_ProcH.T_03,
+              m.b_ProcH.T_04, m.b_ProcH.T_05, m.b_ProcH.T_06, m.b_ProcH.T_07,
+              m.b_ProcL.T_08, m.b_ProcL.T_09, m.b_ProcL.T_10, m.b_ProcL.T_11,
+              m.b_ProcL.T_12, m.b_ProcL.T_13, m.b_ProcL.T_14, m.b_ProcL.T_15},
+             {m.b_ProcH.Q_00, m.b_ProcH.Q_01, m.b_ProcH.Q_02, m.b_ProcH.Q_03,
+              m.b_ProcH.Q_04, m.b_ProcH.Q_05, m.b_ProcH.Q_06, m.b_ProcH.Q_07,
+              m.b_ProcL.Q_08, m.b_ProcL.Q_09, m.b_ProcL.Q_10, m.b_ProcL.Q_11,
+              m.b_ProcL.Q_12, m.b_ProcL.Q_13, m.b_ProcL.Q_14, m.b_ProcL.Q_15});
+    parc_micro(8'h30, 8'h02, 8'h0B, 8'h84, 8'h60);    // SetMcr#
+    nop_micro;
+    $display("tb_memrun: after SetMcr# -- MemC DisHold=%b MemX DisHold=%b",
+             m.b_MemC.DisHold, m.b_MemX.DisHold);
+
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca; p2 = m.b_ContA.clk2_p_Bc;
     zero;
     wipe_im;
@@ -1308,11 +1365,12 @@ module tb_memrun;
     // and PRhold with it. Bytes from doradoboot.masm, which is radix 2:
     // TFromCPReg# = 70 03 0F 04 C0, SetMcr# = 30 02 0B 84 60 (checked by
     // decoding Nop#'s `01^6.+(11^4.)` the same way and getting 0x70).
-    set_cpreg_plain(16'h0043);                        // 103 octal
-    parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);    // TFromCPReg#
-    nop_micro;
-    parc_micro(8'h30, 8'h02, 8'h0B, 8'h84, 8'h60);    // SetMcr#
-    nop_micro;
+    $display("tb_memrun: MCR sequence -- T=%h (want 0043), MCR DisHold=%b",
+             {m.b_ProcH.T_00, m.b_ProcH.T_01, m.b_ProcH.T_02, m.b_ProcH.T_03,
+              m.b_ProcH.T_04, m.b_ProcH.T_05, m.b_ProcH.T_06, m.b_ProcH.T_07,
+              m.b_ProcL.T_08, m.b_ProcL.T_09, m.b_ProcL.T_10, m.b_ProcL.T_11,
+              m.b_ProcL.T_12, m.b_ProcL.T_13, m.b_ProcL.T_14, m.b_ProcL.T_15},
+             m.b_MemC.DisHold);
     $display("tb_memrun: before start -- PRhold=%b Hold=%b DisHold=%b",
              m.PRhold, m.b_MemC.Hold, m.b_MemC.DisHold);
     // The memory must not be holding the processor before it starts. (This is
