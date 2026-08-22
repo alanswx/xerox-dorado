@@ -2740,11 +2740,24 @@ Two things remain, both small and both stated by measurement:
    A reference carrying an FF function cannot take its address that way --
    where the address comes from for BSEL < 4 is the next question.
 
-3. **`FlushStore` still does not assert**, and neither does `ForceMiss` --
-   the cache still hits. `Flush'` here is a *level* held for 2851 straight
-   cycles because the bench loops one instruction; a real reference is taken
-   on a transition through the cache pipeline. That is the remaining step to
-   a storage cycle.
+3. **`FlushStore` does not assert, and the reason is architectural: the line
+   must be DIRTY.** The chain, traced the rest of the way down:
+
+   | gate | part | function |
+   |---|---|---|
+   | `l19` d | MC10100 (pin 9 common) | `FlushStore = ~(FSinPair' \| EcHasAb)` |
+   | `k21` | MC10176 hex D FF, clocked by `LdPair'` | `FSinPair'` is Q5, fed by D5 on pin 12 |
+   | `j23` | MC10117 second gate (pins 10-13, 9 common) | that D input is `FlushInA & HitColDirty` |
+
+   Measured over the 2851 running cycles: `EcHasAb` is 0 throughout -- that
+   term is satisfied -- and `FSinPair'` **never falls**. The flush is never
+   latched into the A/B pair, because `HitColDirty` is never true: this
+   bench's cache is clean, and **flushing a clean line needs no write-back**.
+   Only a dirty line has anything to store.
+
+   **So the route to a storage cycle is: store to an address first to dirty
+   its line, then flush it.** `Store<-` comes off an MC10105 OR rather than
+   the `a24` decoder, so it needs its own encoding.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting

@@ -417,11 +417,26 @@
 //      reference that carries an FF function cannot take its address that
 //      way; where the address comes from for BSEL < 4 is the next question.
 //
-//   3. `FlushStore` STILL DOES NOT ASSERT, and neither does ForceMiss -- the
-//      cache still hits. `Flush'` here is a LEVEL held for 2851 straight
-//      cycles because the bench loops one instruction; a real reference is
-//      taken on a transition through the cache pipeline. That is the
-//      remaining step to a storage cycle.
+//   3. `FlushStore` DOES NOT ASSERT, AND THE REASON IS ARCHITECTURAL: THE
+//      LINE MUST BE DIRTY. The chain, traced the rest of the way down:
+//
+//          l19 d  (MC10100, pin 9 COMMON)
+//                 FlushStore = ~(FSinPair' | EcHasAb)
+//          k21    (MC10176 hex D FF, clocked by LdPair')
+//                 FSinPair' is Q5, fed by D5 on pin 12
+//          j23    (MC10117, second gate, pins 10-13 with 9 COMMON)
+//                 that D input is  FlushInA & HitColDirty
+//
+//      Measured over the 2851 running cycles: `EcHasAb` is 0 throughout --
+//      that term is satisfied -- and `FSinPair'` NEVER falls. The flush is
+//      never latched into the A/B pair, because `HitColDirty` is never true:
+//      this bench's cache is clean, and FLUSHING A CLEAN LINE NEEDS NO
+//      WRITE-BACK. Only a dirty line has anything to store.
+//
+//      So the route to a storage cycle is: STORE to an address first to
+//      dirty its line, THEN flush it. `Store<-` comes off an MC10105 OR
+//      rather than the a24 decoder (noted when the kind table was gated), so
+//      it needs its own encoding.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -559,7 +574,7 @@ module tb_memrun;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
   integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb, nwcr, nwar, nfl, nmp;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
-  integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib;
+  integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech;
   reg tnia_hit [0:4095];
   reg [2:0] pms;
   reg [3:0] pipe_before;
@@ -1515,7 +1530,7 @@ module tb_memrun;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
     ntnia=0; nff0=0; nsamp=0;
-    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0;
+    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
     nwcr=0; pwcr=m.b_MemC.WantCR; nwar=0; pwar=m.b_MemC.WantAltRef_p_;
     nfl=0; pfl=m.b_MemC.Flush_u__p_; nmp=0; pmp=m.b_MemC.Map_u__p_;
@@ -1569,6 +1584,11 @@ module tb_memrun;
         if (!m.b_MemC.WantAltRef_p_)  nff0_alt = nff0_alt + 1;
         if (!m.b_MemC.Flush_u__p_)    nff0_fl  = nff0_fl  + 1;
         if (m.b_MemC.FlushStore)      nff0_fs  = nff0_fs  + 1;
+        // MemC l19 gate d (MC10100, pin 9 COMMON):
+        //     FlushStore = ~(FSinPair' | EcHasAb)
+        // so the flush must be LATCHED INTO THE A/B PAIR first.
+        if (!m.b_MemC.FSinPair_p_)    nff0_fsp = nff0_fsp + 1;
+        if (!m.b_MemC.EcHasAb)        nff0_ech = nff0_ech + 1;
         if (m.b_MemC.ForceMiss)       nff0_fm  = nff0_fm  + 1;
         if (m.b_MemC.Hit_p_a)         nff0_mia = nff0_mia + 1;   // Hit' high = MISS
         if (m.b_MemC.Hit_p_b)         nff0_mib = nff0_mib + 1;
@@ -1660,6 +1680,8 @@ module tb_memrun;
       $fatal(1, "Flush' did not assert on every running cycle (%0d of %0d)", nff0_fl, nff0);
     if (nff0_ffok !== 0)
       $fatal(1, "FFok' must be LOW for the FF field to reach the memory section (high on %0d)", nff0_ffok);
+    $display("tb_memrun:   FlushStore = ~(FSinPair' | EcHasAb) -- FSinPair'=0 on %0d, EcHasAb=0 on %0d of %0d",
+             nff0_fsp, nff0_ech, nff0);
     $display("tb_memrun:   STORAGE PATH WHILE RUNNING -- FlushStore %0d, ForceMiss %0d, MISS(a) %0d, MISS(b) %0d of %0d",
              nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0);
     $display("tb_memrun:   STORAGE PATH (end sample) -- FlushStore=%b ForceMiss=%b | Hit'a=%b Hit'b=%b",
