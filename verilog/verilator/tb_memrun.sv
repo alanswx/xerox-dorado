@@ -260,9 +260,37 @@
 //     `prom-test`, with the image loaded as `verilog/proms/packages/
 //     MemX-g15.mem`. What is missing is whatever advances `MapState`.
 //
-//     That is where to start: a small, bounded piece of logic feeding one
-//     F10016, with a decode PROM behind it that is already known good. Not the
-//     storage array, and not refresh timing.
+//     AND MAPSTATE NEVER MOVES BECAUSE `StartMap'` NEVER ASSERTS. h15 is an
+//     F10016 with `StartMap'` on PE' (parallel enable, active low, D pins
+//     open so it loads zero) and `MapWait` on CE' (count enable, active low).
+//     Measured: MapState = 000, StartMap' = 1, MapWait = 1, zero changes over
+//     a whole run. It is neither loaded nor counting.
+//
+//     `StartMap'` is properly connected -- MemC k15 drives it, both boards on
+//     pin E66, and the generated machine wires it. k15 is an MC10121 OR-AND:
+//
+//       StartMap' = Hia & (AwantsMapFS'|NoRef|AfreeOrEc'a)
+//                       & (AfreeOrEc'a|WantVic'|NoRef) & MapRfsh'
+//
+//     and it asserts when any term is 0. Measured: Hia=1, NoRef=0 (so there IS
+//     a reference, consistent with WantProcRef'), MapRfsh'=1, AwantsMapFS'=1,
+//     AfreeOrEc'a=0, WantVic'=1 -- all four terms evaluate to 1.
+//
+//     THE SUSPECT IS `Hia`, AND IT NEEDS THE SCHEMATIC, NOT THE NETLIST. Its
+//     only driver is MemC l02, an MC10231 -- and the wire list puts pins 13,
+//     14 AND 15 of that one package on the net, with 13 an input and 14/15 the
+//     two outputs of half B. Our cell has `p15 = qb, p14 = ~qb`, so Q and Q'
+//     are wired together, which on open-emitter ECL is a CONSTANT HIGH -- the
+//     same trick the BaseBoard uses to make `TrueA` from a spare NOR with open
+//     inputs. The geometry says the same thing: `{456,52} {460,52} {464,52}`
+//     is three ADJACENT pins at one y, four apart in x, which is the
+//     wire-wrap strap pattern this project already documented for jumpers.
+//
+//     So either `Hia` is a deliberate constant 1 -- in which case the name
+//     misleads and it is not a cache "hit" at all -- or our MC10231 has half
+//     B's outputs wrong. MemC's schematic sheet settles it, exactly as the
+//     configuration sheets settled the SIP legs and the broken MemX pin. READ
+//     THAT BEFORE CHANGING ANYTHING.
 //
 //   * `PRhold` is clear at startup now, and comes back UP during the run,
 //     with `PrHoldReq`, `CHoldReq` and `ExtHoldReq` all still reading 0. That
@@ -397,7 +425,9 @@ module tb_memrun;
   reg [19:0] link15, link15b, link7;
   integer nmemclk, kk, npipe, nras, ncas, nwe, nmx;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
-  integer nrp, nmr;
+  integer nrp, nmr, nms;
+  reg [2:0] pms;
+  wire [2:0] mapst = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
   reg [3:0] ppa;
   wire [3:0] pipead = {m.b_MemC.PipeAd_0, m.b_MemC.PipeAd_1,
                        m.b_MemC.PipeAd_2, m.b_MemC.PipeAd_3};
@@ -1199,6 +1229,7 @@ module tb_memrun;
     prasa = m.MemRASa; pcasa = m.MemCASa; pwea = m.MemWEa;
     nmx = 0; pmx = m.b_MemX.Clk0_p_Aa;
     nrp = 0; prp = m.RfshPeriod; nmr = 0; pmr = m.MemRfsh;
+    nms = 0; pms = mapst;
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
     for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
       @(posedge sys_clk);
@@ -1217,12 +1248,26 @@ module tb_memrun;
       if (m.b_MemX.Clk0_p_Aa !== pmx) begin nmx = nmx + 1; pmx = m.b_MemX.Clk0_p_Aa; end
       if (m.RfshPeriod !== prp) begin nrp = nrp + 1; prp = m.RfshPeriod; end
       if (m.MemRfsh   !== pmr) begin nmr = nmr + 1; pmr = m.MemRfsh;   end
+      if (mapst !== pms) begin nms = nms + 1; pms = mapst; end
     end
     $display("tb_memrun: storage strobes over the run -- MemRASa %0d, MemCASa %0d, MemWEa %0d",
              nras, ncas, nwe);
     $display("tb_memrun:   MemIdlea=%b MemX clk0' edges=%0d  MemRfsh=%b RfshPeriod=%b SetRunRfsh=1",
              m.b_MemX.MemIdlea, nmx, m.MemRfsh, m.RfshPeriod);
     $display("tb_memrun:   RfshPeriod edges=%0d  MemRfsh edges=%0d", nrp, nmr);
+    // MemC k15 is the OR-AND that makes StartMap'. It asserts (goes LOW) when
+    // any of its four AND terms is 0:
+    //   Hia & (AwantsMapFS'|NoRef|AfreeOrEc'a) & (AfreeOrEc'a|WantVic'|NoRef)
+    //        & MapRfsh'
+    $display("tb_memrun:   StartMap' terms -- Hia=%b NoRef=%b MapRfsh'=%b AwantsMapFS'=%b AfreeOrEc'a=%b WantVic'=%b",
+             m.b_MemC.Hia, m.b_MemC.NoRef, m.b_MemC.MapRfsh_p_,
+             m.b_MemC.AwantsMapFS_p_, m.b_MemC.AfreeOrEc_p_a, m.b_MemC.WantVic_p_);
+    // MemX h15 is the MapState counter: StartMap' (PE', active low) loads it
+    // to 0 -- its D pins are open -- and MapWait (CE', active low) makes it
+    // count. So the state machine only advances while MapWait is LOW.
+    $display("tb_memrun:   MapState=%b%b%b  StartMap'=%b MapWait=%b | MapState changes=%0d",
+             m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2,
+             m.b_MemX.StartMap_p_, m.b_MemX.MapWait, nms);
     $display("tb_memrun:   MemAd=%b%b%b%b%b Sout=%h  (RASa=%b CASa=%b WEa=%b)",
              m.MemAd_0, m.MemAd_1, m.MemAd_2, m.MemAd_3, m.MemAd_4,
              {m.Sout_00,m.Sout_01,m.Sout_02,m.Sout_03,m.Sout_04,m.Sout_05,m.Sout_06,m.Sout_07,
