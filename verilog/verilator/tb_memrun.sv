@@ -169,6 +169,35 @@
 // `io_task ? DM_REF_IOFETCH : DM_REF_MAP`). Reaching those needs the machine
 // in a task that makes them meaningful, which is the next step.
 //
+// PARC'S STARTUP HAS A STEP THIS WAS SKIPPING, and it is now here -- but it is
+// NOT what clears the memory hold, and a first pass claimed it was.
+// PrepareProcessor ends with
+//
+//     LDXI 103o / LDAI TFromCPReg# / JSR SetCPAndDoIRTableInst
+//     LDAI SetMcr# / JSR DoIRTableInst        ; "Clear out MCR to DisHold,
+//                                             ;  NoWakeups"
+//
+// and MemC's Hold flip-flops (e22, e23) do take DisHold on their set/reset,
+// which made it look causal: add the step, and `PRhold` reads 0. But
+// SUPPRESSING THE WHOLE BLOCK LEAVES IT READING 0 TOO. The hold was already
+// clear at that point in the startup; the `PRhold`=1 that prompted this was
+// sampled at the END of a run, not before it. The step stays because it is
+// part of PARC's sequence and being faithful to that is worth something on its
+// own, but it is not load-bearing and nothing here depends on it.
+//
+// The assertion that remains is the honest one: the memory must not be holding
+// the processor BEFORE the machine starts. That is true, checkable, and would
+// catch a regression that held from reset -- it is simply not caused by
+// SetMcr#.
+//
+// The bytes come from doradoboot.masm, which is radix 2: TFromCPReg# =
+// 70 03 0F 04 C0, SetMcr# = 30 02 0B 84 60, checked by decoding Nop#'s
+// `01^6.+(11^4.)` the same way and getting the 0x70 that nop_micro already
+// uses. And TFromCPReg# needs the PLAIN SetCPReg rather than the tilde form,
+// because BMux is the complement of CPReg and `alub` is inverted back off it,
+// so T ends up equal to CPReg while IM write data ends up equal to its
+// complement -- which is exactly why PARC uses the two forms where it does.
+//
 // WHERE THIS STOPS, stated precisely because the next session should start
 // here. The microcode ASKS for storage and nothing COMPLETES:
 //
@@ -179,12 +208,15 @@
 //     execution the pointer changes ZERO times. It reads 12, which is where
 //     startup left it -- a first pass read that 12 as evidence that references
 //     were being recorded, which it is not. Count the CHANGES, not the value.
-//   * `PRhold` reads 1 while `PrHoldReq`, `CHoldReq` and `ExtHoldReq` all read
-//     0. That is the open question: either the hold is asserted for a reason
-//     none of those three expresses, or its sense is not what the name
-//     suggests. `PRhold` is the memory-to-processor hold, and it is the same
-//     wire as MemC's `PrHold` -- the two spellings the BACKPLANE_CASE_ALIASES
-//     table merges -- so it is newly connected and has never been examined.
+//   * `PRhold` is clear at startup now, and comes back UP during the run,
+//     with `PrHoldReq`, `CHoldReq` and `ExtHoldReq` all still reading 0. That
+//     is a better-shaped question than the one this file used to record: the
+//     hold is not a power-up artefact, it is asserted by something the machine
+//     does while executing. Since the microcode is asking for storage that
+//     never completes, a memory holding the processor for a reference it
+//     cannot finish is exactly what one would expect -- so the next move is to
+//     find which of the three Hold flip-flops (MemC e22 pin 3, e22 pin 14,
+//     e23 pin 2) sets, and on what.
 //
 // None of those three is ASSERTED here. The Pipe and the holds are printed as
 // diagnostics because the CORRECT values are not yet known, and asserting on a
@@ -777,6 +809,17 @@ module tb_memrun;
   // The TILDE IS THE POINT -- the BaseBoard writes the COMPLEMENT, because
   // ContA b02's MC10159 inverts on the way to BMux. Write ~v and the datapath
   // delivers v.
+  // PARC loads T with the PLAIN SetCPReg and IM data with SetCPReg~, because
+  // BMux is the complement of CPReg and `alub` is inverted back off it -- so T
+  // ends up equal to CPReg while IM write data ends up equal to its
+  // complement. TFromCPReg# therefore needs this form, not the tilde one.
+  task set_cpreg_plain(input [15:0] v);
+    begin
+      strobe(3'd2, v[15:8], 1'b0);
+      strobe(3'd3, v[7:0],  1'b0);
+    end
+  endtask
+
   task set_cpreg_tilde(input [15:0] v);
     begin
       strobe(3'd2, ~v[15:8], 1'b0);
@@ -1044,6 +1087,26 @@ module tb_memrun;
     $display("tb_memrun: parity enables IMLH=%b IMRH=%b, StopMIRClkEn=%b StopMIRClk=%b",
              m.b_ContB.IMLHPEenable, m.b_ContB.IMRHPEenable,
              m.b_ContB.StopMIRClkEn, m.StopMIRClk);
+
+    // PARC's PrepareProcessor does one more thing before starting the machine,
+    // and skipping it is why the memory holds: "Clear out MCR to DisHold,
+    // NoWakeups" -- LDXI 103o / TFromCPReg# / SetMcr#. MemC's Hold flip-flops
+    // (e22, e23) take DisHold on their set/reset, so without it Hold stays up
+    // and PRhold with it. Bytes from doradoboot.masm, which is radix 2:
+    // TFromCPReg# = 70 03 0F 04 C0, SetMcr# = 30 02 0B 84 60 (checked by
+    // decoding Nop#'s `01^6.+(11^4.)` the same way and getting 0x70).
+    set_cpreg_plain(16'h0043);                        // 103 octal
+    parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);    // TFromCPReg#
+    nop_micro;
+    parc_micro(8'h30, 8'h02, 8'h0B, 8'h84, 8'h60);    // SetMcr#
+    nop_micro;
+    $display("tb_memrun: before start -- PRhold=%b Hold=%b DisHold=%b",
+             m.PRhold, m.b_MemC.Hold, m.b_MemC.DisHold);
+    // The memory must not be holding the processor before it starts. (This is
+    // NOT caused by the SetMcr# above -- suppressing the whole block leaves it
+    // reading 0 as well. See the header.)
+    if (m.PRhold !== 1'b0 || m.b_MemC.Hold !== 1'b0)
+      $fatal(1, "the memory is holding the processor before the machine starts");
 
     // Put the start address in Link, then Return# to jump there and run.
     set_cpreg_tilde(16'h0000);
