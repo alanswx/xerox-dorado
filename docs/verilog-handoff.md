@@ -2703,12 +2703,25 @@ Two things remain, both small and both stated by measurement:
    as zero. It does not affect the result above -- the machine loops over
    IM[0] and IM[1], which are correct and identical -- but a hunk is eight
    half-words and only four are arriving.
-2. **The packed FF is not the FF MemC sees.** The bench passes `FF = 0` and
-   MemC reads `FF.0 = 1`, which is why `WantCR` stays high and the reference
-   is a cache reference rather than an alternate one. A Flush needs
-   `FF.0 = 0` at MemC. The comment by the call already claimed `FF = 0o100`
-   was being passed; the call passes `8'd0`. Fix the argument, then confirm
-   what arrives.
+2. **The FF bits the memory section sees are qualified by `FFok'`, and they
+   come from the PROCESSOR boards.** `FF.0mem'` and `FF.1mem` are inputs only
+   on MemC; ProcH and ProcL drive them from `d24`/`d23`, a pair of MC10101s
+   whose pin 12 is the **common** input:
+
+   ```
+   FF.0mem' = ~(FFok'a | FF.0)      FF.0mem = FFok'a | FF.0
+   FF.1mem  =   FFok'a | FF.1
+   ```
+
+   So with `FFok'a` high **both bits are forced high** and the memory section
+   sees `ff01 = 3` regardless of the microinstruction's FF field. Measured:
+   `FFok'a` is high on all 2851 cycles the reference runs; the forcing is
+   gated in `memrun-test` and mutation-tested. That is why packing
+   `FF = 0o100` changes the IM word (the right half reads back `4081` instead
+   of `0081`, so the write path is fine) and changes nothing at MemC.
+
+   **The question for a Flush is therefore no longer "what FF do I pack" but
+   "what pulls `FFok'` low".** Trace its driver on ProcH next.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting

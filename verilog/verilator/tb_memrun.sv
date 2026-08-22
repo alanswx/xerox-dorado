@@ -381,12 +381,26 @@
 //      IM[0] and IM[1], which are correct and identical -- but a hunk is
 //      eight half-words and only four are arriving.
 //
-//   2. THE PACKED FF IS NOT THE FF MemC SEES. This bench passes FF = 0 and
-//      MemC reads FF.0 = 1 (`FF.0mem'` = 0), which is why `WantCR` stays high
-//      and the reference is a CACHE reference rather than an alternate one.
-//      A Flush needs FF.0 = 0 at MemC. Note the comment near the build_hunk
-//      call already claimed FF = 0o100 was being passed; the call passes
-//      8'd0. Fix the argument first, then confirm what arrives.
+//   2. THE FF BITS THE MEMORY SECTION SEES ARE QUALIFIED BY `FFok'`, AND
+//      THEY COME FROM THE PROCESSOR BOARDS, NOT FROM ContB. `FF.0mem'` and
+//      `FF.1mem` are inputs only on MemC; ProcH and ProcL drive them, from
+//      d24 and d23, a pair of MC10101s whose pin 12 is the COMMON input:
+//
+//          FF.0mem' = ~(FFok'a | FF.0)        FF.0mem = FFok'a | FF.0
+//          FF.1mem  =   FFok'a | FF.1
+//
+//      so WITH `FFok'a` HIGH BOTH BITS ARE FORCED HIGH and the memory
+//      section sees ff01 = 3 no matter what the microinstruction's FF field
+//      holds. Measured: `FFok'a` is high on all 2851 cycles the reference
+//      runs, and the forcing is gated here and mutation-tested. THAT is why
+//      packing FF = 0o100 changes the IM word (the right half reads back
+//      4081 instead of 0081, so the write path is fine) and changes nothing
+//      at MemC.
+//
+//      So the question for a Flush is no longer "what FF do I pack" but
+//      "what pulls `FFok'` low" -- a qualifier, presumably saying the FF
+//      field is being used as a memory function rather than for something
+//      else. Trace its driver on ProcH next.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -524,7 +538,7 @@ module tb_memrun;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
   integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb, nwcr, nwar, nfl, nmp;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
-  integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0;
+  integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad;
   reg tnia_hit [0:4095];
   reg [2:0] pms;
   reg [3:0] pipe_before;
@@ -1404,9 +1418,9 @@ module tb_memrun;
     // would force a miss -- see below. It still decodes as CacheRefInA, so a
     // Flush needs more than the ff01 bits, which is task 4's problem: only
     // LFetch<- and IFetch<- decode cleanly from ASEL/ff01 alone.)
-    build_hunk(4'd0, 4'd0, 3'd4, 3'd0, 3'd1, 8'd0, 8'o201, 1'b0);
+    build_hunk(4'd0, 4'd0, 3'd4, 3'd0, 3'd1, 8'o100, 8'o201, 1'b0);
     send_a_hunk(16'd0);
-    $display("tb_memrun: IM[0..3] overwritten with ASEL=1 references");
+    $display("tb_memrun: IM[0..3] overwritten with ASEL=1 FF=100B references");
     // ARE THE FOUR COPIES ACTUALLY IDENTICAL? IM is four INTERLEAVED banks --
     // the low two address bits pick the bank -- so IM[0..3] are bank 0..3 at
     // idx 0, and build_hunk's four copies land one per bank.
@@ -1480,7 +1494,7 @@ module tb_memrun;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
     ntnia=0; nff0=0; nsamp=0;
-    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0;
+    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
     nwcr=0; pwcr=m.b_MemC.WantCR; nwar=0; pwar=m.b_MemC.WantAltRef_p_;
     nfl=0; pfl=m.b_MemC.Flush_u__p_; nmp=0; pmp=m.b_MemC.Map_u__p_;
@@ -1538,6 +1552,15 @@ module tb_memrun;
         // pin 15 is the OR despite the primed name, pin 9 the NOR).
         if (m.b_MemC.IgnoreProc)      nff0_ign = nff0_ign + 1;
         if (m.b_MemC.ASEL_0)          nff0_a0  = nff0_a0  + 1;
+        // ProcH d24/d23 (MC10101, pin 12 COMMON) qualify the FF bits the
+        // memory section sees:  FF.0mem' = ~(FFok'a | FF.0),
+        // FF.1mem = FFok'a | FF.1.  FFok' high FORCES both high.
+        if (m.b_ProcH.FFok_p_a) begin
+          nff0_ffok = nff0_ffok + 1;
+          // Cross-check the gate against PARC's wire list, every cycle.
+          if (m.b_MemC.FF_0mem_p_ !== 1'b0) nff0_bad = nff0_bad + 1;
+          if (m.b_MemC.FF_1mem   !== 1'b1) nff0_bad = nff0_bad + 1;
+        end
       end
       if (!tnia_hit[tnia_now]) begin
         tnia_hit[tnia_now] = 1'b1; ntnia = ntnia + 1;
@@ -1596,6 +1619,13 @@ module tb_memrun;
     if (nff0_ign !== 0 || nff0_a0 !== 0)
       $fatal(1, "WantProcRef' low requires IgnoreProc = 0 and ASEL.0 = 0 (saw %0d, %0d)",
              nff0_ign, nff0_a0);
+    // GATE: ProcH d24 gate a is an MC10101 whose pin 12 is the COMMON input,
+    // so  FF.0mem' = ~(FFok'a | FF.0)  and  FF.1mem = FFok'a | FF.1.  With
+    // FFok'a high both memory FF bits are FORCED, and the RTL must show it.
+    if (nff0_bad !== 0)
+      $fatal(1, "FFok'a high did not force FF.0mem'=0 and FF.1mem=1 (%0d violations)", nff0_bad);
+    $display("tb_memrun:   FFok'a (ProcH d24/d23 qualifier) high on %0d of %0d -- high FORCES FF.0mem/FF.1mem high",
+             nff0_ffok, nff0);
     $display("tb_memrun:   ...and WantProcRef' = IgnoreProc | ASEL.0 -- IgnoreProc=1 on %0d, ASEL.0=1 on %0d of %0d",
              nff0_ign, nff0_a0, nff0);
     $display("tb_memrun:   WantCR=%b terms -- ASEL.1'=%b FF.0mem'=%b WantProcRef'=%b",
