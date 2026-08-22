@@ -112,7 +112,12 @@ The next three steps, in order:
    which `cpu.c` conditions on identically -- so they need the machine running
    in such a task. Tasking now makes that reachable.
 2. **An actual access**, through the Map and the cache, with the Pipe recording
-   it. The C emulator is a ready-made oracle, as it was for the ALU and IM.
+   it. The boundary is now exact: the microcode asks (`WantProcRef'` asserts)
+   and nothing completes -- the Pipe pointer does not move over a whole run,
+   and `PRhold` reads asserted with none of the three hold requests set. That
+   hold is the first thing to explain; it is the wire
+   `BACKPLANE_CASE_ALIASES` newly merged (`PrHold`/`PRhold`) and has never been
+   looked at. The C emulator is a ready-made oracle, as it was for the ALU and IM.
 
 ### 4. IFU
 
