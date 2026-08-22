@@ -1,0 +1,38 @@
+The key strategic insight
+
+  The germ is designed to boot standalone and load the OS itself — that's its whole job. So the fact that germ-6.1 faults on an unbound OS import (gfi 0o264) during its
+  own startup, before reaching DoInLoad, is anomalous. It means one of two things:
+
+  1. The germ took a wrong turn — an emulator or germ-plant bug led it to resume/call something it shouldn't, and the real Dorado germ never reaches this call. → a
+  fixable bug with high payoff (could unblock the path to DoInLoad).
+  2. The germ legitimately needs the OS here — unlikely given the germ's standalone design, but possible if our germ-plant set up the boot parameters / saved state wrong.
+
+  The single most diagnostic thing I haven't pinned: what is the first trap (the one that enters TrapsImpl around dispatch 155, where GetCodeBytes tests for a zLDIV)? If
+  our emulator spuriously trapped an opcode that shouldn't trap, that one bug cascades into the whole TrapsImpl → germERROR sequence — and fixing it could collapse the
+  wall. This has been the pattern all along (each real microengine bug we fix advances the germ).
+
+  The options
+
+  1. Path B — find the first trap (time-boxed deep-dive). Trace what actually traps at ~dispatch 155 and whether it's legitimate. Highest-leverage Path-B step: either a
+  spurious-trap bug (big unblock) or confirmation the germ genuinely needs the OS (→ pivot). Effort: medium. Payoff: high-variance.
+
+  2. Path B — force past to DoInLoad (prove the Stage-2 pipeline). Stub/skip the problematic startup to drive the germ to DoInLoad, let the ready EFTP server feed a Cedar
+  boot file, and see the OS load end-to-end. Validates the whole Stage-2 path and reveals what the real OS-load needs. Effort: medium. Payoff: proves the pipeline even
+  if the germ-startup bug remains.
+
+  3. Consolidate Path A (the working Alto path). Build out what already works — more Alto worlds/software, better display/keyboard fidelity (now that the audit fixes are
+  in), a robust demo + regression suite. Effort: low. Risk: low. Builds on success.
+
+  4. Broaden C-emulator coverage. Run other microcode worlds (Smalltalk DSemu, DoradoLisp, TriEmu) to flush out and fix more engine bugs — cross-validation that also
+  hardens the engine for any path. Effort: medium. Payoff: correctness breadth.
+
+  5. Start Phase 2 (Verilog). Path A boots "something real" (the mission's gate for starting RTL). Begin the synthesizable design. Effort: large. A different kind of
+  work.
+
+  My recommendation
+
+  I'd do #1 first, strictly time-boxed — because the "germ faults during standalone startup" anomaly genuinely smells like one more emulator bug, and the first-trap
+  question is concrete and answerable in one focused pass. If it turns out to be a legitimate trap (germ really wants the OS), I'd immediately pivot to #2 to prove the
+  Stage-2 pipeline. Those two are the natural Path-B endgame. If both stall, #3/#4 are the low-risk ways to keep building value on what works.
+
+  I'd not recommend #5 yet — the C emulator boots Alto-on-Dorado but isn't mature enough (Cedar unproven) to be a stable RTL reference.
