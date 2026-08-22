@@ -222,9 +222,29 @@
 //     says the data is not good, because nothing has ever completed a storage
 //     access.
 //
-//     So the remaining work is the storage side itself: MemD's DRAM path with
-//     its RAS/CAS and refresh, and the Map on MemX. Until one of those returns
-//     data, MDhold is correct.
+//     So the remaining work is the storage side. AND IT IS FURTHER UPSTREAM
+//     THAN "write a storage model": THE MACHINE NEVER STARTS A DRAM CYCLE.
+//     Over a whole run MemRASa, MemCASa and MemWEa toggle ZERO times, with
+//     MemX's own clock running fine (188 edges against the processor's 181).
+//     So attaching a behavioural MSA array would not be reached -- nothing is
+//     asking it for anything.
+//
+//     The storage interface itself is fully specified and small, which is the
+//     good news. The MSA boards are not among the eleven and the archive has
+//     no wire list for them, but `msa.bp` states their whole backplane
+//     interface in 66 nets: MemAd.1-8 (multiplexed address, pins matching
+//     MemX's exactly), MemRAS/CAS/WE in a and b copies from DIFFERENT
+//     packages (two banks, not fan-out), Sin.00-15 and Sout.00-15, and the
+//     EcIn/EcOut correction lines. Direction is settled by the netlist rather
+//     than by the names, which mislead: MemD DRIVES `Sout` (write data to
+//     storage) and RECEIVES `Sin` (read data back).
+//
+//     LIKELY REASON, and the next thing to check: REFRESH NEVER RUNS.
+//     `MemRfsh` and `RfshPeriod` both read 0 for the whole run even though
+//     `SetRunRfsh` is asserted. On a DRAM machine refresh cycles are what
+//     exercise RAS continuously, so a machine whose refresh never starts is
+//     exactly a machine whose RAS never toggles. Start there, not at the
+//     storage array.
 //
 //   * `PRhold` is clear at startup now, and comes back UP during the run,
 //     with `PrHoldReq`, `CHoldReq` and `ExtHoldReq` all still reading 0. That
@@ -343,7 +363,8 @@ module tb_memrun;
   integer tk, tbad;
   reg [15:0] tpc15, tpc15b, tpc7;
   reg [19:0] link15, link15b, link7;
-  integer nmemclk, kk, npipe;
+  integer nmemclk, kk, npipe, nras, ncas, nwe, nmx;
+  reg prasa, pcasa, pwea, pmx;
   reg [3:0] ppa;
   wire [3:0] pipead = {m.b_MemC.PipeAd_0, m.b_MemC.PipeAd_1,
                        m.b_MemC.PipeAd_2, m.b_MemC.PipeAd_3};
@@ -1141,6 +1162,9 @@ module tb_memrun;
     parc_run(8'h60, 8'h13, 8'hE1, 8'h4A, 8'h43);      // TaskingOn,Return
 
     n0a = 0; nmemclk = 0; npipe = 0; ppa = pipead;
+    nras = 0; ncas = 0; nwe = 0;
+    prasa = m.MemRASa; pcasa = m.MemCASa; pwea = m.MemWEa;
+    nmx = 0; pmx = m.b_MemX.Clk0_p_Aa;
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
     for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
       @(posedge sys_clk);
@@ -1149,7 +1173,24 @@ module tb_memrun;
       // THE PIPE POINTER. Every storage reference advances it, so counting its
       // changes counts references actually recorded by the memory section.
       if (pipead !== ppa) begin npipe = npipe + 1; ppa = pipead; end
+      // THE STORAGE INTERFACE. The MSA boards are not among the eleven -- the
+      // archive has no wire list for them -- so MemAd/RAS/CAS/WE/Sout leave
+      // the machine and Sin comes back. Count the strobes to see whether the
+      // memory section is actually driving a DRAM cycle.
+      if (m.MemRASa !== prasa) begin nras = nras + 1; prasa = m.MemRASa; end
+      if (m.MemCASa !== pcasa) begin ncas = ncas + 1; pcasa = m.MemCASa; end
+      if (m.MemWEa  !== pwea ) begin nwe  = nwe  + 1; pwea  = m.MemWEa;  end
+      if (m.b_MemX.Clk0_p_Aa !== pmx) begin nmx = nmx + 1; pmx = m.b_MemX.Clk0_p_Aa; end
     end
+    $display("tb_memrun: storage strobes over the run -- MemRASa %0d, MemCASa %0d, MemWEa %0d",
+             nras, ncas, nwe);
+    $display("tb_memrun:   MemIdlea=%b MemX clk0' edges=%0d  MemRfsh=%b RfshPeriod=%b SetRunRfsh=1",
+             m.b_MemX.MemIdlea, nmx, m.MemRfsh, m.RfshPeriod);
+    $display("tb_memrun:   MemAd=%b%b%b%b%b Sout=%h  (RASa=%b CASa=%b WEa=%b)",
+             m.MemAd_0, m.MemAd_1, m.MemAd_2, m.MemAd_3, m.MemAd_4,
+             {m.Sout_00,m.Sout_01,m.Sout_02,m.Sout_03,m.Sout_04,m.Sout_05,m.Sout_06,m.Sout_07,
+              m.Sout_08,m.Sout_09,m.Sout_10,m.Sout_11,m.Sout_12,m.Sout_13,m.Sout_14,m.Sout_15},
+             m.MemRASa, m.MemCASa, m.MemWEa);
     $display("tb_memrun: the Pipe pointer moved %0d times over the run, ending at %0d",
              npipe, pipead);
     $display("tb_memrun: holds -- PrHoldReq=%b CHoldReq=%b ExtHoldReq=%b PRhold=%b",
