@@ -306,15 +306,30 @@
 // initialised, so the dMiss bits read 0 and every way matches -- but the
 // mechanism is working, which is the thing worth knowing.
 //
-// TRIED AND NOT SUFFICIENT: a Flush reference. cpu.c's dispatch calls ASEL=1
-// with ff01=1 a FLUSH, and FlushStore is one of ForceMiss's terms, so it
-// should force a miss. Loading four of those into IM still gives
-// CacheRefInA = 1 -- the kind decodes as a plain cache reference. That is
-// task 4's problem, not this one: only LFetch<- and IFetch<- decode cleanly
-// from ASEL and the two FF bits, while Store<- and the Flush/IO kinds are
-// qualified by board state (and, for the IO kinds, by the current task being
-// an I/O task -- a condition cpu.c has too). So the kind table has to be
-// finished before a Flush can be issued deliberately.
+// TRIED AND NOT SUFFICIENT: a Flush reference -- and tracing WHY finished the
+// kind table's shape.
+//
+// MemC j24 is an MC10161, the INVERTING 1-of-8 decoder (the counterpart of the
+// MC10162 at a24 that makes IFetch<-/LFetch<-). Its address is
+//
+//     {S4, S2, S1} = {EmuOrFT', ASEL.2, FF.1mem}
+//
+// with `Flush_'` on Q3 and `Map_'` on Q1, and it is enabled by E' on pins 2
+// and 15 = `WantAltRef'` and `HoldOrIP`.
+//
+// `EmuOrFT'` IS THE EMULATOR-OR-FAULT-TASK CONDITION, which is exactly what
+// cpu.c marks on those two kinds -- DM_REF_MAP and DM_REF_FLUSH carry the
+// comment "emulator/fault", and the IO kinds "io task". So the reference KIND
+// depends on WHICH TASK IS RUNNING, in both models, independently derived.
+//
+// Measured: EmuOrFT' = 0, ASEL.2 = 1, FF.1mem = 1 -- the address is EXACTLY
+// right for Flush. But `Flush_'` stays 1 because the ENABLE blocks it:
+// `WantAltRef'` = 1.
+//
+// And MemC b24 (an MC10103) makes `WantAltRef' = WantProcRef' | WantCR`. So an
+// ALTERNATE reference -- Map or Flush -- requires `WantCR` LOW. The machine
+// either wants a CACHE reference or an ALTERNATE one, and it currently wants
+// the cache. That is the last link, and `WantCR` is the signal to chase.
 //
 // Then the storage array, whose interface msa.bp specifies completely:
 // MemAd.1-8, MemRAS/CAS/WE in a and b copies from DIFFERENT packages (two
@@ -1450,6 +1465,16 @@ module tb_memrun;
              nldp, m.b_MemC.AfreeOrEc_p_a, m.b_MemC.EcKeepsAbusy);
     $display("tb_memrun:   cache -- Hit'a=%b Hit'b=%b (edges %0d/%0d) | PairHasA edges %0d, CacheRefInA edges %0d",
              m.b_MemC.Hit_p_a, m.b_MemC.Hit_p_b, nha, nhb, npha, ncra);
+    // THE KIND DECODER IS TASK-GATED. MemC j24 is an MC10161 1-of-8 decoder
+    // addressed by {S4,S2,S1} = {EmuOrFT', ASEL.2, FF.1mem}, enabled by
+    // WantAltRef' and HoldOrIP, with Flush_' on Q3 and Map_' on Q1. So Flush
+    // needs EmuOrFT'=0, ASEL.2=1, FF.1mem=1 -- and EmuOrFT' is the EMULATOR OR
+    // FAULT TASK condition, which is exactly what cpu.c marks on DM_REF_MAP and
+    // DM_REF_FLUSH ("emulator/fault") and on the IO kinds ("io task").
+    $display("tb_memrun:   kind decoder -- EmuOrFT'=%b ASEL.2=%b FF.1mem=%b | WantAltRef'=%b HoldOrIP=%b | Flush_'=%b Map_'=%b",
+             m.b_MemC.EmuOrFT_p_, m.b_MemC.ASEL_2, m.b_MemC.FF_1mem,
+             m.b_MemC.WantAltRef_p_, m.b_MemC.HoldOrIP,
+             m.b_MemC.Flush_u__p_, m.b_MemC.Map_u__p_);
     // The A-SLOT reference kinds -- what actually got latched into the pair.
     $display("tb_memrun:   A slot -- CacheRefInA=%b IfuRefInA=%b Store_InA=%b PrefetchInA=%b IoFetchInA=%b PairHasA=%b",
              m.b_MemC.CacheRefInA, m.b_MemC.IfuRefInA, m.b_MemC.Store_u_InA,
