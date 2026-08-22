@@ -114,10 +114,12 @@ The next three steps, in order:
 2. **An actual access**, through the Map and the cache, with the Pipe recording
    it. The boundary is now exact: the microcode asks (`WantProcRef'` asserts)
    and nothing completes -- the Pipe pointer does not move over a whole run,
-   and `PRhold` reads asserted with none of the three hold requests set. That
-   hold is the first thing to explain; it is the wire
-   `BACKPLANE_CASE_ALIASES` newly merged (`PrHold`/`PRhold`) and has never been
-   looked at. The C emulator is a ready-made oracle, as it was for the ALU and IM.
+   and `PRhold` -- the memory-to-processor hold -- is CLEAR before the machine
+   starts and comes UP during the run, with none of the three hold requests
+   ever set. So it is asserted by something the machine does while executing,
+   which for a reference that never completes is what one would expect. Next:
+   which of MemC's three Hold flip-flops (e22 pin 3, e22 pin 14, e23 pin 2)
+   sets, and on what. The C emulator is a ready-made oracle, as it was for the ALU and IM.
 
 ### 4. IFU
 
