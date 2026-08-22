@@ -2785,9 +2785,10 @@ Two things remain, both small and both stated by measurement:
    takes **7 of its 8 values**, MapFnc 2 of 4, `preStartMem'` is low on 2712
    samples and `StartMem'` on 2680. All gated.
 
-5. **The write is scheduled, and a map fault is what stops it.** `MemWEa` is
-   0 for the whole run, and it is **not a gate**. MemX `c02` is an MC10176
-   clocked by `Clk1'Aa` whose Q0 is `MemWEa`, fed from MemX `i10`, an F10016:
+5. **The write is scheduled, and an empty Map entry is what stops it.**
+   `MemWEa` is 0 for the whole run, and it is **not a gate**. MemX `c02` is an
+   MC10176 clocked by `Clk1'Aa` whose Q0 is `MemWEa`, fed from MemX `i10`, an
+   F10016:
 
    ```
    C = Clk0'Ba    CE' = TrueBD    PE' = MemIdle    MR = STPerr
@@ -2796,8 +2797,8 @@ Two things remain, both small and both stated by measurement:
 
    **`TrueBD` is a hardwired TRUE** -- `g04` is an MC10195 with pin 12 open,
    the same trick as ProcH's `TrueA` -- so CE' is permanently high and **this
-   F10016 never counts**. It is a parallel-load *register*. Measured: in load
-   on 2936 samples, allowed to count on 0. (Do not reason about its terminal
+   F10016 never counts**: a parallel-load *register*. Measured: in load on
+   2936 samples, allowed to count on 0. (Do not reason about its terminal
    count; that is the bug that once oscillated the whole machine, and it is
    not in play here.)
 
@@ -2808,24 +2809,38 @@ Two things remain, both small and both stated by measurement:
    D0 = ~(WriteInMem' | MemX07.sil+10 | MapTroubleInMem)
    ```
 
-   Measured over the run, each term low on:
+   with each term low on: `WriteInMem'` **1280** (a write *is* in the
+   pipeline), `MemX07.sil+10` 96, `MapTroubleInMem` **0** -- asserted the
+   entire run.
 
-   | term | cycles low |
-   |---|---|
-   | `WriteInMem'` | 1280 -- **a write is in the pipeline** |
-   | `MemX07.sil+10` | 96 |
-   | `MapTroubleInMem` | **0** -- asserted the entire run |
+   **And `MapTrouble` is asserted because the Map entry is empty.** `j11` (an
+   MC10176) registers it at `StartMemClk0'` from `MapTrouble`, which is `g14`,
+   an MC10121 4-wide OR-AND whose **common** input is `ReadOrWriteInMap'`:
 
-   `MapTroubleInMem` high in a NOR forces D0 to 0 forever. **The write-back is
-   blocked by a map fault**, and it should be: this bench never initialises
-   the Map, so the address it references has no valid entry. That is precisely
-   the work `InitMem.mc` does in real microcode -- the map walk the Smalltalk
-   bring-up turned on.
+   ```
+   MapTrouble = (CheckWP' | MapWP'    | ROWIM')
+              & (MapWP'   | MapDirty' | ROWIM')
+              & (TrueBD)                            <- pinned to 1
+              & (MapEven' | preRfshInMem | ROWIM')
+   ```
 
-   `WriteInMem'` asserting is gated (the write-back *is* scheduled); dropping
-   the Store is caught. **Next:** set up a map entry for the referenced
-   address -- or use a reference that bypasses the map -- and the write should
-   reach the array.
+   Measured: `ReadOrWriteInMap'` low on **all 3000** samples, so a map
+   operation *is* in the stage and the common input is not forcing it
+   (gated) -- but **`MapWP'` and `MapDirty'` are both high on all 3000**, and
+   they appear in two of the four groups, forcing those terms to 1.
+
+   An uninitialised Map RAM reads as "not writable, not dirty", which is
+   exactly that pattern. The bench never writes a Map entry, so the address it
+   references has none -- precisely the work `InitMem.mc` does in real
+   microcode.
+
+   **Next:** write a real Map entry for the referenced address. The `←Map`
+   reference is FA=0, FB=3, FC=1 = `0o31` (ContA `b17`, and `cpu.c`'s
+   `DM_REF_RMAP` comment gives the same number from an independent
+   derivation). From the `j24`/`b24`/`d22` algebra a Map reference is
+   **ASEL = 000 with FF.0 = 0, FF.1 = 1** -- the same FF as the Flush, one
+   ASEL bit apart. With a valid entry, `MemWEa` should assert and the
+   write-back reaches the array.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting
