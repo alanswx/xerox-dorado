@@ -169,6 +169,27 @@
 // `io_task ? DM_REF_IOFETCH : DM_REF_MAP`). Reaching those needs the machine
 // in a task that makes them meaningful, which is the next step.
 //
+// WHERE THIS STOPS, stated precisely because the next session should start
+// here. The microcode ASKS for storage and nothing COMPLETES:
+//
+//   * `WantProcRef'` asserts, so the request reaches MemC (above).
+//   * The PIPE does not move. Every storage reference leaves its VA in a
+//     16-entry ring (MemC g02/g03/h02/h03/i02/i03/k03, addressed by
+//     `PipeAd.0-3` and fed from `dVA.04-21`), and over 3000 sys_clk of
+//     execution the pointer changes ZERO times. It reads 12, which is where
+//     startup left it -- a first pass read that 12 as evidence that references
+//     were being recorded, which it is not. Count the CHANGES, not the value.
+//   * `PRhold` reads 1 while `PrHoldReq`, `CHoldReq` and `ExtHoldReq` all read
+//     0. That is the open question: either the hold is asserted for a reason
+//     none of those three expresses, or its sense is not what the name
+//     suggests. `PRhold` is the memory-to-processor hold, and it is the same
+//     wire as MemC's `PrHold` -- the two spellings the BACKPLANE_CASE_ALIASES
+//     table merges -- so it is newly connected and has never been examined.
+//
+// None of those three is ASSERTED here. The Pipe and the holds are printed as
+// diagnostics because the CORRECT values are not yet known, and asserting on a
+// value one does not understand gates nothing.
+//
 // ONE THING THIS COST, worth not repeating: `dorado_mem` has three more clock
 // ports than `dorado_proc` -- CLK_mc', CLK_md', CLK_mx' -- because the
 // BaseBoard fans the clock to every slot. Leaving them undriven gives MemC
@@ -272,7 +293,10 @@ module tb_memrun;
   integer tk, tbad;
   reg [15:0] tpc15, tpc15b, tpc7;
   reg [19:0] link15, link15b, link7;
-  integer nmemclk, kk;
+  integer nmemclk, kk, npipe;
+  reg [3:0] ppa;
+  wire [3:0] pipead = {m.b_MemC.PipeAd_0, m.b_MemC.PipeAd_1,
+                       m.b_MemC.PipeAd_2, m.b_MemC.PipeAd_3};
   reg pmc;
   wire [2:0] asel = {m.ASEL_0, ~m.ASEL_1_p_, ~m.ASEL_2_p_};
   // MAR is carried across the backplane active low.
@@ -1035,13 +1059,20 @@ module tb_memrun;
     // layout doradoboot.masm states.
     parc_run(8'h60, 8'h13, 8'hE1, 8'h4A, 8'h43);      // TaskingOn,Return
 
-    n0a = 0; nmemclk = 0;
+    n0a = 0; nmemclk = 0; npipe = 0; ppa = pipead;
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
     for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
       @(posedge sys_clk);
       if (m.b_ContA.clk0_p_Ca !== p0) begin n0a = n0a + 1; p0 = m.b_ContA.clk0_p_Ca; end
       if (m.b_MemC.clk0_p_A !== pmc) begin nmemclk = nmemclk + 1; pmc = m.b_MemC.clk0_p_A; end
+      // THE PIPE POINTER. Every storage reference advances it, so counting its
+      // changes counts references actually recorded by the memory section.
+      if (pipead !== ppa) begin npipe = npipe + 1; ppa = pipead; end
     end
+    $display("tb_memrun: the Pipe pointer moved %0d times over the run, ending at %0d",
+             npipe, pipead);
+    $display("tb_memrun: holds -- PrHoldReq=%b CHoldReq=%b ExtHoldReq=%b PRhold=%b RefOutstanding'=%b",
+             m.PrHoldReq, m.CHoldReq, m.ExtHoldReq, m.PRhold, m.RefOutstanding_p_);
     $display("tb_memrun: machine running -- %0d clk0' edges, Stop=%b", n0a, m.b_ContA.Stop);
     if (n0a < 100) $fatal(1, "the microinstruction clock is not free-running");
 
@@ -1070,6 +1101,17 @@ module tb_memrun;
     // the IFU drives it and the IFU is not in this seven-board machine, so it
     // reads as an undriven input rather than as a statement about the memory.
     $display("tb_memrun: MAR=%h", mar);
+    // THE PIPE: every storage reference leaves its VA in a 16-entry ring
+    // (MemC g02/g03/h02/h03/i02/i03/k03, addressed by PipeAd.0-3). If the
+    // running microcode is making references, the ring pointer moves and the
+    // entries stop being uniform.
+    $display("tb_memrun: PipeAd=%0d | PipeVA[16:19]=%b%b%b%b dVA[04:07]=%b%b%b%b",
+             {m.b_MemC.PipeAd_0, m.b_MemC.PipeAd_1, m.b_MemC.PipeAd_2, m.b_MemC.PipeAd_3},
+             m.b_MemC.PipeVA_16, m.b_MemC.PipeVA_17, m.b_MemC.PipeVA_18, m.b_MemC.PipeVA_19,
+             m.b_MemC.dVA_04, m.b_MemC.dVA_05, m.b_MemC.dVA_06, m.b_MemC.dVA_07);
+    for (kk = 0; kk < 16; kk = kk + 1)
+      if (m.b_MemC.u_k03.mem[kk] !== 4'b0000)
+        $display("tb_memrun:   Pipe[%0d] VA.16-19 = %b", kk, m.b_MemC.u_k03.mem[kk]);
     $display("tb_memrun: ASEL=%0d WantProcRef'=%b | Dbusy=%b WantCR=%b CacheRefInA'=%b IgnoreProc=%b",
              asel, m.b_MemC.WantProcRef_p_, m.b_MemC.Dbusy, m.b_MemC.WantCR,
              m.b_MemC.CacheRefInA_p_, m.b_MemC.IgnoreProc);
