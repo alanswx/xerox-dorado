@@ -292,11 +292,29 @@
 // Reading "InPair = 1" as "not in the pair" was the error; those signals name
 // WHICH KIND is in the pair, and this kind is a cache reference.
 //
-// TO REACH THE STORAGE PATH, FORCE A MISS. The hit is almost certainly
-// spurious -- the cache tags have never been initialised, so a garbage tag
-// matches -- but the mechanism is working, which is the thing worth knowing.
-// A reference to an address whose tag cannot match, or clearing the tags
-// first, is what puts a reference on the storage side and into the Pipe.
+// TO REACH THE STORAGE PATH, FORCE A MISS -- and PARC built a signal for it.
+// The hit is a wired-OR of four MC1660 NORs, one per way (MemC f16 pins 3/14,
+// f17 pins 3/14):
+//
+//     way N hits = ~(ForceMiss | dMissN.04-11 | dMissN.12-15 | dMissN.16-19)
+//
+// so `ForceMiss` alone kills every way. MemC k19 (MC10109) makes it:
+//
+//     ForceMiss = ForceDirtyMiss | bEcHasA | VictimInA | FlushStore
+//
+// The hit here is almost certainly spurious -- the cache tags have never been
+// initialised, so the dMiss bits read 0 and every way matches -- but the
+// mechanism is working, which is the thing worth knowing.
+//
+// TRIED AND NOT SUFFICIENT: a Flush reference. cpu.c's dispatch calls ASEL=1
+// with ff01=1 a FLUSH, and FlushStore is one of ForceMiss's terms, so it
+// should force a miss. Loading four of those into IM still gives
+// CacheRefInA = 1 -- the kind decodes as a plain cache reference. That is
+// task 4's problem, not this one: only LFetch<- and IFetch<- decode cleanly
+// from ASEL and the two FF bits, while Store<- and the Flush/IO kinds are
+// qualified by board state (and, for the IO kinds, by the current task being
+// an I/O task -- a condition cpu.c has too). So the kind table has to be
+// finished before a Flush can be issued deliberately.
 //
 // Then the storage array, whose interface msa.bp specifies completely:
 // MemAd.1-8, MemRAS/CAS/WE in a and b copies from DIFFERENT packages (two
@@ -426,8 +444,8 @@ module tb_memrun;
   reg [19:0] link15, link15b, link7;
   integer nmemclk, kk, npipe, nras, ncas, nwe, nmx;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
-  integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra;
-  reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra;
+  integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb;
+  reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb;
   reg [2:0] pms;
   reg [3:0] pipe_before;
   wire [2:0] mapst = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
@@ -1296,6 +1314,16 @@ module tb_memrun;
     // EXECUTE. ASEL=1 is a reference (MemC b24: WantProcRef' = IgnoreProc |
     // ASEL.0) and BSEL >= 4 selects the A leg of the MAR mux, which
     // compute-test established puts a real register value on the address.
+    // A plain fetch HITS in the cache (uninitialised tags match), so it is
+    // serviced without touching storage. PARC's own lever for the storage path
+    // is ForceMiss -- MemC k19 (MC10109) makes it
+    //     ForceMiss = ForceDirtyMiss | bEcHasA | VictimInA | FlushStore
+    // and cpu.c's dispatch says ASEL=1 with ff01=1 is FLUSH. ff01 is
+    // FF.0*2 + FF.1 MSB-first, so ff01=1 is FF = 0o100.
+    // (ff01 = 1 was tried here, which cpu.c's dispatch calls FLUSH and which
+    // would force a miss -- see below. It still decodes as CacheRefInA, so a
+    // Flush needs more than the ff01 bits, which is task 4's problem: only
+    // LFetch<- and IFetch<- decode cleanly from ASEL/ff01 alone.)
     build_hunk(4'd0, 4'd0, 3'd4, 3'd0, 3'd1, 8'd0, 8'o201, 1'b0);
     send_a_hunk(16'd0);
     $display("tb_memrun: IM[0..3] overwritten with ASEL=1 references");
@@ -1363,6 +1391,7 @@ module tb_memrun;
     nwpr=0; pwpr=m.b_MemC.WantProcRef_p_; nrh=0; prh=m.b_MemC.RefHold_p_;
     nldp=0; pldp=m.b_MemC.LdPair_p_;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
+    nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
     for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
       @(posedge sys_clk);
@@ -1396,6 +1425,8 @@ module tb_memrun;
       if (m.b_MemC.LdPair_p_         !== pldp) begin nldp=nldp+1; pldp=m.b_MemC.LdPair_p_;         end
       if (m.b_MemC.PairHasA          !== ppha) begin npha=npha+1; ppha=m.b_MemC.PairHasA;          end
       if (m.b_MemC.CacheRefInA       !== pcra) begin ncra=ncra+1; pcra=m.b_MemC.CacheRefInA;       end
+      if (m.b_MemC.Hit_p_a           !== pha ) begin nha =nha +1; pha =m.b_MemC.Hit_p_a;           end
+      if (m.b_MemC.Hit_p_b           !== phb ) begin nhb =nhb +1; phb =m.b_MemC.Hit_p_b;           end
       if (m.b_MemX.preStartMem_p_    !== ppsm) begin npsm=npsm+1; ppsm=m.b_MemX.preStartMem_p_;    end
       if (m.b_MemX.WantMapWait_p_    !== pwmw) begin nwmw=nwmw+1; pwmw=m.b_MemX.WantMapWait_p_;    end
       if (m.b_MemX.MapWait__g13_3    !== pg13) begin ng13=ng13+1; pg13=m.b_MemX.MapWait__g13_3;    end
@@ -1417,8 +1448,8 @@ module tb_memrun;
     // toggle every microinstruction unless one of the other two holds it.
     $display("tb_memrun:   LdPair' edges %0d -- AfreeOrEc'a=%b EcKeepsAbusy=%b",
              nldp, m.b_MemC.AfreeOrEc_p_a, m.b_MemC.EcKeepsAbusy);
-    $display("tb_memrun:   cache -- Hit'a=%b Hit'b=%b Hia=%b | PairHasA edges %0d, CacheRefInA edges %0d",
-             m.b_MemC.Hit_p_a, m.b_MemC.Hit_p_b, m.b_MemC.Hia, npha, ncra);
+    $display("tb_memrun:   cache -- Hit'a=%b Hit'b=%b (edges %0d/%0d) | PairHasA edges %0d, CacheRefInA edges %0d",
+             m.b_MemC.Hit_p_a, m.b_MemC.Hit_p_b, nha, nhb, npha, ncra);
     // The A-SLOT reference kinds -- what actually got latched into the pair.
     $display("tb_memrun:   A slot -- CacheRefInA=%b IfuRefInA=%b Store_InA=%b PrefetchInA=%b IoFetchInA=%b PairHasA=%b",
              m.b_MemC.CacheRefInA, m.b_MemC.IfuRefInA, m.b_MemC.Store_u_InA,
