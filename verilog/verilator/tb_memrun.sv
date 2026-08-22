@@ -455,10 +455,26 @@
 //      All gated here, and collapsing the Store back into a second Flush is
 //      caught.
 //
-//   4. STILL OPEN: the miss does not yet produce a DRAM write-back. The
-//      storage strobes stay at the refresh's own MemRASa 6 / MemCASa 4, and
-//      MemWEa is 0 -- no write enable in the whole run. ForceMiss and the
-//      miss are real; turning them into a storage ACCESS is the next step.
+//   4. AND THE MISS STARTS A STORAGE CYCLE. MemX i14 is an SG10139 PROM
+//      making `preStartMem'` from {MapFnc.0', MapFnc.1', MapState.0-2} --
+//      THE STORAGE CYCLE IS A PROM STATE MACHINE. Measured over the run:
+//      MapState takes 7 of its 8 values, MapFnc 2 of 4, `preStartMem'` is low
+//      on 2712 samples and `StartMem'` on 2680. All gated.
+//
+//   5. STILL OPEN: no WRITE. `MemWEa` is 0 for the whole run, so the
+//      write-back never puts data on the array. It is NOT a gate -- MemX c02
+//      is an MC10176 clocked by `Clk1'Aa` whose Q0 is MemWEa, fed from
+//      MemX i10, an F10016 COUNTER:
+//
+//          C   = Clk0'Ba      CE' = TrueBD       PE' = MemIdle
+//          H0  -> MemWEa      H2  -> MakeMemCAS  MR  = STPerr
+//
+//      so the write enable is a COUNTER PHASE, not a combinational term: the
+//      counter parallel-loads while `MemIdle` holds PE' low and then walks,
+//      and H0 rises at the write point. Chase D0 (pin 11, MemX07.sil+19) and
+//      whether the counter is being held in load. Note this is the same part
+//      whose terminal count was the machine-wide oscillation bug, so read the
+//      F10016 data sheet's CE'/TC semantics before concluding anything.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -596,6 +612,9 @@ module tb_memrun;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
   integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb, nwcr, nwar, nfl, nmp;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
+  reg [2:0] mapst_now; reg [1:0] mapfn_now;
+  reg mapst_hit [0:7]; reg mapfn_hit [0:3];
+  integer nmapst, nmapfn, npsm2, nsm2;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd;
   reg tnia_hit [0:4095];
   reg [2:0] pms;
@@ -1589,6 +1608,9 @@ module tb_memrun;
     nldp=0; pldp=m.b_MemC.LdPair_p_;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
+    nmapst=0; nmapfn=0; npsm2=0; nsm2=0;
+    for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
+    for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
     ntnia=0; nff0=0; nsamp=0;
     nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
@@ -1631,6 +1653,15 @@ module tb_memrun;
       if (m.b_MemC.Hit_p_b           !== phb ) begin nhb =nhb +1; phb =m.b_MemC.Hit_p_b;           end
       if (m.b_MemC.WantCR            !== pwcr) begin nwcr=nwcr+1; pwcr=m.b_MemC.WantCR;            end
       nsamp = nsamp + 1;
+      // MemX i14 (an SG10139 PROM) makes preStartMem' from
+      // {MapFnc.0', MapFnc.1', MapState.0-2}: the storage cycle is a PROM
+      // state machine, so watch the STATE, not an instant.
+      mapst_now = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
+      mapfn_now = {m.b_MemX.MapFnc_0_p_, m.b_MemX.MapFnc_1_p_};
+      if (!mapst_hit[mapst_now]) begin mapst_hit[mapst_now]=1'b1; nmapst=nmapst+1; end
+      if (!mapfn_hit[mapfn_now]) begin mapfn_hit[mapfn_now]=1'b1; nmapfn=nmapfn+1; end
+      if (!m.b_MemX.preStartMem_p_) npsm2 = npsm2 + 1;
+      if (!m.b_MemX.StartMem_p_)    nsm2  = nsm2  + 1;
       if (!m.b_MemC.ASEL_0 && !m.b_MemC.ASEL_2 && m.b_MemC.Store_u_)
         nff0_st = nff0_st + 1;
       // CONDITION ON THE INSTRUCTION ACTUALLY RUNNING. IM[0] and IM[1] both
@@ -1755,6 +1786,16 @@ module tb_memrun;
     if (nff0_fm  == 0) $fatal(1, "ForceMiss never asserted");
     if (nff0_mia == 0 || nff0_mib == 0)
       $fatal(1, "the cache never missed (a %0d, b %0d)", nff0_mia, nff0_mib);
+    // GATE: THE MISS STARTS A STORAGE CYCLE. MemX i14 is an SG10139 PROM
+    // making preStartMem' from {MapFnc.0', MapFnc.1', MapState.0-2} -- the
+    // storage cycle is a PROM STATE MACHINE, so require the state to WALK and
+    // the start to assert, rather than sampling either at an instant.
+    if (nmapst < 4)
+      $fatal(1, "the map sequencer barely moved (%0d of 8 states)", nmapst);
+    if (npsm2 == 0) $fatal(1, "preStartMem' never asserted -- no storage cycle was started");
+    if (nsm2  == 0) $fatal(1, "StartMem' never asserted");
+    $display("tb_memrun:   MAP SEQUENCER -- MapState took %0d of 8 values, MapFnc %0d of 4 | preStartMem' low on %0d, StartMem' low on %0d",
+             nmapst, nmapfn, npsm2, nsm2);
     $display("tb_memrun:   STORE cycles with Store_ asserted: %0d   |   HitColDirty during the flush: %0d",
              nff0_st, nff0_hcd);
     $display("tb_memrun:   FlushStore = ~(FSinPair' | EcHasAb) -- FSinPair'=0 on %0d, EcHasAb=0 on %0d of %0d",

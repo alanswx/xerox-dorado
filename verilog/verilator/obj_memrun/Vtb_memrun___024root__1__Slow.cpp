@@ -6740,6 +6740,14 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->tb_memrun__DOT__rfshper = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14295647686845263379ull);
     vlSelf->tb_memrun__DOT__k = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11652679766192128519ull);
     vlSelf->tb_memrun__DOT__i = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11971006283960824952ull);
+    vlSelf->tb_memrun__DOT__mapst_now = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 3846596962557251879ull);
+    vlSelf->tb_memrun__DOT__mapfn_now = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 15158372453570906705ull);
+    for (int __Vi0 = 0; __Vi0 < 8; ++__Vi0) {
+        vlSelf->tb_memrun__DOT__mapst_hit[__Vi0] = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11725344073449218468ull);
+    }
+    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
+        vlSelf->tb_memrun__DOT__mapfn_hit[__Vi0] = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13444960484698930736ull);
+    }
     for (int __Vi0 = 0; __Vi0 < 4096; ++__Vi0) {
         vlSelf->tb_memrun__DOT__tnia_hit[__Vi0] = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13308473991865379407ull);
     }
