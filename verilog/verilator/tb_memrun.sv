@@ -264,12 +264,30 @@
 // reference hold is ever taken and nothing is recorded in the Pipe. The extra
 // RAS/CAS is the refresh machinery, which was already running.
 //
-// THE NEXT QUESTION is therefore what turns a requested reference into a
-// serviced one -- the arbitration between a processor reference and the
-// refresh that currently owns the memory, and the cache lookup behind it.
-// `MapFnc` and the MapState PROM decide it, and `AwantsMapFS'`, `AfreeOrEc'a`
-// and `WantVic'` are the other terms of MemC k15's StartMap' gate that have
-// never been anything but their idle values.
+// THE NEXT QUESTION is what turns a requested reference into a serviced one,
+// and the trace goes:
+//
+//   StartMap' (MemC k15) never asserts for a REFERENCE -- only MapRfsh' moves,
+//     which is the refresh path.
+//   AwantsMapFS' comes from k18, an MC10195 programmable inverter whose
+//     control pin 9 is OPEN, so it is simply ~AwantsMapFS. It reads 1.
+//   AwantsMapFS comes from k20, an MC10101 driving it from THREE inverting
+//     outputs wired together, each sharing pin 12 = EcHasAb:
+//         pin 2  = ~(Map_InPair'   | EcHasAb)
+//         pin 3  = ~(MemC17.sil+12 | EcHasAb)
+//         pin 14 = ~(VicInPair'    | EcHasAb)
+//   Measured: EcHasAb = 0 (so the common input is not the problem), but
+//     Map_InPair' = 1 and VicInPair' = 1, which kills two of the three gates.
+//
+// THOSE `InPair` NAMES ARE THE POINT. The Dorado's memory works on PAIRS of
+// references -- the A and B slots of its reference pipeline -- and a reference
+// has to be LATCHED INTO A SLOT before the map and cache machinery will act on
+// it. With `PairFull` = 0 and `NoRef` = 0, the pair is EMPTY and a reference is
+// PENDING: it is being asked for and never loaded.
+//
+// So the next thing to find is what loads the A/B pair, not what starts the map
+// cycle. `PairFull`, `PairHasA'a` and `VicInPair` are the signals around it,
+// all on MemC.
 //
 // Then the storage array, whose interface msa.bp specifies completely:
 // MemAd.1-8, MemRAS/CAS/WE in a and b copies from DIFFERENT packages (two
@@ -1373,6 +1391,15 @@ module tb_memrun;
              nras, ncas, nwe);
     $display("tb_memrun: WantProcRef' edges %0d, RefHold' edges %0d (is the RUNNING microcode asking?)",
              nwpr, nrh);
+    // AwantsMapFS comes from MemC k20, an MC10101 driving it from three
+    // INVERTING outputs wired together, each sharing pin 12 = EcHasAb:
+    //     pin 2  = ~(Map_InPair'   | EcHasAb)
+    //     pin 3  = ~(MemC17.sil+12 | EcHasAb)
+    //     pin 14 = ~(VicInPair'    | EcHasAb)
+    // For AwantsMapFS to rise, one of those pairs must be BOTH low.
+    $display("tb_memrun:   AwantsMapFS=%b terms -- EcHasAb=%b Map_InPair'=%b VicInPair'=%b",
+             m.b_MemC.AwantsMapFS, m.b_MemC.EcHasAb, m.b_MemC.Map_u_InPair_p_,
+             m.b_MemC.VicInPair_p_);
     // THE MEMORY SECTION RUNS DRAM CYCLES. RAS and CAS both strobe, driven by
     // the refresh the PROM state machine sequences -- no force, no stimulus
     // beyond PARC's own startup.
