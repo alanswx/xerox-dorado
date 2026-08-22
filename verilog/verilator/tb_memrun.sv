@@ -285,7 +285,35 @@
 //     RTL reproduces it correctly. The netlist and the schematic agree; the
 //     suspicion was wrong.
 //
-//     THE CHAIN IS NOW COMPLETE, and it ends at one signal:
+//     CORRECTION (and the reason this file counts edges everywhere now): THE
+//     REFRESH CHAIN RUNS. An earlier pass SAMPLED these signals at one instant,
+//     found them all deasserted, and concluded `StartMap'` never asserts.
+//     Counting instead shows 6 edges through EVERY stage --
+//
+//       RfshPeriod 6 -> RfshSqWave 6 -> StartRfshCycle' 6 -> WantRfsh' 6
+//                    -> NeedRfsh' 6 -> MapRfsh' 6 -> StartMap' 6
+//
+//     -- so the request/acknowledge handshake works end to end. (WantRfsh is a
+//     JK flip-flop, MemX j08: J' = StartRfshCycle' sets it, K' = MapRfsh'
+//     clears it. StartRfshCycle' is just RfshPeriod delayed two clocks through
+//     j03, an MC10176 shift chain: D3->Q3 makes RfshSqWave, D4->Q4 makes
+//     StartRfshCycle'.) This is the same trap as reading the Pipe pointer's
+//     value instead of its changes. COUNT, DO NOT SAMPLE.
+//
+//     SO THE BLOCKER IS NARROWER AND ELSEWHERE: `MapWait` NEVER MOVES.
+//     0 edges over a whole run, stuck at 1. It is CE' on MemX h15, the
+//     MapState counter, and CE' must go LOW to advance. StartMap' asserting
+//     does nothing visible because it is PE' and h15's D pins are OPEN -- it
+//     loads 0000 into a register already holding 000, which is invisible. The
+//     machine is being told to reset the state to zero six times and never
+//     told to step.
+//
+//     MapWait is driven from MemC by g13 (MC10104) and h13 (MC10103), a
+//     wired-OR, so it goes low only when EVERY contributor is low. START
+//     THERE.
+//
+//     SUPERSEDED (kept because the reasoning was sound and only the sampling
+//     was wrong):
 //
 //       WantRfsh' never asserts (reads 1)
 //         -> NeedRfsh' stays 1     MemX j09, an MC10117 2-wide OR-AND whose
@@ -456,8 +484,8 @@ module tb_memrun;
   reg [19:0] link15, link15b, link7;
   integer nmemclk, kk, npipe, nras, ncas, nwe, nmx;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
-  integer nrp, nmr, nms, nsq;
-  reg psq;
+  integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw;
+  reg psq, psrc, pwr, pnr, pmrf, psm, pmw;
   reg [2:0] pms;
   wire [2:0] mapst = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
   reg [3:0] ppa;
@@ -1262,6 +1290,9 @@ module tb_memrun;
     nmx = 0; pmx = m.b_MemX.Clk0_p_Aa;
     nrp = 0; prp = m.RfshPeriod; nmr = 0; pmr = m.MemRfsh;
     nms = 0; pms = mapst; nsq = 0; psq = m.b_MemX.RfshSqWave;
+    nsrc=0; psrc=m.b_MemX.StartRfshCycle_p_; nwr=0; pwr=m.b_MemX.WantRfsh_p_;
+    nnr=0; pnr=m.b_MemX.NeedRfsh_p_; nmrf=0; pmrf=m.b_MemX.MapRfsh_p_;
+    nsm=0; psm=m.b_MemC.StartMap_p_; nmw=0; pmw=m.b_MemX.MapWait;
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
     for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
       @(posedge sys_clk);
@@ -1282,6 +1313,14 @@ module tb_memrun;
       if (m.MemRfsh   !== pmr) begin nmr = nmr + 1; pmr = m.MemRfsh;   end
       if (mapst !== pms) begin nms = nms + 1; pms = mapst; end
       if (m.b_MemX.RfshSqWave !== psq) begin nsq = nsq + 1; psq = m.b_MemX.RfshSqWave; end
+      // COUNT the whole refresh chain rather than sampling it. Reading an
+      // instant is what made the Pipe pointer look like it was advancing.
+      if (m.b_MemX.StartRfshCycle_p_ !== psrc) begin nsrc=nsrc+1; psrc=m.b_MemX.StartRfshCycle_p_; end
+      if (m.b_MemX.WantRfsh_p_       !== pwr ) begin nwr =nwr +1; pwr =m.b_MemX.WantRfsh_p_;       end
+      if (m.b_MemX.NeedRfsh_p_       !== pnr ) begin nnr =nnr +1; pnr =m.b_MemX.NeedRfsh_p_;       end
+      if (m.b_MemX.MapRfsh_p_        !== pmrf) begin nmrf=nmrf+1; pmrf=m.b_MemX.MapRfsh_p_;        end
+      if (m.b_MemC.StartMap_p_       !== psm ) begin nsm =nsm +1; psm =m.b_MemC.StartMap_p_;       end
+      if (m.b_MemX.MapWait           !== pmw ) begin nmw =nmw +1; pmw =m.b_MemX.MapWait;           end
     end
     $display("tb_memrun: storage strobes over the run -- MemRASa %0d, MemCASa %0d, MemWEa %0d",
              nras, ncas, nwe);
@@ -1304,6 +1343,11 @@ module tb_memrun;
     // NeedRfsh' comes from MemX j09 (MC10117 OR-AND) off WantRfsh',
     // RfshSqWave and PairFull. RfshSqWave is the periodic refresh square wave
     // -- if that is not running, nothing downstream can be.
+    $display("tb_memrun:   refresh chain EDGES -- RfshPeriod %0d, RfshSqWave %0d, StartRfshCycle' %0d,",
+             nrp, nsq, nsrc);
+    $display("tb_memrun:                          WantRfsh' %0d, NeedRfsh' %0d, MapRfsh' %0d, StartMap' %0d",
+             nwr, nnr, nmrf, nsm);
+    $display("tb_memrun:   MapWait edges %0d (CE' of the MapState counter -- it must go LOW to advance)", nmw);
     $display("tb_memrun:   NeedRfsh' inputs -- WantRfsh'=%b RfshSqWave=%b PairFull=%b (sqwave edges=%0d)",
              m.b_MemX.WantRfsh_p_, m.b_MemX.RfshSqWave, m.b_MemX.PairFull, nsq);
     // MemX h15 is the MapState counter: StartMap' (PE', active low) loads it
