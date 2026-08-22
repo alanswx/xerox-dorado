@@ -1,0 +1,137 @@
+Source: GitHub, Interlisp/history (the Interlisp project's historical archive)
+URL:    https://github.com/Interlisp/history/blob/master/InterlispReleaseFloppyImsges.zip
+Raw:    https://raw.githubusercontent.com/Interlisp/history/master/InterlispReleaseFloppyImsges.zip
+Blob:   6897cc207ce14d41bc6ee3011d355d1cd4e1bf0b  (identical at master and at commit
+        4741fe547aee4ef06c1c3d8848f4d8e8e695e521, so the commit pin is not needed)
+sha256: 70492447fad980668f3d96f592c2cedb781205358992c1ad1329c695708ed3ba
+bytes:  22,558,392   Fetched 2026-08-11.  `unzip -t`: no errors.
+
+WHAT IT IS
+
+Xerox factory distribution floppies for the 1108/1101 workstations, imaged
+with ImageDisk in July 2018 (two disks carry an older IMD 1.17 header dated
+28-Apr-1992).  70 .IMD images, 73 MB uncompressed, in five sets: LYRIC (21),
+KOTO (21), LOOPS (13), HARMONY (10), SOURCE (5).
+
+Stored packed.  The manifest below is every disk's own IMD header comment, so
+the set can be searched without unzipping.
+
+READING THEM (2026-08-11): tools/pilot_floppy.py does both layers -- the
+ImageDisk container and the Xerox Pilot floppy volume -- so no emulator is
+needed.  The Pilot record layouts come from Xerox's own Interlisp FLOPPY
+package, chm/lisp-archive/koto/lisp/sources/FLOPPY!1 (Kelly Roach, 1985):
+DATATYPE PSECTOR9 / PMPAGE / PLPAGE, BLOCKRECORD PFILELIST, DATATYPE PFLE.
+
+  unzip -d /tmp/imd InterlispReleaseFloppyImsges.zip
+  python3 tools/pilot_floppy.py list    /tmp/imd/*/*.IMD
+  python3 tools/pilot_floppy.py extract OUTDIR /tmp/imd/*/*.IMD
+
+Yields 5,594 files / 59,862,054 bytes across the 70 disks.  Nothing is
+copied into the tree: the zip is here and the tool is in tools/, so the
+extraction regenerates in seconds.
+
+Note the internal Pilot volume labels are often better than the IMD header
+comments -- 3100420 calls itself "Harmony LispUsers 1" (119 files) and
+3100416 "Harmony Library 1" (69 files).
+
+NOT IN HERE, despite the name
+
+- No Medley.  The releases stop at Lyric and Koto; the Medley 1.0 library
+  still exists nowhere we have found.  See docs/xerox-systems-archive-survey.md
+  section 3 and the CHM inventory: [phylum]<Medley> is 22 files total
+  (2 sysouts, 19 patches, 1 copylog) and has no library.
+- No Dorado.  A Dorado has no floppy drive; these are 1108/1186 media.  The
+  Lisp sysouts here are the 1108 sysouts -- and because Interlisp-D sysouts
+  are machine-independent (which is why chm/lisp/lyric/LISP.SYSOUT!1 boots on
+  our Dorado under DORADOLISPMC.EB), reassembling Lyric Sysout #1-5 would just
+  reproduce a sysout we already hold from CHM.
+
+WHY IT IS WORTH KEEPING
+
+- LOOPS is the new runnable material: 1108/1101 LOOPS demo sysouts, the KB
+  LOOPS sysouts, and LOOPS source + .DCOM.  CHM gives us indigo/loops (the
+  1983-84 releases) but not these.
+- Harmony "Users Packages" #1-2 -- CHM has only 8 files under
+  eris/lisp/harmony/lispusers.
+- Lyric "Library" #1-3 may carry the five .LCOM we lack (GRAPEVINE, MAINTAIN,
+  MAILSCAVENGE, GIVE-AND-TAKE, MESATYPES), though those are a direct download
+  from CHM and that is far cheaper than IMD extraction.
+
+This is new material to us: our other floppy sets are a different container
+AND a different part-number range -- chm/bitsavers/bits/Xerox/1186/
+1186_floppies.zip is .dmk with generic 001_001-style names, and
+1186_Lyric_Sources.zip is .dmk parts 3103240-3103250 (Lyric SOURCES).  The
+Lyric disks here are 3102390-3102416, the Lyric binary release.
+
+MANIFEST (path, bytes, the disk's own IMD header comment)
+
+HARMONY/3100299.IMD       970254  LISP SYSOUT  #1 / Harmony Release / Xerox Special Information Systems, Pasadena CA / 3100299      Copyright 1985 Xerox Corporation
+HARMONY/3100407.IMD      1145436  LISP SYSOUT #2 / Harmony Release / 3100407
+HARMONY/3100408.IMD      1162810  LISP SYSOUT #3 / Harmony Release / 3100408
+HARMONY/3100414.IMD      1174314  INSTALLATION UTILITY / Harmony Release / 3100414
+HARMONY/3100415.IMD      1173028  SYSTEM FILES / Harmony Release / 3100415
+HARMONY/3100416.IMD      1178656  LIBRARY PACKAGES #1 / Harmony Release / 3100416
+HARMONY/3100417.IMD       434217  LIBRARY PACKAGES #2 / Harmony Release / Xerox Special Information Systems, Pasadena CA / 3100417      Copyright 1985 Xerox Corporation
+HARMONY/3100420.IMD      1165879  USERS PACKAGES #1 / Harmony Release / 3100420
+HARMONY/3100421.IMD       867455  USERS PACKAGES #2 / Harmony Release / 3100421
+HARMONY/3100425.IMD      1177656  FIXED DISK DIAGNOSTIC / MASTER DISC / P/N 3100425  REV. HARMONY  1Q85
+KOTO/3101432.IMD         1176609  FONT METRICS #1 / Koto 1.0 Release / 3101432
+KOTO/3101433.IMD         1173543  FONT METRICS #2 / Koto 1.0 Release / 3101433
+KOTO/3101434.IMD         1170989  DISPLAY FONTS #1 / Koto 1.0 Release / 3101434
+KOTO/3101435.IMD         1170478  DISPLAY FONTS #2 / Koto 1.0 Release / 3101435
+KOTO/3101436.IMD         1162302  DISPLAY FONTS #3 / Koto 1.0 Release / 3101436
+KOTO/3101437.IMD         1170989  DISPLAY FONTS #4 / Koto 1.0 Release / 3101437
+KOTO/3101438.IMD         1151060  DISPLAY FONTS #5 / Koto 1.0 Release / 3101438
+KOTO/3101439.IMD          841394  DISPLAY FONTS #6 / Koto 1.0 Release / 3101439
+KOTO/3101445.IMD         1178137  HELPSYS #1 / Koto 1.0 Release / 3101445
+KOTO/3101447.IMD         1177654  FIXED DISK DIAGNOSTIC / Master Disk / 3101447  REV. KOTO 2.0   1Q86
+KOTO/3101502.IMD          734093  HELPSYS #3 / Koto 1.0 Release / 3101502
+KOTO/3101600.IMD          988560  LISP SYSOUT #1 / Koto 2.0 Release / 3101600
+KOTO/3101601.IMD         1144926  LISP SYSOUT #2 / Koto 2.0 Release / 3101601
+KOTO/3101602.IMD         1121931  LISP SYSOUT #3 / Koto 2.0 Release / 3101602
+KOTO/3101605.IMD         1172008  SYSTEMS FILES / Koto 2.0 Release / 3101605
+KOTO/3101903.IMD         1068277  LISP LIBRARY #1 / Koto 2.0 Release / 3101903
+KOTO/3101904.IMD         1180697  LISP LIBRARY #2 / Koto 2.0 Release / 3101904
+KOTO/3101905.IMD         1180186  LISP LIBRARY #3 / Koto 2.0 Release / 3101905
+KOTO/3101906.IMD         1180186  LISP LIBRARY #4 / Koto 2.0 Release / 3101906
+KOTO/3101907.IMD         1180181  HELPSYS #2 / Koto 2.0 Release / 3101907
+KOTO/3102193.IMD         1151321  INSTALLATION UTILITY / Koto 2.01 Release / 3102193
+LOOPS/3100212.IMD         986049  LISP SYSOUT #1 / LOOPS DEMO SYSOUT / Xerox 1108 Interlisp-D / 3100212
+LOOPS/3100213.IMD        1139860  LISP SYSOUT #2 / LOOPS DEMO SYSOUT / Xerox 1108 Interlisp-D / 3100213
+LOOPS/3100214.IMD        1138327  LISP SYSOUT #3 / LOOPS DEMO SYSOUT / Xerox 1101 Interlisp-D / 3100214
+LOOPS/3100215.IMD        1129640  LISP SYSOUT #4 / LOOPS DEMO SYSOUT / Xerox 1101 Interlisp-D / 3100215
+LOOPS/3100216.IMD         195021  LISP SYSOUT #5 / LOOPS DEMO SYSOUT / Xerox 1101 Interlisp-D / 3100216
+LOOPS/3100217.IMD        1108414  LOOPS SOURCE AND DCOM FILES - #1 / Xerox 1108 Interlisp-D / 3100217
+LOOPS/3100218.IMD        1114035  LOOPS SOURCE AND DCOM FILES - #2 / Xerox 1108 Interlisp-D / 3100218
+LOOPS/3100219.IMD         553979  LOOPS SOURCE AND DCOM FILES - #3 / Xerox 1108 Interlisp-D / 3100219
+LOOPS/KBLOOPS1.IMD       1029433  KB LOOPS SYSOUT 1
+LOOPS/KBLOOPS2.IMD       1136743  KB LOOPS SYSOUT 2
+LOOPS/KBLOOPS3.IMD       1095863  KB LOOPS SYSOUT 3
+LOOPS/KBLOOPS4.IMD       1099440  KB LOOPS SYSOUT 4
+LOOPS/KBLOOPS5.IMD        519966  KB LOOPS SYSOUT 5
+LYRIC/3102390.IMD         993692  Lisp Sysout #1 / Xerox Lisp: Lyric Release for the 1108 / 3102390
+LYRIC/3102391.IMD        1150058  Lisp Sysout #2 / Xerox Lisp: Lyric Release for the 1108 / 3102391
+LYRIC/3102392.IMD        1152613  Lisp Sysout #3 / Xerox Lisp: Lyric Release for the 1108 / 3102392
+LYRIC/3102393.IMD        1142904  Lisp Sysout #4 / Xerox Lisp: Lyric Release for the 1108 / 3102393
+LYRIC/3102394.IMD         222082  Lisp Sysout #5 / Xerox Lisp: Lyric Release for the 1108 / 3102394
+LYRIC/3102395.IMD        1166406  Library #1 / Xerox Lisp: Lyric Release for the 1108 / 3102395
+LYRIC/3102396.IMD        1167428  Library #2 / Xerox Lisp: Lyric Release for the 1108 / 3102396
+LYRIC/3102397.IMD        1018727  Library #3 / Xerox Lisp: Lyric Release for the 1108 / 3102397
+LYRIC/3102401.IMD        1177147  Installation Utility / Xerox Lisp: Lyric Release for the 1108 / 3102401
+LYRIC/3102402.IMD        1177649  FIXED DISK DIAGNOSTIC / Master Disk / 3102402  REV.LYRIC  2Q87
+LYRIC/3102403.IMD        1177160  Lyric Display Fonts #1 Publishing / Xerox Lisp: Lyric Release for the 1108 / 3102403
+LYRIC/3102404.IMD        1180737  Lyric Display Fonts #2 Publishing / Xerox Lisp: Lyric Release for the 1108 / 3102404
+LYRIC/3102405.IMD         924720  Lyric Display Fonts #3 JIS1 / Xerox Lisp: Lyric Release for the 1108 / 3102405
+LYRIC/3102406.IMD        1049404  Lyric Display Fonts #4 JIS2 / Xerox Lisp: Lyric Release for the 1108 / 3102406
+LYRIC/3102407.IMD         709083  Lyric Display Fonts #5 JIS1/JIS2 / Xerox Lisp: Lyric Release for the 1108 / 3102407
+LYRIC/3102408.IMD        1179726  Lyric Display Fonts #6 Chinese/Miscellaneous / Xerox Lisp: Lyric Release for the 1108 / 3102408
+LYRIC/3102409.IMD         794434  Lyric Display Fonts #7 Presentation/Printwheel / Xerox Lisp: Lyric Release for the 1108 / 3102409
+LYRIC/3102410.IMD        1180214  Lyric Font Metrics #1 / Xerox Lisp: Lyric Release for the 1108 / 3102410
+LYRIC/3102411.IMD        1180214  Lyric Font Metrics #2 / Xerox Lisp: Lyric Release for the 1108 / 3102411
+LYRIC/3102415.IMD        1179186  System Files #1 / Xerox Lisp: Lyric Release for the 1108 / 3102415
+LYRIC/3102416.IMD        1173054  System Files #2 / Xerox Lisp: Lyric Release for the 1108 / 3102416
+SOURCE/IMTS-1.IMD        1108138  IMTS SOURCE 2.3 23 Oct 89 #1
+SOURCE/IMTS-2.IMD         720800  IMTS SOURCE 2.3 23 Oct 89 #2
+SOURCE/IMTS-3.IMD         927244  IMTS SOURCE 2.3 23 Oct 89 #3
+SOURCE/IMTS-4.IMD         911914  IMTS SOURCE 2.3 23 Oct 89 #4
+SOURCE/RAPIDS-1.IMD      1052952  RAPIDS SOURCE 1.3 23 Oct 89 #1

@@ -327,9 +327,29 @@
 // `WantAltRef'` = 1.
 //
 // And MemC b24 (an MC10103) makes `WantAltRef' = WantProcRef' | WantCR`. So an
-// ALTERNATE reference -- Map or Flush -- requires `WantCR` LOW. The machine
-// either wants a CACHE reference or an ALTERNATE one, and it currently wants
-// the cache. That is the last link, and `WantCR` is the signal to chase.
+// ALTERNATE reference -- Map or Flush -- requires `WantCR` LOW.
+//
+// `WantCR` COMES FROM MemC d22, an MC10117 2-wide OR-AND whose pin 3 is the
+// INVERTING output despite being the one named `WantCR` (pin 2, the
+// non-inverting one, is named `WantCR'` -- net naming settles nothing, as this
+// project keeps relearning):
+//
+//     WantCR = ~[(FF.0mem' | WantProcRef') & (ASEL.1' | WantProcRef')]
+//
+// so with a reference wanted it goes LOW only when ASEL.1 = 0 AND FF.0 = 0.
+// The Flush instruction built here (ASEL=1, FF=0o100) satisfies both.
+//
+// AND YET IT MEASURES ASEL.1' = 1, WantProcRef' = 0, but FF.0mem' = 0 --
+// FF.0 = 1, which is not this instruction. THE MACHINE HAS WANDERED OFF IT.
+// These four references carry JCN 0o201 and the sample is taken 3000 sys_clk
+// into a free run, by which time execution has gone into the AEmu hunks that
+// occupy the rest of IM.
+//
+// SO THE NEXT STEP IS TO MAKE THE REFERENCE INSTRUCTIONS LOOP -- a JCN that
+// branches back to IM[0] -- so the machine stays on them and the alt-ref path
+// can be measured while a Flush is actually the current instruction. That is
+// the same sampling trap this file has now hit in three different disguises:
+// count edges, and make sure the thing being measured is the thing running.
 //
 // Then the storage array, whose interface msa.bp specifies completely:
 // MemAd.1-8, MemRAS/CAS/WE in a and b copies from DIFFERENT packages (two
@@ -459,8 +479,8 @@ module tb_memrun;
   reg [19:0] link15, link15b, link7;
   integer nmemclk, kk, npipe, nras, ncas, nwe, nmx;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
-  integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb;
-  reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb;
+  integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb, nwcr, nwar, nfl, nmp;
+  reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [2:0] pms;
   reg [3:0] pipe_before;
   wire [2:0] mapst = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
@@ -1407,6 +1427,8 @@ module tb_memrun;
     nldp=0; pldp=m.b_MemC.LdPair_p_;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
+    nwcr=0; pwcr=m.b_MemC.WantCR; nwar=0; pwar=m.b_MemC.WantAltRef_p_;
+    nfl=0; pfl=m.b_MemC.Flush_u__p_; nmp=0; pmp=m.b_MemC.Map_u__p_;
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
     for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
       @(posedge sys_clk);
@@ -1442,6 +1464,10 @@ module tb_memrun;
       if (m.b_MemC.CacheRefInA       !== pcra) begin ncra=ncra+1; pcra=m.b_MemC.CacheRefInA;       end
       if (m.b_MemC.Hit_p_a           !== pha ) begin nha =nha +1; pha =m.b_MemC.Hit_p_a;           end
       if (m.b_MemC.Hit_p_b           !== phb ) begin nhb =nhb +1; phb =m.b_MemC.Hit_p_b;           end
+      if (m.b_MemC.WantCR            !== pwcr) begin nwcr=nwcr+1; pwcr=m.b_MemC.WantCR;            end
+      if (m.b_MemC.WantAltRef_p_     !== pwar) begin nwar=nwar+1; pwar=m.b_MemC.WantAltRef_p_;     end
+      if (m.b_MemC.Flush_u__p_       !== pfl ) begin nfl =nfl +1; pfl =m.b_MemC.Flush_u__p_;       end
+      if (m.b_MemC.Map_u__p_         !== pmp ) begin nmp =nmp +1; pmp =m.b_MemC.Map_u__p_;         end
       if (m.b_MemX.preStartMem_p_    !== ppsm) begin npsm=npsm+1; ppsm=m.b_MemX.preStartMem_p_;    end
       if (m.b_MemX.WantMapWait_p_    !== pwmw) begin nwmw=nwmw+1; pwmw=m.b_MemX.WantMapWait_p_;    end
       if (m.b_MemX.MapWait__g13_3    !== pg13) begin ng13=ng13+1; pg13=m.b_MemX.MapWait__g13_3;    end
@@ -1471,6 +1497,15 @@ module tb_memrun;
     // needs EmuOrFT'=0, ASEL.2=1, FF.1mem=1 -- and EmuOrFT' is the EMULATOR OR
     // FAULT TASK condition, which is exactly what cpu.c marks on DM_REF_MAP and
     // DM_REF_FLUSH ("emulator/fault") and on the IO kinds ("io task").
+    // WantCR (MemC d22, MC10117 2-wide OR-AND, pin 3 = the INVERTING output
+    // despite the name) =
+    //     ~[(FF.0mem' | WantProcRef') & (ASEL.1' | WantProcRef')]
+    // so with a reference wanted it goes LOW only when ASEL.1 = 0 AND FF.0 = 0.
+    $display("tb_memrun:   WantCR=%b terms -- ASEL.1'=%b FF.0mem'=%b WantProcRef'=%b",
+             m.b_MemC.WantCR, m.b_MemC.ASEL_1_p_, m.b_MemC.FF_0mem_p_,
+             m.b_MemC.WantProcRef_p_);
+    $display("tb_memrun:   alt-ref path EDGES -- WantCR %0d, WantAltRef' %0d, Flush_' %0d, Map_' %0d",
+             nwcr, nwar, nfl, nmp);
     $display("tb_memrun:   kind decoder -- EmuOrFT'=%b ASEL.2=%b FF.1mem=%b | WantAltRef'=%b HoldOrIP=%b | Flush_'=%b Map_'=%b",
              m.b_MemC.EmuOrFT_p_, m.b_MemC.ASEL_2, m.b_MemC.FF_1mem,
              m.b_MemC.WantAltRef_p_, m.b_MemC.HoldOrIP,
