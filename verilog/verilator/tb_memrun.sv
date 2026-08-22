@@ -300,7 +300,31 @@
 //     StartRfshCycle'.) This is the same trap as reading the Pipe pointer's
 //     value instead of its changes. COUNT, DO NOT SAMPLE.
 //
-//     SO THE BLOCKER IS NARROWER AND ELSEWHERE: `MapWait` NEVER MOVES.
+//     AND THE REASON MAPWAIT NEVER MOVES IS AN INVERTING OUTPUT. Splitting the
+//     wired-OR (`MapWait = MapWait__g13_3 | MapWait__h13_9`) shows g13's
+//     contribution toggling correctly, 6 edges -- it is `StartMap' & MapFree`,
+//     an MC10104 AND, and StartMap' really does assert. But h13's contribution
+//     reads 1 while BOTH its inputs read 0, because pin 9 of an MC10103 is the
+//     INVERTING output. EclDict says so directly:
+//
+//         @MC103  c,IN,12,13 > c,OUT,9 > c,o,15
+//
+//     -- role OUT on pin 9, role o on pin 15. So
+//
+//         MapWait = (StartMap' & MapFree) | ~(preStartMem' | WantMapWait')
+//
+//     and with preStartMem' = WantMapWait' = 0 the second term is 1, holding
+//     MapWait high no matter what StartMap' does.
+//
+//     SO THE REQUIREMENT IS THE OPPOSITE OF WHAT IT FIRST LOOKED LIKE: for
+//     MapWait to fall, at least ONE of `preStartMem'` / `WantMapWait'` must go
+//     HIGH -- they are active-low names and both are permanently ASSERTED,
+//     which is what keeps the counter from stepping. Those two are the next
+//     thing to trace, and the question is why they are stuck asserted rather
+//     than why they never assert.
+//
+//     (SUPERSEDED reading, kept because the inversion is easy to miss twice:
+//      `MapWait` NEVER MOVES.
 //     0 edges over a whole run, stuck at 1. It is CE' on MemX h15, the
 //     MapState counter, and CE' must go LOW to advance. StartMap' asserting
 //     does nothing visible because it is PE' and h15's D pins are OPEN -- it
@@ -309,8 +333,7 @@
 //     told to step.
 //
 //     MapWait is driven from MemC by g13 (MC10104) and h13 (MC10103), a
-//     wired-OR, so it goes low only when EVERY contributor is low. START
-//     THERE.
+//     wired-OR, so it goes low only when EVERY contributor is low.)
 //
 //     SUPERSEDED (kept because the reasoning was sound and only the sampling
 //     was wrong):
@@ -484,8 +507,8 @@ module tb_memrun;
   reg [19:0] link15, link15b, link7;
   integer nmemclk, kk, npipe, nras, ncas, nwe, nmx;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
-  integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw;
-  reg psq, psrc, pwr, pnr, pmrf, psm, pmw;
+  integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm;
+  reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm;
   reg [2:0] pms;
   wire [2:0] mapst = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
   reg [3:0] ppa;
@@ -1293,6 +1316,8 @@ module tb_memrun;
     nsrc=0; psrc=m.b_MemX.StartRfshCycle_p_; nwr=0; pwr=m.b_MemX.WantRfsh_p_;
     nnr=0; pnr=m.b_MemX.NeedRfsh_p_; nmrf=0; pmrf=m.b_MemX.MapRfsh_p_;
     nsm=0; psm=m.b_MemC.StartMap_p_; nmw=0; pmw=m.b_MemX.MapWait;
+    npsm=0; ppsm=m.b_MemX.preStartMem_p_; nwmw=0; pwmw=m.b_MemX.WantMapWait_p_;
+    ng13=0; pg13=m.b_MemX.MapWait__g13_3; nxsm=0; pxsm=m.b_MemX.StartMap_p_;
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
     for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
       @(posedge sys_clk);
@@ -1321,6 +1346,10 @@ module tb_memrun;
       if (m.b_MemX.MapRfsh_p_        !== pmrf) begin nmrf=nmrf+1; pmrf=m.b_MemX.MapRfsh_p_;        end
       if (m.b_MemC.StartMap_p_       !== psm ) begin nsm =nsm +1; psm =m.b_MemC.StartMap_p_;       end
       if (m.b_MemX.MapWait           !== pmw ) begin nmw =nmw +1; pmw =m.b_MemX.MapWait;           end
+      if (m.b_MemX.preStartMem_p_    !== ppsm) begin npsm=npsm+1; ppsm=m.b_MemX.preStartMem_p_;    end
+      if (m.b_MemX.WantMapWait_p_    !== pwmw) begin nwmw=nwmw+1; pwmw=m.b_MemX.WantMapWait_p_;    end
+      if (m.b_MemX.MapWait__g13_3    !== pg13) begin ng13=ng13+1; pg13=m.b_MemX.MapWait__g13_3;    end
+      if (m.b_MemX.StartMap_p_       !== pxsm) begin nxsm=nxsm+1; pxsm=m.b_MemX.StartMap_p_;       end
     end
     $display("tb_memrun: storage strobes over the run -- MemRASa %0d, MemCASa %0d, MemWEa %0d",
              nras, ncas, nwe);
@@ -1348,6 +1377,19 @@ module tb_memrun;
     $display("tb_memrun:                          WantRfsh' %0d, NeedRfsh' %0d, MapRfsh' %0d, StartMap' %0d",
              nwr, nnr, nmrf, nsm);
     $display("tb_memrun:   MapWait edges %0d (CE' of the MapState counter -- it must go LOW to advance)", nmw);
+    // MapWait is a wired-OR of two MemX gates:
+    //   g13 (MC10104 AND): StartMap' & MapFree
+    //   h13 (MC10103 OR):  preStartMem' | WantMapWait'
+    // so it goes low only when ALL THREE of those are low at once.
+    $display("tb_memrun:   MapWait terms -- StartMap'=%b MapFree=%b preStartMem'=%b WantMapWait'=%b (edges: pSM %0d, WMW %0d)",
+             m.b_MemC.StartMap_p_, m.b_MemX.MapFree, m.b_MemX.preStartMem_p_,
+             m.b_MemX.WantMapWait_p_, npsm, nwmw);
+    // Split the wired-OR: MapWait = MapWait__g13_3 | MapWait__h13_9. And check
+    // MemX's OWN view of StartMap' -- the counts above are MemC's, the driver
+    // side.
+    $display("tb_memrun:   g13 stub=%b (edges %0d)  h13 stub=%b  | MemX StartMap'=%b (edges %0d)",
+             m.b_MemX.MapWait__g13_3, ng13, m.b_MemX.MapWait__h13_9,
+             m.b_MemX.StartMap_p_, nxsm);
     $display("tb_memrun:   NeedRfsh' inputs -- WantRfsh'=%b RfshSqWave=%b PairFull=%b (sqwave edges=%0d)",
              m.b_MemX.WantRfsh_p_, m.b_MemX.RfshSqWave, m.b_MemX.PairFull, nsq);
     // MemX h15 is the MapState counter: StartMap' (PE', active low) loads it
