@@ -245,11 +245,33 @@
 // memory is simply IGNORING THE PROCESSOR while it is jam-stepped. During the
 // free run the same signal reads 0.
 //
-// So a processor reference has to come from microcode EXECUTING OUT OF IM,
-// not from a jam: build the reference microinstruction with mi(), walk it into
-// IM with the loader this bench already uses for AEmu hunks, and let the
-// machine run it. Then the storage array, whose interface msa.bp specifies
-// completely:
+// So a processor reference has to come from microcode EXECUTING OUT OF IM, and
+// that is what this bench does now: `build_hunk` packs four copies of a
+// microinstruction into PARC's 17-byte hunk format (byte 0 carries the 17th
+// bit of each half, which is why 8 half-instructions of 17 bits need 17
+// bytes), and `send_a_hunk` walks them into IM[0..3] over the same path the
+// AEmu hunks use.
+//
+// WHERE THAT GETS TO. With four ASEL=1 references executing:
+//
+//     MemRASa   6 -> 11        MemCASa   4 -> 8
+//     WantProcRef' 1 edge -- it asserts and STAYS asserted, which is right
+//                            when every instruction is a reference
+//     RefHold'     0 edges
+//     Pipe pointer 0 changes
+//
+// So the microcode ASKS continuously and the memory never SERVICES it: no
+// reference hold is ever taken and nothing is recorded in the Pipe. The extra
+// RAS/CAS is the refresh machinery, which was already running.
+//
+// THE NEXT QUESTION is therefore what turns a requested reference into a
+// serviced one -- the arbitration between a processor reference and the
+// refresh that currently owns the memory, and the cache lookup behind it.
+// `MapFnc` and the MapState PROM decide it, and `AwantsMapFS'`, `AfreeOrEc'a`
+// and `WantVic'` are the other terms of MemC k15's StartMap' gate that have
+// never been anything but their idle values.
+//
+// Then the storage array, whose interface msa.bp specifies completely:
 // MemAd.1-8, MemRAS/CAS/WE in a and b copies from DIFFERENT packages (two
 // banks, not fan-out), Sin.00-15, Sout.00-15, EcIn/EcOut. Direction comes from
 // the netlist because the names mislead: MemD DRIVES `Sout` (write data going
@@ -377,8 +399,8 @@ module tb_memrun;
   reg [19:0] link15, link15b, link7;
   integer nmemclk, kk, npipe, nras, ncas, nwe, nmx;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
-  integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm;
-  reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm;
+  integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh;
+  reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh;
   reg [2:0] pms;
   reg [3:0] pipe_before;
   wire [2:0] mapst = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
@@ -1063,6 +1085,29 @@ module tb_memrun;
   integer    yy, kk2;
   reg [15:0] imaddr;
 
+  // BUILD A HUNK from field values, four copies of one microinstruction.
+  // PARC's hunk packing (doradoboot.masm, SendAHunk):
+  //   Byte 0: 0RSTK.0, 0BLOCK, 1RSTK.0, 1BLOCK, ... -- the 17th bit of each
+  //           half, which is why a hunk is 17 bytes for 8 half-instructions
+  //   Byte 1: 0RSTK.1-3, 0ALUF.0-3, 0BSEL.0
+  //   Byte 2: 0BSEL.1-2, 0LC.0-2, 0ASEL.0-2
+  //   Byte 3: 0FF.0-7          Byte 4: 0JCN.0-7
+  // The field arguments use mi()'s convention, MSB first: rstk[3] is RSTK.0.
+  task build_hunk(input [3:0] rstk, input [3:0] aluf, input [2:0] bsel,
+                  input [2:0] lc,   input [2:0] asel, input [7:0] ff,
+                  input [7:0] jcn,  input block);
+    integer q;
+    begin
+      hunk[0] = {rstk[3], block, rstk[3], block, rstk[3], block, rstk[3], block};
+      for (q = 0; q < 4; q = q + 1) begin
+        hunk[1+4*q] = {rstk[2], rstk[1], rstk[0], aluf[3], aluf[2], aluf[1], aluf[0], bsel[2]};
+        hunk[2+4*q] = {bsel[1], bsel[0], lc[2], lc[1], lc[0], asel[2], asel[1], asel[0]};
+        hunk[3+4*q] = ff;
+        hunk[4+4*q] = jcn;
+      end
+    end
+  endtask
+
   task send_a_hunk(input [15:0] start_addr);
     begin
       extrabits = hunk[0];
@@ -1219,6 +1264,15 @@ module tb_memrun;
     $fclose(fd);
     $display("tb_memrun: loaded %0d hunks (%0d microinstructions)", hcount, hcount*4);
 
+    // OVERWRITE IM[0..3] with four MEMORY REFERENCES. A reference cannot be
+    // jammed -- IgnoreProc is 1 while the processor is stepped -- so it has to
+    // EXECUTE. ASEL=1 is a reference (MemC b24: WantProcRef' = IgnoreProc |
+    // ASEL.0) and BSEL >= 4 selects the A leg of the MAR mux, which
+    // compute-test established puts a real register value on the address.
+    build_hunk(4'd0, 4'd0, 3'd4, 3'd0, 3'd1, 8'd0, 8'o201, 1'b0);
+    send_a_hunk(16'd0);
+    $display("tb_memrun: IM[0..3] overwritten with ASEL=1 references");
+
     // RELEASE the MIR clock -- register 7, data bit 0 -- so the MIR can reload
     // from IM. Without this the jam is held and nothing is ever fetched.
     manifold(12'h1C0);
@@ -1279,6 +1333,7 @@ module tb_memrun;
     nsm=0; psm=m.b_MemC.StartMap_p_; nmw=0; pmw=m.b_MemX.MapWait;
     npsm=0; ppsm=m.b_MemX.preStartMem_p_; nwmw=0; pwmw=m.b_MemX.WantMapWait_p_;
     ng13=0; pg13=m.b_MemX.MapWait__g13_3; nxsm=0; pxsm=m.b_MemX.StartMap_p_;
+    nwpr=0; pwpr=m.b_MemC.WantProcRef_p_; nrh=0; prh=m.b_MemC.RefHold_p_;
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
     for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
       @(posedge sys_clk);
@@ -1307,6 +1362,8 @@ module tb_memrun;
       if (m.b_MemX.MapRfsh_p_        !== pmrf) begin nmrf=nmrf+1; pmrf=m.b_MemX.MapRfsh_p_;        end
       if (m.b_MemC.StartMap_p_       !== psm ) begin nsm =nsm +1; psm =m.b_MemC.StartMap_p_;       end
       if (m.b_MemX.MapWait           !== pmw ) begin nmw =nmw +1; pmw =m.b_MemX.MapWait;           end
+      if (m.b_MemC.WantProcRef_p_    !== pwpr) begin nwpr=nwpr+1; pwpr=m.b_MemC.WantProcRef_p_;    end
+      if (m.b_MemC.RefHold_p_        !== prh ) begin nrh =nrh +1; prh =m.b_MemC.RefHold_p_;        end
       if (m.b_MemX.preStartMem_p_    !== ppsm) begin npsm=npsm+1; ppsm=m.b_MemX.preStartMem_p_;    end
       if (m.b_MemX.WantMapWait_p_    !== pwmw) begin nwmw=nwmw+1; pwmw=m.b_MemX.WantMapWait_p_;    end
       if (m.b_MemX.MapWait__g13_3    !== pg13) begin ng13=ng13+1; pg13=m.b_MemX.MapWait__g13_3;    end
@@ -1314,6 +1371,8 @@ module tb_memrun;
     end
     $display("tb_memrun: storage strobes over the run -- MemRASa %0d, MemCASa %0d, MemWEa %0d",
              nras, ncas, nwe);
+    $display("tb_memrun: WantProcRef' edges %0d, RefHold' edges %0d (is the RUNNING microcode asking?)",
+             nwpr, nrh);
     // THE MEMORY SECTION RUNS DRAM CYCLES. RAS and CAS both strobe, driven by
     // the refresh the PROM state machine sequences -- no force, no stimulus
     // beyond PARC's own startup.
