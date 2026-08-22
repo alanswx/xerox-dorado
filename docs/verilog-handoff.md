@@ -2703,25 +2703,48 @@ Two things remain, both small and both stated by measurement:
    as zero. It does not affect the result above -- the machine loops over
    IM[0] and IM[1], which are correct and identical -- but a hunk is eight
    half-words and only four are arriving.
-2. **The FF bits the memory section sees are qualified by `FFok'`, and they
-   come from the PROCESSOR boards.** `FF.0mem'` and `FF.1mem` are inputs only
-   on MemC; ProcH and ProcL drive them from `d24`/`d23`, a pair of MC10101s
-   whose pin 12 is the **common** input:
+2. **RESOLVED -- and the microcode now makes a Flush.** `FF.0mem'` and
+   `FF.1mem` are inputs only on MemC; ProcH and ProcL drive them from
+   `d24`/`d23`, a pair of MC10101s whose pin 12 is the **common** input:
 
    ```
    FF.0mem' = ~(FFok'a | FF.0)      FF.0mem = FFok'a | FF.0
    FF.1mem  =   FFok'a | FF.1
    ```
 
-   So with `FFok'a` high **both bits are forced high** and the memory section
-   sees `ff01 = 3` regardless of the microinstruction's FF field. Measured:
-   `FFok'a` is high on all 2851 cycles the reference runs; the forcing is
-   gated in `memrun-test` and mutation-tested. That is why packing
-   `FF = 0o100` changes the IM word (the right half reads back `4081` instead
-   of `0081`, so the write path is fine) and changes nothing at MemC.
+   With `FFok'a` high both bits are **forced high**, so the memory section
+   sees `ff01 = 3` whatever the microinstruction holds. That is why packing
+   `FF = 0o100` changed the IM word (right half `4081` instead of `0081`, so
+   the write path was never at fault) and changed nothing at MemC.
 
-   **The question for a Flush is therefore no longer "what FF do I pack" but
-   "what pulls `FFok'` low".** Trace its driver on ProcH next.
+   **`FFok'` comes from ContA `f24`**, an MC10211 (NOR) whose two gates are
+   **wired-OR** onto each of `FFok'a/b/c`:
+
+   ```
+   FFok' = ~BSEL.0'  |  ~(JCN.0 | JCN.1 | JCN.2or3)
+   ```
+
+   so it goes low only when **BSEL.0 = 0 and one of those JCN bits is set**.
+   The bench used `BSEL = 4` -- BSEL.0 = 1 -- which held `FFok'` high and
+   masked the FF field off. **The FF field is only a function field when BSEL
+   and JCN are not claiming those bits**, exactly the kind of interdependence
+   HM Table 11 encodes.
+
+   With `BSEL = 0` and `JCN = 0o201`, measured over the 2851 cycles the
+   reference runs: `FFok'a` high on **0**, `WantCR` low on **2851**,
+   `WantAltRef'` low on **2851**, and **`Flush'` asserted on 2851**. All four
+   gated; reverting BSEL to 4 is caught.
+
+   **The tension this exposes:** BSEL >= 4 is what puts the A leg on MAR (per
+   `compute-test`), and BSEL >= 4 is exactly what masks the FF function off.
+   A reference carrying an FF function cannot take its address that way --
+   where the address comes from for BSEL < 4 is the next question.
+
+3. **`FlushStore` still does not assert**, and neither does `ForceMiss` --
+   the cache still hits. `Flush'` here is a *level* held for 2851 straight
+   cycles because the bench loops one instruction; a real reference is taken
+   on a transition through the cache pipeline. That is the remaining step to
+   a storage cycle.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting
