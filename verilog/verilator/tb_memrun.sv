@@ -208,6 +208,24 @@
 //     execution the pointer changes ZERO times. It reads 12, which is where
 //     startup left it -- a first pass read that 12 as evidence that references
 //     were being recorded, which it is not. Count the CHANGES, not the value.
+//   * WHICH hold, and why, is now known. `Hold` is a wired-OR of three MC10231
+//     halves, each naming itself through its Q' output: e22 pin 2 `RefHold'`,
+//     e22 pin 15 `MDhold'`, e23 pin 3 `MiscHold'`. Measured over a run:
+//     RefHold'=1, MDhold'=0, MiscHold'=0 -- so it is the MD hold and the MISC
+//     hold that are up, and NOT the reference hold. That is a coherent state
+//     rather than a broken one: the processor is being held waiting for
+//     memory DATA, which is exactly what should happen when a reference is
+//     accepted and never completes. `dMDhold'` comes from b23, an MC10121
+//     whose inputs include `_MD`/`_MDI` (the microinstruction asking for Md)
+//     and `DdataGood'` -- and `DdataGood'` is properly connected, driven by
+//     MemX e19 across the backplane, so this is not another unwired net. It
+//     says the data is not good, because nothing has ever completed a storage
+//     access.
+//
+//     So the remaining work is the storage side itself: MemD's DRAM path with
+//     its RAS/CAS and refresh, and the Map on MemX. Until one of those returns
+//     data, MDhold is correct.
+//
 //   * `PRhold` is clear at startup now, and comes back UP during the run,
 //     with `PrHoldReq`, `CHoldReq` and `ExtHoldReq` all still reading 0. That
 //     is a better-shaped question than the one this file used to record: the
@@ -1134,8 +1152,16 @@ module tb_memrun;
     end
     $display("tb_memrun: the Pipe pointer moved %0d times over the run, ending at %0d",
              npipe, pipead);
-    $display("tb_memrun: holds -- PrHoldReq=%b CHoldReq=%b ExtHoldReq=%b PRhold=%b RefOutstanding'=%b",
-             m.PrHoldReq, m.CHoldReq, m.ExtHoldReq, m.PRhold, m.RefOutstanding_p_);
+    $display("tb_memrun: holds -- PrHoldReq=%b CHoldReq=%b ExtHoldReq=%b PRhold=%b",
+             m.PrHoldReq, m.CHoldReq, m.ExtHoldReq, m.PRhold);
+    // WHICH of the three Hold flip-flops is asserting. `Hold` is a wired-OR of
+    // three MC10231 halves and each names itself through its Q' output:
+    //   e22 pin 3  / pin 2  = RefHold'    the REFERENCE hold
+    //   e22 pin 14 / pin 15 = MDhold'     the MD hold
+    //   e23 pin 2  / pin 3  = MiscHold'   the MISC hold
+    // Q' low means that half is holding.
+    $display("tb_memrun: which hold -- RefHold'=%b MDhold'=%b MiscHold'=%b (0 = that one is holding)",
+             m.b_MemC.RefHold_p_, m.b_MemC.MDhold_p_, m.b_MemC.MiscHold_p_);
     $display("tb_memrun: machine running -- %0d clk0' edges, Stop=%b", n0a, m.b_ContA.Stop);
     if (n0a < 100) $fatal(1, "the microinstruction clock is not free-running");
 
