@@ -264,30 +264,39 @@
 // reference hold is ever taken and nothing is recorded in the Pipe. The extra
 // RAS/CAS is the refresh machinery, which was already running.
 //
-// THE NEXT QUESTION is what turns a requested reference into a serviced one,
-// and the trace goes:
+// AND THE REFERENCE IS SERVICED -- BY THE CACHE. Two wrong conclusions were
+// reached on the way here and both are worth keeping, because each looked
+// solid:
 //
-//   StartMap' (MemC k15) never asserts for a REFERENCE -- only MapRfsh' moves,
-//     which is the refresh path.
-//   AwantsMapFS' comes from k18, an MC10195 programmable inverter whose
-//     control pin 9 is OPEN, so it is simply ~AwantsMapFS. It reads 1.
-//   AwantsMapFS comes from k20, an MC10101 driving it from THREE inverting
-//     outputs wired together, each sharing pin 12 = EcHasAb:
-//         pin 2  = ~(Map_InPair'   | EcHasAb)
-//         pin 3  = ~(MemC17.sil+12 | EcHasAb)
-//         pin 14 = ~(VicInPair'    | EcHasAb)
-//   Measured: EcHasAb = 0 (so the common input is not the problem), but
-//     Map_InPair' = 1 and VicInPair' = 1, which kills two of the three gates.
+//   WRONG 1: "the memory never services the reference". It does.
+//   WRONG 2: "the reference is never latched into the A/B pair". It is.
 //
-// THOSE `InPair` NAMES ARE THE POINT. The Dorado's memory works on PAIRS of
-// references -- the A and B slots of its reference pipeline -- and a reference
-// has to be LATCHED INTO A SLOT before the map and cache machinery will act on
-// it. With `PairFull` = 0 and `NoRef` = 0, the pair is EMPTY and a reference is
-// PENDING: it is being asked for and never loaded.
+// What is actually measured, once the right signals are looked at:
 //
-// So the next thing to find is what loads the A/B pair, not what starts the map
-// cycle. `PairFull`, `PairHasA'a` and `VicInPair` are the signals around it,
-// all on MemC.
+//     LdPair' edges 188      the pair register IS clocked, every
+//                            microinstruction (MemC j17: LdPair' =
+//                            ~(preClk0'D | AfreeOrEc'a | EcKeepsAbusy), and
+//                            neither of the other two is blocking)
+//     PairHasA = 1           the A slot is occupied
+//     CacheRefInA = 1        and what is in it is a CACHE reference
+//     Hit'a = 0, Hit'b = 0   ACTIVE LOW -- THE CACHE HITS
+//
+// A cache hit is serviced out of the cache. It needs no storage cycle, takes
+// no reference hold, and records no Pipe entry -- so every "missing" symptom
+// this trace chased is the CORRECT behaviour for a hitting reference.
+//
+// WHAT MISLED ME. `Map_InPair'` and `VicInPair'` both read 1, which killed two
+// of the three gates feeding `AwantsMapFS` and looked like the reference not
+// arriving. They are correct: an ASEL=1 reference is a FETCH, not a Map
+// operation and not a victim, so the machine correctly does not want the map.
+// Reading "InPair = 1" as "not in the pair" was the error; those signals name
+// WHICH KIND is in the pair, and this kind is a cache reference.
+//
+// TO REACH THE STORAGE PATH, FORCE A MISS. The hit is almost certainly
+// spurious -- the cache tags have never been initialised, so a garbage tag
+// matches -- but the mechanism is working, which is the thing worth knowing.
+// A reference to an address whose tag cannot match, or clearing the tags
+// first, is what puts a reference on the storage side and into the Pipe.
 //
 // Then the storage array, whose interface msa.bp specifies completely:
 // MemAd.1-8, MemRAS/CAS/WE in a and b copies from DIFFERENT packages (two
@@ -417,8 +426,8 @@ module tb_memrun;
   reg [19:0] link15, link15b, link7;
   integer nmemclk, kk, npipe, nras, ncas, nwe, nmx;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
-  integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh;
-  reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh;
+  integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra;
+  reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra;
   reg [2:0] pms;
   reg [3:0] pipe_before;
   wire [2:0] mapst = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
@@ -1352,6 +1361,8 @@ module tb_memrun;
     npsm=0; ppsm=m.b_MemX.preStartMem_p_; nwmw=0; pwmw=m.b_MemX.WantMapWait_p_;
     ng13=0; pg13=m.b_MemX.MapWait__g13_3; nxsm=0; pxsm=m.b_MemX.StartMap_p_;
     nwpr=0; pwpr=m.b_MemC.WantProcRef_p_; nrh=0; prh=m.b_MemC.RefHold_p_;
+    nldp=0; pldp=m.b_MemC.LdPair_p_;
+    npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
     for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
       @(posedge sys_clk);
@@ -1382,6 +1393,9 @@ module tb_memrun;
       if (m.b_MemX.MapWait           !== pmw ) begin nmw =nmw +1; pmw =m.b_MemX.MapWait;           end
       if (m.b_MemC.WantProcRef_p_    !== pwpr) begin nwpr=nwpr+1; pwpr=m.b_MemC.WantProcRef_p_;    end
       if (m.b_MemC.RefHold_p_        !== prh ) begin nrh =nrh +1; prh =m.b_MemC.RefHold_p_;        end
+      if (m.b_MemC.LdPair_p_         !== pldp) begin nldp=nldp+1; pldp=m.b_MemC.LdPair_p_;         end
+      if (m.b_MemC.PairHasA          !== ppha) begin npha=npha+1; ppha=m.b_MemC.PairHasA;          end
+      if (m.b_MemC.CacheRefInA       !== pcra) begin ncra=ncra+1; pcra=m.b_MemC.CacheRefInA;       end
       if (m.b_MemX.preStartMem_p_    !== ppsm) begin npsm=npsm+1; ppsm=m.b_MemX.preStartMem_p_;    end
       if (m.b_MemX.WantMapWait_p_    !== pwmw) begin nwmw=nwmw+1; pwmw=m.b_MemX.WantMapWait_p_;    end
       if (m.b_MemX.MapWait__g13_3    !== pg13) begin ng13=ng13+1; pg13=m.b_MemX.MapWait__g13_3;    end
@@ -1397,6 +1411,18 @@ module tb_memrun;
     //     pin 3  = ~(MemC17.sil+12 | EcHasAb)
     //     pin 14 = ~(VicInPair'    | EcHasAb)
     // For AwantsMapFS to rise, one of those pairs must be BOTH low.
+    // LdPair' is the CLOCK on j21/k21, the pair registers whose D inputs are
+    // the reference kinds. MemC j17 (SE10212): LdPair' = ~(preClk0'D |
+    // AfreeOrEc'a | EcKeepsAbusy). preClk0'D is a clock, so LdPair' should
+    // toggle every microinstruction unless one of the other two holds it.
+    $display("tb_memrun:   LdPair' edges %0d -- AfreeOrEc'a=%b EcKeepsAbusy=%b",
+             nldp, m.b_MemC.AfreeOrEc_p_a, m.b_MemC.EcKeepsAbusy);
+    $display("tb_memrun:   cache -- Hit'a=%b Hit'b=%b Hia=%b | PairHasA edges %0d, CacheRefInA edges %0d",
+             m.b_MemC.Hit_p_a, m.b_MemC.Hit_p_b, m.b_MemC.Hia, npha, ncra);
+    // The A-SLOT reference kinds -- what actually got latched into the pair.
+    $display("tb_memrun:   A slot -- CacheRefInA=%b IfuRefInA=%b Store_InA=%b PrefetchInA=%b IoFetchInA=%b PairHasA=%b",
+             m.b_MemC.CacheRefInA, m.b_MemC.IfuRefInA, m.b_MemC.Store_u_InA,
+             m.b_MemC.PrefetchInA, m.b_MemC.IoFetchInA, m.b_MemC.PairHasA);
     $display("tb_memrun:   AwantsMapFS=%b terms -- EcHasAb=%b Map_InPair'=%b VicInPair'=%b",
              m.b_MemC.AwantsMapFS, m.b_MemC.EcHasAb, m.b_MemC.Map_u_InPair_p_,
              m.b_MemC.VicInPair_p_);
