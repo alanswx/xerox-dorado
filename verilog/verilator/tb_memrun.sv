@@ -150,6 +150,25 @@
 // now holding against an ASEL the machine chose for itself rather than one a
 // bench forced.
 //
+// AND TWO OF THE REFERENCE KINDS MATCH THE C EMULATOR EXACTLY. With the
+// qualifiers live, sweeping ASEL 0-3 against the two FF bits gives
+//
+//     ASEL=0 ff01=2 -> LFetch<-      cpu.c: DM_REF_LONGFETCH
+//     ASEL=1 ff01=2 -> IFetch<-      cpu.c: DM_REF_IFETCH
+//
+// each asserting there and nowhere else in the sixteen. (`ff01` is FF.0*2 +
+// FF.1, MSB first as PARC numbers fields; the `_` suffix is Sil's assignment
+// arrow, so these read LFetch<- and IFetch<-.) Two derivations that share no
+// code -- a 1979 wire list on one side, the Hardware Manual on the other --
+// agreeing on where two opcodes live in a sixteen-entry table.
+//
+// The rest of the table is NOT gated. Store<-, Prefetch and the two IO kinds
+// read 0 throughout because they are not raw decoder outputs: Store<- comes
+// off j22, an MC10105 OR, and the IO forms are additionally qualified by
+// whether the current task is an I/O task (cpu.c has the same condition:
+// `io_task ? DM_REF_IOFETCH : DM_REF_MAP`). Reaching those needs the machine
+// in a task that makes them meaningful, which is the next step.
+//
 // ONE THING THIS COST, worth not repeating: `dorado_mem` has three more clock
 // ports than `dorado_proc` -- CLK_mc', CLK_md', CLK_mx' -- because the
 // BaseBoard fans the clock to every slot. Leaving them undriven gives MemC
@@ -253,7 +272,7 @@ module tb_memrun;
   integer tk, tbad;
   reg [15:0] tpc15, tpc15b, tpc7;
   reg [19:0] link15, link15b, link7;
-  integer nmemclk;
+  integer nmemclk, kk;
   reg pmc;
   wire [2:0] asel = {m.ASEL_0, ~m.ASEL_1_p_, ~m.ASEL_2_p_};
   // MAR is carried across the backplane active low.
@@ -1028,6 +1047,7 @@ module tb_memrun;
 
     // ---- The memory section, with the machine executing.
     tbad = 0;
+    // (the kind sweep below sets tbad too)
     $display("tb_memrun: MemC clock edges %0d | MemClkEnable'a=%b CLKEnable'b=%b dStop=%b Stop=%b",
              nmemclk, m.b_MemC.MemClkEnable_p_a, m.b_MemC.CLKEnable_p_b,
              m.b_ContA.dStop, m.b_ContA.Stop);
@@ -1061,6 +1081,37 @@ module tb_memrun;
       $display("tb_memrun: FAIL -- MemC's reference logic is not settled");
       tbad = tbad + 1;
     end
+
+    // ---- THE KIND TABLE, swept with the qualifiers live.
+    // cpu.c's reference dispatch, from the Hardware Manual:
+    //    ASEL 0: ff01 0=Prefetch 1=Map 2=LongFetch 3=Store
+    //    ASEL 1: ff01 0=DummyRef 1=Flush    2=IFetch    3=Fetch
+    //    ASEL 2: Store (any ff01)      ASEL 3: Fetch (any ff01)
+    // and ff01 = FF.0*2 + FF.1, MSB first as PARC numbers fields.
+    for (kk = 0; kk < 16; kk = kk + 1) begin
+      force m.ASEL_0     =  1'b0;                 // ASEL <= 3, a reference
+      force m.ASEL_1_p_  = ~kk[3];
+      force m.ASEL_2_p_  = ~kk[2];
+      force m.FF_0mem_p_ = ~kk[1];
+      force m.FF_1mem    =  kk[0];
+      repeat (60) @(posedge sys_clk);
+      // cpu.c: ASEL=0 ff01=2 is LONGFETCH, ASEL=1 ff01=2 is IFETCH. Require
+      // each line to assert THERE AND NOWHERE ELSE across all sixteen.
+      if (m.b_MemC.Lfetch_u_ !== ((kk[3:2] == 2'd0) && (kk[1:0] == 2'd2))) begin
+        $display("tb_memrun: FAIL -- LFetch<- at ASEL=%0d ff01=%0d reads %b",
+                 kk[3:2], kk[1:0], m.b_MemC.Lfetch_u_);
+        tbad = tbad + 1;
+      end
+      if (m.b_MemC.Ifetch_u_ !== ((kk[3:2] == 2'd1) && (kk[1:0] == 2'd2))) begin
+        $display("tb_memrun: FAIL -- IFetch<- at ASEL=%0d ff01=%0d reads %b",
+                 kk[3:2], kk[1:0], m.b_MemC.Ifetch_u_);
+        tbad = tbad + 1;
+      end
+    end
+    $display("tb_memrun: LFetch<- at (ASEL 0, ff01 2) and IFetch<- at (ASEL 1, ff01 2), and nowhere else");
+    release m.ASEL_0; release m.ASEL_1_p_; release m.ASEL_2_p_;
+    release m.FF_0mem_p_; release m.FF_1mem;
+    repeat (60) @(posedge sys_clk);
 
     // And the front door must still read the rule refdecode-test gates, now
     // against whatever ASEL the running microcode is presenting.
