@@ -871,6 +871,14 @@ module tb_compute;
       q_at_write <= q_reg;
     end
   end
+  // MAR is a four-way mux on ProcH -- b02 selects T or R (RM), c02 selects Q
+  // or Ain, under MarMuxAEn'/MarMuxBEn'/Amux1'. It leaves the board active
+  // low. With a known value in T this shows whether the T leg is selected.
+  wire [15:0] mar_reg = ~{m.MAR_00_p_, m.MAR_01_p_, m.MAR_02_p_, m.MAR_03_p_,
+                          m.MAR_04_p_, m.MAR_05_p_, m.MAR_06_p_, m.MAR_07_p_,
+                          m.MAR_08_p_, m.MAR_09_p_, m.MAR_10_p_, m.MAR_11_p_,
+                          m.MAR_12_p_, m.MAR_13_p_, m.MAR_14_p_, m.MAR_15_p_};
+
   wire [15:0] t_reg = {m.b_ProcH.T_00, m.b_ProcH.T_01, m.b_ProcH.T_02, m.b_ProcH.T_03,
                        m.b_ProcH.T_04, m.b_ProcH.T_05, m.b_ProcH.T_06, m.b_ProcH.T_07,
                        m.b_ProcL.T_08, m.b_ProcL.T_09, m.b_ProcL.T_10, m.b_ProcL.T_11,
@@ -928,6 +936,9 @@ module tb_compute;
       parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);
       bmux_after_jam = bmux;
       show_tchain("jam ");
+      $display("   MAR=%h  (T=%h; MarMuxAEn'=%b MarMuxBEn'=%b Amux1'=%b)",
+               mar_reg, t_reg, m.b_ProcH.MarMuxAEn_p_, m.b_ProcH.MarMuxBEn_p_,
+               m.b_ProcH.Amux1_p_);
       $display("   after the jam: BMux=%h T=%h LC=%b%b%b B<-Link'=%b UseCPReg=%b ALUF=%b%b%b%b",
                bmux, t_reg, m.LC_0, m.LC_1, m.LC_2,
                m.b_ContA.B_u_Link_p_, m.b_ContA.UseCPReg,
@@ -1146,6 +1157,26 @@ module tb_compute;
 
     $display("tb_compute: Q takes 25 octal from CPReg, HOLDS it, and ALUFM[0] stores it.");
     $display("tb_compute: T loads through the ALU and takes the operand exactly.");
+
+    // ---- MAR, the address the memory section is given. It is a four-way mux
+    // on ProcH: b02 selects T or R (RM), c02 selects Q or Ain, under
+    // MarMuxAEn' / MarMuxBEn' / Amux1'. T holds a known value at this point,
+    // so this shows which leg the microinstruction's fields have selected.
+    $display("tb_compute: MAR=%h with T=%h  (MarMuxAEn'=%b MarMuxBEn'=%b Amux1'=%b)",
+             mar_reg, t_reg, m.b_ProcH.MarMuxAEn_p_, m.b_ProcH.MarMuxBEn_p_,
+             m.b_ProcH.Amux1_p_);
+    // PARC's TFromCPReg# carries ASEL[4], and ASEL 4 is NOT a memory reference
+    // (MemC's b24 makes WantProcRef' = IgnoreProc | ASEL.0, so a reference
+    // needs ASEL <= 3 -- see refdecode-test). So NEITHER leg of the MAR mux
+    // may be enabled here, and with both MC10159s disabled they drive their
+    // outputs low, which on these active-low lines reads as all ones. A
+    // machine that put T on the address bus for a non-reference would be
+    // handing the memory section an address it was never given.
+    if (m.b_ProcH.MarMuxAEn_p_ !== 1'b1 || m.b_ProcH.MarMuxBEn_p_ !== 1'b1)
+      $fatal(1, "a MAR mux leg is enabled for ASEL=4, which is not a reference");
+    if (mar_reg !== 16'hffff)
+      $fatal(1, "MAR is %h with no source selected, want ffff", mar_reg);
+    $display("tb_compute: MAR takes no source when the instruction is not a reference.");
     $display("tb_compute: THE MACHINE COMPUTES -- four boards, PARC's own ALU prologue.");
     $finish;
   end
