@@ -2650,6 +2650,53 @@ the generated machine -- which is right, it is fitted by hand when you want
 the test circuit. Worth knowing before someone reads a board output that goes
 nowhere as a missing connection.
 
+## The memory reference-kind chain, derived end to end (2026-08-22)
+
+Three gates on MemC decide what kind of memory reference a microinstruction
+makes, and all three are now read off PARC's own wire list rather than
+guessed:
+
+| gate | part | function |
+|---|---|---|
+| `b24` c | MC10103 | `WantProcRef' = IgnoreProc \| ASEL.0` -- is a reference wanted at all |
+| `d22` a | MC10117 | `WantCR = ~[(FF.0mem' \| WantProcRef') & (ASEL.1' \| WantProcRef')]` -- cache reference, or alternate |
+| `b24` | MC10103 | `WantAltRef' = WantProcRef' \| WantCR` -- the enable on the alternate decoder |
+| `j24` | MC10161 | `{EmuOrFT', ASEL.2, FF.1mem}` -> `Flush_'` (Q3) / `Map_'` (Q1) |
+| `a24` | MC10162 | `{ASEL.1, ASEL.2, FF.1mem}` -> `IFetch_` / `Lfetch_` |
+
+So an ALTERNATE reference -- Map or Flush -- requires `ASEL.1 = 0` and
+`FF.0 = 0` (which makes `WantCR` low) on top of a reference being wanted.
+
+**Both MC10103 and MC10117 name their outputs backwards from the roles here.**
+On `b24` pin 9 carries the name `WantProcRef` and is the NOR; pin 15 carries
+`WantProcRef'` and is the OR. On `d22` pin 3 is named `WantCR` and is the
+inverting output while pin 2, named `WantCR'`, is the non-inverting one. Net
+naming settles nothing about polarity -- read the roles and the datasheet.
+
+**And the C emulator agrees, independently.** `EmuOrFT'` is the
+emulator-or-fault-task condition, and `cpu.c` comments `DM_REF_MAP` /
+`DM_REF_FLUSH` as "emulator/fault" against the IO kinds as "io task". Neither
+model was derived from the other, and the reference kind is task-dependent in
+both.
+
+`make -C verilog memrun-test` measures the chain, and over 3000 samples the
+alternate path decodes correctly 149 times for 149 -- exactly as the `d22`
+algebra predicts, on every sample where the flush-shaped FF field is in force.
+
+**The open item is the testbench, not the RTL.** The machine loops tightly
+over two TNIA values as its Local Jump says it should, but `ASEL.0` is 1 on
+all 149 of those samples where the Flush this bench builds has `ASEL.0 = 0`:
+neither looping instruction is the one it built, so the Flush never executes.
+Next step is to check where `build_hunk`'s four copies actually land against
+where TNIA goes -- the jam and the hunk are two different paths into IM.
+
+**Three sampling traps in one file, and the third is the worst.** The first
+read an instant instead of counting edges; the second read the end of a run
+instead of the interesting moment; the third measured a real signal on the
+wrong instruction entirely, and the algebra looked broken because of it.
+Count edges, condition the measurement on the thing you meant to measure, and
+check that it is running.
+
 ## Where the boot stands (2026-08-22)
 
 The five-stage chain, what is done and what blocks the rest, is the ROADMAP TO

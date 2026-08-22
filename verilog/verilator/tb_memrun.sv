@@ -339,17 +339,43 @@
 // so with a reference wanted it goes LOW only when ASEL.1 = 0 AND FF.0 = 0.
 // The Flush instruction built here (ASEL=1, FF=0o100) satisfies both.
 //
-// AND YET IT MEASURES ASEL.1' = 1, WantProcRef' = 0, but FF.0mem' = 0 --
-// FF.0 = 1, which is not this instruction. THE MACHINE HAS WANDERED OFF IT.
-// These four references carry JCN 0o201 and the sample is taken 3000 sys_clk
-// into a free run, by which time execution has gone into the AEmu hunks that
-// occupy the rest of IM.
+// `WantProcRef'` COMES FROM MemC b24 gate c, an MC10103 whose pin 9 (named
+// `WantProcRef`) is the NOR and pin 15 (named `WantProcRef'`) the OR -- the
+// names are swapped against the roles here too:
 //
-// SO THE NEXT STEP IS TO MAKE THE REFERENCE INSTRUCTIONS LOOP -- a JCN that
-// branches back to IM[0] -- so the machine stays on them and the alt-ref path
-// can be measured while a Flush is actually the current instruction. That is
-// the same sampling trap this file has now hit in three different disguises:
-// count edges, and make sure the thing being measured is the thing running.
+//     WantProcRef' = IgnoreProc | ASEL.0
+//
+// So THE WHOLE REFERENCE-KIND CHAIN IS NOW DERIVED, three gates deep:
+//
+//     b24  WantProcRef' = IgnoreProc | ASEL.0          -- is a reference wanted
+//     d22  WantCR       = ~[(FF.0mem' | WantProcRef')
+//                           & (ASEL.1' | WantProcRef')] -- cache, or alternate
+//     b24  WantAltRef'  = WantProcRef' | WantCR         -- enable for j24
+//     j24  {EmuOrFT', ASEL.2, FF.1mem} -> Flush_' / Map_'   (emulator/fault)
+//     a24  {ASEL.1, ASEL.2, FF.1mem}   -> IFetch_ / Lfetch_
+//
+// and the C emulator agrees on the task-dependence independently: cpu.c
+// comments DM_REF_MAP/DM_REF_FLUSH "emulator/fault" and the IO kinds
+// "io task", which is exactly what `EmuOrFT'` selects.
+//
+// WHAT IS NOT YET RIGHT IS THIS BENCH, NOT THE RTL. Measured over 3000
+// samples the machine hits only TWO distinct TNIA values -- it loops tightly,
+// exactly as JCN 0o201 (Local Jump to offset 1) says it should, and does NOT
+// wander into the AEmu hunks. `FF.0mem'` is 1 on 149 of those samples, and
+// across all 149 `WantCR` is 0 -- THE ALTERNATE PATH DECODES CORRECTLY, 149
+// for 149, precisely as d22's algebra predicts. But `ASEL.0` is 1 on all 149,
+// where the Flush built here has ASEL = 001 and so ASEL.0 = 0. Neither
+// instruction in the loop is the one this bench builds: it never executes.
+//
+// So the next step is to get the intended microinstruction to BE the one
+// running -- check where build_hunk's four copies actually land against where
+// TNIA goes, since the jam and the hunk are two different paths into IM.
+//
+// Three sampling traps in one file, and this is the third and worst: the
+// first read an instant instead of counting edges, the second read the end of
+// a run instead of the interesting moment, and the third measured a real
+// signal on the wrong instruction entirely. COUNT EDGES, CONDITION THE
+// MEASUREMENT ON THE THING YOU MEANT TO MEASURE, AND CHECK IT IS RUNNING.
 //
 // Then the storage array, whose interface msa.bp specifies completely:
 // MemAd.1-8, MemRAS/CAS/WE in a and b copies from DIFFERENT packages (two
@@ -481,6 +507,8 @@ module tb_memrun;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
   integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb, nwcr, nwar, nfl, nmp;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
+  integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0;
+  reg tnia_hit [0:4095];
   reg [2:0] pms;
   reg [3:0] pipe_before;
   wire [2:0] mapst = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
@@ -1427,6 +1455,9 @@ module tb_memrun;
     nldp=0; pldp=m.b_MemC.LdPair_p_;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
+    ntnia=0; nff0=0; nsamp=0;
+    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0;
+    for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
     nwcr=0; pwcr=m.b_MemC.WantCR; nwar=0; pwar=m.b_MemC.WantAltRef_p_;
     nfl=0; pfl=m.b_MemC.Flush_u__p_; nmp=0; pmp=m.b_MemC.Map_u__p_;
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
@@ -1465,6 +1496,21 @@ module tb_memrun;
       if (m.b_MemC.Hit_p_a           !== pha ) begin nha =nha +1; pha =m.b_MemC.Hit_p_a;           end
       if (m.b_MemC.Hit_p_b           !== phb ) begin nhb =nhb +1; phb =m.b_MemC.Hit_p_b;           end
       if (m.b_MemC.WantCR            !== pwcr) begin nwcr=nwcr+1; pwcr=m.b_MemC.WantCR;            end
+      nsamp = nsamp + 1;
+      if (m.b_MemC.FF_0mem_p_) begin
+        nff0 = nff0 + 1;
+        // Conditioned on the FLUSH instruction actually being in force.
+        if (!m.b_MemC.WantProcRef_p_) nff0_wpr = nff0_wpr + 1;
+        if (!m.b_MemC.WantCR)         nff0_cr  = nff0_cr  + 1;
+        if (!m.b_MemC.WantAltRef_p_)  nff0_alt = nff0_alt + 1;
+        if (!m.b_MemC.Flush_u__p_)    nff0_fl  = nff0_fl  + 1;
+        if (m.b_MemC.ASEL_1_p_)       nff0_a1  = nff0_a1  + 1;
+        // WantProcRef' = IgnoreProc | ASEL.0  (MemC b24 gate c, an MC10103:
+        // pin 15 is the OR despite the primed name, pin 9 the NOR).
+        if (m.b_MemC.IgnoreProc)      nff0_ign = nff0_ign + 1;
+        if (m.b_MemC.ASEL_0)          nff0_a0  = nff0_a0  + 1;
+      end
+      if (!tnia_hit[tnia_now]) begin tnia_hit[tnia_now] = 1'b1; ntnia = ntnia + 1; end
       if (m.b_MemC.WantAltRef_p_     !== pwar) begin nwar=nwar+1; pwar=m.b_MemC.WantAltRef_p_;     end
       if (m.b_MemC.Flush_u__p_       !== pfl ) begin nfl =nfl +1; pfl =m.b_MemC.Flush_u__p_;       end
       if (m.b_MemC.Map_u__p_         !== pmp ) begin nmp =nmp +1; pmp =m.b_MemC.Map_u__p_;         end
@@ -1501,6 +1547,12 @@ module tb_memrun;
     // despite the name) =
     //     ~[(FF.0mem' | WantProcRef') & (ASEL.1' | WantProcRef')]
     // so with a reference wanted it goes LOW only when ASEL.1 = 0 AND FF.0 = 0.
+    $display("tb_memrun:   WHERE IS IT -- TNIA hit %0d distinct values; FF.0mem'=1 on %0d of %0d samples",
+             ntnia, nff0, nsamp);
+    $display("tb_memrun:   WHILE THE FLUSH IS IN FORCE (%0d samples) -- ASEL.1'=1 %0d, WantProcRef'=0 %0d, WantCR=0 %0d, WantAltRef'=0 %0d, Flush'=0 %0d",
+             nff0, nff0_a1, nff0_wpr, nff0_cr, nff0_alt, nff0_fl);
+    $display("tb_memrun:   ...and WantProcRef' = IgnoreProc | ASEL.0 -- IgnoreProc=1 on %0d, ASEL.0=1 on %0d of %0d",
+             nff0_ign, nff0_a0, nff0);
     $display("tb_memrun:   WantCR=%b terms -- ASEL.1'=%b FF.0mem'=%b WantProcRef'=%b",
              m.b_MemC.WantCR, m.b_MemC.ASEL_1_p_, m.b_MemC.FF_0mem_p_,
              m.b_MemC.WantProcRef_p_);
