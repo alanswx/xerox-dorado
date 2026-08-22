@@ -2650,15 +2650,37 @@ the generated machine -- which is right, it is fitted by hand when you want
 the test circuit. Worth knowing before someone reads a board output that goes
 nowhere as a missing connection.
 
-## Where the boot stands (2026-08-21)
+## Where the boot stands (2026-08-22)
 
-The five-stage chain, what is done and what blocks the rest, is now written up
-as the ROADMAP TO BOOT at the top of . Short version:
-stages 0 and 1 are done and cross-checked against the C emulator, stage 2 runs
-only with IM parity disabled, and stages 3 and 4 are gated on the memory
-subsystem and on I/O device backends respectively. Next move is TASKING, which
-has no gate at all and which everything downstream needs.
+The five-stage chain, what is done and what blocks the rest, is the ROADMAP TO
+BOOT at the top of `docs/verilog-from-sil.md`. Short version: stages 0 and 1
+are done and cross-checked against the C emulator; stage 2 runs but only with
+IM parity disabled; stage 3 is started -- the memory section is clocked, in a
+running machine, and being asked for storage -- and stage 4 needs I/O device
+backends that do not exist. 29 gates.
 
-And the thing that changes what to aim for: a full OS boot will not happen in
-simulation at gate level. Simulation proves the chain stage by stage; an FPGA
-is where anything boots.
+**The single thing blocking stage 3, stated exactly.** The microcode ASKS for
+storage and nothing COMPLETES. `WantProcRef'` asserts, MAR carries a real
+register value, and the reference is ACCEPTED -- `RefHold'` reads 1, so it is
+not stuck at the front door. But the Pipe pointer does not move over a whole
+run, and `MDhold'`/`MiscHold'` read 0: the processor is held waiting for
+memory DATA. `DdataGood'` is properly connected (MemX e19 drives it) and says
+the data is not good, because nothing has ever completed a storage access.
+
+So the next thing to build is a behavioural storage array behind MemD's
+interface. That is forced, not a shortcut: main storage lives on separate
+**MSA** boards (144 `MK4096P-6` DRAMs each) for which the archive has only
+`.lc`/`.bp`/`.nl` and no wire list, so it cannot be generated from Sil even in
+principle.
+
+**Two capacity questions, one settled.** Memory is not a risk on MiSTer:
+`tools/sil_ram_groups.py` measures 246 M10K worst case against the DE10-Nano's
+557, so the machine fits without merging the bit-sliced RAMs at all (merging is
+a ~40% saving, not a gate). Logic is the open one, and the estimate is
+arithmetic rather than a fit -- synthesise to find out.
+
+**A full OS boot will not happen in gate-level simulation.** Simulation proves
+the chain stage by stage, each gate cross-checked against the C emulator; an
+FPGA is where anything boots. Do not spend effort trying to make a simulation
+boot an OS.
+
