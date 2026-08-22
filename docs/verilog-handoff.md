@@ -2683,19 +2683,39 @@ both.
 alternate path decodes correctly 149 times for 149 -- exactly as the `d22`
 algebra predicts, on every sample where the flush-shaped FF field is in force.
 
-**The open item is the testbench, not the RTL.** The machine loops tightly
-over two TNIA values as its Local Jump says it should, but `ASEL.0` is 1 on
-all 149 of those samples where the Flush this bench builds has `ASEL.0 = 0`:
-neither looping instruction is the one it built, so the Flush never executes.
-Next step is to check where `build_hunk`'s four copies actually land against
-where TNIA goes -- the jam and the hunk are two different paths into IM.
+**The front door is proven open.** With the ASEL=1 reference actually
+executing -- 2851 of 3000 samples -- `WantProcRef'` is low on **every one of
+them**, from `IgnoreProc = 0` and `ASEL.0 = 0`, which is `b24` gate c's
+algebra exactly. Gated in `memrun-test` and mutation-tested.
 
-**Three sampling traps in one file, and the third is the worst.** The first
-read an instant instead of counting edges; the second read the end of a run
-instead of the interesting moment; the third measured a real signal on the
-wrong instruction entirely, and the algebra looked broken because of it.
-Count edges, condition the measurement on the thing you meant to measure, and
-check that it is running.
+Getting there meant identifying the running instruction by the right field.
+An earlier pass conditioned on `FF.0mem'`, which selected the 149 **startup**
+cycles instead of the 2851 running ones and made the whole chain look dead.
+**IM is four interleaved banks** -- the low two address bits pick the bank --
+so reading IM[0..3] back settles what is actually there: IM[0] and IM[1] both
+hold the bench's reference (`L=0101 R=0081`), the machine loops over those
+two, `TNIA` 000 is the startup state and 001 the running one, and the
+instruction is identified by its ASEL.
+
+Two things remain, both small and both stated by measurement:
+
+1. **Only two of `build_hunk`'s four copies land.** IM[2] and IM[3] read back
+   as zero. It does not affect the result above -- the machine loops over
+   IM[0] and IM[1], which are correct and identical -- but a hunk is eight
+   half-words and only four are arriving.
+2. **The packed FF is not the FF MemC sees.** The bench passes `FF = 0` and
+   MemC reads `FF.0 = 1`, which is why `WantCR` stays high and the reference
+   is a cache reference rather than an alternate one. A Flush needs
+   `FF.0 = 0` at MemC. The comment by the call already claimed `FF = 0o100`
+   was being passed; the call passes `8'd0`. Fix the argument, then confirm
+   what arrives.
+
+**Three sampling traps in one file.** The first read an instant instead of
+counting edges; the second read the end of a run instead of the interesting
+moment; the third conditioned on a field that picked the wrong instruction
+entirely. Count edges, and identify the running instruction by a field you
+have read back out of IM.
+
 
 ## Where the boot stands (2026-08-22)
 
