@@ -494,33 +494,49 @@
 //      each term low on:  WriteInMem' 1280 (A WRITE IS IN THE PIPELINE),
 //      MemX07.sil+10 96, MapTroubleInMem 0 -- asserted the ENTIRE run.
 //
-//      AND `MapTrouble` IS ASSERTED BECAUSE THE MAP ENTRY IS EMPTY. j11 (an
-//      MC10176) registers it at `StartMemClk0'` from `MapTrouble`, which is
-//      g14, an MC10121 4-wide OR-AND whose COMMON input is
-//      `ReadOrWriteInMap'`:
+//      AND `MapTrouble` IS ASSERTED BECAUSE THE MAP ENTRY FAILS ITS PARITY
+//      CHECK. j11 (an MC10176) registers it at `StartMemClk0'` from
+//      `MapTrouble`, which is g14, an MC10121 4-wide OR-AND whose COMMON
+//      input is `ReadOrWriteInMap'`:
 //
-//          MapTrouble = (CheckWP' | MapWP' | ROWIM')
-//                     & (MapWP'   | MapDirty' | ROWIM')
-//                     & (TrueBD)                       <- pinned to 1
-//                     & (MapEven' | preRfshInMem | ROWIM')
+//          y = (CheckWP' | MapWP'    | ROWIM')
+//            & (MapWP'   | MapDirty' | ROWIM')
+//            & (TrueBD   | ROWIM')                  <- pinned to 1
+//            & (MapEven' | preRfshInMem | ROWIM')
 //
-//      Measured: `ReadOrWriteInMap'` is low on all 3000 samples, so a map
-//      operation IS in the stage and the common input is NOT forcing it
-//      (gated) -- but `MapWP'` and `MapDirty'` are BOTH HIGH on all 3000, and
-//      they appear in two of the four groups, forcing those terms to 1.
+//      AND `MapTrouble` IS THE INVERSE OF THAT, not that. MC10121 puts the
+//      plain OR-AND on pin 2 and the OR-AND-INVERT on pin 3 -- the OPPOSITE
+//      of the "role OUT is the inverting output" rule, settled from the MECL
+//      data book's own logic diagram (cell_MC10121's header records it, and
+//      PARC's naming here agrees with the roles and is wrong). MapTrouble is
+//      pin 3. SO IT CLEARS ONLY WHEN ALL FOUR GROUPS ARE 1.
 //
-//      An UNINITIALISED Map RAM reads as "not writable, not dirty", which is
-//      exactly the pattern above. This bench never writes a Map entry, so the
-//      address it references has none -- precisely the work `InitMem.mc` does
-//      in real microcode, the map walk the Smalltalk bring-up turned on.
+//      Measured over the run, low on:  ReadOrWriteInMap' 3000, MapWP' 0,
+//      MapDirty' 0, MapEven' 3000, CheckWP' 2691, preRfshInMem 3000 -- and
+//      MapTrouble high on 3000, MapTrouble' on 0.
 //
-//      NEXT: write a real Map entry for the referenced address. The `<-Map`
-//      reference is FA=0, FB=3, FC=1 = 0o31 (ContA b17, and cpu.c's
-//      DM_REF_RMAP comment says the same number from an independent
-//      derivation). From the j24/b24/d22 algebra a Map reference is
-//      ASEL = 000 with FF.0 = 0, FF.1 = 1 -- the same FF as the Flush, one
-//      ASEL bit apart. With a valid entry, MemWEa should assert and the
-//      write-back reaches the array.
+//      SO THE BLOCKER IS THE FOURTH GROUP, and an earlier note here blamed
+//      the wrong one: MapWP' and MapDirty' being HIGH makes groups 1 and 2
+//      equal 1, which is exactly what is wanted. Group 4 is
+//      (MapEven' | preRfshInMem | ROWIM') and all three are LOW.
+//
+//      `MapEven'` IS THE MAP PARITY CHECK. MemX e11 is an MC10170, the 9-bit
+//      parity part, taking `RP.00`..`RP.08` -- the map entry's real-page bits
+//      -- with `MemX13.sil+1` on the carry-in, and pin 15 is its EVEN output.
+//      An UNINITIALISED, all-zero map entry fails that check, and a failed
+//      map parity is exactly what MapTrouble should mean.
+//
+//      (The map entry itself lives in MosRam packages d11/d13, reached
+//      through MC10124 TTL-to-ECL translators at e17 and e10 -- so MapWP and
+//      MapDirty are literally the stored bits.)
+//
+//      NEXT: write a map entry for the referenced address WITH CORRECT
+//      PARITY -- any value will not do, the parity bit has to agree. Either
+//      through `<-Map` (FA=0, FB=3, FC=1 = 0o31 at ContA b17, the same number
+//      cpu.c's DM_REF_RMAP comment derives independently; ASEL = 000 with
+//      FF.0 = 0, FF.1 = 1) or by preloading the MosRam arrays the way
+//      tb_boot0 preloads IM. NOTE this is the same MC10170 whose polarity is
+//      the open IM-parity question, so a fix here may bear on that too.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -660,7 +676,7 @@ module tb_memrun;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [2:0] mapst_now; reg [1:0] mapfn_now;
   reg mapst_hit [0:7]; reg mapfn_hit [0:3];
-  integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nrw, nwp, ndty, nevn, nckw;
+  integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nrw, nwp, ndty, nevn, nckw, nprf, nmt, nmtp;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd;
   reg tnia_hit [0:4095];
   reg [2:0] pms;
@@ -1687,7 +1703,7 @@ module tb_memrun;
     nldp=0; pldp=m.b_MemC.LdPair_p_;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
-    nmapst=0; nmapfn=0; npsm2=0; nsm2=0; nload=0; ncnt=0; nd0=0; nwim=0; nx10=0; nmti=0; nrw=0; nwp=0; ndty=0; nevn=0; nckw=0;
+    nmapst=0; nmapfn=0; npsm2=0; nsm2=0; nload=0; ncnt=0; nd0=0; nwim=0; nx10=0; nmti=0; nrw=0; nwp=0; ndty=0; nevn=0; nckw=0; nprf=0; nmt=0; nmtp=0;
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
     for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
     ntnia=0; nff0=0; nsamp=0;
@@ -1758,6 +1774,12 @@ module tb_memrun;
       if (!m.b_MemX.MapDirty_p_)         ndty = ndty + 1;
       if (!m.b_MemX.MapEven_p_)          nevn = nevn + 1;
       if (!m.b_MemX.CheckWP_p_)          nckw = nckw + 1;
+      // The FOURTH group of g14's OR-AND is (MapEven' | preRfshInMem | ROWIM').
+      // MapEven' and ROWIM' are already low all run, so this term -- and with
+      // it MapTrouble -- turns entirely on preRfshInMem.
+      if (!m.b_MemX.preRfshInMem)        nprf = nprf + 1;
+      if (m.b_MemX.MapTrouble)           nmt  = nmt  + 1;
+      if (m.b_MemX.MapTrouble_p_)        nmtp = nmtp + 1;
       if (!m.b_MemC.ASEL_0 && !m.b_MemC.ASEL_2 && m.b_MemC.Store_u_)
         nff0_st = nff0_st + 1;
       // CONDITION ON THE INSTRUCTION ACTUALLY RUNNING. IM[0] and IM[1] both
@@ -1904,6 +1926,9 @@ module tb_memrun;
       $fatal(1, "ReadOrWriteInMap' never asserted -- no map operation, so MapTrouble says nothing");
     $display("tb_memrun:   MapTrouble terms low on -- ReadOrWriteInMap' %0d, MapWP' %0d, MapDirty' %0d, MapEven' %0d, CheckWP' %0d of %0d",
              nrw, nwp, ndty, nevn, nckw, nsamp);
+    $display("tb_memrun:   ...and the fourth term: preRfshInMem low on %0d of %0d", nprf, nsamp);
+    $display("tb_memrun:   g14 OUTPUTS -- MapTrouble high on %0d, MapTrouble' high on %0d of %0d",
+             nmt, nmtp, nsamp);
     $display("tb_memrun:   MemWEa's D0 = ~(WriteInMem' | x10 | MapTroubleInMem) -- low on: WriteInMem' %0d, x10 %0d, MapTroubleInMem %0d of %0d",
              nwim, nx10, nmti, nsamp);
     $display("tb_memrun:   WRITE COUNTER over the run -- in LOAD (PE' low) on %0d, allowed to COUNT (CE' low) on %0d, D0 high on %0d of %0d",
