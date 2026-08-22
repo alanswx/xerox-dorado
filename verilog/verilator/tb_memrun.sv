@@ -461,20 +461,42 @@
 //      MapState takes 7 of its 8 values, MapFnc 2 of 4, `preStartMem'` is low
 //      on 2712 samples and `StartMem'` on 2680. All gated.
 //
-//   5. STILL OPEN: no WRITE. `MemWEa` is 0 for the whole run, so the
-//      write-back never puts data on the array. It is NOT a gate -- MemX c02
-//      is an MC10176 clocked by `Clk1'Aa` whose Q0 is MemWEa, fed from
-//      MemX i10, an F10016 COUNTER:
+//   5. THE WRITE IS SCHEDULED, AND A MAP FAULT IS WHAT STOPS IT.
 //
-//          C   = Clk0'Ba      CE' = TrueBD       PE' = MemIdle
-//          H0  -> MemWEa      H2  -> MakeMemCAS  MR  = STPerr
+//      `MemWEa` is 0 for the whole run, and it is NOT a gate. MemX c02 is an
+//      MC10176 clocked by `Clk1'Aa` whose Q0 is MemWEa, fed from MemX i10, an
+//      F10016:
 //
-//      so the write enable is a COUNTER PHASE, not a combinational term: the
-//      counter parallel-loads while `MemIdle` holds PE' low and then walks,
-//      and H0 rises at the write point. Chase D0 (pin 11, MemX07.sil+19) and
-//      whether the counter is being held in load. Note this is the same part
-//      whose terminal count was the machine-wide oscillation bug, so read the
-//      F10016 data sheet's CE'/TC semantics before concluding anything.
+//          C = Clk0'Ba    CE' = TrueBD    PE' = MemIdle    MR = STPerr
+//          H0 -> MemWEa   H2 -> MakeMemCAS
+//
+//      `TrueBD` IS A HARDWIRED TRUE -- g04 is an MC10195 whose pin 12 is
+//      open, the same trick as ProcH's `TrueA` -- so CE' is permanently high
+//      and THIS F10016 NEVER COUNTS. It is a parallel-load REGISTER, not a
+//      counter. Measured: in load on 2936 samples, allowed to count on 0.
+//      (Do not reason about its terminal count; that is the bug that once
+//      oscillated the whole machine, and it is not in play here.)
+//
+//      So MemWEa is just D0 registered, and D0 comes from i11, an MC10105
+//      gate b -- a three-input NOR:
+//
+//          D0 = ~(WriteInMem' | MemX07.sil+10 | MapTroubleInMem)
+//
+//      Measured over the run, each term low on:
+//          WriteInMem'       1280      A WRITE IS IN THE PIPELINE
+//          MemX07.sil+10       96
+//          MapTroubleInMem      0      <-- asserted the ENTIRE run
+//
+//      `MapTroubleInMem` high in a NOR forces D0 to 0 forever. THE WRITE-BACK
+//      IS BLOCKED BY A MAP FAULT, and it should be: this bench never
+//      initialises the Map, so the address it references has no valid entry.
+//      That is precisely the work `InitMem.mc` does in real microcode -- the
+//      map walk that the Smalltalk bring-up turned on.
+//
+//      `WriteInMem'` asserting is gated (the write-back IS scheduled);
+//      dropping the Store is caught. NEXT: set up a map entry for the
+//      referenced address -- or use a reference that bypasses the map -- and
+//      the write should reach the array.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -614,7 +636,7 @@ module tb_memrun;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [2:0] mapst_now; reg [1:0] mapfn_now;
   reg mapst_hit [0:7]; reg mapfn_hit [0:3];
-  integer nmapst, nmapfn, npsm2, nsm2;
+  integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd;
   reg tnia_hit [0:4095];
   reg [2:0] pms;
@@ -1608,7 +1630,7 @@ module tb_memrun;
     nldp=0; pldp=m.b_MemC.LdPair_p_;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
-    nmapst=0; nmapfn=0; npsm2=0; nsm2=0;
+    nmapst=0; nmapfn=0; npsm2=0; nsm2=0; nload=0; ncnt=0; nd0=0; nwim=0; nx10=0; nmti=0;
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
     for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
     ntnia=0; nff0=0; nsamp=0;
@@ -1662,6 +1684,15 @@ module tb_memrun;
       if (!mapfn_hit[mapfn_now]) begin mapfn_hit[mapfn_now]=1'b1; nmapfn=nmapfn+1; end
       if (!m.b_MemX.preStartMem_p_) npsm2 = npsm2 + 1;
       if (!m.b_MemX.StartMem_p_)    nsm2  = nsm2  + 1;
+      // F10016 i10: PE'=MemIdle loads when LOW, CE'=TrueBD counts when LOW.
+      if (!m.b_MemX.MemIdle)        nload = nload + 1;   // held in LOAD
+      if (!m.b_MemX.TrueBD)         ncnt  = ncnt  + 1;   // allowed to COUNT
+      if (m.b_MemX.MemX07_sil_pl_19) nd0  = nd0   + 1;   // the D0 it loads
+      // i11 (MC10105 gate b, a NOR):
+      //   MemX07.sil+19 = ~(WriteInMem' | MemX07.sil+10 | MapTroubleInMem)
+      if (!m.b_MemX.WriteInMem_p_)      nwim = nwim + 1;
+      if (!m.b_MemX.MemX07_sil_pl_10)   nx10 = nx10 + 1;
+      if (!m.b_MemX.MapTroubleInMem)    nmti = nmti + 1;
       if (!m.b_MemC.ASEL_0 && !m.b_MemC.ASEL_2 && m.b_MemC.Store_u_)
         nff0_st = nff0_st + 1;
       // CONDITION ON THE INSTRUCTION ACTUALLY RUNNING. IM[0] and IM[1] both
@@ -1794,6 +1825,20 @@ module tb_memrun;
       $fatal(1, "the map sequencer barely moved (%0d of 8 states)", nmapst);
     if (npsm2 == 0) $fatal(1, "preStartMem' never asserted -- no storage cycle was started");
     if (nsm2  == 0) $fatal(1, "StartMem' never asserted");
+    // MemX i10 (F10016 counter): PE' = MemIdle, CE' = TrueBD, MR = STPerr.
+    // The data sheet: CE' is "Count Enable (LOW to Count)", PE' loads.
+    // GATE: THE WRITE REACHES THE MEMORY PIPELINE. WriteInMem' asserting is
+    // the write-back being scheduled; what stops it short of the array is
+    // MapTroubleInMem, below.
+    if (nwim == 0)
+      $fatal(1, "WriteInMem' never asserted -- the write-back never reached the memory stage");
+    $display("tb_memrun:   MemWEa's D0 = ~(WriteInMem' | x10 | MapTroubleInMem) -- low on: WriteInMem' %0d, x10 %0d, MapTroubleInMem %0d of %0d",
+             nwim, nx10, nmti, nsamp);
+    $display("tb_memrun:   WRITE COUNTER over the run -- in LOAD (PE' low) on %0d, allowed to COUNT (CE' low) on %0d, D0 high on %0d of %0d",
+             nload, ncnt, nd0, nsamp);
+    $display("tb_memrun:   WRITE COUNTER (end sample) -- MemIdle(PE')=%b TrueBD(CE')=%b STPerr(MR)=%b | H0(MemWEa src)=%b H2(MakeMemCAS)=%b",
+             m.b_MemX.MemIdle, m.b_MemX.TrueBD, m.b_MemX.STPerr,
+             m.b_MemX.MemX07_sil_pl_9, m.b_MemX.MakeMemCAS);
     $display("tb_memrun:   MAP SEQUENCER -- MapState took %0d of 8 values, MapFnc %0d of 4 | preStartMem' low on %0d, StartMem' low on %0d",
              nmapst, nmapfn, npsm2, nsm2);
     $display("tb_memrun:   STORE cycles with Store_ asserted: %0d   |   HitColDirty during the flush: %0d",

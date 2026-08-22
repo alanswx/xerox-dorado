@@ -2785,22 +2785,47 @@ Two things remain, both small and both stated by measurement:
    takes **7 of its 8 values**, MapFnc 2 of 4, `preStartMem'` is low on 2712
    samples and `StartMem'` on 2680. All gated.
 
-5. **Still open: no write.** `MemWEa` is 0 for the whole run, so the
-   write-back never puts data on the array. It is **not a gate** -- MemX
-   `c02` is an MC10176 clocked by `Clk1'Aa` whose Q0 is `MemWEa`, fed from
-   MemX `i10`, an **F10016 counter**:
+5. **The write is scheduled, and a map fault is what stops it.** `MemWEa` is
+   0 for the whole run, and it is **not a gate**. MemX `c02` is an MC10176
+   clocked by `Clk1'Aa` whose Q0 is `MemWEa`, fed from MemX `i10`, an F10016:
 
    ```
-   C = Clk0'Ba    CE' = TrueBD    PE' = MemIdle
-   H0 -> MemWEa   H2 -> MakeMemCAS   MR = STPerr
+   C = Clk0'Ba    CE' = TrueBD    PE' = MemIdle    MR = STPerr
+   H0 -> MemWEa   H2 -> MakeMemCAS
    ```
 
-   So the write enable is a **counter phase**, not a combinational term: the
-   counter parallel-loads while `MemIdle` holds PE' low, then walks, and H0
-   rises at the write point. Chase D0 (pin 11, `MemX07.sil+19`) and whether
-   the counter is being held in load. Note this is the same part whose
-   terminal count was the machine-wide oscillation bug, so read the F10016
-   data sheet's CE'/TC semantics before concluding anything.
+   **`TrueBD` is a hardwired TRUE** -- `g04` is an MC10195 with pin 12 open,
+   the same trick as ProcH's `TrueA` -- so CE' is permanently high and **this
+   F10016 never counts**. It is a parallel-load *register*. Measured: in load
+   on 2936 samples, allowed to count on 0. (Do not reason about its terminal
+   count; that is the bug that once oscillated the whole machine, and it is
+   not in play here.)
+
+   So `MemWEa` is D0 registered, and D0 comes from `i11`, an MC10105 gate b --
+   a three-input NOR:
+
+   ```
+   D0 = ~(WriteInMem' | MemX07.sil+10 | MapTroubleInMem)
+   ```
+
+   Measured over the run, each term low on:
+
+   | term | cycles low |
+   |---|---|
+   | `WriteInMem'` | 1280 -- **a write is in the pipeline** |
+   | `MemX07.sil+10` | 96 |
+   | `MapTroubleInMem` | **0** -- asserted the entire run |
+
+   `MapTroubleInMem` high in a NOR forces D0 to 0 forever. **The write-back is
+   blocked by a map fault**, and it should be: this bench never initialises
+   the Map, so the address it references has no valid entry. That is precisely
+   the work `InitMem.mc` does in real microcode -- the map walk the Smalltalk
+   bring-up turned on.
+
+   `WriteInMem'` asserting is gated (the write-back *is* scheduled); dropping
+   the Store is caught. **Next:** set up a map entry for the referenced
+   address -- or use a reference that bypasses the map -- and the write should
+   reach the array.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting
