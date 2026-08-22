@@ -326,6 +326,8 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
     __Vtableidx79 = 0;
     CData/*4:0*/ __Vtableidx81;
     __Vtableidx81 = 0;
+    CData/*5:0*/ __Vtableidx82;
+    __Vtableidx82 = 0;
     CData/*4:0*/ __Vtableidx83;
     __Vtableidx83 = 0;
     CData/*4:0*/ __Vtableidx86;
@@ -353,18 +355,25 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
     CData/*4:0*/ __Vtableidx135;
     __Vtableidx135 = 0;
     // Body
+    vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__FF_6a 
+        = ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_b23__DOT__qb) 
+           | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f23__DOT__p12));
+    vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__FF_5a 
+        = ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_b24__DOT__qa) 
+           | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_e23__DOT__p12));
+    __Vtableidx82 = vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_h14__DOT__q;
     tb_memrun__DOT__m__DOT__b_ProcL__DOT__NextMacroDly 
-        = Vtb_memrun__ConstPool__TABLE_h59e8c004_0[vlSelfRef.__Vtableidx82];
+        = Vtb_memrun__ConstPool__TABLE_h59e8c004_0[__Vtableidx82];
     tb_memrun__DOT__m__DOT__b_ProcL__DOT__ProcL22_sil_pl_2 
-        = Vtb_memrun__ConstPool__TABLE_h4780427e_0[vlSelfRef.__Vtableidx82];
+        = Vtb_memrun__ConstPool__TABLE_h4780427e_0[__Vtableidx82];
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RBase_3_p_ 
-        = Vtb_memrun__ConstPool__TABLE_h75b2a61a_0[vlSelfRef.__Vtableidx82];
+        = Vtb_memrun__ConstPool__TABLE_h75b2a61a_0[__Vtableidx82];
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RBase_2_p_ 
-        = Vtb_memrun__ConstPool__TABLE_ha477147c_0[vlSelfRef.__Vtableidx82];
+        = Vtb_memrun__ConstPool__TABLE_ha477147c_0[__Vtableidx82];
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RBase_1_p_ 
-        = Vtb_memrun__ConstPool__TABLE_hdbecc607_0[vlSelfRef.__Vtableidx82];
+        = Vtb_memrun__ConstPool__TABLE_hdbecc607_0[__Vtableidx82];
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RBase_0_p_ 
-        = Vtb_memrun__ConstPool__TABLE_h5b90359e_0[vlSelfRef.__Vtableidx82];
+        = Vtb_memrun__ConstPool__TABLE_h5b90359e_0[__Vtableidx82];
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Clock1_p_Ca 
         = ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__PreClock1_p_B) 
            | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_c18__DOT__p6) 

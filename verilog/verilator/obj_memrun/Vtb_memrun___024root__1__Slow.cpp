@@ -6736,6 +6736,8 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->tb_memrun__DOT__dmd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11800631227246370862ull);
     vlSelf->tb_memrun__DOT__dmc = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4366519148284153744ull);
     vlSelf->tb_memrun__DOT__udmd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17723423536946979202ull);
+    vlSelf->tb_memrun__DOT__rfshdiv = VL_SCOPED_RAND_RESET_I(9, __VscopeHash, 8551543113651834254ull);
+    vlSelf->tb_memrun__DOT__rfshper = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14295647686845263379ull);
     vlSelf->tb_memrun__DOT__k = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11652679766192128519ull);
     vlSelf->tb_memrun__DOT__pipead = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 4527651042432929937ull);
     vlSelf->tb_memrun__DOT__asel = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 8207383986537541256ull);
@@ -6830,7 +6832,6 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->tb_memrun__DOT__m__DOT__MemBM34 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17424387484147277018ull);
     vlSelf->tb_memrun__DOT__m__DOT__MemClkEnable_p_c = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18270739293088057783ull);
     vlSelf->tb_memrun__DOT__m__DOT__RefOutstanding_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4310694567385105954ull);
-    vlSelf->tb_memrun__DOT__m__DOT__RfshPeriod = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1554264039479534946ull);
     vlSelf->tb_memrun__DOT__m__DOT__SW = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15014222376860848810ull);
     vlSelf->tb_memrun__DOT__m__DOT__SignIfuData = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10394955561763048048ull);
     vlSelf->tb_memrun__DOT__m__DOT__SimHoldDis = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11645668912274023101ull);
@@ -13005,7 +13006,6 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->__VdfgRegularize_h4af1c392_0_137 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_139 = 0;
     vlSelf->__Vtask_tb_memrun__DOT__manifold__192__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7 = 0;
-    vlSelf->__Vtableidx82 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;
@@ -13021,6 +13021,7 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->__VdfgRegularize_hebeb780c_0_12 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_13 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_14 = 0;
+    vlSelf->__Vdly__tb_memrun__DOT__rfshper = 0;
     vlSelf->__Vdly__tb_memrun__DOT__m__DOT__b_ContA__DOT__u_a09__DOT__q = 0;
     vlSelf->__Vdly__tb_memrun__DOT__m__DOT__b_ContA__DOT__u_b09__DOT__q = 0;
     vlSelf->__Vdly__tb_memrun__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q = 0;
@@ -13098,6 +13099,15 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->__VdlyVal__tb_memrun__DOT__m__DOT__b_ContA__DOT__u_k13__DOT__mem__v0 = 0;
     vlSelf->__VdlyDim0__tb_memrun__DOT__m__DOT__b_ContA__DOT__u_k13__DOT__mem__v0 = 0;
     vlSelf->__VdlySet__tb_memrun__DOT__m__DOT__b_ContA__DOT__u_k13__DOT__mem__v0 = 0;
+    vlSelf->__VdlyVal__tb_memrun__DOT__m__DOT__b_ContB__DOT__u_b18__DOT__mem__v0 = 0;
+    vlSelf->__VdlyDim0__tb_memrun__DOT__m__DOT__b_ContB__DOT__u_b18__DOT__mem__v0 = 0;
+    vlSelf->__VdlySet__tb_memrun__DOT__m__DOT__b_ContB__DOT__u_b18__DOT__mem__v0 = 0;
+    vlSelf->__VdlyVal__tb_memrun__DOT__m__DOT__b_ContB__DOT__u_b19__DOT__mem__v0 = 0;
+    vlSelf->__VdlyDim0__tb_memrun__DOT__m__DOT__b_ContB__DOT__u_b19__DOT__mem__v0 = 0;
+    vlSelf->__VdlySet__tb_memrun__DOT__m__DOT__b_ContB__DOT__u_b19__DOT__mem__v0 = 0;
+    vlSelf->__VdlyVal__tb_memrun__DOT__m__DOT__b_ContB__DOT__u_c06__DOT__mem__v0 = 0;
+    vlSelf->__VdlyDim0__tb_memrun__DOT__m__DOT__b_ContB__DOT__u_c06__DOT__mem__v0 = 0;
+    vlSelf->__VdlySet__tb_memrun__DOT__m__DOT__b_ContB__DOT__u_c06__DOT__mem__v0 = 0;
     vlSelf->__VdlyVal__tb_memrun__DOT__m__DOT__b_ContB__DOT__u_c07__DOT__mem__v0 = 0;
     vlSelf->__VdlyDim0__tb_memrun__DOT__m__DOT__b_ContB__DOT__u_c07__DOT__mem__v0 = 0;
     vlSelf->__VdlySet__tb_memrun__DOT__m__DOT__b_ContB__DOT__u_c07__DOT__mem__v0 = 0;

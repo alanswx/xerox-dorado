@@ -22,6 +22,8 @@ VL_ATTR_COLD void Vtb_memrun___024root___eval_static(Vtb_memrun___024root* vlSel
     vlSelfRef.tb_memrun__DOT__m__DOT__DMuxClk__VforceVal = 0U;
     vlSelfRef.tb_memrun__DOT__udmd = 0U;
     vlSelfRef.tb_memrun__DOT__m__DOT__UseDMD__VforceVal = 0U;
+    vlSelfRef.tb_memrun__DOT__rfshdiv = 0U;
+    vlSelfRef.tb_memrun__DOT__rfshper = 0U;
     vlSelfRef.tb_memrun__DOT__m__DOT__DMuxData__VforceEn = 0U;
     vlSelfRef.tb_memrun__DOT__m__DOT__DMuxClk__VforceEn = 0U;
     vlSelfRef.tb_memrun__DOT__m__DOT__UseDMD__VforceEn = 0U;
@@ -104,6 +106,8 @@ VL_ATTR_COLD void Vtb_memrun___024root___eval_static__TOP(Vtb_memrun___024root* 
     vlSelfRef.tb_memrun__DOT__m__DOT__DMuxClk__VforceVal = 0U;
     vlSelfRef.tb_memrun__DOT__udmd = 0U;
     vlSelfRef.tb_memrun__DOT__m__DOT__UseDMD__VforceVal = 0U;
+    vlSelfRef.tb_memrun__DOT__rfshdiv = 0U;
+    vlSelfRef.tb_memrun__DOT__rfshper = 0U;
     vlSelfRef.tb_memrun__DOT__m__DOT__DMuxData__VforceEn = 0U;
     vlSelfRef.tb_memrun__DOT__m__DOT__DMuxClk__VforceEn = 0U;
     vlSelfRef.tb_memrun__DOT__m__DOT__UseDMD__VforceEn = 0U;
@@ -182,7 +186,7 @@ VL_ATTR_COLD void Vtb_memrun___024root___eval_settle(Vtb_memrun___024root* vlSel
 #ifdef VL_DEBUG
             Vtb_memrun___024root___dump_triggers__stl(vlSelfRef.__VstlTriggered, "stl"s);
 #endif
-            VL_FATAL_MT("verilog/verilator/tb_memrun.sv", 272, "", "Settle region did not converge after 100 tries");
+            VL_FATAL_MT("verilog/verilator/tb_memrun.sv", 290, "", "Settle region did not converge after 100 tries");
         }
         __VstlIterCount = ((IData)(1U) + __VstlIterCount);
     } while (Vtb_memrun___024root___eval_phase__stl(vlSelf));
@@ -866,6 +870,8 @@ VL_ATTR_COLD void Vtb_memrun___024root___stl_sequent__TOP__0(Vtb_memrun___024roo
     __Vtableidx80 = 0;
     CData/*4:0*/ __Vtableidx81;
     __Vtableidx81 = 0;
+    CData/*5:0*/ __Vtableidx82;
+    __Vtableidx82 = 0;
     CData/*4:0*/ __Vtableidx83;
     __Vtableidx83 = 0;
     CData/*4:0*/ __Vtableidx84;
@@ -2966,19 +2972,19 @@ VL_ATTR_COLD void Vtb_memrun___024root___stl_sequent__TOP__0(Vtb_memrun___024roo
         = Vtb_memrun__ConstPool__TABLE_hdbecc607_0[__Vtableidx149];
     vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_14 
         = Vtb_memrun__ConstPool__TABLE_h5b90359e_0[__Vtableidx149];
-    vlSelfRef.__Vtableidx82 = vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_h14__DOT__q;
+    __Vtableidx82 = vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_h14__DOT__q;
     tb_memrun__DOT__m__DOT__b_ProcL__DOT__NextMacroDly 
-        = Vtb_memrun__ConstPool__TABLE_h59e8c004_0[vlSelfRef.__Vtableidx82];
+        = Vtb_memrun__ConstPool__TABLE_h59e8c004_0[__Vtableidx82];
     tb_memrun__DOT__m__DOT__b_ProcL__DOT__ProcL22_sil_pl_2 
-        = Vtb_memrun__ConstPool__TABLE_h4780427e_0[vlSelfRef.__Vtableidx82];
+        = Vtb_memrun__ConstPool__TABLE_h4780427e_0[__Vtableidx82];
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RBase_3_p_ 
-        = Vtb_memrun__ConstPool__TABLE_h75b2a61a_0[vlSelfRef.__Vtableidx82];
+        = Vtb_memrun__ConstPool__TABLE_h75b2a61a_0[__Vtableidx82];
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RBase_2_p_ 
-        = Vtb_memrun__ConstPool__TABLE_ha477147c_0[vlSelfRef.__Vtableidx82];
+        = Vtb_memrun__ConstPool__TABLE_ha477147c_0[__Vtableidx82];
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RBase_1_p_ 
-        = Vtb_memrun__ConstPool__TABLE_hdbecc607_0[vlSelfRef.__Vtableidx82];
+        = Vtb_memrun__ConstPool__TABLE_hdbecc607_0[__Vtableidx82];
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RBase_0_p_ 
-        = Vtb_memrun__ConstPool__TABLE_h5b90359e_0[vlSelfRef.__Vtableidx82];
+        = Vtb_memrun__ConstPool__TABLE_h5b90359e_0[__Vtableidx82];
     tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_c02__DOT__en 
         = (1U & (~ ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_a10__DOT__qa)) 
                     | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_b11__DOT__q) 
