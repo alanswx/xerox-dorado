@@ -243,6 +243,11 @@ module tb_compute;
                        m.b_ContB.RBMux_15};
 
   integer i, hits, hits_a, hits_b;
+  integer mk, bk, n_aleg, mbad;
+  wire [15:0] r_reg = {m.b_ProcH.R_00, m.b_ProcH.R_01, m.b_ProcH.R_02, m.b_ProcH.R_03,
+                      m.b_ProcH.R_04, m.b_ProcH.R_05, m.b_ProcH.R_06, m.b_ProcH.R_07,
+                      m.b_ProcL.R_08, m.b_ProcL.R_09, m.b_ProcL.R_10, m.b_ProcL.R_11,
+                      m.b_ProcL.R_12, m.b_ProcL.R_13, m.b_ProcL.R_14, m.b_ProcL.R_15};
   reg [15:0] pat_a, pat_b;
 
   // Link[4:15] -- twelve bits, the whole IM address space, and exactly what
@@ -1177,6 +1182,35 @@ module tb_compute;
     if (mar_reg !== 16'hffff)
       $fatal(1, "MAR is %h with no source selected, want ffff", mar_reg);
     $display("tb_compute: MAR takes no source when the instruction is not a reference.");
+
+    // ---- Now the POSITIVE half: a microinstruction that DOES make a
+    // reference. None of PARC's thirteen IRTable entries does one, so these
+    // are built with mi(). ASEL 0-3 is a reference (MemC b24); the A source --
+    // and therefore MAR, which shares the select -- is chosen by Amux0/Amux1,
+    // and those come off a wired-OR of three drivers, so which ASEL puts T on
+    // the address is discovered here rather than derived.
+    n_aleg = 0; mbad = 0;
+    for (mk = 0; mk < 4; mk = mk + 1) begin
+      for (bk = 0; bk < 8; bk = bk + 1) begin
+        jam_mi(mi(4'd0, 4'd0, bk[2:0], 3'd0, mk[2:0], 8'd0, 8'o201, 1'b0));
+        if (m.b_ProcH.MarMuxAEn_p_ === 1'b0) begin
+          // The A leg carries T or R, chosen by Amux1'. Whichever it is, MAR
+          // must equal it exactly -- this is the address the memory section
+          // will be given.
+          n_aleg = n_aleg + 1;
+          if (mar_reg !== (m.b_ProcH.Amux1_p_ ? r_reg : t_reg)) begin
+            $display("tb_compute: FAIL ASEL=%0d BSEL=%0d -> MAR=%h, want %h (T=%h R=%h Amux1'=%b)",
+                     mk, bk, mar_reg, (m.b_ProcH.Amux1_p_ ? r_reg : t_reg),
+                     t_reg, r_reg, m.b_ProcH.Amux1_p_);
+            mbad = mbad + 1;
+          end
+        end
+        nop_micro;
+      end
+    end
+    $display("tb_compute: MAR carries the A-leg register exactly in %0d reference cases", n_aleg);
+    if (n_aleg < 8) $fatal(1, "no reference microinstruction enabled the MAR A leg");
+    if (mbad != 0)  $fatal(1, "MAR does not equal the register the A mux selected");
     $display("tb_compute: THE MACHINE COMPUTES -- four boards, PARC's own ALU prologue.");
     $finish;
   end
