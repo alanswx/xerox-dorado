@@ -100,20 +100,18 @@ Where it stands:
 - **MAR is mapped.** A four-way mux (T / R / Q / Ain) that shares its source
   select with the ALU's A input -- so the reference address IS the A operand.
   Its enables are registered, i.e. set up by the previous instruction.
-  `compute-test` gates the negative half: no reference, no leg enabled, MAR all
-  ones.
+  `compute-test` gates BOTH halves: no reference means no leg enabled and MAR
+  all ones, and a reference built with `mi()` enables the A leg (BSEL >= 4)
+  with **MAR carrying the selected register exactly** -- 16 cases, MAR = R =
+  c000 against T = f333.
 
 The next three steps, in order:
 
-1. **A reference microinstruction.** None of PARC's thirteen IRTable entries
-   makes one, so it has to be built with `mi()` (the encoder in `tb_compute`,
-   validated byte-for-byte against all thirteen). With the T leg selected, MAR
-   can then be checked against a known T.
-2. **The rest of the kind table.** `Store<-` is not a raw decoder output and
+1. **The rest of the kind table.** `Store<-` is not a raw decoder output and
    the IO kinds are qualified by whether the current task is an I/O task --
    which `cpu.c` conditions on identically -- so they need the machine running
    in such a task. Tasking now makes that reachable.
-3. **An actual access**, through the Map and the cache, with the Pipe recording
+2. **An actual access**, through the Map and the cache, with the Pipe recording
    it. The C emulator is a ready-made oracle, as it was for the ALU and IM.
 
 ### 4. IFU
