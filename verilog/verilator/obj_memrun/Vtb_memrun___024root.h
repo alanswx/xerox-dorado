@@ -5992,7 +5992,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_memrun___024root final {
             IData/*31:0*/ tb_memrun__DOT__nf;
             IData/*31:0*/ tb_memrun__DOT__ha;
             IData/*31:0*/ tb_memrun__DOT__hcount;
-            IData/*31:0*/ __Vtask_tb_memrun__DOT__manifold__192__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7;
+            IData/*31:0*/ __Vtask_tb_memrun__DOT__manifold__285__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7;
             IData/*31:0*/ __VactIterCount;
             VlUnpacked<CData/*7:0*/, 17> tb_memrun__DOT__hunk;
             VlUnpacked<CData/*7:0*/, 17> tb_memrun__DOT__b;
