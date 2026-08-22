@@ -15,7 +15,7 @@ directions.**
 # ROADMAP TO BOOT (current: 2026-08-21)
 
 Read this first; everything below it is the history of how the generator and
-cell library got built. Gate names are `make -C verilog <name>`.
+cell library got built. Gate names are `make -C verilog <name>`; there are 29.
 
 ## What "boot" means here
 
@@ -26,29 +26,32 @@ second.
 |---|---|---|
 | 0 | BaseBoard 6502 powers up, sets manifolds, takes the CP bus | **done** -- `baseboard-test`, `muffler-test`, `firmware-probe` |
 | 1 | It jams microinstructions and walks **Boot0** into IM via the MIR | **done** -- `boot0-test` walks real `AEmu.mb` hunks in; IM matches the C emulator |
-| 2 | Boot0 **runs inside the Dorado** and takes Boot1 over CPReg | **partial** -- the machine executes from IM (`exec-test`) but only with IM parity DISABLED |
-| 3 | **Initial** sizes storage, builds the Map, loads a world | not started -- gated on the memory subsystem |
+| 2 | Boot0 **runs inside the Dorado** and takes Boot1 over CPReg | **partial** -- the machine executes from IM (`exec-test`), but only with IM parity DISABLED |
+| 3 | **Initial** sizes storage, builds the Map, loads a world | **started** -- the memory section runs and is being asked for storage; no access completed yet |
 | 4 | The world runs: disk or ethernet, then display | not started -- the I/O boards exist, nothing is on the other end |
 
 ## What is solid
 
 - **100% cell coverage**: 3771 of 3771 logic packages across the eleven-board
   machine, in 125 part types. No skeletons left.
-- **The machine assembles and clocks**: eleven boards elaborate, `machine-test`
+- **The machine assembles and clocks**: eleven boards elaborate; `machine-test`
   shows the clock reaching all 24 clock nets.
-- **The datapath computes**, and against an independent oracle: all 24 ALU
+- **The datapath computes**, against an independent oracle: all 24 ALU
   functions agree with `cpu.c` over 10,752 vectors (`alu-diff`), plus T, Q,
   ALUFM and RM (`compute-test`).
 - **The whole write path is proven**: CP bus, all 36 MIR bits, jams,
   single-stepping, Write-IM, and Boot0's block loader -- each diffed against
   the C emulator, which shares no code with the RTL.
-- **Board identity is right**: the configuration straps give each board its
-  slow-I/O address and task number, and two of them are confirmed by the C
-  emulator independently (`strap-test`).
+- **Board identity is right**: the configuration straps set each board's
+  slow-I/O address and task number (`strap-test`), two of them confirmed by the
+  C emulator independently.
+- **Tasking works**, which as of this morning was the biggest untested risk:
+  wakeup routing, priority encode, the BNT register, the switch, and per-task
+  PC and Link (`task-test`, `taskrun-test`).
 
 ## What is left, in dependency order
 
-### 1. IM parity -- the immediate blocker, and now narrow
+### 1. IM parity -- the immediate blocker, and narrow
 
 `exec-test` has to turn IM parity off to run at all, and PARC's boot leaves it
 ON (`DisableDoradoErrors = ParityEnables+030`, "all except IM parity errors
@@ -56,89 +59,77 @@ disabled"). Everything around it has been measured and cleared: the single-step
 chain is sound, the write path stores even parity correctly, and the checker
 computes exactly `~(XOR(17 data) ^ IMRH)`. What is left is the **CPReg-to-B
 path**, which the always-on parity error has been propping up, plus a SetSS
-polarity blind spot. Full account, written to be read cold: the header of
-`verilog/verilator/tb_parity.sv`.
+polarity blind spot that `taskrun-test`'s harness can now reach. Written to be
+read cold: the header of `verilog/verilator/tb_parity.sv`, including one
+confident conclusion that PARC's own source later refuted.
 
-### 2. Tasking -- STARTED 2026-08-21
+### 2. Tasking -- essentially DONE (2026-08-21)
 
-The wakeup path was wired to nothing (see `BACKPLANE_WAKEUP_JUMPERS`), and now
-has two gates: `task-test` for the combinational priority encoder against
-`cpu.c`'s `task_bnt()` over 23 patterns, and `taskrun-test` for the BNT
-REGISTER in a machine that is actually executing microcode out of IM. `taskrun-test` also shows the machine SWITCHING -- started with
-`TaskingOn` (FF = 143 octal, decoded off ContA a16 and checked against the
-IRTable's 142 for `TaskingOff`), CTask becomes the task that asked, for all
-fifteen, and with `TaskingOff` it does not. TPC is done too -- four F10145A packages addressed by `TPCAd`, and the gate
-shows the storage is genuinely per-task (task 15's slot survives task 7
-running). Link is done too (ContA a04-e04, addressed by `TLinkAd`), and all four
-per-task addresses are gated. What remains is T and MemBase.
+Five of its six layers are gated:
 
-Original note: sixteen tasks, replicated T / TPC / MemBase / Link, a priority
-scheduler and wakeup latches. I/O microcode deadlocks
-without it, so nothing past stage 2 works until it does. It is also the
-cheapest way to find out whether the Control section is really right, and
-`cpu.c`'s scheduler is an exact oracle.
+| layer | gate |
+|---|---|
+| wakeup routing | was connected to NOTHING -- see `BACKPLANE_WAKEUP_JUMPERS` |
+| priority encoder | `task-test`, 23 patterns vs `cpu.c`'s `task_bnt()` |
+| BNT register | `taskrun-test`, in a machine executing from IM |
+| the switch (CTask) | `taskrun-test`, all 15, controlled against `TaskingOff` |
+| per-task PC and Link | `taskrun-test`, separate storage proven |
+| T and MemBase | remaining -- they live with the memory work below |
 
-### 3. The memory subsystem -- STARTED 2026-08-21
+The wakeup finding is the one worth knowing: every I/O board puts its request
+on the same two connector pins under its own local name, and the backplane
+routes each SLOT to a different `TWReq` line by JUMPER ("for desired Task wake
+up"). A board's task number is therefore a property of its slot, which is why
+each board carries a task-number strap -- and the strap is the authority for
+which line to wire.
 
-The front door is mapped and gated: a reference enters through ASEL, MemC's
-b24 makes `WantProcRef' = IgnoreProc | ASEL.0`, and `refdecode-test` shows that
-asserting for exactly ASEL 0-3 -- the C emulator's rule, independently derived.
-The kind decoder is a24, an MC10162 one-of-eight on `{ASEL.1, ASEL.2,
-FF.1mem}`. Those qualifying inputs (`Dbusy`, `CacheRefInA'`, `WantCR`, `IgnoreProc`) turn
-out to be INTERNAL to MemC, so they come from a running machine rather than
-from ports -- which `memrun-test` now provides: seven boards, tb_exec's
-startup, MemC clocked in step with the processor, and the running microcode
-presenting ASEL=0 with `WantProcRef'` asserted. Two of the KINDS are gated against `cpu.c` too -- `LFetch<-` at (ASEL 0,
-ff01 2) and `IFetch<-` at (ASEL 1, ff01 2), each in its own cell of sixteen.
-The rest need a machine in an I/O task, since `Store<-` is not a raw decoder
-output and the IO kinds are task-qualified on both sides. MAR is mapped: a four-way mux (T / R / Q / Ain) sharing its source select with
-the ALU's A input, with registered enables -- so the reference address IS the A
-operand. `compute-test` gates the negative half (no reference, so no leg
-enabled, MAR all ones). Next: a reference microinstruction built with `mi()`
-that selects the T leg, so MAR can be checked against a known T, then an actual
-access through the Map and cache.
+### 3. The memory subsystem -- STARTED, and further than expected
 
-Original note: MemC + MemD + MemX are in a machine and clocked (`mem-test`),
-but **nothing has ever issued a reference**. Map, cache, Pipe, MAR/VA and the hold logic are all
-unexercised. Stage 3 is entirely gated on this. The C emulator is a ready-made
-oracle here exactly as it was for the ALU and IM.
+Where it stands:
+
+- **The front door.** A reference enters through ASEL. MemC b24 makes
+  `WantProcRef' = IgnoreProc | ASEL.0`, so a reference is exactly ASEL <= 3 --
+  the C emulator's rule (`memory.h`: "ASEL = 0..3 with FF[0:1] decoding the
+  kind"), independently derived. Gate: `refdecode-test`.
+- **The boards run and are being asked.** `memrun-test` puts all seven boards
+  (ContA, ContB, ProcH, ProcL, MemC, MemD, MemX) on tb_exec's startup, with
+  MemC clocked in step with the processor -- and the running microcode presents
+  ASEL=0 with `WantProcRef'` asserted.
+- **Two reference kinds match `cpu.c`.** `LFetch<-` at (ASEL 0, ff01 2) and
+  `IFetch<-` at (ASEL 1, ff01 2), each asserting in its own cell of sixteen.
+- **MAR is mapped.** A four-way mux (T / R / Q / Ain) that shares its source
+  select with the ALU's A input -- so the reference address IS the A operand.
+  Its enables are registered, i.e. set up by the previous instruction.
+  `compute-test` gates the negative half: no reference, no leg enabled, MAR all
+  ones.
+
+The next three steps, in order:
+
+1. **A reference microinstruction.** None of PARC's thirteen IRTable entries
+   makes one, so it has to be built with `mi()` (the encoder in `tb_compute`,
+   validated byte-for-byte against all thirteen). With the T leg selected, MAR
+   can then be checked against a known T.
+2. **The rest of the kind table.** `Store<-` is not a raw decoder output and
+   the IO kinds are qualified by whether the current task is an I/O task --
+   which `cpu.c` conditions on identically -- so they need the machine running
+   in such a task. Tasking now makes that reachable.
+3. **An actual access**, through the Map and the cache, with the Pipe recording
+   it. The C emulator is a ready-made oracle, as it was for the ALU and IM.
 
 ### 4. IFU
 
 The board generates and elaborates; there is no gate. Needed for emulator
-microcode (opcode dispatch), so it blocks stage 4 rather than stage 3.
+microcode (opcode dispatch), so it blocks stage 4 rather than stage 3. Note it
+also drives `RefOutstanding'`, which the seven-board memory machine therefore
+leaves undriven.
 
 ### 5. I/O device backends -- routinely underestimated
 
 The RTL models the CONTROLLER boards (DskEth, DispY, DispM). A boot needs
 something on the OTHER END: a Trident pack, an Ethernet peer, a monitor. Those
 have to be written as bus-functional models for simulation, or as fabric
-peripherals on an FPGA. The C emulator already implements all three, so the
-behaviour is specified, but the plumbing is new work.
-
-## The strategic point, which changes what to aim for
-
-**A full operating-system boot will not happen in simulation.** The Cedar
-desktop takes on the order of 40 billion microinstructions in the C emulator;
-gate-level Verilator across eleven boards is many orders of magnitude slower
-than that. So the two targets are different things:
-
-- **Simulation proves the chain stage by stage** -- Boot0, then Boot1, then
-  Initial's first instructions, then one memory reference, then one task
-  switch. Each gets its own gate, each cross-checked against the C emulator.
-  This is where correctness is established.
-- **An FPGA is where anything actually boots.** The generator already emits
-  synthesisable RTL (wired-OR became OR trees, distributed clocks became clock
-  enables, the DRAM cells infer block RAM, zero multiply-driven nets). But
-  synthesis, fit and timing have never been run, and that is its own phase.
-
-Do not spend effort trying to make a simulation boot an OS. Spend it on
-per-stage gates plus the FPGA path.
-
-## Suggested next move
-
-**Tasking, before memory.** Smaller, entirely untested, everything downstream
-depends on it, and the oracle already exists.
+peripherals on an FPGA. The C emulator implements all three, so the behaviour
+is specified, but the plumbing is new work.
 
 ## What is actually in the archive
 
