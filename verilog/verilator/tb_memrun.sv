@@ -530,13 +530,45 @@
 //      through MC10124 TTL-to-ECL translators at e17 and e10 -- so MapWP and
 //      MapDirty are literally the stored bits.)
 //
-//      NEXT: write a map entry for the referenced address WITH CORRECT
-//      PARITY -- any value will not do, the parity bit has to agree. Either
-//      through `<-Map` (FA=0, FB=3, FC=1 = 0o31 at ContA b17, the same number
-//      cpu.c's DM_REF_RMAP comment derives independently; ASEL = 000 with
-//      FF.0 = 0, FF.1 = 1) or by preloading the MosRam arrays the way
-//      tb_boot0 preloads IM. NOTE this is the same MC10170 whose polarity is
-//      the open IM-parity question, so a fix here may bear on that too.
+//   6. AND THE MAP READ PATH IS STROBED OFF BY ONE NET, `THi`. Writing a
+//      map entry would not have helped: the entry never reaches the logic.
+//
+//      Measured, in order: the map array IS strobed (RAS' 31 edges, CAS' 21,
+//      the read condition on 579 of 3000 cycles) and its output IS live
+//      (`u_a04.p14` = 1, `u_d11.p14` = 1, and the nets they drive,
+//      `MemX13.sil+13` and `MemX13.sil+3`, both read 1). Preloading all 21
+//      bit planes changes NOTHING downstream -- MapWP', MapDirty' and
+//      MapEven' stay exactly as they were.
+//
+//      The break is the MC10124 TTL-to-ECL translators. `cell_MC10124` is
+//      right -- `p12 = ~(p10 & p6)` -- and PIN 6 IS THE COMMON STROBE, which
+//      the data book describes exactly: "when the common strobe input is at
+//      the low logic level, it forces all true outputs to a MECL low logic
+//      state and all inverting outputs to a MECL high logic state". That is
+//      precisely what we see: MapDirty' and MapWP' both stuck HIGH.
+//
+//      That strobe is `THi`, and it feeds pin 6 of FIVE MC10124s -- b06,
+//      b09, b12, e07, e10 -- i.e. THE WHOLE MAP READ PATH. It comes from
+//      e15, an MC10125, as `THi = p15 & ~p14` where pin 15 is `VBBe15` and
+//      pin 14 IS OPEN.
+//
+//      `VBB` IS THE ECL BIAS REFERENCE -- the switching threshold, not a
+//      logic signal. Physically, VBB against an OPEN input (which sits at
+//      VEE, i.e. low) reads HIGH, which is how this channel manufactures a
+//      constant TTL high; the net is even named for it. Our model has the
+//      undriven bias net at 0, so THi is 0 and the map is strobed off.
+//
+//      THE FIX IS PER-PIN, NOT PER-NET, and that is why it is not applied
+//      here. One VBB net reaches both sides of these differential pairs: on
+//      e15 channel a it is the INVERTING input (p4 = p3 & ~p2, p2 = VBB)
+//      where it must read 0 so the real signal decides, and on channel d it
+//      is the TRUE input where it must read 1. A single constant cannot do
+//      both. The rule that IS right -- "VBB loses to a real signal and beats
+//      an open pin" -- belongs in the generator beside OVERRIDE_DRIVERS and
+//      WEAK_PORT_DRIVERS, which already resolve this class per net. Note
+//      this is the same family as the IFU's `TTLHigh` sitting at 0, which
+//      the sip_drives fix caught earlier; 41 MC10124 packages are affected,
+//      so it wants its own gate.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -676,7 +708,8 @@ module tb_memrun;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [2:0] mapst_now; reg [1:0] mapfn_now;
   reg mapst_hit [0:7]; reg mapfn_hit [0:3];
-  integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nrw, nwp, ndty, nevn, nckw, nprf, nmt, nmtp;
+  integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nrw, nwp, ndty, nevn, nckw, nprf, nmt, nmtp, nmras, nmcas, nmrd, nmwr;
+  reg pmras, pmcas;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd;
   reg tnia_hit [0:4095];
   reg [2:0] pms;
@@ -1567,6 +1600,9 @@ module tb_memrun;
     if (m.b_MemC.DisHold !== 1'b1 || m.b_MemX.DisHold !== 1'b1)
       $fatal(1, "SetMcr# did not set DisHold -- the memory cycle cannot start");
 
+// (map-plane preload experiment removed -- see the header: the planes read
+    // back correctly and the block is downstream, at THi.)
+
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca; p2 = m.b_ContA.clk2_p_Bc;
     zero;
     wipe_im;
@@ -1704,6 +1740,7 @@ module tb_memrun;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
     nmapst=0; nmapfn=0; npsm2=0; nsm2=0; nload=0; ncnt=0; nd0=0; nwim=0; nx10=0; nmti=0; nrw=0; nwp=0; ndty=0; nevn=0; nckw=0; nprf=0; nmt=0; nmtp=0;
+    nmras=0; nmcas=0; nmrd=0; nmwr=0; pmras=m.b_MemX.u_a04.p4; pmcas=m.b_MemX.u_a04.p15;
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
     for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
     ntnia=0; nff0=0; nsamp=0;
@@ -1711,6 +1748,26 @@ module tb_memrun;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
     nwcr=0; pwcr=m.b_MemC.WantCR; nwar=0; pwar=m.b_MemC.WantAltRef_p_;
     nfl=0; pfl=m.b_MemC.Flush_u__p_; nmp=0; pmp=m.b_MemC.Map_u__p_;
+    // PRELOAD ONE MAP BIT PLANE so the entry's parity is ODD rather than the
+    // all-zero (failing) pattern. MemX e11/e12 are cascaded MC10170s over the
+    // map entry's real-page bits; flipping exactly one bit flips the check.
+    // The planes are MosRam packages -- one BIT each, 21 of them -- so this
+    // is the map equivalent of tb_boot0 preloading the IM arrays.
+    for (int mi2 = 0; mi2 < 4096; mi2++) begin
+      m.b_MemX.u_a04.mem[mi2]=12'd1; m.b_MemX.u_a05.mem[mi2]=12'd1;
+      m.b_MemX.u_a06.mem[mi2]=12'd1; m.b_MemX.u_a07.mem[mi2]=12'd1;
+      m.b_MemX.u_a08.mem[mi2]=12'd1; m.b_MemX.u_a09.mem[mi2]=12'd1;
+      m.b_MemX.u_a10.mem[mi2]=12'd1; m.b_MemX.u_a11.mem[mi2]=12'd1;
+      m.b_MemX.u_a12.mem[mi2]=12'd1; m.b_MemX.u_a13.mem[mi2]=12'd1;
+      m.b_MemX.u_a14.mem[mi2]=12'd1; m.b_MemX.u_d04.mem[mi2]=12'd1;
+      m.b_MemX.u_d05.mem[mi2]=12'd1; m.b_MemX.u_d06.mem[mi2]=12'd1;
+      m.b_MemX.u_d07.mem[mi2]=12'd1; m.b_MemX.u_d08.mem[mi2]=12'd1;
+      m.b_MemX.u_d09.mem[mi2]=12'd1; m.b_MemX.u_d10.mem[mi2]=12'd1;
+      m.b_MemX.u_d11.mem[mi2]=12'd1; m.b_MemX.u_d12.mem[mi2]=12'd1;
+      m.b_MemX.u_d13.mem[mi2]=12'd1;
+    end
+    $display("tb_memrun: ALL 21 map bit planes preloaded to 1 (parity experiment)");
+
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
     for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
       @(posedge sys_clk);
@@ -1780,6 +1837,12 @@ module tb_memrun;
       if (!m.b_MemX.preRfshInMem)        nprf = nprf + 1;
       if (m.b_MemX.MapTrouble)           nmt  = nmt  + 1;
       if (m.b_MemX.MapTrouble_p_)        nmtp = nmtp + 1;
+      // Is the MAP ARRAY ever strobed? MosRam latches dout only on
+      // !RAS' && !CAS' && WE'. Count edges, do not sample.
+      if (m.b_MemX.u_a04.p4  !== pmras) begin nmras=nmras+1; pmras=m.b_MemX.u_a04.p4;  end
+      if (m.b_MemX.u_a04.p15 !== pmcas) begin nmcas=nmcas+1; pmcas=m.b_MemX.u_a04.p15; end
+      if (!m.b_MemX.u_a04.p4 && !m.b_MemX.u_a04.p15 && m.b_MemX.u_a04.p3) nmrd = nmrd + 1;
+      if (!m.b_MemX.u_a04.p4 && !m.b_MemX.u_a04.p15 && !m.b_MemX.u_a04.p3) nmwr = nmwr + 1;
       if (!m.b_MemC.ASEL_0 && !m.b_MemC.ASEL_2 && m.b_MemC.Store_u_)
         nff0_st = nff0_st + 1;
       // CONDITION ON THE INSTRUCTION ACTUALLY RUNNING. IM[0] and IM[1] both
@@ -1927,6 +1990,12 @@ module tb_memrun;
     $display("tb_memrun:   MapTrouble terms low on -- ReadOrWriteInMap' %0d, MapWP' %0d, MapDirty' %0d, MapEven' %0d, CheckWP' %0d of %0d",
              nrw, nwp, ndty, nevn, nckw, nsamp);
     $display("tb_memrun:   ...and the fourth term: preRfshInMem low on %0d of %0d", nprf, nsamp);
+    $display("tb_memrun:   MAP ARRAY douts -- a04=%b d11=%b d13=%b | MemX13.sil+13=%b MemX13.sil+3=%b | MapDirty'=%b MapWP'=%b",
+             m.b_MemX.u_a04.p14, m.b_MemX.u_d11.p14, m.b_MemX.u_d13.p14,
+             m.b_MemX.MemX13_sil_pl_13, m.b_MemX.MemX13_sil_pl_3,
+             m.b_MemX.MapDirty_p_, m.b_MemX.MapWP_p_);
+    $display("tb_memrun:   MAP ARRAY strobes -- RAS' edges %0d, CAS' edges %0d, READ-condition cycles %0d, WRITE-condition cycles %0d, of %0d",
+             nmras, nmcas, nmrd, nmwr, nsamp);
     $display("tb_memrun:   g14 OUTPUTS -- MapTrouble high on %0d, MapTrouble' high on %0d of %0d",
              nmt, nmtp, nsamp);
     $display("tb_memrun:   MemWEa's D0 = ~(WriteInMem' | x10 | MapTroubleInMem) -- low on: WriteInMem' %0d, x10 %0d, MapTroubleInMem %0d of %0d",
