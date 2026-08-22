@@ -322,8 +322,6 @@ void Vtb_memrun___024root___nba_sequent__TOP__1(Vtb_memrun___024root* vlSelf) {
     tb_memrun__DOT__m__DOT__b_MemX__DOT__BMuxS2_0_m_7 = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__b_MemX__DOT__Ec2State5;
     tb_memrun__DOT__m__DOT__b_MemX__DOT__Ec2State5 = 0;
-    CData/*0:0*/ tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap_p_;
-    tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap_p_ = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__b_MemX__DOT__MapbufLd_p_a;
     tb_memrun__DOT__m__DOT__b_MemX__DOT__MapbufLd_p_a = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__b_MemX__DOT__MemState7_p_;
@@ -5863,9 +5861,9 @@ void Vtb_memrun___024root___nba_sequent__TOP__1(Vtb_memrun___024root* vlSelf) {
                                            | (1U & 
                                               ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h15__DOT__q) 
                                                >> 3U))));
-    tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap_p_ 
-        = (1U & (~ ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_0_p_) 
-                    & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_1_p_))));
+    vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap 
+        = ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_0_p_) 
+           & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_1_p_));
     vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__DirtyIOFetchInMem 
         = (1U & (~ ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__DirtyIOFetchInMem_p_) 
                     ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_k11__DOT__p9))));
@@ -6793,7 +6791,7 @@ void Vtb_memrun___024root___nba_sequent__TOP__1(Vtb_memrun___024root* vlSelf) {
                                                 [__VdfgRegularize_h4af1c392_0_119]);
     vlSelfRef.tb_memrun__DOT__m__DOT__HoldMapBuf___05FMemX 
         = (1U & (~ ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__Map_u_InPair_p___05F_MemC) 
-                    & ((IData)(tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap_p_) 
+                    & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap)) 
                        | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFree)))));
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_g10__DOT__ckb_d 
         = vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_g10__DOT__clkb;

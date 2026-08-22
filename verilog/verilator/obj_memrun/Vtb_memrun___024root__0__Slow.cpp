@@ -186,7 +186,7 @@ VL_ATTR_COLD void Vtb_memrun___024root___eval_settle(Vtb_memrun___024root* vlSel
 #ifdef VL_DEBUG
             Vtb_memrun___024root___dump_triggers__stl(vlSelfRef.__VstlTriggered, "stl"s);
 #endif
-            VL_FATAL_MT("verilog/verilator/tb_memrun.sv", 525, "", "Settle region did not converge after 100 tries");
+            VL_FATAL_MT("verilog/verilator/tb_memrun.sv", 540, "", "Settle region did not converge after 100 tries");
         }
         __VstlIterCount = ((IData)(1U) + __VstlIterCount);
     } while (Vtb_memrun___024root___eval_phase__stl(vlSelf));
@@ -636,8 +636,6 @@ VL_ATTR_COLD void Vtb_memrun___024root___stl_sequent__TOP__0(Vtb_memrun___024roo
     tb_memrun__DOT__m__DOT__b_MemX__DOT__BMuxS2_0_m_7 = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__b_MemX__DOT__Ec2State5;
     tb_memrun__DOT__m__DOT__b_MemX__DOT__Ec2State5 = 0;
-    CData/*0:0*/ tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap_p_;
-    tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap_p_ = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__b_MemX__DOT__MapbufLd_p_a;
     tb_memrun__DOT__m__DOT__b_MemX__DOT__MapbufLd_p_a = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__b_MemX__DOT__MemState7_p_;
@@ -5437,9 +5435,9 @@ VL_ATTR_COLD void Vtb_memrun___024root___stl_sequent__TOP__0(Vtb_memrun___024roo
                                            | (1U & 
                                               ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h15__DOT__q) 
                                                >> 3U))));
-    tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap_p_ 
-        = (1U & (~ ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_0_p_) 
-                    & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_1_p_))));
+    vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap 
+        = ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_0_p_) 
+           & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_1_p_));
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__SetReady_01___05Fa08_2 
         = (1U & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_a09__DOT__q) 
                  & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_f08__DOT__q) 
@@ -7078,7 +7076,7 @@ VL_ATTR_COLD void Vtb_memrun___024root___stl_sequent__TOP__0(Vtb_memrun___024roo
                                                 [__VdfgRegularize_h4af1c392_0_119]);
     vlSelfRef.tb_memrun__DOT__m__DOT__HoldMapBuf___05FMemX 
         = (1U & (~ ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__Map_u_InPair_p___05F_MemC) 
-                    & ((IData)(tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap_p_) 
+                    & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap)) 
                        | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFree)))));
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_01 
         = (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TWReq_01) 

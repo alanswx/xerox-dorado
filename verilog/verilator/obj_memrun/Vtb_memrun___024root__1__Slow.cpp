@@ -12357,6 +12357,7 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemIO_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1505673453022320684ull);
     vlSelf->tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemState_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6461787463376194734ull);
     vlSelf->tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_ST_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16738706457431007521ull);
+    vlSelf->tb_memrun__DOT__m__DOT__b_MemX__DOT__Map_u_InMap = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4845502268926754487ull);
     vlSelf->tb_memrun__DOT__m__DOT__b_MemX__DOT__MemColSela = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 378824177919066762ull);
     vlSelf->tb_memrun__DOT__m__DOT__b_MemX__DOT__MemError_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1305624683871007617ull);
     vlSelf->tb_memrun__DOT__m__DOT__b_MemX__DOT__MemIdle = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11918303760056115615ull);
