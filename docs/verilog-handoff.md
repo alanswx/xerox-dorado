@@ -2779,10 +2779,28 @@ Two things remain, both small and both stated by measurement:
    All gated in `memrun-test`; collapsing the Store back into a second Flush
    is caught.
 
-4. **Still open: the miss does not yet produce a DRAM write-back.** The
-   storage strobes stay at the refresh's own `MemRASa 6` / `MemCASa 4`, and
-   `MemWEa` is 0 -- no write enable in the whole run. `ForceMiss` and the miss
-   are real; turning them into a storage **access** is the next step.
+4. **And the miss starts a storage cycle.** MemX `i14` is an SG10139 PROM
+   making `preStartMem'` from `{MapFnc.0', MapFnc.1', MapState.0..2}` -- the
+   storage cycle is a **PROM state machine**. Measured over the run: MapState
+   takes **7 of its 8 values**, MapFnc 2 of 4, `preStartMem'` is low on 2712
+   samples and `StartMem'` on 2680. All gated.
+
+5. **Still open: no write.** `MemWEa` is 0 for the whole run, so the
+   write-back never puts data on the array. It is **not a gate** -- MemX
+   `c02` is an MC10176 clocked by `Clk1'Aa` whose Q0 is `MemWEa`, fed from
+   MemX `i10`, an **F10016 counter**:
+
+   ```
+   C = Clk0'Ba    CE' = TrueBD    PE' = MemIdle
+   H0 -> MemWEa   H2 -> MakeMemCAS   MR = STPerr
+   ```
+
+   So the write enable is a **counter phase**, not a combinational term: the
+   counter parallel-loads while `MemIdle` holds PE' low, then walks, and H0
+   rises at the write point. Chase D0 (pin 11, `MemX07.sil+19`) and whether
+   the counter is being held in load. Note this is the same part whose
+   terminal count was the machine-wide oscillation bug, so read the F10016
+   data sheet's CE'/TC semantics before concluding anything.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting
