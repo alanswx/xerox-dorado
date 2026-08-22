@@ -376,10 +376,19 @@
 // TWO THINGS REMAIN, both small and both stated by a measurement rather than
 // a guess:
 //
-//   1. ONLY TWO OF build_hunk's FOUR COPIES LAND. IM[2] and IM[3] read back
-//      as zero. It does not affect the result above -- the machine loops over
-//      IM[0] and IM[1], which are correct and identical -- but a hunk is
-//      eight half-words and only four are arriving.
+//   1. RETRACTED -- ALL FOUR OF build_hunk's COPIES DO LAND. An earlier
+//      note here said IM[2] and IM[3] read back as zero and only two
+//      arrived. That came from reading `rd_L2(0)`/`rd_L3(0)` as "IM[2]" and
+//      "IM[3]", which they are not: `find_word` SEARCHES all four banks
+//      precisely because the bank-to-address mapping is not obvious.
+//      Scanning every bank at several idx shows the real mapping --
+//
+//          address 0 -> bank 0 idx 0      address 2 -> bank 0 idx 1
+//          address 1 -> bank 1 idx 0      address 3 -> bank 1 idx 1
+//
+//      i.e. bank = addr & 1 and idx = addr >> 1. Banks 2 and 3 are a
+//      different part of the store and are correctly empty here. All four
+//      microinstructions are present.
 //
 //   2. RESOLVED -- AND THE MICROCODE NOW MAKES A FLUSH.
 //
@@ -1350,6 +1359,28 @@ module tb_memrun;
   // 1,3 are B -- so IM[0] holds A and IM[1] holds B and a pair of Local Jumps
   // can bounce between them. Note byte 0 carries RSTK.0 and BLOCK for all
   // four, so those two fields must match between A and B.
+  // FOUR DISTINCT MICROINSTRUCTIONS in one hunk, at consecutive addresses.
+  // Fields are passed as packed arrays, one entry per instruction, MSB-first
+  // per mi()'s convention. Byte 0 carries RSTK.0 and BLOCK for all four, so
+  // those two must be common.
+  task build_hunk4(input [3:0] rstk,      input block,
+                   input [3:0] aluf [4],  input [2:0] bsel [4],
+                   input [2:0] lc   [4],  input [2:0] asel [4],
+                   input [7:0] ff   [4],  input [7:0] jcn  [4]);
+    integer q;
+    begin
+      hunk[0] = {rstk[3], block, rstk[3], block, rstk[3], block, rstk[3], block};
+      for (q = 0; q < 4; q = q + 1) begin
+        hunk[1+4*q] = {rstk[2], rstk[1], rstk[0],
+                       aluf[q][3], aluf[q][2], aluf[q][1], aluf[q][0], bsel[q][2]};
+        hunk[2+4*q] = {bsel[q][1], bsel[q][0], lc[q][2], lc[q][1], lc[q][0],
+                       asel[q][2], asel[q][1], asel[q][0]};
+        hunk[3+4*q] = ff[q];
+        hunk[4+4*q] = jcn[q];
+      end
+    end
+  endtask
+
   task build_hunk2(input [3:0] rstk,  input [3:0] alufA, input [2:0] bselA,
                    input [2:0] lcA,   input [2:0] aselA, input [7:0] ffA,
                    input [7:0] jcnA,
@@ -1580,6 +1611,17 @@ module tb_memrun;
              rd_L0(0), rd_R0(0), rd_L1(0), rd_R1(0));
     $display("tb_memrun:   IM[2] L=%h R=%h   IM[3] L=%h R=%h",
              rd_L2(0), rd_R2(0), rd_L3(0), rd_R3(0));
+    // WHICH BANK IS WHICH ADDRESS? find_word SEARCHES the four banks, so the
+    // mapping was never established. Scan every bank at the first few idx and
+    // print what is actually non-zero.
+    for (int bi = 0; bi < 4; bi++)
+      for (int ii = 0; ii < 3; ii++) begin
+        reg [15:0] lv, rv;
+        lv = (bi==0)? rd_L0(ii) : (bi==1)? rd_L1(ii) : (bi==2)? rd_L2(ii) : rd_L3(ii);
+        rv = (bi==0)? rd_R0(ii) : (bi==1)? rd_R1(ii) : (bi==2)? rd_R2(ii) : rd_R3(ii);
+        if (lv !== 16'h0 || rv !== 16'h0)
+          $display("tb_memrun:   IM bank %0d idx %0d : L=%h R=%h", bi, ii, lv, rv);
+      end
 
     // RELEASE the MIR clock -- register 7, data bit 0 -- so the MIR can reload
     // from IM. Without this the jam is held and nothing is ever fetched.
