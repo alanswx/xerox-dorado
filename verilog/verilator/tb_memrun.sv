@@ -235,10 +235,21 @@
 // while T stays 0000, which is exactly the "requires ALUFM[0]=B" dependency.
 //
 // STILL TO COME. These are REFRESH cycles, which is why the Pipe pointer does
-// not move -- refresh does not record a reference. Getting a PROCESSOR
-// reference through needs microcode that makes one (none of PARC's thirteen
-// IRTable entries does, so it has to be built with mi()), and then the
-// storage array itself, whose interface msa.bp specifies completely:
+// not move -- refresh does not record a reference.
+//
+// A REFERENCE CANNOT BE JAMMED, and that is worth knowing before trying. A
+// reference microinstruction IS built here with mi() (ASEL=1, BSEL=4) and
+// jammed while the MIR is held, and it does put the A leg on MAR -- but
+// `WantProcRef'` stays 1 because `IgnoreProc` reads 1 at that moment, and
+// `WantProcRef' = IgnoreProc | ASEL.0`. The ASEL reaches MemC correctly; the
+// memory is simply IGNORING THE PROCESSOR while it is jam-stepped. During the
+// free run the same signal reads 0.
+//
+// So a processor reference has to come from microcode EXECUTING OUT OF IM,
+// not from a jam: build the reference microinstruction with mi(), walk it into
+// IM with the loader this bench already uses for AEmu hunks, and let the
+// machine run it. Then the storage array, whose interface msa.bp specifies
+// completely:
 // MemAd.1-8, MemRAS/CAS/WE in a and b copies from DIFFERENT packages (two
 // banks, not fan-out), Sin.00-15, Sout.00-15, EcIn/EcOut. Direction comes from
 // the netlist because the names mislead: MemD DRIVES `Sout` (write data going
@@ -369,6 +380,7 @@ module tb_memrun;
   integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm;
   reg [2:0] pms;
+  reg [3:0] pipe_before;
   wire [2:0] mapst = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
   reg [3:0] ppa;
   wire [3:0] pipead = {m.b_MemC.PipeAd_0, m.b_MemC.PipeAd_1,
@@ -902,6 +914,28 @@ module tb_memrun;
     end
   endtask
 
+  // PARC's five-byte microinstruction layout, from doradoboot.masm's comment
+  // in DoDoradoMicroInst. This encoder is validated in tb_compute against all
+  // thirteen IRTable entries, byte for byte. None of those thirteen makes a
+  // memory reference, so one has to be built.
+  function [39:0] mi(input [3:0] rstk, input [3:0] aluf, input [2:0] bsel,
+                     input [2:0] lc,   input [2:0] asel, input [7:0] ff,
+                     input [7:0] jcn,  input block);
+    reg [7:0] b0, b1, b2, b3, b4;
+    begin
+      b0 = {rstk[3], 1'b1,    jcn[0],  1'b1,    4'b0000};
+      b1 = {rstk[2], rstk[1], rstk[0], aluf[3], block, ff[7], ff[6], ff[5]};
+      b2 = {aluf[2], aluf[1], aluf[0], bsel[2], ff[4], ff[3], ff[2], ff[1]};
+      b3 = {bsel[1], bsel[0], lc[2],   lc[1],   ff[0], jcn[7], jcn[6], jcn[5]};
+      b4 = {lc[0],   asel[2], asel[1], asel[0], jcn[4], jcn[3], jcn[2], jcn[1]};
+      mi = {b0, b1, b2, b3, b4};
+    end
+  endfunction
+
+  task jam_mi(input [39:0] w);
+    begin parc_micro(w[39:32], w[31:24], w[23:16], w[15:8], w[7:0]); end
+  endtask
+
   task nop_micro;
     begin parc_micro(8'h70, 8'h01, 8'h0F, 8'h4C, 8'h40); end
   endtask
@@ -1138,6 +1172,22 @@ module tb_memrun;
     nop_micro;
     $display("tb_memrun: after SetMcr# -- MemC DisHold=%b MemX DisHold=%b",
              m.b_MemC.DisHold, m.b_MemX.DisHold);
+
+    // ---- A PROCESSOR MEMORY REFERENCE. The memory is awake now (DisHold is
+    // set), the MIR is still held so a jam executes, and T holds 0043. ASEL
+    // 0-3 is a reference (MemC b24) and BSEL >= 4 puts the A leg -- T or R --
+    // on MAR, which compute-test established. None of PARC's thirteen IRTable
+    // entries makes a reference, so this is built with mi().
+    pipe_before = pipead;
+    jam_mi(mi(4'd0, 4'd0, 3'd4, 3'd0, 3'd1, 8'd0, 8'o201, 1'b0));  // ASEL=1
+    // The MAR mux enables are active during the jam's OWN window and have
+    // dropped by the following Nop -- registered controls, the same timing
+    // compute-test records. Sample here, not after.
+    $display("tb_memrun: at the reference jam -- MAR=%h WantProcRef'=%b (ASEL=%0d IgnoreProc=%b) PipeAd %0d",
+             mar, m.b_MemC.WantProcRef_p_, asel, m.b_MemC.IgnoreProc, pipead);
+    nop_micro; nop_micro;
+    $display("tb_memrun: after the nops    -- MAR=%h PipeAd %0d -> %0d",
+             mar, pipe_before, pipead);
     // PARC's own sequence must set DisHold. Everything the memory section does
     // hangs off it: WantMapWait' = (MapFnc.1' & MapFnc.0') | DisHold, and
     // without it MapWait can never fall and the MapState counter never steps.
