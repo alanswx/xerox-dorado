@@ -381,26 +381,47 @@
 //      IM[0] and IM[1], which are correct and identical -- but a hunk is
 //      eight half-words and only four are arriving.
 //
-//   2. THE FF BITS THE MEMORY SECTION SEES ARE QUALIFIED BY `FFok'`, AND
-//      THEY COME FROM THE PROCESSOR BOARDS, NOT FROM ContB. `FF.0mem'` and
-//      `FF.1mem` are inputs only on MemC; ProcH and ProcL drive them, from
-//      d24 and d23, a pair of MC10101s whose pin 12 is the COMMON input:
+//   2. RESOLVED -- AND THE MICROCODE NOW MAKES A FLUSH.
+//
+//      `FF.0mem'` and `FF.1mem` are inputs only on MemC; ProcH and ProcL
+//      drive them from d24/d23, a pair of MC10101s whose pin 12 is the
+//      COMMON input:
 //
 //          FF.0mem' = ~(FFok'a | FF.0)        FF.0mem = FFok'a | FF.0
 //          FF.1mem  =   FFok'a | FF.1
 //
-//      so WITH `FFok'a` HIGH BOTH BITS ARE FORCED HIGH and the memory
-//      section sees ff01 = 3 no matter what the microinstruction's FF field
-//      holds. Measured: `FFok'a` is high on all 2851 cycles the reference
-//      runs, and the forcing is gated here and mutation-tested. THAT is why
-//      packing FF = 0o100 changes the IM word (the right half reads back
-//      4081 instead of 0081, so the write path is fine) and changes nothing
-//      at MemC.
+//      so with `FFok'a` HIGH both bits are FORCED HIGH and the memory section
+//      sees ff01 = 3 whatever the microinstruction holds. That is why packing
+//      FF = 0o100 changed the IM word (right half 4081 instead of 0081, so
+//      the write path was never at fault) and changed nothing at MemC.
 //
-//      So the question for a Flush is no longer "what FF do I pack" but
-//      "what pulls `FFok'` low" -- a qualifier, presumably saying the FF
-//      field is being used as a memory function rather than for something
-//      else. Trace its driver on ProcH next.
+//      `FFok'` COMES FROM ContA f24, an MC10211 (NOR) whose TWO GATES ARE
+//      WIRED-OR onto each of FFok'a/b/c:
+//
+//          FFok' = ~BSEL.0'  |  ~(JCN.0 | JCN.1 | JCN.2or3)
+//
+//      so it goes LOW only when BSEL.0 = 0 AND one of those JCN bits is set.
+//      This bench used BSEL = 4 -- BSEL.0 = 1 -- which held FFok' high and
+//      masked the FF field off. THE FF FIELD IS ONLY A FUNCTION FIELD WHEN
+//      BSEL AND JCN ARE NOT CLAIMING THOSE BITS, which is exactly the kind of
+//      field interdependence HM Table 11 encodes.
+//
+//      With BSEL = 0 and JCN = 0o201 (JCN.0 set), measured over the 2851
+//      cycles the reference runs: FFok'a high on 0, WantCR low on 2851,
+//      WantAltRef' low on 2851, and **Flush' asserted on 2851**. All four are
+//      gated here, and reverting BSEL to 4 is caught.
+//
+//      NOTE THE TENSION THIS EXPOSES: the comment by the build_hunk call says
+//      BSEL >= 4 is what puts the A leg on MAR (compute-test established
+//      that), and BSEL >= 4 is exactly what masks the FF function off. So a
+//      reference that carries an FF function cannot take its address that
+//      way; where the address comes from for BSEL < 4 is the next question.
+//
+//   3. `FlushStore` STILL DOES NOT ASSERT, and neither does ForceMiss -- the
+//      cache still hits. `Flush'` here is a LEVEL held for 2851 straight
+//      cycles because the bench loops one instruction; a real reference is
+//      taken on a transition through the cache pipeline. That is the
+//      remaining step to a storage cycle.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -538,7 +559,7 @@ module tb_memrun;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
   integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb, nwcr, nwar, nfl, nmp;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
-  integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad;
+  integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib;
   reg tnia_hit [0:4095];
   reg [2:0] pms;
   reg [3:0] pipe_before;
@@ -1418,7 +1439,7 @@ module tb_memrun;
     // would force a miss -- see below. It still decodes as CacheRefInA, so a
     // Flush needs more than the ff01 bits, which is task 4's problem: only
     // LFetch<- and IFetch<- decode cleanly from ASEL/ff01 alone.)
-    build_hunk(4'd0, 4'd0, 3'd4, 3'd0, 3'd1, 8'o100, 8'o201, 1'b0);
+    build_hunk(4'd0, 4'd0, 3'd0, 3'd0, 3'd1, 8'o100, 8'o201, 1'b0);
     send_a_hunk(16'd0);
     $display("tb_memrun: IM[0..3] overwritten with ASEL=1 FF=100B references");
     // ARE THE FOUR COPIES ACTUALLY IDENTICAL? IM is four INTERLEAVED banks --
@@ -1494,7 +1515,7 @@ module tb_memrun;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
     ntnia=0; nff0=0; nsamp=0;
-    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0;
+    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
     nwcr=0; pwcr=m.b_MemC.WantCR; nwar=0; pwar=m.b_MemC.WantAltRef_p_;
     nfl=0; pfl=m.b_MemC.Flush_u__p_; nmp=0; pmp=m.b_MemC.Map_u__p_;
@@ -1547,6 +1568,10 @@ module tb_memrun;
         if (!m.b_MemC.WantCR)         nff0_cr  = nff0_cr  + 1;
         if (!m.b_MemC.WantAltRef_p_)  nff0_alt = nff0_alt + 1;
         if (!m.b_MemC.Flush_u__p_)    nff0_fl  = nff0_fl  + 1;
+        if (m.b_MemC.FlushStore)      nff0_fs  = nff0_fs  + 1;
+        if (m.b_MemC.ForceMiss)       nff0_fm  = nff0_fm  + 1;
+        if (m.b_MemC.Hit_p_a)         nff0_mia = nff0_mia + 1;   // Hit' high = MISS
+        if (m.b_MemC.Hit_p_b)         nff0_mib = nff0_mib + 1;
         if (m.b_MemC.ASEL_1_p_)       nff0_a1  = nff0_a1  + 1;
         // WantProcRef' = IgnoreProc | ASEL.0  (MemC b24 gate c, an MC10103:
         // pin 15 is the OR despite the primed name, pin 9 the NOR).
@@ -1624,6 +1649,22 @@ module tb_memrun;
     // FFok'a high both memory FF bits are FORCED, and the RTL must show it.
     if (nff0_bad !== 0)
       $fatal(1, "FFok'a high did not force FF.0mem'=0 and FF.1mem=1 (%0d violations)", nff0_bad);
+    // GATE: THE MICROCODE MAKES A FLUSH. With BSEL.0 = 0 pulling FFok' low,
+    // the FF field reaches the memory section, WantCR falls, WantAltRef'
+    // enables j24 and Flush' asserts -- on EVERY cycle the reference runs.
+    if (nff0_cr !== nff0)
+      $fatal(1, "WantCR did not fall on every running cycle (%0d of %0d)", nff0_cr, nff0);
+    if (nff0_alt !== nff0)
+      $fatal(1, "WantAltRef' did not enable the alternate decoder (%0d of %0d)", nff0_alt, nff0);
+    if (nff0_fl !== nff0)
+      $fatal(1, "Flush' did not assert on every running cycle (%0d of %0d)", nff0_fl, nff0);
+    if (nff0_ffok !== 0)
+      $fatal(1, "FFok' must be LOW for the FF field to reach the memory section (high on %0d)", nff0_ffok);
+    $display("tb_memrun:   STORAGE PATH WHILE RUNNING -- FlushStore %0d, ForceMiss %0d, MISS(a) %0d, MISS(b) %0d of %0d",
+             nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0);
+    $display("tb_memrun:   STORAGE PATH (end sample) -- FlushStore=%b ForceMiss=%b | Hit'a=%b Hit'b=%b",
+             m.b_MemC.FlushStore, m.b_MemC.ForceMiss,
+             m.b_MemC.Hit_p_a, m.b_MemC.Hit_p_b);
     $display("tb_memrun:   FFok'a (ProcH d24/d23 qualifier) high on %0d of %0d -- high FORCES FF.0mem/FF.1mem high",
              nff0_ffok, nff0);
     $display("tb_memrun:   ...and WantProcRef' = IgnoreProc | ASEL.0 -- IgnoreProc=1 on %0d, ASEL.0=1 on %0d of %0d",
