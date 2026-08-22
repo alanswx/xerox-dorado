@@ -91,8 +91,12 @@ startup, MemC clocked in step with the processor, and the running microcode
 presenting ASEL=0 with `WantProcRef'` asserted. Two of the KINDS are gated against `cpu.c` too -- `LFetch<-` at (ASEL 0,
 ff01 2) and `IFetch<-` at (ASEL 1, ff01 2), each in its own cell of sixteen.
 The rest need a machine in an I/O task, since `Store<-` is not a raw decoder
-output and the IO kinds are task-qualified on both sides. Next: MAR carrying a
-real address, then an actual access through the Map and cache.
+output and the IO kinds are task-qualified on both sides. MAR is mapped: a four-way mux (T / R / Q / Ain) sharing its source select with
+the ALU's A input, with registered enables -- so the reference address IS the A
+operand. `compute-test` gates the negative half (no reference, so no leg
+enabled, MAR all ones). Next: a reference microinstruction built with `mi()`
+that selects the T leg, so MAR can be checked against a known T, then an actual
+access through the Map and cache.
 
 Original note: MemC + MemD + MemX are in a machine and clocked (`mem-test`),
 but **nothing has ever issued a reference**. Map, cache, Pipe, MAR/VA and the hold logic are all
