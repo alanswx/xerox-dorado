@@ -2827,34 +2827,48 @@ Two things remain, both small and both stated by measurement:
    pipeline), `MemX07.sil+10` 96, `MapTroubleInMem` **0** -- asserted the
    entire run.
 
-   **And `MapTrouble` is asserted because the Map entry is empty.** `j11` (an
-   MC10176) registers it at `StartMemClk0'` from `MapTrouble`, which is `g14`,
-   an MC10121 4-wide OR-AND whose **common** input is `ReadOrWriteInMap'`:
+   **And `MapTrouble` is asserted because the Map entry fails its parity
+   check.** `j11` (an MC10176) registers it at `StartMemClk0'` from
+   `MapTrouble`, which is `g14`, an MC10121 4-wide OR-AND whose **common**
+   input is `ReadOrWriteInMap'`:
 
    ```
-   MapTrouble = (CheckWP' | MapWP'    | ROWIM')
-              & (MapWP'   | MapDirty' | ROWIM')
-              & (TrueBD)                            <- pinned to 1
-              & (MapEven' | preRfshInMem | ROWIM')
+   y = (CheckWP' | MapWP'    | ROWIM')
+     & (MapWP'   | MapDirty' | ROWIM')
+     & (TrueBD   | ROWIM')                  <- pinned to 1
+     & (MapEven' | preRfshInMem | ROWIM')
    ```
 
-   Measured: `ReadOrWriteInMap'` low on **all 3000** samples, so a map
-   operation *is* in the stage and the common input is not forcing it
-   (gated) -- but **`MapWP'` and `MapDirty'` are both high on all 3000**, and
-   they appear in two of the four groups, forcing those terms to 1.
+   **and `MapTrouble` is the INVERSE of that.** MC10121 puts the plain OR-AND
+   on pin 2 and the OR-AND-INVERT on pin 3 -- the *opposite* of the "role
+   `OUT` is the inverting output" rule, settled from the MECL data book's own
+   logic diagram (PARC's naming here agrees with the roles and is wrong).
+   `MapTrouble` is pin 3, so **it clears only when all four groups are 1**.
 
-   An uninitialised Map RAM reads as "not writable, not dirty", which is
-   exactly that pattern. The bench never writes a Map entry, so the address it
-   references has none -- precisely the work `InitMem.mc` does in real
-   microcode.
+   Measured over the run, low on: `ReadOrWriteInMap'` 3000, `MapWP'` 0,
+   `MapDirty'` 0, `MapEven'` 3000, `CheckWP'` 2691, `preRfshInMem` 3000 --
+   with `MapTrouble` high on 3000 and `MapTrouble'` on 0.
 
-   **Next:** write a real Map entry for the referenced address. The `←Map`
-   reference is FA=0, FB=3, FC=1 = `0o31` (ContA `b17`, and `cpu.c`'s
-   `DM_REF_RMAP` comment gives the same number from an independent
-   derivation). From the `j24`/`b24`/`d22` algebra a Map reference is
-   **ASEL = 000 with FF.0 = 0, FF.1 = 1** -- the same FF as the Flush, one
-   ASEL bit apart. With a valid entry, `MemWEa` should assert and the
-   write-back reaches the array.
+   **So the blocker is the fourth group**, and an earlier version of this note
+   blamed the wrong one: `MapWP'` and `MapDirty'` being *high* makes groups 1
+   and 2 equal 1, which is exactly what is wanted. Group 4 is
+   `(MapEven' | preRfshInMem | ROWIM')` and all three are low.
+
+   **`MapEven'` is the map parity check.** MemX `e11` is an MC10170, the
+   9-bit parity part, taking `RP.00`..`RP.08` -- the map entry's real-page
+   bits -- with `MemX13.sil+1` on the carry-in, and pin 15 is its EVEN output.
+   An uninitialised, all-zero map entry fails that check, and a failed map
+   parity is exactly what `MapTrouble` should mean. (The entry lives in
+   `MosRam` packages d11/d13, reached through MC10124 TTL-to-ECL translators
+   at e17/e10, so `MapWP` and `MapDirty` are literally the stored bits.)
+
+   **Next:** write a map entry for the referenced address **with correct
+   parity** -- any value will not do. Either through `←Map` (FA=0, FB=3,
+   FC=1 = `0o31` at ContA `b17`, the same number `cpu.c`'s `DM_REF_RMAP`
+   comment derives independently; ASEL = 000 with FF.0 = 0, FF.1 = 1) or by
+   preloading the `MosRam` arrays the way `tb_boot0` preloads IM. Note this is
+   the same MC10170 whose polarity is the open IM-parity question, so a fix
+   here may bear on that too.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting
