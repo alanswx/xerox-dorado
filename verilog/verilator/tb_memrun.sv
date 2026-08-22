@@ -318,10 +318,38 @@
 //
 //     SO THE REQUIREMENT IS THE OPPOSITE OF WHAT IT FIRST LOOKED LIKE: for
 //     MapWait to fall, at least ONE of `preStartMem'` / `WantMapWait'` must go
-//     HIGH -- they are active-low names and both are permanently ASSERTED,
-//     which is what keeps the counter from stepping. Those two are the next
-//     thing to trace, and the question is why they are stuck asserted rather
-//     than why they never assert.
+//     HIGH. Both are active-low names and both are permanently ASSERTED.
+//
+//     AND THE LEVER IS `DisHold`. MemX i20 and l17 are two MC10104 ANDs
+//     wired-OR'd to make it:
+//
+//         WantMapWait' = (MapFnc.1' & MapFnc.0') | DisHold
+//
+//     so DisHold alone is enough. `+define+FORCE_DISHOLD` forces it high, and
+//     the memory section COMES ALIVE:
+//
+//         MapWait edges     0  ->  5
+//         MapState        000  ->  110, ten changes
+//         MemRASa strobes   0  ->  6      <-- DRAM CYCLES ARE RUNNING
+//
+//     That is the whole point of the chase: the machine now starts storage
+//     cycles. MemCASa is still 0, so a cycle STARTS and does not complete --
+//     which is the next question, and the one a storage model is finally
+//     relevant to.
+//
+//     WHY IS DisHold 0? It is the MCR bit PARC's PrepareProcessor sets --
+//     "Clear out MCR to DisHold, NoWakeups", LDXI 103o / TFromCPReg# /
+//     SetMcr#. tb_memrun issues that sequence and DisHold stays 0, so the MCR
+//     write is not taking effect. MemC k08, an MC10176, is the register that
+//     drives it. THE FORCE IS A DIAGNOSTIC, NOT A FIX -- the real machine sets
+//     this from microcode and so should we.
+//
+//     One thing to know before trusting the wiring: MemC drives DisHold on
+//     backplane pin E7 and MemX receives it on E78. DIFFERENT PINS, merged by
+//     NAME. That is against this project's usual rule (merge only where every
+//     board agrees on the pin), but the experiment shows the machine behaves
+//     correctly with them joined, so the name is right here and the pins are
+//     routed by the backplane -- the same situation as the task wakeups.
 //
 //     (SUPERSEDED reading, kept because the inversion is easy to miss twice:
 //      `MapWait` NEVER MOVES.
@@ -1307,6 +1335,12 @@ module tb_memrun;
     // layout doradoboot.masm states.
     parc_run(8'h60, 8'h13, 8'hE1, 8'h4A, 8'h43);      // TaskingOn,Return
 
+`ifdef FORCE_DISHOLD
+    // EXPERIMENT: is DisHold the lever? WantMapWait' = (MapFnc.1' & MapFnc.0')
+    // | DisHold, and WantMapWait' going HIGH is what lets h13's NOR fall and
+    // frees MapWait to follow StartMap'.
+    force m.b_MemX.DisHold = 1'b1;
+`endif
     n0a = 0; nmemclk = 0; npipe = 0; ppa = pipead;
     nras = 0; ncas = 0; nwe = 0;
     prasa = m.MemRASa; pcasa = m.MemCASa; pwea = m.MemWEa;
@@ -1384,6 +1418,12 @@ module tb_memrun;
     $display("tb_memrun:   MapWait terms -- StartMap'=%b MapFree=%b preStartMem'=%b WantMapWait'=%b (edges: pSM %0d, WMW %0d)",
              m.b_MemC.StartMap_p_, m.b_MemX.MapFree, m.b_MemX.preStartMem_p_,
              m.b_MemX.WantMapWait_p_, npsm, nwmw);
+    // WantMapWait' = (MapFnc.1' & MapFnc.0') | DisHold  (MemX i20 and l17,
+    // both MC10104 ANDs, wired-OR'd). DisHold is the MCR bit PARC's SetMcr#
+    // sets -- "Clear out MCR to DisHold, NoWakeups" in PrepareProcessor.
+    $display("tb_memrun:   WantMapWait' terms -- MapFnc.0'=%b MapFnc.1'=%b DisHold(MemX)=%b i20=%b l17=%b",
+             m.b_MemX.MapFnc_0_p_, m.b_MemX.MapFnc_1_p_, m.b_MemX.DisHold,
+             m.b_MemX.WantMapWait_p___i20_14, m.b_MemX.WantMapWait_p___l17_2);
     // Split the wired-OR: MapWait = MapWait__g13_3 | MapWait__h13_9. And check
     // MemX's OWN view of StartMap' -- the counts above are MemC's, the driver
     // side.
