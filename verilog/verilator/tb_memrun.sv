@@ -358,24 +358,41 @@
 // comments DM_REF_MAP/DM_REF_FLUSH "emulator/fault" and the IO kinds
 // "io task", which is exactly what `EmuOrFT'` selects.
 //
-// WHAT IS NOT YET RIGHT IS THIS BENCH, NOT THE RTL. Measured over 3000
-// samples the machine hits only TWO distinct TNIA values -- it loops tightly,
-// exactly as JCN 0o201 (Local Jump to offset 1) says it should, and does NOT
-// wander into the AEmu hunks. `FF.0mem'` is 1 on 149 of those samples, and
-// across all 149 `WantCR` is 0 -- THE ALTERNATE PATH DECODES CORRECTLY, 149
-// for 149, precisely as d22's algebra predicts. But `ASEL.0` is 1 on all 149,
-// where the Flush built here has ASEL = 001 and so ASEL.0 = 0. Neither
-// instruction in the loop is the one this bench builds: it never executes.
+// AND THE FRONT DOOR IS PROVEN OPEN. With the ASEL=1 reference actually
+// executing -- 2851 of 3000 samples -- `WantProcRef'` is low on EVERY ONE of
+// them, from `IgnoreProc` = 0 and `ASEL.0` = 0, which is b24 gate c's algebra
+// exactly. That is gated here, and mutation-tested.
 //
-// So the next step is to get the intended microinstruction to BE the one
-// running -- check where build_hunk's four copies actually land against where
-// TNIA goes, since the jam and the hunk are two different paths into IM.
+// GETTING THERE TOOK IDENTIFYING THE RUNNING INSTRUCTION BY THE RIGHT FIELD.
+// An earlier pass conditioned the measurement on `FF.0mem'`, which selected
+// the 149 STARTUP cycles instead of the 2851 running ones and made the whole
+// chain look dead -- `WantProcRef'` never asserted, no reference ever wanted.
+// IM is FOUR INTERLEAVED BANKS (the low two address bits pick the bank), so
+// reading IM[0..3] back settles what is actually there: IM[0] and IM[1] both
+// hold this bench's reference, read back as L=0101 R=0081. The machine loops
+// over those two, `TNIA` 000 is the startup state and 001 the running one,
+// and the instruction is identified by its ASEL -- ASEL.0 = 0, ASEL.2 = 1.
 //
-// Three sampling traps in one file, and this is the third and worst: the
-// first read an instant instead of counting edges, the second read the end of
-// a run instead of the interesting moment, and the third measured a real
-// signal on the wrong instruction entirely. COUNT EDGES, CONDITION THE
-// MEASUREMENT ON THE THING YOU MEANT TO MEASURE, AND CHECK IT IS RUNNING.
+// TWO THINGS REMAIN, both small and both stated by a measurement rather than
+// a guess:
+//
+//   1. ONLY TWO OF build_hunk's FOUR COPIES LAND. IM[2] and IM[3] read back
+//      as zero. It does not affect the result above -- the machine loops over
+//      IM[0] and IM[1], which are correct and identical -- but a hunk is
+//      eight half-words and only four are arriving.
+//
+//   2. THE PACKED FF IS NOT THE FF MemC SEES. This bench passes FF = 0 and
+//      MemC reads FF.0 = 1 (`FF.0mem'` = 0), which is why `WantCR` stays high
+//      and the reference is a CACHE reference rather than an alternate one.
+//      A Flush needs FF.0 = 0 at MemC. Note the comment near the build_hunk
+//      call already claimed FF = 0o100 was being passed; the call passes
+//      8'd0. Fix the argument first, then confirm what arrives.
+//
+// Three sampling traps in one file: the first read an instant instead of
+// counting edges, the second read the end of a run instead of the interesting
+// moment, and the third conditioned on a field that picked the wrong
+// instruction entirely. COUNT EDGES, AND IDENTIFY THE RUNNING INSTRUCTION BY
+// A FIELD YOU HAVE READ BACK OUT OF IM.
 //
 // Then the storage array, whose interface msa.bp specifies completely:
 // MemAd.1-8, MemRAS/CAS/WE in a and b copies from DIFFERENT packages (two
@@ -1390,6 +1407,13 @@ module tb_memrun;
     build_hunk(4'd0, 4'd0, 3'd4, 3'd0, 3'd1, 8'd0, 8'o201, 1'b0);
     send_a_hunk(16'd0);
     $display("tb_memrun: IM[0..3] overwritten with ASEL=1 references");
+    // ARE THE FOUR COPIES ACTUALLY IDENTICAL? IM is four INTERLEAVED banks --
+    // the low two address bits pick the bank -- so IM[0..3] are bank 0..3 at
+    // idx 0, and build_hunk's four copies land one per bank.
+    $display("tb_memrun:   IM[0] L=%h R=%h   IM[1] L=%h R=%h",
+             rd_L0(0), rd_R0(0), rd_L1(0), rd_R1(0));
+    $display("tb_memrun:   IM[2] L=%h R=%h   IM[3] L=%h R=%h",
+             rd_L2(0), rd_R2(0), rd_L3(0), rd_R3(0));
 
     // RELEASE the MIR clock -- register 7, data bit 0 -- so the MIR can reload
     // from IM. Without this the jam is held and nothing is ever fetched.
@@ -1497,7 +1521,12 @@ module tb_memrun;
       if (m.b_MemC.Hit_p_b           !== phb ) begin nhb =nhb +1; phb =m.b_MemC.Hit_p_b;           end
       if (m.b_MemC.WantCR            !== pwcr) begin nwcr=nwcr+1; pwcr=m.b_MemC.WantCR;            end
       nsamp = nsamp + 1;
-      if (m.b_MemC.FF_0mem_p_) begin
+      // CONDITION ON THE INSTRUCTION ACTUALLY RUNNING. IM[0] and IM[1] both
+      // hold the ASEL=1 reference this bench built (read back as L=0101
+      // R=0081), so the running instruction is identified by its ASEL --
+      // ASEL.0 = 0 and ASEL.2 = 1 -- NOT by the FF field, which selected the
+      // startup cycles instead and made the whole chain look dead.
+      if (!m.b_MemC.ASEL_0 && m.b_MemC.ASEL_2) begin
         nff0 = nff0 + 1;
         // Conditioned on the FLUSH instruction actually being in force.
         if (!m.b_MemC.WantProcRef_p_) nff0_wpr = nff0_wpr + 1;
@@ -1510,7 +1539,12 @@ module tb_memrun;
         if (m.b_MemC.IgnoreProc)      nff0_ign = nff0_ign + 1;
         if (m.b_MemC.ASEL_0)          nff0_a0  = nff0_a0  + 1;
       end
-      if (!tnia_hit[tnia_now]) begin tnia_hit[tnia_now] = 1'b1; ntnia = ntnia + 1; end
+      if (!tnia_hit[tnia_now]) begin
+        tnia_hit[tnia_now] = 1'b1; ntnia = ntnia + 1;
+        $display("tb_memrun:   TNIA visits %h (FF.0mem'=%b ASEL.0=%b ASEL.1'=%b ASEL.2=%b)",
+                 tnia_now, m.b_MemC.FF_0mem_p_, m.b_MemC.ASEL_0,
+                 m.b_MemC.ASEL_1_p_, m.b_MemC.ASEL_2);
+      end
       if (m.b_MemC.WantAltRef_p_     !== pwar) begin nwar=nwar+1; pwar=m.b_MemC.WantAltRef_p_;     end
       if (m.b_MemC.Flush_u__p_       !== pfl ) begin nfl =nfl +1; pfl =m.b_MemC.Flush_u__p_;       end
       if (m.b_MemC.Map_u__p_         !== pmp ) begin nmp =nmp +1; pmp =m.b_MemC.Map_u__p_;         end
@@ -1549,8 +1583,19 @@ module tb_memrun;
     // so with a reference wanted it goes LOW only when ASEL.1 = 0 AND FF.0 = 0.
     $display("tb_memrun:   WHERE IS IT -- TNIA hit %0d distinct values; FF.0mem'=1 on %0d of %0d samples",
              ntnia, nff0, nsamp);
-    $display("tb_memrun:   WHILE THE FLUSH IS IN FORCE (%0d samples) -- ASEL.1'=1 %0d, WantProcRef'=0 %0d, WantCR=0 %0d, WantAltRef'=0 %0d, Flush'=0 %0d",
+    $display("tb_memrun:   WHILE THE ASEL=1 REFERENCE IS RUNNING (%0d samples) -- ASEL.1'=1 %0d, WantProcRef'=0 %0d, WantCR=0 %0d, WantAltRef'=0 %0d, Flush'=0 %0d",
              nff0, nff0_a1, nff0_wpr, nff0_cr, nff0_alt, nff0_fl);
+    // GATE: with the ASEL=1 reference actually executing, the front door must
+    // be open on EVERY cycle it runs -- WantProcRef' low, from IgnoreProc = 0
+    // and ASEL.0 = 0, which is b24 gate c's algebra exactly.
+    if (nff0 < 100)
+      $fatal(1, "the ASEL=1 reference barely ran (%0d samples) -- it must be the executing instruction", nff0);
+    if (nff0_wpr !== nff0)
+      $fatal(1, "WantProcRef' was not asserted on every cycle the reference ran (%0d of %0d)",
+             nff0_wpr, nff0);
+    if (nff0_ign !== 0 || nff0_a0 !== 0)
+      $fatal(1, "WantProcRef' low requires IgnoreProc = 0 and ASEL.0 = 0 (saw %0d, %0d)",
+             nff0_ign, nff0_a0);
     $display("tb_memrun:   ...and WantProcRef' = IgnoreProc | ASEL.0 -- IgnoreProc=1 on %0d, ASEL.0=1 on %0d of %0d",
              nff0_ign, nff0_a0, nff0);
     $display("tb_memrun:   WantCR=%b terms -- ASEL.1'=%b FF.0mem'=%b WantProcRef'=%b",
