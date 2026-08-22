@@ -2699,10 +2699,24 @@ instruction is identified by its ASEL.
 
 Two things remain, both small and both stated by measurement:
 
-1. **Only two of `build_hunk`'s four copies land.** IM[2] and IM[3] read back
-   as zero. It does not affect the result above -- the machine loops over
-   IM[0] and IM[1], which are correct and identical -- but a hunk is eight
-   half-words and only four are arriving.
+1. **RETRACTED -- all four of `build_hunk`'s copies do land.** An earlier
+   note said IM[2] and IM[3] read back as zero. That came from reading
+   `rd_L2(0)`/`rd_L3(0)` as "IM[2]" and "IM[3]", which they are not:
+   `find_word` *searches* all four banks precisely because the bank-to-address
+   mapping is not obvious. Scanning every bank at several idx gives the real
+   mapping:
+
+   | address | bank | idx |
+   |---|---|---|
+   | 0 | 0 | 0 |
+   | 1 | 1 | 0 |
+   | 2 | 0 | 1 |
+   | 3 | 1 | 1 |
+
+   i.e. `bank = addr & 1`, `idx = addr >> 1`. Banks 2 and 3 are a different
+   part of the store and are correctly empty here. All four microinstructions
+   are present, and `build_hunk4` now packs four *distinct* ones.
+
 2. **RESOLVED -- and the microcode now makes a Flush.** `FF.0mem'` and
    `FF.1mem` are inputs only on MemC; ProcH and ProcL drive them from
    `d24`/`d23`, a pair of MC10101s whose pin 12 is the **common** input:
