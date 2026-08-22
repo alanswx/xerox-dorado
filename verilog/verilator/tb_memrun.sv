@@ -276,7 +276,38 @@
 //     a reference, consistent with WantProcRef'), MapRfsh'=1, AwantsMapFS'=1,
 //     AfreeOrEc'a=0, WantVic'=1 -- all four terms evaluate to 1.
 //
-//     THE SUSPECT IS `Hia`, AND IT NEEDS THE SCHEMATIC, NOT THE NETLIST. Its
+//     `Hia` IS EXONERATED. It was the suspect -- its only driver is MemC l02,
+//     an MC10231, and the wire list puts pins 13, 14 AND 15 of that one
+//     package on the net, so Q and Q' are tied together, which on open-emitter
+//     ECL is a constant high. MEMC's SCHEMATIC (MEMC.pdf sheet 22, the l2b
+//     block) shows exactly that: pin 15 (Q) labelled `Hia!`, pin 14 (Q') and
+//     pin 13 (R) all on one node. So Hia = 1 IS WHAT THE BOARD DOES and the
+//     RTL reproduces it correctly. The netlist and the schematic agree; the
+//     suspicion was wrong.
+//
+//     THE CHAIN IS NOW COMPLETE, and it ends at one signal:
+//
+//       WantRfsh' never asserts (reads 1)
+//         -> NeedRfsh' stays 1     MemX j09, an MC10117 2-wide OR-AND whose
+//                                  common pin 9 is OPEN, so
+//                                  NeedRfsh' = (WantRfsh'|RfshSqWave)
+//                                            & (PairFull|WantRfsh')
+//                                  and BOTH terms need WantRfsh' = 0
+//         -> MapRfsh'  stays 1     MemX h20: MapRfsh' = MapFree' | NeedRfsh',
+//                                  and MapFree' already reads 0
+//         -> StartMap' stays 1     MemC k15, the OR-AND above
+//         -> MapState frozen 000   MemX h15 never loads and never counts
+//         -> the PROM sequencer never runs
+//         -> no RAS/CAS/WE, ever
+//         -> DdataGood' says the data is not good
+//         -> MDhold holds the processor
+//         -> no reference completes
+//
+//     RfshSqWave DOES run now (6 edges, following the RfshPeriod this bench
+//     drives), so the periodic side is alive. What is missing is WantRfsh'.
+//     START THERE.
+//
+//     SUPERSEDED SUSPICION, kept because the reasoning was reasonable: Its
 //     only driver is MemC l02, an MC10231 -- and the wire list puts pins 13,
 //     14 AND 15 of that one package on the net, with 13 an input and 14/15 the
 //     two outputs of half B. Our cell has `p15 = qb, p14 = ~qb`, so Q and Q'
@@ -425,7 +456,8 @@ module tb_memrun;
   reg [19:0] link15, link15b, link7;
   integer nmemclk, kk, npipe, nras, ncas, nwe, nmx;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
-  integer nrp, nmr, nms;
+  integer nrp, nmr, nms, nsq;
+  reg psq;
   reg [2:0] pms;
   wire [2:0] mapst = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
   reg [3:0] ppa;
@@ -1229,7 +1261,7 @@ module tb_memrun;
     prasa = m.MemRASa; pcasa = m.MemCASa; pwea = m.MemWEa;
     nmx = 0; pmx = m.b_MemX.Clk0_p_Aa;
     nrp = 0; prp = m.RfshPeriod; nmr = 0; pmr = m.MemRfsh;
-    nms = 0; pms = mapst;
+    nms = 0; pms = mapst; nsq = 0; psq = m.b_MemX.RfshSqWave;
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
     for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
       @(posedge sys_clk);
@@ -1249,6 +1281,7 @@ module tb_memrun;
       if (m.RfshPeriod !== prp) begin nrp = nrp + 1; prp = m.RfshPeriod; end
       if (m.MemRfsh   !== pmr) begin nmr = nmr + 1; pmr = m.MemRfsh;   end
       if (mapst !== pms) begin nms = nms + 1; pms = mapst; end
+      if (m.b_MemX.RfshSqWave !== psq) begin nsq = nsq + 1; psq = m.b_MemX.RfshSqWave; end
     end
     $display("tb_memrun: storage strobes over the run -- MemRASa %0d, MemCASa %0d, MemWEa %0d",
              nras, ncas, nwe);
@@ -1262,6 +1295,17 @@ module tb_memrun;
     $display("tb_memrun:   StartMap' terms -- Hia=%b NoRef=%b MapRfsh'=%b AwantsMapFS'=%b AfreeOrEc'a=%b WantVic'=%b",
              m.b_MemC.Hia, m.b_MemC.NoRef, m.b_MemC.MapRfsh_p_,
              m.b_MemC.AwantsMapFS_p_, m.b_MemC.AfreeOrEc_p_a, m.b_MemC.WantVic_p_);
+    // MapRfsh' = MapFree' | NeedRfsh' (MemX h20, an MC10105 OR), so it asserts
+    // only when BOTH are low. That is the one StartMap' term that can break
+    // the circle: MapState needs StartMap', StartMap' needs MapRfsh', and
+    // MapRfsh' is the only one of its terms not itself sequenced by MapState.
+    $display("tb_memrun:   MapRfsh' = MapFree'(%b) | NeedRfsh'(%b) = %b",
+             m.b_MemX.MapFree_p_, m.b_MemX.NeedRfsh_p_, m.b_MemX.MapRfsh_p_);
+    // NeedRfsh' comes from MemX j09 (MC10117 OR-AND) off WantRfsh',
+    // RfshSqWave and PairFull. RfshSqWave is the periodic refresh square wave
+    // -- if that is not running, nothing downstream can be.
+    $display("tb_memrun:   NeedRfsh' inputs -- WantRfsh'=%b RfshSqWave=%b PairFull=%b (sqwave edges=%0d)",
+             m.b_MemX.WantRfsh_p_, m.b_MemX.RfshSqWave, m.b_MemX.PairFull, nsq);
     // MemX h15 is the MapState counter: StartMap' (PE', active low) loads it
     // to 0 -- its D pins are open -- and MapWait (CE', active low) makes it
     // count. So the state machine only advances while MapWait is LOW.
