@@ -117,9 +117,11 @@ The next three steps, in order:
    and `PRhold` -- the memory-to-processor hold -- is CLEAR before the machine
    starts and comes UP during the run, with none of the three hold requests
    ever set. So it is asserted by something the machine does while executing,
-   which for a reference that never completes is what one would expect. Next:
-   which of MemC's three Hold flip-flops (e22 pin 3, e22 pin 14, e23 pin 2)
-   sets, and on what. The C emulator is a ready-made oracle, as it was for the ALU and IM.
+   which for a reference that never completes is what one would expect. It is the MD hold and the MISC hold that are up, not the reference hold
+   (`RefHold'`=1, `MDhold'`=0, `MiscHold'`=0) -- the processor held waiting for
+   memory DATA, which is right when a reference is accepted and never
+   completes. So the remaining work is **the storage side**: MemD's DRAM path
+   with its RAS/CAS and refresh, and the Map on MemX. The C emulator is a ready-made oracle, as it was for the ALU and IM.
 
 ### 4. IFU
 
