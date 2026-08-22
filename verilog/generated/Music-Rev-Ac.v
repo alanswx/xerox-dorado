@@ -379,19 +379,19 @@ module Music_m_Rev_m_Ac (
   ); // SE10212
   cell_MC10125 u_g01 (
     .p1(VBB1),
-    .p2(VBB1),
+    .p2(1'b0),
     .p3(WTime),
     .p4(TickA_p___drv),
     .p5(TickB_p___drv),
     .p6(Music01_sil_pl_9),
-    .p7(VBB1),
+    .p7(1'b1),
     .p9(VCC97),
     .p10(SFTB),
-    .p11(VBB1),
+    .p11(1'b1),
     .p12(SFTB_p___drv),
     .p13(DataToSyn__drv),
     .p14(Music01_sil_pl_14),
-    .p15(VBB1)
+    .p15(1'b1)
   ); // MC10125
   cell_MC10141 u_g02 (
     .sys_clk(sys_clk),

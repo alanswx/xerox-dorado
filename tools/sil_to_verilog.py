@@ -1054,7 +1054,30 @@ class Generator:
                     target = f'{vname(netname)}__drv'
                 else:
                     target = vname(netname)
-                if pin in self.BROKEN_PACKAGE_PINS.get(
+                if (not isout and netname.upper().startswith('VBB')
+                        and role in ('in', 'common')):
+                    # VBB IS THE ECL SWITCHING THRESHOLD, not a logic signal,
+                    # and these nets have no driver anywhere (39 of them,
+                    # zero drivers). A differential pair with VBB on one side
+                    # follows the OTHER side -- so VBB must LOSE to a real
+                    # signal and BEAT an open pin, which is exactly what the
+                    # roles distinguish: `common` is the complement input
+                    # (EclDict's `c`), where VBB must read 0 so the true
+                    # input decides; `in` is the true input, where it must
+                    # read 1 against a complement that is open (an open MECL
+                    # input sits at VEE, i.e. 0).
+                    #
+                    # A single constant per NET cannot do this -- one VBB net
+                    # reaches both sides. MemX e15 is the case that found it:
+                    # channel a has VBB on `common` (pin 2) with a real signal
+                    # on pin 3, while channel d has VBB on `in` (pin 15) with
+                    # pin 14 open, and that channel MANUFACTURES A CONSTANT
+                    # TTL HIGH -- `THi`, which strobes pin 6 of five MC10124
+                    # translators. Left at 0 it gated off the entire map read
+                    # path, holding MapWP'/MapDirty'/MapEven' and so
+                    # MapTrouble asserted forever.
+                    target = "1'b1" if role == 'in' else "1'b0"
+                elif pin in self.BROKEN_PACKAGE_PINS.get(
                         (self.b.name.split('-Rev')[0], pos), frozenset()):
                     # leg broken off before stuffing: an open MECL input
                     # sits at VEE, so it reads 0 and the net is not connected

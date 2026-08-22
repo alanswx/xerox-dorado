@@ -1660,18 +1660,18 @@ module BaseBd_m_Rev_m_Am (
   ); // i2125
   cell_MC10125 u_c19 (
     .p1(Vbb0),
-    .p2(Vbb0),
+    .p2(1'b0),
     .p3(CPIn_2),
     .p4(TCPI_2__c19_4),
     .p5(TCPI_3__c19_5),
-    .p6(Vbb0),
+    .p6(1'b0),
     .p7(CPIn_3),
     .p9(VCC69),
-    .p10(Vbb0),
+    .p10(1'b0),
     .p11(CPIn_0),
     .p12(TCPI_0__c19_12),
     .p13(TCPI_1__c19_13),
-    .p14(Vbb0),
+    .p14(1'b0),
     .p15(CPIn_1)
   ); // MC10125
   cell_SN74LS259 u_c20 (
