@@ -2740,8 +2740,8 @@ Two things remain, both small and both stated by measurement:
    A reference carrying an FF function cannot take its address that way --
    where the address comes from for BSEL < 4 is the next question.
 
-3. **`FlushStore` does not assert, and the reason is architectural: the line
-   must be DIRTY.** The chain, traced the rest of the way down:
+3. **RESOLVED -- the cache misses, and a Store is what makes it.** The rest
+   of the chain below `Flush'`:
 
    | gate | part | function |
    |---|---|---|
@@ -2749,15 +2749,40 @@ Two things remain, both small and both stated by measurement:
    | `k21` | MC10176 hex D FF, clocked by `LdPair'` | `FSinPair'` is Q5, fed by D5 on pin 12 |
    | `j23` | MC10117 second gate (pins 10-13, 9 common) | that D input is `FlushInA & HitColDirty` |
 
-   Measured over the 2851 running cycles: `EcHasAb` is 0 throughout -- that
-   term is satisfied -- and `FSinPair'` **never falls**. The flush is never
-   latched into the A/B pair, because `HitColDirty` is never true: this
-   bench's cache is clean, and **flushing a clean line needs no write-back**.
-   Only a dirty line has anything to store.
+   `HitColDirty` is the point: **flushing a clean line needs no write-back**,
+   so only a dirty line has anything to store. A single flush against a clean
+   cache could never reach the storage path.
 
-   **So the route to a storage cycle is: store to an address first to dirty
-   its line, then flush it.** `Store<-` comes off an MC10105 OR rather than
-   the `a24` decoder, so it needs its own encoding.
+   So the bench runs **two instructions**, alternating -- `build_hunk2` packs
+   them (copies 0,2 are A and 1,3 are B, so IM[0] = A and IM[1] = B; byte 0
+   carries RSTK.0 and BLOCK for all four, so those must match). IM[0] stores
+   to dirty a line, IM[1] flushes it, the Local Jumps bouncing 0 -> 1 -> 0.
+
+   **The Store encoding comes out of the gates, not a table.** `j22`
+   (MC10105) gate a gives `Store← = ~(CacheRef' | Store←IfCR')`, and `b24`
+   gate b gives `Store←IfCR' = Q0 | ASEL.2`, where Q0 is the `a24` decoder's
+   zero output addressed `{ASEL.2, FF.0mem', FF.1mem}`. So ASEL.2 = 0, and
+   `CacheRef'` low wants `WantCR = 1` which wants FF.0 = 1, and Q0 = 0 with
+   FF.0 = 1 then wants FF.1 = 1 -- giving **ASEL = 000 with FF = 0o300**.
+
+   And the whole path runs. Over one 3000-sample run:
+
+   | signal | cycles |
+   |---|---|
+   | `Store←` asserted | 1440 |
+   | `HitColDirty` | 160 |
+   | `FSinPair'` fell | 320 |
+   | `FlushStore` | 320 |
+   | `ForceMiss` | 1088 |
+   | MISS(a) / MISS(b) | 1043 / 1043 |
+
+   All gated in `memrun-test`; collapsing the Store back into a second Flush
+   is caught.
+
+4. **Still open: the miss does not yet produce a DRAM write-back.** The
+   storage strobes stay at the refresh's own `MemRASa 6` / `MemCASa 4`, and
+   `MemWEa` is 0 -- no write enable in the whole run. `ForceMiss` and the miss
+   are real; turning them into a storage **access** is the next step.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting

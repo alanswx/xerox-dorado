@@ -417,8 +417,9 @@
 //      reference that carries an FF function cannot take its address that
 //      way; where the address comes from for BSEL < 4 is the next question.
 //
-//   3. `FlushStore` DOES NOT ASSERT, AND THE REASON IS ARCHITECTURAL: THE
-//      LINE MUST BE DIRTY. The chain, traced the rest of the way down:
+//   3. RESOLVED -- THE CACHE MISSES, AND A STORE IS WHAT MAKES IT.
+//
+//      The rest of the chain below Flush':
 //
 //          l19 d  (MC10100, pin 9 COMMON)
 //                 FlushStore = ~(FSinPair' | EcHasAb)
@@ -427,16 +428,37 @@
 //          j23    (MC10117, second gate, pins 10-13 with 9 COMMON)
 //                 that D input is  FlushInA & HitColDirty
 //
-//      Measured over the 2851 running cycles: `EcHasAb` is 0 throughout --
-//      that term is satisfied -- and `FSinPair'` NEVER falls. The flush is
-//      never latched into the A/B pair, because `HitColDirty` is never true:
-//      this bench's cache is clean, and FLUSHING A CLEAN LINE NEEDS NO
-//      WRITE-BACK. Only a dirty line has anything to store.
+//      `HitColDirty` is the point: FLUSHING A CLEAN LINE NEEDS NO WRITE-BACK,
+//      so only a DIRTY line has anything to store. A single flush against
+//      this bench's clean cache could never reach the storage path.
 //
-//      So the route to a storage cycle is: STORE to an address first to
-//      dirty its line, THEN flush it. `Store<-` comes off an MC10105 OR
-//      rather than the a24 decoder (noted when the kind table was gated), so
-//      it needs its own encoding.
+//      SO THE BENCH RUNS TWO INSTRUCTIONS NOW, alternating, and `build_hunk2`
+//      packs them (copies 0,2 are A and 1,3 are B, so IM[0] = A and IM[1] = B;
+//      byte 0 carries RSTK.0 and BLOCK for all four, so those must match).
+//      IM[0] STORES to dirty a line and IM[1] FLUSHES it, the two Local Jumps
+//      bouncing 0 -> 1 -> 0 forever.
+//
+//      THE STORE ENCODING COMES OUT OF THE GATES, not out of a table.
+//      j22 (MC10105) gate a gives  Store<- = ~(CacheRef' | Store<-IfCR'),
+//      and b24 gate b gives  Store<-IfCR' = Q0 | ASEL.2  where Q0 is the a24
+//      decoder's zero output, addressed {ASEL.2, FF.0mem', FF.1mem}. So:
+//        - ASEL.2 = 0            or Store<-IfCR' can never fall
+//        - CacheRef' low wants WantCR = 1, which wants FF.0 = 1
+//        - Q0 = 0 with FF.0 = 1 then wants FF.1 = 1
+//      giving ASEL = 000 with FF.0 = FF.1 = 1, i.e. FF = 0o300. Measured, it
+//      asserts Store<- on every cycle it runs.
+//
+//      AND THE WHOLE PATH THEN RUNS. Over one 3000-sample run:
+//        Store<- asserted   1440      HitColDirty      160
+//        FSinPair' fell      320      FlushStore       320
+//        ForceMiss          1088      MISS(a)/(b)     1043 / 1043
+//      All gated here, and collapsing the Store back into a second Flush is
+//      caught.
+//
+//   4. STILL OPEN: the miss does not yet produce a DRAM write-back. The
+//      storage strobes stay at the refresh's own MemRASa 6 / MemCASa 4, and
+//      MemWEa is 0 -- no write enable in the whole run. ForceMiss and the
+//      miss are real; turning them into a storage ACCESS is the next step.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -574,7 +596,7 @@ module tb_memrun;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
   integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb, nwcr, nwar, nfl, nmp;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
-  integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech;
+  integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd;
   reg tnia_hit [0:4095];
   reg [2:0] pms;
   reg [3:0] pipe_before;
@@ -1268,6 +1290,34 @@ module tb_memrun;
   //   Byte 2: 0BSEL.1-2, 0LC.0-2, 0ASEL.0-2
   //   Byte 3: 0FF.0-7          Byte 4: 0JCN.0-7
   // The field arguments use mi()'s convention, MSB first: rstk[3] is RSTK.0.
+  // BUILD A HUNK OF TWO ALTERNATING MICROINSTRUCTIONS -- copies 0,2 are A and
+  // 1,3 are B -- so IM[0] holds A and IM[1] holds B and a pair of Local Jumps
+  // can bounce between them. Note byte 0 carries RSTK.0 and BLOCK for all
+  // four, so those two fields must match between A and B.
+  task build_hunk2(input [3:0] rstk,  input [3:0] alufA, input [2:0] bselA,
+                   input [2:0] lcA,   input [2:0] aselA, input [7:0] ffA,
+                   input [7:0] jcnA,
+                   input [3:0] alufB, input [2:0] bselB,
+                   input [2:0] lcB,   input [2:0] aselB, input [7:0] ffB,
+                   input [7:0] jcnB,  input block);
+    integer q;
+    reg [3:0] aluf; reg [2:0] bsel, lc, asel; reg [7:0] ff, jcn;
+    begin
+      hunk[0] = {rstk[3], block, rstk[3], block, rstk[3], block, rstk[3], block};
+      for (q = 0; q < 4; q = q + 1) begin
+        if (q[0] == 1'b0) begin
+          aluf = alufA; bsel = bselA; lc = lcA; asel = aselA; ff = ffA; jcn = jcnA;
+        end else begin
+          aluf = alufB; bsel = bselB; lc = lcB; asel = aselB; ff = ffB; jcn = jcnB;
+        end
+        hunk[1+4*q] = {rstk[2], rstk[1], rstk[0], aluf[3], aluf[2], aluf[1], aluf[0], bsel[2]};
+        hunk[2+4*q] = {bsel[1], bsel[0], lc[2], lc[1], lc[0], asel[2], asel[1], asel[0]};
+        hunk[3+4*q] = ff;
+        hunk[4+4*q] = jcn;
+      end
+    end
+  endtask
+
   task build_hunk(input [3:0] rstk, input [3:0] aluf, input [2:0] bsel,
                   input [2:0] lc,   input [2:0] asel, input [7:0] ff,
                   input [7:0] jcn,  input block);
@@ -1454,7 +1504,17 @@ module tb_memrun;
     // would force a miss -- see below. It still decodes as CacheRefInA, so a
     // Flush needs more than the ff01 bits, which is task 4's problem: only
     // LFetch<- and IFetch<- decode cleanly from ASEL/ff01 alone.)
-    build_hunk(4'd0, 4'd0, 3'd0, 3'd0, 3'd1, 8'o100, 8'o201, 1'b0);
+    // IM[0] = a STORE, to DIRTY a cache line; IM[1] = a FLUSH of the same
+    // line, which is the only thing that turns HitColDirty into a FlushStore.
+    // Both keep BSEL = 0 so FFok' stays low and the FF field reaches the
+    // memory section, and both keep a JCN.0 bit set for the same reason.
+    //   Store:  ASEL = 000, FF.0 = FF.1 = 1 (0o300)  -- j22/b24/a24 algebra
+    //   Flush:  ASEL = 001, FF   = 0o100             -- j24 Q3
+    // The Local Jumps bounce 0 -> 1 -> 0 so both run, over and over.
+    build_hunk2(4'd0,
+                4'd0, 3'd0, 3'd0, 3'd0, 8'o300, 8'o201,   // IM[0] Store, -> 1
+                4'd0, 3'd0, 3'd0, 3'd1, 8'o100, 8'o200,   // IM[1] Flush, -> 0
+                1'b0);
     send_a_hunk(16'd0);
     $display("tb_memrun: IM[0..3] overwritten with ASEL=1 FF=100B references");
     // ARE THE FOUR COPIES ACTUALLY IDENTICAL? IM is four INTERLEAVED banks --
@@ -1530,7 +1590,7 @@ module tb_memrun;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
     ntnia=0; nff0=0; nsamp=0;
-    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0;
+    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
     nwcr=0; pwcr=m.b_MemC.WantCR; nwar=0; pwar=m.b_MemC.WantAltRef_p_;
     nfl=0; pfl=m.b_MemC.Flush_u__p_; nmp=0; pmp=m.b_MemC.Map_u__p_;
@@ -1571,12 +1631,14 @@ module tb_memrun;
       if (m.b_MemC.Hit_p_b           !== phb ) begin nhb =nhb +1; phb =m.b_MemC.Hit_p_b;           end
       if (m.b_MemC.WantCR            !== pwcr) begin nwcr=nwcr+1; pwcr=m.b_MemC.WantCR;            end
       nsamp = nsamp + 1;
+      if (!m.b_MemC.ASEL_0 && !m.b_MemC.ASEL_2 && m.b_MemC.Store_u_)
+        nff0_st = nff0_st + 1;
       // CONDITION ON THE INSTRUCTION ACTUALLY RUNNING. IM[0] and IM[1] both
       // hold the ASEL=1 reference this bench built (read back as L=0101
       // R=0081), so the running instruction is identified by its ASEL --
       // ASEL.0 = 0 and ASEL.2 = 1 -- NOT by the FF field, which selected the
       // startup cycles instead and made the whole chain look dead.
-      if (!m.b_MemC.ASEL_0 && m.b_MemC.ASEL_2) begin
+      if (!m.b_MemC.ASEL_0 && m.b_MemC.ASEL_2) begin   // the FLUSH
         nff0 = nff0 + 1;
         // Conditioned on the FLUSH instruction actually being in force.
         if (!m.b_MemC.WantProcRef_p_) nff0_wpr = nff0_wpr + 1;
@@ -1584,6 +1646,7 @@ module tb_memrun;
         if (!m.b_MemC.WantAltRef_p_)  nff0_alt = nff0_alt + 1;
         if (!m.b_MemC.Flush_u__p_)    nff0_fl  = nff0_fl  + 1;
         if (m.b_MemC.FlushStore)      nff0_fs  = nff0_fs  + 1;
+        if (m.b_MemC.HitColDirty)     nff0_hcd = nff0_hcd + 1;
         // MemC l19 gate d (MC10100, pin 9 COMMON):
         //     FlushStore = ~(FSinPair' | EcHasAb)
         // so the flush must be LATCHED INTO THE A/B PAIR first.
@@ -1680,6 +1743,20 @@ module tb_memrun;
       $fatal(1, "Flush' did not assert on every running cycle (%0d of %0d)", nff0_fl, nff0);
     if (nff0_ffok !== 0)
       $fatal(1, "FFok' must be LOW for the FF field to reach the memory section (high on %0d)", nff0_ffok);
+    // GATE: THE STORE DIRTIES A LINE AND THE FLUSH MISSES ON IT.
+    // Store<- comes off j22 (MC10105) as ~(CacheRef' | Store<-IfCR'), and
+    // b24/a24 make Store<-IfCR' = Q0 | ASEL.2 -- so ASEL = 000 with
+    // FF.0 = FF.1 = 1. Then the flush finds HitColDirty, k21 latches
+    // FSinPair' on LdPair', l19 makes FlushStore, and k19 makes ForceMiss.
+    if (nff0_st  == 0) $fatal(1, "the Store never asserted -- nothing dirties a line");
+    if (nff0_hcd == 0) $fatal(1, "HitColDirty never true -- the Store did not dirty the flushed line");
+    if (nff0_fsp == 0) $fatal(1, "FSinPair' never fell -- the flush was not latched into the pair");
+    if (nff0_fs  == 0) $fatal(1, "FlushStore never asserted");
+    if (nff0_fm  == 0) $fatal(1, "ForceMiss never asserted");
+    if (nff0_mia == 0 || nff0_mib == 0)
+      $fatal(1, "the cache never missed (a %0d, b %0d)", nff0_mia, nff0_mib);
+    $display("tb_memrun:   STORE cycles with Store_ asserted: %0d   |   HitColDirty during the flush: %0d",
+             nff0_st, nff0_hcd);
     $display("tb_memrun:   FlushStore = ~(FSinPair' | EcHasAb) -- FSinPair'=0 on %0d, EcHasAb=0 on %0d of %0d",
              nff0_fsp, nff0_ech, nff0);
     $display("tb_memrun:   STORAGE PATH WHILE RUNNING -- FlushStore %0d, ForceMiss %0d, MISS(a) %0d, MISS(b) %0d of %0d",
