@@ -988,6 +988,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | ...and each task KEEPS ITS OWN PC and LINK | `taskrun-test` -- TPC[15] survives task 7; the startup Link lands in slot 0 alone |
 | **the MEMORY SECTION's front door** -- ASEL 0-3 is a storage reference | `refdecode-test` -- 16 cases against the C emulator's rule |
 | **the memory boards RUN, and the microcode ASKS THEM for storage** | `memrun-test` -- seven boards, MemC clocked in step, ASEL=0 with `WantProcRef'` asserted |
+| ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
 Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
@@ -1111,7 +1112,16 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   and THE MICROCODE ASKS FOR STORAGE -- the four AEmu hunks present ASEL=0,
   `WantProcRef'` asserts, and MemC responds with `Dbusy` and `WantCR` set. So
   the front-door rule now holds against an ASEL the machine chose for itself.
-  Next is the kind table, then MAR and an actual access.
+  **And two of the reference KINDS match `cpu.c` exactly**: sweeping ASEL 0-3
+  against the two FF bits with the qualifiers live gives `ASEL=0 ff01=2 ->
+  LFetch<-` and `ASEL=1 ff01=2 -> IFetch<-`, each asserting there and nowhere
+  else in the sixteen, against `cpu.c`'s `DM_REF_LONGFETCH` and
+  `DM_REF_IFETCH`. (`ff01` is `FF.0*2 + FF.1`, MSB first; the `_` suffix is
+  Sil's assignment arrow.) The rest of the table is NOT gated -- `Store<-`
+  comes off an MC10105 OR rather than the decoder, and the IO kinds are
+  qualified by whether the current task is an I/O task, which `cpu.c` also
+  conditions on (`io_task ? DM_REF_IOFETCH : DM_REF_MAP`). Next: MAR and an
+  actual access.
 
 - **`dorado_mem` has THREE MORE CLOCK PORTS than `dorado_proc`** -- `CLK_mc'`,
   `CLK_md'`, `CLK_mx'`, because the BaseBoard fans the clock to every slot.
