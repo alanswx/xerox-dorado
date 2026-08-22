@@ -1832,13 +1832,13 @@ module DskEth_m_Rev_m_Cf (
   cell_MC10125 u_b02 (
     .p1(Vbb5),
     .p2(TriconD07_sil_pl_10),
-    .p3(Vbb5),
+    .p3(1'b1),
     .p4(TriconD07_sil_pl_7),
     .p5(TriconD07_sil_pl_8),
-    .p6(Vbb5),
+    .p6(1'b0),
     .p7(TriconD07_sil_pl_10),
     .p9(VCC_m_83),
-    .p10(Vbb5),
+    .p10(1'b0),
     .p11(WriteBlock_p_),
     .p12(TriconD05_sil_pl_1)
   ); // MC10125
@@ -2700,14 +2700,14 @@ module DskEth_m_Rev_m_Cf (
   cell_MC10125 u_d17 (
     .p1(Vbb4),
     .p2(WriteInhibit_p_),
-    .p3(Vbb4),
+    .p3(1'b1),
     .p4(TriconD04_sil_pl_1),
     .p5(TriconD04_sil_pl_9),
     .p6(TagStrobe),
-    .p7(Vbb4),
+    .p7(1'b1),
     .p9(VCC_m_70),
     .p10(DisableRun),
-    .p11(Vbb5),
+    .p11(1'b1),
     .p12(TtlRunOK)
   ); // MC10125
   cell_MC10173 u_d18 (
@@ -3083,34 +3083,34 @@ module DskEth_m_Rev_m_Cf (
   ); // MC10173
   cell_MC10125 u_e22 (
     .p1(Vbb0),
-    .p2(Vbb0),
+    .p2(1'b0),
     .p3(ControlTag),
     .p4(TriconD04_sil_pl_8),
     .p5(TriconD04_sil_pl_7),
-    .p6(Vbb0),
+    .p6(1'b0),
     .p7(HeadTag),
     .p9(VCC_m_69),
-    .p10(Vbb0),
+    .p10(1'b0),
     .p11(CylinderTag),
     .p12(TriconD04_sil_pl_6),
     .p13(TriconD04_sil_pl_5),
-    .p14(Vbb0),
+    .p14(1'b0),
     .p15(DriveTag)
   ); // MC10125
   cell_MC10125 u_e23 (
     .p1(Vbb1),
-    .p2(Vbb1),
+    .p2(1'b0),
     .p3(Tag_1),
     .p4(TtlTag_1),
     .p5(TtlTag_0),
-    .p6(Vbb1),
+    .p6(1'b0),
     .p7(Tag_0),
     .p9(VCC_m_69),
-    .p10(Vbb1),
+    .p10(1'b0),
     .p11(Tag_00),
     .p12(TtlTag_00),
     .p13(TtlTag_000),
-    .p14(Vbb1),
+    .p14(1'b0),
     .p15(Tag_000)
   ); // MC10125
   cell_MU10164 u_e24 (
@@ -3388,35 +3388,35 @@ module DskEth_m_Rev_m_Cf (
   ); // MC10173
   cell_MC10125 u_f22 (
     .p1(Vbb2),
-    .p2(Vbb2),
+    .p2(1'b0),
     .p3(Tag_5),
     .p4(TtlTag_5),
     .p5(TtlTag_4),
-    .p6(Vbb2),
+    .p6(1'b0),
     .p7(Tag_4),
     .p9(VCC_m_65),
-    .p10(Vbb2),
+    .p10(1'b0),
     .p11(Tag_3),
     .p12(TtlTag_3),
     .p13(TtlTag_2),
-    .p14(Vbb2),
+    .p14(1'b0),
     .p15(Tag_2),
     .p16(GND_m_23)
   ); // MC10125
   cell_MC10125 u_f23 (
     .p1(Vbb3),
-    .p2(Vbb3),
+    .p2(1'b0),
     .p3(Tag_9),
     .p4(TtlTag_9),
     .p5(TtlTag_8),
-    .p6(Vbb3),
+    .p6(1'b0),
     .p7(Tag_8),
     .p9(VCC_m_65),
-    .p10(Vbb3),
+    .p10(1'b0),
     .p11(Tag_7),
     .p12(TtlTag_7),
     .p13(TtlTag_6),
-    .p14(Vbb3),
+    .p14(1'b0),
     .p15(Tag_6)
   ); // MC10125
   cell_MU10164 u_f24 (
@@ -4031,18 +4031,18 @@ module DskEth_m_Rev_m_Cf (
   ); // MC10176
   cell_MC10125 u_h18 (
     .p1(Vbb6),
-    .p2(Vbb6),
+    .p2(1'b0),
     .p3(TxOff),
     .p4(Ether08_sil_pl_7),
     .p5(Ether08_sil_pl_6),
     .p6(TxCRCEnbl),
-    .p7(Vbb6),
+    .p7(1'b1),
     .p9(VCC_m_59),
     .p10(TxCRCClk),
-    .p11(Vbb6),
+    .p11(1'b1),
     .p12(Ether08_sil_pl_19),
     .p13(Ether08_sil_pl_5),
-    .p14(Vbb6),
+    .p14(1'b0),
     .p15(TxData)
   ); // MC10125
   cell_MU10164 u_h19 (
@@ -4802,18 +4802,18 @@ module DskEth_m_Rev_m_Cf (
   ); // MC10102
   cell_MC10125 u_k06 (
     .p1(Vbb7),
-    .p2(Vbb7),
+    .p2(1'b0),
     .p3(RxCRCReset),
     .p4(Ether04_sil_pl_10),
     .p5(Ether04_sil_pl_16),
-    .p6(Vbb7),
+    .p6(1'b0),
     .p7(RxCRCClk),
     .p9(VCC_m_54),
-    .p10(Vbb7),
+    .p10(1'b0),
     .p11(RxData),
     .p12(Ether04_sil_pl_9),
     .p13(Ether11_sil_pl_2),
-    .p14(Vbb7),
+    .p14(1'b0),
     .p15(Ether11_sil_pl_4)
   ); // MC10125
   cell_MC10135 u_k07 (

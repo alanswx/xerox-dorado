@@ -3223,19 +3223,19 @@ module DispY_m_Rev_m_Cl (
   ); // MC1660
   cell_MC10125 u_h01 (
     .p1(VBB1),
-    .p2(VBB1),
+    .p2(1'b0),
     .p3(CSync),
     .p4(ttlCSync),
     .p5(ttlHSync_p_),
     .p6(HSync),
-    .p7(VBB1),
+    .p7(1'b1),
     .p9(VCC97),
-    .p10(VBB1),
+    .p10(1'b0),
     .p11(AltoVideo),
     .p12(ttlVideo),
     .p13(ttlVSync),
     .p14(VSync_p_),
-    .p15(VBB1)
+    .p15(1'b1)
   ); // MC10125
   cell_F10145A u_h02 (
     .sys_clk(sys_clk),

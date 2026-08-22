@@ -912,18 +912,18 @@ module msa (
   ); // MC10141
   cell_MC10125 u_a02 (
     .p1(VBBa2),
-    .p2(VBBa2),
+    .p2(1'b0),
     .p3(msa02_sil_pl_14),
     .p4(msa02_sil_pl_1),
     .p5(msa02_sil_pl_2),
-    .p6(VBBa2),
+    .p6(1'b0),
     .p7(msa02_sil_pl_8),
-    .p10(VBBa2),
+    .p10(1'b0),
     .p11(msa02_sil_pl_9),
     .p12(OutCKa),
     .p13(EnabOuta),
     .p14(msa01_sil_pl_17),
-    .p15(VBBa2)
+    .p15(1'b1)
   ); // MC10125
   cell_SN74S174 u_a03 (
     .sys_clk(sys_clk),
@@ -1269,18 +1269,18 @@ module msa (
   ); // SN74S174
   cell_MC10125 u_a25 (
     .p1(VBBa25),
-    .p2(VBBa25),
+    .p2(1'b0),
     .p3(msa02_sil_pl_15),
     .p4(msa02_sil_pl_4),
     .p5(msa02_sil_pl_3),
-    .p6(VBBa25),
+    .p6(1'b0),
     .p7(msa02_sil_pl_10),
-    .p10(VBBa25),
+    .p10(1'b0),
     .p11(msa02_sil_pl_11),
     .p12(OutCKb),
     .p13(EnabOutb),
     .p14(msa01_sil_pl_17),
-    .p15(VBBa25)
+    .p15(1'b1)
   ); // MC10125
   cell_MC10141 u_a26 (
     .sys_clk(sys_clk),
@@ -1306,17 +1306,17 @@ module msa (
   ); // MC10176
   cell_MC10125 u_b02 (
     .p1(VBBb),
-    .p2(VBBb),
+    .p2(1'b0),
     .p3(msa04_sil_pl_32),
     .p4(msa04_sil_pl_8),
     .p5(msa04_sil_pl_21),
-    .p6(VBBb),
+    .p6(1'b0),
     .p7(msa04_sil_pl_33),
-    .p10(VBBb),
+    .p10(1'b0),
     .p11(msa05_sil_pl_30),
     .p12(msa05_sil_pl_8),
     .p13(msa05_sil_pl_21),
-    .p14(VBBb),
+    .p14(1'b0),
     .p15(msa05_sil_pl_38)
   ); // MC10125
   cell_SN74S174 u_b03 (
@@ -1677,17 +1677,17 @@ module msa (
   ); // SN74S174
   cell_MC10125 u_b25 (
     .p1(VBBd),
-    .p2(VBBd),
+    .p2(1'b0),
     .p3(msa06_sil_pl_35),
     .p4(msa06_sil_pl_21),
     .p5(msa06_sil_pl_8),
-    .p6(VBBd),
+    .p6(1'b0),
     .p7(msa06_sil_pl_34),
-    .p10(VBBd),
+    .p10(1'b0),
     .p11(msa07_sil_pl_30),
     .p12(msa07_sil_pl_8),
     .p13(msa07_sil_pl_21),
-    .p14(VBBd),
+    .p14(1'b0),
     .p15(msa07_sil_pl_31)
   ); // MC10125
   cell_MC10176 u_b26 (
@@ -2102,13 +2102,13 @@ module msa (
   ); // MC10176
   cell_MC10125 u_d01 (
     .p1(VBBk),
-    .p2(VBBk),
+    .p2(1'b0),
     .p3(msa03_sil_pl_1),
     .p4(RASa),
     .p5(CASa),
-    .p6(VBBk),
+    .p6(1'b0),
     .p7(msa03_sil_pl_2),
-    .p10(VBBk),
+    .p10(1'b0),
     .p11(msa03_sil_pl_5),
     .p12(WEa)
   ); // MC10125
@@ -2458,28 +2458,28 @@ module msa (
   ); // SN74S174
   cell_MC10125 u_d25 (
     .p1(VBBh),
-    .p2(VBBh),
+    .p2(1'b0),
     .p3(msa03_sil_pl_7),
     .p4(TtlA0),
     .p5(TtlA0_p_),
     .p6(msa03_sil_pl_8),
-    .p7(VBBh),
-    .p10(VBBh),
+    .p7(1'b1),
+    .p10(1'b0),
     .p11(MemAd_3),
     .p12(TtlA1),
     .p13(TtlA1_p_),
     .p14(MemAd_3),
-    .p15(VBBh)
+    .p15(1'b1)
   ); // MC10125
   cell_MC10125 u_d26 (
     .p1(VBBm),
-    .p2(VBBm),
+    .p2(1'b0),
     .p3(msa03_sil_pl_3),
     .p4(RASb),
     .p5(CASb),
-    .p6(VBBm),
+    .p6(1'b0),
     .p7(msa03_sil_pl_4),
-    .p10(VBBm),
+    .p10(1'b0),
     .p11(msa03_sil_pl_6),
     .p12(WEb)
   ); // MC10125
@@ -2846,18 +2846,18 @@ module msa (
   ); // SN74166
   cell_MC10125 u_e25 (
     .p1(VBBj),
-    .p2(VBBj),
+    .p2(1'b0),
     .p3(MemAd_4),
     .p4(TtlA2),
     .p5(TtlA2_p_),
     .p6(MemAd_4),
-    .p7(VBBj),
-    .p10(VBBj),
+    .p7(1'b1),
+    .p10(1'b0),
     .p11(MemAd_5),
     .p12(TtlA3),
     .p13(TtlA3_p_),
     .p14(MemAd_5),
-    .p15(VBBj)
+    .p15(1'b1)
   ); // MC10125
   cell_MC10176 u_f01 (
     .sys_clk(sys_clk),
@@ -2869,18 +2869,18 @@ module msa (
   ); // MC10176
   cell_MC10125 u_f02 (
     .p1(VBBa),
-    .p2(VBBa),
+    .p2(1'b0),
     .p3(msa12_sil_pl_33),
     .p4(msa12_sil_pl_3),
     .p5(msa12_sil_pl_12),
-    .p6(VBBa),
+    .p6(1'b0),
     .p7(msa12_sil_pl_34),
     .p10(ShiftLoad_p_),
-    .p11(VBBa),
+    .p11(1'b1),
     .p12(SLa),
     .p13(SLc),
     .p14(ShiftLoad_p_),
-    .p15(VBBa)
+    .p15(1'b1)
   ); // MC10125
   cell_SN74166 u_f03 (
     .sys_clk(sys_clk),
@@ -3220,18 +3220,18 @@ module msa (
   ); // SN74166
   cell_MC10125 u_f25 (
     .p1(VBBc),
-    .p2(VBBc),
+    .p2(1'b0),
     .p3(msa12_sil_pl_40),
     .p4(msa12_sil_pl_29),
     .p5(msa12_sil_pl_20),
-    .p6(VBBc),
+    .p6(1'b0),
     .p7(msa12_sil_pl_39),
     .p10(ShiftLoad_p_),
-    .p11(VBBc),
+    .p11(1'b1),
     .p12(SLb),
     .p13(SLd),
     .p14(ShiftLoad_p_),
-    .p15(VBBc)
+    .p15(1'b1)
   ); // MC10125
   cell_MC10176 u_f26 (
     .sys_clk(sys_clk),
@@ -4000,18 +4000,18 @@ module msa (
   ); // SN74S174
   cell_MC10125 u_h25 (
     .p1(VBBg),
-    .p2(VBBg),
+    .p2(1'b0),
     .p3(MemAd_6),
     .p4(TtlA4),
     .p5(TtlA4_p_),
     .p6(MemAd_6),
-    .p7(VBBg),
-    .p10(VBBg),
+    .p7(1'b1),
+    .p10(1'b0),
     .p11(MemAd_7),
     .p12(TtlA5),
     .p13(TtlA5_p_),
     .p14(MemAd_7),
-    .p15(VBBg)
+    .p15(1'b1)
   ); // MC10125
   cell_MC10210 u_h26 (
     .p2(msa01_sil_pl_12),
@@ -4024,13 +4024,13 @@ module msa (
   ); // MC10210
   cell_MC10125 u_i01 (
     .p1(VBBl),
-    .p2(VBBl),
+    .p2(1'b0),
     .p3(msa03_sil_pl_1),
     .p4(RASc),
     .p5(CASc),
-    .p6(VBBl),
+    .p6(1'b0),
     .p7(msa03_sil_pl_2),
-    .p10(VBBl),
+    .p10(1'b0),
     .p11(msa03_sil_pl_5),
     .p12(WEc)
   ); // MC10125
@@ -4403,22 +4403,22 @@ module msa (
   ); // SN74S174
   cell_MC10125 u_i25 (
     .p1(VBBi),
-    .p2(VBBi),
+    .p2(1'b0),
     .p3(MemAd_8),
     .p4(TtlA6),
     .p5(TtlA6_p_),
     .p6(MemAd_8),
-    .p7(VBBi)
+    .p7(1'b1)
   ); // MC10125
   cell_MC10125 u_i26 (
     .p1(VBBn),
-    .p2(VBBn),
+    .p2(1'b0),
     .p3(msa03_sil_pl_3),
     .p4(RASd),
     .p5(CASd),
-    .p6(VBBn),
+    .p6(1'b0),
     .p7(msa03_sil_pl_4),
-    .p10(VBBn),
+    .p10(1'b0),
     .p11(msa03_sil_pl_6),
     .p12(WEd)
   ); // MC10125
@@ -4824,32 +4824,32 @@ module msa (
   ); // MC10176
   cell_MC10125 u_k02 (
     .p1(VBBe),
-    .p2(VBBe),
+    .p2(1'b0),
     .p3(msa08_sil_pl_35),
     .p4(msa08_sil_pl_21),
     .p5(msa08_sil_pl_8),
-    .p6(VBBe),
+    .p6(1'b0),
     .p7(msa08_sil_pl_34),
-    .p10(VBBe),
+    .p10(1'b0),
     .p11(msa09_sil_pl_30),
     .p12(msa09_sil_pl_8),
     .p13(msa09_sil_pl_21),
-    .p14(VBBe),
+    .p14(1'b0),
     .p15(msa09_sil_pl_31)
   ); // MC10125
   cell_MC10125 u_k25 (
     .p1(VBBf),
-    .p2(VBBf),
+    .p2(1'b0),
     .p3(msa10_sil_pl_35),
     .p4(msa10_sil_pl_21),
     .p5(msa10_sil_pl_8),
-    .p6(VBBf),
+    .p6(1'b0),
     .p7(msa10_sil_pl_34),
-    .p10(VBBf),
+    .p10(1'b0),
     .p11(msa11_sil_pl_30),
     .p12(msa11_sil_pl_8),
     .p13(msa11_sil_pl_21),
-    .p14(VBBf),
+    .p14(1'b0),
     .p15(msa11_sil_pl_31)
   ); // MC10125
   cell_MC10176 u_k26 (

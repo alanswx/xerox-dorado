@@ -530,45 +530,52 @@
 //      through MC10124 TTL-to-ECL translators at e17 and e10 -- so MapWP and
 //      MapDirty are literally the stored bits.)
 //
-//   6. AND THE MAP READ PATH IS STROBED OFF BY ONE NET, `THi`. Writing a
-//      map entry would not have helped: the entry never reaches the logic.
+//   6. FIXED -- THE MAP READ PATH WAS STROBED OFF BY ONE NET, AND VBB WAS
+//      WHY. Writing a map entry would not have helped: the entry never
+//      reached the logic.
 //
 //      Measured, in order: the map array IS strobed (RAS' 31 edges, CAS' 21,
 //      the read condition on 579 of 3000 cycles) and its output IS live
-//      (`u_a04.p14` = 1, `u_d11.p14` = 1, and the nets they drive,
-//      `MemX13.sil+13` and `MemX13.sil+3`, both read 1). Preloading all 21
-//      bit planes changes NOTHING downstream -- MapWP', MapDirty' and
-//      MapEven' stay exactly as they were.
+//      (`u_a04.p14` = 1, `u_d11.p14` = 1, and the nets they drive read 1).
+//      Preloading all 21 bit planes changed NOTHING downstream. So the break
+//      was after the array.
 //
-//      The break is the MC10124 TTL-to-ECL translators. `cell_MC10124` is
-//      right -- `p12 = ~(p10 & p6)` -- and PIN 6 IS THE COMMON STROBE, which
-//      the data book describes exactly: "when the common strobe input is at
-//      the low logic level, it forces all true outputs to a MECL low logic
-//      state and all inverting outputs to a MECL high logic state". That is
-//      precisely what we see: MapDirty' and MapWP' both stuck HIGH.
+//      It was the MC10124 TTL-to-ECL translators. `cell_MC10124` is right --
+//      `p12 = ~(p10 & p6)` -- and PIN 6 IS THE COMMON STROBE, which the data
+//      book describes exactly: "when the common strobe input is at the low
+//      logic level, it forces all true outputs to a MECL low logic state and
+//      all inverting outputs to a MECL high logic state". Which is precisely
+//      what we saw: MapDirty' and MapWP' both stuck HIGH.
 //
-//      That strobe is `THi`, and it feeds pin 6 of FIVE MC10124s -- b06,
-//      b09, b12, e07, e10 -- i.e. THE WHOLE MAP READ PATH. It comes from
-//      e15, an MC10125, as `THi = p15 & ~p14` where pin 15 is `VBBe15` and
-//      pin 14 IS OPEN.
+//      That strobe is `THi`, feeding pin 6 of FIVE MC10124s -- b06, b09,
+//      b12, e07, e10 -- the whole map read path. It comes from e15, an
+//      MC10125, as `THi = p15 & ~p14`, pin 15 being `VBBe15` and pin 14 OPEN.
 //
-//      `VBB` IS THE ECL BIAS REFERENCE -- the switching threshold, not a
-//      logic signal. Physically, VBB against an OPEN input (which sits at
-//      VEE, i.e. low) reads HIGH, which is how this channel manufactures a
-//      constant TTL high; the net is even named for it. Our model has the
-//      undriven bias net at 0, so THi is 0 and the map is strobed off.
+//      `VBB` IS THE ECL SWITCHING THRESHOLD, not a logic signal, and all 39
+//      VBB nets in the machine have ZERO drivers. A differential pair with
+//      VBB on one side follows the OTHER side, so VBB must LOSE to a real
+//      signal and BEAT an open pin -- and the EclDict roles already
+//      distinguish the two: `common` (EclDict's `c`) is the complement
+//      input, where VBB reads 0 so the true input decides, and `in` is the
+//      true input, where it reads 1 against an open complement. A single
+//      constant per NET cannot do this, because one VBB net reaches both
+//      sides: on e15, channel a has VBB on `common` with a real signal
+//      opposite, while channel d has VBB on `in` with an open complement and
+//      MANUFACTURES THE CONSTANT TTL HIGH.
 //
-//      THE FIX IS PER-PIN, NOT PER-NET, and that is why it is not applied
-//      here. One VBB net reaches both sides of these differential pairs: on
-//      e15 channel a it is the INVERTING input (p4 = p3 & ~p2, p2 = VBB)
-//      where it must read 0 so the real signal decides, and on channel d it
-//      is the TRUE input where it must read 1. A single constant cannot do
-//      both. The rule that IS right -- "VBB loses to a real signal and beats
-//      an open pin" -- belongs in the generator beside OVERRIDE_DRIVERS and
-//      WEAK_PORT_DRIVERS, which already resolve this class per net. Note
-//      this is the same family as the IFU's `TTLHigh` sitting at 0, which
-//      the sip_drives fix caught earlier; 41 MC10124 packages are affected,
-//      so it wants its own gate.
+//      The rule is in the generator now, beside OVERRIDE_DRIVERS and
+//      WEAK_PORT_DRIVERS, and it is gated here: `THi` must be high on every
+//      cycle, and the map outputs must actually vary. Reverting the rule is
+//      caught. With it, MapWP' and MapDirty' go low on 2434 samples where
+//      they were stuck at 0 before. All 29 gates stay green across the
+//      machine-wide change.
+//
+//   7. STILL OPEN, and now a CONTENT question rather than a wiring one.
+//      MapTrouble is still asserted, but the blocked group has MOVED: with
+//      MapWP' and MapDirty' both LOW, group 2 -- (MapWP' | MapDirty' |
+//      ROWIM') -- is now 0. The map entry's actual VALUE decides this, and
+//      the array is uninitialised. So task 14 is live at last: write a real
+//      entry, with correct parity, for the referenced address.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -708,7 +715,7 @@ module tb_memrun;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [2:0] mapst_now; reg [1:0] mapfn_now;
   reg mapst_hit [0:7]; reg mapfn_hit [0:3];
-  integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nrw, nwp, ndty, nevn, nckw, nprf, nmt, nmtp, nmras, nmcas, nmrd, nmwr;
+  integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nrw, nwp, ndty, nevn, nckw, nprf, nthi, nmt, nmtp, nmras, nmcas, nmrd, nmwr;
   reg pmras, pmcas;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd;
   reg tnia_hit [0:4095];
@@ -1739,7 +1746,7 @@ module tb_memrun;
     nldp=0; pldp=m.b_MemC.LdPair_p_;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
-    nmapst=0; nmapfn=0; npsm2=0; nsm2=0; nload=0; ncnt=0; nd0=0; nwim=0; nx10=0; nmti=0; nrw=0; nwp=0; ndty=0; nevn=0; nckw=0; nprf=0; nmt=0; nmtp=0;
+    nmapst=0; nmapfn=0; npsm2=0; nsm2=0; nload=0; ncnt=0; nd0=0; nwim=0; nx10=0; nmti=0; nrw=0; nwp=0; ndty=0; nevn=0; nckw=0; nprf=0; nthi=0; nmt=0; nmtp=0;
     nmras=0; nmcas=0; nmrd=0; nmwr=0; pmras=m.b_MemX.u_a04.p4; pmcas=m.b_MemX.u_a04.p15;
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
     for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
@@ -1831,6 +1838,7 @@ module tb_memrun;
       if (!m.b_MemX.MapDirty_p_)         ndty = ndty + 1;
       if (!m.b_MemX.MapEven_p_)          nevn = nevn + 1;
       if (!m.b_MemX.CheckWP_p_)          nckw = nckw + 1;
+      if (m.b_MemX.THi)                  nthi = nthi + 1;
       // The FOURTH group of g14's OR-AND is (MapEven' | preRfshInMem | ROWIM').
       // MapEven' and ROWIM' are already low all run, so this term -- and with
       // it MapTrouble -- turns entirely on preRfshInMem.
@@ -1990,6 +1998,17 @@ module tb_memrun;
     $display("tb_memrun:   MapTrouble terms low on -- ReadOrWriteInMap' %0d, MapWP' %0d, MapDirty' %0d, MapEven' %0d, CheckWP' %0d of %0d",
              nrw, nwp, ndty, nevn, nckw, nsamp);
     $display("tb_memrun:   ...and the fourth term: preRfshInMem low on %0d of %0d", nprf, nsamp);
+    // GATE: THE MAP READ PATH IS NOT STROBED OFF. `THi` is a CONSTANT TTL
+    // HIGH manufactured by MemX e15 channel d -- VBB on the true input
+    // against an OPEN complement -- and it strobes pin 6 of five MC10124
+    // translators. Left at 0 (which is what an unmodelled VBB bias net gives)
+    // it holds every map output at its inactive level and MapTrouble asserts
+    // forever, whatever the map contains.
+    if (nthi !== nsamp)
+      $fatal(1, "THi must be a constant HIGH -- it strobes the whole map read path (high on %0d of %0d)",
+             nthi, nsamp);
+    if (nwp == 0 || ndty == 0)
+      $fatal(1, "the map outputs never varied -- the MC10124 translators are strobed off");
     $display("tb_memrun:   MAP ARRAY douts -- a04=%b d11=%b d13=%b | MemX13.sil+13=%b MemX13.sil+3=%b | MapDirty'=%b MapWP'=%b",
              m.b_MemX.u_a04.p14, m.b_MemX.u_d11.p14, m.b_MemX.u_d13.p14,
              m.b_MemX.MemX13_sil_pl_13, m.b_MemX.MemX13_sil_pl_3,

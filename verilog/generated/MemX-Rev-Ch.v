@@ -1748,19 +1748,19 @@ module MemX_m_Rev_m_Ch (
   ); // MU10164
   cell_MC10125 u_b05 (
     .p1(VBBb5),
-    .p2(VBBb5),
+    .p2(1'b0),
     .p3(Mapbuf_00),
     .p4(MemX12_sil_pl_5),
     .p5(MemX12_sil_pl_2),
-    .p6(VBBb5),
+    .p6(1'b0),
     .p7(Mapbuf_01),
     .p8(VEE_m_77),
     .p9(VCC_m_62),
-    .p10(VBBb5),
+    .p10(1'b0),
     .p11(Mapbuf_02),
     .p12(MemX12_sil_pl_7),
     .p13(MemX12_sil_pl_8),
-    .p14(VBBb5),
+    .p14(1'b0),
     .p15(Mapbuf_03),
     .p16(GND_m_42)
   ); // MC10125
@@ -1779,19 +1779,19 @@ module MemX_m_Rev_m_Ch (
   ); // MC10124
   cell_MC10125 u_b08 (
     .p1(VBBb8),
-    .p2(VBBb8),
+    .p2(1'b0),
     .p3(Mapbuf_04),
     .p4(MemX12_sil_pl_14),
     .p5(MemX12_sil_pl_17),
-    .p6(VBBb8),
+    .p6(1'b0),
     .p7(Mapbuf_05),
     .p8(VEE_m_70),
     .p9(VCC_m_60),
-    .p10(VBBb8),
+    .p10(1'b0),
     .p11(Mapbuf_06),
     .p12(MemX12_sil_pl_12),
     .p13(MemX13_sil_pl_10),
-    .p14(VBBb8),
+    .p14(1'b0),
     .p15(Mapbuf_15)
   ); // MC10125
   cell_MC10124 u_b09 (
@@ -1810,19 +1810,19 @@ module MemX_m_Rev_m_Ch (
   ); // MC10124
   cell_MC10125 u_b11 (
     .p1(VBBb11),
-    .p2(VBBb11),
+    .p2(1'b0),
     .p3(Mapbuf_07),
     .p4(MemX12_sil_pl_11),
     .p5(MemX12_sil_pl_21),
-    .p6(VBBb11),
+    .p6(1'b0),
     .p7(Mapbuf_08),
     .p8(VEE_m_66),
     .p9(VCC_m_59),
-    .p10(VBBb11),
+    .p10(1'b0),
     .p11(Mapbuf_09),
     .p12(MemX12_sil_pl_18),
     .p13(MemX12_sil_pl_23),
-    .p14(VBBb11),
+    .p14(1'b0),
     .p15(Mapbuf_10),
     .p16(GND_m_39)
   ); // MC10125
@@ -1841,18 +1841,18 @@ module MemX_m_Rev_m_Ch (
   ); // MC10124
   cell_MC10125 u_b15 (
     .p1(VBBb15),
-    .p2(VBBb15),
+    .p2(1'b0),
     .p3(MapCAS_p_),
     .p4(TMapCAS_p_b),
     .p5(TMapCAS_p_a),
-    .p6(VBBb15),
+    .p6(1'b0),
     .p7(MapCAS_p_),
     .p9(VCC_m_47),
-    .p10(VBBb15),
+    .p10(1'b0),
     .p11(MapRAS_p_),
     .p12(TMapRAS_p_b),
     .p13(TMapRAS_p_a),
-    .p14(VBBb15),
+    .p14(1'b0),
     .p15(MapRAS_p_)
   ); // MC10125
   cell_MU10164 u_b18 (
@@ -2026,54 +2026,54 @@ module MemX_m_Rev_m_Ch (
   ); // SE10210
   cell_MC10125 u_c13 (
     .p1(VBBc13),
-    .p2(VBBc13),
+    .p2(1'b0),
     .p3(DirtyWE_p_),
     .p4(TDirtyWE_p_),
     .p5(TRefWE_p_),
-    .p6(VBBc13),
+    .p6(1'b0),
     .p7(MemX14_sil_pl_11),
     .p8(VEE_m_75),
     .p9(VCC_m_56),
-    .p10(VBBc13),
+    .p10(1'b0),
     .p11(MapWE_p_),
     .p12(TMapWE_p_b),
     .p13(TMapWE_p_a),
-    .p14(VBBc13),
+    .p14(1'b0),
     .p15(MapWE_p_)
   ); // MC10125
   cell_MC10125 u_c14 (
     .p1(VBBc14),
-    .p2(VBBc14),
+    .p2(1'b0),
     .p3(MemX15_sil_pl_2),
     .p4(TMapAd_0a),
     .p5(TMapAd_0b),
-    .p6(VBBc14),
+    .p6(1'b0),
     .p7(MemX15_sil_pl_2),
     .p8(VEE_m_75),
     .p9(VCC_m_55),
-    .p10(VBBc14),
+    .p10(1'b0),
     .p11(MemX15_sil_pl_3),
     .p12(TMapAd_1a),
     .p13(TMapAd_1b),
-    .p14(VBBc14),
+    .p14(1'b0),
     .p15(MemX15_sil_pl_3),
     .p16(GND_m_1)
   ); // MC10125
   cell_MC10125 u_c15 (
     .p1(VBBc15),
-    .p2(VBBc15),
+    .p2(1'b0),
     .p3(MemX15_sil_pl_5),
     .p4(TMapAd_2a),
     .p5(TMapAd_2b),
-    .p6(VBBc15),
+    .p6(1'b0),
     .p7(MemX15_sil_pl_5),
     .p8(VEE_m_75),
     .p9(VCC_m_55),
-    .p10(VBBc15),
+    .p10(1'b0),
     .p11(MemX15_sil_pl_4),
     .p12(TMapAd_3a),
     .p13(TMapAd_3b),
-    .p14(VBBc15),
+    .p14(1'b0),
     .p15(MemX15_sil_pl_4),
     .p16(GND_m_1)
   ); // MC10125
@@ -2542,18 +2542,18 @@ module MemX_m_Rev_m_Ch (
   ); // MC10171
   cell_MC10125 u_e04 (
     .p1(VBBe4),
-    .p2(VBBe4),
+    .p2(1'b0),
     .p3(Mapbuf_11),
     .p4(MemX12_sil_pl_24),
     .p5(MemX13_sil_pl_7),
-    .p6(VBBe4),
+    .p6(1'b0),
     .p7(Mapbuf_12),
     .p9(VCC_m_54),
-    .p10(VBBe4),
+    .p10(1'b0),
     .p11(Mapbuf_13),
     .p12(MemX13_sil_pl_4),
     .p13(MemX13_sil_pl_9),
-    .p14(VBBe4),
+    .p14(1'b0),
     .p15(Mapbuf_14)
   ); // MC10125
   cell_MC10174 u_e05 (
@@ -2585,20 +2585,20 @@ module MemX_m_Rev_m_Ch (
   ); // MC10124
   cell_MC10125 u_e09 (
     .p1(VBBe9),
-    .p2(VBBe9),
+    .p2(1'b0),
     .p3(MapbufHi_0),
     .p4(MemX13_sil_pl_14),
     .p5(MemX13_sil_pl_16),
-    .p6(VBBe9),
+    .p6(1'b0),
     .p7(Map_u_InMap_p_),
     .p8(VEE_m_67),
     .p9(VCC_m_46),
-    .p10(VBBe9),
+    .p10(1'b0),
     .p11(MemX13_sil_pl_20),
     .p12(MemX13_sil_pl_2),
     .p13(MemX13_sil_pl_18),
     .p14(MemX13_sil_pl_19),
-    .p15(VBBe9)
+    .p15(1'b1)
   ); // MC10125
   cell_MC10124 u_e10 (
     .p1(MapDirtyb),
@@ -2649,53 +2649,53 @@ module MemX_m_Rev_m_Ch (
   ); // MC10170
   cell_MC10125 u_e13 (
     .p1(VBBe13),
-    .p2(VBBe13),
+    .p2(1'b0),
     .p3(MemX15_sil_pl_6),
     .p4(TMapAd_6a),
     .p5(TMapAd_6b),
-    .p6(VBBe13),
+    .p6(1'b0),
     .p7(MemX15_sil_pl_6),
     .p8(VEE_m_71),
     .p9(VCC_m_51),
-    .p10(VBBe13),
+    .p10(1'b0),
     .p11(MemX15_sil_pl_7),
     .p12(TMapAd_7a),
     .p13(TMapAd_7b),
-    .p14(VBBe13),
+    .p14(1'b0),
     .p15(MemX15_sil_pl_7)
   ); // MC10125
   cell_MC10125 u_e14 (
     .p1(VBBe14),
-    .p2(VBBe14),
+    .p2(1'b0),
     .p3(MemX15_sil_pl_9),
     .p4(TMapAd_4a),
     .p5(TMapAd_4b),
-    .p6(VBBe14),
+    .p6(1'b0),
     .p7(MemX15_sil_pl_9),
     .p8(VEE_m_73),
     .p9(VCC_m_50),
-    .p10(VBBe14),
+    .p10(1'b0),
     .p11(MemX15_sil_pl_8),
     .p12(TMapAd_5a),
     .p13(TMapAd_5b),
-    .p14(VBBe14),
+    .p14(1'b0),
     .p15(MemX15_sil_pl_8)
   ); // MC10125
   cell_MC10125 u_e15 (
     .p1(VBBe15),
-    .p2(VBBe15),
+    .p2(1'b0),
     .p3(MemX15_sil_pl_10),
     .p4(TMapAd_8a),
     .p5(TMapAd_8b),
-    .p6(VBBe15),
+    .p6(1'b0),
     .p7(MemX15_sil_pl_10),
     .p8(VEE_m_73),
     .p9(VCC_m_45),
     .p10(WriteInMap_p_),
-    .p11(VBBe15),
+    .p11(1'b1),
     .p12(MemX14_sil_pl_10),
     .p13(THi),
-    .p15(VBBe15)
+    .p15(1'b1)
   ); // MC10125
   cell_F10145A u_e16 (
     .sys_clk(sys_clk),
