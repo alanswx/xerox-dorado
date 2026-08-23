@@ -1274,3 +1274,50 @@ seeded data, NOT against the C emulator. `memory.c` is a functional model with
 no bit-serial storage path, so there is nothing at this level to diff it
 against; the C cross-check that does exist for the memory front door is
 `refdecode-test`, against `cpu.c`'s reference-kind rule.
+
+### The return path reaches the processor (2026-08-23)
+
+The other half of the reference. `readback-test` now also carries a word from
+the CACHE to `Md`, the register microcode actually reads.
+
+The path, every hop off the wire lists:
+
+```
+SinD -> b03/k22/f16 (MU10164 muxes) -> D0in/D1in
+     -> 72 x F10470 = the cache data memory, 36 of them driving D.00-17
+        two per bit (the columns wire-OR)
+     -> h05 (MC10197 hex AND, common strobe MD_D) -> dMD.00-17     [MemD]
+     -> i01 (MC10175) -> Md.00-17          [ProcH bits 0-7,16; ProcL 8-15,17]
+```
+
+Two structural facts worth keeping:
+
+- **`Dbuf` is NOT the cache read data.** MemD b01 takes `BMux` IN and gives
+  `Dbuf` OUT, and b02 muxes `Dbuf`/`Pipe4` back ONTO `BMux` under
+  `DriveBMux' = NOR(_Pipe4, _Dbuf)`. That is the diagnostic re-drive path for
+  `B<-Dbuf` / `B<-Pipe4`, not the memory data return. Following `BMux` looked
+  promising and was a dead end.
+- **`MD_D` selects the MD source**, and the two enables are complementary:
+  h05 (the cache data) is enabled when it is high, h04 -- an F10145A, the
+  small MD register memory addressed by `MDMad.0-3'` -- when it is low.
+
+**How it is gated.** The cache is seeded the same way the DRAM is: every one
+of the 4096 cells of all 36 D-driving F10470s gets that bit's value, so the
+cache answers the same word at every address and the return path can be gated
+without first landing a fill at a known address. With `MD_D` asserted, the
+16-bit data word matched on **176 of 176** samples at `dMD` and **160 of 176**
+at `Md` -- the 16 difference is i01's register latency, since `Md` lags `dMD`
+by a clock. Bits 16-17 are parity, which the board generates rather than
+passes through, so they are counted separately.
+
+**Why this one matters beyond the memory section:** `Md` is what microcode
+reads (`T<-Md`, `B<-Md`) and what `cpu.c` models directly, so it is the first
+memory result the two models express in the same terms.
+
+**Diagnosis note.** Before the cache was seeded, `D.00` was high on 165
+samples and `MD_D` on 176, and `dMD.00` was dead. Both inputs live and the
+output dead means one thing: COUNT THE COINCIDENCE. It was zero -- h05 is an
+AND, and the cache simply held 0 at the addresses `MD_D` strobed.
+
+Mutation-tested: inverting one bit of the cache seed, forcing the MC10197
+outputs low, and making the MC10197 ignore its common strobe are all caught.
