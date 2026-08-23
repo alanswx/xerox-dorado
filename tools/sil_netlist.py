@@ -95,17 +95,34 @@ def read_xerox_text(path: str) -> list[str]:
 # processor at all.
 #
 # CASE-INSENSITIVE MATCHING WOULD BE WRONG, which is why this is a table.
-# Among backplane nets there are nine case-variant groups and THREE sit on
-# DIFFERENT pins -- `CLKEnable'a` (C16) vs `ClkEnable'a` (C8), `IOIn'` (E70) vs
-# `IOin'` (E71), `IOOut'` (E71) vs `IOout'` (E74). Those are separate lines
-# that merely look alike. Outside the backplane it would be far worse: 63 net
+# Among backplane nets there are TEN case-variant groups and THREE do not
+# agree on a pin: `CLKEnable'a` (C16) vs `ClkEnable'a` (C8), and the two IO
+# pairs. Those are separate lines that merely look alike.
+#
+# THE TWO IO GROUPS ARE SUBTLER THAN THIS COMMENT USED TO CLAIM, and
+# `--case-variants` reading the .bp files directly is what corrected it. It
+# said "`IOIn'` (E70) vs `IOin'` (E71), `IOOut'` (E71) vs `IOout'` (E74)",
+# which has the first pair backwards and hides the real shape. Measured:
+#
+#     IOIn'   DispM, DispY            E71
+#     IOin'   DskEth, Music           E71   <- SAME pin as IOIn'
+#     IOin'   ProcL                   E70   <- the odd one
+#     IOOut'  DispM, DispY            E74
+#     IOout'  DskEth, IOTest, Music   E74   <- SAME pin as IOOut'
+#     IOout'  ProcL                   E71   <- the odd one
+#
+# So the spellings mostly AGREE; it is PROCL that sits on different pins from
+# everyone else. The group still must not be merged -- three pins are in play
+# -- but not for the reason the comment gave. Outside the backplane it would be far worse: 63 net
 # names differ only by case, mostly per-board LOCAL clock fan-out such as
 # `Clk0'Aa` on MemX against `clk0'Aa` on IFU, and merging those would tie every
 # board's clock distribution together.
 #
 # So the rule is narrow: merge a case variant ONLY where every board that uses
-# it agrees on the pin. That yields exactly these six. No board carries both
-# spellings, so the rename cannot collide with a local net.
+# it agrees on the pin. That yields exactly these SEVEN -- six, plus
+# `ChipsAre64k` which only came into view when the MSA was first wired into a
+# machine. No board carries both spellings, so the rename cannot collide with
+# a local net.
 # `tools/sil_backplane.py --case-variants` re-derives the list from the .bp
 # files and fails if it no longer matches.
 BACKPLANE_CASE_ALIASES = {
@@ -115,7 +132,23 @@ BACKPLANE_CASE_ALIASES = {
     'Subtask.0':     'SubTask.0',     #      MemX <-> ProcL, DispY
     'Subtask.1':     'SubTask.1',     #      MemX <-> ProcL
     'FoutSubtask.0': 'FoutSubTask.0', #      MemX <-> DispY
+    # Found when the MSA was first wired into a machine (2026-08-23). MemX
+    # spells it `ChipsAre64K` and the storage board `ChipsAre64k`; both sit on
+    # backplane pin E55, so they are ONE WIRE and the case rule applies
+    # exactly as it does above.
+    'ChipsAre64k':   'ChipsAre64K',   # E55  msa <-> MemX
 }
+
+
+# NOT a case variant, and so NOT merged here: MemX's `ChipsAre256/16K` and the
+# MSA's `ChipsAre16k` are both on pin E54 and are plainly the same signal --
+# "the storage is built from 16K chips" -- but they differ by more than
+# capitalisation, and this table's whole discipline is that a NAME is the
+# connection. PcMsa puts a third name on the same pin (`ChipsAreA`, with
+# `ChipsAreB` on E55), which is what a pin-based merge would have to
+# reconcile, and this backplane has already shown that one pin position
+# carries different signals on different boards. Recorded as evidence, not
+# acted on: see docs/verilog-handoff.md.
 
 
 # THE TASK WAKEUPS ARE ROUTED BY A BACKPLANE JUMPER, not by matching names or

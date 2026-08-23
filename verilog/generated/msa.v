@@ -25,7 +25,7 @@ module msa (
     input  wire CLK_ms0Even_p_,
     input  wire ChipsAre16k,
     input  wire ChipsAre4k,
-    input  wire ChipsAre64k,
+    input  wire ChipsAre64K,
     input  wire EcOut_0,
     input  wire EcOut_1,
     input  wire EcOut_4,

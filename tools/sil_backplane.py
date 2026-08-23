@@ -659,6 +659,64 @@ def to_json(path: str) -> int:
     return 0
 
 
+
+def case_variants() -> int:
+    """Re-derive BACKPLANE_CASE_ALIASES from the .bp files.
+
+    The rule the table states is narrow: merge a case variant ONLY where every
+    board that uses it agrees on the pin. That is checkable, so check it --
+    the table's own comment promised this flag long before the flag existed.
+
+    NOTE it must read the .bp files RAW. `load_backplane()` returns names that
+    have already been through `canon_net`, so every variant this is looking
+    for has been merged away by the time it returns; a first attempt used it
+    and pronounced all seven aliases stale, including `PrHold` -> `PRhold`,
+    which the wire lists document with three pins of evidence.
+    """
+    from sil_netlist import BACKPLANE_CASE_ALIASES
+    where: dict[str, dict[str, set]] = {}
+    for d in sorted(os.listdir(SIL)):
+        p = os.path.join(SIL, d)
+        if not os.path.isdir(p):
+            continue
+        for f in sorted(os.listdir(p)):
+            if not f.endswith('.bp'):
+                continue
+            bd = f[:-3].split('-Rev')[0]
+            for ln in _text(os.path.join(p, f)):
+                m = re.match(r'^\s*(\S+):\s*([CE]\d+)\s*$', ln)
+                if m:
+                    net, pin = m.group(1), m.group(2)
+                    where.setdefault(net.lower(), {}).setdefault(net, set()).add((bd, pin))
+    same, diff = {}, {}
+    for low, spellings in where.items():
+        if len(spellings) < 2:
+            continue
+        pins = {pin for uses in spellings.values() for _, pin in uses}
+        (same if len(pins) == 1 else diff)[low] = (spellings, pins)
+    print(f'{len(same) + len(diff)} case-variant group(s) among backplane nets:')
+    print(f'  {len(same)} agree on the pin  -> mergeable')
+    print(f'  {len(diff)} sit on DIFFERENT pins -> separate lines, must NOT merge')
+    for low, (spellings, pins) in sorted(diff.items()):
+        print('     ' + ' vs '.join(
+            f'{n} ({sorted(pin for _, pin in u)[0]})' for n, u in sorted(spellings.items())))
+    ok = True
+    for low, (spellings, pins) in sorted(same.items()):
+        names = sorted(spellings)
+        mapped = {BACKPLANE_CASE_ALIASES.get(n, n) for n in names}
+        if len(mapped) != 1:
+            ok = False
+            print(f'  MISSING alias: {" / ".join(names)} share pin '
+                  f'{next(iter(pins))} but canon to {sorted(mapped)}')
+    for src, dst in sorted(BACKPLANE_CASE_ALIASES.items()):
+        if src.lower() not in same:
+            ok = False
+            print(f'  STALE alias: {src} -> {dst} is not a same-pin case variant')
+    print('case-variants: table agrees with the .bp files' if ok
+          else 'case-variants: TABLE DISAGREES with the .bp files')
+    return 0 if ok else 1
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(
         description=__doc__,
@@ -672,6 +730,8 @@ def main(argv: list[str]) -> int:
                     help='which boards to instantiate (default: a working '
                          'monochrome machine, ' + ' '.join(DEFAULT_MACHINE))
     ap.add_argument('--module', default='dorado_backplane')
+    ap.add_argument('--case-variants', action='store_true',
+                    help="re-derive BACKPLANE_CASE_ALIASES from the .bp files")
     args = ap.parse_args(argv[1:])
     if args.emit:
         names = ([b.strip() for b in args.boards.split(',') if b.strip()]
@@ -681,6 +741,8 @@ def main(argv: list[str]) -> int:
         return to_json(args.json)
     if args.ports:
         return ports()
+    if args.case_variants:
+        return case_variants()
     return report()
 
 
