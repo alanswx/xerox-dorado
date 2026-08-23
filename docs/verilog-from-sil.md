@@ -48,6 +48,40 @@ in IM. What turns an opcode into a microcode entry point is this board, and
 `IFUJump` consumes what it produces. No emulator microcode dispatches without
 it, so no world runs without it.
 
+## IFUM decoded, and what the gate does NOT prove (2026-08-23)
+
+The IFUM write and read paths are mapped off the wire list:
+
+```
+address   {InstrSet.0a, InstrSet.1a, J.0a..J.7a}    2 bits of instruction set
+                                                    + 8 of opcode = 1024
+write     RcvdBMux.NN -> pin 15, enabled by DecHi_'/DecLo_' (IFU c21)
+                                        -- the two halves of `<-IFUM`
+read      pin 1 of each of the 27 packages
+```
+
+and those 27 outputs **are** HM Table 18's entry fields: `TypeJumpK'`,
+`TypePauseK'`, `LengthK.0'/.1'`, `RBaseSelK'`, `MemBK.0`/`MemBK34`, `NK.0/.1`,
+`SignK`, `TwoAlphaK`, and `InstrAddrK.2'/.3'` -- the microcode entry address
+the emulator jumps to.
+
+`ifu-test` now also fills the array and watches those move: **all-zero gives a
+decode of `00000`, all-one gives `11111`**. Mutation-tested -- breaking the
+F10415A read is caught.
+
+**AND THE GATE SAYS WHAT IT DOES NOT PROVE.** Nothing is driving the IFU to
+fetch yet, so the machine holds `{InstrSet, J}` at zero: **1 distinct address
+across 2000 samples**. The per-location check that follows is therefore a
+consistency check against the array, NOT proof that decoding works -- a
+stuck-at-zero address would pass it identically, and the gate prints the
+distinct-address count and says so rather than letting the PASS imply more
+than it earned.
+
+**The next rung is what makes the address move**: the IFU prefetching against
+base register 31, and `IFUJump` consuming the entry. The C emulator is the
+oracle -- it can dump the expected IFUM entry and entry point for a given
+opcode, the way `alu-diff` and `boot0-test` compare against `cpu.c`.
+
 ## The clock generator is a PHASE COUNTER now (2026-08-23)
 
 `cell_CLOCKGEN` replaces seven BaseBoard packages -- h06 (the MPQ3303 VCO),
