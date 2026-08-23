@@ -315,6 +315,24 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
     tb_memrun__DOT__nvc_coin = 0;
     IData/*31:0*/ tb_memrun__DOT__nvc_coin2;
     tb_memrun__DOT__nvc_coin2 = 0;
+    IData/*31:0*/ tb_memrun__DOT__smc_first;
+    tb_memrun__DOT__smc_first = 0;
+    IData/*31:0*/ tb_memrun__DOT__smc_last;
+    tb_memrun__DOT__smc_last = 0;
+    IData/*31:0*/ tb_memrun__DOT__wia_first;
+    tb_memrun__DOT__wia_first = 0;
+    IData/*31:0*/ tb_memrun__DOT__wia_last;
+    tb_memrun__DOT__wia_last = 0;
+    IData/*31:0*/ tb_memrun__DOT__sm_first;
+    tb_memrun__DOT__sm_first = 0;
+    IData/*31:0*/ tb_memrun__DOT__sm_last;
+    tb_memrun__DOT__sm_last = 0;
+    IData/*31:0*/ tb_memrun__DOT__gap_min;
+    tb_memrun__DOT__gap_min = 0;
+    IData/*31:0*/ tb_memrun__DOT__gap_sum;
+    tb_memrun__DOT__gap_sum = 0;
+    IData/*31:0*/ tb_memrun__DOT__gap_n;
+    tb_memrun__DOT__gap_n = 0;
     CData/*2:0*/ tb_memrun__DOT__pms;
     tb_memrun__DOT__pms = 0;
     CData/*3:0*/ tb_memrun__DOT__ppa;
@@ -3555,7 +3573,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 1084);
+                                                                 1087);
             __Vtask_tb_memrun__DOT__manifold__1778__tb_memrun__DOT__unnamedblk1_4__DOT____Vrepeat3 
                 = (__Vtask_tb_memrun__DOT__manifold__1778__tb_memrun__DOT__unnamedblk1_4__DOT____Vrepeat3 
                    - (IData)(1U));
@@ -3576,7 +3594,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 1085);
+                                                                 1088);
             __Vtask_tb_memrun__DOT__manifold__1778__tb_memrun__DOT__unnamedblk1_5__DOT____Vrepeat4 
                 = (__Vtask_tb_memrun__DOT__manifold__1778__tb_memrun__DOT__unnamedblk1_5__DOT____Vrepeat4 
                    - (IData)(1U));
@@ -3597,7 +3615,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 1086);
+                                                                 1089);
             __Vtask_tb_memrun__DOT__manifold__1778__tb_memrun__DOT__unnamedblk1_6__DOT____Vrepeat5 
                 = (__Vtask_tb_memrun__DOT__manifold__1778__tb_memrun__DOT__unnamedblk1_6__DOT____Vrepeat5 
                    - (IData)(1U));
@@ -3621,7 +3639,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1088);
+                                                             1091);
         __Vtask_tb_memrun__DOT__manifold__1778__tb_memrun__DOT__unnamedblk1_7__DOT____Vrepeat6 
             = (__Vtask_tb_memrun__DOT__manifold__1778__tb_memrun__DOT__unnamedblk1_7__DOT____Vrepeat6 
                - (IData)(1U));
@@ -3642,7 +3660,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1089);
+                                                             1092);
         __Vtask_tb_memrun__DOT__manifold__1778__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7 
             = (__Vtask_tb_memrun__DOT__manifold__1778__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7 
                - (IData)(1U));
@@ -3677,7 +3695,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 1084);
+                                                                 1087);
             __Vtask_tb_memrun__DOT__manifold__1784__tb_memrun__DOT__unnamedblk1_4__DOT____Vrepeat3 
                 = (__Vtask_tb_memrun__DOT__manifold__1784__tb_memrun__DOT__unnamedblk1_4__DOT____Vrepeat3 
                    - (IData)(1U));
@@ -3698,7 +3716,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 1085);
+                                                                 1088);
             __Vtask_tb_memrun__DOT__manifold__1784__tb_memrun__DOT__unnamedblk1_5__DOT____Vrepeat4 
                 = (__Vtask_tb_memrun__DOT__manifold__1784__tb_memrun__DOT__unnamedblk1_5__DOT____Vrepeat4 
                    - (IData)(1U));
@@ -3719,7 +3737,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 1086);
+                                                                 1089);
             __Vtask_tb_memrun__DOT__manifold__1784__tb_memrun__DOT__unnamedblk1_6__DOT____Vrepeat5 
                 = (__Vtask_tb_memrun__DOT__manifold__1784__tb_memrun__DOT__unnamedblk1_6__DOT____Vrepeat5 
                    - (IData)(1U));
@@ -3743,7 +3761,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1088);
+                                                             1091);
         __Vtask_tb_memrun__DOT__manifold__1784__tb_memrun__DOT__unnamedblk1_7__DOT____Vrepeat6 
             = (__Vtask_tb_memrun__DOT__manifold__1784__tb_memrun__DOT__unnamedblk1_7__DOT____Vrepeat6 
                - (IData)(1U));
@@ -3764,7 +3782,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1089);
+                                                             1092);
         __Vtask_tb_memrun__DOT__manifold__1784__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7 
             = (__Vtask_tb_memrun__DOT__manifold__1784__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7 
                - (IData)(1U));
@@ -3821,9 +3839,9 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                  1,vlSelfRef.tb_memrun__DOT__m__DOT__DisHold___05FMemC);
     if (VL_UNLIKELY((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__PRhold) 
                       | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__Hold___05FMemC))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2138: Assertion failed in %Ntb_memrun: the memory is holding the processor before the machine starts\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2143: Assertion failed in %Ntb_memrun: the memory is holding the processor before the machine starts\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2138, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2143, "", false);
     }
     __Vtask_tb_memrun__DOT__set_cpreg_tilde__1790__v = 0U;
     __Vtask_tb_memrun__DOT__strobe__1791__ss = 0U;
@@ -3851,7 +3869,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1791__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1791__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3870,7 +3888,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1791__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1791__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3893,7 +3911,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1791__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1791__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3921,7 +3939,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1795__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1795__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3940,7 +3958,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1795__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1795__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3963,7 +3981,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1795__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1795__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4001,7 +4019,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1800__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1800__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4020,7 +4038,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1800__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1800__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4043,7 +4061,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1800__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1800__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4054,7 +4072,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1643);
+                                                             1648);
         __Vtask_tb_memrun__DOT__parc_micro__1799__tb_memrun__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_memrun__DOT__parc_micro__1799__tb_memrun__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -4081,7 +4099,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1804__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1804__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4100,7 +4118,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1804__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1804__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4123,7 +4141,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1804__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1804__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4134,7 +4152,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1645);
+                                                             1650);
         __Vtask_tb_memrun__DOT__parc_micro__1799__tb_memrun__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_memrun__DOT__parc_micro__1799__tb_memrun__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -4161,7 +4179,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1808__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1808__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4180,7 +4198,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1808__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1808__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4203,7 +4221,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1808__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1808__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4214,7 +4232,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1647);
+                                                             1652);
         __Vtask_tb_memrun__DOT__parc_micro__1799__tb_memrun__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_memrun__DOT__parc_micro__1799__tb_memrun__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -4243,7 +4261,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1812__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1812__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4262,7 +4280,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1812__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1812__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4285,7 +4303,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1812__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1812__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4314,7 +4332,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1816__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1816__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4333,7 +4351,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1816__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1816__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4356,7 +4374,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1816__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1816__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4385,7 +4403,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1820__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1820__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4404,7 +4422,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1820__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1820__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4427,7 +4445,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1820__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1820__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4456,7 +4474,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1824__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1824__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4475,7 +4493,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1824__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1824__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4498,7 +4516,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1824__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1824__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4528,7 +4546,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1829__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1829__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4547,7 +4565,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1829__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1829__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4570,7 +4588,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1829__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1829__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4581,7 +4599,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1655);
+                                                             1660);
         __Vtask_tb_memrun__DOT__parc_micro__1799__tb_memrun__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_memrun__DOT__parc_micro__1799__tb_memrun__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -4608,7 +4626,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1833__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1833__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4627,7 +4645,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1833__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1833__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4650,7 +4668,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1833__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1833__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4661,7 +4679,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1657);
+                                                             1662);
         __Vtask_tb_memrun__DOT__parc_micro__1799__tb_memrun__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_memrun__DOT__parc_micro__1799__tb_memrun__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -4688,7 +4706,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1837__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1837__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4707,7 +4725,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1837__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1837__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4730,7 +4748,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1837__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1837__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4748,7 +4766,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1659);
+                                                             1664);
         __Vtask_tb_memrun__DOT__parc_micro__1799__tb_memrun__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_memrun__DOT__parc_micro__1799__tb_memrun__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -4813,7 +4831,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1844__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1844__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4832,7 +4850,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1844__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1844__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4855,7 +4873,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1844__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1844__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4866,7 +4884,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1643);
+                                                             1648);
         __Vtask_tb_memrun__DOT__parc_micro__1843__tb_memrun__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_memrun__DOT__parc_micro__1843__tb_memrun__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -4893,7 +4911,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1848__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1848__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4912,7 +4930,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1848__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1848__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4935,7 +4953,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1848__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1848__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4946,7 +4964,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1645);
+                                                             1650);
         __Vtask_tb_memrun__DOT__parc_micro__1843__tb_memrun__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_memrun__DOT__parc_micro__1843__tb_memrun__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -4973,7 +4991,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1852__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1852__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4992,7 +5010,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1852__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1852__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5015,7 +5033,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1852__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1852__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5026,7 +5044,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1647);
+                                                             1652);
         __Vtask_tb_memrun__DOT__parc_micro__1843__tb_memrun__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_memrun__DOT__parc_micro__1843__tb_memrun__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -5055,7 +5073,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1856__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1856__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5074,7 +5092,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1856__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1856__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5097,7 +5115,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1856__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1856__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5126,7 +5144,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1860__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1860__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5145,7 +5163,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1860__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1860__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5168,7 +5186,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1860__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1860__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5197,7 +5215,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1864__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1864__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5216,7 +5234,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1864__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1864__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5239,7 +5257,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1864__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1864__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5268,7 +5286,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1868__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1868__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5287,7 +5305,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1868__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1868__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5310,7 +5328,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1868__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1868__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5340,7 +5358,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1873__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1873__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5359,7 +5377,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1873__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1873__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5382,7 +5400,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1873__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1873__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5393,7 +5411,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1655);
+                                                             1660);
         __Vtask_tb_memrun__DOT__parc_micro__1843__tb_memrun__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_memrun__DOT__parc_micro__1843__tb_memrun__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -5420,7 +5438,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1877__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1877__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5439,7 +5457,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1877__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1877__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5462,7 +5480,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1877__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1877__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5473,7 +5491,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1657);
+                                                             1662);
         __Vtask_tb_memrun__DOT__parc_micro__1843__tb_memrun__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_memrun__DOT__parc_micro__1843__tb_memrun__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -5500,7 +5518,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1881__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1881__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5519,7 +5537,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1881__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1881__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5542,7 +5560,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1881__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1881__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5560,7 +5578,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1659);
+                                                             1664);
         __Vtask_tb_memrun__DOT__parc_micro__1843__tb_memrun__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_memrun__DOT__parc_micro__1843__tb_memrun__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -5627,7 +5645,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1887__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1887__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5646,7 +5664,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1887__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1887__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5669,7 +5687,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1887__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1887__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5680,7 +5698,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1923);
+                                                             1928);
         __Vtask_tb_memrun__DOT__parc_run__1886__tb_memrun__DOT__unnamedblk1_24__DOT____Vrepeat23 
             = (__Vtask_tb_memrun__DOT__parc_run__1886__tb_memrun__DOT__unnamedblk1_24__DOT____Vrepeat23 
                - (IData)(1U));
@@ -5707,7 +5725,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1891__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1891__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5726,7 +5744,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1891__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1891__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5749,7 +5767,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1891__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1891__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5760,7 +5778,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1925);
+                                                             1930);
         __Vtask_tb_memrun__DOT__parc_run__1886__tb_memrun__DOT__unnamedblk1_25__DOT____Vrepeat24 
             = (__Vtask_tb_memrun__DOT__parc_run__1886__tb_memrun__DOT__unnamedblk1_25__DOT____Vrepeat24 
                - (IData)(1U));
@@ -5787,7 +5805,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1895__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1895__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5806,7 +5824,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1895__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1895__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5829,7 +5847,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1895__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1895__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5840,7 +5858,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1927);
+                                                             1932);
         __Vtask_tb_memrun__DOT__parc_run__1886__tb_memrun__DOT__unnamedblk1_26__DOT____Vrepeat25 
             = (__Vtask_tb_memrun__DOT__parc_run__1886__tb_memrun__DOT__unnamedblk1_26__DOT____Vrepeat25 
                - (IData)(1U));
@@ -5869,7 +5887,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1899__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1899__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5888,7 +5906,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1899__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1899__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5911,7 +5929,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1899__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1899__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5940,7 +5958,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1903__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1903__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5959,7 +5977,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1903__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1903__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5982,7 +6000,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1903__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1903__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6011,7 +6029,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1907__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1907__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6030,7 +6048,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1907__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1907__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6053,7 +6071,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1907__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1907__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6082,7 +6100,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1911__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1911__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6101,7 +6119,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1911__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1911__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6124,7 +6142,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1911__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1911__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6136,7 +6154,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1933);
+                                                             1938);
         __Vtask_tb_memrun__DOT__parc_run__1886__tb_memrun__DOT__unnamedblk1_27__DOT____Vrepeat26 
             = (__Vtask_tb_memrun__DOT__parc_run__1886__tb_memrun__DOT__unnamedblk1_27__DOT____Vrepeat26 
                - (IData)(1U));
@@ -6163,7 +6181,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1065);
+                                                             1068);
         __Vtask_tb_memrun__DOT__strobe__1915__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__1915__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6182,7 +6200,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1066);
+                                                             1069);
         __Vtask_tb_memrun__DOT__strobe__1915__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__1915__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6205,7 +6223,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1072);
+                                                             1075);
         __Vtask_tb_memrun__DOT__strobe__1915__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__1915__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6500,6 +6518,15 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
     tb_memrun__DOT__nvc_sec_e = 0U;
     tb_memrun__DOT__nvc_coin = 0U;
     tb_memrun__DOT__nvc_coin2 = 0U;
+    tb_memrun__DOT__smc_first = 0xffffffffU;
+    tb_memrun__DOT__smc_last = 0xffffffffU;
+    tb_memrun__DOT__wia_first = 0xffffffffU;
+    tb_memrun__DOT__wia_last = 0xffffffffU;
+    tb_memrun__DOT__sm_first = 0xffffffffU;
+    tb_memrun__DOT__sm_last = 0xffffffffU;
+    tb_memrun__DOT__gap_min = 0xffffffffU;
+    tb_memrun__DOT__gap_sum = 0U;
+    tb_memrun__DOT__gap_n = 0U;
     tb_memrun__DOT__unnamedblk13__DOT__zi = 0U;
     while (VL_GTS_III(32, 0x00001000U, tb_memrun__DOT__unnamedblk13__DOT__zi)) {
         vlSelfRef.tb_memrun__DOT__tnia_hit[(0x00000fffU 
@@ -6574,7 +6601,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             2234);
+                                                             2241);
         if (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__clk0_p_Ca) 
              != (IData)(vlSelfRef.tb_memrun__DOT__p0))) {
             tb_memrun__DOT__n0a = ((IData)(1U) + tb_memrun__DOT__n0a);
@@ -7025,6 +7052,10 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
             if ((1U & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__WriteInA_p_)))) {
                 tb_memrun__DOT__nvc_wia = ((IData)(1U) 
                                            + tb_memrun__DOT__nvc_wia);
+                if (VL_GTS_III(32, 0U, tb_memrun__DOT__wia_first)) {
+                    tb_memrun__DOT__wia_first = tb_memrun__DOT__nff0;
+                }
+                tb_memrun__DOT__wia_last = tb_memrun__DOT__nff0;
             }
             if ((1U & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__WriteInMap_p_)))) {
                 tb_memrun__DOT__nvc_wim = ((IData)(1U) 
@@ -7044,12 +7075,36 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
             }
             if (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__StartMapClk0_p_a) 
                  & (~ (IData)(vlSelfRef.tb_memrun__DOT__smc_d)))) {
+                if (VL_GTS_III(32, 0U, tb_memrun__DOT__smc_first)) {
+                    tb_memrun__DOT__smc_first = tb_memrun__DOT__nff0;
+                }
+                tb_memrun__DOT__smc_last = tb_memrun__DOT__nff0;
+                if ((VL_LTES_III(32, 0U, tb_memrun__DOT__wia_last) 
+                     & VL_GTS_III(32, tb_memrun__DOT__nff0, tb_memrun__DOT__wia_last))) {
+                    if ((VL_LTS_III(32, (tb_memrun__DOT__nff0 
+                                         - tb_memrun__DOT__wia_last), tb_memrun__DOT__gap_min) 
+                         | VL_GTS_III(32, 0U, tb_memrun__DOT__gap_min))) {
+                        tb_memrun__DOT__gap_min = (tb_memrun__DOT__nff0 
+                                                   - tb_memrun__DOT__wia_last);
+                    }
+                    tb_memrun__DOT__gap_sum = (tb_memrun__DOT__gap_sum 
+                                               + (tb_memrun__DOT__nff0 
+                                                  - tb_memrun__DOT__wia_last));
+                    tb_memrun__DOT__gap_n = ((IData)(1U) 
+                                             + tb_memrun__DOT__gap_n);
+                }
                 tb_memrun__DOT__nvc_smc_e = ((IData)(1U) 
                                              + tb_memrun__DOT__nvc_smc_e);
                 if ((1U & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__WriteInA_p_)))) {
                     tb_memrun__DOT__nvc_coin = ((IData)(1U) 
                                                 + tb_memrun__DOT__nvc_coin);
                 }
+            }
+            if ((1U & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__StartMap_p___05F_MemC)))) {
+                if (VL_GTS_III(32, 0U, tb_memrun__DOT__sm_first)) {
+                    tb_memrun__DOT__sm_first = tb_memrun__DOT__nff0;
+                }
+                tb_memrun__DOT__sm_last = tb_memrun__DOT__nff0;
             }
             if (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__StartMemClk0_p_) 
                  & (~ (IData)(vlSelfRef.tb_memrun__DOT__sec_d)))) {
@@ -7240,107 +7295,107 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                  32,tb_memrun__DOT__nff0_wpr,32,tb_memrun__DOT__nff0_cr,
                  32,tb_memrun__DOT__nff0_alt,32,tb_memrun__DOT__nff0_fl);
     if (VL_UNLIKELY((VL_GTS_III(32, 0x00000064U, tb_memrun__DOT__nff0)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2524: Assertion failed in %Ntb_memrun: the ASEL=1 reference barely ran (%0d samples) -- it must be the executing instruction\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2555: Assertion failed in %Ntb_memrun: the ASEL=1 reference barely ran (%0d samples) -- it must be the executing instruction\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2524, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2555, "", false);
     }
     if (VL_UNLIKELY(((tb_memrun__DOT__nff0_wpr != tb_memrun__DOT__nff0)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2526: Assertion failed in %Ntb_memrun: WantProcRef' was not asserted on every cycle the reference ran (%0d of %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2557: Assertion failed in %Ntb_memrun: WantProcRef' was not asserted on every cycle the reference ran (%0d of %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_wpr,32,
                      tb_memrun__DOT__nff0);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2526, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2557, "", false);
     }
     if (VL_UNLIKELY((((0U != tb_memrun__DOT__nff0_ign) 
                       | (0U != tb_memrun__DOT__nff0_a0))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2529: Assertion failed in %Ntb_memrun: WantProcRef' low requires IgnoreProc = 0 and ASEL.0 = 0 (saw %0d, %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2560: Assertion failed in %Ntb_memrun: WantProcRef' low requires IgnoreProc = 0 and ASEL.0 = 0 (saw %0d, %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_ign,32,
                      tb_memrun__DOT__nff0_a0);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2529, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2560, "", false);
     }
     if (VL_UNLIKELY(((0U != tb_memrun__DOT__nff0_bad)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2535: Assertion failed in %Ntb_memrun: FFok'a high did not force FF.0mem'=0 and FF.1mem=1 (%0d violations)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2566: Assertion failed in %Ntb_memrun: FFok'a high did not force FF.0mem'=0 and FF.1mem=1 (%0d violations)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_bad);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2535, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2566, "", false);
     }
     if (VL_UNLIKELY(((tb_memrun__DOT__nff0_cr != tb_memrun__DOT__nff0)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2540: Assertion failed in %Ntb_memrun: WantCR did not fall on every running cycle (%0d of %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2571: Assertion failed in %Ntb_memrun: WantCR did not fall on every running cycle (%0d of %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_cr,32,
                      tb_memrun__DOT__nff0);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2540, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2571, "", false);
     }
     if (VL_UNLIKELY(((tb_memrun__DOT__nff0_alt != tb_memrun__DOT__nff0)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2542: Assertion failed in %Ntb_memrun: WantAltRef' did not enable the alternate decoder (%0d of %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2573: Assertion failed in %Ntb_memrun: WantAltRef' did not enable the alternate decoder (%0d of %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_alt,32,
                      tb_memrun__DOT__nff0);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2542, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2573, "", false);
     }
     if (VL_UNLIKELY(((tb_memrun__DOT__nff0_fl != tb_memrun__DOT__nff0)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2544: Assertion failed in %Ntb_memrun: Flush' did not assert on every running cycle (%0d of %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2575: Assertion failed in %Ntb_memrun: Flush' did not assert on every running cycle (%0d of %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_fl,32,
                      tb_memrun__DOT__nff0);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2544, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2575, "", false);
     }
     if (VL_UNLIKELY(((0U != tb_memrun__DOT__nff0_ffok)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2546: Assertion failed in %Ntb_memrun: FFok' must be LOW for the FF field to reach the memory section (high on %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2577: Assertion failed in %Ntb_memrun: FFok' must be LOW for the FF field to reach the memory section (high on %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_ffok);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2546, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2577, "", false);
     }
     if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_st)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2552: Assertion failed in %Ntb_memrun: the Store never asserted -- nothing dirties a line\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2583: Assertion failed in %Ntb_memrun: the Store never asserted -- nothing dirties a line\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2552, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2583, "", false);
     }
     if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_hcd)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2553: Assertion failed in %Ntb_memrun: HitColDirty never true -- the Store did not dirty the flushed line\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2584: Assertion failed in %Ntb_memrun: HitColDirty never true -- the Store did not dirty the flushed line\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2553, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2584, "", false);
     }
     if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_fsp)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2554: Assertion failed in %Ntb_memrun: FSinPair' never fell -- the flush was not latched into the pair\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2585: Assertion failed in %Ntb_memrun: FSinPair' never fell -- the flush was not latched into the pair\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2554, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2585, "", false);
     }
     if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_fs)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2555: Assertion failed in %Ntb_memrun: FlushStore never asserted\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2586: Assertion failed in %Ntb_memrun: FlushStore never asserted\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2555, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2586, "", false);
     }
     if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_fm)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2556: Assertion failed in %Ntb_memrun: ForceMiss never asserted\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2587: Assertion failed in %Ntb_memrun: ForceMiss never asserted\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2556, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2587, "", false);
     }
     if (VL_UNLIKELY((((0U == tb_memrun__DOT__nff0_mia) 
                       | (0U == tb_memrun__DOT__nff0_mib))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2558: Assertion failed in %Ntb_memrun: the cache never missed (a %0d, b %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2589: Assertion failed in %Ntb_memrun: the cache never missed (a %0d, b %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_mia,32,
                      tb_memrun__DOT__nff0_mib);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2558, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2589, "", false);
     }
     if (VL_UNLIKELY((VL_GTS_III(32, 4U, tb_memrun__DOT__nmapst)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2570: Assertion failed in %Ntb_memrun: the map sequencer barely moved (%0d of 8 states)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2601: Assertion failed in %Ntb_memrun: the map sequencer barely moved (%0d of 8 states)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nmapst);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2570, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2601, "", false);
     }
     if (VL_UNLIKELY(((0U == tb_memrun__DOT__npsm2)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2571: Assertion failed in %Ntb_memrun: preStartMem' never asserted -- no storage cycle was started\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2602: Assertion failed in %Ntb_memrun: preStartMem' never asserted -- no storage cycle was started\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2571, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2602, "", false);
     }
     if (VL_UNLIKELY(((0U == tb_memrun__DOT__nsm2)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2572: Assertion failed in %Ntb_memrun: StartMem' never asserted\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2603: Assertion failed in %Ntb_memrun: StartMem' never asserted\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2572, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2603, "", false);
     }
     if (VL_UNLIKELY(((0U == tb_memrun__DOT__nwim)))) {
         VL_WRITEF_NX("tb_memrun:   OPEN (task #17) -- WriteInMem' never asserted; see CLOCK EDGES below -- the victim is real, it just never coincides with a StartMap edge\n",0);
@@ -7354,16 +7409,16 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                  32,tb_memrun__DOT__nckw,32,tb_memrun__DOT__nsamp,
                  32,tb_memrun__DOT__nprf,32,tb_memrun__DOT__nsamp);
     if (VL_UNLIKELY(((tb_memrun__DOT__nthi != tb_memrun__DOT__nsamp)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2604: Assertion failed in %Ntb_memrun: THi must be a constant HIGH -- it strobes the whole map read path (high on %0d of %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2635: Assertion failed in %Ntb_memrun: THi must be a constant HIGH -- it strobes the whole map read path (high on %0d of %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nthi,32,tb_memrun__DOT__nsamp);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2604, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2635, "", false);
     }
     if (VL_UNLIKELY((((0U == tb_memrun__DOT__nwp) | 
                       (0U == tb_memrun__DOT__ndty))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2607: Assertion failed in %Ntb_memrun: the map outputs never varied -- the MC10124 translators are strobed off\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2638: Assertion failed in %Ntb_memrun: the map outputs never varied -- the MC10124 translators are strobed off\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2607, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2638, "", false);
     }
     VL_WRITEF_NX("tb_memrun:   MAP ARRAY d13 mem[0]=%x dout=%b | a04-write %0d, d13-WRITE %0d, read-cond %0d\ntb_memrun:   MAP ARRAY douts -- a04=%b d11=%b d13=%b | MemX13.sil+13=%b MemX13.sil+3=%b | MapDirty'=%b MapWP'=%b\ntb_memrun:   MAP ARRAY strobes -- RAS' edges %0d, CAS' edges %0d, READ-condition cycles %0d, WRITE-condition cycles %0d, of %0d\ntb_memrun:   g14 OUTPUTS -- MapTrouble high on %0d, MapTrouble' high on %0d of %0d\n",0,
                  1,vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_d13__DOT__mem
@@ -7851,9 +7906,17 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                  32,tb_memrun__DOT__nvc_fia,32,tb_memrun__DOT__nvc_vip,
                  32,tb_memrun__DOT__nvc_via,32,tb_memrun__DOT__nvc_ios,
                  32,tb_memrun__DOT__nvc_wia);
-    VL_WRITEF_NX("tb_memrun:                  -> PIPELINE: WriteInMap' asserted %0d, WriteInMem' asserted %0d | StartMapClk0'a high %0d, StartMemClk0' high %0d\ntb_memrun:                  -> CLOCK EDGES: StartMapClk0'a %0d edges (with WriteInA' asserted: %0d), StartMemClk0' %0d edges (with WriteInMap' asserted: %0d)\ntb_memrun:   AwantsMapFS=%b terms -- EcHasAb=%b Map_InPair'=%b VicInPair'=%b\n",0,
+    VL_WRITEF_NX("tb_memrun:                  -> PIPELINE: WriteInMap' asserted %0d, WriteInMem' asserted %0d | StartMapClk0'a high %0d, StartMemClk0' high %0d\ntb_memrun:                  -> WINDOWS (in-window sample index): StartMap' low %0d..%0d | StartMapClk0'a edges %0d..%0d | WriteInA' asserted %0d..%0d\ntb_memrun:                  -> PHASE: at %0d StartMap clock edges, WriteInA' was last asserted %0d samples earlier on average, closest %0d\n",0,
                  32,tb_memrun__DOT__nvc_wim,32,tb_memrun__DOT__nvc_wimem,
                  32,tb_memrun__DOT__nvc_smc,32,tb_memrun__DOT__nvc_sec,
+                 32,tb_memrun__DOT__sm_first,32,tb_memrun__DOT__sm_last,
+                 32,tb_memrun__DOT__smc_first,32,tb_memrun__DOT__smc_last,
+                 32,tb_memrun__DOT__wia_first,32,tb_memrun__DOT__wia_last,
+                 32,tb_memrun__DOT__gap_n,32,(VL_LTS_III(32, 0U, tb_memrun__DOT__gap_n)
+                                               ? VL_DIVS_III(32, tb_memrun__DOT__gap_sum, tb_memrun__DOT__gap_n)
+                                               : 0U),
+                 32,tb_memrun__DOT__gap_min);
+    VL_WRITEF_NX("tb_memrun:                  -> CLOCK EDGES: StartMapClk0'a %0d edges (with WriteInA' asserted: %0d), StartMemClk0' %0d edges (with WriteInMap' asserted: %0d)\ntb_memrun:   AwantsMapFS=%b terms -- EcHasAb=%b Map_InPair'=%b VicInPair'=%b\n",0,
                  32,tb_memrun__DOT__nvc_smc_e,32,tb_memrun__DOT__nvc_coin,
                  32,tb_memrun__DOT__nvc_sec_e,32,tb_memrun__DOT__nvc_coin2,
                  1,(IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__AwantsMapFS),
@@ -7861,21 +7924,21 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                  1,(IData)(vlSelfRef.tb_memrun__DOT__m__DOT__Map_u_InPair_p___05F_MemC),
                  1,vlSelfRef.tb_memrun__DOT__m__DOT__VicInPair_p___05F_MemC);
     if (VL_UNLIKELY((VL_GTS_III(32, 2U, tb_memrun__DOT__nras)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2759: Assertion failed in %Ntb_memrun: MemRASa never strobed -- no DRAM cycle started\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2825: Assertion failed in %Ntb_memrun: MemRASa never strobed -- no DRAM cycle started\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2759, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2825, "", false);
     }
     if (VL_UNLIKELY((VL_GTS_III(32, 2U, tb_memrun__DOT__ncas)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2760: Assertion failed in %Ntb_memrun: MemCASa never strobed -- the cycle did not get past RAS\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2826: Assertion failed in %Ntb_memrun: MemCASa never strobed -- the cycle did not get past RAS\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2760, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2826, "", false);
     }
     VL_WRITEF_NX("tb_memrun:   DRAM CYCLE RUNS -- RAS %0d, CAS %0d edges\n",0,
                  32,tb_memrun__DOT__nras,32,tb_memrun__DOT__ncas);
     if (VL_UNLIKELY((VL_GTS_III(32, 2U, tb_memrun__DOT__nms)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2763: Assertion failed in %Ntb_memrun: MapState never advanced -- the PROM sequencer is not running\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2829: Assertion failed in %Ntb_memrun: MapState never advanced -- the PROM sequencer is not running\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2763, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2829, "", false);
     }
     VL_WRITEF_NX("tb_memrun:   MemIdlea=%b MemX clk0' edges=%0d  MemRfsh=%b RfshPeriod=%b SetRunRfsh=1\ntb_memrun:   RfshPeriod edges=%0d  MemRfsh edges=%0d\ntb_memrun:   StartMap' terms -- Hia=1 NoRef=%b MapRfsh'=%b AwantsMapFS'=%b AfreeOrEc'a=%b WantVic'=%b\ntb_memrun:   MapRfsh' = MapFree'(%b) | NeedRfsh'(%b) = %b\ntb_memrun:   refresh chain EDGES -- RfshPeriod %0d, RfshSqWave %0d, StartRfshCycle' %0d,\ntb_memrun:                          WantRfsh' %0d, NeedRfsh' %0d, MapRfsh' %0d, StartMap' %0d\n",0,
                  1,vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemIdlea,
@@ -8002,16 +8065,16 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                  1,vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_e22__DOT__qb,
                  1,(1U & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_e23__DOT__qa))));
     if (VL_UNLIKELY((vlSelfRef.tb_memrun__DOT__m__DOT__PRhold))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2834: Assertion failed in %Ntb_memrun: the memory is still holding the processor after a run\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2900: Assertion failed in %Ntb_memrun: the memory is still holding the processor after a run\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2834, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2900, "", false);
     }
     VL_WRITEF_NX("tb_memrun: machine running -- %0d clk0' edges, Stop=%b\n",0,
                  32,tb_memrun__DOT__n0a,1,(IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_j04__DOT__qa));
     if (VL_UNLIKELY((VL_GTS_III(32, 0x00000064U, tb_memrun__DOT__n0a)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2836: Assertion failed in %Ntb_memrun: the microinstruction clock is not free-running\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2902: Assertion failed in %Ntb_memrun: the microinstruction clock is not free-running\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2836, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2902, "", false);
     }
     tb_memrun__DOT__tbad = 0U;
     VL_WRITEF_NX("tb_memrun: MemC clock edges %0d | MemClkEnable'a=%b CLKEnable'b=%b dStop=%b Stop=%b\n",0,
@@ -8380,7 +8443,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 2898);
+                                                                 2964);
             tb_memrun__DOT__unnamedblk1_29__DOT____Vrepeat28 
                 = (tb_memrun__DOT__unnamedblk1_29__DOT____Vrepeat28 
                    - (IData)(1U));
@@ -8446,7 +8509,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             2915);
+                                                             2981);
         tb_memrun__DOT__unnamedblk1_30__DOT____Vrepeat29 
             = (tb_memrun__DOT__unnamedblk1_30__DOT____Vrepeat29 
                - (IData)(1U));
@@ -8459,10 +8522,10 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
         tb_memrun__DOT__tbad = ((IData)(1U) + tb_memrun__DOT__tbad);
     }
     if (VL_UNLIKELY(((0U != tb_memrun__DOT__tbad)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2925: Assertion failed in %Ntb_memrun: the memory section is not right in a running machine\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2991: Assertion failed in %Ntb_memrun: the memory section is not right in a running machine\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2925, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2991, "", false);
     }
     VL_WRITEF_NX("tb_memrun: PASS -- the memory runs DRAM cycles from PARC's own startup, and holds nothing\n",0);
-    VL_FINISH_MT("verilog/verilator/tb_memrun.sv", 2927, "");
+    VL_FINISH_MT("verilog/verilator/tb_memrun.sv", 2993, "");
     co_return;}

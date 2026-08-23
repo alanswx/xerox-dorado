@@ -1,3 +1,6 @@
+`ifndef RUNLEN
+`define RUNLEN 3000
+`endif
 // tb_exec -- THE MACHINE EXECUTES MICROCODE OUT OF IM.
 //
 // The rung above `boot0-test`. Real Xerox microcode (AEmu.mb!2, packed into
@@ -1128,6 +1131,8 @@ module tb_memrun;
   reg pmras, pmcas;
   reg smc_d, sec_d;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd, nvc_wv, nvc_dv, nvc_fdm, nvc_fia, nvc_vip, nvc_via, nvc_ios, nvc_wia, nvc_wim, nvc_wimem, nvc_smc, nvc_sec, nvc_smc_e, nvc_sec_e, nvc_coin, nvc_coin2;
+  integer smc_first, smc_last, wia_first, wia_last, sm_first, sm_last;
+  integer gap_min, gap_sum, gap_n;
   reg tnia_hit [0:4095];
   reg [2:0] pms;
   reg [3:0] pipe_before;
@@ -2191,6 +2196,8 @@ module tb_memrun;
     for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
     ntnia=0; nff0=0; nsamp=0;
     nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0; nvc_wv=0; nvc_dv=0; nvc_fdm=0; nvc_fia=0; nvc_vip=0; nvc_via=0; nvc_ios=0; nvc_wia=0; nvc_wim=0; nvc_wimem=0; nvc_smc=0; nvc_sec=0; nvc_smc_e=0; nvc_sec_e=0; nvc_coin=0; nvc_coin2=0;
+    smc_first=-1; smc_last=-1; wia_first=-1; wia_last=-1; sm_first=-1; sm_last=-1;
+    gap_min=-1; gap_sum=0; gap_n=0;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
     nwcr=0; pwcr=m.b_MemC.WantCR; nwar=0; pwar=m.b_MemC.WantAltRef_p_;
     nfl=0; pfl=m.b_MemC.Flush_u__p_; nmp=0; pmp=m.b_MemC.Map_u__p_;
@@ -2230,7 +2237,7 @@ module tb_memrun;
     $display("tb_memrun: ALL 21 map bit planes preloaded to 1 (parity experiment)");
 
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
-    for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
+    for (j2 = 0; j2 < `RUNLEN; j2 = j2 + 1) begin
       @(posedge sys_clk);
       if (m.b_ContA.clk0_p_Ca !== p0) begin n0a = n0a + 1; p0 = m.b_ContA.clk0_p_Ca; end
       if (m.b_MemC.clk0_p_A !== pmc) begin nmemclk = nmemclk + 1; pmc = m.b_MemC.clk0_p_A; end
@@ -2438,7 +2445,31 @@ module tb_memrun;
         // so a clock that is merely high most of the time may never clock.
         // And count the COINCIDENCE: a rising edge while the D input is
         // asserted is the only thing that can move the stage.
+        // WHEN do the few StartMap clock edges fall, and when is the victim
+        // present? Record sample indices, not just counts -- "4 edges" and
+        // "128 samples asserted" cannot say whether they are adjacent or at
+        // opposite ends of the window.
         if (m.b_MemX.StartMapClk0_p_a && !smc_d) begin
+          if (smc_first < 0) smc_first = nff0;
+          smc_last = nff0;
+        end
+        if (!m.b_MemX.WriteInA_p_) begin
+          if (wia_first < 0) wia_first = nff0;
+          wia_last = nff0;
+        end
+        if (!m.b_MemX.StartMap_p_) begin
+          if (sm_first < 0) sm_first = nff0;
+          sm_last = nff0;
+        end
+        // WHAT IS THE PHASE? Zero coincidence over 40 edges at 24% duty is
+        // ~1e-5 by chance, so WriteInA' and the StartMap clock edge are
+        // systematically apart. Record how long before each edge WriteInA'
+        // was last asserted, which turns "never together" into a number.
+        if (m.b_MemX.StartMapClk0_p_a && !smc_d) begin
+          if (wia_last >= 0 && nff0 > wia_last) begin
+            if (nff0 - wia_last < gap_min || gap_min < 0) gap_min = nff0 - wia_last;
+            gap_sum = gap_sum + (nff0 - wia_last); gap_n = gap_n + 1;
+          end
           nvc_smc_e = nvc_smc_e + 1;
           if (!m.b_MemX.WriteInA_p_)  nvc_coin  = nvc_coin  + 1;
         end
@@ -2700,6 +2731,37 @@ module tb_memrun;
              m.b_MemC.PrefetchInA, m.b_MemC.IoFetchInA, m.b_MemC.PairHasA);
     // THE VICTIM CHAIN -- why the write-back is never scheduled (task #17).
     //
+    // MEASURED 2026-08-23, and the answer is a PHASE, not a missing signal.
+    // The chain is correct the whole way and the victim is genuinely made:
+    //
+    //   WantVic 2496, DirtyVicOrAB 7456 -> VicInPair' 2432 -> VictimInA 2432
+    //                                   -> WriteInA' asserted 2432 of 9952
+    //
+    // What fails is the next hop. WriteInA' feeds MemX h14, an MC10176 hex D
+    // flip-flop clocked by StartMapClk0'a -- and MemX i18 (an SE10210 OR)
+    // makes that clock `preClk0'Dc | StartMap'`, so it only ticks while a MAP
+    // CYCLE IS STARTING. Over a 40,000-sample run it ticks 40 times, and on
+    // NONE of them is WriteInA' asserted.
+    //
+    // THAT IS NOT CHANCE. At 24% duty over 40 edges the odds of missing every
+    // one are about 1e-5. Measuring the phase says why: at 39 edges the victim
+    // had last been asserted ON AVERAGE 100 SAMPLES EARLIER, CLOSEST 96, with
+    // a loop period around 250. The victim is made and RETIRED well before the
+    // map stage clocks it -- the four-instruction loop (<-Map, Store, Flush,
+    // non-reference) reloads the pair on the very next reference, and
+    // VicInPair' is a k21 latch that the reload clears.
+    //
+    // So the fix is to keep the victim alive across the map start, which means
+    // quiet slots after the Flush rather than another reference. DISABLING
+    // HOLDS IS NOT THE ANSWER and was tried: `DisHold` is not "holds off"
+    // here, it is load-bearing for the sequencer --
+    // `WantMapWait' = (MapFnc.1' & MapFnc.0') | DisHold` -- and without it
+    // MapWait never falls and MapState never steps at all.
+    //
+    // `+define+RUNLEN=<n>` runs longer; the phase numbers above came from
+    // 40000. Do NOT read the level counters as a substitute: "StartMapClk0'a
+    // high on 9640 of 9952" is 40 edges.
+    //
     // DIAGNOSED 2026-08-23, and it is NOT a wiring or cell bug: the chain is
     // correct the whole way and the victim is genuinely produced.
     //
@@ -2728,6 +2790,10 @@ module tb_memrun;
              nvc_vip, nvc_via, nvc_ios, nvc_wia);
     $display("tb_memrun:                  -> PIPELINE: WriteInMap' asserted %0d, WriteInMem' asserted %0d | StartMapClk0'a high %0d, StartMemClk0' high %0d",
              nvc_wim, nvc_wimem, nvc_smc, nvc_sec);
+    $display("tb_memrun:                  -> WINDOWS (in-window sample index): StartMap' low %0d..%0d | StartMapClk0'a edges %0d..%0d | WriteInA' asserted %0d..%0d",
+             sm_first, sm_last, smc_first, smc_last, wia_first, wia_last);
+    $display("tb_memrun:                  -> PHASE: at %0d StartMap clock edges, WriteInA' was last asserted %0d samples earlier on average, closest %0d",
+             gap_n, (gap_n>0)? gap_sum/gap_n : 0, gap_min);
     $display("tb_memrun:                  -> CLOCK EDGES: StartMapClk0'a %0d edges (with WriteInA' asserted: %0d), StartMemClk0' %0d edges (with WriteInMap' asserted: %0d)",
              nvc_smc_e, nvc_coin, nvc_sec_e, nvc_coin2);
     $display("tb_memrun:   AwantsMapFS=%b terms -- EcHasAb=%b Map_InPair'=%b VicInPair'=%b",
