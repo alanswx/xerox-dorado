@@ -673,28 +673,38 @@
 //      generated from PARC's own BCPL and gated by `prom-test`, so decode
 //      i14's table against the MapState values actually visited.
 //
-//      i14's TABLE IS DECODED, AND IT DID NOT PREDICT THE BEHAVIOUR. The
-//      PROM is addressed {MapState.2, MapState.1, MapState.0, MapFnc.1',
-//      MapFnc.0'} with CE' open (so always enabled), and `preStartMem'` is
-//      its Q2. Reading the 32 bytes, Q2 is HIGH at exactly THREE addresses --
-//      3, 11 and 19 -- and all three have BOTH MapFnc bits set, i.e. NO MAP
-//      FUNCTION PENDING, with MapState 0, 2 or 4. So `StartMem'` low is the
-//      DEFAULT, and since it is j16's PE' it is a RESET that reloads MemState
-//      with zero; the sequencer can only walk in those three states.
+//      i14's TABLE IS DECODED, THE MACHINE IS READ AGAINST IT, AND THE
+//      WHOLE CHAIN NOW ADDS UP. The PROM is addressed {MapState.2,
+//      MapState.1, MapState.0, MapFnc.1', MapFnc.0'} with CE' open, so
+//      always enabled, and `preStartMem'` is its Q2. Reading the 32 bytes,
+//      Q2 is HIGH at exactly THREE addresses -- 3, 11 and 19 -- all with
+//      BOTH MapFnc bits set, i.e. no map function pending, at MapState 0, 2
+//      or 4. So StartMem' low is the DEFAULT, and being j16's PE' it is a
+//      RESET that reloads MemState with zero.
 //
-//      That predicted that our <-Map, re-issued every fourth
-//      microinstruction, was holding the memory sequencer. IT IS NOT.
-//      Running the Map ONCE (IM[3] jumping to IM[1] instead of IM[0]) leaves
-//      `StartMem'` free on exactly 288 samples, the same as before, and
-//      MemState still at 3 of 16 -- while losing the map entry, so MapEven'
-//      fails again and MapTrouble returns for the whole run. Reverted.
+//      LOGGED AGAINST THE MACHINE, ALL THREE ARE VISITED: address 3 on 672
+//      cycles, 11 on 64, 19 on 64 -- about 800 where preStartMem' is high.
+//      `StartMem'` is high on only 288 of those, because j22 LATCHES it on
+//      `MapWait`. And that 288 is ONE CONTIGUOUS WINDOW, not fragments.
 //
-//      So the MapFnc bits reaching i14 are not what this bench's <-Map
-//      controls -- consistent with the earlier measurement that MapFnc took
-//      only 2 of its 4 values. NEXT: log the actual i14 ADDRESS each cycle
-//      (the five bits above) and see which of the 32 the machine visits, and
-//      whether any of 3, 11, 19 is among them. That is a direct reading of
-//      the table against the machine, with nothing inferred.
+//      INSIDE THAT WINDOW THE COUNTER GETS ABOUT THREE COUNTS, WHICH IS
+//      EXACTLY WHAT IT SHOWS. `Clk0'Dd` has 18 EDGES there -- nine rising --
+//      and CE' (`MemIdle`) is low on only 64 of the 288. Nine clock edges
+//      with the enable down four fifths of the time is ~3 counts, and
+//      MemState reaches 3 values. NOTHING IS BROKEN IN THIS PATH: the window
+//      is simply too short for a 16-state cycle.
+//
+//      An earlier prediction from this same table -- that our <-Map,
+//      re-issued every fourth microinstruction, was holding the sequencer --
+//      was WRONG. Running the Map ONCE (IM[3] jumping to IM[1]) leaves the
+//      window at exactly 288 samples and MemState at 3, while losing the map
+//      entry so MapEven' fails and MapTrouble returns. Reverted.
+//
+//      SO THE QUESTION IS NOW SHARP AND SINGULAR: what makes `MapWait` open
+//      a LONGER window? preStartMem' is high for ~800 cycles and only 288
+//      survive the latch. Chase MapWait -- it is also the CE' on the MapState
+//      counter (see the DisHold note at the top of the startup sequence), so
+//      it paces the whole map/memory handshake.
 //
 //      WORTH GENERALISING: three F10016s on this board (i10, j16, j22) have
 //      `TrueBD` -- a hardwired constant 1 -- on CE'. On this board the part
@@ -850,7 +860,10 @@ module tb_memrun;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
   integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb, nwcr, nwar, nfl, nmp;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
-  reg [3:0] memst_now; reg memst_hit [0:15]; integer nmemst, nfree, nmemfr, nheld_nz;
+  reg [4:0] i14a; integer i14_hit [0:31];
+  reg [3:0] memst_now; reg memst_hit [0:15]; integer runlen, maxrun, nwin, ndd, nidle_lo;
+  reg pdd;
+  integer nmemst, nfree, nmemfr, nheld_nz;
   reg memfr_hit [0:15];
   reg [2:0] mapst_now; reg [1:0] mapfn_now;
   reg mapst_hit [0:7]; reg mapfn_hit [0:3];
@@ -1898,6 +1911,8 @@ module tb_memrun;
     nldp=0; pldp=m.b_MemC.LdPair_p_;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
+    for (int zi4 = 0; zi4 < 32; zi4++) i14_hit[zi4] = 0;
+    runlen=0; maxrun=0; nwin=0; ndd=0; nidle_lo=0; pdd=m.b_MemX.Clk0_p_Dd;
     nmemst=0; nfree=0; nmemfr=0; nheld_nz=0;
     for (int zf = 0; zf < 16; zf++) memfr_hit[zf] = 1'b0;
     for (int zm = 0; zm < 16; zm++) memst_hit[zm] = 1'b0;
@@ -1973,6 +1988,12 @@ module tb_memrun;
       mapst_now = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
       mapfn_now = {m.b_MemX.MapFnc_0_p_, m.b_MemX.MapFnc_1_p_};
       if (!mapst_hit[mapst_now]) begin mapst_hit[mapst_now]=1'b1; nmapst=nmapst+1; end
+      // THE ACTUAL i14 ADDRESS, in the part's own order:
+      //   A4..A0 = {MapState.2, MapState.1, MapState.0, MapFnc.1', MapFnc.0'}
+      // Q2 of that PROM is preStartMem', and it is HIGH only at 3, 11, 19.
+      i14a = {m.b_MemX.MapState_2, m.b_MemX.MapState_1, m.b_MemX.MapState_0,
+              m.b_MemX.MapFnc_1_p_, m.b_MemX.MapFnc_0_p_};
+      i14_hit[i14a] = i14_hit[i14a] + 1;
       if (!mapfn_hit[mapfn_now]) begin mapfn_hit[mapfn_now]=1'b1; nmapfn=nmapfn+1; end
       if (!m.b_MemX.preStartMem_p_) npsm2 = npsm2 + 1;
       if (!m.b_MemX.StartMem_p_)    nsm2  = nsm2  + 1;
@@ -2012,8 +2033,16 @@ module tb_memrun;
       // so a low StartMem' parallel-loads ZERO and overrides the count.
       if (m.b_MemX.StartMem_p_) begin
         nfree = nfree + 1;
+        runlen = runlen + 1;
+        if (runlen > maxrun) maxrun = runlen;
+        // Inside the free window: is the counter CLOCKED, and ENABLED?
+        if (m.b_MemX.Clk0_p_Dd !== pdd) begin ndd = ndd + 1; pdd = m.b_MemX.Clk0_p_Dd; end
+        if (!m.b_MemX.MemIdle) nidle_lo = nidle_lo + 1;
+      end else runlen = 0;
+      if (m.b_MemX.StartMem_p_) begin
         if (!memfr_hit[memst_now]) begin memfr_hit[memst_now]=1'b1; nmemfr=nmemfr+1; end
       end else if (memst_now != 4'd0) nheld_nz = nheld_nz + 1;
+      if (m.b_MemX.StartMem_p_ && runlen == 1) nwin = nwin + 1;
       // Is the MAP ARRAY ever strobed? MosRam latches dout only on
       // !RAS' && !CAS' && WE'. Count edges, do not sample.
       if (m.b_MemX.u_a04.p4  !== pmras) begin nmras=nmras+1; pmras=m.b_MemX.u_a04.p4;  end
@@ -2211,8 +2240,12 @@ module tb_memrun;
     // has no effect on either enable.
     if (m.b_MemX.Use256_s_16KProm_p_ !== 1'b0)
       $fatal(1, "the 16K DRAM timing PROM (j13) is not enabled -- drive ChipsAre256/16K");
-    $display("tb_memrun:   MemState reached %0d of 16 values | StartMem' HIGH (counter free) on %0d of %0d, reaching %0d values there; non-zero while HELD: %0d",
-             nmemst, nfree, nsamp, nmemfr, nheld_nz);
+    $write("tb_memrun:   i14 ADDRESSES VISITED (Q2 high only at 3, 11, 19):");
+    for (int zi5 = 0; zi5 < 32; zi5++)
+      if (i14_hit[zi5] != 0) $write(" %0d=%0d", zi5, i14_hit[zi5]);
+    $display("");
+    $display("tb_memrun:   MemState reached %0d of 16 values | StartMem' HIGH (counter free) on %0d of %0d, reaching %0d values there; non-zero while HELD: %0d | %0d windows, LONGEST %0d sys_clk | in-window: Clk0'Dd edges %0d, CE'(MemIdle) low %0d",
+             nmemst, nfree, nsamp, nmemfr, nheld_nz, nwin, maxrun, ndd, nidle_lo);
     $display("tb_memrun:   DRAM TIMING PROM enables -- ChipsAre256/16K=%b ChipsAre64K=%b -> Use256/16KProm'=%b Use64KProm'=%b (CE' low = enabled)",
              chips16k, chips64k, m.b_MemX.Use256_s_16KProm_p_, m.b_MemX.Use64KProm_p_);
     $display("tb_memrun:   D0 CONJUNCTION -- WriteInMem'&!MapTrouble on %0d, all three on %0d of %0d",
