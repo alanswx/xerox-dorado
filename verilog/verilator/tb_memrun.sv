@@ -730,28 +730,30 @@
 //      enable. It has to BOOTSTRAP, which is why a short window and a
 //      mostly-high MemFree leave it turning over three states.
 //
-//      AND WALKING THE TABLES ANSWERS IT -- BUT ONLY AFTER READING THE CELL.
-//      `cell_SG10139` is MSB-FIRST: "A0 is the most significant ADDRESS bit
-//      and Q0 the most significant DATA bit", grounded in DiskProms'
-//      `Pin1 = #200`. A first pass here used LSB-first on BOTH the address
-//      and the data, for BOTH PROMs, and produced two wrong answers -- a
-//      bootstrap paradox on j13 that does not exist, and "preStartMem' is
-//      high at addresses 3, 11 and 19" on i14, which is also wrong. READ THE
-//      CELL BEFORE READING THE TABLE. This is the third time in this file
-//      that a PARC part's bit or pin convention has inverted a conclusion.
+//      THE j13 DECODE BELOW WAS WRONG, AND IT AGREED WITH THE SYMPTOM, which
+//      is why it survived. Hand-decoding the 16K timing PROM said Q5 (MemFree)
+//      alternates with MemState parity and Q0 (x10) is 0 at states 4 and 8.
+//      MEASURED PER STATE, in the running machine, it is neither:
 //
-//      j13 (the 16K DRAM timing PROM), address
-//      {RfshInMem, MemState.0-3} with RfshInMem on top, RfshInMem = 0:
+//          state 0:  MemFree = 0   x10 = 1
+//          state 1:  MemFree = 0   x10 = 1
+//          state 2:  MemFree = 1   x10 = 1
 //
-//        Q5 -> MemFree : 0 at every EVEN MemState, 1 at every odd one
-//        Q0 -> x10     : 0 at MemState 4 and 8, and NOWHERE ELSE
+//      The alternating story predicted a walk of 0 -> 1 -> 2 and a park, and
+//      three states is exactly what the machine shows -- so it looked
+//      confirmed. It was not: MemFree is 0,0,1, not 0,1,0. A DECODE THAT
+//      MERELY AGREES WITH THE SYMPTOM IS NOT EVIDENCE, and the cheap fix is
+//      to read the signal per state instead of deriving it, which is what
+//      this bench does now.
 //
-//      `MemIdle = StartMem' & MemFree`, so counting needs an EVEN state, and
-//      because j12 LATCHES MemFree the sequencer advances on alternate
-//      clocks: EACH MEMORY STATE TAKES TWO CLOCKS. With 9 rising `Clk0'Dd`
-//      edges in the 288-cycle window that is about 4 states, and 3 are
-//      observed. The model is consistent with itself. `MemWEa` needs
-//      MemState 4; the window delivers 3.
+//      What the measurement does establish: the machine walks 0 -> 1 -> 2 and
+//      PARKS THERE, because MemFree goes high at state 2 and MemIdle is
+//      `StartMem' & MemFree` -- so CE' rises and j16 stops counting. And x10,
+//      the third term of MemWEa's D0, is HIGH in every state reached, so the
+//      write phase is somewhere the cycle never gets to.
+//
+//      (RfshInMem is 0 across the whole window, so the half of j13's table
+//      being read is the one the hand decode assumed. That part was right.)
 //
 //      i14 (the map PROM), address
 //      {MapFnc.0', MapFnc.1', MapState.0, MapState.1, MapState.2}:
@@ -1076,7 +1078,8 @@ module tb_memrun;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [4:0] i14a; integer i14_hit [0:31];
   reg [3:0] memst_now; reg memst_hit [0:15]; integer runlen, maxrun, nwin, ndd, nidle_lo, winat;
-  reg pmfree, pmidle; integer nmfree_e, nmidle_e, nmfree_hi;
+  reg pmfree, pmidle; integer nmfree_e, nmidle_e, nmfree_hi, nrfsh;
+  reg mf_at [0:7]; reg x10_at [0:7]; reg mf_seen [0:7];
   integer npsh, ncoin, nmwlo, lastpsh, lastcoin, lastmwlo, lastmf00;
   reg [1:0] mf_now; integer mf_cnt [0:3];
   reg [2:0] ms3_now; integer ms3_cnt [0:7]; integer ms3_last [0:7];
@@ -2137,7 +2140,8 @@ module tb_memrun;
     for (int zi4 = 0; zi4 < 32; zi4++) i14_hit[zi4] = 0;
     runlen=0; maxrun=0; nwin=0; winat=-1;
     pmfree=m.b_MemX.MemFree; pmidle=m.b_MemX.MemIdle;
-    nmfree_e=0; nmidle_e=0; nmfree_hi=0;
+    nmfree_e=0; nmidle_e=0; nmfree_hi=0; nrfsh=0;
+    for (int zm2=0; zm2<8; zm2++) begin mf_at[zm2]=1'b0; x10_at[zm2]=1'b0; mf_seen[zm2]=1'b0; end
     npsh=0; ncoin=0; nmwlo=0; lastpsh=-1; lastcoin=-1; lastmwlo=-1; lastmf00=-1;
     for (int zf2 = 0; zf2 < 4; zf2++) mf_cnt[zf2] = 0;
     for (int zs3 = 0; zs3 < 8; zs3++) begin ms3_cnt[zs3]=0; ms3_last[zs3]=-1; end
@@ -2320,7 +2324,18 @@ module tb_memrun;
         // EVEN MemState -- half the time -- so both should alternate. j12
         // latches MemFree on MemIdle and MemIdle is derived from MemFree
         // through g13, so this feedback may be settling instead.
-        if (m.b_MemX.MemFree !== pmfree) begin nmfree_e = nmfree_e + 1; pmfree = m.b_MemX.MemFree; end
+        if (m.b_MemX.RfshInMem) nrfsh = nrfsh + 1;
+      // MEASURE MemFree PER MemState instead of decoding j13 by hand. The
+      // hand decode said Q5 alternates with state parity, which would make the
+      // walk 0 -> 1 -> 2 and park -- and 3 states is exactly what is seen. But
+      // a decode that merely AGREES with the symptom is not evidence; read the
+      // real thing.
+      if (memst_now < 8) begin
+        mf_at[memst_now]  = m.b_MemX.MemFree;
+        x10_at[memst_now] = m.b_MemX.MemX07_sil_pl_10;   // MemWEa's third term
+        mf_seen[memst_now] = 1'b1;
+      end
+      if (m.b_MemX.MemFree !== pmfree) begin nmfree_e = nmfree_e + 1; pmfree = m.b_MemX.MemFree; end
         if (m.b_MemX.MemIdle !== pmidle) begin nmidle_e = nmidle_e + 1; pmidle = m.b_MemX.MemIdle; end
         if (m.b_MemX.MemFree) nmfree_hi = nmfree_hi + 1;
       end else runlen = 0;
@@ -2538,6 +2553,12 @@ module tb_memrun;
     for (int zs4 = 0; zs4 < 8; zs4++)
       if (ms3_cnt[zs4] != 0) $write(" %0d=%0d(@%0d)", zs4, ms3_cnt[zs4], ms3_last[zs4]);
     $display("");
+    $write("tb_memrun:   MemFree MEASURED per MemState:");
+    for (int zm3 = 0; zm3 < 8; zm3++)
+      if (mf_seen[zm3]) $write("  state%0d: MemFree=%b x10=%b", zm3, mf_at[zm3], x10_at[zm3]);
+    $display("");
+    $display("tb_memrun:   RfshInMem high on %0d of the %0d in-window samples -- j13's TOP address bit",
+             nrfsh, nfree);
     $display("tb_memrun:   IN-WINDOW FEEDBACK -- MemFree edges %0d (high on %0d), MemIdle edges %0d, of %0d in-window samples",
              nmfree_e, nmfree_hi, nmidle_e, nfree);
     $display("tb_memrun:   MapFnc {0',1'} counts -- 00=%0d 01=%0d 10=%0d 11=%0d | last 00 (function pending) @%0d",
