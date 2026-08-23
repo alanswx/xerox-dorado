@@ -82,6 +82,54 @@ base register 31, and `IFUJump` consuming the entry. The C emulator is the
 oracle -- it can dump the expected IFUM entry and entry point for a given
 opcode, the way `alu-diff` and `boot0-test` compare against `cpu.c`.
 
+## MemState's bits are reversed -- confirmed, and NOT fixed (2026-08-23)
+
+`MemProms.bcpl` is what cracks this. It builds j13 as **four groups of eight**
+-- 'Read or write', 'Idle state', 'Refresh', 'Idle state' -- so of the five
+address bits the top two `{RfshInMem, MemState.0}` pick the GROUP and the low
+three `{MemState.1, MemState.2, MemState.3}` index within it. **A memory cycle
+is eight steps, not sixteen**, and `MemState.0 = 1` means idle.
+
+Decoding the read/write group MSB-first (Q0 = bit 7):
+
+| step | byte | x10 | MemFree |
+|---|---|---|---|
+| 0 | 353 | 1 | 0 |
+| **1** | 053 | **0** | 0 |
+| **2** | 153 | **0** | 0 |
+| 3 | 373 | 1 | 0 |
+| 4 | 352 | 1 | 0 |
+| 5 | 340 | 1 | 0 |
+| 6 | 306 | 1 | **1** |
+| 7 | 303 | 1 | 0 |
+
+So `MemWEa`'s write phase is **steps 1 and 2**, and `MemFree` parks the counter
+only at step 6.
+
+**Read in PARC's order, the machine visits steps 0 and 4 -- it JUMPS.** Because
+j16's F10016 wires **H0, its counter LSB, to `MemState.0`**, which the j13
+address makes the **high** bit. Incrementing flips read/write to idle and back
+instead of walking the sequence, so the cycle can never reach steps 1 and 2
+where the write lives.
+
+**Confirmed from both ends, and deliberately NOT fixed:**
+
+- j13's pins are A0=`RfshInMem`, A1=`MemState.0` ... A4=`MemState.3`, and
+  `cell_SG10139` is MSB-first -- so `MemState.0` is the address's high bit.
+- j16 wires H0 (pin 14) to `MemState.0`, and both the data sheet and EclDict's
+  `D0,11 > H0,14` pairing make H0 the counter's LSB.
+
+Either `cell_F10016`'s bit order is backwards -- the same trap as IM's address
+and F10145A/F10415A/F10470, which would make it the **fourth** instance -- or
+PARC numbered this one field LSB-first and the j13 wiring is deliberate.
+
+**Do not guess.** `cell_F10016` is in **226 packages** and several gates lean
+on it, including the terminal-count fix that once stopped the whole machine
+converging. Settle it the way the IM reversal was settled: find somewhere the
+answer is known independently -- a schematic sheet naming a state, or the C
+emulator's own memory sequencer -- rather than by whichever choice makes a
+bench pass.
+
 ## A decode that agreed with the symptom, and was wrong (2026-08-23)
 
 Hand-decoding j13, the 16K DRAM timing PROM, said its Q5 (`MemFree`)
