@@ -1100,17 +1100,77 @@ module tb_readback;
     end
   end
 
+  // SEED THE CACHE DATA MEMORY TOO. MemD's 72 F10470s are the cache; 36 of
+  // them drive D.00-17, two per bit (the columns wire-OR). Filling every one
+  // of their 4096 cells with that bit's value makes the cache answer the same
+  // word at every address, exactly as the DRAM seeding above does for
+  // storage -- so the RETURN path can be gated without first having to make
+  // a fill land at a known address.
+  //
+  // The pattern has CPAT[0] != CPAT[17] on purpose. The storage pattern's
+  // first version did not distinguish its two end stages and a mutation
+  // walked straight through the gate.
+  localparam [17:0] CPAT = 18'd52045;   // CPAT[k] is D.k
+  integer ci;
+  initial begin
+    for (ci = 0; ci < 4096; ci = ci + 1) begin
+      m.b_MemD.u_a03.mem[ci] = CPAT[0];
+      m.b_MemD.u_d03.mem[ci] = CPAT[0];
+      m.b_MemD.u_a05.mem[ci] = CPAT[1];
+      m.b_MemD.u_d05.mem[ci] = CPAT[1];
+      m.b_MemD.u_g03.mem[ci] = CPAT[2];
+      m.b_MemD.u_j03.mem[ci] = CPAT[2];
+      m.b_MemD.u_g05.mem[ci] = CPAT[3];
+      m.b_MemD.u_j05.mem[ci] = CPAT[3];
+      m.b_MemD.u_a13.mem[ci] = CPAT[4];
+      m.b_MemD.u_d13.mem[ci] = CPAT[4];
+      m.b_MemD.u_a15.mem[ci] = CPAT[5];
+      m.b_MemD.u_d15.mem[ci] = CPAT[5];
+      m.b_MemD.u_g13.mem[ci] = CPAT[6];
+      m.b_MemD.u_j13.mem[ci] = CPAT[6];
+      m.b_MemD.u_g15.mem[ci] = CPAT[7];
+      m.b_MemD.u_j15.mem[ci] = CPAT[7];
+      m.b_MemD.u_a09.mem[ci] = CPAT[8];
+      m.b_MemD.u_d09.mem[ci] = CPAT[8];
+      m.b_MemD.u_a11.mem[ci] = CPAT[9];
+      m.b_MemD.u_d11.mem[ci] = CPAT[9];
+      m.b_MemD.u_g09.mem[ci] = CPAT[10];
+      m.b_MemD.u_j09.mem[ci] = CPAT[10];
+      m.b_MemD.u_g11.mem[ci] = CPAT[11];
+      m.b_MemD.u_j11.mem[ci] = CPAT[11];
+      m.b_MemD.u_a17.mem[ci] = CPAT[12];
+      m.b_MemD.u_d17.mem[ci] = CPAT[12];
+      m.b_MemD.u_a19.mem[ci] = CPAT[13];
+      m.b_MemD.u_d19.mem[ci] = CPAT[13];
+      m.b_MemD.u_g17.mem[ci] = CPAT[14];
+      m.b_MemD.u_j17.mem[ci] = CPAT[14];
+      m.b_MemD.u_g19.mem[ci] = CPAT[15];
+      m.b_MemD.u_j19.mem[ci] = CPAT[15];
+      m.b_MemD.u_a07.mem[ci] = CPAT[16];
+      m.b_MemD.u_d07.mem[ci] = CPAT[16];
+      m.b_MemD.u_g07.mem[ci] = CPAT[17];
+      m.b_MemD.u_j07.mem[ci] = CPAT[17];
+    end
+  end
+
   // CAPTURE AT THE LOAD EDGE. The '166 is loaded by very few OutCKa edges in
   // a whole reference, so a sample at a fixed offset misses them and reads an
   // empty register -- which looks exactly like a dead read path. And once SLa
   // goes high the part is shifting again, with SI grounded, so the word is
   // replaced by zeros within a few clocks.
   integer n_load_edge_rb, n_sin_hi, n_sind_hi;
+  integer n_d00, n_mdd, n_dmd, n_md, n_d00_e, n_dmd_e, n_md_e;
+  reg d00_last, dmd_last, md_last;
+  integer n_coin_dmd, n_h05out, n_cwe, n_cce, n_d0in, n_dmd_ok, n_md_ok, n_dmd16, n_md16;
+  reg [17:0] dmd_cap, md_cap;
   reg outck_d_rb, load_pend_rb, seen_load;
   reg [7:0] q_at_load;
   reg sin_at_load, qh_at_load;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
+    n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0;
+    dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
     q_at_load = 8'hxx; sin_at_load = 1'bx; qh_at_load = 1'bx;
   end
@@ -1131,6 +1191,48 @@ module tb_readback;
     end
     outck_d_rb <= m.b_msa.OutCKa;
     if (m.Sin_00)         n_sin_hi  = n_sin_hi  + 1;
+    // ...and onward down the RETURN PATH, every hop off the wire lists:
+    //   SinD -> muxes -> D0in/D1in -> 72x F10470 cache -> D.00-17
+    //        -> h05 (MC10197, enabled by MD_D) -> dMD -> ProcH i01 -> Md
+    if (m.b_MemD.D_00)      n_d00  = n_d00  + 1;
+    if (m.b_MemD.MD_u_D)    n_mdd  = n_mdd  + 1;
+    if (m.dMD_00)           n_dmd  = n_dmd  + 1;
+    if (m.b_ProcH.Md_00)    n_md   = n_md   + 1;
+    // COUNT THE COINCIDENCE, not the levels. h05 is a hex AND with a common
+    // strobe -- dMD.00 = D.00 & MD_D -- so two signals that are each high a
+    // lot can still never be high TOGETHER, which is what a dead output at
+    // the end of two live inputs actually means.
+    if (m.b_MemD.D_00 && m.b_MemD.MD_u_D) n_coin_dmd = n_coin_dmd + 1;
+    if (m.b_MemD.dMD_00__h05_2)           n_h05out   = n_h05out   + 1;
+    // Capture the RETURN word whenever the cache is the selected source.
+    // MD_D picks between h05 (the cache read data) and h04 (the small MD
+    // register memory) -- their enables are complementary -- so MD_D high is
+    // exactly when dMD should be carrying D.
+    if (m.b_MemD.MD_u_D) begin
+      dmd_cap = {m.dMD_17, m.dMD_16, m.dMD_15, m.dMD_14, m.dMD_13, m.dMD_12,
+                 m.dMD_11, m.dMD_10, m.dMD_09, m.dMD_08, m.dMD_07, m.dMD_06,
+                 m.dMD_05, m.dMD_04, m.dMD_03, m.dMD_02, m.dMD_01, m.dMD_00};
+      md_cap  = {m.b_ProcL.Md_17, m.b_ProcH.Md_16,
+                 m.b_ProcL.Md_15, m.b_ProcL.Md_14, m.b_ProcL.Md_13, m.b_ProcL.Md_12,
+                 m.b_ProcL.Md_11, m.b_ProcL.Md_10, m.b_ProcL.Md_09, m.b_ProcL.Md_08,
+                 m.b_ProcH.Md_07, m.b_ProcH.Md_06, m.b_ProcH.Md_05, m.b_ProcH.Md_04,
+                 m.b_ProcH.Md_03, m.b_ProcH.Md_02, m.b_ProcH.Md_01, m.b_ProcH.Md_00};
+      if (dmd_cap == CPAT) n_dmd_ok = n_dmd_ok + 1;
+      if (md_cap  == CPAT) n_md_ok  = n_md_ok  + 1;
+      // ...and the 16-bit DATA word on its own. Bits 16 and 17 are the
+      // cache's parity bits, which the board generates rather than simply
+      // handing through, so they are counted separately.
+      if (dmd_cap[15:0] == CPAT[15:0]) n_dmd16 = n_dmd16 + 1;
+      if (md_cap[15:0]  == CPAT[15:0]) n_md16  = n_md16  + 1;
+    end
+    // IS THE CACHE BEING FILLED AT ALL? a03 is one of the 72 F10470s that
+    // are the cache data memory; WE' is pin 15, CE' pin 16, DI pin 17.
+    if (!m.b_MemD.u_a03.p15) n_cwe = n_cwe + 1;
+    if (!m.b_MemD.u_a03.p16) n_cce = n_cce + 1;
+    if (m.b_MemD.D0in_00)    n_d0in = n_d0in + 1;
+    if (m.b_MemD.D_00  !== d00_last)  begin d00_last  = m.b_MemD.D_00;  n_d00_e = n_d00_e + 1; end
+    if (m.dMD_00       !== dmd_last)  begin dmd_last  = m.dMD_00;       n_dmd_e = n_dmd_e + 1; end
+    if (m.b_ProcH.Md_00!== md_last)   begin md_last   = m.b_ProcH.Md_00;n_md_e  = n_md_e  + 1; end
     if (m.b_MemD.SinD_00) n_sind_hi = n_sind_hi + 1;
   end
 
@@ -3027,10 +3129,37 @@ module tb_readback;
     if (n_sin_hi == 0)
       $fatal(1, "Sin.00 never went high -- the word never left the storage board");
 
+    $display("tb_readback: RETURN PATH -- D.00 high %0d (edges %0d) | MD_D high %0d | dMD.00 high %0d (edges %0d) | Md.00 high %0d (edges %0d)",
+             n_d00, n_d00_e, n_mdd, n_dmd, n_dmd_e, n_md, n_md_e);
+    $display("tb_readback:   h05 gate -- D.00 & MD_D coincide on %0d samples; h05's own output stub high on %0d",
+             n_coin_dmd, n_h05out);
+    $display("tb_readback:   cache fill -- a03 WE' low on %0d, CE' low on %0d, D0in.00 high on %0d",
+             n_cwe, n_cce, n_d0in);
+    $display("tb_readback:   RETURN WORD (cache seeded %b) -- dMD=%b matched on %0d | Md=%b matched on %0d",
+             CPAT, dmd_cap, n_dmd_ok, md_cap, n_md_ok);
+    $display("tb_readback:   ...16-bit data word alone -- dMD matched on %0d, Md matched on %0d of %0d MD_D samples",
+             n_dmd16, n_md16, n_mdd);
+    // GATE: THE RETURN PATH CARRIES THE WORD ALL THE WAY TO THE PROCESSOR.
+    //   cache (F10470) -> D.00-17 -> h05 (MC10197, strobe MD_D) -> dMD
+    //   -> ProcH/ProcL i01 (MC10175) -> Md.00-17
+    // Md is what microcode reads (T<-Md, B<-Md) and what cpu.c models, so
+    // this is the first memory result expressed in the same terms by both.
+    if (n_mdd == 0)
+      $fatal(1, "MD_D never asserted -- the cache was never selected as the MD source");
+    if (n_dmd16 == 0)
+      $fatal(1, "the seeded cache word never reached dMD (last dMD=%b, want %b)",
+             dmd_cap, CPAT);
+    if (n_md16 == 0)
+      $fatal(1, "the seeded cache word never reached Md on the processor (last Md=%b, want %b)",
+             md_cap, CPAT);
+
     $display("tb_readback: PASS -- A WORD COMES OUT OF PARC'S STORAGE ARRAY:");
     $display("tb_readback:   real microcode runs, the memory section sequences a DRAM cycle,");
     $display("tb_readback:   the MK4096s are parallel-loaded into the SN74166s in the part's");
     $display("tb_readback:   own stage order, and the data reaches Sin on the backplane.");
+    $display("tb_readback:   AND THE RETURN PATH CARRIES A WORD TO THE PROCESSOR: a seeded");
+    $display("tb_readback:   cache word arrives intact on dMD and on Md, which is what");
+    $display("tb_readback:   microcode reads and what cpu.c models.");
     $finish;
   end
 
