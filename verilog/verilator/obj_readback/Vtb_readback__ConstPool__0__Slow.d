@@ -1,0 +1,12 @@
+Vtb_readback__ConstPool__0__Slow.o: \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_readback/Vtb_readback__pch.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_config.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilatedos.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_types.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_funcs.h \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_readback/Vtb_readback__Syms.h \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_readback/Vtb_readback.h \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_readback/Vtb_readback___024root.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_timing.h \
+  Vtb_readback__ConstPool__0__Slow.cpp

@@ -1237,3 +1237,40 @@ measurement counted LEVELS: "`StartMapClk0'a` high on 680 of 704" reads like a
 clock that is running constantly, and it is four edges. COUNT EDGES, and count
 the COINCIDENCE with the D input -- a clock edge and an asserted D are the
 only thing that can move a flip-flop.
+
+### A word comes out of storage (2026-08-23)
+
+`make -C verilog readback-test`. Eight boards -- ContA, ContB, ProcH, ProcL,
+MemC, MemD, MemX and the MSA -- with real `AEmu.mb!2` microcode walked into IM
+and executing, the memory section sequencing a DRAM cycle of its own accord,
+and a **known word coming back out of the MK4096 array onto the backplane**.
+
+The path is BIT-SERIAL, and every hop is off the wire lists:
+
+```
+8 x MK4096 DOUT -> SN74166 (parallel-in, serial-out) -> MC10124 (TTL->ECL)
+                -> c01 (MC10176) -> Sin.00-15 -> MemD c02 (clk2'Aa) -> SinD
+```
+
+a13's eight stages and the DRAM on each: `A b05, B c05, C d05, D e05, E e06,
+F d06, G c06, H b06`.
+
+**How the word is seeded, and why it needs no address.** Every one of the 4096
+cells in each of those eight DRAMs is preloaded with that DRAM's own bit of a
+fixed pattern, so the array answers the SAME word at every address. Whatever
+the running microcode chooses to reference, a load of the '166 must produce
+exactly it -- which sidesteps steering the machine to a particular address,
+the genuinely hard part.
+
+**Mutation-tested, and the first pattern had a blind spot.** Four mutations:
+reversing the '166 load order, driving QH from the A stage, seeding one DRAM
+wrong, and zeroing a DRAM. Three were caught immediately; **QH-from-A sailed
+through**, because the first pattern was `8'b10101101`, whose bit 0 and bit 7
+are both 1. The pattern is `8'b10101100` now -- A=0, H=1 -- and all four are
+caught. A pattern has to distinguish every failure it claims to catch.
+
+**Scope, stated honestly:** this is gated against PARC's own netlist and the
+seeded data, NOT against the C emulator. `memory.c` is a functional model with
+no bit-serial storage path, so there is nothing at this level to diff it
+against; the C cross-check that does exist for the memory front door is
+`refdecode-test`, against `cpu.c`'s reference-kind rule.

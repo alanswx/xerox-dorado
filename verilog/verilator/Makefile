@@ -434,6 +434,18 @@ storage-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_storage/tb_storage 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_storage|Assertion"; exit $$rc; }
 
+
+readback-test:
+	@cd ../.. && $(V) --binary --top-module tb_readback $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_readback -o tb_readback \
+		verilog/verilator/tb_readback.sv verilog/generated/dorado_storage.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_readback/tb_readback 2>&1); \
+		  rc=$$?; echo "$$out" | grep -E "tb_readback|Assertion"; exit $$rc; }
+
 muffler-test:
 	@cd ../.. && $(V) --binary --top-module tb_muffler $(V_WARN) \
 		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \
