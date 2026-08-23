@@ -779,13 +779,33 @@
 //      address 24 (672 visits) = MapState 0 with NO map function pending,
 //      i.e. idle, plus 28 (483), 8 (448) and 0 (384).
 //
-//      SO: THE MAP SEQUENCER STOPS REACHING STATE 3 WITH A FUNCTION PENDING,
-//      even though this loop issues `<-Map` every fourth microinstruction.
-//      Next: log `MapFnc.0'`/`MapFnc.1'` against the `<-Map` instruction and
-//      find whether the second and later Maps set the function at all. Both
-//      signals are already probed here, and MapFnc was measured earlier
-//      taking only 2 of its 4 values -- that is the same fact from the other
-//      side.
+//      AND THE TWO HALVES STOP COINCIDING -- NEITHER ONE STOPS. Address 3
+//      needs BOTH MapFnc bits low AND MapState = 3, and measured separately
+//      over 3000 samples:
+//
+//          MapFnc = 00 (a function IS pending) : 597 cycles, last @2133
+//          MapState = 3                        : 320 cycles, last @2581
+//          BOTH (i.e. address 3)               : 192 cycles, LAST @213
+//
+//      So the map function keeps being issued and the map sequencer keeps
+//      reaching state 3, but after sample 213 THEY NEVER LINE UP AGAIN. That
+//      is a PHASE relationship, not a missing signal, and it is the classic
+//      shape of two things free-running at rates that no longer agree: this
+//      loop presents a reference every four microinstructions while the map
+//      sequencer walks at its own pace.
+//
+//      (MapFnc's full distribution, {MapFnc.0', MapFnc.1'}: 00=597, 01=832,
+//      10=32, 11=1539. MapState visits all eight of its values, 0=1536,
+//      1=128, 2=128, 3=320, 4=547, 5=149, 6=128, 7=64.)
+//
+//      NEXT: this is a beat-frequency question. Log the SAMPLE NUMBERS of
+//      the MapFnc=00 runs and of the MapState=3 runs and compare their
+//      periods -- if the loop's 4-microinstruction cadence and the map
+//      sequencer's cycle are near-commensurate, changing the loop LENGTH by
+//      one instruction should move the coincidence, which is a cheap and
+//      decisive experiment. Note that a previous attempt to change loop
+//      length (a second hunk of non-references) broke the Store-to-Flush
+//      pairing, so vary the length WITHOUT separating those two.
 //
 //      WORTH GENERALISING, and the count is now four: i10, j22 and j12 all
 //      have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are
@@ -945,7 +965,9 @@ module tb_memrun;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [4:0] i14a; integer i14_hit [0:31];
   reg [3:0] memst_now; reg memst_hit [0:15]; integer runlen, maxrun, nwin, ndd, nidle_lo, winat;
-  integer npsh, ncoin, nmwlo, lastpsh, lastcoin, lastmwlo;
+  integer npsh, ncoin, nmwlo, lastpsh, lastcoin, lastmwlo, lastmf00;
+  reg [1:0] mf_now; integer mf_cnt [0:3];
+  reg [2:0] ms3_now; integer ms3_cnt [0:7]; integer ms3_last [0:7];
   reg pdd;
   integer nmemst, nfree, nmemfr, nheld_nz;
   reg memfr_hit [0:15];
@@ -1997,7 +2019,9 @@ module tb_memrun;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
     for (int zi4 = 0; zi4 < 32; zi4++) i14_hit[zi4] = 0;
     runlen=0; maxrun=0; nwin=0; winat=-1;
-    npsh=0; ncoin=0; nmwlo=0; lastpsh=-1; lastcoin=-1; lastmwlo=-1; ndd=0; nidle_lo=0; pdd=m.b_MemX.Clk0_p_Dd;
+    npsh=0; ncoin=0; nmwlo=0; lastpsh=-1; lastcoin=-1; lastmwlo=-1; lastmf00=-1;
+    for (int zf2 = 0; zf2 < 4; zf2++) mf_cnt[zf2] = 0;
+    for (int zs3 = 0; zs3 < 8; zs3++) begin ms3_cnt[zs3]=0; ms3_last[zs3]=-1; end ndd=0; nidle_lo=0; pdd=m.b_MemX.Clk0_p_Dd;
     nmemst=0; nfree=0; nmemfr=0; nheld_nz=0;
     for (int zf = 0; zf < 16; zf++) memfr_hit[zf] = 1'b0;
     for (int zm = 0; zm < 16; zm++) memst_hit[zm] = 1'b0;
@@ -2091,6 +2115,15 @@ module tb_memrun;
         if (!m.b_MemX.MapWait) begin ncoin = ncoin + 1; lastcoin = nsamp; end
       end
       if (!m.b_MemX.MapWait) begin nmwlo = nmwlo + 1; lastmwlo = nsamp; end
+      // A memory cycle needs BOTH MapFnc bits LOW (a map function pending)
+      // at MapState 3. Which values does MapFnc actually take, and when?
+      mf_now = {m.b_MemX.MapFnc_0_p_, m.b_MemX.MapFnc_1_p_};
+      mf_cnt[mf_now] = mf_cnt[mf_now] + 1;
+      if (mf_now == 2'b00) lastmf00 = nsamp;
+      // MapState, PARC's numbering: MapState.0 is the MSB.
+      ms3_now = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
+      ms3_cnt[ms3_now] = ms3_cnt[ms3_now] + 1;
+      ms3_last[ms3_now] = nsamp;
       if (!m.b_MemX.StartMem_p_)    nsm2  = nsm2  + 1;
       // F10016 i10: PE'=MemIdle loads when LOW, CE'=TrueBD counts when LOW.
       if (!m.b_MemX.MemIdle)        nload = nload + 1;   // held in LOAD
@@ -2338,6 +2371,12 @@ module tb_memrun;
     // has no effect on either enable.
     if (m.b_MemX.Use256_s_16KProm_p_ !== 1'b0)
       $fatal(1, "the 16K DRAM timing PROM (j13) is not enabled -- drive ChipsAre256/16K");
+    $write("tb_memrun:   MapState counts (last sample):");
+    for (int zs4 = 0; zs4 < 8; zs4++)
+      if (ms3_cnt[zs4] != 0) $write(" %0d=%0d(@%0d)", zs4, ms3_cnt[zs4], ms3_last[zs4]);
+    $display("");
+    $display("tb_memrun:   MapFnc {0',1'} counts -- 00=%0d 01=%0d 10=%0d 11=%0d | last 00 (function pending) @%0d",
+             mf_cnt[0], mf_cnt[1], mf_cnt[2], mf_cnt[3], lastmf00);
     $display("tb_memrun:   WINDOW OPENER -- preStartMem' HIGH on %0d (last @%0d), MapWait LOW on %0d (last @%0d), BOTH on %0d (last @%0d)",
              npsh, lastpsh, nmwlo, lastmwlo, ncoin, lastcoin);
     $write("tb_memrun:   i14 ADDRESSES VISITED (Q2 = preStartMem' high ONLY at 3):");
