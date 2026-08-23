@@ -64,16 +64,22 @@
 //     '166 load-then-shift sequence. That asymmetry is the useful fact for
 //     the next rung -- the hard half is the read.
 //
-//     THEIR CLOCKS ARE THE BOARD'S OWN, AND CORRECTLY QUIET HERE. b01 clocks
+//     THEIR CLOCKS ARE THE BOARD'S OWN, AND THE BOARD NEEDS ITS SLOT CLOCK.
+//     b01 clocks
 //     on `msa01.sil+4` from e13 (MC10210) off `c1`/`c2`, and c01 on
 //     `msa01.sil+3` from h01 off `SO` -- and `c1`, `c2` and `SO` are INTERNAL
 //     nets, driven by MC10176/MC10210 packages on the MSA itself. They are an
 //     on-board sequencer fed by MemX's `LoadSinE`/`ShiftSinE`/`LoadSoutE'`/
-//     `ShiftSoutE`, so they run when a REFERENCE runs. This startup issues
-//     none, and measured they take 0 edges -- which is the board behaving.
-//     So what is asserted is that they are DEFINED, exactly as for the
-//     strobes; demanding edges here would be demanding the wrong thing, and
-//     a first version of this gate did.
+//     `ShiftSoutE` -- BUT ALSO, AND FIRST, BY `CLK.ms0Even'`, THE MSA'S OWN
+//     SLOT CLOCK. Everything on that sequencer traces back to it.
+//
+//     A first version of this bench did not drive it, measured 0 edges on
+//     both registers, and concluded the board was correctly quiet until a
+//     reference ran. IT WAS NOT: the storage board simply had no clock, and
+//     an unclocked board makes every one of its signals look properly gated.
+//     That is the same trap `dorado_mem` sets with `CLK.mc'`/`CLK.md'`/
+//     `CLK.mx'`, one board later. Driven, the registers take 1250 and 2500
+//     edges, so this now asserts EDGES rather than mere definedness.
 //
 //  4. THE MEMORY SIZE ARRIVES FROM THE STORAGE BOARD, WHICH IS THE POINT OF
 //     HAVING IT. `ChipsAre64K` is the chip enable on one of the two DRAM
@@ -108,6 +114,13 @@ module tb_storage;
       .sys_clk(sys_clk),
       .CLK_ca_p_(mclk), .CLK_cb_p_(mclk), .CLK_ph_p_(mclk), .CLK_pl_p_(mclk),
       .CLK_mc_p_(mclk), .CLK_md_p_(mclk), .CLK_mx_p_(mclk),
+      // THE STORAGE BOARD HAS ITS OWN SLOT CLOCK, and leaving it undriven is
+      // the same trap dorado_mem set with CLK.mc'/CLK.md'/CLK.mx': the board
+      // simply does not run, and every quiet signal on it then looks like
+      // correct gating. `CLK.ms0Even'` feeds the MSA's whole on-board
+      // sequencer -- c1, c2, SO, SLa, OutCKa and ShiftLoad' all trace back
+      // to it, and so do the two data-path register clocks.
+      .CLK_ms0Even_p_(mclk),
       .CPAddr_0_p_(addr_n[2]), .CPAddr_1_p_(addr_n[1]), .CPAddr_2_p_(addr_n[0]),
       .CPOut_0(cpout[8]), .CPOut_1(cpout[7]), .CPOut_2(cpout[6]),
       .CPOut_3(cpout[5]), .CPOut_4(cpout[4]), .CPOut_5(cpout[3]),
@@ -191,12 +204,13 @@ module tb_storage;
       $fatal(1, "the DRAM strobes never reached the storage board (RAS'=%b CAS'=%b)",
              m.b_msa.MemRASa, m.b_msa.MemCASa);
 
-    // 3. both data-path register clocks are DEFINED. They come from the
-    //    board's own sequencer off MemX's load/shift controls, so they are
-    //    correctly still until a reference runs -- see the header.
-    if (m.b_msa.msa01_sil_pl_4 === 1'bx || m.b_msa.msa01_sil_pl_3 === 1'bx)
-      $fatal(1, "the MSA data-path register clocks never resolved (write=%b read=%b)",
-             m.b_msa.msa01_sil_pl_4, m.b_msa.msa01_sil_pl_3);
+    // 3. BOTH DATA-PATH REGISTERS CLOCK. Sout cannot reach the array and Sin
+    //    cannot leave it otherwise. This failed until the board's own slot
+    //    clock was driven -- see the header -- and the failure looked exactly
+    //    like correct gating.
+    if (nwclk == 0 || nrclk == 0)
+      $fatal(1, "the MSA data-path registers are not clocked (write %0d, read %0d edges) -- is CLK.ms0Even' driven?",
+             nwclk, nrclk);
 
     // 4. the memory size arrives over the backplane rather than from a
     //    testbench input -- i.e. the E55 case variant is still merged.
