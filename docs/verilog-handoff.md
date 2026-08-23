@@ -88,6 +88,10 @@ make -C verilog memrun-test     THE MEMORY RUNS: DRAM cycles from PARC's own
                                 an entry and MapTrouble clears, a storage cycle
                                 starts
 make -C verilog mem-test        the memory section is in a machine and clocked
+make -C verilog msa-test        A WORD GOES INTO THE STORAGE ARRAY: the msa
+                                board standalone, where the bench owns the DRAM
+                                strobes -- Sout registered, translated to TTL,
+                                and written into the MK4096s
 make -C verilog storage-test    THE STORAGE ARRAY is in a machine: PARC's msa
                                 board with its 144 MK4096 DRAMs, its address
                                 path inverting through the SN74H04s, and the
@@ -172,6 +176,27 @@ MK4096 pin 14, DOUT -> ... -> c01 D-inputs
 while MemD drives `Sout`, which is worth stating because the names do not give
 it away. And the word is **not presented in parallel**: it is registered, then
 shifted.
+
+**A WORD NOW GOES INTO THE ARRAY (2026-08-23).** `msa-test` drives the board
+**standalone**, where the bench owns the DRAM strobes -- `storage-test` cannot,
+because in a machine they come from MemX and need a real memory reference. The
+sequence is: present `Sout`, pulse `LoadSoutE'` with `Mod0StrEn'` low to
+register it, then a DRAM cycle -- row on `RAS'` falling, column on `CAS'`
+falling, `WE'` low for an early write. Measured:
+
+```
+Sout -> b01 Q (msa04.sil+32/33) = 11 -> b02 (msa04.sil+8) = 1 -> b05 DIN = 1
+writing 0000 -> DIN=0, 0 cells set        writing FFFF -> DIN=1, 1 cell set
+```
+
+Exactly one cell, at one location. Mutation-tested: breaking the MC10125
+translator and disabling the MK4096's write are both caught.
+
+**Probe a DATA bit, not an ECC bit.** The first attempt watched `u_b04` and saw
+a permanent 0 that looked like a dead write path. b04 is an **ECC** DRAM, fed
+from f01/f02 off `EcOut`, which the bench was holding at 0. `u_b05` is the data
+bit carrying `Sout.00`, and it was working all along. The two sit side by side
+in the same package row.
 
 **And the two sides are not symmetric -- the shift registers are on the READ
 side only.** An SN74166 is parallel-in / serial-out (pin 15 SH/LD', pin 7
