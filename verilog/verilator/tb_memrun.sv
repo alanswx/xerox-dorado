@@ -798,14 +798,55 @@
 //      10=32, 11=1539. MapState visits all eight of its values, 0=1536,
 //      1=128, 2=128, 3=320, 4=547, 5=149, 6=128, 7=64.)
 //
-//      NEXT: this is a beat-frequency question. Log the SAMPLE NUMBERS of
-//      the MapFnc=00 runs and of the MapState=3 runs and compare their
-//      periods -- if the loop's 4-microinstruction cadence and the map
-//      sequencer's cycle are near-commensurate, changing the loop LENGTH by
-//      one instruction should move the coincidence, which is a cheap and
-//      decisive experiment. Note that a previous attempt to change loop
-//      length (a second hunk of non-references) broke the Store-to-Flush
-//      pairing, so vary the length WITHOUT separating those two.
+//      AND IT IS A BEAT FREQUENCY, MEASURED. Logging the ONSET of every run
+//      of each condition:
+//
+//        MapFnc=00 onsets : 1, 406, 662, 918, 1558, 1814, 2070
+//                           intervals 405, 256, 256, 640, 256, 256
+//        MapState=3 onsets: 22, 1494, 2518
+//                           intervals 1472, 1024
+//
+//      MapFnc=00 recurs every 256 samples (with occasional skips), MapState=3
+//      every ~1024-1472. The FIRST MapState=3 run, at 22, falls inside the
+//      MapFnc window that opened at 1 -- and that single overlap is the only
+//      memory start in the whole run. Afterwards MapState=3 lands in the
+//      GAPS: 1494 sits between the window at 918 (which ends about 1003) and
+//      the next at 1558; 2518 sits past 2070's. THEY MISS BY PHASE, EXACTLY
+//      AS THE COUNTS SUGGESTED.
+//
+//      AND 256 SAMPLES IS FOUR LOOP ITERATIONS. This loop is four
+//      microinstructions and a microinstruction is 16 sys_clk, so one
+//      iteration is 64 samples: the map function is accepted only on every
+//      FOURTH `<-Map`, not on every one. That is worth knowing on its own --
+//      the map has its own accept cadence, and this bench is asking faster
+//      than it answers.
+//
+//      AND THE LOOP IS PHASE-FRAGILE IN BOTH DIRECTIONS, which settles what
+//      the remaining gap IS. Adding ONE non-reference at IM[4] -- after the
+//      Flush, leaving the Store (IM[1]) and its Flush (IM[2]) ADJACENT --
+//      breaks `HitColDirty` just as the earlier four-instruction insertion
+//      did. So the dirty line's survival to its flush is not a matter of
+//      adjacency; it too depends on the phase this four-instruction loop
+//      happens to sit in.
+//
+//      So: at four instructions the Store/Flush pair works and the map
+//      window is missed; at five the map phase moves and the pair breaks.
+//      THIS IS AN ARTEFACT OF AN ARTIFICIAL LOOP, NOT AN RTL FAULT. Nothing
+//      here is broken -- MapState visits all eight of its values, MapFnc all
+//      the ones it should, the reference machinery is gated end to end, and
+//      the PROM tables agree with the running machine to the cycle
+//      (192 = 192).
+//
+//      THE RIGHT NEXT STEP IS AUTHENTIC MICROCODE, not a better hand-built
+//      loop. Real microcode issues a reference and then does other work, so
+//      it does not fight the map's accept cadence. PARC wrote memory
+//      diagnostics for exactly this, and the C emulator already passes six
+//      of them (`build/rundiag`, docs/running-diagnostics.md) -- so there is
+//      a known-good exerciser AND a known-good oracle. Load one of those
+//      into IM through the boot0 path this bench already uses, and gate the
+//      RTL's storage cycle against the C emulator's, the way alu-diff and
+//      boot0-test do. That replaces every remaining guess about cadence with
+//      Xerox's own.
 //
 //      WORTH GENERALISING, and the count is now four: i10, j22 and j12 all
 //      have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are
@@ -968,6 +1009,8 @@ module tb_memrun;
   integer npsh, ncoin, nmwlo, lastpsh, lastcoin, lastmwlo, lastmf00;
   reg [1:0] mf_now; integer mf_cnt [0:3];
   reg [2:0] ms3_now; integer ms3_cnt [0:7]; integer ms3_last [0:7];
+  reg pmf00, pms3; integer nmf00on, nms3on;
+  integer mf00at [0:11]; integer ms3at [0:11];
   reg pdd;
   integer nmemst, nfree, nmemfr, nheld_nz;
   reg memfr_hit [0:15];
@@ -2021,7 +2064,9 @@ module tb_memrun;
     runlen=0; maxrun=0; nwin=0; winat=-1;
     npsh=0; ncoin=0; nmwlo=0; lastpsh=-1; lastcoin=-1; lastmwlo=-1; lastmf00=-1;
     for (int zf2 = 0; zf2 < 4; zf2++) mf_cnt[zf2] = 0;
-    for (int zs3 = 0; zs3 < 8; zs3++) begin ms3_cnt[zs3]=0; ms3_last[zs3]=-1; end ndd=0; nidle_lo=0; pdd=m.b_MemX.Clk0_p_Dd;
+    for (int zs3 = 0; zs3 < 8; zs3++) begin ms3_cnt[zs3]=0; ms3_last[zs3]=-1; end
+    pmf00=0; pms3=0; nmf00on=0; nms3on=0;
+    for (int zo = 0; zo < 12; zo++) begin mf00at[zo]=-1; ms3at[zo]=-1; end ndd=0; nidle_lo=0; pdd=m.b_MemX.Clk0_p_Dd;
     nmemst=0; nfree=0; nmemfr=0; nheld_nz=0;
     for (int zf = 0; zf < 16; zf++) memfr_hit[zf] = 1'b0;
     for (int zm = 0; zm < 16; zm++) memst_hit[zm] = 1'b0;
@@ -2119,11 +2164,25 @@ module tb_memrun;
       // at MapState 3. Which values does MapFnc actually take, and when?
       mf_now = {m.b_MemX.MapFnc_0_p_, m.b_MemX.MapFnc_1_p_};
       mf_cnt[mf_now] = mf_cnt[mf_now] + 1;
-      if (mf_now == 2'b00) lastmf00 = nsamp;
+      if (mf_now == 2'b00) begin
+        lastmf00 = nsamp;
+        if (!pmf00) begin                       // ONSET of a MapFnc=00 run
+          if (nmf00on < 12) mf00at[nmf00on] = nsamp;
+          nmf00on = nmf00on + 1;
+        end
+        pmf00 = 1'b1;
+      end else pmf00 = 1'b0;
       // MapState, PARC's numbering: MapState.0 is the MSB.
       ms3_now = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
       ms3_cnt[ms3_now] = ms3_cnt[ms3_now] + 1;
       ms3_last[ms3_now] = nsamp;
+      if (ms3_now == 3'd3) begin
+        if (!pms3) begin                        // ONSET of a MapState=3 run
+          if (nms3on < 12) ms3at[nms3on] = nsamp;
+          nms3on = nms3on + 1;
+        end
+        pms3 = 1'b1;
+      end else pms3 = 1'b0;
       if (!m.b_MemX.StartMem_p_)    nsm2  = nsm2  + 1;
       // F10016 i10: PE'=MemIdle loads when LOW, CE'=TrueBD counts when LOW.
       if (!m.b_MemX.MemIdle)        nload = nload + 1;   // held in LOAD
@@ -2371,6 +2430,12 @@ module tb_memrun;
     // has no effect on either enable.
     if (m.b_MemX.Use256_s_16KProm_p_ !== 1'b0)
       $fatal(1, "the 16K DRAM timing PROM (j13) is not enabled -- drive ChipsAre256/16K");
+    $write("tb_memrun:   MapFnc=00 ONSETS (%0d total):", nmf00on);
+    for (int zo2 = 0; zo2 < 12; zo2++) if (mf00at[zo2] >= 0) $write(" %0d", mf00at[zo2]);
+    $display("");
+    $write("tb_memrun:   MapState=3 ONSETS (%0d total):", nms3on);
+    for (int zo3 = 0; zo3 < 12; zo3++) if (ms3at[zo3] >= 0) $write(" %0d", ms3at[zo3]);
+    $display("");
     $write("tb_memrun:   MapState counts (last sample):");
     for (int zs4 = 0; zs4 < 8; zs4++)
       if (ms3_cnt[zs4] != 0) $write(" %0d=%0d(@%0d)", zs4, ms3_cnt[zs4], ms3_last[zs4]);

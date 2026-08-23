@@ -3114,13 +3114,48 @@ Two things remain, both small and both stated by measurement:
    MapState visits all eight: 0=1536, 1=128, 2=128, 3=320, 4=547, 5=149,
    6=128, 7=64.)
 
-   **Next:** this is a beat-frequency question. Log the sample numbers of the
-   MapFnc=00 runs and the MapState=3 runs and compare their periods. If the
-   loop's 4-microinstruction cadence and the map sequencer's cycle are
-   near-commensurate, changing the loop **length** by one instruction should
-   move the coincidence -- a cheap, decisive experiment. Note that an earlier
-   attempt to change loop length (a second hunk of non-references) broke the
-   Store-to-Flush pairing, so vary the length **without** separating those two.
+   **And it is a beat frequency, measured.** Logging the onset of every run:
+
+   ```
+   MapFnc=00 onsets : 1, 406, 662, 918, 1558, 1814, 2070
+                      intervals 405, 256, 256, 640, 256, 256
+   MapState=3 onsets: 22, 1494, 2518
+                      intervals 1472, 1024
+   ```
+
+   MapFnc=00 recurs every **256** samples, MapState=3 every ~1024-1472. The
+   first MapState=3 run, at 22, falls inside the MapFnc window opened at 1 --
+   **that single overlap is the only memory start in the whole run.**
+   Afterwards MapState=3 lands in the gaps: 1494 between the window at 918
+   (ending ~1003) and the next at 1558; 2518 past 2070's.
+
+   **And 256 samples is four loop iterations** (4 microinstructions × 16
+   sys_clk = 64 each), so the map function is accepted only on every *fourth*
+   `←Map`. The map has its own accept cadence and this bench asks faster than
+   it answers.
+
+   **The loop is phase-fragile in both directions.** Adding **one**
+   non-reference at IM[4] -- after the Flush, leaving Store and Flush adjacent
+   -- breaks `HitColDirty` just as the earlier four-instruction insertion did.
+   So the dirty line's survival is not about adjacency either; it depends on
+   the phase this particular loop sits in. At four instructions the
+   Store/Flush pair works and the map window is missed; at five the map phase
+   moves and the pair breaks.
+
+   **This is an artefact of an artificial loop, not an RTL fault.** Nothing is
+   broken: MapState visits all eight values, the reference machinery is gated
+   end to end, and the PROM tables agree with the running machine to the cycle
+   (192 = 192).
+
+   **The right next step is authentic microcode**, not a better hand-built
+   loop. Real microcode issues a reference then does other work, so it does
+   not fight the map's accept cadence. PARC wrote memory diagnostics for
+   exactly this, and the C emulator already passes six of them
+   (`build/rundiag`, `docs/running-diagnostics.md`) -- a known-good exerciser
+   **and** a known-good oracle. Load one into IM through the boot0 path this
+   bench already uses and gate the RTL's storage cycle against the C
+   emulator's, the way `alu-diff` and `boot0-test` do. That replaces every
+   remaining guess about cadence with Xerox's own.
 
    **Worth generalising, and the count is now four:** i10, j22 and j12 all
    have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are
