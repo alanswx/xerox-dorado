@@ -627,13 +627,33 @@
 //      live socket and j14 should be EMPTY; our 4K image sitting in it is
 //      harmless only because the enable keeps it off.
 //
-//   9. STILL OPEN, and now one measurement wide: THE MEMORY STATE MACHINE
-//      REACHES ONLY 3 OF ITS 16 STATES. That is why x10 never falls -- j13's
-//      Q0 is 0 only in particular states, and the machine does not get to
-//      them. The two other D0 terms already hold together on 352 cycles, so
-//      nothing upstream is missing. Next: find what stops MemState
-//      advancing through a full storage cycle. `prom-test` already proves
-//      the table itself is PARC's.
+//   9. WHAT STOPS MemState IS `StartMem'` ITSELF, AND MY EARLIER READING OF
+//      IT WAS BACKWARDS. MemX j16 is an F10016 with
+//
+//          C = Clk0'Dd    CE' = MemIdle    PE' = StartMem'
+//          H0-H3 -> MemState.0-3, AND ALL FOUR D INPUTS OPEN
+//
+//      Parallel load overrides count in this part, and an open MECL input
+//      sits at VEE. So EVERY CYCLE `StartMem'` IS LOW, THE STATE MACHINE IS
+//      LOADED WITH ZERO. Measured: `StartMem'` is low on 2680 of 3000
+//      samples -- 89% -- so the counter is free on only 288, and it reaches
+//      all 3 of its observed states inside that window (non-zero while held:
+//      32, the transition residue).
+//
+//      An earlier gate here read "preStartMem' low on 2712, StartMem' on
+//      2680" as "the storage cycle IS being started". It is the opposite: a
+//      START held as a LEVEL is a HOLD. THIS LOOP RESTARTS THE STORAGE CYCLE
+//      FASTER THAN IT CAN FINISH ONE, because it issues a reference every
+//      four microinstructions forever. Real microcode issues a reference and
+//      then does other work while the memory completes.
+//
+//      SPACING THE REFERENCES IS THE DIRECTION, BUT IT IS NOT A ONE-LINE
+//      CHANGE. Tried: a second hunk of four non-references at IM[4..7] with
+//      the jumps running 0->..->7->0. MemState then has room, but the
+//      Store-to-Flush pairing breaks -- `HitColDirty` never asserts, because
+//      the dirty line no longer survives to the flush. So the quiet cycles
+//      have to go somewhere that does not separate the Store from its Flush;
+//      that is the next experiment, not a fix to paste in.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -783,7 +803,8 @@ module tb_memrun;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
   integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb, nwcr, nwar, nfl, nmp;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
-  reg [3:0] memst_now; reg memst_hit [0:15]; integer nmemst;
+  reg [3:0] memst_now; reg memst_hit [0:15]; integer nmemst, nfree, nmemfr, nheld_nz;
+  reg memfr_hit [0:15];
   reg [2:0] mapst_now; reg [1:0] mapfn_now;
   reg mapst_hit [0:7]; reg mapfn_hit [0:3];
   integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nwm, nall3, nrw, nwp, ndty, nevn, nckw, nprf, nthi, nmt, nmtp, nmras, nmcas, nmrd, nmwr, nd13w;
@@ -1830,7 +1851,8 @@ module tb_memrun;
     nldp=0; pldp=m.b_MemC.LdPair_p_;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
-    nmemst=0;
+    nmemst=0; nfree=0; nmemfr=0; nheld_nz=0;
+    for (int zf = 0; zf < 16; zf++) memfr_hit[zf] = 1'b0;
     for (int zm = 0; zm < 16; zm++) memst_hit[zm] = 1'b0;
     nmapst=0; nmapfn=0; npsm2=0; nsm2=0; nload=0; ncnt=0; nd0=0; nwim=0; nx10=0; nmti=0; nwm=0; nall3=0; nrw=0; nwp=0; ndty=0; nevn=0; nckw=0; nprf=0; nthi=0; nmt=0; nmtp=0;
     nmras=0; nmcas=0; nmrd=0; nmwr=0; nd13w=0; pmras=m.b_MemX.u_a04.p4; pmcas=m.b_MemX.u_a04.p15;
@@ -1939,6 +1961,12 @@ module tb_memrun;
       memst_now = {m.b_MemX.MemState_3, m.b_MemX.MemState_2,
                    m.b_MemX.MemState_1, m.b_MemX.MemState_0};
       if (!memst_hit[memst_now]) begin memst_hit[memst_now]=1'b1; nmemst=nmemst+1; end
+      // j16 is an F10016 whose PE' is StartMem' with ALL FOUR D INPUTS OPEN,
+      // so a low StartMem' parallel-loads ZERO and overrides the count.
+      if (m.b_MemX.StartMem_p_) begin
+        nfree = nfree + 1;
+        if (!memfr_hit[memst_now]) begin memfr_hit[memst_now]=1'b1; nmemfr=nmemfr+1; end
+      end else if (memst_now != 4'd0) nheld_nz = nheld_nz + 1;
       // Is the MAP ARRAY ever strobed? MosRam latches dout only on
       // !RAS' && !CAS' && WE'. Count edges, do not sample.
       if (m.b_MemX.u_a04.p4  !== pmras) begin nmras=nmras+1; pmras=m.b_MemX.u_a04.p4;  end
@@ -2070,10 +2098,16 @@ module tb_memrun;
     if (nff0_fm  == 0) $fatal(1, "ForceMiss never asserted");
     if (nff0_mia == 0 || nff0_mib == 0)
       $fatal(1, "the cache never missed (a %0d, b %0d)", nff0_mia, nff0_mib);
-    // GATE: THE MISS STARTS A STORAGE CYCLE. MemX i14 is an SG10139 PROM
-    // making preStartMem' from {MapFnc.0', MapFnc.1', MapState.0-2} -- the
-    // storage cycle is a PROM STATE MACHINE, so require the state to WALK and
-    // the start to assert, rather than sampling either at an instant.
+    // GATE: the MapState sequencer walks and the start signal asserts. MemX
+    // i14 is an SG10139 PROM making preStartMem' from {MapFnc.0', MapFnc.1',
+    // MapState.0-2}, so require the state to WALK rather than sampling it.
+    //
+    // NOTE, against an earlier version of this comment: `StartMem'` asserting
+    // is NOT by itself "a storage cycle is running". It is MemX j16's PE',
+    // and that F10016's D inputs are all open, so a LOW StartMem' LOADS ZERO
+    // into MemState and overrides the count. Held low -- which is what this
+    // loop does, 2680 samples of 3000 -- it is a HOLD, not a start. See item
+    // 9 in the header.
     if (nmapst < 4)
       $fatal(1, "the map sequencer barely moved (%0d of 8 states)", nmapst);
     if (npsm2 == 0) $fatal(1, "preStartMem' never asserted -- no storage cycle was started");
@@ -2130,7 +2164,8 @@ module tb_memrun;
     // has no effect on either enable.
     if (m.b_MemX.Use256_s_16KProm_p_ !== 1'b0)
       $fatal(1, "the 16K DRAM timing PROM (j13) is not enabled -- drive ChipsAre256/16K");
-    $display("tb_memrun:   MemState reached %0d of 16 values", nmemst);
+    $display("tb_memrun:   MemState reached %0d of 16 values | StartMem' HIGH (counter free) on %0d of %0d, reaching %0d values there; non-zero while HELD: %0d",
+             nmemst, nfree, nsamp, nmemfr, nheld_nz);
     $display("tb_memrun:   DRAM TIMING PROM enables -- ChipsAre256/16K=%b ChipsAre64K=%b -> Use256/16KProm'=%b Use64KProm'=%b (CE' low = enabled)",
              chips16k, chips64k, m.b_MemX.Use256_s_16KProm_p_, m.b_MemX.Use64KProm_p_);
     $display("tb_memrun:   D0 CONJUNCTION -- WriteInMem'&!MapTrouble on %0d, all three on %0d of %0d",

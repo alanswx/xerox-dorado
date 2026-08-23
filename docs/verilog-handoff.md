@@ -2949,12 +2949,34 @@ Two things remain, both small and both stated by measurement:
    and **j14 should be empty**; our 4K image sitting in it is harmless only
    because the enable keeps it off.
 
-9. **Still open, and now one measurement wide: the memory state machine
-   reaches only 3 of its 16 states.** That is why `x10` never falls -- j13's
-   Q0 is 0 only in particular states and the machine does not get to them. The
-   two other D0 terms already hold together on 352 cycles, so nothing upstream
-   is missing. Next: find what stops MemState advancing through a full storage
-   cycle. `prom-test` already proves the table itself is PARC's.
+9. **What stops MemState is `StartMem'` itself, and my earlier reading of it
+   was backwards.** MemX `j16` is an F10016 with
+
+   ```
+   C = Clk0'Dd    CE' = MemIdle    PE' = StartMem'
+   H0-H3 -> MemState.0-3,  AND ALL FOUR D INPUTS OPEN
+   ```
+
+   Parallel load overrides count, and an open MECL input sits at VEE. So
+   **every cycle `StartMem'` is low, the state machine is loaded with zero.**
+   Measured: `StartMem'` is low on **2680 of 3000** samples -- 89% -- so the
+   counter is free on only **288**, and it reaches all 3 of its observed
+   states inside that window (non-zero while held: 32, the transition
+   residue).
+
+   An earlier gate read "preStartMem' low on 2712, StartMem' on 2680" as *"the
+   storage cycle is being started"*. It is the opposite: **a start held as a
+   level is a hold.** This loop restarts the storage cycle faster than it can
+   finish one, because it issues a reference every four microinstructions
+   forever. Real microcode issues a reference and then does other work while
+   the memory completes.
+
+   **Spacing the references is the direction, but it is not a one-line
+   change.** Tried: a second hunk of four non-references at IM[4..7] with the
+   jumps running 0→…→7→0. MemState then has room, but the Store-to-Flush
+   pairing breaks -- `HitColDirty` never asserts, because the dirty line no
+   longer survives to the flush. So the quiet cycles have to go somewhere that
+   does not separate the Store from its Flush. That is the next experiment.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting
