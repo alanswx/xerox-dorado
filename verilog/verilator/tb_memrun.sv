@@ -730,30 +730,41 @@
 //      enable. It has to BOOTSTRAP, which is why a short window and a
 //      mostly-high MemFree leave it turning over three states.
 //
-//      AND WALKING j13's TABLE ANSWERS IT QUANTITATIVELY. `cell_SG10139` is
-//      MSB-FIRST -- "A0 is the most significant ADDRESS bit and Q0 the most
-//      significant DATA bit", grounded in DiskProms' `Pin1 = #200` -- so on
-//      j13 the address is {RfshInMem, MemState.0, MemState.1, MemState.2,
-//      MemState.3} with RfshInMem on top, and Q0 is bit 7 of the byte.
-//      (A first pass here used the opposite convention on BOTH and produced
-//      a bootstrap paradox that does not exist. Read the cell before reading
-//      the table.)
+//      AND WALKING THE TABLES ANSWERS IT -- BUT ONLY AFTER READING THE CELL.
+//      `cell_SG10139` is MSB-FIRST: "A0 is the most significant ADDRESS bit
+//      and Q0 the most significant DATA bit", grounded in DiskProms'
+//      `Pin1 = #200`. A first pass here used LSB-first on BOTH the address
+//      and the data, for BOTH PROMs, and produced two wrong answers -- a
+//      bootstrap paradox on j13 that does not exist, and "preStartMem' is
+//      high at addresses 3, 11 and 19" on i14, which is also wrong. READ THE
+//      CELL BEFORE READING THE TABLE. This is the third time in this file
+//      that a PARC part's bit or pin convention has inverted a conclusion.
 //
-//      Decoded properly, with RfshInMem = 0:
+//      j13 (the 16K DRAM timing PROM), address
+//      {RfshInMem, MemState.0-3} with RfshInMem on top, RfshInMem = 0:
 //
 //        Q5 -> MemFree : 0 at every EVEN MemState, 1 at every odd one
 //        Q0 -> x10     : 0 at MemState 4 and 8, and NOWHERE ELSE
 //
-//      `MemIdle = StartMem' & MemFree`, so counting needs MemFree LOW, i.e.
-//      an EVEN state -- and because j12 LATCHES MemFree, the sequencer
-//      advances on alternate clocks. EACH MEMORY STATE TAKES TWO CLOCKS.
-//      With 9 rising `Clk0'Dd` edges in the 288-cycle window that is about 4
-//      states, and 3 are observed. THE MODEL IS CONSISTENT WITH ITSELF.
+//      `MemIdle = StartMem' & MemFree`, so counting needs an EVEN state, and
+//      because j12 LATCHES MemFree the sequencer advances on alternate
+//      clocks: EACH MEMORY STATE TAKES TWO CLOCKS. With 9 rising `Clk0'Dd`
+//      edges in the 288-cycle window that is about 4 states, and 3 are
+//      observed. The model is consistent with itself. `MemWEa` needs
+//      MemState 4; the window delivers 3.
 //
-//      SO THE WHOLE OPEN QUESTION IS ONE NUMBER: `MemWEa` needs MemState 4
-//      (or 8), and this window delivers 3. That is also why x10 is never low
-//      with j13 enabled while it WAS low on 96 cycles with j14 -- different
-//      table, different states.
+//      i14 (the map PROM), address
+//      {MapFnc.0', MapFnc.1', MapState.0, MapState.1, MapState.2}:
+//
+//        Q2 -> preStartMem' : HIGH AT EXACTLY ONE ADDRESS, 3
+//
+//      and address 3 is BOTH MapFnc BITS LOW -- a map function IS pending,
+//      the opposite of the first reading -- with MapState = 3. So a memory
+//      cycle starts in one precise state of the map sequencer.
+//
+//      THE DECODE AND THE MACHINE NOW AGREE EXACTLY: address 3 is visited
+//      192 times and `preStartMem'` is high on 192. That equality is the
+//      check that the convention is finally right.
 //
 //      AND THERE IS ONLY EVER ONE WINDOW, AT SAMPLE 54. Measured: across
 //      3000 samples `StartMem'` goes high exactly ONCE, at the very start of
@@ -761,18 +772,20 @@
 //      second one. So the memory sequencer gets a single shot during startup
 //      and is held reset forever after.
 //
-//      THAT REFRAMES THE REMAINING WORK. It is not "make the window longer"
-//      -- one more state pair would do if windows kept coming -- it is "why
-//      does the loop never start another memory cycle?". The reference
-//      machinery upstream is all live and gated (WantProcRef', the kind
-//      decode, Flush', the Store, ForceMiss, the miss itself, a clear map),
-//      so the reference IS being made; what does not repeat is
-//      `preStartMem'` surviving the `MapWait` latch.
+//      THAT REFRAMES THE REMAINING WORK, and the address log says where to
+//      look. `preStartMem'` is high on 192 cycles, ALL of them before sample
+//      213, and `MapWait` is low on 2776 -- so the latch is wide open and it
+//      is the PROM input that stops. The machine then spends its time at
+//      address 24 (672 visits) = MapState 0 with NO map function pending,
+//      i.e. idle, plus 28 (483), 8 (448) and 0 (384).
 //
-//      NEXT: count the windows, not their length. Log every cycle where
-//      `preStartMem'` is high alongside `MapWait`, and find what changes
-//      after sample ~342 so the two never coincide again. That is one
-//      measurement, and both signals are already probed here.
+//      SO: THE MAP SEQUENCER STOPS REACHING STATE 3 WITH A FUNCTION PENDING,
+//      even though this loop issues `<-Map` every fourth microinstruction.
+//      Next: log `MapFnc.0'`/`MapFnc.1'` against the `<-Map` instruction and
+//      find whether the second and later Maps set the function at all. Both
+//      signals are already probed here, and MapFnc was measured earlier
+//      taking only 2 of its 4 values -- that is the same fact from the other
+//      side.
 //
 //      WORTH GENERALISING, and the count is now four: i10, j22 and j12 all
 //      have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are
@@ -932,6 +945,7 @@ module tb_memrun;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [4:0] i14a; integer i14_hit [0:31];
   reg [3:0] memst_now; reg memst_hit [0:15]; integer runlen, maxrun, nwin, ndd, nidle_lo, winat;
+  integer npsh, ncoin, nmwlo, lastpsh, lastcoin, lastmwlo;
   reg pdd;
   integer nmemst, nfree, nmemfr, nheld_nz;
   reg memfr_hit [0:15];
@@ -1982,7 +1996,8 @@ module tb_memrun;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
     for (int zi4 = 0; zi4 < 32; zi4++) i14_hit[zi4] = 0;
-    runlen=0; maxrun=0; nwin=0; winat=-1; ndd=0; nidle_lo=0; pdd=m.b_MemX.Clk0_p_Dd;
+    runlen=0; maxrun=0; nwin=0; winat=-1;
+    npsh=0; ncoin=0; nmwlo=0; lastpsh=-1; lastcoin=-1; lastmwlo=-1; ndd=0; nidle_lo=0; pdd=m.b_MemX.Clk0_p_Dd;
     nmemst=0; nfree=0; nmemfr=0; nheld_nz=0;
     for (int zf = 0; zf < 16; zf++) memfr_hit[zf] = 1'b0;
     for (int zm = 0; zm < 16; zm++) memst_hit[zm] = 1'b0;
@@ -2058,14 +2073,24 @@ module tb_memrun;
       mapst_now = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2};
       mapfn_now = {m.b_MemX.MapFnc_0_p_, m.b_MemX.MapFnc_1_p_};
       if (!mapst_hit[mapst_now]) begin mapst_hit[mapst_now]=1'b1; nmapst=nmapst+1; end
-      // THE ACTUAL i14 ADDRESS, in the part's own order:
-      //   A4..A0 = {MapState.2, MapState.1, MapState.0, MapFnc.1', MapFnc.0'}
-      // Q2 of that PROM is preStartMem', and it is HIGH only at 3, 11, 19.
-      i14a = {m.b_MemX.MapState_2, m.b_MemX.MapState_1, m.b_MemX.MapState_0,
-              m.b_MemX.MapFnc_1_p_, m.b_MemX.MapFnc_0_p_};
+      // THE ACTUAL i14 ADDRESS. cell_SG10139 is MSB-FIRST -- A0 is the MOST
+      // significant address bit -- and i14's pins are A0=MapFnc.0',
+      // A1=MapFnc.1', A2=MapState.0, A3=MapState.1, A4=MapState.2. So the
+      // index is {MapFnc.0', MapFnc.1', MapState.0, MapState.1, MapState.2}.
+      // Q2 is preStartMem', and Q0 being the MOST significant DATA bit makes
+      // it bit 5 of the byte -- HIGH at EXACTLY ONE address, 3.
+      i14a = {m.b_MemX.MapFnc_0_p_, m.b_MemX.MapFnc_1_p_, m.b_MemX.MapState_0,
+              m.b_MemX.MapState_1, m.b_MemX.MapState_2};
       i14_hit[i14a] = i14_hit[i14a] + 1;
       if (!mapfn_hit[mapfn_now]) begin mapfn_hit[mapfn_now]=1'b1; nmapfn=nmapfn+1; end
       if (!m.b_MemX.preStartMem_p_) npsm2 = npsm2 + 1;
+      // j22's PE' is MapWait and it LOADS when LOW, so a window opens only
+      // where preStartMem' is HIGH and MapWait is LOW at the same time.
+      if (m.b_MemX.preStartMem_p_) begin
+        npsh = npsh + 1; lastpsh = nsamp;
+        if (!m.b_MemX.MapWait) begin ncoin = ncoin + 1; lastcoin = nsamp; end
+      end
+      if (!m.b_MemX.MapWait) begin nmwlo = nmwlo + 1; lastmwlo = nsamp; end
       if (!m.b_MemX.StartMem_p_)    nsm2  = nsm2  + 1;
       // F10016 i10: PE'=MemIdle loads when LOW, CE'=TrueBD counts when LOW.
       if (!m.b_MemX.MemIdle)        nload = nload + 1;   // held in LOAD
@@ -2313,7 +2338,9 @@ module tb_memrun;
     // has no effect on either enable.
     if (m.b_MemX.Use256_s_16KProm_p_ !== 1'b0)
       $fatal(1, "the 16K DRAM timing PROM (j13) is not enabled -- drive ChipsAre256/16K");
-    $write("tb_memrun:   i14 ADDRESSES VISITED (Q2 high only at 3, 11, 19):");
+    $display("tb_memrun:   WINDOW OPENER -- preStartMem' HIGH on %0d (last @%0d), MapWait LOW on %0d (last @%0d), BOTH on %0d (last @%0d)",
+             npsh, lastpsh, nmwlo, lastmwlo, ncoin, lastcoin);
+    $write("tb_memrun:   i14 ADDRESSES VISITED (Q2 = preStartMem' high ONLY at 3):");
     for (int zi5 = 0; zi5 < 32; zi5++)
       if (i14_hit[zi5] != 0) $write(" %0d=%0d", zi5, i14_hit[zi5]);
     $display("");
