@@ -1321,3 +1321,45 @@ AND, and the cache simply held 0 at the addresses `MD_D` strobed.
 
 Mutation-tested: inverting one bit of the cache seed, forcing the MC10197
 outputs low, and making the MC10197 ignore its common strobe are all caught.
+
+### The write-back is a PHASE, and the number says so (2026-08-23)
+
+The remaining half of task #17, now quantified rather than guessed at.
+
+`StartMapClk0'a` is made by MemX **i18**, an SE10210 OR:
+`StartMapClk0'a = preClk0'Dc | StartMap'`. So it only ticks while a MAP CYCLE
+IS STARTING, which is why there are so few edges.
+
+Over a 40,000-sample run (`+define+RUNLEN=40000`):
+
+| term | count |
+|---|---|
+| `WantVic` | 2496 |
+| `DirtyVicOrAB` | 7456 |
+| `VicInPair'` asserted | 2432 |
+| `WriteInA'` asserted | 2432 of 9952 (24%) |
+| `StartMapClk0'a` edges | 40 |
+| **edges with `WriteInA'` asserted** | **0** |
+
+**That is not chance** -- at 24% duty over 40 edges, missing every one is
+about 1e-5. Measuring the phase says why: at 39 edges the victim had last been
+asserted **100 samples earlier on average, closest 96**, against a loop period
+of ~250. The victim is made and RETIRED well before the map stage clocks it.
+The bench's four-instruction loop (`<-Map`, `Store`, `Flush`, non-reference)
+issues another reference immediately after the Flush, and `VicInPair'` is a
+k21 latch that the reload clears.
+
+So the fix is to keep the victim alive across the map start -- quiet slots
+after the Flush rather than another reference.
+
+**Two things that are NOT the answer**, both tried:
+
+- **Running longer.** Ten times the samples gives ten times the edges and
+  still zero coincidence; that is what turned "probably chance" into "phase".
+- **Disabling holds.** `DisHold` reads like "holds off" and is nothing of the
+  kind here -- it is load-bearing for the sequencer,
+  `WantMapWait' = (MapFnc.1' & MapFnc.0') | DisHold`, and without it `MapWait`
+  never falls and `MapState` never steps at all.
+
+And do not read the level counters as a substitute for edges:
+"`StartMapClk0'a` high on 9640 of 9952" is **40 edges**.
