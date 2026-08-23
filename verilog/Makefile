@@ -37,7 +37,7 @@ ECLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ecldict.analyze
 TTLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ttldict.analyze
 TOOLS   = ../tools
 
-.PHONY: boards backplane proms cells cells-force lint cell-check loop-check \
+.PHONY: boards backplane proms cells cells-force lint cell-check loop-check readback-test \
         prom-test alu-test alu-diff cpreg-diff mir-diff mirreg-diff run-test \
         writeim-test operand-test step-test sendmir boot0-test exec-test \
         parity-probe compute-test \
@@ -182,6 +182,9 @@ mem-test:
 # address path inverting and the memory size arriving over the backplane.
 storage-test:
 	@$(MAKE) -C verilator storage-test
+
+readback-test:
+	@$(MAKE) -C verilator readback-test
 
 # A WORD INTO THE STORAGE ARRAY: the msa board standalone, where the bench owns
 # the DRAM strobes, so a write can be driven without a memory reference.
