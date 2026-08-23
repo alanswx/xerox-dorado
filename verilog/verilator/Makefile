@@ -483,6 +483,7 @@ PR_V     = $(GEN)/dorado_proc.v
 # The five-board machine tb_firmware runs: BaseBd + ContA + ContB + ProcH + ProcL.
 BT_V     = $(GEN)/dorado_boot.v
 # The seven-board memory machine tb_mem runs.
+SM_V     = $(GEN)/dorado_storage.v
 MM_V     = $(GEN)/dorado_mem.v
 
 lint:
@@ -490,7 +491,8 @@ lint:
 	for f in $(GEN)/*.v; do \
 		if [ "$$f" = "$(TOP_V)" ] || [ "$$f" = "$(BB_V)" ] \
 		   || [ "$$f" = "$(CT_V)" ] || [ "$$f" = "$(PR_V)" ] \
-		   || [ "$$f" = "$(BT_V)" ] || [ "$$f" = "$(MM_V)" ]; then continue; fi; \
+		   || [ "$$f" = "$(BT_V)" ] || [ "$$f" = "$(MM_V)" ] \
+		   || [ "$$f" = "$(SM_V)" ]; then continue; fi; \
 		if $(V) --lint-only $(V_WARN) -I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $$f >/dev/null 2>&1; then \
 			ok=$$((ok+1)); \
 		else \
@@ -498,6 +500,14 @@ lint:
 		fi; \
 	done; \
 	echo "lint: $$ok board(s) clean, $$bad failed"; \
+	if [ -f $(SM_V) ]; then \
+		if $(V) --lint-only --top-module dorado_storage $(V_WARN) \
+			-I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $(GEN)/*.v >/dev/null 2>&1; then \
+			echo "lint: dorado_storage elaborates -- the MSA is in a machine"; \
+		else \
+			bad=$$((bad+1)); echo "  FAIL dorado_storage.v"; \
+		fi; \
+	fi; \
 	if [ -f $(TOP_V) ]; then \
 		if $(V) --lint-only --top-module dorado_backplane $(V_WARN) \
 			-I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $(GEN)/*.v >/dev/null 2>&1; then \
