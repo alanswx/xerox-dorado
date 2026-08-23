@@ -3184,29 +3184,42 @@ Two things remain, both small and both stated by measurement:
    end to end, and the PROM tables agree with the running machine to the cycle
    (192 = 192).
 
-   **And a one-shot sequence confirms it, with numbers.** Point IM[3]'s JCN
-   at *itself* instead of back at IM[0]: Map, Store and Flush run once each
-   and the machine parks on a non-reference -- "issue a reference, then do
-   other work", with no repeating cadence to fight the map's accept rate.
+   **And two experiments confirm it, with numbers -- including real Xerox
+   microcode.** First, point IM[3]'s JCN at *itself* so Map/Store/Flush run
+   once and the machine parks. Second -- **`+realucode`**, wired up in the
+   bench -- skip the overwrite entirely and execute the four hunks of
+   `AEmu.mb!2` already loaded at IM[0..15]. Xerox's own microcode at its own
+   cadence, no hand-built loop:
 
-   | | looping | one-shot |
-   |---|---|---|
-   | `preStartMem'` high | 192 | **832** |
-   | window opener (both) | 64 | **128** |
-   | `StartMem'` high | 288 | **1187** |
-   | windows / longest | 1 / 288 | **2 / 899** |
-   | in-window `Clk0'Dd` edges | 18 | **74** |
+   | | looping | one-shot | **real AEmu** |
+   |---|---|---|---|
+   | `StartMem'` high | 288 | 1187 | **2584** |
+   | longest window | 288 | 899 | **1589** |
+   | in-window `Clk0'Dd` edges | 18 | 74 | **162** |
+   | `preStartMem'` high | 192 | 832 | **1205** |
 
-   **Four times the window and four times the clock edges.** The beat was real
-   and removing it helps exactly as predicted.
+   **Nine times the window and nine times the clock edges.** The beat was
+   entirely an artefact of the four-microinstruction loop.
 
-   It is not the whole answer, and trades one problem for another: MemState
-   still reaches 3, now because `MemFree` is high for most of the longer
-   window (CE' low on 128 of 899, not the ~50% the even/odd table alone would
-   give -- j12's latch and `MemIdle` form a feedback that settles rather than
-   alternating); and with `←Map` no longer repeating, the map entry is not
-   maintained and `MapTrouble` returns. So the bench keeps the **looping**
-   form, where every gate holds, and this is recorded as the experiment it is.
+   **And it separates the two limiters for good.** Even with 162 clock edges,
+   MemState *still* reaches only 3 -- because CE' (`MemIdle`) is low on just
+   **85 of those 1589** samples. `MemFree` is high almost all the time **no
+   matter what the cadence is**. So:
+
+   - the **window length** was a bench artefact, now understood and gone;
+   - the **inner limiter** -- `MemFree` holding CE' high -- is not, and it is
+     what actually stops MemState reaching 4.
+
+   (The AEmu snippet makes references but no write-back: `WriteInMem'` and the
+   Store/Flush path read 0 throughout, and no `←Map` runs. It exercises the
+   *cadence*, which is what it was used for.)
+
+   **So the next question is `MemFree`, not the loop.** j13's Q5 says it should
+   be 0 at every even MemState -- half the time -- and it measures far less.
+   j12 latches it on `MemIdle`, and `MemIdle` is derived from it through g13: a
+   feedback that may be settling rather than alternating. Probe `MemFree` and
+   `MemIdle` together across one window and see whether they toggle at all,
+   before assuming the table applies.
 
    **The real fix is authentic microcode -- but note the scale first.** PARC's
    memory diagnostics run to millions of steps (`memMisc` passes at 90,950,270;

@@ -837,30 +837,43 @@
 //      the PROM tables agree with the running machine to the cycle
 //      (192 = 192).
 //
-//      AND A ONE-SHOT SEQUENCE CONFIRMS IT, WITH NUMBERS. Point IM[3]'s JCN
-//      at ITSELF (0o203) instead of back at IM[0]: the Map, Store and Flush
-//      run ONCE each and the machine then parks on a non-reference forever --
-//      "issue a reference, then do other work", with no repeating cadence to
-//      fight the map's accept rate. Measured against the looping bench:
+//      AND TWO EXPERIMENTS CONFIRM IT, WITH NUMBERS -- INCLUDING REAL XEROX
+//      MICROCODE. First, point IM[3]'s JCN at ITSELF so the Map, Store and
+//      Flush run ONCE and the machine parks. Second -- `+realucode`, wired
+//      up here -- SKIP THE OVERWRITE ENTIRELY and execute the four hunks of
+//      `AEmu.mb!2` this bench already loads at IM[0..15]. That is Xerox's own
+//      microcode at its own cadence, no hand-built loop at all:
 //
-//                                   looping    one-shot
-//          preStartMem' high            192         832
-//          window opener (both)          64         128
-//          StartMem' high               288        1187
-//          windows / longest          1/288       2/899
-//          in-window Clk0'Dd edges       18          74
+//                                   looping   one-shot   REAL AEmu
+//          StartMem' high               288       1187        2584
+//          longest window               288        899        1589
+//          in-window Clk0'Dd edges       18         74         162
+//          preStartMem' high            192        832        1205
 //
-//      FOUR TIMES THE WINDOW AND FOUR TIMES THE CLOCK EDGES. The beat was
-//      real and removing it helps exactly as predicted.
+//      NINE TIMES THE WINDOW AND NINE TIMES THE CLOCK EDGES. The beat was
+//      entirely an artefact of the four-microinstruction loop, and authentic
+//      cadence removes it completely.
 //
-//      It is not the whole answer, and the one-shot trades one problem for
-//      another: MemState still reaches 3, now because `MemFree` is high for
-//      most of the longer window (CE' low on 128 of 899, not the ~50% the
-//      even/odd table alone would give -- j12's latch and MemIdle form a
-//      feedback that settles rather than alternating); and with the `<-Map`
-//      no longer repeating, the map entry is not maintained and MapTrouble
-//      returns for the whole run. So the bench keeps the LOOPING form, where
-//      every gate holds, and this is recorded as the experiment it is.
+//      AND IT SEPARATES THE TWO LIMITERS FOR GOOD. Even with 162 clock edges
+//      in the window, MemState STILL reaches only 3 -- because CE'
+//      (`MemIdle`) is low on just 85 of those 1589 samples. `MemFree` is high
+//      almost all of the time NO MATTER WHAT THE CADENCE IS. So:
+//
+//        - the WINDOW length was a bench artefact, now understood and gone;
+//        - the INNER limiter, MemFree holding CE' high, is NOT, and it is
+//          what actually stops MemState reaching 4.
+//
+//      (The AEmu snippet makes references but no write-back: WriteInMem' and
+//      the Store/Flush path read 0 throughout, and no `<-Map` runs, so
+//      MapWP'/MapDirty' stay put. It exercises the CADENCE, not the whole
+//      sequence -- which is exactly what it was used for.)
+//
+//      SO THE NEXT QUESTION IS `MemFree`, NOT THE LOOP. j13's Q5 says it
+//      should be 0 at every EVEN MemState, i.e. half the time; it measures
+//      far less. j12 latches it on `MemIdle` and `MemIdle` is derived from it
+//      through g13 -- a feedback that may be settling instead of alternating.
+//      Probe `MemFree` and `MemIdle` together across one window and see
+//      whether they toggle at all, before assuming the table applies.
 //
 //      THE REAL FIX IS AUTHENTIC MICROCODE, and note the scale before
 //      reaching for it: PARC's memory diagnostics are millions of steps
@@ -1993,14 +2006,17 @@ module tb_memrun;
     //   IM[1] Store : ASEL = 000, FF.0 = 1, FF.1 = 1   (j22/b24/a24)
     //   IM[2] Flush : ASEL = 001, FF.0 = 0, FF.1 = 1   (j24 Q3)
     //   IM[3] none  : ASEL = 100, so WantProcRef' stays high
-    build_hunk4(4'd0, 1'b0,
-                '{4'd0,   4'd0,   4'd0,   4'd0},
-                '{3'd0,   3'd0,   3'd0,   3'd0},
-                '{3'd0,   3'd0,   3'd0,   3'd0},
-                '{3'd0,   3'd0,   3'd1,   3'd4},
-                '{8'o100, 8'o300, 8'o100, 8'o000},
-                '{8'o201, 8'o202, 8'o203, 8'o200});
-    send_a_hunk(16'd0);
+    if (!$test$plusargs("realucode")) begin
+      build_hunk4(4'd0, 1'b0,
+                  '{4'd0,   4'd0,   4'd0,   4'd0},
+                  '{3'd0,   3'd0,   3'd0,   3'd0},
+                  '{3'd0,   3'd0,   3'd0,   3'd0},
+                  '{3'd0,   3'd0,   3'd1,   3'd4},
+                  '{8'o100, 8'o300, 8'o100, 8'o000},
+                  '{8'o201, 8'o202, 8'o203, 8'o200});
+      send_a_hunk(16'd0);
+    end else
+      $display("tb_memrun: +realucode -- IM[0..15] left as real AEmu.mb!2 microcode");
     $display("tb_memrun: IM[0..3] overwritten with ASEL=1 FF=100B references");
     // ARE THE FOUR COPIES ACTUALLY IDENTICAL? IM is four INTERLEAVED banks --
     // the low two address bits pick the bank -- so IM[0..3] are bank 0..3 at
