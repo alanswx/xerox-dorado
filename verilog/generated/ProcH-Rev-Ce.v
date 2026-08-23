@@ -1338,7 +1338,6 @@ module ProcH_m_Rev_m_Ce (
     .p14(Bmux1),
     .p15(MuxData2__a06_15)
   ); // MU10164
-  // NO MODEL for LM3911+20K -- stub, ports preserved
   cell_LM3911_20K u_a07 (
     .p1(VEE31),
     .p2(TempSense),

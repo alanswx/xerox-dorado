@@ -1796,7 +1796,6 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD03_sil_pl_7),
     .p16(GND_m_45)
   ); // F10016
-  // NO MODEL for LM3911+20K -- stub, ports preserved
   cell_LM3911_20K u_a23 (
     .p1(VEE_m_86),
     .p2(TempSense),
@@ -3739,7 +3738,6 @@ module DskEth_m_Rev_m_Cf (
     .p15(PDCnt_1),
     .p16(GND_m_16)
   ); // F10016
-  // NO MODEL for 8T98 -- stub, ports preserved
   cell_p_8T98 u_g22 (
     .p1(TriconD04_sil_pl_9),
     .p2(TriconD04_sil_pl_8),
@@ -3756,7 +3754,6 @@ module DskEth_m_Rev_m_Cf (
     .p15(GND_m_16),
     .p16(VCC_m_58)
   ); // 8T98
-  // NO MODEL for 8T98 -- stub, ports preserved
   cell_p_8T98 u_g23 (
     .p1(TriconD04_sil_pl_1),
     .p2(TtlTag_1),
@@ -3775,7 +3772,6 @@ module DskEth_m_Rev_m_Cf (
     .p15(TriconD04_sil_pl_1),
     .p16(VCC_m_58)
   ); // 8T98
-  // NO MODEL for 8T98 -- stub, ports preserved
   cell_p_8T98 u_g24 (
     .p1(TriconD04_sil_pl_1),
     .p2(TtlTag_9),

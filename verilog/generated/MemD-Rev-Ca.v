@@ -1483,7 +1483,6 @@ module MemD_m_Rev_m_Ca (
     .p16(D0ACE_p_a),
     .p17(D0in_00)
   ); // F10470
-  // NO MODEL for LM3911+20K -- stub, ports preserved
   cell_LM3911_20K u_a04 (
     .p1(VEE28),
     .p2(TempSense),

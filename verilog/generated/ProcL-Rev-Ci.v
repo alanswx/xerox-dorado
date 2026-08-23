@@ -1628,7 +1628,6 @@ module ProcL_m_Rev_m_Ci (
     .p14(Curr_eq_Next_p___a22_14),
     .p15(Curr_eq_Next_p___a22_15)
   ); // MC10113
-  // NO MODEL for LM3911+20K -- stub, ports preserved
   cell_LM3911_20K u_a23 (
     .p1(VEE47),
     .p2(TempSense),
