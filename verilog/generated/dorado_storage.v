@@ -17,7 +17,7 @@
 
 `default_nettype none
 
-module dorado_storage (
+module dorado_storage #(parameter integer SYSPER = 16) (
     input  wire sys_clk,   // fabric clock; the Dorado clock is an ENABLE inside the cells
     output wire BNTGtCT_p_b               ,  // awaits DispM DispY DskEth
     output wire Block                     ,  // awaits DispM DispY DskEth
@@ -3485,7 +3485,7 @@ endmodule
 //
 // probe_val exposes 111 signals, 32 at a time;
 // dorado_storage.probes lists which bit is which.
-module dorado_storage_machine (
+module dorado_storage_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
     input  wire [15:0] probe_sel,
     output wire [31:0] probe_val,
@@ -3719,7 +3719,7 @@ module dorado_storage_machine (
     BNTGtCT_p_b
   };
 
-  dorado_storage u_machine (
+  dorado_storage #(.SYSPER(SYSPER)) u_machine (
     .sys_clk(sys_clk),
     .BNTGtCT_p_b(BNTGtCT_p_b),
     .Block(Block),

@@ -20,7 +20,7 @@
 // machine ORs the contributions. That is what MECL open emitters
 // wired together compute, and unlike an `inout` on a multiply-
 // driven net it maps to one level of LUT on an FPGA.
-module IOTest_m_Rev_m_Ad (
+module IOTest_m_Rev_m_Ad #(parameter integer SYSPER = 16) (
     input  wire sys_clk,
     input  wire CLK_io24_p_,
     input  wire CLKEnable_p_a,

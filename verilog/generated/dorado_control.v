@@ -17,7 +17,7 @@
 
 `default_nettype none
 
-module dorado_control (
+module dorado_control #(parameter integer SYSPER = 16) (
     input  wire sys_clk,   // fabric clock; the Dorado clock is an ENABLE inside the cells
     input  wire ALUCarry                  ,  // awaits ProcH ProcL
     output wire ALUF_0                    ,  // awaits ProcH ProcL
@@ -956,7 +956,7 @@ endmodule
 //
 // probe_val exposes 58 signals, 32 at a time;
 // dorado_control.probes lists which bit is which.
-module dorado_control_machine (
+module dorado_control_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
     input  wire [15:0] probe_sel,
     output wire [31:0] probe_val,
@@ -1084,7 +1084,7 @@ module dorado_control_machine (
     ALUF_0
   };
 
-  dorado_control u_machine (
+  dorado_control #(.SYSPER(SYSPER)) u_machine (
     .sys_clk(sys_clk),
     .ALUCarry(1'b0),
     .ALUF_0(ALUF_0),

@@ -20,7 +20,7 @@
 // machine ORs the contributions. That is what MECL open emitters
 // wired together compute, and unlike an `inout` on a multiply-
 // driven net it maps to one level of LUT on an FPGA.
-module ContB_m_Rev_m_Cd (
+module ContB_m_Rev_m_Cd #(parameter integer SYSPER = 16) (
     input  wire sys_clk,
     input  wire ALUF_0,
     input  wire ALUF_1,
