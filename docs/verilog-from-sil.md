@@ -1196,3 +1196,44 @@ open (task #17): the WRITE-BACK is not scheduled in the bench's window, so
 `WriteInMem'` never asserts. Those assertions are demoted to `OPEN` lines
 rather than deleted; they passed only while the sequencer was jammed, so
 restoring them as gates would pull the jam back.
+
+### The write-back is a STIMULUS problem, not a hardware one (2026-08-23)
+
+With the sequencer running, the remaining half of task #17 is localised to a
+single flip-flop stage, and the chain above it is proven correct.
+
+The path, entirely off the wire lists:
+
+```
+WriteInA' = NOR(VictimInA, IoStoreInA)              MemX k23 gate a
+VictimInA = NOR(VicInPair', EcHasA)                 MemX k23 gate d
+VicInPair' latches, on LdPair', MemC j23 gate 1 -- an MC10117 OR-AND whose
+  pins 5 and 9 are OPEN, so it reduces to:
+     VicInPair' = ~[ (DirtyVicOrAB | ForceDirtyMiss) & WantVic ]
+WriteInA' -[StartMapClk0'a]-> WriteInMap' -[StartMemClk0']-> WriteInMem'
+  (two MC10176 hex D flip-flops, MemX h14 and j11)
+```
+
+Measured over the 704-sample reference window:
+
+| term | count |
+|---|---|
+| `WantVic` | 192 |
+| `DirtyVicOrAB` | 512 |
+| `VicInPair'` asserted | 128 |
+| `VictimInA` | 128 |
+| **`WriteInA'` asserted** | **128** |
+| `WriteInMap'` asserted | **0** |
+
+**The victim is real and reaches `WriteInA'`.** What fails is the next hop:
+`StartMapClk0'a` has **four edges** in the entire window -- it ticks only when
+a map cycle starts -- and on none of them was `WriteInA'` asserted, so h14
+never latches. The remaining work is to make the dirty victim exist AT a
+StartMap edge, which is about the microcode the bench runs, not about the
+boards.
+
+**And this cost a repeat of a mistake already on the books.** The first
+measurement counted LEVELS: "`StartMapClk0'a` high on 680 of 704" reads like a
+clock that is running constantly, and it is four edges. COUNT EDGES, and count
+the COINCIDENCE with the D input -- a clock edge and an asserted D are the
+only thing that can move a flip-flop.
