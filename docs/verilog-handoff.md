@@ -2926,15 +2926,35 @@ Two things remain, both small and both stated by measurement:
    `WriteInMem'` and a clear map **coincide on 352**. Gated; turning the
    `←Map` into a second Store is caught.
 
-8. **Still open: `MemX07.sil+10`**, the third term of D0. It is Q0 of j13/j14,
-   a pair of SG10139 PROMs addressed by `{Use256/16KProm', RfshInMem,
-   MemState.0..3}` -- **the memory state machine**. Low on 96 cycles and never
-   coinciding with the other two, so D0 stays 0 and `MemWEa` never rises.
+8. **The memory size is a backplane input, and it picks the DRAM timing
+   PROM.** `MemX07.sil+10` -- the third term of `MemWEa`'s D0 -- is Q0 of
+   j13/j14, SG10139s addressed by `{RfshInMem, MemState.0..3}` with pin 15 as
+   CE'. Those enables are `Use256/16KProm'` (j13) and `Use64KProm'` (j14),
+   driven from **`ChipsAre256/16K` / `ChipsAre64K` -- backplane inputs from
+   the MSA**, which is not in this configuration. Undriven, **neither 16K PROM
+   is enabled** and the memory state machine has no timing table at all --
+   which looks exactly like a sequencer bug and is not one. Gated; leaving
+   them undriven is caught.
 
-   That is no longer a decode question: the two enabling conditions hold
-   together on 352 cycles, and what is missing is the MemState sequencer
-   reaching its **write phase** during them. Next: trace MemState through a
-   write-back, find which state Q0 asserts in, then why the cycle stops short.
+   Swept: only `ChipsAre256/16K` selects (`ChipsAre64K` moves neither enable).
+   With it 0, j14 is enabled and `x10` is low on 96 cycles; with it 1 -- the
+   historically correct build -- j13 is enabled and `x10` is never low.
+
+   **A note on the two sockets.** PARC's BCPL names them `MX16k-j13` and
+   `MX4k-j14`, and `MemProms.bcpl` records the switch: *"change to
+   memx-16k-j13 from -j14. comment-out the memx-4k option. September 26,
+   1979."* But **this board is Rev Ch**, later, and calls j14's enable
+   `Use64KProm'` -- the socket was re-purposed for a 64K table that does not
+   exist in the PROM source we hold. So on a late board j13 is the live socket
+   and **j14 should be empty**; our 4K image sitting in it is harmless only
+   because the enable keeps it off.
+
+9. **Still open, and now one measurement wide: the memory state machine
+   reaches only 3 of its 16 states.** That is why `x10` never falls -- j13's
+   Q0 is 0 only in particular states and the machine does not get to them. The
+   two other D0 terms already hold together on 352 cycles, so nothing upstream
+   is missing. Next: find what stops MemState advancing through a full storage
+   cycle. `prom-test` already proves the table itself is PARC's.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting

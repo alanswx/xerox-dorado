@@ -602,17 +602,38 @@
 //      2339, and `WriteInMem'` and a clear map COINCIDE on 352. Gated, and
 //      turning the <-Map into a second Store is caught.
 //
-//   8. STILL OPEN: `MemX07.sil+10`, the third term of D0. It is Q0 of j13
-//      and j14, a pair of SG10139 PROMs addressed by
-//      {Use256/16KProm', RfshInMem, MemState.0-3} -- THE MEMORY STATE
-//      MACHINE. It is low on 96 cycles and never coincides with the other
-//      two, so D0 stays 0 and MemWEa never rises.
+//   8. THE MEMORY SIZE IS A BACKPLANE INPUT, AND IT PICKS THE DRAM TIMING
+//      PROM. `MemX07.sil+10` -- the third term of MemWEa's D0 -- is Q0 of
+//      j13 and j14, a pair of SG10139s addressed by
+//      {RfshInMem, MemState.0-3} with pin 15 as CE'. Those two enables are
+//      `Use256/16KProm'` (j13) and `Use64KProm'` (j14), and they come from
+//      `ChipsAre256/16K` / `ChipsAre64K` -- BACKPLANE INPUTS from the MSA,
+//      which is not in this configuration. Undriven, NEITHER 16K PROM is
+//      enabled and the memory state machine has no timing table at all,
+//      which looks exactly like a sequencer bug and is not one. Gated now,
+//      and leaving them undriven is caught.
 //
-//      That is no longer a decode question: the two ENABLING conditions are
-//      satisfied together on 352 cycles, and what is missing is the MemState
-//      sequencer reaching its WRITE phase during them. Next: trace MemState
-//      through a write-back and find which state Q0 asserts in, then why the
-//      cycle stops short of it.
+//      Swept: only `ChipsAre256/16K` selects; `ChipsAre64K` moves neither
+//      enable. With it 0, j14 is enabled and x10 is low on 96 cycles; with
+//      it 1 -- the historically correct build -- j13 is enabled and x10 is
+//      never low.
+//
+//      A NOTE ON THE TWO SOCKETS. PARC's own BCPL names them `MX16k-j13` and
+//      `MX4k-j14`, and `MemProms.bcpl` records the switch: "change to
+//      memx-16k-j13 from -j14. comment-out the memx-4k option. September 26,
+//      1979". But THIS BOARD IS Rev Ch, later, and calls j14's enable
+//      `Use64KProm'` -- the socket was re-purposed for a 64K table that does
+//      not exist in the PROM source we hold. So on a late board j13 is the
+//      live socket and j14 should be EMPTY; our 4K image sitting in it is
+//      harmless only because the enable keeps it off.
+//
+//   9. STILL OPEN, and now one measurement wide: THE MEMORY STATE MACHINE
+//      REACHES ONLY 3 OF ITS 16 STATES. That is why x10 never falls -- j13's
+//      Q0 is 0 only in particular states, and the machine does not get to
+//      them. The two other D0 terms already hold together on 352 cycles, so
+//      nothing upstream is missing. Next: find what stops MemState
+//      advancing through a full storage cycle. `prom-test` already proves
+//      the table itself is PARC's.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -670,6 +691,7 @@ module tb_memrun;
     if (rfshdiv == 9'd0) rfshper <= ~rfshper;
   end
 
+  reg chips16k = 1'b1, chips64k = 1'b0;
   dorado_mem m (
       .sys_clk(sys_clk),
       .CLK_ca_p_(mclk), .CLK_cb_p_(mclk), .CLK_ph_p_(mclk), .CLK_pl_p_(mclk),
@@ -682,7 +704,18 @@ module tb_memrun;
       .CPOut_3(cpout[5]), .CPOut_4(cpout[4]), .CPOut_5(cpout[3]),
       .CPOut_6(cpout[2]), .CPOut_7(cpout[1]), .CPOut_8(cpout[0]),
       .CPStrb_p_(strb_n), .SetRun(setrun), .SetSS_p_(setss_n),
-      .SetRunRfsh(1'b1), .RfshPeriod(rfshper)
+      .SetRunRfsh(1'b1), .RfshPeriod(rfshper),
+      // THE MEMORY SIZE IS A BACKPLANE INPUT, not a board property: MemX
+      // takes ChipsAre256/16K and ChipsAre64K from the MSA, which is not in
+      // this configuration, so the bench must supply them the way it already
+      // supplies the clocks. They are the CHIP ENABLES on the two DRAM
+      // TIMING PROMs -- j13 (Use256/16KProm') and j14 (Use64KProm') -- so
+      // with both undriven NEITHER is enabled and the memory state machine
+      // has no timing table at all. MemProms.bcpl records the build:
+      // "change tomemx-16k-j13 from -j14. comment-out the memx-4k option.
+      // September 26, 1979", i.e. from late 1979 the machines carry 16K
+      // parts and only that PROM is blown.
+      .ChipsAre256_s_16K(chips16k), .ChipsAre64K(chips64k)
   );
 
   // THE BASEBOARD'S CONTROL REGISTER, modelled here because this machine has no
@@ -750,6 +783,7 @@ module tb_memrun;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
   integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb, nwcr, nwar, nfl, nmp;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
+  reg [3:0] memst_now; reg memst_hit [0:15]; integer nmemst;
   reg [2:0] mapst_now; reg [1:0] mapfn_now;
   reg mapst_hit [0:7]; reg mapfn_hit [0:3];
   integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nwm, nall3, nrw, nwp, ndty, nevn, nckw, nprf, nthi, nmt, nmtp, nmras, nmcas, nmrd, nmwr, nd13w;
@@ -1796,6 +1830,8 @@ module tb_memrun;
     nldp=0; pldp=m.b_MemC.LdPair_p_;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
+    nmemst=0;
+    for (int zm = 0; zm < 16; zm++) memst_hit[zm] = 1'b0;
     nmapst=0; nmapfn=0; npsm2=0; nsm2=0; nload=0; ncnt=0; nd0=0; nwim=0; nx10=0; nmti=0; nwm=0; nall3=0; nrw=0; nwp=0; ndty=0; nevn=0; nckw=0; nprf=0; nthi=0; nmt=0; nmtp=0;
     nmras=0; nmcas=0; nmrd=0; nmwr=0; nd13w=0; pmras=m.b_MemX.u_a04.p4; pmcas=m.b_MemX.u_a04.p15;
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
@@ -1898,6 +1934,11 @@ module tb_memrun;
       if (!m.b_MemX.preRfshInMem)        nprf = nprf + 1;
       if (m.b_MemX.MapTrouble)           nmt  = nmt  + 1;
       if (m.b_MemX.MapTrouble_p_)        nmtp = nmtp + 1;
+      // Which MemStates does the machine reach? j13's Q0 -- MemX07.sil+10,
+      // the third term of MemWEa's D0 -- is 0 only in particular ones.
+      memst_now = {m.b_MemX.MemState_3, m.b_MemX.MemState_2,
+                   m.b_MemX.MemState_1, m.b_MemX.MemState_0};
+      if (!memst_hit[memst_now]) begin memst_hit[memst_now]=1'b1; nmemst=nmemst+1; end
       // Is the MAP ARRAY ever strobed? MosRam latches dout only on
       // !RAS' && !CAS' && WE'. Count edges, do not sample.
       if (m.b_MemX.u_a04.p4  !== pmras) begin nmras=nmras+1; pmras=m.b_MemX.u_a04.p4;  end
@@ -2080,6 +2121,18 @@ module tb_memrun;
       $fatal(1, "MapTrouble never cleared (MapTroubleInMem low on only %0d) -- the <-Map entry did not take", nmti);
     if (nwm == 0)
       $fatal(1, "WriteInMem' and a clear map never coincided -- the write-back cannot proceed");
+    // GATE: THE MEMORY SIZE IS A BACKPLANE INPUT AND MUST BE SUPPLIED.
+    // MemX takes ChipsAre256/16K and ChipsAre64K from the MSA, which is not
+    // in this configuration, and they are the CHIP ENABLES on the two DRAM
+    // timing PROMs. Undriven, NEITHER 16K PROM is enabled and the memory
+    // state machine has no timing table -- which looks exactly like a
+    // sequencer bug and is not one. Only ChipsAre256/16K selects; ChipsAre64K
+    // has no effect on either enable.
+    if (m.b_MemX.Use256_s_16KProm_p_ !== 1'b0)
+      $fatal(1, "the 16K DRAM timing PROM (j13) is not enabled -- drive ChipsAre256/16K");
+    $display("tb_memrun:   MemState reached %0d of 16 values", nmemst);
+    $display("tb_memrun:   DRAM TIMING PROM enables -- ChipsAre256/16K=%b ChipsAre64K=%b -> Use256/16KProm'=%b Use64KProm'=%b (CE' low = enabled)",
+             chips16k, chips64k, m.b_MemX.Use256_s_16KProm_p_, m.b_MemX.Use64KProm_p_);
     $display("tb_memrun:   D0 CONJUNCTION -- WriteInMem'&!MapTrouble on %0d, all three on %0d of %0d",
              nwm, nall3, nsamp);
     $display("tb_memrun:   MemWEa's D0 = ~(WriteInMem' | x10 | MapTroubleInMem) -- low on: WriteInMem' %0d, x10 %0d, MapTroubleInMem %0d of %0d",

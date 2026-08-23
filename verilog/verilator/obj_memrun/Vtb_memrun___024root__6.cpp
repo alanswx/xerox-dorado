@@ -122,8 +122,6 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
     tb_memrun__DOT__m__DOT__b_ContB__DOT__bdRA_00a = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__b_ContB__DOT__bdRA_00b;
     tb_memrun__DOT__m__DOT__b_ContB__DOT__bdRA_00b = 0;
-    CData/*0:0*/ tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_08_p_;
-    tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_08_p_ = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_10_p_;
     tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_10_p_ = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_11_p_;
@@ -1641,17 +1639,6 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
                        | ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_e23__DOT__qb)) 
                           | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__Dbusy) 
                              | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__Store_u_InA_p___05F_MemC)))))));
-    vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemX07_sil_pl_4 
-        = (1U & ((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_12) 
-                 | (IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_6)));
-    vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemX07_sil_pl_13 
-        = (1U & (((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_12) 
-                  | (IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_6)) 
-                 >> 3U));
-    vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemX07_sil_pl_1 
-        = (1U & (((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_12) 
-                  | (IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_6)) 
-                 >> 2U));
     vlSelfRef.tb_memrun__DOT__m__DOT__MapWait_m_D___05FMemX 
         = (1U & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__EcWantsAa) 
                  | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_k21__DOT__q) 
@@ -3398,10 +3385,21 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
     vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__bFastD_u_Dbuf 
         = ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__FastD_u_Dbuf___05FMemC) 
            | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_h24__DOT__p4));
-    vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemState_p_ 
-        = (1U & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemX07_sil_pl_1) 
-                 | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_j12__DOT__q) 
-                    >> 1U)));
+    vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__WantMapWait_p_ 
+        = (((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_i17__DOT__p4) 
+              | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_ST_p_) 
+                 | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__WriteInMap_p_))) 
+             & (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__RefUsesDInMap_p_) 
+                 | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_i17__DOT__p10) 
+                    | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemD_p_))) 
+                & (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_i17__DOT__p10) 
+                    | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemIO_p_) 
+                       | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__IOFetchInMap_p_))) 
+                   & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__VicInPair_p___05F_MemC) 
+                      | ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MapWait_m_D___05FMemX)) 
+                         | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_i17__DOT__p14)))))) 
+            & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemState_p_)) 
+           | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__DisHold___05FMemC));
     vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__StartST_p_ 
         = (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h19__DOT__p4) 
             | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__TrueBD) 
@@ -4206,7 +4204,7 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ContA16_sil_pl_1 
         = ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__TrueBD) 
            & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_12));
-    tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_08_p_ 
+    vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_08_p_ 
         = (1U & ((~ ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_12) 
                      | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__SWa))) 
                  | (~ ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__SWa)) 
@@ -4975,21 +4973,6 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
             = (1U & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
                      >> 2U));
     }
-    vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__WantMapWait_p_ 
-        = (((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_i17__DOT__p4) 
-              | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_ST_p_) 
-                 | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__WriteInMap_p_))) 
-             & (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__RefUsesDInMap_p_) 
-                 | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_i17__DOT__p10) 
-                    | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemD_p_))) 
-                & (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_i17__DOT__p10) 
-                    | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemIO_p_) 
-                       | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__IOFetchInMap_p_))) 
-                   & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__VicInPair_p___05F_MemC) 
-                      | ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MapWait_m_D___05FMemX)) 
-                         | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_i17__DOT__p14)))))) 
-            & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemState_p_)) 
-           | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__DisHold___05FMemC));
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__WER_p_Aa 
         = ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_c05__DOT__p5) 
            | (IData)(__VdfgRegularize_h4af1c392_0_140));
@@ -5300,7 +5283,7 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
            | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_j06__DOT__p10) 
               | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_1)));
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__RA_08a 
-        = (1U & (~ ((IData)(tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_08_p_) 
+        = (1U & (~ ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_08_p_) 
                     | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_c12__DOT__p10) 
                        | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_c12__DOT__p11)))));
     tb_memrun__DOT__m__DOT__AfreeOrEc_p_b___05FMemC 
@@ -5621,11 +5604,10 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
                                                                    ? (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Pipe3_13)
                                                                    : 
                                                                   ((2U 
-                                                                    == (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
-                                                                    ? (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__ChipsAre256_s_16K)
-                                                                    : 
-                                                                   ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q) 
-                                                                    >> 1U))))) 
+                                                                    == (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel)) 
+                                                                   || (1U 
+                                                                       & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q) 
+                                                                          >> 1U)))))) 
                                                              | ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa)) 
                                                                 & ((0U 
                                                                     == (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_b01__DOT__sel))
@@ -5735,9 +5717,9 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
                                                                    ? (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Pipe3_12)
                                                                    : 
                                                                   ((2U 
-                                                                    == (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
-                                                                    ? (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__ModSel_0)
-                                                                    : (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q))))) 
+                                                                    == (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel)) 
+                                                                   || (1U 
+                                                                       & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q)))))) 
                                                              | ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa)) 
                                                                 & ((0U 
                                                                     == (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_b01__DOT__sel))
@@ -5801,7 +5783,7 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
                                                       | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_i12__DOT__p7)))) 
                                                  << 1U)) 
                                           | (1U & (~ 
-                                                   ((IData)(tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_08_p_) 
+                                                   ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_08_p_) 
                                                     | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_i12__DOT__p10) 
                                                        | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_i12__DOT__p11))))))) 
                        << 2U) | ((2U & ((~ ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_09_p_) 
@@ -5838,7 +5820,7 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
                                                   | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_k13__DOT__p6) 
                                                      | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_k13__DOT__p7)))) 
                                               << 1U)) 
-                                       | (1U & (~ ((IData)(tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_08_p_) 
+                                       | (1U & (~ ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_08_p_) 
                                                    | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_k13__DOT__p10) 
                                                       | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_k13__DOT__p11))))))) 
                                    << 2U) | ((2U & 
@@ -5877,7 +5859,7 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
                                                   | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_e13__DOT__p6) 
                                                      | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_e13__DOT__p7)))) 
                                               << 1U)) 
-                                       | (1U & (~ ((IData)(tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_08_p_) 
+                                       | (1U & (~ ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__dRA_08_p_) 
                                                    | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_e13__DOT__p10) 
                                                       | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_e13__DOT__p11))))))) 
                                    << 2U) | ((2U & 
@@ -10991,21 +10973,18 @@ void Vtb_memrun___024root___nba_sequent__TOP__2(Vtb_memrun___024root* vlSelf) {
                                                                                 & (IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_7))))) 
                                                                                 >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
                                                                                | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_123) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__VicSTPerr) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__ChipsAre64K) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__ChipsAre256_s_16K) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_j10__DOT__p11))) 
+                                                                                & ((0x00000020U 
+                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__VicSTPerr) 
+                                                                                << 7U) 
+                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_j10__DOT__p11) 
                                                                                 << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemError_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__ECFault_p_) 
-                                                                                << 2U)) 
+                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemError_p_) 
+                                                                                << 3U)) 
+                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__ECFault_p_) 
+                                                                                << 2U) 
                                                                                 | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Transporta) 
                                                                                 << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__PairFull)))) 
+                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__PairFull)))))) 
                                                                                 >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
                                                                                 | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_122) 
                                                                                 & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapTroubleInEc2) 
