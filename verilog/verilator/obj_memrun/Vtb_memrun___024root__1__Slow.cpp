@@ -13413,29 +13413,6 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->__VdfgRegularize_h4af1c392_0_136 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_137 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_139 = 0;
-    vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__rstk = 0;
-    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
-        vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__aluf[__Vi0] = 0;
-    }
-    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
-        vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__bsel[__Vi0] = 0;
-    }
-    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
-        vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__lc[__Vi0] = 0;
-    }
-    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
-        vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__asel[__Vi0] = 0;
-    }
-    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
-        vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__ff[__Vi0] = 0;
-    }
-    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
-        vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__jcn[__Vi0] = 0;
-    }
-    vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351____Vlvbound_h3210a7bb__0 = 0;
-    vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351____Vlvbound_h31de2e39__0 = 0;
-    vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351____Vlvbound_h3210c89d__0 = 0;
-    vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351____Vlvbound_h32171d85__0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;
