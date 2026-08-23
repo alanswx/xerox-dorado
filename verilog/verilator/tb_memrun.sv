@@ -2137,23 +2137,38 @@ module tb_memrun;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
     nwcr=0; pwcr=m.b_MemC.WantCR; nwar=0; pwar=m.b_MemC.WantAltRef_p_;
     nfl=0; pfl=m.b_MemC.Flush_u__p_; nmp=0; pmp=m.b_MemC.Map_u__p_;
-    // PRELOAD ONE MAP BIT PLANE so the entry's parity is ODD rather than the
-    // all-zero (failing) pattern. MemX e11/e12 are cascaded MC10170s over the
-    // map entry's real-page bits; flipping exactly one bit flips the check.
-    // The planes are MosRam packages -- one BIT each, 21 of them -- so this
-    // is the map equivalent of tb_boot0 preloading the IM arrays.
+    // PRELOAD THE MAP PLANES TO 1. The MosRam arrays are one bit each, 21 of
+    // them, and Verilator starts them at 0 -- which is a map entry that fails
+    // its parity, so MapTrouble asserts and the MC10124 translators show
+    // nothing moving. This is AND IT IS LOAD-BEARING: removing it fails
+    // memrun-test's "the map outputs never varied" check.
+    //
+    // (An earlier note here called it inert, on the strength of a preload to
+    // ZERO reading back as 1 -- but that was the ARRAY'S OWN default showing
+    // through, not the machine overwriting the plant. Preloading to 1 plainly
+    // does reach the logic. Retracted.)
     for (int mi2 = 0; mi2 < 4096; mi2++) begin
-      m.b_MemX.u_a04.mem[mi2]=12'd1; m.b_MemX.u_a05.mem[mi2]=12'd1;
-      m.b_MemX.u_a06.mem[mi2]=12'd1; m.b_MemX.u_a07.mem[mi2]=12'd1;
-      m.b_MemX.u_a08.mem[mi2]=12'd1; m.b_MemX.u_a09.mem[mi2]=12'd1;
-      m.b_MemX.u_a10.mem[mi2]=12'd1; m.b_MemX.u_a11.mem[mi2]=12'd1;
-      m.b_MemX.u_a12.mem[mi2]=12'd1; m.b_MemX.u_a13.mem[mi2]=12'd1;
-      m.b_MemX.u_a14.mem[mi2]=12'd1; m.b_MemX.u_d04.mem[mi2]=12'd1;
-      m.b_MemX.u_d05.mem[mi2]=12'd1; m.b_MemX.u_d06.mem[mi2]=12'd1;
-      m.b_MemX.u_d07.mem[mi2]=12'd1; m.b_MemX.u_d08.mem[mi2]=12'd1;
-      m.b_MemX.u_d09.mem[mi2]=12'd1; m.b_MemX.u_d10.mem[mi2]=12'd1;
-      m.b_MemX.u_d11.mem[mi2]=12'd1; m.b_MemX.u_d12.mem[mi2]=12'd1;
-      m.b_MemX.u_d13.mem[mi2]=12'd1;
+      m.b_MemX.u_a04.mem[mi2]=1'b1;
+      m.b_MemX.u_a05.mem[mi2]=1'b1;
+      m.b_MemX.u_a06.mem[mi2]=1'b1;
+      m.b_MemX.u_a07.mem[mi2]=1'b1;
+      m.b_MemX.u_a08.mem[mi2]=1'b1;
+      m.b_MemX.u_a09.mem[mi2]=1'b1;
+      m.b_MemX.u_a10.mem[mi2]=1'b1;
+      m.b_MemX.u_a11.mem[mi2]=1'b1;
+      m.b_MemX.u_a12.mem[mi2]=1'b1;
+      m.b_MemX.u_a13.mem[mi2]=1'b1;
+      m.b_MemX.u_a14.mem[mi2]=1'b1;
+      m.b_MemX.u_d04.mem[mi2]=1'b1;
+      m.b_MemX.u_d05.mem[mi2]=1'b1;
+      m.b_MemX.u_d06.mem[mi2]=1'b1;
+      m.b_MemX.u_d07.mem[mi2]=1'b1;
+      m.b_MemX.u_d08.mem[mi2]=1'b1;
+      m.b_MemX.u_d09.mem[mi2]=1'b1;
+      m.b_MemX.u_d10.mem[mi2]=1'b1;
+      m.b_MemX.u_d11.mem[mi2]=1'b1;
+      m.b_MemX.u_d12.mem[mi2]=1'b1;
+      m.b_MemX.u_d13.mem[mi2]=1'b1;
     end
     $display("tb_memrun: ALL 21 map bit planes preloaded to 1 (parity experiment)");
 

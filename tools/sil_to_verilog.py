@@ -950,7 +950,21 @@ class Generator:
                 terms = ' | '.join(f'{vname(name)}__{vname(p["pkg"])}_{p["pin"]}'
                                    for p in drivers)
                 tgt = f'{vname(name)}__drv' if name in self.exports else vname(name)
-                A(f'  assign {tgt} = {terms};')
+                if self.rail_value(name) and name not in self.exports:
+                    # A POWER RAIL IS NOT A WIRED-OR NET. Two on BaseBd have
+                    # pins Sil marks `out` sitting on them -- MPQ6002 c05 on
+                    # VCC62 and MPQ3303 h06 on GND346 -- both ANALOG
+                    # transistor quads, whose "outputs" onto a supply are not
+                    # logic drivers. Emitting a tree for them gave the net a
+                    # second assignment beside its rail constant, which
+                    # Verilator tolerates and QUARTUS REJECTS outright:
+                    # "Can't resolve multiple constant drivers for net VCC62".
+                    # The stubs above are still emitted so the packages stay
+                    # wired; the rail simply wins.
+                    A(f'  // {name} is a POWER RAIL -- its constant wins over')
+                    A(f'  //   {len(drivers)} analog pin(s) Sil marks as driving it.')
+                else:
+                    A(f'  assign {tgt} = {terms};')
             A('')
 
         # A net driven by exactly ONE pin here but exported still needs its

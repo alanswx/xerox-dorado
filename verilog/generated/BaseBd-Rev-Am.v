@@ -773,7 +773,8 @@ module BaseBd_m_Rev_m_Am (
   wire GND346__h06_12;
   // GND346: the MPQ3303 pulls this net and
   // overrides the wired-OR -- see OVERRIDE_DRIVERS.
-  assign GND346 = GND346__h06_10 | GND346__h06_12;
+  // GND346 is a POWER RAIL -- its constant wins over
+  //   2 analog pin(s) Sil marks as driving it.
   wire MCD_0__f60_17;
   wire MCD_0__e60_17;
   wire MCD_0__c60_17;
@@ -1073,7 +1074,8 @@ module BaseBd_m_Rev_m_Am (
   assign TSetRun = TSetRun__g07_2;
   wire VCC62__c05_12;
   wire VCC62__c05_1;
-  assign VCC62 = VCC62__c05_12 | VCC62__c05_1;
+  // VCC62 is a POWER RAIL -- its constant wins over
+  //   2 analog pin(s) Sil marks as driving it.
   wire VCOPhase0__h06_7;
   wire VCOPhase0__h05_14;
   // VCOPhase0: the MPQ3303 pulls this net and

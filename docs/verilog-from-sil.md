@@ -17,6 +17,64 @@ directions.**
 Read this first; everything below it is the history of how the generator and
 cell library got built. Gate names are `make -C verilog <name>`; there are 29.
 
+## Synthesis: the first real Quartus run (2026-08-23)
+
+Quartus is not installed natively; it runs in `raetro/quartus:mister`
+(Quartus Prime 17.0.2 Lite, linux/amd64 under emulation). One script drives
+it:
+
+```
+tools/quartus-build.sh map     # analysis & synthesis -- the numbers
+tools/quartus-build.sh all     # + fit + sta
+tools/quartus-build.sh clean
+```
+
+**Never run `quartus_sh --flow compile`.** Quartus' parallel helpers crash
+under emulation on Apple Silicon -- they appear as `<defunct>` beside
+`[crashreporter]` -- and the parent then deadlocks forever on their named
+pipes at ~4% CPU, which looks like a slow build and never ends. The script
+passes `--parallel=1` to each stage. **A healthy build sits at ~100% CPU; at
+~4% it is hung, not slow.** Quartus also REWRITES `verilog/quartus/dorado.qsf`
+every run, so sources live in `files.qip` and the qsf wants
+`git checkout --` afterwards. (All of this is owed to the working setup in
+`RCAStudioII_Mister`, which had solved it already.)
+
+Three findings from the first run, in the order they surfaced:
+
+**1. Two power rails were multiply driven, and Quartus rejects that outright.**
+`VCC62` and `GND346` on BaseBd each had both a rail constant and a wired-OR
+driver tree. The drivers are pins Sil marks `out` on ANALOG transistor quads
+sitting on a supply -- MPQ6002 c05 and MPQ3303 h06 -- which are not logic
+drivers at all. Verilator tolerated it; Quartus stopped with *"Can't resolve
+multiple constant drivers for net VCC62"*. The generator now suppresses the
+tree on a rail. Two nets in the whole machine, and only synthesis found them.
+
+**2. The two big DRAM cells were twelve times too wide.** `MosRam` and
+`MK4096P-6` declared `reg [11:0] mem [0:4095]` while storing a single bit --
+functionally right, since the write zero-extends and the read takes bit 0, and
+309 packages of it. Now `reg mem [0:4095]`.
+
+**3. STILL OPEN, and it is the real capacity question: eight of the twelve
+memory cells do not infer RAM.** Analysis & Synthesis ends with *"Cannot
+convert all sets of registers into RAM megafunctions ... exceeds the number of
+registers in the device"*.
+
+| inferred | not inferred |
+|---|---|
+| `F10145A`, `F10414`, `F10415A`, `MB7071H` | `MosRam` (165 pkgs), `MK4096P-6` (144), `F10470`, `i2716`, `i2125`, `MCM10149`, `SG10139`, `SN74S288` |
+
+MosRam and MK4096 alone are 309 packages x 4096 bits ~= **1.27 Mbit** landing
+in registers, against a device with ~166K of them. So this is not a fitting
+problem to tune -- it is inference that has to work.
+
+**This qualifies the earlier claim that "RAM inference is resolved".** Being
+fully synchronous was necessary and is not sufficient: four cells with the
+same clocked structure DO infer, so the difference is in how each one's read
+and write are written. The likely culprit in the DRAM cells is that the write
+and the conditional read share one `always` block with different conditions,
+where Quartus wants a canonical shape. That is the next thing to try, and the
+Verilator gates will say whether the rewrite changed behaviour.
+
 ## What "boot" means here
 
 The real machine's chain has five stages, and the RTL is partway through the
