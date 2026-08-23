@@ -2995,7 +2995,6 @@ module BaseBd_m_Rev_m_Am (
     .p6(DACOut),
     .p7(VCC118)
   ); // CA3140
-  // NO MODEL for ADC-MC8BC -- stub, ports preserved
   cell_ADC_MC8BC u_i22 (
     .p2(GND427),
     .p5(DAC_0),

@@ -1084,7 +1084,14 @@ class Generator:
                     target = "1'b0"
                 conns.append(f'    .p{pin}({target})')
             cell = f'cell_{vpart(ptype)}'
-            if ptype not in self.cells:
+            # COMPARE THE SANITISED NAME. `known_cells` reads the names off
+            # the FILENAMES, which are already sanitised (cell_MK4096P_6.v),
+            # while `ptype` is PARC's raw part name (MK4096P-6). Testing the
+            # raw name marked 151 packages "NO MODEL" that have a perfectly
+            # good one and are correctly instantiated -- 144 of them the
+            # MK4096 DRAMs of the storage array -- which also understated the
+            # cell-coverage figure.
+            if vpart(ptype) not in self.cells:
                 self.missing[ptype] += 1
                 A(f'  // NO MODEL for {ptype} -- stub, ports preserved')
             params = ''

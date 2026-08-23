@@ -126,6 +126,26 @@ ContA/ContB/ProcH/ProcL. The MemD interface is the storage data path itself --
 `Sin.00-15` and `Sout.00-15`, the 16-bit word in and out, plus `EcIn`/`EcOut`
 for ECC.
 
+**And two things had to be fixed before it could work.**
+
+**The coverage check compared the wrong name.** `known_cells` reads part names
+off the FILENAMES, which are already sanitised (`cell_MK4096P_6.v`), while the
+check used PARC's raw name (`MK4096P-6`). So any part whose name needs
+sanitising was marked "NO MODEL" in the generated Verilog -- and counted as
+missing -- while being correctly instantiated all along. **154 false comments
+across 8 boards, 144 of them the MSA's DRAMs**, which have a complete model.
+Fixed by comparing `vpart(ptype)`.
+
+**`SN74H04` was a skeleton, and it is what drives the DRAM address lines.**
+All 28 of its packages are on the MSA. The board takes its multiplexed
+address off the backplane as `TtlA0'`..`TtlA6'` and inverts it here into
+`A0a0`..`A6a0`, which fan out to the 144 MK4096s -- so unmodelled, **every
+address line on the storage board read 0 and no location could be selected**.
+The netlist proves the function without a data sheet: every package takes a
+PRIMED net in and drives the UNPRIMED one out, in the standard 7404 pin pairs.
+
+With both fixed, **the MSA is 265/265 logic packages modelled -- 100%**.
+
 `make -C verilog backplane MACHINE=--boards=ProcH,ProcL` builds any other.
 
 | piece | state |

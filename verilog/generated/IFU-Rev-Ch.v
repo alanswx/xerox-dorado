@@ -3068,7 +3068,6 @@ module IFU_m_Rev_m_Ch (
     .p14(ifu13_sil_pl_14),
     .p15(ifu13_sil_pl_2)
   ); // MC10176
-  // NO MODEL for LM3911+20K -- stub, ports preserved
   cell_LM3911_20K u_g06 (
     .p1(VEE174),
     .p2(IfuTempSense),

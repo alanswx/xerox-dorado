@@ -1192,7 +1192,6 @@ module ContB_m_Rev_m_Cd (
     .p14(RA_02c),
     .p15(GND24)
   ); // MC10211
-  // NO MODEL for LM3911+20K -- stub, ports preserved
   cell_LM3911_20K u_a13 (
     .p1(VEE37),
     .p2(CBTempSense),
