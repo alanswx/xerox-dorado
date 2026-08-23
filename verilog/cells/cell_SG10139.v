@@ -28,11 +28,29 @@ module cell_SG10139 #(
 
   // 32 x 8 ECL PROM (Signetics 10139 / Motorola MC10139).
   //
-  // BIT ORDER, and it is the same rule on both axes: PARC's structures are
-  // MSB-FIRST, so A0 is the most significant ADDRESS bit and Q0 the most
-  // significant OUTPUT bit. Both are stated in the sources -- EtherProms
-  // marks `pdCarrier bit // A0 pin 4` for a field that is address bit 7,
-  // and DiskProms has `Pin1 = #200`, bit 7 of a byte, where Pin1 is Q0.
+  // BIT ORDER -- PROVEN FROM THE DATA SHEET, not from convention. The
+  // Signetics 10139 appears in the 1977 Bipolar and MOS Memory data book at
+  // document page 93 (PDF page 94),
+  // DoradoDocs/datasheets/1977_Signetics_Bipolar_and_MOS_Memory.pdf, and its
+  // PIN CONFIGURATION gives:
+  //
+  //     pin 10 = A0 (LSB)   11 = A1   12 = A2   13 = A3   14 = A4 (MSB)
+  //     pin  1 = O0   2 = O1 ... 7 = O6   9 = O7        pin 15 = CE'
+  //
+  // EclDict names those address pins `A0,14 > A1,13 > A2,12 > A3,11 > A4,10`
+  // -- the EXACT REVERSAL, exactly as it does for the F10016's counter pins.
+  // A CELL IMPLEMENTS THE DATA SHEET'S FUNCTION PER PIN NUMBER, so pin 14 is
+  // the most significant address bit and `{p14,p13,p12,p11,p10}` below is the
+  // silicon's own A4..A0.
+  //
+  // The OUTPUT axis is not reversed and does not need to be: a PROM's eight
+  // columns carry no arithmetic weight, so the byte order is set purely by how
+  // PARC writes the table. DiskProms says `Pin1 = #200` -- bit 7 -- so pin 1
+  // holds the byte's MSB.
+  //
+  // The data sheet also states the disable behaviour this cell relies on:
+  // "Outputs go to the 0 (low) state when the chip enable input is high,
+  // allowing wired-OR output connections."
   //
   // Contents come from tools/dorado_proms.py --emit-packages, already sliced
   // to this package's bits. Empty INIT_FILE leaves the array X, which is the

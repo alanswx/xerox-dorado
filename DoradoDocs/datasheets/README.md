@@ -154,3 +154,23 @@ and `renesas.com/en/document/dst/<slug>` both serve cleanly.
 
 Save anything fetched HERE, not in a scratch directory. Two of these were
 fetched into a session temp folder first and would have been lost.
+
+## 1977_Signetics_Bipolar_and_MOS_Memory.pdf (354 pp, supplied 2026-08-23)
+
+The Signetics memory data book, and it carries **two parts we model** with
+their PIN CONFIGURATION tables -- which is what settles bit order, since
+EclDict names ECL pins MSB-first and the silicon numbers them LSB-first.
+
+| part | doc page | PDF page | what it settles |
+|---|---|---|---|
+| **10139** 32x8 ECL PROM (`SG10139`, 15 pkgs) | 93-94 | 94-95 | `A0=pin 10` (LSB) … `A4=pin 14` (MSB) -- EclDict's `A0,14` is the exact reversal, so pin 14 is the top address bit. Also states the disable rule: "Outputs go to the 0 (low) state when the chip enable input is high, allowing wired-OR output connections." |
+| **2115/2125** 1024x1 static RAM (`i2125`, 32 pkgs) | 200 | 201 | `A0=pin 2` … `A9=pin 13`, and the TRUTH TABLE: the 2125 (three-state) is **High-Z during a write**, the 2115 (uncommitted collector) is not. We model the 2125. |
+
+It also indexes `10149` and `10155`, neither of which is in the eleven-board
+machine (`MCM10149` is instantiated 15 times in generated boards -- check
+before assuming it is dead).
+
+**This book has a TEXT LAYER**, unlike most of this directory, so
+`pdftotext` works and the index is greppable. Note that `F10016.pdf` does
+NOT -- it is a scan, which is why a `grep` for its pinout found nothing for
+weeks. **Render page 1 and look** before concluding a data sheet is silent.
