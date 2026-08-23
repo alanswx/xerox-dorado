@@ -3093,12 +3093,34 @@ Two things remain, both small and both stated by measurement:
    address 24 (672 visits) = MapState 0 with no map function pending, i.e.
    idle, plus 28 (483), 8 (448), 0 (384).
 
-   **So the map sequencer stops reaching state 3 with a function pending**,
-   even though this loop issues `←Map` every fourth microinstruction. **Next:**
-   log `MapFnc.0'`/`MapFnc.1'` against the `←Map` instruction and find whether
-   the second and later Maps set the function at all. Both are already probed,
-   and MapFnc was measured earlier taking only 2 of its 4 values -- the same
-   fact from the other side.
+   **And the two halves stop coinciding -- neither one stops.** Address 3
+   needs **both** MapFnc bits low **and** MapState = 3. Measured separately
+   over 3000 samples:
+
+   | condition | cycles | last sample |
+   |---|---|---|
+   | MapFnc = 00 (function pending) | 597 | 2133 |
+   | MapState = 3 | 320 | 2581 |
+   | **both** (address 3) | **192** | **213** |
+
+   So the map function keeps being issued and the sequencer keeps reaching
+   state 3, but after sample 213 **they never line up again**. That is a
+   **phase** relationship, not a missing signal -- the classic shape of two
+   things free-running at rates that no longer agree: this loop presents a
+   reference every four microinstructions while the map sequencer walks at its
+   own pace.
+
+   (Full distributions -- MapFnc `{0',1'}`: 00=597, 01=832, 10=32, 11=1539.
+   MapState visits all eight: 0=1536, 1=128, 2=128, 3=320, 4=547, 5=149,
+   6=128, 7=64.)
+
+   **Next:** this is a beat-frequency question. Log the sample numbers of the
+   MapFnc=00 runs and the MapState=3 runs and compare their periods. If the
+   loop's 4-microinstruction cadence and the map sequencer's cycle are
+   near-commensurate, changing the loop **length** by one instruction should
+   move the coincidence -- a cheap, decisive experiment. Note that an earlier
+   attempt to change loop length (a second hunk of non-references) broke the
+   Store-to-Flush pairing, so vary the length **without** separating those two.
 
    **Worth generalising, and the count is now four:** i10, j22 and j12 all
    have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are
