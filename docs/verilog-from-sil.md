@@ -1363,3 +1363,30 @@ after the Flush rather than another reference.
 
 And do not read the level counters as a substitute for edges:
 "`StartMapClk0'a` high on 9640 of 9952" is **40 edges**.
+
+### ...and tuning the loop is the wrong lever (2026-08-23)
+
+The obvious fix for the phase above -- more quiet slots after the Flush -- was
+tried at EIGHT instructions (Flush at IM[2], five quiet slots, Local Jumps
+`0->7->0`; the jumps work, TNIA visits all eight). The victim survives longer
+and `MemRASa` goes 2 -> 4, and then **`FSinPair'` never falls**: the Flush
+stops being latched into the pair at all.
+
+That reproduces, at eight, exactly what this bench's header already recorded
+at five: *"at four instructions the Store/Flush pair works and the map window
+is missed; at five the map phase moves and the pair breaks."* The loop is
+phase-fragile in BOTH directions, and the map accepts a function only every
+FOURTH `<-Map` -- the bench asks faster than the map answers.
+
+**So the conclusion is not "tune the loop harder."** Nothing in the RTL is
+broken: MapState visits all eight of its values, MapFnc all of its, the
+reference machinery is gated end to end, and the read direction is proven all
+the way to `Md`. The write-back needs a REAL workload whose store and eviction
+fall where the map cadence puts them (`+realucode` is the hook), not more
+surgery on an artificial four-instruction loop.
+
+**Process note, twice in one session.** Both failed hypotheses here -- that
+`DisHold` was letting the processor outrun the memory, and that quiet slots
+would hold the victim -- are refuted by comments already in the bench. Read
+the header before designing the experiment; it is long because it is a
+lab notebook.
