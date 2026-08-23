@@ -170,8 +170,40 @@ def make_data_select() -> tuple[str, int, list[int]]:
 # the documentation: each 8-entry row is one memory operation, so the tables
 # read as a state machine indexed by (operation, cycle).
 
-def _table(name, width, rows) -> tuple[str, int, list[int]]:
-    words = [w for _label, row in rows for w in row]
+def _table(name, width, rows, adjust=None) -> tuple[str, int, list[int]]:
+    """Assemble a PROM image the way PARC's own blower does.
+
+    `DoradoProms.bcpl Body()` does not store a table entry verbatim. It
+    LEFT-JUSTIFIES it into a 16-bit word and keeps the top `width` bits:
+
+        mask = 0
+        for i = 1 to MemWidth do mask = (mask rshift 1) % #100000
+        data = Buff!address
+        data = data lshift adjust    // left justify it
+        data = data & mask           // mask off the unused bits
+
+    so the byte actually blown is `(value << adjust) >> (16 - width)`. Every
+    Header() in the sources passes `adjust = 16 - width` -- which makes that
+    the identity, and is why transcribing the tables verbatim worked for all
+    of them -- EXCEPT ONE:
+
+        Header("Map-Mem", 8, buff, 32, 10)
+
+    Ten where eight is standard, so MemX-i14's bytes are PARC's table values
+    shifted LEFT BY TWO. Transcribing them raw put every output on the wrong
+    pin. `preStartMem'` is i14 pin 3, and raw it reads asserted at exactly one
+    address; shifted it asserts at MapState=3 for Refresh, Read AND Write, and
+    never for a Map write -- i.e. a reference starts a memory cycle and a pure
+    map write does not, which is the behaviour the board needs.
+    """
+    if adjust is None:
+        adjust = 16 - width                      # the identity case
+    shift = adjust - (16 - width)
+    mask = (1 << width) - 1
+    words = []
+    for _label, row in rows:
+        for w in row:
+            words.append(((w << shift) if shift >= 0 else (w >> -shift)) & mask)
     return (name, width, words)
 
 
@@ -227,7 +259,7 @@ def make_map_mem() -> tuple[str, int, list[int]]:
         ('Read',      [0o12, 0o12, 0o13, 0o07, 0o12, 0o12, 0o10, 0o12]),
         ('Write',     [0o12, 0o12, 0o13, 0o07, 0o12, 0o12, 0o10, 0o12]),
         ('Map write', [0o12, 0o12, 0o13, 0o13, 0o12, 0o12, 0o10, 0o12]),
-    ])
+    ], adjust=10)   # NON-STANDARD -- see _table(); the bytes are these << 2
 
 
 def make_map_map() -> tuple[str, int, list[int]]:
