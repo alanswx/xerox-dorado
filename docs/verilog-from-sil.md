@@ -54,26 +54,52 @@ tree on a rail. Two nets in the whole machine, and only synthesis found them.
 functionally right, since the write zero-extends and the read takes bit 0, and
 309 packages of it. Now `reg mem [0:4095]`.
 
-**3. STILL OPEN, and it is the real capacity question: eight of the twelve
-memory cells do not infer RAM.** Analysis & Synthesis ends with *"Cannot
-convert all sets of registers into RAM megafunctions ... exceeds the number of
-registers in the device"*.
+**3. STILL OPEN, and it is a DESIGN decision rather than a bug: the two
+biggest memories read ASYNCHRONOUSLY, and M10K cannot do that.**
 
-| inferred | not inferred |
-|---|---|
-| `F10145A`, `F10414`, `F10415A`, `MB7071H` | `MosRam` (165 pkgs), `MK4096P-6` (144), `F10470`, `i2716`, `i2125`, `MCM10149`, `SG10139`, `SN74S288` |
+First, a correction to the obvious guess. `msa` is **not** in the eleven-board
+machine, so its 144 MK4096 DRAMs are not in this synthesis at all. What is:
 
-MosRam and MK4096 alone are 309 packages x 4096 bits ~= **1.27 Mbit** landing
-in registers, against a device with ~166K of them. So this is not a fitting
-problem to tune -- it is inference that has to work.
+| cell | packages | bits | inferred |
+|---|---|---|---|
+| `F10415A` (IM) | 174 x 1024 | 178 K | **3** |
+| `F10470` (DRAM) | 72 x 4096 | 295 K | **0** |
+| `MosRam` | 21 x 4096 | 86 K | 0 |
+| `i2125` | 32 x 1024 | 33 K | 0 |
+| others | | 32 K | some |
+| **total** | | **624 K (0.62 Mbit)** | |
 
-**This qualifies the earlier claim that "RAM inference is resolved".** Being
-fully synchronous was necessary and is not sufficient: four cells with the
-same clocked structure DO infer, so the difference is in how each one's read
-and write are written. The likely culprit in the DRAM cells is that the write
-and the conditional read share one `always` block with different conditions,
-where Quartus wants a canonical shape. That is the next thing to try, and the
-Verilator gates will say whether the rewrite changed behaviour.
+against **5,570 Kbit** of M10K on the device. **It fits nearly nine times over
+-- if it infers.** So this was never a capacity problem.
+
+The blocker is structural. `F10415A` and `F10470` both end with
+
+```verilog
+assign p1 = (!p14) ? mem[a] : 1'b0;     // ASYNCHRONOUS read
+```
+
+and **M10K is synchronous-read only**. An async-read array falls back to MLAB
+for small ones -- which is exactly why 3 of the 174 F10415A did infer, and why
+the 16x4 `F10145A` and 256x4 `MB7071H` infer cleanly -- and to registers
+otherwise. Those two cells are **473 K of the 624 K**.
+
+**Making them infer means a REGISTERED read, and that is one cycle of added
+latency on IM and on storage.** It is not a coding tweak; it changes machine
+timing, and the 32 Verilator gates are what would say whether the rest of the
+design tolerates it. That is the decision to take deliberately.
+
+Two things tried first, both ruled out by measurement rather than argument:
+splitting the write and the conditional read into separate `always` blocks
+(no change), and rewriting `MosRam`/`MK4096P-6` to the canonical MiSTer
+`dpram.sv` template -- unconditional registered read, conditional write, one
+block (no change either, and worth knowing that template is pure INFERENCE,
+not an `altsyncram` instantiation, which is why those cells still simulate
+unchanged).
+
+Also fixed on the way: those two DRAM cells declared `reg [11:0] mem [0:4095]`
+while storing a single bit -- twelve times the memory, across 309 packages.
+
+
 
 ## What "boot" means here
 

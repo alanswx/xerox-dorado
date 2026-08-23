@@ -1,5 +1,5 @@
 Analysis & Synthesis report for dorado
-Sun Aug 23 14:01:28 2026
+Sun Aug 23 14:16:16 2026
 Quartus Prime Version 17.0.2 Build 602 07/19/2017 SJ Lite Edition
 
 
@@ -2489,7 +2489,7 @@ agreement for further details.
 +---------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                              ;
 +-----------------------------+---------------------------------------------+
-; Analysis & Synthesis Status ; Failed - Sun Aug 23 14:01:28 2026           ;
+; Analysis & Synthesis Status ; Failed - Sun Aug 23 14:16:16 2026           ;
 ; Quartus Prime Version       ; 17.0.2 Build 602 07/19/2017 SJ Lite Edition ;
 ; Revision Name               ; dorado                                      ;
 ; Top-level Entity Name       ; dorado_backplane                            ;
@@ -2634,27 +2634,27 @@ Parallel compilation was disabled, but you have multiple processors available. E
 ; DskEth_m_Rev_m_Cf:b_DskEth|cell_MC10176:u_e10|q[2..5] ; DskEth_m_Rev_m_Cf:b_DskEth|cell_F10145A:u_d10|mem_rtl_0  ; RAM  ;
 ; DskEth_m_Rev_m_Cf:b_DskEth|cell_MC10176:u_e08|q[0..3] ; DskEth_m_Rev_m_Cf:b_DskEth|cell_F10145A:u_d09|mem_rtl_0  ; RAM  ;
 ; DskEth_m_Rev_m_Cf:b_DskEth|cell_MC10176:u_c14|q[0..3] ; DskEth_m_Rev_m_Cf:b_DskEth|cell_MCM10149:u_b14|mem_rtl_0 ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d13|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d13|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d12|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d12|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d11|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d11|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d10|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d10|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d09|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d09|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d08|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d08|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d07|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d07|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d06|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d06|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d05|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d05|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d04|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d04|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a14|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a14|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a13|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a13|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a12|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a12|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a11|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a11|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a10|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a10|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a09|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a09|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a08|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a08|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a07|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a07|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a06|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a06|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a05|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a05|mem_rtl_0       ; RAM  ;
-; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a04|dout         ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a04|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d13|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d13|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d12|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d12|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d11|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d11|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d10|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d10|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d09|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d09|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d08|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d08|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d07|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d07|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d06|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d06|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d05|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d05|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d04|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_d04|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a14|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a14|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a13|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a13|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a12|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a12|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a11|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a11|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a10|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a10|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a09|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a09|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a08|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a08|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a07|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a07|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a06|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a06|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a05|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a05|mem_rtl_0       ; RAM  ;
+; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a04|dout_r       ; MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a04|mem_rtl_0       ; RAM  ;
 ; ProcL_m_Rev_m_Ci:b_ProcL|cell_MC10176:u_e12|q[4,5]    ; ProcL_m_Rev_m_Ci:b_ProcL|cell_F10145A:u_e14|mem_rtl_0    ; RAM  ;
 ; ProcL_m_Rev_m_Ci:b_ProcL|cell_MC10176:u_e12|q[0..3]   ; ProcL_m_Rev_m_Ci:b_ProcL|cell_F10145A:u_e13|mem_rtl_0    ; RAM  ;
 +-------------------------------------------------------+----------------------------------------------------------+------+
@@ -33576,7 +33576,7 @@ Info: Running Quartus Prime Analysis & Synthesis
     Info: devices manufactured by Intel and sold by Intel or its 
     Info: authorized distributors.  Please refer to the applicable 
     Info: agreement for further details.
-    Info: Processing started: Sun Aug 23 14:00:57 2026
+    Info: Processing started: Sun Aug 23 14:15:45 2026
 Info: Command: quartus_map --parallel=1 verilog/quartus/dorado
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
 Warning (12473): User specified to use only one processors but 16 processors were detected which could be used to decrease run time.
@@ -34076,7 +34076,7 @@ Warning (10036): Verilog HDL or VHDL warning at MemX-Rev-Ch.v(970): object "VDD_
 Warning (10036): Verilog HDL or VHDL warning at MemX-Rev-Ch.v(974): object "VEE_m_68" assigned a value but never read File: /build/verilog/generated/MemX-Rev-Ch.v Line: 974
 Warning (10036): Verilog HDL or VHDL warning at MemX-Rev-Ch.v(975): object "VEE_m_69" assigned a value but never read File: /build/verilog/generated/MemX-Rev-Ch.v Line: 975
 Info (12128): Elaborating entity "cell_MosRam" for hierarchy "MemX_m_Rev_m_Ch:b_MemX|cell_MosRam:u_a04" File: /build/verilog/generated/MemX-Rev-Ch.v Line: 1408
-Warning (10036): Verilog HDL or VHDL warning at cell_MosRam.v(104): object "_unused_pins" assigned a value but never read File: /build/verilog/cells/cell_MosRam.v Line: 104
+Warning (10036): Verilog HDL or VHDL warning at cell_MosRam.v(128): object "_unused_pins" assigned a value but never read File: /build/verilog/cells/cell_MosRam.v Line: 128
 Info (12128): Elaborating entity "cell_MC1674" for hierarchy "MemX_m_Rev_m_Ch:b_MemX|cell_MC1674:u_f24" File: /build/verilog/generated/MemX-Rev-Ch.v Line: 3064
 Warning (10034): Output port "p2" at cell_MC1674.v(14) has no driver File: /build/verilog/cells/cell_MC1674.v Line: 14
 Warning (10034): Output port "p14" at cell_MC1674.v(20) has no driver File: /build/verilog/cells/cell_MC1674.v Line: 20
@@ -34762,9 +34762,9 @@ Warning (12241): 2215 hierarchies have connectivity warnings - see the Connectiv
 Info (144001): Generated suppressed messages file /build/verilog/quartus/output_files/dorado.map.smsg
 Error: Quartus Prime Analysis & Synthesis was unsuccessful. 1 error, 404 warnings
     Error: Peak virtual memory: 1487 megabytes
-    Error: Processing ended: Sun Aug 23 14:01:29 2026
-    Error: Elapsed time: 00:00:32
-    Error: Total CPU time (on all processors): 00:00:40
+    Error: Processing ended: Sun Aug 23 14:16:16 2026
+    Error: Elapsed time: 00:00:31
+    Error: Total CPU time (on all processors): 00:00:39
 
 
 +------------------------------------------+
