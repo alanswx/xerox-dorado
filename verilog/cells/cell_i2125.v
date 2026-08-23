@@ -53,7 +53,20 @@ module cell_i2125 (
   // latency added is one sys_clk, which is 1/16 of a microinstruction.
   reg dout_r;
   always @(posedge sys_clk) dout_r <= mem[a];
-  assign p7 = (!p1) ? dout_r : 1'b0;
+  // THE OUTPUT IS HIGH-Z DURING A WRITE, per the 2125 truth table
+  // (1977_Signetics_Bipolar_and_MOS_Memory.pdf, doc p.200 / PDF p.201):
+  //
+  //     CS'  WE'  Din   |  2125 Dout
+  //      H    X    X    |  High Z    not selected
+  //      L    L    L    |  High Z    write "0"
+  //      L    L    H    |  High Z    write "1"
+  //      L    H    X    |  Dout      read
+  //
+  // Only the last row drives. These outputs resolve through an OR tree, where
+  // "not driving" is 0 -- the same convention the MC10159 fix established for
+  // a disabled ECL driver. (The 2115 half of the family is the uncommitted-
+  // collector part and would read H here; the Dorado uses the 2125.)
+  assign p7 = (!p1 && p14) ? dout_r : 1'b0;
 
 
   wire _unused_pins = &{1'b0, p8, p16, 1'b0};
