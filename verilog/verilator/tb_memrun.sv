@@ -2083,7 +2083,7 @@ module tb_memrun;
     //   IM[2] Flush : ASEL = 001, FF.0 = 0, FF.1 = 1   (j24 Q3)
     //   IM[3] none  : ASEL = 100, so WantProcRef' stays high
     if (!$test$plusargs("realucode")) begin
-      build_hunk4(4'd0, 1'b0,
+build_hunk4(4'd0, 1'b0,
                   '{4'd0,   4'd0,   4'd0,   4'd0},
                   '{3'd0,   3'd0,   3'd0,   3'd0},
                   '{3'd0,   3'd0,   3'd0,   3'd0},
@@ -2751,13 +2751,24 @@ module tb_memrun;
     // non-reference) reloads the pair on the very next reference, and
     // VicInPair' is a k21 latch that the reload clears.
     //
-    // So the fix is to keep the victim alive across the map start, which means
-    // quiet slots after the Flush rather than another reference. DISABLING
-    // HOLDS IS NOT THE ANSWER and was tried: `DisHold` is not "holds off"
-    // here, it is load-bearing for the sequencer --
-    // `WantMapWait' = (MapFnc.1' & MapFnc.0') | DisHold` -- and without it
-    // MapWait never falls and MapState never steps at all.
+    // AND THE OBVIOUS FIX DOES NOT WORK -- it was tried, at EIGHT
+    // instructions (Flush at IM[2], five quiet slots, Local Jumps 0->7->0;
+    // the jumps are fine, TNIA visits all eight). The victim survives longer
+    // and MemRASa goes 2 -> 4, but `FSinPair'` then never falls: the FLUSH
+    // stops being latched into the pair at all. That reproduces exactly what
+    // the header above already records at FIVE instructions -- "at four the
+    // Store/Flush pair works and the map window is missed; at five the map
+    // phase moves and the pair breaks". The loop is phase-fragile in BOTH
+    // directions, and the map accepts a function only every FOURTH `<-Map`,
+    // so this bench is asking faster than the map answers.
     //
+    // THE CONCLUSION IS THEREFORE NOT "TUNE THE LOOP HARDER". Nothing in the
+    // RTL is broken: MapState visits all eight values, MapFnc all of its,
+    // the reference machinery is gated end to end, and the read direction is
+    // proven all the way to Md (readback-test). The write-back needs a REAL
+    // workload whose store and eviction fall where the map cadence puts them
+    // -- `+realucode` is the hook -- not more surgery on an artificial loop.
+
     // `+define+RUNLEN=<n>` runs longer; the phase numbers above came from
     // 40000. Do NOT read the level counters as a substitute: "StartMapClk0'a
     // high on 9640 of 9952" is 40 edges.

@@ -7924,21 +7924,21 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                  1,(IData)(vlSelfRef.tb_memrun__DOT__m__DOT__Map_u_InPair_p___05F_MemC),
                  1,vlSelfRef.tb_memrun__DOT__m__DOT__VicInPair_p___05F_MemC);
     if (VL_UNLIKELY((VL_GTS_III(32, 2U, tb_memrun__DOT__nras)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2825: Assertion failed in %Ntb_memrun: MemRASa never strobed -- no DRAM cycle started\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2836: Assertion failed in %Ntb_memrun: MemRASa never strobed -- no DRAM cycle started\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2825, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2836, "", false);
     }
     if (VL_UNLIKELY((VL_GTS_III(32, 2U, tb_memrun__DOT__ncas)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2826: Assertion failed in %Ntb_memrun: MemCASa never strobed -- the cycle did not get past RAS\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2837: Assertion failed in %Ntb_memrun: MemCASa never strobed -- the cycle did not get past RAS\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2826, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2837, "", false);
     }
     VL_WRITEF_NX("tb_memrun:   DRAM CYCLE RUNS -- RAS %0d, CAS %0d edges\n",0,
                  32,tb_memrun__DOT__nras,32,tb_memrun__DOT__ncas);
     if (VL_UNLIKELY((VL_GTS_III(32, 2U, tb_memrun__DOT__nms)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2829: Assertion failed in %Ntb_memrun: MapState never advanced -- the PROM sequencer is not running\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2840: Assertion failed in %Ntb_memrun: MapState never advanced -- the PROM sequencer is not running\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2829, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2840, "", false);
     }
     VL_WRITEF_NX("tb_memrun:   MemIdlea=%b MemX clk0' edges=%0d  MemRfsh=%b RfshPeriod=%b SetRunRfsh=1\ntb_memrun:   RfshPeriod edges=%0d  MemRfsh edges=%0d\ntb_memrun:   StartMap' terms -- Hia=1 NoRef=%b MapRfsh'=%b AwantsMapFS'=%b AfreeOrEc'a=%b WantVic'=%b\ntb_memrun:   MapRfsh' = MapFree'(%b) | NeedRfsh'(%b) = %b\ntb_memrun:   refresh chain EDGES -- RfshPeriod %0d, RfshSqWave %0d, StartRfshCycle' %0d,\ntb_memrun:                          WantRfsh' %0d, NeedRfsh' %0d, MapRfsh' %0d, StartMap' %0d\n",0,
                  1,vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemIdlea,
@@ -8065,16 +8065,16 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                  1,vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_e22__DOT__qb,
                  1,(1U & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_e23__DOT__qa))));
     if (VL_UNLIKELY((vlSelfRef.tb_memrun__DOT__m__DOT__PRhold))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2900: Assertion failed in %Ntb_memrun: the memory is still holding the processor after a run\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2911: Assertion failed in %Ntb_memrun: the memory is still holding the processor after a run\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2900, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2911, "", false);
     }
     VL_WRITEF_NX("tb_memrun: machine running -- %0d clk0' edges, Stop=%b\n",0,
                  32,tb_memrun__DOT__n0a,1,(IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_j04__DOT__qa));
     if (VL_UNLIKELY((VL_GTS_III(32, 0x00000064U, tb_memrun__DOT__n0a)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2902: Assertion failed in %Ntb_memrun: the microinstruction clock is not free-running\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2913: Assertion failed in %Ntb_memrun: the microinstruction clock is not free-running\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2902, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2913, "", false);
     }
     tb_memrun__DOT__tbad = 0U;
     VL_WRITEF_NX("tb_memrun: MemC clock edges %0d | MemClkEnable'a=%b CLKEnable'b=%b dStop=%b Stop=%b\n",0,
@@ -8443,7 +8443,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 2964);
+                                                                 2975);
             tb_memrun__DOT__unnamedblk1_29__DOT____Vrepeat28 
                 = (tb_memrun__DOT__unnamedblk1_29__DOT____Vrepeat28 
                    - (IData)(1U));
@@ -8509,7 +8509,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             2981);
+                                                             2992);
         tb_memrun__DOT__unnamedblk1_30__DOT____Vrepeat29 
             = (tb_memrun__DOT__unnamedblk1_30__DOT____Vrepeat29 
                - (IData)(1U));
@@ -8522,10 +8522,10 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__5(Vtb_memrun__
         tb_memrun__DOT__tbad = ((IData)(1U) + tb_memrun__DOT__tbad);
     }
     if (VL_UNLIKELY(((0U != tb_memrun__DOT__tbad)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2991: Assertion failed in %Ntb_memrun: the memory section is not right in a running machine\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:3002: Assertion failed in %Ntb_memrun: the memory section is not right in a running machine\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2991, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 3002, "", false);
     }
     VL_WRITEF_NX("tb_memrun: PASS -- the memory runs DRAM cycles from PARC's own startup, and holds nothing\n",0);
-    VL_FINISH_MT("verilog/verilator/tb_memrun.sv", 2993, "");
+    VL_FINISH_MT("verilog/verilator/tb_memrun.sv", 3004, "");
     co_return;}
