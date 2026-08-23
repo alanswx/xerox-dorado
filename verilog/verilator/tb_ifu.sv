@@ -75,7 +75,44 @@ module tb_ifu;
     end
   endtask
 
-  integer i, nclk, nifud;
+  integer i, k, nclk, nifud, nmiss, ndist;
+  reg [9:0] ifum_a;
+  reg seen_a [0:1023];
+  reg [4:0] dec0, dec1;
+
+  // Fill all 27 IFUM packages, every location, with one value.
+  task fill_ifum(input v);
+    begin
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_g09.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_g10.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_g11.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_g14.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_g15.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_h09.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_h10.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_h14.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_i09.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_i10.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_i14.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_i15.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_j09.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_j10.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_j14.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_j15.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_k09.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_k10.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_k14.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_k15.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_l09.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_l10.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_l11.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_l12.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_l13.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_l14.mem[k] = v;
+      for (k = 0; k < 1024; k = k + 1) m.b_IFU.u_l15.mem[k] = v;
+    end
+  endtask
+
   reg pclk;
   reg [7:0] ifud, pifud;
 
@@ -134,8 +171,71 @@ module tb_ifu;
     if (ifud === 8'bxxxxxxxx)
       $fatal(1, "IfuData never resolved -- the fetch path is not wired");
 
+    // ---- 4. THE ARRAY REACHES THE DECODE OUTPUTS -------------------------
+    //
+    // IFUM's address is {InstrSet.0a, InstrSet.1a, J.0a..J.7a} -- two bits of
+    // instruction set and eight of opcode, which is exactly the 256 entries x
+    // 4 instruction sets the Hardware Manual describes, and why the array is
+    // 1024 deep.
+    //
+    // Its 27 outputs are the ENTRY FIELDS of HM Table 18: TypeJumpK',
+    // TypePauseK', LengthK, RBaseSelK', MemBK, NK, SignK, TwoAlphaK and
+    // InstrAddrK -- the microcode entry address the emulator jumps to. So
+    // writing the array and watching those move is the whole point of the
+    // board in miniature.
+    //
+    // The array is filled directly rather than through a `<-IFUM`
+    // microinstruction, the way tb_boot0 fills IM: IFUM is microcode-loaded
+    // state, and driving the write path is the NEXT rung, not this one.
+    fill_ifum(1'b0);
+    repeat (64) @(posedge sys_clk);
+    dec0 = {m.b_IFU.TypeJumpK_p_, m.b_IFU.TypePauseK_p_, m.b_IFU.RBaseSelK_p_,
+            m.b_IFU.SignK, m.b_IFU.TwoAlphaK};
+    fill_ifum(1'b1);
+    repeat (64) @(posedge sys_clk);
+    dec1 = {m.b_IFU.TypeJumpK_p_, m.b_IFU.TypePauseK_p_, m.b_IFU.RBaseSelK_p_,
+            m.b_IFU.SignK, m.b_IFU.TwoAlphaK};
+    $display("tb_ifu: IFUM all-zero -> decode %b ; all-one -> decode %b", dec0, dec1);
+    if (dec0 === dec1)
+      $fatal(1, "the IFUM array does not reach its decode outputs (both %b)", dec0);
+
+    // ---- 5. THE OUTPUT AGREES WITH THE ARRAY AT THE PRESENTED ADDRESS ----
+    //
+    // Filling every location proves the array is wired to the outputs; it does
+    // NOT prove the address means anything, because a stuck address passes it
+    // too. So the array gets a per-location pattern -- the low bit of the
+    // address -- and the output is checked against the address the board is
+    // actually presenting, read out rather than forced.
+    //
+    // BE CLEAR WHAT THIS DOES AND DOES NOT SHOW. Nothing is driving the IFU to
+    // fetch yet, so the machine holds {InstrSet, J} at zero and only ONE
+    // location is ever exercised. A stuck-at-zero address would pass this
+    // exactly as it stands. It is a consistency check against the array, not
+    // proof of decoding, and the count of DISTINCT addresses below is what
+    // says which. Making the address move needs the IFU to prefetch against
+    // base register 31 -- the next rung, and the one that matters.
+    for (k = 0; k < 1024; k = k + 1)
+      m.b_IFU.u_g09.mem[k] = k[0];
+    nmiss = 0; ndist = 0;
+    for (k = 0; k < 1024; k = k + 1) seen_a[k] = 1'b0;
+    for (i = 0; i < 2000; i = i + 1) begin
+      @(posedge sys_clk);
+      ifum_a = {m.b_IFU.InstrSet_0a, m.b_IFU.InstrSet_1a,
+                m.b_IFU.J_0a, m.b_IFU.J_1a, m.b_IFU.J_2a, m.b_IFU.J_3a,
+                m.b_IFU.J_4a, m.b_IFU.J_5a, m.b_IFU.J_6a, m.b_IFU.J_7a};
+      if (^ifum_a !== 1'bx && m.b_IFU.TwoAlphaK !== ifum_a[0]) nmiss = nmiss + 1;
+      if (!seen_a[ifum_a]) begin seen_a[ifum_a] = 1'b1; ndist = ndist + 1; end
+    end
+    $display("tb_ifu: address {InstrSet,J} = %b -> TwoAlphaK %b, %0d mismatches of 2000, %0d DISTINCT address(es)",
+             ifum_a, m.b_IFU.TwoAlphaK, nmiss, ndist);
+    if (ndist < 2)
+      $display("tb_ifu:   NOTE: the address never moved, so this is a consistency");
+    $display("tb_ifu:   check against the array, not proof that decoding works.");
+    if (nmiss != 0)
+      $fatal(1, "IFUM's output does not follow its address (%0d mismatches)", nmiss);
+
     $display("tb_ifu: PASS -- the IFU is in a machine, its IFUM is the right shape,");
-    $display("tb_ifu:   its slot clock reaches it, and IfuData resolves.");
+    $display("tb_ifu:   its slot clock reaches it, IfuData resolves, and the array\n\t\t   reaches its decode outputs.");
     $finish;
   end
 endmodule

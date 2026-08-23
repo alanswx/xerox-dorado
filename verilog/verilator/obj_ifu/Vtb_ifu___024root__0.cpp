@@ -67,10 +67,20 @@ VlCoroutine Vtb_ifu___024root___eval_initial__TOP__Vtiming__0(Vtb_ifu___024root*
     // Locals
     IData/*31:0*/ tb_ifu__DOT__i;
     tb_ifu__DOT__i = 0;
+    IData/*31:0*/ tb_ifu__DOT__k;
+    tb_ifu__DOT__k = 0;
     IData/*31:0*/ tb_ifu__DOT__nclk;
     tb_ifu__DOT__nclk = 0;
     IData/*31:0*/ tb_ifu__DOT__nifud;
     tb_ifu__DOT__nifud = 0;
+    IData/*31:0*/ tb_ifu__DOT__nmiss;
+    tb_ifu__DOT__nmiss = 0;
+    IData/*31:0*/ tb_ifu__DOT__ndist;
+    tb_ifu__DOT__ndist = 0;
+    CData/*4:0*/ tb_ifu__DOT__dec0;
+    tb_ifu__DOT__dec0 = 0;
+    CData/*4:0*/ tb_ifu__DOT__dec1;
+    tb_ifu__DOT__dec1 = 0;
     CData/*0:0*/ tb_ifu__DOT__pclk;
     tb_ifu__DOT__pclk = 0;
     CData/*7:0*/ tb_ifu__DOT__pifud;
@@ -79,6 +89,10 @@ VlCoroutine Vtb_ifu___024root___eval_initial__TOP__Vtiming__0(Vtb_ifu___024root*
     tb_ifu__DOT__unnamedblk1_4__DOT____Vrepeat3 = 0;
     IData/*31:0*/ tb_ifu__DOT__unnamedblk1_5__DOT____Vrepeat4;
     tb_ifu__DOT__unnamedblk1_5__DOT____Vrepeat4 = 0;
+    IData/*31:0*/ tb_ifu__DOT__unnamedblk1_6__DOT____Vrepeat5;
+    tb_ifu__DOT__unnamedblk1_6__DOT____Vrepeat5 = 0;
+    IData/*31:0*/ tb_ifu__DOT__unnamedblk1_7__DOT____Vrepeat6;
+    tb_ifu__DOT__unnamedblk1_7__DOT____Vrepeat6 = 0;
     CData/*2:0*/ __Vtask_tb_ifu__DOT__strobe__0__fn;
     __Vtask_tb_ifu__DOT__strobe__0__fn = 0;
     CData/*7:0*/ __Vtask_tb_ifu__DOT__strobe__0__data;
@@ -127,6 +141,10 @@ VlCoroutine Vtb_ifu___024root___eval_initial__TOP__Vtiming__0(Vtb_ifu___024root*
     __Vtask_tb_ifu__DOT__strobe__3__tb_ifu__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
     IData/*31:0*/ __Vtask_tb_ifu__DOT__strobe__3__tb_ifu__DOT__unnamedblk1_3__DOT____Vrepeat2;
     __Vtask_tb_ifu__DOT__strobe__3__tb_ifu__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    CData/*0:0*/ __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+    __Vtask_tb_ifu__DOT__fill_ifum__4__v = 0;
+    CData/*0:0*/ __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+    __Vtask_tb_ifu__DOT__fill_ifum__5__v = 0;
     // Body
     tb_ifu__DOT__unnamedblk1_4__DOT____Vrepeat3 = 0x00000190U;
     while (VL_LTS_III(32, 0U, tb_ifu__DOT__unnamedblk1_4__DOT____Vrepeat3)) {
@@ -134,7 +152,7 @@ VlCoroutine Vtb_ifu___024root___eval_initial__TOP__Vtiming__0(Vtb_ifu___024root*
                                                              nullptr, 
                                                              "@(posedge tb_ifu.sys_clk)", 
                                                              "verilog/verilator/tb_ifu.sv", 
-                                                             83);
+                                                             120);
         tb_ifu__DOT__unnamedblk1_4__DOT____Vrepeat3 
             = (tb_ifu__DOT__unnamedblk1_4__DOT____Vrepeat3 
                - (IData)(1U));
@@ -329,7 +347,7 @@ VlCoroutine Vtb_ifu___024root___eval_initial__TOP__Vtiming__0(Vtb_ifu___024root*
                                                              nullptr, 
                                                              "@(posedge tb_ifu.sys_clk)", 
                                                              "verilog/verilator/tb_ifu.sv", 
-                                                             91);
+                                                             128);
         tb_ifu__DOT__unnamedblk1_5__DOT____Vrepeat4 
             = (tb_ifu__DOT__unnamedblk1_5__DOT____Vrepeat4 
                - (IData)(1U));
@@ -344,7 +362,7 @@ VlCoroutine Vtb_ifu___024root___eval_initial__TOP__Vtiming__0(Vtb_ifu___024root*
                                                              nullptr, 
                                                              "@(posedge tb_ifu.sys_clk)", 
                                                              "verilog/verilator/tb_ifu.sv", 
-                                                             98);
+                                                             135);
         if (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__clk0_p_Aa) 
              != (IData)(tb_ifu__DOT__pclk))) {
             tb_ifu__DOT__nclk = ((IData)(1U) + tb_ifu__DOT__nclk);
@@ -375,12 +393,509 @@ VlCoroutine Vtb_ifu___024root___eval_initial__TOP__Vtiming__0(Vtb_ifu___024root*
                  32,tb_ifu__DOT__nclk,1,(IData)(vlSelfRef.tb_ifu__DOT__m__DOT__CLKEnable_p_a___05FContA),
                  8,vlSelfRef.tb_ifu__DOT__ifud,32,tb_ifu__DOT__nifud);
     if (VL_UNLIKELY(((0U == tb_ifu__DOT__nclk)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_ifu.sv:131: Assertion failed in %Ntb_ifu: the IFU's local clock never ran -- is CLK.ifu' driven?\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_ifu.sv:168: Assertion failed in %Ntb_ifu: the IFU's local clock never ran -- is CLK.ifu' driven?\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_ifu.sv", 131, "", false);
+        VL_STOP_MT("verilog/verilator/tb_ifu.sv", 168, "", false);
     }
-    VL_WRITEF_NX("tb_ifu: PASS -- the IFU is in a machine, its IFUM is the right shape,\ntb_ifu:   its slot clock reaches it, and IfuData resolves.\n",0);
-    VL_FINISH_MT("verilog/verilator/tb_ifu.sv", 139, "");
+    __Vtask_tb_ifu__DOT__fill_ifum__4__v = 0U;
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_g09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_g10__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_g11__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_g14__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_g15__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h10__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h14__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_i09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_i10__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_i14__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_i15__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_j09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_j10__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_j14__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_j15__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_k09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_k10__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_k14__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_k15__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l10__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l11__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l12__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l13__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l14__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l15__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__4__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__unnamedblk1_6__DOT____Vrepeat5 = 0x00000040U;
+    while (VL_LTS_III(32, 0U, tb_ifu__DOT__unnamedblk1_6__DOT____Vrepeat5)) {
+        co_await vlSelfRef.__VtrigSched_hf1504b65__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_ifu.sys_clk)", 
+                                                             "verilog/verilator/tb_ifu.sv", 
+                                                             191);
+        tb_ifu__DOT__unnamedblk1_6__DOT____Vrepeat5 
+            = (tb_ifu__DOT__unnamedblk1_6__DOT____Vrepeat5 
+               - (IData)(1U));
+    }
+    tb_ifu__DOT__dec0 = ((((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__TypeJumpK_p_) 
+                           << 4U) | (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__TypePauseK_p_) 
+                                      << 3U) | ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__RBaseSelK_p_) 
+                                                << 2U))) 
+                         | (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__SignK) 
+                             << 1U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__TwoAlphaK)));
+    __Vtask_tb_ifu__DOT__fill_ifum__5__v = 1U;
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_g09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_g10__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_g11__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_g14__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_g15__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h10__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h14__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_i09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_i10__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_i14__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_i15__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_j09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_j10__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_j14__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_j15__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_k09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_k10__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_k14__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_k15__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l10__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l11__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l12__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l13__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l14__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l15__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = __Vtask_tb_ifu__DOT__fill_ifum__5__v;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__unnamedblk1_7__DOT____Vrepeat6 = 0x00000040U;
+    while (VL_LTS_III(32, 0U, tb_ifu__DOT__unnamedblk1_7__DOT____Vrepeat6)) {
+        co_await vlSelfRef.__VtrigSched_hf1504b65__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_ifu.sys_clk)", 
+                                                             "verilog/verilator/tb_ifu.sv", 
+                                                             195);
+        tb_ifu__DOT__unnamedblk1_7__DOT____Vrepeat6 
+            = (tb_ifu__DOT__unnamedblk1_7__DOT____Vrepeat6 
+               - (IData)(1U));
+    }
+    tb_ifu__DOT__dec1 = ((((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__TypeJumpK_p_) 
+                           << 4U) | (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__TypePauseK_p_) 
+                                      << 3U) | ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__RBaseSelK_p_) 
+                                                << 2U))) 
+                         | (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__SignK) 
+                             << 1U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__TwoAlphaK)));
+    VL_WRITEF_NX("tb_ifu: IFUM all-zero -> decode %b ; all-one -> decode %b\n",0,
+                 5,tb_ifu__DOT__dec0,5,(IData)(tb_ifu__DOT__dec1));
+    if (VL_UNLIKELY((((IData)(tb_ifu__DOT__dec0) == (IData)(tb_ifu__DOT__dec1))))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_ifu.sv:200: Assertion failed in %Ntb_ifu: the IFUM array does not reach its decode outputs (both %b)\n",0,
+                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
+                     5,(IData)(tb_ifu__DOT__dec0));
+        VL_STOP_MT("verilog/verilator/tb_ifu.sv", 200, "", false);
+    }
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_g09__DOT__mem[(0x000003ffU 
+                                                                    & tb_ifu__DOT__k)] 
+            = (1U & tb_ifu__DOT__k);
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__nmiss = 0U;
+    tb_ifu__DOT__ndist = 0U;
+    tb_ifu__DOT__k = 0U;
+    while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
+        vlSelfRef.tb_ifu__DOT__seen_a[(0x000003ffU 
+                                       & tb_ifu__DOT__k)] = 0U;
+        tb_ifu__DOT__k = ((IData)(1U) + tb_ifu__DOT__k);
+    }
+    tb_ifu__DOT__i = 0U;
+    while (VL_GTS_III(32, 0x000007d0U, tb_ifu__DOT__i)) {
+        co_await vlSelfRef.__VtrigSched_hf1504b65__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_ifu.sys_clk)", 
+                                                             "verilog/verilator/tb_ifu.sv", 
+                                                             222);
+        vlSelfRef.tb_ifu__DOT__ifum_a = (((((4U & ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
+                                                   << 2U)) 
+                                            | ((2U 
+                                                & ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
+                                                   >> 1U)) 
+                                               | (1U 
+                                                  & (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h11__DOT__q)))) 
+                                           << 7U) | 
+                                          (((2U & (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h11__DOT__q)) 
+                                            | (1U & 
+                                               ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h11__DOT__q) 
+                                                >> 2U))) 
+                                           << 5U)) 
+                                         | ((((4U & 
+                                               ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h11__DOT__q) 
+                                                >> 1U)) 
+                                              | ((2U 
+                                                  & ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h12__DOT__q) 
+                                                     << 1U)) 
+                                                 | (1U 
+                                                    & ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h12__DOT__q) 
+                                                       >> 1U)))) 
+                                             << 2U) 
+                                            | ((2U 
+                                                & ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h12__DOT__q) 
+                                                   >> 1U)) 
+                                               | (1U 
+                                                  & ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_h12__DOT__q) 
+                                                     >> 3U)))));
+        if (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__TwoAlphaK) 
+             != (1U & (IData)(vlSelfRef.tb_ifu__DOT__ifum_a)))) {
+            tb_ifu__DOT__nmiss = ((IData)(1U) + tb_ifu__DOT__nmiss);
+        }
+        if ((1U & (~ vlSelfRef.tb_ifu__DOT__seen_a[vlSelfRef.tb_ifu__DOT__ifum_a]))) {
+            vlSelfRef.tb_ifu__DOT__seen_a[vlSelfRef.tb_ifu__DOT__ifum_a] = 1U;
+            tb_ifu__DOT__ndist = ((IData)(1U) + tb_ifu__DOT__ndist);
+        }
+        tb_ifu__DOT__i = ((IData)(1U) + tb_ifu__DOT__i);
+    }
+    VL_WRITEF_NX("tb_ifu: address {InstrSet,J} = %b -> TwoAlphaK %b, %0d mismatches of 2000, %0d DISTINCT address(es)\n",0,
+                 10,vlSelfRef.tb_ifu__DOT__ifum_a,1,
+                 (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__TwoAlphaK),
+                 32,tb_ifu__DOT__nmiss,32,tb_ifu__DOT__ndist);
+    if (VL_UNLIKELY((VL_GTS_III(32, 2U, tb_ifu__DOT__ndist)))) {
+        VL_WRITEF_NX("tb_ifu:   NOTE: the address never moved, so this is a consistency\n",0);
+    }
+    VL_WRITEF_NX("tb_ifu:   check against the array, not proof that decoding works.\n",0);
+    if (VL_UNLIKELY(((0U != tb_ifu__DOT__nmiss)))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_ifu.sv:235: Assertion failed in %Ntb_ifu: IFUM's output does not follow its address (%0d mismatches)\n",0,
+                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
+                     32,tb_ifu__DOT__nmiss);
+        VL_STOP_MT("verilog/verilator/tb_ifu.sv", 235, "", false);
+    }
+    VL_WRITEF_NX("tb_ifu: PASS -- the IFU is in a machine, its IFUM is the right shape,\ntb_ifu:   its slot clock reaches it, IfuData resolves, and the array\n\t\t   reaches its decode outputs.\n",0);
+    VL_FINISH_MT("verilog/verilator/tb_ifu.sv", 239, "");
     co_return;}
 
 VlCoroutine Vtb_ifu___024root___eval_initial__TOP__Vtiming__1(Vtb_ifu___024root* vlSelf) {
