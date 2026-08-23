@@ -3788,16 +3788,24 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___stl_sequent__TOP__1(Vtb_ifufetch___02
                              + (1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__TurnOffAlu)) 
                                       & ((IData)(tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__sum) 
                                          >> 4U))))));
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__FG_0___05FMemD 
-        = (1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__EnableFG_p___05F_IFU)) 
-                 & ((0U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f21__DOT__sel))
-                     ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f22__DOT__q) 
-                        >> 3U) : ((1U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f21__DOT__sel))
-                                   ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f22__DOT__q) 
-                                      >> 1U) : ((2U 
-                                                 == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f21__DOT__sel))
-                                                 ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_00)
-                                                 : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_08))))));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__FG_0 = (1U 
+                                                & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__EnableFG_p___05F_IFU)) 
+                                                   & ((0U 
+                                                       == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f21__DOT__sel))
+                                                       ? 
+                                                      ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f22__DOT__q) 
+                                                       >> 3U)
+                                                       : 
+                                                      ((1U 
+                                                        == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f21__DOT__sel))
+                                                        ? 
+                                                       ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f22__DOT__q) 
+                                                        >> 1U)
+                                                        : 
+                                                       ((2U 
+                                                         == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f21__DOT__sel))
+                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_00)
+                                                         : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_08))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__FG_1___05FMemD 
         = (1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__EnableFG_p___05F_IFU)) 
                  & ((0U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f21__DOT__sel))
@@ -4553,7 +4561,7 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___stl_sequent__TOP__1(Vtb_ifufetch___02
                    & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__H_0)) 
                   | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a15__DOT__q) 
                       >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__foo_0___05Fa16_2))) 
-                 | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__FG_0___05FMemD)));
+                 | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__FG_0)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__dHJ_1 
         = (1U & ((((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__J_u_H_p_)) 
                    & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__H_1)) 

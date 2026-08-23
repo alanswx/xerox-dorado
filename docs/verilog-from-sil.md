@@ -1390,3 +1390,40 @@ surgery on an artificial four-instruction loop.
 would hold the victim -- are refuted by comments already in the bench. Read
 the header before designing the experiment; it is long because it is a
 lab notebook.
+
+### The IFU's byte stream is traced and wired (2026-08-23)
+
+The IFU's instruction bytes come off the CACHE, every hop on MemD:
+
+```
+cache D.00-03,16,17 -> e06 (F register, clocked by Fclk'a)
+                    -> f22 (G register, loaded from F on GLd')
+                    -> f23 (MC10174 dual 4:1 selecting G.00 / G.08 / F.00 /
+                       F.08 under PcFG.15 and GDv', enable EnableFG')
+                    -> FG.0-8 -> the IFU
+```
+
+**`IfuData` is not the way in.** It is generated ON the IFU by f05 from
+`AlphaX` and goes OUT to the processor; chasing it as the opcode input cost a
+detour. The IFU's multi-bit board INPUTS are `FG` (9 bits) and `GenIn` (16),
+and it is `FG` that MemD drives.
+
+With the cache seeded (`tb_ifufetch` now does this, same trick as
+`readback-test`):
+
+| measurement | value |
+|---|---|
+| `D.00` high | 253,038 -- the cache IS producing the seeded data |
+| `EnableFG'` high | 0 -- the FG mux is enabled throughout |
+| `Fclk'a` RISING edges | 3, **of which with `D.00` high: 0** |
+| `F.00` / `G.00` / `FG.0` edges | 0 / 0 / 0 |
+| **Pipe pointer moved** | **0 times** (against 9 in `tb_memrun`) |
+
+That last row is the real one. The data path is wired and live all the way to
+F's D inputs; what is missing is that **this bench records no memory reference
+at all**, so F's clock barely ticks and never while data is present. The
+blocker is now "tb_ifufetch's loop does not put a reference into the Pipe",
+which is a much smaller question than "the IFU does not fetch".
+
+Third time in one session that the answer was **count the coincidence**, not
+the levels.

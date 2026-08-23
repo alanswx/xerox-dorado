@@ -33,6 +33,36 @@
 // independent task: it is downstream of the memory section serving a real
 // reference. Do that first; this gate will start moving on its own when it
 // lands, and the count of distinct `J` values is the thing to watch.
+//
+// PROGRESS 2026-08-23: THE BYTE-STREAM PATH IS TRACED AND WIRED, AND THE
+// BLOCKER IS NARROWER AND NAMED.
+//
+// The IFU's instruction bytes come off the CACHE, every hop on MemD:
+//
+//   cache D.00-03,16,17 -> e06 (F register, clocked by Fclk'a)
+//                       -> f22 (G register, loaded from F on GLd')
+//                       -> f23 (MC10174 dual 4:1 selecting G.00/G.08/F.00/
+//                          F.08 under PcFG.15 and GDv', enable EnableFG')
+//                       -> FG.0-8 -> the IFU
+//
+// (`IfuData` is NOT the way in -- it is generated ON the IFU by f05 from
+// `AlphaX`, and goes OUT to the processor. That cost a detour.)
+//
+// The cache is seeded here the way readback-test seeds it, so it answers the
+// same word at every address. Measured with that in place:
+//
+//   D.00 high on 253,038 samples   -- the cache IS producing the seeded data
+//   EnableFG' high on 0            -- the FG mux is enabled throughout
+//   Fclk'a RISING edges 3, of which with D.00 high: 0
+//   F.00 high 0, G.00 high 0, FG.0 edges 0
+//   THE PIPE POINTER MOVED 0 TIMES  -- against 9 in tb_memrun
+//
+// That last line is the real one. The data path is wired and live from the
+// cache to F's D inputs; what is missing is that THIS BENCH RECORDS NO
+// MEMORY REFERENCE AT ALL, so F's clock barely ticks and never while data is
+// present. The fetch is still upstream-blocked, and the block is now
+// "tb_ifufetch's loop does not put a reference into the Pipe", which is a
+// much smaller question than "the IFU does not fetch".
 
 
 `default_nettype none
@@ -115,6 +145,84 @@ module tb_ifufetch;
       // parts and only that PROM is blown.
       .ChipsAre256_s_16K(chips16k), .ChipsAre64K(chips64k)
   );
+
+  // SEED THE CACHE, the lever this bench's header predicted. The IFU's
+  // instruction bytes come off the cache, every hop on MemD:
+  //
+  //   cache D.00-03,16,17 -> e06 (F register, clocked by Fclk'a)
+  //                       -> f22 (G register, loaded from F on GLd')
+  //                       -> f23 (MC10174 dual 4:1, selects G.00/G.08/F.00/
+  //                          F.08 under PcFG.15 and GDv', enabled EnableFG')
+  //                       -> FG.0-8 -> the IFU
+  //
+  // Filling every cell of all 36 D-driving F10470s makes the cache answer the
+  // same word at every address, so whatever the IFU prefetches it gets this
+  // pattern -- the same trick readback-test uses, and it removes the need to
+  // land a fill at a known address first.
+  localparam [17:0] CPAT = 18'd52045;   // CPAT[k] is D.k
+  integer ci;
+  initial begin
+    for (ci = 0; ci < 4096; ci = ci + 1) begin
+      m.b_MemD.u_a03.mem[ci] = CPAT[0];
+      m.b_MemD.u_d03.mem[ci] = CPAT[0];
+      m.b_MemD.u_a05.mem[ci] = CPAT[1];
+      m.b_MemD.u_d05.mem[ci] = CPAT[1];
+      m.b_MemD.u_g03.mem[ci] = CPAT[2];
+      m.b_MemD.u_j03.mem[ci] = CPAT[2];
+      m.b_MemD.u_g05.mem[ci] = CPAT[3];
+      m.b_MemD.u_j05.mem[ci] = CPAT[3];
+      m.b_MemD.u_a13.mem[ci] = CPAT[4];
+      m.b_MemD.u_d13.mem[ci] = CPAT[4];
+      m.b_MemD.u_a15.mem[ci] = CPAT[5];
+      m.b_MemD.u_d15.mem[ci] = CPAT[5];
+      m.b_MemD.u_g13.mem[ci] = CPAT[6];
+      m.b_MemD.u_j13.mem[ci] = CPAT[6];
+      m.b_MemD.u_g15.mem[ci] = CPAT[7];
+      m.b_MemD.u_j15.mem[ci] = CPAT[7];
+      m.b_MemD.u_a09.mem[ci] = CPAT[8];
+      m.b_MemD.u_d09.mem[ci] = CPAT[8];
+      m.b_MemD.u_a11.mem[ci] = CPAT[9];
+      m.b_MemD.u_d11.mem[ci] = CPAT[9];
+      m.b_MemD.u_g09.mem[ci] = CPAT[10];
+      m.b_MemD.u_j09.mem[ci] = CPAT[10];
+      m.b_MemD.u_g11.mem[ci] = CPAT[11];
+      m.b_MemD.u_j11.mem[ci] = CPAT[11];
+      m.b_MemD.u_a17.mem[ci] = CPAT[12];
+      m.b_MemD.u_d17.mem[ci] = CPAT[12];
+      m.b_MemD.u_a19.mem[ci] = CPAT[13];
+      m.b_MemD.u_d19.mem[ci] = CPAT[13];
+      m.b_MemD.u_g17.mem[ci] = CPAT[14];
+      m.b_MemD.u_j17.mem[ci] = CPAT[14];
+      m.b_MemD.u_g19.mem[ci] = CPAT[15];
+      m.b_MemD.u_j19.mem[ci] = CPAT[15];
+      m.b_MemD.u_a07.mem[ci] = CPAT[16];
+      m.b_MemD.u_d07.mem[ci] = CPAT[16];
+      m.b_MemD.u_g07.mem[ci] = CPAT[17];
+      m.b_MemD.u_j07.mem[ci] = CPAT[17];
+    end
+  end
+
+  // WATCH THE BYTE STREAM ITSELF, not just the IFU's outputs.
+  integer n_fg, n_fgnz, n_f, n_g, n_d, n_fclk, n_enfg, n_fclk_r, n_fclk_coin;
+  reg fclk_d;
+  reg [8:0] fg_seen, fg_last;
+  reg [17:0] f_seen, g_seen;
+  initial begin n_fg=0; n_fgnz=0; n_f=0; n_g=0; n_d=0; n_fclk=0; n_enfg=0; n_fclk_r=0; n_fclk_coin=0; fclk_d=1'bx; fg_last=9'bx; fg_seen=9'd0; f_seen=0; g_seen=0; end
+  always @(posedge sys_clk) begin
+    if (m.FG_0 !== fg_last[0]) begin n_fg = n_fg + 1; fg_last[0] = m.FG_0; end
+    if (m.b_MemD.F_00) n_f = n_f + 1;
+    if (m.b_MemD.G_00) n_g = n_g + 1;
+    // Is the cache producing anything, and does the F register's clock tick?
+    // F is e06 (MC10176) clocked by Fclk'a; a dead clock holds Q forever.
+    if (m.b_MemD.D_00) n_d = n_d + 1;
+    if (m.b_MemD.Fclk_p_a && !fclk_d) begin
+      n_fclk_r = n_fclk_r + 1;
+      if (m.b_MemD.D_00) n_fclk_coin = n_fclk_coin + 1;   // COUNT THE COINCIDENCE
+    end
+    if (m.b_MemD.Fclk_p_a !== fclk_d) begin n_fclk = n_fclk + 1; fclk_d = m.b_MemD.Fclk_p_a; end
+    if (m.b_MemD.EnableFG_p_) n_enfg = n_enfg + 1;
+  end
+
 
   // THE BASEBOARD'S CONTROL REGISTER, modelled here because this machine has no
   // BaseBoard. `SetRun` and `SetSS'` are BACKPLANE wires, not CP-bus lines --
@@ -1889,6 +1997,12 @@ module tb_ifufetch;
     if (tbad != 0) $display("(memrun assertion, not this bench's subject) the memory section is not right in a running machine");
     // ---- THE SUBJECT OF THIS BENCH ---------------------------------------
     $display("tb_ifufetch: --- THE IFU, with real microcode running ---");
+    $display("tb_ifufetch: BYTE STREAM -- FG.0 edges %0d | F.00 high %0d | G.00 high %0d (cache seeded %b)",
+             n_fg, n_f, n_g, CPAT);
+    $display("tb_ifufetch:   ...upstream -- D.00 high %0d | Fclk'a edges %0d | EnableFG' high %0d",
+             n_d, n_fclk, n_enfg);
+    $display("tb_ifufetch:   ...Fclk'a RISING edges %0d, of which with D.00 high %0d",
+             n_fclk_r, n_fclk_coin);
     $display("tb_ifufetch: over the run -- J took %0d distinct values, IfuData %0d, IfuHold released on %0d of %0d samples",
              nifu_j, nifu_d, nifu_free, nsamp);
     $display("tb_ifufetch: IfuHold=%b (MemC grants it) WantIfuHold'=%b (the IFU asks)",

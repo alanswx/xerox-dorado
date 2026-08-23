@@ -123,11 +123,99 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___eval_initial__TOP(Vtb_ifufetch___024r
     Vtb_ifufetch__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Locals
+    IData/*31:0*/ tb_ifufetch__DOT__ci;
+    tb_ifufetch__DOT__ci = 0;
     VlUnpacked<CData/*7:0*/, 32> tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j14__DOT__mem;
     for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {
         tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j14__DOT__mem[__Vi0] = 0;
     }
     // Body
+    tb_ifufetch__DOT__ci = 0U;
+    while (VL_GTS_III(32, 0x00001000U, tb_ifufetch__DOT__ci)) {
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a03__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d03__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a05__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d05__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g03__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j03__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g05__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j05__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a13__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d13__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a15__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d15__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g13__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j13__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g15__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j15__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a09__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d09__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a11__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d11__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g09__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j09__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g11__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j11__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a17__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d17__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a19__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d19__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g17__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j17__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g19__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j19__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 1U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a07__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d07__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g07__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j07__DOT__mem[(0x00000fffU 
+                                                                          & tb_ifufetch__DOT__ci)] = 0U;
+        tb_ifufetch__DOT__ci = ((IData)(1U) + tb_ifufetch__DOT__ci);
+    }
+    vlSelfRef.tb_ifufetch__DOT__n_fg = 0U;
+    vlSelfRef.tb_ifufetch__DOT__n_f = 0U;
+    vlSelfRef.tb_ifufetch__DOT__n_g = 0U;
+    vlSelfRef.tb_ifufetch__DOT__n_d = 0U;
+    vlSelfRef.tb_ifufetch__DOT__n_fclk = 0U;
+    vlSelfRef.tb_ifufetch__DOT__n_enfg = 0U;
+    vlSelfRef.tb_ifufetch__DOT__n_fclk_r = 0U;
+    vlSelfRef.tb_ifufetch__DOT__n_fclk_coin = 0U;
+    vlSelfRef.tb_ifufetch__DOT__fclk_d = 0U;
+    vlSelfRef.tb_ifufetch__DOT__fg_last = 0U;
     VL_READMEM_N(true, 8, 32, 0, "verilog/proms/packages/ProcH-b07.mem"s
                  ,  &(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_b07__DOT__mem)
                  , 0, ~0ULL);
@@ -194,7 +282,7 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___eval_settle(Vtb_ifufetch___024root* v
 #ifdef VL_DEBUG
             Vtb_ifufetch___024root___dump_triggers__stl(vlSelfRef.__VstlTriggered, "stl"s);
 #endif
-            VL_FATAL_MT("verilog/verilator/tb_ifufetch.sv", 41, "", "Settle region did not converge after 100 tries");
+            VL_FATAL_MT("verilog/verilator/tb_ifufetch.sv", 71, "", "Settle region did not converge after 100 tries");
         }
         __VstlIterCount = ((IData)(1U) + __VstlIterCount);
     } while (Vtb_ifufetch___024root___eval_phase__stl(vlSelf));
@@ -354,6 +442,8 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___stl_sequent__TOP__0(Vtb_ifufetch___02
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__preclk2_p_Aa = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_13;
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_13 = 0;
+    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3;
+    tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff22_3;
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff22_3 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a___05Fe22_13;
@@ -5316,7 +5406,7 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___stl_sequent__TOP__0(Vtb_ifufetch___02
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f22__DOT__p5) 
            | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c23__DOT__qb) 
               | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f22__DOT__p6)));
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3 
+    tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3 
         = (1U & (~ ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c24__DOT__qa)) 
                     | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e24__DOT__qa)) 
                        | (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e24__DOT__qb))))));
@@ -7743,10 +7833,10 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___stl_sequent__TOP__0(Vtb_ifufetch___02
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_c 
         = ((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff22_3) 
            | ((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_13) 
-              | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3)));
+              | (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a 
         = ((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_13) 
-           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3) 
+           | ((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3) 
               | (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff22_3)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a 
         = (1U & ((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a___05Fe22_13) 
