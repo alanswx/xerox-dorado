@@ -82,6 +82,42 @@ base register 31, and `IFUJump` consuming the entry. The C emulator is the
 oracle -- it can dump the expected IFUM entry and entry point for a given
 opcode, the way `alu-diff` and `boot0-test` compare against `cpu.c`.
 
+## A decode that agreed with the symptom, and was wrong (2026-08-23)
+
+Hand-decoding j13, the 16K DRAM timing PROM, said its Q5 (`MemFree`)
+alternates with MemState parity and its Q0 (`x10`, the third term of
+`MemWEa`) is 0 at states 4 and 8. **Measured per state in the running
+machine, it is neither:**
+
+```
+state 0:  MemFree = 0   x10 = 1
+state 1:  MemFree = 0   x10 = 1
+state 2:  MemFree = 1   x10 = 1
+```
+
+The alternating story predicted a walk of 0 -> 1 -> 2 and a park -- and three
+states is exactly what the machine shows, so it looked confirmed. It was not:
+`MemFree` is 0,0,1, not 0,1,0. **A decode that merely agrees with the symptom
+is not evidence.** The fix is to read the signal per state rather than derive
+it, which `memrun-test` does now.
+
+What the measurement does establish, and it is worth having:
+
+- the machine walks **0 -> 1 -> 2 and parks there**, because `MemFree` goes
+  high at state 2 and `MemIdle` is `StartMem' & MemFree`, so CE' rises and
+  j16 stops counting;
+- **`x10` is HIGH in every state reached**, so `MemWEa`'s write phase is
+  somewhere the cycle never gets to;
+- `RfshInMem` is 0 across the whole window, so the half of j13's table being
+  read is the one that was assumed -- that part was right.
+
+The open question is therefore sharper: **what does a real write-back
+reference do that carries MemState past 2?** And it is worth remembering that
+with the 4K timing PROM enabled instead (`ChipsAre256/16K` = 0) `x10` DOES go
+low on 96 cycles -- so the two tables disagree about where the write phase
+sits, and which one a Rev Ch board should be reading is worth re-checking
+against `MemProms.bcpl` before assuming.
+
 ## The IFU comes out of hold -- and is blocked on the memory (2026-08-23)
 
 `ifufetch-test` runs the IFU with REAL microcode: it is `tb_memrun` reused
