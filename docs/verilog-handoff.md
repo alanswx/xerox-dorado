@@ -2900,9 +2900,28 @@ Two things remain, both small and both stated by measurement:
 7. **Still open, and now a content question rather than a wiring one.**
    `MapTrouble` is still asserted, but the blocked group has **moved**: with
    `MapWP'` and `MapDirty'` both low, group 2 -- `(MapWP' | MapDirty' |
-   ROWIM')` -- is now 0. The map entry's actual *value* decides this, and the
-   array is uninitialised. So writing a real entry, with correct parity, for
-   the referenced address is finally the live question.
+   ROWIM')` -- is now 0. The map entry's actual *value* decides that.
+
+   Reading the translators back to the array: e17 takes `THi` as its **data**
+   (pin 5) and `MemX13.sil+3` -- plane d13 -- as its **common strobe**
+   (pin 6), so `MapWP' = ~(THi & d13) = ~d13`; likewise `MapDirty' = ~d11`.
+   Both planes read 1, so both primed outputs are 0 and group 2 fails. Group 4
+   additionally wants `MapEven' = 1`, the parity across `RP.00`..`RP.08`.
+
+   **And do not plant the entry from the bench.** That was tried: the preload
+   lands correctly (`d13.mem[0]` reads `000` immediately after the loop) and is
+   **gone** by the measurement window, back to 1, with no write strobe inside
+   that window. **The machine writes the map itself during startup** -- which
+   is the write path working -- and overwrites anything planted beforehand. So
+   the entry has to be written the way the hardware does it, through `←Map`,
+   which is this project's norm anyway: PARC's own sequences, not simulation
+   backdoors.
+
+   `←Map` is FA=0, FB=3, FC=1 = `0o31` at ContA `b17` (the same number
+   `cpu.c`'s `DM_REF_RMAP` comment derives independently); from the
+   `j24`/`b24`/`d22` algebra the reference is **ASEL = 000 with FF.0 = 0,
+   FF.1 = 1**. `build_hunk4` is in place to carry Map / Store / Flush in one
+   hunk.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting

@@ -573,9 +573,29 @@
 //   7. STILL OPEN, and now a CONTENT question rather than a wiring one.
 //      MapTrouble is still asserted, but the blocked group has MOVED: with
 //      MapWP' and MapDirty' both LOW, group 2 -- (MapWP' | MapDirty' |
-//      ROWIM') -- is now 0. The map entry's actual VALUE decides this, and
-//      the array is uninitialised. So task 14 is live at last: write a real
-//      entry, with correct parity, for the referenced address.
+//      ROWIM') -- is now 0. The map entry's actual VALUE decides that.
+//
+//      Reading the translators back to the array: e17 takes `THi` as its
+//      DATA (pin 5) and `MemX13.sil+3` -- plane d13 -- as its COMMON STROBE
+//      (pin 6), so MapWP' = ~(THi & d13) = ~d13. Likewise MapDirty' = ~d11.
+//      Both planes read 1, so both primed outputs are 0, and group 2 fails.
+//      Group 4 additionally wants MapEven' = 1, which is the parity across
+//      RP.00-08 (planes a04..a14 through b06/b09/b12) -- see item 5.
+//
+//      AND DO NOT PLANT THE ENTRY FROM THE BENCH. That was tried: the
+//      preload lands correctly (`d13.mem[0]` reads 000 immediately after the
+//      loop) and is GONE by the measurement window, back to 1, with no write
+//      strobe inside that window. THE MACHINE WRITES THE MAP ITSELF during
+//      startup, which is the write path working, and it overwrites anything
+//      planted beforehand. So the entry has to be written the way the
+//      hardware does it -- through `<-Map` -- which is this project's norm
+//      anyway: PARC's own sequences, not simulation backdoors.
+//
+//      `<-Map` is FA=0, FB=3, FC=1 = 0o31 at ContA b17, the same number
+//      cpu.c's DM_REF_RMAP comment derives independently; from the
+//      j24/b24/d22 algebra the reference is ASEL = 000 with FF.0 = 0,
+//      FF.1 = 1. `build_hunk4` is in place to carry Map / Store / Flush in
+//      one hunk.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -715,7 +735,7 @@ module tb_memrun;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [2:0] mapst_now; reg [1:0] mapfn_now;
   reg mapst_hit [0:7]; reg mapfn_hit [0:3];
-  integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nrw, nwp, ndty, nevn, nckw, nprf, nthi, nmt, nmtp, nmras, nmcas, nmrd, nmwr;
+  integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nrw, nwp, ndty, nevn, nckw, nprf, nthi, nmt, nmtp, nmras, nmcas, nmrd, nmwr, nd13w;
   reg pmras, pmcas;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd;
   reg tnia_hit [0:4095];
@@ -1607,8 +1627,9 @@ module tb_memrun;
     if (m.b_MemC.DisHold !== 1'b1 || m.b_MemX.DisHold !== 1'b1)
       $fatal(1, "SetMcr# did not set DisHold -- the memory cycle cannot start");
 
-// (map-plane preload experiment removed -- see the header: the planes read
-    // back correctly and the block is downstream, at THi.)
+// (No map preload here. Poking the arrays from the bench is a dead end and
+    // the machine says so -- see item 7 in the header: it WRITES THE MAP
+    // ITSELF during startup, overwriting anything planted beforehand.)
 
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca; p2 = m.b_ContA.clk2_p_Bc;
     zero;
@@ -1747,7 +1768,7 @@ module tb_memrun;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
     nmapst=0; nmapfn=0; npsm2=0; nsm2=0; nload=0; ncnt=0; nd0=0; nwim=0; nx10=0; nmti=0; nrw=0; nwp=0; ndty=0; nevn=0; nckw=0; nprf=0; nthi=0; nmt=0; nmtp=0;
-    nmras=0; nmcas=0; nmrd=0; nmwr=0; pmras=m.b_MemX.u_a04.p4; pmcas=m.b_MemX.u_a04.p15;
+    nmras=0; nmcas=0; nmrd=0; nmwr=0; nd13w=0; pmras=m.b_MemX.u_a04.p4; pmcas=m.b_MemX.u_a04.p15;
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
     for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
     ntnia=0; nff0=0; nsamp=0;
@@ -1851,6 +1872,7 @@ module tb_memrun;
       if (m.b_MemX.u_a04.p15 !== pmcas) begin nmcas=nmcas+1; pmcas=m.b_MemX.u_a04.p15; end
       if (!m.b_MemX.u_a04.p4 && !m.b_MemX.u_a04.p15 && m.b_MemX.u_a04.p3) nmrd = nmrd + 1;
       if (!m.b_MemX.u_a04.p4 && !m.b_MemX.u_a04.p15 && !m.b_MemX.u_a04.p3) nmwr = nmwr + 1;
+      if (!m.b_MemX.u_d13.p4 && !m.b_MemX.u_d13.p15 && !m.b_MemX.u_d13.p3) nd13w = nd13w + 1;
       if (!m.b_MemC.ASEL_0 && !m.b_MemC.ASEL_2 && m.b_MemC.Store_u_)
         nff0_st = nff0_st + 1;
       // CONDITION ON THE INSTRUCTION ACTUALLY RUNNING. IM[0] and IM[1] both
@@ -2009,6 +2031,8 @@ module tb_memrun;
              nthi, nsamp);
     if (nwp == 0 || ndty == 0)
       $fatal(1, "the map outputs never varied -- the MC10124 translators are strobed off");
+    $display("tb_memrun:   MAP ARRAY d13 mem[0]=%h dout=%b | a04-write %0d, d13-WRITE %0d, read-cond %0d",
+             m.b_MemX.u_d13.mem[0], m.b_MemX.u_d13.p14, nmwr, nd13w, nmrd);
     $display("tb_memrun:   MAP ARRAY douts -- a04=%b d11=%b d13=%b | MemX13.sil+13=%b MemX13.sil+3=%b | MapDirty'=%b MapWP'=%b",
              m.b_MemX.u_a04.p14, m.b_MemX.u_d11.p14, m.b_MemX.u_d13.p14,
              m.b_MemX.MemX13_sil_pl_13, m.b_MemX.MemX13_sil_pl_3,
