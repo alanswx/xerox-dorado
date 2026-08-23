@@ -69,6 +69,22 @@ make -C verilog compute-test    THE MACHINE COMPUTES -- PARC's ALU prologue:
                                 25 octal from CPReg into Q, held, then stored
                                 into ALUFM[0]
 make -C verilog baseboard-test  the BaseBoard's 6502 BOOTS
+make -C verilog muffler-test    exactly one address selects the BaseBoard
+make -C verilog strap-test      each board's SIP straps give the I/O address
+                                and task number its schematic states
+make -C verilog osc-test        the three crystal positions run 1 : 2 : 5
+make -C verilog task-test       the TASK PRIORITY ENCODER matches the C emulator
+make -C verilog taskrun-test    BNT loads in a running machine, THE MACHINE
+                                SWITCHES TASKS, and each task keeps its own
+                                PC and Link
+make -C verilog refdecode-test  the MEMORY SECTION's front door -- ASEL 0-3 is
+                                a storage reference, against the C emulator
+make -C verilog memrun-test     THE MEMORY RUNS: DRAM cycles from PARC's own
+                                startup, the microcode makes a Flush, a Store
+                                dirties a line, THE CACHE MISSES, <-Map writes
+                                an entry and MapTrouble clears, a storage cycle
+                                starts
+make -C verilog mem-test        the memory section is in a machine and clocked
 make -C verilog converge-test   the assembled machine SETTLES and its clock runs
 make -C verilog machine-test    the same under the imgui harness
 
@@ -121,6 +137,27 @@ verified against PARC's own boot sequence (`boot0-test`, `exec-test`,
 `compute-test`). ONE thing in the boot chain is open. Section 2 below is kept
 because what it cost is worth not paying twice, but it is a gate now, not a
 question.
+
+**And the MEMORY SECTION is traced end to end (2026-08-22/23)**, from a
+microinstruction's ASEL field to one gate short of the DRAM array. It has its
+own long write-up further down -- search for **"the memory reference-kind
+chain"** -- and the short version is:
+
+- every hop is gated: `WantProcRef'`, `FFok'`, `WantCR`, `Flush'`, the `Store←`
+  that dirties a line, `HitColDirty` → `FlushStore` → `ForceMiss`, **the cache
+  missing**, `←Map` writing an entry so `MapTrouble` clears, and `StartMem'`;
+- one real RTL bug came out of it -- **VBB was modelled as 0**, which strobed
+  off the whole map read path through five MC10124s. Fixed per-pin in
+  `tools/sil_to_verilog.py`: *VBB loses to a real signal and beats an open
+  pin*. 41 packages;
+- what is still open is `MemWEa`, and it is **not an RTL fault**. `MemWEa`
+  needs MemState 4; the bench's hand-built loop delivers 3, because a
+  four-microinstruction loop beats against the map's own accept cadence
+  (MapFnc=00 every 256 samples, MapState=3 every ~1024, coinciding once). A
+  one-shot reference already gives 4x the window. The fix is a **short window
+  of authentic reference cadence** walked into IM -- see the task list, and
+  note PARC's memory diagnostics are millions of steps, far too long to run
+  whole under Verilator.
 
 ### 1. Parity: the RULE is now known, and the fix is one line with a catch
 
@@ -461,7 +498,7 @@ edges on MemC, MemD and MemX), the seven-board machine converges, and
 **`machine-test` passes** -- 24/24 clock nets toggling. 226 F10016 packages
 across the machine, one line.
 
-#### SIX BACKPLANE LINES WERE SPELLED TWO WAYS#### SIX BACKPLANE LINES WERE SPELLED TWO WAYS, and one was the memory hold
+#### SIX BACKPLANE LINES WERE SPELLED TWO WAYS, and one was the memory hold
 
 Found while chasing the above, and it is the first real defect in the memory
 section. PARC's draughtsmen were not consistent about capitalisation, and this
