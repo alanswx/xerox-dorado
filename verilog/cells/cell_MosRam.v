@@ -42,7 +42,12 @@ module cell_MosRam (
   // Address order is read off the BOARD's own net names, not assumed:
   // A0'=13 A1'=5 A2'=7 A3'=6 A4'=12 A5'=11 A6'=10.
   reg [6:0] row, col;
-  reg [11:0] mem [0:4095];
+  // ONE BIT WIDE, because the part is 4K x 1. This was `reg [11:0]` while
+  // storing a single bit -- functionally right (the write zero-extends, the
+  // read takes bit 0) and TWELVE TIMES the memory, across 309 packages.
+  // Quartus is the one that notices: it could not fit the un-inferred ones
+  // into registers and stopped Analysis & Synthesis outright.
+  reg mem [0:4095];
   reg        dout;
 
   wire [6:0] a = {p10, p11, p12, p6, p7, p5, p13};   // A6..A0

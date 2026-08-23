@@ -377,6 +377,8 @@ VL_ATTR_COLD void Vtb_memrun___024root___stl_sequent__TOP__0(Vtb_memrun___024roo
     tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_07_p_ = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_08_p_;
     tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_08_p_ = 0;
+    CData/*0:0*/ tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_09_p_;
+    tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_09_p_ = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_11_p_;
     tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_11_p_ = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__b_ContA__DOT__CondBr_p_c;
@@ -3775,7 +3777,7 @@ VL_ATTR_COLD void Vtb_memrun___024root___stl_sequent__TOP__0(Vtb_memrun___024roo
     tb_memrun__DOT__m__DOT__BNPC_04___05FContB = Vtb_memrun__ConstPool__TABLE_h5b90359e_0
         [__Vtableidx38];
     __Vtableidx24 = vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_j16__DOT__q;
-    vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_09_p_ 
+    tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_09_p_ 
         = Vtb_memrun__ConstPool__TABLE_h59e8c004_0[__Vtableidx24];
     tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_08_p_ 
         = Vtb_memrun__ConstPool__TABLE_h4780427e_0[__Vtableidx24];
@@ -5738,7 +5740,7 @@ VL_ATTR_COLD void Vtb_memrun___024root___stl_sequent__TOP__0(Vtb_memrun___024roo
         = (1U & (~ ((IData)(tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_05_p_) 
                     ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_h18__DOT__p9))));
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_09 
-        = (1U & (~ ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_09_p_) 
+        = (1U & (~ ((IData)(tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_09_p_) 
                     ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_h18__DOT__p9))));
     vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_08 
         = (1U & (~ ((IData)(tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_08_p_) 
@@ -7771,12 +7773,12 @@ VL_ATTR_COLD void Vtb_memrun___024root___stl_sequent__TOP__0(Vtb_memrun___024roo
                                                                   | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_i23__DOT__p15))))))) 
                                                     | ((~ 
                                                         ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CondBr_p_a) 
-                                                         | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_09_p_))) 
+                                                         | (IData)(tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_09_p_))) 
                                                        | ((~ 
                                                            ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_c23__DOT__qa)
                                                              ? 
                                                             (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bJCN_7))
-                                                             : (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_09_p_))) 
+                                                             : (IData)(tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_09_p_))) 
                                                           & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_c23__DOT__qb)))));
     vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_10 = (1U 
                                                  & ((~ 

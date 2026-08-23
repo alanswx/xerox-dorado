@@ -114,7 +114,7 @@ module tb_msa;
     integer k, c;
     begin
       c = 0;
-      for (k = 0; k < 4096; k = k + 1) if (m.u_b05.mem[k] !== 12'd0) c = c + 1;
+      for (k = 0; k < 4096; k = k + 1) if (m.u_b05.mem[k] !== 1'b0) c = c + 1;
       nonzero_cells = c;
     end
   endfunction
