@@ -173,6 +173,19 @@ while MemD drives `Sout`, which is worth stating because the names do not give
 it away. And the word is **not presented in parallel**: it is registered, then
 shifted.
 
+**And the two sides are not symmetric -- the shift registers are on the READ
+side only.** An SN74166 is parallel-in / serial-out (pin 15 SH/LD', pin 7
+clock, pin 13 serial out), and a13 takes its eight parallel inputs **straight
+from eight MK4096 DOUT pins** (`msa04.sil+1` is b06 pin 14), then shifts them
+out through c02 (MC10124 TTL->ECL) into c01, which drives `Sin`. Twenty of
+them at eight bits each is 160 lines for the 144 DRAMs plus ECC.
+
+The **write** side has no shift register at all: b01 registers `Sout` and b02
+(MC10125 ECL->TTL) drives the DRAM DIN pins directly. **So getting a word in
+is a register-and-strobe; only reading it back needs the '166 load-then-shift
+sequence.** That asymmetry is the useful fact for the next rung -- the hard
+half is the read.
+
 **Those register clocks are the board's own.** b01 clocks off `c1`/`c2` and
 c01 off `SO`, and all three are **internal** nets driven by MC10176/MC10210
 packages on the MSA itself -- an on-board sequencer fed by MemX's

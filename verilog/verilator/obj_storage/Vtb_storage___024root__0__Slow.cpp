@@ -109,7 +109,7 @@ VL_ATTR_COLD void Vtb_storage___024root___eval_settle(Vtb_storage___024root* vlS
 #ifdef VL_DEBUG
             Vtb_storage___024root___dump_triggers__stl(vlSelfRef.__VstlTriggered, "stl"s);
 #endif
-            VL_FATAL_MT("verilog/verilator/tb_storage.sv", 75, "", "Settle region did not converge after 100 tries");
+            VL_FATAL_MT("verilog/verilator/tb_storage.sv", 89, "", "Settle region did not converge after 100 tries");
         }
         __VstlIterCount = ((IData)(1U) + __VstlIterCount);
     } while (Vtb_storage___024root___eval_phase__stl(vlSelf));

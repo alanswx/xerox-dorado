@@ -50,6 +50,20 @@
 //     Sin while MemD drives Sout -- the direction is worth stating because
 //     the names do not give it away.
 //
+//     AND THE TWO SIDES ARE NOT SYMMETRIC. The 20 SN74166s are on the READ
+//     side only. An SN74166 is parallel-in / serial-out (pin 15 SH/LD',
+//     pin 7 clock, pin 13 serial out), and a13 takes its eight parallel
+//     inputs straight from EIGHT MK4096 DOUT pins -- `msa04.sil+1` is
+//     b06 pin 14 -- then shifts them out through c02 (MC10124 TTL->ECL) into
+//     c01, which drives Sin. Twenty of them, eight bits each, is 160 lines
+//     for the 144 DRAMs plus ECC.
+//
+//     The WRITE side has no shift register at all: b01 registers Sout and
+//     b02 (MC10125 ECL->TTL) drives the DRAM DIN pins directly. So getting a
+//     word IN is a register-and-strobe, and only reading it back needs the
+//     '166 load-then-shift sequence. That asymmetry is the useful fact for
+//     the next rung -- the hard half is the read.
+//
 //     THEIR CLOCKS ARE THE BOARD'S OWN, AND CORRECTLY QUIET HERE. b01 clocks
 //     on `msa01.sil+4` from e13 (MC10210) off `c1`/`c2`, and c01 on
 //     `msa01.sil+3` from h01 off `SO` -- and `c1`, `c2` and `SO` are INTERNAL
