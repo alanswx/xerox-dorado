@@ -988,7 +988,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | ...and each task KEEPS ITS OWN PC and LINK | `taskrun-test` -- TPC[15] survives task 7; the startup Link lands in slot 0 alone |
 | **the MEMORY SECTION's front door** -- ASEL 0-3 is a storage reference | `refdecode-test` -- 16 cases against the C emulator's rule |
 | **the memory boards RUN, and the microcode ASKS THEM for storage** | `memrun-test` -- seven boards, MemC clocked in step, ASEL=0 with `WantProcRef'` asserted |
-| ~~the memory section runs DRAM cycles~~ **RETRACTED 2026-08-23** | `memrun-test` -- the strobes came from a REVERSED `MemState` addressing the wrong timing-PROM entries |
+| **THE MEMORY SECTION RUNS DRAM CYCLES** (re-earned 2026-08-23) | `memrun-test` -- the earlier green was an artifact of a mis-shifted Map-Mem PROM; `preStartMem'` now PULSES |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
 Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is

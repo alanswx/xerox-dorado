@@ -1146,3 +1146,53 @@ register, so `storage-test`'s write-clock assertion was the same artifact.
 
 Both gates now print a loud `OPEN (task #17)` line instead of asserting a cycle
 that does not run.
+
+### And then it ran, for the right reason (2026-08-23)
+
+The retraction above stands -- the strobes really were an artifact -- but the
+cause was a SECOND bug, and fixing it starts the sequencer properly.
+
+**PARC's PROM blower does not store a table entry verbatim.**
+`DoradoProms.bcpl Body()` left-justifies it into a 16-bit word and keeps the
+top `width` bits:
+
+```bcpl
+mask = 0
+for i = 1 to MemWidth do mask = (mask rshift 1) % #100000
+data = Buff!address
+data = data lshift adjust    // left justify it
+data = data & mask           // mask off the unused bits
+```
+
+so the byte blown is `(value << adjust) >> (16 - width)`. **Every `Header()`
+in the sources passes `adjust = 16 - width`, which makes that the identity --
+except one:**
+
+```bcpl
+Header("Map-Mem", 8, buff, 32, 10)     // ten, where eight is standard
+```
+
+MemX-i14's bytes are PARC's table values **shifted left by two**, and we were
+transcribing them raw. That put every output on the wrong pin. `preStartMem'`
+is i14 pin 3 = bit 5; raw, it reads asserted at exactly one address, so
+`StartMem'` -- which loads from it -- sat **low on 2787 of 3000 samples**,
+holding the `MemState` counter in parallel load forever. The memory could
+never sequence.
+
+Shifted, the same bit asserts at `MapState=3` for **Refresh, Read and Write**
+and never for a Map write -- a reference starts a storage cycle, a pure map
+write does not. `tools/dorado_proms.py _table()` implements PARC's arithmetic
+now and takes `adjust` from the `Header()` call, so this is fixed by
+construction rather than by patching one table; **only `Map-Mem`'s image
+changed**, which is the check that the formula is right.
+
+The chain, all off the wire list: `MemIdle = StartMem' AND MemFree` (g13 gate
+d, pins 12/13 -> 15, and PARC names both senses so the polarity is not
+inferred); j16 takes `PE' = StartMem'` and `CE' = MemIdle`; `StartMem'` is
+j22 pin 15, loaded from `preStartMem'`; `preStartMem'` is i14 pin 3.
+
+**`memrun-test` asserts the DRAM cycle again** -- RAS 2, CAS 2 edges. Still
+open (task #17): the WRITE-BACK is not scheduled in the bench's window, so
+`WriteInMem'` never asserts. Those assertions are demoted to `OPEN` lines
+rather than deleted; they passed only while the sequencer was jammed, so
+restoring them as gates would pull the jam back.
