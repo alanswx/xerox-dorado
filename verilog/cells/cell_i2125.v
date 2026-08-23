@@ -45,7 +45,15 @@ module cell_i2125 (
   wire [9:0] a = {p13,p12,p11,p10,p9,p6,p5,p4,p3,p2};
   always @(posedge sys_clk)
     if (!p1 && !p14) mem[a] <= p15;                         // CS' and WE'
-  assign p7 = (!p1) ? mem[a] : 1'b0;
+  // REGISTERED READ, so this infers M10K -- see cell_F10415A for the full
+  // reasoning. Worth recording what these 32 packages cost when they did not:
+  // ONE of them took 1,445 ALUTs built out of logic, and 32 of them were
+  // essentially the whole BaseBoard's 47,775 -- 73% of the entire machine's
+  // combinational logic, for a 1024x1 static RAM on a support board. The
+  // latency added is one sys_clk, which is 1/16 of a microinstruction.
+  reg dout_r;
+  always @(posedge sys_clk) dout_r <= mem[a];
+  assign p7 = (!p1) ? dout_r : 1'b0;
 
 
   wire _unused_pins = &{1'b0, p8, p16, 1'b0};

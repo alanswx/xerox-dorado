@@ -61,7 +61,27 @@ module cell_F10470 (
   wire [11:0] a = {p2, p3, p4, p5, p6, p7, p8, p10, p11, p12, p13, p14};
   always @(posedge sys_clk)
     if (!p16 && !p15) mem[a] <= p17;                        // CE' and WE'
-  assign p1 = (!p16) ? mem[a] : 1'b0;
+  // REGISTERED READ, so this infers M10K.
+  //
+  // The real part reads ASYNCHRONOUSLY: put an address on the pins and the
+  // data appears after a propagation delay -- 10-25 ns for a 10K-series ECL
+  // RAM, comfortably inside the Dorado's 60 ns microinstruction, with no
+  // clock involved. An FPGA's M10K cannot do that; it is synchronous-read
+  // only, so an async-read array falls back to MLAB (for small ones) or to
+  // REGISTERS, and this cell is neither small nor few: 174 packages of IM.
+  //
+  // THE LATENCY THIS ADDS IS ONE sys_clk, NOT ONE MICROINSTRUCTION. The
+  // design already runs 16 sys_clk to a microinstruction -- the oversampling
+  // introduced so the distributed ECL clocks could become enables -- so a
+  // registered read costs about 3.75 ns of Dorado time, well inside the
+  // propagation budget the real part was given. It is the same transform,
+  // applied to the read instead of the strobes.
+  //
+  // The chip-enable stays combinational on the OUTPUT, which is a mux and
+  // costs nothing.
+  reg dout_r;
+  always @(posedge sys_clk) dout_r <= mem[a];
+  assign p1 = (!p16) ? dout_r : 1'b0;
 
 
   // Board-wired pins the dictionary does not name (power and the like)

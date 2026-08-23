@@ -54,51 +54,56 @@ tree on a rail. Two nets in the whole machine, and only synthesis found them.
 functionally right, since the write zero-extends and the read takes bit 0, and
 309 packages of it. Now `reg mem [0:4095]`.
 
-**3. STILL OPEN, and it is a DESIGN decision rather than a bug: the two
-biggest memories read ASYNCHRONOUSLY, and M10K cannot do that.**
+**3. FIXED, AND THE MACHINE FITS. The blocker was an ASYNCHRONOUS READ.**
 
-First, a correction to the obvious guess. `msa` is **not** in the eleven-board
-machine, so its 144 MK4096 DRAMs are not in this synthesis at all. What is:
-
-| cell | packages | bits | inferred |
-|---|---|---|---|
-| `F10415A` (IM) | 174 x 1024 | 178 K | **3** |
-| `F10470` (DRAM) | 72 x 4096 | 295 K | **0** |
-| `MosRam` | 21 x 4096 | 86 K | 0 |
-| `i2125` | 32 x 1024 | 33 K | 0 |
-| others | | 32 K | some |
-| **total** | | **624 K (0.62 Mbit)** | |
-
-against **5,570 Kbit** of M10K on the device. **It fits nearly nine times over
--- if it infers.** So this was never a capacity problem.
-
-The blocker is structural. `F10415A` and `F10470` both end with
+`F10415A` (IM), `F10470` (the DRAM) and `i2125` all ended with
 
 ```verilog
 assign p1 = (!p14) ? mem[a] : 1'b0;     // ASYNCHRONOUS read
 ```
 
 and **M10K is synchronous-read only**. An async-read array falls back to MLAB
-for small ones -- which is exactly why 3 of the 174 F10415A did infer, and why
-the 16x4 `F10145A` and 256x4 `MB7071H` infer cleanly -- and to registers
-otherwise. Those two cells are **473 K of the 624 K**.
+for small ones -- which is why the 16x4 `F10145A` and 256x4 `MB7071H` infer
+cleanly, and why 3 of 174 `F10415A` did -- and to REGISTERS otherwise.
 
-**Making them infer means a REGISTERED read, and that is one cycle of added
-latency on IM and on storage.** It is not a coding tweak; it changes machine
-timing, and the 32 Verilator gates are what would say whether the rest of the
-design tolerates it. That is the decision to take deliberately.
+**How the original differed, and why this is safe.** The real parts read
+asynchronously: put an address on the pins and the data appears after a
+propagation delay -- 10-25 ns for a 10K-series ECL RAM, comfortably inside the
+Dorado's 60 ns microinstruction, with no clock involved in the read at all.
+An FPGA cannot do that at this density. But **the latency a registered read
+adds is one `sys_clk`, not one microinstruction**: this design already runs 16
+sys_clk to a microinstruction -- the oversampling introduced so the
+distributed ECL clocks could become enables -- so it costs about **3.75 ns of
+Dorado time**, well inside the budget the real part had. It is the same
+transform, applied to the read instead of the strobes. All 32 gates pass
+unchanged, which is what says the rest of the machine tolerates it.
 
-Two things tried first, both ruled out by measurement rather than argument:
-splitting the write and the conditional read into separate `always` blocks
-(no change), and rewriting `MosRam`/`MK4096P-6` to the canonical MiSTer
-`dpram.sv` template -- unconditional registered read, conditional write, one
-block (no change either, and worth knowing that template is pure INFERENCE,
-not an `altsyncram` instantiation, which is why those cells still simulate
-unchanged).
+**`i2125` was the whole story.** ONE of its packages took **1,445 ALUTs**
+built out of logic, and its 32 packages -- all on BaseBd -- were essentially
+the entire BaseBoard's 47,775, which was 73% of the machine's combinational
+logic. For a 1024x1 static RAM on a support board.
 
-Also fixed on the way: those two DRAM cells declared `reg [11:0] mem [0:4095]`
-while storing a single bit -- twelve times the memory, across 309 packages.
+| | before | after | DE10-Nano |
+|---|---|---|---|
+| **ALMs** | 50,012 (119%) | **26,964 (64%)** | 41,910 |
+| Combinational ALUTs | 65,220 | 21,280 | |
+| Dedicated registers | 70,228 | 37,459 | |
+| Block memory bits | 487,664 | 520,432 (9.1%) | 5,702,400 |
 
+**The eleven-board Dorado fits on a DE10-Nano at 64% of its ALMs and 9% of its
+block RAM**, with Analysis & Synthesis clean at 0 errors. That is the first
+real answer to the capacity question, and it leaves room for the IFU work, the
+I/O controllers and the MSA, none of which are in this configuration yet.
+
+Two things tried first and ruled out by measurement rather than argument:
+splitting the write and the conditional read into separate `always` blocks,
+and rewriting `MosRam`/`MK4096P-6` to the canonical MiSTer `dpram.sv`
+template. Neither helped, because neither touched the read's *asynchrony*.
+Worth knowing that template is pure INFERENCE, not an `altsyncram`
+instantiation, which is why these cells still simulate in Verilator unchanged.
+
+Also fixed on the way: `MosRam` and `MK4096P-6` declared `reg [11:0] mem
+[0:4095]` while storing a single bit -- twelve times the memory, 309 packages.
 
 
 ## What "boot" means here
