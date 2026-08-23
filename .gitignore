@@ -124,3 +124,6 @@ verilog/verilator/obj_mem/
 verilog/quartus/output_files/
 verilog/quartus/db/
 verilog/quartus/incremental_db/
+verilog/output_files/
+verilog/db/
+verilog/incremental_db/

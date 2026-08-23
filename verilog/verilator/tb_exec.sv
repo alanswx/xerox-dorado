@@ -887,8 +887,16 @@ module tb_exec;
       $fatal(1, "the machine stopped -- with the parity enables on it stops after one instruction");
     if (n0a < 1000)
       $fatal(1, "the microinstruction clock is not free-running");
-    if (n1a !== n0a)
-      $fatal(1, "clk1' must run with clk0', one of each per microinstruction");
+    // ONE OF EACH PER MICROINSTRUCTION, to within the window boundary. The
+    // sample window is a fixed number of FABRIC cycles, so it can close
+    // between clk0' and clk1' of the same microinstruction and leave the
+    // counts one apart -- which is the property holding, not failing. This
+    // used to demand exact equality, and that is a boundary artifact rather
+    // than a real difference: at 8 sys_clk per microinstruction it read
+    // 2492 against 2493 out of ~2492.
+    if (n1a > n0a + 1 || n0a > n1a + 1)
+      $fatal(1, "clk1' must run with clk0', one of each per microinstruction (%0d vs %0d)",
+             n0a, n1a);
     // A machine fetching from WIPED IM would sit on one instruction for ever.
     if (n_tnia < 4)
       $fatal(1, "TNIA is not sequencing -- the machine is not fetching from IM");

@@ -1,5 +1,0 @@
-Info (10281): Verilog HDL Declaration information at dorado_backplane.v(112): object "ClkEnable_p_a" differs only in case from object "CLKEnable_p_a" in the same scope File: /build/verilog/generated/dorado_backplane.v Line: 112
-Info (10281): Verilog HDL Declaration information at dorado_backplane.v(235): object "IOIn_p_" differs only in case from object "IOin_p_" in the same scope File: /build/verilog/generated/dorado_backplane.v Line: 235
-Info (10281): Verilog HDL Declaration information at dorado_backplane.v(236): object "IOOut_p_" differs only in case from object "IOout_p_" in the same scope File: /build/verilog/generated/dorado_backplane.v Line: 236
-Info (10281): Verilog HDL Declaration information at ProcH-Rev-Ce.v(29): object "ASEL_0_p_" differs only in case from object "ASel_0_p_" in the same scope File: /build/verilog/generated/ProcH-Rev-Ce.v Line: 29
-Info (10281): Verilog HDL Declaration information at ProcL-Rev-Ci.v(30): object "ASEL_0_p_" differs only in case from object "ASel_0_p_" in the same scope File: /build/verilog/generated/ProcL-Rev-Ci.v Line: 30

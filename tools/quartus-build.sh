@@ -30,8 +30,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 IMAGE="${QUARTUS_IMAGE:-raetro/quartus:mister}"
-PROJ=dorado
-QDIR=verilog/quartus
+PROJ=Dorado
+QDIR=verilog
 STAGE="${1:-map}"
 
 docker image inspect "$IMAGE" >/dev/null 2>&1 || {
@@ -43,16 +43,15 @@ docker image inspect "$IMAGE" >/dev/null 2>&1 || {
 # (verilog/proms/packages/*.mem), so Quartus has to see the same working
 # directory the simulator does. The project is named by path instead.
 run() { docker run --rm --platform linux/amd64 -v "$ROOT":/build "$IMAGE" \
-            bash -c "cd /build && $1"; }
+            bash -c "cd /build/$QDIR && $1"; }
 
 case "$STAGE" in
-    clean) rm -rf "$ROOT/$QDIR"/output_files "$ROOT/$QDIR"/db \
-                  "$ROOT/$QDIR"/incremental_db
+    clean) rm -rf "$ROOT/$QDIR"/output_files "$ROOT/$QDIR"/db "$ROOT/$QDIR"/incremental_db
            echo "cleaned"; exit 0 ;;
-    map)   run "quartus_map --parallel=1 $QDIR/$PROJ" ;;
-    all)   run "quartus_map --parallel=1 $QDIR/$PROJ && \
-                quartus_fit --parallel=1 $QDIR/$PROJ && \
-                quartus_sta $QDIR/$PROJ" ;;
+    map)   run "quartus_map --parallel=1 $PROJ" ;;
+    all)   run "quartus_map --parallel=1 $PROJ && \
+                quartus_fit --parallel=1 $PROJ && \
+                quartus_sta $PROJ" ;;
     *)     echo "usage: $0 [map|all|clean]" >&2; exit 1 ;;
 esac
 

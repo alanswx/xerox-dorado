@@ -5047,16 +5047,47 @@ module dorado_machine (
   // The clock fanout, read out of the machine: 10 nets,
   // BaseBoard to one slot each. These are the first thing to watch --
   // if they are not toggling, nothing downstream can be.
-  wire CLK_ca_p__probe = u_machine.CLK_ca_p_;
-  wire CLK_cb_p__probe = u_machine.CLK_cb_p_;
-  wire CLK_disk_p__probe = u_machine.CLK_disk_p_;
-  wire CLK_display_p__probe = u_machine.CLK_display_p_;
-  wire CLK_ifu_p__probe = u_machine.CLK_ifu_p_;
-  wire CLK_mc_p__probe = u_machine.CLK_mc_p_;
-  wire CLK_md_p__probe = u_machine.CLK_md_p_;
-  wire CLK_mx_p__probe = u_machine.CLK_mx_p_;
-  wire CLK_ph_p__probe = u_machine.CLK_ph_p_;
-  wire CLK_pl_p__probe = u_machine.CLK_pl_p_;
+  //
+  // These are read by HIERARCHICAL REFERENCE, which Verilator
+  // resolves and QUARTUS DOES NOT -- it stops with "can't resolve
+  // reference to object". They are internal to the machine and
+  // exposing ten more ports to probe them would be the tail
+  // wagging the dog, so they are guarded: simulation sees the real
+  // nets, synthesis sees a constant and optimises the probe away.
+  wire CLK_ca_p__probe;
+  wire CLK_cb_p__probe;
+  wire CLK_disk_p__probe;
+  wire CLK_display_p__probe;
+  wire CLK_ifu_p__probe;
+  wire CLK_mc_p__probe;
+  wire CLK_md_p__probe;
+  wire CLK_mx_p__probe;
+  wire CLK_ph_p__probe;
+  wire CLK_pl_p__probe;
+  // synthesis translate_off
+  assign CLK_ca_p__probe = u_machine.CLK_ca_p_;
+  assign CLK_cb_p__probe = u_machine.CLK_cb_p_;
+  assign CLK_disk_p__probe = u_machine.CLK_disk_p_;
+  assign CLK_display_p__probe = u_machine.CLK_display_p_;
+  assign CLK_ifu_p__probe = u_machine.CLK_ifu_p_;
+  assign CLK_mc_p__probe = u_machine.CLK_mc_p_;
+  assign CLK_md_p__probe = u_machine.CLK_md_p_;
+  assign CLK_mx_p__probe = u_machine.CLK_mx_p_;
+  assign CLK_ph_p__probe = u_machine.CLK_ph_p_;
+  assign CLK_pl_p__probe = u_machine.CLK_pl_p_;
+  // synthesis translate_on
+  // synthesis read_comments_as_HDL on
+  // assign CLK_ca_p__probe = 1'b0;
+  // assign CLK_cb_p__probe = 1'b0;
+  // assign CLK_disk_p__probe = 1'b0;
+  // assign CLK_display_p__probe = 1'b0;
+  // assign CLK_ifu_p__probe = 1'b0;
+  // assign CLK_mc_p__probe = 1'b0;
+  // assign CLK_md_p__probe = 1'b0;
+  // assign CLK_mx_p__probe = 1'b0;
+  // assign CLK_ph_p__probe = 1'b0;
+  // assign CLK_pl_p__probe = 1'b0;
+  // synthesis read_comments_as_HDL off
 
   wire [255:0] probe = {
     4'd0,
