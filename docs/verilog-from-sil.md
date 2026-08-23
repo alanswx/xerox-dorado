@@ -17,6 +17,80 @@ directions.**
 Read this first; everything below it is the history of how the generator and
 cell library got built. Gate names are `make -C verilog <name>`; there are 29.
 
+## IT FITS, AND IT RUNS AT 0.11x -- the MiSTer core (2026-08-23)
+
+`verilog/` is a normal MiSTer core now: `Dorado.qsf` (device settings and 211
+pin assignments carried over verbatim from RCAStudioII_Mister, a working core
+on the same board), `Dorado.sv` (the `emu` wrapper, with `CONF_STR` and
+`hps_io` intact), `files.qip`, `sys/`, `rtl/pll`. Build with
+`tools/quartus-build.sh {map|all|clean}`.
+
+**THE TOP LEVEL IS `sys_top`, NOT `emu`.** sys_top holds the physical pin
+constraints and instantiates emu; making emu the top turns its whole port list
+into package pins -- 319 output pads against the device's 315 -- and the
+fitter rejects it for a reason that has nothing to do with the design.
+
+**HPS is wired from the start** -- `ps2_key`, `ps2_mouse`, the
+`sd_lba`/`img_mounted` disk interface and `ioctl`. Nothing consumes them yet,
+but the Dorado needs all three (Trident packs, the Alto 61-key matrix, the
+mouse the guest reads from UTILIN), and having the bus present makes that a
+wiring job rather than a rebuild.
+
+**THE REAL FIT, with placement:**
+
+| resource | usage | DE10-Nano | |
+|---|---|---|---|
+| ALMs | 31,601 | 41,910 | **75%** |
+| Registers | 55,181 | | |
+| Block memory | 897,477 bits | 5,662,720 | 16% |
+| RAM blocks | 163 | 553 | 29% |
+| Pins | 145 | 314 | 46% |
+
+**Two false readings on the way, both worth not repeating.** A synthesis
+*estimate* of 26,964 ALMs (64%) is not a fit, and the fitter rejected that
+same design outright. And a fit of 1,024 ALMs (2%) meant the machine had been
+**optimised away**: with `probe_sel` tied to a constant and one probe bit
+reaching an LED, Quartus swept the design and fitted an empty shell.
+`probe_sel` comes from the OSD status word now and every `probe_val` bit
+reaches a pin.
+
+**AND THE CLOCK RATIO IS THE HEADLINE PROBLEM.** `clk_sys` closes at **30.27
+MHz**. The cells recover each distributed ECL clock net by oversampling it, at
+16 sys_clk per microinstruction, so:
+
+| ratio | microinstruction rate | vs the real Dorado |
+|---|---|---|
+| 16x | 1.89 MHz | **0.11x** |
+| 8x | 3.78 MHz | 0.23x |
+| 4x | 7.57 MHz | 0.45x |
+| 2x | 15.1 MHz | 0.91x |
+| 1x | 30.3 MHz | 1.8x |
+
+So the ratio sets **how fast the FPGA Dorado runs**, not just how fast
+Verilator does -- and 16x is nine times slower than the machine it models.
+Real time needs `sys_clk >= 16.67 MHz x ratio`, which even 2x misses at the
+current Fmax.
+
+**Measured, the ratio can already come down to 8x**, with two benches left to
+fix:
+
+| ratio | gates failing |
+|---|---|
+| 16x | none |
+| 8x | `taskrun-test`, `memrun-test` |
+| 4x | + `step-test` |
+
+`exec-test` failed at 8x on `clk1' 2493` against `clk0' 2492` -- one apart out
+of ~2492, which is the fixed-length sample window closing between the two
+edges of one microinstruction. That is the property holding, not failing, and
+the assertion now says so. The remaining two are likely the same shape:
+benches with hard-coded fabric-cycle counts. **Note the discipline: fix the
+bench's statement of the property, do not loosen the property.**
+
+(A methodological trap that cost two wrong sweeps: **zsh does not word-split
+unquoted variables**, so `for t in $GATES` passes the whole string as one
+target and every gate "fails". Use an explicit list.)
+
 ## Synthesis: the first real Quartus run (2026-08-23)
 
 Quartus is not installed natively; it runs in `raetro/quartus:mister`

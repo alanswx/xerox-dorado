@@ -574,8 +574,23 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
         A(f'  // The clock fanout, read out of the machine: {len(clk_tree)} nets,')
         A('  // BaseBoard to one slot each. These are the first thing to watch --')
         A('  // if they are not toggling, nothing downstream can be.')
+        A('  //')
+        A('  // These are read by HIERARCHICAL REFERENCE, which Verilator')
+        A('  // resolves and QUARTUS DOES NOT -- it stops with "can\'t resolve')
+        A('  // reference to object". They are internal to the machine and')
+        A('  // exposing ten more ports to probe them would be the tail')
+        A('  // wagging the dog, so they are guarded: simulation sees the real')
+        A('  // nets, synthesis sees a constant and optimises the probe away.')
         for n in clk_tree:
-            A(f'  wire {vname(n)}_probe = u_machine.{vname(n)};')
+            A(f'  wire {vname(n)}_probe;')
+        A('  // synthesis translate_off')
+        for n in clk_tree:
+            A(f'  assign {vname(n)}_probe = u_machine.{vname(n)};')
+        A('  // synthesis translate_on')
+        A('  // synthesis read_comments_as_HDL on')
+        for n in clk_tree:
+            A(f'  // assign {vname(n)}_probe = 1\'b0;')
+        A('  // synthesis read_comments_as_HDL off')
         A("")
     A(f'  wire [{len(probed) + pad - 1}:0] probe = {{')
     if pad:
