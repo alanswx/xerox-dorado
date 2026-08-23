@@ -2997,28 +2997,34 @@ Two things remain, both small and both stated by measurement:
    PARC's own BCPL and are gated by `prom-test`, so decode `i14`'s table
    against the MapState values actually visited.
 
-   **`i14`'s table is decoded, and it did not predict the behaviour.** The
-   PROM is addressed `{MapState.2, MapState.1, MapState.0, MapFnc.1',
-   MapFnc.0'}` with CE' open (always enabled), and `preStartMem'` is its Q2.
-   Reading the 32 bytes, Q2 is high at exactly **three** addresses -- 3, 11
-   and 19 -- and all three have **both MapFnc bits set**, i.e. no map function
-   pending, with MapState 0, 2 or 4. So `StartMem'` low is the *default*, and
-   since it is j16's PE' it is a **reset** that reloads MemState with zero;
-   the sequencer can only walk in those three states.
+   **`i14`'s table is decoded, the machine is read against it, and the whole
+   chain now adds up.** The PROM is addressed `{MapState.2, MapState.1,
+   MapState.0, MapFnc.1', MapFnc.0'}` with CE' open, and `preStartMem'` is its
+   Q2. Q2 is high at exactly **three** addresses -- 3, 11, 19 -- all with both
+   MapFnc bits set (no map function pending) at MapState 0, 2 or 4. So
+   `StartMem'` low is the *default*, and being j16's PE' it is a **reset**.
 
-   That predicted our `←Map`, re-issued every fourth microinstruction, was
-   holding the memory sequencer. **It is not.** Running the Map once (IM[3]
-   jumping to IM[1] instead of IM[0]) leaves `StartMem'` free on exactly 288
-   samples -- the same as before -- and MemState still at 3 of 16, while
-   losing the map entry so `MapEven'` fails and `MapTrouble` returns for the
-   whole run. Reverted.
+   **Logged against the machine, all three are visited:** address 3 on 672
+   cycles, 11 on 64, 19 on 64 -- ~800 where `preStartMem'` is high.
+   `StartMem'` is high on only **288** of those, because j22 latches it on
+   `MapWait`. And that 288 is **one contiguous window**, not fragments.
 
-   So the MapFnc bits reaching i14 are not what this bench's `←Map` controls,
-   consistent with the earlier measurement that MapFnc took only 2 of its 4
-   values. **Next:** log the actual i14 *address* each cycle -- those five
-   bits -- and see which of the 32 the machine visits, and whether any of 3,
-   11, 19 is among them. A direct reading of the table against the machine,
-   with nothing inferred.
+   **Inside that window the counter gets about three counts, which is exactly
+   what it shows.** `Clk0'Dd` has **18 edges** there (nine rising), and CE'
+   (`MemIdle`) is low on only **64 of 288**. Nine clock edges with the enable
+   down four fifths of the time is ~3 counts, and MemState reaches 3 values.
+   **Nothing is broken in this path** -- the window is simply too short for a
+   16-state cycle.
+
+   An earlier prediction from this same table -- that our `←Map`, re-issued
+   every fourth microinstruction, was holding the sequencer -- was **wrong**.
+   Running the Map once (IM[3] → IM[1]) leaves the window at exactly 288 and
+   MemState at 3, while losing the map entry. Reverted.
+
+   **So the question is now sharp and singular: what makes `MapWait` open a
+   longer window?** `preStartMem'` is high for ~800 cycles and only 288
+   survive the latch. `MapWait` is also the CE' on the MapState counter, so it
+   paces the whole map/memory handshake.
 
    **Worth generalising:** three F10016s on this board (i10, j16, j22) have
    `TrueBD` -- a hardwired constant 1 -- on CE'. On MemX the part is used as a

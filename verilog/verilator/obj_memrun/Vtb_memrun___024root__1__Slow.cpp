@@ -6901,6 +6901,10 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->tb_memrun__DOT__rfshper = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14295647686845263379ull);
     vlSelf->tb_memrun__DOT__k = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11652679766192128519ull);
     vlSelf->tb_memrun__DOT__i = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11971006283960824952ull);
+    vlSelf->tb_memrun__DOT__i14a = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 13171892106118110653ull);
+    for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {
+        vlSelf->tb_memrun__DOT__i14_hit[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14910066863897504223ull);
+    }
     vlSelf->tb_memrun__DOT__memst_now = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 9871386754430575929ull);
     for (int __Vi0 = 0; __Vi0 < 16; ++__Vi0) {
         vlSelf->tb_memrun__DOT__memst_hit[__Vi0] = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 900809069840545167ull);
