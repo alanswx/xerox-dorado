@@ -755,11 +755,24 @@
 //      with j13 enabled while it WAS low on 96 cycles with j14 -- different
 //      table, different states.
 //
-//      NEXT, and it is now a microcode question rather than a hardware one:
-//      hold the reference long enough for the sequencer to reach state 4.
-//      The window is set by `MapWait` latching `preStartMem'`, so it is the
-//      MAP handshake that has to give the memory more time -- roughly one
-//      more state pair, not an order of magnitude.
+//      AND THERE IS ONLY EVER ONE WINDOW, AT SAMPLE 54. Measured: across
+//      3000 samples `StartMem'` goes high exactly ONCE, at the very start of
+//      the run, for 288 cycles, and never again -- the loop never opens a
+//      second one. So the memory sequencer gets a single shot during startup
+//      and is held reset forever after.
+//
+//      THAT REFRAMES THE REMAINING WORK. It is not "make the window longer"
+//      -- one more state pair would do if windows kept coming -- it is "why
+//      does the loop never start another memory cycle?". The reference
+//      machinery upstream is all live and gated (WantProcRef', the kind
+//      decode, Flush', the Store, ForceMiss, the miss itself, a clear map),
+//      so the reference IS being made; what does not repeat is
+//      `preStartMem'` surviving the `MapWait` latch.
+//
+//      NEXT: count the windows, not their length. Log every cycle where
+//      `preStartMem'` is high alongside `MapWait`, and find what changes
+//      after sample ~342 so the two never coincide again. That is one
+//      measurement, and both signals are already probed here.
 //
 //      WORTH GENERALISING, and the count is now four: i10, j22 and j12 all
 //      have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are
@@ -918,7 +931,7 @@ module tb_memrun;
   integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb, nwcr, nwar, nfl, nmp;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [4:0] i14a; integer i14_hit [0:31];
-  reg [3:0] memst_now; reg memst_hit [0:15]; integer runlen, maxrun, nwin, ndd, nidle_lo;
+  reg [3:0] memst_now; reg memst_hit [0:15]; integer runlen, maxrun, nwin, ndd, nidle_lo, winat;
   reg pdd;
   integer nmemst, nfree, nmemfr, nheld_nz;
   reg memfr_hit [0:15];
@@ -1969,7 +1982,7 @@ module tb_memrun;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
     for (int zi4 = 0; zi4 < 32; zi4++) i14_hit[zi4] = 0;
-    runlen=0; maxrun=0; nwin=0; ndd=0; nidle_lo=0; pdd=m.b_MemX.Clk0_p_Dd;
+    runlen=0; maxrun=0; nwin=0; winat=-1; ndd=0; nidle_lo=0; pdd=m.b_MemX.Clk0_p_Dd;
     nmemst=0; nfree=0; nmemfr=0; nheld_nz=0;
     for (int zf = 0; zf < 16; zf++) memfr_hit[zf] = 1'b0;
     for (int zm = 0; zm < 16; zm++) memst_hit[zm] = 1'b0;
@@ -2099,7 +2112,10 @@ module tb_memrun;
       if (m.b_MemX.StartMem_p_) begin
         if (!memfr_hit[memst_now]) begin memfr_hit[memst_now]=1'b1; nmemfr=nmemfr+1; end
       end else if (memst_now != 4'd0) nheld_nz = nheld_nz + 1;
-      if (m.b_MemX.StartMem_p_ && runlen == 1) nwin = nwin + 1;
+      if (m.b_MemX.StartMem_p_ && runlen == 1) begin
+        nwin = nwin + 1;
+        winat = nsamp;            // WHERE in the run does the window open?
+      end
       // Is the MAP ARRAY ever strobed? MosRam latches dout only on
       // !RAS' && !CAS' && WE'. Count edges, do not sample.
       if (m.b_MemX.u_a04.p4  !== pmras) begin nmras=nmras+1; pmras=m.b_MemX.u_a04.p4;  end
@@ -2301,8 +2317,8 @@ module tb_memrun;
     for (int zi5 = 0; zi5 < 32; zi5++)
       if (i14_hit[zi5] != 0) $write(" %0d=%0d", zi5, i14_hit[zi5]);
     $display("");
-    $display("tb_memrun:   MemState reached %0d of 16 values | StartMem' HIGH (counter free) on %0d of %0d, reaching %0d values there; non-zero while HELD: %0d | %0d windows, LONGEST %0d sys_clk | in-window: Clk0'Dd edges %0d, CE'(MemIdle) low %0d",
-             nmemst, nfree, nsamp, nmemfr, nheld_nz, nwin, maxrun, ndd, nidle_lo);
+    $display("tb_memrun:   MemState reached %0d of 16 values | StartMem' HIGH (counter free) on %0d of %0d, reaching %0d values there; non-zero while HELD: %0d | %0d windows, LONGEST %0d sys_clk OPENING AT SAMPLE %0d | in-window: Clk0'Dd edges %0d, CE'(MemIdle) low %0d",
+             nmemst, nfree, nsamp, nmemfr, nheld_nz, nwin, maxrun, winat, ndd, nidle_lo);
     $display("tb_memrun:   DRAM TIMING PROM enables -- ChipsAre256/16K=%b ChipsAre64K=%b -> Use256/16KProm'=%b Use64KProm'=%b (CE' low = enabled)",
              chips16k, chips64k, m.b_MemX.Use256_s_16KProm_p_, m.b_MemX.Use64KProm_p_);
     $display("tb_memrun:   D0 CONJUNCTION -- WriteInMem'&!MapTrouble on %0d, all three on %0d of %0d",

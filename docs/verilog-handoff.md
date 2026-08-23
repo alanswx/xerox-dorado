@@ -3077,11 +3077,22 @@ Two things remain, both small and both stated by measurement:
    j13 enabled while it *was* low on 96 cycles with j14 -- different table,
    different states.
 
-   **Next**, and it is now a microcode question rather than a hardware one:
-   hold the reference long enough for the sequencer to reach state 4. The
-   window is set by `MapWait` latching `preStartMem'`, so it is the map
-   handshake that has to give the memory more time -- roughly one more state
-   pair, not an order of magnitude.
+   **And there is only ever one window, at sample 54.** Across 3000 samples
+   `StartMem'` goes high exactly **once**, at the very start of the run, for
+   288 cycles, and never again -- the loop never opens a second. So the memory
+   sequencer gets a single shot during startup and is held reset forever after.
+
+   **That reframes the remaining work.** It is not "make the window longer" --
+   one more state pair would suffice if windows kept coming -- it is **"why
+   does the loop never start another memory cycle?"** Everything upstream is
+   live and gated (`WantProcRef'`, the kind decode, `Flush'`, the Store,
+   `ForceMiss`, the miss itself, a clear map), so the reference *is* being
+   made; what does not repeat is `preStartMem'` surviving the `MapWait` latch.
+
+   **Next:** count the windows, not their length. Log every cycle where
+   `preStartMem'` is high alongside `MapWait` and find what changes after
+   sample ~342 so the two never coincide again. One measurement, and both
+   signals are already probed.
 
    **Worth generalising, and the count is now four:** i10, j22 and j12 all
    have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are
