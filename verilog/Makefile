@@ -188,6 +188,11 @@ storage-test:
 msa-test:
 	@$(MAKE) -C verilator msa-test
 
+# THE IFU in a machine: no emulator microcode dispatches without it, so no
+# world runs without it.
+ifu-test:
+	@$(MAKE) -C verilator ifu-test
+
 # The REAL firmware driving BaseBd+ContA+ContB+ProcH+ProcL. Diagnostic.
 firmware-probe:
 	@$(MAKE) -C verilator firmware-probe
@@ -221,6 +226,9 @@ backplane: generated-boards
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_storage.v \
 		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa \
 		--module=dorado_storage >/dev/null
+	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_ifu.v \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,IFU \
+		--module=dorado_ifu >/dev/null
 
 cells:
 	@python3 $(TOOLS)/sil_emit_cells.py --sil $(SIL) \

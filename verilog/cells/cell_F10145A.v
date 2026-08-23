@@ -58,8 +58,21 @@ module cell_F10145A (
   // those MSB-first: the dictionary's A0 is pin 19, the sheet's A10 ... a
   // reversed address would have scrambled the image silently").
   wire [3:0] a = {p10, p9, p7, p6};   // A0=p10 .. A3=p6
+  // ONE WRITE PER PULSE, on the RISING edge of WE'.
+  //
+  // The real part writes while WE' is LOW, and a static RAM latches what is on
+  // its pins at the END of that window, when address and data are settled.
+  // Taking "while low" literally in the fabric writes on EVERY sys_clk the
+  // pulse spans -- and if the address moves inside the pulse, it writes
+  // SEVERAL CELLS. That is exactly what happened at 8 sys_clk per
+  // microinstruction: the startup `Link<-` landed in every task's slot
+  // instead of task 0's, and tb_taskrun read the same value out of all
+  // sixteen. It survived at 16x only because the pulse happened to sit inside
+  // one stable address there.
+  reg we_d;
+  always @(posedge sys_clk) we_d <= p13;
   always @(posedge sys_clk)
-    if (!p3 && !p13) mem[a] <= {p12, p11, p4, p5};          // WE' and CE'
+    if (p13 && !we_d && !p3) mem[a] <= {p12, p11, p4, p5};  // WE' rising, CE' low
   wire [3:0] q = mem[a];
   assign {p14, p15, p1, p2} = (!p3) ? q : 4'b0000;          // CE' gates the read
 
