@@ -23,6 +23,7 @@ VL_ATTR_COLD void Vtb_msa___024root___eval_static(Vtb_msa___024root* vlSelf) {
     vlSelfRef.tb_msa__DOT__strEn = 1U;
     vlSelfRef.tb_msa__DOT__sinEn = 1U;
     vlSelfRef.__Vtrigprevexpr___TOP__tb_msa__DOT__sys_clk__0 = 0U;
+    vlSelfRef.__Vtrigprevexpr___TOP__tb_msa__DOT__mclk__0 = 0U;
 }
 
 VL_ATTR_COLD void Vtb_msa___024root___eval_static__TOP(Vtb_msa___024root* vlSelf) {
@@ -486,7 +487,10 @@ VL_ATTR_COLD void Vtb_msa___024root___dump_triggers__act(const VlUnpacked<QData/
         VL_DBG_MSGS("         '" + tag + "' region trigger index 0 is active: @(posedge tb_msa.sys_clk)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 1U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 1 is active: @([true] __VdlySched.awaitingCurrentTime())\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 1 is active: @(posedge tb_msa.mclk)\n");
+    }
+    if ((1U & (IData)((triggers[0U] >> 2U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 2 is active: @([true] __VdlySched.awaitingCurrentTime())\n");
     }
 }
 #endif  // VL_DEBUG
@@ -510,6 +514,16 @@ VL_ATTR_COLD void Vtb_msa___024root___ctor_var_reset(Vtb_msa___024root* vlSelf) 
     vlSelf->tb_msa__DOT__shiftsi = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11088262511118131922ull);
     vlSelf->tb_msa__DOT__strEn = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2118665839140573111ull);
     vlSelf->tb_msa__DOT__sinEn = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15068248901298458689ull);
+    vlSelf->tb_msa__DOT__q_cap = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 5748381543159716681ull);
+    vlSelf->tb_msa__DOT__doutA_cap = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9322822422540394858ull);
+    vlSelf->tb_msa__DOT__doutH_cap = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7522527607410236183ull);
+    vlSelf->tb_msa__DOT__qh_cap = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17328671455380944705ull);
+    vlSelf->tb_msa__DOT__n_outck = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 2441870058126892226ull);
+    vlSelf->tb_msa__DOT__n_sla_lo = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 6476754810420727647ull);
+    vlSelf->tb_msa__DOT__n_load_edge = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 965781576985561063ull);
+    vlSelf->tb_msa__DOT__outck_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11477504329054742077ull);
+    vlSelf->tb_msa__DOT__load_pend = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8864449103727845592ull);
+    vlSelf->tb_msa__DOT__q_ever = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 2479349012335629445ull);
     vlSelf->tb_msa__DOT__m__DOT__Sin_00___05Fdrv = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2899276542926960783ull);
     vlSelf->tb_msa__DOT__m__DOT__ECI = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13279074773386981495ull);
     vlSelf->tb_msa__DOT__m__DOT__OutCKc = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3987360492683494820ull);
@@ -1059,6 +1073,15 @@ VL_ATTR_COLD void Vtb_msa___024root___ctor_var_reset(Vtb_msa___024root* vlSelf) 
     vlSelf->tb_msa__DOT__m__DOT__u_l01__DOT__p7 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4447386577001750137ull);
     vlSelf->tb_msa__DOT__m__DOT__u_l01__DOT__q = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 14011957186585914372ull);
     vlSelf->tb_msa__DOT__m__DOT__u_l01__DOT__ck_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1178294382543623792ull);
+    vlSelf->__Vdly__tb_msa__DOT__m__DOT__u_a01__DOT__q = 0;
+    vlSelf->__Vdly__tb_msa__DOT__m__DOT__u_a13__DOT__q = 0;
+    vlSelf->__Vdly__tb_msa__DOT__m__DOT__u_g01__DOT__q = 0;
+    vlSelf->__VdlyVal__tb_msa__DOT__m__DOT__u_b05__DOT__mem__v0 = 0;
+    vlSelf->__VdlyDim0__tb_msa__DOT__m__DOT__u_b05__DOT__mem__v0 = 0;
+    vlSelf->__VdlySet__tb_msa__DOT__m__DOT__u_b05__DOT__mem__v0 = 0;
+    vlSelf->__VdlyVal__tb_msa__DOT__m__DOT__u_b06__DOT__mem__v0 = 0;
+    vlSelf->__VdlyDim0__tb_msa__DOT__m__DOT__u_b06__DOT__mem__v0 = 0;
+    vlSelf->__VdlySet__tb_msa__DOT__m__DOT__u_b06__DOT__mem__v0 = 0;
     for (int __Vi0 = 0; __Vi0 < 1; ++__Vi0) {
         vlSelf->__VstlTriggered[__Vi0] = 0;
     }
@@ -1066,6 +1089,7 @@ VL_ATTR_COLD void Vtb_msa___024root___ctor_var_reset(Vtb_msa___024root* vlSelf) 
         vlSelf->__VactTriggered[__Vi0] = 0;
     }
     vlSelf->__Vtrigprevexpr___TOP__tb_msa__DOT__sys_clk__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_msa__DOT__mclk__0 = 0;
     for (int __Vi0 = 0; __Vi0 < 1; ++__Vi0) {
         vlSelf->__VnbaTriggered[__Vi0] = 0;
     }
