@@ -70,10 +70,34 @@ module cell_MosRam (
   wire [13:0] addr = {row, col};
 
   // Synchronous read and write, so this INFERS BLOCK RAM.
+  // THE READ MUST BE UNCONDITIONAL FOR QUARTUS TO INFER M10K. This is the
+  // canonical MiSTer dual-port template (see any project's rtl/dpram.sv):
+  //
+  //     always @(posedge clk) begin
+  //         q <= mem[addr];                 // UNCONDITIONAL registered read
+  //         if (wren) mem[addr] <= data;
+  //     end
+  //
+  // and note it is INFERENCE, not an altsyncram instantiation -- which is why
+  // the cell still simulates in Verilator unchanged. A CONDITIONAL registered
+  // read is not the template, and Quartus put these 309 packages into
+  // registers instead: 1.27 Mbit against a device with ~166K of them, ending
+  // Analysis & Synthesis with "Cannot convert all sets of registers into RAM
+  // megafunctions". Splitting the read and write into separate always blocks
+  // was tried first and did NOT help; it is the condition on the read that
+  // matters, not the block structure.
+  //
+  // The part's own behaviour is preserved by holding the output separately:
+  // `dout_r` follows the addressed cell every cycle so the RAM template stays
+  // clean, and `dout` only takes it during a read, as a real DRAM's output is
+  // only valid then.
+  reg dout_r;
   always @(posedge sys_clk) begin
+    dout_r <= mem[addr[11:0]];
     if (!p4 && !p15 && !p3) mem[addr[11:0]] <= p2;
-    if (!p4 && !p15 &&  p3) dout <= mem[addr[11:0]];
   end
+  always @(posedge sys_clk)
+    if (!p4 && !p15 && p3) dout <= dout_r;
   assign p14 = dout;
 
   // REFRESH IS NOT MODELLED. A real DRAM loses its contents without periodic
