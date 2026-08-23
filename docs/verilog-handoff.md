@@ -98,10 +98,10 @@ Plus, outside the Makefile: `tools/dorado_proms.py --check` (26/26 PROMs
 property-checked), `--placement` (which package holds which PROM), and
 `tools/sil_backplane.py` / `--ports` (what the backplane is, measured).
 
-### The four machine configurations
+### The machine configurations
 
 `tools/sil_backplane.py` wires any subset of boards by name. `make boards`
-emits four:
+emits six:
 
 | module | boards | used by |
 |---|---|---|
@@ -109,6 +109,22 @@ emits four:
 | `dorado_baseboard` | BaseBd alone | `baseboard-test` |
 | `dorado_control` | ContA + ContB | `run-test`, `mirreg-diff` |
 | `dorado_proc` | ContA, ContB, ProcH, ProcL | `datapath-test`, `writeim-test`, `operand-test` |
+| `dorado_boot` | BaseBd + ContA/B + ProcH/L | `firmware-probe` |
+| `dorado_mem` | ContA/B, ProcH/L, MemC/D/X | `mem-test`, `memrun-test`, `refdecode-test` |
+| `dorado_storage` | `dorado_mem` **+ msa** | `lint` -- the storage array in a machine |
+
+**THE MSA DID NOT NEED WRITING, IT NEEDED WIRING (2026-08-23).** The task
+list said "write the behavioural MSA storage array"; that premise was wrong.
+`chm/sil/msa-Rev-Bg.dm!1_/msa.wl` is PARC's own storage-array board and the
+generator has been emitting `generated/msa.v` all along -- 291 packages, 768
+nets, **144 MK4096 DRAMs** (4K x 1), and every part type it uses already had a
+cell. What was missing is that no machine configuration instantiated it.
+
+It hangs off the memory section exactly as it should: of its **66 backplane
+nets**, 38 are shared with MemD, 23 with MemX, 4 with MemC, and **zero** with
+ContA/ContB/ProcH/ProcL. The MemD interface is the storage data path itself --
+`Sin.00-15` and `Sout.00-15`, the 16-bit word in and out, plus `EcIn`/`EcOut`
+for ECC.
 
 `make -C verilog backplane MACHINE=--boards=ProcH,ProcL` builds any other.
 
