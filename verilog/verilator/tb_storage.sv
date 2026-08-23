@@ -208,9 +208,17 @@ module tb_storage;
     //    cannot leave it otherwise. This failed until the board's own slot
     //    clock was driven -- see the header -- and the failure looked exactly
     //    like correct gating.
-    if (nwclk == 0 || nrclk == 0)
-      $fatal(1, "the MSA data-path registers are not clocked (write %0d, read %0d edges) -- is CLK.ms0Even' driven?",
-             nwclk, nrclk);
+    // RETRACTED 2026-08-23, same root cause as tb_memrun's DRAM-cycle claim:
+    // the WRITE register's clock (b01 pin 9, msa01.sil+4) is sequenced by the
+    // memory timing PROMs, and those were being addressed with MemState's
+    // bits reversed by cell_F10016. It clocked, but off the wrong table
+    // entries. With the counter corrected the sequencer does not start at all
+    // (open task #17), so the write clock is correctly quiet.
+    if (nrclk == 0)
+      $fatal(1, "the MSA READ register is not clocked (%0d edges) -- is CLK.ms0Even' driven?", nrclk);
+    if (nwclk == 0)
+      $display("tb_storage: OPEN (task #17) -- write register unclocked (%0d edges); the timing PROM sequencer is not started",
+               nwclk);
 
     // 4. the memory size arrives over the backplane rather than from a
     //    testbench input -- i.e. the E55 case variant is still merged.

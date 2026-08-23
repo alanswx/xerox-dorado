@@ -1105,3 +1105,44 @@ And the discipline that caught the errors: **check transcriptions
 structurally, not by eye.** Every PROM generator has a property test, and the
 size check alone found two real errors in one batch -- including a bug in the
 tool's own `Header()` parser that was silently dropping a PROM from the map.
+
+### RESOLVED, and it retracts a milestone (2026-08-23)
+
+`cell_F10016` **was** reversed, and the previous note here -- that PARC uses
+LSB-first for counter fields -- is **wrong and withdrawn**. PARC is MSB-first
+consistently; what misled me is that EclDict names this part's pins MSB-first
+too, so `H0` reads like bit 0 when it is the *most* significant.
+
+The Fairchild connection diagram (`DoradoDocs/datasheets/F10016.pdf` p.1, DIP
+top view) gives the silicon:
+
+```
+pin 3 = Q0 (LSB)   pin 2 = Q1   pin 15 = Q2   pin 14 = Q3 (MSB)
+pin 7 = P0 (LSB)   pin 9 = P1   pin 10 = P2   pin 11 = P3
+```
+
+EclDict names those `H0,14 · H1,15 · H2,2 · H3,3` and `D0,11 · D1,10 · D2,9 ·
+D3,7` -- **exact reversals of both lists**. A cell implements the data sheet's
+function per PIN NUMBER (the rule the MC10141 established), so pin 3 carries
+the LSB.
+
+Two further confirmations, neither appealing to convention:
+
+- **`RfshAd` is cascaded across MemX g05/g06/g07 and the carry direction is
+  visible**: `g07.CO' -> g06.CE'`, so g07 is the LOW-order package. It carries
+  `RfshAd.5-.8`, which puts the whole counter's LSB on an `H3`.
+- **`MemProms.bcpl` builds j13 as four groups of eight** split on
+  `{RfshInMem, MemState.0}` -- refresh-vs-read and active-vs-idle -- which is
+  only coherent if `MemState.0` is the counter's high bit.
+
+**And fixing it retracted "the memory section runs DRAM cycles."** That gate
+passed *because* the bits were reversed: MemState entered j13 permuted, the
+sequencer read the wrong entries of PARC's own timing table, and the RAS/CAS
+strobes that came out were not a memory cycle. With the counter corrected they
+stop. What is actually true is that **MemState never counts at all** -- its
+enable `CE' = MemIdle` is low on 0 of 3000 samples -- so the sequencer is not
+started, which is exactly open task #17. The same chain clocks the MSA's write
+register, so `storage-test`'s write-clock assertion was the same artifact.
+
+Both gates now print a loud `OPEN (task #17)` line instead of asserting a cycle
+that does not run.
