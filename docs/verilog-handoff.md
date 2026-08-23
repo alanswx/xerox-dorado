@@ -3147,15 +3147,39 @@ Two things remain, both small and both stated by measurement:
    end to end, and the PROM tables agree with the running machine to the cycle
    (192 = 192).
 
-   **The right next step is authentic microcode**, not a better hand-built
-   loop. Real microcode issues a reference then does other work, so it does
-   not fight the map's accept cadence. PARC wrote memory diagnostics for
-   exactly this, and the C emulator already passes six of them
-   (`build/rundiag`, `docs/running-diagnostics.md`) -- a known-good exerciser
-   **and** a known-good oracle. Load one into IM through the boot0 path this
-   bench already uses and gate the RTL's storage cycle against the C
-   emulator's, the way `alu-diff` and `boot0-test` do. That replaces every
-   remaining guess about cadence with Xerox's own.
+   **And a one-shot sequence confirms it, with numbers.** Point IM[3]'s JCN
+   at *itself* instead of back at IM[0]: Map, Store and Flush run once each
+   and the machine parks on a non-reference -- "issue a reference, then do
+   other work", with no repeating cadence to fight the map's accept rate.
+
+   | | looping | one-shot |
+   |---|---|---|
+   | `preStartMem'` high | 192 | **832** |
+   | window opener (both) | 64 | **128** |
+   | `StartMem'` high | 288 | **1187** |
+   | windows / longest | 1 / 288 | **2 / 899** |
+   | in-window `Clk0'Dd` edges | 18 | **74** |
+
+   **Four times the window and four times the clock edges.** The beat was real
+   and removing it helps exactly as predicted.
+
+   It is not the whole answer, and trades one problem for another: MemState
+   still reaches 3, now because `MemFree` is high for most of the longer
+   window (CE' low on 128 of 899, not the ~50% the even/odd table alone would
+   give -- j12's latch and `MemIdle` form a feedback that settles rather than
+   alternating); and with `←Map` no longer repeating, the map entry is not
+   maintained and `MapTrouble` returns. So the bench keeps the **looping**
+   form, where every gate holds, and this is recorded as the experiment it is.
+
+   **The real fix is authentic microcode -- but note the scale first.** PARC's
+   memory diagnostics run to millions of steps (`memMisc` passes at 90,950,270;
+   `memA`'s map slices at 216-237 M) where this bench runs 3000 sys_clk, about
+   187 microinstructions. **Do not try to run one end to end under Verilator.**
+   Take instead a *short window* of real reference cadence -- the C emulator
+   can dump the instruction stream around a storage reference in `memMisc` or
+   `memA` -- and walk that into IM through the boot0 path this bench already
+   uses. That gives genuine cadence at a length Verilator can simulate, with
+   the C emulator as oracle, the way `alu-diff` and `boot0-test` work.
 
    **Worth generalising, and the count is now four:** i10, j22 and j12 all
    have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are
