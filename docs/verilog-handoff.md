@@ -92,6 +92,10 @@ make -C verilog msa-test        A WORD GOES INTO THE STORAGE ARRAY: the msa
                                 board standalone, where the bench owns the DRAM
                                 strobes -- Sout registered, translated to TTL,
                                 and written into the MK4096s
+make -C verilog ifu-test        THE IFU is in a machine: IFUM is 27 x F10415A =
+                                1024 x 27 bits (256 opcodes x 4 instruction
+                                sets, HM Table 18), its slot clock reaches it,
+                                and IfuData resolves
 make -C verilog storage-test    THE STORAGE ARRAY is in a machine: PARC's msa
                                 board with its 144 MK4096 DRAMs, its address
                                 path inverting through the SN74H04s, and the

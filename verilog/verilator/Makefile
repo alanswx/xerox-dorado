@@ -388,6 +388,17 @@ mem-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_mem/tb_mem 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_mem|Assertion"; exit $$rc; }
 
+ifu-test:
+	@cd ../.. && $(V) --binary --top-module tb_ifu $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_ifu -o tb_ifu \
+		verilog/verilator/tb_ifu.sv verilog/generated/dorado_ifu.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/IFU-Rev-Ch.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_ifu/tb_ifu 2>&1); \
+		  rc=$$?; echo "$$out" | grep -E "tb_ifu|Assertion"; exit $$rc; }
+
 msa-test:
 	@cd ../.. && $(V) --binary --top-module tb_msa $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_msa -o tb_msa \
@@ -501,6 +512,7 @@ PR_V     = $(GEN)/dorado_proc.v
 # The five-board machine tb_firmware runs: BaseBd + ContA + ContB + ProcH + ProcL.
 BT_V     = $(GEN)/dorado_boot.v
 # The seven-board memory machine tb_mem runs.
+IF_V     = $(GEN)/dorado_ifu.v
 SM_V     = $(GEN)/dorado_storage.v
 MM_V     = $(GEN)/dorado_mem.v
 
@@ -510,7 +522,7 @@ lint:
 		if [ "$$f" = "$(TOP_V)" ] || [ "$$f" = "$(BB_V)" ] \
 		   || [ "$$f" = "$(CT_V)" ] || [ "$$f" = "$(PR_V)" ] \
 		   || [ "$$f" = "$(BT_V)" ] || [ "$$f" = "$(MM_V)" ] \
-		   || [ "$$f" = "$(SM_V)" ]; then continue; fi; \
+		   || [ "$$f" = "$(SM_V)" ] || [ "$$f" = "$(IF_V)" ]; then continue; fi; \
 		if $(V) --lint-only $(V_WARN) -I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $$f >/dev/null 2>&1; then \
 			ok=$$((ok+1)); \
 		else \
@@ -518,6 +530,14 @@ lint:
 		fi; \
 	done; \
 	echo "lint: $$ok board(s) clean, $$bad failed"; \
+	if [ -f $(IF_V) ]; then \
+		if $(V) --lint-only --top-module dorado_ifu $(V_WARN) \
+			-I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $(GEN)/*.v >/dev/null 2>&1; then \
+			echo "lint: dorado_ifu elaborates -- the IFU is in a machine"; \
+		else \
+			bad=$$((bad+1)); echo "  FAIL dorado_ifu.v"; \
+		fi; \
+	fi; \
 	if [ -f $(SM_V) ]; then \
 		if $(V) --lint-only --top-module dorado_storage $(V_WARN) \
 			-I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $(GEN)/*.v >/dev/null 2>&1; then \

@@ -17,6 +17,37 @@ directions.**
 Read this first; everything below it is the history of how the generator and
 cell library got built. Gate names are `make -C verilog <name>`; there are 29.
 
+## The IFU is in a machine (2026-08-23)
+
+`dorado_ifu` is ContA + ContB + ProcH + ProcL + MemC + MemD + MemX + **IFU**.
+The memory boards are there because that is where the IFU's connections go: of
+its 137 backplane nets it shares **56 with MemC**, 38 with ContA, 35 with
+ProcL, 34 with MemD, 32 with ProcH, 23 with MemX and 21 with ContB. An IFU
+with no memory to fetch from would be a board in a vacuum.
+
+`make -C verilog ifu-test` gates three things:
+
+- **IFUM is there and the right shape** -- 27 F10415A packages at 1024 x 1
+  each, so **1024 x 27 bits**: the 24-bit IFUM entry of HM Table 18 plus
+  parity, and 1024 = 256 opcodes x 4 instruction sets.
+- **the slot clock reaches the board** -- `CLK.ifu'` fans out to `clk0'Aa` and
+  friends, 1250 edges over 20,000 sys_clk. Note what is deliberately NOT
+  asserted: the memory boards' gate is "local clock runs IFF `MemClkEnable'`
+  says so", but the IFU's `CLKEnable'a` is a BACKPLANE INPUT with no driver in
+  this configuration -- the same finding `tb_mem` already records for MemX's
+  `MemClkEnable'c`. Demanding consistency would fail on a net nothing drives.
+- **`IfuData[7:0]` resolves** -- read at MACHINE level, because it is a
+  wired-OR bus and the board exports `IfuData_N__drv`; probing the stub inside
+  the board gives the unconnected readback.
+
+Mutation-tested: tying `CLK.ifu'` low is caught.
+
+**Why the IFU matters more than its package count suggests.** The Dorado has
+no instruction set in hardware -- "the Mesa instruction set" is a MICROPROGRAM
+in IM. What turns an opcode into a microcode entry point is this board, and
+`IFUJump` consumes what it produces. No emulator microcode dispatches without
+it, so no world runs without it.
+
 ## The clock generator is a PHASE COUNTER now (2026-08-23)
 
 `cell_CLOCKGEN` replaces seven BaseBoard packages -- h06 (the MPQ3303 VCO),

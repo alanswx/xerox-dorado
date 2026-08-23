@@ -23,6 +23,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE cells/cell_AM2615.v
 set_global_assignment -name SYSTEMVERILOG_FILE cells/cell_AUGATCG16.v
 set_global_assignment -name SYSTEMVERILOG_FILE cells/cell_CA3140.v
 set_global_assignment -name SYSTEMVERILOG_FILE cells/cell_CD4051.v
+set_global_assignment -name SYSTEMVERILOG_FILE cells/cell_CLOCKGEN.v
 set_global_assignment -name SYSTEMVERILOG_FILE cells/cell_DS3649.v
 set_global_assignment -name SYSTEMVERILOG_FILE cells/cell_F10000.v
 set_global_assignment -name SYSTEMVERILOG_FILE cells/cell_F10016.v
