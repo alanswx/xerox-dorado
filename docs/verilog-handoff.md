@@ -3214,22 +3214,36 @@ Two things remain, both small and both stated by measurement:
    Store/Flush path read 0 throughout, and no `←Map` runs. It exercises the
    *cadence*, which is what it was used for.)
 
-   **So the next question is `MemFree`, not the loop.** j13's Q5 says it should
-   be 0 at every even MemState -- half the time -- and it measures far less.
-   j12 latches it on `MemIdle`, and `MemIdle` is derived from it through g13: a
-   feedback that may be settling rather than alternating. Probe `MemFree` and
-   `MemIdle` together across one window and see whether they toggle at all,
-   before assuming the table applies.
+   **So the next question was `MemFree`, not the loop -- and probing it shows
+   the feedback settling, which is by design.** Across a window, `MemFree` and
+   `MemIdle` each change **exactly once** (one edge apiece in 288 samples,
+   MemFree high on 224). They do not alternate.
 
-   **The real fix is authentic microcode -- but note the scale first.** PARC's
-   memory diagnostics run to millions of steps (`memMisc` passes at 90,950,270;
-   `memA`'s map slices at 216-237 M) where this bench runs 3000 sys_clk, about
-   187 microinstructions. **Do not try to run one end to end under Verilator.**
-   Take instead a *short window* of real reference cadence -- the C emulator
-   can dump the instruction stream around a storage reference in `memMisc` or
-   `memA` -- and walk that into IM through the boot0 path this bench already
-   uses. That gives genuine cadence at a length Verilator can simulate, with
-   the C emulator as oracle, the way `alu-diff` and `boot0-test` work.
+   The structure says they cannot, and it is **not** a modelling error -- g13's
+   cell is right and PARC's naming agrees, `MemIdle'` on the NAND pin 9 and
+   `MemIdle` on the AND pin 15:
+
+   ```
+   MemFree = 0                 -> MemIdle = 0 -> j12 LOADS (MemFree follows Q5)
+   MemFree = 1, StartMem' = 1  -> MemIdle = 1 -> j12 HOLDS, MemFree stuck high
+   MemFree = 1, StartMem' = 0  -> MemIdle = 0 -> j12 loads: ESCAPE
+   ```
+
+   **The escape is `StartMem'` going low** -- which is also what reloads
+   MemState with zero. So a storage cycle is **self-limiting**: it runs a few
+   states, parks when `MemFree` latches high, and is **re-triggered** by the
+   next reference. It is not meant to free-run through all sixteen states, and
+   MemState reaching 3 in a window is the machine behaving, not stalling.
+
+   **Which re-frames the `MemWEa` question one last time.** `x10` is 0 at
+   MemState 4 and 8, so the write phase is **one state past** where these
+   windows park. The question is no longer "why does the sequencer stop?" --
+   it stops on purpose -- but **"what does a real write-back reference do
+   differently that carries it one state further?"** The AEmu snippet makes
+   references but never a write-back (`WriteInMem'` reads 0 throughout), so it
+   cannot answer that; a microcode window that actually stores to memory can.
+   The same conclusion the cadence work reached, now for a second and
+   independent reason.
 
    **Worth generalising, and the count is now four:** i10, j22 and j12 all
    have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are

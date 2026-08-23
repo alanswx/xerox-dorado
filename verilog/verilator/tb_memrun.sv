@@ -868,23 +868,37 @@
 //      MapWP'/MapDirty' stay put. It exercises the CADENCE, not the whole
 //      sequence -- which is exactly what it was used for.)
 //
-//      SO THE NEXT QUESTION IS `MemFree`, NOT THE LOOP. j13's Q5 says it
-//      should be 0 at every EVEN MemState, i.e. half the time; it measures
-//      far less. j12 latches it on `MemIdle` and `MemIdle` is derived from it
-//      through g13 -- a feedback that may be settling instead of alternating.
-//      Probe `MemFree` and `MemIdle` together across one window and see
-//      whether they toggle at all, before assuming the table applies.
+//      SO THE NEXT QUESTION WAS `MemFree`, NOT THE LOOP -- AND PROBING IT
+//      SHOWS THE FEEDBACK SETTLING, WHICH IS BY DESIGN. Across a window,
+//      `MemFree` and `MemIdle` each change EXACTLY ONCE (one edge apiece in
+//      288 samples, MemFree high on 224 of them). They do not alternate.
 //
-//      THE REAL FIX IS AUTHENTIC MICROCODE, and note the scale before
-//      reaching for it: PARC's memory diagnostics are millions of steps
-//      (memMisc passes at 90,950,270; memA's map slices at 216-237 M) where
-//      this bench runs 3000 sys_clk, about 187 microinstructions. So do NOT
-//      try to run one end to end under Verilator. Take instead a SHORT
-//      WINDOW of real reference cadence -- the C emulator can dump the
-//      instruction stream around a storage reference in memMisc or memA --
-//      and walk that into IM through the boot0 path this bench already uses.
-//      That gives a genuine cadence at a length Verilator can simulate, with
-//      the C emulator as the oracle, the way alu-diff and boot0-test work.
+//      The structure says they cannot, and it is not a modelling error --
+//      g13's cell is right and PARC's own naming agrees with it, `MemIdle'`
+//      on the NAND pin 9 and `MemIdle` on the AND pin 15. Work it through:
+//
+//        MemFree = 0                  -> MemIdle = 0 -> j12 LOADS, so
+//                                        MemFree follows j13's Q5
+//        MemFree = 1, StartMem' = 1   -> MemIdle = 1 -> j12 HOLDS, and
+//                                        MemFree can never come back down
+//        MemFree = 1, StartMem' = 0   -> MemIdle = 0 -> j12 loads: ESCAPE
+//
+//      THE ESCAPE IS `StartMem'` GOING LOW -- which is also what reloads
+//      MemState with zero. So a storage cycle is SELF-LIMITING: it runs a few
+//      states, parks when MemFree latches high, and is RE-TRIGGERED by the
+//      next reference. It is not meant to free-run through all sixteen
+//      states, and MemState reaching 3 in a window is the machine behaving,
+//      not stalling.
+//
+//      WHICH RE-FRAMES THE WHOLE `MemWEa` QUESTION ONE LAST TIME. x10 is 0 at
+//      MemState 4 and 8, so the write phase is ONE STATE PAST where these
+//      windows park. The question is no longer "why does the sequencer
+//      stop?" -- it stops on purpose -- but "what does a REAL write-back
+//      reference do differently that carries it one state further?". The
+//      AEmu snippet makes references but never a write-back (WriteInMem'
+//      reads 0 throughout), so it cannot answer that; a microcode window
+//      that actually stores to memory can. That is the same conclusion the
+//      cadence work reached, now for a second and independent reason.
 //
 //      WORTH GENERALISING, and the count is now four: i10, j22 and j12 all
 //      have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are
@@ -1044,6 +1058,7 @@ module tb_memrun;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [4:0] i14a; integer i14_hit [0:31];
   reg [3:0] memst_now; reg memst_hit [0:15]; integer runlen, maxrun, nwin, ndd, nidle_lo, winat;
+  reg pmfree, pmidle; integer nmfree_e, nmidle_e, nmfree_hi;
   integer npsh, ncoin, nmwlo, lastpsh, lastcoin, lastmwlo, lastmf00;
   reg [1:0] mf_now; integer mf_cnt [0:3];
   reg [2:0] ms3_now; integer ms3_cnt [0:7]; integer ms3_last [0:7];
@@ -2103,6 +2118,8 @@ module tb_memrun;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
     for (int zi4 = 0; zi4 < 32; zi4++) i14_hit[zi4] = 0;
     runlen=0; maxrun=0; nwin=0; winat=-1;
+    pmfree=m.b_MemX.MemFree; pmidle=m.b_MemX.MemIdle;
+    nmfree_e=0; nmidle_e=0; nmfree_hi=0;
     npsh=0; ncoin=0; nmwlo=0; lastpsh=-1; lastcoin=-1; lastmwlo=-1; lastmf00=-1;
     for (int zf2 = 0; zf2 < 4; zf2++) mf_cnt[zf2] = 0;
     for (int zs3 = 0; zs3 < 8; zs3++) begin ms3_cnt[zs3]=0; ms3_last[zs3]=-1; end
@@ -2266,6 +2283,13 @@ module tb_memrun;
         // Inside the free window: is the counter CLOCKED, and ENABLED?
         if (m.b_MemX.Clk0_p_Dd !== pdd) begin ndd = ndd + 1; pdd = m.b_MemX.Clk0_p_Dd; end
         if (!m.b_MemX.MemIdle) nidle_lo = nidle_lo + 1;
+        // DO THEY TOGGLE AT ALL? j13's Q5 says MemFree should be 0 at every
+        // EVEN MemState -- half the time -- so both should alternate. j12
+        // latches MemFree on MemIdle and MemIdle is derived from MemFree
+        // through g13, so this feedback may be settling instead.
+        if (m.b_MemX.MemFree !== pmfree) begin nmfree_e = nmfree_e + 1; pmfree = m.b_MemX.MemFree; end
+        if (m.b_MemX.MemIdle !== pmidle) begin nmidle_e = nmidle_e + 1; pmidle = m.b_MemX.MemIdle; end
+        if (m.b_MemX.MemFree) nmfree_hi = nmfree_hi + 1;
       end else runlen = 0;
       if (m.b_MemX.StartMem_p_) begin
         if (!memfr_hit[memst_now]) begin memfr_hit[memst_now]=1'b1; nmemfr=nmemfr+1; end
@@ -2481,6 +2505,8 @@ module tb_memrun;
     for (int zs4 = 0; zs4 < 8; zs4++)
       if (ms3_cnt[zs4] != 0) $write(" %0d=%0d(@%0d)", zs4, ms3_cnt[zs4], ms3_last[zs4]);
     $display("");
+    $display("tb_memrun:   IN-WINDOW FEEDBACK -- MemFree edges %0d (high on %0d), MemIdle edges %0d, of %0d in-window samples",
+             nmfree_e, nmfree_hi, nmidle_e, nfree);
     $display("tb_memrun:   MapFnc {0',1'} counts -- 00=%0d 01=%0d 10=%0d 11=%0d | last 00 (function pending) @%0d",
              mf_cnt[0], mf_cnt[1], mf_cnt[2], mf_cnt[3], lastmf00);
     $display("tb_memrun:   WINDOW OPENER -- preStartMem' HIGH on %0d (last @%0d), MapWait LOW on %0d (last @%0d), BOTH on %0d (last @%0d)",
