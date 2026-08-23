@@ -6885,6 +6885,8 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     Vtb_memrun__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
+    vlSelf->tb_memrun__DOT____Vlvbound_hff9270b6__0 = 0;
+    vlSelf->tb_memrun__DOT____Vlvbound_h58252910__0 = 0;
     vlSelf->tb_memrun__DOT____Vlvbound_hc8fb13a1__0 = 0;
     const uint64_t __VscopeHash = VL_MURMUR64_HASH(vlSelf->vlNamep);
     vlSelf->tb_memrun__DOT__sys_clk = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5477813634096547217ull);
@@ -6919,6 +6921,12 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     }
     for (int __Vi0 = 0; __Vi0 < 8; ++__Vi0) {
         vlSelf->tb_memrun__DOT__ms3_last[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 8848966918836875880ull);
+    }
+    for (int __Vi0 = 0; __Vi0 < 12; ++__Vi0) {
+        vlSelf->tb_memrun__DOT__mf00at[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 16160574375916702836ull);
+    }
+    for (int __Vi0 = 0; __Vi0 < 12; ++__Vi0) {
+        vlSelf->tb_memrun__DOT__ms3at[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 16611342632009443586ull);
     }
     for (int __Vi0 = 0; __Vi0 < 16; ++__Vi0) {
         vlSelf->tb_memrun__DOT__memfr_hit[__Vi0] = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3620983707918559298ull);
