@@ -47,6 +47,9 @@ make -C verilog proms           proms/*.mem and the per-package images
 make -C verilog cells           cell skeletons for a new part (never overwrites)
 
 make -C verilog lint            every board and all four machines elaborate
+make -C verilog case-variants   BACKPLANE_CASE_ALIASES re-derived from the .bp
+                                files: merge a case variant only where every
+                                board using it agrees on the pin
 make -C verilog cell-check      cells wire the inputs PARC's [G] lists say they
                                 do, and a both-sense gate's two outputs are
                                 complements of each other
@@ -145,6 +148,44 @@ The netlist proves the function without a data sheet: every package takes a
 PRIMED net in and drives the UNPRIMED one out, in the standard 7404 pin pairs.
 
 With both fixed, **the MSA is 265/265 logic packages modelled -- 100%**.
+
+**And wiring it in found a seventh two-spelling backplane line.** MemX spells
+it `ChipsAre64K`, the storage board `ChipsAre64k`, and both sit on pin **E55**
+-- one wire, and the case rule applies. That is the very signal `tb_memrun`
+has to drive by hand because "there is no MSA in this configuration".
+
+Its neighbour is **recorded but deliberately not merged**: MemX's
+`ChipsAre256/16K` and the MSA's `ChipsAre16k` are both on **E54** and are
+plainly the same signal, but they differ by more than capitalisation, and this
+table's discipline is that a NAME is the connection. PcMsa puts a *third* name
+on the same pin (`ChipsAreA`), which is what a pin-based merge would have to
+reconcile.
+
+**The table now checks itself.** Its comment had promised
+`sil_backplane.py --case-variants` long before that flag existed; it exists
+now, is a make target, and re-derives the whole table from the `.bp` files --
+10 case-variant groups, 7 agreeing on a pin (exactly the table), 3 not. It
+must read the `.bp` files **raw**: `load_backplane()` returns names already
+through `canon_net`, so a first attempt using it pronounced all seven aliases
+stale, including `PrHold` -> `PRhold`, which the wire lists document with three
+pins of evidence.
+
+**And it corrected the comment it was written to confirm.** The old text said
+`IOIn'` (E70) vs `IOin'` (E71) and `IOOut'` (E71) vs `IOout'` (E74). Measured
+from the files:
+
+```
+IOIn'   DispM, DispY            E71
+IOin'   DskEth, Music           E71   <- SAME pin as IOIn'
+IOin'   ProcL                   E70   <- the odd one
+IOOut'  DispM, DispY            E74
+IOout'  DskEth, IOTest, Music   E74   <- SAME pin as IOOut'
+IOout'  ProcL                   E71   <- the odd one
+```
+
+The spellings mostly **agree**; it is **ProcL** that sits on different pins
+from everyone else. The group still must not be merged -- three pins are in
+play -- but not for the reason given.
 
 `make -C verilog backplane MACHINE=--boards=ProcH,ProcL` builds any other.
 

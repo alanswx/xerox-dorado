@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ContA ContB ProcH ProcL MemC MemD MemX msa
-// 428 internal nets (44 with several contributors), 216 top-level ports.
+// 428 internal nets (44 with several contributors), 215 top-level ports.
 
 `default_nettype none
 
@@ -51,7 +51,6 @@ module dorado_storage (
     input  wire ChipsAre256_s_16K         ,  // to a backplane connector (cable)
     input  wire ChipsAre4k                ,  // to a backplane connector (cable)
     input  wire ChipsAre64K               ,  // to a backplane connector (cable)
-    input  wire ChipsAre64k               ,  // to a backplane connector (cable)
     input  wire ClkEnable_p_a             ,  // to a backplane connector (cable)
     output wire CountMiss                 ,  // awaits IFU
     input  wire DcomingForCt_p_           ,  // to a backplane connector (cable)
@@ -3399,7 +3398,7 @@ module dorado_storage (
     .CLK_ms0Even_p_(CLK_ms0Even_p_),
     .ChipsAre16k(ChipsAre16k),
     .ChipsAre4k(ChipsAre4k),
-    .ChipsAre64k(ChipsAre64k),
+    .ChipsAre64K(ChipsAre64K),
     .EcOut_0(EcOut_0),
     .EcOut_1(EcOut_1),
     .EcOut_4(EcOut_4),
@@ -3754,7 +3753,6 @@ module dorado_storage_machine (
     .ChipsAre256_s_16K(1'b0),
     .ChipsAre4k(1'b0),
     .ChipsAre64K(1'b0),
-    .ChipsAre64k(1'b0),
     .ClkEnable_p_a(1'b0),
     .CountMiss(CountMiss),
     .DcomingForCt_p_(1'b0),

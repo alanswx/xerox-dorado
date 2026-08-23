@@ -57,6 +57,12 @@ proms:
 
 # Do the cells wire the inputs PARC says each gate has? Tim found MC10100
 # ignoring its common strobe on three of four gates; this checks all of them.
+# The BACKPLANE_CASE_ALIASES table, re-derived from PARC's own .bp files:
+# a case variant may be merged ONLY where every board that uses it agrees on
+# the pin. The table's comment promised this check long before it existed.
+case-variants:
+	@python3 $(TOOLS)/sil_backplane.py --case-variants
+
 cell-check:
 	@python3 $(TOOLS)/sil_check_cells.py
 	@python3 $(TOOLS)/sil_check_polarity.py
