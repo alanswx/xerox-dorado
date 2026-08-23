@@ -82,6 +82,36 @@ base register 31, and `IFUJump` consuming the entry. The C emulator is the
 oracle -- it can dump the expected IFUM entry and entry point for a given
 opcode, the way `alu-diff` and `boot0-test` compare against `cpu.c`.
 
+## The IFU comes out of hold -- and is blocked on the memory (2026-08-23)
+
+`ifufetch-test` runs the IFU with REAL microcode: it is `tb_memrun` reused
+wholesale for its machinery -- the startup that walks `AEmu.mb!2` into IM
+through the control-processor bus and executes it -- pointed at `dorado_ifu`,
+with tb_memrun's own Flush assertions relaxed to displays because they are not
+this bench's subject.
+
+**`IfuHold` is the handshake**: the IFU asks with `WantIfuHold'`, MemC grants
+with `IfuHold` (MemC d23.4). Static, with no microcode, it reads **1 -- the
+IFU held**. With real microcode executing it is **released on 3000 of 3000
+samples**. That is the rung, and tying it off is caught.
+
+**AND IT STILL DOES NOT FETCH, which reorders the work.** The loop issues an
+`IFetch<-` (IM[3]: ASEL = 001, ff01 = 2, FF = 0o200 -- the encoding
+`refdecode-test` pinned against `cpu.c`'s `DM_REF_IFETCH`), and over the run
+`J` takes **one** distinct value and so does `IfuData`. The IFU is enabled and
+idle.
+
+It cannot fetch because **memory cannot serve the reference yet** -- the same
+run reports `MemWEa` 0 and the storage cycle not completing, which is exactly
+where the memory work stopped. So **the IFU's fetch rung is not an independent
+task: it is downstream of the memory section serving a real reference.** Do
+that first; this gate starts moving on its own when it lands, and the count of
+distinct `J` values is what to watch.
+
+(Also worth noting: `CLK.ifu'` is its own slot clock and has to be driven. That
+trap -- an unclocked board looking perfectly gated -- has now been hit on
+three separate boards.)
+
 ## The clock generator is a PHASE COUNTER now (2026-08-23)
 
 `cell_CLOCKGEN` replaces seven BaseBoard packages -- h06 (the MPQ3303 VCO),

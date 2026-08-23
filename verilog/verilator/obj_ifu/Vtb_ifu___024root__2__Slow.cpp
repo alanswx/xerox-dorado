@@ -126,6 +126,7 @@ VL_ATTR_COLD void Vtb_ifu___024root___ctor_var_reset(Vtb_ifu___024root* vlSelf) 
     vlSelf->tb_ifu__DOT__m__DOT__IOB_13 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2472018810357145401ull);
     vlSelf->tb_ifu__DOT__m__DOT__IOB_14 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14887306848237729679ull);
     vlSelf->tb_ifu__DOT__m__DOT__IOB_15 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9311836486135403149ull);
+    vlSelf->tb_ifu__DOT__m__DOT__IOReset = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3139467317562089701ull);
     vlSelf->tb_ifu__DOT__m__DOT__IfuAWantsDifHit_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13261418929943515691ull);
     vlSelf->tb_ifu__DOT__m__DOT__IfuStartMap_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17689127673726935131ull);
     vlSelf->tb_ifu__DOT__m__DOT__M0 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10454828105728288846ull);

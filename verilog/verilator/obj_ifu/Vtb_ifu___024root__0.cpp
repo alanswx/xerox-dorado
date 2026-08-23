@@ -811,13 +811,17 @@ VlCoroutine Vtb_ifu___024root___eval_initial__TOP__Vtiming__0(Vtb_ifu___024root*
                                                 << 2U))) 
                          | (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__SignK) 
                              << 1U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__TwoAlphaK)));
-    VL_WRITEF_NX("tb_ifu: IFUM all-zero -> decode %b ; all-one -> decode %b\n",0,
+    VL_WRITEF_NX("tb_ifu: IS THE IFU EVEN RUNNING? IfuReset=%b IOReset=%b IfuHold=%b IfuStartMap'=%b\ntb_ifu: IFUM all-zero -> decode %b ; all-one -> decode %b\n",0,
+                 1,vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_j06__DOT__qa,
+                 1,(IData)(vlSelfRef.tb_ifu__DOT__m__DOT__IOReset),
+                 1,vlSelfRef.tb_ifu__DOT__m__DOT__IOHold___05FMemC,
+                 1,(IData)(vlSelfRef.tb_ifu__DOT__m__DOT__IfuStartMap_p_),
                  5,tb_ifu__DOT__dec0,5,(IData)(tb_ifu__DOT__dec1));
     if (VL_UNLIKELY((((IData)(tb_ifu__DOT__dec0) == (IData)(tb_ifu__DOT__dec1))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_ifu.sv:200: Assertion failed in %Ntb_ifu: the IFUM array does not reach its decode outputs (both %b)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_ifu.sv:202: Assertion failed in %Ntb_ifu: the IFUM array does not reach its decode outputs (both %b)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      5,(IData)(tb_ifu__DOT__dec0));
-        VL_STOP_MT("verilog/verilator/tb_ifu.sv", 200, "", false);
+        VL_STOP_MT("verilog/verilator/tb_ifu.sv", 202, "", false);
     }
     tb_ifu__DOT__k = 0U;
     while (VL_GTS_III(32, 0x00000400U, tb_ifu__DOT__k)) {
@@ -840,7 +844,7 @@ VlCoroutine Vtb_ifu___024root___eval_initial__TOP__Vtiming__0(Vtb_ifu___024root*
                                                              nullptr, 
                                                              "@(posedge tb_ifu.sys_clk)", 
                                                              "verilog/verilator/tb_ifu.sv", 
-                                                             222);
+                                                             224);
         vlSelfRef.tb_ifu__DOT__ifum_a = (((((4U & ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
                                                    << 2U)) 
                                             | ((2U 
@@ -889,13 +893,13 @@ VlCoroutine Vtb_ifu___024root___eval_initial__TOP__Vtiming__0(Vtb_ifu___024root*
     }
     VL_WRITEF_NX("tb_ifu:   check against the array, not proof that decoding works.\n",0);
     if (VL_UNLIKELY(((0U != tb_ifu__DOT__nmiss)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_ifu.sv:235: Assertion failed in %Ntb_ifu: IFUM's output does not follow its address (%0d mismatches)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_ifu.sv:237: Assertion failed in %Ntb_ifu: IFUM's output does not follow its address (%0d mismatches)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_ifu__DOT__nmiss);
-        VL_STOP_MT("verilog/verilator/tb_ifu.sv", 235, "", false);
+        VL_STOP_MT("verilog/verilator/tb_ifu.sv", 237, "", false);
     }
     VL_WRITEF_NX("tb_ifu: PASS -- the IFU is in a machine, its IFUM is the right shape,\ntb_ifu:   its slot clock reaches it, IfuData resolves, and the array\n\t\t   reaches its decode outputs.\n",0);
-    VL_FINISH_MT("verilog/verilator/tb_ifu.sv", 239, "");
+    VL_FINISH_MT("verilog/verilator/tb_ifu.sv", 241, "");
     co_return;}
 
 VlCoroutine Vtb_ifu___024root___eval_initial__TOP__Vtiming__1(Vtb_ifu___024root* vlSelf) {

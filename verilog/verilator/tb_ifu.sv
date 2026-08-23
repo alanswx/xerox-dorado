@@ -195,6 +195,8 @@ module tb_ifu;
     repeat (64) @(posedge sys_clk);
     dec1 = {m.b_IFU.TypeJumpK_p_, m.b_IFU.TypePauseK_p_, m.b_IFU.RBaseSelK_p_,
             m.b_IFU.SignK, m.b_IFU.TwoAlphaK};
+    $display("tb_ifu: IS THE IFU EVEN RUNNING? IfuReset=%b IOReset=%b IfuHold=%b IfuStartMap'=%b",
+             m.b_IFU.IfuReset, m.b_IFU.IOReset, m.b_IFU.IfuHold, m.b_IFU.IfuStartMap_p_);
     $display("tb_ifu: IFUM all-zero -> decode %b ; all-one -> decode %b", dec0, dec1);
     if (dec0 === dec1)
       $fatal(1, "the IFUM array does not reach its decode outputs (both %b)", dec0);

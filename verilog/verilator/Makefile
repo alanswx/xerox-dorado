@@ -388,6 +388,23 @@ mem-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_mem/tb_mem 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_mem|Assertion"; exit $$rc; }
 
+ifufetch-test:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks
+	@mkdir -p obj_ifufetch
+	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 4 \
+		> verilog/verilator/obj_ifufetch/ifufetch.vec
+	@cd ../.. && $(V) --binary --top-module tb_ifufetch $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated \
+		--Mdir verilog/verilator/obj_ifufetch -o tb_ifufetch \
+		verilog/verilator/tb_ifufetch.sv verilog/generated/dorado_ifu.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/IFU-Rev-Ch.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_ifufetch/tb_ifufetch \
+		    +vectors=verilog/verilator/obj_ifufetch/ifufetch.vec 2>&1); rc=$$?; \
+		  echo "$$out" | grep -E "tb_ifufetch|Assertion"; exit $$rc; }
+
 ifu-test:
 	@cd ../.. && $(V) --binary --top-module tb_ifu $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_ifu -o tb_ifu \

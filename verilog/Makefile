@@ -193,6 +193,10 @@ msa-test:
 ifu-test:
 	@$(MAKE) -C verilator ifu-test
 
+# The IFU with REAL MICROCODE running: does it come out of hold and fetch?
+ifufetch-test:
+	@$(MAKE) -C verilator ifufetch-test
+
 # The REAL firmware driving BaseBd+ContA+ContB+ProcH+ProcL. Diagnostic.
 firmware-probe:
 	@$(MAKE) -C verilator firmware-probe
