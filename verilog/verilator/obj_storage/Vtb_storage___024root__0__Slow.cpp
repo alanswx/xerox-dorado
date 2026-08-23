@@ -109,7 +109,7 @@ VL_ATTR_COLD void Vtb_storage___024root___eval_settle(Vtb_storage___024root* vlS
 #ifdef VL_DEBUG
             Vtb_storage___024root___dump_triggers__stl(vlSelfRef.__VstlTriggered, "stl"s);
 #endif
-            VL_FATAL_MT("verilog/verilator/tb_storage.sv", 89, "", "Settle region did not converge after 100 tries");
+            VL_FATAL_MT("verilog/verilator/tb_storage.sv", 95, "", "Settle region did not converge after 100 tries");
         }
         __VstlIterCount = ((IData)(1U) + __VstlIterCount);
     } while (Vtb_storage___024root___eval_phase__stl(vlSelf));
@@ -1632,15 +1632,15 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__0(Vtb_storage___024r
         = (1U & (~ ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemD__DOT__u_e08__DOT__p5) 
                     | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemD__DOT__u_e08__DOT__p7) 
                        | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemD__DOT__u_g22__DOT__qa)))));
+    vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__TtlCKb_p_ 
+        = ((IData)(vlSelfRef.tb_storage__DOT__mclk) 
+           | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_i02__DOT__p10) 
+              | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_i02__DOT__p11)));
     vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__u_a01__DOT__q 
         = (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__u_a01__DOT__p15) 
             | (IData)(vlSelfRef.tb_storage__DOT__strb_n))
             ? 0x000000ffU : (0x000000ffU & (~ ((IData)(1U) 
                                                << (IData)(vlSelfRef.tb_storage__DOT__addr_n)))));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__TtlCKb_p_ 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__CLK_ms0Even_p_) 
-           | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_i02__DOT__p10) 
-              | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_i02__DOT__p11)));
     vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__SLa 
         = (1U & (~ ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_e01__DOT__p6) 
                     | (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_l01__DOT__q) 
@@ -2631,7 +2631,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__0(Vtb_storage___024r
                     | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContB__DOT__u_c24__DOT__qb)) 
                        | (~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContB__DOT__u_b24__DOT__qa))))));
     vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__TtlCKa_p_ 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__CLK_ms0Even_p_) 
+        = ((IData)(vlSelfRef.tb_storage__DOT__mclk) 
            | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_i02__DOT__p6) 
               | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_i02__DOT__p7)));
     __Vtableidx20 = vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__u_i03__DOT__q;

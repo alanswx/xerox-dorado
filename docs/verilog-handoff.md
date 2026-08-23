@@ -186,14 +186,21 @@ is a register-and-strobe; only reading it back needs the '166 load-then-shift
 sequence.** That asymmetry is the useful fact for the next rung -- the hard
 half is the read.
 
-**Those register clocks are the board's own.** b01 clocks off `c1`/`c2` and
-c01 off `SO`, and all three are **internal** nets driven by MC10176/MC10210
-packages on the MSA itself -- an on-board sequencer fed by MemX's
-`LoadSinE`/`ShiftSinE`/`LoadSoutE'`/`ShiftSoutE`. They run when a *reference*
-runs, so in a startup that issues none they take 0 edges, which is the board
-behaving. `storage-test` therefore asserts they are **defined**, as it does
-for the strobes; a first version demanded edges and was demanding the wrong
-thing.
+**Those register clocks are the board's own -- and the board needs its slot
+clock.** b01 clocks off `c1`/`c2` and c01 off `SO`, and all three are internal
+nets driven by MC10176/MC10210 packages on the MSA itself: an on-board
+sequencer fed by MemX's `LoadSinE`/`ShiftSinE`/`LoadSoutE'`/`ShiftSoutE` --
+**but also, and first, by `CLK.ms0Even'`, the MSA's own slot clock.**
+Everything on that sequencer traces back to it.
+
+**A first version of `tb_storage` did not drive it**, measured 0 edges on both
+registers, and concluded the board was correctly quiet until a reference ran.
+It was not: the storage board simply had **no clock**, and an unclocked board
+makes every one of its signals look properly gated. That is the same trap
+`dorado_mem` sets with `CLK.mc'`/`CLK.md'`/`CLK.mx'`, one board later. Driven,
+the registers take **1250 and 2500 edges**, and the gate now asserts edges
+rather than mere definedness. Mutation-tested: tying the slot clock low is
+caught.
 
 **And wiring it in found a seventh two-spelling backplane line.** MemX spells
 it `ChipsAre64K`, the storage board `ChipsAre64k`, and both sit on pin **E55**
