@@ -3021,16 +3021,48 @@ Two things remain, both small and both stated by measurement:
    Running the Map once (IM[3] → IM[1]) leaves the window at exactly 288 and
    MemState at 3, while losing the map entry. Reverted.
 
-   **So the question is now sharp and singular: what makes `MapWait` open a
-   longer window?** `preStartMem'` is high for ~800 cycles and only 288
-   survive the latch. `MapWait` is also the CE' on the MapState counter, so it
-   paces the whole map/memory handshake.
+   **And the sequencer is a closed loop, now mapped end to end.** Two things
+   limit MemState, both out of MemX `g13`, an MC10104 whose `OUT` pins carry
+   the AND:
 
-   **Worth generalising:** three F10016s on this board (i10, j16, j22) have
-   `TrueBD` -- a hardwired constant 1 -- on CE'. On MemX the part is used as a
-   **load register** far more often than as a counter, so read PE' and the D
-   inputs first, and do not reason about counting or terminal count until CE'
-   is shown to go low.
+   ```
+   MapWait = StartMap' & MapFree      (gate b, pins 6,7 -> 3)
+   MemIdle = StartMem' & MemFree      (gate d, pins 12,13 -> 15)
+   ```
+
+   `MemIdle` is the CE' on j16, the MemState counter, so **inside** the free
+   window counting needs `MemFree` low -- and it is low on only **64 of 288**.
+   That is the inner limiter, under the window length.
+
+   `MemFree` comes from `j12`, a **fourth** F10016 with `TrueBD` on CE' --
+   another parallel-load register -- clocked by `Clk0'Ba`, loading when
+   PE' = `MemIdle` is low, with `D1 = MemX07.sil+1 -> H1 = MemFree`. And
+   `MemX07.sil+1` is an **output of j13, the DRAM timing PROM**, which is
+   itself addressed by MemState:
+
+   ```
+   MemState -> j13 (16K timing PROM) -> MemX07.sil+1
+            -> j12 (latched on MemIdle) -> MemFree
+            -> g13 gate d -> MemIdle -> j16's CE' -> MemState
+   ```
+
+   **A proper microsequencer**: the PROM output feeds back to pace its own
+   counter, and `MemIdle` is both j16's count enable and j12's load enable. It
+   has to bootstrap, which is why a short window with a mostly-high `MemFree`
+   leaves it turning over three states.
+
+   **Next:** no longer a wiring question -- every element is identified and the
+   table is PARC's. Walk the loop by hand from MemState = 0 with j13's table
+   in front of you, find which state it needs `MemFree` low in to advance,
+   and check that against the 64 cycles it actually gets.
+
+   **Worth generalising, and the count is now four:** i10, j22 and j12 all
+   have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are
+   parallel-load **registers** that never count. **j16 is the only real
+   counter** of the four, and its CE' is `MemIdle`. On MemX this part is a
+   load register more often than a counter, so read PE' and the D inputs
+   **first**, and do not reason about counting or terminal count until CE' is
+   shown to go low.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting
