@@ -112,23 +112,36 @@ address makes the **high** bit. Incrementing flips read/write to idle and back
 instead of walking the sequence, so the cycle can never reach steps 1 and 2
 where the write lives.
 
-**Confirmed from both ends, and deliberately NOT fixed:**
+**But `cell_F10016` is NOT the bug -- thirty packages say so.** Every F10016
+counter on MemX maps its H pins to PARC's field the same way:
 
-- j13's pins are A0=`RfshInMem`, A1=`MemState.0` ... A4=`MemState.3`, and
-  `cell_SG10139` is MSB-first -- so `MemState.0` is the address's high bit.
-- j16 wires H0 (pin 14) to `MemState.0`, and both the data sheet and EclDict's
-  `D0,11 > H0,14` pairing make H0 the counter's LSB.
+```
+a21  H0=Atask.0    H1=Atask.1    H2=Atask.2    H3=Atask.3
+c22  H0=FinTask.0  ...            h12  H0=STState.0 ...
+f19  H0=Asrn.0     ...            k05  H0=FaultSrn.0 ...
+j16  H0=MemState.0 H1=MemState.1 H2=MemState.2 H3=MemState.3
+```
 
-Either `cell_F10016`'s bit order is backwards -- the same trap as IM's address
-and F10145A/F10415A/F10470, which would make it the **fourth** instance -- or
-PARC numbered this one field LSB-first and the j13 wiring is deliberate.
+H0 ↔ `.0`, uniformly. H0 is the counter's LSB by the data sheet and by
+EclDict's own `D0,11 > H0,14` pairing, so **for these counter fields PARC
+numbers LSB-first** -- unlike microinstruction fields such as `RSTK.0` or
+`ASEL.0`, which are MSB-first. **Both conventions live in this machine**, and
+which applies depends on whether the thing is a *field of a word* or the *bits
+of a counter*. That is worth knowing well beyond this bug.
 
-**Do not guess.** `cell_F10016` is in **226 packages** and several gates lean
-on it, including the terminal-count fix that once stopped the whole machine
-converging. Settle it the way the IM reversal was settled: find somewhere the
-answer is known independently -- a schematic sheet naming a state, or the C
-emulator's own memory sequencer -- rather than by whichever choice makes a
-bench pass.
+So the reversal is in how j13's **address** is assembled: its pins are
+A0=`RfshInMem`, A1=`MemState.0` … A4=`MemState.3`, and `cell_SG10139` is
+MSB-first, which puts the counter's LSB at the address's high end -- the index
+is the counter value **bit-reversed**, and that is why counting jumps through
+the table instead of walking it.
+
+**What is not yet settled** is which of the two is wrong: the SG10139 address
+convention (from that cell's own header, grounded in DiskProms' `Pin1 = #200`)
+or the j13 pin reading. **Do not guess** -- `cell_F10016` is in 226 packages
+and `cell_SG10139` in 15, and gates lean on both, including the terminal-count
+fix that once stopped the machine converging. Settle it where the answer is
+known independently, as the IM reversal was.
+
 
 ## A decode that agreed with the symptom, and was wrong (2026-08-23)
 

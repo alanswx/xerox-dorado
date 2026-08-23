@@ -759,33 +759,35 @@
 //      to idle and back instead of walking the sequence, and the cycle can
 //      never reach steps 1 and 2 where the write lives.
 //
-//      CONFIRMED FROM BOTH ENDS, and yet the fix is NOT obvious -- which is
-//      why this is recorded rather than acted on:
+//      AND cell_F10016 IS NOT THE BUG -- thirty packages say so. Every
+//      F10016 counter on MemX maps its H pins to PARC's field the same way:
 //
-//        * j13's pins are A0=RfshInMem, A1=MemState.0 ... A4=MemState.3, and
-//          cell_SG10139 is MSB-first, so MemState.0 is the address's HIGH bit
-//          and MemState.3 its LOW one.
-//        * j16's F10016 wires H0 (pin 14) to MemState.0, and both the data
-//          sheet and EclDict's own `D0,11 > H0,14` pairing make H0 the
-//          COUNTER'S LSB.
+//          a21  H0=Atask.0    H1=Atask.1    H2=Atask.2    H3=Atask.3
+//          c22  H0=FinTask.0  ...           h12  H0=STState.0 ...
+//          f19  H0=Asrn.0     ...           k05  H0=FaultSrn.0 ...
+//          j16  H0=MemState.0 H1=MemState.1 H2=MemState.2 H3=MemState.3
 //
-//      So the counter's least significant bit drives the address's most
-//      significant. Either cell_F10016's bit order is backwards -- the same
-//      trap as IM's address and F10145A/F10415A/F10470, which would make this
-//      the fourth instance -- or PARC numbered THIS field LSB-first, against
-//      their usual habit, and the j13 wiring is deliberate.
+//      H0 <-> .0, uniformly. H0 is the counter's LSB by the data sheet and by
+//      EclDict's own `D0,11 > H0,14` pairing, so FOR THESE COUNTER FIELDS PARC
+//      NUMBERS LSB-FIRST -- unlike microinstruction fields such as RSTK.0 or
+//      ASEL.0, which are MSB-first. Both conventions live in this machine, and
+//      which one applies depends on whether the thing is a FIELD OF A WORD or
+//      the BITS OF A COUNTER.
 //
-//      DO NOT GUESS. cell_F10016 is in 226 packages across the machine and
-//      several gates depend on it (the memory clocks, the refresh chain, the
-//      F10016 terminal-count fix that once oscillated the whole machine). The
-//      way to settle it is the way the IM reversal was settled: find a place
-//      where the ANSWER is known independently -- a schematic sheet naming a
-//      state, or the C emulator's own memory sequencer -- rather than by
-//      whichever choice makes this bench pass.
-//      (An earlier note here hand-decoded j13 as "Q5 alternates with parity"
-//      and it AGREED WITH THE SYMPTOM -- three states, walk and park -- which
-//      is why it survived. It was wrong: measured per step, MemFree is not
-//      alternating at all.)
+//      So the reversal is in how j13's ADDRESS is assembled, not in the
+//      counter: its pins are A0=RfshInMem, A1=MemState.0 ... A4=MemState.3
+//      and cell_SG10139 is MSB-first, which puts the counter's LSB at the
+//      address's high end and its MSB at the low end -- the index is the
+//      counter value BIT-REVERSED, and that is why counting jumps 0, 8, 4, 12
+//      through the table instead of walking it.
+//
+//      WHAT IS NOT YET SETTLED is which of those two is wrong: the SG10139
+//      address convention (taken from that cell's own header, grounded in
+//      DiskProms' `Pin1 = #200`), or the j13 pin reading. DO NOT GUESS --
+//      cell_F10016 is in 226 packages and cell_SG10139 in 15, and several
+//      gates lean on both, including the terminal-count fix that once stopped
+//      the machine converging. Settle it where the answer is known
+//      independently, as the IM reversal was settled.
 //
 //      i14 (the map PROM), address
 //      {MapFnc.0', MapFnc.1', MapState.0, MapState.1, MapState.2}:
