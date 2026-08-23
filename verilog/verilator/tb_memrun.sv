@@ -730,11 +730,36 @@
 //      enable. It has to BOOTSTRAP, which is why a short window and a
 //      mostly-high MemFree leave it turning over three states.
 //
-//      NEXT: this is no longer a wiring question -- every element is
-//      identified and the table is PARC's. Walk the loop by hand from
-//      MemState = 0 with j13's table in front of you, and see which state it
-//      needs `MemFree` to be low in to advance; then check that against the
-//      64 cycles it actually gets.
+//      AND WALKING j13's TABLE ANSWERS IT QUANTITATIVELY. `cell_SG10139` is
+//      MSB-FIRST -- "A0 is the most significant ADDRESS bit and Q0 the most
+//      significant DATA bit", grounded in DiskProms' `Pin1 = #200` -- so on
+//      j13 the address is {RfshInMem, MemState.0, MemState.1, MemState.2,
+//      MemState.3} with RfshInMem on top, and Q0 is bit 7 of the byte.
+//      (A first pass here used the opposite convention on BOTH and produced
+//      a bootstrap paradox that does not exist. Read the cell before reading
+//      the table.)
+//
+//      Decoded properly, with RfshInMem = 0:
+//
+//        Q5 -> MemFree : 0 at every EVEN MemState, 1 at every odd one
+//        Q0 -> x10     : 0 at MemState 4 and 8, and NOWHERE ELSE
+//
+//      `MemIdle = StartMem' & MemFree`, so counting needs MemFree LOW, i.e.
+//      an EVEN state -- and because j12 LATCHES MemFree, the sequencer
+//      advances on alternate clocks. EACH MEMORY STATE TAKES TWO CLOCKS.
+//      With 9 rising `Clk0'Dd` edges in the 288-cycle window that is about 4
+//      states, and 3 are observed. THE MODEL IS CONSISTENT WITH ITSELF.
+//
+//      SO THE WHOLE OPEN QUESTION IS ONE NUMBER: `MemWEa` needs MemState 4
+//      (or 8), and this window delivers 3. That is also why x10 is never low
+//      with j13 enabled while it WAS low on 96 cycles with j14 -- different
+//      table, different states.
+//
+//      NEXT, and it is now a microcode question rather than a hardware one:
+//      hold the reference long enough for the sequencer to reach state 4.
+//      The window is set by `MapWait` latching `preStartMem'`, so it is the
+//      MAP handshake that has to give the memory more time -- roughly one
+//      more state pair, not an order of magnitude.
 //
 //      WORTH GENERALISING, and the count is now four: i10, j22 and j12 all
 //      have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are
