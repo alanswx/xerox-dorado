@@ -1,5 +1,5 @@
 Flow report for dorado
-Sun Aug 23 14:16:16 2026
+Sun Aug 23 14:51:40 2026
 Quartus Prime Version 17.0.2 Build 602 07/19/2017 SJ Lite Edition
 
 
@@ -38,24 +38,29 @@ agreement for further details.
 
 
 
-+---------------------------------------------------------------------------+
-; Flow Summary                                                              ;
-+-----------------------------+---------------------------------------------+
-; Flow Status                 ; Flow Failed - Sun Aug 23 14:16:16 2026      ;
-; Quartus Prime Version       ; 17.0.2 Build 602 07/19/2017 SJ Lite Edition ;
-; Revision Name               ; dorado                                      ;
-; Top-level Entity Name       ; dorado_backplane                            ;
-; Family                      ; Cyclone V                                   ;
-; Device                      ; 5CSEBA6U23I7                                ;
-; Timing Models               ; Final                                       ;
-; Logic utilization (in ALMs) ; N/A until Partition Merge                   ;
-; Total registers             ; N/A until Partition Merge                   ;
-; Total pins                  ; N/A until Partition Merge                   ;
-; Total virtual pins          ; N/A until Partition Merge                   ;
-; Total block memory bits     ; N/A until Partition Merge                   ;
-; Total PLLs                  ; N/A until Partition Merge                   ;
-; Total DLLs                  ; N/A until Partition Merge                   ;
-+-----------------------------+---------------------------------------------+
++-------------------------------------------------------------------------------+
+; Flow Summary                                                                  ;
++---------------------------------+---------------------------------------------+
+; Flow Status                     ; Successful - Sun Aug 23 14:51:39 2026       ;
+; Quartus Prime Version           ; 17.0.2 Build 602 07/19/2017 SJ Lite Edition ;
+; Revision Name                   ; dorado                                      ;
+; Top-level Entity Name           ; dorado_backplane                            ;
+; Family                          ; Cyclone V                                   ;
+; Device                          ; 5CSEBA6U23I7                                ;
+; Timing Models                   ; Final                                       ;
+; Logic utilization (in ALMs)     ; N/A                                         ;
+; Total registers                 ; 37459                                       ;
+; Total pins                      ; 394                                         ;
+; Total virtual pins              ; 0                                           ;
+; Total block memory bits         ; 520,432                                     ;
+; Total DSP Blocks                ; 0                                           ;
+; Total HSSI RX PCSs              ; 0                                           ;
+; Total HSSI PMA RX Deserializers ; 0                                           ;
+; Total HSSI TX PCSs              ; 0                                           ;
+; Total HSSI PMA TX Serializers   ; 0                                           ;
+; Total PLLs                      ; 0                                           ;
+; Total DLLs                      ; 0                                           ;
++---------------------------------+---------------------------------------------+
 
 
 +-----------------------------------------+
@@ -63,23 +68,23 @@ agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 08/23/2026 14:15:45 ;
+; Start date & time ; 08/23/2026 14:50:23 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; dorado              ;
 +-------------------+---------------------+
 
 
-+------------------------------------------------------------------------------------------------------+
-; Flow Non-Default Global Settings                                                                     ;
-+--------------------------+--------------------------------+---------------+-------------+------------+
-; Assignment Name          ; Value                          ; Default Value ; Entity Name ; Section Id ;
-+--------------------------+--------------------------------+---------------+-------------+------------+
-; COMPILER_SIGNATURE_ID    ; 16414263711911.178749454500001 ; --            ; --          ; --         ;
-; PROJECT_OUTPUT_DIRECTORY ; output_files                   ; --            ; --          ; --         ;
-; SEARCH_PATH              ; ../..                          ; --            ; --          ; --         ;
-; TOP_LEVEL_ENTITY         ; dorado_backplane               ; dorado        ; --          ; --         ;
-; VERILOG_INPUT_VERSION    ; SystemVerilog_2005             ; Verilog_2001  ; --          ; --         ;
-+--------------------------+--------------------------------+---------------+-------------+------------+
++-------------------------------------------------------------------------------------------------------+
+; Flow Non-Default Global Settings                                                                      ;
++--------------------------+---------------------------------+---------------+-------------+------------+
+; Assignment Name          ; Value                           ; Default Value ; Entity Name ; Section Id ;
++--------------------------+---------------------------------+---------------+-------------+------------+
+; COMPILER_SIGNATURE_ID    ; 126320600652457.178749662300001 ; --            ; --          ; --         ;
+; PROJECT_OUTPUT_DIRECTORY ; output_files                    ; --            ; --          ; --         ;
+; SEARCH_PATH              ; ../..                           ; --            ; --          ; --         ;
+; TOP_LEVEL_ENTITY         ; dorado_backplane                ; dorado        ; --          ; --         ;
+; VERILOG_INPUT_VERSION    ; SystemVerilog_2005              ; Verilog_2001  ; --          ; --         ;
++--------------------------+---------------------------------+---------------+-------------+------------+
 
 
 +--------------------------------------------------------------------------------------------------------------------------+
@@ -87,8 +92,8 @@ agreement for further details.
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name          ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis ; 00:00:31     ; 1.0                     ; 1484 MB             ; 00:00:39                           ;
-; Total                ; 00:00:31     ; --                      ; --                  ; 00:00:39                           ;
+; Analysis & Synthesis ; 00:01:13     ; 1.0                     ; 1749 MB             ; 00:01:22                           ;
+; Total                ; 00:01:13     ; --                      ; --                  ; 00:01:22                           ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 
@@ -97,7 +102,7 @@ agreement for further details.
 +----------------------+------------------+------------------+------------+----------------+
 ; Module Name          ; Machine Hostname ; OS Name          ; OS Version ; Processor type ;
 +----------------------+------------------+------------------+------------+----------------+
-; Analysis & Synthesis ; 3751a5a5f3e8     ; Debian GNU/Linux ; 9          ; x86_64         ;
+; Analysis & Synthesis ; b8433a45714c     ; Debian GNU/Linux ; 9          ; x86_64         ;
 +----------------------+------------------+------------------+------------+----------------+
 
 
