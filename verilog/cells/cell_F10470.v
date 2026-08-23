@@ -7,9 +7,11 @@
 // sensitive on WE'. Written that way here because that is the part, and it
 // simulates correctly. On an FPGA an async-write array does NOT infer block
 // RAM: Quartus will give distributed/LUT RAM or registers, which for the
-// larger arrays here is not viable. When the design goes to Quartus this
-// wants either an altsyncram instance or a wrapper that recovers a clock
-// edge from WE'. Deferred deliberately -- see verilog/README.md.
+// larger arrays here is not viable. This cell is FULLY SYNCHRONOUS and infers
+// block RAM: the write is clocked on `sys_clk` with the part's own write
+// enable as a one-cycle enable, so there is no asynchronous write and no
+// gated clock. An earlier header deferred this to verilog/README.md as
+// unresolved; it was resolved when the strobes became enables.
 
 // SYNCHRONOUS WRITE on the fabric clock, with the part's own write level as an
 // enable -- the convention this whole design uses for a clocked element, and

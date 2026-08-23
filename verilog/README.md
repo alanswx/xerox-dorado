@@ -24,6 +24,28 @@ verilog/
                   `vsim` framework, with its sim/ support library intact.
 ```
 
+## State (2026-08-23)
+
+- **The STORAGE ARRAY works.** PARC's `msa` board -- 291 packages, 144 MOSTEK
+  MK4096 DRAMs -- generates from its own wire list, all 265 of its logic
+  packages are modelled, and `make msa-test` writes a word into the array and
+  reads it back (wrote 1, read 1; wrote 0, read 0), mutation-tested four ways.
+  `make storage-test` puts it in a machine (`dorado_storage`). Finding it took
+  two fixes: `SN74H04` was a skeleton and it drives every DRAM address line,
+  and the coverage check compared PARC's raw part name against sanitised
+  filenames, so 154 packages were reported "NO MODEL" while being correctly
+  instantiated.
+- **RAM inference is RESOLVED, not deferred.** Five cells -- `F10145A`,
+  `F10415A`, `F10470`, `MK4096P-6`, `MosRam` -- carried headers saying an
+  async/strobe write "does not infer block RAM ... not viable", pointing here
+  for a discussion that was never written. Every one of them is now fully
+  synchronous: strobes are oversampled on `sys_clk` and used as one-cycle
+  enables, so there is no asynchronous write and no gated clock. The headers
+  had simply outlived the fix, and are corrected.
+- **100 cells have behaviour**, up from the 68 recorded below.
+- **32 gates** (`make -C verilog` lists them), including `case-variants`,
+  which re-derives `BACKPLANE_CASE_ALIASES` from PARC's `.bp` files.
+
 ## State (2026-08-15)
 
 - **16/16 boards elaborate** under Verilator (67,960 lines), and
