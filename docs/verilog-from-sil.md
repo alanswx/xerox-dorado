@@ -17,6 +17,70 @@ directions.**
 Read this first; everything below it is the history of how the generator and
 cell library got built. Gate names are `make -C verilog <name>`; there are 29.
 
+## THE CLOCK, AND WHY IT WAS SLOW (2026-08-23)
+
+**The PLL was asking for 7.04 MHz.** `rtl/pll` came across from
+RCAStudioII_Mister with `output_clock_frequency0("7.040229 MHz")` -- the
+CDP1802's clock, not ours. Two things follow, and the second is the useful one:
+
+- the Dorado was running at 7.04 / 16 = **0.44 MHz of microinstructions, 0.026x
+  the real machine** -- not the 0.11x quoted below, which was computed from the
+  ACHIEVED Fmax rather than the CONFIGURED clock;
+- and Fmax of 30.27 MHz was achieved **under no pressure at all**.
+  `derive_pll_clocks` takes its target from the PLL's own parameters, so
+  Quartus met 7.04 MHz trivially and stopped optimising.
+
+**Asking for more gets more.** Retargeting the PLL to 50 MHz took Fmax from
+**30.27 to 46.84 MHz** with no other change -- same RTL, same device. Setup
+slack at 50 MHz is -1.349 ns, so 50 does not close; 45 MHz is the number that
+does, with margin.
+
+| PLL target | Fmax achieved | ALMs | closes? |
+|---|---|---|---|
+| 7.04 MHz (inherited) | 30.27 MHz | 31,601 (75%) | yes, trivially |
+| 50 MHz | 46.84 MHz | 33,110 (79%) | no, -1.349 ns |
+| 45 MHz | -- | -- | expected |
+
+**What that means for real-time.** The Dorado's microinstruction rate is
+`sys_clk / ratio`, and the real machine is 16.67 MHz:
+
+| ratio | at 45 MHz | vs real |
+|---|---|---|
+| 8x | 5.6 MHz | 0.34x |
+| 4x | 11.3 MHz | 0.67x |
+| 2x | 22.5 MHz | **1.35x** |
+
+So **2x at 45 MHz would exceed period speed**, and 4x gets two thirds of the
+way. The ratio is worth pushing for that reason, not only for simulation.
+
+**THE FLOOR ON THE RATIO IS SET BY THE FASTEST DERIVED CLOCK NET, not by the
+microinstruction rate.** Every one of them is recovered by oversampling, so
+sys_clk has to beat the quickest by Nyquist and then some. Measured over
+40,000 fabric cycles at 16x:
+
+```
+clk0'  2493 edges     ~1 transition per microinstruction
+clk2'  4987 edges     ~2 transitions per microinstruction   <- fastest
+```
+
+`clk2'` completes a FULL PERIOD per microinstruction, so at 2x it is sampled
+exactly at Nyquist -- no margin for its gated and derived variants. **4x is
+the realistic floor**, and the empirical sweep agrees: 8x nearly works, 4x
+breaks `step-test`, 2x breaks more.
+
+| ratio | gates failing |
+|---|---|
+| 16x | none |
+| 8x | `taskrun-test`, `memrun-test` |
+| 4x | + `step-test` |
+| 2x | + `exec-test` |
+
+Both benches now carry a `SYSPER` parameter and express every fixed wait as a
+multiple of it, so a wait means the same amount of DORADO time at any ratio --
+necessary, and not sufficient: they still fail at 8x, on per-task TPC/Link
+state and on the dirty-line check. Those look like sampling margin rather than
+arithmetic, which is what the clk2' figure predicts.
+
 ## IT FITS, AND IT RUNS AT 0.11x -- the MiSTer core (2026-08-23)
 
 `verilog/` is a normal MiSTer core now: `Dorado.qsf` (device settings and 211

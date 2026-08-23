@@ -934,11 +934,20 @@
 
 module tb_memrun;
 
-  localparam integer GAP = 200;   // sys_clk between Control strobes
+  localparam integer GAP = 200 * (SYSPER / 16);   // sys_clk between Control strobes
 
   reg sys_clk = 1'b0;
   always #1 sys_clk = ~sys_clk;
   reg [3:0] ckd = 4'd0;
+  // SYS CLOCKS PER MICROINSTRUCTION. The cells recover each distributed ECL
+  // clock net by oversampling it, and this is how finely. Every fixed wait
+  // below is scaled by it, so a wait means the same amount of DORADO time
+  // whatever the ratio -- otherwise halving the ratio doubles how much of the
+  // machine's execution each `repeat` covers, and a bench that samples at a
+  // chosen moment samples somewhere else entirely.
+  localparam integer SYSPER = 16;
+  localparam integer W      = SYSPER / 16;   // scale for a fabric-cycle wait
+
   always @(posedge sys_clk) ckd <= ckd + 4'd1;
   wire mclk = ckd[3];
 
@@ -1008,14 +1017,14 @@ module tb_memrun;
   task strobe(input [2:0] fn, input [7:0] data, input ss);
     begin
       addr_n = ~fn; cpout = {data, ss};
-      repeat (4) @(posedge sys_clk);
-      strb_n = 1'b0; repeat (6) @(posedge sys_clk);
+      repeat (4 * W) @(posedge sys_clk);
+      strb_n = 1'b0; repeat (6 * W) @(posedge sys_clk);
       strb_n = 1'b1;
       if (fn == 3'd0) begin           // Control: g07 clocks on release
         setrun  =  data[0];
         setss_n = ~ss;
       end
-      repeat (4) @(posedge sys_clk);
+      repeat (4 * W) @(posedge sys_clk);
     end
   endtask
 
@@ -1027,12 +1036,12 @@ module tb_memrun;
     begin
       for (k = 11; k >= 0; k = k - 1) begin
         dmd = word[k];
-        repeat (4) @(posedge sys_clk); dmc = 1'b1;
-        repeat (4) @(posedge sys_clk); dmc = 1'b0;   // the chain shifts on the fall
-        repeat (4) @(posedge sys_clk);
+        repeat (4 * W) @(posedge sys_clk); dmc = 1'b1;
+        repeat (4 * W) @(posedge sys_clk); dmc = 1'b0;   // the chain shifts on the fall
+        repeat (4 * W) @(posedge sys_clk);
       end
-      udmd = 1'b1; repeat (12) @(posedge sys_clk);
-      udmd = 1'b0; repeat (12) @(posedge sys_clk);
+      udmd = 1'b1; repeat (12 * W) @(posedge sys_clk);
+      udmd = 1'b0; repeat (12 * W) @(posedge sys_clk);
     end
   endtask
 
@@ -1155,7 +1164,7 @@ module tb_memrun;
   task jam_link(input [15:0] v);
     begin
       setrun = 0; setss_n = 1;
-      repeat (400) @(posedge sys_clk);
+      repeat (400 * W) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0);
       strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0);
       strobe(3'd0, 8'h4E, 1'b0);
@@ -1163,7 +1172,7 @@ module tb_memrun;
       strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b0);
       strobe(3'd6, 8'h04, 1'b0); strobe(3'd7, 8'h40, 1'b0);
       strobe(3'd0, 8'h41, 1'b1);
-      repeat (600) @(posedge sys_clk);
+      repeat (600 * W) @(posedge sys_clk);
     end
   endtask
 
@@ -1402,7 +1411,7 @@ module tb_memrun;
       // Stop first. With the MIR clock held, a running machine repeats the
       // jammed instruction forever, and the next jam has to start from rest.
       setrun = 0; setss_n = 1;
-      repeat (400) @(posedge sys_clk);
+      repeat (400 * W) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0);                       // Clock: InhibitCAHolds+ClrReady
       strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0);
       strobe(3'd0, 8'h4E, 1'b0);
@@ -1410,7 +1419,7 @@ module tb_memrun;
       strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b0);
       strobe(3'd6, 8'h03, 1'b1); strobe(3'd7, 8'h4F, 1'b0);
       strobe(3'd0, 8'h41, 1'b1);
-      repeat (600) @(posedge sys_clk);
+      repeat (600 * W) @(posedge sys_clk);
     end
   endtask
 
@@ -1422,7 +1431,7 @@ module tb_memrun;
     if (m.b_ContA.clk2_p_Bc !== p2) begin n2 = n2 + 1; p2 = m.b_ContA.clk2_p_Bc; end
   end
   task zero; begin n0 = 0; n1 = 0; n2 = 0; end endtask
-  task settle; begin repeat (200) @(posedge sys_clk); end endtask
+  task settle; begin repeat (200 * W) @(posedge sys_clk); end endtask
 
   // Jam a microinstruction and take the first step: ClrStop+ClrMIR+ClrCT+
   // Freeze, then the four MIR bytes, then SetRun with SS and no ClrStop.
@@ -1430,7 +1439,7 @@ module tb_memrun;
                 input [7:0] b3, input [7:0] b4);
     begin
       setrun = 0; setss_n = 1;
-      repeat (400) @(posedge sys_clk);
+      repeat (400 * W) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0); repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h4E, 1'b0);
       repeat (GAP) @(posedge sys_clk);
@@ -1600,7 +1609,7 @@ module tb_memrun;
       strobe(3'd0, 8'h01, 1'b1);               // BasicStopDorado
       repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h00, 1'b1);
-      repeat (800) @(posedge sys_clk);
+      repeat (800 * W) @(posedge sys_clk);
       $display("      micro %02h: clk0' %0d clk1' %0d clk2' %0d | Stop=%b Link=%h FF=%b",
         b1, n0, n1, n2, m.b_ContA.Stop, link_hi,
         ~{m.b_ContA.FF_0_p_,m.b_ContA.FF_1_p_,m.b_ContA.FF_2_p_,m.b_ContA.FF_3_p_,
@@ -1897,7 +1906,7 @@ module tb_memrun;
     force m.DMuxData = dmd;
     force m.DMuxClk  = dmc;
     force m.UseDMD   = udmd;
-    repeat (2000) @(posedge sys_clk);
+    repeat (2000 * W) @(posedge sys_clk);
     manifold(12'h030);
     manifold(12'h1E0);                    // SetMidasStopMIRClk ON, to load
     // WARM THE PIPELINE FIRST. The first microinstruction out of a cold stop
@@ -2714,7 +2723,7 @@ module tb_memrun;
       force m.ASEL_2_p_  = ~kk[2];
       force m.FF_0mem_p_ = ~kk[1];
       force m.FF_1mem    =  kk[0];
-      repeat (60) @(posedge sys_clk);
+      repeat (60 * W) @(posedge sys_clk);
       // cpu.c: ASEL=0 ff01=2 is LONGFETCH, ASEL=1 ff01=2 is IFETCH. Require
       // each line to assert THERE AND NOWHERE ELSE across all sixteen.
       if (m.b_MemC.Lfetch_u_ !== ((kk[3:2] == 2'd0) && (kk[1:0] == 2'd2))) begin
@@ -2731,7 +2740,7 @@ module tb_memrun;
     $display("tb_memrun: LFetch<- at (ASEL 0, ff01 2) and IFetch<- at (ASEL 1, ff01 2), and nowhere else");
     release m.ASEL_0; release m.ASEL_1_p_; release m.ASEL_2_p_;
     release m.FF_0mem_p_; release m.FF_1mem;
-    repeat (60) @(posedge sys_clk);
+    repeat (60 * W) @(posedge sys_clk);
 
     // And the front door must still read the rule refdecode-test gates, now
     // against whatever ASEL the running microcode is presenting.

@@ -128,11 +128,20 @@
 
 module tb_taskrun;
 
-  localparam integer GAP = 200;   // sys_clk between Control strobes
+  localparam integer GAP = 200 * (SYSPER / 16);   // sys_clk between Control strobes
 
   reg sys_clk = 1'b0;
   always #1 sys_clk = ~sys_clk;
   reg [3:0] ckd = 4'd0;
+  // SYS CLOCKS PER MICROINSTRUCTION. The cells recover each distributed ECL
+  // clock net by oversampling it, and this is how finely. Every fixed wait
+  // below is scaled by it, so a wait means the same amount of DORADO time
+  // whatever the ratio -- otherwise halving the ratio doubles how much of the
+  // machine's execution each `repeat` covers, and a bench that samples at a
+  // chosen moment samples somewhere else entirely.
+  localparam integer SYSPER = 16;
+  localparam integer W      = SYSPER / 16;   // scale for a fabric-cycle wait
+
   always @(posedge sys_clk) ckd <= ckd + 4'd1;
   wire mclk = ckd[3];
 
@@ -176,14 +185,14 @@ module tb_taskrun;
   task strobe(input [2:0] fn, input [7:0] data, input ss);
     begin
       addr_n = ~fn; cpout = {data, ss};
-      repeat (4) @(posedge sys_clk);
-      strb_n = 1'b0; repeat (6) @(posedge sys_clk);
+      repeat (4 * W) @(posedge sys_clk);
+      strb_n = 1'b0; repeat (6 * W) @(posedge sys_clk);
       strb_n = 1'b1;
       if (fn == 3'd0) begin           // Control: g07 clocks on release
         setrun  =  data[0];
         setss_n = ~ss;
       end
-      repeat (4) @(posedge sys_clk);
+      repeat (4 * W) @(posedge sys_clk);
     end
   endtask
 
@@ -195,12 +204,12 @@ module tb_taskrun;
     begin
       for (k = 11; k >= 0; k = k - 1) begin
         dmd = word[k];
-        repeat (4) @(posedge sys_clk); dmc = 1'b1;
-        repeat (4) @(posedge sys_clk); dmc = 1'b0;   // the chain shifts on the fall
-        repeat (4) @(posedge sys_clk);
+        repeat (4 * W) @(posedge sys_clk); dmc = 1'b1;
+        repeat (4 * W) @(posedge sys_clk); dmc = 1'b0;   // the chain shifts on the fall
+        repeat (4 * W) @(posedge sys_clk);
       end
-      udmd = 1'b1; repeat (12) @(posedge sys_clk);
-      udmd = 1'b0; repeat (12) @(posedge sys_clk);
+      udmd = 1'b1; repeat (12 * W) @(posedge sys_clk);
+      udmd = 1'b0; repeat (12 * W) @(posedge sys_clk);
     end
   endtask
 
@@ -289,7 +298,7 @@ module tb_taskrun;
   task jam_link(input [15:0] v);
     begin
       setrun = 0; setss_n = 1;
-      repeat (400) @(posedge sys_clk);
+      repeat (400 * W) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0);
       strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0);
       strobe(3'd0, 8'h4E, 1'b0);
@@ -297,7 +306,7 @@ module tb_taskrun;
       strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b0);
       strobe(3'd6, 8'h04, 1'b0); strobe(3'd7, 8'h40, 1'b0);
       strobe(3'd0, 8'h41, 1'b1);
-      repeat (600) @(posedge sys_clk);
+      repeat (600 * W) @(posedge sys_clk);
     end
   endtask
 
@@ -536,7 +545,7 @@ module tb_taskrun;
       // Stop first. With the MIR clock held, a running machine repeats the
       // jammed instruction forever, and the next jam has to start from rest.
       setrun = 0; setss_n = 1;
-      repeat (400) @(posedge sys_clk);
+      repeat (400 * W) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0);                       // Clock: InhibitCAHolds+ClrReady
       strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0);
       strobe(3'd0, 8'h4E, 1'b0);
@@ -544,7 +553,7 @@ module tb_taskrun;
       strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b0);
       strobe(3'd6, 8'h03, 1'b1); strobe(3'd7, 8'h4F, 1'b0);
       strobe(3'd0, 8'h41, 1'b1);
-      repeat (600) @(posedge sys_clk);
+      repeat (600 * W) @(posedge sys_clk);
     end
   endtask
 
@@ -556,7 +565,7 @@ module tb_taskrun;
     if (m.b_ContA.clk2_p_Bc !== p2) begin n2 = n2 + 1; p2 = m.b_ContA.clk2_p_Bc; end
   end
   task zero; begin n0 = 0; n1 = 0; n2 = 0; end endtask
-  task settle; begin repeat (200) @(posedge sys_clk); end endtask
+  task settle; begin repeat (200 * W) @(posedge sys_clk); end endtask
 
   // Jam a microinstruction and take the first step: ClrStop+ClrMIR+ClrCT+
   // Freeze, then the four MIR bytes, then SetRun with SS and no ClrStop.
@@ -564,7 +573,7 @@ module tb_taskrun;
                 input [7:0] b3, input [7:0] b4);
     begin
       setrun = 0; setss_n = 1;
-      repeat (400) @(posedge sys_clk);
+      repeat (400 * W) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0); repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h4E, 1'b0);
       repeat (GAP) @(posedge sys_clk);
@@ -723,7 +732,7 @@ module tb_taskrun;
       strobe(3'd0, 8'h01, 1'b1);               // BasicStopDorado
       repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h00, 1'b1);
-      repeat (800) @(posedge sys_clk);
+      repeat (800 * W) @(posedge sys_clk);
       $display("      micro %02h: clk0' %0d clk1' %0d clk2' %0d | Stop=%b Link=%h FF=%b",
         b1, n0, n1, n2, m.b_ContA.Stop, link_hi,
         ~{m.b_ContA.FF_0_p_,m.b_ContA.FF_1_p_,m.b_ContA.FF_2_p_,m.b_ContA.FF_3_p_,
@@ -925,7 +934,7 @@ module tb_taskrun;
     force m.DMuxData = dmd;
     force m.DMuxClk  = dmc;
     force m.UseDMD   = udmd;
-    repeat (2000) @(posedge sys_clk);
+    repeat (2000 * W) @(posedge sys_clk);
     manifold(12'h030);
     manifold(12'h1E0);                    // SetMidasStopMIRClk ON, to load
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca; p2 = m.b_ContA.clk2_p_Bc;
@@ -988,7 +997,7 @@ module tb_taskrun;
     tbad = 0;
     for (tk = 15; tk >= 1; tk = tk - 1) begin
       req = 15'd0; req[tk] = 1'b1;
-      repeat (600) @(posedge sys_clk);          // several microinstructions
+      repeat (600 * W) @(posedge sys_clk);          // several microinstructions
       $display("tb_taskrun: req task %2d -> CTask %2d TPCAd %2d TLinkAd %2d CurrLast %2d LastNext %2d",
                tk, ctask, tpcad, tlinkad, currlast, lastnext);
       if (bnt !== tk[3:0] || penc !== tk[3:0]) tbad = tbad + 1;
@@ -1009,7 +1018,7 @@ module tb_taskrun;
       end
     end
     req = 15'd0;
-    repeat (600) @(posedge sys_clk);
+    repeat (600 * W) @(posedge sys_clk);
     $display("tb_taskrun: requests withdrawn -> PEnc %0d BNT %0d (the emulator)", penc, bnt);
     if (bnt !== 4'd0) begin
       $display("tb_taskrun: FAIL -- BNT did not fall back to task 0");
@@ -1018,7 +1027,7 @@ module tb_taskrun;
 
     // Highest wins, in the register too.
     req = 15'b100000000000001;                  // 1 and 15
-    repeat (600) @(posedge sys_clk);
+    repeat (600 * W) @(posedge sys_clk);
     $display("tb_taskrun: tasks 1 and 15 requesting -> BNT %0d (the fault task)", bnt);
     if (bnt !== 4'd15) begin
       $display("tb_taskrun: FAIL -- the fault task did not win in the register");
@@ -1031,10 +1040,10 @@ module tb_taskrun;
     // for a while; then look at task 15's slot again. A machine with ONE
     // program counter would have overwritten it.
     req = 15'd0; req[15] = 1'b1;
-    repeat (1200) @(posedge sys_clk);
+    repeat (1200 * W) @(posedge sys_clk);
     tpc15 = tpc_of(4'd15); link15 = link_of(4'd15);
     req = 15'd0; req[7] = 1'b1;
-    repeat (1200) @(posedge sys_clk);
+    repeat (1200 * W) @(posedge sys_clk);
     tpc7 = tpc_of(4'd7); link7 = link_of(4'd7);
     tpc15b = tpc_of(4'd15); link15b = link_of(4'd15);
     $display("tb_taskrun: TPC[15]=%h before running task 7, %h after; TPC[7]=%h",

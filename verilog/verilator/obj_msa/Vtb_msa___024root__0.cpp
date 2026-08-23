@@ -1421,7 +1421,7 @@ void Vtb_msa___024root___nba_sequent__TOP__0(Vtb_msa___024root* vlSelf) {
     __Vdly__tb_msa__DOT__m__DOT__u_d13__DOT__q = vlSelfRef.tb_msa__DOT__m__DOT__u_d13__DOT__q;
     __Vdly__tb_msa__DOT__div = (0x0000000fU & ((IData)(1U) 
                                                + (IData)(vlSelfRef.tb_msa__DOT__div)));
-    if ((7U == (IData)(vlSelfRef.tb_msa__DOT__div))) {
+    if ((0U == (IData)(vlSelfRef.tb_msa__DOT__div))) {
         vlSelfRef.tb_msa__DOT__mclk = (1U & (~ (IData)(vlSelfRef.tb_msa__DOT__mclk)));
         __Vdly__tb_msa__DOT__div = 0U;
     }

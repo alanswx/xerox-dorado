@@ -32,8 +32,6 @@ VM_CLASSES_FAST += \
   Vtb_memrun___024root__3 \
   Vtb_memrun___024root__4 \
   Vtb_memrun___024root__5 \
-  Vtb_memrun___024root__6 \
-  Vtb_memrun___024root__7 \
   Vtb_memrun__main \
 
 # Generated module classes, non-fast-path, compile with low/medium optimization
