@@ -730,30 +730,62 @@
 //      enable. It has to BOOTSTRAP, which is why a short window and a
 //      mostly-high MemFree leave it turning over three states.
 //
-//      THE j13 DECODE BELOW WAS WRONG, AND IT AGREED WITH THE SYMPTOM, which
-//      is why it survived. Hand-decoding the 16K timing PROM said Q5 (MemFree)
-//      alternates with MemState parity and Q0 (x10) is 0 at states 4 and 8.
-//      MEASURED PER STATE, in the running machine, it is neither:
+//      MemState's BITS ARE REVERSED, and PARC's own PROM source is what
+//      shows it. `MemProms.bcpl` builds j13 as FOUR GROUPS OF EIGHT --
+//      'Read or write', 'Idle state', 'Refresh', 'Idle state' -- so of the
+//      five address bits the top two, {RfshInMem, MemState.0}, pick the GROUP
+//      and the low three, {MemState.1, MemState.2, MemState.3}, index within
+//      it. A MEMORY CYCLE IS EIGHT STEPS, NOT SIXTEEN, and MemState.0 = 1
+//      means IDLE.
 //
-//          state 0:  MemFree = 0   x10 = 1
-//          state 1:  MemFree = 0   x10 = 1
-//          state 2:  MemFree = 1   x10 = 1
+//      Decoding the read/write group MSB-first (Q0 = bit 7) gives:
 //
-//      The alternating story predicted a walk of 0 -> 1 -> 2 and a park, and
-//      three states is exactly what the machine shows -- so it looked
-//      confirmed. It was not: MemFree is 0,0,1, not 0,1,0. A DECODE THAT
-//      MERELY AGREES WITH THE SYMPTOM IS NOT EVIDENCE, and the cheap fix is
-//      to read the signal per state instead of deriving it, which is what
-//      this bench does now.
+//          step  byte   x10  MemFree
+//            0    353    1      0
+//            1    053    0      0        <- MemWEa's write phase
+//            2    153    0      0        <- and here
+//            3    373    1      0
+//            4    352    1      0
+//            5    340    1      0
+//            6    306    1      1        <- the only step that parks
+//            7    303    1      0
 //
-//      What the measurement does establish: the machine walks 0 -> 1 -> 2 and
-//      PARKS THERE, because MemFree goes high at state 2 and MemIdle is
-//      `StartMem' & MemFree` -- so CE' rises and j16 stops counting. And x10,
-//      the third term of MemWEa's D0, is HIGH in every state reached, so the
-//      write phase is somewhere the cycle never gets to.
+//      so the write phase is steps 1 and 2, and MemFree goes high only at 6.
 //
-//      (RfshInMem is 0 across the whole window, so the half of j13's table
-//      being read is the one the hand decode assumed. That part was right.)
+//      READ IN PARC'S ORDER, THE MACHINE VISITS STEPS 0 AND 4 -- it JUMPS,
+//      it does not step. That is because j16's F10016 wires H0, its COUNTER
+//      LSB, to `MemState.0`, which in PARC's MSB-first numbering is the TOP
+//      bit -- the group select. So incrementing the counter flips read/write
+//      to idle and back instead of walking the sequence, and the cycle can
+//      never reach steps 1 and 2 where the write lives.
+//
+//      CONFIRMED FROM BOTH ENDS, and yet the fix is NOT obvious -- which is
+//      why this is recorded rather than acted on:
+//
+//        * j13's pins are A0=RfshInMem, A1=MemState.0 ... A4=MemState.3, and
+//          cell_SG10139 is MSB-first, so MemState.0 is the address's HIGH bit
+//          and MemState.3 its LOW one.
+//        * j16's F10016 wires H0 (pin 14) to MemState.0, and both the data
+//          sheet and EclDict's own `D0,11 > H0,14` pairing make H0 the
+//          COUNTER'S LSB.
+//
+//      So the counter's least significant bit drives the address's most
+//      significant. Either cell_F10016's bit order is backwards -- the same
+//      trap as IM's address and F10145A/F10415A/F10470, which would make this
+//      the fourth instance -- or PARC numbered THIS field LSB-first, against
+//      their usual habit, and the j13 wiring is deliberate.
+//
+//      DO NOT GUESS. cell_F10016 is in 226 packages across the machine and
+//      several gates depend on it (the memory clocks, the refresh chain, the
+//      F10016 terminal-count fix that once oscillated the whole machine). The
+//      way to settle it is the way the IM reversal was settled: find a place
+//      where the ANSWER is known independently -- a schematic sheet naming a
+//      state, or the C emulator's own memory sequencer -- rather than by
+//      whichever choice makes this bench pass.
+//      (An earlier note here hand-decoded j13 as "Q5 alternates with parity"
+//      and it AGREED WITH THE SYMPTOM -- three states, walk and park -- which
+//      is why it survived. It was wrong: measured per step, MemFree is not
+//      alternating at all.)
 //
 //      i14 (the map PROM), address
 //      {MapFnc.0', MapFnc.1', MapState.0, MapState.1, MapState.2}:
@@ -1077,7 +1109,7 @@ module tb_memrun;
   integer nrp, nmr, nms, nsq, nsrc, nwr, nnr, nmrf, nsm, nmw, npsm, nwmw, ng13, nxsm, nwpr, nrh, nldp, npha, ncra, nha, nhb, nwcr, nwar, nfl, nmp;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [4:0] i14a; integer i14_hit [0:31];
-  reg [3:0] memst_now; reg memst_hit [0:15]; integer runlen, maxrun, nwin, ndd, nidle_lo, winat;
+  reg [2:0] memst_now; reg [1:0] memst_grp; reg memst_hit [0:7]; integer runlen, maxrun, nwin, ndd, nidle_lo, winat;
   reg pmfree, pmidle; integer nmfree_e, nmidle_e, nmfree_hi, nrfsh;
   reg mf_at [0:7]; reg x10_at [0:7]; reg mf_seen [0:7];
   integer npsh, ncoin, nmwlo, lastpsh, lastcoin, lastmwlo, lastmf00;
@@ -2149,7 +2181,7 @@ module tb_memrun;
     for (int zo = 0; zo < 12; zo++) begin mf00at[zo]=-1; ms3at[zo]=-1; end ndd=0; nidle_lo=0; pdd=m.b_MemX.Clk0_p_Dd;
     nmemst=0; nfree=0; nmemfr=0; nheld_nz=0;
     for (int zf = 0; zf < 16; zf++) memfr_hit[zf] = 1'b0;
-    for (int zm = 0; zm < 16; zm++) memst_hit[zm] = 1'b0;
+    for (int zm = 0; zm < 8; zm++) memst_hit[zm] = 1'b0;
     nmapst=0; nmapfn=0; npsm2=0; nsm2=0; nload=0; ncnt=0; nd0=0; nwim=0; nx10=0; nmti=0; nwm=0; nall3=0; nrw=0; nwp=0; ndty=0; nevn=0; nckw=0; nprf=0; nthi=0; nmt=0; nmtp=0;
     nmras=0; nmcas=0; nmrd=0; nmwr=0; nd13w=0; pmras=m.b_MemX.u_a04.p4; pmcas=m.b_MemX.u_a04.p15;
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
@@ -2308,8 +2340,20 @@ module tb_memrun;
       if (m.b_MemX.MapTrouble_p_)        nmtp = nmtp + 1;
       // Which MemStates does the machine reach? j13's Q0 -- MemX07.sil+10,
       // the third term of MemWEa's D0 -- is 0 only in particular ones.
-      memst_now = {m.b_MemX.MemState_3, m.b_MemX.MemState_2,
-                   m.b_MemX.MemState_1, m.b_MemX.MemState_0};
+      // PARC'S OWN INDEX, MSB-FIRST. MemProms.bcpl builds j13 as FOUR GROUPS
+      // OF EIGHT -- 'Read or write', 'Idle state', 'Refresh', 'Idle state' --
+      // so the top two address bits {RfshInMem, MemState.0} pick the GROUP and
+      // the low three {MemState.1, MemState.2, MemState.3} index within it. A
+      // memory cycle is therefore EIGHT steps, not sixteen, and MemState.0 = 1
+      // means IDLE.
+      //
+      // This used to be read as {MemState_3, MemState_2, MemState_1,
+      // MemState_0} -- the bits in the opposite order -- which made "state 2"
+      // a different step of the table than the one PARC calls 2, and is the
+      // same MSB-first trap that has now caught this project on IM's address,
+      // on the SG10139s and here.
+      memst_grp = {m.b_MemX.RfshInMem, m.b_MemX.MemState_0};
+      memst_now = {m.b_MemX.MemState_1, m.b_MemX.MemState_2, m.b_MemX.MemState_3};
       if (!memst_hit[memst_now]) begin memst_hit[memst_now]=1'b1; nmemst=nmemst+1; end
       // j16 is an F10016 whose PE' is StartMem' with ALL FOUR D INPUTS OPEN,
       // so a low StartMem' parallel-loads ZERO and overrides the count.
@@ -2330,7 +2374,7 @@ module tb_memrun;
       // walk 0 -> 1 -> 2 and park -- and 3 states is exactly what is seen. But
       // a decode that merely AGREES with the symptom is not evidence; read the
       // real thing.
-      if (memst_now < 8) begin
+      if (1) begin
         mf_at[memst_now]  = m.b_MemX.MemFree;
         x10_at[memst_now] = m.b_MemX.MemX07_sil_pl_10;   // MemWEa's third term
         mf_seen[memst_now] = 1'b1;
@@ -2569,8 +2613,8 @@ module tb_memrun;
     for (int zi5 = 0; zi5 < 32; zi5++)
       if (i14_hit[zi5] != 0) $write(" %0d=%0d", zi5, i14_hit[zi5]);
     $display("");
-    $display("tb_memrun:   MemState reached %0d of 16 values | StartMem' HIGH (counter free) on %0d of %0d, reaching %0d values there; non-zero while HELD: %0d | %0d windows, LONGEST %0d sys_clk OPENING AT SAMPLE %0d | in-window: Clk0'Dd edges %0d, CE'(MemIdle) low %0d",
-             nmemst, nfree, nsamp, nmemfr, nheld_nz, nwin, maxrun, winat, ndd, nidle_lo);
+    $display("tb_memrun:   MemState reached %0d of 8 steps (group %b: 00=read/write 01=idle 10=refresh) | StartMem' HIGH (counter free) on %0d of %0d, reaching %0d values there; non-zero while HELD: %0d | %0d windows, LONGEST %0d sys_clk OPENING AT SAMPLE %0d | in-window: Clk0'Dd edges %0d, CE'(MemIdle) low %0d",
+             nmemst, memst_grp, nfree, nsamp, nmemfr, nheld_nz, nwin, maxrun, winat, ndd, nidle_lo);
     $display("tb_memrun:   DRAM TIMING PROM enables -- ChipsAre256/16K=%b ChipsAre64K=%b -> Use256/16KProm'=%b Use64KProm'=%b (CE' low = enabled)",
              chips16k, chips64k, m.b_MemX.Use256_s_16KProm_p_, m.b_MemX.Use64KProm_p_);
     $display("tb_memrun:   D0 CONJUNCTION -- WriteInMem'&!MapTrouble on %0d, all three on %0d of %0d",
