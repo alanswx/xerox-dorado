@@ -3051,48 +3051,54 @@ Two things remain, both small and both stated by measurement:
    has to bootstrap, which is why a short window with a mostly-high `MemFree`
    leaves it turning over three states.
 
-   **And walking j13's table answers it quantitatively.** `cell_SG10139` is
-   **MSB-first** -- "A0 is the most significant *address* bit and Q0 the most
-   significant *data* bit", grounded in DiskProms' `Pin1 = #200` -- so on j13
-   the address is `{RfshInMem, MemState.0, MemState.1, MemState.2,
-   MemState.3}` with RfshInMem on top, and Q0 is bit 7 of the byte. (A first
-   pass used the opposite convention on *both* and produced a bootstrap
-   paradox that does not exist. **Read the cell before reading the table.**)
+   **Walking the tables answers it -- but only after reading the cell.**
+   `cell_SG10139` is **MSB-first**: "A0 is the most significant *address* bit
+   and Q0 the most significant *data* bit", grounded in DiskProms'
+   `Pin1 = #200`. A first pass used LSB-first on **both** the address and the
+   data, for **both** PROMs, and produced two wrong answers -- a bootstrap
+   paradox on j13 that does not exist, and "preStartMem' is high at 3, 11 and
+   19" on i14, also wrong. **Read the cell before reading the table.** Third
+   time in this file a PARC convention has inverted a conclusion.
 
-   Decoded properly, with `RfshInMem = 0`:
+   **j13** (16K DRAM timing), address `{RfshInMem, MemState.0..3}`, Rfsh = 0:
 
    | output | behaviour |
    |---|---|
-   | Q5 → `MemFree` | **0 at every even MemState**, 1 at every odd one |
-   | Q0 → `x10` | **0 at MemState 4 and 8, nowhere else** |
+   | Q5 → `MemFree` | 0 at every **even** MemState, 1 at every odd |
+   | Q0 → `x10` | 0 at MemState **4 and 8**, nowhere else |
 
-   `MemIdle = StartMem' & MemFree`, so counting needs `MemFree` low -- an
-   **even** state -- and because j12 *latches* `MemFree`, the sequencer
-   advances on alternate clocks. **Each memory state takes two clocks.** With
-   9 rising `Clk0'Dd` edges in the 288-cycle window that is about 4 states,
-   and 3 are observed: **the model is consistent with itself.**
+   `MemIdle = StartMem' & MemFree`, so counting needs an even state, and since
+   j12 *latches* `MemFree`, **each memory state takes two clocks**. Nine
+   rising `Clk0'Dd` edges in the 288-cycle window ≈ 4 states; 3 observed. The
+   model is self-consistent. **`MemWEa` needs MemState 4; the window delivers
+   3.**
 
-   **So the whole open question is one number: `MemWEa` needs MemState 4 (or
-   8), and this window delivers 3.** That is also why `x10` is never low with
-   j13 enabled while it *was* low on 96 cycles with j14 -- different table,
-   different states.
+   **i14** (map PROM), address `{MapFnc.0', MapFnc.1', MapState.0,
+   MapState.1, MapState.2}`: Q2 → `preStartMem'` is high at **exactly one
+   address, 3** -- both MapFnc bits **low** (a map function *is* pending, the
+   opposite of the first reading) with **MapState = 3**. A memory cycle starts
+   in one precise state of the map sequencer.
 
-   **And there is only ever one window, at sample 54.** Across 3000 samples
-   `StartMem'` goes high exactly **once**, at the very start of the run, for
-   288 cycles, and never again -- the loop never opens a second. So the memory
-   sequencer gets a single shot during startup and is held reset forever after.
+   **The decode and the machine now agree exactly:** address 3 is visited
+   **192** times and `preStartMem'` is high on **192**. That equality is the
+   check that the convention is finally right.
 
-   **That reframes the remaining work.** It is not "make the window longer" --
-   one more state pair would suffice if windows kept coming -- it is **"why
-   does the loop never start another memory cycle?"** Everything upstream is
-   live and gated (`WantProcRef'`, the kind decode, `Flush'`, the Store,
-   `ForceMiss`, the miss itself, a clear map), so the reference *is* being
-   made; what does not repeat is `preStartMem'` surviving the `MapWait` latch.
+   **And there is only ever one window, at sample 54** -- `StartMem'` goes
+   high once, for 288 cycles, never again. So it is not "make the window
+   longer" but **"why does the loop never start another memory cycle?"**
 
-   **Next:** count the windows, not their length. Log every cycle where
-   `preStartMem'` is high alongside `MapWait` and find what changes after
-   sample ~342 so the two never coincide again. One measurement, and both
-   signals are already probed.
+   The address log says where to look. `preStartMem'` is high on 192 cycles,
+   **all before sample 213**, while `MapWait` is low on 2776 -- the latch is
+   wide open and it is the **PROM input** that stops. The machine then sits at
+   address 24 (672 visits) = MapState 0 with no map function pending, i.e.
+   idle, plus 28 (483), 8 (448), 0 (384).
+
+   **So the map sequencer stops reaching state 3 with a function pending**,
+   even though this loop issues `←Map` every fourth microinstruction. **Next:**
+   log `MapFnc.0'`/`MapFnc.1'` against the `←Map` instruction and find whether
+   the second and later Maps set the function at all. Both are already probed,
+   and MapFnc was measured earlier taking only 2 of its 4 values -- the same
+   fact from the other side.
 
    **Worth generalising, and the count is now four:** i10, j22 and j12 all
    have `TrueBD` -- a hardwired constant 1 -- on CE', so all three are

@@ -143,6 +143,18 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
     tb_memrun__DOT__nidle_lo = 0;
     IData/*31:0*/ tb_memrun__DOT__winat;
     tb_memrun__DOT__winat = 0;
+    IData/*31:0*/ tb_memrun__DOT__npsh;
+    tb_memrun__DOT__npsh = 0;
+    IData/*31:0*/ tb_memrun__DOT__ncoin;
+    tb_memrun__DOT__ncoin = 0;
+    IData/*31:0*/ tb_memrun__DOT__nmwlo;
+    tb_memrun__DOT__nmwlo = 0;
+    IData/*31:0*/ tb_memrun__DOT__lastpsh;
+    tb_memrun__DOT__lastpsh = 0;
+    IData/*31:0*/ tb_memrun__DOT__lastcoin;
+    tb_memrun__DOT__lastcoin = 0;
+    IData/*31:0*/ tb_memrun__DOT__lastmwlo;
+    tb_memrun__DOT__lastmwlo = 0;
     CData/*0:0*/ tb_memrun__DOT__pdd;
     tb_memrun__DOT__pdd = 0;
     IData/*31:0*/ tb_memrun__DOT__nmemst;
@@ -2808,7 +2820,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 904);
+                                                                 917);
             __Vtask_tb_memrun__DOT__manifold__529__tb_memrun__DOT__unnamedblk1_4__DOT____Vrepeat3 
                 = (__Vtask_tb_memrun__DOT__manifold__529__tb_memrun__DOT__unnamedblk1_4__DOT____Vrepeat3 
                    - (IData)(1U));
@@ -2822,7 +2834,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 905);
+                                                                 918);
             __Vtask_tb_memrun__DOT__manifold__529__tb_memrun__DOT__unnamedblk1_5__DOT____Vrepeat4 
                 = (__Vtask_tb_memrun__DOT__manifold__529__tb_memrun__DOT__unnamedblk1_5__DOT____Vrepeat4 
                    - (IData)(1U));
@@ -2836,7 +2848,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 906);
+                                                                 919);
             __Vtask_tb_memrun__DOT__manifold__529__tb_memrun__DOT__unnamedblk1_6__DOT____Vrepeat5 
                 = (__Vtask_tb_memrun__DOT__manifold__529__tb_memrun__DOT__unnamedblk1_6__DOT____Vrepeat5 
                    - (IData)(1U));
@@ -2853,7 +2865,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             908);
+                                                             921);
         __Vtask_tb_memrun__DOT__manifold__529__tb_memrun__DOT__unnamedblk1_7__DOT____Vrepeat6 
             = (__Vtask_tb_memrun__DOT__manifold__529__tb_memrun__DOT__unnamedblk1_7__DOT____Vrepeat6 
                - (IData)(1U));
@@ -2867,7 +2879,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             909);
+                                                             922);
         __Vtask_tb_memrun__DOT__manifold__529__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7 
             = (__Vtask_tb_memrun__DOT__manifold__529__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7 
                - (IData)(1U));
@@ -2895,7 +2907,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 904);
+                                                                 917);
             __Vtask_tb_memrun__DOT__manifold__530__tb_memrun__DOT__unnamedblk1_4__DOT____Vrepeat3 
                 = (__Vtask_tb_memrun__DOT__manifold__530__tb_memrun__DOT__unnamedblk1_4__DOT____Vrepeat3 
                    - (IData)(1U));
@@ -2909,7 +2921,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 905);
+                                                                 918);
             __Vtask_tb_memrun__DOT__manifold__530__tb_memrun__DOT__unnamedblk1_5__DOT____Vrepeat4 
                 = (__Vtask_tb_memrun__DOT__manifold__530__tb_memrun__DOT__unnamedblk1_5__DOT____Vrepeat4 
                    - (IData)(1U));
@@ -2923,7 +2935,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 906);
+                                                                 919);
             __Vtask_tb_memrun__DOT__manifold__530__tb_memrun__DOT__unnamedblk1_6__DOT____Vrepeat5 
                 = (__Vtask_tb_memrun__DOT__manifold__530__tb_memrun__DOT__unnamedblk1_6__DOT____Vrepeat5 
                    - (IData)(1U));
@@ -2940,7 +2952,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             908);
+                                                             921);
         __Vtask_tb_memrun__DOT__manifold__530__tb_memrun__DOT__unnamedblk1_7__DOT____Vrepeat6 
             = (__Vtask_tb_memrun__DOT__manifold__530__tb_memrun__DOT__unnamedblk1_7__DOT____Vrepeat6 
                - (IData)(1U));
@@ -2954,7 +2966,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             909);
+                                                             922);
         __Vtask_tb_memrun__DOT__manifold__530__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7 
             = (__Vtask_tb_memrun__DOT__manifold__530__tb_memrun__DOT__unnamedblk1_8__DOT____Vrepeat7 
                - (IData)(1U));
@@ -3011,9 +3023,9 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                  1,vlSelfRef.tb_memrun__DOT__m__DOT__DisHold___05FMemC);
     if (VL_UNLIKELY((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__PRhold) 
                       | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__Hold___05FMemC))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:1947: Assertion failed in %Ntb_memrun: the memory is holding the processor before the machine starts\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:1961: Assertion failed in %Ntb_memrun: the memory is holding the processor before the machine starts\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 1947, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 1961, "", false);
     }
     __Vtask_tb_memrun__DOT__set_cpreg_tilde__531__v = 0U;
     __Vtask_tb_memrun__DOT__strobe__532__ss = 0U;
@@ -3034,7 +3046,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__532__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__532__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3046,7 +3058,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__532__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__532__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3062,7 +3074,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__532__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__532__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3083,7 +3095,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__533__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__533__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3095,7 +3107,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__533__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__533__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3111,7 +3123,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__533__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__533__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3142,7 +3154,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__535__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__535__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3154,7 +3166,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__535__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__535__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3170,7 +3182,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__535__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__535__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3181,7 +3193,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1455);
+                                                             1469);
         __Vtask_tb_memrun__DOT__parc_micro__534__tb_memrun__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_memrun__DOT__parc_micro__534__tb_memrun__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -3201,7 +3213,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__536__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__536__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3213,7 +3225,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__536__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__536__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3229,7 +3241,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__536__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__536__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3240,7 +3252,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1457);
+                                                             1471);
         __Vtask_tb_memrun__DOT__parc_micro__534__tb_memrun__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_memrun__DOT__parc_micro__534__tb_memrun__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -3260,7 +3272,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__537__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__537__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3272,7 +3284,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__537__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__537__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3288,7 +3300,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__537__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__537__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3299,7 +3311,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1459);
+                                                             1473);
         __Vtask_tb_memrun__DOT__parc_micro__534__tb_memrun__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_memrun__DOT__parc_micro__534__tb_memrun__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -3321,7 +3333,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__538__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__538__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3333,7 +3345,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__538__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__538__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3349,7 +3361,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__538__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__538__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3371,7 +3383,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__539__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__539__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3383,7 +3395,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__539__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__539__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3399,7 +3411,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__539__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__539__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3421,7 +3433,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__540__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__540__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3433,7 +3445,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__540__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__540__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3449,7 +3461,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__540__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__540__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3471,7 +3483,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__541__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__541__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3483,7 +3495,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__541__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__541__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3499,7 +3511,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__541__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__541__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3522,7 +3534,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__543__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__543__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3534,7 +3546,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__543__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__543__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3550,7 +3562,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__543__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__543__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3561,7 +3573,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1467);
+                                                             1481);
         __Vtask_tb_memrun__DOT__parc_micro__534__tb_memrun__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_memrun__DOT__parc_micro__534__tb_memrun__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -3581,7 +3593,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__544__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__544__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3593,7 +3605,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__544__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__544__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3609,7 +3621,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__544__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__544__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3620,7 +3632,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1469);
+                                                             1483);
         __Vtask_tb_memrun__DOT__parc_micro__534__tb_memrun__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_memrun__DOT__parc_micro__534__tb_memrun__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -3640,7 +3652,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__545__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__545__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3652,7 +3664,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__545__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__545__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3668,7 +3680,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__545__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__545__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3679,7 +3691,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1471);
+                                                             1485);
         __Vtask_tb_memrun__DOT__parc_micro__534__tb_memrun__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_memrun__DOT__parc_micro__534__tb_memrun__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -3765,7 +3777,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__548__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__548__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3777,7 +3789,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__548__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__548__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3793,7 +3805,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__548__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__548__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3804,7 +3816,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1455);
+                                                             1469);
         __Vtask_tb_memrun__DOT__parc_micro__547__tb_memrun__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_memrun__DOT__parc_micro__547__tb_memrun__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -3824,7 +3836,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__549__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__549__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3836,7 +3848,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__549__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__549__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3852,7 +3864,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__549__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__549__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3863,7 +3875,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1457);
+                                                             1471);
         __Vtask_tb_memrun__DOT__parc_micro__547__tb_memrun__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_memrun__DOT__parc_micro__547__tb_memrun__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -3883,7 +3895,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__550__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__550__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3895,7 +3907,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__550__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__550__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3911,7 +3923,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__550__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__550__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3922,7 +3934,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1459);
+                                                             1473);
         __Vtask_tb_memrun__DOT__parc_micro__547__tb_memrun__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_memrun__DOT__parc_micro__547__tb_memrun__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -3944,7 +3956,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__551__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__551__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3956,7 +3968,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__551__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__551__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3972,7 +3984,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__551__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__551__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3994,7 +4006,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__552__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__552__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4006,7 +4018,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__552__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__552__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4022,7 +4034,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__552__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__552__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4044,7 +4056,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__553__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__553__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4056,7 +4068,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__553__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__553__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4072,7 +4084,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__553__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__553__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4094,7 +4106,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__554__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__554__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4106,7 +4118,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__554__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__554__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4122,7 +4134,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__554__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__554__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4145,7 +4157,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__556__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__556__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4157,7 +4169,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__556__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__556__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4173,7 +4185,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__556__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__556__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4184,7 +4196,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1467);
+                                                             1481);
         __Vtask_tb_memrun__DOT__parc_micro__547__tb_memrun__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_memrun__DOT__parc_micro__547__tb_memrun__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -4204,7 +4216,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__557__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__557__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4216,7 +4228,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__557__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__557__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4232,7 +4244,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__557__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__557__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4243,7 +4255,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1469);
+                                                             1483);
         __Vtask_tb_memrun__DOT__parc_micro__547__tb_memrun__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_memrun__DOT__parc_micro__547__tb_memrun__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -4263,7 +4275,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__558__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__558__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4275,7 +4287,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__558__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__558__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4291,7 +4303,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__558__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__558__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4302,7 +4314,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1471);
+                                                             1485);
         __Vtask_tb_memrun__DOT__parc_micro__547__tb_memrun__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_memrun__DOT__parc_micro__547__tb_memrun__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -4418,7 +4430,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__560__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__560__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4430,7 +4442,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__560__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__560__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4446,7 +4458,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__560__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__560__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4457,7 +4469,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1735);
+                                                             1749);
         __Vtask_tb_memrun__DOT__parc_run__559__tb_memrun__DOT__unnamedblk1_24__DOT____Vrepeat23 
             = (__Vtask_tb_memrun__DOT__parc_run__559__tb_memrun__DOT__unnamedblk1_24__DOT____Vrepeat23 
                - (IData)(1U));
@@ -4477,7 +4489,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__561__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__561__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4489,7 +4501,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__561__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__561__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4505,7 +4517,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__561__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__561__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4516,7 +4528,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1737);
+                                                             1751);
         __Vtask_tb_memrun__DOT__parc_run__559__tb_memrun__DOT__unnamedblk1_25__DOT____Vrepeat24 
             = (__Vtask_tb_memrun__DOT__parc_run__559__tb_memrun__DOT__unnamedblk1_25__DOT____Vrepeat24 
                - (IData)(1U));
@@ -4536,7 +4548,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__562__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__562__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4548,7 +4560,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__562__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__562__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4564,7 +4576,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__562__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__562__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4575,7 +4587,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1739);
+                                                             1753);
         __Vtask_tb_memrun__DOT__parc_run__559__tb_memrun__DOT__unnamedblk1_26__DOT____Vrepeat25 
             = (__Vtask_tb_memrun__DOT__parc_run__559__tb_memrun__DOT__unnamedblk1_26__DOT____Vrepeat25 
                - (IData)(1U));
@@ -4597,7 +4609,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__563__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__563__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4609,7 +4621,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__563__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__563__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4625,7 +4637,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__563__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__563__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4647,7 +4659,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__564__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__564__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4659,7 +4671,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__564__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__564__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4675,7 +4687,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__564__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__564__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4697,7 +4709,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__565__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__565__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4709,7 +4721,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__565__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__565__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4725,7 +4737,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__565__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__565__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4747,7 +4759,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__566__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__566__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4759,7 +4771,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__566__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__566__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4775,7 +4787,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__566__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__566__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4787,7 +4799,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             1745);
+                                                             1759);
         __Vtask_tb_memrun__DOT__parc_run__559__tb_memrun__DOT__unnamedblk1_27__DOT____Vrepeat26 
             = (__Vtask_tb_memrun__DOT__parc_run__559__tb_memrun__DOT__unnamedblk1_27__DOT____Vrepeat26 
                - (IData)(1U));
@@ -4807,7 +4819,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             885);
+                                                             898);
         __Vtask_tb_memrun__DOT__strobe__567__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_memrun__DOT__strobe__567__tb_memrun__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4819,7 +4831,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             886);
+                                                             899);
         __Vtask_tb_memrun__DOT__strobe__567__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_memrun__DOT__strobe__567__tb_memrun__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4835,7 +4847,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             892);
+                                                             905);
         __Vtask_tb_memrun__DOT__strobe__567__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_memrun__DOT__strobe__567__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4942,6 +4954,12 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
     tb_memrun__DOT__maxrun = 0U;
     tb_memrun__DOT__nwin = 0U;
     tb_memrun__DOT__winat = 0xffffffffU;
+    tb_memrun__DOT__npsh = 0U;
+    tb_memrun__DOT__ncoin = 0U;
+    tb_memrun__DOT__nmwlo = 0U;
+    tb_memrun__DOT__lastpsh = 0xffffffffU;
+    tb_memrun__DOT__lastcoin = 0xffffffffU;
+    tb_memrun__DOT__lastmwlo = 0xffffffffU;
     tb_memrun__DOT__ndd = 0U;
     tb_memrun__DOT__nidle_lo = 0U;
     tb_memrun__DOT__pdd = vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Clk0_p_Dd;
@@ -5115,7 +5133,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             2020);
+                                                             2035);
         if (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__clk0_p_Ca) 
              != (IData)(vlSelfRef.tb_memrun__DOT__p0))) {
             tb_memrun__DOT__n0a = ((IData)(1U) + tb_memrun__DOT__n0a);
@@ -5277,12 +5295,19 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
             vlSelfRef.tb_memrun__DOT__mapst_hit[vlSelfRef.tb_memrun__DOT__mapst_now] = 1U;
             tb_memrun__DOT__nmapst = ((IData)(1U) + tb_memrun__DOT__nmapst);
         }
-        vlSelfRef.tb_memrun__DOT__i14a = ((0x0000001cU 
-                                           & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h15__DOT__q) 
-                                              << 1U)) 
-                                          | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_1_p_) 
-                                              << 1U) 
-                                             | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_0_p_)));
+        vlSelfRef.tb_memrun__DOT__i14a = ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_0_p_) 
+                                            << 4U) 
+                                           | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_1_p_) 
+                                               << 3U) 
+                                              | (4U 
+                                                 & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h15__DOT__q) 
+                                                    << 1U)))) 
+                                          | ((2U & 
+                                              ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h15__DOT__q) 
+                                               >> 1U)) 
+                                             | (1U 
+                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h15__DOT__q) 
+                                                   >> 3U))));
         vlSelfRef.tb_memrun__DOT__i14_hit[vlSelfRef.tb_memrun__DOT__i14a] 
             = ((IData)(1U) + vlSelfRef.tb_memrun__DOT__i14_hit
                [vlSelfRef.tb_memrun__DOT__i14a]);
@@ -5294,6 +5319,19 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
         if ((1U & (~ ((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_5) 
                       >> 5U)))) {
             tb_memrun__DOT__npsm2 = ((IData)(1U) + tb_memrun__DOT__npsm2);
+        }
+        if ((0x00000020U & (IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_5))) {
+            tb_memrun__DOT__npsh = ((IData)(1U) + tb_memrun__DOT__npsh);
+            tb_memrun__DOT__lastpsh = tb_memrun__DOT__nsamp;
+            if ((1U & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait)))) {
+                tb_memrun__DOT__ncoin = ((IData)(1U) 
+                                         + tb_memrun__DOT__ncoin);
+                tb_memrun__DOT__lastcoin = tb_memrun__DOT__nsamp;
+            }
+        }
+        if ((1U & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait)))) {
+            tb_memrun__DOT__nmwlo = ((IData)(1U) + tb_memrun__DOT__nmwlo);
+            tb_memrun__DOT__lastmwlo = tb_memrun__DOT__nsamp;
         }
         if ((1U & (~ ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
                       >> 1U)))) {
@@ -5632,117 +5670,117 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                  32,tb_memrun__DOT__nff0_wpr,32,tb_memrun__DOT__nff0_cr,
                  32,tb_memrun__DOT__nff0_alt,32,tb_memrun__DOT__nff0_fl);
     if (VL_UNLIKELY((VL_GTS_III(32, 0x00000064U, tb_memrun__DOT__nff0)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2215: Assertion failed in %Ntb_memrun: the ASEL=1 reference barely ran (%0d samples) -- it must be the executing instruction\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2240: Assertion failed in %Ntb_memrun: the ASEL=1 reference barely ran (%0d samples) -- it must be the executing instruction\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2215, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2240, "", false);
     }
     if (VL_UNLIKELY(((tb_memrun__DOT__nff0_wpr != tb_memrun__DOT__nff0)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2217: Assertion failed in %Ntb_memrun: WantProcRef' was not asserted on every cycle the reference ran (%0d of %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2242: Assertion failed in %Ntb_memrun: WantProcRef' was not asserted on every cycle the reference ran (%0d of %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_wpr,32,
                      tb_memrun__DOT__nff0);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2217, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2242, "", false);
     }
     if (VL_UNLIKELY((((0U != tb_memrun__DOT__nff0_ign) 
                       | (0U != tb_memrun__DOT__nff0_a0))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2220: Assertion failed in %Ntb_memrun: WantProcRef' low requires IgnoreProc = 0 and ASEL.0 = 0 (saw %0d, %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2245: Assertion failed in %Ntb_memrun: WantProcRef' low requires IgnoreProc = 0 and ASEL.0 = 0 (saw %0d, %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_ign,32,
                      tb_memrun__DOT__nff0_a0);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2220, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2245, "", false);
     }
     if (VL_UNLIKELY(((0U != tb_memrun__DOT__nff0_bad)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2226: Assertion failed in %Ntb_memrun: FFok'a high did not force FF.0mem'=0 and FF.1mem=1 (%0d violations)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2251: Assertion failed in %Ntb_memrun: FFok'a high did not force FF.0mem'=0 and FF.1mem=1 (%0d violations)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_bad);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2226, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2251, "", false);
     }
     if (VL_UNLIKELY(((tb_memrun__DOT__nff0_cr != tb_memrun__DOT__nff0)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2231: Assertion failed in %Ntb_memrun: WantCR did not fall on every running cycle (%0d of %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2256: Assertion failed in %Ntb_memrun: WantCR did not fall on every running cycle (%0d of %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_cr,32,
                      tb_memrun__DOT__nff0);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2231, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2256, "", false);
     }
     if (VL_UNLIKELY(((tb_memrun__DOT__nff0_alt != tb_memrun__DOT__nff0)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2233: Assertion failed in %Ntb_memrun: WantAltRef' did not enable the alternate decoder (%0d of %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2258: Assertion failed in %Ntb_memrun: WantAltRef' did not enable the alternate decoder (%0d of %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_alt,32,
                      tb_memrun__DOT__nff0);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2233, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2258, "", false);
     }
     if (VL_UNLIKELY(((tb_memrun__DOT__nff0_fl != tb_memrun__DOT__nff0)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2235: Assertion failed in %Ntb_memrun: Flush' did not assert on every running cycle (%0d of %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2260: Assertion failed in %Ntb_memrun: Flush' did not assert on every running cycle (%0d of %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_fl,32,
                      tb_memrun__DOT__nff0);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2235, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2260, "", false);
     }
     if (VL_UNLIKELY(((0U != tb_memrun__DOT__nff0_ffok)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2237: Assertion failed in %Ntb_memrun: FFok' must be LOW for the FF field to reach the memory section (high on %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2262: Assertion failed in %Ntb_memrun: FFok' must be LOW for the FF field to reach the memory section (high on %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nff0_ffok);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2237, "", false);
-    }
-    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_st)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2243: Assertion failed in %Ntb_memrun: the Store never asserted -- nothing dirties a line\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2243, "", false);
-    }
-    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_hcd)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2244: Assertion failed in %Ntb_memrun: HitColDirty never true -- the Store did not dirty the flushed line\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2244, "", false);
-    }
-    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_fsp)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2245: Assertion failed in %Ntb_memrun: FSinPair' never fell -- the flush was not latched into the pair\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2245, "", false);
-    }
-    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_fs)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2246: Assertion failed in %Ntb_memrun: FlushStore never asserted\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2246, "", false);
-    }
-    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_fm)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2247: Assertion failed in %Ntb_memrun: ForceMiss never asserted\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2247, "", false);
-    }
-    if (VL_UNLIKELY((((0U == tb_memrun__DOT__nff0_mia) 
-                      | (0U == tb_memrun__DOT__nff0_mib))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2249: Assertion failed in %Ntb_memrun: the cache never missed (a %0d, b %0d)\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
-                     32,tb_memrun__DOT__nff0_mia,32,
-                     tb_memrun__DOT__nff0_mib);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2249, "", false);
-    }
-    if (VL_UNLIKELY((VL_GTS_III(32, 4U, tb_memrun__DOT__nmapst)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2261: Assertion failed in %Ntb_memrun: the map sequencer barely moved (%0d of 8 states)\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
-                     32,tb_memrun__DOT__nmapst);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2261, "", false);
-    }
-    if (VL_UNLIKELY(((0U == tb_memrun__DOT__npsm2)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2262: Assertion failed in %Ntb_memrun: preStartMem' never asserted -- no storage cycle was started\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
         VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2262, "", false);
     }
-    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nsm2)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2263: Assertion failed in %Ntb_memrun: StartMem' never asserted\n",0,
+    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_st)))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2268: Assertion failed in %Ntb_memrun: the Store never asserted -- nothing dirties a line\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2263, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2268, "", false);
     }
-    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nwim)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2270: Assertion failed in %Ntb_memrun: WriteInMem' never asserted -- the write-back never reached the memory stage\n",0,
+    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_hcd)))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2269: Assertion failed in %Ntb_memrun: HitColDirty never true -- the Store did not dirty the flushed line\n",0,
+                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2269, "", false);
+    }
+    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_fsp)))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2270: Assertion failed in %Ntb_memrun: FSinPair' never fell -- the flush was not latched into the pair\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
         VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2270, "", false);
     }
-    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nrw)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2275: Assertion failed in %Ntb_memrun: ReadOrWriteInMap' never asserted -- no map operation, so MapTrouble says nothing\n",0,
+    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_fs)))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2271: Assertion failed in %Ntb_memrun: FlushStore never asserted\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2275, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2271, "", false);
+    }
+    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nff0_fm)))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2272: Assertion failed in %Ntb_memrun: ForceMiss never asserted\n",0,
+                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2272, "", false);
+    }
+    if (VL_UNLIKELY((((0U == tb_memrun__DOT__nff0_mia) 
+                      | (0U == tb_memrun__DOT__nff0_mib))))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2274: Assertion failed in %Ntb_memrun: the cache never missed (a %0d, b %0d)\n",0,
+                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
+                     32,tb_memrun__DOT__nff0_mia,32,
+                     tb_memrun__DOT__nff0_mib);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2274, "", false);
+    }
+    if (VL_UNLIKELY((VL_GTS_III(32, 4U, tb_memrun__DOT__nmapst)))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2286: Assertion failed in %Ntb_memrun: the map sequencer barely moved (%0d of 8 states)\n",0,
+                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
+                     32,tb_memrun__DOT__nmapst);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2286, "", false);
+    }
+    if (VL_UNLIKELY(((0U == tb_memrun__DOT__npsm2)))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2287: Assertion failed in %Ntb_memrun: preStartMem' never asserted -- no storage cycle was started\n",0,
+                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2287, "", false);
+    }
+    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nsm2)))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2288: Assertion failed in %Ntb_memrun: StartMem' never asserted\n",0,
+                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2288, "", false);
+    }
+    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nwim)))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2295: Assertion failed in %Ntb_memrun: WriteInMem' never asserted -- the write-back never reached the memory stage\n",0,
+                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2295, "", false);
+    }
+    if (VL_UNLIKELY(((0U == tb_memrun__DOT__nrw)))) {
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2300: Assertion failed in %Ntb_memrun: ReadOrWriteInMap' never asserted -- no map operation, so MapTrouble says nothing\n",0,
+                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2300, "", false);
     }
     VL_WRITEF_NX("tb_memrun:   MapTrouble terms low on -- ReadOrWriteInMap' %0d, MapWP' %0d, MapDirty' %0d, MapEven' %0d, CheckWP' %0d of %0d\ntb_memrun:   ...and the fourth term: preRfshInMem low on %0d of %0d\n",0,
                  32,tb_memrun__DOT__nrw,32,tb_memrun__DOT__nwp,
@@ -5750,16 +5788,16 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                  32,tb_memrun__DOT__nckw,32,tb_memrun__DOT__nsamp,
                  32,tb_memrun__DOT__nprf,32,tb_memrun__DOT__nsamp);
     if (VL_UNLIKELY(((tb_memrun__DOT__nthi != tb_memrun__DOT__nsamp)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2286: Assertion failed in %Ntb_memrun: THi must be a constant HIGH -- it strobes the whole map read path (high on %0d of %0d)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2311: Assertion failed in %Ntb_memrun: THi must be a constant HIGH -- it strobes the whole map read path (high on %0d of %0d)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nthi,32,tb_memrun__DOT__nsamp);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2286, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2311, "", false);
     }
     if (VL_UNLIKELY((((0U == tb_memrun__DOT__nwp) | 
                       (0U == tb_memrun__DOT__ndty))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2289: Assertion failed in %Ntb_memrun: the map outputs never varied -- the MC10124 translators are strobed off\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2314: Assertion failed in %Ntb_memrun: the map outputs never varied -- the MC10124 translators are strobed off\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2289, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2314, "", false);
     }
     VL_WRITEF_NX("tb_memrun:   MAP ARRAY d13 mem[0]=%x dout=%b | a04-write %0d, d13-WRITE %0d, read-cond %0d\ntb_memrun:   MAP ARRAY douts -- a04=%b d11=%b d13=%b | MemX13.sil+13=%b MemX13.sil+3=%b | MapDirty'=%b MapWP'=%b\ntb_memrun:   MAP ARRAY strobes -- RAS' edges %0d, CAS' edges %0d, READ-condition cycles %0d, WRITE-condition cycles %0d, of %0d\ntb_memrun:   g14 OUTPUTS -- MapTrouble high on %0d, MapTrouble' high on %0d of %0d\n",0,
                  12,vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_d13__DOT__mem
@@ -5777,17 +5815,20 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                  32,tb_memrun__DOT__nsamp,32,tb_memrun__DOT__nmt,
                  32,tb_memrun__DOT__nmtp,32,tb_memrun__DOT__nsamp);
     if (VL_UNLIKELY((VL_GTS_III(32, 0x000001f4U, tb_memrun__DOT__nmti)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2304: Assertion failed in %Ntb_memrun: MapTrouble never cleared (MapTroubleInMem low on only %0d) -- the <-Map entry did not take\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2329: Assertion failed in %Ntb_memrun: MapTrouble never cleared (MapTroubleInMem low on only %0d) -- the <-Map entry did not take\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_memrun__DOT__nmti);
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2304, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2329, "", false);
     }
     if (VL_UNLIKELY(((0U == tb_memrun__DOT__nwm)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2306: Assertion failed in %Ntb_memrun: WriteInMem' and a clear map never coincided -- the write-back cannot proceed\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2331: Assertion failed in %Ntb_memrun: WriteInMem' and a clear map never coincided -- the write-back cannot proceed\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2306, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2331, "", false);
     }
-    VL_WRITEF_NX("tb_memrun:   i14 ADDRESSES VISITED (Q2 high only at 3, 11, 19):",0);
+    VL_WRITEF_NX("tb_memrun:   WINDOW OPENER -- preStartMem' HIGH on %0d (last @%0d), MapWait LOW on %0d (last @%0d), BOTH on %0d (last @%0d)\ntb_memrun:   i14 ADDRESSES VISITED (Q2 = preStartMem' high ONLY at 3):",0,
+                 32,tb_memrun__DOT__npsh,32,tb_memrun__DOT__lastpsh,
+                 32,tb_memrun__DOT__nmwlo,32,tb_memrun__DOT__lastmwlo,
+                 32,tb_memrun__DOT__ncoin,32,tb_memrun__DOT__lastcoin);
     if (VL_UNLIKELY(((0U != vlSelfRef.tb_memrun__DOT__i14_hit
                       [0U])))) {
         VL_WRITEF_NX(" 0=%0d",0,32,vlSelfRef.tb_memrun__DOT__i14_hit
@@ -6010,19 +6051,19 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                  1,(IData)(vlSelfRef.tb_memrun__DOT__m__DOT__Map_u_InPair_p___05F_MemC),
                  1,vlSelfRef.tb_memrun__DOT__m__DOT__VicInPair_p___05F_MemC);
     if (VL_UNLIKELY((VL_GTS_III(32, 2U, tb_memrun__DOT__nras)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2367: Assertion failed in %Ntb_memrun: MemRASa never strobed -- no DRAM cycle started\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2394: Assertion failed in %Ntb_memrun: MemRASa never strobed -- no DRAM cycle started\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2367, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2394, "", false);
     }
     if (VL_UNLIKELY((VL_GTS_III(32, 2U, tb_memrun__DOT__ncas)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2368: Assertion failed in %Ntb_memrun: MemCASa never strobed -- the cycle did not get past RAS\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2395: Assertion failed in %Ntb_memrun: MemCASa never strobed -- the cycle did not get past RAS\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2368, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2395, "", false);
     }
     if (VL_UNLIKELY((VL_GTS_III(32, 2U, tb_memrun__DOT__nms)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2369: Assertion failed in %Ntb_memrun: MapState never advanced -- the PROM sequencer is not running\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2396: Assertion failed in %Ntb_memrun: MapState never advanced -- the PROM sequencer is not running\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2369, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2396, "", false);
     }
     VL_WRITEF_NX("tb_memrun:   MemIdlea=%b MemX clk0' edges=%0d  MemRfsh=%b RfshPeriod=%b SetRunRfsh=1\ntb_memrun:   RfshPeriod edges=%0d  MemRfsh edges=%0d\ntb_memrun:   StartMap' terms -- Hia=1 NoRef=%b MapRfsh'=%b AwantsMapFS'=%b AfreeOrEc'a=%b WantVic'=%b\ntb_memrun:   MapRfsh' = MapFree'(%b) | NeedRfsh'(%b) = %b\ntb_memrun:   refresh chain EDGES -- RfshPeriod %0d, RfshSqWave %0d, StartRfshCycle' %0d,\ntb_memrun:                          WantRfsh' %0d, NeedRfsh' %0d, MapRfsh' %0d, StartMap' %0d\n",0,
                  1,vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemIdlea,
@@ -6148,16 +6189,16 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                  1,vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_e22__DOT__qb,
                  1,(1U & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_e23__DOT__qa))));
     if (VL_UNLIKELY((vlSelfRef.tb_memrun__DOT__m__DOT__PRhold))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2440: Assertion failed in %Ntb_memrun: the memory is still holding the processor after a run\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2467: Assertion failed in %Ntb_memrun: the memory is still holding the processor after a run\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2440, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2467, "", false);
     }
     VL_WRITEF_NX("tb_memrun: machine running -- %0d clk0' edges, Stop=%b\n",0,
                  32,tb_memrun__DOT__n0a,1,(IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_j04__DOT__qa));
     if (VL_UNLIKELY((VL_GTS_III(32, 0x00000064U, tb_memrun__DOT__n0a)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2442: Assertion failed in %Ntb_memrun: the microinstruction clock is not free-running\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2469: Assertion failed in %Ntb_memrun: the microinstruction clock is not free-running\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2442, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2469, "", false);
     }
     tb_memrun__DOT__tbad = 0U;
     VL_WRITEF_NX("tb_memrun: MemC clock edges %0d | MemClkEnable'a=%b CLKEnable'b=%b dStop=%b Stop=%b\n",0,
@@ -6519,7 +6560,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                                  nullptr, 
                                                                  "@(posedge tb_memrun.sys_clk)", 
                                                                  "verilog/verilator/tb_memrun.sv", 
-                                                                 2504);
+                                                                 2531);
             tb_memrun__DOT__unnamedblk1_29__DOT____Vrepeat28 
                 = (tb_memrun__DOT__unnamedblk1_29__DOT____Vrepeat28 
                    - (IData)(1U));
@@ -6578,7 +6619,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
                                                              nullptr, 
                                                              "@(posedge tb_memrun.sys_clk)", 
                                                              "verilog/verilator/tb_memrun.sv", 
-                                                             2521);
+                                                             2548);
         tb_memrun__DOT__unnamedblk1_30__DOT____Vrepeat29 
             = (tb_memrun__DOT__unnamedblk1_30__DOT____Vrepeat29 
                - (IData)(1U));
@@ -6591,12 +6632,12 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__0__4(Vtb_memrun__
         tb_memrun__DOT__tbad = ((IData)(1U) + tb_memrun__DOT__tbad);
     }
     if (VL_UNLIKELY(((0U != tb_memrun__DOT__tbad)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2531: Assertion failed in %Ntb_memrun: the memory section is not right in a running machine\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_memrun.sv:2558: Assertion failed in %Ntb_memrun: the memory section is not right in a running machine\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2531, "", false);
+        VL_STOP_MT("verilog/verilator/tb_memrun.sv", 2558, "", false);
     }
     VL_WRITEF_NX("tb_memrun: PASS -- the memory runs DRAM cycles from PARC's own startup, and holds nothing\n",0);
-    VL_FINISH_MT("verilog/verilator/tb_memrun.sv", 2533, "");
+    VL_FINISH_MT("verilog/verilator/tb_memrun.sv", 2560, "");
     co_return;}
 
 VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__1(Vtb_memrun___024root* vlSelf) {
@@ -6608,7 +6649,7 @@ VlCoroutine Vtb_memrun___024root___eval_initial__TOP__Vtiming__1(Vtb_memrun___02
         co_await vlSelfRef.__VdlySched.delay(1ULL, 
                                              nullptr, 
                                              "verilog/verilator/tb_memrun.sv", 
-                                             814);
+                                             827);
         vlSelfRef.tb_memrun__DOT__sys_clk = (1U & (~ (IData)(vlSelfRef.tb_memrun__DOT__sys_clk)));
     }
     co_return;}
@@ -8072,2048 +8113,4 @@ void Vtb_memrun___024root___act_comb__TOP__11(Vtb_memrun___024root* vlSelf) {
                                                   | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Last_eq_Curr_p_) 
                                                      | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__TbWriteEn_p_) 
                                                         | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__TisIFdata))));
-}
-
-void Vtb_memrun___024root___act_comb__TOP__12(Vtb_memrun___024root* vlSelf) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_memrun___024root___act_comb__TOP__12\n"); );
-    Vtb_memrun__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
-    auto& vlSelfRef = std::ref(*vlSelf).get();
-    // Body
-    vlSelfRef.tb_memrun__DOT__m__DOT__DMuxData = (1U 
-                                                  & (((~ 
-                                                       ((~ 
-                                                         ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ContA28_sil_pl_2) 
-                                                          | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ContA28_sil_pl_3) 
-                                                             | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ContA28_sil_pl_4) 
-                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_f16__DOT__p13))))) 
-                                                        | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__SetRun_p_))) 
-                                                      | ((~ 
-                                                          (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__TrueBD) 
-                                                            & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__DMD_01)) 
-                                                           | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__TrueBD) 
-                                                               & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__DMD_02)) 
-                                                              | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__TrueBD) 
-                                                                  & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__DMD_03)) 
-                                                                 | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__DMuxEnable_p___05F_l24_9))))) 
-                                                         & (((((((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_29) 
-                                                                   & (((0x000000e0U 
-                                                                        & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_d09__DOT__q) 
-                                                                           << 5U)) 
-                                                                       | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_c09__DOT__q) 
-                                                                           << 1U) 
-                                                                          | (1U 
-                                                                             & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_b09__DOT__q) 
-                                                                                >> 3U)))) 
-                                                                      >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))) 
-                                                                  | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_26) 
-                                                                      & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bJCN_6) 
-                                                                              << 3U) 
-                                                                             | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bJCN_5) 
-                                                                                << 2U)) 
-                                                                            | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bJCN_4) 
-                                                                                << 1U) 
-                                                                               | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_d24__DOT__qa))) 
-                                                                           << 4U) 
-                                                                          | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_d24__DOT__qb) 
-                                                                               << 3U) 
-                                                                              | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_c23__DOT__qa) 
-                                                                                << 2U)) 
-                                                                             | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_c23__DOT__qb) 
-                                                                                << 1U) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bFF_7_p_)))))) 
-                                                                         >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))) 
-                                                                     | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_28) 
-                                                                         & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_15) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_14) 
-                                                                                << 2U)) 
-                                                                               | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_13) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_12))) 
-                                                                              << 4U) 
-                                                                             | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_11) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_10) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_09) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_08)))) 
-                                                                            >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))) 
-                                                                        | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_l10__DOT__enr) 
-                                                                            & (1U 
-                                                                               == (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_l10__DOT__sel))) 
-                                                                           & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_g07__DOT__qa) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_g07__DOT__qb) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_g06__DOT__qa) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_g06__DOT__qb))) 
-                                                                                << 4U) 
-                                                                               | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_j09__DOT__qa) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_j09__DOT__qb) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_j08__DOT__qa) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_j08__DOT__qb)))) 
-                                                                              >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0)))))) 
-                                                                 << 3U) 
-                                                                | ((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_26) 
-                                                                     & ((((((2U 
-                                                                             & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bFF_6_p_)) 
-                                                                                << 1U)) 
-                                                                            | (1U 
-                                                                               & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bFF_5_p_)))) 
-                                                                           << 6U) 
-                                                                          | (((2U 
-                                                                               & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bFF_4_p_)) 
-                                                                                << 1U)) 
-                                                                              | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bFF_3_p_)))) 
-                                                                             << 4U)) 
-                                                                         | ((((2U 
-                                                                               & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bFF_2_p_)) 
-                                                                                << 1U)) 
-                                                                              | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bFF_1_p_)))) 
-                                                                             << 2U) 
-                                                                            | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bFF_0_p_)) 
-                                                                                << 1U)) 
-                                                                               | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_g16__DOT__qb)))))) 
-                                                                        >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))) 
-                                                                    | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_29) 
-                                                                        & (((0x000000e0U 
-                                                                             & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_b09__DOT__q) 
-                                                                                << 5U)) 
-                                                                            | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_a09__DOT__q) 
-                                                                                << 1U) 
-                                                                               | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_a07__DOT__p6))) 
-                                                                           >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))) 
-                                                                       | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_28) 
-                                                                          & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_07) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_06) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_05) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_04))) 
-                                                                               << 4U) 
-                                                                              | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_03) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_02) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ToPE_01) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__Call)))) 
-                                                                             >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))))) 
-                                                                   << 2U)) 
-                                                               | (((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_29) 
-                                                                     & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNTGtCT_p_a___05FContA) 
-                                                                             << 3U) 
-                                                                            | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bSwitch_p_a) 
-                                                                               << 2U)) 
-                                                                           | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__RepeatCurB) 
-                                                                               << 1U) 
-                                                                              | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CAHoldB))) 
-                                                                          << 4U) 
-                                                                         | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__PreEmpting_p_) 
-                                                                              << 3U) 
-                                                                             | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa) 
-                                                                                << 2U)) 
-                                                                            | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__PEnc_eq_CT_p_) 
-                                                                                << 1U) 
-                                                                               | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__StopTasks)))) 
-                                                                        >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))) 
-                                                                    | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_26) 
-                                                                       & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_15) 
-                                                                               << 3U) 
-                                                                              | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_14) 
-                                                                                << 2U)) 
-                                                                             | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_13) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_12))) 
-                                                                            << 4U) 
-                                                                           | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_11) 
-                                                                                << 3U) 
-                                                                               | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_10) 
-                                                                                << 2U)) 
-                                                                              | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_09) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_08)))) 
-                                                                          >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0)))) 
-                                                                   << 1U) 
-                                                                  | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_26) 
-                                                                      & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_07) 
-                                                                              << 3U) 
-                                                                             | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_06) 
-                                                                                << 2U)) 
-                                                                            | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_05) 
-                                                                                << 1U) 
-                                                                               | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_04))) 
-                                                                           << 4U) 
-                                                                          | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_03) 
-                                                                               << 3U) 
-                                                                              | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_02) 
-                                                                                << 2U)) 
-                                                                             | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_01) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIA_00)))) 
-                                                                         >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))) 
-                                                                     | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_29) 
-                                                                        & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__PEncLtTrueNext_p_) 
-                                                                                << 3U) 
-                                                                               | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__PEncGtTrueNext_p_) 
-                                                                                << 2U)) 
-                                                                              | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CTask_eq_0) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__Next_eq_0))) 
-                                                                             << 4U) 
-                                                                            | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__pNext_3) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__pNext_2) 
-                                                                                << 2U)) 
-                                                                               | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__pNext_1) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__pNext_0)))) 
-                                                                           >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0)))))) 
-                                                              << 4U) 
-                                                             | ((((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_26) 
-                                                                    & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_15) 
-                                                                            << 3U) 
-                                                                           | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_14) 
-                                                                              << 2U)) 
-                                                                          | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_13) 
-                                                                              << 1U) 
-                                                                             | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_12))) 
-                                                                         << 4U) 
-                                                                        | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_11) 
-                                                                             << 3U) 
-                                                                            | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_10) 
-                                                                               << 2U)) 
-                                                                           | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_09) 
-                                                                               << 1U) 
-                                                                              | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_08)))) 
-                                                                       >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))) 
-                                                                   | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_29) 
-                                                                      & (((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bPEnc_3) 
-                                                                            << 7U) 
-                                                                           | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bPEnc_2) 
-                                                                              << 6U)) 
-                                                                          | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bPEnc_1) 
-                                                                              << 5U) 
-                                                                             | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bPEnc_0) 
-                                                                                << 4U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_h09__DOT__q)))) 
-                                                                         >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0)))) 
-                                                                  << 3U) 
-                                                                 | ((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_26) 
-                                                                      & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_07) 
-                                                                              << 3U) 
-                                                                             | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_06) 
-                                                                                << 2U)) 
-                                                                            | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_05) 
-                                                                                << 1U) 
-                                                                               | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_04))) 
-                                                                           << 4U) 
-                                                                          | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_03) 
-                                                                               << 3U) 
-                                                                              | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_02) 
-                                                                                << 2U)) 
-                                                                             | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_01) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CIAInc_00)))) 
-                                                                         >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))) 
-                                                                     | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_29) 
-                                                                        & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__B_u_Link_p_) 
-                                                                                << 3U) 
-                                                                               | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FF_eq_ReadLink) 
-                                                                                << 2U)) 
-                                                                              | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FF_eq_Link_u_CPReg) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FF_eq_WriteLink))) 
-                                                                             << 4U) 
-                                                                            | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__Link_u_BMuxa) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FF_eq_MidasOn) 
-                                                                                << 2U)) 
-                                                                               | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FF_eq_TaskingOff) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FF_eq_TaskingOn)))) 
-                                                                           >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0)))) 
-                                                                    << 2U)) 
-                                                                | (((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_29) 
-                                                                      & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_f05__DOT__qb) 
-                                                                              << 3U) 
-                                                                             | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__RIMorRTPCdly) 
-                                                                                << 2U)) 
-                                                                            | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FF_eq_TOffIsOK) 
-                                                                                << 1U) 
-                                                                               | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FF_eq_UseDMD))) 
-                                                                           << 4U) 
-                                                                          | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bDoCBr) 
-                                                                               << 3U) 
-                                                                              | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FA_eq_1_p_) 
-                                                                                << 2U)) 
-                                                                             | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FA_eq_0_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__FFok_p_a___05FContA)))) 
-                                                                         >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))) 
-                                                                     | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_26) 
-                                                                        & (((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FF_eq_BigBDispatch) 
-                                                                              << 7U) 
-                                                                             | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FF_eq_BDispatch) 
-                                                                                << 6U)) 
-                                                                            | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FF_eq_MulStep) 
-                                                                                << 5U) 
-                                                                               | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__FF_eq_Notify_p_) 
-                                                                                << 4U) 
-                                                                                | (0x0000000fU 
-                                                                                & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_d20__DOT__q))))) 
-                                                                           >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0)))) 
-                                                                    << 1U) 
-                                                                   | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_29) 
-                                                                       & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__CondBr_p_a) 
-                                                                               << 3U) 
-                                                                              | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
-                                                                                << 2U)) 
-                                                                             | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__LongJump_p_a) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a))) 
-                                                                            << 4U) 
-                                                                           | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__LocalBr_p_a) 
-                                                                               << 3U) 
-                                                                              | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_e23__DOT__qa) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__bJCN_7)))) 
-                                                                          >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))) 
-                                                                      | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_26) 
-                                                                         & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_f05__DOT__qa) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_f06__DOT__qa) 
-                                                                                << 2U)) 
-                                                                               | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__RWTPCorRWIM) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_j01__DOT__qb))) 
-                                                                              << 4U) 
-                                                                             | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_l07__DOT__qb) 
-                                                                                << 3U) 
-                                                                                | (4U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ContA27_sil_pl_1)) 
-                                                                                << 2U))) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_k03__DOT__qb) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__u_j04__DOT__qa)))) 
-                                                                            >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_0))))))) 
-                                                            >> 
-                                                            (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__DMD_06) 
-                                                              << 2U) 
-                                                             | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__DMD_07) 
-                                                                 << 1U) 
-                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__DMD_08)))))) 
-                                                     | (((~ 
-                                                          ((~ 
-                                                            ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__DMD_04) 
-                                                             ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__DMD_05))) 
-                                                           | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_l13__DOT__p4) 
-                                                               ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__ContB12_sil_pl_1)) 
-                                                              | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__DMD_03) 
-                                                                  ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_l13__DOT__p7)) 
-                                                                 | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__ContB12_sil_pl_2___05Fl24_15))))) 
-                                                         & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_l23__DOT__p14) 
-                                                                 << 3U) 
-                                                                | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_36) 
-                                                                    & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdJCN_7) 
-                                                                            << 3U) 
-                                                                           | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdIMRH) 
-                                                                              << 2U)) 
-                                                                          | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdIMLH) 
-                                                                              << 1U) 
-                                                                             | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdRSTK_0))) 
-                                                                         << 4U) 
-                                                                        | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bRSTK_0) 
-                                                                             << 3U) 
-                                                                            | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_c24__DOT__qa) 
-                                                                               << 2U)) 
-                                                                           | ((2U 
-                                                                               & ((~ 
-                                                                                ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__SWa) 
-                                                                                ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_k20__DOT__p9))) 
-                                                                                << 1U)) 
-                                                                              | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__CBTempSense___05FContB)))) 
-                                                                       >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35))) 
-                                                                   << 2U)) 
-                                                               | ((2U 
-                                                                   & ((((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__DMD_05)) 
-                                                                        & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__RA_10a) 
-                                                                                << 3U) 
-                                                                               | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__RA_09a) 
-                                                                                << 2U)) 
-                                                                              | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__RA_08a) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__RA_07a))) 
-                                                                             << 4U) 
-                                                                            | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__RA_06a) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__RA_05a) 
-                                                                                << 2U)) 
-                                                                               | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__RA_04a) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__RA_03a)))) 
-                                                                           >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35))) 
-                                                                       | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_36) 
-                                                                          & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_15) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_14) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_13) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_12))) 
-                                                                               << 4U) 
-                                                                              | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_11) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_10) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_09) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_08)))) 
-                                                                             >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35)))) 
-                                                                      << 1U)) 
-                                                                  | (1U 
-                                                                     & (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_36) 
-                                                                         & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_07) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_06) 
-                                                                                << 2U)) 
-                                                                               | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_05) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_04))) 
-                                                                              << 4U) 
-                                                                             | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_03___05FContA) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__BNPC_02___05FContA) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_g23__DOT__p5) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_g23__DOT__p6)))) 
-                                                                            >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35))) 
-                                                                        | ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__DMD_05)) 
-                                                                           & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__RA_02g) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__RA_01g) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_i05__DOT__p12) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_i05__DOT__p11))) 
-                                                                                << 4U) 
-                                                                               | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__CS3_p_BDa) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__CS2_p_BDa) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__CS1_p_BDa) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__CS0_p_BDa)))) 
-                                                                              >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35))))))) 
-                                                              << 4U) 
-                                                             | ((((2U 
-                                                                   & ((((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__DMD_05)) 
-                                                                        & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdJCN_6) 
-                                                                                << 3U) 
-                                                                               | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdJCN_5) 
-                                                                                << 2U)) 
-                                                                              | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdJCN_4) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdJCN_3))) 
-                                                                             << 4U) 
-                                                                            | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdJCN_2) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdJCN_1) 
-                                                                                << 2U)) 
-                                                                               | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdJCN_0) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdFF_7)))) 
-                                                                           >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35))) 
-                                                                       | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_36) 
-                                                                          & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_15) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_14) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_13) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_12))) 
-                                                                               << 4U) 
-                                                                              | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_11) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_10) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_09) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_08)))) 
-                                                                             >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35)))) 
-                                                                      << 1U)) 
-                                                                  | (1U 
-                                                                     & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__DMD_05)) 
-                                                                         & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdFF_6) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdFF_5) 
-                                                                                << 2U)) 
-                                                                               | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdFF_4) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdFF_3))) 
-                                                                              << 4U) 
-                                                                             | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdFF_2) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdFF_1) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdFF_0) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdBlock)))) 
-                                                                            >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35))) 
-                                                                        | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_36) 
-                                                                           & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_07) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_06) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_05) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_04))) 
-                                                                                << 4U) 
-                                                                               | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_03___05FContA) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__TNIA_02___05FContA) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_e23__DOT__p5) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_e23__DOT__p6)))) 
-                                                                              >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35)))))) 
-                                                                 << 2U) 
-                                                                | ((2U 
-                                                                    & ((((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__DMD_05)) 
-                                                                         & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdASEL_2) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdASEL_1) 
-                                                                                << 2U)) 
-                                                                               | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdASEL_0) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdLC_2))) 
-                                                                              << 4U) 
-                                                                             | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdLC_1) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdLC_0) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdBSEL_2) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdBSEL_1)))) 
-                                                                            >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35))) 
-                                                                        | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_36) 
-                                                                           & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_c24__DOT__qb) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_b24__DOT__qa) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_b23__DOT__qb) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_i24__DOT__qa))) 
-                                                                                << 4U) 
-                                                                               | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_i24__DOT__qb) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_h24__DOT__qa) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_h24__DOT__qb) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_g24__DOT__qa)))) 
-                                                                              >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35)))) 
-                                                                       << 1U)) 
-                                                                   | (1U 
-                                                                      & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__DMD_05)) 
-                                                                          & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdBSEL_0) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdALUF_3) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdALUF_2) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdALUF_1))) 
-                                                                               << 4U) 
-                                                                              | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdALUF_0) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdRSTK_3) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdRSTK_2) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bdRSTK_1)))) 
-                                                                             >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35))) 
-                                                                         | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_36) 
-                                                                            & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_g24__DOT__qb) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_k24__DOT__qa) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_k24__DOT__qb) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_j24__DOT__qa))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_j24__DOT__qb) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bRSTK_3) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bRSTK_2) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__bRSTK_1)))) 
-                                                                               >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_35)))))))) 
-                                                            >> 
-                                                            (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__DMD_06) 
-                                                              << 2U) 
-                                                             | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__DMD_07) 
-                                                                 << 1U) 
-                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__DMD_08))))) 
-                                                        | (((~ 
-                                                             ((~ 
-                                                               ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_02) 
-                                                                ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_a01__DOT__p9))) 
-                                                              | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_01___05Fk24_3) 
-                                                                 | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_01___05Fl22_15) 
-                                                                    | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_03) 
-                                                                       | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_04)))))) 
-                                                            & ((((((2U 
-                                                                    & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_05)) 
-                                                                        & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__MemB_4) 
-                                                                                << 3U) 
-                                                                               | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__MemB_3) 
-                                                                                << 2U)) 
-                                                                              | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__MemB_2) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_g17__DOT__qb))) 
-                                                                             << 4U) 
-                                                                            | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__HitColDirty) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__HitColVA_par) 
-                                                                                << 2U)) 
-                                                                               | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ColVic_1) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ColVic_0)))) 
-                                                                           >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100))) 
-                                                                       << 1U)) 
-                                                                   | (1U 
-                                                                      & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_05)) 
-                                                                         & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__MiscPCHP_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__NoRef) 
-                                                                                << 2U)) 
-                                                                               | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__DisHold___05FMemC) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DisCflags))) 
-                                                                              << 4U) 
-                                                                             | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DisBR) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__UseMcrV) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ForceDirtyMiss) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__dVA_u_Vic)))) 
-                                                                            >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100))))) 
-                                                                  << 6U) 
-                                                                 | (((2U 
-                                                                      & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_05)) 
-                                                                          & (((0x00000080U 
-                                                                               & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_i23__DOT__q) 
-                                                                                << 4U)) 
-                                                                              | ((0x00000040U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_i23__DOT__q) 
-                                                                                << 5U)) 
-                                                                                | ((0x00000030U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_h24__DOT__q) 
-                                                                                << 2U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_g24__DOT__q)))) 
-                                                                             >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100))) 
-                                                                         << 1U)) 
-                                                                     | (1U 
-                                                                        & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_05)) 
-                                                                            & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_b15__DOT__qb) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_b15__DOT__qa) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_a15__DOT__qb) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_a15__DOT__qa))) 
-                                                                                << 4U) 
-                                                                                | ((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_a14__DOT__qb)) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_a14__DOT__qa)))) 
-                                                                                << 2U) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_c14__DOT__qa)) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_b14__DOT__qa)))))) 
-                                                                               >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100))) 
-                                                                           | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_98) 
-                                                                              & ((0x000000f0U 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_k02__DOT__q)) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100)))))) 
-                                                                    << 4U)) 
-                                                                | ((((2U 
-                                                                      & ((((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_05)) 
-                                                                           & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_31) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_30) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_29) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_28))) 
-                                                                                << 4U) 
-                                                                               | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_27) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_26) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_25) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_24)))) 
-                                                                              >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100))) 
-                                                                          | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_98) 
-                                                                             & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__PairFull_p___05F_MemC) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__KillIfuRef) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__bEcHasA))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__FSinPair_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__VicInPair_p___05F_MemC) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__PrivRefInPair___05FMemC) 
-                                                                                << 1U) 
-                                                                                | (1U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_h24__DOT__q) 
-                                                                                >> 1U))))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100)))) 
-                                                                         << 1U)) 
-                                                                     | (1U 
-                                                                        & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_05)) 
-                                                                            & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_23) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_22) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_21) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_20))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__MemB_1) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_06) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_05) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__MemB_0)))) 
-                                                                               >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100))) 
-                                                                           | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_98) 
-                                                                              & ((((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__CacheRefInA_p_)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__IoRefInA_p_)) 
-                                                                                << 6U) 
-                                                                                | (((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__IfuRefInA_p_)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__PrefetchInA)) 
-                                                                                << 4U)) 
-                                                                                | ((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_j20__DOT__p9)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__Map_u_InPair_p___05F_MemC)) 
-                                                                                << 2U) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__IoStoreInA_p_)) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__Store_u_InA_p___05F_MemC)))))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100)))))) 
-                                                                    << 2U) 
-                                                                   | ((2U 
-                                                                       & ((((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_05)) 
-                                                                            & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_19) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_18) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_17) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_16))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_15) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_14) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_13) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_12)))) 
-                                                                               >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100))) 
-                                                                           | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_98) 
-                                                                              & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__AwantsMapFS_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__StartMap_p___05F_MemC) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__Afree_p_) 
-                                                                                << 1U) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_4___05Fc24_2))))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_k13__DOT__qa) 
-                                                                                << 3U) 
-                                                                                | (4U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_c17__DOT__qb)) 
-                                                                                << 2U))) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__Dbusy) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__AwasFree_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100)))) 
-                                                                          << 1U)) 
-                                                                      | (1U 
-                                                                         & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_05)) 
-                                                                             & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_11) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_10) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_09) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_08))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_07) 
-                                                                                << 3U) 
-                                                                                | (4U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_d17__DOT__qa)) 
-                                                                                << 2U))) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__Hib) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__ProcVA_04)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100))) 
-                                                                            | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_98) 
-                                                                               & ((((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_e23__DOT__qb)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_e22__DOT__qa)) 
-                                                                                << 6U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_e22__DOT__qb) 
-                                                                                << 5U) 
-                                                                                | (0x00000010U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_e23__DOT__qa)) 
-                                                                                << 4U)))) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__NextV_1_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__NextV_0_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__Victim_1_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__Victim_0_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_100)))))))) 
-                                                               >> 
-                                                               (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_06) 
-                                                                 << 2U) 
-                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_07) 
-                                                                    << 1U) 
-                                                                   | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__DMadr_08))))) 
-                                                           | (((~ 
-                                                                ((~ 
-                                                                  ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_02) 
-                                                                   ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_d20__DOT__p9))) 
-                                                                 | ((~ 
-                                                                     ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_04) 
-                                                                      ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_d20__DOT__p9))) 
-                                                                    | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__MemD21_sil_pl_2___05Fl22_15) 
-                                                                       | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_01) 
-                                                                          | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_03)))))) 
-                                                               & ((((((2U 
-                                                                       & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_05)) 
-                                                                           & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__ChkErrEn_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DoubleError_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__ChkLastPh6_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__ChkPh4_p_))) 
-                                                                                << 4U) 
-                                                                               | ((((2U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_e13__DOT__q) 
-                                                                                >> 2U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DisableEc_p_)) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__WordInError_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__EcInD_1)))) 
-                                                                              >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_111))) 
-                                                                          << 1U)) 
-                                                                      | (1U 
-                                                                         & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_05)) 
-                                                                            & (((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_h13__DOT__p14) 
-                                                                                << 7U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__D1ACE_p_a) 
-                                                                                << 6U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__StartEcGen_p___05F_MemX) 
-                                                                                << 5U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__StartEcChk_p___05F_MemX) 
-                                                                                << 4U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_h12__DOT__q)))) 
-                                                                               >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_111))))) 
-                                                                     << 6U) 
-                                                                    | (((2U 
-                                                                         & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_05)) 
-                                                                             & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_j23__DOT__p14) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_j23__DOT__p13) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_j23__DOT__p12) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_j23__DOT__p11))) 
-                                                                                << 4U) 
-                                                                                | ((((2U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_k18__DOT__q) 
-                                                                                >> 2U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DontLoad1)) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_i23__DOT__qa) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__Fout_00___05FMemD)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_111))) 
-                                                                            << 1U)) 
-                                                                        | (1U 
-                                                                           & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_05)) 
-                                                                              & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__bFastD_u_Dbuf) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MakeMDM_u_D_p___05F_MemX) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__MD_u_D) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__D_u_CD))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__Fout_u_D) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__Sout_u_D) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__D_u_Dbuf) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__F_u_D)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_111))))) 
-                                                                       << 4U)) 
-                                                                   | ((((2U 
-                                                                         & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_05)) 
-                                                                             & (((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__WriteD0_p_d) 
-                                                                                << 7U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__D0ACE_p_a) 
-                                                                                << 6U)) 
-                                                                                | ((0x00000038U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_l08__DOT__q) 
-                                                                                << 2U)) 
-                                                                                | ((4U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_h02__DOT__qa)) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__Dad_08_p_c) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__Dad_07_p_c))))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_111))) 
-                                                                            << 1U)) 
-                                                                        | (1U 
-                                                                           & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_05)) 
-                                                                              & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__Dad_06_p_c) 
-                                                                                << 3U) 
-                                                                                | (4U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__Dad_05c)) 
-                                                                                << 2U))) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__Dad_04c)) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__Dad_03c))))) 
-                                                                                << 4U) 
-                                                                                | ((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__Dad_02c)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__Dad_01d)) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__Dad_00d) 
-                                                                                << 1U) 
-                                                                                | (1U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_j10__DOT__p5) 
-                                                                                | ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_h02__DOT__qa)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__MemD03_sil_pl_5))))))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_111))))) 
-                                                                       << 2U) 
-                                                                      | ((2U 
-                                                                          & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_05)) 
-                                                                              & (((((0x0000000eU 
-                                                                                & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_h07__DOT__q)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DontWriteMDM)) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__WriteD1_p_d) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__D1BCE_p_a) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__dMD_00___05FMemD) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__D_00)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_111))) 
-                                                                             << 1U)) 
-                                                                         | (1U 
-                                                                            & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_05)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__TempSense) 
-                                                                                << 3U) 
-                                                                                | (4U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_k13__DOT__qb)) 
-                                                                                << 2U))) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__EcInD_0) 
-                                                                                << 1U) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_a01__DOT__qb))))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__D1in_00) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__D0in_00) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__CD_00) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__SinD_00)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_111))) 
-                                                                               | ((~ 
-                                                                                ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_e24__DOT__p9)) 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__HighC) 
-                                                                                ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_05)))) 
-                                                                                & (((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_b18__DOT__qa) 
-                                                                                << 7U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_b19__DOT__qa) 
-                                                                                << 6U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_b19__DOT__qb) 
-                                                                                << 5U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_b18__DOT__qb) 
-                                                                                << 4U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__u_a18__DOT__q)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_111)))))))) 
-                                                                  >> 
-                                                                  (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_06) 
-                                                                    << 2U) 
-                                                                   | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_07) 
-                                                                       << 1U) 
-                                                                      | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemD__DOT__DMadr_08))))) 
-                                                              | (((~ 
-                                                                   ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__DMadr_01___05Fl21_3) 
-                                                                    | ((~ 
-                                                                        ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__DMadr_02) 
-                                                                         | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_l24__DOT__p5))) 
-                                                                       | ((~ 
-                                                                           ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__DMadr_03) 
-                                                                            | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_l24__DOT__p7))) 
-                                                                          | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__DMadr_01___05Fl24_9))))) 
-                                                                  & (((((((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_128) 
-                                                                            & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MakeMDM_u_D_p___05F_MemX) 
-                                                                                << 3U) 
-                                                                                | (4U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MakeMD_u_D_p___05F_MemX)) 
-                                                                                << 2U))) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MakeF_u_D) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MakeD_u_Dbuf___05FMemX))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MakeD_u_CD___05FMemX) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MakeFout_u_D___05FMemX) 
-                                                                                << 2U)) 
-                                                                                | ((2U 
-                                                                                & (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__FoutNext___05Fj20_4) 
-                                                                                << 1U) 
-                                                                                | (0x7ffffffeU 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_j21__DOT__q) 
-                                                                                >> 1U)))) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__EcWantsAa)))) 
-                                                                               >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                           | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_126) 
-                                                                               & ((((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemC__DOT__u_f24__DOT__p2)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFree)) 
-                                                                                << 6U) 
-                                                                                | (((2U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
-                                                                                >> 2U)) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__AWordRefToD_p_)))) 
-                                                                                << 4U)) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__RefUsesDInEc1) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapRfshDly) 
-                                                                                << 2U)) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__VictimInA_p_)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__STfree_p___05F_MemX)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                              | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_127) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MakeTransport2) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MakeTransport1) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MakeTransport0) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MakeSout_u_D___05FMemX))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__DdataGood_p___05F_MemX) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__StopFinTaskLoad) 
-                                                                                << 2U)) 
-                                                                                | ((2U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_f18__DOT__q) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__FinNext___05FMemX)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))))) 
-                                                                          << 3U) 
-                                                                         | ((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_128) 
-                                                                              & (((((0x0000000eU 
-                                                                                & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__q)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Ec1Func_1)) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Ec1Func_0) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Ec1Idle) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Ec1Free_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__StartEc2_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                             | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_126) 
-                                                                                & (((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__STState_3) 
-                                                                                << 7U) 
-                                                                                | (0x00000070U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h12__DOT__q) 
-                                                                                << 4U))) 
-                                                                                | ((((2U 
-                                                                                & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_i10__DOT__q)) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__StartST_p_)))) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__STIdle_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__VictimInST)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                                | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_127) 
-                                                                                & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_j16__DOT__q) 
-                                                                                << 4U) 
-                                                                                | ((((2U 
-                                                                                & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_j12__DOT__q)) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemIdle)))) 
-                                                                                << 2U) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemIO_p_)) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemD_p_)))))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))))) 
-                                                                            << 2U)) 
-                                                                        | (((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_128) 
-                                                                              & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h18__DOT__q) 
-                                                                                << 4U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h22__DOT__q)) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                             | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_126) 
-                                                                                & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_e22__DOT__q) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Dt_eq_Curt_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__At_eq_Curt_p___05F_MemX) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MDMtag_p___05F_MemX) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__ProcTag___05FMemX)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                                | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_127) 
-                                                                                & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_a21__DOT__q) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__ChkLastPh6) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__EcWordRefToD) 
-                                                                                << 2U)) 
-                                                                                | ((2U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_a23__DOT__q) 
-                                                                                >> 2U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__AcanHaveD)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))))) 
-                                                                            << 1U) 
-                                                                           | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_126) 
-                                                                               & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_a18__DOT__q) 
-                                                                                << 4U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_d22__DOT__q)) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                              | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_127) 
-                                                                                & ((((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MapRfsh_p___05F_MemX)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemState_p_)) 
-                                                                                << 6U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__sHold) 
-                                                                                << 5U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Dtag_p_) 
-                                                                                << 4U))) 
-                                                                                | ((((2U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_k21__DOT__q) 
-                                                                                >> 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Ptag)) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__EcHasA) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemColSela)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_l05__DOT__enr) 
-                                                                                & (3U 
-                                                                                == (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_l05__DOT__sel))) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__EcWantsPipe4_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Store_u_InMap_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT___u_MapInMap) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__IOFetchInMap_p_))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__WriteInMap_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__DirtyIOFetchInMap_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__RefUsesD10InMap_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__RefUsesDInMap_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                                | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_128) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT___u_FaultInfoDly_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__StkWake) 
-                                                                                << 2U)) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__StartMem_p_a)) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__NeedRfsh_p_))))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_j08__DOT__qb) 
-                                                                                << 3U) 
-                                                                                | (4U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h08__DOT__q) 
-                                                                                << 1U))) 
-                                                                                | ((2U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h08__DOT__q) 
-                                                                                >> 1U)) 
-                                                                                | (1U 
-                                                                                & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h08__DOT__q))))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115)))))))) 
-                                                                       << 4U) 
-                                                                      | ((((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_124) 
-                                                                             & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__DirtyIOFetchInMem) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__RefUsesDInMem) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__RefUsesD10InMem_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__IOFetchInMem_p_))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemWP) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__WriteInMem_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__RfshInMem) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapTroubleInMem)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                            | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_125) 
-                                                                                & (((0x000000e0U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_l16__DOT__q) 
-                                                                                << 4U)) 
-                                                                                | ((((6U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_l10__DOT__q) 
-                                                                                >> 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Ec2Idle)) 
-                                                                                << 2U) 
-                                                                                | ((2U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_k21__DOT__q) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_7))))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                               | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_123) 
-                                                                                & ((0x00000020U 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__VicSTPerr) 
-                                                                                << 7U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_j10__DOT__p11) 
-                                                                                << 4U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemError_p_) 
-                                                                                << 3U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__ECFault_p_) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Transporta) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__PairFull)))))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                                | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_122) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapTroubleInEc2) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapPEInEc2) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__IfuRefInEc2) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__Store_u_InEc2_p_))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__CacheRefInEc2) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__TagInEc2) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MapTroubleInEc1___05FMemX) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__WPinEc1___05FMemX)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115)))))) 
-                                                                           << 3U) 
-                                                                          | ((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_123) 
-                                                                               & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__StartEc1) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__EnableAllMods) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__STPerrNow_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait_m_ST_p_))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__EnEcGen_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__ShiftEn_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__EcLoadEn_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__LoadEn_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                              | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_124) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapPEInMem) 
-                                                                                << 3U) 
-                                                                                | (4U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__ReportFault_p_)) 
-                                                                                << 2U))) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MemX03_sil_pl_3)) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (~ 
-                                                                                (0x0000000fU 
-                                                                                == (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_k09__DOT__q)))))) 
-                                                                                << 4U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__ProcSrn_u___05Fp___05F_MemC) 
-                                                                                << 3U) 
-                                                                                | (7U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_f04__DOT__q) 
-                                                                                >> 1U)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                                | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_125) 
-                                                                                & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h09__DOT__q) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__PEsrn_3) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__PEsrn_2) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__PEsrn_1) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__PEsrn_0)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                                | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_122) 
-                                                                                & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h05__DOT__q) 
-                                                                                << 4U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__PrivRefInPair___05FMemC) 
-                                                                                << 3U) 
-                                                                                | ((4U 
-                                                                                & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_a23__DOT__q)) 
-                                                                                | (3U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_g01__DOT__q) 
-                                                                                >> 1U))))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115)))))) 
-                                                                             << 2U)) 
-                                                                         | (((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_125) 
-                                                                               & (((((0x0000000eU 
-                                                                                & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h15__DOT__q)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_1_p_)) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapFnc_0_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__ValidMapFltInEc2_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__WantMapWait_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWait)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                              | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_122) 
-                                                                                & (((((4U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_g01__DOT__q) 
-                                                                                << 2U)) 
-                                                                                | (3U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_f01__DOT__q) 
-                                                                                >> 3U))) 
-                                                                                << 5U) 
-                                                                                | ((0x0000001cU 
-                                                                                & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_d01__DOT__q)) 
-                                                                                | (3U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_b01__DOT__q) 
-                                                                                >> 2U)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                                | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_123) 
-                                                                                & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_i09__DOT__q) 
-                                                                                << 4U) 
-                                                                                | ((((2U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_g05__DOT__q) 
-                                                                                >> 2U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapIs256k)) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapIs64k) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapIs16k)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))))) 
-                                                                             << 1U) 
-                                                                            | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_125) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__DirtyWE_p_) 
-                                                                                << 3U) 
-                                                                                | (4U 
-                                                                                & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_f18__DOT__q))) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapWE_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapCAS_p_))) 
-                                                                                << 3U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapRAS_p_) 
-                                                                                << 2U) 
-                                                                                | (3U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_g01__DOT__q) 
-                                                                                >> 3U)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                               | (((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_122) 
-                                                                                & (((0x000000e0U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_f01__DOT__q) 
-                                                                                << 5U)) 
-                                                                                | ((0x00000018U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_d01__DOT__q) 
-                                                                                << 3U)) 
-                                                                                | ((4U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_b01__DOT__q) 
-                                                                                >> 2U)) 
-                                                                                | (3U 
-                                                                                & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_b01__DOT__q))))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115))) 
-                                                                                | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_123) 
-                                                                                & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_h06__DOT__q) 
-                                                                                << 4U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q)) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_115)))))))) 
-                                                                     >> 
-                                                                     (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__DMadr_06) 
-                                                                       << 2U) 
-                                                                      | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__DMadr_07) 
-                                                                          << 1U) 
-                                                                         | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__DMadr_08))))) 
-                                                                 | (((~ 
-                                                                      ((~ 
-                                                                        ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__DMadr_03) 
-                                                                         | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_k23__DOT__p5))) 
-                                                                       | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_01F_02F_03T_08F_p___05F_k24_9) 
-                                                                          | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__DMadr_08) 
-                                                                              | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_l23__DOT__p11)) 
-                                                                             | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__DMadr_01) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__DMadr_02)))))) 
-                                                                     & ((((((2U 
-                                                                             & ((((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__FA_eq_3_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__FA_eq_2_p_a) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__FA_eq_1_p___05F_ProcH) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__FA_eq_0_p___05F_ProcH))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__IOBin_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Shift_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Curr_eq_Next_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Last_eq_Curr_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__TisIFdata) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__RisIFdata) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__FF_1mem__VforceRd) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__FF_0mem))) 
-                                                                                << 4U) 
-                                                                                | ((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__B_u_Ext_p_)) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (~ 
-                                                                                ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__RisIFdata) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__TisIFdata))))) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_e20__DOT__p5) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__FFok_p_a___05FContA)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50)))) 
-                                                                                << 1U)) 
-                                                                            | (1U 
-                                                                               & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_d17__DOT__p14) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_d17__DOT__p13) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_d17__DOT__p12) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_d17__DOT__p11))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_d17__DOT__p3) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_d17__DOT__p4) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_d17__DOT__p5) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_d17__DOT__p6)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_) 
-                                                                                & ((((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_137)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__TbSelMd)) 
-                                                                                << 6U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__TbWriteEn_p_) 
-                                                                                << 5U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_l07__DOT__qb) 
-                                                                                << 4U))) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__RbSelMd) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__RbWriteEn_p_) 
-                                                                                << 2U)) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__IfuNextMacro_p___05F_d21_9)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__ReSchedWrEn_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50)))))) 
-                                                                           << 6U) 
-                                                                          | (((2U 
-                                                                               & ((((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_07_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_06_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_05_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_04_p_))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_03_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_02_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_01_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_00_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_) 
-                                                                                & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__RmLtZero_p___05F_ProcH) 
-                                                                                << 7U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_f17__DOT__q) 
-                                                                                << 3U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__IOatt___05FProcH) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_k24__DOT__p12)) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__Cnt_eq_Zero_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__BCWriteEn_p_))))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50)))) 
-                                                                                << 1U)) 
-                                                                              | (1U 
-                                                                                & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__shmv_07) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__shmv_06) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__shmv_05) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__shmv_04))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__shmv_03) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__shmv_02) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__shmv_01) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__shmv_00)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Task3Bk_3_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Task3Bk_2_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Task3Bk_1_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Task3Bk_0_p_))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Task2Bk_3_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__TAsk2Bk_2_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Task2Bk_1_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Task2Bk_0_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50)))))) 
-                                                                             << 4U)) 
-                                                                         | ((((2U 
-                                                                               & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_) 
-                                                                                & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_i12__DOT__q) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__LastNext_3_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__LastNext_2_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__LastNext_1_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__LastNext_0_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50))) 
-                                                                                | ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__TmPerr) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__RmPerr) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MdPerr) 
-                                                                                << 1U) 
-                                                                                | (1U 
-                                                                                & (~ 
-                                                                                ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_j20__DOT__qb) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_k24__DOT__p12)))))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_l21__DOT__p3) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_l21__DOT__p4) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__CkMdParity_p___05F_ProcL) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_g22__DOT__qb)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50)))) 
-                                                                                << 1U)) 
-                                                                              | (1U 
-                                                                                & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_b10__DOT__qb) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_b10__DOT__qa) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qa) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qb))) 
-                                                                                << 4U) 
-                                                                                | ((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_a10__DOT__qb)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_a10__DOT__qa)) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__AmuxEn_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MarMuxAEn_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MBMux1) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MBMux0) 
-                                                                                << 2U)) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_74)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MBWriteEn_p_))) 
-                                                                                << 4U) 
-                                                                                | ((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_73)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__TIOAWriteEn_p_)) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Pdata_04) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Pdata_00)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50)))))) 
-                                                                             << 2U) 
-                                                                            | ((2U 
-                                                                                & ((((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alua_07) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alua_06) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alua_05) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alua_04))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alua_03) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alua_02) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alua_01) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alua_00)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Pmux2) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Pmux1) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Pmux0) 
-                                                                                << 1U) 
-                                                                                | (1U 
-                                                                                & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_g16__DOT__q) 
-                                                                                >> 2U)))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__LmaskEn_p_) 
-                                                                                << 3U) 
-                                                                                | (4U 
-                                                                                & ((~ (IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_9)) 
-                                                                                << 2U))) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__QshiftR_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__QshiftL_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50)))) 
-                                                                                << 1U)) 
-                                                                               | (1U 
-                                                                                & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alub_07) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alub_06) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alub_05) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alub_04))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alub_03) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alub_02) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alub_01) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__alub_00)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__MidasEn_04F_p_) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__PropCnt_p___05F_ProcL) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__LoadCnt_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__ShcWriteEn_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__FFshift_p_))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__LdTaskSim_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__Holda) 
-                                                                                << 2U)) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_68)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__TempSense)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_50)))))))) 
-                                                                        >> 
-                                                                        (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__DMadr_05) 
-                                                                          << 2U) 
-                                                                         | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__DMadr_06) 
-                                                                             << 1U) 
-                                                                            | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__DMadr_07))))) 
-                                                                    | ((~ 
-                                                                        ((~ 
-                                                                          ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__DMadr_03) 
-                                                                           | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_k23__DOT__p5))) 
-                                                                         | ((~ 
-                                                                             ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__DMadr_08) 
-                                                                              | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_k23__DOT__p7))) 
-                                                                            | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_01F_02F_03T_08T_p___05F_l23_15) 
-                                                                               | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__DMadr_01) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__DMadr_02)))))) 
-                                                                       & ((((((2U 
-                                                                               & ((((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__FA_eq_3_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__FA_eq_2_p_a) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__FA_eq_1_p_a) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__FA_eq_0_p_a))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__IOBin_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__Shift_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__Curr_eq_Next_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__Last_eq_Curr_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__TisIFdata) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RisIFdata) 
-                                                                                << 2U)) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_g24__DOT__qa)) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_g24__DOT__qb))))) 
-                                                                                << 4U) 
-                                                                                | ((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__B_u_Ext_p_)) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT___u_MDI_p___05F_ProcL)))) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT___u_MD___05FProcL) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__FFok_p_a___05FContA)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78)))) 
-                                                                                << 1U)) 
-                                                                              | (1U 
-                                                                                & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f17__DOT__p14) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f17__DOT__p13) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f17__DOT__p12) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f17__DOT__p11))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f17__DOT__p3) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f17__DOT__p4) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f17__DOT__p5) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f17__DOT__p6)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_) 
-                                                                                & ((((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f19__DOT__p2)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__TbSelMd)) 
-                                                                                << 6U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__TbWriteEn_p_) 
-                                                                                << 5U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_l07__DOT__qb) 
-                                                                                << 4U))) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RbSelMd) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RbWriteEn_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__StkError___05FProcL) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__StkPSaveEn_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78)))))) 
-                                                                             << 6U) 
-                                                                            | (((2U 
-                                                                                & ((((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_15_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_14_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_13_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_12_p_))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_11_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_10_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_09_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MAR_08_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__RmOdd_p___05F_ProcL) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__StkPWriteEn_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__StkPMux1) 
-                                                                                << 1U) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_87))))) 
-                                                                                << 4U) 
-                                                                                | ((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_93)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RBaseWriteEn_p_)) 
-                                                                                << 2U) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RBaseBypass_p___05F_g19_2)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RBaseBypass_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78)))) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__shmv_15) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__shmv_14) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__shmv_13) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__shmv_12))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__shmv_11) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__shmv_10) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__shmv_09) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__shmv_08)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_) 
-                                                                                & (((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RbWadr_7) 
-                                                                                << 7U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RbWadr_6) 
-                                                                                << 6U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RbWadr_5) 
-                                                                                << 5U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__RbWadr_4) 
-                                                                                << 4U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_h15__DOT__q)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78)))))) 
-                                                                               << 4U)) 
-                                                                           | ((((2U 
-                                                                                & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_) 
-                                                                                & ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_i14__DOT__q) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__LastNext_3_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__LastNext_2_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__LastNext_1_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__LastNext_0_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78))) 
-                                                                                | ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((0x0000000eU 
-                                                                                & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f16__DOT__q)) 
-                                                                                | (1U 
-                                                                                & (~ 
-                                                                                ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_h22__DOT__qb) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_k23__DOT__p10))))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT___u_MDSaved) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__IOBoutSaved) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__StkSelSaved) 
-                                                                                << 1U) 
-                                                                                | (1U 
-                                                                                & (~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__StkSel_p_a)))))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78)))) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__qb) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__qa) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb))) 
-                                                                                << 4U) 
-                                                                                | ((((2U 
-                                                                                & ((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__qb)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__qa)) 
-                                                                                << 2U) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__AmuxEn_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MarMuxAEn_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__aluM___05FProcL) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__aluF3___05FProcL) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__aluF2___05FProcL) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__aluF1___05FProcL))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__aluF0___05FProcL) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__Pdata_12) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__Pdata_08) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__aluCin)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78)))))) 
-                                                                               << 2U) 
-                                                                              | ((2U 
-                                                                                & ((((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alua_15a) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alua_14a) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alua_13a) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alua_12a))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alua_11) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alua_10) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alua_09) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alua_08)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__Pmux2) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__Pmux1) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__Pmux0) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__ALUFWriteEn_p_))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__LmaskEn_p_) 
-                                                                                << 3U) 
-                                                                                | (4U 
-                                                                                & ((~ (IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_10)) 
-                                                                                << 2U))) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__QshiftR_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__QshiftL_p_)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78)))) 
-                                                                                << 1U)) 
-                                                                                | (1U 
-                                                                                & (((~ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_)) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alub_15a) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alub_14a) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alub_13a) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alub_12a))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alub_11a) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alub_10a) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alub_09a) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__alub_08a)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78))) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__MidasEn_04F_p_) 
-                                                                                & (((((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__DecCnt_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__LoadCnt_p_) 
-                                                                                << 2U)) 
-                                                                                | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__ShcWriteEn_p_) 
-                                                                                << 1U) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__FFshift_p_))) 
-                                                                                << 4U) 
-                                                                                | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__LdHoldSim_p_) 
-                                                                                << 3U) 
-                                                                                | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__Holda) 
-                                                                                << 2U)) 
-                                                                                | ((2U 
-                                                                                & ((~ (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_91)) 
-                                                                                << 1U)) 
-                                                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__TempSense)))) 
-                                                                                >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_78)))))))) 
-                                                                          >> 
-                                                                          (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__DMadr_05) 
-                                                                            << 2U) 
-                                                                           | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__DMadr_06) 
-                                                                               << 1U) 
-                                                                              | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__DMadr_07))))))))))));
 }
