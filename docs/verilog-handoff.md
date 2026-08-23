@@ -154,6 +154,34 @@ PRIMED net in and drives the UNPRIMED one out, in the standard 7404 pin pairs.
 
 With both fixed, **the MSA is 265/265 logic packages modelled -- 100%**.
 
+**The storage data path, mapped end to end (2026-08-23).** One bit followed
+through the wire list, which is what `storage-test` and any future write test
+have to sequence:
+
+```
+Sout.00-03  -> b01 D0-D3   (MC10176 hex D FF, clk msa01.sil+4)
+            -> msa04/05.sil+*  -> the SN74166 shift chain
+            -> f01 (MC10176, clk msa01.sil+8, ECC on EcOut.0/4)
+            -> f02 (MC10125 ECL->TTL)  -> MK4096 pin 2, DIN
+
+MK4096 pin 14, DOUT -> ... -> c01 D-inputs
+            -> c01 Q (MC10176, clk msa01.sil+3) -> Sin.00-03, EcIn.0
+```
+
+**`Sout` is the write side and `Sin` the read side** -- the MSA drives `Sin`
+while MemD drives `Sout`, which is worth stating because the names do not give
+it away. And the word is **not presented in parallel**: it is registered, then
+shifted.
+
+**Those register clocks are the board's own.** b01 clocks off `c1`/`c2` and
+c01 off `SO`, and all three are **internal** nets driven by MC10176/MC10210
+packages on the MSA itself -- an on-board sequencer fed by MemX's
+`LoadSinE`/`ShiftSinE`/`LoadSoutE'`/`ShiftSoutE`. They run when a *reference*
+runs, so in a startup that issues none they take 0 edges, which is the board
+behaving. `storage-test` therefore asserts they are **defined**, as it does
+for the strobes; a first version demanded edges and was demanding the wrong
+thing.
+
 **And wiring it in found a seventh two-spelling backplane line.** MemX spells
 it `ChipsAre64K`, the storage board `ChipsAre64k`, and both sit on pin **E55**
 -- one wire, and the case rule applies. That is the very signal `tb_memrun`

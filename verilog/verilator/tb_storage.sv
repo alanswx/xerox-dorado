@@ -34,7 +34,34 @@
 //     is asserted is that they are DEFINED and that they move once the machine
 //     runs -- not that they toggle from the first cycle.
 //
-//  3. THE MEMORY SIZE ARRIVES FROM THE STORAGE BOARD, WHICH IS THE POINT OF
+//  3. THE DATA-PATH REGISTERS CLOCK. The word does not arrive at the DRAMs in
+//     parallel -- it is registered and then SHIFTED. Mapped from the wire
+//     list, one bit followed end to end:
+//
+//         Sout.00-03  -> b01 D0-D3   (MC10176 hex D FF, clk msa01.sil+4)
+//                     -> msa04/05.sil+*  -> the SN74166 shift chain
+//                     -> f01 (MC10176, clk msa01.sil+8, ECC on EcOut.0/4)
+//                     -> f02 (MC10125 ECL->TTL)  -> MK4096 pin 2, DIN
+//
+//         MK4096 pin 14, DOUT -> ... -> c01 D-inputs
+//                     -> c01 Q (MC10176, clk msa01.sil+3) -> Sin.00-03, EcIn.0
+//
+//     so `Sout` is the write side and `Sin` the read side, and the MSA DRIVES
+//     Sin while MemD drives Sout -- the direction is worth stating because
+//     the names do not give it away.
+//
+//     THEIR CLOCKS ARE THE BOARD'S OWN, AND CORRECTLY QUIET HERE. b01 clocks
+//     on `msa01.sil+4` from e13 (MC10210) off `c1`/`c2`, and c01 on
+//     `msa01.sil+3` from h01 off `SO` -- and `c1`, `c2` and `SO` are INTERNAL
+//     nets, driven by MC10176/MC10210 packages on the MSA itself. They are an
+//     on-board sequencer fed by MemX's `LoadSinE`/`ShiftSinE`/`LoadSoutE'`/
+//     `ShiftSoutE`, so they run when a REFERENCE runs. This startup issues
+//     none, and measured they take 0 edges -- which is the board behaving.
+//     So what is asserted is that they are DEFINED, exactly as for the
+//     strobes; demanding edges here would be demanding the wrong thing, and
+//     a first version of this gate did.
+//
+//  4. THE MEMORY SIZE ARRIVES FROM THE STORAGE BOARD, WHICH IS THE POINT OF
 //     HAVING IT. `ChipsAre64K` is the chip enable on one of the two DRAM
 //     timing PROMs on MemX. MemX spells it `ChipsAre64K` and the MSA spells it
 //     `ChipsAre64k`; both are on backplane pin E55, so they are ONE WIRE, and
@@ -88,8 +115,8 @@ module tb_storage;
     end
   endtask
 
-  integer i, nras, ncas, nbad, naddr;
-  reg pras, pcas;
+  integer i, nras, ncas, nbad, naddr, nwclk, nrclk;
+  reg pras, pcas, pwclk, prclk;
   reg [6:0] ttl, dram, paddr;
 
   initial begin
@@ -104,13 +131,17 @@ module tb_storage;
     repeat (400) @(posedge sys_clk);
 
     pras = m.b_msa.MemRASa; pcas = m.b_msa.MemCASa;
-    nras = 0; ncas = 0; nbad = 0; naddr = 0;
+    nras = 0; ncas = 0; nbad = 0; naddr = 0; nwclk = 0; nrclk = 0;
+    pwclk = m.b_msa.msa01_sil_pl_4; prclk = m.b_msa.msa01_sil_pl_3;
     paddr = 7'bx;
 
     for (i = 0; i < 20000; i = i + 1) begin
       @(posedge sys_clk);
       if (m.b_msa.MemRASa !== pras) begin nras = nras + 1; pras = m.b_msa.MemRASa; end
       if (m.b_msa.MemCASa !== pcas) begin ncas = ncas + 1; pcas = m.b_msa.MemCASa; end
+      // the write-data and read-data register clocks
+      if (m.b_msa.msa01_sil_pl_4 !== pwclk) begin nwclk = nwclk + 1; pwclk = m.b_msa.msa01_sil_pl_4; end
+      if (m.b_msa.msa01_sil_pl_3 !== prclk) begin nrclk = nrclk + 1; prclk = m.b_msa.msa01_sil_pl_3; end
 
       // 1. the SN74H04 address path, per bit, against the board's own nets
       ttl  = {m.b_msa.TtlA6_p_, m.b_msa.TtlA5_p_, m.b_msa.TtlA4_p_,
@@ -129,6 +160,8 @@ module tb_storage;
              ttl, dram, naddr, nbad);
     $display("tb_storage: DRAM strobes over 20,000 sys_clk: RAS' %0d edges, CAS' %0d edges",
              nras, ncas);
+    $display("tb_storage: data-path register clocks: write (b01) %0d edges, read (c01) %0d edges",
+             nwclk, nrclk);
     $display("tb_storage: memory size from the MSA -- ChipsAre64K=%b (pin E55, msa spells it 'k')",
              m.b_msa.ChipsAre64K);
 
@@ -144,7 +177,14 @@ module tb_storage;
       $fatal(1, "the DRAM strobes never reached the storage board (RAS'=%b CAS'=%b)",
              m.b_msa.MemRASa, m.b_msa.MemCASa);
 
-    // 3. the memory size arrives over the backplane rather than from a
+    // 3. both data-path register clocks are DEFINED. They come from the
+    //    board's own sequencer off MemX's load/shift controls, so they are
+    //    correctly still until a reference runs -- see the header.
+    if (m.b_msa.msa01_sil_pl_4 === 1'bx || m.b_msa.msa01_sil_pl_3 === 1'bx)
+      $fatal(1, "the MSA data-path register clocks never resolved (write=%b read=%b)",
+             m.b_msa.msa01_sil_pl_4, m.b_msa.msa01_sil_pl_3);
+
+    // 4. the memory size arrives over the backplane rather than from a
     //    testbench input -- i.e. the E55 case variant is still merged.
     if (m.b_msa.ChipsAre64K === 1'bx)
       $fatal(1, "ChipsAre64K did not reach the MSA -- has the E55 case alias been reverted?");

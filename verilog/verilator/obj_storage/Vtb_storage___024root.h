@@ -5840,7 +5840,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_storage___024root final {
             CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__SI;
             CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__SLa;
             CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__SO;
-            CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__SinClkc_p_;
             CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__TtlCKa_p_;
             CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__TtlCKb_p_;
             CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__c5;
@@ -5851,6 +5850,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_storage___024root final {
             CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_2;
             CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_21;
             CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_22;
+            CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_3;
             CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_4;
             CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_6;
             CData/*0:0*/ tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_8;

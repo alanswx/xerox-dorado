@@ -67,10 +67,18 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
     tb_storage__DOT__nbad = 0;
     IData/*31:0*/ tb_storage__DOT__naddr;
     tb_storage__DOT__naddr = 0;
+    IData/*31:0*/ tb_storage__DOT__nwclk;
+    tb_storage__DOT__nwclk = 0;
+    IData/*31:0*/ tb_storage__DOT__nrclk;
+    tb_storage__DOT__nrclk = 0;
     CData/*0:0*/ tb_storage__DOT__pras;
     tb_storage__DOT__pras = 0;
     CData/*0:0*/ tb_storage__DOT__pcas;
     tb_storage__DOT__pcas = 0;
+    CData/*0:0*/ tb_storage__DOT__pwclk;
+    tb_storage__DOT__pwclk = 0;
+    CData/*0:0*/ tb_storage__DOT__prclk;
+    tb_storage__DOT__prclk = 0;
     CData/*6:0*/ tb_storage__DOT__paddr;
     tb_storage__DOT__paddr = 0;
     IData/*31:0*/ tb_storage__DOT__unnamedblk1_4__DOT____Vrepeat3;
@@ -132,7 +140,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             96);
+                                                             123);
         tb_storage__DOT__unnamedblk1_4__DOT____Vrepeat3 
             = (tb_storage__DOT__unnamedblk1_4__DOT____Vrepeat3 
                - (IData)(1U));
@@ -153,7 +161,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             85);
+                                                             112);
         __Vtask_tb_storage__DOT__strobe__0__tb_storage__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_storage__DOT__strobe__0__tb_storage__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -165,7 +173,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             86);
+                                                             113);
         __Vtask_tb_storage__DOT__strobe__0__tb_storage__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_storage__DOT__strobe__0__tb_storage__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -177,7 +185,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             87);
+                                                             114);
         __Vtask_tb_storage__DOT__strobe__0__tb_storage__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_storage__DOT__strobe__0__tb_storage__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -198,7 +206,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             85);
+                                                             112);
         __Vtask_tb_storage__DOT__strobe__1__tb_storage__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_storage__DOT__strobe__1__tb_storage__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -210,7 +218,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             86);
+                                                             113);
         __Vtask_tb_storage__DOT__strobe__1__tb_storage__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_storage__DOT__strobe__1__tb_storage__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -222,7 +230,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             87);
+                                                             114);
         __Vtask_tb_storage__DOT__strobe__1__tb_storage__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_storage__DOT__strobe__1__tb_storage__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -244,7 +252,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             85);
+                                                             112);
         __Vtask_tb_storage__DOT__strobe__2__tb_storage__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_storage__DOT__strobe__2__tb_storage__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -256,7 +264,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             86);
+                                                             113);
         __Vtask_tb_storage__DOT__strobe__2__tb_storage__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_storage__DOT__strobe__2__tb_storage__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -268,7 +276,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             87);
+                                                             114);
         __Vtask_tb_storage__DOT__strobe__2__tb_storage__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_storage__DOT__strobe__2__tb_storage__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -290,7 +298,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             85);
+                                                             112);
         __Vtask_tb_storage__DOT__strobe__3__tb_storage__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_storage__DOT__strobe__3__tb_storage__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -302,7 +310,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             86);
+                                                             113);
         __Vtask_tb_storage__DOT__strobe__3__tb_storage__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_storage__DOT__strobe__3__tb_storage__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -314,7 +322,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             87);
+                                                             114);
         __Vtask_tb_storage__DOT__strobe__3__tb_storage__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_storage__DOT__strobe__3__tb_storage__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -327,7 +335,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             104);
+                                                             131);
         tb_storage__DOT__unnamedblk1_5__DOT____Vrepeat4 
             = (tb_storage__DOT__unnamedblk1_5__DOT____Vrepeat4 
                - (IData)(1U));
@@ -338,6 +346,10 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
     tb_storage__DOT__ncas = 0U;
     tb_storage__DOT__nbad = 0U;
     tb_storage__DOT__naddr = 0U;
+    tb_storage__DOT__nwclk = 0U;
+    tb_storage__DOT__nrclk = 0U;
+    tb_storage__DOT__pwclk = vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_4;
+    tb_storage__DOT__prclk = vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_3;
     tb_storage__DOT__paddr = 0U;
     tb_storage__DOT__i = 0U;
     while (VL_GTS_III(32, 0x00004e20U, tb_storage__DOT__i)) {
@@ -345,7 +357,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
                                                              nullptr, 
                                                              "@(posedge tb_storage.sys_clk)", 
                                                              "verilog/verilator/tb_storage.sv", 
-                                                             111);
+                                                             139);
         if (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_c01__DOT__qa) 
              != (IData)(tb_storage__DOT__pras))) {
             tb_storage__DOT__nras = ((IData)(1U) + tb_storage__DOT__nras);
@@ -355,6 +367,16 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
              != (IData)(tb_storage__DOT__pcas))) {
             tb_storage__DOT__ncas = ((IData)(1U) + tb_storage__DOT__ncas);
             tb_storage__DOT__pcas = vlSelfRef.tb_storage__DOT__m__DOT__MemCASa___05FMemX;
+        }
+        if (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_4) 
+             != (IData)(tb_storage__DOT__pwclk))) {
+            tb_storage__DOT__nwclk = ((IData)(1U) + tb_storage__DOT__nwclk);
+            tb_storage__DOT__pwclk = vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_4;
+        }
+        if (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_3) 
+             != (IData)(tb_storage__DOT__prclk))) {
+            tb_storage__DOT__nrclk = ((IData)(1U) + tb_storage__DOT__nrclk);
+            tb_storage__DOT__prclk = vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_3;
         }
         vlSelfRef.tb_storage__DOT__ttl = (((((2U & 
                                               ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__A6a0)) 
@@ -400,20 +422,22 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__0(Vtb_storage___
         }
         tb_storage__DOT__i = ((IData)(1U) + tb_storage__DOT__i);
     }
-    VL_WRITEF_NX("tb_storage: eight boards -- ContA ContB ProcH ProcL MemC MemD MemX msa\ntb_storage: the MSA carries 144 MK4096 DRAMs; 265/265 of its logic\ntb_storage:   packages are modelled.\ntb_storage: address path  TtlA[6:0]'=%b -> A[6:0]a0=%b, %0d distinct values, %0d mismatches\ntb_storage: DRAM strobes over 20,000 sys_clk: RAS' %0d edges, CAS' %0d edges\ntb_storage: memory size from the MSA -- ChipsAre64K=%b (pin E55, msa spells it 'k')\n",0,
+    VL_WRITEF_NX("tb_storage: eight boards -- ContA ContB ProcH ProcL MemC MemD MemX msa\ntb_storage: the MSA carries 144 MK4096 DRAMs; 265/265 of its logic\ntb_storage:   packages are modelled.\ntb_storage: address path  TtlA[6:0]'=%b -> A[6:0]a0=%b, %0d distinct values, %0d mismatches\ntb_storage: DRAM strobes over 20,000 sys_clk: RAS' %0d edges, CAS' %0d edges\ntb_storage: data-path register clocks: write (b01) %0d edges, read (c01) %0d edges\n",0,
                  7,vlSelfRef.tb_storage__DOT__ttl,7,
                  (IData)(vlSelfRef.tb_storage__DOT__dram),
                  32,tb_storage__DOT__naddr,32,tb_storage__DOT__nbad,
                  32,tb_storage__DOT__nras,32,tb_storage__DOT__ncas,
-                 1,(IData)(vlSelfRef.tb_storage__DOT__m__DOT__ChipsAre64K));
+                 32,tb_storage__DOT__nwclk,32,tb_storage__DOT__nrclk);
+    VL_WRITEF_NX("tb_storage: memory size from the MSA -- ChipsAre64K=%b (pin E55, msa spells it 'k')\n",0,
+                 1,vlSelfRef.tb_storage__DOT__m__DOT__ChipsAre64K);
     if (VL_UNLIKELY(((0U != tb_storage__DOT__nbad)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_storage.sv:138: Assertion failed in %Ntb_storage: the MSA address path does not invert: %0d cycles where A[6:0]a0 != ~TtlA[6:0]' -- is cell_SN74H04 modelled?\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_storage.sv:171: Assertion failed in %Ntb_storage: the MSA address path does not invert: %0d cycles where A[6:0]a0 != ~TtlA[6:0]' -- is cell_SN74H04 modelled?\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_storage__DOT__nbad);
-        VL_STOP_MT("verilog/verilator/tb_storage.sv", 138, "", false);
+        VL_STOP_MT("verilog/verilator/tb_storage.sv", 171, "", false);
     }
     VL_WRITEF_NX("tb_storage: PASS -- the storage array is in a machine, its address\ntb_storage:   path inverts, its DRAM strobes are live, and the memory\ntb_storage:   size arrives from the board rather than from the bench.\n",0);
-    VL_FINISH_MT("verilog/verilator/tb_storage.sv", 155, "");
+    VL_FINISH_MT("verilog/verilator/tb_storage.sv", 195, "");
     co_return;}
 
 VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__1(Vtb_storage___024root* vlSelf) {
@@ -425,7 +449,7 @@ VlCoroutine Vtb_storage___024root___eval_initial__TOP__Vtiming__1(Vtb_storage___
         co_await vlSelfRef.__VdlySched.delay(1ULL, 
                                              nullptr, 
                                              "verilog/verilator/tb_storage.sv", 
-                                             50);
+                                             77);
         vlSelfRef.tb_storage__DOT__sys_clk = (1U & 
                                               (~ (IData)(vlSelfRef.tb_storage__DOT__sys_clk)));
     }
@@ -8731,7 +8755,7 @@ void Vtb_storage___024root___nba_sequent__TOP__0(Vtb_storage___024root* vlSelf) 
                                                      | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa12_sil_pl_39))));
     }
     if (((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_j01__DOT__ck_d)) 
-         & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__SinClkc_p_))) {
+         & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_3))) {
         vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_j01__DOT__q 
             = ((((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_j01__DOT__p12) 
                  << 5U) | (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_j01__DOT__p11) 
@@ -8791,7 +8815,7 @@ void Vtb_storage___024root___nba_sequent__TOP__0(Vtb_storage___024root* vlSelf) 
                                                      | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemD__DOT__preDin_05))));
     }
     if (((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_c01__DOT__ck_d)) 
-         & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__SinClkc_p_))) {
+         & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_3))) {
         vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_c01__DOT__q 
             = ((((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_c01__DOT__p12) 
                  << 5U) | (((2U & ((((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_17)) 

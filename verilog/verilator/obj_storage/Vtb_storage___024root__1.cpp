@@ -7638,7 +7638,7 @@ void Vtb_storage___024root___nba_sequent__TOP__2(Vtb_storage___024root* vlSelf) 
         = Vtb_storage__ConstPool__TABLE_h5b90359e_0
         [__Vtableidx271];
     vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_j01__DOT__ck_d 
-        = vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__SinClkc_p_;
+        = vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_3;
     __Vtableidx278 = vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_j26__DOT__q;
     vlSelfRef.tb_storage__DOT__m__DOT__Sin_15___05Fmsa 
         = Vtb_storage__ConstPool__TABLE_h75b2a61a_0
@@ -7713,7 +7713,7 @@ void Vtb_storage___024root___nba_sequent__TOP__2(Vtb_storage___024root* vlSelf) 
         = Vtb_storage__ConstPool__TABLE_h5b90359e_0
         [__Vtableidx255];
     vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_c01__DOT__ck_d 
-        = vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__SinClkc_p_;
+        = vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_3;
     __Vtableidx258 = vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_c26__DOT__q;
     vlSelfRef.tb_storage__DOT__m__DOT__EcIn_1___05Fmsa 
         = Vtb_storage__ConstPool__TABLE_h4780427e_0

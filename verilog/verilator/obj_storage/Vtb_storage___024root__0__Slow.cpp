@@ -109,7 +109,7 @@ VL_ATTR_COLD void Vtb_storage___024root___eval_settle(Vtb_storage___024root* vlS
 #ifdef VL_DEBUG
             Vtb_storage___024root___dump_triggers__stl(vlSelfRef.__VstlTriggered, "stl"s);
 #endif
-            VL_FATAL_MT("verilog/verilator/tb_storage.sv", 48, "", "Settle region did not converge after 100 tries");
+            VL_FATAL_MT("verilog/verilator/tb_storage.sv", 75, "", "Settle region did not converge after 100 tries");
         }
         __VstlIterCount = ((IData)(1U) + __VstlIterCount);
     } while (Vtb_storage___024root___eval_phase__stl(vlSelf));
@@ -10156,7 +10156,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__0(Vtb_storage___024r
         = (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__BMuxS2_0_m_7) 
             << 1U) | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT___u_Pipe3___05FMemC) 
                       | (IData)(vlSelfRef.tb_storage__DOT__m__DOT___u_Pipe4___05FMemC)));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__SinClkc_p_ 
+    vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_3 
         = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_h01__DOT__p5) 
            | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_msa__DOT__u_h01__DOT__p6) 
               | (IData)(tb_storage__DOT__m__DOT__b_msa__DOT__msa01_sil_pl_10)));
