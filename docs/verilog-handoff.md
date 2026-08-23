@@ -88,6 +88,11 @@ make -C verilog memrun-test     THE MEMORY RUNS: DRAM cycles from PARC's own
                                 an entry and MapTrouble clears, a storage cycle
                                 starts
 make -C verilog mem-test        the memory section is in a machine and clocked
+make -C verilog storage-test    THE STORAGE ARRAY is in a machine: PARC's msa
+                                board with its 144 MK4096 DRAMs, its address
+                                path inverting through the SN74H04s, and the
+                                memory size arriving over pin E55 from the
+                                board rather than from the testbench
 make -C verilog converge-test   the assembled machine SETTLES and its clock runs
 make -C verilog machine-test    the same under the imgui harness
 

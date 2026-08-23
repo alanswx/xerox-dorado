@@ -178,6 +178,11 @@ memrun-test:
 mem-test:
 	@$(MAKE) -C verilator mem-test
 
+# The STORAGE ARRAY in a machine: PARC's msa board, 144 MK4096 DRAMs, with its
+# address path inverting and the memory size arriving over the backplane.
+storage-test:
+	@$(MAKE) -C verilator storage-test
+
 # The REAL firmware driving BaseBd+ContA+ContB+ProcH+ProcL. Diagnostic.
 firmware-probe:
 	@$(MAKE) -C verilator firmware-probe
