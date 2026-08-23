@@ -2971,12 +2971,37 @@ Two things remain, both small and both stated by measurement:
    forever. Real microcode issues a reference and then does other work while
    the memory completes.
 
-   **Spacing the references is the direction, but it is not a one-line
-   change.** Tried: a second hunk of four non-references at IM[4..7] with the
-   jumps running 0→…→7→0. MemState then has room, but the Store-to-Flush
-   pairing breaks -- `HitColDirty` never asserts, because the dirty line no
-   longer survives to the flush. So the quiet cycles have to go somewhere that
-   does not separate the Store from its Flush. That is the next experiment.
+   **Spacing the references was the wrong theory, and measuring it said so.**
+   A second hunk of four non-references at IM[4..7], jumps running 0→…→7→0,
+   made it **worse**: `StartMem'` free on 192 samples instead of 288, MemState
+   still 3 of 16, and the flush stopped working entirely (`FlushStore`,
+   `ForceMiss` and both MISS counts all 0, the dirty line no longer surviving
+   to its Flush). `WriteInMem' & !MapTrouble` did rise from 352 to 1091, so
+   spacing helps *that* pair -- but it does not touch `StartMem'`. Reverted.
+
+   **So `StartMem'` is not driven by our reference rate**, and MemX `j22` says
+   why. It is another F10016 with `TrueBD` on CE' -- so it **never counts** and
+   is a parallel-load register:
+
+   ```
+   C = Clk0'Dc   CE' = TrueBD (constant 1)   PE' = MapWait
+   D1 = preStartMem'  ->  H1 = StartMem'
+   D0 = MemX06.sil+3  ->  H0 = preRfshInMem
+   ```
+
+   i.e. **`StartMem'` is `preStartMem'` latched on `MapWait`**, and
+   `preStartMem'` is Q2 of `i14`, the MapState PROM. **The map sequencer
+   drives the memory sequencer.** MapState does walk (7 of its 8 values), so
+   the question is which of its states assert `preStartMem'` and for how long
+   -- and that is **readable, not guessable**: the PROM images come from
+   PARC's own BCPL and are gated by `prom-test`, so decode `i14`'s table
+   against the MapState values actually visited.
+
+   **Worth generalising:** three F10016s on this board (i10, j16, j22) have
+   `TrueBD` -- a hardwired constant 1 -- on CE'. On MemX the part is used as a
+   **load register** far more often than as a counter, so read PE' and the D
+   inputs first, and do not reason about counting or terminal count until CE'
+   is shown to go low.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting
