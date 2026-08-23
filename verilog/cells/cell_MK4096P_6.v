@@ -5,10 +5,14 @@
 // their own names: RAS'/CAS'/WE' strobes and A0'..A6' address lines.
 // Used in 144 package position(s).
 //
-// RAM INFERENCE: async/strobe-driven write does not infer block RAM. Quartus
-// will produce distributed RAM or registers here, which at this density is
-// not viable -- this wants an altsyncram or a clock-recovery wrapper when the
-// design goes to Quartus. Deferred; see verilog/README.md.
+// RAM INFERENCE: this cell is FULLY SYNCHRONOUS and infers block RAM. The
+// strobes are oversampled on `sys_clk` and used as one-cycle enables (see
+// below), so there is no asynchronous write and no gated clock -- which is
+// what an FPGA needs. An earlier version of this header said the opposite,
+// that "async/strobe-driven write does not infer block RAM ... this wants an
+// altsyncram or a clock-recovery wrapper", and pointed at verilog/README.md
+// for a deferred discussion. That was true of the first draft and stopped
+// being true when the strobes became enables; the header simply outlived it.
 
 `default_nettype none
 
