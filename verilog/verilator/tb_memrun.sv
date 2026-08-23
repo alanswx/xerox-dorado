@@ -570,32 +570,49 @@
 //      they were stuck at 0 before. All 29 gates stay green across the
 //      machine-wide change.
 //
-//   7. STILL OPEN, and now a CONTENT question rather than a wiring one.
-//      MapTrouble is still asserted, but the blocked group has MOVED: with
-//      MapWP' and MapDirty' both LOW, group 2 -- (MapWP' | MapDirty' |
-//      ROWIM') -- is now 0. The map entry's actual VALUE decides that.
+//   7. THE MICROCODE WRITES ITS OWN MAP ENTRY, AND THE FAULT CLEARS.
 //
-//      Reading the translators back to the array: e17 takes `THi` as its
-//      DATA (pin 5) and `MemX13.sil+3` -- plane d13 -- as its COMMON STROBE
-//      (pin 6), so MapWP' = ~(THi & d13) = ~d13. Likewise MapDirty' = ~d11.
-//      Both planes read 1, so both primed outputs are 0, and group 2 fails.
-//      Group 4 additionally wants MapEven' = 1, which is the parity across
-//      RP.00-08 (planes a04..a14 through b06/b09/b12) -- see item 5.
+//      With the read path open (item 6), the entry's CONTENT decides
+//      MapTrouble: e17 takes `THi` as DATA (pin 5) and plane d13 as its
+//      COMMON STROBE (pin 6), so MapWP' = ~d13, and likewise MapDirty' =
+//      ~d11. Group 4 additionally wants MapEven' = 1, the parity across
+//      RP.00-08 (item 5).
 //
-//      AND DO NOT PLANT THE ENTRY FROM THE BENCH. That was tried: the
-//      preload lands correctly (`d13.mem[0]` reads 000 immediately after the
-//      loop) and is GONE by the measurement window, back to 1, with no write
-//      strobe inside that window. THE MACHINE WRITES THE MAP ITSELF during
-//      startup, which is the write path working, and it overwrites anything
-//      planted beforehand. So the entry has to be written the way the
-//      hardware does it -- through `<-Map` -- which is this project's norm
-//      anyway: PARC's own sequences, not simulation backdoors.
+//      DO NOT PLANT THE ENTRY FROM THE BENCH. That was tried: the preload
+//      LANDS (`d13.mem[0]` reads 000 immediately after the loop) and is GONE
+//      by the measurement window, with no write strobe inside it. THE
+//      MACHINE WRITES THE MAP ITSELF during startup, which is the map write
+//      path working, and it overwrites anything planted beforehand.
 //
-//      `<-Map` is FA=0, FB=3, FC=1 = 0o31 at ContA b17, the same number
-//      cpu.c's DM_REF_RMAP comment derives independently; from the
-//      j24/b24/d22 algebra the reference is ASEL = 000 with FF.0 = 0,
-//      FF.1 = 1. `build_hunk4` is in place to carry Map / Store / Flush in
-//      one hunk.
+//      So the entry is written the way the hardware does it. The loop is
+//      FOUR instructions now (build_hunk4), running 0 -> 1 -> 2 -> 3 -> 0:
+//
+//          IM[0]  <-Map   ASEL = 000, FF.0 = 0, FF.1 = 1     (j24 Q1)
+//          IM[1]  Store   ASEL = 000, FF.0 = 1, FF.1 = 1     (j22/b24/a24)
+//          IM[2]  Flush   ASEL = 001, FF.0 = 0, FF.1 = 1     (j24 Q3)
+//          IM[3]  none    ASEL = 100, so WantProcRef' stays high
+//
+//      all with BSEL = 0 so FFok' stays low, and every JCN keeping a JCN.0
+//      bit set for the same reason.
+//
+//      AND IT WORKS. The map planes now read 0 where they read 1 before --
+//      the <-Map wrote them -- `MapEven'` is HIGH on 2354 samples where it
+//      was low on all 3000, and MAPTROUBLE CLEARS ON 2354 OF 3000 CYCLES
+//      where it was asserted for the entire run. `MapTroubleInMem` is low on
+//      2339, and `WriteInMem'` and a clear map COINCIDE on 352. Gated, and
+//      turning the <-Map into a second Store is caught.
+//
+//   8. STILL OPEN: `MemX07.sil+10`, the third term of D0. It is Q0 of j13
+//      and j14, a pair of SG10139 PROMs addressed by
+//      {Use256/16KProm', RfshInMem, MemState.0-3} -- THE MEMORY STATE
+//      MACHINE. It is low on 96 cycles and never coincides with the other
+//      two, so D0 stays 0 and MemWEa never rises.
+//
+//      That is no longer a decode question: the two ENABLING conditions are
+//      satisfied together on 352 cycles, and what is missing is the MemState
+//      sequencer reaching its WRITE phase during them. Next: trace MemState
+//      through a write-back and find which state Q0 asserts in, then why the
+//      cycle stops short of it.
 //
 // Three sampling traps in one file: the first read an instant instead of
 // counting edges, the second read the end of a run instead of the interesting
@@ -735,7 +752,7 @@ module tb_memrun;
   reg psq, psrc, pwr, pnr, pmrf, psm, pmw, ppsm, pwmw, pg13, pxsm, pwpr, prh, pldp, ppha, pcra, pha, phb, pwcr, pwar, pfl, pmp;
   reg [2:0] mapst_now; reg [1:0] mapfn_now;
   reg mapst_hit [0:7]; reg mapfn_hit [0:3];
-  integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nrw, nwp, ndty, nevn, nckw, nprf, nthi, nmt, nmtp, nmras, nmcas, nmrd, nmwr, nd13w;
+  integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nwm, nall3, nrw, nwp, ndty, nevn, nckw, nprf, nthi, nmt, nmtp, nmras, nmcas, nmrd, nmwr, nd13w;
   reg pmras, pmcas;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd;
   reg tnia_hit [0:4095];
@@ -1678,10 +1695,22 @@ module tb_memrun;
     //   Store:  ASEL = 000, FF.0 = FF.1 = 1 (0o300)  -- j22/b24/a24 algebra
     //   Flush:  ASEL = 001, FF   = 0o100             -- j24 Q3
     // The Local Jumps bounce 0 -> 1 -> 0 so both run, over and over.
-    build_hunk2(4'd0,
-                4'd0, 3'd0, 3'd0, 3'd0, 8'o300, 8'o201,   // IM[0] Store, -> 1
-                4'd0, 3'd0, 3'd0, 3'd1, 8'o100, 8'o200,   // IM[1] Flush, -> 0
-                1'b0);
+    // FOUR INSTRUCTIONS: <-Map to write an entry, then Store to dirty the
+    // line, then Flush to evict it, then a NON-reference so the loop has a
+    // quiet slot. All keep BSEL = 0 so FFok' stays low and the FF field
+    // reaches the memory section, and every JCN keeps a JCN.0 bit set for
+    // the same reason. The jumps run 0 -> 1 -> 2 -> 3 -> 0.
+    //   IM[0] <-Map : ASEL = 000, FF.0 = 0, FF.1 = 1   (j24 Q1)
+    //   IM[1] Store : ASEL = 000, FF.0 = 1, FF.1 = 1   (j22/b24/a24)
+    //   IM[2] Flush : ASEL = 001, FF.0 = 0, FF.1 = 1   (j24 Q3)
+    //   IM[3] none  : ASEL = 100, so WantProcRef' stays high
+    build_hunk4(4'd0, 1'b0,
+                '{4'd0,   4'd0,   4'd0,   4'd0},
+                '{3'd0,   3'd0,   3'd0,   3'd0},
+                '{3'd0,   3'd0,   3'd0,   3'd0},
+                '{3'd0,   3'd0,   3'd1,   3'd4},
+                '{8'o100, 8'o300, 8'o100, 8'o000},
+                '{8'o201, 8'o202, 8'o203, 8'o200});
     send_a_hunk(16'd0);
     $display("tb_memrun: IM[0..3] overwritten with ASEL=1 FF=100B references");
     // ARE THE FOUR COPIES ACTUALLY IDENTICAL? IM is four INTERLEAVED banks --
@@ -1767,7 +1796,7 @@ module tb_memrun;
     nldp=0; pldp=m.b_MemC.LdPair_p_;
     npha=0; ppha=m.b_MemC.PairHasA; ncra=0; pcra=m.b_MemC.CacheRefInA;
     nha=0; pha=m.b_MemC.Hit_p_a; nhb=0; phb=m.b_MemC.Hit_p_b;
-    nmapst=0; nmapfn=0; npsm2=0; nsm2=0; nload=0; ncnt=0; nd0=0; nwim=0; nx10=0; nmti=0; nrw=0; nwp=0; ndty=0; nevn=0; nckw=0; nprf=0; nthi=0; nmt=0; nmtp=0;
+    nmapst=0; nmapfn=0; npsm2=0; nsm2=0; nload=0; ncnt=0; nd0=0; nwim=0; nx10=0; nmti=0; nwm=0; nall3=0; nrw=0; nwp=0; ndty=0; nevn=0; nckw=0; nprf=0; nthi=0; nmt=0; nmtp=0;
     nmras=0; nmcas=0; nmrd=0; nmwr=0; nd13w=0; pmras=m.b_MemX.u_a04.p4; pmcas=m.b_MemX.u_a04.p15;
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
     for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
@@ -1846,6 +1875,9 @@ module tb_memrun;
       if (!m.b_MemX.MemIdle)        nload = nload + 1;   // held in LOAD
       if (!m.b_MemX.TrueBD)         ncnt  = ncnt  + 1;   // allowed to COUNT
       if (m.b_MemX.MemX07_sil_pl_19) nd0  = nd0   + 1;   // the D0 it loads
+      if (!m.b_MemX.WriteInMem_p_ && !m.b_MemX.MapTroubleInMem) nwm = nwm + 1;
+      if (!m.b_MemX.WriteInMem_p_ && !m.b_MemX.MapTroubleInMem
+          && !m.b_MemX.MemX07_sil_pl_10) nall3 = nall3 + 1;
       // i11 (MC10105 gate b, a NOR):
       //   MemX07.sil+19 = ~(WriteInMem' | MemX07.sil+10 | MapTroubleInMem)
       if (!m.b_MemX.WriteInMem_p_)      nwim = nwim + 1;
@@ -2041,8 +2073,17 @@ module tb_memrun;
              nmras, nmcas, nmrd, nmwr, nsamp);
     $display("tb_memrun:   g14 OUTPUTS -- MapTrouble high on %0d, MapTrouble' high on %0d of %0d",
              nmt, nmtp, nsamp);
+    // GATE: THE MICROCODE WRITES ITS OWN MAP ENTRY AND THE FAULT CLEARS.
+    // Without the <-Map instruction in the loop, MapTrouble is asserted for
+    // the WHOLE run and MemWEa can never rise whatever else happens.
+    if (nmti < 500)
+      $fatal(1, "MapTrouble never cleared (MapTroubleInMem low on only %0d) -- the <-Map entry did not take", nmti);
+    if (nwm == 0)
+      $fatal(1, "WriteInMem' and a clear map never coincided -- the write-back cannot proceed");
+    $display("tb_memrun:   D0 CONJUNCTION -- WriteInMem'&!MapTrouble on %0d, all three on %0d of %0d",
+             nwm, nall3, nsamp);
     $display("tb_memrun:   MemWEa's D0 = ~(WriteInMem' | x10 | MapTroubleInMem) -- low on: WriteInMem' %0d, x10 %0d, MapTroubleInMem %0d of %0d",
-             nwim, nx10, nmti, nsamp);
+             nwim, nx10, nmti, nwm, nall3, nsamp);
     $display("tb_memrun:   WRITE COUNTER over the run -- in LOAD (PE' low) on %0d, allowed to COUNT (CE' low) on %0d, D0 high on %0d of %0d",
              nload, ncnt, nd0, nsamp);
     $display("tb_memrun:   WRITE COUNTER (end sample) -- MemIdle(PE')=%b TrueBD(CE')=%b STPerr(MR)=%b | H0(MemWEa src)=%b H2(MakeMemCAS)=%b",

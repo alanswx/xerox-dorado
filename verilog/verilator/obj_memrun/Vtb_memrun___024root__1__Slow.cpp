@@ -6960,12 +6960,6 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->tb_memrun__DOT__yy = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 9506404569788887344ull);
     vlSelf->tb_memrun__DOT__kk2 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 369174963974443803ull);
     vlSelf->tb_memrun__DOT__imaddr = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 12334760101232105144ull);
-    vlSelf->tb_memrun__DOT__build_hunk2__Vstatic__aluf = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 5968446576191478191ull);
-    vlSelf->tb_memrun__DOT__build_hunk2__Vstatic__bsel = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 13319159574470065986ull);
-    vlSelf->tb_memrun__DOT__build_hunk2__Vstatic__lc = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 1283747563451754162ull);
-    vlSelf->tb_memrun__DOT__build_hunk2__Vstatic__asel = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 11240763826647585949ull);
-    vlSelf->tb_memrun__DOT__build_hunk2__Vstatic__ff = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 17251290966329425496ull);
-    vlSelf->tb_memrun__DOT__build_hunk2__Vstatic__jcn = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 13160006725855758016ull);
     vlSelf->tb_memrun__DOT__fd = 0;
     vlSelf->tb_memrun__DOT__nf = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 16770375853736453845ull);
     vlSelf->tb_memrun__DOT__ha = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 6116703218312038321ull);
@@ -13431,11 +13425,29 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->__VdfgRegularize_h4af1c392_0_136 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_137 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_139 = 0;
-    vlSelf->__Vtask_tb_memrun__DOT__build_hunk2__351__rstk = 0;
-    vlSelf->__Vtask_tb_memrun__DOT__build_hunk2__351____Vlvbound_he94ddc60__0 = 0;
-    vlSelf->__Vtask_tb_memrun__DOT__build_hunk2__351____Vlvbound_he93b6d64__0 = 0;
-    vlSelf->__Vtask_tb_memrun__DOT__build_hunk2__351____Vlvbound_he94dfc52__0 = 0;
-    vlSelf->__Vtask_tb_memrun__DOT__build_hunk2__351____Vlvbound_he93c60da__0 = 0;
+    vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__rstk = 0;
+    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
+        vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__aluf[__Vi0] = 0;
+    }
+    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
+        vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__bsel[__Vi0] = 0;
+    }
+    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
+        vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__lc[__Vi0] = 0;
+    }
+    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
+        vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__asel[__Vi0] = 0;
+    }
+    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
+        vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__ff[__Vi0] = 0;
+    }
+    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
+        vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351__jcn[__Vi0] = 0;
+    }
+    vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351____Vlvbound_h3210a7bb__0 = 0;
+    vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351____Vlvbound_h31de2e39__0 = 0;
+    vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351____Vlvbound_h3210c89d__0 = 0;
+    vlSelf->__Vtask_tb_memrun__DOT__build_hunk4__351____Vlvbound_h32171d85__0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;

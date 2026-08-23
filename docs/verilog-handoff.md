@@ -2897,31 +2897,44 @@ Two things remain, both small and both stated by measurement:
    `MapDirty'` go low on 2434 samples where they were stuck. **All 29 gates
    stay green** across the machine-wide change.
 
-7. **Still open, and now a content question rather than a wiring one.**
-   `MapTrouble` is still asserted, but the blocked group has **moved**: with
-   `MapWP'` and `MapDirty'` both low, group 2 -- `(MapWP' | MapDirty' |
-   ROWIM')` -- is now 0. The map entry's actual *value* decides that.
+7. **The microcode writes its own Map entry, and the fault clears.** With
+   the read path open, the entry's *content* decides `MapTrouble`: e17 takes
+   `THi` as data and plane d13 as its common strobe, so `MapWP' = ~d13`, and
+   likewise `MapDirty' = ~d11`; group 4 additionally wants `MapEven' = 1`.
 
-   Reading the translators back to the array: e17 takes `THi` as its **data**
-   (pin 5) and `MemX13.sil+3` -- plane d13 -- as its **common strobe**
-   (pin 6), so `MapWP' = ~(THi & d13) = ~d13`; likewise `MapDirty' = ~d11`.
-   Both planes read 1, so both primed outputs are 0 and group 2 fails. Group 4
-   additionally wants `MapEven' = 1`, the parity across `RP.00`..`RP.08`.
+   **Do not plant the entry from the bench.** The preload *lands*
+   (`d13.mem[0]` reads `000` right after the loop) and is *gone* by the
+   measurement window, with no write strobe inside it -- **the machine writes
+   the map itself during startup**, which is the write path working.
 
-   **And do not plant the entry from the bench.** That was tried: the preload
-   lands correctly (`d13.mem[0]` reads `000` immediately after the loop) and is
-   **gone** by the measurement window, back to 1, with no write strobe inside
-   that window. **The machine writes the map itself during startup** -- which
-   is the write path working -- and overwrites anything planted beforehand. So
-   the entry has to be written the way the hardware does it, through `←Map`,
-   which is this project's norm anyway: PARC's own sequences, not simulation
-   backdoors.
+   So the entry is written the way the hardware does it. The loop is **four
+   instructions** now (`build_hunk4`), running 0 → 1 → 2 → 3 → 0:
 
-   `←Map` is FA=0, FB=3, FC=1 = `0o31` at ContA `b17` (the same number
-   `cpu.c`'s `DM_REF_RMAP` comment derives independently); from the
-   `j24`/`b24`/`d22` algebra the reference is **ASEL = 000 with FF.0 = 0,
-   FF.1 = 1**. `build_hunk4` is in place to carry Map / Store / Flush in one
-   hunk.
+   | addr | reference | encoding |
+   |---|---|---|
+   | IM[0] | `←Map` | ASEL = 000, FF.0 = 0, FF.1 = 1 (j24 Q1) |
+   | IM[1] | `Store` | ASEL = 000, FF.0 = 1, FF.1 = 1 |
+   | IM[2] | `Flush` | ASEL = 001, FF.0 = 0, FF.1 = 1 (j24 Q3) |
+   | IM[3] | none | ASEL = 100, `WantProcRef'` stays high |
+
+   all with BSEL = 0 so `FFok'` stays low, every JCN keeping a JCN.0 bit set.
+
+   **And it works.** The map planes now read 0 where they read 1 -- the `←Map`
+   wrote them -- `MapEven'` is **high on 2354** samples where it was low on
+   all 3000, and **`MapTrouble` clears on 2354 of 3000 cycles** where it was
+   asserted the entire run. `MapTroubleInMem` is low on 2339, and
+   `WriteInMem'` and a clear map **coincide on 352**. Gated; turning the
+   `←Map` into a second Store is caught.
+
+8. **Still open: `MemX07.sil+10`**, the third term of D0. It is Q0 of j13/j14,
+   a pair of SG10139 PROMs addressed by `{Use256/16KProm', RfshInMem,
+   MemState.0..3}` -- **the memory state machine**. Low on 96 cycles and never
+   coinciding with the other two, so D0 stays 0 and `MemWEa` never rises.
+
+   That is no longer a decode question: the two enabling conditions hold
+   together on 352 cycles, and what is missing is the MemState sequencer
+   reaching its **write phase** during them. Next: trace MemState through a
+   write-back, find which state Q0 asserts in, then why the cycle stops short.
 
 **Three sampling traps in one file.** The first read an instant instead of
 counting edges; the second read the end of a run instead of the interesting
