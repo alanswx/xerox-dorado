@@ -1126,7 +1126,8 @@ module tb_memrun;
   reg mapst_hit [0:7]; reg mapfn_hit [0:3];
   integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nwm, nall3, nrw, nwp, ndty, nevn, nckw, nprf, nthi, nmt, nmtp, nmras, nmcas, nmrd, nmwr, nd13w;
   reg pmras, pmcas;
-  integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd;
+  reg smc_d, sec_d;
+  integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd, nvc_wv, nvc_dv, nvc_fdm, nvc_fia, nvc_vip, nvc_via, nvc_ios, nvc_wia, nvc_wim, nvc_wimem, nvc_smc, nvc_sec, nvc_smc_e, nvc_sec_e, nvc_coin, nvc_coin2;
   reg tnia_hit [0:4095];
   reg [2:0] pms;
   reg [3:0] pipe_before;
@@ -2189,7 +2190,7 @@ module tb_memrun;
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
     for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
     ntnia=0; nff0=0; nsamp=0;
-    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0;
+    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0; nvc_wv=0; nvc_dv=0; nvc_fdm=0; nvc_fia=0; nvc_vip=0; nvc_via=0; nvc_ios=0; nvc_wia=0; nvc_wim=0; nvc_wimem=0; nvc_smc=0; nvc_sec=0; nvc_smc_e=0; nvc_sec_e=0; nvc_coin=0; nvc_coin2=0;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
     nwcr=0; pwcr=m.b_MemC.WantCR; nwar=0; pwar=m.b_MemC.WantAltRef_p_;
     nfl=0; pfl=m.b_MemC.Flush_u__p_; nmp=0; pmp=m.b_MemC.Map_u__p_;
@@ -2415,6 +2416,38 @@ module tb_memrun;
         if (!m.b_MemC.Flush_u__p_)    nff0_fl  = nff0_fl  + 1;
         if (m.b_MemC.FlushStore)      nff0_fs  = nff0_fs  + 1;
         if (m.b_MemC.HitColDirty)     nff0_hcd = nff0_hcd + 1;
+        // THE VICTIM CHAIN, counted over the window rather than sampled at
+        // the end -- at the end the machine is idle and every term reads 0.
+        if (m.b_MemC.WantVic)         nvc_wv  = nvc_wv  + 1;
+        if (m.b_MemC.DirtyVicOrAB)    nvc_dv  = nvc_dv  + 1;
+        if (m.b_MemC.ForceDirtyMiss)  nvc_fdm = nvc_fdm + 1;
+        if (m.b_MemC.FlushInA)        nvc_fia = nvc_fia + 1;
+        if (!m.b_MemC.VicInPair_p_)   nvc_vip = nvc_vip + 1;
+        if (m.b_MemX.VictimInA)       nvc_via = nvc_via + 1;
+        if (m.b_MemX.IoStoreInA)      nvc_ios = nvc_ios + 1;
+        if (!m.b_MemX.WriteInA_p_)    nvc_wia = nvc_wia + 1;
+        // ...and the two-stage pipeline that should carry it to the memory
+        // stage: WriteInA' -[StartMapClk0'a]-> WriteInMap' -[StartMemClk0']
+        // -> WriteInMem'. Both stages are MC10176 hex D flip-flops (MemX
+        // h14, j11), so a stage that never clocks holds its Q forever.
+        if (!m.b_MemX.WriteInMap_p_)   nvc_wim   = nvc_wim   + 1;
+        if (!m.b_MemX.WriteInMem_p_)   nvc_wimem = nvc_wimem + 1;
+        if (m.b_MemX.StartMapClk0_p_a) nvc_smc   = nvc_smc   + 1;
+        if (m.b_MemX.StartMemClk0_p_)  nvc_sec   = nvc_sec   + 1;
+        // COUNT EDGES, NOT LEVELS -- an MC10176 latches on the RISING edge,
+        // so a clock that is merely high most of the time may never clock.
+        // And count the COINCIDENCE: a rising edge while the D input is
+        // asserted is the only thing that can move the stage.
+        if (m.b_MemX.StartMapClk0_p_a && !smc_d) begin
+          nvc_smc_e = nvc_smc_e + 1;
+          if (!m.b_MemX.WriteInA_p_)  nvc_coin  = nvc_coin  + 1;
+        end
+        if (m.b_MemX.StartMemClk0_p_ && !sec_d) begin
+          nvc_sec_e = nvc_sec_e + 1;
+          if (!m.b_MemX.WriteInMap_p_) nvc_coin2 = nvc_coin2 + 1;
+        end
+        smc_d = m.b_MemX.StartMapClk0_p_a;
+        sec_d = m.b_MemX.StartMemClk0_p_;
         // MemC l19 gate d (MC10100, pin 9 COMMON):
         //     FlushStore = ~(FSinPair' | EcHasAb)
         // so the flush must be LATCHED INTO THE A/B PAIR first.
@@ -2552,7 +2585,7 @@ module tb_memrun;
     // the remaining half of task #17; do NOT restore this as a $fatal until
     // the write-back is understood, or it will pull the jam back.
     if (nwim == 0)
-      $display("tb_memrun:   OPEN (task #17) -- WriteInMem' never asserted; the write-back is not scheduled in this window");
+      $display("tb_memrun:   OPEN (task #17) -- WriteInMem' never asserted; see CLOCK EDGES below -- the victim is real, it just never coincides with a StartMap edge");
     // GATE: a map operation IS in the stage -- ReadOrWriteInMap' is the
     // COMMON input of g14's OR-AND, and high would force MapTrouble by
     // default, which would make the diagnosis below meaningless.
@@ -2665,6 +2698,38 @@ module tb_memrun;
     $display("tb_memrun:   A slot -- CacheRefInA=%b IfuRefInA=%b Store_InA=%b PrefetchInA=%b IoFetchInA=%b PairHasA=%b",
              m.b_MemC.CacheRefInA, m.b_MemC.IfuRefInA, m.b_MemC.Store_u_InA,
              m.b_MemC.PrefetchInA, m.b_MemC.IoFetchInA, m.b_MemC.PairHasA);
+    // THE VICTIM CHAIN -- why the write-back is never scheduled (task #17).
+    //
+    // DIAGNOSED 2026-08-23, and it is NOT a wiring or cell bug: the chain is
+    // correct the whole way and the victim is genuinely produced.
+    //
+    //   WantVic 192, DirtyVicOrAB 512  ->  VicInPair' asserted 128
+    //                                  ->  VictimInA   128
+    //                                  ->  WriteInA'   128     <- all good
+    //
+    // What fails is the very next hop. WriteInA' feeds MemX h14, an MC10176
+    // hex D flip-flop clocked by StartMapClk0'a -- and that clock has only
+    // FOUR EDGES in the whole 704-sample window, because it ticks only when a
+    // map cycle starts. On none of those four was WriteInA' asserted, so the
+    // stage never latches and WriteInMap'/WriteInMem' stay high forever.
+    //
+    // So the remaining work is STIMULUS, not hardware: the bench has to make
+    // the dirty victim exist AT a StartMap edge. Measure the coincidence, not
+    // the levels -- "StartMapClk0'a high on 680 of 704" looks like a running
+    // clock and is four edges.
+    // WriteInA' = NOR(VictimInA, IoStoreInA)         MemX k23 gate a
+    // VictimInA = NOR(VicInPair', EcHasA)            MemX k23 gate d
+    // VicInPair' latches, on LdPair', MemC j23 gate 1 (an MC10117 OR-AND
+    //   whose pins 5 and 9 are OPEN, so it reduces to):
+    //     VicInPair' = ~[ (DirtyVicOrAB | ForceDirtyMiss) & WantVic ]
+    $display("tb_memrun:   VICTIM CHAIN over %0d in-window samples -- WantVic %0d, DirtyVicOrAB %0d, ForceDirtyMiss %0d, FlushInA %0d",
+             nff0, nvc_wv, nvc_dv, nvc_fdm, nvc_fia);
+    $display("tb_memrun:                  -> VicInPair' asserted %0d, VictimInA %0d, IoStoreInA %0d, WriteInA' asserted %0d",
+             nvc_vip, nvc_via, nvc_ios, nvc_wia);
+    $display("tb_memrun:                  -> PIPELINE: WriteInMap' asserted %0d, WriteInMem' asserted %0d | StartMapClk0'a high %0d, StartMemClk0' high %0d",
+             nvc_wim, nvc_wimem, nvc_smc, nvc_sec);
+    $display("tb_memrun:                  -> CLOCK EDGES: StartMapClk0'a %0d edges (with WriteInA' asserted: %0d), StartMemClk0' %0d edges (with WriteInMap' asserted: %0d)",
+             nvc_smc_e, nvc_coin, nvc_sec_e, nvc_coin2);
     $display("tb_memrun:   AwantsMapFS=%b terms -- EcHasAb=%b Map_InPair'=%b VicInPair'=%b",
              m.b_MemC.AwantsMapFS, m.b_MemC.EcHasAb, m.b_MemC.Map_u_InPair_p_,
              m.b_MemC.VicInPair_p_);
