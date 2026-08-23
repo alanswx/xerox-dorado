@@ -388,6 +388,13 @@ mem-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_mem/tb_mem 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_mem|Assertion"; exit $$rc; }
 
+msa-test:
+	@cd ../.. && $(V) --binary --top-module tb_msa $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_msa -o tb_msa \
+		verilog/verilator/tb_msa.sv verilog/generated/msa.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_msa/tb_msa 2>&1); \
+		  rc=$$?; echo "$$out" | grep -E "tb_msa|Assertion"; exit $$rc; }
+
 storage-test:
 	@cd ../.. && $(V) --binary --top-module tb_storage $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_storage -o tb_storage \

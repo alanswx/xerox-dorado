@@ -183,6 +183,11 @@ mem-test:
 storage-test:
 	@$(MAKE) -C verilator storage-test
 
+# A WORD INTO THE STORAGE ARRAY: the msa board standalone, where the bench owns
+# the DRAM strobes, so a write can be driven without a memory reference.
+msa-test:
+	@$(MAKE) -C verilator msa-test
+
 # The REAL firmware driving BaseBd+ContA+ContB+ProcH+ProcL. Diagnostic.
 firmware-probe:
 	@$(MAKE) -C verilator firmware-probe
