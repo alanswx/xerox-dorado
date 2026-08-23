@@ -189,8 +189,28 @@ Sout -> b01 Q (msa04.sil+32/33) = 11 -> b02 (msa04.sil+8) = 1 -> b05 DIN = 1
 writing 0000 -> DIN=0, 0 cells set        writing FFFF -> DIN=1, 1 cell set
 ```
 
-Exactly one cell, at one location. Mutation-tested: breaking the MC10125
-translator and disabling the MK4096's write are both caught.
+Exactly one cell, at one location.
+
+**AND IT COMES BACK.** The read path is the shifted one, and the '166 model
+loads `q[7]` from pin 2 -- which is b05's DOUT -- so the bit is at the serial
+output the moment the load happens, no shifts required:
+
+```
+b05 DOUT=1 -> SLa=0 (load) -> a13 Qh (msa04.sil+29)=1
+           -> c02 (msa04.sil+31)=1 -> Sin.00=1
+
+round trip: wrote 1, read Sin.00=1 ; wrote 0, read Sin.00=0
+```
+
+The zero case is there so the gate cannot pass on a stuck-high output.
+Mutation-tested four ways -- breaking the MC10125 translator, disabling the
+MK4096's write, disabling its read, and stopping the SN74166 loading -- all
+caught.
+
+**`LoadSinE` goes low then high.** The other way round leaves `SLa` high, the
+'166 stays in **shift** mode and never takes the DRAM outputs, and the read
+returns 0 while `b05`'s DOUT is plainly 1 -- which reads as a dead read path
+and is a polarity mistake in the bench.
 
 **Probe a DATA bit, not an ECC bit.** The first attempt watched `u_b04` and saw
 a permanent 0 that looked like a dead write path. b04 is an **ECC** DRAM, fed

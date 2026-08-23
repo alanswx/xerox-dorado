@@ -66,7 +66,7 @@ module tb_msa;
   );
 
   integer i, n_ones, n_zeros;
-  reg dinb, dinq;
+  reg dinb, dinq, dout_seen, sla_seen, sin_one, sin_zero;
 
   task step(input integer n);
     begin repeat (n) @(posedge sys_clk); end
@@ -84,6 +84,29 @@ module tb_msa;
       cas = 1'b1; step(8);
       ras = 1'b1; step(8);
       we = 1'b1;  step(64);
+    end
+  endtask
+
+  // READ BACK. The '166 loads eight DRAM DOUTs in parallel and its serial
+  // output is q[7], which the model loads from pin 2 -- and pin 2 is b05's
+  // DOUT. So the bit is at the output the moment the load happens; no shifts
+  // are needed to see THIS bit. Pulse LoadSinE (with Mod0SinEn' low) to make
+  // the board's sequencer drive SLa, then let c01 clock it out to Sin.
+  task read_word(input [7:0] row, input [7:0] col);
+    begin
+      sinEn = 1'b0;
+      we = 1'b1;  step(8);
+      memad = row; ras = 1'b0; step(8);
+      memad = col; cas = 1'b0; step(32);
+      // LoadSinE LOW then HIGH. The other way round leaves SLa high and the
+      // '166 stays in SHIFT mode, so it never takes the DRAM outputs: the
+      // read then returns 0 while b05's DOUT is plainly 1, which reads as a
+      // dead read path and is a polarity mistake in the bench.
+      loadsi = 1'b0; step(32); loadsi = 1'b1; step(32);
+      dout_seen = m.u_b05.p14; sla_seen = m.SLa;
+      shiftsi = 1'b1; step(64); shiftsi = 1'b0;
+      cas = 1'b1; step(8);
+      ras = 1'b1; step(64);
     end
   endtask
 
@@ -109,6 +132,20 @@ module tb_msa;
     dinb   = m.u_b05.p2;
     n_ones = nonzero_cells();
 
+    // read the location back -- it holds a 1
+    read_word(8'h2B, 8'h15);
+    sin_one = m.Sin_00__drv;
+
+    // now write a 0 to the same place and read THAT back, so the gate cannot
+    // pass on a stuck-high output
+    write_word(16'h0000, 8'h2B, 8'h15);
+    read_word(8'h2B, 8'h15);
+    sin_zero = m.Sin_00__drv;
+
+    $display("tb_msa: during the read -- b05 DOUT=%b, SLa=%b (low = load), RAS'=%b CAS'=%b WE'=%b",
+             dout_seen, sla_seen, m.u_b05.p4, m.u_b05.p15, m.u_b05.p3);
+    $display("tb_msa: READ BACK -- a13 Qh (msa04.sil+29) = %b -> c02 (msa04.sil+31) = %b -> Sin.00 = %b",
+             m.msa04_sil_pl_29, m.msa04_sil_pl_31, m.Sin_00__drv);
     $display("tb_msa: standalone storage board -- 144 MK4096 DRAMs, 291 packages");
     $display("tb_msa: Sout -> b01 Q (msa04.sil+32/33) = %b%b -> b02 (msa04.sil+8) = %b -> b05 DIN = %b",
              m.msa04_sil_pl_32, m.msa04_sil_pl_33, m.msa04_sil_pl_8, m.u_b05.p2);
@@ -127,8 +164,15 @@ module tb_msa;
     if (n_ones == 0)
       $fatal(1, "writing ones set no cells -- the DRAM never took the write");
 
-    $display("tb_msa: PASS -- a word goes into PARC's storage array: Sout is");
-    $display("tb_msa:   registered, translated to TTL, and written into the MK4096s.");
+    $display("tb_msa: ROUND TRIP -- wrote 1, read Sin.00=%b; wrote 0, read Sin.00=%b",
+             sin_one, sin_zero);
+    if (sin_one !== 1'b1 || sin_zero !== 1'b0)
+      $fatal(1, "the storage array did not read back what was written (1 gave %b, 0 gave %b)",
+             sin_one, sin_zero);
+
+    $display("tb_msa: PASS -- A WORD GOES INTO PARC'S STORAGE ARRAY AND COMES BACK:");
+    $display("tb_msa:   Sout registered, translated to TTL, written into the MK4096s,");
+    $display("tb_msa:   read out through the SN74166 and returned on Sin.");
     $finish;
   end
 endmodule
