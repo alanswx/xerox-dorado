@@ -26,8 +26,31 @@ module cell_F10016 (
 );
 
   // C=13 clock, CE'=6 count enable (active low), MR=12 master reset,
-  // PE'=5 parallel enable (active low), D0-D3 = 11,10,9,7 load data,
-  // H0-H3 = 14,15,2,3 outputs, CO'=4 carry out (active low).
+  // PE'=5 parallel enable (active low), CO'=4 carry out (active low).
+  //
+  // BIT ORDER: PARC'S H0 IS THE DATA SHEET'S Q3. EclDict names the pins
+  // `H0,14 > H1,15 > H2,2 > H3,3` and `D0,11 > D1,10 > D2,9 > D3,7`, while
+  // the Fairchild connection diagram (DoradoDocs/datasheets/F10016.pdf p.1,
+  // DIP top view) gives the silicon:
+  //
+  //     pin  3 = Q0 (LSB)   pin  2 = Q1   pin 15 = Q2   pin 14 = Q3 (MSB)
+  //     pin  7 = P0 (LSB)   pin  9 = P1   pin 10 = P2   pin 11 = P3
+  //
+  // Both lists are EXACT reversals of PARC's, on outputs and on load inputs
+  // alike, so the dictionary simply names this part MSB-FIRST the way it
+  // names every other field in the machine. A CELL IMPLEMENTS THE DATA
+  // SHEET'S FUNCTION PER PIN NUMBER (the rule the MC10141 established), so
+  // pin 3 carries the LSB here.
+  //
+  // Three independent confirmations, none of them appealing to convention:
+  //   - RfshAd is a 9-bit counter cascaded across MemX g05/g06/g07, and
+  //     `g07.CO' -> g06.CE'` makes g07 the LOW-order package. Its pins carry
+  //     RfshAd.5-.8, so H3 holds the whole counter's LSB.
+  //   - MemProms.bcpl builds the j13 timing PROM as four groups of eight,
+  //     split on {RfshInMem, MemState.0} -- refresh-vs-read and
+  //     active-vs-idle -- which requires MemState.0 to be the HIGH bit.
+  //   - j13 takes A0=RfshInMem, A1=MemState.0 ... A4=MemState.3, and
+  //     cell_SG10139 is MSB-first, so the two agree only under this order.
   reg [3:0] q;
 
   // FPGA: ONE CLOCK, and the ECL clock net becomes an ENABLE.
@@ -50,11 +73,11 @@ module cell_F10016 (
   always @(posedge sys_clk) begin
     if (p12)            q <= 4'd0;                 // MR
     else if (ck_en) begin
-      if (!p5)          q <= {p7, p9, p10, p11};   // PE' load
+      if (!p5)          q <= {p11, p10, p9, p7};   // PE' load: P3,P2,P1,P0
       else if (!p6)     q <= q + 4'd1;             // CE' count
     end
   end
-  assign {p3, p2, p15, p14} = q;
+  assign {p14, p15, p2, p3} = q;               // Q3,Q2,Q1,Q0 per the data sheet
 
   // PIN 4 IS `TC`, TERMINAL COUNT, AND IT IS NOT GATED BY `CE`. The Fairchild
   // data sheet (DoradoDocs/datasheets/F10016.pdf) names the pins outright:

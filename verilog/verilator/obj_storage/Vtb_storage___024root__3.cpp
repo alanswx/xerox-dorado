@@ -133,19 +133,6 @@ void Vtb_storage___024root___nba_sequent__TOP__4(Vtb_storage___024root* vlSelf) 
     CData/*4:0*/ __Vtableidx31;
     __Vtableidx31 = 0;
     // Body
-    vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_2 
-        = (1U & ((~ ((~ ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__StkP_2) 
-                         ^ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_k18__DOT__p9))) 
-                     | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__CurrStkPVal_p_))) 
-                 | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__CurrStkPVal_p_) 
-                    & ((0U == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                        ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__alub_10)
-                        : ((1U == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                            ? ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_l16__DOT__q) 
-                               >> 2U) : ((2U == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                                          ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_10)
-                                          : ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_i16__DOT__q) 
-                                             >> 2U)))))));
     vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__alub_10a 
         = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_b09__DOT__p10) 
            | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__alub_10));
@@ -974,7 +961,7 @@ void Vtb_storage___024root___nba_sequent__TOP__4(Vtb_storage___024root* vlSelf) 
     vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__ContA05_sil_pl_5 
         = ((IData)(tb_storage__DOT__m__DOT__b_ContA__DOT__ContA05_sil_pl_5___05Fe04_15) 
            | (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__u_f04__DOT__q) 
-               >> 2U) & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__TLinkEn_p_)));
+               >> 1U) & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__TLinkEn_p_)));
     vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1 
         = (1U & ((IData)(tb_storage__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_14) 
                  | ((IData)(tb_storage__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_3) 

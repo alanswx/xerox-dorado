@@ -221,60 +221,6 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
     CData/*4:0*/ __Vtableidx116;
     __Vtableidx116 = 0;
     // Body
-    vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_a10__DOT__clkb 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_a10__DOT__p11) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__Clock1_p_Ac));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__clka 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__p6) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__Clock1_p_Ac));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__clkb 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__p11) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__Clock1_p_Ac));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_b10__DOT__clka 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_b10__DOT__p6) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__Clock1_p_Ac));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_b10__DOT__clkb 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_b10__DOT__p11) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__Clock1_p_Ac));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__clka 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__p6) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__clk0_p_Ca));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__clkb 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__p11) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__clk0_p_Ca));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__clk0_p_A 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_j08__DOT__p5) 
-           | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_j08__DOT__p6) 
-              | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__preClk0_p_B)));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__WrPipeCol_p_ 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b) 
-           | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__VicOrFS1C___05FMemC) 
-              | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__preClk0_p_B)));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__clk0_p_Da 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_i17__DOT__p9) 
-           | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_i17__DOT__p10) 
-              | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__preClk0_p_B)));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_e22__DOT__clka 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_e22__DOT__p6) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__PrClk1_p_Da));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_e22__DOT__clkb 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_e22__DOT__p11) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__PrClk1_p_Da));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_e23__DOT__clka 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__PrClk1_p_Da) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_e23__DOT__p9));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_c17__DOT__clka 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__clk1_p_Da) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_c17__DOT__p9));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_d17__DOT__clka 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_d17__DOT__p6) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__clk1_p_Da));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_d17__DOT__clkb 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_d17__DOT__p11) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__clk1_p_Da));
-    vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_e14__DOT__clka 
-        = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__Dbusy) 
-           | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__clk1_p_Da));
     vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_e23__DOT__clkb 
         = ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__clk1_p_Da) 
            | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_e23__DOT__p9));
@@ -747,7 +693,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
     vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemState_p_ 
         = (1U & ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__MemX07_sil_pl_1) 
                  | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_j12__DOT__q) 
-                    >> 1U)));
+                    >> 2U)));
     vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__StartST_p_ 
         = (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_h19__DOT__p4) 
             | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__TrueBD) 
@@ -774,7 +720,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
         = (1U & (((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__ChkLastPh6)) 
                   | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__ECFault_p_) 
                      | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f04__DOT__q) 
-                        >> 2U))) & (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__MemError_p_) 
+                        >> 1U))) & (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__MemError_p_) 
                                      | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__ChkLastPh6)) 
                                         | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k07__DOT__p9))) 
                                     & (((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__ChkLastPh6)) 
@@ -782,7 +728,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                            | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k07__DOT__p12))) 
                                        & ((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_7) 
                                           | ((~ (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f04__DOT__q) 
-                                                  >> 1U) 
+                                                  >> 2U) 
                                                  ^ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_j05__DOT__p9))) 
                                              | (~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__ChkLastPh6))))))));
     vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__u_j08__DOT__clka 
@@ -1828,13 +1774,14 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
             = (1U & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_8));
     } else {
         vlSelfRef.tb_storage__DOT__m__DOT__dDad_10___05FMemC 
-            = (1U & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q));
+            = (1U & ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
+                     >> 3U));
         vlSelfRef.tb_storage__DOT__m__DOT__dDad_11___05FMemC 
             = (1U & ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
-                     >> 1U));
+                     >> 2U));
         vlSelfRef.tb_storage__DOT__m__DOT__dDad_12___05FMemC 
             = (1U & ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
-                     >> 2U));
+                     >> 1U));
     }
     __Vtableidx79 = ((vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_g15__DOT__mem
                       [vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_g15__DOT__a] 
@@ -2082,14 +2029,14 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
     vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__ContA05_sil_pl_5 
         = ((IData)(tb_storage__DOT__m__DOT__b_ContA__DOT__ContA05_sil_pl_5___05Fe04_15) 
            | (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__u_f04__DOT__q) 
-               >> 2U) & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__TLinkEn_p_)));
+               >> 1U) & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContA__DOT__TLinkEn_p_)));
     vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__STIdle_p_ 
         = (1U & (((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__StartST_p_)) 
                   | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__STfree_p___05F_MemX)) 
                  & (((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_3) 
                      >> 2U) | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__DisHold___05FMemC) 
                                | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_i10__DOT__q) 
-                                  >> 1U)))));
+                                  >> 2U)))));
     vlSelfRef.tb_storage__DOT__m__DOT__b_ContB__DOT__RA_09a 
         = (1U & (~ ((IData)(tb_storage__DOT__m__DOT__b_ContB__DOT__dRA_09_p_) 
                     | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ContB__DOT__u_c13__DOT__p6) 
@@ -2369,7 +2316,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_a01__DOT__sel))
                                                                      ? 
                                                                     ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q) 
-                                                                     >> 2U)
+                                                                     >> 1U)
                                                                      : (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_e02__DOT__p6))))) 
                                                               | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qa)) 
                                                                  & ((0U 
@@ -2424,9 +2371,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                     : 
                                                                    ((2U 
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_a01__DOT__sel))
-                                                                     ? 
-                                                                    ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q) 
-                                                                     >> 3U)
+                                                                     ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q)
                                                                      : (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_e02__DOT__p10))))) 
                                                               | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qa)) 
                                                                  & ((0U 
@@ -2485,7 +2430,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_a01__DOT__sel))
                                                                      ? 
                                                                     ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q) 
-                                                                     >> 1U)
+                                                                     >> 2U)
                                                                      : (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_d02__DOT__p10))))) 
                                                               | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qa)) 
                                                                  & ((0U 
@@ -2540,7 +2485,9 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                     : 
                                                                    ((2U 
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_a01__DOT__sel))
-                                                                     ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q)
+                                                                     ? 
+                                                                    ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q) 
+                                                                     >> 3U)
                                                                      : (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_d02__DOT__p6))))) 
                                                               | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qa)) 
                                                                  & ((0U 
@@ -2578,7 +2525,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                    == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
                                                                    ? 
                                                                   ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q) 
-                                                                   >> 2U)
+                                                                   >> 1U)
                                                                    : 
                                                                   ((1U 
                                                                     == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
@@ -2589,7 +2536,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                      ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__PipeMapDirtyb)
                                                                      : 
                                                                     ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q) 
-                                                                     >> 2U))))) 
+                                                                     >> 1U))))) 
                                                               | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa)) 
                                                                  & ((0U 
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_b01__DOT__sel))
@@ -2636,7 +2583,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                    == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
                                                                    ? 
                                                                   ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q) 
-                                                                   >> 1U)
+                                                                   >> 2U)
                                                                    : 
                                                                   ((1U 
                                                                     == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
@@ -2647,7 +2594,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                      ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__ChipsAre256_s_16K)
                                                                      : 
                                                                     ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q) 
-                                                                     >> 1U))))) 
+                                                                     >> 2U))))) 
                                                               | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa)) 
                                                                  & ((0U 
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_b01__DOT__sel))
@@ -2692,9 +2639,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                            | (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_h01__DOT__p2) 
                                                                & ((0U 
                                                                    == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
-                                                                   ? 
-                                                                  ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q) 
-                                                                   >> 3U)
+                                                                   ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q)
                                                                    : 
                                                                   ((1U 
                                                                     == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
@@ -2703,9 +2648,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                    ((2U 
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
                                                                      ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__PipeMapPar)
-                                                                     : 
-                                                                    ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q) 
-                                                                     >> 3U))))) 
+                                                                     : (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q))))) 
                                                               | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa)) 
                                                                  & ((0U 
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_b01__DOT__sel))
@@ -2750,7 +2693,9 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                            | (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_h01__DOT__p2) 
                                                                & ((0U 
                                                                    == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
-                                                                   ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q)
+                                                                   ? 
+                                                                  ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q) 
+                                                                   >> 3U)
                                                                    : 
                                                                   ((1U 
                                                                     == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
@@ -2759,7 +2704,9 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                    ((2U 
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
                                                                      ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__ModSel_0)
-                                                                     : (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q))))) 
+                                                                     : 
+                                                                    ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q) 
+                                                                     >> 3U))))) 
                                                               | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa)) 
                                                                  & ((0U 
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_b01__DOT__sel))
@@ -2799,7 +2746,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                    == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
                                                                    ? 
                                                                   ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k09__DOT__q) 
-                                                                   >> 1U)
+                                                                   >> 2U)
                                                                    : 
                                                                   ((1U 
                                                                     == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
@@ -2810,7 +2757,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                      ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__M1)
                                                                      : 
                                                                     ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k09__DOT__q) 
-                                                                     >> 1U))))) 
+                                                                     >> 2U))))) 
                                                               | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa)) 
                                                                  & ((0U 
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_b01__DOT__sel))
@@ -2858,7 +2805,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                    == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
                                                                    ? 
                                                                   ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k09__DOT__q) 
-                                                                   >> 2U)
+                                                                   >> 1U)
                                                                    : 
                                                                   ((1U 
                                                                     == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
@@ -2869,7 +2816,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                      ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__M2)
                                                                      : 
                                                                     ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k09__DOT__q) 
-                                                                     >> 2U))))) 
+                                                                     >> 1U))))) 
                                                               | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa)) 
                                                                  & ((0U 
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_b01__DOT__sel))
@@ -2915,9 +2862,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                            | (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_h01__DOT__p2) 
                                                                & ((0U 
                                                                    == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
-                                                                   ? 
-                                                                  ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k09__DOT__q) 
-                                                                   >> 3U)
+                                                                   ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k09__DOT__q)
                                                                    : 
                                                                   ((1U 
                                                                     == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
@@ -2926,9 +2871,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
                                                                    ((2U 
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_b02__DOT__sel))
                                                                      ? (IData)(vlSelfRef.tb_storage__DOT__m__DOT__M3)
-                                                                     : 
-                                                                    ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k09__DOT__q) 
-                                                                     >> 3U))))) 
+                                                                     : (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k09__DOT__q))))) 
                                                               | ((~ (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa)) 
                                                                  & ((0U 
                                                                      == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcL__DOT__u_b01__DOT__sel))
@@ -3093,16 +3036,16 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
             = (1U & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__PEsrn_3));
     } else {
         vlSelfRef.tb_storage__DOT__m__DOT__dPipe02Ad_0___05FMemX 
-            = (1U & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q));
-        vlSelfRef.tb_storage__DOT__m__DOT__dPipe02Ad_1___05FMemX 
-            = (1U & ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q) 
-                     >> 1U));
-        vlSelfRef.tb_storage__DOT__m__DOT__dPipe02Ad_2___05FMemX 
-            = (1U & ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q) 
-                     >> 2U));
-        vlSelfRef.tb_storage__DOT__m__DOT__dPipe02Ad_3___05FMemX 
             = (1U & ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q) 
                      >> 3U));
+        vlSelfRef.tb_storage__DOT__m__DOT__dPipe02Ad_1___05FMemX 
+            = (1U & ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q) 
+                     >> 2U));
+        vlSelfRef.tb_storage__DOT__m__DOT__dPipe02Ad_2___05FMemX 
+            = (1U & ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q) 
+                     >> 1U));
+        vlSelfRef.tb_storage__DOT__m__DOT__dPipe02Ad_3___05FMemX 
+            = (1U & (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q));
     }
     vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_4 
         = (1U & (~ ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_2) 
@@ -3163,8 +3106,7 @@ VL_ATTR_COLD void Vtb_storage___024root___stl_sequent__TOP__1(Vtb_storage___024r
         = (1U & ((~ ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_g17__DOT__qb) 
                      | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_k23__DOT__p10))) 
                  | ((IData)(tb_storage__DOT__m__DOT__AfreeOrEc_p_b___05FMemC) 
-                    | ((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_a23__DOT__q) 
-                       >> 3U))));
+                    | (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemX__DOT__u_a23__DOT__q))));
     tb_storage__DOT__m__DOT__b_MemC__DOT__DirtyVicOrAB 
         = (((IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__VictimInA_p_) 
             & ((0U == (IData)(vlSelfRef.tb_storage__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
@@ -11019,7 +10961,6 @@ VL_ATTR_COLD void Vtb_storage___024root___ctor_var_reset(Vtb_storage___024root* 
     vlSelf->tb_storage__DOT__m__DOT__b_MemD__DOT__u_b12__DOT__ck_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11241847238594292635ull);
     vlSelf->tb_storage__DOT__m__DOT__b_MemD__DOT__u_b12__DOT__q = VL_SCOPED_RAND_RESET_I(6, __VscopeHash, 16565914219273798599ull);
     vlSelf->tb_storage__DOT__m__DOT__b_MemD__DOT__u_b13__DOT__p15 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8768810891303582708ull);
-    vlSelf->tb_storage__DOT__m__DOT__b_MemD__DOT__u_b13__DOT__sel = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 10912772853517731059ull);
     vlSelf->tb_storage__DOT__m__DOT__b_MemD__DOT__u_b13__DOT____VdfgRegularize_h7927e3b8_0_0 = 0;
     vlSelf->tb_storage__DOT__m__DOT__b_MemD__DOT__u_b13__DOT____VdfgRegularize_h7927e3b8_0_5 = 0;
     vlSelf->tb_storage__DOT__m__DOT__b_MemD__DOT__u_b15__DOT__p7 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13730657243720420322ull);
@@ -14482,6 +14423,7 @@ VL_ATTR_COLD void Vtb_storage___024root___ctor_var_reset(Vtb_storage___024root* 
     vlSelf->__VdfgRegularize_h4af1c392_0_108 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_109 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_111 = 0;
+    vlSelf->__VdfgRegularize_h4af1c392_0_112 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_115 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_116 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_119 = 0;

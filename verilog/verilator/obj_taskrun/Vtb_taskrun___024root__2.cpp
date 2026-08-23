@@ -1335,88 +1335,87 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
     } else {
         vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_02___05FContA 
             = (1U & ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_l15__DOT__q) 
-                     >> 2U));
+                     >> 1U));
         vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_03___05FContA 
-            = (1U & ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_l15__DOT__q) 
-                     >> 3U));
+            = (1U & (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_l15__DOT__q));
     }
     vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_05 = (1U 
                                                   & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                        ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TPCI_05)
                                                        : 
                                                       ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_i15__DOT__q) 
-                                                       >> 1U)) 
+                                                       >> 2U)) 
                                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_05___05FContB)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_06 = (1U 
                                                   & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                        ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TPCI_06)
                                                        : 
                                                       ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_i15__DOT__q) 
-                                                       >> 2U)) 
+                                                       >> 1U)) 
                                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_06___05FContB)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_07 = (1U 
                                                   & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                        ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TPCI_07)
-                                                       : 
-                                                      ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_i15__DOT__q) 
-                                                       >> 3U)) 
+                                                       : (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_i15__DOT__q)) 
                                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_07___05FContB)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_08 = (1U 
                                                   & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                        ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TPCI_08)
-                                                       : (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j15__DOT__q)) 
+                                                       : 
+                                                      ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j15__DOT__q) 
+                                                       >> 3U)) 
                                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_08___05FContB)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_09 = (1U 
                                                   & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                        ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TPCI_09)
                                                        : 
                                                       ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j15__DOT__q) 
-                                                       >> 1U)) 
+                                                       >> 2U)) 
                                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_09___05FContB)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_10 = (1U 
                                                   & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                        ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TPCI_10)
                                                        : 
                                                       ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j15__DOT__q) 
-                                                       >> 2U)) 
+                                                       >> 1U)) 
                                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_10___05FContB)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_11 = (1U 
                                                   & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                        ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TPCI_11)
-                                                       : 
-                                                      ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j15__DOT__q) 
-                                                       >> 3U)) 
+                                                       : (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j15__DOT__q)) 
                                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_11___05FContB)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_12 = (1U 
                                                   & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                        ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TPCI_12)
-                                                       : (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_k15__DOT__q)) 
+                                                       : 
+                                                      ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_k15__DOT__q) 
+                                                       >> 3U)) 
                                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_12___05FContB)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_13 = (1U 
                                                   & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                        ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TPCI_13)
                                                        : 
                                                       ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_k15__DOT__q) 
-                                                       >> 1U)) 
+                                                       >> 2U)) 
                                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_13___05FContB)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_14 = (1U 
                                                   & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                        ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TPCI_14)
                                                        : 
                                                       ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_k15__DOT__q) 
-                                                       >> 2U)) 
+                                                       >> 1U)) 
                                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_14___05FContB)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_15 = (1U 
                                                   & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                        ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TPCI_15)
-                                                       : 
-                                                      ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_k15__DOT__q) 
-                                                       >> 3U)) 
+                                                       : (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_k15__DOT__q)) 
                                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_15___05FContB)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_04 = (1U 
                                                   & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                        ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TPCI_04)
-                                                       : (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_i15__DOT__q)) 
+                                                       : 
+                                                      ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_i15__DOT__q) 
+                                                       >> 3U)) 
                                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__BNPC_04___05FContB)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__cka_d 
         = vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__clka;
@@ -1447,14 +1446,15 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
            & ((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_i19__DOT__p7)) 
               & (~ ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a)
                      ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__CIA_00_p_)
-                     : (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q)))));
+                     : ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q) 
+                        >> 3U)))));
     vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__ContA06_sil_pl_1 
         = ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TrueBD) 
            & ((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_i19__DOT__p7)) 
               & (~ ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a)
                      ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__CIA_01_p_)
                      : ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q) 
-                        >> 1U)))));
+                        >> 2U)))));
     vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Link_u_CIAInc 
         = (1U & ((~ ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                      ^ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_k18__DOT__p9))) 
@@ -1465,13 +1465,12 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                  & (~ ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a)
                         ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__CIA_02_p_)
                         : ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q) 
-                           >> 2U)))));
+                           >> 1U)))));
     vlSelfRef.tb_taskrun__DOT__m__DOT__TNIA_03___05FContA 
         = (1U & ((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_i19__DOT__p7)) 
                  & (~ ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a)
                         ? (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__CIA_03_p_)
-                        : ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q) 
-                           >> 3U)))));
+                        : (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q)))));
     vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d20__DOT__q 
         = (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d20__DOT__p15) 
             | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a))
@@ -1499,7 +1498,7 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                   | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j22__DOT__p11) 
                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__LongJump_p_a))) 
                  & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                     >> 1U) | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
+                     >> 2U) | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                                | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j22__DOT__p15))))));
     tb_taskrun__DOT__m__DOT__b_ContA__DOT__Call12 = 
         (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__IfuAddr_12_p_) 
@@ -1512,8 +1511,8 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                 | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__LongJump_p_a) 
                    | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j23__DOT__p12))) 
                & ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
-                  | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                     | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j23__DOT__p15))))));
+                  | (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
+                      >> 3U) | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j23__DOT__p15))))));
     tb_taskrun__DOT__m__DOT__b_ContA__DOT__ContA18_sil_pl_4 
         = (1U & (((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d23__DOT__qa)) 
                   | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a) 
@@ -1525,7 +1524,7 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                         | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__LocalBr_p_a) 
                            | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_k23__DOT__p12))) 
                        & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                           >> 2U) | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
+                           >> 1U) | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                                      | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_k23__DOT__p15)))))));
     tb_taskrun__DOT__m__DOT__b_ContA__DOT__Call15 = 
         (1U & (((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__bJCN_4)) 
@@ -1537,16 +1536,16 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                   & (((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__bJCN_7)) 
                       | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_k24__DOT__p11) 
                          | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__LongJump_p_a))) 
-                     & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                         >> 3U) | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
-                                   | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_k24__DOT__p15)))))));
+                     & ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
+                        | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
+                           | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_k24__DOT__p15)))))));
     vlSelfRef.tb_taskrun__DOT__m__DOT__TNIA_05 = (1U 
                                                   & ((~ 
                                                       (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__IfuAddr_05_p_) 
                                                         | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a) 
                                                            | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_h24__DOT__p6))) 
                                                        & ((((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
-                                                            >> 1U) 
+                                                            >> 2U) 
                                                            | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_h24__DOT__p10) 
                                                               | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a))) 
                                                           & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_h24__DOT__p10) 
@@ -1567,7 +1566,7 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                                                         | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a) 
                                                            | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_g23__DOT__p6))) 
                                                        & ((((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
-                                                            >> 2U) 
+                                                            >> 1U) 
                                                            | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_g23__DOT__p10) 
                                                               | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a))) 
                                                           & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_g23__DOT__p10) 
@@ -1587,8 +1586,7 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                                                       (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__IfuAddr_07_p_) 
                                                         | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a) 
                                                            | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_h23__DOT__p6))) 
-                                                       & ((((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
-                                                            >> 3U) 
+                                                       & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
                                                            | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_h23__DOT__p10) 
                                                               | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a))) 
                                                           & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_h23__DOT__p10) 
@@ -1608,7 +1606,8 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                                                       (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__IfuAddr_04_p_) 
                                                         | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a) 
                                                            | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_g24__DOT__p6))) 
-                                                       & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
+                                                       & ((((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
+                                                            >> 3U) 
                                                            | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_g24__DOT__p10) 
                                                               | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a))) 
                                                           & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_g24__DOT__p10) 
@@ -1630,8 +1629,10 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                                                            | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_h22__DOT__p6))) 
                                                        & (((IData)(tb_taskrun__DOT__m__DOT__b_ContA__DOT__NoDispatch) 
                                                            | ((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f06__DOT__qa)) 
-                                                              | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q))) 
-                                                          & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
+                                                              | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
+                                                                 >> 3U))) 
+                                                          & ((((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
+                                                               >> 3U) 
                                                               | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                                                                  | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_h22__DOT__p12))) 
                                                              & ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__LongJump_p_a) 
@@ -1654,9 +1655,9 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                                                        & (((IData)(tb_taskrun__DOT__m__DOT__b_ContA__DOT__NoDispatch) 
                                                            | ((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f06__DOT__qa)) 
                                                               | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
-                                                                 >> 1U))) 
+                                                                 >> 2U))) 
                                                           & ((((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
-                                                               >> 1U) 
+                                                               >> 2U) 
                                                               | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                                                                  | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_i23__DOT__p12))) 
                                                              & ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__LongJump_p_a) 
@@ -1679,9 +1680,9 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                                                        & (((IData)(tb_taskrun__DOT__m__DOT__b_ContA__DOT__NoDispatch) 
                                                            | ((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f06__DOT__qa)) 
                                                               | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
-                                                                 >> 2U))) 
+                                                                 >> 1U))) 
                                                           & ((((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
-                                                               >> 2U) 
+                                                               >> 1U) 
                                                               | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                                                                  | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_i24__DOT__p12))) 
                                                              & ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__LongJump_p_a) 
@@ -2828,10 +2829,8 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                                                            | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j24__DOT__p6))) 
                                                        & (((IData)(tb_taskrun__DOT__m__DOT__b_ContA__DOT__NoDispatch) 
                                                            | ((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f06__DOT__qb)) 
-                                                              | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
-                                                                 >> 3U))) 
-                                                          & ((((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
-                                                               >> 3U) 
+                                                              | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q))) 
+                                                          & (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
                                                               | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                                                                  | (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j24__DOT__p12))) 
                                                              & ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__LongJump_p_a) 
@@ -3092,13 +3091,13 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                                                   & ((~ (IData)(tb_taskrun__DOT__m__DOT__b_ContA__DOT__Call12)) 
                                                      | (~ 
                                                         ((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f06__DOT__qb)) 
-                                                         | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
+                                                         | (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
+                                                             >> 3U) 
                                                             | (IData)(tb_taskrun__DOT__m__DOT__b_ContA__DOT__NoDispatch))))));
     vlSelfRef.tb_taskrun__DOT__m__DOT__TNIA_15 = (1U 
                                                   & ((~ 
                                                       ((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f05__DOT__qa)) 
-                                                       | (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                                                           >> 3U) 
+                                                       | ((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
                                                           | (IData)(tb_taskrun__DOT__m__DOT__b_ContA__DOT__NoDispatch)))) 
                                                      | (~ (IData)(tb_taskrun__DOT__m__DOT__b_ContA__DOT__Call15))));
     vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__ContA09_sil_pl_1 
@@ -3161,7 +3160,7 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                                                   & ((~ (IData)(tb_taskrun__DOT__m__DOT__b_ContA__DOT__ContA17_sil_pl_5)) 
                                                      | ((~ 
                                                          (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                                                           >> 1U) 
+                                                           >> 2U) 
                                                           | (IData)(__VdfgRegularize_h4af1c392_0_24))) 
                                                         | (~ (IData)(tb_taskrun__DOT__m__DOT__b_ContA__DOT__ContA17_sil_pl_4)))));
     vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__Call 
@@ -3176,7 +3175,7 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
                                                      | ((~ (IData)(tb_taskrun__DOT__m__DOT__b_ContA__DOT__ContA18_sil_pl_4)) 
                                                         | ((~ 
                                                             (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                                                              >> 2U) 
+                                                              >> 1U) 
                                                              | (IData)(__VdfgRegularize_h4af1c392_0_24))) 
                                                            | (~ 
                                                               ((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ProcL__DOT__u_l11__DOT__qb)) 
@@ -6608,7 +6607,7 @@ void Vtb_taskrun___024root___nba_sequent__TOP__1(Vtb_taskrun___024root* vlSelf) 
     vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__ContA05_sil_pl_5 
         = ((IData)(tb_taskrun__DOT__m__DOT__b_ContA__DOT__ContA05_sil_pl_5___05Fe04_15) 
            | (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_f04__DOT__q) 
-               >> 2U) & (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TLinkEn_p_)));
+               >> 1U) & (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__TLinkEn_p_)));
     vlSelfRef.tb_taskrun__DOT__m__DOT__dIMRH___05FContB 
         = (((~ (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContB__DOT__CS0_p_ACc)) 
             & (IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_e16__DOT__dout_r)) 

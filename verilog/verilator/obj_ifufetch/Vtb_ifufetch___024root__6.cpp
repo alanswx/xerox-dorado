@@ -7,9 +7,9 @@
 extern const VlUnpacked<CData/*0:0*/, 64> Vtb_ifufetch__ConstPool__TABLE_ha477147c_0;
 extern const VlUnpacked<CData/*0:0*/, 64> Vtb_ifufetch__ConstPool__TABLE_hdbecc607_0;
 extern const VlUnpacked<CData/*0:0*/, 64> Vtb_ifufetch__ConstPool__TABLE_h5b90359e_0;
-extern const VlUnpacked<CData/*0:0*/, 64> Vtb_ifufetch__ConstPool__TABLE_h4780427e_0;
 extern const VlUnpacked<CData/*0:0*/, 64> Vtb_ifufetch__ConstPool__TABLE_h75b2a61a_0;
 extern const VlUnpacked<CData/*0:0*/, 64> Vtb_ifufetch__ConstPool__TABLE_h59e8c004_0;
+extern const VlUnpacked<CData/*0:0*/, 64> Vtb_ifufetch__ConstPool__TABLE_h4780427e_0;
 extern const VlUnpacked<CData/*0:0*/, 32> Vtb_ifufetch__ConstPool__TABLE_hac186fdc_0;
 extern const VlUnpacked<CData/*0:0*/, 32> Vtb_ifufetch__ConstPool__TABLE_hf5c1af71_0;
 extern const VlUnpacked<CData/*0:0*/, 32> Vtb_ifufetch__ConstPool__TABLE_hd5c05b5e_0;
@@ -76,8 +76,6 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     tb_ifufetch__DOT__m__DOT__ShA_15___05FProcL = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT___u_Config___05FMemC;
     tb_ifufetch__DOT__m__DOT___u_Config___05FMemC = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT___u_Dbuf___05FContA;
-    tb_ifufetch__DOT__m__DOT___u_Dbuf___05FContA = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT___u_Pipe2___05FMemC;
     tb_ifufetch__DOT__m__DOT___u_Pipe2___05FMemC = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT___u_Pipe3___05FMemC;
@@ -94,6 +92,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Call15 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_c;
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_c = 0;
+    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA07_sil_pl_10;
+    tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA07_sil_pl_10 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA17_sil_pl_4;
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA17_sil_pl_4 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA17_sil_pl_5;
@@ -112,8 +112,6 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__preclk2_p_Aa = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_13;
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_13 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3;
-    tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff22_3;
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff22_3 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a___05Fe22_13;
@@ -238,14 +236,14 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     tb_ifufetch__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_ = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcWantsAdly;
     tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcWantsAdly = 0;
+    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__HitOrEc;
+    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__HitOrEc = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_8;
     tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_8 = 0;
+    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_7;
+    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_7 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC16_sil_pl_2;
     tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC16_sil_pl_2 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_11;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_11 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_12;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_12 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC19_sil_pl_5;
     tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC19_sil_pl_5 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__NewRef;
@@ -262,30 +260,6 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MiscPCHP_p___05F_i21_3 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MiscPCHP_p___05F_i21_4;
     tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MiscPCHP_p___05F_i21_4 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_20___05Fg02_2;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_20___05Fg02_2 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_21___05Fg02_1;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_21___05Fg02_1 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_22___05Fg02_15;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_22___05Fg02_15 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_23___05Fg02_14;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_23___05Fg02_14 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_24___05Fh02_2;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_24___05Fh02_2 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_25___05Fh02_1;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_25___05Fh02_1 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_26___05Fh02_15;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_26___05Fh02_15 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_27___05Fh02_14;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_27___05Fh02_14 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_28___05Fi02_2;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_28___05Fi02_2 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_29___05Fi02_1;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_29___05Fi02_1 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_30___05Fi02_15;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_30___05Fi02_15 = 0;
-    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_31___05Fi02_14;
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_31___05Fi02_14 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k17__DOT__p15;
     tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k17__DOT__p15 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__DbufLd_p_a;
@@ -352,6 +326,18 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemX20_sil_pl_1 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemX20_sil_pl_3;
     tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemX20_sil_pl_3 = 0;
+    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_01;
+    tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_01 = 0;
+    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_02;
+    tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_02 = 0;
+    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_01;
+    tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_01 = 0;
+    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_02;
+    tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_02 = 0;
+    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeMapFnc_1_p_;
+    tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeMapFnc_1_p_ = 0;
+    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeSubTask_0;
+    tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeSubTask_0 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__preClk0_p_Bc;
     tb_ifufetch__DOT__m__DOT__b_MemX__DOT__preClk0_p_Bc = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__preClk1_p_A;
@@ -440,8 +426,6 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     __Vtableidx8 = 0;
     CData/*5:0*/ __Vtableidx22;
     __Vtableidx22 = 0;
-    CData/*5:0*/ __Vtableidx33;
-    __Vtableidx33 = 0;
     CData/*5:0*/ __Vtableidx45;
     __Vtableidx45 = 0;
     CData/*4:0*/ __Vtableidx47;
@@ -631,69 +615,6 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     CData/*7:0*/ __VdfgRegularize_hebeb780c_0_15;
     __VdfgRegularize_hebeb780c_0_15 = 0;
     // Body
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__PrivRefInPair___05FMemC 
-        = Vtb_ifufetch__ConstPool__TABLE_ha477147c_0
-        [vlSelfRef.__Vtableidx154];
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_11 
-        = Vtb_ifufetch__ConstPool__TABLE_hdbecc607_0
-        [vlSelfRef.__Vtableidx154];
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_12 
-        = Vtb_ifufetch__ConstPool__TABLE_h5b90359e_0
-        [vlSelfRef.__Vtableidx154];
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l17__DOT__ck_d 
-        = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__clk1_p_Da;
-    __Vtableidx33 = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l17__DOT__q;
-    tb_ifufetch__DOT__m__DOT___u_Dbuf___05FContA = 
-        Vtb_ifufetch__ConstPool__TABLE_h4780427e_0[__Vtableidx33];
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA28_sil_pl_4 
-        = Vtb_ifufetch__ConstPool__TABLE_h75b2a61a_0
-        [__Vtableidx33];
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA28_sil_pl_2 
-        = Vtb_ifufetch__ConstPool__TABLE_ha477147c_0
-        [__Vtableidx33];
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA28_sil_pl_6 
-        = Vtb_ifufetch__ConstPool__TABLE_hdbecc607_0
-        [__Vtableidx33];
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA28_sil_pl_7 
-        = Vtb_ifufetch__ConstPool__TABLE_h5b90359e_0
-        [__Vtableidx33];
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c24__DOT__cka_d 
-        = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c24__DOT__clka;
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__bJCN_5 
-        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c24__DOT__qa) 
-           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g19__DOT__p10) 
-              | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g19__DOT__p11)));
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__sJCN_2 
-        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g01__DOT____VdfgRegularize_h7927e3b8_0_5) 
-           & (1U == (3U & (IData)(vlSelfRef.tb_ifufetch__DOT__addr_n))));
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e24__DOT__ckb_d 
-        = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e24__DOT__clkb;
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__bJCN_6 
-        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e24__DOT__qb) 
-           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g20__DOT__p6) 
-              | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g20__DOT__p7)));
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__cka_d 
-        = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__clka;
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__cka_d 
-        = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__clka;
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__ckb_d 
-        = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__clkb;
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b04__DOT__sel 
-        = (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__qa) 
-            << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__qb));
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b01__DOT__sel 
-        = ((2U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__qa)) 
-                  << 1U)) | (1U & (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__qb))));
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e24__DOT__cka_d 
-        = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e24__DOT__clka;
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__bJCN_7 
-        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e24__DOT__qa) 
-           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g20__DOT__p10) 
-              | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g20__DOT__p11)));
-    tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3 
-        = (1U & (~ ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c24__DOT__qa)) 
-                    | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e24__DOT__qa)) 
-                       | (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e24__DOT__qb))))));
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a___05Fe22_13 
         = (1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e24__DOT__qb)) 
                  | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e24__DOT__qa)) 
@@ -812,19 +733,18 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         [__Vtableidx229];
     vlSelfRef.tb_ifufetch__DOT__m__DOT__XWantsPipe___05FMemX 
         = (1U & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k21__DOT__q) 
-                  >> 1U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
-                            >> 3U)));
+                  >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__StartMem_p_a 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__TrueBD) 
            & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
-              >> 1U));
+              >> 2U));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemIdle 
         = (1U & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j12__DOT__q) 
                   & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q)) 
-                 >> 1U));
+                 >> 2U));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapFree 
         = (1U & (~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
-                     >> 2U) ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_l20__DOT__p9))));
+                     >> 1U) ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_l20__DOT__p9))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c17__DOT__ck_d 
         = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__clk1_p_Ca;
     if ((1U & (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPIMclk_p_a)))) {
@@ -847,7 +767,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA07_sil_pl_7 
         = Vtb_ifufetch__ConstPool__TABLE_h59e8c004_0
         [__Vtableidx8];
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA07_sil_pl_10 
+    tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA07_sil_pl_10 
         = Vtb_ifufetch__ConstPool__TABLE_h4780427e_0
         [__Vtableidx8];
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__UseCPReg 
@@ -1134,44 +1054,44 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     }
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g09__DOT__a 
         = ((0x00000200U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                           << 9U)) | ((0x00000100U 
+                           << 6U)) | ((0x00000100U 
                                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                                          << 6U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_145)));
+                                          << 7U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_145)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g10__DOT__a 
         = ((0x00000200U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                           << 8U)) | ((0x00000100U 
+                           << 7U)) | ((0x00000100U 
                                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                                          << 5U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_145)));
+                                          << 8U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_145)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j10__DOT__a 
         = ((0x00000200U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                           << 9U)) | ((0x00000100U 
+                           << 6U)) | ((0x00000100U 
                                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                                          << 6U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_147)));
+                                          << 7U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_147)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_k09__DOT__a 
         = ((0x00000200U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                           << 8U)) | ((0x00000100U 
+                           << 7U)) | ((0x00000100U 
                                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                                          << 5U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_147)));
+                                          << 8U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_147)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l09__DOT__a 
         = ((0x00000200U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                           << 8U)) | ((0x00000100U 
+                           << 7U)) | ((0x00000100U 
                                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                                          << 5U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_148)));
+                                          << 8U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_148)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l10__DOT__a 
         = ((0x00000200U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                           << 9U)) | ((0x00000100U 
+                           << 6U)) | ((0x00000100U 
                                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                                          << 6U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_148)));
+                                          << 7U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_148)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h09__DOT__a 
         = ((0x00000200U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                           << 9U)) | ((0x00000100U 
+                           << 6U)) | ((0x00000100U 
                                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                                          << 6U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_146)));
+                                          << 7U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_146)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i09__DOT__a 
         = ((0x00000200U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                           << 8U)) | ((0x00000100U 
+                           << 7U)) | ((0x00000100U 
                                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q) 
-                                          << 5U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_146)));
+                                          << 8U)) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_146)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__preDblClk_p_A 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g13__DOT__p5) 
            | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g13__DOT__p6) 
@@ -1248,7 +1168,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     __Vtableidx219 = ((vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e21__DOT__mem
                        [vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_c21__DOT__a] 
                        << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e21__DOT__p3));
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeMapFnc_1_p_ 
+    tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeMapFnc_1_p_ 
         = Vtb_ifufetch__ConstPool__TABLE_hd5c05b5e_0
         [__Vtableidx219];
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeMapFnc_0_p_ 
@@ -1257,7 +1177,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeSubTask_1 
         = Vtb_ifufetch__ConstPool__TABLE_hf5c1af71_0
         [__Vtableidx219];
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeSubTask_0 
+    tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeSubTask_0 
         = Vtb_ifufetch__ConstPool__TABLE_hac186fdc_0
         [__Vtableidx219];
     __Vtableidx214 = ((vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_c21__DOT__mem
@@ -1276,19 +1196,19 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = Vtb_ifufetch__ConstPool__TABLE_hac186fdc_0
         [__Vtableidx214];
     tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MDMtag_p___05F_d20_4 
-        = (1U & (~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a23__DOT__q) 
-                     >> 3U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__At_eq_Curt_p___05F_MemX) 
-                               | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d20__DOT__p7)))));
+        = (1U & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a23__DOT__q) 
+                    | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__At_eq_Curt_p___05F_MemX) 
+                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d20__DOT__p7)))));
     __Vtableidx221 = ((vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f13__DOT__mem
                        [vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e16__DOT__a] 
                        << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f13__DOT__p3));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_03 
         = Vtb_ifufetch__ConstPool__TABLE_hd5c05b5e_0
         [__Vtableidx221];
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_02 
+    tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_02 
         = Vtb_ifufetch__ConstPool__TABLE_h0bdfae0c_0
         [__Vtableidx221];
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_01 
+    tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_01 
         = Vtb_ifufetch__ConstPool__TABLE_hf5c1af71_0
         [__Vtableidx221];
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_00 
@@ -1297,7 +1217,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     __Vtableidx222 = ((vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f14__DOT__mem
                        [vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e16__DOT__a] 
                        << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f14__DOT__p3));
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_01 
+    tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_01 
         = Vtb_ifufetch__ConstPool__TABLE_hd5c05b5e_0
         [__Vtableidx222];
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_03 
@@ -1306,7 +1226,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_00 
         = Vtb_ifufetch__ConstPool__TABLE_hf5c1af71_0
         [__Vtableidx222];
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_02 
+    tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_02 
         = Vtb_ifufetch__ConstPool__TABLE_hac186fdc_0
         [__Vtableidx222];
     __Vtableidx216 = ((vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e16__DOT__mem
@@ -1718,8 +1638,9 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC05_sil_pl_1) 
            ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC05_sil_pl_7));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRAS_p_ 
-        = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRAS_p___05F_d18_2) 
-                 | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e18__DOT__q)));
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRAS_p___05F_d18_2) 
+           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e18__DOT__q) 
+              >> 3U));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_l02__DOT__clka 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__MemClkEnable_p_a___05FContA) 
            | ((IData)(vlSelfRef.tb_ifufetch__DOT__ckd) 
@@ -1749,56 +1670,54 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a04__DOT__a 
         = (((((2U & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly)
                        ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g07__DOT__q) 
-                          >> 2U) : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i23__DOT__q) 
+                          >> 1U) : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i23__DOT__q) 
                                     >> 1U)) << 1U)) 
               | (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly)
                         ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g07__DOT__q) 
-                           >> 1U) : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h24__DOT__q) 
+                           >> 2U) : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h24__DOT__q) 
                                      >> 3U)))) << 5U) 
             | (((2U & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly)
-                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g07__DOT__q)
-                         : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h24__DOT__q) 
-                            >> 2U)) << 1U)) | (1U & 
-                                               ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly)
-                                                 ? 
-                                                ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g06__DOT__q) 
-                                                 >> 3U)
-                                                 : 
-                                                ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g24__DOT__q) 
-                                                 >> 3U)))) 
-               << 3U)) | ((4U & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly)
-                                   ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g06__DOT__q) 
-                                      >> 2U) : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g24__DOT__q) 
-                                                >> 2U)) 
-                                 << 2U)) | ((2U & (
-                                                   ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly)
-                                                     ? 
-                                                    ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g06__DOT__q) 
-                                                     >> 1U)
-                                                     : 
-                                                    ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g24__DOT__q) 
-                                                     >> 1U)) 
-                                                   << 1U)) 
-                                            | (1U & 
-                                               ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly)
-                                                 ? 
-                                                ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g07__DOT__q) 
-                                                 >> 3U)
-                                                 : 
-                                                ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i23__DOT__q) 
-                                                 >> 3U))))));
+                         ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g07__DOT__q) 
+                            >> 3U) : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h24__DOT__q) 
+                                      >> 2U)) << 1U)) 
+                | (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly)
+                          ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g06__DOT__q)
+                          : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g24__DOT__q) 
+                             >> 3U)))) << 3U)) | ((4U 
+                                                   & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly)
+                                                        ? 
+                                                       ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g06__DOT__q) 
+                                                        >> 1U)
+                                                        : 
+                                                       ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g24__DOT__q) 
+                                                        >> 2U)) 
+                                                      << 2U)) 
+                                                  | ((2U 
+                                                      & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly)
+                                                           ? 
+                                                          ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g06__DOT__q) 
+                                                           >> 2U)
+                                                           : 
+                                                          ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g24__DOT__q) 
+                                                           >> 1U)) 
+                                                         << 1U)) 
+                                                     | (1U 
+                                                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly)
+                                                            ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g07__DOT__q)
+                                                            : 
+                                                           ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i23__DOT__q) 
+                                                            >> 3U))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkLastPh6_p_ 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkLastPh6_p___05F_e17_4) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkLastPh6_p___05F_f18_15));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MakeFout_u_D___05FMemX 
         = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MakeFout_u_D___05Fj20_3) 
                  | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j21__DOT__q) 
-                    >> 1U)));
+                    >> 2U)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MakeD_u_CD___05FMemX 
         = (1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__VicSTPerr)) 
                  & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__dMakeD_u_CD___05Fj20_13) 
-                    | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j21__DOT__q) 
-                       >> 3U))));
+                    | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j21__DOT__q))));
     if (vlSelfRef.tb_ifufetch__DOT__m__DOT__EcWantsA___05FMemX) {
         vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PEsrn_0 
             = (1U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h09__DOT__q));
@@ -1827,8 +1746,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     __VdfgRegularize_h4af1c392_0_139 = (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Hold) 
                                          << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__IfuTrue));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Ec2Idle 
-        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k21__DOT__q) 
-           & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__StartEc2_p_));
+        = (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k21__DOT__q) 
+            >> 3U) & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__StartEc2_p_));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__SinD_17_p_ 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c14__DOT__p3) 
            ^ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__SinD_15) 
@@ -2141,13 +2060,13 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                      << 1U) 
                                                     | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContB__DOT__DMD_11)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MakeTransport0 
-        = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MakeTransport0___05Fi22_15) 
-                 | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j21__DOT__q)));
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MakeTransport0___05Fi22_15) 
+           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j21__DOT__q) 
+              >> 3U));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__STState_3 
         = (1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__STfree_p___05F_MemX) 
                      | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k16__DOT__p13))) 
-                 | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h12__DOT__q) 
-                    >> 3U)));
+                 | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h12__DOT__q)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContB__DOT__ContB12_sil_pl_1 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContB__DOT__DMD_01) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContB__DOT__DMD_02));
@@ -2175,14 +2094,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__StkSel_p_a) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__StkP_2));
     vlSelfRef.__VdfgRegularize_hebeb780c_0_13 = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j13__DOT__mem
-        [((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RfshInMem) 
-            << 4U) | (((2U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j16__DOT__q) 
-                              << 1U)) | (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j16__DOT__q) 
-                                               >> 1U))) 
-                      << 2U)) | ((2U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j16__DOT__q) 
-                                        >> 1U)) | (1U 
-                                                   & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j16__DOT__q) 
-                                                      >> 3U))))];
+        [(((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RfshInMem) 
+           << 4U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j16__DOT__q))];
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RefUsesDInMem_p_ 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RefUsesDInMem_p___05F_k13_2) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RefUsesDInMem_p___05F_k14_3));
@@ -2204,8 +2117,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
               >> 6U));
     tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h04__DOT__sel 
         = (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__EcWantsPipe4_p_) 
-            << 1U) | (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
-                            >> 3U)));
+            << 1U) | (1U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MakeTransport2 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MakeTransport2___05Fj20_2) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MakeTransport2___05Fl19_14));
@@ -2235,16 +2147,11 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                        << 2U)) | ((2U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_04_p_a)) 
                                          << 1U)) | 
                                   (1U & (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_05_p_a)))))) 
-            << 6U) | ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_06a) 
-                        << 5U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_07a) 
-                                   << 4U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_08a) 
-                                             << 3U))) 
-                      | ((4U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a08__DOT__q) 
-                                << 1U)) | ((2U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a08__DOT__q) 
-                                                  >> 1U)) 
-                                           | (1U & 
-                                              ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a08__DOT__q) 
-                                               >> 3U))))));
+            << 6U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_06a) 
+                       << 5U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_07a) 
+                                  << 4U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_08a) 
+                                             << 3U) 
+                                            | (7U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a08__DOT__q))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d09__DOT__a 
         = ((((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_00a) 
                << 5U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_01a) 
@@ -2254,18 +2161,15 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                 | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_04_p_a) 
                                                     << 1U) 
                                                    | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_05_p_a)))) 
-            << 6U) | ((((4U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_06a)) 
-                               << 2U)) | ((2U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_07a)) 
-                                                 << 1U)) 
-                                          | (1U & (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_08a))))) 
-                       << 3U) | ((4U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b09__DOT__q) 
-                                        << 1U)) | (
-                                                   (2U 
-                                                    & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b09__DOT__q) 
-                                                       >> 1U)) 
-                                                   | (1U 
-                                                      & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b09__DOT__q) 
-                                                         >> 3U))))));
+            << 6U) | ((0x00000020U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_06a)) 
+                                      << 5U)) | ((0x00000010U 
+                                                  & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_07a)) 
+                                                     << 4U)) 
+                                                 | ((8U 
+                                                     & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_08a)) 
+                                                        << 3U)) 
+                                                    | (7U 
+                                                       & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b09__DOT__q))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g09__DOT__a 
         = ((((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_00d) 
                << 5U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_01d) 
@@ -2275,16 +2179,11 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                 | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_04_p_b) 
                                                     << 1U) 
                                                    | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_05_p_b)))) 
-            << 6U) | ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_06_p_b) 
-                        << 5U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_07_p_b) 
-                                   << 4U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_08_p_b) 
-                                             << 3U))) 
-                      | ((4U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_e09__DOT__q) 
-                                << 1U)) | ((2U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_e09__DOT__q) 
-                                                  >> 1U)) 
-                                           | (1U & 
-                                              ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_e09__DOT__q) 
-                                               >> 3U))))));
+            << 6U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_06_p_b) 
+                       << 5U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_07_p_b) 
+                                  << 4U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_08_p_b) 
+                                             << 3U) 
+                                            | (7U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_e09__DOT__q))))));
     __VdfgRegularize_h4af1c392_0_144 = (((((4U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_02_p_b)) 
                                                   << 2U)) 
                                            | ((2U & 
@@ -2298,19 +2197,13 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                            | (1U & 
                                               (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_06_p_b)))) 
                                           << 5U)) | 
-                                        ((((4U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_07_p_b)) 
-                                                  << 2U)) 
-                                           | ((2U & 
-                                               ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_08_p_b)) 
-                                                << 1U)) 
-                                              | (1U 
-                                                 & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h07__DOT__q) 
-                                                    >> 1U)))) 
-                                          << 2U) | 
-                                         ((2U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h07__DOT__q) 
-                                                 >> 1U)) 
-                                          | (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h07__DOT__q) 
-                                                   >> 3U)))));
+                                        ((0x00000010U 
+                                          & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_07_p_b)) 
+                                             << 4U)) 
+                                         | ((8U & (
+                                                   (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_08_p_b)) 
+                                                   << 3U)) 
+                                            | (7U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h07__DOT__q)))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j03__DOT__a 
         = ((((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_00d) 
                << 5U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_01d) 
@@ -2320,16 +2213,11 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                        << 2U)) | ((2U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_04c)) 
                                          << 1U)) | 
                                   (1U & (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_05c)))))) 
-            << 6U) | ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_06_p_c) 
-                        << 5U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_07_p_c) 
-                                   << 4U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_08_p_c) 
-                                             << 3U))) 
-                      | ((4U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_l08__DOT__q) 
-                                << 1U)) | ((2U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_l08__DOT__q) 
-                                                  >> 1U)) 
-                                           | (1U & 
-                                              ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_l08__DOT__q) 
-                                               >> 3U))))));
+            << 6U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_06_p_c) 
+                       << 5U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_07_p_c) 
+                                  << 4U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_08_p_c) 
+                                             << 3U) 
+                                            | (7U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_l08__DOT__q))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j09__DOT__a 
         = ((((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_00d) 
                << 5U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_01d) 
@@ -2339,18 +2227,15 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                 | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_04c) 
                                                     << 1U) 
                                                    | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_05c)))) 
-            << 6U) | ((((4U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_06_p_c)) 
-                               << 2U)) | ((2U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_07_p_c)) 
-                                                 << 1U)) 
-                                          | (1U & (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_08_p_c))))) 
-                       << 3U) | ((4U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k09__DOT__q) 
-                                        << 1U)) | (
-                                                   (2U 
-                                                    & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k09__DOT__q) 
-                                                       >> 1U)) 
-                                                   | (1U 
-                                                      & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k09__DOT__q) 
-                                                         >> 3U))))));
+            << 6U) | ((0x00000020U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_06_p_c)) 
+                                      << 5U)) | ((0x00000010U 
+                                                  & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_07_p_c)) 
+                                                     << 4U)) 
+                                                 | ((8U 
+                                                     & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Dad_08_p_c)) 
+                                                        << 3U)) 
+                                                    | (7U 
+                                                       & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k09__DOT__q))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_i15__DOT__sel 
         = (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__MBMux0) 
             << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__MBMux1));
@@ -2393,17 +2278,12 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__Dbusy 
         = (1U & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__AcanhaveD) 
                     ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k18__DOT__p9))));
-    __VdfgRegularize_h4af1c392_0_119 = ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapFnc_0_p_) 
-                                          << 4U) | 
-                                         (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapFnc_1_p_) 
-                                           << 3U) | 
-                                          (4U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h15__DOT__q) 
-                                                 << 1U)))) 
-                                        | ((2U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h15__DOT__q) 
-                                                  >> 1U)) 
-                                           | (1U & 
-                                              ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h15__DOT__q) 
-                                               >> 3U))));
+    __VdfgRegularize_h4af1c392_0_119 = (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapFnc_0_p_) 
+                                         << 4U) | (
+                                                   ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapFnc_1_p_) 
+                                                    << 3U) 
+                                                   | (7U 
+                                                      & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h15__DOT__q))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Map_u_InMap 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapFnc_0_p_) 
            & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapFnc_1_p_));
@@ -2420,7 +2300,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemIO_p_ 
         = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__DirtyIOFetchInMem_p_) 
                  | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j12__DOT__q) 
-                    >> 2U)));
+                    >> 1U)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__SHSelect_p_D 
         = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_i18__DOT__p5) 
                  | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__ProcL30_sil_pl_1)) 
@@ -2448,16 +2328,15 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__DirtyIOFetchInMap_p_) 
            & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__VicIfMissInMap_p_));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapCAS_p_ 
-        = (IData)((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e18__DOT__q) 
-                    >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapCAS_p___05F_e19_2)));
+        = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e18__DOT__q) 
+                 | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapCAS_p___05F_e19_2)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f21__DOT__sel 
-        = ((2U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q)) 
-           | (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f24__DOT__q) 
-                    >> 3U)));
+        = ((2U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q) 
+                  >> 1U)) | (1U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f24__DOT__q)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FGDv 
-        = (IData)(((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q) 
-                     >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f19__DOT__p11)) 
-                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f20__DOT__qb)));
+        = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q) 
+                 | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f19__DOT__p11) 
+                    | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f20__DOT__qb))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FH_p_ 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__PreSH) 
            | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e12__DOT__p10) 
@@ -2612,11 +2491,12 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                  | ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapTroubleInEc2) 
                         ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k11__DOT__p9))) 
                     | (~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_l10__DOT__q) 
-                           >> 2U) | ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_l10__DOT__q) 
-                                          >> 3U) ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k11__DOT__p9))) 
+                           >> 1U) | ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_l10__DOT__q) 
+                                         ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k11__DOT__p9))) 
                                      | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__CacheRefInEc2)))))));
     tb_ifufetch__DOT__m__DOT__ErrorsFromEc2___05FMemX 
-        = (1U & ((~ (IData)((0U != (0x0cU & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_l10__DOT__q))))) 
+        = (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_l10__DOT__q) 
+                      >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_l10__DOT__q))) 
                  | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapTroubleInEc2) 
                     | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_l06__DOT__p12))));
     __VdfgRegularize_h4af1c392_0_70 = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__BCWriteEn_p_) 
@@ -2912,10 +2792,10 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_c 
         = ((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff22_3) 
            | ((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_13) 
-              | (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3)));
+              | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a 
         = ((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_13) 
-           | ((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3) 
+           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff23_3) 
               | (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CondBr_p_a___05Ff22_3)));
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CAHold 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__Hold___05FMemC) 
@@ -2943,12 +2823,12 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_l20__DOT__p4));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__CacheRefInA_p_ 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcHasAa) 
-           | (IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_11));
+           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_11));
     __VdfgRegularize_h4af1c392_0_106 = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__AwasFree_p_) 
                                         | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcHasAb));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__IoRefInA_p_ 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcHasAb) 
-           | (IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_12));
+           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_12));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_j20__DOT__p9 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcHasAb) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_8));
@@ -3169,16 +3049,16 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                  | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g12__DOT__p7) 
                                                     | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l02__DOT__qa)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemX12_sil_pl_1 
-        = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f18__DOT__q) 
-                 | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemColSela)));
+        = (IData)((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f18__DOT__q) 
+                    >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemColSela)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapWE_p_ 
         = (1U & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f18__DOT__q) 
-                  >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT___u_MapInMap)));
+                  >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT___u_MapInMap)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__DirtyWE_p_ 
         = (1U & (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__WriteInMap_p_)) 
                   & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d13__DOT__dout)) 
-                 | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f18__DOT__q) 
-                     >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT___u_MapInMap))));
+                 | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f18__DOT__q) 
+                    | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT___u_MapInMap))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c21__DOT__cka_d 
         = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c21__DOT__clka;
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b18__DOT__cka_d 
@@ -3212,10 +3092,9 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__clkb;
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FGFault_p_ 
         = (1U & (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qb)) 
-                  | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q) 
-                     >> 3U)) & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q) 
-                                 >> 2U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q) 
-                                           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i21__DOT__p9)))));
+                  | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q)) 
+                 & (IData)(((0U != (0x0aU & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q))) 
+                            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i21__DOT__p9)))));
     if (vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j06__DOT__p5) {
         vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j06__DOT__qa = 1U;
     } else if (vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j06__DOT__p4) {
@@ -3227,7 +3106,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     }
     tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ifu01_sil_pl_2 
         = (1U & (~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q) 
-                     >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__NewF_p_))));
+                     >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__NewF_p_))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_b01__DOT__ck_d 
         = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_b01__DOT__clk;
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i10__DOT__ck_d 
@@ -3236,20 +3115,12 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                  ? 0U
                                                  : 
                                                 vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_l12__DOT__mem
-                                                [((
-                                                   ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Ec1Func_0) 
-                                                    << 4U) 
-                                                   | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Ec1Func_1) 
-                                                       << 3U) 
-                                                      | (4U 
-                                                         & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__q) 
-                                                            << 1U)))) 
-                                                  | ((2U 
-                                                      & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__q) 
-                                                         >> 1U)) 
-                                                     | (1U 
-                                                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__q) 
-                                                           >> 3U))))]);
+                                                [(((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Ec1Func_0) 
+                                                   << 4U) 
+                                                  | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Ec1Func_1) 
+                                                      << 3U) 
+                                                     | (7U 
+                                                        & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__q))))]);
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RefUsesDInEc1 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Ec1Free_p_) 
            & (IData)(tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemX09_sil_pl_10));
@@ -3281,7 +3152,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d01__DOT__clk;
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g17__DOT__cka_d 
         = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g17__DOT__clka;
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__HitOrEc 
+    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__HitOrEc 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__HitOrEc___05Fh17_2) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g17__DOT__qa));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__DisPipe4_m_15 
@@ -3309,7 +3180,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = ((IData)(tb_ifufetch__DOT__m__DOT___u_Pipe4___05FMemC) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g08__DOT__p12));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_e03__DOT__p9 
-        = ((IData)(tb_ifufetch__DOT__m__DOT___u_Dbuf___05FContA) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT___u_Dbuf___05FContA) 
            | (IData)(tb_ifufetch__DOT__m__DOT___u_Pipe4___05FMemC));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l06__DOT__ckb_d 
         = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l05__DOT__clkb;
@@ -3352,7 +3223,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                       ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d16__DOT__p4)
                       : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a18__DOT__q) 
                          >> 2U)) ^ ((IData)(tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b13__DOT____VdfgRegularize_h7927e3b8_0_0) 
-                                    & (1U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b13__DOT__sel))))));
+                                    & (1U == (3U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d14__DOT__q)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k03__DOT__ckb_d 
         = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k03__DOT__clkb;
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__Clock0En_p_ 
@@ -3374,12 +3245,10 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                       ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d16__DOT__p6)
                       : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a18__DOT__q) 
                          >> 3U)) ^ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b13__DOT____VdfgRegularize_h7927e3b8_0_5) 
-                                    & (1U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b13__DOT__sel))))));
+                                    & (1U == (3U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d14__DOT__q)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapPE 
-        = (1U & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
-                    | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapEven_p_) 
-                       | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
-                          >> 1U)))));
+        = (1U & (~ (IData)(((0U != (0x0cU & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q))) 
+                            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapEven_p_)))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_i23__DOT__cka_d 
         = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_i23__DOT__clka;
     tb_ifufetch__DOT__m__DOT__b_MemX__DOT__preClk1_p_A 
@@ -3490,13 +3359,13 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__clkb;
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemState_p_ 
         = (1U & (((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_13) 
-                  >> 2U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j12__DOT__q) 
-                            >> 1U)));
+                  | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j12__DOT__q)) 
+                 >> 2U));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapWait_m_MemD_p_ 
         = (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemState7_p_) 
             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RefUsesD10InMem_p_)) 
            & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j12__DOT__q) 
-               >> 2U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RefUsesDInMem_p_) 
+               >> 1U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RefUsesDInMem_p_) 
                          | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__DisHold___05FMemC))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RefUsesDInMem 
         = (1U & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RefUsesDInMem_p_) 
@@ -3688,8 +3557,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                  | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g01__DOT__q) 
                     >> 4U)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__ReadOrWriteInMap_p_ 
-        = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
-                 | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Map_u_InMap)));
+        = (IData)((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
+                    >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Map_u_InMap)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__HoldMapBuf___05FMemX 
         = (1U & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__Map_u_InPair_p___05F_MemC) 
                     & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Map_u_InMap)) 
@@ -3811,10 +3680,10 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                 & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__clk2_p_Dg))) {
         if ((1U & (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__GLd_p___05F_IFU)))) {
             vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_i21__DOT__q 
-                = ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_i21__DOT__p7) 
-                     << 3U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_i21__DOT__p9) 
-                               << 2U)) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_17) 
-                                           << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_16)));
+                = ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_16) 
+                     << 3U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_17) 
+                               << 2U)) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_i21__DOT__p9) 
+                                           << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_i21__DOT__p7)));
         }
     }
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ifu03_sil_pl_12 
@@ -3849,15 +3718,15 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = (1U & (~ (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f20__DOT__qa)) 
                      | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h19__DOT__p5) 
                         | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h19__DOT__p6))) 
-                    & ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q) 
-                         >> 3U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h17__DOT__q) 
-                                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MDv_p_))) 
-                       & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h17__DOT__q) 
-                           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MDv_p_) 
-                              | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d08__DOT__q) 
-                                 >> 3U))) & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h19__DOT__p13) 
-                                             | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__IfuTrue) 
-                                                | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h19__DOT__p14))))))));
+                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q) 
+                        | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h17__DOT__q) 
+                            >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MDv_p_))) 
+                       & ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h17__DOT__q) 
+                            >> 3U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MDv_p_) 
+                                      | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d08__DOT__q))) 
+                          & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h19__DOT__p13) 
+                             | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__IfuTrue) 
+                                | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h19__DOT__p14))))))));
     vlSelfRef.__VdfgRegularize_h4af1c392_0_133 = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f20__DOT__qa) 
                                                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FH_p_));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h13__DOT__cka_d 
@@ -3913,10 +3782,10 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     vlSelfRef.tb_ifufetch__DOT__m__DOT__ECFault___05FMemD 
         = (1U & (~ ((IData)(tb_ifufetch__DOT__m__DOT__ErrorsFromEc2___05FMemX) 
                     | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a23__DOT__q) 
-                       >> 1U))));
+                       >> 2U))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MemError = 
-        (1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a23__DOT__q) 
-                   | (IData)(tb_ifufetch__DOT__m__DOT__ErrorsFromEc2___05FMemX))) 
+        (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a23__DOT__q) 
+                    >> 3U) | (IData)(tb_ifufetch__DOT__m__DOT__ErrorsFromEc2___05FMemX))) 
                | ((IData)(tb_ifufetch__DOT__m__DOT__ErrorsFromEc2___05FMemX) 
                   & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapPEInEc2))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__DblClock_p_Ba 
@@ -4088,88 +3957,87 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     } else {
         vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_02___05FContA 
             = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l15__DOT__q) 
-                     >> 2U));
+                     >> 1U));
         vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_03___05FContA 
-            = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l15__DOT__q) 
-                     >> 3U));
+            = (1U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l15__DOT__q));
     }
     vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_05 = (1U 
                                                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPCI_05)
                                                         : 
                                                        ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i15__DOT__q) 
-                                                        >> 1U)) 
+                                                        >> 2U)) 
                                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_05___05FContB)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_06 = (1U 
                                                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPCI_06)
                                                         : 
                                                        ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i15__DOT__q) 
-                                                        >> 2U)) 
+                                                        >> 1U)) 
                                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_06___05FContB)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_07 = (1U 
                                                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPCI_07)
-                                                        : 
-                                                       ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i15__DOT__q) 
-                                                        >> 3U)) 
+                                                        : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i15__DOT__q)) 
                                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_07___05FContB)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_08 = (1U 
                                                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPCI_08)
-                                                        : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j15__DOT__q)) 
+                                                        : 
+                                                       ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j15__DOT__q) 
+                                                        >> 3U)) 
                                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_08___05FContB)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_09 = (1U 
                                                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPCI_09)
                                                         : 
                                                        ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j15__DOT__q) 
-                                                        >> 1U)) 
+                                                        >> 2U)) 
                                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_09___05FContB)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_10 = (1U 
                                                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPCI_10)
                                                         : 
                                                        ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j15__DOT__q) 
-                                                        >> 2U)) 
+                                                        >> 1U)) 
                                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_10___05FContB)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_11 = (1U 
                                                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPCI_11)
-                                                        : 
-                                                       ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j15__DOT__q) 
-                                                        >> 3U)) 
+                                                        : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j15__DOT__q)) 
                                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_11___05FContB)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_12 = (1U 
                                                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPCI_12)
-                                                        : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k15__DOT__q)) 
+                                                        : 
+                                                       ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k15__DOT__q) 
+                                                        >> 3U)) 
                                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_12___05FContB)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_13 = (1U 
                                                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPCI_13)
                                                         : 
                                                        ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k15__DOT__q) 
-                                                        >> 1U)) 
+                                                        >> 2U)) 
                                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_13___05FContB)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_14 = (1U 
                                                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPCI_14)
                                                         : 
                                                        ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k15__DOT__q) 
-                                                        >> 2U)) 
+                                                        >> 1U)) 
                                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_14___05FContB)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_15 = (1U 
                                                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPCI_15)
-                                                        : 
-                                                       ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k15__DOT__q) 
-                                                        >> 3U)) 
+                                                        : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k15__DOT__q)) 
                                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_15___05FContB)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_04 = (1U 
                                                    & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__qa)
                                                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TPCI_04)
-                                                        : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i15__DOT__q)) 
+                                                        : 
+                                                       ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i15__DOT__q) 
+                                                        >> 3U)) 
                                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__BNPC_04___05FContB)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__cka_d 
         = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__clka;
@@ -4296,26 +4164,26 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
            & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i19__DOT__p7)) 
               & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a)
                      ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIA_00_p_)
-                     : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q)))));
+                     : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q) 
+                        >> 3U)))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA06_sil_pl_1 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TrueBD) 
            & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i19__DOT__p7)) 
               & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a)
                      ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIA_01_p_)
                      : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q) 
-                        >> 1U)))));
+                        >> 2U)))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__TNIA_02___05FContA 
         = (1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i19__DOT__p7)) 
                  & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a)
                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIA_02_p_)
                         : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q) 
-                           >> 2U)))));
+                           >> 1U)))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__TNIA_03___05FContA 
         = (1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i19__DOT__p7)) 
                  & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a)
                         ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIA_03_p_)
-                        : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q) 
-                           >> 3U)))));
+                        : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b13__DOT__q)))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d20__DOT__q 
         = (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d20__DOT__p15) 
             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a))
@@ -4348,7 +4216,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                         | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j22__DOT__p11) 
                            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__LongJump_p_a))) 
                        & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                           >> 1U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
+                           >> 2U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                                      | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j22__DOT__p15)))))));
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Call12 
         = (1U & (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_k23__DOT__qb)) 
@@ -4361,8 +4229,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                         | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__LongJump_p_a) 
                            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j23__DOT__p12))) 
                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
-                          | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j23__DOT__p15)))))));
+                          | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
+                              >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j23__DOT__p15)))))));
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA18_sil_pl_4 
         = (1U & (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d23__DOT__qa)) 
                   | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a) 
@@ -4374,7 +4242,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                         | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__LocalBr_p_a) 
                            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k23__DOT__p12))) 
                        & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                           >> 2U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
+                           >> 1U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                                      | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k23__DOT__p15)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__IfuNextMacro_p___05F_d21_9 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a) 
@@ -4389,9 +4257,9 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                     & (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__bJCN_7)) 
                         | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k24__DOT__p11) 
                            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__LongJump_p_a))) 
-                       & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                           >> 3U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
-                                     | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k24__DOT__p15)))))));
+                       & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
+                          | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
+                             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k24__DOT__p15)))))));
     vlSelfRef.__VdfgRegularize_h4af1c392_0_108 = (1U 
                                                   & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c21__DOT__qa)) 
                                                      | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__WordInError_p_)));
@@ -4411,7 +4279,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                          | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a) 
                                                             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_h24__DOT__p6))) 
                                                         & ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
-                                                             >> 1U) 
+                                                             >> 2U) 
                                                             | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_h24__DOT__p10) 
                                                                | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a))) 
                                                            & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_h24__DOT__p10) 
@@ -4432,7 +4300,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                          | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a) 
                                                             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g23__DOT__p6))) 
                                                         & ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
-                                                             >> 2U) 
+                                                             >> 1U) 
                                                             | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g23__DOT__p10) 
                                                                | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a))) 
                                                            & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g23__DOT__p10) 
@@ -4452,8 +4320,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                        (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_k23__DOT__qa) 
                                                          | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a) 
                                                             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_h23__DOT__p6))) 
-                                                        & ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
-                                                             >> 3U) 
+                                                        & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
                                                             | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_h23__DOT__p10) 
                                                                | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a))) 
                                                            & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_h23__DOT__p10) 
@@ -4473,7 +4340,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                        (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_k24__DOT__qa)) 
                                                          | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a) 
                                                             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g24__DOT__p6))) 
-                                                        & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
+                                                        & ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
+                                                             >> 3U) 
                                                             | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g24__DOT__p10) 
                                                                | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a))) 
                                                            & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g24__DOT__p10) 
@@ -4495,8 +4363,10 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_h22__DOT__p6))) 
                                                         & (((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__NoDispatch) 
                                                             | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f06__DOT__qa)) 
-                                                               | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q))) 
-                                                           & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
+                                                               | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
+                                                                  >> 3U))) 
+                                                           & ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
+                                                                >> 3U) 
                                                                | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                                                                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_h22__DOT__p12))) 
                                                               & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__LongJump_p_a) 
@@ -4519,9 +4389,9 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                         & (((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__NoDispatch) 
                                                             | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f06__DOT__qa)) 
                                                                | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
-                                                                  >> 1U))) 
+                                                                  >> 2U))) 
                                                            & ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
-                                                                >> 1U) 
+                                                                >> 2U) 
                                                                | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                                                                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i23__DOT__p12))) 
                                                               & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__LongJump_p_a) 
@@ -4544,9 +4414,9 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                         & (((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__NoDispatch) 
                                                             | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f06__DOT__qa)) 
                                                                | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
-                                                                  >> 2U))) 
+                                                                  >> 1U))) 
                                                            & ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
-                                                                >> 2U) 
+                                                                >> 1U) 
                                                                | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                                                                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i24__DOT__p12))) 
                                                               & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__LongJump_p_a) 
@@ -4642,7 +4512,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                         | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcHasAb))) 
                     | (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__Map_u_InPair_p___05F_MemC) 
                           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcHasAb))))));
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_7 
+    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_7 
         = (1U & (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h20__DOT__p7)) 
                   & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_j20__DOT__p9)
                          ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g17__DOT__qb)
@@ -4884,7 +4754,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                             : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_c12__DOT__q)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_01_p_ = 
         (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a04__DOT__q) 
-                    >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+                    >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a10__DOT__qb)
                           ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g06__DOT__q) 
@@ -4897,7 +4767,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                        >> 1U)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_02_p_ = 
         (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a04__DOT__q) 
-                    >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+                    >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a10__DOT__qb)
                           ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g06__DOT__q) 
@@ -4909,8 +4779,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                              >> 2U) : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_c12__DOT__q) 
                                        >> 2U)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_03_p_ = 
-        (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a04__DOT__q) 
-                    >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+        (1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a04__DOT__q) 
+                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a10__DOT__qb)
                           ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g06__DOT__q) 
@@ -5091,8 +4961,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__RisIFdata)))));
     }
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_04_p_ = 
-        (1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c04__DOT__q) 
-                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+        (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c04__DOT__q) 
+                    >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a10__DOT__qb)
                           ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g07__DOT__q)
@@ -5103,7 +4973,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                             : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_c11__DOT__q)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_05_p_ = 
         (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c04__DOT__q) 
-                    >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+                    >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a10__DOT__qb)
                           ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g07__DOT__q) 
@@ -5116,7 +4986,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                        >> 1U)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_06_p_ = 
         (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c04__DOT__q) 
-                    >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+                    >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a10__DOT__qb)
                           ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g07__DOT__q) 
@@ -5128,8 +4998,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                              >> 2U) : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_c11__DOT__q) 
                                        >> 2U)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_07_p_ = 
-        (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c04__DOT__q) 
-                    >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+        (1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c04__DOT__q) 
+                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a10__DOT__qb)
                           ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g07__DOT__q) 
@@ -5331,8 +5201,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                   : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Pdata_08))));
     }
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_12_p_ = 
-        (1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f03__DOT__q) 
-                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+        (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f03__DOT__q) 
+                    >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__qb)
                           ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g07__DOT__q)
@@ -5343,7 +5213,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                             : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_c11__DOT__q)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_13_p_ = 
         (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f03__DOT__q) 
-                    >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+                    >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__qb)
                           ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g07__DOT__q) 
@@ -5356,7 +5226,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                        >> 1U)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_14_p_ = 
         (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f03__DOT__q) 
-                    >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+                    >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__qb)
                           ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g07__DOT__q) 
@@ -5368,8 +5238,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                              >> 2U) : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_c11__DOT__q) 
                                        >> 2U)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_15_p_ = 
-        (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f03__DOT__q) 
-                    >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+        (1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f03__DOT__q) 
+                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__qb)
                           ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g07__DOT__q) 
@@ -5397,7 +5267,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                     | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_c18__DOT__p11))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_10_p_ = 
         (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d04__DOT__q) 
-                    >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+                    >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__qb)
                           ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g06__DOT__q) 
@@ -5410,7 +5280,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                        >> 2U)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_09_p_ = 
         (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d04__DOT__q) 
-                    >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+                    >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__qb)
                           ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g06__DOT__q) 
@@ -5422,8 +5292,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                              >> 1U) : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_c12__DOT__q) 
                                        >> 1U)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_11_p_ = 
-        (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d04__DOT__q) 
-                    >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+        (1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d04__DOT__q) 
+                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__qb)
                           ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g06__DOT__q) 
@@ -5435,8 +5305,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                              >> 3U) : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_c12__DOT__q) 
                                        >> 3U)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_08_p_ = 
-        (1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d04__DOT__q) 
-                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
+        (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d04__DOT__q) 
+                    >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa))) 
                | (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__MarMuxAEn_p_)) 
                    & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__qb)
                           ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g06__DOT__q)
@@ -5452,11 +5322,12 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkErrEn_p_ 
         = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkErrEn_p___05F_c24_15) 
                  | ((~ ((IData)(tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD06_sil_pl_2) 
-                        | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a23__DOT__q))) 
-                    | (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b21__DOT__p4) 
-                          | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a23__DOT__q) 
-                              >> 1U) | ((IData)(tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD06_sil_pl_2) 
-                                        | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__NoError_p_))))))));
+                        | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a23__DOT__q) 
+                           >> 3U))) | (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b21__DOT__p4) 
+                                          | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a23__DOT__q) 
+                                              >> 2U) 
+                                             | ((IData)(tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD06_sil_pl_2) 
+                                                | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__NoError_p_))))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__DoubleError_p_ 
         = (1U & (~ (1U & (~ ((((((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a21__DOT__p3) 
                                    ^ VL_REDXOR_4(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a20__DOT__q)) 
@@ -5518,11 +5389,11 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d01__DOT__p7));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__ColVic_1 
         = (1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__Victim_1_p_) 
-                     | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__HitOrEc))) 
+                     | (IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__HitOrEc))) 
                  | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g14__DOT__qa)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__ColVic_0 
         = (1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__Victim_0_p_) 
-                     | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__HitOrEc))) 
+                     | (IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__HitOrEc))) 
                  | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g14__DOT__qb)));
     __Vtableidx128 = ((vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g03__DOT__mem
                        [vlSelfRef.tb_ifufetch__DOT__pipead] 
@@ -5739,7 +5610,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
               | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j18__DOT__p7)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__StartMemClk0_p_ 
         = (1U & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
-                  >> 1U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_i19__DOT__p10) 
+                  >> 2U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_i19__DOT__p10) 
                             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__preClk0_p_Da))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Clk0_p_Dd 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j18__DOT__p9) 
@@ -5750,9 +5621,9 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
            | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j19__DOT__p10) 
               | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__preClk0_p_Da)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__WritePipe3_p_a 
-        = (IData)((((0U != (5U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f18__DOT__q))) 
-                    | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__ChkLastPh6)) 
-                   | (IData)(tb_ifufetch__DOT__m__DOT__b_MemX__DOT__preClk0_p_Bc)));
+        = (1U & (IData)((((0U != (0x0aU & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f18__DOT__q))) 
+                          | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__ChkLastPh6)) 
+                         | (IData)(tb_ifufetch__DOT__m__DOT__b_MemX__DOT__preClk0_p_Bc))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k05__DOT__clka 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k05__DOT__p6) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__clk2_p_Bd));
@@ -5779,7 +5650,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                      ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkP0A0))) 
                  ^ ((IData)(tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b17__DOT__b0) 
                     ^ ((IData)(tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b13__DOT____VdfgRegularize_h7927e3b8_0_0) 
-                       & (2U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b13__DOT__sel))))));
+                       & (2U == (3U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d14__DOT__q)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__dSyn6 
         = (1U & ((~ (((8U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_e13__DOT__q))
                        ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_e16__DOT__p13)
@@ -5787,7 +5658,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                      ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkP0A0))) 
                  ^ ((IData)(tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b17__DOT__b0) 
                     ^ ((IData)(tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b13__DOT____VdfgRegularize_h7927e3b8_0_0) 
-                       & (3U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b13__DOT__sel))))));
+                       & (3U == (3U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d14__DOT__q)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__dSyn5 
         = (1U & ((~ (((8U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_e13__DOT__q))
                        ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_e16__DOT__p11)
@@ -5795,7 +5666,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                      ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkP0A0))) 
                  ^ ((IData)(tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b17__DOT__b0) 
                     ^ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b13__DOT____VdfgRegularize_h7927e3b8_0_5) 
-                       & (2U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b13__DOT__sel))))));
+                       & (2U == (3U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d14__DOT__q)))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__FastD_u_Dbuf___05FMemC 
         = (1U & (~ ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g17__DOT__qb)) 
                     | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__SH_p_A) 
@@ -5805,7 +5676,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MapWait_m_D___05FMemX 
         = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__EcWantsAa) 
                  | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k21__DOT__q) 
-                     >> 2U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RefUsesDInMem) 
+                     >> 1U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RefUsesDInMem) 
                                | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RefUsesDInEc1)))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContB__DOT__MidasOrRSTK_2 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContB__DOT__bRSTK_2) 
@@ -5896,7 +5767,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemX14_sil_pl_11 
         = (1U & (((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_2) 
                   >> 7U) | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f18__DOT__q) 
-                             >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT___u_MapInMap))));
+                             >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT___u_MapInMap))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapTrouble_p_ 
         = (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__TrueBD) 
             | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g14__DOT__p5) 
@@ -5909,8 +5780,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                   | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapWP)) 
                      | (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapDirtya)))) 
                  & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapEven_p_) 
-                    | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
-                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g14__DOT__p15))))));
+                    | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
+                        >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g14__DOT__p15))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a21__DOT__clka 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a21__DOT__p6) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__SpecClk1_p_Ca));
@@ -6037,33 +5908,33 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                        | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_k20__DOT__p5)))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT____VdfgExtracted_h90119b60__0 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__A) 
-           ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__B));
+           ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c11__DOT__q));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT____VdfgExtracted_h8f6033d0__0 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__A) 
-           & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__B));
+           & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c11__DOT__q));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT____VdfgExtracted_h9010c2c9__0 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__A) 
-           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__B));
+           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c11__DOT__q));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT____VdfgExtracted_ha54bd59c__0 
-        = (0x0000000fU & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__B)) 
+        = (0x0000000fU & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c11__DOT__q)) 
                           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__A)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT____VdfgExtracted_ha59d029f__0 
-        = ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__B)) 
+        = ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c11__DOT__q)) 
            & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__A));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT____VdfgExtracted_h90119b60__0 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__A) 
-           ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__B));
+           ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d11__DOT__q));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT____VdfgExtracted_h8f6033d0__0 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__A) 
-           & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__B));
+           & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d11__DOT__q));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT____VdfgExtracted_h9010c2c9__0 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__A) 
-           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__B));
+           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d11__DOT__q));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT____VdfgExtracted_ha54bd59c__0 
-        = (0x0000000fU & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__B)) 
+        = (0x0000000fU & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d11__DOT__q)) 
                           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__A)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT____VdfgExtracted_ha59d029f__0 
-        = ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__B)) 
+        = ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d11__DOT__q)) 
            & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__A));
     __Vtableidx252 = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b18__DOT__q;
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__IfuReset1 
@@ -6440,10 +6311,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j24__DOT__p6))) 
                                                         & (((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__NoDispatch) 
                                                             | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f06__DOT__qb)) 
-                                                               | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
-                                                                  >> 3U))) 
-                                                           & ((((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
-                                                                >> 3U) 
+                                                               | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q))) 
+                                                           & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
                                                                | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Return_p_a) 
                                                                   | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j24__DOT__p12))) 
                                                               & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__LongJump_p_a) 
@@ -6467,19 +6336,10 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                 << 1U)) 
                                               | (1U 
                                                  & (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__bFF_7_p_)))))));
-    vlSelfRef.__VdfgRegularize_h4af1c392_0_120 = ((
-                                                   ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__VictimInST) 
-                                                    << 4U) 
-                                                   | (((2U 
-                                                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h12__DOT__q) 
-                                                           << 1U)) 
-                                                       | (1U 
-                                                          & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h12__DOT__q) 
-                                                             >> 1U))) 
-                                                      << 2U)) 
-                                                  | ((2U 
-                                                      & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h12__DOT__q) 
-                                                         >> 1U)) 
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_120 = (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__VictimInST) 
+                                                   << 4U) 
+                                                  | ((0x0000000eU 
+                                                      & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h12__DOT__q)) 
                                                      | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__STState_3)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en 
         = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC16_sil_pl_2) 
@@ -6489,7 +6349,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                     | (IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__NewRef))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__MapRfsh_p___05F_MemX 
         = (1U & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
-                  >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__NeedRfsh_p_)));
+                  >> 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__NeedRfsh_p_)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA07_sil_pl_3 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TrueBD) 
            & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__TNIA_02___05FContA));
@@ -6512,23 +6372,21 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                    & ((~ (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Call12)) 
                                                       | (~ 
                                                          ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f06__DOT__qb)) 
-                                                          | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
+                                                          | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
+                                                              >> 3U) 
                                                              | (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__NoDispatch))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__TNIA_15 = (1U 
                                                    & ((~ 
                                                        ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f05__DOT__qa)) 
-                                                        | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                                                            >> 3U) 
+                                                        | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
                                                            | (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__NoDispatch)))) 
                                                       | (~ (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Call15))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c22__DOT__q 
         = ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_108)
-            ? 0U : (0x000000ffU & ((IData)(1U) << (7U 
-                                                   & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a20__DOT__q)))));
+            ? 0U : (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_112));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b22__DOT__q 
         = ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_109)
-            ? 0U : (0x000000ffU & ((IData)(1U) << (7U 
-                                                   & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a20__DOT__q)))));
+            ? 0U : (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_112));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f01__DOT__clk 
         = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemD__DOT__DbufLd_p_a) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f01__DOT__p7));
@@ -6601,7 +6459,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                    & ((~ (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA17_sil_pl_5)) 
                                                       | ((~ 
                                                           (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                                                            >> 1U) 
+                                                            >> 2U) 
                                                            | (IData)(__VdfgRegularize_h4af1c392_0_24))) 
                                                          | (~ (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA17_sil_pl_4)))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Call 
@@ -6616,7 +6474,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                       | ((~ (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA18_sil_pl_4)) 
                                                          | ((~ 
                                                              (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q) 
-                                                               >> 2U) 
+                                                               >> 1U) 
                                                               | (IData)(__VdfgRegularize_h4af1c392_0_24))) 
                                                             | (~ 
                                                                ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l11__DOT__qb)) 
@@ -6674,8 +6532,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = (1U & (~ ((~ ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_6___05Fh18_14) 
                              | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_6___05Fh18_15)) 
                             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h19__DOT__p13))) 
-                        | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_7))) 
-                    | (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_7) 
+                        | (IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_7))) 
+                    | (~ ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_7) 
                           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h19__DOT__p5))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__IfuMakeF_u_D 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__TestMakeF_u_D) 
@@ -6694,7 +6552,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__ForceDirtyMiss))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__WantVic_p_ 
         = (1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__VicIfMiss)) 
-                 | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__HitOrEc)));
+                 | (IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__HitOrEc)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__AfreeOrEc_p_a___05Fj13_3 
         = (1U & (~ ((~ (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_102)) 
                     | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__VicIfMiss)) 
@@ -6702,46 +6560,46 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     __Vtableidx127 = ((vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g02__DOT__mem
                        [vlSelfRef.tb_ifufetch__DOT__pipead] 
                        << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__DisPipe20_m_31));
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_23___05Fg02_14 
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_23___05Fg02_14 
         = Vtb_ifufetch__ConstPool__TABLE_hd5c05b5e_0
         [__Vtableidx127];
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_22___05Fg02_15 
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_22___05Fg02_15 
         = Vtb_ifufetch__ConstPool__TABLE_h0bdfae0c_0
         [__Vtableidx127];
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_21___05Fg02_1 
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_21___05Fg02_1 
         = Vtb_ifufetch__ConstPool__TABLE_hf5c1af71_0
         [__Vtableidx127];
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_20___05Fg02_2 
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_20___05Fg02_2 
         = Vtb_ifufetch__ConstPool__TABLE_hac186fdc_0
         [__Vtableidx127];
     __Vtableidx135 = ((vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i02__DOT__mem
                        [vlSelfRef.tb_ifufetch__DOT__pipead] 
                        << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__DisPipe20_m_31));
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_31___05Fi02_14 
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_31___05Fi02_14 
         = Vtb_ifufetch__ConstPool__TABLE_hd5c05b5e_0
         [__Vtableidx135];
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_30___05Fi02_15 
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_30___05Fi02_15 
         = Vtb_ifufetch__ConstPool__TABLE_h0bdfae0c_0
         [__Vtableidx135];
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_29___05Fi02_1 
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_29___05Fi02_1 
         = Vtb_ifufetch__ConstPool__TABLE_hf5c1af71_0
         [__Vtableidx135];
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_28___05Fi02_2 
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_28___05Fi02_2 
         = Vtb_ifufetch__ConstPool__TABLE_hac186fdc_0
         [__Vtableidx135];
     __Vtableidx130 = ((vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h02__DOT__mem
                        [vlSelfRef.tb_ifufetch__DOT__pipead] 
                        << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__DisPipe20_m_31));
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_27___05Fh02_14 
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_27___05Fh02_14 
         = Vtb_ifufetch__ConstPool__TABLE_hd5c05b5e_0
         [__Vtableidx130];
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_26___05Fh02_15 
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_26___05Fh02_15 
         = Vtb_ifufetch__ConstPool__TABLE_h0bdfae0c_0
         [__Vtableidx130];
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_25___05Fh02_1 
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_25___05Fh02_1 
         = Vtb_ifufetch__ConstPool__TABLE_hf5c1af71_0
         [__Vtableidx130];
-    tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_24___05Fh02_2 
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_24___05Fh02_2 
         = Vtb_ifufetch__ConstPool__TABLE_hac186fdc_0
         [__Vtableidx130];
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__Fclk_p_a 
@@ -6841,13 +6699,14 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k10__DOT__en) 
            & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD03_sil_pl_16)
                   ? (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__FHB))
-                  : (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_l08__DOT__q) 
-                        | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k08__DOT__p12))))));
+                  : (~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_l08__DOT__q) 
+                         >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k08__DOT__p12))))));
     tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD03_sil_pl_6 
         = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k10__DOT__en) 
            & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD03_sil_pl_16)
                   ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__FHB)
-                  : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_l08__DOT__q))));
+                  : ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_l08__DOT__q) 
+                     >> 3U))));
     __Vtableidx67 = ((vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_l03__DOT__mem
                       [vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e13__DOT__a] 
                       << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_l03__DOT__p3));
@@ -6912,9 +6771,10 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     vlSelfRef.tb_ifufetch__DOT__m__DOT__SignIfuData___05FIFU 
         = (1U & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FullAlpha_p_) 
                     | ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c05__DOT__p12) 
-                           | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q) 
-                               >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c05__DOT__p13)))) 
-                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a20__DOT__q)))));
+                           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q) 
+                              | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c05__DOT__p13)))) 
+                       | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a20__DOT__q) 
+                          >> 3U)))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__RMar_04 
         = (1U & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__MAR_04_p_) 
                     ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c01__DOT__p9))));
@@ -6945,39 +6805,39 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
     vlSelfRef.tb_ifufetch__DOT__m__DOT__IfuData_7 = 
         (1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__p14)) 
                & ((0U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
-                   ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e06__DOT__q)
-                   : ((1U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
-                       ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q)
-                       : ((2U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
-                           ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__NX_3)
-                           : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__LengthX_1))))));
+                   ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e06__DOT__q) 
+                      >> 3U) : ((1U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
+                                 ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q) 
+                                    >> 3U) : ((2U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
+                                               ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__NX_3)
+                                               : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__LengthX_1))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__IfuData_6 = 
         (1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__p14)) 
                & ((0U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
                    ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e06__DOT__q) 
-                      >> 1U) : ((1U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
+                      >> 2U) : ((1U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
                                  ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q) 
-                                    >> 1U) : ((2U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
+                                    >> 2U) : ((2U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
                                                ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__NX_2)
                                                : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__LengthX_0))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__IfuData_5 = 
         (1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e05__DOT__p14)) 
                & ((0U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
                    ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e06__DOT__q) 
-                      >> 2U) : ((1U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
+                      >> 1U) : ((1U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
                                  ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q) 
-                                    >> 2U) : ((2U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
+                                    >> 1U) : ((2U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
                                                ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__NX_1)
                                                : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e05__DOT__p6))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__IfuData_4 = 
         (1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e05__DOT__p14)) 
                & ((0U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
-                   ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e06__DOT__q) 
-                      >> 3U) : ((1U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
-                                 ? ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q) 
-                                    >> 3U) : ((2U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
-                                               ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__NX_0)
-                                               : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e05__DOT__p10))))));
+                   ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e06__DOT__q)
+                   : ((1U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
+                       ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q)
+                       : ((2U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel))
+                           ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__NX_0)
+                           : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e05__DOT__p10))))));
     __Vtableidx91 = ((vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l03__DOT__mem
                       [vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_i13__DOT__a] 
                       << 1U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l03__DOT__p3));
@@ -7004,16 +6864,16 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
             = (1U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f05__DOT__p5));
     } else {
         vlSelfRef.tb_ifufetch__DOT__m__DOT__IfuData_3 
-            = (1U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q));
-        vlSelfRef.tb_ifufetch__DOT__m__DOT__IfuData_2 
-            = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q) 
-                     >> 1U));
-        vlSelfRef.tb_ifufetch__DOT__m__DOT__IfuData_1 
-            = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q) 
-                     >> 2U));
-        vlSelfRef.tb_ifufetch__DOT__m__DOT__IfuData_0 
             = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q) 
                      >> 3U));
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__IfuData_2 
+            = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q) 
+                     >> 2U));
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__IfuData_1 
+            = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q) 
+                     >> 1U));
+        vlSelfRef.tb_ifufetch__DOT__m__DOT__IfuData_0 
+            = (1U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f06__DOT__q));
     }
     __Vtableidx73 = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_d17__DOT__q;
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Last_eq_Curr_p_ 
@@ -7281,18 +7141,18 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                                | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h01__DOT__p15) 
                                                                    & ((0U 
                                                                        == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a01__DOT__sel))
-                                                                       ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeMapFnc_1_p_)
+                                                                       ? (IData)(tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeMapFnc_1_p_)
                                                                        : 
                                                                       ((1U 
                                                                         == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a01__DOT__sel))
-                                                                        ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_01)
+                                                                        ? (IData)(tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_01)
                                                                         : 
                                                                        ((2U 
                                                                          == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a01__DOT__sel))
                                                                          ? 
                                                                         ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h06__DOT__q) 
                                                                          >> 1U)
-                                                                         : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_01))))) 
+                                                                         : (IData)(tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_01))))) 
                                                                   | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qa)) 
                                                                      & ((0U 
                                                                          == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_b01__DOT__sel))
@@ -7319,7 +7179,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                        & (~ 
                                                           ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__UseCPReg)
                                                             ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CPReg_02)
-                                                            : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA07_sil_pl_10)))) 
+                                                            : (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA07_sil_pl_10)))) 
                                                       | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c01__DOT__q) 
                                                          | (((~ 
                                                               ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT___u_Pipe5)
@@ -7335,18 +7195,18 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                                                        == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a01__DOT__sel))
                                                                        ? 
                                                                       ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__TrueAC) 
-                                                                       & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeSubTask_0))
+                                                                       & (IData)(tb_ifufetch__DOT__m__DOT__b_MemX__DOT__PipeSubTask_0))
                                                                        : 
                                                                       ((1U 
                                                                         == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a01__DOT__sel))
-                                                                        ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_02)
+                                                                        ? (IData)(tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe3_02)
                                                                         : 
                                                                        ((2U 
                                                                          == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a01__DOT__sel))
                                                                          ? 
                                                                         ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h06__DOT__q) 
                                                                          >> 2U)
-                                                                         : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_02))))) 
+                                                                         : (IData)(tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Pipe4_02))))) 
                                                                   | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qa)) 
                                                                      & ((0U 
                                                                          == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_b01__DOT__sel))
@@ -8154,16 +8014,14 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MDv_p_) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j06__DOT__qb));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ValidRam_p_ 
-        = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j06__DOT__qb) 
-                 | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__BetaInH_p_)) 
-                    | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h17__DOT__q) 
-                       | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h17__DOT__q) 
-                          >> 2U)))));
+        = (1U & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j06__DOT__qb) 
+                  | (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__BetaInH_p_))) 
+                 | (0U != (0x0aU & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h17__DOT__q)))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__ReportFault_p_ 
         = (1U & (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__ChkLastPh6)) 
                   | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__ECFault_p_) 
                      | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f04__DOT__q) 
-                        >> 2U))) & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemError_p_) 
+                        >> 1U))) & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemError_p_) 
                                      | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__ChkLastPh6)) 
                                         | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k07__DOT__p9))) 
                                     & (((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__ChkLastPh6)) 
@@ -8171,7 +8029,7 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                                            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k07__DOT__p12))) 
                                        & ((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_7) 
                                           | ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_f04__DOT__q) 
-                                                  >> 1U) 
+                                                  >> 2U) 
                                                  ^ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j05__DOT__p9))) 
                                              | (~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__ChkLastPh6))))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g16__DOT__clk 
@@ -8955,40 +8813,40 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__KillIfuRef) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__IfuAck_p_));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_22 
-        = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_22___05Fg02_15) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_22___05Fg02_15) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_22___05Fg03_15));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_23 
-        = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_23___05Fg02_14) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_23___05Fg02_14) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_23___05Fg03_14));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_21 
-        = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_21___05Fg02_1) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_21___05Fg02_1) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_21___05Fg03_1));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_20 
-        = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_20___05Fg02_2) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_20___05Fg02_2) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_20___05Fg03_2));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_30 
-        = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_30___05Fi02_15) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_30___05Fi02_15) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_30___05Fi03_15));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_29 
-        = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_29___05Fi02_1) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_29___05Fi02_1) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_29___05Fi03_1));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_31 
-        = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_31___05Fi02_14) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_31___05Fi02_14) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_31___05Fi03_14));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_28 
-        = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_28___05Fi02_2) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_28___05Fi02_2) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_28___05Fi03_2));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_25 
-        = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_25___05Fh02_1) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_25___05Fh02_1) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_25___05Fh03_1));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_26 
-        = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_26___05Fh02_15) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_26___05Fh02_15) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_26___05Fh03_15));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_27 
-        = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_27___05Fh02_14) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_27___05Fh02_14) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_27___05Fh03_14));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_24 
-        = ((IData)(tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_24___05Fh02_2) 
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_24___05Fh02_2) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeVA_24___05Fh03_2));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__D0ACE_p_a 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_i10__DOT__p5) 
@@ -9536,13 +9394,14 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
             = (1U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_8));
     } else {
         vlSelfRef.tb_ifufetch__DOT__m__DOT__dDad_10___05FMemC 
-            = (1U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q));
+            = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
+                     >> 3U));
         vlSelfRef.tb_ifufetch__DOT__m__DOT__dDad_11___05FMemC 
             = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
-                     >> 1U));
+                     >> 2U));
         vlSelfRef.tb_ifufetch__DOT__m__DOT__dDad_12___05FMemC 
             = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
-                     >> 2U));
+                     >> 1U));
     }
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContB__DOT__WER_p_Aa 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_c05__DOT__p5) 
@@ -9623,7 +9482,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
                  | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FH_p_)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ZapOrJEmpty_p_ 
         = (1U & (~ ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ZapJ_p_)) 
-                    | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h17__DOT__q))));
+                    | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h17__DOT__q) 
+                       >> 3U))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h13__DOT__clka 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ValidRam_p_) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__clk0_p_Da));
@@ -9829,4 +9689,105 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__2(Vtb_ifufetch___024root* vlSelf
             | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ReSchedWrEn_p_) 
                | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__Hold))) 
            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_j20__DOT__p9));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_3 
+        = (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_f24__DOT__q) 
+                      >> 5U) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_61))) 
+                 | (~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_f24__DOT__q) 
+                        >> 7U) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_61)))));
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_130 = (1U 
+                                                  & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FA_eq_1_p_a) 
+                                                     | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a24__DOT__q) 
+                                                        >> 3U)));
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_131 = (1U 
+                                                  & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a24__DOT__q) 
+                                                     | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FA_eq_1_p_a)));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ifu04_sil_pl_4 
+        = (1U & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FA_eq_1_p_a) 
+                    | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c23__DOT__q) 
+                        | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a24__DOT__q)) 
+                       >> 3U))));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b19__DOT__p6 
+        = (1U & (~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a24__DOT__q) 
+                     >> 7U) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__IfuFF_5) 
+                               | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FA_eq_1_p_a)))));
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_151 = (1U 
+                                                  & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FA_eq_1_p_a) 
+                                                     | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a24__DOT__q) 
+                                                         >> 7U) 
+                                                        | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c23__DOT__q) 
+                                                            >> 4U) 
+                                                           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c05__DOT__p7)))));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__WantIfuRef_p___05F_IFU 
+        = (1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ThreeOutOfFive) 
+                     | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__NewPc_u_))) 
+                 | ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FA_eq_1_p_a) 
+                        | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a24__DOT__q) 
+                           >> 2U))) | ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FA_eq_1_p_a) 
+                                           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a24__DOT__q) 
+                                              >> 6U))) 
+                                       | (~ ((~ ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_b24__DOT__qb)) 
+                                                 | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Testing) 
+                                                    | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e17__DOT__qa)))) 
+                                             | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g21__DOT__p12)))))));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC19_sil_pl_4 
+        = (1U & (~ ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h01__DOT__qa)) 
+                    | ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__SH_p_A) 
+                           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_l10__DOT__q) 
+                              >> 4U))) | (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__SH_p_A) 
+                                             | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_l10__DOT__q) 
+                                                >> 3U)))))));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__NewWP 
+        = (1U & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__WPinEc1___05FMemX) 
+                  & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcHasAa)) 
+                 | ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__RMar_10) 
+                        | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g08__DOT__p11) 
+                           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_l10__DOT__q) 
+                              >> 5U)))) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i16__DOT__p15) 
+                                           & ((0U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h08__DOT__sel))
+                                               ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__WP3)
+                                               : ((1U 
+                                                   == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h08__DOT__sel))
+                                                   ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__WP2)
+                                                   : 
+                                                  ((2U 
+                                                    == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h08__DOT__sel))
+                                                    ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__WP1)
+                                                    : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_5))))))));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__NewVacant 
+        = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__NewVacant___05Fh10_15) 
+                 | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__MapTroubleInEc1___05FMemX) 
+                     & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcHasAa)) 
+                    | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcHasAa) 
+                        & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PipeFlushStore)) 
+                       | ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__RMar_09) 
+                              | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g08__DOT__p7) 
+                                 | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_l10__DOT__q) 
+                                    >> 5U)))) | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i16__DOT__p15) 
+                                                 & ((0U 
+                                                     == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h08__DOT__sel))
+                                                     ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__Vacant3)
+                                                     : 
+                                                    ((1U 
+                                                      == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h08__DOT__sel))
+                                                      ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__Vacant2)
+                                                      : 
+                                                     ((2U 
+                                                       == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h08__DOT__sel))
+                                                       ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__Vacant1)
+                                                       : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_10))))))))));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__NewBL 
+        = (1U & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i16__DOT__p15) 
+                  & ((0U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h08__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__BL3)
+                      : ((1U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h08__DOT__sel))
+                          ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__BL2)
+                          : ((2U == (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_h08__DOT__sel))
+                              ? (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__BL1)
+                              : (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_6))))) 
+                 | ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__RMar_11) 
+                        | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g08__DOT__p13) 
+                           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_l10__DOT__q) 
+                              >> 5U)))) | (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g17__DOT__qb) 
+                                              | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__VicIfMiss)) 
+                                                 | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemC__DOT__NoRef)))))));
 }

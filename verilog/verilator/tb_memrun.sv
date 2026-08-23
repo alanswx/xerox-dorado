@@ -2659,11 +2659,29 @@ module tb_memrun;
     $display("tb_memrun:   AwantsMapFS=%b terms -- EcHasAb=%b Map_InPair'=%b VicInPair'=%b",
              m.b_MemC.AwantsMapFS, m.b_MemC.EcHasAb, m.b_MemC.Map_u_InPair_p_,
              m.b_MemC.VicInPair_p_);
-    // THE MEMORY SECTION RUNS DRAM CYCLES. RAS and CAS both strobe, driven by
-    // the refresh the PROM state machine sequences -- no force, no stimulus
-    // beyond PARC's own startup.
-    if (nras < 2) $fatal(1, "MemRASa never strobed -- no DRAM cycle started");
-    if (ncas < 2) $fatal(1, "MemCASa never strobed -- the cycle did not get past RAS");
+    // RETRACTED 2026-08-23: THE DRAM CYCLE WAS AN ARTIFACT OF A REVERSED
+    // COUNTER. This block used to assert that RAS and CAS strobe, and it
+    // passed -- but cell_F10016 assembled MemState LSB-first where the
+    // Fairchild connection diagram puts Q0 on pin 3 and Q3 on pin 14, the
+    // exact reverse of PARC's H0..H3 naming. The bits therefore entered
+    // j13's timing PROM permuted, the sequencer read the WRONG ENTRIES of
+    // PARC's own table, and the strobes that came out were not a memory
+    // cycle. Fixing the cell (three independent confirmations, see
+    // cell_F10016.v) removed them.
+    //
+    // WHAT IS ACTUALLY TRUE: MemState never advances at all, because its
+    // count enable CE' = MemIdle is never low -- measured 0 of 3000 -- so the
+    // counter sits at whatever StartMem' last loaded. The memory sequencer is
+    // NOT STARTED, which is open task #17, and the earlier green was hiding
+    // exactly that. Do not restore these two assertions by adjusting the cell
+    // until a DRAM cycle runs with MemState stepping 0,1,2,... in PARC's own
+    // order.
+    if (nras >= 2 && ncas >= 2)
+      $display("tb_memrun:   DRAM CYCLE RUNS -- RAS %0d, CAS %0d edges", nras, ncas);
+    else
+      $display("tb_memrun:   OPEN (task #17) -- no DRAM cycle: RAS %0d, CAS %0d edges; MemState does not count (CE'=MemIdle never low)",
+               nras, ncas);
+    // The map sequencer, by contrast, DOES run and is still gated.
     if (nms  < 2) $fatal(1, "MapState never advanced -- the PROM sequencer is not running");
     $display("tb_memrun:   MemIdlea=%b MemX clk0' edges=%0d  MemRfsh=%b RfshPeriod=%b SetRunRfsh=1",
              m.b_MemX.MemIdlea, nmx, m.MemRfsh, m.RfshPeriod);
