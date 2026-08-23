@@ -17,7 +17,7 @@
 
 `default_nettype none
 
-module dorado_baseboard (
+module dorado_baseboard #(parameter integer SYSPER = 16) (
     input  wire sys_clk,   // fabric clock; the Dorado clock is an ENABLE inside the cells
     input  wire ACPABus_0_p_              ,  // to a backplane connector (cable)
     input  wire ACPABus_1_p_              ,  // to a backplane connector (cable)
@@ -288,7 +288,7 @@ module dorado_baseboard (
   assign UseDMD = UseDMD__BaseBd;
 
   // ---- BaseBd
-  BaseBd_m_Rev_m_Am b_BaseBd (
+  BaseBd_m_Rev_m_Am #(.SYSPER(SYSPER)) b_BaseBd (
     .sys_clk(sys_clk),
     .ACPABus_0_p_(ACPABus_0_p_),
     .ACPABus_1_p_(ACPABus_1_p_),
@@ -445,7 +445,7 @@ endmodule
 //
 // probe_val exposes 68 signals, 32 at a time;
 // dorado_baseboard.probes lists which bit is which.
-module dorado_baseboard_machine (
+module dorado_baseboard_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
     input  wire [15:0] probe_sel,
     output wire [31:0] probe_val,
@@ -593,7 +593,7 @@ module dorado_baseboard_machine (
     ACPI_0
   };
 
-  dorado_baseboard u_machine (
+  dorado_baseboard #(.SYSPER(SYSPER)) u_machine (
     .sys_clk(sys_clk),
     .ACPABus_0_p_(1'b0),
     .ACPABus_1_p_(1'b0),

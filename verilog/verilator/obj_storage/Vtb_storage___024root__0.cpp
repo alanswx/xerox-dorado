@@ -5045,7 +5045,7 @@ void Vtb_storage___024root___nba_sequent__TOP__0(Vtb_storage___024root* vlSelf) 
     vlSelfRef.__Vdly__tb_storage__DOT__div = (0x0000000fU 
                                               & ((IData)(1U) 
                                                  + (IData)(vlSelfRef.tb_storage__DOT__div)));
-    if ((0U == (IData)(vlSelfRef.tb_storage__DOT__div))) {
+    if ((7U == (IData)(vlSelfRef.tb_storage__DOT__div))) {
         vlSelfRef.tb_storage__DOT__mclk = (1U & (~ (IData)(vlSelfRef.tb_storage__DOT__mclk)));
         vlSelfRef.__Vdly__tb_storage__DOT__div = 0U;
     }

@@ -60,6 +60,50 @@ module tb_baseboard;
   // The reset routine, from chm/disassembly/bb_F000-FFFF.s: address, byte.
   localparam integer NPROG = 8;
   reg [23:0] prog [0:NPROG-1];
+
+  // ---- MEASURE THE CLOCK GENERATOR'S WAVEFORM ----------------------------
+  // Seven packages make it: h06 (the MPQ3303 VCO substitute, itself a counter
+  // on sys_clk), g05/h05 (MC1660 shaping) and g03/g04/h03/h04 (MC1690
+  // dividers). Everything after the VCO recovers its clock by EDGE DETECTION,
+  // which is what forces the oversampling ratio. To replace the chain with a
+  // phase counter, first record exactly what it emits.
+  integer ph_i, ph_scp, ph_ecp, ph_last_scp, ph_period;
+  reg     ph_p1, ph_p2;
+  initial begin
+    ph_scp = 0; ph_ecp = 0; ph_last_scp = -1; ph_period = 0;
+    repeat (2000) @(posedge sys_clk);          // let the VCO and dividers settle
+    ph_p1 = `BB.StartClockPulse_p_;
+    ph_p2 = `BB.EndClockPulse;
+    for (ph_i = 0; ph_i < 4000; ph_i = ph_i + 1) begin
+      @(posedge sys_clk);
+      if (`BB.StartClockPulse_p_ !== ph_p1) begin
+        ph_p1 = `BB.StartClockPulse_p_;
+        if (!ph_p1) begin                       // falling edge of StartClockPulse'
+          if (ph_last_scp >= 0 && ph_period == 0) ph_period = ph_i - ph_last_scp;
+          ph_last_scp = ph_i;
+        end
+        ph_scp = ph_scp + 1;
+      end
+      if (`BB.EndClockPulse !== ph_p2) begin
+        ph_p2 = `BB.EndClockPulse; ph_ecp = ph_ecp + 1;
+      end
+    end
+    $display("tb_baseboard: CLOCKGEN over 4000 sys_clk -- StartClockPulse' %0d edges, EndClockPulse %0d edges, StartClockPulse' period %0d sys_clk",
+             ph_scp, ph_ecp, ph_period);
+    // THE WAVEFORM ITSELF: sample both nets across two whole periods, so the
+    // phase counter that replaces this chain can reproduce them exactly.
+    $write("tb_baseboard: SCP' ");
+    for (ph_i = 0; ph_i < 32; ph_i = ph_i + 1) begin
+      $write("%b", `BB.StartClockPulse_p_); @(posedge sys_clk);
+    end
+    $display("");
+    $write("tb_baseboard: ECP  ");
+    for (ph_i = 0; ph_i < 32; ph_i = ph_i + 1) begin
+      $write("%b", `BB.EndClockPulse); @(posedge sys_clk);
+    end
+    $display("");
+  end
+
   initial begin
     prog[0] = {16'hF3A7, 8'hD8};   // CLD
     prog[1] = {16'hF3A8, 8'hA2};   // LDX #$00

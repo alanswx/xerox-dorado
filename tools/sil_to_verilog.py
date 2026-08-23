@@ -138,6 +138,21 @@ class Generator:
     # a cell.
     OVERRIDE_DRIVERS = ('MPQ3303',)
 
+    # THE CLOCK GENERATOR IS REPLACED BY A PHASE COUNTER, and these are the
+    # two pins it takes over. See cell_CLOCKGEN for the reasoning and the
+    # measured waveforms; the short version is that everything between the VCO
+    # and these two nets exists only to make clock phases, and each stage of it
+    # recovers its own clock by oversampled edge detection -- a cascade whose
+    # compounding margin forces 16 sys_clk per microinstruction, and so makes
+    # the FPGA machine run at a fraction of the real one's speed.
+    #
+    # This extends the substitution boundary already drawn at the VCO
+    # (OVERRIDE_DRIVERS / cell_MPQ3303) forward by six packages.
+    CLOCKGEN_PINS = {
+        ('BaseBd', 'g04', '3'): "StartClockPulse'",
+        ('BaseBd', 'h03', '2'): 'EndClockPulse',
+    }
+
     # ...and the opposite: a driver that LOSES to any other on its net.
     #
     # A 6532's port pin is high-Z with an internal pull-up when its DDR makes
@@ -893,7 +908,10 @@ class Generator:
         A('// machine ORs the contributions. That is what MECL open emitters')
         A('// wired together compute, and unlike an `inout` on a multiply-')
         A('// driven net it maps to one level of LUT on an FPGA.')
-        A(f'module {mod} (')
+        # SYSPER -- sys_clk per microinstruction -- reaches the substituted
+        # clock generator, so a machine can be built at a different
+        # oversampling ratio without editing any cell.
+        A(f'module {mod} #(parameter integer SYSPER = 16) (')
         decl = ['    input  wire sys_clk'] + \
                [f'    input  wire {vname(n)}' for n in inputs] + \
                [f'    output wire {vname(n)}__drv' for n in exports]
@@ -1068,7 +1086,12 @@ class Generator:
                     target = f'{vname(netname)}__drv'
                 else:
                     target = vname(netname)
-                if (not isout and netname.upper().startswith('VBB')
+                if (self.b.name.split('-Rev')[0], pos, str(pin)) in self.CLOCKGEN_PINS:
+                    # cell_CLOCKGEN drives this net now. The package stays --
+                    # the rest of the chain reads its other pins -- but this
+                    # output goes nowhere.
+                    target = ''
+                elif (not isout and netname.upper().startswith('VBB')
                         and role in ('in', 'common')):
                     # VBB IS THE ECL SWITCHING THRESHOLD, not a logic signal,
                     # and these nets have no driver anywhere (39 of them,
@@ -1139,6 +1162,25 @@ class Generator:
             A(',\n'.join(conns) if conns else '    // no connections')
             A(f'  ); // {ptype}')
             placed += 1
+
+        # THE CLOCK GENERATOR, as a phase counter rather than seven packages of
+        # oscillator, shaping and dividers. See cell_CLOCKGEN and CLOCKGEN_PINS.
+        if any(b == self.b.name.split('-Rev')[0] for b, _, _ in self.CLOCKGEN_PINS):
+            A('')
+            A('  // ---- the clock generator, substituted -------------------')
+            A('  // Seven packages (h06 MPQ3303, g05/h05 MC1660, g03/g04/h03/h04')
+            A('  // MC1690) exist only to turn the VCO into two clock phases,')
+            A('  // and each of them recovers its own clock by oversampled edge')
+            A('  // detection. A counter makes the same waveforms exactly, on')
+            A('  // sys_clk, which is what lets the oversampling ratio come')
+            A('  // down. The packages are still instantiated -- the rest of')
+            A('  // the chain reads their other pins -- but these two outputs')
+            A('  // are left unconnected and driven from here instead.')
+            A('  cell_CLOCKGEN #(.N(SYSPER)) u_clockgen (')
+            A('    .sys_clk(sys_clk),')
+            A("    .StartClockPulse_n(StartClockPulse_p_),")
+            A('    .EndClockPulse(EndClockPulse)')
+            A('  );')
         A('')
         A(f'endmodule')
         A('`default_nettype wire')

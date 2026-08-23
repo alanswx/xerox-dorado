@@ -20,7 +20,7 @@
 // machine ORs the contributions. That is what MECL open emitters
 // wired together compute, and unlike an `inout` on a multiply-
 // driven net it maps to one level of LUT on an FPGA.
-module BaseBd_m_Rev_m_Am (
+module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
     input  wire sys_clk,
     input  wire ACPABus_0_p_,
     input  wire ACPABus_1_p_,
@@ -2454,7 +2454,7 @@ module BaseBd_m_Rev_m_Am (
   cell_MC1690 u_g04 (
     .sys_clk(sys_clk),
     .p2(BaseBd11_sil_pl_4),
-    .p3(StartClockPulse_p_),
+    .p3(),
     .p7(BaseBd11_sil_pl_1),
     .p11(BaseBd11_sil_pl_3)
   ); // MC1690
@@ -2638,7 +2638,7 @@ module BaseBd_m_Rev_m_Am (
   ); // MC10210
   cell_MC1690 u_h03 (
     .sys_clk(sys_clk),
-    .p2(EndClockPulse),
+    .p2(),
     .p7(BaseBd11_sil_pl_2),
     .p11(BaseBd11_sil_pl_15)
   ); // MC1690
@@ -3783,6 +3783,21 @@ module BaseBd_m_Rev_m_Am (
     .pa_in({ISel_2, ISel_1, ISel_0, CI, CVDD, CVCC, CVTT, CVEE}),
     .pb_in({LampOn_p_, BootNO__drv, TCBTempSense, TBaseTempSense, MCManif_3, MCManif_2, MCManif_1, MCManif_0})
   ); // MCS6532
+
+  // ---- the clock generator, substituted -------------------
+  // Seven packages (h06 MPQ3303, g05/h05 MC1660, g03/g04/h03/h04
+  // MC1690) exist only to turn the VCO into two clock phases,
+  // and each of them recovers its own clock by oversampled edge
+  // detection. A counter makes the same waveforms exactly, on
+  // sys_clk, which is what lets the oversampling ratio come
+  // down. The packages are still instantiated -- the rest of
+  // the chain reads their other pins -- but these two outputs
+  // are left unconnected and driven from here instead.
+  cell_CLOCKGEN #(.N(SYSPER)) u_clockgen (
+    .sys_clk(sys_clk),
+    .StartClockPulse_n(StartClockPulse_p_),
+    .EndClockPulse(EndClockPulse)
+  );
 
 endmodule
 `default_nettype wire

@@ -6705,6 +6705,7 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->tb_memrun__DOT__rfshdiv = VL_SCOPED_RAND_RESET_I(9, __VscopeHash, 8551543113651834254ull);
     vlSelf->tb_memrun__DOT__rfshper = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14295647686845263379ull);
     vlSelf->tb_memrun__DOT__k = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11652679766192128519ull);
+    vlSelf->tb_memrun__DOT__i = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11971006283960824952ull);
     vlSelf->tb_memrun__DOT__i14a = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 13171892106118110653ull);
     for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {
         vlSelf->tb_memrun__DOT__i14_hit[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14910066863897504223ull);
@@ -6767,8 +6768,6 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
         vlSelf->tb_memrun__DOT__b[__Vi0] = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 5205888829742200369ull);
     }
     vlSelf->tb_memrun__DOT__hcount = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 4889236448335030205ull);
-    vlSelf->tb_memrun__DOT__unnamedblk1__DOT__unnamedblk2__DOT__unnamedblk3__DOT__lv = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 10381050006947876016ull);
-    vlSelf->tb_memrun__DOT__unnamedblk1__DOT__unnamedblk2__DOT__unnamedblk3__DOT__rv = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 9709000274116640943ull);
     vlSelf->tb_memrun__DOT__m__DOT__ClkEnable_p_a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16976138700325822529ull);
     vlSelf->tb_memrun__DOT__m__DOT__DcomingForCt_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14341436817434976081ull);
     vlSelf->tb_memrun__DOT__m__DOT__EcIn_0 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14894308601453097699ull);
@@ -13443,8 +13442,6 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->__VdfgRegularize_h4af1c392_0_137 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_138 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_139 = 0;
-    vlSelf->__Vfunc_tb_memrun__DOT__rd_R0__525__Vfuncout = 0;
-    vlSelf->__Vfunc_tb_memrun__DOT__rd_R0__525__idx = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;

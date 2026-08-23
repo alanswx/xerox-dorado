@@ -3180,15 +3180,19 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_taskrun___024root final {
         SData/*9:0*/ tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_d06__DOT__a;
         SData/*9:0*/ tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_g06__DOT__a;
         SData/*9:0*/ tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_j06__DOT__a;
+        IData/*31:0*/ tb_taskrun__DOT__k;
         IData/*31:0*/ tb_taskrun__DOT__n0;
         IData/*31:0*/ tb_taskrun__DOT__n1;
-        IData/*31:0*/ tb_taskrun__DOT__n2;
     };
     struct {
+        IData/*31:0*/ tb_taskrun__DOT__n2;
         IData/*31:0*/ tb_taskrun__DOT__yy;
         IData/*31:0*/ tb_taskrun__DOT__kk2;
+        IData/*31:0*/ tb_taskrun__DOT__fd;
         IData/*31:0*/ tb_taskrun__DOT__nf;
         IData/*31:0*/ tb_taskrun__DOT__ha;
+        IData/*31:0*/ tb_taskrun__DOT__hcount;
+        IData/*31:0*/ __Vtask_tb_taskrun__DOT__manifold__192__tb_taskrun__DOT__unnamedblk1_8__DOT____Vrepeat7;
         IData/*31:0*/ __VactIterCount;
         VlUnpacked<CData/*7:0*/, 17> tb_taskrun__DOT__hunk;
         VlUnpacked<CData/*7:0*/, 17> tb_taskrun__DOT__b;
@@ -3245,12 +3249,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_taskrun___024root final {
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_d11__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_d14__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_d15__DOT__mem;
+    };
+    struct {
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_d16__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_d17__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_d18__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_d19__DOT__mem;
-    };
-    struct {
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_e06__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_e07__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_e08__DOT__mem;
@@ -3311,12 +3315,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_taskrun___024root final {
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_i17__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_i18__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_i19__DOT__mem;
+    };
+    struct {
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_j06__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_j07__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_j08__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_j09__DOT__mem;
-    };
-    struct {
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_j10__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_j11__DOT__mem;
         VlUnpacked<CData/*0:0*/, 1024> tb_taskrun__DOT__m__DOT__b_ContB__DOT__u_j14__DOT__mem;
@@ -3377,12 +3381,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_taskrun___024root final {
         VlUnpacked<CData/*3:0*/, 256> tb_taskrun__DOT__m__DOT__b_ProcL__DOT__u_j06__DOT__mem;
         VlUnpacked<CData/*0:0*/, 256> tb_taskrun__DOT__m__DOT__b_ProcL__DOT__u_j08__DOT__mem;
         VlUnpacked<CData/*3:0*/, 256> tb_taskrun__DOT__m__DOT__b_ProcL__DOT__u_k06__DOT__mem;
+    };
+    struct {
         VlUnpacked<CData/*3:0*/, 16> tb_taskrun__DOT__m__DOT__b_ProcL__DOT__u_l03__DOT__mem;
         VlUnpacked<CData/*3:0*/, 16> tb_taskrun__DOT__m__DOT__b_ProcL__DOT__u_l04__DOT__mem;
         VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VactTriggered;
-    };
-    struct {
         VlUnpacked<QData/*63:0*/, 1> __VnbaTriggered;
     };
     std::string tb_taskrun__DOT__path;

@@ -459,7 +459,7 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     A("")
     A('`default_nettype none')
     A("")
-    A(f'module {module} (')
+    A(f'module {module} #(parameter integer SYSPER = 16) (')
     decl = ['    input  wire sys_clk,'
             '   // fabric clock; the Dorado clock is an ENABLE inside the cells']
     names_sorted = sorted(ports)
@@ -494,7 +494,13 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     for short in names:
         d = info[short]
         A(f'  // ---- {short}')
-        A(f'  {d["module"]} b_{short} (')
+        # SYSPER -- sys_clk per microinstruction -- reaches the board that
+        # carries the substituted clock generator, so the whole machine can be
+        # built at a different oversampling ratio without editing a cell.
+        if short == 'BaseBd':
+            A(f'  {d["module"]} #(.SYSPER(SYSPER)) b_{short} (')
+        else:
+            A(f'  {d["module"]} b_{short} (')
         conns = ['    .sys_clk(sys_clk)']
         conns += [f'    .{vname(n)}({vname(n)})' for n in sorted(d['ports'])]
         conns += [f'    .{vname(n)}__drv({vname(n)}__{short})'
@@ -559,7 +565,7 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     A("//")
     A(f"// probe_val exposes {len(probed)} signals, 32 at a time;")
     A(f"// {os.path.basename(os.path.splitext(path)[0])}.probes lists which bit is which.")
-    A(f'module {wrap} (')
+    A(f'module {wrap} #(parameter integer SYSPER = 16) (')
     A('    input  wire        sys_clk,')
     A('    input  wire [15:0] probe_sel,')
     A('    output wire [31:0] probe_val,')
@@ -599,7 +605,7 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
                  for n in reversed(probed)))
     A('  };')
     A("")
-    A(f'  {module} u_machine (')
+    A(f'  {module} #(.SYSPER(SYSPER)) u_machine (')
     conns = ['    .sys_clk(sys_clk)']
     for n in names_sorted:
         if n in clk_ports:

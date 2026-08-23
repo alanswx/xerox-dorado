@@ -17,6 +17,66 @@ directions.**
 Read this first; everything below it is the history of how the generator and
 cell library got built. Gate names are `make -C verilog <name>`; there are 29.
 
+## The clock generator is a PHASE COUNTER now (2026-08-23)
+
+`cell_CLOCKGEN` replaces seven BaseBoard packages -- h06 (the MPQ3303 VCO),
+g05/h05 (MC1660 shaping) and g03/g04/h03/h04 (MC1690 dividers) -- with a
+counter on `sys_clk` that emits `StartClockPulse'` and `EndClockPulse`
+directly. It is a deliberate extension of the substitution already made at the
+VCO: everything between the oscillator and those two nets exists ONLY to make
+clock phases, and an FPGA can make them directly.
+
+**The waveforms were measured, not invented.** `tb_baseboard` captured the real
+chain over two periods at 16x:
+
+```
+SCP'  1111 0000 0000 1111      high 0-3, LOW 4-11, high 12-15
+ECP   1100 0000 0011 1111      high 0-1, LOW 2-9,  high 10-15
+```
+
+Both 50% duty on a 16-cycle period with `EndClockPulse` leading by 2, and the
+substitute reproduces exactly that -- same period, same duty, same 2-cycle
+offset. (Its absolute phase sits one cycle later, which is only where the
+counter happened to start.) `SYSPER` is threaded from the machine down to the
+board, so the ratio is a parameter rather than a cell edit.
+
+**IT DID NOT MOVE THE RATIO FLOOR, and that is the useful result.** The sweep
+is identical before and after:
+
+| ratio | gates failing |
+|---|---|
+| 16x | none |
+| 8x | `taskrun-test`, `memrun-test` |
+| 4x | + `step-test` |
+| 2x | + `exec-test` |
+
+So the cascade of oversampled dividers was **not** what set the floor. Tracing
+the rest of the chain shows why: after the counter, `CLK.xx'` comes off
+MC10210 buffers and each board's local `clk0'`/`clk1'`/`clk2'` off SE10210
+buffers -- all COMBINATIONAL. Every clock net already changes only on a
+`sys_clk` edge.
+
+**What actually sets the floor is the number of DISTINCT CLOCK PHASES the
+Dorado uses within one microinstruction.** `clk0'` takes about one transition
+per microinstruction and `clk2'` about two, and the machine also uses `clk1'`
+and `PreClock1'` -- the "nops are not padding" finding turns on exactly that
+ordering, controls latching on `Clock1'` while the datapath latches on the
+earlier `PreClock1'`. Resolving N distinct phase points needs at least N
+`sys_clk`, and in practice more for the setup and hold between them. Four to
+eight phases is what the measurements imply, and 8x working while 4x is
+marginal and 2x is not fits that exactly.
+
+**So 2x needs a different transform, not a better clock generator.** The
+phases would have to stop being SIGNALS that cells detect edges on, and become
+a decoded phase index each cell uses as its enable directly -- master clock
+plus enables in the full sense. That is a change to how every clocked cell is
+generated, not to one block, and it is the honest next step if period speed
+matters.
+
+**What the substitution did buy**: one less cascade stage, seven analog and
+divider packages off the critical path, a clock tree that is provably
+synchronous to `sys_clk`, and the ratio exposed as a parameter. 33 gates green.
+
 ## THE CLOCK, AND WHY IT WAS SLOW (2026-08-23)
 
 **The PLL was asking for 7.04 MHz.** `rtl/pll` came across from

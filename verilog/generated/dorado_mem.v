@@ -17,7 +17,7 @@
 
 `default_nettype none
 
-module dorado_mem (
+module dorado_mem #(parameter integer SYSPER = 16) (
     input  wire sys_clk,   // fabric clock; the Dorado clock is an ENABLE inside the cells
     output wire BNTGtCT_p_b               ,  // awaits DispM DispY DskEth
     output wire Block                     ,  // awaits DispM DispY DskEth
@@ -3372,7 +3372,7 @@ endmodule
 //
 // probe_val exposes 149 signals, 32 at a time;
 // dorado_mem.probes lists which bit is which.
-module dorado_mem_machine (
+module dorado_mem_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
     input  wire [15:0] probe_sel,
     output wire [31:0] probe_val,
@@ -3682,7 +3682,7 @@ module dorado_mem_machine (
     BNTGtCT_p_b
   };
 
-  dorado_mem u_machine (
+  dorado_mem #(.SYSPER(SYSPER)) u_machine (
     .sys_clk(sys_clk),
     .BNTGtCT_p_b(BNTGtCT_p_b),
     .Block(Block),
