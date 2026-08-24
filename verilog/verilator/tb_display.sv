@@ -1294,10 +1294,12 @@ module tb_display;
   reg d00_last, dmd_last, md_last;
   integer n_coin_dmd, n_h05out, n_cwe, n_cce, n_d0in, n_dmd_ok, n_md_ok, n_dmd16, n_md16;
   integer n_we_fall, n_we_match, n_sind1, n_we_ones, n_we1, n_we1_ones, n_ce0, n_ce1;
-  integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free; reg dyclk_d;
+  integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any;
+  reg [15:0] iob_now;
+  reg dyclk_d; reg [15:0] iob_at_sel;
   reg dwt_asserted, dwt_full;
   integer tio, sel_count, sel_which;
-  reg [15:0] t_after; reg [7:0] tioa_seen;
+  reg [15:0] t_after, q_pre; reg [7:0] tioa_seen;
   reg we_d_rb, we1_d;
   reg [11:0] dad_now, dad_at_write, dad_at_read, dad_ones;
   reg [17:0] dmd_cap, md_cap;
@@ -1307,7 +1309,7 @@ module tb_display;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; dyclk_d=1'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
     dad_at_write=12'bx; dad_at_read=12'bx; dad_ones=12'bx;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
@@ -1395,6 +1397,35 @@ module tb_display;
     if (!m.b_DispY.IgnoreCommands)   n_igc_lo = n_igc_lo + 1;
     if (!m.b_DispY.TIOASaysDDC_p_)   n_sel    = n_sel    + 1;
     if (!m.b_DispY.IgnoreCommands && !m.b_DispY.TIOASaysDDC_p_) n_sel_free = n_sel_free + 1;
+    // IOB over the WHOLE run, not only at select: the select is asserted for
+    // hundreds of samples while `Output<-` is ONE instruction, so asking only
+    // at select is asking at the wrong moment -- the same trap as everywhere
+    // else in this work.
+    iob_now = {m.b_DispY.IOB_00, m.b_DispY.IOB_01, m.b_DispY.IOB_02,
+               m.b_DispY.IOB_03, m.b_DispY.IOB_04, m.b_DispY.IOB_05,
+               m.b_DispY.IOB_06, m.b_DispY.IOB_07, m.b_DispY.IOB_08,
+               m.b_DispY.IOB_09, m.b_DispY.IOB_10, m.b_DispY.IOB_11,
+               m.b_DispY.IOB_12, m.b_DispY.IOB_13, m.b_DispY.IOB_14,
+               m.b_DispY.IOB_15};
+    if (iob_now != 16'h0000) n_iob_nz = n_iob_nz + 1;
+    if (iob_now == 16'h5A5A) n_iob_any = n_iob_any + 1;
+    // ...AND WHAT IS ON IOB WHEN IT SELECTS. The Output<- carries Q, so the
+    // board should see 5a5a at the moment it is addressed -- a distinct value
+    // from the 0xF800 that went to TIOA, which is the whole point of using a
+    // second register.
+    if (!m.b_DispY.IgnoreCommands && !m.b_DispY.TIOASaysDDC_p_) begin
+      iob_at_sel <= {m.b_DispY.IOB_00, m.b_DispY.IOB_01, m.b_DispY.IOB_02,
+                     m.b_DispY.IOB_03, m.b_DispY.IOB_04, m.b_DispY.IOB_05,
+                     m.b_DispY.IOB_06, m.b_DispY.IOB_07, m.b_DispY.IOB_08,
+                     m.b_DispY.IOB_09, m.b_DispY.IOB_10, m.b_DispY.IOB_11,
+                     m.b_DispY.IOB_12, m.b_DispY.IOB_13, m.b_DispY.IOB_14,
+                     m.b_DispY.IOB_15};
+      if ({m.b_DispY.IOB_00, m.b_DispY.IOB_01, m.b_DispY.IOB_02, m.b_DispY.IOB_03,
+           m.b_DispY.IOB_04, m.b_DispY.IOB_05, m.b_DispY.IOB_06, m.b_DispY.IOB_07,
+           m.b_DispY.IOB_08, m.b_DispY.IOB_09, m.b_DispY.IOB_10, m.b_DispY.IOB_11,
+           m.b_DispY.IOB_12, m.b_DispY.IOB_13, m.b_DispY.IOB_14, m.b_DispY.IOB_15}
+          == 16'h5A5A) n_iob_ok = n_iob_ok + 1;
+    end
     n_tot = n_tot + 1;   // denominator, always printed beside a raw count
     // THE FILL'S ADDRESS. a03's twelve address pins are Dad_00a..Dad_08a plus
     // Dad0_10a..Dad0_12a (PARC skips 09 on this bank). Capture it AT THE
@@ -2501,7 +2532,7 @@ module tb_display;
     // every I/O board.
     //
     //   IM[0]  TIOA <- B      FA=1 FB=5 FC=2 -> FF 0o152, BSEL=2 (B <- T)
-    //   IM[1]  Output <- B    FA=0 FB=3 FC=6 -> FF 0o036, BSEL=2 (B <- T)
+    //   IM[1]  Output <- B    FA=0 FB=3 FC=6 -> FF 0o036, BSEL=3 (B <- Q)
     //   IM[2]  quiet          ASEL=4, so WantProcRef' stays high
     //   IM[3]  quiet, jumping back to 0
     //
@@ -2512,7 +2543,7 @@ module tb_display;
     if ($test$plusargs("slowio")) begin
       build_hunk4(4'd0, 1'b0,
                   '{4'd0,   4'd0,   4'd0,   4'd0},
-                  '{3'd2,   3'd2,   3'd0,   3'd0},
+                  '{3'd2,   3'd3,   3'd0,   3'd0},
                   '{3'd0,   3'd0,   3'd0,   3'd0},
                   '{3'd4,   3'd4,   3'd4,   3'd4},
                   '{8'o152, 8'o036, 8'o000, 8'o000},
@@ -2668,7 +2699,21 @@ module tb_display;
       set_cpreg_plain(16'hF800);
       parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);   // TFromCPReg#
       nop_micro;
-      $display("tb_display: +slowio -- T loaded for the loop");
+      // AND A SECOND VALUE, so the loop can write a WCB word rather than the
+      // address twice. FF is consumed by the opcode, so B cannot carry a
+      // literal -- it has to come from a register, and Q is the second one
+      // available (BSEL=3). PARC's QFromCPReg# loads it, and note its own
+      // caveat from tb_compute: Q IS NOT LOADED BY QFromCPReg#, IT IS LOADED
+      // BY THE NOP AFTER IT, because the controls in force at a load edge are
+      // the ones the PREVIOUS instruction latched.
+      set_cpreg_plain(16'h5A5A);
+      parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40);   // QFromCPReg#
+      nop_micro;
+      q_pre = {m.b_ProcH.Q_00, m.b_ProcH.Q_01, m.b_ProcH.Q_02, m.b_ProcH.Q_03,
+               m.b_ProcH.Q_04, m.b_ProcH.Q_05, m.b_ProcH.Q_06, m.b_ProcH.Q_07,
+               m.b_ProcL.Q_08, m.b_ProcL.Q_09, m.b_ProcL.Q_10, m.b_ProcL.Q_11,
+               m.b_ProcL.Q_12, m.b_ProcL.Q_13, m.b_ProcL.Q_14, m.b_ProcL.Q_15};
+      $display("tb_display: +slowio -- T and Q loaded for the loop (Q = %h, want 5a5a)", q_pre);
     end
 
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
@@ -3428,6 +3473,29 @@ module tb_display;
              n_sel, n_sel_free);
     $display("tb_display:   DURING THE RUN -- IgnoreCommands LOW on %0d of %0d, board SELECTED on %0d, and selected while free on %0d",
              n_igc_lo, n_tot, n_sel, n_sel_free);
+    $display("tb_display:   IOB AT SELECT -- last %h, and %0d of %0d selects carried 5a5a",
+             iob_at_sel, n_iob_ok, n_sel);
+    $display("tb_display:   IOB OVER THE RUN -- non-zero on %0d of %0d, and carrying 5a5a on %0d",
+             n_iob_nz, n_tot, n_iob_any);
+    // OPEN: THE ADDRESS HALF WORKS, THE DATA HALF DOES NOT YET.
+    //
+    // The board is addressed and answers -- 992 selects, every one with the
+    // processor free, both gated above. What is NOT established is that
+    // `Output <- B` puts Q on IOB: over 140,559 samples IOB is non-zero on
+    // only 32 and never carries the 5a5a that Q demonstrably holds (the
+    // pre-run readback confirms Q = 5a5a).
+    //
+    // Candidates, none of them measured yet, so do not assume:
+    //   * BSEL=3 may not select Q the way this loop assumes -- cpu.c's b_bus
+    //     case 3 is "Q (or Q<-B with external)", which is two behaviours, and
+    //     the external qualifier is not being driven here
+    //   * the IOB drive may need a qualifier this loop does not assert
+    //   * IOB.00-15's bit order at the board may not be what this probe packs
+    //
+    // Measure which before changing anything: read the ProcH/ProcL end of the
+    // IOB drive and the B bus during the Output<- instruction specifically,
+    // not over the whole run. Asking at the wrong moment has been the single
+    // most expensive mistake in this whole effort.
     if (n_dyclk == 0)
       $fatal(1, "DispY has no local clock -- is CLK.display' driven?");
     // AND THE BOARD IS ASKING. WakeDHT is the display HEAD task's wakeup and

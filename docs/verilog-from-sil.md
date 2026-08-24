@@ -2050,3 +2050,32 @@ Measuring **during** the run matters: the post-run section jams, so
 `IgnoreCommands` reads 1 there by definition, and an earlier reading taken
 there looked like the board was refusing commands when it was simply being
 asked at the wrong moment.
+
+### A second register for the data, and where it stops (2026-08-24)
+
+FF is consumed by the opcode, so B cannot carry a literal — the data has to
+come from a register, and **Q** is the second one available (BSEL=3). PARC's
+`QFromCPReg#` loads it, with its own caveat from `tb_compute`: **Q is not
+loaded by `QFromCPReg#`, it is loaded by the Nop after it**, because the
+controls in force at a load edge are the ones the *previous* instruction
+latched.
+
+With T = `0xF800` (the address) and Q = `0x5A5A` (the data), the loop becomes
+`TIOA←B` (BSEL=2, from T) then `Output←B` (BSEL=3, from Q). Q reads back
+`5a5a` before the run, and the board now selects on **992** samples against
+928 for the T-only loop and 448 baseline.
+
+**The address half works. The data half does not yet.** Over 140,559 samples
+IOB is non-zero on only **32** and never carries `5a5a`. Candidates, none
+measured, so do not assume:
+
+- **BSEL=3 may not select Q the way this loop assumes** — `cpu.c`'s `b_bus`
+  case 3 is *"Q (or Q←B with external)"*, two behaviours, and the external
+  qualifier is not being driven here
+- the IOB drive may need a qualifier this loop does not assert
+- `IOB.00-15`'s bit order at the board may not be what the probe packs
+
+Measure which before changing anything: read the ProcH/ProcL end of the IOB
+drive and the B bus **during the `Output←` instruction specifically**, not over
+the whole run. Asking at the wrong moment has been the single most expensive
+mistake in this effort.
