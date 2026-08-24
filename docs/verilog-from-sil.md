@@ -2201,8 +2201,23 @@ retarget it **silently did not apply**; only its comment and its
 been running the same stimulus all along — which is what makes the comparison
 valid, but for a different reason than was claimed.
 
-**So the anomaly is real and unexplained**: same operand, same jam, no driver
-difference, and TIOA reads 0 on the disk machine. Start by asking whether the
+**So the anomaly is real, and every obvious explanation is now eliminated:**
+
+- **Identical stimulus** — the two benches' TIOA sequences are byte for byte
+  the same, and T reads `f800` on both at the write.
+- **Identical machine behaviour** — both report 180 `clk0'` edges, `Stop=0`,
+  all four hold requests 0 and all three hold lines 1. Nothing is holding, so
+  the jam is not being blocked.
+- **No board drives TIOA** — all **eight** bits checked on both boards this
+  time, rather than one and generalised. Neither DskEth nor DispY drives any of
+  `TIOA.0-7`; ProcH g10 is the driver.
+
+What is left is the TIOA register's own write enable on ProcH, or **the capture
+instant** — both benches sample right after the trailing nop, but the disk
+bench carries more probes and a different amount of simulated time before that
+point, and *"sampled at the wrong moment"* has been the most expensive error in
+this effort. Capture TIOA over a **window** around the jam on both machines
+before concluding the register is not being written. Start by asking whether the
 **jam itself executes** there — DskEth drives hold lines the display board does
 not, and a jam that never runs writes nothing. Measure the hold lines and the
 `clk0'` edge count on both machines before touching TIOA again.
