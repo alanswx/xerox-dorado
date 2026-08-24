@@ -1,0 +1,12 @@
+Vtb_display___024root__2__Slow.o: \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_display/Vtb_display__pch.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_config.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilatedos.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_types.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_funcs.h \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_display/Vtb_display__Syms.h \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_display/Vtb_display.h \
+  /Users/alans/Documents/development/Dorado/verilog/verilator/obj_display/Vtb_display___024root.h \
+  /opt/homebrew/Cellar/verilator/5.044/share/verilator/include/verilated_timing.h \
+  Vtb_display___024root__2__Slow.cpp Vtb_display__pch.h

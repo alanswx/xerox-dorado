@@ -446,6 +446,18 @@ readback-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_readback/tb_readback 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_readback|Assertion"; exit $$rc; }
 
+
+display-test:
+	@cd ../.. && $(V) --binary --top-module tb_display $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_display -o tb_display \
+		verilog/verilator/tb_display.sv verilog/generated/dorado_display.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v verilog/generated/DispY-Rev-*.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_display/tb_display 2>&1); \
+		  rc=$$?; echo "$$out" | grep -E "tb_display|Assertion"; exit $$rc; }
+
 muffler-test:
 	@cd ../.. && $(V) --binary --top-module tb_muffler $(V_WARN) \
 		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \

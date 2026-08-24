@@ -37,7 +37,7 @@ ECLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ecldict.analyze
 TTLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ttldict.analyze
 TOOLS   = ../tools
 
-.PHONY: boards backplane proms cells cells-force lint cell-check loop-check readback-test \
+.PHONY: boards backplane proms cells cells-force lint cell-check loop-check readback-test display-test \
         prom-test alu-test alu-diff cpreg-diff mir-diff mirreg-diff run-test \
         writeim-test operand-test step-test sendmir boot0-test exec-test \
         parity-probe compute-test \
@@ -186,6 +186,9 @@ storage-test:
 readback-test:
 	@$(MAKE) -C verilator readback-test
 
+display-test:
+	@$(MAKE) -C verilator display-test
+
 # A WORD INTO THE STORAGE ARRAY: the msa board standalone, where the bench owns
 # the DRAM strobes, so a write can be driven without a memory reference.
 msa-test:
@@ -236,6 +239,9 @@ backplane: generated-boards
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_ifu.v \
 		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,IFU \
 		--module=dorado_ifu >/dev/null
+	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_display.v \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,DispY \
+		--module=dorado_display >/dev/null
 
 cells:
 	@python3 $(TOOLS)/sil_emit_cells.py --sil $(SIL) \
