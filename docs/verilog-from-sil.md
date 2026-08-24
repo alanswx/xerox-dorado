@@ -1729,3 +1729,36 @@ while task 15 runs and another while task 7 runs, and the two slots must end
 up holding different values. (`tb_compute`'s variant changes ASEL 4 → 6 so the
 ALU gets a real second operand, and notes `TFromCPReg#` "requires ALUFM[0]=B",
 so the ALUFM prologue may be needed too.)
+
+### Gate audit by global mutation (2026-08-24)
+
+Today produced two gates that passed *because* of the bug they should have
+caught (`msa-test`/SN74166; `memrun-test`'s DRAM cycle from a mis-shifted
+PROM), and two more that would have shipped vacuous (T, MemBase). So: break
+the most-instantiated cell in the machine and see which gates notice.
+
+```
+sed -i '' 's|if (ck_en) q <= {p12, p11, p10, p7, p6, p5};|if (1'"'"'b0) q <= {p12, p11, p10, p7, p6, p5};|' \
+    verilog/cells/cell_MC10176.v      # 307 packages frozen
+```
+
+**16 of 35 gates caught it.** The 19 survivors were examined and every one is
+legitimately independent of a flip-flop:
+
+| survivor group | why it is unaffected |
+|---|---|
+| `alu-diff`, `alu-test` | the ALU is MC10181 |
+| `prom-test`, `cell-check`, `backplane`, `loop-check`, `converge-test` | generation / structural checks |
+| `strap-test`, `muffler-test`, `osc-test`, `task-test`, `refdecode-test` | straps, oscillators, combinational logic |
+| `mir-diff` | tests the COMBINATIONAL demux fan-out -- six MC10172s wired 1-to-4; no flip-flop in the path |
+| `machine-test`, `mem-test`, `ifu-test`, `firmware-probe`, `baseboard-test` | clock-reaches-every-slot and enable-consistency claims |
+| `storage-test` | all four assertions are plumbing -- address inversion, strobes not X, the read register CLOCKED, a backplane alias. Its data claim lives in `msa-test` and `readback-test`, both of which WERE caught |
+
+**No gate was found falsely claiming data behaviour**, which is the reassuring
+half. The method's limitation is the other half: **a blanket mutation
+over-reports**, because most gates legitimately do not touch any one part. A
+real audit needs a mutation chosen per gate -- which is what the individual
+mutation tests in `readback-test`, `msa-test` and `ifufetch-test` do.
+
+Worth repeating after any large cell change: 16 is the floor, and a drop in
+that number means a gate stopped biting.

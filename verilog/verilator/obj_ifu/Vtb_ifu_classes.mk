@@ -38,7 +38,6 @@ VM_CLASSES_SLOW += \
   Vtb_ifu___024root__Slow \
   Vtb_ifu___024root__0__Slow \
   Vtb_ifu___024root__1__Slow \
-  Vtb_ifu___024root__2__Slow \
 
 # Generated support classes, fast-path, compile with highest optimization
 VM_SUPPORT_FAST += \

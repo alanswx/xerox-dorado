@@ -1859,8 +1859,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__17__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__17__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__17__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__20__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__20__Vfuncout = VL_DIVS_III(32, 
@@ -1940,8 +1938,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__21__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__21__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__21__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__24__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__24__Vfuncout = VL_DIVS_III(32, 
@@ -2021,8 +2017,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__25__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__25__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__25__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__28__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__28__Vfuncout = VL_DIVS_III(32, 
@@ -2104,8 +2098,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__29__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__29__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__29__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__32__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__32__Vfuncout = VL_DIVS_III(32, 
@@ -2176,8 +2168,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__33__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__33__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__33__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__36__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__36__Vfuncout = VL_DIVS_III(32, 
@@ -2248,8 +2238,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__37__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__37__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__37__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__40__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__40__Vfuncout = VL_DIVS_III(32, 
@@ -2320,8 +2308,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__41__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__41__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__41__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__44__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__44__Vfuncout = VL_DIVS_III(32, 
@@ -2393,8 +2379,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__46__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__46__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__46__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__49__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__49__Vfuncout = VL_DIVS_III(32, 
@@ -2474,8 +2458,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__50__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__50__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__50__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__53__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__53__Vfuncout = VL_DIVS_III(32, 
@@ -2555,8 +2537,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__54__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__54__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__54__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__57__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__57__Vfuncout = VL_DIVS_III(32, 
@@ -2681,8 +2661,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__61__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__61__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__61__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__64__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__64__Vfuncout = VL_DIVS_III(32, 
@@ -2762,8 +2740,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__65__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__65__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__65__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__68__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__68__Vfuncout = VL_DIVS_III(32, 
@@ -2843,8 +2819,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__69__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__69__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__69__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__72__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__72__Vfuncout = VL_DIVS_III(32, 
@@ -2926,8 +2900,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__73__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__73__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__73__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__76__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__76__Vfuncout = VL_DIVS_III(32, 
@@ -2998,8 +2970,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__77__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__77__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__77__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__80__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__80__Vfuncout = VL_DIVS_III(32, 
@@ -3070,8 +3040,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__81__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__81__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__81__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__84__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__84__Vfuncout = VL_DIVS_III(32, 
@@ -3142,8 +3110,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__85__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__85__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__85__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__88__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__88__Vfuncout = VL_DIVS_III(32, 
@@ -3215,8 +3181,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__90__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__90__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__90__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__93__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__93__Vfuncout = VL_DIVS_III(32, 
@@ -3296,8 +3260,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__94__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__94__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__94__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__97__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__97__Vfuncout = VL_DIVS_III(32, 
@@ -3377,8 +3339,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__0(Vtb_taskrun
     vlSelfRef.tb_taskrun__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__98__fn))) {
         vlSelfRef.tb_taskrun__DOT__setrun = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__98__data));
-        vlSelfRef.tb_taskrun__DOT__setss_n = (1U & 
-                                              (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__98__ss)));
     }
     __Vfunc_tb_taskrun__DOT__WT__101__n = 4U;
     __Vfunc_tb_taskrun__DOT__WT__101__Vfuncout = VL_DIVS_III(32, 
@@ -7108,8 +7068,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__106__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__106__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__106__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__109__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__109__Vfuncout 
@@ -7182,8 +7140,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__110__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__110__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__110__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__113__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__113__Vfuncout 
@@ -7266,8 +7222,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__115__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__115__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__115__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__118__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__118__Vfuncout 
@@ -7350,8 +7304,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__119__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__119__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__119__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__122__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__122__Vfuncout 
@@ -7434,8 +7386,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__123__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__123__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__123__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__126__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__126__Vfuncout 
@@ -7521,8 +7471,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__127__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__127__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__127__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__130__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__130__Vfuncout 
@@ -7597,8 +7545,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__131__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__131__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__131__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__134__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__134__Vfuncout 
@@ -7673,8 +7619,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__135__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__135__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__135__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__138__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__138__Vfuncout 
@@ -7749,8 +7693,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__139__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__139__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__139__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__142__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__142__Vfuncout 
@@ -7825,8 +7767,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__144__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__144__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__144__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__147__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__147__Vfuncout 
@@ -7909,8 +7849,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__148__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__148__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__148__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__151__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__151__Vfuncout 
@@ -7993,8 +7931,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__152__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__152__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__152__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__155__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__155__Vfuncout 
@@ -8131,8 +8067,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__159__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__159__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__159__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__162__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__162__Vfuncout 
@@ -8215,8 +8149,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__163__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__163__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__163__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__166__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__166__Vfuncout 
@@ -8299,8 +8231,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__167__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__167__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__167__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__170__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__170__Vfuncout 
@@ -8386,8 +8316,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__171__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__171__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__171__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__174__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__174__Vfuncout 
@@ -8462,8 +8390,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__175__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__175__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__175__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__178__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__178__Vfuncout 
@@ -8538,8 +8464,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__179__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__179__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__179__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__182__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__182__Vfuncout 
@@ -8614,8 +8538,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__183__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__183__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__183__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__186__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__186__Vfuncout 
@@ -8690,8 +8612,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__188__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__188__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__188__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__191__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__191__Vfuncout 
@@ -8774,8 +8694,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__192__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__192__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__192__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__195__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__195__Vfuncout 
@@ -8858,8 +8776,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__196__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__196__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__196__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__199__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__199__Vfuncout 
@@ -9001,8 +8917,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__202__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__202__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__202__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__205__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__205__Vfuncout 
@@ -9075,8 +8989,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__206__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__206__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__206__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__209__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__209__Vfuncout 
@@ -9161,8 +9073,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__211__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__211__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__211__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__214__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__214__Vfuncout 
@@ -9245,8 +9155,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__215__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__215__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__215__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__218__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__218__Vfuncout 
@@ -9329,8 +9237,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__219__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__219__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__219__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__222__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__222__Vfuncout 
@@ -9416,8 +9322,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__223__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__223__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__223__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__226__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__226__Vfuncout 
@@ -9492,8 +9396,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__227__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__227__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__227__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__230__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__230__Vfuncout 
@@ -9568,8 +9470,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__231__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__231__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__231__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__234__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__234__Vfuncout 
@@ -9644,8 +9544,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__235__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__235__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__235__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__238__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__238__Vfuncout 
@@ -9720,8 +9618,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__240__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__240__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__240__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__243__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__243__Vfuncout 
@@ -9804,8 +9700,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__244__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__244__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__244__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__247__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__247__Vfuncout 
@@ -9888,8 +9782,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__248__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__248__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__248__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__251__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__251__Vfuncout 
@@ -10028,8 +9920,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__254__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__254__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__254__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__257__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__257__Vfuncout 
@@ -10112,8 +10002,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__258__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__258__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__258__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__261__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__261__Vfuncout 
@@ -10196,8 +10084,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__262__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__262__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__262__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__265__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__265__Vfuncout 
@@ -10283,8 +10169,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__266__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__266__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__266__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__269__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__269__Vfuncout 
@@ -10359,8 +10243,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__270__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__270__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__270__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__273__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__273__Vfuncout 
@@ -10435,8 +10317,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__274__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__274__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__274__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__277__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__277__Vfuncout 
@@ -10511,8 +10391,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__278__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__278__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__278__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__281__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__281__Vfuncout 
@@ -10587,8 +10465,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__283__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__283__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__283__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__286__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__286__Vfuncout 
@@ -10671,8 +10547,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__287__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__287__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__287__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__290__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__290__Vfuncout 
@@ -10755,8 +10629,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__291__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__291__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__291__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__294__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__294__Vfuncout 
@@ -10895,8 +10767,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__297__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__297__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__297__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__300__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__300__Vfuncout 
@@ -10979,8 +10849,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__301__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__301__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__301__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__304__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__304__Vfuncout 
@@ -11063,8 +10931,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__305__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__305__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__305__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__308__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__308__Vfuncout 
@@ -11150,8 +11016,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__309__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__309__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__309__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__312__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__312__Vfuncout 
@@ -11226,8 +11090,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__313__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__313__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__313__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__316__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__316__Vfuncout 
@@ -11302,8 +11164,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__317__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__317__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__317__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__320__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__320__Vfuncout 
@@ -11378,8 +11238,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__321__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__321__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__321__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__324__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__324__Vfuncout 
@@ -11454,8 +11312,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__326__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__326__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__326__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__329__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__329__Vfuncout 
@@ -11538,8 +11394,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__330__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__330__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__330__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__333__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__333__Vfuncout 
@@ -11622,8 +11476,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__334__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__334__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__334__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__337__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__337__Vfuncout 
@@ -11762,8 +11614,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__340__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__340__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__340__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__343__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__343__Vfuncout 
@@ -11846,8 +11696,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__344__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__344__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__344__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__347__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__347__Vfuncout 
@@ -11930,8 +11778,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__348__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__348__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__348__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__351__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__351__Vfuncout 
@@ -12017,8 +11863,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__352__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__352__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__352__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__355__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__355__Vfuncout 
@@ -12093,8 +11937,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__356__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__356__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__356__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__359__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__359__Vfuncout 
@@ -12169,8 +12011,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__360__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__360__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__360__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__363__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__363__Vfuncout 
@@ -12245,8 +12085,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__364__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__364__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__364__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__367__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__367__Vfuncout 
@@ -12321,8 +12159,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__369__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__369__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__369__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__372__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__372__Vfuncout 
@@ -12405,8 +12241,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__373__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__373__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__373__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__376__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__376__Vfuncout 
@@ -12489,8 +12323,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__377__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__377__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__377__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__380__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__380__Vfuncout 
@@ -12644,8 +12476,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__384__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__384__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__384__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__387__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__387__Vfuncout 
@@ -12718,8 +12548,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__388__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__388__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__388__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__391__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__391__Vfuncout 
@@ -12802,8 +12630,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__393__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__393__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__393__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__396__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__396__Vfuncout 
@@ -12886,8 +12712,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__397__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__397__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__397__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__400__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__400__Vfuncout 
@@ -12970,8 +12794,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__401__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__401__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__401__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__404__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__404__Vfuncout 
@@ -13057,8 +12879,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__405__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__405__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__405__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__408__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__408__Vfuncout 
@@ -13133,8 +12953,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__409__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__409__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__409__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__412__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__412__Vfuncout 
@@ -13209,8 +13027,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__413__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__413__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__413__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__416__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__416__Vfuncout 
@@ -13285,8 +13101,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__417__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__417__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__417__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__420__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__420__Vfuncout 
@@ -13361,8 +13175,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__422__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__422__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__422__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__425__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__425__Vfuncout 
@@ -13445,8 +13257,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__426__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__426__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__426__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__429__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__429__Vfuncout 
@@ -13529,8 +13339,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__430__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__430__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__430__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__433__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__433__Vfuncout 
@@ -13667,8 +13475,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__437__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__437__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__437__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__440__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__440__Vfuncout 
@@ -13751,8 +13557,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__441__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__441__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__441__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__444__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__444__Vfuncout 
@@ -13835,8 +13639,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__445__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__445__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__445__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__448__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__448__Vfuncout 
@@ -13922,8 +13724,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__449__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__449__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__449__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__452__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__452__Vfuncout 
@@ -13998,8 +13798,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__453__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__453__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__453__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__456__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__456__Vfuncout 
@@ -14074,8 +13872,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__457__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__457__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__457__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__460__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__460__Vfuncout 
@@ -14150,8 +13946,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__461__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__461__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__461__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__464__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__464__Vfuncout 
@@ -14226,8 +14020,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__466__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__466__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__466__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__469__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__469__Vfuncout 
@@ -14310,8 +14102,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__470__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__470__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__470__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__473__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__473__Vfuncout 
@@ -14394,8 +14184,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__474__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__474__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__474__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__477__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__477__Vfuncout 
@@ -14537,8 +14325,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__480__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__480__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__480__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__483__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__483__Vfuncout 
@@ -14611,8 +14397,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                 if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__484__fn))) {
                     vlSelfRef.tb_taskrun__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__484__data));
-                    vlSelfRef.tb_taskrun__DOT__setss_n 
-                        = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__484__ss)));
                 }
                 __Vfunc_tb_taskrun__DOT__WT__487__n = 4U;
                 __Vfunc_tb_taskrun__DOT__WT__487__Vfuncout 
@@ -14697,8 +14481,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__489__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__489__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__489__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__492__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__492__Vfuncout 
@@ -14781,8 +14563,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__493__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__493__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__493__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__496__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__496__Vfuncout 
@@ -14865,8 +14645,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__497__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__497__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__497__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__500__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__500__Vfuncout 
@@ -14952,8 +14730,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__501__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__501__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__501__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__504__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__504__Vfuncout 
@@ -15028,8 +14804,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__505__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__505__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__505__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__508__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__508__Vfuncout 
@@ -15104,8 +14878,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__509__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__509__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__509__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__512__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__512__Vfuncout 
@@ -15180,8 +14952,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__513__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__513__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__513__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__516__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__516__Vfuncout 
@@ -15256,8 +15026,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__518__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__518__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__518__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__521__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__521__Vfuncout 
@@ -15340,8 +15108,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__522__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__522__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__522__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__525__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__525__Vfuncout 
@@ -15424,8 +15190,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__526__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__526__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__526__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__529__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__529__Vfuncout 
@@ -15564,8 +15328,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__532__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__532__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__532__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__535__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__535__Vfuncout 
@@ -15648,8 +15410,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__536__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__536__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__536__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__539__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__539__Vfuncout 
@@ -15732,8 +15492,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__540__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__540__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__540__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__543__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__543__Vfuncout 
@@ -15819,8 +15577,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__544__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__544__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__544__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__547__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__547__Vfuncout 
@@ -15895,8 +15651,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__548__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__548__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__548__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__551__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__551__Vfuncout 
@@ -15971,8 +15725,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__552__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__552__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__552__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__555__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__555__Vfuncout 
@@ -16047,8 +15799,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__556__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__556__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__556__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__559__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__559__Vfuncout 
@@ -16123,8 +15873,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__561__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__561__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__561__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__564__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__564__Vfuncout 
@@ -16207,8 +15955,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__565__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__565__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__565__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__568__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__568__Vfuncout 
@@ -16291,8 +16037,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__569__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__569__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__569__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__572__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__572__Vfuncout 
@@ -16431,8 +16175,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__575__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__575__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__575__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__578__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__578__Vfuncout 
@@ -16515,8 +16257,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__579__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__579__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__579__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__582__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__582__Vfuncout 
@@ -16599,8 +16339,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__583__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__583__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__583__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__586__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__586__Vfuncout 
@@ -16686,8 +16424,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__587__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__587__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__587__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__590__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__590__Vfuncout 
@@ -16762,8 +16498,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__591__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__591__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__591__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__594__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__594__Vfuncout 
@@ -16838,8 +16572,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__595__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__595__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__595__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__598__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__598__Vfuncout 
@@ -16914,8 +16646,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__599__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__599__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__599__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__602__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__602__Vfuncout 
@@ -16990,8 +16720,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__604__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__604__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__604__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__607__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__607__Vfuncout 
@@ -17074,8 +16802,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__608__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__608__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__608__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__611__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__611__Vfuncout 
@@ -17158,8 +16884,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__612__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__612__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__612__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__615__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__615__Vfuncout 
@@ -17298,8 +17022,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__618__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__618__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__618__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__621__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__621__Vfuncout 
@@ -17382,8 +17104,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__622__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__622__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__622__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__625__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__625__Vfuncout 
@@ -17466,8 +17186,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__626__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__626__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__626__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__629__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__629__Vfuncout 
@@ -17553,8 +17271,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__630__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__630__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__630__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__633__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__633__Vfuncout 
@@ -17629,8 +17345,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__634__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__634__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__634__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__637__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__637__Vfuncout 
@@ -17705,8 +17419,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__638__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__638__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__638__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__641__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__641__Vfuncout 
@@ -17781,8 +17493,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__642__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__642__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__642__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__645__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__645__Vfuncout 
@@ -17857,8 +17567,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__647__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__647__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__647__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__650__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__650__Vfuncout 
@@ -17941,8 +17649,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__651__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__651__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__651__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__654__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__654__Vfuncout 
@@ -18025,8 +17731,6 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__1(Vtb_taskrun
                     if ((0U == (IData)(__Vtask_tb_taskrun__DOT__strobe__655__fn))) {
                         vlSelfRef.tb_taskrun__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_taskrun__DOT__strobe__655__data));
-                        vlSelfRef.tb_taskrun__DOT__setss_n 
-                            = (1U & (~ (IData)(__Vtask_tb_taskrun__DOT__strobe__655__ss)));
                     }
                     __Vfunc_tb_taskrun__DOT__WT__658__n = 4U;
                     __Vfunc_tb_taskrun__DOT__WT__658__Vfuncout 

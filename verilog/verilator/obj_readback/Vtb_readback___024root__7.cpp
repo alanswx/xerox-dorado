@@ -7,7 +7,6 @@
 void Vtb_readback___024root___nba_sequent__TOP__0(Vtb_readback___024root* vlSelf);
 void Vtb_readback___024root___nba_sequent__TOP__1(Vtb_readback___024root* vlSelf);
 void Vtb_readback___024root___nba_sequent__TOP__2(Vtb_readback___024root* vlSelf);
-void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf);
 
 void Vtb_readback___024root___eval_nba(Vtb_readback___024root* vlSelf) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_readback___024root___eval_nba\n"); );
@@ -19,7 +18,6 @@ void Vtb_readback___024root___eval_nba(Vtb_readback___024root* vlSelf) {
         Vtb_readback___024root___nba_sequent__TOP__0(vlSelf);
         Vtb_readback___024root___nba_sequent__TOP__1(vlSelf);
         Vtb_readback___024root___nba_sequent__TOP__2(vlSelf);
-        Vtb_readback___024root___nba_sequent__TOP__3(vlSelf);
     }
 }
 

@@ -34,7 +34,6 @@ VM_CLASSES_FAST += \
   Vtb_ifufetch___024root__5 \
   Vtb_ifufetch___024root__6 \
   Vtb_ifufetch___024root__7 \
-  Vtb_ifufetch___024root__8 \
   Vtb_ifufetch__main \
 
 # Generated module classes, non-fast-path, compile with low/medium optimization

@@ -29,7 +29,6 @@ VM_CLASSES_FAST += \
   Vtb_taskrun___024root__0 \
   Vtb_taskrun___024root__1 \
   Vtb_taskrun___024root__2 \
-  Vtb_taskrun___024root__3 \
   Vtb_taskrun__main \
 
 # Generated module classes, non-fast-path, compile with low/medium optimization
