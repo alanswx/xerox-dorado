@@ -5328,7 +5328,7 @@ void Vtb_disk___024root___eval(Vtb_disk___024root* vlSelf) {
 #ifdef VL_DEBUG
             Vtb_disk___024root___dump_triggers__act(vlSelfRef.__VnbaTriggered, "nba"s);
 #endif
-            VL_FATAL_MT("verilog/verilator/tb_disk.sv", 1221, "", "NBA region did not converge after 100 tries");
+            VL_FATAL_MT("verilog/verilator/tb_disk.sv", 1240, "", "NBA region did not converge after 100 tries");
         }
         __VnbaIterCount = ((IData)(1U) + __VnbaIterCount);
         vlSelfRef.__VactIterCount = 0U;
@@ -5337,7 +5337,7 @@ void Vtb_disk___024root___eval(Vtb_disk___024root* vlSelf) {
 #ifdef VL_DEBUG
                 Vtb_disk___024root___dump_triggers__act(vlSelfRef.__VactTriggered, "act"s);
 #endif
-                VL_FATAL_MT("verilog/verilator/tb_disk.sv", 1221, "", "Active region did not converge after 100 tries");
+                VL_FATAL_MT("verilog/verilator/tb_disk.sv", 1240, "", "Active region did not converge after 100 tries");
             }
             vlSelfRef.__VactIterCount = ((IData)(1U) 
                                          + vlSelfRef.__VactIterCount);
