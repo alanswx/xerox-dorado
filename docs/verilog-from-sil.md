@@ -1992,3 +1992,26 @@ write.
 
 (The `f843` low byte is left over from the startup's `T=0043`; only the high
 byte matters to TIOA, but it is worth knowing `TFromCPReg#` did not clear it.)
+
+### Why the board ignores a jammed command (2026-08-24)
+
+`IgnoreCommands` is DispY **d01**, an MC10176 whose D5 is **`IgnoreProcb`**,
+clocked by `clk1'Ab` — a *registered copy of `IgnoreProc`*. That is the same
+signal the memory section uses (MemC b24: `WantProcRef' = IgnoreProc |
+ASEL.0`), and it is asserted **while the processor is being stepped**.
+
+So a jam can set `TIOA`, because TIOA is processor state, and `display-test`
+proves it does — `TIOA = 11111000`, and DispY sees `TIOADly = 11111`. What a
+jam **cannot** do is make a device answer: every I/O board is told to ignore
+commands for exactly as long as the processor is single-stepped.
+
+**Slow I/O must come from running microcode.** That is a fourth entry on the
+list the T-write attempt started:
+
+1. the write must come from IM, not a jam (`ClrCT` clears the current task)
+2. the IM load must also be in the startup, for the same reason
+3. the loop must keep tasking ON, or `CTask` sticks
+4. **and a device write must not be jammed, because `IgnoreProc` blocks it**
+
+All four are properties of the jam mechanism, and together they say the same
+thing: a jam is for setting up processor state, not for driving the machine.

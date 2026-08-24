@@ -3462,11 +3462,24 @@ module tb_display;
       $fatal(1, "DispY sees TIOADly %b%b%b%b%b, not 11111 -- the address did not cross the backplane",
              m.b_DispY.TIOADly_00, m.b_DispY.TIOADly_01, m.b_DispY.TIOADly_02,
              m.b_DispY.TIOADly_03, m.b_DispY.TIOADly_04);
-    // AND THE BOARD STILL DOES NOT SELECT, because IgnoreCommands is high.
-    // That is the next thing to clear, and it is why the sweep below forces it
-    // low: with the address right and IgnoreCommands high, TIOASaysDDC' stays
-    // deasserted. Find what sets IgnoreCommands -- a reset state the microcode
-    // clears, or a control register write.
+    // AND THE BOARD STILL DOES NOT SELECT, because IgnoreCommands is high --
+    // AND THAT IS BECAUSE THIS IS A JAM.
+    //
+    // DispY d01 is an MC10176 whose D5 (pin 12) is `IgnoreProcb`, clocked by
+    // clk1'Ab: `IgnoreCommands` is a REGISTERED COPY OF IgnoreProc. That is
+    // the same signal the memory section uses -- MemC b24 makes
+    // `WantProcRef' = IgnoreProc | ASEL.0` -- and it is asserted while the
+    // processor is being STEPPED.
+    //
+    // So a jam can set TIOA, because TIOA is processor state, and this bench
+    // proves it does. What a jam CANNOT do is make a device answer: every I/O
+    // board is told to ignore commands for exactly as long as the processor is
+    // being single-stepped. SLOW I/O MUST COME FROM RUNNING MICROCODE.
+    //
+    // That is a FOURTH entry on the list the T-write attempt started (see
+    // tb_taskrun's header): from IM not a jam because of ClrCT; the IM load in
+    // the startup for the same reason; the loop must keep tasking ON; and now,
+    // a device write must not be jammed because IgnoreProc blocks it.
     if (m.b_DispY.IgnoreCommands)
       $display("tb_display: OPEN -- address correct at the board, but IgnoreCommands=1 blocks the select");
 
