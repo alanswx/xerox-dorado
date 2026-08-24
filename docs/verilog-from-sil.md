@@ -1902,3 +1902,27 @@ independent statements of the same range.
 The HEAD task is simpler, which is why it already asks: `TWReq.03` is f01, an
 MC10135 JK flip-flop gated by `DHTShutUp` and `NLCBCommand'`, with no FIFO or
 WCB in the way.
+
+### The word task's condition is confirmed structurally (2026-08-24)
+
+Setting up a real WCB needs slow-I/O writes and microcode to drive them. What
+*can* be settled now is that the traced chain is right, by driving channel A's
+four inputs and watching `DWTWantsProc`:
+
+| channel A | `DWTWantsProc` |
+|---|---|
+| WCB flags set, FIFO **has room** | **1** |
+| same, FIFO **full** | **0** |
+
+So g11's OR-AND reading is correct and the word task asks exactly when a
+channel has work and somewhere to put it.
+
+**One trap, and it is the OR.** g11 ORs the **two channels**, so channel B has
+to be held inactive or it satisfies `DWTWantsProc` on its own. The first
+attempt measured **1 with A's FIFO empty and 1 with it full** — B was
+answering both times, and the result looked like "the traced condition is
+wrong" when the bench was simply asking the wrong question. Hold the other
+channel.
+
+`KillDWTWakeup` is forced inactive for the measurement too, so the D flip-flop
+is not being cleared while the question is asked.

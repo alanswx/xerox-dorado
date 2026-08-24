@@ -86,8 +86,6 @@ void Vtb_display___024root___nba_sequent__TOP__4(Vtb_display___024root* vlSelf) 
     tb_display__DOT__m__DOT__b_ProcL__DOT__ProcL18_sil_pl_2 = 0;
     CData/*0:0*/ tb_display__DOT__m__DOT__b_ProcL__DOT__ProcL18_sil_pl_3;
     tb_display__DOT__m__DOT__b_ProcL__DOT__ProcL18_sil_pl_3 = 0;
-    CData/*0:0*/ tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12;
-    tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12 = 0;
     CData/*0:0*/ tb_display__DOT__m__DOT__b_ProcL__DOT__u_d12__DOT__b1;
     tb_display__DOT__m__DOT__b_ProcL__DOT__u_d12__DOT__b1 = 0;
     CData/*0:0*/ tb_display__DOT__m__DOT__b_ProcL__DOT__u_d12__DOT____VdfgRegularize_h35e00a9f_0_1;
@@ -177,17 +175,6 @@ void Vtb_display___024root___nba_sequent__TOP__4(Vtb_display___024root* vlSelf) 
     CData/*4:0*/ __Vtableidx79;
     __Vtableidx79 = 0;
     // Body
-    tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12 
-        = (1U & ((~ ((~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa)) 
-                     | (IData)(vlSelfRef.tb_display__DOT__m__DOT__BMux_12))) 
-                 | ((~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa)) 
-                    & ((0U == (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_b04__DOT__sel))
-                        ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_e05__DOT__q)
-                        : ((1U == (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_b04__DOT__sel))
-                            ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_g07__DOT__q)
-                            : ((2U == (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_b04__DOT__sel))
-                                ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_i04__DOT__q)
-                                : (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_c11__DOT__q)))))));
     vlSelfRef.tb_display__DOT__m__DOT__dMD_08 = (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__MD_u_D)
                                                    ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__D_08)
                                                    : (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__u_h10__DOT__p10)) 
@@ -741,24 +728,24 @@ void Vtb_display___024root___nba_sequent__TOP__4(Vtb_display___024root* vlSelf) 
         = (1U & ((~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_h11__DOT__p7)) 
                  & (~ ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__FF_0a)
                         ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__FF_4a)
-                        : (IData)(tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12)))));
+                        : (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12)))));
     vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_3 
         = (1U & ((~ ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__CurrStkPVal_p_) 
                      | (~ ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__StkP_4) 
                            ^ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_k18__DOT__p9))))) 
                  | ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__CurrStkPVal_p_) 
                     & ((0U == (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                        ? (IData)(tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12)
+                        ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12)
                         : ((1U == (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                             ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_l18__DOT__q)
                             : ((2U == (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                                 ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_9)
                                 : (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_i17__DOT__q)))))));
     vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12a 
-        = ((IData)(tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12) 
+        = ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12) 
            | (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__u_c09__DOT__p5));
     tb_display__DOT__m__DOT__b_ProcL__DOT__u_f61__DOT__B 
-        = ((((IData)(tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12) 
+        = ((((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12) 
              << 3U) | ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__alub_13) 
                        << 2U)) | (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__alub_14) 
                                    << 1U) | (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcL__DOT__alub_15)));
@@ -5214,8 +5201,7 @@ void Vtb_display___024root___eval_nba(Vtb_display___024root* vlSelf) {
     Vtb_display__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    if ((0x0000000100000000ULL & vlSelfRef.__VnbaTriggered
-         [0U])) {
+    if ((4ULL & vlSelfRef.__VnbaTriggered[1U])) {
         Vtb_display___024root___nba_sequent__TOP__0(vlSelf);
         Vtb_display___024root___nba_sequent__TOP__1(vlSelf);
         Vtb_display___024root___nba_sequent__TOP__2(vlSelf);
@@ -5229,8 +5215,7 @@ void Vtb_display___024root___timing_commit(Vtb_display___024root* vlSelf) {
     Vtb_display__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    if ((! (0x0000000100000000ULL & vlSelfRef.__VactTriggered
-            [0U]))) {
+    if ((! (4ULL & vlSelfRef.__VactTriggered[1U]))) {
         vlSelfRef.__VtrigSched_h0bd61196__0.commit(
                                                    "@(posedge tb_display.sys_clk)");
     }
@@ -5241,18 +5226,16 @@ void Vtb_display___024root___timing_resume(Vtb_display___024root* vlSelf) {
     Vtb_display__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    if ((0x0000000100000000ULL & vlSelfRef.__VactTriggered
-         [0U])) {
+    if ((4ULL & vlSelfRef.__VactTriggered[1U])) {
         vlSelfRef.__VtrigSched_h0bd61196__0.resume(
                                                    "@(posedge tb_display.sys_clk)");
     }
-    if ((0x0000000200000000ULL & vlSelfRef.__VactTriggered
-         [0U])) {
+    if ((8ULL & vlSelfRef.__VactTriggered[1U])) {
         vlSelfRef.__VdlySched.resume();
     }
 }
 
-void Vtb_display___024root___trigger_orInto__act(VlUnpacked<QData/*63:0*/, 1> &out, const VlUnpacked<QData/*63:0*/, 1> &in) {
+void Vtb_display___024root___trigger_orInto__act(VlUnpacked<QData/*63:0*/, 2> &out, const VlUnpacked<QData/*63:0*/, 2> &in) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_display___024root___trigger_orInto__act\n"); );
     // Locals
     IData/*31:0*/ n;
@@ -5261,11 +5244,11 @@ void Vtb_display___024root___trigger_orInto__act(VlUnpacked<QData/*63:0*/, 1> &o
     do {
         out[n] = (out[n] | in[n]);
         n = ((IData)(1U) + n);
-    } while ((1U > n));
+    } while ((2U > n));
 }
 
 void Vtb_display___024root___eval_triggers__act(Vtb_display___024root* vlSelf);
-bool Vtb_display___024root___trigger_anySet__act(const VlUnpacked<QData/*63:0*/, 1> &in);
+bool Vtb_display___024root___trigger_anySet__act(const VlUnpacked<QData/*63:0*/, 2> &in);
 void Vtb_display___024root___eval_act(Vtb_display___024root* vlSelf);
 
 bool Vtb_display___024root___eval_phase__act(Vtb_display___024root* vlSelf) {
@@ -5286,7 +5269,7 @@ bool Vtb_display___024root___eval_phase__act(Vtb_display___024root* vlSelf) {
     return (__VactExecute);
 }
 
-void Vtb_display___024root___trigger_clear__act(VlUnpacked<QData/*63:0*/, 1> &out) {
+void Vtb_display___024root___trigger_clear__act(VlUnpacked<QData/*63:0*/, 2> &out) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_display___024root___trigger_clear__act\n"); );
     // Locals
     IData/*31:0*/ n;
@@ -5295,7 +5278,7 @@ void Vtb_display___024root___trigger_clear__act(VlUnpacked<QData/*63:0*/, 1> &ou
     do {
         out[n] = 0ULL;
         n = ((IData)(1U) + n);
-    } while ((1U > n));
+    } while ((2U > n));
 }
 
 bool Vtb_display___024root___eval_phase__nba(Vtb_display___024root* vlSelf) {
@@ -5314,7 +5297,7 @@ bool Vtb_display___024root___eval_phase__nba(Vtb_display___024root* vlSelf) {
 }
 
 #ifdef VL_DEBUG
-VL_ATTR_COLD void Vtb_display___024root___dump_triggers__act(const VlUnpacked<QData/*63:0*/, 1> &triggers, const std::string &tag);
+VL_ATTR_COLD void Vtb_display___024root___dump_triggers__act(const VlUnpacked<QData/*63:0*/, 2> &triggers, const std::string &tag);
 #endif  // VL_DEBUG
 
 void Vtb_display___024root___eval(Vtb_display___024root* vlSelf) {
