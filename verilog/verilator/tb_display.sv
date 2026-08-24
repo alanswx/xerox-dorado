@@ -1273,6 +1273,7 @@ module tb_display;
   integer n_coin_dmd, n_h05out, n_cwe, n_cce, n_d0in, n_dmd_ok, n_md_ok, n_dmd16, n_md16;
   integer n_we_fall, n_we_match, n_sind1, n_we_ones, n_we1, n_we1_ones, n_ce0, n_ce1;
   integer n_dyclk, n_twr11, n_wdht, n_tot; reg dyclk_d;
+  reg dwt_asserted, dwt_full;
   reg we_d_rb, we1_d;
   reg [11:0] dad_now, dad_at_write, dad_at_read, dad_ones;
   reg [17:0] dmd_cap, md_cap;
@@ -3359,6 +3360,50 @@ module tb_display;
     // task numbers the boards' own straps give.
     if (n_twr11 == 0)
       $display("tb_display: OPEN -- TWReq.11 never asserted; WakeDWT needs a display list to fetch");
+    // ---------------------------------------------------------------------
+    // THE WORD TASK'S CONDITION, checked structurally. Setting up a real WCB
+    // needs slow-I/O writes at DDCTIOA 0370-0377 and the microcode to drive
+    // them; what CAN be settled now is that the traced chain is right --
+    //
+    //   g11 (MC10117 OR-AND): per channel {CurrentWCBFlag', FifoNotFull',
+    //                         CurrentWCBFlag, NextWCBFlag'} -> DWTWantsProc
+    //   d03 (MC10231 D-FF):   DWTWantsProc -> TWReq.11, killed by
+    //                         KillDWTWakeup
+    //
+    // -- by driving channel A's four inputs and watching DWTWantsProc. The
+    // holdoff is forced inactive so the D flip-flop is not being cleared while
+    // the question is asked.
+    force m.b_DispY.KillDWTWakeup = 1'b0;
+    // g11 ORs the TWO CHANNELS, so channel B has to be held inactive or it
+    // satisfies DWTWantsProc on its own and channel A proves nothing. That is
+    // what the first attempt at this measured: 1 with A's FIFO empty AND 1
+    // with it full, because B was answering both times.
+    force m.b_DispY.BFifoNotFull_p_    = 1'b1;   // B's FIFO FULL
+    force m.b_DispY.BCurrentWCBFlag    = 1'b0;
+    force m.b_DispY.BCurrentWCBFlag_p_ = 1'b1;
+    force m.b_DispY.BNextWCBFlag_p_    = 1'b1;
+    force m.b_DispY.AFifoNotFull_p_    = 1'b0;   // FIFO HAS ROOM (active low)
+    force m.b_DispY.ACurrentWCBFlag    = 1'b1;
+    force m.b_DispY.ACurrentWCBFlag_p_ = 1'b0;
+    force m.b_DispY.ANextWCBFlag_p_    = 1'b0;
+    repeat (WT(200)) @(posedge sys_clk);
+    dwt_asserted = m.b_DispY.DWTWantsProc;
+    $display("tb_display: WORD TASK -- with channel A's WCB flags set and its FIFO not full, DWTWantsProc = %b",
+             dwt_asserted);
+    // ...and with the FIFO FULL it must drop, or the condition means nothing.
+    force m.b_DispY.AFifoNotFull_p_ = 1'b1;      // FIFO FULL
+    repeat (WT(200)) @(posedge sys_clk);
+    dwt_full = m.b_DispY.DWTWantsProc;
+    $display("tb_display:            ...and with the FIFO FULL, DWTWantsProc = %b", dwt_full);
+    release m.b_DispY.KillDWTWakeup;
+    release m.b_DispY.AFifoNotFull_p_;    release m.b_DispY.ACurrentWCBFlag;
+    release m.b_DispY.ACurrentWCBFlag_p_; release m.b_DispY.ANextWCBFlag_p_;
+    release m.b_DispY.BFifoNotFull_p_;    release m.b_DispY.BCurrentWCBFlag;
+    release m.b_DispY.BCurrentWCBFlag_p_; release m.b_DispY.BNextWCBFlag_p_;
+    if (dwt_asserted === dwt_full)
+      $fatal(1, "DWTWantsProc does not follow the FIFO (both %b) -- the traced condition is wrong",
+             dwt_asserted);
+
     $display("tb_display: PASS -- A WORD COMES OUT OF PARC'S STORAGE ARRAY:");
     $display("tb_display:   real microcode runs, the memory section sequences a DRAM cycle,");
     $display("tb_display:   the MK4096s are parallel-loaded into the SN74166s in the part's");
