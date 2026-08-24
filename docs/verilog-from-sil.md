@@ -1790,40 +1790,40 @@ What reads back is still zero — and the address turns out **not** to be
 broadly wrong. a03's twelve address pins read the SAME at the write and at the
 read (`110000000000` both), so the fill is not landing in an unrelated row.
 
-**What is wrong is ONE WORD, and it is clobbered rather than missed.**
+**THE FILL WORKS. What overwrites it is the bench's own loop.**
 
 With `+onesdram` every DRAM cell is 1, so every cache write carrying the
-fetched word is distinguishable from an empty array. The fill is then plainly
-a LINE fill of four consecutive words:
+fetched word is visible. Logging all 28 `WE'` falls with address *and* data
+tells the whole story:
 
 ```
-fill write #1 carries a 1 at Dad=110000000000   (3072)
-fill write #2 carries a 1 at Dad=110000000001
-fill write #3 carries a 1 at Dad=110000000010
-fill write #4 carries a 1 at Dad=110000000011
+WE#18-21   3072,3073,3074,3075   D0in=1 SinD=1    <- THE LINE FILL
+WE#26-29   3072 x4               D0in=0 SinD=0    <- the clobber
 ```
 
-and reading the array itself afterwards gives
+and the qualifiers separate them completely:
 
-```
-a03: [3072]=0  [3073]=1  [3074]=1  [3075]=1
-```
+| | `MISSa` | `CacheRefInA` | |
+|---|---|---|---|
+| WE#18 (fill) | **1** | 0 | a MISS — the fill |
+| WE#26 (clobber) | 0 | **1** | a HIT — the loop again |
 
-**Word 0 was written with a one and holds a zero.** The reference reads 3072,
-sees the zero, and `dMD` reports an empty cache.
+So the fill deposits the fetched word into **all four words of the line on a
+miss**, exactly as it should. The loop then comes round, references the same
+line, **hits** it now that it is present, and writes zero into word 0. The
+reference reads 3072 afterwards and sees that zero — which is why `dMD`
+reported an empty cache.
 
-Ruled out on the way, each by measurement:
+**That is stimulus, not RTL.** The four-instruction loop is `←Map / Store /
+Flush / quiet` and its Store carries no real data. To see a real fill return,
+sample `dMD` between the fill and the next iteration, or run a loop with no
+Store in it.
 
-- **The address is not broadly wrong** — write and read agree (`110000000000`).
-- **The bank is not wrong** — `D.00` wire-ORs a03 (D0) and d03 (D1). The fill
-  goes to D0, which is also the enabled one (`CE'` low on 84,639 samples
-  against d03's 1,296), and d03 takes 28 `WE'` falls carrying no ones at all.
-- **The data path is live** — `SinD` reaches `D0in` and the write port.
-
-**So something writes 3072 again with zero.** Of 28 `WE'` falls only 4 carry
-the fetched word; the other 24 write zeros, and one lands back on 3072 after
-the fill. Next: log every `WE'` fall with address *and* data, not just the
-ones carrying a one, and find the second visit to 3072.
+Ruled out on the way, each by measurement: the **address** (write and read
+agree at `110000000000`); the **bank** (`D.00` wire-ORs a03/D0 and d03/D1 —
+the fill goes to D0, which is also the enabled one, `CE'` low on 84,639
+samples against d03's 1,296); and the **data path** (`SinD` reaches `D0in` and
+the write port).
 
 (The qualification that made all of this visible: `D0in == SinD` is also true
 when both are zero, so an earlier 25-of-28 agreement was mostly zero matching
