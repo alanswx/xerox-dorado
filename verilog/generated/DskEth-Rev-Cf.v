@@ -133,7 +133,6 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     output wire DataP1__drv,
     output wire DataP2__drv,
     output wire DataP3__drv,
-    output wire DiskTW__drv,
     output wire DriveTag_p___drv,
     output wire HeadTag_p___drv,
     output wire IOB_00__drv,
@@ -174,6 +173,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     output wire Selected3_p___drv,
     output wire TWReq_06__drv,
     output wire TWReq_07__drv,
+    output wire TWReq_12__drv,
     output wire TagBus_0_p___drv,
     output wire TagBus_00_p___drv,
     output wire TagBus_000_p___drv,
@@ -2847,7 +2847,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p10(TriconD11_sil_pl_3),
     .p11(Clock0_p_Bc),
     .p13(DisableRun),
-    .p15(DiskTW__drv)
+    .p15(TWReq_12__drv)
   ); // MC10231
   cell_MC10231 u_e05 (
     .sys_clk(sys_clk),

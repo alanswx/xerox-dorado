@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ContA ContB ProcH ProcL MemC MemD MemX msa DskEth
-// 460 internal nets (63 with several contributors), 257 top-level ports.
+// 461 internal nets (63 with several contributors), 255 top-level ports.
 
 `default_nettype none
 
@@ -72,7 +72,6 @@ module dorado_disk #(parameter integer SYSPER = 16) (
     output wire DataP2                    ,  // to a backplane connector (cable)
     output wire DataP3                    ,  // to a backplane connector (cable)
     input  wire DcomingForCt_p_           ,  // to a backplane connector (cable)
-    output wire DiskTW                    ,  // to a backplane connector (cable)
     output wire DriveTag_p_               ,  // to a backplane connector (cable)
     output wire EcDcomingForCt_p_         ,  // to a backplane connector (cable)
     output wire EcOut_2                   ,  // to a backplane connector (cable)
@@ -246,7 +245,6 @@ module dorado_disk #(parameter integer SYSPER = 16) (
     input  wire TWReq_09                  ,  // to a backplane connector (cable)
     input  wire TWReq_10                  ,  // to a backplane connector (cable)
     input  wire TWReq_11                  ,  // to a backplane connector (cable)
-    input  wire TWReq_12                  ,  // to a backplane connector (cable)
     input  wire TWReq_13                  ,  // to a backplane connector (cable)
     input  wire TWReq_14                  ,  // to a backplane connector (cable)
     output wire TagBus_0_p_               ,  // to a backplane connector (cable)
@@ -278,7 +276,7 @@ module dorado_disk #(parameter integer SYSPER = 16) (
     output wire XmtData_p_                   // awaits BaseBd
 );
 
-  // 460 nets between boards, plus one contribution wire
+  // 461 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -632,6 +630,7 @@ module dorado_disk #(parameter integer SYSPER = 16) (
   wire TNIA_15;
   wire TWReq_06;
   wire TWReq_07;
+  wire TWReq_12;
   wire TWReq_15;
   wire TagInEc1;
   wire Transport_p_;
@@ -919,7 +918,6 @@ module dorado_disk #(parameter integer SYSPER = 16) (
   wire DdataGood_p___MemX;
   wire DirtyIoFetchInA_p___MemC;
   wire DisHold__MemC;
-  wire DiskTW__DskEth;
   wire DoCBr__ContA;
   wire DriveTag_p___DskEth;
   wire ECFault__MemD;
@@ -1325,6 +1323,7 @@ module dorado_disk #(parameter integer SYSPER = 16) (
   wire TNIA_15__ContA;
   wire TWReq_06__DskEth;
   wire TWReq_07__DskEth;
+  wire TWReq_12__DskEth;
   wire TWReq_15__MemX;
   wire TagBus_0_p___DskEth;
   wire TagBus_00_p___DskEth;
@@ -1556,7 +1555,6 @@ module dorado_disk #(parameter integer SYSPER = 16) (
   assign DdataGood_p_ = DdataGood_p___MemX;
   assign DirtyIoFetchInA_p_ = DirtyIoFetchInA_p___MemC;
   assign DisHold = DisHold__MemC;
-  assign DiskTW = DiskTW__DskEth;
   assign DoCBr = DoCBr__ContA;
   assign DriveTag_p_ = DriveTag_p___DskEth;
   assign ECFault = ECFault__MemD;
@@ -1931,6 +1929,7 @@ module dorado_disk #(parameter integer SYSPER = 16) (
   assign TNIA_15 = TNIA_15__ContA;
   assign TWReq_06 = TWReq_06__DskEth;
   assign TWReq_07 = TWReq_07__DskEth;
+  assign TWReq_12 = TWReq_12__DskEth;
   assign TWReq_15 = TWReq_15__MemX;
   assign TagBus_0_p_ = TagBus_0_p___DskEth;
   assign TagBus_00_p_ = TagBus_00_p___DskEth;
@@ -3797,7 +3796,6 @@ module dorado_disk #(parameter integer SYSPER = 16) (
     .DataP1__drv(DataP1__DskEth),
     .DataP2__drv(DataP2__DskEth),
     .DataP3__drv(DataP3__DskEth),
-    .DiskTW__drv(DiskTW__DskEth),
     .DriveTag_p___drv(DriveTag_p___DskEth),
     .HeadTag_p___drv(HeadTag_p___DskEth),
     .IOB_00__drv(IOB_00__DskEth),
@@ -3838,6 +3836,7 @@ module dorado_disk #(parameter integer SYSPER = 16) (
     .Selected3_p___drv(Selected3_p___DskEth),
     .TWReq_06__drv(TWReq_06__DskEth),
     .TWReq_07__drv(TWReq_07__DskEth),
+    .TWReq_12__drv(TWReq_12__DskEth),
     .TagBus_0_p___drv(TagBus_0_p___DskEth),
     .TagBus_00_p___drv(TagBus_00_p___DskEth),
     .TagBus_000_p___drv(TagBus_000_p___DskEth),
@@ -3883,7 +3882,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 142 signals, 32 at a time;
+// probe_val exposes 141 signals, 32 at a time;
 // dorado_disk.probes lists which bit is which.
 module dorado_disk_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
@@ -3916,7 +3915,6 @@ module dorado_disk_machine #(parameter integer SYSPER = 16) (
   wire DataP1;
   wire DataP2;
   wire DataP3;
-  wire DiskTW;
   wire DriveTag_p_;
   wire EcDcomingForCt_p_;
   wire EcOut_2;
@@ -4036,7 +4034,7 @@ module dorado_disk_machine #(parameter integer SYSPER = 16) (
   wire XmtData_p_;
 
   wire [159:0] probe = {
-    18'd0,
+    19'd0,
     XmtData_p_,
     TtlTerm_p_,
     TtlSeekInc_p_,
@@ -4154,7 +4152,6 @@ module dorado_disk_machine #(parameter integer SYSPER = 16) (
     EcOut_2,
     EcDcomingForCt_p_,
     DriveTag_p_,
-    DiskTW,
     DataP3,
     DataP2,
     DataP1,
@@ -4236,7 +4233,6 @@ module dorado_disk_machine #(parameter integer SYSPER = 16) (
     .DataP2(DataP2),
     .DataP3(DataP3),
     .DcomingForCt_p_(1'b0),
-    .DiskTW(DiskTW),
     .DriveTag_p_(DriveTag_p_),
     .EcDcomingForCt_p_(EcDcomingForCt_p_),
     .EcOut_2(EcOut_2),
@@ -4410,7 +4406,6 @@ module dorado_disk_machine #(parameter integer SYSPER = 16) (
     .TWReq_09(1'b0),
     .TWReq_10(1'b0),
     .TWReq_11(1'b0),
-    .TWReq_12(1'b0),
     .TWReq_13(1'b0),
     .TWReq_14(1'b0),
     .TagBus_0_p_(TagBus_0_p_),
