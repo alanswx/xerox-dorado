@@ -25,30 +25,40 @@
 // executes -- IOBout strobes 960 times with alub = 5a5a, the same as on the
 // display machine.
 //
-// NOT WORKING, AND NARROWED TO THE BOARD. `TIOA <- B` leaves TIOA at
-// 00000000 here, where the IDENTICAL sequence on `dorado_display` gives
-// 11111000. Measured side by side, same jam, same operand:
+// NOT WORKING, AND THE ACCOUNT OF IT HAS BEEN WRONG TWICE. What is measured:
 //
 //                       T at the write      TIOA after
 //     dorado_display        f800             11111000
 //     dorado_disk           f800             00000000
 //
-// SO IT IS NOT THE BENCH AND NOT THE PROCESSOR -- T is identical, the jam is
-// identical, and only the I/O board differs. The board's PRESENCE is changing
-// the TIOA net, and everything downstream (the select, the TIOA-Ad compare)
-// is moot until that is understood.
+// IDENTICAL STIMULUS. Both benches load 0xF800 and jam the same TIOA<-B, and
+// TIOA lands on one machine and not the other.
 //
-// Where to look: TIOA crosses the backplane as a wired-OR, and DskEth carries
-// SIP pull networks -- the same class of thing that once made six active-low
-// drive-status lines read ASSERTED and fabricated a disk that was not
-// attached (sip_drives in sil_to_verilog.py). Check what DskEth contributes
-// to TIOA.0-4's driver tree, and whether it is input-only on those nets as
-// DispY effectively is. Do NOT start from the DskEth register end.
+// TWO RETRACTIONS, both worth keeping so the next attempt does not repeat
+// them:
 //
-// SECOND, SMALLER BUG, not to be confused with the first: this bench's
-// post-run section still loads 0xF800, so its "want 00001000" message
-// compares against the wrong expectation -- it should want 370B there. The
-// 00000000 is the real anomaly.
+//   1. "The board's presence changes the TIOA net" -- NO. TIOA.0 is DRIVEN by
+//      ProcH g10 (an F10000) and merely LOADED by both DskEth (e01.10) and
+//      DispY (e01.5). Neither I/O board drives it, so there is no driver
+//      difference to appeal to.
+//
+//   2. "This bench writes the disk's address 010B" -- NO. The edit that was
+//      supposed to retarget it silently did not apply; only its COMMENT and
+//      its "want 00001000" message did. Line ~2699 still loads 0xF800. So the
+//      two machines have been running the same stimulus all along -- which is
+//      what makes the comparison above valid, but for a different reason than
+//      was claimed.
+//
+// SO THE ANOMALY IS REAL AND UNEXPLAINED: same operand, same jam, no driver
+// difference on the net, and TIOA is 0 on the disk machine. Start by asking
+// whether the JAM ITSELF executes here -- DskEth's presence could be holding
+// the processor (it drives hold lines the display board does not), and a jam
+// that never runs writes nothing. Measure the hold lines and the clk0' edge
+// count on both machines before touching TIOA again.
+//
+// AND CHECK THAT AN EDIT APPLIED. Two silent no-op edits in this file alone
+// produced two wrong conclusions; an edit that does not throw is not an edit
+// that landed.
 //
 // The derivation from tb_display neutralised a number of DispY-only signals to
 // constants (IgnoreCommands among them -- it reads 140559 of 140559 precisely
@@ -2713,7 +2723,12 @@ module tb_disk;
                  m.b_ProcH.Q_04, m.b_ProcH.Q_05, m.b_ProcH.Q_06, m.b_ProcH.Q_07,
                  m.b_ProcL.Q_08, m.b_ProcL.Q_09, m.b_ProcL.Q_10, m.b_ProcL.Q_11,
                  m.b_ProcL.Q_12, m.b_ProcL.Q_13, m.b_ProcL.Q_14, m.b_ProcL.Q_15};
-        $display("tb_disk: +slowio -- T and Q loaded for the loop (Q = %h, want 5a5a)", q_pre);
+        $display("tb_disk: +slowio -- T = %h (want 0800), Q = %h (want 5a5a)",
+               {m.b_ProcH.T_00, m.b_ProcH.T_01, m.b_ProcH.T_02, m.b_ProcH.T_03,
+                m.b_ProcH.T_04, m.b_ProcH.T_05, m.b_ProcH.T_06, m.b_ProcH.T_07,
+                m.b_ProcL.T_08, m.b_ProcL.T_09, m.b_ProcL.T_10, m.b_ProcL.T_11,
+                m.b_ProcL.T_12, m.b_ProcL.T_13, m.b_ProcL.T_14, m.b_ProcL.T_15},
+               q_pre);
 
     end
     // ARE THE FOUR COPIES ACTUALLY IDENTICAL? IM is four INTERLEAVED banks --
