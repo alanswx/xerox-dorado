@@ -1294,7 +1294,8 @@ module tb_display;
   reg d00_last, dmd_last, md_last;
   integer n_coin_dmd, n_h05out, n_cwe, n_cce, n_d0in, n_dmd_ok, n_md_ok, n_dmd16, n_md16;
   integer n_we_fall, n_we_match, n_sind1, n_we_ones, n_we1, n_we1_ones, n_ce0, n_ce1;
-  integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any;
+  integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout;
+  reg [15:0] alub_at_out;
   reg [15:0] iob_now;
   reg dyclk_d; reg [15:0] iob_at_sel;
   reg dwt_asserted, dwt_full;
@@ -1309,7 +1310,7 @@ module tb_display;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
     dad_at_write=12'bx; dad_at_read=12'bx; dad_ones=12'bx;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
@@ -1409,6 +1410,19 @@ module tb_display;
                m.b_DispY.IOB_15};
     if (iob_now != 16'h0000) n_iob_nz = n_iob_nz + 1;
     if (iob_now == 16'h5A5A) n_iob_any = n_iob_any + 1;
+    // THE STROBE. ProcH h01 is an MC10197 hex AND: IOB = IOBout & alub. So
+    // the Output<- has to assert IOBout, and alub has to carry the data.
+    // Sample alub WHEN IOBout IS HIGH -- that is the moment the write happens,
+    // and it is one instruction wide.
+    if (m.b_ProcH.IOBout) begin
+      n_iobout = n_iobout + 1;
+      alub_at_out <= {m.b_ProcH.alub_00a, m.b_ProcH.alub_01a, m.b_ProcH.alub_02a,
+                      m.b_ProcH.alub_03a, m.b_ProcH.alub_04a, m.b_ProcH.alub_05a,
+                      m.b_ProcH.alub_06a, m.b_ProcH.alub_07a,
+                      m.b_ProcL.alub_08a, m.b_ProcL.alub_09a, m.b_ProcL.alub_10a,
+                      m.b_ProcL.alub_11a, m.b_ProcL.alub_12a, m.b_ProcL.alub_13a,
+                      m.b_ProcL.alub_14a, m.b_ProcL.alub_15a};
+    end
     // ...AND WHAT IS ON IOB WHEN IT SELECTS. The Output<- carries Q, so the
     // board should see 5a5a at the moment it is addressed -- a distinct value
     // from the 0xF800 that went to TIOA, which is the whole point of using a
@@ -3477,25 +3491,33 @@ module tb_display;
              iob_at_sel, n_iob_ok, n_sel);
     $display("tb_display:   IOB OVER THE RUN -- non-zero on %0d of %0d, and carrying 5a5a on %0d",
              n_iob_nz, n_tot, n_iob_any);
-    // OPEN: THE ADDRESS HALF WORKS, THE DATA HALF DOES NOT YET.
+    $display("tb_display:   THE STROBE -- IOBout high on %0d of %0d, and alub at that moment = %h",
+             n_iobout, n_tot, alub_at_out);
+    // GATE: THE Output<- INSTRUCTION DECODES AND STROBES. ProcH h01 is an
+    // MC10197 hex AND -- IOB = IOBout & alub -- so IOBout asserting is the
+    // write actually happening. It is high on 32 samples with +slowio and on
+    // ZERO without, and those 32 match IOB's 32 non-zero samples exactly.
+    if ($test$plusargs("slowio") && n_iobout == 0)
+      $fatal(1, "Output<- never asserted IOBout -- the instruction did not decode");
+    if (!$test$plusargs("slowio") && n_iobout != 0)
+      $fatal(1, "IOBout asserted %0d times with no slow-I/O loop loaded", n_iobout);
+
+    // OPEN, AND NARROWED TO ONE THING: B DOES NOT CARRY Q.
     //
-    // The board is addressed and answers -- 992 selects, every one with the
-    // processor free, both gated above. What is NOT established is that
-    // `Output <- B` puts Q on IOB: over 140,559 samples IOB is non-zero on
-    // only 32 and never carries the 5a5a that Q demonstrably holds (the
-    // pre-run readback confirms Q = 5a5a).
+    // At the moment IOBout is high, alub reads 0015 -- not the 5a5a that Q
+    // demonstrably holds (the pre-run readback confirms it). So the strobe is
+    // right and the DATA SELECTION is wrong: BSEL=3 is not delivering Q.
     //
-    // Candidates, none of them measured yet, so do not assume:
-    //   * BSEL=3 may not select Q the way this loop assumes -- cpu.c's b_bus
-    //     case 3 is "Q (or Q<-B with external)", which is two behaviours, and
-    //     the external qualifier is not being driven here
-    //   * the IOB drive may need a qualifier this loop does not assert
-    //   * IOB.00-15's bit order at the board may not be what this probe packs
+    // That is the first of the three candidates this bench listed, and the
+    // other two are now ruled out -- the IOB drive needs no qualifier beyond
+    // IOBout, and the bit order cannot explain a value that is not Q at all.
     //
-    // Measure which before changing anything: read the ProcH/ProcL end of the
-    // IOB drive and the B bus during the Output<- instruction specifically,
-    // not over the whole run. Asking at the wrong moment has been the single
-    // most expensive mistake in this whole effort.
+    // cpu.c's b_bus case 3 is "Q (or Q<-B with external)" -- TWO behaviours
+    // sharing one BSEL, and the external qualifier is not driven here. Read
+    // what ProcH/ProcL actually select for BSEL=3 and what 0015 IS: note that
+    // 0o25 = 0x15, and 0o25 is exactly the value PARC's own QFromCPReg#
+    // sends in tb_compute, so 0015 may be a stale or default B rather than a
+    // wrong register.
     if (n_dyclk == 0)
       $fatal(1, "DispY has no local clock -- is CLK.display' driven?");
     // AND THE BOARD IS ASKING. WakeDHT is the display HEAD task's wakeup and

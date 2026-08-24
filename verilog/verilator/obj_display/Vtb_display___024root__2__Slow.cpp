@@ -389,6 +389,8 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->tb_display__DOT__n_iob_ok = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 1322830331332131347ull);
     vlSelf->tb_display__DOT__n_iob_nz = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 18280814785861325482ull);
     vlSelf->tb_display__DOT__n_iob_any = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 2114929627630856819ull);
+    vlSelf->tb_display__DOT__n_iobout = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 12068226812681659747ull);
+    vlSelf->tb_display__DOT__alub_at_out = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 7170325141403375789ull);
     vlSelf->tb_display__DOT__dyclk_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4474622229507147579ull);
     vlSelf->tb_display__DOT__iob_at_sel = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 10270675783082874841ull);
     vlSelf->tb_display__DOT__q_pre = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 14287005866625217829ull);
@@ -3962,7 +3964,6 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_11 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12659520457647042941ull);
     vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_11a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14740262050146708838ull);
     vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5882672272725919527ull);
-    vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_13 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7110153629600440805ull);
     vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_13a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6902130081418706747ull);
     vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_14 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5149390233552692355ull);
     vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_14a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9370222770299723624ull);
@@ -4675,7 +4676,11 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->tb_display__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_3 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12689433695596354777ull);
     vlSelf->tb_display__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_6 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 405599312431655981ull);
     vlSelf->tb_display__DOT__m__DOT__b_MemC__DOT__MemC16_sil_pl_2 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3172811982759675283ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_10 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 328474768447642061ull);
     vlSelf->tb_display__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_4 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2976880975014771738ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_6 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15455083099407621750ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_7 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9584667457482297393ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_9 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16223177611364569168ull);
     vlSelf->tb_display__DOT__m__DOT__b_MemC__DOT__MemC18_sil_pl_1 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11666355911405798078ull);
     vlSelf->tb_display__DOT__m__DOT__b_MemC__DOT__MemC18_sil_pl_6 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8952078998208943259ull);
     vlSelf->tb_display__DOT__m__DOT__b_MemC__DOT__MemC19_sil_pl_5 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8008312650506039201ull);
@@ -9767,6 +9772,8 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->__Vtask_tb_display__DOT__parc_micro__426__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
     vlSelf->__Vtask_tb_display__DOT__strobe__427__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
     vlSelf->__Vtask_tb_display__DOT__parc_micro__2771__b1 = 0;
+    vlSelf->__Vtask_tb_display__DOT__parc_micro__2771__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
+    vlSelf->__Vfunc_tb_display__DOT__WT__2813__Vfuncout = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;
