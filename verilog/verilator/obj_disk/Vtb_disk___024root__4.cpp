@@ -1805,14 +1805,10 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
     __Vfunc_tb_disk__DOT__WT__2759__Vfuncout = 0;
     IData/*31:0*/ __Vfunc_tb_disk__DOT__WT__2759__n;
     __Vfunc_tb_disk__DOT__WT__2759__n = 0;
-    IData/*31:0*/ __Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0;
-    __Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
     IData/*31:0*/ __Vfunc_tb_disk__DOT__WT__2761__Vfuncout;
     __Vfunc_tb_disk__DOT__WT__2761__Vfuncout = 0;
     IData/*31:0*/ __Vfunc_tb_disk__DOT__WT__2761__n;
     __Vfunc_tb_disk__DOT__WT__2761__n = 0;
-    IData/*31:0*/ __Vfunc_tb_disk__DOT__WT__2762__n;
-    __Vfunc_tb_disk__DOT__WT__2762__n = 0;
     // Body
     VL_WRITEF_NX("tb_disk:   IM[0] L=%x R=%x   IM[1] L=%x R=%x\n",0,
                  16,([&]() {
@@ -4101,7 +4097,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                                  nullptr, 
                                                                  "@(posedge tb_disk.sys_clk)", 
                                                                  "verilog/verilator/tb_disk.sv", 
-                                                                 1682);
+                                                                 1710);
             __Vtask_tb_disk__DOT__manifold__2528__tb_disk__DOT__unnamedblk1_4__DOT____Vrepeat3 
                 = (__Vtask_tb_disk__DOT__manifold__2528__tb_disk__DOT__unnamedblk1_4__DOT____Vrepeat3 
                    - (IData)(1U));
@@ -4122,7 +4118,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                                  nullptr, 
                                                                  "@(posedge tb_disk.sys_clk)", 
                                                                  "verilog/verilator/tb_disk.sv", 
-                                                                 1683);
+                                                                 1711);
             __Vtask_tb_disk__DOT__manifold__2528__tb_disk__DOT__unnamedblk1_5__DOT____Vrepeat4 
                 = (__Vtask_tb_disk__DOT__manifold__2528__tb_disk__DOT__unnamedblk1_5__DOT____Vrepeat4 
                    - (IData)(1U));
@@ -4143,7 +4139,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                                  nullptr, 
                                                                  "@(posedge tb_disk.sys_clk)", 
                                                                  "verilog/verilator/tb_disk.sv", 
-                                                                 1684);
+                                                                 1712);
             __Vtask_tb_disk__DOT__manifold__2528__tb_disk__DOT__unnamedblk1_6__DOT____Vrepeat5 
                 = (__Vtask_tb_disk__DOT__manifold__2528__tb_disk__DOT__unnamedblk1_6__DOT____Vrepeat5 
                    - (IData)(1U));
@@ -4167,7 +4163,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1686);
+                                                             1714);
         __Vtask_tb_disk__DOT__manifold__2528__tb_disk__DOT__unnamedblk1_7__DOT____Vrepeat6 
             = (__Vtask_tb_disk__DOT__manifold__2528__tb_disk__DOT__unnamedblk1_7__DOT____Vrepeat6 
                - (IData)(1U));
@@ -4188,7 +4184,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1687);
+                                                             1715);
         __Vtask_tb_disk__DOT__manifold__2528__tb_disk__DOT__unnamedblk1_8__DOT____Vrepeat7 
             = (__Vtask_tb_disk__DOT__manifold__2528__tb_disk__DOT__unnamedblk1_8__DOT____Vrepeat7 
                - (IData)(1U));
@@ -4222,7 +4218,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                                  nullptr, 
                                                                  "@(posedge tb_disk.sys_clk)", 
                                                                  "verilog/verilator/tb_disk.sv", 
-                                                                 1682);
+                                                                 1710);
             __Vtask_tb_disk__DOT__manifold__2534__tb_disk__DOT__unnamedblk1_4__DOT____Vrepeat3 
                 = (__Vtask_tb_disk__DOT__manifold__2534__tb_disk__DOT__unnamedblk1_4__DOT____Vrepeat3 
                    - (IData)(1U));
@@ -4243,7 +4239,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                                  nullptr, 
                                                                  "@(posedge tb_disk.sys_clk)", 
                                                                  "verilog/verilator/tb_disk.sv", 
-                                                                 1683);
+                                                                 1711);
             __Vtask_tb_disk__DOT__manifold__2534__tb_disk__DOT__unnamedblk1_5__DOT____Vrepeat4 
                 = (__Vtask_tb_disk__DOT__manifold__2534__tb_disk__DOT__unnamedblk1_5__DOT____Vrepeat4 
                    - (IData)(1U));
@@ -4264,7 +4260,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                                  nullptr, 
                                                                  "@(posedge tb_disk.sys_clk)", 
                                                                  "verilog/verilator/tb_disk.sv", 
-                                                                 1684);
+                                                                 1712);
             __Vtask_tb_disk__DOT__manifold__2534__tb_disk__DOT__unnamedblk1_6__DOT____Vrepeat5 
                 = (__Vtask_tb_disk__DOT__manifold__2534__tb_disk__DOT__unnamedblk1_6__DOT____Vrepeat5 
                    - (IData)(1U));
@@ -4288,7 +4284,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1686);
+                                                             1714);
         __Vtask_tb_disk__DOT__manifold__2534__tb_disk__DOT__unnamedblk1_7__DOT____Vrepeat6 
             = (__Vtask_tb_disk__DOT__manifold__2534__tb_disk__DOT__unnamedblk1_7__DOT____Vrepeat6 
                - (IData)(1U));
@@ -4309,7 +4305,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1687);
+                                                             1715);
         __Vtask_tb_disk__DOT__manifold__2534__tb_disk__DOT__unnamedblk1_8__DOT____Vrepeat7 
             = (__Vtask_tb_disk__DOT__manifold__2534__tb_disk__DOT__unnamedblk1_8__DOT____Vrepeat7 
                - (IData)(1U));
@@ -4394,7 +4390,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2541__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2541__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4413,7 +4409,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2541__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2541__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4436,7 +4432,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2541__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2541__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4464,7 +4460,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2545__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2545__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4483,7 +4479,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2545__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2545__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4506,7 +4502,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2545__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2545__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4544,7 +4540,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2550__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2550__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4563,7 +4559,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2550__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2550__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4586,7 +4582,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2550__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2550__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4597,7 +4593,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2241);
+                                                             2269);
         __Vtask_tb_disk__DOT__parc_micro__2549__tb_disk__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_disk__DOT__parc_micro__2549__tb_disk__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -4624,7 +4620,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2554__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2554__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4643,7 +4639,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2554__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2554__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4666,7 +4662,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2554__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2554__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4677,7 +4673,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2243);
+                                                             2271);
         __Vtask_tb_disk__DOT__parc_micro__2549__tb_disk__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_disk__DOT__parc_micro__2549__tb_disk__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -4704,7 +4700,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2558__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2558__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4723,7 +4719,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2558__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2558__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4746,7 +4742,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2558__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2558__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4757,7 +4753,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2245);
+                                                             2273);
         __Vtask_tb_disk__DOT__parc_micro__2549__tb_disk__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_disk__DOT__parc_micro__2549__tb_disk__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -4786,7 +4782,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2562__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2562__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4805,7 +4801,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2562__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2562__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4828,7 +4824,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2562__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2562__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4857,7 +4853,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2566__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2566__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4876,7 +4872,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2566__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2566__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4899,7 +4895,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2566__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2566__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4928,7 +4924,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2570__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2570__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4947,7 +4943,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2570__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2570__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4970,7 +4966,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2570__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2570__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4999,7 +4995,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2574__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2574__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5018,7 +5014,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2574__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2574__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5041,7 +5037,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2574__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2574__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5071,7 +5067,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2579__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2579__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5090,7 +5086,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2579__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2579__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5113,7 +5109,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2579__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2579__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5124,7 +5120,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2253);
+                                                             2281);
         __Vtask_tb_disk__DOT__parc_micro__2549__tb_disk__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_disk__DOT__parc_micro__2549__tb_disk__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -5151,7 +5147,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2583__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2583__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5170,7 +5166,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2583__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2583__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5193,7 +5189,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2583__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2583__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5204,7 +5200,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2255);
+                                                             2283);
         __Vtask_tb_disk__DOT__parc_micro__2549__tb_disk__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_disk__DOT__parc_micro__2549__tb_disk__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -5231,7 +5227,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2587__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2587__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5250,7 +5246,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2587__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2587__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5273,7 +5269,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2587__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2587__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5291,7 +5287,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2257);
+                                                             2285);
         __Vtask_tb_disk__DOT__parc_micro__2549__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_disk__DOT__parc_micro__2549__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -5355,7 +5351,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2594__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2594__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5374,7 +5370,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2594__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2594__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5397,7 +5393,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2594__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2594__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5408,7 +5404,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2241);
+                                                             2269);
         __Vtask_tb_disk__DOT__parc_micro__2593__tb_disk__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_disk__DOT__parc_micro__2593__tb_disk__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -5435,7 +5431,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2598__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2598__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5454,7 +5450,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2598__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2598__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5477,7 +5473,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2598__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2598__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5488,7 +5484,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2243);
+                                                             2271);
         __Vtask_tb_disk__DOT__parc_micro__2593__tb_disk__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_disk__DOT__parc_micro__2593__tb_disk__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -5515,7 +5511,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2602__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2602__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5534,7 +5530,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2602__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2602__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5557,7 +5553,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2602__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2602__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5568,7 +5564,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2245);
+                                                             2273);
         __Vtask_tb_disk__DOT__parc_micro__2593__tb_disk__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_disk__DOT__parc_micro__2593__tb_disk__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -5597,7 +5593,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2606__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2606__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5616,7 +5612,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2606__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2606__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5639,7 +5635,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2606__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2606__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5668,7 +5664,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2610__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2610__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5687,7 +5683,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2610__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2610__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5710,7 +5706,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2610__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2610__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5739,7 +5735,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2614__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2614__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5758,7 +5754,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2614__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2614__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5781,7 +5777,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2614__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2614__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5810,7 +5806,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2618__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2618__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5829,7 +5825,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2618__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2618__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5852,7 +5848,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2618__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2618__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5882,7 +5878,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2623__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2623__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5901,7 +5897,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2623__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2623__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5924,7 +5920,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2623__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2623__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5935,7 +5931,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2253);
+                                                             2281);
         __Vtask_tb_disk__DOT__parc_micro__2593__tb_disk__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_disk__DOT__parc_micro__2593__tb_disk__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -5962,7 +5958,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2627__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2627__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5981,7 +5977,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2627__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2627__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6004,7 +6000,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2627__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2627__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6015,7 +6011,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2255);
+                                                             2283);
         __Vtask_tb_disk__DOT__parc_micro__2593__tb_disk__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_disk__DOT__parc_micro__2593__tb_disk__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -6042,7 +6038,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2631__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2631__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6061,7 +6057,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2631__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2631__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6084,7 +6080,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2631__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2631__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6102,7 +6098,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2257);
+                                                             2285);
         __Vtask_tb_disk__DOT__parc_micro__2593__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_disk__DOT__parc_micro__2593__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -6168,7 +6164,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2637__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2637__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6187,7 +6183,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2637__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2637__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6210,7 +6206,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2637__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2637__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6221,7 +6217,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2521);
+                                                             2549);
         __Vtask_tb_disk__DOT__parc_run__2636__tb_disk__DOT__unnamedblk1_24__DOT____Vrepeat23 
             = (__Vtask_tb_disk__DOT__parc_run__2636__tb_disk__DOT__unnamedblk1_24__DOT____Vrepeat23 
                - (IData)(1U));
@@ -6248,7 +6244,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2641__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2641__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6267,7 +6263,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2641__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2641__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6290,7 +6286,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2641__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2641__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6301,7 +6297,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2523);
+                                                             2551);
         __Vtask_tb_disk__DOT__parc_run__2636__tb_disk__DOT__unnamedblk1_25__DOT____Vrepeat24 
             = (__Vtask_tb_disk__DOT__parc_run__2636__tb_disk__DOT__unnamedblk1_25__DOT____Vrepeat24 
                - (IData)(1U));
@@ -6328,7 +6324,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2645__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2645__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6347,7 +6343,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2645__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2645__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6370,7 +6366,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2645__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2645__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6381,7 +6377,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2525);
+                                                             2553);
         __Vtask_tb_disk__DOT__parc_run__2636__tb_disk__DOT__unnamedblk1_26__DOT____Vrepeat25 
             = (__Vtask_tb_disk__DOT__parc_run__2636__tb_disk__DOT__unnamedblk1_26__DOT____Vrepeat25 
                - (IData)(1U));
@@ -6410,7 +6406,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2649__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2649__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6429,7 +6425,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2649__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2649__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6452,7 +6448,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2649__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2649__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6481,7 +6477,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2653__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2653__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6500,7 +6496,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2653__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2653__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6523,7 +6519,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2653__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2653__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6552,7 +6548,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2657__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2657__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6571,7 +6567,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2657__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2657__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6594,7 +6590,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2657__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2657__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6623,7 +6619,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2661__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2661__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6642,7 +6638,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2661__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2661__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6665,7 +6661,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2661__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2661__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6677,7 +6673,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2531);
+                                                             2559);
         __Vtask_tb_disk__DOT__parc_run__2636__tb_disk__DOT__unnamedblk1_27__DOT____Vrepeat26 
             = (__Vtask_tb_disk__DOT__parc_run__2636__tb_disk__DOT__unnamedblk1_27__DOT____Vrepeat26 
                - (IData)(1U));
@@ -6704,7 +6700,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2665__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2665__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6723,7 +6719,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2665__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2665__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6746,7 +6742,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2665__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2665__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -7115,7 +7111,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2893);
+                                                             2921);
         if (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__clk0_p_Ca) 
              != (IData)(vlSelfRef.tb_disk__DOT__p0))) {
             tb_disk__DOT__n0a = ((IData)(1U) + tb_disk__DOT__n0a);
@@ -8854,7 +8850,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                                  nullptr, 
                                                                  "@(posedge tb_disk.sys_clk)", 
                                                                  "verilog/verilator/tb_disk.sv", 
-                                                                 3557);
+                                                                 3585);
             tb_disk__DOT__unnamedblk1_29__DOT____Vrepeat28 
                 = (tb_disk__DOT__unnamedblk1_29__DOT____Vrepeat28 
                    - (IData)(1U));
@@ -8920,7 +8916,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             3574);
+                                                             3602);
         tb_disk__DOT__unnamedblk1_30__DOT____Vrepeat29 
             = (tb_disk__DOT__unnamedblk1_30__DOT____Vrepeat29 
                - (IData)(1U));
@@ -9021,45 +9017,51 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                  vlSelfRef.tb_disk__DOT__n_wdht);
     if (VL_TESTPLUSARGS_I("slowio"s)) {
         if (VL_UNLIKELY(((0U == vlSelfRef.tb_disk__DOT__n_sel)))) {
-            VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3652: Assertion failed in %Ntb_disk: DskEth never selected -- no command reached the board at 010B\n",0,
+            VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3680: Assertion failed in %Ntb_disk: DskEth never selected -- no command reached the board at 010B\n",0,
                          64,VL_TIME_UNITED_Q(1),-12,
                          vlSymsp->name());
-            VL_STOP_MT("verilog/verilator/tb_disk.sv", 3652, "", false);
+            VL_STOP_MT("verilog/verilator/tb_disk.sv", 3680, "", false);
         }
         if (VL_UNLIKELY(((vlSelfRef.tb_disk__DOT__n_sel 
                           != vlSelfRef.tb_disk__DOT__n_sel_free)))) {
-            VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3654: Assertion failed in %Ntb_disk: DskEth selected on %0d samples but only %0d with the processor free\n",0,
+            VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3682: Assertion failed in %Ntb_disk: DskEth selected on %0d samples but only %0d with the processor free\n",0,
                          64,VL_TIME_UNITED_Q(1),-12,
                          vlSymsp->name(),32,vlSelfRef.tb_disk__DOT__n_sel,
                          32,vlSelfRef.tb_disk__DOT__n_sel_free);
-            VL_STOP_MT("verilog/verilator/tb_disk.sv", 3654, "", false);
+            VL_STOP_MT("verilog/verilator/tb_disk.sv", 3682, "", false);
         }
         if (VL_UNLIKELY(((0U == vlSelfRef.tb_disk__DOT__n_r_cont)))) {
-            VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3661: Assertion failed in %Ntb_disk: TIOA=Cont' never asserted -- the write reached the board but no register\n",0,
+            VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3689: Assertion failed in %Ntb_disk: TIOA=Cont' never asserted -- the write reached the board but no register\n",0,
                          64,VL_TIME_UNITED_Q(1),-12,
                          vlSymsp->name());
-            VL_STOP_MT("verilog/verilator/tb_disk.sv", 3661, "", false);
+            VL_STOP_MT("verilog/verilator/tb_disk.sv", 3689, "", false);
         }
         if (VL_UNLIKELY((((((0U != vlSelfRef.tb_disk__DOT__n_r_muff) 
                             | (0U != vlSelfRef.tb_disk__DOT__n_r_data)) 
                            | (0U != vlSelfRef.tb_disk__DOT__n_r_ram)) 
                           | (0U != vlSelfRef.tb_disk__DOT__n_r_tag))))) {
-            VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3663: Assertion failed in %Ntb_disk: a write to 010B also selected Muff %0d Data %0d Ram %0d Tag %0d\n",0,
+            VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3691: Assertion failed in %Ntb_disk: a write to 010B also selected Muff %0d Data %0d Ram %0d Tag %0d\n",0,
                          64,VL_TIME_UNITED_Q(1),-12,
                          vlSymsp->name(),32,vlSelfRef.tb_disk__DOT__n_r_muff,
                          32,vlSelfRef.tb_disk__DOT__n_r_data,
                          32,vlSelfRef.tb_disk__DOT__n_r_ram,
                          32,vlSelfRef.tb_disk__DOT__n_r_tag);
-            VL_STOP_MT("verilog/verilator/tb_disk.sv", 3663, "", false);
+            VL_STOP_MT("verilog/verilator/tb_disk.sv", 3691, "", false);
+        }
+        if (VL_UNLIKELY(((0U == vlSelfRef.tb_disk__DOT__n_tioa_out10)))) {
+            VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3701: Assertion failed in %Ntb_disk: no IOBout strobe found TIOA = 010B: the address never survives to the data\n",0,
+                         64,VL_TIME_UNITED_Q(1),-12,
+                         vlSymsp->name());
+            VL_STOP_MT("verilog/verilator/tb_disk.sv", 3701, "", false);
         }
     }
     if (VL_UNLIKELY(((vlSelfRef.tb_disk__DOT__n_sel 
                       != vlSelfRef.tb_disk__DOT__n_sel_free)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3668: Assertion failed in %Ntb_disk: DskEth selected on %0d samples but only %0d with the processor free -- a stepped processor must not reach a device\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3705: Assertion failed in %Ntb_disk: DskEth selected on %0d samples but only %0d with the processor free -- a stepped processor must not reach a device\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,vlSelfRef.tb_disk__DOT__n_sel,
                      32,vlSelfRef.tb_disk__DOT__n_sel_free);
-        VL_STOP_MT("verilog/verilator/tb_disk.sv", 3668, "", false);
+        VL_STOP_MT("verilog/verilator/tb_disk.sv", 3705, "", false);
     }
     VL_WRITEF_NX("tb_disk:   DURING THE RUN -- IgnoreCommands LOW on %0d of %0d, board SELECTED on %0d, and selected while free on %0d\ntb_disk:   REGISTER DECODE -- Cont %0d, Muff %0d, Data %0d, Ram %0d, Tag %0d (of %0d selects)\ntb_disk:   IOB AT SELECT -- last %x, and %0d of %0d selects carried 5a5a\ntb_disk:   IOB OVER THE RUN -- non-zero on %0d of %0d, and carrying 5a5a on %0d\ntb_disk:   THE STROBE -- IOBout high on %0d of %0d, and alub at that moment = %x\n",0,
                  32,vlSelfRef.tb_disk__DOT__n_igc_lo,
@@ -9079,13 +9081,27 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                  32,vlSelfRef.tb_disk__DOT__n_iobout,
                  32,vlSelfRef.tb_disk__DOT__n_tot,16,
                  (IData)(vlSelfRef.tb_disk__DOT__alub_at_out));
-    VL_WRITEF_NX("tb_disk:   AND Q -- holds 5a5a on %0d of %0d samples, changes %0d times, ends at %x\ntb_disk:   COINCIDENCE -- of %0d IOBout strobes, %0d happened while Q held 5a5a\ntb_disk:   g11 INPUTS (channel A) of %0d -- CurrentWCBFlag %0d, NextWCBFlag' low %0d, FifoNotFull' low %0d -> DWTWantsProc %0d\n",0,
+    VL_WRITEF_NX("tb_disk:   THE ADDRESS AT THE STROBE -- TIOA held 010B on %0d of %0d samples; of %0d IOBout strobes %0d had TIOA=010B (last %o)\ntb_disk:   THE MUX -- TIOAWrite' asserted %0d, TIOABypass high %0d, Curr=Next' asserted %0d (of %0d); at the strobe bypass=%b ff4=%b RAM nibble=%b, and %0d of %0d strobes had the bypass ON\ntb_disk:   AND Q -- holds 5a5a on %0d of %0d samples, changes %0d times, ends at %x\ntb_disk:   COINCIDENCE -- of %0d IOBout strobes, %0d happened while Q held 5a5a\n",0,
+                 32,vlSelfRef.tb_disk__DOT__n_tioa10,
+                 32,vlSelfRef.tb_disk__DOT__n_tot,32,
+                 vlSelfRef.tb_disk__DOT__n_iobout,32,
+                 vlSelfRef.tb_disk__DOT__n_tioa_out10,
+                 8,(IData)(vlSelfRef.tb_disk__DOT__tioa_at_out),
+                 32,vlSelfRef.tb_disk__DOT__n_tw,32,
+                 vlSelfRef.tb_disk__DOT__n_byp,32,vlSelfRef.tb_disk__DOT__n_cn,
+                 32,vlSelfRef.tb_disk__DOT__n_tot,1,
+                 (IData)(vlSelfRef.tb_disk__DOT__byp_at_out),
+                 1,vlSelfRef.tb_disk__DOT__ff4_at_out,
+                 4,(IData)(vlSelfRef.tb_disk__DOT__ram_at_out),
+                 32,vlSelfRef.tb_disk__DOT__n_byp_out,
+                 32,vlSelfRef.tb_disk__DOT__n_iobout,
                  32,vlSelfRef.tb_disk__DOT__n_q_held,
                  32,vlSelfRef.tb_disk__DOT__n_tot,32,
                  vlSelfRef.tb_disk__DOT__n_q_chg,16,
                  (IData)(vlSelfRef.tb_disk__DOT__q_now),
                  32,vlSelfRef.tb_disk__DOT__n_iobout,
-                 32,vlSelfRef.tb_disk__DOT__n_out_q,
+                 32,vlSelfRef.tb_disk__DOT__n_out_q);
+    VL_WRITEF_NX("tb_disk:   g11 INPUTS (channel A) of %0d -- CurrentWCBFlag %0d, NextWCBFlag' low %0d, FifoNotFull' low %0d -> DWTWantsProc %0d\n",0,
                  32,vlSelfRef.tb_disk__DOT__n_tot,32,
                  vlSelfRef.tb_disk__DOT__n_acur,32,
                  vlSelfRef.tb_disk__DOT__n_anext,32,
@@ -9093,16 +9109,16 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                  vlSelfRef.tb_disk__DOT__n_dwt);
     if (VL_UNLIKELY(((VL_TESTPLUSARGS_I("slowio"s) 
                       && (0U == vlSelfRef.tb_disk__DOT__n_iobout))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3691: Assertion failed in %Ntb_disk: Output<- never asserted IOBout -- the instruction did not decode\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3732: Assertion failed in %Ntb_disk: Output<- never asserted IOBout -- the instruction did not decode\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_disk.sv", 3691, "", false);
+        VL_STOP_MT("verilog/verilator/tb_disk.sv", 3732, "", false);
     }
     if (VL_UNLIKELY((((! VL_TESTPLUSARGS_I("slowio"s)) 
                       & (0U != vlSelfRef.tb_disk__DOT__n_iobout))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3693: Assertion failed in %Ntb_disk: IOBout asserted %0d times with no slow-I/O loop loaded\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3734: Assertion failed in %Ntb_disk: IOBout asserted %0d times with no slow-I/O loop loaded\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,vlSelfRef.tb_disk__DOT__n_iobout);
-        VL_STOP_MT("verilog/verilator/tb_disk.sv", 3693, "", false);
+        VL_STOP_MT("verilog/verilator/tb_disk.sv", 3734, "", false);
     }
     if (VL_TESTPLUSARGS_I("slowio"s)) {
         if (VL_UNLIKELY(((0x5a5aU != (IData)(vlSelfRef.tb_disk__DOT__alub_at_out))))) {
@@ -9118,9 +9134,9 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
         }
     }
     if (VL_UNLIKELY(((0U == vlSelfRef.tb_disk__DOT__n_dyclk)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3722: Assertion failed in %Ntb_disk: DskEth has no local clock -- is CLK.display' driven?\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_disk.sv:3763: Assertion failed in %Ntb_disk: DskEth has no local clock -- is CLK.display' driven?\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_disk.sv", 3722, "", false);
+        VL_STOP_MT("verilog/verilator/tb_disk.sv", 3763, "", false);
     }
     if (VL_UNLIKELY(((0U == vlSelfRef.tb_disk__DOT__n_wdht)))) {
         VL_WRITEF_NX("tb_disk: (relaxed) TWReq.03 is DispY's head task, not DskEth's\n",0);
@@ -9141,7 +9157,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             3761);
+                                                             3802);
         tb_disk__DOT__unnamedblk1_31__DOT____Vrepeat30 
             = (tb_disk__DOT__unnamedblk1_31__DOT____Vrepeat30 
                - (IData)(1U));
@@ -9162,7 +9178,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             3767);
+                                                             3808);
         tb_disk__DOT__unnamedblk1_32__DOT____Vrepeat31 
             = (tb_disk__DOT__unnamedblk1_32__DOT____Vrepeat31 
                - (IData)(1U));
@@ -9199,7 +9215,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2674__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2674__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -9218,7 +9234,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2674__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2674__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -9241,7 +9257,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2674__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2674__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -9269,7 +9285,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2678__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2678__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -9288,7 +9304,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2678__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2678__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -9311,7 +9327,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2678__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2678__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -9349,7 +9365,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2683__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2683__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -9368,7 +9384,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2683__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2683__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -9391,7 +9407,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2683__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2683__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -9402,7 +9418,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2241);
+                                                             2269);
         __Vtask_tb_disk__DOT__parc_micro__2682__tb_disk__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_disk__DOT__parc_micro__2682__tb_disk__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -9429,7 +9445,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2687__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2687__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -9448,7 +9464,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2687__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2687__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -9471,7 +9487,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2687__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2687__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -9482,7 +9498,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2243);
+                                                             2271);
         __Vtask_tb_disk__DOT__parc_micro__2682__tb_disk__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_disk__DOT__parc_micro__2682__tb_disk__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -9509,7 +9525,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2691__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2691__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -9528,7 +9544,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2691__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2691__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -9551,7 +9567,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2691__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2691__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -9562,7 +9578,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2245);
+                                                             2273);
         __Vtask_tb_disk__DOT__parc_micro__2682__tb_disk__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_disk__DOT__parc_micro__2682__tb_disk__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -9591,7 +9607,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2695__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2695__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -9610,7 +9626,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2695__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2695__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -9633,7 +9649,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2695__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2695__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -9662,7 +9678,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2699__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2699__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -9681,7 +9697,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2699__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2699__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -9704,7 +9720,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2699__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2699__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -9733,7 +9749,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2703__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2703__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -9752,7 +9768,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2703__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2703__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -9775,7 +9791,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2703__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2703__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -9804,7 +9820,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2707__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2707__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -9823,7 +9839,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2707__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2707__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -9846,7 +9862,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2707__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2707__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -9876,7 +9892,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2712__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2712__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -9895,7 +9911,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2712__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2712__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -9918,7 +9934,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2712__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2712__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -9929,7 +9945,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2253);
+                                                             2281);
         __Vtask_tb_disk__DOT__parc_micro__2682__tb_disk__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_disk__DOT__parc_micro__2682__tb_disk__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -9956,7 +9972,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2716__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2716__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -9975,7 +9991,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2716__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2716__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -9998,7 +10014,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2716__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2716__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -10009,7 +10025,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2255);
+                                                             2283);
         __Vtask_tb_disk__DOT__parc_micro__2682__tb_disk__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_disk__DOT__parc_micro__2682__tb_disk__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -10036,7 +10052,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2720__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2720__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -10055,7 +10071,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2720__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2720__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -10078,7 +10094,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2720__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2720__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -10096,7 +10112,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2257);
+                                                             2285);
         __Vtask_tb_disk__DOT__parc_micro__2682__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_disk__DOT__parc_micro__2682__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -10160,7 +10176,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2727__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2727__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -10179,7 +10195,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2727__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2727__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -10202,7 +10218,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2727__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2727__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -10213,7 +10229,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2241);
+                                                             2269);
         __Vtask_tb_disk__DOT__parc_micro__2726__tb_disk__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_disk__DOT__parc_micro__2726__tb_disk__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -10240,7 +10256,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2731__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2731__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -10259,7 +10275,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2731__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2731__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -10282,7 +10298,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2731__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2731__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -10293,7 +10309,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2243);
+                                                             2271);
         __Vtask_tb_disk__DOT__parc_micro__2726__tb_disk__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_disk__DOT__parc_micro__2726__tb_disk__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -10320,7 +10336,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2735__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2735__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -10339,7 +10355,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2735__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2735__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -10362,7 +10378,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2735__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2735__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -10373,7 +10389,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2245);
+                                                             2273);
         __Vtask_tb_disk__DOT__parc_micro__2726__tb_disk__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_disk__DOT__parc_micro__2726__tb_disk__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -10402,7 +10418,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2739__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2739__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -10421,7 +10437,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2739__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2739__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -10444,7 +10460,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2739__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2739__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -10473,7 +10489,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2743__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2743__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -10492,7 +10508,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2743__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2743__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -10515,7 +10531,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2743__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2743__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -10544,7 +10560,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2747__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2747__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -10563,7 +10579,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2747__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2747__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -10586,7 +10602,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2747__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2747__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -10615,7 +10631,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2751__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2751__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -10634,7 +10650,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2751__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2751__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -10657,7 +10673,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2751__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2751__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -10687,7 +10703,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1663);
+                                                             1691);
         __Vtask_tb_disk__DOT__strobe__2756__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_disk__DOT__strobe__2756__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -10706,7 +10722,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1664);
+                                                             1692);
         __Vtask_tb_disk__DOT__strobe__2756__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_disk__DOT__strobe__2756__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -10729,7 +10745,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             1670);
+                                                             1698);
         __Vtask_tb_disk__DOT__strobe__2756__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_disk__DOT__strobe__2756__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -10740,7 +10756,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
                                                              nullptr, 
                                                              "@(posedge tb_disk.sys_clk)", 
                                                              "verilog/verilator/tb_disk.sv", 
-                                                             2253);
+                                                             2281);
         __Vtask_tb_disk__DOT__parc_micro__2726__tb_disk__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_disk__DOT__parc_micro__2726__tb_disk__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -10748,7 +10764,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
     vlSelfRef.__Vtask_tb_disk__DOT__strobe__2760__ss = 1U;
     vlSelfRef.__Vtask_tb_disk__DOT__strobe__2760__data = 1U;
     vlSelfRef.__Vtask_tb_disk__DOT__strobe__2760__fn = 0U;
-    __Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
     vlSelf->__Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
     vlSelf->__Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
     vlSelfRef.tb_disk__DOT__addr_n = (7U & (~ (IData)(vlSelfRef.__Vtask_tb_disk__DOT__strobe__2760__fn)));
@@ -10760,20 +10776,6 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
     if (VL_GTS_III(32, 1U, __Vfunc_tb_disk__DOT__WT__2761__Vfuncout)) {
         __Vfunc_tb_disk__DOT__WT__2761__Vfuncout = 1U;
     }
-    __Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
+    vlSelfRef.__Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
         = __Vfunc_tb_disk__DOT__WT__2761__Vfuncout;
-    while (VL_LTS_III(32, 0U, __Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
-        co_await vlSelfRef.__VtrigSched_hf5f20640__0.trigger(0U, 
-                                                             nullptr, 
-                                                             "@(posedge tb_disk.sys_clk)", 
-                                                             "verilog/verilator/tb_disk.sv", 
-                                                             1663);
-        __Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
-            = (__Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 
-               - (IData)(1U));
-    }
-    vlSelfRef.tb_disk__DOT__strb_n = 0U;
-    __Vfunc_tb_disk__DOT__WT__2762__n = 6U;
-    vlSelfRef.__Vfunc_tb_disk__DOT__WT__2762__Vfuncout 
-        = VL_DIVS_III(32, VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_disk__DOT__WT__2762__n), (IData)(0x00000010U));
     co_return;}

@@ -1414,6 +1414,8 @@ module tb_disk;
   integer n_coin_dmd, n_h05out, n_cwe, n_cce, n_d0in, n_dmd_ok, n_md_ok, n_dmd16, n_md16;
   integer n_we_fall, n_we_match, n_sind1, n_we_ones, n_we1, n_we1_ones, n_ce0, n_ce1;
   integer n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag;
+  reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
+  integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
   integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q, n_acur, n_anext, n_afifo, n_dwt;
   reg [15:0] q_now, q_last;
   reg [15:0] alub_at_out;
@@ -1431,7 +1433,7 @@ module tb_disk;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; ram_at_out=4'bx; byp_at_out=1'bx; ff4_at_out=1'bx; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
     dad_at_write=12'bx; dad_at_read=12'bx; dad_ones=12'bx;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
@@ -1562,8 +1564,34 @@ module tb_disk;
              m.b_ProcL.Q_12, m.b_ProcL.Q_13, m.b_ProcL.Q_14, m.b_ProcL.Q_15};
     if (q_now == 16'h5A5A) n_q_held = n_q_held + 1;
     if (q_now !== q_last) begin n_q_chg = n_q_chg + 1; q_last = q_now; end
+    // THE ADDRESS AT THE DATA STROBE. The board select and the IOB data must
+    // COINCIDE for a write to land: DskEth latches on its own select, so an
+    // address that has gone away by the time `Output<-` drives IOB writes
+    // nothing. TIOA is ProcH g10/h10, an F10000 whose PE' (pin 5) is an OPEN
+    // pin -- so it PARALLEL-LOADS on every clock rather than holding, and
+    // whether the address survives to the next instruction is a question to
+    // measure, not to assume.
+    tioa_now = {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2,
+                m.b_ProcH.TIOA_3, m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5,
+                m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7};
+    if (tioa_now == 8'o010) n_tioa10 = n_tioa10 + 1;
+    // WHICH LEG OF THE MUX IS LIVE. g19 (MC10118 OR-AND) makes ProcH23.sil+9
+    // low exactly for FA=1/FB=5/FC=2 = `TIOA<-B`, and h20 NORs it with
+    // Curr=Next' -- so TIOABypass means "this instruction writes TIOA and the
+    // task is not switching". During `Output<-` it must be LOW, so that g14
+    // delivers the RAM's stored per-task address instead.
+    if (!m.b_ProcH.TIOAWrite_p_) n_tw = n_tw + 1;
+    if (m.b_ProcH.TIOABypass)    n_byp = n_byp + 1;
+    if (!m.b_ProcH.Curr_eq_Next_p_) n_cn = n_cn + 1;
     if (m.b_ProcH.IOBout) begin
       n_iobout = n_iobout + 1;
+      if (tioa_now == 8'o010) n_tioa_out10 = n_tioa_out10 + 1;
+      if (m.b_ProcH.TIOABypass) n_byp_out = n_byp_out + 1;
+      byp_at_out <= m.b_ProcH.TIOABypass;
+      ff4_at_out <= m.b_ProcH.FFdly_4;
+      ram_at_out <= {m.b_ProcH.ProcH23_sil_pl_18, m.b_ProcH.ProcH23_sil_pl_19,
+                     m.b_ProcH.ProcH23_sil_pl_20, m.b_ProcH.ProcH23_sil_pl_21};
+      tioa_at_out <= tioa_now;
       // ...and was Q ALREADY LOADED when the strobe happened? Q is loaded
       // near the END of the startup, so it holds 5a5a for only the last few
       // thousand samples. A strobe before that reads whatever Q was.
@@ -3662,6 +3690,15 @@ module tb_disk;
       if (n_r_muff != 0 || n_r_data != 0 || n_r_ram != 0 || n_r_tag != 0)
         $fatal(1, "a write to 010B also selected Muff %0d Data %0d Ram %0d Tag %0d",
                n_r_muff, n_r_data, n_r_ram, n_r_tag);
+      // AND THE ADDRESS AND THE DATA COINCIDE. A write only lands if the board
+      // is addressed AT THE MOMENT the data is on IOB: DskEth latches on its
+      // own select, so an address that has gone away by the time `Output<-`
+      // drives IOB writes nothing. Before cell_MC10118 was corrected this was
+      // ZERO of 960 -- the board was addressed and the data appeared, never
+      // together -- so it is the gate that proves the per-task TIOA holds
+      // across the instruction that uses it.
+      if (n_tioa_out10 == 0)
+        $fatal(1, "no IOBout strobe found TIOA = 010B: the address never survives to the data");
     end
 
     if (n_sel !== n_sel_free)
@@ -3677,6 +3714,10 @@ module tb_disk;
              n_iob_nz, n_tot, n_iob_any);
     $display("tb_disk:   THE STROBE -- IOBout high on %0d of %0d, and alub at that moment = %h",
              n_iobout, n_tot, alub_at_out);
+      $display("tb_disk:   THE ADDRESS AT THE STROBE -- TIOA held 010B on %0d of %0d samples; of %0d IOBout strobes %0d had TIOA=010B (last %o)",
+               n_tioa10, n_tot, n_iobout, n_tioa_out10, tioa_at_out);
+      $display("tb_disk:   THE MUX -- TIOAWrite' asserted %0d, TIOABypass high %0d, Curr=Next' asserted %0d (of %0d); at the strobe bypass=%b ff4=%b RAM nibble=%b, and %0d of %0d strobes had the bypass ON",
+               n_tw, n_byp, n_cn, n_tot, byp_at_out, ff4_at_out, ram_at_out, n_byp_out, n_iobout);
     $display("tb_disk:   AND Q -- holds 5a5a on %0d of %0d samples, changes %0d times, ends at %h",
              n_q_held, n_tot, n_q_chg, q_now);
     $display("tb_disk:   COINCIDENCE -- of %0d IOBout strobes, %0d happened while Q held 5a5a",
@@ -3799,14 +3840,25 @@ module tb_disk;
     // at the wrong moment" has produced wrong readings on the memory fill, the
     // display's IOB, the Pipe pointer and the clock chain already.
     tioa_ever = 8'd0;
+    n_tw = 0; n_byp = 0; n_cn = 0;
     for (twin = 0; twin < 400; twin = twin + 1) begin
       @(posedge sys_clk);
+      // WAS THE WRITE EVEN ALLOWED? TIOA is a PER-TASK register file (ProcH
+      // g15, an F10145A addressed by LastNext), so `TIOA<-B` is a RAM STORE
+      // gated by TIOAWrite' -- and a jam asserts IgnoreProc, which becomes
+      // IgnoreCommands and blocks device writes. Count both here rather than
+      // infer it from TIOA reading zero.
+      if (!m.b_ProcH.TIOAWrite_p_)    n_tw  = n_tw + 1;
+      if (m.b_ProcH.TIOABypass)       n_byp = n_byp + 1;
+      if (!m.b_ProcH.Curr_eq_Next_p_) n_cn  = n_cn + 1;
       if ({m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2, m.b_ProcH.TIOA_3,
            m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5, m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7} != 8'd0)
         tioa_ever = {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2, m.b_ProcH.TIOA_3,
                      m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5, m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7};
     end
     $display("tb_disk:   TIOA over a 400-cycle window after the jam: %b", tioa_ever);
+    $display("tb_disk:   ...during that window: TIOAWrite' asserted %0d, TIOABypass high %0d, Curr=Next' asserted %0d (of 400)",
+             n_tw, n_byp, n_cn);
     nop_micro;
     tioa_seen = {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2,
                  m.b_ProcH.TIOA_3, m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5,
@@ -3815,13 +3867,31 @@ module tb_disk;
              tioa_seen, !m.b_DskEth.DskEth02_sil_pl_1);
     // GATE: THE PROCESSOR ADDRESSES THE DISPLAY BOARD, and the address gets
     // there. TIOA is the processor's, TIOADly is what DskEth sees.
-    if (tioa_seen !== 8'b00001000)
-      // GATE ON THE WINDOW, not the instant. tioa_seen is a single sample at a
-    // fixed offset and TIOA has been rewritten by then; tioa_ever is what the
-    // register actually held after the jam.
-    if (tioa_ever !== 8'b11111000)
-      $fatal(1, "TIOA never reached 11111000 after TIOA<-B (window saw %b, final sample %b)",
-             tioa_ever, tioa_seen);
+    // RETRACTED, AND IT WAS PASSING BECAUSE OF A CELL BUG. This used to assert
+    // that a JAMMED `TIOA<-B` leaves the address in TIOA. It cannot, and the
+    // reason is the same one already recorded for device writes: a jam asserts
+    // IgnoreProc, which becomes IgnoreCommands.
+    //
+    // TIOA is a PER-TASK REGISTER FILE -- ProcH g15, an F10145A addressed by
+    // LastNext (the task) and stored by TIOAWrite' -- read back through g14,
+    // an MC10158 selected by TIOABypass. Measured over the window above, a jam
+    // leaves BOTH paths inert: TIOAWrite' asserts 0 times, so nothing is
+    // stored, and TIOABypass is high 0 times, because g19's decode never sees
+    // FA=1/FB=5/FC=2.
+    //
+    // It passed before only because cell_MC10118 inverted pin 2, which forced
+    // TIOABypass permanently HIGH and made TIOA follow `alub` combinationally
+    // whatever the instruction was. That is also why no I/O address ever
+    // survived to the `Output<-` that uses it. The real test is the
+    // IM-EXECUTED loop above, which is where a device write belongs.
+    //
+    // Gate the POSITIVE fact instead, so this stays mutation-sensitive: a jam
+    // must not reach either path.
+    if (n_tw != 0)
+      $fatal(1, "a JAMMED TIOA<-B asserted TIOAWrite' %0d times -- IgnoreCommands should block the store", n_tw);
+    if (n_byp != 0)
+      $fatal(1, "a JAMMED TIOA<-B raised TIOABypass %0d times -- g19 should not decode a jam as TIOA<-B", n_byp);
+    $display("tb_disk:   ...so a jam reaches NEITHER path: no store, no bypass (the loop is the real test)");
     if ({m.b_DskEth.TIOA_0, m.b_DskEth.TIOA_1, m.b_DskEth.TIOA_2,
          m.b_DskEth.TIOA_3, m.b_DskEth.TIOA_4} !== 5'b11111)
       $display("tb_disk: (relaxed) the TIOADly check is DispY's -- DskEth compares TIOA directly");

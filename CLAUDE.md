@@ -992,7 +992,8 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **A WORD COMES OUT OF PARC'S STORAGE ARRAY** | `readback-test` -- eight boards, real microcode, the seeded word back through the SN74166s onto `Sin` |
 | **...AND THE RETURN PATH CARRIES A WORD TO THE PROCESSOR** | `readback-test` -- cache -> `dMD` -> `Md`, the register microcode reads and `cpu.c` models |
 | **THE PROCESSOR WRITES A WORD TO THE DISPLAY BOARD** | `display-test +slowio` -- nine boards, running microcode: `TIOA<-` puts 370B on the bus, `Output<-` strobes `IOBout` 960 times with `alub`=5a5a, and IOB carries it at the board on exactly 960 samples |
-| **...AND ADDRESSES A DISK REGISTER** | `disk-test` -- nine boards with DskEth; `TIOA<-B` proven over a window, the board selects on 1920 samples, and f07 decodes `DISKCONTROL` alone (Cont 1921, Muff/Data/Ram/Tag 0) |
+| **...AND ADDRESSES A DISK REGISTER** | `disk-test` -- nine boards with DskEth; f07 decodes `DISKCONTROL` alone (Cont 1921, Muff/Data/Ram/Tag 0) |
+| **...WITH THE ADDRESS AND THE DATA TOGETHER** | `disk-test`/`display-test` -- the per-task TIOA holds across the `Output<-` that uses it |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
 Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is

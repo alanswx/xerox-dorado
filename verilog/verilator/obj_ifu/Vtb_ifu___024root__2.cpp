@@ -8508,12 +8508,12 @@ void Vtb_ifu___024root___nba_sequent__TOP__2(Vtb_ifu___024root* vlSelf) {
                             | ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_e24__DOT__q) 
                                >> 7U))));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__LdTaskSim_p_ 
-        = (1U & (~ (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_b21__DOT__p3) 
-                     | ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__TrueA) 
-                        | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_b21__DOT__p4))) 
-                    & (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_e24__DOT__q) 
-                        >> 5U) | (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_f24__DOT__q) 
-                                   >> 4U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__FA_eq_1_p___05F_ProcH))))));
+        = (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_b21__DOT__p3) 
+            | ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__TrueA) 
+               | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_b21__DOT__p4))) 
+           & (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_e24__DOT__q) 
+               >> 5U) | (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_f24__DOT__q) 
+                          >> 4U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__FA_eq_1_p___05F_ProcH))));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_ContB__DOT__ContB09_sil_pl_3 
         = (((IData)(tb_ifu__DOT__m__DOT__b_ContB__DOT__IMRHPEenable_p_) 
             | ((IData)(tb_ifu__DOT__m__DOT__IMLHPE_p_) 

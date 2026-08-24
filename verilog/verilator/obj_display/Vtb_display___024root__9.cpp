@@ -183,6 +183,32 @@ void Vtb_display___024root___nba_sequent__TOP__4(Vtb_display___024root* vlSelf) 
     CData/*4:0*/ __Vtableidx79;
     __Vtableidx79 = 0;
     // Body
+    vlSelfRef.tb_display__DOT__m__DOT__b_ContB__DOT__RBMux_05 
+        = ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContB__DOT__RBMux_05___05Fb02_15) 
+           | ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContB__DOT__True) 
+              & (IData)(vlSelfRef.tb_display__DOT__m__DOT__BMux_05)));
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_14 = (1U 
+                                                 & (~ 
+                                                    ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__Link_u_BMuxb)
+                                                      ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__BMux_05)
+                                                      : (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__CIAInc_05))));
+    vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__alub_05 
+        = (1U & ((~ ((~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qa)) 
+                     | (IData)(vlSelfRef.tb_display__DOT__m__DOT__BMux_05))) 
+                 | ((~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qa)) 
+                    & ((0U == (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_b04__DOT__sel))
+                        ? ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_e05__DOT__q) 
+                           >> 1U) : ((1U == (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_b04__DOT__sel))
+                                      ? ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_g07__DOT__q) 
+                                         >> 1U) : (
+                                                   (2U 
+                                                    == (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_b04__DOT__sel))
+                                                    ? 
+                                                   ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_i04__DOT__q) 
+                                                    >> 1U)
+                                                    : 
+                                                   ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_c11__DOT__q) 
+                                                    >> 1U)))))));
     vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__RBMux_04 
         = ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__TrueAC) 
            & (IData)(vlSelfRef.tb_display__DOT__m__DOT__BMux_04));

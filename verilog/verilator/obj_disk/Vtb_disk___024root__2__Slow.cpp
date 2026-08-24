@@ -288,6 +288,16 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__n_r_data = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 5887335906580184297ull);
     vlSelf->tb_disk__DOT__n_r_ram = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11901097530278749343ull);
     vlSelf->tb_disk__DOT__n_r_tag = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 12993952327453400990ull);
+    vlSelf->tb_disk__DOT__tioa_at_out = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 6547378698336836133ull);
+    vlSelf->tb_disk__DOT__n_tioa10 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3211422100677669930ull);
+    vlSelf->tb_disk__DOT__n_tioa_out10 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11180398217719301639ull);
+    vlSelf->tb_disk__DOT__n_tw = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14727666969609262653ull);
+    vlSelf->tb_disk__DOT__n_byp = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 13225006974705541857ull);
+    vlSelf->tb_disk__DOT__n_byp_out = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 9667798556363477480ull);
+    vlSelf->tb_disk__DOT__n_cn = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3532174581032203455ull);
+    vlSelf->tb_disk__DOT__ram_at_out = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 9470624598484247188ull);
+    vlSelf->tb_disk__DOT__byp_at_out = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12933465792647788990ull);
+    vlSelf->tb_disk__DOT__ff4_at_out = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4129557746329905970ull);
     vlSelf->tb_disk__DOT__n_dyclk = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14773950693307181241ull);
     vlSelf->tb_disk__DOT__n_twr11 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 7370064775193511782ull);
     vlSelf->tb_disk__DOT__n_wdht = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 5003618316637575342ull);
@@ -3888,13 +3898,10 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d08__DOT__p9 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 671432689551950910ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d12__DOT__a1 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3394887870407623405ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d12__DOT__b1 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7862404030636720128ull);
-    vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d12__DOT____VdfgRegularize_h35e00a9f_0_1 = 0;
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d13__DOT__a0 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15926387892677214895ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d13__DOT__b0 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15354176868706565954ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d13__DOT__a1 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8160973196124981194ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d13__DOT__b1 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4848958523670318067ull);
-    vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d13__DOT____VdfgRegularize_h35e00a9f_0_0 = 0;
-    vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d13__DOT____VdfgRegularize_h35e00a9f_0_1 = 0;
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d15__DOT__p12 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17650023879313657817ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d15__DOT__q = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 3975939368224929515ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d17__DOT__q = VL_SCOPED_RAND_RESET_I(6, __VscopeHash, 15246466308645244174ull);
@@ -3935,7 +3942,6 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_e24__DOT__p15 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9825671468280524813ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_e24__DOT__q = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 8635595096747058028ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_e61__DOT__A = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 11199499230159304150ull);
-    vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_e61__DOT__B = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 776696567398602251ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_f03__DOT__p2 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13795527928247540981ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_f04__DOT__p11 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11864347120469268219ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_f04__DOT__p2 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2501587040386198148ull);
@@ -4125,6 +4131,7 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
         vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_j08__DOT__mem[__Vi0] = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3958655250222392650ull);
     }
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_j11__DOT__q = VL_SCOPED_RAND_RESET_I(6, __VscopeHash, 15813523592641606204ull);
+    vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 12579308512259867553ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_j18__DOT__p6 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10616788319262354334ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_j18__DOT__p7 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16923528232466510561ull);
     vlSelf->tb_disk__DOT__m__DOT__b_ProcL__DOT__u_j18__DOT__p10 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3292449150608144639ull);
@@ -9390,10 +9397,9 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->__Vtask_tb_disk__DOT__strobe__2760__fn = 0;
     vlSelf->__Vtask_tb_disk__DOT__strobe__2760__data = 0;
     vlSelf->__Vtask_tb_disk__DOT__strobe__2760__ss = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
     vlSelf->__Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
     vlSelf->__Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
-    vlSelf->__Vfunc_tb_disk__DOT__WT__2762__Vfuncout = 0;
-    vlSelf->__Vtableidx320 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;

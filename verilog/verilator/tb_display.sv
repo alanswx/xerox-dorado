@@ -1318,6 +1318,7 @@ module tb_display;
   reg d00_last, dmd_last, md_last;
   integer n_coin_dmd, n_h05out, n_cwe, n_cce, n_d0in, n_dmd_ok, n_md_ok, n_dmd16, n_md16;
   integer n_we_fall, n_we_match, n_sind1, n_we_ones, n_we1, n_we1_ones, n_ce0, n_ce1;
+  reg [7:0] tioa_run, tioa_last; integer n_tw, n_byp, n_cn, n_t370;
   integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q, n_acur, n_anext, n_afifo, n_dwt;
   reg [15:0] q_now, q_last;
   reg [15:0] alub_at_out;
@@ -1335,7 +1336,7 @@ module tb_display;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_tw=0; n_byp=0; n_cn=0; n_t370=0; tioa_run=8'd0; tioa_last=8'bx; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
     dad_at_write=12'bx; dad_at_read=12'bx; dad_ones=12'bx;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
@@ -1420,6 +1421,15 @@ module tb_display;
     // DURING THE RUN: is the processor free (IgnoreCommands low) and does the
     // board ever select? Measuring these AFTER the run is useless -- the
     // post-run section jams, and a jam asserts IgnoreProc by definition.
+    // THE PER-TASK TIOA. g15 (F10145A) stores it by task; g14 reads it back
+    // unless TIOABypass forwards the value being written this cycle.
+    tioa_last = {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2, m.b_ProcH.TIOA_3,
+                 m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5, m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7};
+    if (tioa_last != 8'd0) tioa_run = tioa_last;
+    if (tioa_last == 8'o370) n_t370 = n_t370 + 1;
+    if (!m.b_ProcH.TIOAWrite_p_)    n_tw  = n_tw + 1;
+    if (m.b_ProcH.TIOABypass)       n_byp = n_byp + 1;
+    if (!m.b_ProcH.Curr_eq_Next_p_) n_cn  = n_cn + 1;
     if (!m.b_DispY.IgnoreCommands)   n_igc_lo = n_igc_lo + 1;
     if (!m.b_DispY.TIOASaysDDC_p_)   n_sel    = n_sel    + 1;
     if (!m.b_DispY.IgnoreCommands && !m.b_DispY.TIOASaysDDC_p_) n_sel_free = n_sel_free + 1;
@@ -3518,6 +3528,16 @@ module tb_display;
     // where DispY selects must be one where the processor is FREE -- a select
     // while IgnoreCommands is high would mean the model is letting a stepped
     // processor drive a device, which the hardware does not.
+    $display("tb_display:   TIOA -- last %b, last non-zero %b, ==370B on %0d of %0d | TIOAWrite' %0d, TIOABypass %0d, Curr=Next' %0d",
+             tioa_last, tioa_run, n_t370, n_tot, n_tw, n_byp, n_cn);
+    // THE ADDRESS SURVIVES TO THE DATA. A write only lands if the board is
+    // addressed AT THE MOMENT the data is on IOB. Before cell_MC10118 was
+    // corrected TIOA reloaded from B every instruction, so the address never
+    // survived the one that used it.
+    if ($test$plusargs("slowio") && n_t370 == 0)
+      $fatal(1, "TIOA never held 370B during the run -- the per-task address does not survive");
+    if ($test$plusargs("slowio") && n_iob_ok == 0)
+      $fatal(1, "no select carried 5a5a on IOB -- address and data never coincide");
     if (n_sel == 0)
       $fatal(1, "DispY never selected during the run -- no command reached the board");
     if (n_sel !== n_sel_free)
@@ -3657,8 +3677,15 @@ module tb_display;
     // at the wrong moment" has produced wrong readings on the memory fill, the
     // display's IOB, the Pipe pointer and the clock chain already.
     tioa_ever = 8'd0;
+    n_tw = 0; n_byp = 0;
     for (twin = 0; twin < 400; twin = twin + 1) begin
       @(posedge sys_clk);
+      // WAS THE WRITE EVEN ALLOWED? TIOA is a PER-TASK register file (ProcH
+      // g15, an F10145A addressed by LastNext), so `TIOA<-B` is a RAM STORE
+      // gated by TIOAWrite' -- and a jam asserts IgnoreProc, which becomes
+      // IgnoreCommands and blocks device writes. Count both rather than infer.
+      if (!m.b_ProcH.TIOAWrite_p_) n_tw  = n_tw + 1;
+      if (m.b_ProcH.TIOABypass)    n_byp = n_byp + 1;
       if ({m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2, m.b_ProcH.TIOA_3,
            m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5, m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7} != 8'd0)
         tioa_ever = {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2, m.b_ProcH.TIOA_3,
@@ -3673,13 +3700,29 @@ module tb_display;
              tioa_seen, !m.b_DispY.TIOASaysDDC_p_);
     // GATE: THE PROCESSOR ADDRESSES THE DISPLAY BOARD, and the address gets
     // there. TIOA is the processor's, TIOADly is what DispY sees.
-    if (!$test$plusargs("nlcb") && tioa_seen !== 8'b11111000)
-      $fatal(1, "TIOA is %b after TIOA<-B, not 11111000 (370B)", tioa_seen);
-    if ({m.b_DispY.TIOADly_00, m.b_DispY.TIOADly_01, m.b_DispY.TIOADly_02,
-         m.b_DispY.TIOADly_03, m.b_DispY.TIOADly_04} !== 5'b11111)
-      $fatal(1, "DispY sees TIOADly %b%b%b%b%b, not 11111 -- the address did not cross the backplane",
-             m.b_DispY.TIOADly_00, m.b_DispY.TIOADly_01, m.b_DispY.TIOADly_02,
-             m.b_DispY.TIOADly_03, m.b_DispY.TIOADly_04);
+    // RETRACTED, AND IT WAS PASSING BECAUSE OF A CELL BUG. This used to assert
+    // that a JAMMED `TIOA<-B` leaves 370B in TIOA and on DispY's TIOADly. It
+    // cannot, for the reason already recorded for device writes: a jam asserts
+    // IgnoreProc, which becomes IgnoreCommands.
+    //
+    // TIOA is a PER-TASK REGISTER FILE -- ProcH g15, an F10145A addressed by
+    // LastNext (the task) and stored by TIOAWrite' -- read back through g14,
+    // an MC10158 selected by TIOABypass. Measured over the window above, a jam
+    // leaves BOTH paths inert: nothing is stored and nothing is forwarded.
+    //
+    // It passed before only because cell_MC10118 inverted pin 2, which forced
+    // TIOABypass permanently HIGH and made TIOA follow `alub` combinationally
+    // whatever the instruction was.
+    //
+    // The address reaching the board is now gated where it belongs, on the
+    // IM-EXECUTED `+slowio` loop above -- which this bench did not even run
+    // until the same session, so its select count came entirely from the
+    // broken bypass. Gate the POSITIVE fact here, to stay mutation-sensitive.
+    if (n_tw != 0)
+      $fatal(1, "a JAMMED TIOA<-B asserted TIOAWrite' %0d times -- IgnoreCommands should block the store", n_tw);
+    if (n_byp != 0)
+      $fatal(1, "a JAMMED TIOA<-B raised TIOABypass %0d times -- g19 should not decode a jam as TIOA<-B", n_byp);
+    $display("tb_display:   ...so a jam reaches NEITHER path: no store, no bypass (the loop is the real test)");
     // AND THE BOARD STILL DOES NOT SELECT, because IgnoreCommands is high --
     // AND THAT IS BECAUSE THIS IS A JAM.
     //

@@ -35,6 +35,7 @@ VM_CLASSES_FAST += \
   Vtb_disk___024root__6 \
   Vtb_disk___024root__7 \
   Vtb_disk___024root__8 \
+  Vtb_disk___024root__9 \
   Vtb_disk__main \
 
 # Generated module classes, non-fast-path, compile with low/medium optimization

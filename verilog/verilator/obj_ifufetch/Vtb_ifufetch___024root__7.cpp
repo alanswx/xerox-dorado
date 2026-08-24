@@ -5139,14 +5139,14 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__3(Vtb_ifufetch___024root* vlSelf
            | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__preClk0_p_Ca) 
               | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MLd_p_)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__SayFGParityErrOrHigher___05Fc24_14 
-        = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h13__DOT__qa) 
-                 | ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ReschedPending_p_) 
-                         | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MLd_p_)) 
-                            | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MDv_p_))) 
-                        & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i23__DOT__p6) 
-                           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__SayNotReady) 
-                              | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i23__DOT__p9))))) 
-                    | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c24__DOT__p10))));
+        = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h13__DOT__qa) 
+           | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c24__DOT__p10) 
+              | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ReschedPending_p_) 
+                  | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MLd_p_)) 
+                     | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MDv_p_))) 
+                 & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i23__DOT__p6) 
+                    | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__SayNotReady) 
+                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i23__DOT__p9))))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__bMLd_p_ 
         = (1U & (~ ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MLd_p_)) 
                     | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h23__DOT__p4))));
