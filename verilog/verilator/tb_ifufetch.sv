@@ -62,7 +62,34 @@
 // MEMORY REFERENCE AT ALL, so F's clock barely ticks and never while data is
 // present.
 //
-// AND THE CAUSE IS THE IFU BOARD ITSELF, NOT THE MICROCODE. That was
+// AND IT IS MemC'S CLOCK, RUNNING 379x TOO FAST WITH THE IFU PRESENT.
+//
+// Chased from the symptom: PipeAd <- k02 (MemC, an MC10141 whose two select
+// pins are open, so every clk0'A edge is a PARALLEL LOAD) <- dPipe02Ad <-
+// MemX h23 (a quad 2:1 selecting Asrn or PEsrn under UseAsrn). Measured on
+// the SAME microcode in both machines:
+//
+//                              tb_memrun    tb_ifufetch
+//     UseAsrn high                 32            41
+//     Asrn changed                  6             9   <- source is MORE active
+//     dPipe02Ad changed             4             2
+//     k02's clk0'A EDGES           45        17,045   <- 379x
+//     Pipe pointer moved           11             0
+//
+// So the pointer is not STALLED, it is PINNED: clk0'A reloads it on every one
+// of 17,045 edges from a dPipe02Ad that reads 0000 nearly all the time, so it
+// can never be caught holding an SRN. The source moves MORE here, not less --
+// which is why "no references are being made" was the wrong reading, and this
+// header said so for a while.
+//
+// THE QUESTION IS THEREFORE WHY MemC'S clk0'A FREE-RUNS WHEN THE IFU IS IN
+// THE MACHINE. The memory boards' clocks are gated (MemClkEnable' from ContA,
+// and mem-test asserts the clock runs IFF enabled), so the IFU is plausibly
+// holding an enable asserted -- but that is the next MEASUREMENT, not a
+// conclusion. Start at MemC's clk0'A gating and ask which term the IFU moves.
+//
+// (The earlier framing, kept because the reasoning is still useful:)
+// THE CAUSE IS THE IFU BOARD ITSELF, NOT THE MICROCODE. That was
 // isolated by making this bench's loop BYTE-IDENTICAL to tb_memrun's -- the
 // same four instructions, <-Map / Store / Flush / quiet slot, IM[2] back to
 // FF = 0o100:
@@ -96,6 +123,10 @@
 
 
 module tb_ifufetch;
+  integer n_ua, n_asrn, n_pesrn, n_k02, n_dpipe;
+  reg k02clk_d; reg [3:0] dpipe_now, dpipe_last;
+  reg [3:0] asrn_now, asrn_last, pesrn_now, pesrn_last;
+
 
   localparam integer GAP = (200 * SYSPER) / 16;   // sys_clk between Control strobes
 
@@ -231,10 +262,12 @@ module tb_ifufetch;
 
   // WATCH THE BYTE STREAM ITSELF, not just the IFU's outputs.
   integer n_fg, n_fgnz, n_f, n_g, n_d, n_fclk, n_enfg, n_fclk_r, n_fclk_coin;
+  integer n_wir, n_ro, n_ifra, n_wpr, n_both;
   reg fclk_d;
   reg [8:0] fg_seen, fg_last;
+
   reg [17:0] f_seen, g_seen;
-  initial begin n_fg=0; n_fgnz=0; n_f=0; n_g=0; n_d=0; n_fclk=0; n_enfg=0; n_fclk_r=0; n_fclk_coin=0; fclk_d=1'bx; fg_last=9'bx; fg_seen=9'd0; f_seen=0; g_seen=0; end
+  initial begin n_ua=0; n_asrn=0; n_pesrn=0; n_k02=0; n_dpipe=0; k02clk_d=1'bx; dpipe_last=4'bx; asrn_last=4'bx; pesrn_last=4'bx; n_fg=0; n_fgnz=0; n_f=0; n_g=0; n_d=0; n_fclk=0; n_enfg=0; n_fclk_r=0; n_fclk_coin=0; n_wir=0; n_ro=0; n_ifra=0; n_wpr=0; n_both=0; fclk_d=1'bx; fg_last=9'bx; fg_seen=9'd0; f_seen=0; g_seen=0; end
   always @(posedge sys_clk) begin
     if (m.FG_0 !== fg_last[0]) begin n_fg = n_fg + 1; fg_last[0] = m.FG_0; end
     if (m.b_MemD.F_00) n_f = n_f + 1;
@@ -248,6 +281,32 @@ module tb_ifufetch;
     end
     if (m.b_MemD.Fclk_p_a !== fclk_d) begin n_fclk = n_fclk + 1; fclk_d = m.b_MemD.Fclk_p_a; end
     if (m.b_MemD.EnableFG_p_) n_enfg = n_enfg + 1;
+    // THE PIPE POINTER'S SOURCE. PipeAd <- k02 (MC10141, parallel load every
+    // clk0'A) <- dPipe02Ad <- MemX h23, a quad 2:1 mux selecting Asrn (the
+    // A-slot storage reference number) or PEsrn under UseAsrn. If the pointer
+    // never moves, one of those three is static.
+    if (m.b_MemX.UseAsrn) n_ua = n_ua + 1;
+    // ...and k02's OWN CLOCK. PipeAd is a parallel load on clk0'A (both
+    // select pins open = load), so a dead clock holds the pointer whatever
+    // its source does.
+    if (m.b_MemC.clk0_p_A !== k02clk_d) begin n_k02 = n_k02 + 1; k02clk_d = m.b_MemC.clk0_p_A; end
+    dpipe_now = {m.b_MemC.dPipe02Ad_0, m.b_MemC.dPipe02Ad_1, m.b_MemC.dPipe02Ad_2, m.b_MemC.dPipe02Ad_3};
+    if (dpipe_now !== dpipe_last) begin n_dpipe = n_dpipe + 1; dpipe_last = dpipe_now; end
+    asrn_now  = {m.b_MemX.Asrn_0,  m.b_MemX.Asrn_1,  m.b_MemX.Asrn_2,  m.b_MemX.Asrn_3};
+    pesrn_now = {m.b_MemX.PEsrn_0, m.b_MemX.PEsrn_1, m.b_MemX.PEsrn_2, m.b_MemX.PEsrn_3};
+    if (asrn_now  !== asrn_last)  begin n_asrn  = n_asrn  + 1; asrn_last  = asrn_now;  end
+    if (pesrn_now !== pesrn_last) begin n_pesrn = n_pesrn + 1; pesrn_last = pesrn_now; end
+
+    // WHAT THE IFU ASSERTS INTO THE MEMORY SECTION. It drives MAR.00'-15'
+    // (the address itself), WantIfuRef' and RefOutstanding' into MemC -- so
+    // with the IFU in the machine it is COMPETING for the address and the
+    // reference slot, which is the obvious way processor references could
+    // stop being recorded.
+    if (!m.b_MemC.WantIfuRef_p_)     n_wir  = n_wir  + 1;
+    if (!m.b_MemC.RefOutstanding_p_) n_ro   = n_ro   + 1;
+    if (m.b_MemC.IfuRefInA)          n_ifra = n_ifra + 1;
+    if (!m.b_MemC.WantProcRef_p_)    n_wpr  = n_wpr  + 1;
+    if (!m.b_MemC.WantIfuRef_p_ && !m.b_MemC.WantProcRef_p_) n_both = n_both + 1;
   end
 
 
@@ -1925,6 +1984,10 @@ module tb_ifufetch;
              m.MemRASa, m.MemCASa, m.MemWEa);
     $display("tb_ifufetch: the Pipe pointer moved %0d times over the run, ending at %0d",
              npipe, pipead);
+    $display("tb_ifufetch:   PIPE POINTER SOURCE -- UseAsrn high %0d | Asrn changed %0d times (now %b) | PEsrn changed %0d times (now %b)",
+             n_ua, n_asrn, asrn_now, n_pesrn, pesrn_now);
+    $display("tb_ifufetch:   ...k02 clk0'A edges %0d | dPipe02Ad changed %0d times (now %b)",
+             n_k02, n_dpipe, dpipe_now);
     $display("tb_ifufetch: holds -- PrHoldReq=%b CHoldReq=%b ExtHoldReq=%b PRhold=%b",
              m.PrHoldReq, m.CHoldReq, m.ExtHoldReq, m.PRhold);
     // WHICH of the three Hold flip-flops is asserting. `Hold` is a wired-OR of
@@ -2037,6 +2100,8 @@ module tb_ifufetch;
              n_d, n_fclk, n_enfg);
     $display("tb_ifufetch:   ...Fclk'a RISING edges %0d, of which with D.00 high %0d",
              n_fclk_r, n_fclk_coin);
+    $display("tb_ifufetch:   IFU vs PROCESSOR at MemC -- WantIfuRef' asserted %0d, RefOutstanding' asserted %0d, IfuRefInA %0d | WantProcRef' asserted %0d | BOTH %0d",
+             n_wir, n_ro, n_ifra, n_wpr, n_both);
     $display("tb_ifufetch: over the run -- J took %0d distinct values, IfuData %0d, IfuHold released on %0d of %0d samples",
              nifu_j, nifu_d, nifu_free, nsamp);
     $display("tb_ifufetch: IfuHold=%b (MemC grants it) WantIfuHold'=%b (the IFU asks)",

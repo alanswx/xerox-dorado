@@ -972,6 +972,10 @@
 
 
 module tb_memrun;
+  integer n_ua, n_asrn, n_pesrn, n_k02, n_dpipe;
+  reg k02clk_d; reg [3:0] dpipe_now, dpipe_last;
+  reg [3:0] asrn_now, asrn_last, pesrn_now, pesrn_last;
+
 
   localparam integer GAP = (200 * SYSPER) / 16;   // sys_clk between Control strobes
 
@@ -2423,6 +2427,22 @@ build_hunk4(4'd0, 1'b0,
         if (!m.b_MemC.Flush_u__p_)    nff0_fl  = nff0_fl  + 1;
         if (m.b_MemC.FlushStore)      nff0_fs  = nff0_fs  + 1;
         if (m.b_MemC.HitColDirty)     nff0_hcd = nff0_hcd + 1;
+    // THE PIPE POINTER'S SOURCE. PipeAd <- k02 (MC10141, parallel load every
+    // clk0'A) <- dPipe02Ad <- MemX h23, a quad 2:1 mux selecting Asrn (the
+    // A-slot storage reference number) or PEsrn under UseAsrn. If the pointer
+    // never moves, one of those three is static.
+    if (m.b_MemX.UseAsrn) n_ua = n_ua + 1;
+    // ...and k02's OWN CLOCK. PipeAd is a parallel load on clk0'A (both
+    // select pins open = load), so a dead clock holds the pointer whatever
+    // its source does.
+    if (m.b_MemC.clk0_p_A !== k02clk_d) begin n_k02 = n_k02 + 1; k02clk_d = m.b_MemC.clk0_p_A; end
+    dpipe_now = {m.b_MemC.dPipe02Ad_0, m.b_MemC.dPipe02Ad_1, m.b_MemC.dPipe02Ad_2, m.b_MemC.dPipe02Ad_3};
+    if (dpipe_now !== dpipe_last) begin n_dpipe = n_dpipe + 1; dpipe_last = dpipe_now; end
+    asrn_now  = {m.b_MemX.Asrn_0,  m.b_MemX.Asrn_1,  m.b_MemX.Asrn_2,  m.b_MemX.Asrn_3};
+    pesrn_now = {m.b_MemX.PEsrn_0, m.b_MemX.PEsrn_1, m.b_MemX.PEsrn_2, m.b_MemX.PEsrn_3};
+    if (asrn_now  !== asrn_last)  begin n_asrn  = n_asrn  + 1; asrn_last  = asrn_now;  end
+    if (pesrn_now !== pesrn_last) begin n_pesrn = n_pesrn + 1; pesrn_last = pesrn_now; end
+
         // THE VICTIM CHAIN, counted over the window rather than sampled at
         // the end -- at the end the machine is idle and every term reads 0.
         if (m.b_MemC.WantVic)         nvc_wv  = nvc_wv  + 1;
@@ -2896,6 +2916,10 @@ build_hunk4(4'd0, 1'b0,
              m.MemRASa, m.MemCASa, m.MemWEa);
     $display("tb_memrun: the Pipe pointer moved %0d times over the run, ending at %0d",
              npipe, pipead);
+    $display("tb_memrun:   PIPE POINTER SOURCE -- UseAsrn high %0d | Asrn changed %0d times (now %b) | PEsrn changed %0d times (now %b)",
+             n_ua, n_asrn, asrn_now, n_pesrn, pesrn_now);
+    $display("tb_memrun:   ...k02 clk0'A edges %0d | dPipe02Ad changed %0d times (now %b)",
+             n_k02, n_dpipe, dpipe_now);
     $display("tb_memrun: holds -- PrHoldReq=%b CHoldReq=%b ExtHoldReq=%b PRhold=%b",
              m.PrHoldReq, m.CHoldReq, m.ExtHoldReq, m.PRhold);
     // WHICH of the three Hold flip-flops is asserting. `Hold` is a wired-OR of
