@@ -1325,7 +1325,7 @@ module tb_display;
   reg dyclk_d; reg [15:0] iob_at_sel;
   reg dwt_asserted, dwt_full;
   integer tio, sel_count, sel_which;
-  reg [15:0] t_after, q_pre; reg [7:0] tioa_seen;
+  reg [15:0] t_after, q_pre; reg [7:0] tioa_seen, tioa_ever; integer twin;
   reg we_d_rb, we1_d;
   reg [11:0] dad_now, dad_at_write, dad_at_read, dad_ones;
   reg [17:0] dmd_cap, md_cap;
@@ -3652,6 +3652,19 @@ module tb_display;
     $display("tb_display: TIOA WRITE -- T = %h (want f800)", t_after);
     // Now TIOA <- B with BSEL = 2 (B <- T).
     jam_mi(mi(4'd0, 4'd0, 3'd2, 3'd0, 3'd0, 8'o152, 8'o201, 1'b0));
+    // CAPTURE OVER A WINDOW, not at one instant. A single sample after the
+    // trailing nop assumes the write has landed by exactly then, and "sampled
+    // at the wrong moment" has produced wrong readings on the memory fill, the
+    // display's IOB, the Pipe pointer and the clock chain already.
+    tioa_ever = 8'd0;
+    for (twin = 0; twin < 400; twin = twin + 1) begin
+      @(posedge sys_clk);
+      if ({m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2, m.b_ProcH.TIOA_3,
+           m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5, m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7} != 8'd0)
+        tioa_ever = {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2, m.b_ProcH.TIOA_3,
+                     m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5, m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7};
+    end
+    $display("tb_display:   TIOA over a 400-cycle window after the jam: %b", tioa_ever);
     nop_micro;
     tioa_seen = {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2,
                  m.b_ProcH.TIOA_3, m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5,

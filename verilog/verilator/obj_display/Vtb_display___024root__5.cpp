@@ -19,6 +19,10 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__8(Vtb_display
     tb_display__DOT__t_after = 0;
     CData/*7:0*/ tb_display__DOT__tioa_seen;
     tb_display__DOT__tioa_seen = 0;
+    CData/*7:0*/ tb_display__DOT__tioa_ever;
+    tb_display__DOT__tioa_ever = 0;
+    IData/*31:0*/ tb_display__DOT__twin;
+    tb_display__DOT__twin = 0;
     IData/*31:0*/ tb_display__DOT__unnamedblk1_33__DOT____Vrepeat32;
     tb_display__DOT__unnamedblk1_33__DOT____Vrepeat32 = 0;
     CData/*2:0*/ __Vtask_tb_display__DOT__strobe__2760__fn;
@@ -1803,6 +1807,66 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__8(Vtb_display
                                          ((2U & ((~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_b23__DOT__qb)) 
                                                  << 1U)) 
                                           | (1U & (~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_b23__DOT__qa)))))))));
+    tb_display__DOT__tioa_ever = 0U;
+    tb_display__DOT__twin = 0U;
+    while (VL_GTS_III(32, 0x00000190U, tb_display__DOT__twin)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             3661);
+        if ((0U != (((((2U & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_g10__DOT__q) 
+                              << 1U)) | (1U & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_g10__DOT__q) 
+                                               >> 1U))) 
+                      << 6U) | (((2U & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_g10__DOT__q) 
+                                        >> 1U)) | (1U 
+                                                   & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_g10__DOT__q) 
+                                                      >> 3U))) 
+                                << 4U)) | ((((2U & 
+                                              ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_h10__DOT__q) 
+                                               << 1U)) 
+                                             | (1U 
+                                                & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_h10__DOT__q) 
+                                                   >> 1U))) 
+                                            << 2U) 
+                                           | ((2U & 
+                                               ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_h10__DOT__q) 
+                                                >> 1U)) 
+                                              | (1U 
+                                                 & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_h10__DOT__q) 
+                                                    >> 3U))))))) {
+            tb_display__DOT__tioa_ever = (((((2U & 
+                                              ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_g10__DOT__q) 
+                                               << 1U)) 
+                                             | (1U 
+                                                & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_g10__DOT__q) 
+                                                   >> 1U))) 
+                                            << 6U) 
+                                           | (((2U 
+                                                & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_g10__DOT__q) 
+                                                   >> 1U)) 
+                                               | (1U 
+                                                  & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_g10__DOT__q) 
+                                                     >> 3U))) 
+                                              << 4U)) 
+                                          | ((((2U 
+                                                & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_h10__DOT__q) 
+                                                   << 1U)) 
+                                               | (1U 
+                                                  & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_h10__DOT__q) 
+                                                     >> 1U))) 
+                                              << 2U) 
+                                             | ((2U 
+                                                 & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_h10__DOT__q) 
+                                                    >> 1U)) 
+                                                | (1U 
+                                                   & ((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ProcH__DOT__u_h10__DOT__q) 
+                                                      >> 3U)))));
+        }
+        tb_display__DOT__twin = ((IData)(1U) + tb_display__DOT__twin);
+    }
+    VL_WRITEF_NX("tb_display:   TIOA over a 400-cycle window after the jam: %b\n",0,
+                 8,tb_display__DOT__tioa_ever);
     __Vtask_tb_display__DOT__parc_micro__2815__b4 = 0x40U;
     __Vtask_tb_display__DOT__parc_micro__2815__b3 = 0x4cU;
     __Vtask_tb_display__DOT__parc_micro__2815__b2 = 0x0fU;
@@ -2651,10 +2715,10 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__8(Vtb_display
                                                  & (~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOASaysDDC_p_))));
     if (VL_UNLIKELY((((! VL_TESTPLUSARGS_I("nlcb"s)) 
                       & (0xf8U != (IData)(tb_display__DOT__tioa_seen)))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3664: Assertion failed in %Ntb_display: TIOA is %b after TIOA<-B, not 11111000 (370B)\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3677: Assertion failed in %Ntb_display: TIOA is %b after TIOA<-B, not 11111000 (370B)\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      8,(IData)(tb_display__DOT__tioa_seen));
-        VL_STOP_MT("verilog/verilator/tb_display.sv", 3664, "", false);
+        VL_STOP_MT("verilog/verilator/tb_display.sv", 3677, "", false);
     }
     if (VL_UNLIKELY(((0x1fU != ((((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceRd) 
                                   << 4U) | (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceRd) 
@@ -2663,14 +2727,14 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__8(Vtb_display
                                                << 2U))) 
                                 | (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceRd) 
                                     << 1U) | (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceRd))))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3667: Assertion failed in %Ntb_display: DispY sees TIOADly %b%b%b%b%b, not 11111 -- the address did not cross the backplane\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3680: Assertion failed in %Ntb_display: DispY sees TIOADly %b%b%b%b%b, not 11111 -- the address did not cross the backplane\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      1,(IData)(vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceRd),
                      1,vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceRd,
                      1,(IData)(vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceRd),
                      1,vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceRd,
                      1,(IData)(vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceRd));
-        VL_STOP_MT("verilog/verilator/tb_display.sv", 3667, "", false);
+        VL_STOP_MT("verilog/verilator/tb_display.sv", 3680, "", false);
     }
     if (vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__ACurrentWCBFlag__VforceRd) {
         vlSelfRef.tb_display__DOT__n_acur = ((IData)(1U) 
@@ -2754,7 +2818,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__8(Vtb_display
                                                                  nullptr, 
                                                                  "@(posedge tb_display.sys_clk)", 
                                                                  "verilog/verilator/tb_display.sv", 
-                                                                 3720);
+                                                                 3733);
             tb_display__DOT__unnamedblk1_33__DOT____Vrepeat32 
                 = (tb_display__DOT__unnamedblk1_33__DOT____Vrepeat32 
                    - (IData)(1U));
@@ -2797,19 +2861,19 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__8(Vtb_display
     VL_WRITEF_NX("tb_display: SLOW I/O -- of 32 TIOA values, %0d select the board; the one that does is %0d (want 31 = 37B)\n",0,
                  32,tb_display__DOT__sel_count,32,tb_display__DOT__sel_which);
     if (VL_UNLIKELY(((1U != tb_display__DOT__sel_count)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3729: Assertion failed in %Ntb_display: %0d TIOA values select DispY, not exactly one\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3742: Assertion failed in %Ntb_display: %0d TIOA values select DispY, not exactly one\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_display__DOT__sel_count);
-        VL_STOP_MT("verilog/verilator/tb_display.sv", 3729, "", false);
+        VL_STOP_MT("verilog/verilator/tb_display.sv", 3742, "", false);
     }
     if (VL_UNLIKELY(((0x0000001fU != tb_display__DOT__sel_which)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3731: Assertion failed in %Ntb_display: DispY answers at TIOA %0d, not 31 -- the DDCTIOA strap says 37B\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3744: Assertion failed in %Ntb_display: DispY answers at TIOA %0d, not 31 -- the DDCTIOA strap says 37B\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_display__DOT__sel_which);
-        VL_STOP_MT("verilog/verilator/tb_display.sv", 3731, "", false);
+        VL_STOP_MT("verilog/verilator/tb_display.sv", 3744, "", false);
     }
     VL_WRITEF_NX("tb_display: PASS -- A WORD COMES OUT OF PARC'S STORAGE ARRAY:\ntb_display:   real microcode runs, the memory section sequences a DRAM cycle,\ntb_display:   the MK4096s are parallel-loaded into the SN74166s in the part's\ntb_display:   own stage order, and the data reaches Sin on the backplane.\ntb_display:   AND THE RETURN PATH CARRIES A WORD TO THE PROCESSOR: a seeded\ntb_display:   cache word arrives intact on dMD and on Md, which is what\ntb_display:   microcode reads and what cpu.c models.\n",0);
-    VL_FINISH_MT("verilog/verilator/tb_display.sv", 3740, "");
+    VL_FINISH_MT("verilog/verilator/tb_display.sv", 3753, "");
     co_return;}
 
 VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__1(Vtb_display___024root* vlSelf) {

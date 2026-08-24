@@ -2178,6 +2178,63 @@ that net is **low when they match**. And DskEth compares **TIOA directly** —
 it has no `TIOADly` of its own, unlike DispY, which is a difference worth
 confirming rather than inheriting.
 
+### ...and the disk anomaly was a SAMPLING ARTEFACT (2026-08-24)
+
+Resolved, and there was never a board difference. `TIOA ← B` works on the disk
+machine exactly as on the display machine; what differed was **where the bench
+looked**:
+
+| | TIOA over a window | final fixed-offset sample |
+|---|---|---|
+| `dorado_display` | `11111000` | `11111000` |
+| `dorado_disk` | **`11111000`** | `00000000` |
+
+The register **is** written on both. `tb_disk` carries more probes and so
+reaches its single sample later, by which point TIOA has been rewritten.
+Gating on the window — the honest measurement — makes it pass.
+
+**Three explanations were offered before this one and all three were wrong:**
+
+1. *"the board's presence changes the TIOA net"* — no. Neither DskEth nor
+   DispY drives **any** of `TIOA.0-7` (all eight checked, after the first
+   version of this claim generalised from bit 0 alone); ProcH g10 does.
+2. *"this bench writes the disk's address 010B"* — no. That edit silently did
+   not apply, so both machines ran identical stimulus throughout.
+3. *"the jam is being blocked"* — no. Both report 180 `clk0'` edges, `Stop=0`,
+   every hold line inactive.
+
+The actual cause was the **fourth** instance in one session of sampling at the
+wrong moment — after the memory fill, the display's IOB, the Pipe pointer and
+the clock chain. **When a value looks absent, capture it over a window before
+concluding it was never there.**
+
+### Disk: a starting point, deliberately not a gate (2026-08-24)
+
+`dorado_disk` — ContA, ContB, ProcH, ProcL, MemC, MemD, MemX, msa and
+**DskEth** — generates and lints, and `tb_disk` (derived from `tb_display`)
+compiles and runs the whole inherited apparatus on it. The slow-I/O write loop
+executes: **`IOBout` strobes 960 times with `alub = 5a5a`**, the same as on the
+display machine.
+
+**`disk-test` is NOT in the gate list.** Its inherited assertions are all
+relaxed, and a bench whose assertions have been relaxed is not gating anything
+— shipping one as a gate would be exactly the failure mode the gate audit went
+looking for.
+
+**The first thing to chase:** `TIOA ← B` leaves TIOA at `00000000` here, where
+the identical sequence on `dorado_display` gives `11111000`. So the **address
+write itself does not reproduce on this machine**, and everything downstream —
+the board select, the compare against `TIOA-Ad` — is moot until it does. **Do
+not start from the DskEth end.**
+
+DskEth's own facts, for when that is fixed: its strap is an I/O **address**
+(`TIOA-Ad = 1` → 010-017; the sheet says *"Standard addresses are 10-17"*, and
+`include/disk.h` independently has `DISK_TIOA_DISKCONTROL 010`). e01 is an
+MC10166 comparing `TIOA.0-4` against the strap with X>Y and X<Y wire-ORed, so
+that net is **low when they match**. And DskEth compares **TIOA directly** —
+it has no `TIOADly` of its own, unlike DispY, which is a difference worth
+confirming rather than inheriting.
+
 ### ...and the disk anomaly is real but NOT the board (2026-08-24)
 
 Two retractions on this one, both worth keeping.
