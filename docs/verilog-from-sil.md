@@ -2150,3 +2150,30 @@ interesting one — that looks like a reset state, so the board very likely
 needs a real **initialisation sequence** (0377 STATICS and/or a reset) before
 it will accept work. One register write was never going to be enough, and the
 bench now says so with numbers rather than failing silently.
+
+### Disk: a starting point, deliberately not a gate (2026-08-24)
+
+`dorado_disk` — ContA, ContB, ProcH, ProcL, MemC, MemD, MemX, msa and
+**DskEth** — generates and lints, and `tb_disk` (derived from `tb_display`)
+compiles and runs the whole inherited apparatus on it. The slow-I/O write loop
+executes: **`IOBout` strobes 960 times with `alub = 5a5a`**, the same as on the
+display machine.
+
+**`disk-test` is NOT in the gate list.** Its inherited assertions are all
+relaxed, and a bench whose assertions have been relaxed is not gating anything
+— shipping one as a gate would be exactly the failure mode the gate audit went
+looking for.
+
+**The first thing to chase:** `TIOA ← B` leaves TIOA at `00000000` here, where
+the identical sequence on `dorado_display` gives `11111000`. So the **address
+write itself does not reproduce on this machine**, and everything downstream —
+the board select, the compare against `TIOA-Ad` — is moot until it does. **Do
+not start from the DskEth end.**
+
+DskEth's own facts, for when that is fixed: its strap is an I/O **address**
+(`TIOA-Ad = 1` → 010-017; the sheet says *"Standard addresses are 10-17"*, and
+`include/disk.h` independently has `DISK_TIOA_DISKCONTROL 010`). e01 is an
+MC10166 comparing `TIOA.0-4` against the strap with X>Y and X<Y wire-ORed, so
+that net is **low when they match**. And DskEth compares **TIOA directly** —
+it has no `TIOADly` of its own, unlike DispY, which is a difference worth
+confirming rather than inheriting.
