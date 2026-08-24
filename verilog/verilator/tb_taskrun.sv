@@ -300,6 +300,36 @@ module tb_taskrun;
   // +1, and both feed g23's D inputs -- g23 being the MC10231 that drives
   // MemBase.0 and MemBase.1. `MBBypass` is the same shape as `TbBypass` on
   // the T path (i03 pin 9).
+  // WRITING T FROM IM: THE SPECIFICATION, derived by trying it (2026-08-24).
+  // Three requirements, each found by hitting it:
+  //
+  // 1. THE WRITE MUST COME FROM IM, NOT A JAM. DoDoradoMicroInst's first
+  //    Control byte is ClrStop+ClrMIR+ClrCT+Freeze, and ClrCT CLEARS THE
+  //    CURRENT TASK -- TPCAd then reads 0 while task 7 is supposed to be
+  //    running, and the PC and Link claims below start failing.
+  //
+  // 2. AND SO MUST THE IM LOAD. `send_a_hunk` goes through the same jam path,
+  //    so building the hunk in the middle of the task-switch section breaks it
+  //    exactly the same way. Load it up in the startup, beside the AEmu hunks.
+  //
+  // 3. AND THE LOOP MUST KEEP TASKING ON. With a loop of plain TFromCPReg#
+  //    (FF = 0o176) CTask sticks at 15 and every later task is refused --
+  //    `Switcha`/`BNTGtCT'` need FF = TaskingOn, which is why PARC's own
+  //    `Return#` is "TaskingOff,Return". The loop needs a TaskingOn
+  //    microinstruction in it, or an FF that does not turn tasking off.
+  //
+  // THE ENCODING IS IN HAND. PARC's TFromCPReg# is the five bytes
+  // 70 03 0F 04 C0, and through mi()'s byte layout those decode to
+  //
+  //     rstk 0, aluf 0, bsel 0, lc 1, asel 4, ff 0o176, jcn 0o201, block 0
+  //
+  // which build_hunk4 takes directly. Its value comes from CPReg, which is
+  // NOT per-task -- and that is what makes the test possible: set CPReg to one
+  // word while task 15 runs and another while task 7 runs, and the two slots
+  // must end up holding different values. (tb_compute's variant changes ASEL
+  // 4 -> 6 so the ALU gets a real second operand, and notes that TFromCPReg#
+  // "requires ALUFM[0]=B", so the ALUFM prologue may be needed too.)
+  //
   function [4:0] membase_of(input [3:0] t);
     membase_of = {m.b_ProcH.u_j17.mem[t], m.b_ProcH.u_j16.mem[t]};
   endfunction
