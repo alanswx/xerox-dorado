@@ -1762,3 +1762,39 @@ mutation tests in `readback-test`, `msa-test` and `ifufetch-test` do.
 
 Worth repeating after any large cell change: 16 is the floor, and a drop in
 that number means a gate stopped biting.
+
+### What a real cache fill still needs (2026-08-24, task #23)
+
+`readback-test` seeds both the DRAM and the cache. Removing the cache seed
+(`+nocacheseed`, `+zerocache`, both new) separates what each one supplies:
+
+- **The storage read does NOT depend on the cache seed.** Without it the
+  '166s still load twice and `Sin` still carries the seeded DRAM word — 64
+  samples high, against 16 with the cache seeded. "A word comes out of
+  storage" stands on its own.
+- **What the cache seed supplies is the RETURN:**
+
+  | | `dMD` | matched |
+  |---|---|---|
+  | cache seeded | `011100101101001101` | 16 |
+  | cache empty | `110000000000000000` | **0** |
+
+  Data zero with both parity bits set — `dMD` is reporting an **empty cache**.
+  The fetched word reaches `SinD` and stops there.
+
+- **And the cache IS being written.** a03's `WE'` falls **28** times, and
+  `D0in.00` agrees with `SinD.00` on 25 of those (16 with the seed). The data
+  path into the array is live and carrying the fetched word.
+
+What reads back is still zero, which points at the **address** rather than the
+data: either the fill writes a different row than the read, or it lands outside
+the row the reference is looking at. Next measurement: compare the F10470
+address pins at the `WE'` fall against the address at the read — count the
+coincidence, and **qualify the match on `SinD` being high**, since
+`D0in == SinD` is also satisfied when both are zero.
+
+**A trap that cost three wrong comparisons here:** the bench binary must be run
+from the **repo root**, the way the Makefile runs it (`cd ../..`). Run from
+`verilog/verilator/` it cannot find `boot0.vec` or the PROM images, loads no
+microcode, makes no references, and every counter reads zero — which looks
+exactly like a behavioural difference and is not one. Second time today.

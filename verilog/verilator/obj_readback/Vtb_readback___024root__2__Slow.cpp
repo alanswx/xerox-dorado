@@ -171,6 +171,7 @@ VL_ATTR_COLD void Vtb_readback___024root___ctor_var_reset(Vtb_readback___024root
     vlSelf->tb_readback__DOT__udmd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2489118406571581649ull);
     vlSelf->tb_readback__DOT__rfshdiv = VL_SCOPED_RAND_RESET_I(9, __VscopeHash, 11981281979138081876ull);
     vlSelf->tb_readback__DOT__rfshper = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10239657107736873953ull);
+    vlSelf->tb_readback__DOT__ci = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 12858493580331039283ull);
     vlSelf->tb_readback__DOT__n_load_edge_rb = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 15476388373194696778ull);
     vlSelf->tb_readback__DOT__n_sin_hi = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 16023659952784530004ull);
     vlSelf->tb_readback__DOT__n_sind_hi = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 17047295256168953893ull);
@@ -181,6 +182,8 @@ VL_ATTR_COLD void Vtb_readback___024root___ctor_var_reset(Vtb_readback___024root
     vlSelf->tb_readback__DOT__n_d00_e = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3191530109932803151ull);
     vlSelf->tb_readback__DOT__n_dmd_e = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 13518370601382949910ull);
     vlSelf->tb_readback__DOT__n_md_e = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 18224850361500613634ull);
+    vlSelf->tb_readback__DOT__n_merr = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 2623109359883317209ull);
+    vlSelf->tb_readback__DOT__n_ecf = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 12380508489815488443ull);
     vlSelf->tb_readback__DOT__d00_last = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16418859308832129431ull);
     vlSelf->tb_readback__DOT__dmd_last = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4932687478276034849ull);
     vlSelf->tb_readback__DOT__md_last = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15019636598930648235ull);
@@ -193,6 +196,10 @@ VL_ATTR_COLD void Vtb_readback___024root___ctor_var_reset(Vtb_readback___024root
     vlSelf->tb_readback__DOT__n_md_ok = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 15485514651115856514ull);
     vlSelf->tb_readback__DOT__n_dmd16 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 17753171585207747161ull);
     vlSelf->tb_readback__DOT__n_md16 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14152272461563911285ull);
+    vlSelf->tb_readback__DOT__n_we_fall = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 1357646654005609537ull);
+    vlSelf->tb_readback__DOT__n_we_match = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 10953142543365714040ull);
+    vlSelf->tb_readback__DOT__n_sind1 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14110964534283061931ull);
+    vlSelf->tb_readback__DOT__we_d_rb = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3264214445119264585ull);
     vlSelf->tb_readback__DOT__dmd_cap = VL_SCOPED_RAND_RESET_I(18, __VscopeHash, 15080977527135982591ull);
     vlSelf->tb_readback__DOT__md_cap = VL_SCOPED_RAND_RESET_I(18, __VscopeHash, 18274513481677607203ull);
     vlSelf->tb_readback__DOT__outck_d_rb = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12245733752804662857ull);

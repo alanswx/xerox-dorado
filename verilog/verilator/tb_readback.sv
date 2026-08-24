@@ -20,7 +20,40 @@
 // a13's eight stages, and the DRAM on each:
 //     A b05   B c05   C d05   D e05   E e06   F d06   G c06   H b06
 //
-// HOW THE WORD IS SEEDED, AND WHY IT NEEDS NO ADDRESS. Every one of the 4096
+// WHAT A REAL FILL STILL NEEDS (2026-08-24, task #23).
+//
+// The storage read is NOT dependent on the cache seed -- with `+nocacheseed`
+// or `+zerocache` the '166s still load twice and Sin still carries the seeded
+// DRAM word (64 samples high, against 16 with the cache seeded). So "a word
+// comes out of storage" stands on its own.
+//
+// What the cache seed supplies is the RETURN:
+//
+//     cache seeded    dMD = 011100101101001101   matched 16
+//     cache empty     dMD = 110000000000000000   matched  0
+//
+// -- data zero with both parity bits set, i.e. dMD is reporting an EMPTY
+// cache. So the fetched word reaches SinD and stops there.
+//
+// AND THE CACHE IS BEING WRITTEN. a03's WE' falls 28 times, and D0in.00
+// agrees with SinD.00 on 25 of those (16 with the seed). So the data path
+// into the array is live and carrying the fetched word. What it reads back is
+// still zero, which points at the ADDRESS rather than the data: either the
+// fill writes a different row than the read, or the write is landing outside
+// the row the reference is looking at.
+//
+// NEXT MEASUREMENT: compare the F10470 address pins at the WE' fall against
+// the address at the read, exactly as the '166 stage order was settled --
+// count the coincidence, and beware that D0in == SinD is satisfied when BOTH
+// ARE ZERO, so qualify the match on SinD being high.
+//
+// A TRAP THAT COST THREE WRONG COMPARISONS HERE: this binary must be run from
+// the REPO ROOT, the way the Makefile runs it (`cd ../..`). Run from
+// verilog/verilator/ it cannot find boot0.vec or the PROM images, loads no
+// microcode, makes no references, and every counter reads zero -- which looks
+// exactly like a behavioural difference and is not one.
+//
+// // HOW THE WORD IS SEEDED, AND WHY IT NEEDS NO ADDRESS. Every one of the 4096
 // cells in each of those eight DRAMs is preloaded with that DRAM's own bit of
 // a fixed pattern. The array then answers the SAME pattern at every address,
 // so whatever the running microcode decides to reference, a load of the '166
@@ -1112,44 +1145,47 @@ module tb_readback;
   // walked straight through the gate.
   localparam [17:0] CPAT = 18'd52045;   // CPAT[k] is D.k
   integer ci;
+  reg czero;
   initial begin
+    czero = $test$plusargs("zerocache");
+    if (!$test$plusargs("nocacheseed"))
     for (ci = 0; ci < 4096; ci = ci + 1) begin
-      m.b_MemD.u_a03.mem[ci] = CPAT[0];
-      m.b_MemD.u_d03.mem[ci] = CPAT[0];
-      m.b_MemD.u_a05.mem[ci] = CPAT[1];
-      m.b_MemD.u_d05.mem[ci] = CPAT[1];
-      m.b_MemD.u_g03.mem[ci] = CPAT[2];
-      m.b_MemD.u_j03.mem[ci] = CPAT[2];
-      m.b_MemD.u_g05.mem[ci] = CPAT[3];
-      m.b_MemD.u_j05.mem[ci] = CPAT[3];
-      m.b_MemD.u_a13.mem[ci] = CPAT[4];
-      m.b_MemD.u_d13.mem[ci] = CPAT[4];
-      m.b_MemD.u_a15.mem[ci] = CPAT[5];
-      m.b_MemD.u_d15.mem[ci] = CPAT[5];
-      m.b_MemD.u_g13.mem[ci] = CPAT[6];
-      m.b_MemD.u_j13.mem[ci] = CPAT[6];
-      m.b_MemD.u_g15.mem[ci] = CPAT[7];
-      m.b_MemD.u_j15.mem[ci] = CPAT[7];
-      m.b_MemD.u_a09.mem[ci] = CPAT[8];
-      m.b_MemD.u_d09.mem[ci] = CPAT[8];
-      m.b_MemD.u_a11.mem[ci] = CPAT[9];
-      m.b_MemD.u_d11.mem[ci] = CPAT[9];
-      m.b_MemD.u_g09.mem[ci] = CPAT[10];
-      m.b_MemD.u_j09.mem[ci] = CPAT[10];
-      m.b_MemD.u_g11.mem[ci] = CPAT[11];
-      m.b_MemD.u_j11.mem[ci] = CPAT[11];
-      m.b_MemD.u_a17.mem[ci] = CPAT[12];
-      m.b_MemD.u_d17.mem[ci] = CPAT[12];
-      m.b_MemD.u_a19.mem[ci] = CPAT[13];
-      m.b_MemD.u_d19.mem[ci] = CPAT[13];
-      m.b_MemD.u_g17.mem[ci] = CPAT[14];
-      m.b_MemD.u_j17.mem[ci] = CPAT[14];
-      m.b_MemD.u_g19.mem[ci] = CPAT[15];
-      m.b_MemD.u_j19.mem[ci] = CPAT[15];
-      m.b_MemD.u_a07.mem[ci] = CPAT[16];
-      m.b_MemD.u_d07.mem[ci] = CPAT[16];
-      m.b_MemD.u_g07.mem[ci] = CPAT[17];
-      m.b_MemD.u_j07.mem[ci] = CPAT[17];
+      m.b_MemD.u_a03.mem[ci] = czero ? 1'b0 : CPAT[0];
+      m.b_MemD.u_d03.mem[ci] = czero ? 1'b0 : CPAT[0];
+      m.b_MemD.u_a05.mem[ci] = czero ? 1'b0 : CPAT[1];
+      m.b_MemD.u_d05.mem[ci] = czero ? 1'b0 : CPAT[1];
+      m.b_MemD.u_g03.mem[ci] = czero ? 1'b0 : CPAT[2];
+      m.b_MemD.u_j03.mem[ci] = czero ? 1'b0 : CPAT[2];
+      m.b_MemD.u_g05.mem[ci] = czero ? 1'b0 : CPAT[3];
+      m.b_MemD.u_j05.mem[ci] = czero ? 1'b0 : CPAT[3];
+      m.b_MemD.u_a13.mem[ci] = czero ? 1'b0 : CPAT[4];
+      m.b_MemD.u_d13.mem[ci] = czero ? 1'b0 : CPAT[4];
+      m.b_MemD.u_a15.mem[ci] = czero ? 1'b0 : CPAT[5];
+      m.b_MemD.u_d15.mem[ci] = czero ? 1'b0 : CPAT[5];
+      m.b_MemD.u_g13.mem[ci] = czero ? 1'b0 : CPAT[6];
+      m.b_MemD.u_j13.mem[ci] = czero ? 1'b0 : CPAT[6];
+      m.b_MemD.u_g15.mem[ci] = czero ? 1'b0 : CPAT[7];
+      m.b_MemD.u_j15.mem[ci] = czero ? 1'b0 : CPAT[7];
+      m.b_MemD.u_a09.mem[ci] = czero ? 1'b0 : CPAT[8];
+      m.b_MemD.u_d09.mem[ci] = czero ? 1'b0 : CPAT[8];
+      m.b_MemD.u_a11.mem[ci] = czero ? 1'b0 : CPAT[9];
+      m.b_MemD.u_d11.mem[ci] = czero ? 1'b0 : CPAT[9];
+      m.b_MemD.u_g09.mem[ci] = czero ? 1'b0 : CPAT[10];
+      m.b_MemD.u_j09.mem[ci] = czero ? 1'b0 : CPAT[10];
+      m.b_MemD.u_g11.mem[ci] = czero ? 1'b0 : CPAT[11];
+      m.b_MemD.u_j11.mem[ci] = czero ? 1'b0 : CPAT[11];
+      m.b_MemD.u_a17.mem[ci] = czero ? 1'b0 : CPAT[12];
+      m.b_MemD.u_d17.mem[ci] = czero ? 1'b0 : CPAT[12];
+      m.b_MemD.u_a19.mem[ci] = czero ? 1'b0 : CPAT[13];
+      m.b_MemD.u_d19.mem[ci] = czero ? 1'b0 : CPAT[13];
+      m.b_MemD.u_g17.mem[ci] = czero ? 1'b0 : CPAT[14];
+      m.b_MemD.u_j17.mem[ci] = czero ? 1'b0 : CPAT[14];
+      m.b_MemD.u_g19.mem[ci] = czero ? 1'b0 : CPAT[15];
+      m.b_MemD.u_j19.mem[ci] = czero ? 1'b0 : CPAT[15];
+      m.b_MemD.u_a07.mem[ci] = czero ? 1'b0 : CPAT[16];
+      m.b_MemD.u_d07.mem[ci] = czero ? 1'b0 : CPAT[16];
+      m.b_MemD.u_g07.mem[ci] = czero ? 1'b0 : CPAT[17];
+      m.b_MemD.u_j07.mem[ci] = czero ? 1'b0 : CPAT[17];
     end
   end
 
@@ -1159,17 +1195,18 @@ module tb_readback;
   // goes high the part is shifting again, with SI grounded, so the word is
   // replaced by zeros within a few clocks.
   integer n_load_edge_rb, n_sin_hi, n_sind_hi;
-  integer n_d00, n_mdd, n_dmd, n_md, n_d00_e, n_dmd_e, n_md_e;
+  integer n_d00, n_mdd, n_dmd, n_md, n_d00_e, n_dmd_e, n_md_e, n_merr, n_ecf;
   reg d00_last, dmd_last, md_last;
   integer n_coin_dmd, n_h05out, n_cwe, n_cce, n_d0in, n_dmd_ok, n_md_ok, n_dmd16, n_md16;
+  integer n_we_fall, n_we_match, n_sind1; reg we_d_rb;
   reg [17:0] dmd_cap, md_cap;
   reg outck_d_rb, load_pend_rb, seen_load;
   reg [7:0] q_at_load;
   reg sin_at_load, qh_at_load;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
-    n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0;
+    n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; we_d_rb=1'b1;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
     q_at_load = 8'hxx; sin_at_load = 1'bx; qh_at_load = 1'bx;
@@ -1196,6 +1233,11 @@ module tb_readback;
     //        -> h05 (MC10197, enabled by MD_D) -> dMD -> ProcH i01 -> Md
     if (m.b_MemD.D_00)      n_d00  = n_d00  + 1;
     if (m.b_MemD.MD_u_D)    n_mdd  = n_mdd  + 1;
+    // IS AN ERROR DRIVING THE FETCH? MemD e03 makes MemError and ECFault; if
+    // the seeded cache has bad parity, the error would force the refetch and
+    // the "real fill" would be an artefact of the seeding.
+    if (m.b_MemD.MemError) n_merr = n_merr + 1;
+    if (m.b_MemD.ECFault)  n_ecf  = n_ecf  + 1;
     if (m.dMD_00)           n_dmd  = n_dmd  + 1;
     if (m.b_ProcH.Md_00)    n_md   = n_md   + 1;
     // COUNT THE COINCIDENCE, not the levels. h05 is a hex AND with a common
@@ -1230,6 +1272,16 @@ module tb_readback;
     if (!m.b_MemD.u_a03.p15) n_cwe = n_cwe + 1;
     if (!m.b_MemD.u_a03.p16) n_cce = n_cce + 1;
     if (m.b_MemD.D0in_00)    n_d0in = n_d0in + 1;
+    // THE FILL ITSELF. The cache write is a03's WE' (WriteD0'a) falling with
+    // D0in as data. For a REAL fill that data must be the word that just came
+    // off storage -- SinD. Count the COINCIDENCE, not the levels: a write that
+    // never coincides with the fetched data is a write of something else.
+    if (!m.b_MemD.u_a03.p15 && we_d_rb) begin      // WE' falling
+      n_we_fall = n_we_fall + 1;
+      if (m.b_MemD.D0in_00 === m.b_MemD.SinD_00) n_we_match = n_we_match + 1;
+    end
+    we_d_rb <= m.b_MemD.u_a03.p15;
+    if (m.b_MemD.SinD_00) n_sind1 = n_sind1 + 1;
     if (m.b_MemD.D_00  !== d00_last)  begin d00_last  = m.b_MemD.D_00;  n_d00_e = n_d00_e + 1; end
     if (m.dMD_00       !== dmd_last)  begin dmd_last  = m.dMD_00;       n_dmd_e = n_dmd_e + 1; end
     if (m.b_ProcH.Md_00!== md_last)   begin md_last   = m.b_ProcH.Md_00;n_md_e  = n_md_e  + 1; end
@@ -3131,10 +3183,14 @@ module tb_readback;
 
     $display("tb_readback: RETURN PATH -- D.00 high %0d (edges %0d) | MD_D high %0d | dMD.00 high %0d (edges %0d) | Md.00 high %0d (edges %0d)",
              n_d00, n_d00_e, n_mdd, n_dmd, n_dmd_e, n_md, n_md_e);
+    $display("tb_readback:   ERRORS -- MemError high %0d, ECFault high %0d",
+             n_merr, n_ecf);
     $display("tb_readback:   h05 gate -- D.00 & MD_D coincide on %0d samples; h05's own output stub high on %0d",
              n_coin_dmd, n_h05out);
     $display("tb_readback:   cache fill -- a03 WE' low on %0d, CE' low on %0d, D0in.00 high on %0d",
              n_cwe, n_cce, n_d0in);
+    $display("tb_readback:   THE FILL -- a03 WE' falling edges %0d, of which D0in.00 == SinD.00: %0d | SinD.00 high on %0d",
+             n_we_fall, n_we_match, n_sind1);
     $display("tb_readback:   RETURN WORD (cache seeded %b) -- dMD=%b matched on %0d | Md=%b matched on %0d",
              CPAT, dmd_cap, n_dmd_ok, md_cap, n_md_ok);
     $display("tb_readback:   ...16-bit data word alone -- dMD matched on %0d, Md matched on %0d of %0d MD_D samples",

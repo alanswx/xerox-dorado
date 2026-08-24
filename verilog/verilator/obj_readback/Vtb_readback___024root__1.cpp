@@ -11,6 +11,54 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     // Locals
     IData/*31:0*/ tb_readback__DOT__i;
     tb_readback__DOT__i = 0;
+    CData/*2:0*/ __Vtask_tb_readback__DOT__strobe__431__fn;
+    __Vtask_tb_readback__DOT__strobe__431__fn = 0;
+    CData/*7:0*/ __Vtask_tb_readback__DOT__strobe__431__data;
+    __Vtask_tb_readback__DOT__strobe__431__data = 0;
+    CData/*0:0*/ __Vtask_tb_readback__DOT__strobe__431__ss;
+    __Vtask_tb_readback__DOT__strobe__431__ss = 0;
+    IData/*31:0*/ __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__432__Vfuncout;
+    __Vfunc_tb_readback__DOT__WT__432__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__432__n;
+    __Vfunc_tb_readback__DOT__WT__432__n = 0;
+    IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__433__Vfuncout;
+    __Vfunc_tb_readback__DOT__WT__433__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__433__n;
+    __Vfunc_tb_readback__DOT__WT__433__n = 0;
+    IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__434__Vfuncout;
+    __Vfunc_tb_readback__DOT__WT__434__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__434__n;
+    __Vfunc_tb_readback__DOT__WT__434__n = 0;
+    CData/*2:0*/ __Vtask_tb_readback__DOT__strobe__435__fn;
+    __Vtask_tb_readback__DOT__strobe__435__fn = 0;
+    CData/*7:0*/ __Vtask_tb_readback__DOT__strobe__435__data;
+    __Vtask_tb_readback__DOT__strobe__435__data = 0;
+    CData/*0:0*/ __Vtask_tb_readback__DOT__strobe__435__ss;
+    __Vtask_tb_readback__DOT__strobe__435__ss = 0;
+    IData/*31:0*/ __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__436__Vfuncout;
+    __Vfunc_tb_readback__DOT__WT__436__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__436__n;
+    __Vfunc_tb_readback__DOT__WT__436__n = 0;
+    IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__437__Vfuncout;
+    __Vfunc_tb_readback__DOT__WT__437__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__437__n;
+    __Vfunc_tb_readback__DOT__WT__437__n = 0;
+    IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__438__Vfuncout;
+    __Vfunc_tb_readback__DOT__WT__438__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__438__n;
+    __Vfunc_tb_readback__DOT__WT__438__n = 0;
     CData/*2:0*/ __Vtask_tb_readback__DOT__strobe__439__fn;
     __Vtask_tb_readback__DOT__strobe__439__fn = 0;
     CData/*7:0*/ __Vtask_tb_readback__DOT__strobe__439__data;
@@ -1248,19 +1296,176 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     IData/*31:0*/ __Vfunc_tb_readback__DOT__WT__646__n;
     __Vfunc_tb_readback__DOT__WT__646__n = 0;
     // Body
-    if (VL_GTS_III(32, 1U, vlSelfRef.__Vfunc_tb_readback__DOT__WT__438__Vfuncout)) {
-        vlSelfRef.__Vfunc_tb_readback__DOT__WT__438__Vfuncout = 1U;
-    }
-    vlSelfRef.__Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
-        = vlSelfRef.__Vfunc_tb_readback__DOT__WT__438__Vfuncout;
-    while (VL_LTS_III(32, 0U, vlSelfRef.__Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+    while (VL_LTS_III(32, 0U, vlSelfRef.__Vtask_tb_readback__DOT__strobe__427__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
         co_await vlSelfRef.__VtrigSched_h531d4bfc__0.trigger(0U, 
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
-        vlSelfRef.__Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
-            = (vlSelfRef.__Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
+                                                             1316);
+        vlSelfRef.__Vtask_tb_readback__DOT__strobe__427__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (vlSelfRef.__Vtask_tb_readback__DOT__strobe__427__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 = 0x000000c8U;
+    while (VL_LTS_III(32, 0U, vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17)) {
+        co_await vlSelfRef.__VtrigSched_h531d4bfc__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_readback.sys_clk)", 
+                                                             "verilog/verilator/tb_readback.sv", 
+                                                             1887);
+        vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
+            = (vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
+               - (IData)(1U));
+    }
+    __Vtask_tb_readback__DOT__strobe__431__ss = 0U;
+    __Vtask_tb_readback__DOT__strobe__431__data = 0x4eU;
+    __Vtask_tb_readback__DOT__strobe__431__fn = 0U;
+    __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_readback__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__431__fn)));
+    vlSelfRef.tb_readback__DOT__cpout = (((IData)(__Vtask_tb_readback__DOT__strobe__431__data) 
+                                          << 1U) | (IData)(__Vtask_tb_readback__DOT__strobe__431__ss));
+    __Vfunc_tb_readback__DOT__WT__432__n = 4U;
+    __Vfunc_tb_readback__DOT__WT__432__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_readback__DOT__WT__432__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_readback__DOT__WT__432__Vfuncout)) {
+        __Vfunc_tb_readback__DOT__WT__432__Vfuncout = 1U;
+    }
+    __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_readback__DOT__WT__432__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h531d4bfc__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_readback.sys_clk)", 
+                                                             "verilog/verilator/tb_readback.sv", 
+                                                             1309);
+        __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_readback__DOT__strb_n = 0U;
+    __Vfunc_tb_readback__DOT__WT__433__n = 6U;
+    __Vfunc_tb_readback__DOT__WT__433__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_readback__DOT__WT__433__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_readback__DOT__WT__433__Vfuncout)) {
+        __Vfunc_tb_readback__DOT__WT__433__Vfuncout = 1U;
+    }
+    __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_readback__DOT__WT__433__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h531d4bfc__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_readback.sys_clk)", 
+                                                             "verilog/verilator/tb_readback.sv", 
+                                                             1310);
+        __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_readback__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__431__fn))) {
+        vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__431__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__431__ss)));
+    }
+    __Vfunc_tb_readback__DOT__WT__434__n = 4U;
+    __Vfunc_tb_readback__DOT__WT__434__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_readback__DOT__WT__434__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_readback__DOT__WT__434__Vfuncout)) {
+        __Vfunc_tb_readback__DOT__WT__434__Vfuncout = 1U;
+    }
+    __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_readback__DOT__WT__434__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h531d4bfc__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_readback.sys_clk)", 
+                                                             "verilog/verilator/tb_readback.sv", 
+                                                             1316);
+        __Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_readback__DOT__strobe__431__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 = 0x000000c8U;
+    while (VL_LTS_III(32, 0U, vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18)) {
+        co_await vlSelfRef.__VtrigSched_h531d4bfc__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_readback.sys_clk)", 
+                                                             "verilog/verilator/tb_readback.sv", 
+                                                             1889);
+        vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
+            = (vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
+               - (IData)(1U));
+    }
+    __Vtask_tb_readback__DOT__strobe__435__ss = 1U;
+    __Vtask_tb_readback__DOT__strobe__435__data = 0U;
+    __Vtask_tb_readback__DOT__strobe__435__fn = 0U;
+    __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_readback__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__435__fn)));
+    vlSelfRef.tb_readback__DOT__cpout = (((IData)(__Vtask_tb_readback__DOT__strobe__435__data) 
+                                          << 1U) | (IData)(__Vtask_tb_readback__DOT__strobe__435__ss));
+    __Vfunc_tb_readback__DOT__WT__436__n = 4U;
+    __Vfunc_tb_readback__DOT__WT__436__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_readback__DOT__WT__436__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_readback__DOT__WT__436__Vfuncout)) {
+        __Vfunc_tb_readback__DOT__WT__436__Vfuncout = 1U;
+    }
+    __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_readback__DOT__WT__436__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h531d4bfc__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_readback.sys_clk)", 
+                                                             "verilog/verilator/tb_readback.sv", 
+                                                             1309);
+        __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_readback__DOT__strb_n = 0U;
+    __Vfunc_tb_readback__DOT__WT__437__n = 6U;
+    __Vfunc_tb_readback__DOT__WT__437__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_readback__DOT__WT__437__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_readback__DOT__WT__437__Vfuncout)) {
+        __Vfunc_tb_readback__DOT__WT__437__Vfuncout = 1U;
+    }
+    __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_readback__DOT__WT__437__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h531d4bfc__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_readback.sys_clk)", 
+                                                             "verilog/verilator/tb_readback.sv", 
+                                                             1310);
+        __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_readback__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__435__fn))) {
+        vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__435__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__435__ss)));
+    }
+    __Vfunc_tb_readback__DOT__WT__438__n = 4U;
+    __Vfunc_tb_readback__DOT__WT__438__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_readback__DOT__WT__438__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_readback__DOT__WT__438__Vfuncout)) {
+        __Vfunc_tb_readback__DOT__WT__438__Vfuncout = 1U;
+    }
+    __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_readback__DOT__WT__438__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h531d4bfc__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_readback.sys_clk)", 
+                                                             "verilog/verilator/tb_readback.sv", 
+                                                             1316);
+        __Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_readback__DOT__strobe__435__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
     }
     vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 = 0x000000c8U;
@@ -1269,7 +1474,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1839);
+                                                             1891);
         vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -1298,7 +1503,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__439__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__439__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -1317,7 +1522,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__439__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__439__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -1325,6 +1530,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__439__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__439__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__439__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__442__n = 4U;
     __Vfunc_tb_readback__DOT__WT__442__Vfuncout = VL_DIVS_III(32, 
@@ -1339,7 +1546,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__439__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__439__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -1368,7 +1575,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__443__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__443__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -1387,7 +1594,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__443__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__443__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -1395,6 +1602,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__443__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__443__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__443__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__446__n = 4U;
     __Vfunc_tb_readback__DOT__WT__446__Vfuncout = VL_DIVS_III(32, 
@@ -1409,7 +1618,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__443__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__443__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -1438,7 +1647,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__447__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__447__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -1457,7 +1666,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__447__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__447__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -1465,6 +1674,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__447__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__447__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__447__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__450__n = 4U;
     __Vfunc_tb_readback__DOT__WT__450__Vfuncout = VL_DIVS_III(32, 
@@ -1479,7 +1690,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__447__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__447__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -1508,7 +1719,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__451__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__451__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -1527,7 +1738,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__451__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__451__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -1535,6 +1746,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__451__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__451__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__451__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__454__n = 4U;
     __Vfunc_tb_readback__DOT__WT__454__Vfuncout = VL_DIVS_III(32, 
@@ -1549,7 +1762,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__451__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__451__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -1579,7 +1792,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__456__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__456__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -1598,7 +1811,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__456__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__456__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -1606,6 +1819,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__456__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__456__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__456__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__459__n = 4U;
     __Vfunc_tb_readback__DOT__WT__459__Vfuncout = VL_DIVS_III(32, 
@@ -1620,7 +1835,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__456__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__456__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -1631,7 +1846,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1847);
+                                                             1899);
         vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -1658,7 +1873,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__460__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__460__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -1677,7 +1892,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__460__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__460__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -1685,6 +1900,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__460__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__460__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__460__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__463__n = 4U;
     __Vfunc_tb_readback__DOT__WT__463__Vfuncout = VL_DIVS_III(32, 
@@ -1699,7 +1916,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__460__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__460__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -1710,7 +1927,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1849);
+                                                             1901);
         vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -1737,7 +1954,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__464__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__464__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -1756,7 +1973,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__464__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__464__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -1764,6 +1981,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__464__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__464__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__464__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__467__n = 4U;
     __Vfunc_tb_readback__DOT__WT__467__Vfuncout = VL_DIVS_III(32, 
@@ -1778,7 +1997,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__464__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__464__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -1796,7 +2015,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1851);
+                                                             1903);
         vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (vlSelfRef.__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -1897,7 +2116,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__471__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__471__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -1916,7 +2135,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__471__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__471__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -1924,6 +2143,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__471__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__471__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__471__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__474__n = 4U;
     __Vfunc_tb_readback__DOT__WT__474__Vfuncout = VL_DIVS_III(32, 
@@ -1938,7 +2159,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__471__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__471__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -1949,7 +2170,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1835);
+                                                             1887);
         __Vtask_tb_readback__DOT__parc_micro__470__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_readback__DOT__parc_micro__470__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -1976,7 +2197,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__475__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__475__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -1995,7 +2216,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__475__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__475__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2003,6 +2224,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__475__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__475__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__475__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__478__n = 4U;
     __Vfunc_tb_readback__DOT__WT__478__Vfuncout = VL_DIVS_III(32, 
@@ -2017,7 +2240,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__475__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__475__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -2028,7 +2251,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1837);
+                                                             1889);
         __Vtask_tb_readback__DOT__parc_micro__470__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_readback__DOT__parc_micro__470__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -2055,7 +2278,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__479__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__479__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -2074,7 +2297,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__479__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__479__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2082,6 +2305,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__479__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__479__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__479__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__482__n = 4U;
     __Vfunc_tb_readback__DOT__WT__482__Vfuncout = VL_DIVS_III(32, 
@@ -2096,7 +2321,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__479__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__479__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -2107,7 +2332,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1839);
+                                                             1891);
         __Vtask_tb_readback__DOT__parc_micro__470__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_readback__DOT__parc_micro__470__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -2136,7 +2361,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__483__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__483__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -2155,7 +2380,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__483__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__483__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2163,6 +2388,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__483__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__483__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__483__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__486__n = 4U;
     __Vfunc_tb_readback__DOT__WT__486__Vfuncout = VL_DIVS_III(32, 
@@ -2177,7 +2404,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__483__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__483__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -2206,7 +2433,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__487__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__487__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -2225,7 +2452,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__487__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__487__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2233,6 +2460,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__487__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__487__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__487__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__490__n = 4U;
     __Vfunc_tb_readback__DOT__WT__490__Vfuncout = VL_DIVS_III(32, 
@@ -2247,7 +2476,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__487__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__487__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -2276,7 +2505,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__491__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__491__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -2295,7 +2524,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__491__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__491__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2303,6 +2532,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__491__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__491__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__491__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__494__n = 4U;
     __Vfunc_tb_readback__DOT__WT__494__Vfuncout = VL_DIVS_III(32, 
@@ -2317,7 +2548,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__491__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__491__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -2346,7 +2577,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__495__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__495__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -2365,7 +2596,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__495__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__495__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2373,6 +2604,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__495__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__495__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__495__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__498__n = 4U;
     __Vfunc_tb_readback__DOT__WT__498__Vfuncout = VL_DIVS_III(32, 
@@ -2387,7 +2620,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__495__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__495__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -2417,7 +2650,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__500__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__500__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -2436,7 +2669,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__500__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__500__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2444,6 +2677,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__500__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__500__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__500__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__503__n = 4U;
     __Vfunc_tb_readback__DOT__WT__503__Vfuncout = VL_DIVS_III(32, 
@@ -2458,7 +2693,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__500__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__500__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -2469,7 +2704,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1847);
+                                                             1899);
         __Vtask_tb_readback__DOT__parc_micro__470__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_readback__DOT__parc_micro__470__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -2496,7 +2731,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__504__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__504__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -2515,7 +2750,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__504__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__504__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2523,6 +2758,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__504__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__504__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__504__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__507__n = 4U;
     __Vfunc_tb_readback__DOT__WT__507__Vfuncout = VL_DIVS_III(32, 
@@ -2537,7 +2774,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__504__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__504__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -2548,7 +2785,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1849);
+                                                             1901);
         __Vtask_tb_readback__DOT__parc_micro__470__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_readback__DOT__parc_micro__470__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -2575,7 +2812,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__508__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__508__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -2594,7 +2831,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__508__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__508__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2602,6 +2839,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__508__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__508__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__508__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__511__n = 4U;
     __Vfunc_tb_readback__DOT__WT__511__Vfuncout = VL_DIVS_III(32, 
@@ -2616,7 +2855,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__508__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__508__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -2634,7 +2873,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1851);
+                                                             1903);
         __Vtask_tb_readback__DOT__parc_micro__470__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_readback__DOT__parc_micro__470__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -2700,7 +2939,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__515__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__515__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -2719,7 +2958,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__515__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__515__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2727,6 +2966,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__515__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__515__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__515__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__518__n = 4U;
     __Vfunc_tb_readback__DOT__WT__518__Vfuncout = VL_DIVS_III(32, 
@@ -2741,7 +2982,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__515__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__515__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -2752,7 +2993,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1835);
+                                                             1887);
         __Vtask_tb_readback__DOT__parc_micro__514__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_readback__DOT__parc_micro__514__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -2779,7 +3020,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__519__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__519__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -2798,7 +3039,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__519__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__519__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2806,6 +3047,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__519__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__519__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__519__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__522__n = 4U;
     __Vfunc_tb_readback__DOT__WT__522__Vfuncout = VL_DIVS_III(32, 
@@ -2820,7 +3063,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__519__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__519__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -2831,7 +3074,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1837);
+                                                             1889);
         __Vtask_tb_readback__DOT__parc_micro__514__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_readback__DOT__parc_micro__514__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -2858,7 +3101,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__523__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__523__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -2877,7 +3120,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__523__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__523__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2885,6 +3128,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__523__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__523__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__523__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__526__n = 4U;
     __Vfunc_tb_readback__DOT__WT__526__Vfuncout = VL_DIVS_III(32, 
@@ -2899,7 +3144,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__523__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__523__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -2910,7 +3155,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1839);
+                                                             1891);
         __Vtask_tb_readback__DOT__parc_micro__514__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_readback__DOT__parc_micro__514__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -2939,7 +3184,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__527__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__527__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -2958,7 +3203,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__527__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__527__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -2966,6 +3211,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__527__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__527__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__527__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__530__n = 4U;
     __Vfunc_tb_readback__DOT__WT__530__Vfuncout = VL_DIVS_III(32, 
@@ -2980,7 +3227,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__527__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__527__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3009,7 +3256,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__531__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__531__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3028,7 +3275,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__531__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__531__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3036,6 +3283,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__531__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__531__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__531__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__534__n = 4U;
     __Vfunc_tb_readback__DOT__WT__534__Vfuncout = VL_DIVS_III(32, 
@@ -3050,7 +3299,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__531__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__531__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3079,7 +3328,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__535__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__535__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3098,7 +3347,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__535__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__535__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3106,6 +3355,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__535__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__535__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__535__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__538__n = 4U;
     __Vfunc_tb_readback__DOT__WT__538__Vfuncout = VL_DIVS_III(32, 
@@ -3120,7 +3371,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__535__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__535__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3149,7 +3400,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__539__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__539__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3168,7 +3419,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__539__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__539__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3176,6 +3427,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__539__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__539__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__539__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__542__n = 4U;
     __Vfunc_tb_readback__DOT__WT__542__Vfuncout = VL_DIVS_III(32, 
@@ -3190,7 +3443,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__539__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__539__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3220,7 +3473,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__544__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__544__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3239,7 +3492,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__544__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__544__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3247,6 +3500,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__544__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__544__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__544__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__547__n = 4U;
     __Vfunc_tb_readback__DOT__WT__547__Vfuncout = VL_DIVS_III(32, 
@@ -3261,7 +3516,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__544__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__544__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3272,7 +3527,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1847);
+                                                             1899);
         __Vtask_tb_readback__DOT__parc_micro__514__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_readback__DOT__parc_micro__514__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -3299,7 +3554,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__548__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__548__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3318,7 +3573,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__548__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__548__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3326,6 +3581,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__548__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__548__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__548__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__551__n = 4U;
     __Vfunc_tb_readback__DOT__WT__551__Vfuncout = VL_DIVS_III(32, 
@@ -3340,7 +3597,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__548__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__548__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3351,7 +3608,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1849);
+                                                             1901);
         __Vtask_tb_readback__DOT__parc_micro__514__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_readback__DOT__parc_micro__514__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -3378,7 +3635,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__552__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__552__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3397,7 +3654,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__552__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__552__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3405,6 +3662,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__552__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__552__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__552__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__555__n = 4U;
     __Vfunc_tb_readback__DOT__WT__555__Vfuncout = VL_DIVS_III(32, 
@@ -3419,7 +3678,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__552__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__552__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3437,7 +3696,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1851);
+                                                             1903);
         __Vtask_tb_readback__DOT__parc_micro__514__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_readback__DOT__parc_micro__514__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -4409,7 +4668,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__561__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__561__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4428,7 +4687,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__561__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__561__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4436,6 +4695,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__561__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__561__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__561__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__564__n = 4U;
     __Vfunc_tb_readback__DOT__WT__564__Vfuncout = VL_DIVS_III(32, 
@@ -4450,7 +4711,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__561__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__561__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4461,7 +4722,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1835);
+                                                             1887);
         __Vtask_tb_readback__DOT__parc_micro__560__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_readback__DOT__parc_micro__560__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -4488,7 +4749,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__565__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__565__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4507,7 +4768,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__565__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__565__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4515,6 +4776,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__565__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__565__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__565__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__568__n = 4U;
     __Vfunc_tb_readback__DOT__WT__568__Vfuncout = VL_DIVS_III(32, 
@@ -4529,7 +4792,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__565__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__565__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4540,7 +4803,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1837);
+                                                             1889);
         __Vtask_tb_readback__DOT__parc_micro__560__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_readback__DOT__parc_micro__560__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -4567,7 +4830,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__569__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__569__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4586,7 +4849,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__569__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__569__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4594,6 +4857,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__569__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__569__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__569__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__572__n = 4U;
     __Vfunc_tb_readback__DOT__WT__572__Vfuncout = VL_DIVS_III(32, 
@@ -4608,7 +4873,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__569__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__569__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4619,7 +4884,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1839);
+                                                             1891);
         __Vtask_tb_readback__DOT__parc_micro__560__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_readback__DOT__parc_micro__560__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -4648,7 +4913,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__573__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__573__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4667,7 +4932,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__573__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__573__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4675,6 +4940,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__573__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__573__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__573__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__576__n = 4U;
     __Vfunc_tb_readback__DOT__WT__576__Vfuncout = VL_DIVS_III(32, 
@@ -4689,7 +4956,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__573__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__573__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4718,7 +4985,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__577__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__577__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4737,7 +5004,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__577__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__577__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4745,6 +5012,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__577__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__577__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__577__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__580__n = 4U;
     __Vfunc_tb_readback__DOT__WT__580__Vfuncout = VL_DIVS_III(32, 
@@ -4759,7 +5028,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__577__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__577__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4788,7 +5057,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__581__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__581__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4807,7 +5076,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__581__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__581__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4815,6 +5084,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__581__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__581__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__581__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__584__n = 4U;
     __Vfunc_tb_readback__DOT__WT__584__Vfuncout = VL_DIVS_III(32, 
@@ -4829,7 +5100,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__581__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__581__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4858,7 +5129,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__585__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__585__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4877,7 +5148,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__585__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__585__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4885,6 +5156,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__585__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__585__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__585__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__588__n = 4U;
     __Vfunc_tb_readback__DOT__WT__588__Vfuncout = VL_DIVS_III(32, 
@@ -4899,7 +5172,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__585__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__585__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4929,7 +5202,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__590__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__590__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4948,7 +5221,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__590__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__590__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4956,6 +5229,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__590__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__590__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__590__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__593__n = 4U;
     __Vfunc_tb_readback__DOT__WT__593__Vfuncout = VL_DIVS_III(32, 
@@ -4970,7 +5245,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__590__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__590__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4981,7 +5256,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1847);
+                                                             1899);
         __Vtask_tb_readback__DOT__parc_micro__560__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_readback__DOT__parc_micro__560__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -5008,7 +5283,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__594__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__594__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5027,7 +5302,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__594__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__594__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5035,6 +5310,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__594__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__594__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__594__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__597__n = 4U;
     __Vfunc_tb_readback__DOT__WT__597__Vfuncout = VL_DIVS_III(32, 
@@ -5049,7 +5326,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__594__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__594__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5060,7 +5337,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1849);
+                                                             1901);
         __Vtask_tb_readback__DOT__parc_micro__560__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_readback__DOT__parc_micro__560__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -5087,7 +5364,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__598__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__598__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5106,7 +5383,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__598__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__598__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5114,6 +5391,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__598__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__598__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__598__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__601__n = 4U;
     __Vfunc_tb_readback__DOT__WT__601__Vfuncout = VL_DIVS_III(32, 
@@ -5128,7 +5407,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__598__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__598__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5146,7 +5425,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1851);
+                                                             1903);
         __Vtask_tb_readback__DOT__parc_micro__560__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_readback__DOT__parc_micro__560__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -5212,7 +5491,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__605__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__605__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5231,7 +5510,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__605__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__605__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5239,6 +5518,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__605__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__605__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__605__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__608__n = 4U;
     __Vfunc_tb_readback__DOT__WT__608__Vfuncout = VL_DIVS_III(32, 
@@ -5253,7 +5534,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__605__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__605__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5264,7 +5545,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1835);
+                                                             1887);
         __Vtask_tb_readback__DOT__parc_micro__604__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_readback__DOT__parc_micro__604__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -5291,7 +5572,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__609__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__609__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5310,7 +5591,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__609__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__609__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5318,6 +5599,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__609__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__609__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__609__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__612__n = 4U;
     __Vfunc_tb_readback__DOT__WT__612__Vfuncout = VL_DIVS_III(32, 
@@ -5332,7 +5615,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__609__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__609__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5343,7 +5626,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1837);
+                                                             1889);
         __Vtask_tb_readback__DOT__parc_micro__604__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_readback__DOT__parc_micro__604__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -5370,7 +5653,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__613__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__613__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5389,7 +5672,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__613__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__613__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5397,6 +5680,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__613__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__613__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__613__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__616__n = 4U;
     __Vfunc_tb_readback__DOT__WT__616__Vfuncout = VL_DIVS_III(32, 
@@ -5411,7 +5696,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__613__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__613__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5422,7 +5707,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1839);
+                                                             1891);
         __Vtask_tb_readback__DOT__parc_micro__604__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_readback__DOT__parc_micro__604__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -5451,7 +5736,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__617__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__617__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5470,7 +5755,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__617__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__617__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5478,6 +5763,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__617__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__617__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__617__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__620__n = 4U;
     __Vfunc_tb_readback__DOT__WT__620__Vfuncout = VL_DIVS_III(32, 
@@ -5492,7 +5779,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__617__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__617__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5521,7 +5808,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__621__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__621__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5540,7 +5827,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__621__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__621__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5548,6 +5835,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__621__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__621__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__621__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__624__n = 4U;
     __Vfunc_tb_readback__DOT__WT__624__Vfuncout = VL_DIVS_III(32, 
@@ -5562,7 +5851,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__621__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__621__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5591,7 +5880,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__625__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__625__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5610,7 +5899,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__625__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__625__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5618,6 +5907,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__625__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__625__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__625__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__628__n = 4U;
     __Vfunc_tb_readback__DOT__WT__628__Vfuncout = VL_DIVS_III(32, 
@@ -5632,7 +5923,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__625__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__625__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5661,7 +5952,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__629__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__629__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5680,7 +5971,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__629__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__629__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5688,6 +5979,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__629__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__629__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__629__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__632__n = 4U;
     __Vfunc_tb_readback__DOT__WT__632__Vfuncout = VL_DIVS_III(32, 
@@ -5702,7 +5995,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__629__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__629__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5732,7 +6025,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__634__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__634__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5751,7 +6044,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__634__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__634__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5759,6 +6052,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__634__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__634__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__634__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__637__n = 4U;
     __Vfunc_tb_readback__DOT__WT__637__Vfuncout = VL_DIVS_III(32, 
@@ -5773,7 +6068,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__634__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__634__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5784,7 +6079,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1847);
+                                                             1899);
         __Vtask_tb_readback__DOT__parc_micro__604__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_readback__DOT__parc_micro__604__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -5811,7 +6106,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__638__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__638__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5830,7 +6125,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__638__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__638__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5838,6 +6133,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__638__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__638__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__638__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__641__n = 4U;
     __Vfunc_tb_readback__DOT__WT__641__Vfuncout = VL_DIVS_III(32, 
@@ -5852,7 +6149,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__638__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__638__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5863,7 +6160,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1849);
+                                                             1901);
         __Vtask_tb_readback__DOT__parc_micro__604__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_readback__DOT__parc_micro__604__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -5890,7 +6187,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1257);
+                                                             1309);
         __Vtask_tb_readback__DOT__strobe__642__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_readback__DOT__strobe__642__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5909,7 +6206,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1258);
+                                                             1310);
         __Vtask_tb_readback__DOT__strobe__642__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_readback__DOT__strobe__642__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5917,6 +6214,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
     vlSelfRef.tb_readback__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__642__fn))) {
         vlSelfRef.tb_readback__DOT__setrun = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__642__data));
+        vlSelfRef.tb_readback__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_readback__DOT__strobe__642__ss)));
     }
     __Vfunc_tb_readback__DOT__WT__645__n = 4U;
     __Vfunc_tb_readback__DOT__WT__645__Vfuncout = VL_DIVS_III(32, 
@@ -5931,7 +6230,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1264);
+                                                             1316);
         __Vtask_tb_readback__DOT__strobe__642__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_readback__DOT__strobe__642__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5949,7 +6248,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__1(Vtb_readba
                                                              nullptr, 
                                                              "@(posedge tb_readback.sys_clk)", 
                                                              "verilog/verilator/tb_readback.sv", 
-                                                             1851);
+                                                             1903);
         __Vtask_tb_readback__DOT__parc_micro__604__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_readback__DOT__parc_micro__604__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -9617,7 +9916,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__650__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__650__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -9636,7 +9935,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__650__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__650__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -9645,6 +9944,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__650__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__650__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__650__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__653__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__653__Vfuncout 
@@ -9659,7 +9960,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__650__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__650__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -9689,7 +9990,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__654__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__654__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -9708,7 +10009,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__654__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__654__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -9717,6 +10018,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__654__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__654__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__654__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__657__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__657__Vfuncout 
@@ -9731,7 +10034,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__654__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__654__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -9771,7 +10074,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__659__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__659__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -9790,7 +10093,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__659__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__659__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -9799,6 +10102,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__659__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__659__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__659__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__662__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__662__Vfuncout 
@@ -9813,7 +10118,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__659__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__659__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -9824,7 +10129,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1835);
+                                                                         1887);
                     __Vtask_tb_readback__DOT__parc_micro__658__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                         = (__Vtask_tb_readback__DOT__parc_micro__658__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                            - (IData)(1U));
@@ -9853,7 +10158,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__663__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__663__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -9872,7 +10177,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__663__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__663__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -9881,6 +10186,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__663__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__663__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__663__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__666__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__666__Vfuncout 
@@ -9895,7 +10202,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__663__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__663__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -9906,7 +10213,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1837);
+                                                                         1889);
                     __Vtask_tb_readback__DOT__parc_micro__658__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                         = (__Vtask_tb_readback__DOT__parc_micro__658__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                            - (IData)(1U));
@@ -9935,7 +10242,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__667__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__667__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -9954,7 +10261,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__667__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__667__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -9963,6 +10270,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__667__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__667__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__667__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__670__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__670__Vfuncout 
@@ -9977,7 +10286,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__667__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__667__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -9988,7 +10297,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1839);
+                                                                         1891);
                     __Vtask_tb_readback__DOT__parc_micro__658__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                         = (__Vtask_tb_readback__DOT__parc_micro__658__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                            - (IData)(1U));
@@ -10020,7 +10329,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__671__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__671__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -10039,7 +10348,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__671__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__671__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -10048,6 +10357,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__671__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__671__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__671__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__674__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__674__Vfuncout 
@@ -10062,7 +10373,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__671__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__671__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -10094,7 +10405,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__675__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__675__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -10113,7 +10424,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__675__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__675__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -10122,6 +10433,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__675__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__675__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__675__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__678__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__678__Vfuncout 
@@ -10136,7 +10449,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__675__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__675__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -10168,7 +10481,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__679__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__679__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -10187,7 +10500,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__679__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__679__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -10196,6 +10509,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__679__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__679__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__679__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__682__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__682__Vfuncout 
@@ -10210,7 +10525,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__679__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__679__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -10242,7 +10557,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__683__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__683__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -10261,7 +10576,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__683__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__683__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -10270,6 +10585,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__683__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__683__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__683__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__686__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__686__Vfuncout 
@@ -10284,7 +10601,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__683__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__683__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -10316,7 +10633,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__688__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__688__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -10335,7 +10652,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__688__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__688__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -10344,6 +10661,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__688__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__688__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__688__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__691__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__691__Vfuncout 
@@ -10358,7 +10677,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__688__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__688__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -10369,7 +10688,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1847);
+                                                                         1899);
                     __Vtask_tb_readback__DOT__parc_micro__658__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                         = (__Vtask_tb_readback__DOT__parc_micro__658__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                            - (IData)(1U));
@@ -10398,7 +10717,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__692__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__692__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -10417,7 +10736,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__692__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__692__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -10426,6 +10745,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__692__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__692__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__692__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__695__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__695__Vfuncout 
@@ -10440,7 +10761,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__692__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__692__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -10451,7 +10772,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1849);
+                                                                         1901);
                     __Vtask_tb_readback__DOT__parc_micro__658__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                         = (__Vtask_tb_readback__DOT__parc_micro__658__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                            - (IData)(1U));
@@ -10480,7 +10801,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__696__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__696__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -10499,7 +10820,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__696__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__696__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -10508,6 +10829,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__696__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__696__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__696__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__699__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__699__Vfuncout 
@@ -10522,7 +10845,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__696__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__696__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -10540,7 +10863,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1851);
+                                                                         1903);
                     __Vtask_tb_readback__DOT__parc_micro__658__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                         = (__Vtask_tb_readback__DOT__parc_micro__658__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                            - (IData)(1U));
@@ -10616,7 +10939,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__703__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__703__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -10635,7 +10958,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__703__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__703__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -10644,6 +10967,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__703__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__703__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__703__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__706__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__706__Vfuncout 
@@ -10658,7 +10983,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__703__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__703__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -10669,7 +10994,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1835);
+                                                                         1887);
                     __Vtask_tb_readback__DOT__parc_micro__702__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                         = (__Vtask_tb_readback__DOT__parc_micro__702__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                            - (IData)(1U));
@@ -10698,7 +11023,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__707__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__707__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -10717,7 +11042,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__707__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__707__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -10726,6 +11051,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__707__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__707__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__707__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__710__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__710__Vfuncout 
@@ -10740,7 +11067,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__707__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__707__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -10751,7 +11078,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1837);
+                                                                         1889);
                     __Vtask_tb_readback__DOT__parc_micro__702__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                         = (__Vtask_tb_readback__DOT__parc_micro__702__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                            - (IData)(1U));
@@ -10780,7 +11107,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__711__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__711__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -10799,7 +11126,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__711__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__711__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -10808,6 +11135,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__711__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__711__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__711__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__714__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__714__Vfuncout 
@@ -10822,7 +11151,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__711__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__711__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -10833,7 +11162,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1839);
+                                                                         1891);
                     __Vtask_tb_readback__DOT__parc_micro__702__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                         = (__Vtask_tb_readback__DOT__parc_micro__702__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                            - (IData)(1U));
@@ -10865,7 +11194,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__715__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__715__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -10884,7 +11213,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__715__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__715__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -10893,6 +11222,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__715__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__715__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__715__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__718__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__718__Vfuncout 
@@ -10907,7 +11238,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__715__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__715__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -10939,7 +11270,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__719__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__719__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -10958,7 +11289,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__719__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__719__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -10967,6 +11298,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__719__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__719__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__719__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__722__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__722__Vfuncout 
@@ -10981,7 +11314,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__719__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__719__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -11013,7 +11346,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__723__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__723__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -11032,7 +11365,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__723__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__723__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -11041,6 +11374,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__723__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__723__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__723__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__726__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__726__Vfuncout 
@@ -11055,7 +11390,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__723__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__723__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -11087,7 +11422,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__727__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__727__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -11106,7 +11441,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__727__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__727__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -11115,6 +11450,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__727__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__727__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__727__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__730__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__730__Vfuncout 
@@ -11129,7 +11466,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__727__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__727__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -11161,7 +11498,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__732__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__732__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -11180,7 +11517,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__732__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__732__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -11189,6 +11526,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__732__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__732__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__732__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__735__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__735__Vfuncout 
@@ -11203,7 +11542,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__732__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__732__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -11214,7 +11553,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1847);
+                                                                         1899);
                     __Vtask_tb_readback__DOT__parc_micro__702__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                         = (__Vtask_tb_readback__DOT__parc_micro__702__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                            - (IData)(1U));
@@ -11243,7 +11582,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__736__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__736__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -11262,7 +11601,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__736__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__736__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -11271,6 +11610,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__736__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__736__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__736__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__739__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__739__Vfuncout 
@@ -11285,7 +11626,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__736__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__736__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -11296,7 +11637,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1849);
+                                                                         1901);
                     __Vtask_tb_readback__DOT__parc_micro__702__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                         = (__Vtask_tb_readback__DOT__parc_micro__702__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                            - (IData)(1U));
@@ -11325,7 +11666,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__740__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__740__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -11344,7 +11685,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__740__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__740__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -11353,6 +11694,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__740__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__740__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__740__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__743__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__743__Vfuncout 
@@ -11367,7 +11710,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__740__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__740__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -11385,7 +11728,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1851);
+                                                                         1903);
                     __Vtask_tb_readback__DOT__parc_micro__702__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                         = (__Vtask_tb_readback__DOT__parc_micro__702__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                            - (IData)(1U));
@@ -11463,7 +11806,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__746__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__746__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -11482,7 +11825,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__746__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__746__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -11491,6 +11834,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__746__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__746__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__746__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__749__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__749__Vfuncout 
@@ -11505,7 +11850,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__746__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__746__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -11535,7 +11880,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__750__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__750__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -11554,7 +11899,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__750__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__750__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -11563,6 +11908,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__750__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__750__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__750__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__753__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__753__Vfuncout 
@@ -11577,7 +11924,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__750__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__750__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -11619,7 +11966,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__755__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__755__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -11638,7 +11985,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__755__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__755__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -11647,6 +11994,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__755__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__755__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__755__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__758__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__758__Vfuncout 
@@ -11661,7 +12010,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__755__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__755__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -11672,7 +12021,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1835);
+                                                                             1887);
                         __Vtask_tb_readback__DOT__parc_micro__754__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                             = (__Vtask_tb_readback__DOT__parc_micro__754__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                                - (IData)(1U));
@@ -11701,7 +12050,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__759__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__759__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -11720,7 +12069,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__759__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__759__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -11729,6 +12078,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__759__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__759__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__759__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__762__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__762__Vfuncout 
@@ -11743,7 +12094,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__759__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__759__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -11754,7 +12105,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1837);
+                                                                             1889);
                         __Vtask_tb_readback__DOT__parc_micro__754__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                             = (__Vtask_tb_readback__DOT__parc_micro__754__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                                - (IData)(1U));
@@ -11783,7 +12134,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__763__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__763__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -11802,7 +12153,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__763__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__763__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -11811,6 +12162,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__763__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__763__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__763__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__766__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__766__Vfuncout 
@@ -11825,7 +12178,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__763__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__763__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -11836,7 +12189,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1839);
+                                                                             1891);
                         __Vtask_tb_readback__DOT__parc_micro__754__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                             = (__Vtask_tb_readback__DOT__parc_micro__754__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                                - (IData)(1U));
@@ -11868,7 +12221,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__767__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__767__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -11887,7 +12240,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__767__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__767__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -11896,6 +12249,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__767__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__767__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__767__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__770__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__770__Vfuncout 
@@ -11910,7 +12265,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__767__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__767__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -11942,7 +12297,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__771__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__771__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -11961,7 +12316,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__771__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__771__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -11970,6 +12325,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__771__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__771__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__771__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__774__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__774__Vfuncout 
@@ -11984,7 +12341,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__771__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__771__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -12016,7 +12373,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__775__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__775__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -12035,7 +12392,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__775__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__775__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -12044,6 +12401,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__775__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__775__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__775__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__778__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__778__Vfuncout 
@@ -12058,7 +12417,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__775__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__775__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -12090,7 +12449,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__779__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__779__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -12109,7 +12468,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__779__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__779__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -12118,6 +12477,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__779__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__779__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__779__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__782__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__782__Vfuncout 
@@ -12132,7 +12493,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__779__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__779__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -12164,7 +12525,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__784__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__784__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -12183,7 +12544,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__784__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__784__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -12192,6 +12553,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__784__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__784__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__784__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__787__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__787__Vfuncout 
@@ -12206,7 +12569,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__784__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__784__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -12217,7 +12580,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1847);
+                                                                             1899);
                         __Vtask_tb_readback__DOT__parc_micro__754__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                             = (__Vtask_tb_readback__DOT__parc_micro__754__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                                - (IData)(1U));
@@ -12246,7 +12609,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__788__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__788__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -12265,7 +12628,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__788__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__788__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -12274,6 +12637,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__788__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__788__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__788__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__791__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__791__Vfuncout 
@@ -12288,7 +12653,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__788__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__788__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -12299,7 +12664,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1849);
+                                                                             1901);
                         __Vtask_tb_readback__DOT__parc_micro__754__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                             = (__Vtask_tb_readback__DOT__parc_micro__754__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                                - (IData)(1U));
@@ -12328,7 +12693,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__792__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__792__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -12347,7 +12712,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__792__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__792__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -12356,6 +12721,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__792__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__792__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__792__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__795__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__795__Vfuncout 
@@ -12370,7 +12737,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__792__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__792__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -12388,7 +12755,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1851);
+                                                                             1903);
                         __Vtask_tb_readback__DOT__parc_micro__754__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                             = (__Vtask_tb_readback__DOT__parc_micro__754__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                                - (IData)(1U));
@@ -12466,7 +12833,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__798__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__798__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -12485,7 +12852,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__798__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__798__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -12494,6 +12861,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__798__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__798__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__798__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__801__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__801__Vfuncout 
@@ -12508,7 +12877,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__798__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__798__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -12519,7 +12888,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1835);
+                                                                             1887);
                         __Vtask_tb_readback__DOT__parc_micro__797__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                             = (__Vtask_tb_readback__DOT__parc_micro__797__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                                - (IData)(1U));
@@ -12548,7 +12917,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__802__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__802__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -12567,7 +12936,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__802__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__802__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -12576,6 +12945,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__802__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__802__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__802__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__805__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__805__Vfuncout 
@@ -12590,7 +12961,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__802__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__802__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -12601,7 +12972,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1837);
+                                                                             1889);
                         __Vtask_tb_readback__DOT__parc_micro__797__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                             = (__Vtask_tb_readback__DOT__parc_micro__797__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                                - (IData)(1U));
@@ -12630,7 +13001,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__806__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__806__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -12649,7 +13020,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__806__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__806__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -12658,6 +13029,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__806__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__806__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__806__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__809__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__809__Vfuncout 
@@ -12672,7 +13045,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__806__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__806__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -12683,7 +13056,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1839);
+                                                                             1891);
                         __Vtask_tb_readback__DOT__parc_micro__797__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                             = (__Vtask_tb_readback__DOT__parc_micro__797__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                                - (IData)(1U));
@@ -12715,7 +13088,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__810__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__810__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -12734,7 +13107,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__810__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__810__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -12743,6 +13116,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__810__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__810__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__810__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__813__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__813__Vfuncout 
@@ -12757,7 +13132,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__810__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__810__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -12789,7 +13164,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__814__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__814__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -12808,7 +13183,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__814__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__814__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -12817,6 +13192,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__814__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__814__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__814__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__817__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__817__Vfuncout 
@@ -12831,7 +13208,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__814__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__814__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -12863,7 +13240,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__818__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__818__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -12882,7 +13259,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__818__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__818__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -12891,6 +13268,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__818__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__818__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__818__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__821__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__821__Vfuncout 
@@ -12905,7 +13284,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__818__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__818__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -12937,7 +13316,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__822__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__822__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -12956,7 +13335,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__822__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__822__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -12965,6 +13344,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__822__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__822__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__822__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__825__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__825__Vfuncout 
@@ -12979,7 +13360,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__822__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__822__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13011,7 +13392,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__827__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__827__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -13030,7 +13411,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__827__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__827__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -13039,6 +13420,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__827__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__827__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__827__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__830__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__830__Vfuncout 
@@ -13053,7 +13436,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__827__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__827__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13064,7 +13447,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1847);
+                                                                             1899);
                         __Vtask_tb_readback__DOT__parc_micro__797__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                             = (__Vtask_tb_readback__DOT__parc_micro__797__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                                - (IData)(1U));
@@ -13093,7 +13476,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__831__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__831__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -13112,7 +13495,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__831__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__831__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -13121,6 +13504,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__831__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__831__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__831__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__834__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__834__Vfuncout 
@@ -13135,7 +13520,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__831__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__831__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13146,7 +13531,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1849);
+                                                                             1901);
                         __Vtask_tb_readback__DOT__parc_micro__797__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                             = (__Vtask_tb_readback__DOT__parc_micro__797__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                                - (IData)(1U));
@@ -13175,7 +13560,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__835__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__835__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -13194,7 +13579,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__835__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__835__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -13203,6 +13588,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__835__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__835__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__835__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__838__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__838__Vfuncout 
@@ -13217,7 +13604,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__835__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__835__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13235,7 +13622,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1851);
+                                                                             1903);
                         __Vtask_tb_readback__DOT__parc_micro__797__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                             = (__Vtask_tb_readback__DOT__parc_micro__797__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                                - (IData)(1U));
@@ -13313,7 +13700,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__841__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__841__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -13332,7 +13719,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__841__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__841__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -13341,6 +13728,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__841__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__841__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__841__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__844__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__844__Vfuncout 
@@ -13355,7 +13744,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__841__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__841__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13366,7 +13755,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1835);
+                                                                             1887);
                         __Vtask_tb_readback__DOT__parc_micro__840__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                             = (__Vtask_tb_readback__DOT__parc_micro__840__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                                - (IData)(1U));
@@ -13395,7 +13784,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__845__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__845__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -13414,7 +13803,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__845__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__845__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -13423,6 +13812,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__845__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__845__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__845__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__848__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__848__Vfuncout 
@@ -13437,7 +13828,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__845__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__845__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13448,7 +13839,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1837);
+                                                                             1889);
                         __Vtask_tb_readback__DOT__parc_micro__840__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                             = (__Vtask_tb_readback__DOT__parc_micro__840__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                                - (IData)(1U));
@@ -13477,7 +13868,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__849__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__849__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -13496,7 +13887,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__849__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__849__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -13505,6 +13896,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__849__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__849__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__849__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__852__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__852__Vfuncout 
@@ -13519,7 +13912,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__849__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__849__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13530,7 +13923,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1839);
+                                                                             1891);
                         __Vtask_tb_readback__DOT__parc_micro__840__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                             = (__Vtask_tb_readback__DOT__parc_micro__840__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                                - (IData)(1U));
@@ -13562,7 +13955,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__853__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__853__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -13581,7 +13974,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__853__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__853__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -13590,6 +13983,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__853__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__853__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__853__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__856__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__856__Vfuncout 
@@ -13604,7 +13999,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__853__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__853__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13636,7 +14031,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__857__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__857__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -13655,7 +14050,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__857__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__857__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -13664,6 +14059,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__857__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__857__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__857__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__860__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__860__Vfuncout 
@@ -13678,7 +14075,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__857__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__857__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13710,7 +14107,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__861__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__861__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -13729,7 +14126,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__861__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__861__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -13738,6 +14135,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__861__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__861__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__861__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__864__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__864__Vfuncout 
@@ -13752,7 +14151,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__861__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__861__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13784,7 +14183,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__865__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__865__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -13803,7 +14202,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__865__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__865__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -13812,6 +14211,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__865__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__865__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__865__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__868__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__868__Vfuncout 
@@ -13826,7 +14227,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__865__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__865__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13858,7 +14259,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__870__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__870__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -13877,7 +14278,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__870__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__870__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -13886,6 +14287,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__870__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__870__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__870__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__873__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__873__Vfuncout 
@@ -13900,7 +14303,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__870__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__870__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13911,7 +14314,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1847);
+                                                                             1899);
                         __Vtask_tb_readback__DOT__parc_micro__840__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                             = (__Vtask_tb_readback__DOT__parc_micro__840__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                                - (IData)(1U));
@@ -13940,7 +14343,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__874__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__874__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -13959,7 +14362,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__874__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__874__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -13968,6 +14371,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__874__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__874__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__874__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__877__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__877__Vfuncout 
@@ -13982,7 +14387,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__874__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__874__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -13993,7 +14398,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1849);
+                                                                             1901);
                         __Vtask_tb_readback__DOT__parc_micro__840__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                             = (__Vtask_tb_readback__DOT__parc_micro__840__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                                - (IData)(1U));
@@ -14022,7 +14427,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__878__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__878__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -14041,7 +14446,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__878__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__878__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -14050,6 +14455,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__878__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__878__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__878__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__881__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__881__Vfuncout 
@@ -14064,7 +14471,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__878__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__878__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -14082,7 +14489,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1851);
+                                                                             1903);
                         __Vtask_tb_readback__DOT__parc_micro__840__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                             = (__Vtask_tb_readback__DOT__parc_micro__840__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                                - (IData)(1U));
@@ -14160,7 +14567,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__884__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__884__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -14179,7 +14586,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__884__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__884__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -14188,6 +14595,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__884__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__884__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__884__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__887__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__887__Vfuncout 
@@ -14202,7 +14611,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__884__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__884__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -14213,7 +14622,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1835);
+                                                                             1887);
                         __Vtask_tb_readback__DOT__parc_micro__883__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                             = (__Vtask_tb_readback__DOT__parc_micro__883__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                                - (IData)(1U));
@@ -14242,7 +14651,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__888__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__888__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -14261,7 +14670,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__888__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__888__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -14270,6 +14679,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__888__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__888__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__888__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__891__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__891__Vfuncout 
@@ -14284,7 +14695,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__888__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__888__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -14295,7 +14706,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1837);
+                                                                             1889);
                         __Vtask_tb_readback__DOT__parc_micro__883__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                             = (__Vtask_tb_readback__DOT__parc_micro__883__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                                - (IData)(1U));
@@ -14324,7 +14735,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__892__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__892__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -14343,7 +14754,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__892__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__892__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -14352,6 +14763,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__892__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__892__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__892__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__895__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__895__Vfuncout 
@@ -14366,7 +14779,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__892__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__892__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -14377,7 +14790,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1839);
+                                                                             1891);
                         __Vtask_tb_readback__DOT__parc_micro__883__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                             = (__Vtask_tb_readback__DOT__parc_micro__883__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                                - (IData)(1U));
@@ -14409,7 +14822,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__896__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__896__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -14428,7 +14841,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__896__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__896__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -14437,6 +14850,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__896__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__896__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__896__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__899__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__899__Vfuncout 
@@ -14451,7 +14866,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__896__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__896__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -14483,7 +14898,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__900__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__900__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -14502,7 +14917,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__900__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__900__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -14511,6 +14926,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__900__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__900__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__900__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__903__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__903__Vfuncout 
@@ -14525,7 +14942,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__900__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__900__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -14557,7 +14974,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__904__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__904__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -14576,7 +14993,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__904__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__904__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -14585,6 +15002,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__904__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__904__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__904__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__907__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__907__Vfuncout 
@@ -14599,7 +15018,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__904__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__904__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -14631,7 +15050,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__908__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__908__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -14650,7 +15069,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__908__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__908__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -14659,6 +15078,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__908__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__908__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__908__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__911__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__911__Vfuncout 
@@ -14673,7 +15094,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__908__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__908__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -14705,7 +15126,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__913__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__913__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -14724,7 +15145,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__913__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__913__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -14733,6 +15154,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__913__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__913__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__913__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__916__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__916__Vfuncout 
@@ -14747,7 +15170,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__913__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__913__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -14758,7 +15181,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1847);
+                                                                             1899);
                         __Vtask_tb_readback__DOT__parc_micro__883__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                             = (__Vtask_tb_readback__DOT__parc_micro__883__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                                - (IData)(1U));
@@ -14787,7 +15210,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__917__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__917__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -14806,7 +15229,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__917__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__917__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -14815,6 +15238,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__917__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__917__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__917__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__920__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__920__Vfuncout 
@@ -14829,7 +15254,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__917__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__917__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -14840,7 +15265,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1849);
+                                                                             1901);
                         __Vtask_tb_readback__DOT__parc_micro__883__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                             = (__Vtask_tb_readback__DOT__parc_micro__883__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                                - (IData)(1U));
@@ -14869,7 +15294,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__921__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__921__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -14888,7 +15313,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__921__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__921__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -14897,6 +15322,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__921__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__921__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__921__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__924__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__924__Vfuncout 
@@ -14911,7 +15338,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__921__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__921__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -14929,7 +15356,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1851);
+                                                                             1903);
                         __Vtask_tb_readback__DOT__parc_micro__883__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                             = (__Vtask_tb_readback__DOT__parc_micro__883__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                                - (IData)(1U));
@@ -15022,7 +15449,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__928__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__928__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -15041,7 +15468,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__928__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__928__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -15050,6 +15477,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__928__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__928__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__928__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__931__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__931__Vfuncout 
@@ -15064,7 +15493,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__928__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__928__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -15094,7 +15523,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__932__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__932__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -15113,7 +15542,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__932__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__932__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -15122,6 +15551,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__932__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__932__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__932__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__935__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__935__Vfuncout 
@@ -15136,7 +15567,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__932__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__932__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -15176,7 +15607,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__937__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__937__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -15195,7 +15626,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__937__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__937__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -15204,6 +15635,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__937__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__937__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__937__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__940__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__940__Vfuncout 
@@ -15218,7 +15651,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__937__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__937__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -15229,7 +15662,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1835);
+                                                                         1887);
                     __Vtask_tb_readback__DOT__parc_micro__936__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                         = (__Vtask_tb_readback__DOT__parc_micro__936__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                            - (IData)(1U));
@@ -15258,7 +15691,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__941__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__941__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -15277,7 +15710,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__941__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__941__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -15286,6 +15719,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__941__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__941__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__941__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__944__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__944__Vfuncout 
@@ -15300,7 +15735,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__941__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__941__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -15311,7 +15746,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1837);
+                                                                         1889);
                     __Vtask_tb_readback__DOT__parc_micro__936__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                         = (__Vtask_tb_readback__DOT__parc_micro__936__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                            - (IData)(1U));
@@ -15340,7 +15775,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__945__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__945__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -15359,7 +15794,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__945__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__945__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -15368,6 +15803,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__945__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__945__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__945__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__948__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__948__Vfuncout 
@@ -15382,7 +15819,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__945__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__945__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -15393,7 +15830,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1839);
+                                                                         1891);
                     __Vtask_tb_readback__DOT__parc_micro__936__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                         = (__Vtask_tb_readback__DOT__parc_micro__936__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                            - (IData)(1U));
@@ -15425,7 +15862,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__949__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__949__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -15444,7 +15881,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__949__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__949__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -15453,6 +15890,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__949__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__949__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__949__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__952__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__952__Vfuncout 
@@ -15467,7 +15906,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__949__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__949__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -15499,7 +15938,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__953__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__953__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -15518,7 +15957,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__953__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__953__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -15527,6 +15966,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__953__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__953__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__953__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__956__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__956__Vfuncout 
@@ -15541,7 +15982,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__953__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__953__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -15573,7 +16014,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__957__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__957__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -15592,7 +16033,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__957__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__957__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -15601,6 +16042,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__957__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__957__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__957__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__960__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__960__Vfuncout 
@@ -15615,7 +16058,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__957__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__957__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -15647,7 +16090,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__961__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__961__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -15666,7 +16109,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__961__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__961__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -15675,6 +16118,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__961__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__961__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__961__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__964__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__964__Vfuncout 
@@ -15689,7 +16134,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__961__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__961__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -15721,7 +16166,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__966__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__966__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -15740,7 +16185,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__966__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__966__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -15749,6 +16194,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__966__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__966__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__966__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__969__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__969__Vfuncout 
@@ -15763,7 +16210,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__966__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__966__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -15774,7 +16221,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1847);
+                                                                         1899);
                     __Vtask_tb_readback__DOT__parc_micro__936__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                         = (__Vtask_tb_readback__DOT__parc_micro__936__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                            - (IData)(1U));
@@ -15803,7 +16250,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__970__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__970__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -15822,7 +16269,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__970__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__970__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -15831,6 +16278,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__970__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__970__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__970__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__973__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__973__Vfuncout 
@@ -15845,7 +16294,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__970__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__970__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -15856,7 +16305,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1849);
+                                                                         1901);
                     __Vtask_tb_readback__DOT__parc_micro__936__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                         = (__Vtask_tb_readback__DOT__parc_micro__936__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                            - (IData)(1U));
@@ -15885,7 +16334,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__974__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__974__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -15904,7 +16353,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__974__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__974__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -15913,6 +16362,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__974__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__974__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__974__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__977__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__977__Vfuncout 
@@ -15927,7 +16378,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__974__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__974__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -15945,7 +16396,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1851);
+                                                                         1903);
                     __Vtask_tb_readback__DOT__parc_micro__936__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                         = (__Vtask_tb_readback__DOT__parc_micro__936__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                            - (IData)(1U));
@@ -16021,7 +16472,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__981__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__981__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -16040,7 +16491,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__981__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__981__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -16049,6 +16500,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__981__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__981__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__981__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__984__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__984__Vfuncout 
@@ -16063,7 +16516,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__981__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__981__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -16074,7 +16527,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1835);
+                                                                         1887);
                     __Vtask_tb_readback__DOT__parc_micro__980__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                         = (__Vtask_tb_readback__DOT__parc_micro__980__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                            - (IData)(1U));
@@ -16103,7 +16556,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__985__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__985__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -16122,7 +16575,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__985__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__985__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -16131,6 +16584,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__985__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__985__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__985__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__988__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__988__Vfuncout 
@@ -16145,7 +16600,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__985__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__985__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -16156,7 +16611,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1837);
+                                                                         1889);
                     __Vtask_tb_readback__DOT__parc_micro__980__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                         = (__Vtask_tb_readback__DOT__parc_micro__980__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                            - (IData)(1U));
@@ -16185,7 +16640,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__989__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__989__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -16204,7 +16659,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__989__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__989__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -16213,6 +16668,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__989__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__989__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__989__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__992__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__992__Vfuncout 
@@ -16227,7 +16684,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__989__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__989__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -16238,7 +16695,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1839);
+                                                                         1891);
                     __Vtask_tb_readback__DOT__parc_micro__980__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                         = (__Vtask_tb_readback__DOT__parc_micro__980__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                            - (IData)(1U));
@@ -16270,7 +16727,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__993__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__993__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -16289,7 +16746,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__993__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__993__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -16298,6 +16755,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__993__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__993__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__993__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__996__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__996__Vfuncout 
@@ -16312,7 +16771,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__993__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__993__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -16344,7 +16803,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__997__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__997__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -16363,7 +16822,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__997__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__997__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -16372,6 +16831,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__997__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__997__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__997__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__1000__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__1000__Vfuncout 
@@ -16386,7 +16847,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__997__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__997__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -16418,7 +16879,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__1001__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__1001__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -16437,7 +16898,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__1001__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__1001__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -16446,6 +16907,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1001__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1001__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1001__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__1004__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__1004__Vfuncout 
@@ -16460,7 +16923,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__1001__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__1001__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -16492,7 +16955,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__1005__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__1005__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -16511,7 +16974,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__1005__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__1005__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -16520,6 +16983,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1005__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1005__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1005__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__1008__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__1008__Vfuncout 
@@ -16534,7 +16999,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__1005__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__1005__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -16566,7 +17031,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__1010__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__1010__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -16585,7 +17050,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__1010__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__1010__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -16594,6 +17059,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1010__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1010__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1010__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__1013__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__1013__Vfuncout 
@@ -16608,7 +17075,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__1010__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__1010__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -16619,7 +17086,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1847);
+                                                                         1899);
                     __Vtask_tb_readback__DOT__parc_micro__980__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                         = (__Vtask_tb_readback__DOT__parc_micro__980__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                            - (IData)(1U));
@@ -16648,7 +17115,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__1014__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__1014__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -16667,7 +17134,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__1014__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__1014__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -16676,6 +17143,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1014__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1014__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1014__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__1017__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__1017__Vfuncout 
@@ -16690,7 +17159,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__1014__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__1014__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -16701,7 +17170,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1849);
+                                                                         1901);
                     __Vtask_tb_readback__DOT__parc_micro__980__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                         = (__Vtask_tb_readback__DOT__parc_micro__980__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                            - (IData)(1U));
@@ -16730,7 +17199,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__1018__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__1018__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -16749,7 +17218,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__1018__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__1018__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -16758,6 +17227,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1018__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1018__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1018__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__1021__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__1021__Vfuncout 
@@ -16772,7 +17243,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__1018__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__1018__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -16790,7 +17261,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1851);
+                                                                         1903);
                     __Vtask_tb_readback__DOT__parc_micro__980__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                         = (__Vtask_tb_readback__DOT__parc_micro__980__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                            - (IData)(1U));
@@ -16868,7 +17339,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__1024__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__1024__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -16887,7 +17358,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__1024__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__1024__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -16896,6 +17367,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1024__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1024__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1024__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__1027__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__1027__Vfuncout 
@@ -16910,7 +17383,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__1024__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__1024__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -16940,7 +17413,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1257);
+                                                                         1309);
                     __Vtask_tb_readback__DOT__strobe__1028__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                         = (__Vtask_tb_readback__DOT__strobe__1028__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                            - (IData)(1U));
@@ -16959,7 +17432,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1258);
+                                                                         1310);
                     __Vtask_tb_readback__DOT__strobe__1028__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                         = (__Vtask_tb_readback__DOT__strobe__1028__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                            - (IData)(1U));
@@ -16968,6 +17441,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                 if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1028__fn))) {
                     vlSelfRef.tb_readback__DOT__setrun 
                         = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1028__data));
+                    vlSelfRef.tb_readback__DOT__setss_n 
+                        = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1028__ss)));
                 }
                 __Vfunc_tb_readback__DOT__WT__1031__n = 4U;
                 __Vfunc_tb_readback__DOT__WT__1031__Vfuncout 
@@ -16982,7 +17457,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                          nullptr, 
                                                                          "@(posedge tb_readback.sys_clk)", 
                                                                          "verilog/verilator/tb_readback.sv", 
-                                                                         1264);
+                                                                         1316);
                     __Vtask_tb_readback__DOT__strobe__1028__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                         = (__Vtask_tb_readback__DOT__strobe__1028__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                            - (IData)(1U));
@@ -17024,7 +17499,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1033__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1033__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -17043,7 +17518,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1033__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1033__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -17052,6 +17527,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1033__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1033__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1033__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1036__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1036__Vfuncout 
@@ -17066,7 +17543,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1033__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1033__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -17077,7 +17554,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1835);
+                                                                             1887);
                         __Vtask_tb_readback__DOT__parc_micro__1032__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                             = (__Vtask_tb_readback__DOT__parc_micro__1032__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                                - (IData)(1U));
@@ -17106,7 +17583,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1037__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1037__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -17125,7 +17602,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1037__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1037__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -17134,6 +17611,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1037__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1037__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1037__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1040__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1040__Vfuncout 
@@ -17148,7 +17627,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1037__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1037__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -17159,7 +17638,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1837);
+                                                                             1889);
                         __Vtask_tb_readback__DOT__parc_micro__1032__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                             = (__Vtask_tb_readback__DOT__parc_micro__1032__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                                - (IData)(1U));
@@ -17188,7 +17667,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1041__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1041__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -17207,7 +17686,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1041__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1041__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -17216,6 +17695,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1041__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1041__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1041__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1044__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1044__Vfuncout 
@@ -17230,7 +17711,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1041__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1041__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -17241,7 +17722,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1839);
+                                                                             1891);
                         __Vtask_tb_readback__DOT__parc_micro__1032__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                             = (__Vtask_tb_readback__DOT__parc_micro__1032__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                                - (IData)(1U));
@@ -17273,7 +17754,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1045__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1045__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -17292,7 +17773,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1045__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1045__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -17301,6 +17782,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1045__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1045__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1045__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1048__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1048__Vfuncout 
@@ -17315,7 +17798,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1045__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1045__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -17347,7 +17830,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1049__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1049__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -17366,7 +17849,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1049__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1049__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -17375,6 +17858,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1049__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1049__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1049__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1052__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1052__Vfuncout 
@@ -17389,7 +17874,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1049__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1049__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -17421,7 +17906,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1053__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1053__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -17440,7 +17925,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1053__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1053__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -17449,6 +17934,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1053__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1053__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1053__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1056__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1056__Vfuncout 
@@ -17463,7 +17950,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1053__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1053__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -17495,7 +17982,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1057__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1057__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -17514,7 +18001,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1057__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1057__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -17523,6 +18010,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1057__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1057__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1057__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1060__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1060__Vfuncout 
@@ -17537,7 +18026,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1057__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1057__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -17569,7 +18058,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1062__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1062__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -17588,7 +18077,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1062__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1062__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -17597,6 +18086,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1062__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1062__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1062__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1065__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1065__Vfuncout 
@@ -17611,7 +18102,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1062__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1062__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -17622,7 +18113,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1847);
+                                                                             1899);
                         __Vtask_tb_readback__DOT__parc_micro__1032__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                             = (__Vtask_tb_readback__DOT__parc_micro__1032__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                                - (IData)(1U));
@@ -17651,7 +18142,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1066__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1066__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -17670,7 +18161,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1066__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1066__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -17679,6 +18170,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1066__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1066__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1066__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1069__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1069__Vfuncout 
@@ -17693,7 +18186,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1066__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1066__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -17704,7 +18197,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1849);
+                                                                             1901);
                         __Vtask_tb_readback__DOT__parc_micro__1032__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                             = (__Vtask_tb_readback__DOT__parc_micro__1032__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                                - (IData)(1U));
@@ -17733,7 +18226,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1070__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1070__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -17752,7 +18245,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1070__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1070__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -17761,6 +18254,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1070__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1070__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1070__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1073__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1073__Vfuncout 
@@ -17775,7 +18270,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1070__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1070__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -17793,7 +18288,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1851);
+                                                                             1903);
                         __Vtask_tb_readback__DOT__parc_micro__1032__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                             = (__Vtask_tb_readback__DOT__parc_micro__1032__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                                - (IData)(1U));
@@ -17871,7 +18366,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1076__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1076__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -17890,7 +18385,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1076__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1076__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -17899,6 +18394,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1076__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1076__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1076__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1079__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1079__Vfuncout 
@@ -17913,7 +18410,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1076__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1076__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -17924,7 +18421,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1835);
+                                                                             1887);
                         __Vtask_tb_readback__DOT__parc_micro__1075__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                             = (__Vtask_tb_readback__DOT__parc_micro__1075__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                                - (IData)(1U));
@@ -17953,7 +18450,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1080__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1080__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -17972,7 +18469,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1080__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1080__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -17981,6 +18478,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1080__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1080__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1080__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1083__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1083__Vfuncout 
@@ -17995,7 +18494,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1080__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1080__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -18006,7 +18505,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1837);
+                                                                             1889);
                         __Vtask_tb_readback__DOT__parc_micro__1075__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                             = (__Vtask_tb_readback__DOT__parc_micro__1075__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                                - (IData)(1U));
@@ -18035,7 +18534,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1084__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1084__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -18054,7 +18553,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1084__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1084__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -18063,6 +18562,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1084__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1084__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1084__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1087__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1087__Vfuncout 
@@ -18077,7 +18578,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1084__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1084__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -18088,7 +18589,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1839);
+                                                                             1891);
                         __Vtask_tb_readback__DOT__parc_micro__1075__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                             = (__Vtask_tb_readback__DOT__parc_micro__1075__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                                - (IData)(1U));
@@ -18120,7 +18621,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1088__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1088__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -18139,7 +18640,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1088__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1088__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -18148,6 +18649,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1088__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1088__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1088__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1091__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1091__Vfuncout 
@@ -18162,7 +18665,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1088__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1088__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -18194,7 +18697,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1092__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1092__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -18213,7 +18716,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1092__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1092__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -18222,6 +18725,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1092__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1092__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1092__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1095__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1095__Vfuncout 
@@ -18236,7 +18741,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1092__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1092__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -18268,7 +18773,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1096__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1096__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -18287,7 +18792,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1096__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1096__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -18296,6 +18801,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1096__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1096__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1096__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1099__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1099__Vfuncout 
@@ -18310,7 +18817,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1096__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1096__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -18342,7 +18849,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1100__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1100__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -18361,7 +18868,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1100__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1100__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -18370,6 +18877,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1100__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1100__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1100__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1103__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1103__Vfuncout 
@@ -18384,7 +18893,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1100__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1100__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -18416,7 +18925,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1105__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1105__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -18435,7 +18944,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1105__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1105__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -18444,6 +18953,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1105__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1105__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1105__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1108__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1108__Vfuncout 
@@ -18458,7 +18969,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1105__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1105__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -18469,7 +18980,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1847);
+                                                                             1899);
                         __Vtask_tb_readback__DOT__parc_micro__1075__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                             = (__Vtask_tb_readback__DOT__parc_micro__1075__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                                - (IData)(1U));
@@ -18498,7 +19009,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1109__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1109__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -18517,7 +19028,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1109__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1109__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -18526,6 +19037,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1109__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1109__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1109__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1112__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1112__Vfuncout 
@@ -18540,7 +19053,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1109__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1109__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -18551,7 +19064,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1849);
+                                                                             1901);
                         __Vtask_tb_readback__DOT__parc_micro__1075__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                             = (__Vtask_tb_readback__DOT__parc_micro__1075__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                                - (IData)(1U));
@@ -18580,7 +19093,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1113__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1113__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -18599,7 +19112,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1113__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1113__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -18608,6 +19121,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1113__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1113__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1113__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1116__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1116__Vfuncout 
@@ -18622,7 +19137,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1113__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1113__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -18640,7 +19155,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1851);
+                                                                             1903);
                         __Vtask_tb_readback__DOT__parc_micro__1075__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                             = (__Vtask_tb_readback__DOT__parc_micro__1075__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                                - (IData)(1U));
@@ -18718,7 +19233,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1119__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1119__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -18737,7 +19252,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1119__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1119__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -18746,6 +19261,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1119__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1119__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1119__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1122__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1122__Vfuncout 
@@ -18760,7 +19277,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1119__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1119__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -18771,7 +19288,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1835);
+                                                                             1887);
                         __Vtask_tb_readback__DOT__parc_micro__1118__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                             = (__Vtask_tb_readback__DOT__parc_micro__1118__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                                - (IData)(1U));
@@ -18800,7 +19317,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1123__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1123__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -18819,7 +19336,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1123__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1123__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -18828,6 +19345,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1123__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1123__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1123__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1126__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1126__Vfuncout 
@@ -18842,7 +19361,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1123__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1123__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -18853,7 +19372,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1837);
+                                                                             1889);
                         __Vtask_tb_readback__DOT__parc_micro__1118__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                             = (__Vtask_tb_readback__DOT__parc_micro__1118__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                                - (IData)(1U));
@@ -18882,7 +19401,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1127__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1127__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -18901,7 +19420,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1127__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1127__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -18910,6 +19429,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1127__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1127__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1127__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1130__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1130__Vfuncout 
@@ -18924,7 +19445,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1127__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1127__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -18935,7 +19456,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1839);
+                                                                             1891);
                         __Vtask_tb_readback__DOT__parc_micro__1118__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                             = (__Vtask_tb_readback__DOT__parc_micro__1118__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                                - (IData)(1U));
@@ -18967,7 +19488,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1131__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1131__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -18986,7 +19507,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1131__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1131__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -18995,6 +19516,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1131__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1131__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1131__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1134__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1134__Vfuncout 
@@ -19009,7 +19532,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1131__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1131__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -19041,7 +19564,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1135__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1135__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -19060,7 +19583,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1135__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1135__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -19069,6 +19592,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1135__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1135__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1135__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1138__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1138__Vfuncout 
@@ -19083,7 +19608,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1135__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1135__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -19115,7 +19640,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1139__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1139__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -19134,7 +19659,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1139__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1139__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -19143,6 +19668,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1139__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1139__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1139__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1142__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1142__Vfuncout 
@@ -19157,7 +19684,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1139__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1139__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -19189,7 +19716,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1143__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1143__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -19208,7 +19735,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1143__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1143__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -19217,6 +19744,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1143__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1143__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1143__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1146__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1146__Vfuncout 
@@ -19231,7 +19760,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1143__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1143__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -19263,7 +19792,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1148__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1148__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -19282,7 +19811,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1148__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1148__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -19291,6 +19820,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1148__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1148__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1148__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1151__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1151__Vfuncout 
@@ -19305,7 +19836,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1148__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1148__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -19316,7 +19847,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1847);
+                                                                             1899);
                         __Vtask_tb_readback__DOT__parc_micro__1118__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                             = (__Vtask_tb_readback__DOT__parc_micro__1118__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                                - (IData)(1U));
@@ -19345,7 +19876,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1152__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1152__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -19364,7 +19895,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1152__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1152__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -19373,6 +19904,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1152__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1152__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1152__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1155__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1155__Vfuncout 
@@ -19387,7 +19920,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1152__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1152__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -19398,7 +19931,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1849);
+                                                                             1901);
                         __Vtask_tb_readback__DOT__parc_micro__1118__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                             = (__Vtask_tb_readback__DOT__parc_micro__1118__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                                - (IData)(1U));
@@ -19427,7 +19960,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1156__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1156__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -19446,7 +19979,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1156__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1156__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -19455,6 +19988,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1156__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1156__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1156__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1159__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1159__Vfuncout 
@@ -19469,7 +20004,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1156__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1156__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -19487,7 +20022,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1851);
+                                                                             1903);
                         __Vtask_tb_readback__DOT__parc_micro__1118__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                             = (__Vtask_tb_readback__DOT__parc_micro__1118__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                                - (IData)(1U));
@@ -19565,7 +20100,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1162__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1162__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -19584,7 +20119,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1162__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1162__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -19593,6 +20128,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1162__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1162__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1162__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1165__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1165__Vfuncout 
@@ -19607,7 +20144,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1162__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1162__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -19618,7 +20155,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1835);
+                                                                             1887);
                         __Vtask_tb_readback__DOT__parc_micro__1161__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                             = (__Vtask_tb_readback__DOT__parc_micro__1161__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17 
                                - (IData)(1U));
@@ -19647,7 +20184,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1166__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1166__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -19666,7 +20203,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1166__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1166__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -19675,6 +20212,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1166__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1166__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1166__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1169__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1169__Vfuncout 
@@ -19689,7 +20228,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1166__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1166__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -19700,7 +20239,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1837);
+                                                                             1889);
                         __Vtask_tb_readback__DOT__parc_micro__1161__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                             = (__Vtask_tb_readback__DOT__parc_micro__1161__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18 
                                - (IData)(1U));
@@ -19729,7 +20268,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1170__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1170__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -19748,7 +20287,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1170__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1170__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -19757,6 +20296,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1170__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1170__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1170__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1173__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1173__Vfuncout 
@@ -19771,7 +20312,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1170__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1170__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -19782,7 +20323,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1839);
+                                                                             1891);
                         __Vtask_tb_readback__DOT__parc_micro__1161__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                             = (__Vtask_tb_readback__DOT__parc_micro__1161__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19 
                                - (IData)(1U));
@@ -19814,7 +20355,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1174__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1174__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -19833,7 +20374,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1174__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1174__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -19842,6 +20383,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1174__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1174__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1174__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1177__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1177__Vfuncout 
@@ -19856,7 +20399,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1174__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1174__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -19888,7 +20431,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1178__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1178__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -19907,7 +20450,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1178__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1178__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -19916,6 +20459,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1178__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1178__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1178__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1181__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1181__Vfuncout 
@@ -19930,7 +20475,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1178__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1178__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -19962,7 +20507,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1182__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1182__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -19981,7 +20526,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1182__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1182__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -19990,6 +20535,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1182__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1182__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1182__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1185__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1185__Vfuncout 
@@ -20004,7 +20551,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1182__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1182__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -20036,7 +20583,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1186__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1186__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -20055,7 +20602,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1186__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1186__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -20064,6 +20611,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1186__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1186__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1186__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1189__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1189__Vfuncout 
@@ -20078,7 +20627,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1186__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1186__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -20110,7 +20659,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1191__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1191__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -20129,7 +20678,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1191__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1191__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -20138,6 +20687,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1191__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1191__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1191__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1194__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1194__Vfuncout 
@@ -20152,7 +20703,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1191__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1191__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -20163,7 +20714,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1847);
+                                                                             1899);
                         __Vtask_tb_readback__DOT__parc_micro__1161__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                             = (__Vtask_tb_readback__DOT__parc_micro__1161__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20 
                                - (IData)(1U));
@@ -20192,7 +20743,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1195__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1195__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -20211,7 +20762,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1195__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1195__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -20220,6 +20771,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1195__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1195__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1195__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1198__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1198__Vfuncout 
@@ -20234,7 +20787,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1195__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1195__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -20245,7 +20798,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1849);
+                                                                             1901);
                         __Vtask_tb_readback__DOT__parc_micro__1161__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                             = (__Vtask_tb_readback__DOT__parc_micro__1161__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 
                                - (IData)(1U));
@@ -20274,7 +20827,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1257);
+                                                                             1309);
                         __Vtask_tb_readback__DOT__strobe__1199__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                             = (__Vtask_tb_readback__DOT__strobe__1199__tb_readback__DOT__unnamedblk1_1__DOT____Vrepeat0 
                                - (IData)(1U));
@@ -20293,7 +20846,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1258);
+                                                                             1310);
                         __Vtask_tb_readback__DOT__strobe__1199__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                             = (__Vtask_tb_readback__DOT__strobe__1199__tb_readback__DOT__unnamedblk1_2__DOT____Vrepeat1 
                                - (IData)(1U));
@@ -20302,6 +20855,8 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                     if ((0U == (IData)(__Vtask_tb_readback__DOT__strobe__1199__fn))) {
                         vlSelfRef.tb_readback__DOT__setrun 
                             = (1U & (IData)(__Vtask_tb_readback__DOT__strobe__1199__data));
+                        vlSelfRef.tb_readback__DOT__setss_n 
+                            = (1U & (~ (IData)(__Vtask_tb_readback__DOT__strobe__1199__ss)));
                     }
                     __Vfunc_tb_readback__DOT__WT__1202__n = 4U;
                     __Vfunc_tb_readback__DOT__WT__1202__Vfuncout 
@@ -20316,7 +20871,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1264);
+                                                                             1316);
                         __Vtask_tb_readback__DOT__strobe__1199__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                             = (__Vtask_tb_readback__DOT__strobe__1199__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 
                                - (IData)(1U));
@@ -20334,7 +20889,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__0__2(Vtb_readba
                                                                              nullptr, 
                                                                              "@(posedge tb_readback.sys_clk)", 
                                                                              "verilog/verilator/tb_readback.sv", 
-                                                                             1851);
+                                                                             1903);
                         __Vtask_tb_readback__DOT__parc_micro__1161__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                             = (__Vtask_tb_readback__DOT__parc_micro__1161__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 
                                - (IData)(1U));

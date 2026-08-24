@@ -29,6 +29,7 @@ VM_CLASSES_FAST += \
   Vtb_storage___024root__0 \
   Vtb_storage___024root__1 \
   Vtb_storage___024root__2 \
+  Vtb_storage___024root__3 \
   Vtb_storage__main \
 
 # Generated module classes, non-fast-path, compile with low/medium optimization

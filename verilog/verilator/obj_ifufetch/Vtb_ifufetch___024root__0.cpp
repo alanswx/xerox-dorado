@@ -2637,10 +2637,6 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     __Vfunc_tb_ifufetch__DOT__mi__425__jcn = 0;
     CData/*0:0*/ __Vfunc_tb_ifufetch__DOT__mi__425__block;
     __Vfunc_tb_ifufetch__DOT__mi__425__block = 0;
-    IData/*31:0*/ __Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_18__DOT____Vrepeat17;
-    __Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_18__DOT____Vrepeat17 = 0;
-    IData/*31:0*/ __Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_19__DOT____Vrepeat18;
-    __Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_19__DOT____Vrepeat18 = 0;
     CData/*2:0*/ __Vtask_tb_ifufetch__DOT__strobe__427__fn;
     __Vtask_tb_ifufetch__DOT__strobe__427__fn = 0;
     CData/*7:0*/ __Vtask_tb_ifufetch__DOT__strobe__427__data;
@@ -2651,8 +2647,6 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     __Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
     IData/*31:0*/ __Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1;
     __Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
-    IData/*31:0*/ __Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2;
-    __Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
     IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__428__Vfuncout;
     __Vfunc_tb_ifufetch__DOT__WT__428__Vfuncout = 0;
     IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__428__n;
@@ -2665,50 +2659,6 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     __Vfunc_tb_ifufetch__DOT__WT__430__Vfuncout = 0;
     IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__430__n;
     __Vfunc_tb_ifufetch__DOT__WT__430__n = 0;
-    CData/*2:0*/ __Vtask_tb_ifufetch__DOT__strobe__431__fn;
-    __Vtask_tb_ifufetch__DOT__strobe__431__fn = 0;
-    CData/*7:0*/ __Vtask_tb_ifufetch__DOT__strobe__431__data;
-    __Vtask_tb_ifufetch__DOT__strobe__431__data = 0;
-    CData/*0:0*/ __Vtask_tb_ifufetch__DOT__strobe__431__ss;
-    __Vtask_tb_ifufetch__DOT__strobe__431__ss = 0;
-    IData/*31:0*/ __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0;
-    __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
-    IData/*31:0*/ __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1;
-    __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
-    IData/*31:0*/ __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2;
-    __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
-    IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__432__Vfuncout;
-    __Vfunc_tb_ifufetch__DOT__WT__432__Vfuncout = 0;
-    IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__432__n;
-    __Vfunc_tb_ifufetch__DOT__WT__432__n = 0;
-    IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__433__Vfuncout;
-    __Vfunc_tb_ifufetch__DOT__WT__433__Vfuncout = 0;
-    IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__433__n;
-    __Vfunc_tb_ifufetch__DOT__WT__433__n = 0;
-    IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__434__Vfuncout;
-    __Vfunc_tb_ifufetch__DOT__WT__434__Vfuncout = 0;
-    IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__434__n;
-    __Vfunc_tb_ifufetch__DOT__WT__434__n = 0;
-    CData/*2:0*/ __Vtask_tb_ifufetch__DOT__strobe__435__fn;
-    __Vtask_tb_ifufetch__DOT__strobe__435__fn = 0;
-    CData/*7:0*/ __Vtask_tb_ifufetch__DOT__strobe__435__data;
-    __Vtask_tb_ifufetch__DOT__strobe__435__data = 0;
-    CData/*0:0*/ __Vtask_tb_ifufetch__DOT__strobe__435__ss;
-    __Vtask_tb_ifufetch__DOT__strobe__435__ss = 0;
-    IData/*31:0*/ __Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0;
-    __Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
-    IData/*31:0*/ __Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1;
-    __Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
-    IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__436__Vfuncout;
-    __Vfunc_tb_ifufetch__DOT__WT__436__Vfuncout = 0;
-    IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__436__n;
-    __Vfunc_tb_ifufetch__DOT__WT__436__n = 0;
-    IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__437__Vfuncout;
-    __Vfunc_tb_ifufetch__DOT__WT__437__Vfuncout = 0;
-    IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__437__n;
-    __Vfunc_tb_ifufetch__DOT__WT__437__n = 0;
-    IData/*31:0*/ __Vfunc_tb_ifufetch__DOT__WT__438__n;
-    __Vfunc_tb_ifufetch__DOT__WT__438__n = 0;
     // Body
     vlSelfRef.tb_ifufetch__DOT__m__DOT__DMuxData__VforceEn = 1U;
     vlSelfRef.tb_ifufetch__DOT__m__DOT__DMuxData__VforceVal 
@@ -3052,6 +3002,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__16__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__16__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__16__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__19__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__19__Vfuncout = VL_DIVS_III(32, 
@@ -3131,6 +3083,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__20__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__20__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__20__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__23__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__23__Vfuncout = VL_DIVS_III(32, 
@@ -3210,6 +3164,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__24__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__24__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__24__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__27__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__27__Vfuncout = VL_DIVS_III(32, 
@@ -3291,6 +3247,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__28__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__28__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__28__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__31__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__31__Vfuncout = VL_DIVS_III(32, 
@@ -3361,6 +3319,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__32__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__32__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__32__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__35__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__35__Vfuncout = VL_DIVS_III(32, 
@@ -3431,6 +3391,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__36__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__36__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__36__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__39__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__39__Vfuncout = VL_DIVS_III(32, 
@@ -3501,6 +3463,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__40__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__40__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__40__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__43__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__43__Vfuncout = VL_DIVS_III(32, 
@@ -3572,6 +3536,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__45__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__45__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__45__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__48__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__48__Vfuncout = VL_DIVS_III(32, 
@@ -3651,6 +3617,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__49__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__49__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__49__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__52__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__52__Vfuncout = VL_DIVS_III(32, 
@@ -3730,6 +3698,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__53__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__53__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__53__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__56__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__56__Vfuncout = VL_DIVS_III(32, 
@@ -3855,6 +3825,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__60__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__60__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__60__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__63__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__63__Vfuncout = VL_DIVS_III(32, 
@@ -3934,6 +3906,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__64__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__64__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__64__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__67__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__67__Vfuncout = VL_DIVS_III(32, 
@@ -4013,6 +3987,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__68__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__68__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__68__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__71__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__71__Vfuncout = VL_DIVS_III(32, 
@@ -4094,6 +4070,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__72__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__72__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__72__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__75__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__75__Vfuncout = VL_DIVS_III(32, 
@@ -4164,6 +4142,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__76__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__76__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__76__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__79__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__79__Vfuncout = VL_DIVS_III(32, 
@@ -4234,6 +4214,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__80__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__80__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__80__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__83__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__83__Vfuncout = VL_DIVS_III(32, 
@@ -4304,6 +4286,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__84__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__84__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__84__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__87__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__87__Vfuncout = VL_DIVS_III(32, 
@@ -4375,6 +4359,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__89__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__89__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__89__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__92__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__92__Vfuncout = VL_DIVS_III(32, 
@@ -4454,6 +4440,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__93__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__93__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__93__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__96__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__96__Vfuncout = VL_DIVS_III(32, 
@@ -4533,6 +4521,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__97__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__97__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__97__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__100__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__100__Vfuncout = VL_DIVS_III(32, 
@@ -4650,6 +4640,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__103__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__103__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__103__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__106__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__106__Vfuncout = VL_DIVS_III(32, 
@@ -4719,6 +4711,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__107__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__107__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__107__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__110__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__110__Vfuncout = VL_DIVS_III(32, 
@@ -4798,6 +4792,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__112__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__112__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__112__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__115__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__115__Vfuncout = VL_DIVS_III(32, 
@@ -4877,6 +4873,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__116__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__116__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__116__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__119__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__119__Vfuncout = VL_DIVS_III(32, 
@@ -4956,6 +4954,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__120__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__120__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__120__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__123__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__123__Vfuncout = VL_DIVS_III(32, 
@@ -5037,6 +5037,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__124__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__124__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__124__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__127__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__127__Vfuncout = VL_DIVS_III(32, 
@@ -5107,6 +5109,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__128__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__128__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__128__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__131__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__131__Vfuncout = VL_DIVS_III(32, 
@@ -5177,6 +5181,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__132__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__132__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__132__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__135__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__135__Vfuncout = VL_DIVS_III(32, 
@@ -5247,6 +5253,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__136__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__136__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__136__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__139__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__139__Vfuncout = VL_DIVS_III(32, 
@@ -5318,6 +5326,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__141__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__141__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__141__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__144__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__144__Vfuncout = VL_DIVS_III(32, 
@@ -5397,6 +5407,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__145__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__145__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__145__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__148__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__148__Vfuncout = VL_DIVS_III(32, 
@@ -5476,6 +5488,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__149__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__149__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__149__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__152__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__152__Vfuncout = VL_DIVS_III(32, 
@@ -5601,6 +5615,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__156__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__156__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__156__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__159__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__159__Vfuncout = VL_DIVS_III(32, 
@@ -5680,6 +5696,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__160__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__160__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__160__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__163__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__163__Vfuncout = VL_DIVS_III(32, 
@@ -5759,6 +5777,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__164__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__164__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__164__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__167__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__167__Vfuncout = VL_DIVS_III(32, 
@@ -5840,6 +5860,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__168__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__168__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__168__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__171__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__171__Vfuncout = VL_DIVS_III(32, 
@@ -5910,6 +5932,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__172__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__172__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__172__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__175__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__175__Vfuncout = VL_DIVS_III(32, 
@@ -5980,6 +6004,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__176__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__176__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__176__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__179__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__179__Vfuncout = VL_DIVS_III(32, 
@@ -6050,6 +6076,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__180__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__180__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__180__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__183__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__183__Vfuncout = VL_DIVS_III(32, 
@@ -6121,6 +6149,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__185__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__185__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__185__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__188__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__188__Vfuncout = VL_DIVS_III(32, 
@@ -6200,6 +6230,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__189__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__189__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__189__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__192__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__192__Vfuncout = VL_DIVS_III(32, 
@@ -6279,6 +6311,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__193__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__193__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__193__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__196__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__196__Vfuncout = VL_DIVS_III(32, 
@@ -6404,6 +6438,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__199__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__199__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__199__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__202__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__202__Vfuncout = VL_DIVS_III(32, 
@@ -6483,6 +6519,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__203__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__203__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__203__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__206__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__206__Vfuncout = VL_DIVS_III(32, 
@@ -6562,6 +6600,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__207__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__207__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__207__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__210__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__210__Vfuncout = VL_DIVS_III(32, 
@@ -6643,6 +6683,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__211__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__211__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__211__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__214__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__214__Vfuncout = VL_DIVS_III(32, 
@@ -6713,6 +6755,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__215__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__215__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__215__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__218__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__218__Vfuncout = VL_DIVS_III(32, 
@@ -6783,6 +6827,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__219__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__219__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__219__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__222__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__222__Vfuncout = VL_DIVS_III(32, 
@@ -6853,6 +6899,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__223__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__223__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__223__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__226__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__226__Vfuncout = VL_DIVS_III(32, 
@@ -6924,6 +6972,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__228__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__228__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__228__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__231__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__231__Vfuncout = VL_DIVS_III(32, 
@@ -7003,6 +7053,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__232__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__232__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__232__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__235__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__235__Vfuncout = VL_DIVS_III(32, 
@@ -7082,6 +7134,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__236__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__236__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__236__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__239__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__239__Vfuncout = VL_DIVS_III(32, 
@@ -7199,6 +7253,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__242__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__242__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__242__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__245__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__245__Vfuncout = VL_DIVS_III(32, 
@@ -7268,6 +7324,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__246__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__246__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__246__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__249__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__249__Vfuncout = VL_DIVS_III(32, 
@@ -7347,6 +7405,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__251__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__251__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__251__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__254__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__254__Vfuncout = VL_DIVS_III(32, 
@@ -7426,6 +7486,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__255__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__255__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__255__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__258__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__258__Vfuncout = VL_DIVS_III(32, 
@@ -7505,6 +7567,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__259__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__259__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__259__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__262__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__262__Vfuncout = VL_DIVS_III(32, 
@@ -7586,6 +7650,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__263__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__263__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__263__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__266__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__266__Vfuncout = VL_DIVS_III(32, 
@@ -7656,6 +7722,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__267__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__267__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__267__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__270__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__270__Vfuncout = VL_DIVS_III(32, 
@@ -7726,6 +7794,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__271__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__271__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__271__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__274__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__274__Vfuncout = VL_DIVS_III(32, 
@@ -7796,6 +7866,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__275__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__275__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__275__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__278__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__278__Vfuncout = VL_DIVS_III(32, 
@@ -7867,6 +7939,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__280__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__280__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__280__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__283__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__283__Vfuncout = VL_DIVS_III(32, 
@@ -7946,6 +8020,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__284__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__284__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__284__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__287__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__287__Vfuncout = VL_DIVS_III(32, 
@@ -8025,6 +8101,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__288__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__288__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__288__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__291__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__291__Vfuncout = VL_DIVS_III(32, 
@@ -8150,6 +8228,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__295__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__295__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__295__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__298__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__298__Vfuncout = VL_DIVS_III(32, 
@@ -8229,6 +8309,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__299__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__299__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__299__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__302__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__302__Vfuncout = VL_DIVS_III(32, 
@@ -8308,6 +8390,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__303__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__303__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__303__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__306__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__306__Vfuncout = VL_DIVS_III(32, 
@@ -8389,6 +8473,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__307__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__307__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__307__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__310__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__310__Vfuncout = VL_DIVS_III(32, 
@@ -8459,6 +8545,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__311__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__311__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__311__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__314__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__314__Vfuncout = VL_DIVS_III(32, 
@@ -8529,6 +8617,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__315__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__315__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__315__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__318__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__318__Vfuncout = VL_DIVS_III(32, 
@@ -8599,6 +8689,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__319__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__319__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__319__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__322__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__322__Vfuncout = VL_DIVS_III(32, 
@@ -8670,6 +8762,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__324__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__324__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__324__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__327__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__327__Vfuncout = VL_DIVS_III(32, 
@@ -8749,6 +8843,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__328__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__328__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__328__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__331__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__331__Vfuncout = VL_DIVS_III(32, 
@@ -8828,6 +8924,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__332__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__332__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__332__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__335__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__335__Vfuncout = VL_DIVS_III(32, 
@@ -9041,6 +9139,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__338__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__338__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__338__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__341__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__341__Vfuncout = VL_DIVS_III(32, 
@@ -9120,6 +9220,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__342__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__342__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__342__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__345__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__345__Vfuncout = VL_DIVS_III(32, 
@@ -9199,6 +9301,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__346__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__346__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__346__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__349__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__349__Vfuncout = VL_DIVS_III(32, 
@@ -9280,6 +9384,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__350__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__350__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__350__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__353__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__353__Vfuncout = VL_DIVS_III(32, 
@@ -9350,6 +9456,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__354__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__354__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__354__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__357__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__357__Vfuncout = VL_DIVS_III(32, 
@@ -9420,6 +9528,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__358__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__358__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__358__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__361__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__361__Vfuncout = VL_DIVS_III(32, 
@@ -9490,6 +9600,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__362__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__362__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__362__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__365__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__365__Vfuncout = VL_DIVS_III(32, 
@@ -9561,6 +9673,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__367__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__367__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__367__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__370__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__370__Vfuncout = VL_DIVS_III(32, 
@@ -9640,6 +9754,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__371__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__371__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__371__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__374__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__374__Vfuncout = VL_DIVS_III(32, 
@@ -9719,6 +9835,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__375__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__375__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__375__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__378__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__378__Vfuncout = VL_DIVS_III(32, 
@@ -9844,6 +9962,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__382__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__382__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__382__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__385__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__385__Vfuncout = VL_DIVS_III(32, 
@@ -9923,6 +10043,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__386__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__386__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__386__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__389__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__389__Vfuncout = VL_DIVS_III(32, 
@@ -10002,6 +10124,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__390__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__390__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__390__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__393__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__393__Vfuncout = VL_DIVS_III(32, 
@@ -10083,6 +10207,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__394__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__394__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__394__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__397__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__397__Vfuncout = VL_DIVS_III(32, 
@@ -10153,6 +10279,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__398__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__398__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__398__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__401__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__401__Vfuncout = VL_DIVS_III(32, 
@@ -10223,6 +10351,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__402__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__402__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__402__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__405__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__405__Vfuncout = VL_DIVS_III(32, 
@@ -10293,6 +10423,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__406__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__406__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__406__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__409__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__409__Vfuncout = VL_DIVS_III(32, 
@@ -10364,6 +10496,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__411__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__411__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__411__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__414__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__414__Vfuncout = VL_DIVS_III(32, 
@@ -10443,6 +10577,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__415__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__415__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__415__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__418__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__418__Vfuncout = VL_DIVS_III(32, 
@@ -10522,6 +10658,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__419__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__419__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__419__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__422__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__422__Vfuncout = VL_DIVS_III(32, 
@@ -10674,8 +10812,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.__Vtask_tb_ifufetch__DOT__parc_micro__426__b0 
         = (0x000000ffU & (IData)((__Vtask_tb_ifufetch__DOT__jam_mi__424__w 
                                   >> 0x20U)));
-    __Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_18__DOT____Vrepeat17 = 0;
-    __Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_19__DOT____Vrepeat18 = 0;
+    vlSelf->__Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_18__DOT____Vrepeat17 = 0;
+    vlSelf->__Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_19__DOT____Vrepeat18 = 0;
     vlSelf->__Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_20__DOT____Vrepeat19 = 0;
     vlSelf->__Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_21__DOT____Vrepeat20 = 0;
     vlSelf->__Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
@@ -10685,7 +10823,7 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     __Vtask_tb_ifufetch__DOT__strobe__427__fn = 1U;
     __Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
     __Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
-    __Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelf->__Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
     vlSelfRef.tb_ifufetch__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__427__fn)));
     vlSelfRef.tb_ifufetch__DOT__cpout = (((IData)(__Vtask_tb_ifufetch__DOT__strobe__427__data) 
                                           << 1U) | (IData)(__Vtask_tb_ifufetch__DOT__strobe__427__ss));
@@ -10729,6 +10867,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
     if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__427__fn))) {
         vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__427__data));
+        vlSelfRef.tb_ifufetch__DOT__setss_n = (1U & 
+                                               (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__427__ss)));
     }
     __Vfunc_tb_ifufetch__DOT__WT__430__n = 4U;
     __Vfunc_tb_ifufetch__DOT__WT__430__Vfuncout = VL_DIVS_III(32, 
@@ -10736,159 +10876,6 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__0(Vtb_ifufet
     if (VL_GTS_III(32, 1U, __Vfunc_tb_ifufetch__DOT__WT__430__Vfuncout)) {
         __Vfunc_tb_ifufetch__DOT__WT__430__Vfuncout = 1U;
     }
-    __Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 
+    vlSelfRef.__Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 
         = __Vfunc_tb_ifufetch__DOT__WT__430__Vfuncout;
-    while (VL_LTS_III(32, 0U, __Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
-        co_await vlSelfRef.__VtrigSched_h5e34a325__0.trigger(0U, 
-                                                             nullptr, 
-                                                             "@(posedge tb_ifufetch.sys_clk)", 
-                                                             "verilog/verilator/tb_ifufetch.sv", 
-                                                             399);
-        __Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 
-            = (__Vtask_tb_ifufetch__DOT__strobe__427__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 
-               - (IData)(1U));
-    }
-    __Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_18__DOT____Vrepeat17 = 0x000000c8U;
-    while (VL_LTS_III(32, 0U, __Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_18__DOT____Vrepeat17)) {
-        co_await vlSelfRef.__VtrigSched_h5e34a325__0.trigger(0U, 
-                                                             nullptr, 
-                                                             "@(posedge tb_ifufetch.sys_clk)", 
-                                                             "verilog/verilator/tb_ifufetch.sv", 
-                                                             971);
-        __Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_18__DOT____Vrepeat17 
-            = (__Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_18__DOT____Vrepeat17 
-               - (IData)(1U));
-    }
-    __Vtask_tb_ifufetch__DOT__strobe__431__ss = 0U;
-    __Vtask_tb_ifufetch__DOT__strobe__431__data = 0x4eU;
-    __Vtask_tb_ifufetch__DOT__strobe__431__fn = 0U;
-    __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
-    __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
-    __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
-    vlSelfRef.tb_ifufetch__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__431__fn)));
-    vlSelfRef.tb_ifufetch__DOT__cpout = (((IData)(__Vtask_tb_ifufetch__DOT__strobe__431__data) 
-                                          << 1U) | (IData)(__Vtask_tb_ifufetch__DOT__strobe__431__ss));
-    __Vfunc_tb_ifufetch__DOT__WT__432__n = 4U;
-    __Vfunc_tb_ifufetch__DOT__WT__432__Vfuncout = VL_DIVS_III(32, 
-                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_ifufetch__DOT__WT__432__n), (IData)(0x00000010U));
-    if (VL_GTS_III(32, 1U, __Vfunc_tb_ifufetch__DOT__WT__432__Vfuncout)) {
-        __Vfunc_tb_ifufetch__DOT__WT__432__Vfuncout = 1U;
-    }
-    __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0 
-        = __Vfunc_tb_ifufetch__DOT__WT__432__Vfuncout;
-    while (VL_LTS_III(32, 0U, __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
-        co_await vlSelfRef.__VtrigSched_h5e34a325__0.trigger(0U, 
-                                                             nullptr, 
-                                                             "@(posedge tb_ifufetch.sys_clk)", 
-                                                             "verilog/verilator/tb_ifufetch.sv", 
-                                                             392);
-        __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0 
-            = (__Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0 
-               - (IData)(1U));
-    }
-    vlSelfRef.tb_ifufetch__DOT__strb_n = 0U;
-    __Vfunc_tb_ifufetch__DOT__WT__433__n = 6U;
-    __Vfunc_tb_ifufetch__DOT__WT__433__Vfuncout = VL_DIVS_III(32, 
-                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_ifufetch__DOT__WT__433__n), (IData)(0x00000010U));
-    if (VL_GTS_III(32, 1U, __Vfunc_tb_ifufetch__DOT__WT__433__Vfuncout)) {
-        __Vfunc_tb_ifufetch__DOT__WT__433__Vfuncout = 1U;
-    }
-    __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1 
-        = __Vfunc_tb_ifufetch__DOT__WT__433__Vfuncout;
-    while (VL_LTS_III(32, 0U, __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
-        co_await vlSelfRef.__VtrigSched_h5e34a325__0.trigger(0U, 
-                                                             nullptr, 
-                                                             "@(posedge tb_ifufetch.sys_clk)", 
-                                                             "verilog/verilator/tb_ifufetch.sv", 
-                                                             393);
-        __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1 
-            = (__Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1 
-               - (IData)(1U));
-    }
-    vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
-    if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__431__fn))) {
-        vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__431__data));
-    }
-    __Vfunc_tb_ifufetch__DOT__WT__434__n = 4U;
-    __Vfunc_tb_ifufetch__DOT__WT__434__Vfuncout = VL_DIVS_III(32, 
-                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_ifufetch__DOT__WT__434__n), (IData)(0x00000010U));
-    if (VL_GTS_III(32, 1U, __Vfunc_tb_ifufetch__DOT__WT__434__Vfuncout)) {
-        __Vfunc_tb_ifufetch__DOT__WT__434__Vfuncout = 1U;
-    }
-    __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 
-        = __Vfunc_tb_ifufetch__DOT__WT__434__Vfuncout;
-    while (VL_LTS_III(32, 0U, __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
-        co_await vlSelfRef.__VtrigSched_h5e34a325__0.trigger(0U, 
-                                                             nullptr, 
-                                                             "@(posedge tb_ifufetch.sys_clk)", 
-                                                             "verilog/verilator/tb_ifufetch.sv", 
-                                                             399);
-        __Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 
-            = (__Vtask_tb_ifufetch__DOT__strobe__431__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 
-               - (IData)(1U));
-    }
-    __Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_19__DOT____Vrepeat18 = 0x000000c8U;
-    while (VL_LTS_III(32, 0U, __Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_19__DOT____Vrepeat18)) {
-        co_await vlSelfRef.__VtrigSched_h5e34a325__0.trigger(0U, 
-                                                             nullptr, 
-                                                             "@(posedge tb_ifufetch.sys_clk)", 
-                                                             "verilog/verilator/tb_ifufetch.sv", 
-                                                             973);
-        __Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_19__DOT____Vrepeat18 
-            = (__Vtask_tb_ifufetch__DOT__parc_micro__426__tb_ifufetch__DOT__unnamedblk1_19__DOT____Vrepeat18 
-               - (IData)(1U));
-    }
-    __Vtask_tb_ifufetch__DOT__strobe__435__ss = 1U;
-    __Vtask_tb_ifufetch__DOT__strobe__435__data = 0U;
-    __Vtask_tb_ifufetch__DOT__strobe__435__fn = 0U;
-    __Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
-    __Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
-    vlSelf->__Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
-    vlSelfRef.tb_ifufetch__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_ifufetch__DOT__strobe__435__fn)));
-    vlSelfRef.tb_ifufetch__DOT__cpout = (((IData)(__Vtask_tb_ifufetch__DOT__strobe__435__data) 
-                                          << 1U) | (IData)(__Vtask_tb_ifufetch__DOT__strobe__435__ss));
-    __Vfunc_tb_ifufetch__DOT__WT__436__n = 4U;
-    __Vfunc_tb_ifufetch__DOT__WT__436__Vfuncout = VL_DIVS_III(32, 
-                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_ifufetch__DOT__WT__436__n), (IData)(0x00000010U));
-    if (VL_GTS_III(32, 1U, __Vfunc_tb_ifufetch__DOT__WT__436__Vfuncout)) {
-        __Vfunc_tb_ifufetch__DOT__WT__436__Vfuncout = 1U;
-    }
-    __Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0 
-        = __Vfunc_tb_ifufetch__DOT__WT__436__Vfuncout;
-    while (VL_LTS_III(32, 0U, __Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
-        co_await vlSelfRef.__VtrigSched_h5e34a325__0.trigger(0U, 
-                                                             nullptr, 
-                                                             "@(posedge tb_ifufetch.sys_clk)", 
-                                                             "verilog/verilator/tb_ifufetch.sv", 
-                                                             392);
-        __Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0 
-            = (__Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_1__DOT____Vrepeat0 
-               - (IData)(1U));
-    }
-    vlSelfRef.tb_ifufetch__DOT__strb_n = 0U;
-    __Vfunc_tb_ifufetch__DOT__WT__437__n = 6U;
-    __Vfunc_tb_ifufetch__DOT__WT__437__Vfuncout = VL_DIVS_III(32, 
-                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_ifufetch__DOT__WT__437__n), (IData)(0x00000010U));
-    if (VL_GTS_III(32, 1U, __Vfunc_tb_ifufetch__DOT__WT__437__Vfuncout)) {
-        __Vfunc_tb_ifufetch__DOT__WT__437__Vfuncout = 1U;
-    }
-    __Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1 
-        = __Vfunc_tb_ifufetch__DOT__WT__437__Vfuncout;
-    while (VL_LTS_III(32, 0U, __Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
-        co_await vlSelfRef.__VtrigSched_h5e34a325__0.trigger(0U, 
-                                                             nullptr, 
-                                                             "@(posedge tb_ifufetch.sys_clk)", 
-                                                             "verilog/verilator/tb_ifufetch.sv", 
-                                                             393);
-        __Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1 
-            = (__Vtask_tb_ifufetch__DOT__strobe__435__tb_ifufetch__DOT__unnamedblk1_2__DOT____Vrepeat1 
-               - (IData)(1U));
-    }
-    vlSelfRef.tb_ifufetch__DOT__strb_n = 1U;
-    if ((0U == (IData)(__Vtask_tb_ifufetch__DOT__strobe__435__fn))) {
-        vlSelfRef.tb_ifufetch__DOT__setrun = (1U & (IData)(__Vtask_tb_ifufetch__DOT__strobe__435__data));
-    }
-    __Vfunc_tb_ifufetch__DOT__WT__438__n = 4U;
-    vlSelfRef.__Vfunc_tb_ifufetch__DOT__WT__438__Vfuncout 
-        = VL_DIVS_III(32, VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_ifufetch__DOT__WT__438__n), (IData)(0x00000010U));
     co_return;}
