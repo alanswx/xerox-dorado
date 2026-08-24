@@ -32,6 +32,30 @@
 // must happen in the startup for the same reason; and the loop must keep
 // tasking ON or CTask sticks.
 //
+// AND WHY ONE NLCB WRITE IS NOT ENOUGH (measured 2026-08-24).
+//
+// include/display.h's register map is
+//     0370 DDCSTATUS   0373 DWTFLAG   0374 DHTFLAG
+//     0375 HRAM        0376 NLCB      0377 STATICS
+// and it says writing NLCB "load NLCB, set aNextWCBFlag" -- which is one of
+// g11's four inputs. So `+slowio +nlcb` points the write at 0376.
+//
+// The write happens (960 IOBout strobes carrying 5a5a, all with Q loaded) and
+// TWReq.11 STILL DOES NOT ASSERT. Counting g11's channel-A inputs separately
+// -- because a conjunction that never holds says nothing about WHICH term is
+// at fault -- over 140,559 samples, with and without the NLCB write:
+//
+//     ACurrentWCBFlag       0
+//     ANextWCBFlag' low     0
+//     AFifoNotFull' low     0      <- the FIFO never reports room
+//
+// All three are inactive either way. The FIFO reporting FULL throughout is
+// the interesting one: that looks like a reset state, so the board very
+// likely needs a real INITIALISATION SEQUENCE -- 0377 STATICS and/or a reset
+// -- before it will accept work at all. One register write was never going to
+// be enough, and this bench now says so with numbers rather than by failing
+// silently.
+//
 // WHAT THE WORD TASK NEEDS, traced (2026-08-24):
 //
 //   TWReq.11  <- d03, an MC10231 D flip-flop: D = DWTWantsProc, clocked by
@@ -1294,7 +1318,7 @@ module tb_display;
   reg d00_last, dmd_last, md_last;
   integer n_coin_dmd, n_h05out, n_cwe, n_cce, n_d0in, n_dmd_ok, n_md_ok, n_dmd16, n_md16;
   integer n_we_fall, n_we_match, n_sind1, n_we_ones, n_we1, n_we1_ones, n_ce0, n_ce1;
-  integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q;
+  integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q, n_acur, n_anext, n_afifo, n_dwt;
   reg [15:0] q_now, q_last;
   reg [15:0] alub_at_out;
   reg [15:0] iob_now;
@@ -1311,7 +1335,7 @@ module tb_display;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
     dad_at_write=12'bx; dad_at_read=12'bx; dad_ones=12'bx;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
@@ -3511,6 +3535,8 @@ module tb_display;
              n_q_held, n_tot, n_q_chg, q_now);
     $display("tb_display:   COINCIDENCE -- of %0d IOBout strobes, %0d happened while Q held 5a5a",
              n_iobout, n_out_q);
+    $display("tb_display:   g11 INPUTS (channel A) of %0d -- CurrentWCBFlag %0d, NextWCBFlag' low %0d, FifoNotFull' low %0d -> DWTWantsProc %0d",
+             n_tot, n_acur, n_anext, n_afifo, n_dwt);
     // GATE: THE Output<- INSTRUCTION DECODES AND STROBES. ProcH h01 is an
     // MC10197 hex AND -- IOB = IOBout & alub -- so IOBout asserting is the
     // write actually happening. It is high on 32 samples with +slowio and on
@@ -3634,7 +3660,7 @@ module tb_display;
              tioa_seen, !m.b_DispY.TIOASaysDDC_p_);
     // GATE: THE PROCESSOR ADDRESSES THE DISPLAY BOARD, and the address gets
     // there. TIOA is the processor's, TIOADly is what DispY sees.
-    if (tioa_seen !== 8'b11111000)
+    if (!$test$plusargs("nlcb") && tioa_seen !== 8'b11111000)
       $fatal(1, "TIOA is %b after TIOA<-B, not 11111000 (370B)", tioa_seen);
     if ({m.b_DispY.TIOADly_00, m.b_DispY.TIOADly_01, m.b_DispY.TIOADly_02,
          m.b_DispY.TIOADly_03, m.b_DispY.TIOADly_04} !== 5'b11111)
@@ -3659,6 +3685,13 @@ module tb_display;
     // tb_taskrun's header): from IM not a jam because of ClrCT; the IM load in
     // the startup for the same reason; the loop must keep tasking ON; and now,
     // a device write must not be jammed because IgnoreProc blocks it.
+    // WHICH g11 INPUT IS MISSING? DWTWantsProc needs, per channel, the WCB
+    // flags AND FifoNotFull'. Count each separately -- a conjunction that
+    // never holds says nothing about WHICH term is at fault.
+    if (m.b_DispY.ACurrentWCBFlag)     n_acur  = n_acur  + 1;
+    if (!m.b_DispY.ANextWCBFlag_p_)    n_anext = n_anext + 1;
+    if (!m.b_DispY.AFifoNotFull_p_)    n_afifo = n_afifo + 1;
+    if (m.b_DispY.DWTWantsProc)        n_dwt   = n_dwt   + 1;
     if (m.b_DispY.IgnoreCommands)
       $display("tb_display: OPEN -- address correct at the board, but IgnoreCommands=1 blocks the select");
 

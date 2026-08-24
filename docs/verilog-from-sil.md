@@ -2121,3 +2121,32 @@ strobes from **32 to 960** and `alub` from `0015` to `5a5a`.
 **Operands before the loop that uses them.** Obvious in hindsight, and it cost
 a wrong hypothesis about the B multiplexer — one that had survived ruling out
 two other candidates and looked well-supported.
+
+### One NLCB write is not enough — the board needs initialising (2026-08-24)
+
+`include/display.h`'s register map:
+
+```
+0370 DDCSTATUS   0373 DWTFLAG   0374 DHTFLAG
+0375 HRAM        0376 NLCB      0377 STATICS
+```
+
+and it says writing NLCB *"load NLCB, set αNextWCBFlag"* — one of g11's four
+inputs. So `display-test +slowio +nlcb` points the write at 0376.
+
+**The write happens** — 960 `IOBout` strobes carrying `5a5a`, all with Q
+loaded — **and `TWReq.11` still does not assert.** Counting g11's channel-A
+inputs separately, because a conjunction that never holds says nothing about
+*which* term is at fault:
+
+| over 140,559 samples | with NLCB | without |
+|---|---|---|
+| `ACurrentWCBFlag` | 0 | 0 |
+| `ANextWCBFlag'` low | 0 | 0 |
+| **`AFifoNotFull'` low** | **0** | **0** |
+
+All three inactive either way. **The FIFO reporting full throughout** is the
+interesting one — that looks like a reset state, so the board very likely
+needs a real **initialisation sequence** (0377 STATICS and/or a reset) before
+it will accept work. One register write was never going to be enough, and the
+bench now says so with numbers rather than failing silently.
