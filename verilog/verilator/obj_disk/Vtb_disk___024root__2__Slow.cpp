@@ -9376,8 +9376,10 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__2726__b1 = 0;
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__2726__tb_disk__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__2726__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2760__fn = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2760__data = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2760__ss = 0;
     vlSelf->__Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
-    vlSelf->__Vfunc_tb_disk__DOT__WT__2763__Vfuncout = 0;
     vlSelf->__Vtableidx319 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;

@@ -15880,7 +15880,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__6(Vtb_disk___024
                                            + vlSelfRef.tb_disk__DOT__kk2);
         }
         VL_WRITEF_NX("tb_disk: +slowio -- IM[0..3] = TIOA<- / Output<- / quiet / quiet\n",0);
-        __Vtask_tb_disk__DOT__set_cpreg_plain__2320__v = 0xf800U;
+        __Vtask_tb_disk__DOT__set_cpreg_plain__2320__v = 0x0800U;
         __Vtask_tb_disk__DOT__strobe__2321__ss = 0U;
         __Vtask_tb_disk__DOT__strobe__2321__data = 
             (0x000000ffU & ((IData)(__Vtask_tb_disk__DOT__set_cpreg_plain__2320__v) 
