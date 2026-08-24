@@ -175,30 +175,6 @@ void Vtb_display___024root___nba_sequent__TOP__4(Vtb_display___024root* vlSelf) 
     CData/*4:0*/ __Vtableidx79;
     __Vtableidx79 = 0;
     // Body
-    vlSelfRef.tb_display__DOT__m__DOT__dMD_08 = (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__MD_u_D)
-                                                   ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__D_08)
-                                                   : (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__u_h10__DOT__p10)) 
-                                                 | (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__dMD_08___05Fh11_2));
-    vlSelfRef.tb_display__DOT__m__DOT__dMD_09 = (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__MD_u_D)
-                                                   ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__D_09)
-                                                   : (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__u_h10__DOT__p12)) 
-                                                 | (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__dMD_09___05Fh11_1));
-    vlSelfRef.tb_display__DOT__m__DOT__dMD_10 = (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__MD_u_D)
-                                                   ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__D_10)
-                                                   : (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__u_h10__DOT__p3)) 
-                                                 | (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__dMD_10___05Fh11_15));
-    vlSelfRef.tb_display__DOT__m__DOT__dMD_11 = (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__MD_u_D)
-                                                   ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__D_11)
-                                                   : (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__u_h10__DOT__p5)) 
-                                                 | (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__dMD_11___05Fh11_14));
-    vlSelfRef.tb_display__DOT__m__DOT__dMD_04 = (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__MD_u_D)
-                                                   ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__D_04)
-                                                   : (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__u_h14__DOT__p10)) 
-                                                 | (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__dMD_04___05Fh15_2));
-    vlSelfRef.tb_display__DOT__m__DOT__dMD_05 = (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__MD_u_D)
-                                                   ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__D_05)
-                                                   : (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__u_h14__DOT__p12)) 
-                                                 | (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__dMD_05___05Fh15_1));
     vlSelfRef.tb_display__DOT__m__DOT__dMD_06 = (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__MD_u_D)
                                                    ? (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__D_06)
                                                    : (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_MemD__DOT__u_h14__DOT__p3)) 
@@ -5201,7 +5177,8 @@ void Vtb_display___024root___eval_nba(Vtb_display___024root* vlSelf) {
     Vtb_display__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    if ((4ULL & vlSelfRef.__VnbaTriggered[1U])) {
+    if ((0x0000000004000000ULL & vlSelfRef.__VnbaTriggered
+         [1U])) {
         Vtb_display___024root___nba_sequent__TOP__0(vlSelf);
         Vtb_display___024root___nba_sequent__TOP__1(vlSelf);
         Vtb_display___024root___nba_sequent__TOP__2(vlSelf);
@@ -5215,7 +5192,8 @@ void Vtb_display___024root___timing_commit(Vtb_display___024root* vlSelf) {
     Vtb_display__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    if ((! (4ULL & vlSelfRef.__VactTriggered[1U]))) {
+    if ((! (0x0000000004000000ULL & vlSelfRef.__VactTriggered
+            [1U]))) {
         vlSelfRef.__VtrigSched_h0bd61196__0.commit(
                                                    "@(posedge tb_display.sys_clk)");
     }
@@ -5226,11 +5204,13 @@ void Vtb_display___024root___timing_resume(Vtb_display___024root* vlSelf) {
     Vtb_display__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    if ((4ULL & vlSelfRef.__VactTriggered[1U])) {
+    if ((0x0000000004000000ULL & vlSelfRef.__VactTriggered
+         [1U])) {
         vlSelfRef.__VtrigSched_h0bd61196__0.resume(
                                                    "@(posedge tb_display.sys_clk)");
     }
-    if ((8ULL & vlSelfRef.__VactTriggered[1U])) {
+    if ((0x0000000008000000ULL & vlSelfRef.__VactTriggered
+         [1U])) {
         vlSelfRef.__VdlySched.resume();
     }
 }

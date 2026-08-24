@@ -244,10 +244,82 @@ VL_ATTR_COLD void Vtb_display___024root___dump_triggers__act(const VlUnpacked<QD
         VL_DBG_MSGS("         '" + tag + "' region trigger index 65 is active: @( tb_display.m.b_DispY.u_f15.qb)\n");
     }
     if ((1U & (IData)((triggers[1U] >> 2U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 66 is active: @(posedge tb_display.sys_clk)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 66 is active: @( tb_display.m.b_DispY.TIOADly_00)\n");
     }
     if ((1U & (IData)((triggers[1U] >> 3U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 67 is active: @([true] __VdlySched.awaitingCurrentTime())\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 67 is active: @( tb_display.m.b_DispY.TIOADly_00__VforceEn)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 4U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 68 is active: @( tb_display.m.b_DispY.TIOADly_00__VforceRd)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 5U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 69 is active: @( tb_display.m.b_DispY.TIOADly_00__VforceVal)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 6U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 70 is active: @( tb_display.m.b_DispY.TIOADly_01)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 7U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 71 is active: @( tb_display.m.b_DispY.TIOADly_01__VforceEn)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 8U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 72 is active: @( tb_display.m.b_DispY.TIOADly_01__VforceRd)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 9U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 73 is active: @( tb_display.m.b_DispY.TIOADly_01__VforceVal)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x0000000aU)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 74 is active: @( tb_display.m.b_DispY.TIOADly_02)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x0000000bU)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 75 is active: @( tb_display.m.b_DispY.TIOADly_02__VforceEn)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x0000000cU)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 76 is active: @( tb_display.m.b_DispY.TIOADly_02__VforceRd)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x0000000dU)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 77 is active: @( tb_display.m.b_DispY.TIOADly_02__VforceVal)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x0000000eU)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 78 is active: @( tb_display.m.b_DispY.TIOADly_03)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x0000000fU)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 79 is active: @( tb_display.m.b_DispY.TIOADly_03__VforceEn)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x00000010U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 80 is active: @( tb_display.m.b_DispY.TIOADly_03__VforceRd)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x00000011U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 81 is active: @( tb_display.m.b_DispY.TIOADly_03__VforceVal)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x00000012U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 82 is active: @( tb_display.m.b_DispY.TIOADly_04)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x00000013U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 83 is active: @( tb_display.m.b_DispY.TIOADly_04__VforceEn)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x00000014U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 84 is active: @( tb_display.m.b_DispY.TIOADly_04__VforceRd)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x00000015U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 85 is active: @( tb_display.m.b_DispY.TIOADly_04__VforceVal)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x00000016U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 86 is active: @( tb_display.m.b_DispY.IgnoreCommands)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x00000017U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 87 is active: @( tb_display.m.b_DispY.IgnoreCommands__VforceEn)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x00000018U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 88 is active: @( tb_display.m.b_DispY.IgnoreCommands__VforceRd)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x00000019U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 89 is active: @( tb_display.m.b_DispY.IgnoreCommands__VforceVal)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x0000001aU)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 90 is active: @(posedge tb_display.sys_clk)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 0x0000001bU)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 91 is active: @([true] __VdlySched.awaitingCurrentTime())\n");
     }
 }
 #endif  // VL_DEBUG
@@ -8430,6 +8502,10 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__FoutTaskIsDWT_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4687092506428646349ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__HRamCommand_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5495775443056232514ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__HWSynced = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1219530615386554139ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13191702569050658062ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands__VforceRd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3335448675760376617ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands__VforceEn = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6843870535378012855ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands__VforceVal = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2330646572065786611ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreProca = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3301355473403962828ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__IncrementWPtr_p_a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13074874219716880682ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__KillDWTWakeup = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3391558139710413268ull);
@@ -8503,6 +8579,26 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__StaticsClk1_p_a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10384725279615553380ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__StaticsCommand_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3772845999865348047ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__StopCursorCount = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2788456374936009435ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15265514501653190410ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceRd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2472768667608959407ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceEn = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 178201090330718019ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceVal = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11463768957041647728ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6697041605470203453ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceRd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5251483610214505240ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceEn = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13155487784854373437ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceVal = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16180336163802311274ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5918374496630240886ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceRd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15771876333830129559ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceEn = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7786486722409346393ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceVal = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18177351267859131724ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15566302545647281885ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceRd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8239778794475140347ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceEn = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10169364405296601848ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceVal = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8665973254400512746ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4588715303908897578ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceRd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1682420364456262739ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceEn = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4374674484569000848ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceVal = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16227730765285564038ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_05 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9288259993983887065ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_06 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1048780161894192758ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_07 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11430427695033822154ull);
@@ -8559,6 +8655,7 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__preFH_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7010394969594860219ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__prePixelClk_p_Bb = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5236229774734902676ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__preclk0_p_A = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5702926276899201693ull);
+    vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__preclk1_p_A = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9632070156764939469ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__preprePixelClk_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12687936319807380910ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__prepreclk2_p_a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15601705854909887072ull);
     vlSelf->tb_display__DOT__m__DOT__b_DispY__DOT__MidasEn_p___05F_l23_9 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18422669235532948708ull);
@@ -11096,6 +11193,30 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__ANextWCBFlag_p___VforceRd__0 = 0;
     vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__ANextWCBFlag_p___VforceVal__0 = 0;
     vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__u_f15__DOT__qb__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceEn__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceRd__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceVal__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceEn__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceRd__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceVal__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceEn__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceRd__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceVal__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceEn__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceRd__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceVal__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceEn__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceRd__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceVal__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands__VforceEn__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands__VforceRd__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands__VforceVal__0 = 0;
     vlSelf->__Vtrigprevexpr___TOP__tb_display__DOT__sys_clk__0 = 0;
     vlSelf->__VactDidInit = 0;
     for (int __Vi0 = 0; __Vi0 < 2; ++__Vi0) {
