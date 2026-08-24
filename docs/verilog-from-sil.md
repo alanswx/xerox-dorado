@@ -2352,3 +2352,36 @@ six. Fixing it by line number, and *checking the result*, took the select from
 Two boards now answer the processor from running microcode: DispY at 370B and
 DskEth at 010B, each at the address its own strap dictates, and each
 cross-checked against the C emulator's independent claim of the same range.
+
+### The ethernet wakeups are wired -- and the disk's cannot be (2026-08-24)
+
+`WakeEthTx → TWReq.06` and `WakeEthRx → TWReq.07` join
+`BACKPLANE_WAKEUP_JUMPERS`, from `include/ethernet.h`:
+
+```
+DORADO_ETHERNET_TASK_EOT  06     Ethernet Output Task -- Tx
+DORADO_ETHERNET_TASK_EIT  07     Ethernet Input  Task -- Rx
+```
+
+DskEth's own strap cannot settle these — unlike the display boards' it is an
+I/O **address** (`TIOA-Ad = 1` → 010-017), not a task number — so the numbers
+have to come from elsewhere, and `ethernet.h` is genuinely independent:
+it registers its slow-IO handlers on exactly those two tasks.
+
+**That completes every wakeup jumper the boards drive:**
+
+| net | line | source |
+|---|---|---|
+| `WakeAWT` | `TWReq.09` | DispM strap, and DispM30.sil says "Task 9D = 11B" |
+| `WakeDWT` | `TWReq.11` | DispY strap |
+| `WakeDHT` | `TWReq.03` | `display.h` DHT |
+| `WakeAHT` | `TWReq.04` | `display.h` AHT |
+| `WakeEthTx` | `TWReq.06` | `ethernet.h` EOT |
+| `WakeEthRx` | `TWReq.07` | `ethernet.h` EIT |
+| `TWReq15` | `TWReq.15` | the fault task, HM §4.1 and `memory.h` |
+
+**The disk's own wakeup is still not wired, and cannot be.** `memory.h`'s
+sibling `disk.h` has `DORADO_DISK_TASK = 014` octal = 12 decimal, but **DskEth
+drives no disk wakeup net at all** — only `WakeEthRx` and `WakeEthTx`. There is
+nothing to jumper. Where the disk task's request originates is an open question
+about the machine, not a gap in the table.

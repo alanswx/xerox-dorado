@@ -191,16 +191,31 @@ BACKPLANE_CASE_ALIASES = {
 # derivations agreeing on the pair we already knew is what makes the pair we
 # did not -- the head tasks, 3 and 4 -- safe to take from the same table.
 #
-# STILL NOT WIRED: DskEth's WakeEthRx / WakeEthTx. DskEth's strap is an I/O
-# ADDRESS, not a task number, so its task has to come from elsewhere -- the C
-# emulator has DORADO_DISK_TASK = 014 octal = 12 decimal for the disk, but
-# DskEth's two lines here are the ETHERNET ones, and the disk's wakeup is not
-# among the nets this board drives.
+#   DskEth WakeEthTx -> TWReq.06   the Ethernet OUTPUT task
+#   DskEth WakeEthRx -> TWReq.07   the Ethernet INPUT task
+#
+# THE ETHERNET PAIR IS WIRED NOW TOO, from include/ethernet.h:
+#
+#     DORADO_ETHERNET_TASK_EOT  06     Ethernet Output Task -- Tx
+#     DORADO_ETHERNET_TASK_EIT  07     Ethernet Input  Task -- Rx
+#
+# DskEth's own strap cannot settle these: unlike the display boards' it is an
+# I/O ADDRESS (TIOA-Ad = 1 -> 010-017), not a task number, so the numbers have
+# to come from elsewhere -- and ethernet.h is a genuinely independent source,
+# registering its slow-IO handlers on exactly those two tasks.
+#
+# THE DISK'S OWN WAKEUP IS STILL NOT WIRED, and cannot be: the C emulator has
+# DORADO_DISK_TASK = 014 octal = 12 decimal, but DskEth drives only WakeEthRx
+# and WakeEthTx -- there is no disk wakeup net on this board at all, so there
+# is nothing to jumper. Where the disk task's request comes from is an open
+# question about the machine, not a gap in this table.
 BACKPLANE_WAKEUP_JUMPERS = {
     'WakeAWT': 'TWReq.09',
     'WakeDWT': 'TWReq.11',
     'WakeDHT': 'TWReq.03',
     'WakeAHT': 'TWReq.04',
+    'WakeEthTx': 'TWReq.06',
+    'WakeEthRx': 'TWReq.07',
     'TWReq15': 'TWReq.15',
 }
 

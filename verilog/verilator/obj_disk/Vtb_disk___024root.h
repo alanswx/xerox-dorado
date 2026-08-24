@@ -135,8 +135,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             CData/*0:0*/ tb_disk__DOT__m__DOT__TWReq_03;
             CData/*0:0*/ tb_disk__DOT__m__DOT__TWReq_04;
             CData/*0:0*/ tb_disk__DOT__m__DOT__TWReq_05;
-            CData/*0:0*/ tb_disk__DOT__m__DOT__TWReq_06;
-            CData/*0:0*/ tb_disk__DOT__m__DOT__TWReq_07;
             CData/*0:0*/ tb_disk__DOT__m__DOT__TWReq_08;
             CData/*0:0*/ tb_disk__DOT__m__DOT__TWReq_09;
             CData/*0:0*/ tb_disk__DOT__m__DOT__TWReq_10;
@@ -148,10 +146,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             CData/*0:0*/ tb_disk__DOT__m__DOT__WantIfuRef_p_;
             CData/*0:0*/ tb_disk__DOT__m__DOT__ASEL_0__VforceRd;
             CData/*0:0*/ tb_disk__DOT__m__DOT__ASEL_0__VforceEn;
-        };
-        struct {
             CData/*0:0*/ tb_disk__DOT__m__DOT__ASEL_0__VforceVal;
             CData/*0:0*/ tb_disk__DOT__m__DOT__ASEL_1_p___VforceRd;
+        };
+        struct {
             CData/*0:0*/ tb_disk__DOT__m__DOT__ASEL_1_p___VforceEn;
             CData/*0:0*/ tb_disk__DOT__m__DOT__ASEL_1_p___VforceVal;
             CData/*0:0*/ tb_disk__DOT__m__DOT__ASEL_2_p___VforceRd;
@@ -214,10 +212,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             CData/*0:0*/ tb_disk__DOT__m__DOT__IOB_10;
             CData/*0:0*/ tb_disk__DOT__m__DOT__IOB_11;
             CData/*0:0*/ tb_disk__DOT__m__DOT__IOB_12;
-        };
-        struct {
             CData/*0:0*/ tb_disk__DOT__m__DOT__IOB_13;
             CData/*0:0*/ tb_disk__DOT__m__DOT__IOB_14;
+        };
+        struct {
             CData/*0:0*/ tb_disk__DOT__m__DOT__IOB_15;
             CData/*0:0*/ tb_disk__DOT__m__DOT__IOB_16;
             CData/*0:0*/ tb_disk__DOT__m__DOT__IOB_17;
@@ -280,10 +278,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             CData/*0:0*/ tb_disk__DOT__m__DOT__dMD_12;
             CData/*0:0*/ tb_disk__DOT__m__DOT__dMD_13;
             CData/*0:0*/ tb_disk__DOT__m__DOT__dMD_14;
-        };
-        struct {
             CData/*0:0*/ tb_disk__DOT__m__DOT__dMD_15;
             CData/*0:0*/ tb_disk__DOT__m__DOT__dMD_16;
+        };
+        struct {
             CData/*0:0*/ tb_disk__DOT__m__DOT__dMD_17;
             CData/*0:0*/ tb_disk__DOT__m__DOT__rMIRa;
             CData/*0:0*/ tb_disk__DOT__m__DOT__AcanhaveMap_p___05F_MemX;
@@ -346,10 +344,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             CData/*0:0*/ tb_disk__DOT__m__DOT__MakeFout_u_D___05FMemX;
             CData/*0:0*/ tb_disk__DOT__m__DOT__MakeMDM_u_D_p___05F_MemX;
             CData/*0:0*/ tb_disk__DOT__m__DOT__MakeMD_u_D_p___05F_MemX;
-        };
-        struct {
             CData/*0:0*/ tb_disk__DOT__m__DOT__MakeSout_u_D___05FMemX;
             CData/*0:0*/ tb_disk__DOT__m__DOT__MapRfsh_p___05F_MemX;
+        };
+        struct {
             CData/*0:0*/ tb_disk__DOT__m__DOT__MapTroubleInEc1___05FMemX;
             CData/*0:0*/ tb_disk__DOT__m__DOT__MapWait_m_D___05FMemX;
             CData/*0:0*/ tb_disk__DOT__m__DOT__Map_u_InPair_p___05F_MemC;
@@ -399,6 +397,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             CData/*0:0*/ tb_disk__DOT__m__DOT__Store_u_InA_p___05F_MemC;
             CData/*0:0*/ tb_disk__DOT__m__DOT__TNIA_02___05FContA;
             CData/*0:0*/ tb_disk__DOT__m__DOT__TNIA_03___05FContA;
+            CData/*0:0*/ tb_disk__DOT__m__DOT__TWReq_06___05FDskEth;
+            CData/*0:0*/ tb_disk__DOT__m__DOT__TWReq_07___05FDskEth;
             CData/*0:0*/ tb_disk__DOT__m__DOT__VicInPair_p___05F_MemC;
             CData/*0:0*/ tb_disk__DOT__m__DOT__VicOrFS1C___05FMemC;
             CData/*0:0*/ tb_disk__DOT__m__DOT__WPinEc1___05FMemX;

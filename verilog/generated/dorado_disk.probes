@@ -140,6 +140,4 @@
 138 TtlSector' output
 139 TtlSeekInc' output
 140 TtlTerm' output
-141 WakeEthRx output
-142 WakeEthTx output
-143 XmtData' output
+141 XmtData' output

@@ -4,10 +4,10 @@
 
 #include "Vtb_disk__pch.h"
 
-extern const VlUnpacked<CData/*0:0*/, 32> Vtb_disk__ConstPool__TABLE_hf5c1af71_0;
-extern const VlUnpacked<CData/*0:0*/, 32> Vtb_disk__ConstPool__TABLE_hac186fdc_0;
 extern const VlUnpacked<CData/*0:0*/, 32> Vtb_disk__ConstPool__TABLE_hd5c05b5e_0;
 extern const VlUnpacked<CData/*0:0*/, 32> Vtb_disk__ConstPool__TABLE_h0bdfae0c_0;
+extern const VlUnpacked<CData/*0:0*/, 32> Vtb_disk__ConstPool__TABLE_hf5c1af71_0;
+extern const VlUnpacked<CData/*0:0*/, 32> Vtb_disk__ConstPool__TABLE_hac186fdc_0;
 
 void Vtb_disk___024root___nba_sequent__TOP__4(Vtb_disk___024root* vlSelf) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_disk___024root___nba_sequent__TOP__4\n"); );
@@ -139,6 +139,10 @@ void Vtb_disk___024root___nba_sequent__TOP__4(Vtb_disk___024root* vlSelf) {
     CData/*4:0*/ __Vtableidx304;
     __Vtableidx304 = 0;
     // Body
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TxFifo_15 
+        = Vtb_disk__ConstPool__TABLE_hd5c05b5e_0[vlSelfRef.__Vtableidx319];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TxFifo_14 
+        = Vtb_disk__ConstPool__TABLE_h0bdfae0c_0[vlSelfRef.__Vtableidx319];
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TxFifo_13 
         = Vtb_disk__ConstPool__TABLE_hf5c1af71_0[vlSelfRef.__Vtableidx319];
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TxFifo_12 

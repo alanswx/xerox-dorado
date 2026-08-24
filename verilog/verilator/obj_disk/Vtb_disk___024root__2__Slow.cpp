@@ -471,8 +471,6 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__m__DOT__TWReq_03 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1604569263642327436ull);
     vlSelf->tb_disk__DOT__m__DOT__TWReq_04 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3808205459075686085ull);
     vlSelf->tb_disk__DOT__m__DOT__TWReq_05 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10498852767919250996ull);
-    vlSelf->tb_disk__DOT__m__DOT__TWReq_06 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13331412176286875948ull);
-    vlSelf->tb_disk__DOT__m__DOT__TWReq_07 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5808356059699158322ull);
     vlSelf->tb_disk__DOT__m__DOT__TWReq_08 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15349187096357680496ull);
     vlSelf->tb_disk__DOT__m__DOT__TWReq_09 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4571995460304531224ull);
     vlSelf->tb_disk__DOT__m__DOT__TWReq_10 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2670651443561732968ull);
@@ -727,6 +725,8 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__m__DOT__Store_u_InA_p___05F_MemC = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11338712911380481240ull);
     vlSelf->tb_disk__DOT__m__DOT__TNIA_02___05FContA = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4370582973588864484ull);
     vlSelf->tb_disk__DOT__m__DOT__TNIA_03___05FContA = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15636976323358779502ull);
+    vlSelf->tb_disk__DOT__m__DOT__TWReq_06___05FDskEth = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15202416997160327436ull);
+    vlSelf->tb_disk__DOT__m__DOT__TWReq_07___05FDskEth = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13631064446811330630ull);
     vlSelf->tb_disk__DOT__m__DOT__VicInPair_p___05F_MemC = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 34326692863725560ull);
     vlSelf->tb_disk__DOT__m__DOT__VicOrFS1C___05FMemC = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13248378264930801705ull);
     vlSelf->tb_disk__DOT__m__DOT__WPinEc1___05FMemX = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 845830682313012116ull);
