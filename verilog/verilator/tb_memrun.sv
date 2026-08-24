@@ -972,7 +972,8 @@
 
 
 module tb_memrun;
-  integer n_ua, n_asrn, n_pesrn, n_k02, n_dpipe, n_hoip, n_brhi, n_hold, n_tot;
+  integer n_ua, n_asrn, n_pesrn, n_k02, n_dpipe, n_hoip, n_brhi, n_hold, n_tot, n_pp, n_sh, n_pc, n_mc, n_mce, n_ceb;
+  reg pp_d, sh_d, pc_d, mc_d;
   reg k02clk_d; reg [3:0] dpipe_now, dpipe_last;
   reg [3:0] asrn_now, asrn_last, pesrn_now, pesrn_last;
 
@@ -1529,7 +1530,28 @@ module tb_memrun;
     if (m.b_MemC.HoldOrIP) n_hoip = n_hoip + 1;
     if (m.b_MemC.BrHi_u__p_) n_brhi = n_brhi + 1;
     if (m.b_MemC.Hold)     n_hold = n_hold + 1;
+    // ...and k02's OWN CLOCK. PipeAd is a parallel load on clk0'A (both
+    // select pins open = load), so a dead clock holds the pointer whatever
+    // its source does.
+    if (m.b_MemC.clk0_p_A !== k02clk_d) begin n_k02 = n_k02 + 1; k02clk_d = m.b_MemC.clk0_p_A; end
+    dpipe_now = {m.b_MemC.dPipe02Ad_0, m.b_MemC.dPipe02Ad_1, m.b_MemC.dPipe02Ad_2, m.b_MemC.dPipe02Ad_3};
+    if (dpipe_now !== dpipe_last) begin n_dpipe = n_dpipe + 1; dpipe_last = dpipe_now; end
+    asrn_now  = {m.b_MemX.Asrn_0,  m.b_MemX.Asrn_1,  m.b_MemX.Asrn_2,  m.b_MemX.Asrn_3};
+    pesrn_now = {m.b_MemX.PEsrn_0, m.b_MemX.PEsrn_1, m.b_MemX.PEsrn_2, m.b_MemX.PEsrn_3};
+    if (asrn_now  !== asrn_last)  begin n_asrn  = n_asrn  + 1; asrn_last  = asrn_now;  end
+    if (pesrn_now !== pesrn_last) begin n_pesrn = n_pesrn + 1; pesrn_last = pesrn_now; end
     n_tot = n_tot + 1;   // TOTAL sys_clk -- these counters are NOT window-gated
+    // THE CLOCK CHAIN, one hop at a time, EDGES not levels:
+    //   preClk0'B <- h13 from ppclk2'a and preSH'x
+    //   ppclk2'a  <- l01 from MemClkEnable'a, CLK.mc', CLKEnable'b
+    // Whichever of these already differs is where the IFU's effect enters.
+    if (m.b_MemC.ppclk2_p_a  !== pp_d)  begin n_pp  = n_pp  + 1; pp_d  = m.b_MemC.ppclk2_p_a;  end
+    if (m.b_MemC.preSH_p_x   !== sh_d)  begin n_sh  = n_sh  + 1; sh_d  = m.b_MemC.preSH_p_x;   end
+    if (m.b_MemC.preClk0_p_B !== pc_d)  begin n_pc  = n_pc  + 1; pc_d  = m.b_MemC.preClk0_p_B; end
+    if (m.b_MemC.CLK_mc_p_   !== mc_d)  begin n_mc  = n_mc  + 1; mc_d  = m.b_MemC.CLK_mc_p_;   end
+    if (m.b_MemC.MemClkEnable_p_a) n_mce = n_mce + 1;
+    if (m.b_MemC.CLKEnable_p_b)    n_ceb = n_ceb + 1;
+
   end
 
   task step_again;
@@ -2450,16 +2472,6 @@ build_hunk4(4'd0, 1'b0,
         if (!m.b_MemC.Flush_u__p_)    nff0_fl  = nff0_fl  + 1;
         if (m.b_MemC.FlushStore)      nff0_fs  = nff0_fs  + 1;
         if (m.b_MemC.HitColDirty)     nff0_hcd = nff0_hcd + 1;
-    // ...and k02's OWN CLOCK. PipeAd is a parallel load on clk0'A (both
-    // select pins open = load), so a dead clock holds the pointer whatever
-    // its source does.
-    if (m.b_MemC.clk0_p_A !== k02clk_d) begin n_k02 = n_k02 + 1; k02clk_d = m.b_MemC.clk0_p_A; end
-    dpipe_now = {m.b_MemC.dPipe02Ad_0, m.b_MemC.dPipe02Ad_1, m.b_MemC.dPipe02Ad_2, m.b_MemC.dPipe02Ad_3};
-    if (dpipe_now !== dpipe_last) begin n_dpipe = n_dpipe + 1; dpipe_last = dpipe_now; end
-    asrn_now  = {m.b_MemX.Asrn_0,  m.b_MemX.Asrn_1,  m.b_MemX.Asrn_2,  m.b_MemX.Asrn_3};
-    pesrn_now = {m.b_MemX.PEsrn_0, m.b_MemX.PEsrn_1, m.b_MemX.PEsrn_2, m.b_MemX.PEsrn_3};
-    if (asrn_now  !== asrn_last)  begin n_asrn  = n_asrn  + 1; asrn_last  = asrn_now;  end
-    if (pesrn_now !== pesrn_last) begin n_pesrn = n_pesrn + 1; pesrn_last = pesrn_now; end
 
         // THE VICTIM CHAIN, counted over the window rather than sampled at
         // the end -- at the end the machine is idle and every term reads 0.
@@ -2942,6 +2954,8 @@ build_hunk4(4'd0, 1'b0,
              n_hoip, n_brhi, n_hold);
     $display("tb_memrun:   ...OF %0d TOTAL sys_clk -- so HoldOrIP %0d%%, BrHi_' %0d%%, and clk0'A edges per 1000 sys_clk = %0d",
              n_tot, (100*n_hoip)/n_tot, (100*n_brhi)/n_tot, (1000*n_k02)/n_tot);
+    $display("tb_memrun:   ...CLOCK CHAIN over %0d sys_clk -- CLK.mc' edges %0d | MemClkEnable'a high %0d | CLKEnable'b high %0d | ppclk2'a edges %0d | preSH'x edges %0d | preClk0'B edges %0d",
+             n_tot, n_mc, n_mce, n_ceb, n_pp, n_sh, n_pc);
     $display("tb_memrun: holds -- PrHoldReq=%b CHoldReq=%b ExtHoldReq=%b PRhold=%b",
              m.PrHoldReq, m.CHoldReq, m.ExtHoldReq, m.PRhold);
     // WHICH of the three Hold flip-flops is asserting. `Hold` is a wired-OR of

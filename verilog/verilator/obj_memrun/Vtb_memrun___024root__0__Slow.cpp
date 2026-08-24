@@ -265,6 +265,10 @@ VL_ATTR_COLD void Vtb_memrun___024root___stl_sequent__TOP__0(Vtb_memrun___024roo
     // Locals
     CData/*0:0*/ tb_memrun__DOT__m__DOT__IMLHPE_p_;
     tb_memrun__DOT__m__DOT__IMLHPE_p_ = 0;
+    CData/*0:0*/ tb_memrun__DOT__m__DOT__MdPE;
+    tb_memrun__DOT__m__DOT__MdPE = 0;
+    CData/*0:0*/ tb_memrun__DOT__m__DOT__RamPE;
+    tb_memrun__DOT__m__DOT__RamPE = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__CLKEnable_p_c___05FContA;
     tb_memrun__DOT__m__DOT__CLKEnable_p_c___05FContA = 0;
     CData/*0:0*/ tb_memrun__DOT__m__DOT__IMRHPE_p___05F_ContA;
@@ -4782,14 +4786,14 @@ VL_ATTR_COLD void Vtb_memrun___024root___stl_sequent__TOP__0(Vtb_memrun___024roo
                                                  | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__FFdly_6) 
                                                      << 1U) 
                                                     | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__FFdly_7)));
-    vlSelfRef.tb_memrun__DOT__m__DOT__RamPE = (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__ProcH27_sil_pl_3) 
-                                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__ProcH27_sil_pl_4)) 
-                                               | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__ProcL27_sil_pl_3) 
-                                                  | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__ProcL27_sil_pl_4)));
-    vlSelfRef.tb_memrun__DOT__m__DOT__MdPE = (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__ProcH27_sil_pl_5) 
-                                               | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_k24__DOT__p12)) 
-                                              | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__ProcL27_sil_pl_5) 
-                                                 ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f18__DOT__p15)));
+    tb_memrun__DOT__m__DOT__RamPE = (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__ProcH27_sil_pl_3) 
+                                      | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__ProcH27_sil_pl_4)) 
+                                     | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__ProcL27_sil_pl_3) 
+                                        | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__ProcL27_sil_pl_4)));
+    tb_memrun__DOT__m__DOT__MdPE = (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__ProcH27_sil_pl_5) 
+                                     | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcH__DOT__u_k24__DOT__p12)) 
+                                    | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__ProcL27_sil_pl_5) 
+                                       ^ (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ProcL__DOT__u_f18__DOT__p15)));
     vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__MapCAS_p_ 
         = (1U & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_MemX__DOT__u_e18__DOT__q) 
                  | (IData)(tb_memrun__DOT__m__DOT__b_MemX__DOT__MapCAS_p___05F_e19_2)));
@@ -8734,10 +8738,10 @@ VL_ATTR_COLD void Vtb_memrun___024root___stl_sequent__TOP__0(Vtb_memrun___024roo
                             | ((((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__IOPEenable) 
                                  & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__IOPE)) 
                                 | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__RamPEenable) 
-                                    & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__RamPE)) 
+                                    & (IData)(tb_memrun__DOT__m__DOT__RamPE)) 
                                    | (((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__MemPEenable) 
                                        & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MemPE___05FMemX)) 
-                                      | ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__MdPE) 
+                                      | ((IData)(tb_memrun__DOT__m__DOT__MdPE) 
                                          & (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__MDPEenable))))) 
                                | (IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContB__DOT__u_j03__DOT__p11)))) 
                         & ((IData)(vlSelfRef.tb_memrun__DOT__m__DOT__b_ContA__DOT__ContA31_sil_pl_5) 

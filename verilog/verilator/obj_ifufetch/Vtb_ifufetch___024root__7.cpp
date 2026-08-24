@@ -62,6 +62,8 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__3(Vtb_ifufetch___024root* vlSelf
     tb_ifufetch__DOT__m__DOT__b_ContB__DOT__CS0_p_BDc___05Fi22_6 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__aluP2;
     tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__aluP2 = 0;
+    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_1___05Fd22_14;
+    tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_1___05Fd22_14 = 0;
     CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e61__DOT__B;
     tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e61__DOT__B = 0;
     CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e61__DOT__X;
@@ -257,6 +259,29 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__3(Vtb_ifufetch___024root* vlSelf
     CData/*4:0*/ __Vtableidx79;
     __Vtableidx79 = 0;
     // Body
+    tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_1___05Fd22_14 
+        = (1U & (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__FF_5a) 
+                    | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__FA_eq_2_p_a) 
+                       | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e24__DOT__q) 
+                          >> 5U)))));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__dAmux0 
+        = (1U & (((~ (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_57)) 
+                  | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_c24__DOT__p7)) 
+                 | ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__FC_eq_2_s_3_p_) 
+                        | (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e24__DOT__q) 
+                            >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__FA_eq_0_p___05F_ProcH)))) 
+                    | (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__FF_1mem__VforceRd) 
+                          | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ASel_eq_2_s_3_p_))))));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__RisIFdata 
+        = (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_f24__DOT__q) 
+                      >> 4U) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_58))) 
+                 | (~ ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__BSel_2_p_a)) 
+                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__A_u_Id_p_)))));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__TisIFdata 
+        = (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_f24__DOT__q) 
+                      >> 5U) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_58))) 
+                 | (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__BSel_eq_2_s_6) 
+                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__A_u_Id_p_)))));
     vlSelfRef.__VdfgRegularize_h4af1c392_0_160 = (1U 
                                                   & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__BSel_1_p_a) 
                                                      | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__BSel_2_p_a) 
@@ -1489,11 +1514,11 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__3(Vtb_ifufetch___024root* vlSelf
               | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__TbWriteEn_p_) 
                  | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__TisIFdata))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_2 
-        = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_1___05Fd22_14) 
+        = (1U & ((IData)(tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_1___05Fd22_14) 
                  | (~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_f24__DOT__q) 
                         >> 7U) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_58)))));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_1 
-        = (1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_1___05Fd22_14) 
+        = (1U & ((IData)(tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_1___05Fd22_14) 
                  | (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__FF_2a) 
                        | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__FA_eq_3_p_)))));
     vlSelfRef.__VdfgRegularize_h4af1c392_0_158 = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__HoldDly) 

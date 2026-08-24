@@ -1459,62 +1459,48 @@ The bench's loop is left identical to `tb_memrun`'s on purpose, because that
 is the clean demonstration. Restoring the `IFetch<-` is one FF field:
 IM[2] `0o100` -> `0o200`.
 
-### ...and it is MemC's clock, running 379x too fast (2026-08-23)
+### RETRACTED: there is no clock difference -- it is `UseAsrn` (2026-08-23)
 
-Chased from the symptom. `PipeAd` <- k02 (MemC, an MC10141 whose two select
-pins are open, so every `clk0'A` edge is a **parallel load**) <- `dPipe02Ad`
-<- MemX h23 (quad 2:1 selecting `Asrn` or `PEsrn` under `UseAsrn`). Measured
-on the SAME microcode in both machines:
+The two entries that stood here claimed MemC's `clk0'A` ran "379x too fast"
+with the IFU present. **That was a measurement artefact and is withdrawn.**
+With both benches counting free-running over the same 272,747 sys_clk, every
+hop of the clock chain is identical:
+
+```
+CLK.mc' 34093 = 34093 | MemClkEnable'a 41 = 41 | CLKEnable'b 262953 = 262953
+ppclk2'a 34089 = 34089 | preSH'x 17045 = 17045 | preClk0'B 17045 = 17045
+k02's clk0'A 17045 = 17045
+```
+
+**What actually differs is the mux select:**
 
 | | `tb_memrun` | `tb_ifufetch` |
 |---|---|---|
-| `UseAsrn` high | 32 | 41 |
-| `Asrn` changed | 6 | **9** -- source is MORE active |
-| `dPipe02Ad` changed | 4 | 2 |
-| **k02's `clk0'A` edges** | **45** | **17,045** |
+| **`UseAsrn` high** | **270,089 (99%)** | **41 (0.015%)** |
+| `Asrn` changed | 8 | 9 |
+| `PEsrn` changed | 0 (stuck `0000`) | 0 (stuck `0000`) |
+| `dPipe02Ad` changed | 14 | 2 |
 | Pipe pointer moved | 11 | 0 |
 
-**The pointer is not stalled, it is PINNED.** `clk0'A` reloads it on every one
-of 17,045 edges from a `dPipe02Ad` that reads `0000` nearly all the time, so
-it can never be caught holding an SRN. The source moves MORE with the IFU
-present, not less -- which is why "no references are being made" was the wrong
-reading, and this document said so for two commits.
+MemX h23 selects `Asrn` or `PEsrn` on `UseAsrn`. With the IFU in the machine
+the mux sits on `PEsrn`, which never leaves `0000`, so the pointer is
+**pinned** -- nothing about the clock or the reference machinery is wrong.
 
-**The open question is why MemC's `clk0'A` free-runs when the IFU is in the
-machine.** The memory boards' clocks are gated (`MemClkEnable'` from ContA,
-and `mem-test` asserts the clock runs iff enabled), so the IFU is plausibly
-holding an enable asserted -- but that is the next MEASUREMENT, not a
-conclusion. Start at MemC's `clk0'A` gating and ask which term the IFU moves.
+**And `UseAsrn` is driven by MemC f24, an MC10121 4-wide OR-AND whose `e`
+input group is pins 4,5,6 = `IfuAckIfHit'`, (open), `Hit'a`.** So an IFU
+signal gates which source the Pipe pointer takes -- which is exactly why the
+difference appears when the IFU board is added and nowhere else.
 
-### Correcting the clock finding, and the method that broke (2026-08-23)
+**Whether this is a bug at all is open.** Without the IFU, `IfuAckIfHit'` is
+undriven and reads 0 in the OR tree, so `tb_memrun` is the ARTIFICIAL
+configuration and `tb_ifufetch` may be showing real behaviour. Read HM
+section 5 on the Pipe and the A/B slots before calling it broken.
 
-Two corrections to the entry above, both mine.
+**Methodology, and it cost two wrong commits.** The "379x" came from counters
+in DIFFERENT CONTEXTS -- free-running in one bench, inside the window-gated
+sampling loop in the other -- so they ran over 272,747 and 704 sys_clk and
+were never comparable. Worse, the first correction moved only PART of the
+probe block and left `n_k02` behind, so the retraction appeared to CONFIRM the
+artefact. Any cross-bench comparison of a raw count needs its denominator
+printed beside it, and when you move a probe, move all of it.
 
-**1. `clk0'A` is not gated by `HoldOrIP` or `BrHi_'`.** MemC j08 is an SE10210
-whose TWO GATES were read as one. The pins say:
-
-```
-gate a: IN 5,6,7 -> OUT 2,3   only pin 7 = preClk0'B is connected
-                              => clk0'A = clk0'B = preClk0'B, a BUFFER
-gate b: IN 9,10,11 = HoldOrIP, BrHi_', clk0'B -> OUT 12,13
-                              => WrBrHi'b / WrBrHi'a, the BR-write strobes
-```
-
-The measurement agrees: `HoldOrIP` is high 96% and `BrHi_'` 100% in BOTH
-machines, so neither can be what differs. **A multi-gate package's pin list
-must be split by gate before any equation is written** -- the same trap the
-MC10119 fix records.
-
-The next hop is upstream: `preClk0'B` <- h13 from `ppclk2'a` and `preSH'x`;
-`ppclk2'a` <- l01 from `MemClkEnable'a`, `CLK.mc'`, `CLKEnable'b`.
-`MemClkEnable'` is the gate `mem-test` already knows about.
-
-**2. The first "379x" was measured invalidly**, then confirmed. The counters
-were free-running in `tb_ifufetch` and inside the window-gated sampling loop
-in `tb_memrun`, so they ran over 272,747 and 704 sys_clk and the raw counts
-were not comparable. Both are free-running now and both print their
-denominator; over the SAME 272,747 samples it is **17,045 edges against 45**,
-so the finding stands -- but it stood by luck, not by method.
-
-**Any cross-bench comparison of a raw count needs its denominator printed
-beside it.** Both benches do that now.
