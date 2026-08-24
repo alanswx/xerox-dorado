@@ -1485,3 +1485,36 @@ machine.** The memory boards' clocks are gated (`MemClkEnable'` from ContA,
 and `mem-test` asserts the clock runs iff enabled), so the IFU is plausibly
 holding an enable asserted -- but that is the next MEASUREMENT, not a
 conclusion. Start at MemC's `clk0'A` gating and ask which term the IFU moves.
+
+### Correcting the clock finding, and the method that broke (2026-08-23)
+
+Two corrections to the entry above, both mine.
+
+**1. `clk0'A` is not gated by `HoldOrIP` or `BrHi_'`.** MemC j08 is an SE10210
+whose TWO GATES were read as one. The pins say:
+
+```
+gate a: IN 5,6,7 -> OUT 2,3   only pin 7 = preClk0'B is connected
+                              => clk0'A = clk0'B = preClk0'B, a BUFFER
+gate b: IN 9,10,11 = HoldOrIP, BrHi_', clk0'B -> OUT 12,13
+                              => WrBrHi'b / WrBrHi'a, the BR-write strobes
+```
+
+The measurement agrees: `HoldOrIP` is high 96% and `BrHi_'` 100% in BOTH
+machines, so neither can be what differs. **A multi-gate package's pin list
+must be split by gate before any equation is written** -- the same trap the
+MC10119 fix records.
+
+The next hop is upstream: `preClk0'B` <- h13 from `ppclk2'a` and `preSH'x`;
+`ppclk2'a` <- l01 from `MemClkEnable'a`, `CLK.mc'`, `CLKEnable'b`.
+`MemClkEnable'` is the gate `mem-test` already knows about.
+
+**2. The first "379x" was measured invalidly**, then confirmed. The counters
+were free-running in `tb_ifufetch` and inside the window-gated sampling loop
+in `tb_memrun`, so they ran over 272,747 and 704 sys_clk and the raw counts
+were not comparable. Both are free-running now and both print their
+denominator; over the SAME 272,747 samples it is **17,045 edges against 45**,
+so the finding stands -- but it stood by luck, not by method.
+
+**Any cross-bench comparison of a raw count needs its denominator printed
+beside it.** Both benches do that now.

@@ -972,7 +972,7 @@
 
 
 module tb_memrun;
-  integer n_ua, n_asrn, n_pesrn, n_k02, n_dpipe;
+  integer n_ua, n_asrn, n_pesrn, n_k02, n_dpipe, n_hoip, n_brhi, n_hold, n_tot;
   reg k02clk_d; reg [3:0] dpipe_now, dpipe_last;
   reg [3:0] asrn_now, asrn_last, pesrn_now, pesrn_last;
 
@@ -1509,6 +1509,29 @@ module tb_memrun;
 
   // One more microinstruction, jam untouched. PARC's three strobes; what the
   // machine needs is the FIRST plus at least one more without ClrStop.
+
+  // FREE-RUNNING PROBE, deliberately NOT inside the window-gated sampling
+  // loop. Putting it there and comparing the counts against tb_ifufetch's
+  // free-running copy produced a "379x faster clock" that was pure artefact:
+  // the two counters were running over 704 and 272,747 sys_clk respectively.
+  // ANY cross-bench comparison of a raw count needs its denominator.
+  always @(posedge sys_clk) begin
+
+    // THE PIPE POINTER'S SOURCE. PipeAd <- k02 (MC10141, parallel load every
+    // clk0'A) <- dPipe02Ad <- MemX h23, a quad 2:1 mux selecting Asrn (the
+    // A-slot storage reference number) or PEsrn under UseAsrn. If the pointer
+    // never moves, one of those three is static.
+    if (m.b_MemX.UseAsrn) n_ua = n_ua + 1;
+    // WHICH GATING TERM. MemC j08 (SE10210) makes
+    //     clk0'A = preClk0'B | HoldOrIP | BrHi_'
+    // so the clock is HELD OFF while either qualifier is high. A clock with
+    // 379x the edges means a qualifier that is high far less often.
+    if (m.b_MemC.HoldOrIP) n_hoip = n_hoip + 1;
+    if (m.b_MemC.BrHi_u__p_) n_brhi = n_brhi + 1;
+    if (m.b_MemC.Hold)     n_hold = n_hold + 1;
+    n_tot = n_tot + 1;   // TOTAL sys_clk -- these counters are NOT window-gated
+  end
+
   task step_again;
     begin
       strobe(3'd0, 8'h41, 1'b1);
@@ -2427,11 +2450,6 @@ build_hunk4(4'd0, 1'b0,
         if (!m.b_MemC.Flush_u__p_)    nff0_fl  = nff0_fl  + 1;
         if (m.b_MemC.FlushStore)      nff0_fs  = nff0_fs  + 1;
         if (m.b_MemC.HitColDirty)     nff0_hcd = nff0_hcd + 1;
-    // THE PIPE POINTER'S SOURCE. PipeAd <- k02 (MC10141, parallel load every
-    // clk0'A) <- dPipe02Ad <- MemX h23, a quad 2:1 mux selecting Asrn (the
-    // A-slot storage reference number) or PEsrn under UseAsrn. If the pointer
-    // never moves, one of those three is static.
-    if (m.b_MemX.UseAsrn) n_ua = n_ua + 1;
     // ...and k02's OWN CLOCK. PipeAd is a parallel load on clk0'A (both
     // select pins open = load), so a dead clock holds the pointer whatever
     // its source does.
@@ -2920,6 +2938,10 @@ build_hunk4(4'd0, 1'b0,
              n_ua, n_asrn, asrn_now, n_pesrn, pesrn_now);
     $display("tb_memrun:   ...k02 clk0'A edges %0d | dPipe02Ad changed %0d times (now %b)",
              n_k02, n_dpipe, dpipe_now);
+    $display("tb_memrun:   ...clk0'A GATING -- HoldOrIP high %0d | BrHi_' high %0d | Hold high %0d",
+             n_hoip, n_brhi, n_hold);
+    $display("tb_memrun:   ...OF %0d TOTAL sys_clk -- so HoldOrIP %0d%%, BrHi_' %0d%%, and clk0'A edges per 1000 sys_clk = %0d",
+             n_tot, (100*n_hoip)/n_tot, (100*n_brhi)/n_tot, (1000*n_k02)/n_tot);
     $display("tb_memrun: holds -- PrHoldReq=%b CHoldReq=%b ExtHoldReq=%b PRhold=%b",
              m.PrHoldReq, m.CHoldReq, m.ExtHoldReq, m.PRhold);
     // WHICH of the three Hold flip-flops is asserting. `Hold` is a wired-OR of

@@ -211,6 +211,10 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___eval_initial__TOP(Vtb_ifufetch___024r
     vlSelfRef.tb_ifufetch__DOT__n_pesrn = 0U;
     vlSelfRef.tb_ifufetch__DOT__n_k02 = 0U;
     vlSelfRef.tb_ifufetch__DOT__n_dpipe = 0U;
+    vlSelfRef.tb_ifufetch__DOT__n_hoip = 0U;
+    vlSelfRef.tb_ifufetch__DOT__n_brhi = 0U;
+    vlSelfRef.tb_ifufetch__DOT__n_hold = 0U;
+    vlSelfRef.tb_ifufetch__DOT__n_tot = 0U;
     vlSelfRef.tb_ifufetch__DOT__k02clk_d = 0U;
     vlSelfRef.tb_ifufetch__DOT__dpipe_last = 0U;
     vlSelfRef.tb_ifufetch__DOT__asrn_last = 0U;
@@ -296,7 +300,7 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___eval_settle(Vtb_ifufetch___024root* v
 #ifdef VL_DEBUG
             Vtb_ifufetch___024root___dump_triggers__stl(vlSelfRef.__VstlTriggered, "stl"s);
 #endif
-            VL_FATAL_MT("verilog/verilator/tb_ifufetch.sv", 125, "", "Settle region did not converge after 100 tries");
+            VL_FATAL_MT("verilog/verilator/tb_ifufetch.sv", 152, "", "Settle region did not converge after 100 tries");
         }
         __VstlIterCount = ((IData)(1U) + __VstlIterCount);
     } while (Vtb_ifufetch___024root___eval_phase__stl(vlSelf));
@@ -450,6 +454,8 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___stl_sequent__TOP__0(Vtb_ifufetch___02
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA18_sil_pl_4 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_2;
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_2 = 0;
+    CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_3;
+    tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_3 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__JCN_2or3;
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__JCN_2or3 = 0;
     CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__NoDispatch;
@@ -790,6 +796,8 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___stl_sequent__TOP__0(Vtb_ifufetch___02
     __Vtableidx15 = 0;
     CData/*5:0*/ __Vtableidx16;
     __Vtableidx16 = 0;
+    CData/*5:0*/ __Vtableidx17;
+    __Vtableidx17 = 0;
     CData/*5:0*/ __Vtableidx18;
     __Vtableidx18 = 0;
     CData/*5:0*/ __Vtableidx19;
@@ -1442,13 +1450,13 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___stl_sequent__TOP__0(Vtb_ifufetch___02
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD11_sil_pl_1 
         = Vtb_ifufetch__ConstPool__TABLE_h5b90359e_0
         [__Vtableidx183];
-    vlSelfRef.__Vtableidx17 = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_h05__DOT__q;
-    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_3 
+    __Vtableidx17 = vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_h05__DOT__q;
+    tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_3 
         = Vtb_ifufetch__ConstPool__TABLE_hdbecc607_0
-        [vlSelfRef.__Vtableidx17];
+        [__Vtableidx17];
     tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_2 
         = Vtb_ifufetch__ConstPool__TABLE_h5b90359e_0
-        [vlSelfRef.__Vtableidx17];
+        [__Vtableidx17];
     vlSelfRef.tb_ifufetch__DOT__m__DOT__XWantsPipe___05FMemX 
         = (1U & (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k21__DOT__q) 
                   >> 2U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q)));
@@ -10408,7 +10416,7 @@ VL_ATTR_COLD void Vtb_ifufetch___024root___stl_sequent__TOP__0(Vtb_ifufetch___02
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__WriteTLink_p_a 
         = ((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__preclk1_p_Aa) 
            | ((IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CAHold) 
-              | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_3)));
+              | (IData)(tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_3)));
     vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__clk1_p_Aa 
         = ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d06__DOT__p9) 
            | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d06__DOT__p10) 

@@ -257,6 +257,21 @@ void Vtb_ifufetch___024root___nba_sequent__TOP__3(Vtb_ifufetch___024root* vlSelf
     CData/*4:0*/ __Vtableidx79;
     __Vtableidx79 = 0;
     // Body
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_160 = (1U 
+                                                  & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__BSel_1_p_a) 
+                                                     | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__BSel_2_p_a) 
+                                                        | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__BSel_0_p_a)) 
+                                                           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__B_u_Ext_p_)))));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_j20__DOT__clka 
+        = (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__PreClock0_p_D) 
+            | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ReSchedWrEn_p_) 
+               | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__Hold))) 
+           | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_j20__DOT__p9));
+    vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_3 
+        = (1U & ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_f24__DOT__q) 
+                      >> 5U) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_61))) 
+                 | (~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_f24__DOT__q) 
+                        >> 7U) | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_61)))));
     vlSelfRef.__VdfgRegularize_h4af1c392_0_130 = (1U 
                                                   & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__FA_eq_1_p_a) 
                                                      | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a24__DOT__q) 
