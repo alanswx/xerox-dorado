@@ -2093,3 +2093,31 @@ what `0015` **is**: `0o25 = 0x15`, and `0o25` is exactly the value PARC's own
 `QFromCPReg#` sends in `tb_compute` — so `0015` may be a stale or default B
 rather than a wrong register.
 
+
+### THE PROCESSOR WRITES A WORD TO THE DISPLAY BOARD (2026-08-24)
+
+`display-test +slowio`. Running microcode, nine boards, no forcing:
+
+```
+TIOA <- B        370B on the bus, DispY sees TIOADly = 11111
+Output <- B      IOBout strobes 960 times, alub = 5a5a at every one
+IOB at DispY     carries 5a5a on exactly 960 samples
+board selected   928, every one with the processor free
+```
+
+`IOBout` count and IOB-carrying count agreeing exactly is the write landing —
+ProcH h01 is an MC10197 hex AND, so `IOB = IOBout & alub`. All gated.
+
+**What made it work was ORDERING, not logic.** The first version loaded T and
+Q *after* the map preload — late — while the loop had been running since the
+IM send. **Zero of 32 strobes** coincided with Q holding its value, `alub` read
+a stale `0015`, and it looked exactly like BSEL=3 failing to select Q.
+
+It wasn't. The mux is right: ProcH **b01** is an MC10174 whose X0 is Q and
+whose selects `Bmux0'`/`Bmux1'` are **primed**, so BSEL=3 drives both low and
+picks X0. Moving the operand load to immediately after the IM send took the
+strobes from **32 to 960** and `alub` from `0015` to `5a5a`.
+
+**Operands before the loop that uses them.** Obvious in hindsight, and it cost
+a wrong hypothesis about the B multiplexer — one that had survived ruling out
+two other candidates and looked well-supported.
