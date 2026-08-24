@@ -1504,3 +1504,43 @@ probe block and left `n_k02` behind, so the retraction appeared to CONFIRM the
 artefact. Any cross-bench comparison of a raw count needs its denominator
 printed beside it, and when you move a probe, move all of it.
 
+
+### RESOLVED: not a bug -- the IFU makes the Pipe source select CORRECT (2026-08-23)
+
+`IfuAckIfHit'` holding `UseAsrn` low is **right**, and the no-IFU
+configuration is the broken one. The two SRN sources are named in the netlist
+and match the C emulator's model exactly, from an independent derivation:
+
+```
+PEsrn <- MemX h10, an MC10158 2:1 selecting ProcSrn or Ec1Srn on EcWantsA
+Asrn  <- MemX f19, an F10016 COUNTER -- the auto-advancing I/O ring
+
+include/memory.h:  proc_srn "4-bit; emulator + fault tasks. Default 0."
+                   asrn     "4-bit; I/O ring. 2..15. Default 2."
+```
+
+And `docs/memory-architecture.md` states the rule, derived from the microcode
+and the manual with no reference to this RTL: **ASRN is for IOFetch, IOStore
+and PreFetch-with-miss; everything else uses ProcSRN.**
+
+The bench loop is `<-Map` / `Store` / `Flush` -- none is an I/O reference or a
+prefetch -- so all must use ProcSRN, i.e. `UseAsrn` LOW. `tb_ifufetch`
+measures 0.015%; `tb_memrun` measures 99%. **`tb_ifufetch` is correct.**
+
+The Pipe pointer follows: ProcSRN is a FIXED slot, so successive references
+all overwrite it and **the pointer must not move**. `tb_ifufetch`'s 0 is
+right; `tb_memrun`'s 11 is the anomaly, and it happens because without the IFU
+board `IfuAckIfHit'` is undriven and reads 0 in the OR tree, freeing
+`UseAsrn` to sit high.
+
+**So the IFU does not break the memory section. Adding it DRIVES an input that
+was floating.** Three commits chased this as an IFU fault; it was the absence
+of the IFU all along, and an undriven input reading 0 is the same trap the
+`sip_drives` and VBB fixes already record.
+
+Now gated (`ifufetch-test`): `UseAsrn` must be low and the Pipe pointer must
+hold, cross-checked against `memory.h`'s documented rule. Mutation-tested --
+inverting f24's MC10121 output reproduces `tb_memrun`'s exact 99%, and making
+k02 count instead of parallel-load is caught. (The first attempt at the second
+mutation silently did not apply, and its "pass" was meaningless: **check that
+a mutation actually changed the file.**)

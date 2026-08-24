@@ -93,13 +93,33 @@
 // which source the Pipe pointer takes -- which is why the difference appears
 // exactly when the IFU board is added and nowhere else.
 //
-// THE NEXT QUESTION IS WHETHER THIS IS A BUG AT ALL. Without the IFU,
-// IfuAckIfHit' is undriven and reads 0 in the OR tree, so tb_memrun is the
-// ARTIFICIAL configuration and tb_ifufetch may simply be showing real
-// behaviour: the IFU's acknowledgement participating in the Pipe source
-// select. Read HM section 5 on the Pipe and the A/B slots before calling it
-// broken, and check whether IfuAckIfHit' should be asserted as steadily as it
-// is here.
+// AND IT IS NOT A BUG -- IT IS THIS BENCH BEING RIGHT AND tb_memrun BEING
+// WRONG. The two SRN sources are named in the netlist and they match the C
+// emulator's model exactly, from an independent derivation:
+//
+//   PEsrn <- MemX h10, an MC10158 2:1 selecting ProcSrn or Ec1Srn on
+//            EcWantsA -- i.e. the PROCESSOR's SRN path
+//   Asrn  <- MemX f19, an F10016 COUNTER -- the auto-advancing I/O ring
+//
+//   include/memory.h:  proc_srn "4-bit; emulator + fault tasks. Default 0."
+//                      asrn     "4-bit; I/O ring. 2..15. Default 2."
+//
+// And docs/memory-architecture.md states the selection rule, derived from the
+// microcode and the manual with no reference to this RTL: ASRN is used for
+// IOFetch, IOStore and PreFetch-WITH-MISS; EVERYTHING ELSE USES ProcSRN.
+//
+// This loop issues <-Map, Store and Flush. None of them is an I/O reference
+// or a prefetch, so ALL of them must use ProcSRN -- UseAsrn LOW. That is what
+// this bench measures (0.015%) and NOT what tb_memrun measures (99%).
+//
+// The Pipe pointer follows: ProcSRN is a FIXED slot, so "successive Fetches
+// all overwrite the same ProcSRN slot" (memory-architecture.md again) and the
+// pointer MUST NOT MOVE. tb_ifufetch's 0 is correct; tb_memrun's 11 is the
+// anomaly, and it happens because without the IFU board `IfuAckIfHit'` is
+// undriven and reads 0 in the OR tree, which frees UseAsrn to sit high.
+//
+// So the IFU does not break the memory section. Adding it DRIVES an input
+// that was floating, and the Pipe source select becomes correct.
 //
 // METHODOLOGY, AND IT COST TWO WRONG COMMITS. The "379x" came from counters
 // placed in DIFFERENT CONTEXTS -- free-running here, inside the window-gated
@@ -2142,6 +2162,21 @@ module tb_ifufetch;
     if (tbad != 0) $display("(memrun assertion, not this bench's subject) the memory section is not right in a running machine");
     // ---- THE SUBJECT OF THIS BENCH ---------------------------------------
     $display("tb_ifufetch: --- THE IFU, with real microcode running ---");
+    // GATE: THE PIPE USES ProcSRN FOR NON-I/O REFERENCES, which is the rule
+    // docs/memory-architecture.md derives from the microcode and the manual
+    // and which include/memory.h implements -- ASRN is for IOFetch, IOStore
+    // and PreFetch-with-miss; everything else uses ProcSRN. This loop is
+    // <-Map / Store / Flush, so UseAsrn must be LOW essentially throughout,
+    // and the Pipe pointer must NOT advance.
+    if ((100 * n_ua) / n_tot > 5)
+      $fatal(1, "UseAsrn high on %0d%% of samples -- the Pipe is using the I/O ring ASRN for <-Map/Store/Flush, which memory.h reserves for IOFetch/IOStore/PreFetch-miss",
+             (100 * n_ua) / n_tot);
+    if (npipe != 0)
+      $fatal(1, "the Pipe pointer advanced %0d times -- ProcSRN is a FIXED slot, so non-I/O references must all overwrite it",
+             npipe);
+    $display("tb_ifufetch: PIPE SRN -- UseAsrn high on %0d%% of %0d samples and the pointer held: ProcSRN, per memory.h's rule",
+             (100 * n_ua) / n_tot, n_tot);
+
     $display("tb_ifufetch: BYTE STREAM -- FG.0 edges %0d | F.00 high %0d | G.00 high %0d (cache seeded %b)",
              n_fg, n_f, n_g, CPAT);
     $display("tb_ifufetch:   ...upstream -- D.00 high %0d | Fclk'a edges %0d | EnableFG' high %0d",
