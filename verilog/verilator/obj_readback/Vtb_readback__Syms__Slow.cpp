@@ -11,7 +11,7 @@ Vtb_readback__Syms::Vtb_readback__Syms(VerilatedContext* contextp, const char* n
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(2392);
+    Verilated::stackCheck(2416);
     // Setup sub module instances
     // Configure time unit / time precision
     _vm_contextp__->timeunit(-12);

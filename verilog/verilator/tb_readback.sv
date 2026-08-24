@@ -42,35 +42,36 @@
 // address pins read the SAME at the write and at the read -- 110000000000
 // both -- so the fill is not landing in some unrelated row.
 //
-// WHAT IS WRONG IS ONE WORD, AND IT IS CLOBBERED RATHER THAN MISSED.
+// THE FILL WORKS. What overwrites it is THIS BENCH'S OWN LOOP.
 //
-// With `+onesdram` every DRAM cell is 1, so EVERY cache write that carries the
-// fetched word is distinguishable from an empty array. Then the fill is
-// plainly a LINE fill of four consecutive words:
+// With `+onesdram` every DRAM cell is 1, so every cache write carrying the
+// fetched word is visible. Logging all 28 WE' falls with address AND data
+// tells the whole story:
 //
-//     fill write #1 carries a 1 at Dad=110000000000    (3072)
-//     fill write #2 carries a 1 at Dad=110000000001
-//     fill write #3 carries a 1 at Dad=110000000010
-//     fill write #4 carries a 1 at Dad=110000000011
+//     WE#18-21   3072,3073,3074,3075   D0in=1 SinD=1    <- THE LINE FILL
+//     WE#26-29   3072 x4               D0in=0 SinD=0    <- the clobber
 //
-// and reading the array itself afterwards gives
+// and the qualifiers separate them completely:
 //
-//     a03: [3072]=0  [3073]=1  [3074]=1  [3075]=1
+//     WE#18 (fill)     MISSa=1  CacheRefInA=0     a MISS -- the fill
+//     WE#26 (clobber)  MISSa=0  CacheRefInA=1     a HIT  -- the loop again
 //
-// -- word 0 was written with a one and holds a ZERO. The reference reads 3072,
-// so it sees the zero, and dMD reports an empty cache.
+// So the fill deposits the fetched word into all four words of the line on a
+// miss, exactly as it should. The loop then comes round, references the same
+// line, HITS it now that it is present, and writes zero into word 0. The
+// reference reads 3072 afterwards and sees that zero, which is why dMD
+// reports an empty cache.
 //
-// RULED OUT ON THE WAY, each by measurement:
-//   * the ADDRESS is not broadly wrong -- write and read agree (110000000000)
-//   * the BANK is not wrong -- D.00 wire-ORs a03 (D0) and d03 (D1); the fill
-//     goes to D0, which is also the enabled one (CE' low on 84,639 samples
-//     against d03's 1,296), and d03 takes 28 WE' falls carrying no ones at all
-//   * the DATA PATH is live -- SinD reaches D0in and the write port
+// THAT IS STIMULUS, NOT RTL. The four-instruction loop is <-Map / Store /
+// Flush / quiet, and its Store carries no real data. To SEE a real fill
+// return, sample dMD between the fill and the next iteration, or run a loop
+// with no Store in it.
 //
-// SO SOMETHING WRITES 3072 AGAIN WITH ZERO. Of 28 WE' falls only 4 carry the
-// fetched word; the other 24 write zeros, and one of them lands back on 3072
-// after the fill. FIND IT: log every WE' fall with its address and data, not
-// just the ones carrying a one, and look for the second visit to 3072.
+// Ruled out on the way, each by measurement rather than argument: the address
+// (write and read agree at 110000000000); the bank (D.00 wire-ORs a03/D0 and
+// d03/D1 -- the fill goes to D0, which is also the enabled one, CE' low on
+// 84,639 samples against d03's 1,296); and the data path (SinD reaches D0in
+// and the write port).
 //
 // (Qualification that made all of this visible: `D0in == SinD` is ALSO true
 // when both are zero, so an earlier 25-of-28 agreement was mostly zero
@@ -1327,6 +1328,17 @@ module tb_readback;
                m.b_MemD.Dad0_10a, m.b_MemD.Dad0_11a, m.b_MemD.Dad0_12a};
     if (!m.b_MemD.u_a03.p15 && we_d_rb) begin
       dad_at_write <= dad_now;
+      // EVERY write, address AND data -- the four that carry the fetched word
+      // are not the whole story; one of the other 24 lands back on word 0.
+      if (n_we_fall < 30)
+        $display("tb_readback:   WE#%0d Dad=%b (%0d) D0in=%b SinD=%b%s",
+                 n_we_fall+1, dad_now, dad_now, m.b_MemD.D0in_00,
+                 m.b_MemD.SinD_00,
+                 (dad_now == 12'd3072) ? "   <== WORD 0" : "");
+      if (n_we_fall < 30)
+        $display("tb_readback:        ...Store_=%b Flush'=%b CacheRefInA=%b MISSa=%b",
+                 m.b_MemC.Store_u_, m.b_MemC.Flush_u__p_, m.b_MemC.CacheRefInA,
+                 m.b_MemC.Hit_p_a);
       // ...and a WRITE THAT CARRIES A ONE, which is the only kind that can be
       // told apart from an empty array afterwards.
       if (m.b_MemD.SinD_00) begin

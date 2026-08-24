@@ -4103,7 +4103,6 @@ VL_ATTR_COLD void Vtb_readback___024root___ctor_var_reset(Vtb_readback___024root
     vlSelf->tb_readback__DOT__m__DOT__b_ProcL__DOT__u_l23__DOT__p12 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12744336433970250192ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__ASEL_2 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14834195080217706615ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__AcanhaveD = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13589583288687253177ull);
-    vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__Add_p_a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14670703245815212573ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__Afree_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1563592204396183247ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__AfreeOrEc_p_a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14175688070770590525ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__AwantsMapFS = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9376712867864374454ull);
@@ -4138,6 +4137,7 @@ VL_ATTR_COLD void Vtb_readback___024root___ctor_var_reset(Vtb_readback___024root
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__DisPipe4_m_15 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3434190643010441604ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__EcHasAa = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15405098647520547593ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__EcHasAb = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5214889356256126892ull);
+    vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__EcWantsAdly = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1054620962513653023ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__FSinPair_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11632013379378345557ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__FlushStore = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17106418984198819001ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__ForceDirtyMiss = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5590043045308020212ull);
@@ -4184,6 +4184,7 @@ VL_ATTR_COLD void Vtb_readback___024root___ctor_var_reset(Vtb_readback___024root
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_4 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4494763541972938075ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_5 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6465101320735499635ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_6 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2544021866476730051ull);
+    vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_8 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10939951478011476416ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_1 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11713367345542914200ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_2 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15363430439605827364ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_3 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4836152773346831869ull);
@@ -4454,6 +4455,7 @@ VL_ATTR_COLD void Vtb_readback___024root___ctor_var_reset(Vtb_readback___024root
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__sAad_7 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4092579635777022398ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__AfreeOrEc_p_a___05Fj13_3 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1028588203179564694ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__AfreeOrEc_p_a___05Fj13_13 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12613566616954456137ull);
+    vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__CflagsCE_p___05F_i15_13 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13848599903336020501ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__DMadr_01___05Fk24_3 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12219217281567394932ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__DMadr_01___05Fl22_15 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9957305858231987824ull);
     vlSelf->tb_readback__DOT__m__DOT__b_MemC__DOT__FB_eq_2_p_OrIP___05Ff23_14 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6050283721790556054ull);

@@ -232,6 +232,8 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
     tb_readback__DOT__m__DOT__b_ProcL__DOT__u_f61__DOT____VdfgExtracted_h90119b60__0 = 0;
     CData/*1:0*/ tb_readback__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel;
     tb_readback__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel = 0;
+    CData/*0:0*/ tb_readback__DOT__m__DOT__b_MemC__DOT__Add_p_a;
+    tb_readback__DOT__m__DOT__b_MemC__DOT__Add_p_a = 0;
     CData/*0:0*/ tb_readback__DOT__m__DOT__b_MemC__DOT__MemC19_sil_pl_4;
     tb_readback__DOT__m__DOT__b_MemC__DOT__MemC19_sil_pl_4 = 0;
     CData/*0:0*/ tb_readback__DOT__m__DOT__b_MemC__DOT__AfreeOrEc_p_a___05Fj14_3;
@@ -337,6 +339,10 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
     CData/*4:0*/ __Vtableidx135;
     __Vtableidx135 = 0;
     // Body
+    vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__FF_eq_BigBDispatch 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_a19__DOT__q) 
+                    | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_b21__DOT__q) 
+                        >> 7U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__FA_eq_0_p_)))));
     vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__FF_eq_MulStep 
         = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_a19__DOT__q) 
                     | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_b21__DOT__q) 
@@ -435,9 +441,6 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
     vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en 
         = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC16_sil_pl_2) 
            ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_k18__DOT__p9));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA 
-        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC16_sil_pl_2) 
-                    | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__NewRef))));
     vlSelfRef.tb_readback__DOT__m__DOT__MapRfsh_p___05F_MemX 
         = (1U & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemX__DOT__u_j22__DOT__q) 
                   >> 1U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemX__DOT__NeedRfsh_p_)));
@@ -1613,96 +1616,6 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
             = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__ContA27_sil_pl_1) 
                & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_l07__DOT__qb));
     }
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_ 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Add_p_a) 
-            | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__G24_m_27_p_)) 
-           & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__P24_m_27_p_) 
-              | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Add_p_a) 
-                 | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__G28_m_31_p_))));
-    __Vtableidx95 = ((vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__mem
-                      [vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__a] 
-                      << 1U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__sel));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL0 
-        = Vtb_readback__ConstPool__TABLE_h05186285_0
-        [__Vtableidx95];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_3 
-        = Vtb_readback__ConstPool__TABLE_h0d679bef_0
-        [__Vtableidx95];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_1 
-        = Vtb_readback__ConstPool__TABLE_h2b955d68_0
-        [__Vtableidx95];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_4 
-        = Vtb_readback__ConstPool__TABLE_h3f51cb6d_0
-        [__Vtableidx95];
-    __Vtableidx102 = ((vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_b08__DOT__mem
-                       [vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_b08__DOT__a] 
-                       << 1U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__sel));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL1 
-        = Vtb_readback__ConstPool__TABLE_h05186285_0
-        [__Vtableidx102];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_1 
-        = Vtb_readback__ConstPool__TABLE_h0d679bef_0
-        [__Vtableidx102];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_2 
-        = Vtb_readback__ConstPool__TABLE_h2b955d68_0
-        [__Vtableidx102];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_7 
-        = Vtb_readback__ConstPool__TABLE_h3f51cb6d_0
-        [__Vtableidx102];
-    __Vtableidx107 = ((vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_c08__DOT__mem
-                       [vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_c08__DOT__a] 
-                       << 1U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__sel));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL2 
-        = Vtb_readback__ConstPool__TABLE_h05186285_0
-        [__Vtableidx107];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_3 
-        = Vtb_readback__ConstPool__TABLE_h0d679bef_0
-        [__Vtableidx107];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_5 
-        = Vtb_readback__ConstPool__TABLE_h2b955d68_0
-        [__Vtableidx107];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_8 
-        = Vtb_readback__ConstPool__TABLE_h3f51cb6d_0
-        [__Vtableidx107];
-    __Vtableidx116 = ((vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_d08__DOT__mem
-                       [vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_c22__DOT__a] 
-                       << 1U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__sel));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL3 
-        = Vtb_readback__ConstPool__TABLE_h05186285_0
-        [__Vtableidx116];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_4 
-        = Vtb_readback__ConstPool__TABLE_h0d679bef_0
-        [__Vtableidx116];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_6 
-        = Vtb_readback__ConstPool__TABLE_h2b955d68_0
-        [__Vtableidx116];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_9 
-        = Vtb_readback__ConstPool__TABLE_h3f51cb6d_0
-        [__Vtableidx116];
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_8 
-        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_31));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_7 
-        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_27));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_4 
-        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_24));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_5 
-        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_25));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_6 
-        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_26));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_4 
-        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_28));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_6 
-        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_29));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_8 
-        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_30));
     vlSelfRef.tb_readback__DOT__m__DOT__b_MemD__DOT__bFastD_u_Dbuf 
         = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__FastD_u_Dbuf___05FMemC) 
            | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemD__DOT__u_h24__DOT__p4));
@@ -1981,6 +1894,20 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
                                                   >> 2U) 
                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemX__DOT__u_j05__DOT__p9))) 
                                              | (~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemX__DOT__ChkLastPh6))))))));
+    tb_readback__DOT__m__DOT__b_MemC__DOT__Add_p_a 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h16__DOT__p5) 
+                    | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h16__DOT__p6) 
+                       | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__NewRef)))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__sel 
+        = (1U & (~ ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_8) 
+                        | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__NewRef))) 
+                    | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CflagsCE_p___05F_i15_13))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__NewRef) 
+                    | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__EcWantsAdly))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC16_sil_pl_2) 
+                    | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__NewRef))));
     vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__u_g16__DOT__clk 
         = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__Clock1_p_Da) 
            | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__u_g16__DOT__p4));
@@ -2392,166 +2319,6 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
                                                  : 
                                                 vlSelfRef.tb_readback__DOT__m__DOT__b_MemX__DOT__u_h11__DOT__mem
                                                 [vlSelfRef.__VdfgRegularize_h4af1c392_0_120]);
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_04 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_04)) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA0_4_s_par)
-                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA1_4_s_par)
-                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA2_4_s_par)
-                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA3_4_s_par))))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_07 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_07)) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_5)
-                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_6)
-                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_7)
-                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_8))))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_08 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_08)) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_14)
-                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_15)
-                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_16)
-                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_17))))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_09 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_09)) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_20)
-                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_19)
-                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_18)
-                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_13))))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_10 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_10)) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_9)
-                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_10)
-                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_11)
-                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_12))))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_11 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_11)) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_24)
-                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_23)
-                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_22)
-                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_21))))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_12 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_12)) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_7)
-                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_6)
-                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_5)
-                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_4))))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_13 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_13)) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_1)
-                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_2)
-                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_3)
-                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_8))))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_19 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-            & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_19)
-                : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                    ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_32)
-                    : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                        ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_18)
-                        : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_17))))) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-              & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_19)));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_16 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-            & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_25)
-                : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                    ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_26)
-                    : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                        ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_27)
-                        : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_28))))) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-              & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_16)));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_17 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-            & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_31)
-                : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                    ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_30)
-                    : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                        ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_29)
-                        : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_24))))) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-              & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_17)));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_18 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-            & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_20)
-                : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                    ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_21)
-                    : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                        ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_22)
-                        : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_23))))) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-              & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_18)));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_15 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-            & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_13)
-                : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                    ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_14)
-                    : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                        ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_15)
-                        : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_16))))) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-              & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_15)));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_14 
-        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-            & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_12)
-                : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                    ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_11)
-                    : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                        ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_10)
-                        : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_9))))) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-              & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_14)));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_05 
-        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_05));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_06 
-        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
-           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_06));
     vlSelfRef.tb_readback__DOT__m__DOT__b_MemX__DOT__dMapFnc_1_p_ 
         = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemX__DOT__WriteInA_p_) 
            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__MapRfsh_p___05F_MemX));
@@ -3287,67 +3054,6 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
     vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_k05__DOT__clkb 
         = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_k05__DOT__p11) 
            | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__clk2_p_Bd));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_2_p_ 
-        = (1U & ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_20) 
-                     | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_))) 
-                 | (~ ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_)) 
-                       | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-                          & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_22))))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_3_p_ 
-        = (1U & ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_21) 
-                     | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_))) 
-                 | (~ ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_)) 
-                       | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-                          & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_23))))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_1_p_ 
-        = (1U & ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_19) 
-                     | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_))) 
-                 | (~ ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_)) 
-                       | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-                           | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA)) 
-                          & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_21))))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_0_p_ 
-        = (1U & ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_19) 
-                     | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_))) 
-                 | (~ ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_)) 
-                       | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
-                           | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA)) 
-                          & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_20))))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__WantCondHold___05Fj10_2 
-        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL3) 
-           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL2) 
-              | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL0) 
-                 | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL1))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_7 
-        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_7) 
-                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Hib))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_11 
-        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_4) 
-                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Hib))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_15 
-        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_5) 
-                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Hib))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_1 
-        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_6) 
-                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Hib))));
-    if (vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__AcanhaveD) {
-        vlSelfRef.tb_readback__DOT__m__DOT__dDad_10___05FMemC 
-            = (1U & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_4));
-        vlSelfRef.tb_readback__DOT__m__DOT__dDad_11___05FMemC 
-            = (1U & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_6));
-        vlSelfRef.tb_readback__DOT__m__DOT__dDad_12___05FMemC 
-            = (1U & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_8));
-    } else {
-        vlSelfRef.tb_readback__DOT__m__DOT__dDad_10___05FMemC 
-            = (1U & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
-                     >> 3U));
-        vlSelfRef.tb_readback__DOT__m__DOT__dDad_11___05FMemC 
-            = (1U & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
-                     >> 2U));
-        vlSelfRef.tb_readback__DOT__m__DOT__dDad_12___05FMemC 
-            = (1U & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
-                     >> 1U));
-    }
     vlSelfRef.tb_readback__DOT__m__DOT__b_ContB__DOT__WER_p_Aa 
         = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContB__DOT__u_c05__DOT__p5) 
            | (IData)(__VdfgRegularize_h4af1c392_0_140));
@@ -3401,6 +3107,256 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
                  | ((~ (0x0000000fU == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemX__DOT__u_k09__DOT__q))) 
                     & (IData)(((0U != (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemX__DOT__u_k05__DOT__q)) 
                                | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemX__DOT__u_j09__DOT__p9))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_ 
+        = (((IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__Add_p_a) 
+            | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__G24_m_27_p_)) 
+           & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__P24_m_27_p_) 
+              | ((IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__Add_p_a) 
+                 | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__G28_m_31_p_))));
+    __Vtableidx95 = ((vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__mem
+                      [vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__a] 
+                      << 1U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__sel));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL0 
+        = Vtb_readback__ConstPool__TABLE_h05186285_0
+        [__Vtableidx95];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_3 
+        = Vtb_readback__ConstPool__TABLE_h0d679bef_0
+        [__Vtableidx95];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_1 
+        = Vtb_readback__ConstPool__TABLE_h2b955d68_0
+        [__Vtableidx95];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_4 
+        = Vtb_readback__ConstPool__TABLE_h3f51cb6d_0
+        [__Vtableidx95];
+    __Vtableidx102 = ((vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_b08__DOT__mem
+                       [vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_b08__DOT__a] 
+                       << 1U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__sel));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL1 
+        = Vtb_readback__ConstPool__TABLE_h05186285_0
+        [__Vtableidx102];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_1 
+        = Vtb_readback__ConstPool__TABLE_h0d679bef_0
+        [__Vtableidx102];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_2 
+        = Vtb_readback__ConstPool__TABLE_h2b955d68_0
+        [__Vtableidx102];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_7 
+        = Vtb_readback__ConstPool__TABLE_h3f51cb6d_0
+        [__Vtableidx102];
+    __Vtableidx107 = ((vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_c08__DOT__mem
+                       [vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_c08__DOT__a] 
+                       << 1U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__sel));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL2 
+        = Vtb_readback__ConstPool__TABLE_h05186285_0
+        [__Vtableidx107];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_3 
+        = Vtb_readback__ConstPool__TABLE_h0d679bef_0
+        [__Vtableidx107];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_5 
+        = Vtb_readback__ConstPool__TABLE_h2b955d68_0
+        [__Vtableidx107];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_8 
+        = Vtb_readback__ConstPool__TABLE_h3f51cb6d_0
+        [__Vtableidx107];
+    __Vtableidx116 = ((vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_d08__DOT__mem
+                       [vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_c22__DOT__a] 
+                       << 1U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a08__DOT__sel));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL3 
+        = Vtb_readback__ConstPool__TABLE_h05186285_0
+        [__Vtableidx116];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_4 
+        = Vtb_readback__ConstPool__TABLE_h0d679bef_0
+        [__Vtableidx116];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_6 
+        = Vtb_readback__ConstPool__TABLE_h2b955d68_0
+        [__Vtableidx116];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_9 
+        = Vtb_readback__ConstPool__TABLE_h3f51cb6d_0
+        [__Vtableidx116];
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_8 
+        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
+           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_31));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_7 
+        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
+           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_27));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_4 
+        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
+           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_24));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_5 
+        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
+           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_25));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_6 
+        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
+           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_26));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_4 
+        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
+           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_28));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_6 
+        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
+           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_29));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_8 
+        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
+           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_30));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_04 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_04)) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA0_4_s_par)
+                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA1_4_s_par)
+                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA2_4_s_par)
+                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA3_4_s_par))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_07 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_07)) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_5)
+                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_6)
+                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_7)
+                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_8))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_08 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_08)) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_14)
+                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_15)
+                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_16)
+                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_17))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_09 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_09)) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_20)
+                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_19)
+                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_18)
+                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_13))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_10 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_10)) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_9)
+                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_10)
+                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_11)
+                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_12))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_11 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_11)) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_24)
+                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_23)
+                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_22)
+                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_21))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_12 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_12)) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_7)
+                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_6)
+                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_5)
+                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_4))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_13 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+            & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_13)) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+              & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                  ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_1)
+                  : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_2)
+                      : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_3)
+                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_8))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_19 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+            & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_19)
+                : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                    ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_32)
+                    : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                        ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_18)
+                        : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_17))))) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+              & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_19)));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_16 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+            & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_25)
+                : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                    ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_26)
+                    : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                        ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_27)
+                        : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_28))))) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+              & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_16)));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_17 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+            & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_31)
+                : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                    ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_30)
+                    : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                        ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_29)
+                        : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_24))))) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+              & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_17)));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_18 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+            & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_20)
+                : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                    ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_21)
+                    : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                        ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_22)
+                        : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_23))))) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+              & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_18)));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_15 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+            & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_13)
+                : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                    ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_14)
+                    : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                        ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_15)
+                        : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_16))))) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+              & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_15)));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_14 
+        = (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+            & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_12)
+                : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                    ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_11)
+                    : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                        ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_10)
+                        : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_9))))) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+              & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_14)));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_05 
+        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_05));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_06 
+        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA) 
+           & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_06));
     vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Store_u___05Fp_ 
         = (1U & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__CacheRef_p___05F_MemC) 
                  | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ASEL_2) 
@@ -4694,28 +4650,6 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
         vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_l07__DOT__qb 
             = vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_k04__DOT__qb;
     }
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_3 
-        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_2_p_) 
-                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a07__DOT__p9))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_8 
-        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_3_p_) 
-                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a07__DOT__p9))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_21 
-        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_1_p_) 
-                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a07__DOT__p9))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_2 
-        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_0_p_) 
-                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a07__DOT__p9))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__WantCondHold 
-        = (1U & ((~ (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__AwantsDifHit_p___05F_MemC) 
-                      | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__AcanhaveD)) 
-                     & (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_104))) 
-                 | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__AwantsMapFS) 
-                     | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__FlushStore) 
-                        | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_j20__DOT__p9)) 
-                           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__EcKeepsAbusy___05FMemC) 
-                              | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__EcWantsA___05FMemX))))) 
-                    | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__WantCondHold___05Fj10_2))));
     vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__ProcL16_sil_pl_4 
         = (1U & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__FC_eq_2_s_3_p_) 
                  | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__FA_eq_0_p_a) 
@@ -4740,6 +4674,67 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
     vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__u_l16__DOT__clk 
         = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__Clock1_p_Da) 
            | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__StkPSaveEn_p_));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_2_p_ 
+        = (1U & ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_20) 
+                     | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_))) 
+                 | (~ ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_)) 
+                       | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
+                          & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_22))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_3_p_ 
+        = (1U & ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_21) 
+                     | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_))) 
+                 | (~ ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_)) 
+                       | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
+                          & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_23))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_1_p_ 
+        = (1U & ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_19) 
+                     | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_))) 
+                 | (~ ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_)) 
+                       | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
+                           | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA)) 
+                          & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_21))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_0_p_ 
+        = (1U & ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_19) 
+                     | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_))) 
+                 | (~ ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CO24_p_vAdd_p_)) 
+                       | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVArow) 
+                           | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT___u_PrVACVA)) 
+                          & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ProcVA_20))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__WantCondHold___05Fj10_2 
+        = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL3) 
+           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL2) 
+              | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL0) 
+                 | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dBL1))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_7 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_7) 
+                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Hib))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_11 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_4) 
+                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Hib))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_15 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_5) 
+                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Hib))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_1 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_6) 
+                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Hib))));
+    if (vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__AcanhaveD) {
+        vlSelfRef.tb_readback__DOT__m__DOT__dDad_10___05FMemC 
+            = (1U & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_4));
+        vlSelfRef.tb_readback__DOT__m__DOT__dDad_11___05FMemC 
+            = (1U & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_6));
+        vlSelfRef.tb_readback__DOT__m__DOT__dDad_12___05FMemC 
+            = (1U & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC10_sil_pl_8));
+    } else {
+        vlSelfRef.tb_readback__DOT__m__DOT__dDad_10___05FMemC 
+            = (1U & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
+                     >> 3U));
+        vlSelfRef.tb_readback__DOT__m__DOT__dDad_11___05FMemC 
+            = (1U & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
+                     >> 2U));
+        vlSelfRef.tb_readback__DOT__m__DOT__dDad_12___05FMemC 
+            = (1U & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_k01__DOT__q) 
+                     >> 1U));
+    }
     vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC18_sil_pl_6 
         = (1U & (~ ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Store_u___05Fp_)) 
                     | (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_c17__DOT__qb) 
@@ -5427,33 +5422,31 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
     vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_l07__DOT__clka 
         = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_l07__DOT__p6) 
            | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__clk2_p_Bd));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_6_s_21 
-        = (1U & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-                  & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_2)
-                      : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_3)
-                          : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                              ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_4)
-                              : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_5))))) 
-                 | ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_06) 
-                        ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Hib))) 
-                    | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_21))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_5_s_20 
-        = (1U & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
-                  & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_1)
-                      : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_2)
-                          : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
-                              ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_3)
-                              : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_4))))) 
-                 | ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_05) 
-                        ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Hib))) 
-                    | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_2))));
     vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__u_j19__DOT__clka 
         = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__StkPWriteEn_p_) 
            | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__Clock0_p_Da));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_3 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_2_p_) 
+                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a07__DOT__p9))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_8 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_3_p_) 
+                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a07__DOT__p9))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_21 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_1_p_) 
+                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a07__DOT__p9))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_2 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dAad_0_p_) 
+                    ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_a07__DOT__p9))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__WantCondHold 
+        = (1U & ((~ (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__AwantsDifHit_p___05F_MemC) 
+                      | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__AcanhaveD)) 
+                     & (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_104))) 
+                 | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__AwantsMapFS) 
+                     | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__FlushStore) 
+                        | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_j20__DOT__p9)) 
+                           | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__EcKeepsAbusy___05FMemC) 
+                              | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__EcWantsA___05FMemX))))) 
+                    | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__WantCondHold___05Fj10_2))));
     __Vtableidx79 = ((vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__u_g15__DOT__mem
                       [vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__u_g15__DOT__a] 
                       << 1U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ProcL__DOT__u_g15__DOT__p3));
@@ -5834,194 +5827,30 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
                        & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_d20__DOT__q) 
                            >> 2U) | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_j01__DOT__qb)) 
                                      | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_h04__DOT__p14)))))));
-    vlSelfRef.__VdfgRegularize_h4af1c392_0_131 = ((
-                                                   ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                    & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_1)) 
-                                                   | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__Store_u_InA_p___05F_MemC)) 
-                                                       & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_3)) 
-                                                      | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
-                                                         & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_19) 
-                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_19)) 
-                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_16) 
-                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_25)) 
-                                                               | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_17) 
-                                                                   ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_31)) 
-                                                                  | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_18) 
-                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_20)))))))) 
-                                                  | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
-                                                      & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_13) 
-                                                          ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_15)) 
-                                                         | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_12) 
-                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_7)) 
-                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_13) 
-                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_1)) 
-                                                               | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_14) 
-                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_12)))))) 
-                                                     | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                         & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_5_s_20) 
-                                                            ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_1))) 
-                                                        | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                            & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_6_s_21) 
-                                                               ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_2))) 
-                                                           | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                               & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_5) 
-                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_07))) 
-                                                              | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                  & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_04) 
-                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA0_4_s_par))) 
-                                                                 | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                     & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_09) 
-                                                                        ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_20))) 
-                                                                    | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                        & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_10) 
-                                                                           ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_9))) 
-                                                                       | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                           & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_24) 
-                                                                              ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_11))) 
-                                                                          | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                             & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_08) 
-                                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_14))))))))))));
-    vlSelfRef.__VdfgRegularize_h4af1c392_0_134 = ((
-                                                   ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                    & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_2)) 
-                                                   | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__Store_u_InA_p___05F_MemC)) 
-                                                       & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_1)) 
-                                                      | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
-                                                         & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_32) 
-                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_19)) 
-                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_16) 
-                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_26)) 
-                                                               | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_17) 
-                                                                   ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_30)) 
-                                                                  | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_18) 
-                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_21)))))))) 
-                                                  | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
-                                                      & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_14) 
-                                                          ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_15)) 
-                                                         | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_12) 
-                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_6)) 
-                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_13) 
-                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_2)) 
-                                                               | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_14) 
-                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_11)))))) 
-                                                     | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                         & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_5_s_20) 
-                                                            ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_2))) 
-                                                        | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                            & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_6_s_21) 
-                                                               ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_3))) 
-                                                           | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                               & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_6) 
-                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_07))) 
-                                                              | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                  & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_04) 
-                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA1_4_s_par))) 
-                                                                 | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                     & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_09) 
-                                                                        ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_19))) 
-                                                                    | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                        & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_10) 
-                                                                           ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_10))) 
-                                                                       | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                           & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_23) 
-                                                                              ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_11))) 
-                                                                          | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                             & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_08) 
-                                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_15))))))))))));
-    vlSelfRef.__VdfgRegularize_h4af1c392_0_132 = ((
-                                                   ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                    & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_5)) 
-                                                   | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__Store_u_InA_p___05F_MemC)) 
-                                                       & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_3)) 
-                                                      | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
-                                                         & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_18) 
-                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_19)) 
-                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_16) 
-                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_27)) 
-                                                               | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_17) 
-                                                                   ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_29)) 
-                                                                  | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_18) 
-                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_22)))))))) 
-                                                  | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
-                                                      & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_15) 
-                                                          ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_15)) 
-                                                         | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_12) 
-                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_5)) 
-                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_13) 
-                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_3)) 
-                                                               | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_14) 
-                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_10)))))) 
-                                                     | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                         & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_5_s_20) 
-                                                            ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_3))) 
-                                                        | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                            & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_6_s_21) 
-                                                               ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_4))) 
-                                                           | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                               & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_7) 
-                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_07))) 
-                                                              | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                  & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_04) 
-                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA2_4_s_par))) 
-                                                                 | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                     & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_09) 
-                                                                        ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_18))) 
-                                                                    | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                        & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_10) 
-                                                                           ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_11))) 
-                                                                       | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                           & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_22) 
-                                                                              ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_11))) 
-                                                                          | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                             & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_08) 
-                                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_16))))))))))));
-    vlSelfRef.__VdfgRegularize_h4af1c392_0_133 = ((
-                                                   ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                    & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_6)) 
-                                                   | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__Store_u_InA_p___05F_MemC)) 
-                                                       & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_4)) 
-                                                      | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
-                                                         & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_17) 
-                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_19)) 
-                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_16) 
-                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_28)) 
-                                                               | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_17) 
-                                                                   ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_24)) 
-                                                                  | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_18) 
-                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_23)))))))) 
-                                                  | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
-                                                      & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_16) 
-                                                          ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_15)) 
-                                                         | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_12) 
-                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_4)) 
-                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_13) 
-                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_8)) 
-                                                               | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_14) 
-                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_9)))))) 
-                                                     | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                         & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_5_s_20) 
-                                                            ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_4))) 
-                                                        | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                            & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_6_s_21) 
-                                                               ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_5))) 
-                                                           | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                               & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_8) 
-                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_07))) 
-                                                              | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                  & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_04) 
-                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA3_4_s_par))) 
-                                                                 | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                     & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_09) 
-                                                                        ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_13))) 
-                                                                    | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                        & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_10) 
-                                                                           ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_12))) 
-                                                                       | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                           & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_21) 
-                                                                              ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_11))) 
-                                                                          | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
-                                                                             & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_08) 
-                                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_17))))))))))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_6_s_21 
+        = (1U & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+                  & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_2)
+                      : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_3)
+                          : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                              ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_4)
+                              : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_5))))) 
+                 | ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_06) 
+                        ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Hib))) 
+                    | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_21))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_5_s_20 
+        = (1U & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en) 
+                  & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_1)
+                      : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_2)
+                          : ((2U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__sel))
+                              ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_3)
+                              : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_4))))) 
+                 | ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_05) 
+                        ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__Hib))) 
+                    | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_2))));
     tb_readback__DOT__m__DOT__b_ContA__DOT__PEnc_0 
         = ((IData)(tb_readback__DOT__m__DOT__b_ContA__DOT__n_15to8) 
            | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_e12__DOT__p12));
@@ -6419,15 +6248,194 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
     vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__ContA05_sil_pl_2___05Fe04_2 
         = Vtb_readback__ConstPool__TABLE_hac186fdc_0
         [__Vtableidx11];
-    tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_14 
-        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ForceMiss) 
-                    | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_134))));
-    tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff17_3 
-        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ForceMiss) 
-                    | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_132))));
-    tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_3 
-        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ForceMiss) 
-                    | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_133))));
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_131 = ((
+                                                   ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                    & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_1)) 
+                                                   | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__Store_u_InA_p___05F_MemC)) 
+                                                       & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC02_sil_pl_3)) 
+                                                      | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
+                                                         & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_19) 
+                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_19)) 
+                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_16) 
+                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_25)) 
+                                                               | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_17) 
+                                                                   ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_31)) 
+                                                                  | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_18) 
+                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_20)))))))) 
+                                                  | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
+                                                      & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_13) 
+                                                          ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_15)) 
+                                                         | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_12) 
+                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_7)) 
+                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_13) 
+                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_1)) 
+                                                               | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_14) 
+                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_12)))))) 
+                                                     | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                         & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_5_s_20) 
+                                                            ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_1))) 
+                                                        | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                            & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_6_s_21) 
+                                                               ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_2))) 
+                                                           | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                               & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_5) 
+                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_07))) 
+                                                              | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                  & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_04) 
+                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA0_4_s_par))) 
+                                                                 | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                     & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_09) 
+                                                                        ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_20))) 
+                                                                    | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                        & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_10) 
+                                                                           ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_9))) 
+                                                                       | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                           & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_24) 
+                                                                              ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_11))) 
+                                                                          | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                             & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_08) 
+                                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_14))))))))))));
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_134 = ((
+                                                   ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                    & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_2)) 
+                                                   | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__Store_u_InA_p___05F_MemC)) 
+                                                       & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_1)) 
+                                                      | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
+                                                         & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_32) 
+                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_19)) 
+                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_16) 
+                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_26)) 
+                                                               | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_17) 
+                                                                   ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_30)) 
+                                                                  | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_18) 
+                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_21)))))))) 
+                                                  | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
+                                                      & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_14) 
+                                                          ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_15)) 
+                                                         | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_12) 
+                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_6)) 
+                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_13) 
+                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_2)) 
+                                                               | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_14) 
+                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_11)))))) 
+                                                     | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                         & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_5_s_20) 
+                                                            ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_2))) 
+                                                        | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                            & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_6_s_21) 
+                                                               ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_3))) 
+                                                           | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                               & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_6) 
+                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_07))) 
+                                                              | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                  & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_04) 
+                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA1_4_s_par))) 
+                                                                 | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                     & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_09) 
+                                                                        ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_19))) 
+                                                                    | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                        & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_10) 
+                                                                           ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_10))) 
+                                                                       | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                           & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_23) 
+                                                                              ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_11))) 
+                                                                          | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                             & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_08) 
+                                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_15))))))))))));
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_132 = ((
+                                                   ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                    & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_5)) 
+                                                   | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__Store_u_InA_p___05F_MemC)) 
+                                                       & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_3)) 
+                                                      | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
+                                                         & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_18) 
+                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_19)) 
+                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_16) 
+                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_27)) 
+                                                               | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_17) 
+                                                                   ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_29)) 
+                                                                  | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_18) 
+                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_22)))))))) 
+                                                  | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
+                                                      & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_15) 
+                                                          ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_15)) 
+                                                         | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_12) 
+                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_5)) 
+                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_13) 
+                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_3)) 
+                                                               | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_14) 
+                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_10)))))) 
+                                                     | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                         & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_5_s_20) 
+                                                            ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_3))) 
+                                                        | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                            & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_6_s_21) 
+                                                               ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_4))) 
+                                                           | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                               & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_7) 
+                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_07))) 
+                                                              | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                  & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_04) 
+                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA2_4_s_par))) 
+                                                                 | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                     & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_09) 
+                                                                        ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_18))) 
+                                                                    | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                        & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_10) 
+                                                                           ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_11))) 
+                                                                       | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                           & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_22) 
+                                                                              ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_11))) 
+                                                                          | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                             & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_08) 
+                                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_16))))))))))));
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_133 = ((
+                                                   ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                    & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_6)) 
+                                                   | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__Store_u_InA_p___05F_MemC)) 
+                                                       & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC03_sil_pl_4)) 
+                                                      | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
+                                                         & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_17) 
+                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_19)) 
+                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_16) 
+                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_28)) 
+                                                               | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_17) 
+                                                                   ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_24)) 
+                                                                  | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_18) 
+                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_23)))))))) 
+                                                  | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_a)) 
+                                                      & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_16) 
+                                                          ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_15)) 
+                                                         | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_12) 
+                                                             ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_4)) 
+                                                            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_13) 
+                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_8)) 
+                                                               | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_14) 
+                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_9)))))) 
+                                                     | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                         & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_5_s_20) 
+                                                            ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_4))) 
+                                                        | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                            & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_6_s_21) 
+                                                               ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC01_sil_pl_5))) 
+                                                           | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                               & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_8) 
+                                                                  ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_07))) 
+                                                              | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                  & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_04) 
+                                                                     ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__CVA3_4_s_par))) 
+                                                                 | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                     & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_09) 
+                                                                        ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_13))) 
+                                                                    | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                        & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_10) 
+                                                                           ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_12))) 
+                                                                       | (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                           & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_21) 
+                                                                              ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_11))) 
+                                                                          | ((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PairHasA_p_b)) 
+                                                                             & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__dVA_08) 
+                                                                                ^ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC11_sil_pl_17))))))))))));
     vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__bPEnc_0 
         = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_i11__DOT__p12) 
            | (IData)(tb_readback__DOT__m__DOT__b_ContA__DOT__PEnc_0));
@@ -6558,30 +6566,15 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
         = ((IData)(tb_readback__DOT__m__DOT__b_ContA__DOT__ContA05_sil_pl_5___05Fe04_15) 
            | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_f04__DOT__q) 
                >> 1U) & (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__TLinkEn_p_)));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1 
-        = (1U & ((IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_14) 
-                 | ((IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_3) 
-                    | ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ForceMiss) 
-                           | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_131))) 
-                       | (IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff17_3)))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_6 
-        = (1U & (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__p14)) 
-                  & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__sel))
-                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__p13)
-                      : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__sel))
-                          ? ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g22__DOT__q) 
-                             >> 1U) : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PipeCol_1)))) 
-                 | ((IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_3) 
-                    | (IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_14))));
-    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_3 
-        = (1U & (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__p14)) 
-                  & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__sel))
-                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__p3)
-                      : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__sel))
-                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g22__DOT__q)
-                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PipeCol_0)))) 
-                 | ((IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_3) 
-                    | (IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff17_3))));
+    tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_14 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ForceMiss) 
+                    | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_134))));
+    tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff17_3 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ForceMiss) 
+                    | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_132))));
+    tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_3 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ForceMiss) 
+                    | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_133))));
     vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__bPEnc_2 
         = ((IData)(tb_readback__DOT__m__DOT__b_ContA__DOT__PEnc_2) 
            | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_i11__DOT__p12));
@@ -7069,6 +7062,30 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
         = ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__RepeatCurB) 
            | ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__StopMIRClk) 
               | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__preclk0_p_Aa)));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1 
+        = (1U & ((IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_14) 
+                 | ((IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_3) 
+                    | ((~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__ForceMiss) 
+                           | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_131))) 
+                       | (IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff17_3)))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_6 
+        = (1U & (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__p14)) 
+                  & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__p13)
+                      : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__sel))
+                          ? ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g22__DOT__q) 
+                             >> 1U) : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PipeCol_1)))) 
+                 | ((IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_3) 
+                    | (IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_14))));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_3 
+        = (1U & (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__p14)) 
+                  & ((0U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__sel))
+                      ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__p3)
+                      : ((1U == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_h14__DOT__sel))
+                          ? (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__u_g22__DOT__q)
+                          : (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemC__DOT__PipeCol_0)))) 
+                 | ((IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff16_3) 
+                    | (IData)(tb_readback__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_1___05Ff17_3))));
     __Vtableidx21 = ((vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_i13__DOT__mem
                       [vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_i13__DOT__a] 
                       << 1U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_i13__DOT__p3));
