@@ -171,6 +171,7 @@ VL_ATTR_COLD void Vtb_readback___024root___ctor_var_reset(Vtb_readback___024root
     vlSelf->tb_readback__DOT__udmd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2489118406571581649ull);
     vlSelf->tb_readback__DOT__rfshdiv = VL_SCOPED_RAND_RESET_I(9, __VscopeHash, 11981281979138081876ull);
     vlSelf->tb_readback__DOT__rfshper = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10239657107736873953ull);
+    vlSelf->tb_readback__DOT__want_pat = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 18097140524305184123ull);
     vlSelf->tb_readback__DOT__ci = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 12858493580331039283ull);
     vlSelf->tb_readback__DOT__n_load_edge_rb = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 15476388373194696778ull);
     vlSelf->tb_readback__DOT__n_sin_hi = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 16023659952784530004ull);
@@ -200,7 +201,12 @@ VL_ATTR_COLD void Vtb_readback___024root___ctor_var_reset(Vtb_readback___024root
     vlSelf->tb_readback__DOT__n_we_match = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 10953142543365714040ull);
     vlSelf->tb_readback__DOT__n_sind1 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14110964534283061931ull);
     vlSelf->tb_readback__DOT__n_we_ones = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 2835823137524761328ull);
+    vlSelf->tb_readback__DOT__n_we1 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 5012828496650480221ull);
+    vlSelf->tb_readback__DOT__n_we1_ones = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 13067724706328498239ull);
+    vlSelf->tb_readback__DOT__n_ce0 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3153443471325235453ull);
+    vlSelf->tb_readback__DOT__n_ce1 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 2718309863226294915ull);
     vlSelf->tb_readback__DOT__we_d_rb = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3264214445119264585ull);
+    vlSelf->tb_readback__DOT__we1_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8075073134076261608ull);
     vlSelf->tb_readback__DOT__dad_at_write = VL_SCOPED_RAND_RESET_I(12, __VscopeHash, 7558810169503279020ull);
     vlSelf->tb_readback__DOT__dad_at_read = VL_SCOPED_RAND_RESET_I(12, __VscopeHash, 14753637464496707101ull);
     vlSelf->tb_readback__DOT__dad_ones = VL_SCOPED_RAND_RESET_I(12, __VscopeHash, 10804134400933429623ull);
@@ -8168,7 +8174,7 @@ VL_ATTR_COLD void Vtb_readback___024root___ctor_var_reset(Vtb_readback___024root
     vlSelf->__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
     vlSelf->__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
     vlSelf->__Vtask_tb_readback__DOT__strobe__427__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
-    vlSelf->__Vtableidx61 = 0;
+    vlSelf->__Vtableidx37 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_3 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_4 = 0;

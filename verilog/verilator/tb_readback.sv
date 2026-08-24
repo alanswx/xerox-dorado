@@ -42,22 +42,39 @@
 // address pins read the SAME at the write and at the read -- 110000000000
 // both -- so the fill is not landing in some unrelated row.
 //
-// WHAT IS WRONG IS NARROWER. Of 28 WE' falls, the ones that actually CARRY A
-// ONE -- the only kind distinguishable from an empty array afterwards --
-// number
+// WHAT IS WRONG IS ONE WORD, AND IT IS CLOBBERED RATHER THAN MISSED.
 //
-//     cache seeded    0 of 28
-//     cache empty     2 of 28, at address 110000000001
+// With `+onesdram` every DRAM cell is 1, so EVERY cache write that carries the
+// fetched word is distinguishable from an empty array. Then the fill is
+// plainly a LINE fill of four consecutive words:
 //
-// one word ABOVE the address being read. For a cache LINE fill that is the
-// word-within-line, so the likely story is that the fill deposits a different
-// word of the line than the reference wants, or the reference reads a word the
-// fill has not reached. TWO SAMPLES IS THIN; get more before building on it.
+//     fill write #1 carries a 1 at Dad=110000000000    (3072)
+//     fill write #2 carries a 1 at Dad=110000000001
+//     fill write #3 carries a 1 at Dad=110000000010
+//     fill write #4 carries a 1 at Dad=110000000011
 //
-// NOTE the qualification that made this visible: `D0in == SinD` is ALSO
-// satisfied when both are zero, so the 25-of-28 that looked encouraging was
-// mostly zero matching zero. Qualify a data match on the data being
-// non-trivial.
+// and reading the array itself afterwards gives
+//
+//     a03: [3072]=0  [3073]=1  [3074]=1  [3075]=1
+//
+// -- word 0 was written with a one and holds a ZERO. The reference reads 3072,
+// so it sees the zero, and dMD reports an empty cache.
+//
+// RULED OUT ON THE WAY, each by measurement:
+//   * the ADDRESS is not broadly wrong -- write and read agree (110000000000)
+//   * the BANK is not wrong -- D.00 wire-ORs a03 (D0) and d03 (D1); the fill
+//     goes to D0, which is also the enabled one (CE' low on 84,639 samples
+//     against d03's 1,296), and d03 takes 28 WE' falls carrying no ones at all
+//   * the DATA PATH is live -- SinD reaches D0in and the write port
+//
+// SO SOMETHING WRITES 3072 AGAIN WITH ZERO. Of 28 WE' falls only 4 carry the
+// fetched word; the other 24 write zeros, and one of them lands back on 3072
+// after the fill. FIND IT: log every WE' fall with its address and data, not
+// just the ones carrying a one, and look for the second visit to 3072.
+//
+// (Qualification that made all of this visible: `D0in == SinD` is ALSO true
+// when both are zero, so an earlier 25-of-28 agreement was mostly zero
+// matching zero. Qualify a data match on the data being non-trivial.)
 // A TRAP THAT COST THREE WRONG COMPARISONS HERE: this binary must be run from
 // the REPO ROOT, the way the Makefile runs it (`cd ../..`). Run from
 // verilog/verilator/ it cannot find boot0.vec or the PROM images, loads no
@@ -1130,17 +1147,20 @@ module tb_readback;
   // every address and the running microcode can reference whatever it likes.
   //   {H,G,F,E,D,C,B,A} = {b06,c06,d06,e06,e05,d05,c05,b05}
   localparam [7:0] PATTERN = 8'b1010_1100;   // H..A
-  integer si;
+  reg [7:0] want_pat;
+  integer si; reg ones_dram;
   initial begin
+    ones_dram = $test$plusargs("onesdram");
+    want_pat  = ones_dram ? 8'hFF : PATTERN;
     for (si = 0; si < 4096; si = si + 1) begin
-      m.b_msa.u_b05.mem[si] = PATTERN[0];   // A
-      m.b_msa.u_c05.mem[si] = PATTERN[1];   // B
-      m.b_msa.u_d05.mem[si] = PATTERN[2];   // C
-      m.b_msa.u_e05.mem[si] = PATTERN[3];   // D
-      m.b_msa.u_e06.mem[si] = PATTERN[4];   // E
-      m.b_msa.u_d06.mem[si] = PATTERN[5];   // F
-      m.b_msa.u_c06.mem[si] = PATTERN[6];   // G
-      m.b_msa.u_b06.mem[si] = PATTERN[7];   // H
+      m.b_msa.u_b05.mem[si] = ones_dram ? 1'b1 : PATTERN[0];   // A
+      m.b_msa.u_c05.mem[si] = ones_dram ? 1'b1 : PATTERN[1];   // B
+      m.b_msa.u_d05.mem[si] = ones_dram ? 1'b1 : PATTERN[2];   // C
+      m.b_msa.u_e05.mem[si] = ones_dram ? 1'b1 : PATTERN[3];   // D
+      m.b_msa.u_e06.mem[si] = ones_dram ? 1'b1 : PATTERN[4];   // E
+      m.b_msa.u_d06.mem[si] = ones_dram ? 1'b1 : PATTERN[5];   // F
+      m.b_msa.u_c06.mem[si] = ones_dram ? 1'b1 : PATTERN[6];   // G
+      m.b_msa.u_b06.mem[si] = ones_dram ? 1'b1 : PATTERN[7];   // H
     end
   end
 
@@ -1209,7 +1229,8 @@ module tb_readback;
   integer n_d00, n_mdd, n_dmd, n_md, n_d00_e, n_dmd_e, n_md_e, n_merr, n_ecf;
   reg d00_last, dmd_last, md_last;
   integer n_coin_dmd, n_h05out, n_cwe, n_cce, n_d0in, n_dmd_ok, n_md_ok, n_dmd16, n_md16;
-  integer n_we_fall, n_we_match, n_sind1, n_we_ones; reg we_d_rb;
+  integer n_we_fall, n_we_match, n_sind1, n_we_ones, n_we1, n_we1_ones, n_ce0, n_ce1;
+  reg we_d_rb, we1_d;
   reg [11:0] dad_now, dad_at_write, dad_at_read, dad_ones;
   reg [17:0] dmd_cap, md_cap;
   reg outck_d_rb, load_pend_rb, seen_load;
@@ -1218,7 +1239,7 @@ module tb_readback;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
     dad_at_write=12'bx; dad_at_read=12'bx; dad_ones=12'bx;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
@@ -1311,10 +1332,22 @@ module tb_readback;
       if (m.b_MemD.SinD_00) begin
         n_we_ones = n_we_ones + 1;
         dad_ones  <= dad_now;
+        if (n_we_ones < 12)
+          $display("tb_readback:   fill write #%0d carries a 1 at Dad=%b", n_we_ones, dad_now);
       end
     end
     // A read: MD_D selects the cache as the MD source.
     if (m.b_MemD.MD_u_D) dad_at_read <= dad_now;
+    // THE OTHER BANK. D.00 is wire-ORed from a03 (bank D0) and d03 (bank D1).
+    // If the fill writes one bank and the read selects the other, the array is
+    // filled correctly and looked up in the wrong half.
+    if (!m.b_MemD.u_d03.p15 && we1_d) begin
+      n_we1 = n_we1 + 1;
+      if (m.b_MemD.SinD_00) n_we1_ones = n_we1_ones + 1;
+    end
+    we1_d <= m.b_MemD.u_d03.p15;
+    if (!m.b_MemD.u_a03.p16) n_ce0 = n_ce0 + 1;   // bank 0 enabled
+    if (!m.b_MemD.u_d03.p16) n_ce1 = n_ce1 + 1;   // bank 1 enabled
     if (m.b_MemD.D_00  !== d00_last)  begin d00_last  = m.b_MemD.D_00;  n_d00_e = n_d00_e + 1; end
     if (m.dMD_00       !== dmd_last)  begin dmd_last  = m.dMD_00;       n_dmd_e = n_dmd_e + 1; end
     if (m.b_ProcH.Md_00!== md_last)   begin md_last   = m.b_ProcH.Md_00;n_md_e  = n_md_e  + 1; end
@@ -3203,14 +3236,14 @@ module tb_readback;
     // -----------------------------------------------------------------
     // THE GATE: A WORD COMES OUT OF STORAGE.
     $display("tb_readback: READ PATH -- '166 load edges %0d | q at load = %b (want %b) | QH=%b | Sin.00 high on %0d, SinD.00 high on %0d",
-             n_load_edge_rb, q_at_load, PATTERN, qh_at_load, n_sin_hi, n_sind_hi);
+             n_load_edge_rb, q_at_load, want_pat, qh_at_load, n_sin_hi, n_sind_hi);
     if (n_load_edge_rb == 0)
       $fatal(1, "the '166s were never loaded -- no read reached the storage array");
-    if (q_at_load !== PATTERN)
+    if (q_at_load !== want_pat)
       $fatal(1, "the array did not return the seeded word (got %b, want %b)",
-             q_at_load, PATTERN);
-    if (qh_at_load !== PATTERN[7])
-      $fatal(1, "QH is not the H stage at load (QH=%b, H=%b)", qh_at_load, PATTERN[7]);
+             q_at_load, want_pat);
+    if (qh_at_load !== want_pat[7])
+      $fatal(1, "QH is not the H stage at load (QH=%b, H=%b)", qh_at_load, want_pat[7]);
     if (n_sin_hi == 0)
       $fatal(1, "Sin.00 never went high -- the word never left the storage board");
 
@@ -3224,6 +3257,15 @@ module tb_readback;
              n_cwe, n_cce, n_d0in);
     $display("tb_readback:   THE FILL -- a03 WE' falling edges %0d, of which D0in.00 == SinD.00: %0d | SinD.00 high on %0d",
              n_we_fall, n_we_match, n_sind1);
+    // WHAT IS ACTUALLY IN THE ARRAY. Everything upstream says the fill landed;
+    // read the storage itself rather than inferring from the control signals.
+    $display("tb_readback:   a03 CONTENTS at the four filled rows -- [3072]=%b [3073]=%b [3074]=%b [3075]=%b (d03: %b %b %b %b)",
+             m.b_MemD.u_a03.mem[3072], m.b_MemD.u_a03.mem[3073],
+             m.b_MemD.u_a03.mem[3074], m.b_MemD.u_a03.mem[3075],
+             m.b_MemD.u_d03.mem[3072], m.b_MemD.u_d03.mem[3073],
+             m.b_MemD.u_d03.mem[3074], m.b_MemD.u_d03.mem[3075]);
+    $display("tb_readback:   BANKS -- D0 (a03): WE' falls %0d carrying a 1 %0d, CE' low %0d | D1 (d03): WE' falls %0d carrying a 1 %0d, CE' low %0d",
+             n_we_fall, n_we_ones, n_ce0, n_we1, n_we1_ones, n_ce1);
     $display("tb_readback:   FILL ADDRESS -- last write %b, last write CARRYING A ONE %b (%0d such), last read %b",
              dad_at_write, dad_ones, n_we_ones, dad_at_read);
     $display("tb_readback:   RETURN WORD (cache seeded %b) -- dMD=%b matched on %0d | Md=%b matched on %0d",

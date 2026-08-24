@@ -1790,23 +1790,44 @@ What reads back is still zero — and the address turns out **not** to be
 broadly wrong. a03's twelve address pins read the SAME at the write and at the
 read (`110000000000` both), so the fill is not landing in an unrelated row.
 
-**What is wrong is narrower.** Of 28 `WE'` falls, the ones that actually carry
-a **one** — the only kind distinguishable from an empty array afterwards:
+**What is wrong is ONE WORD, and it is clobbered rather than missed.**
 
-| | writes carrying a 1 | at address |
-|---|---|---|
-| cache seeded | 0 of 28 | — |
-| cache empty | **2** of 28 | `110000000001` |
+With `+onesdram` every DRAM cell is 1, so every cache write carrying the
+fetched word is distinguishable from an empty array. The fill is then plainly
+a LINE fill of four consecutive words:
 
-one word **above** the address being read. For a cache LINE fill that is the
-word-within-line, so the likely story is that the fill deposits a different
-word of the line than the reference wants, or the reference reads a word the
-fill has not reached. **Two samples is thin evidence** — get more before
-building on it.
+```
+fill write #1 carries a 1 at Dad=110000000000   (3072)
+fill write #2 carries a 1 at Dad=110000000001
+fill write #3 carries a 1 at Dad=110000000010
+fill write #4 carries a 1 at Dad=110000000011
+```
 
-Note the qualification that made this visible: `D0in == SinD` is also satisfied
-when *both are zero*, so the 25-of-28 that looked encouraging was mostly zero
-matching zero. **Qualify a data match on the data being non-trivial.**
+and reading the array itself afterwards gives
+
+```
+a03: [3072]=0  [3073]=1  [3074]=1  [3075]=1
+```
+
+**Word 0 was written with a one and holds a zero.** The reference reads 3072,
+sees the zero, and `dMD` reports an empty cache.
+
+Ruled out on the way, each by measurement:
+
+- **The address is not broadly wrong** — write and read agree (`110000000000`).
+- **The bank is not wrong** — `D.00` wire-ORs a03 (D0) and d03 (D1). The fill
+  goes to D0, which is also the enabled one (`CE'` low on 84,639 samples
+  against d03's 1,296), and d03 takes 28 `WE'` falls carrying no ones at all.
+- **The data path is live** — `SinD` reaches `D0in` and the write port.
+
+**So something writes 3072 again with zero.** Of 28 `WE'` falls only 4 carry
+the fetched word; the other 24 write zeros, and one lands back on 3072 after
+the fill. Next: log every `WE'` fall with address *and* data, not just the
+ones carrying a one, and find the second visit to 3072.
+
+(The qualification that made all of this visible: `D0in == SinD` is also true
+when both are zero, so an earlier 25-of-28 agreement was mostly zero matching
+zero. **Qualify a data match on the data being non-trivial.**)
 
 **A trap that cost three wrong comparisons here:** the bench binary must be run
 from the **repo root**, the way the Makefile runs it (`cd ../..`). Run from

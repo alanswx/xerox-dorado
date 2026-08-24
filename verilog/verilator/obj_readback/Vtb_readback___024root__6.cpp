@@ -337,6 +337,21 @@ void Vtb_readback___024root___nba_sequent__TOP__3(Vtb_readback___024root* vlSelf
     CData/*4:0*/ __Vtableidx135;
     __Vtableidx135 = 0;
     // Body
+    vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__FF_eq_MulStep 
+        = (1U & (~ ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_a19__DOT__q) 
+                    | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_b21__DOT__q) 
+                        >> 5U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__FA_eq_0_p_)))));
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_8 = (1U 
+                                                & (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_b21__DOT__q) 
+                                                    >> 6U) 
+                                                   | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__FA_eq_0_p_)));
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_1 = (1U 
+                                                & ((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_b21__DOT__q) 
+                                                   | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__FA_eq_1_p_)));
+    vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__FF_eq_TaskingOn 
+        = (1U & (~ (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_a19__DOT__q) 
+                     >> 3U) | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_b21__DOT__q) 
+                                >> 4U) | (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__FA_eq_1_p_)))));
     vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__FF_eq_TaskingOff 
         = (1U & (~ (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_a19__DOT__q) 
                      >> 3U) | (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_ContA__DOT__u_b21__DOT__q) 
