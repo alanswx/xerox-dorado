@@ -2425,3 +2425,68 @@ the manual — agreeing on all five names *and* their order.
 and Muff/Data/Ram/Tag on **zero**. That matters beyond the count: without it,
 "the board is addressed" would not imply "DISKCONTROL is addressed", and every
 later register write would be unverifiable.
+
+### TIOA is a per-task register file, and one inverted gate hid it (2026-08-25)
+
+The disk board decoded `DISKCONTROL` correctly and the data appeared on IOB
+correctly, but **never at the same moment** — 960 `Output<-` strobes, and not
+one of them found the board's address still on TIOA. At the strobe TIOA carried
+`132` octal, which is `0x5A`: the *high byte of the data*. TIOA was being
+reloaded from B by every instruction.
+
+**What TIOA actually is.** The name says it — **T**ask **I/O A**ddress — and
+ProcH builds it exactly that way:
+
+| package | part | role |
+|---|---|---|
+| h13 | MC10158 | mux on `FFdly.4`: `alub` (new value) or `TIOAdly` (recirculate) |
+| g15 | **F10145A** | the **16x4 RAM**, addressed by `LastNext` — *the task* — stored by `TIOAWrite'` |
+| g14 | MC10158 | mux on `TIOABypass`: the just-computed value, or the RAM's stored one |
+| g10/h10 | F10000 | the output register (PE' is an open pin, so it parallel-loads every clock) |
+
+`TIOABypass` comes from h20, an MC10100 NOR of `Curr=Next'` with g19's output —
+and g19 is an **MC10118** whose pin-2 term is `(FB=4' + FA=2') & (FB=5' + FC=2'
++ FA=1'a)`. That goes low for exactly FA=1/FB=5/FC=2, which *is* `TIOA<-B`. So
+the bypass means "this instruction writes TIOA and the task is not switching" —
+a textbook write-forward, with the RAM holding the address the rest of the time.
+
+**The bug was one `~`.** `cell_MC10118` inverted pin 2, by the OR/NOR family's
+"EclDict role `OUT` is the inverting output" rule — a rule already recorded here
+as one that **does not generalise**. Inverted, the bypass was high on 136,406 of
+140,559 samples instead of 991, so TIOA followed `alub` combinationally whatever
+the instruction was, and no I/O address ever survived to the `Output<-` using it.
+
+Settled three ways, and the datasheet is decisive:
+
+1. The part is titled **"DUAL 2-WIDE 3-INPUT OR-AND GATE"** (1978 Motorola MECL
+   Data Book p.62). Its sibling the MC10117 is titled *OR-AND/OR-AND-INVERT* —
+   Motorola names the inverting variant, and this is not it.
+2. Read by **geometry**, the method already established here: pins 2 and 15 each
+   end in a plain emitter-follower wedge with **no bubble**. The MC10117 is the
+   control, in the same drawing convention — it puts an unmistakable open circle
+   at pins 3 and 14 and a bare wedge at 2 and 15, and EclDict calls pin 3 `OUT`
+   and pin 2 `o`. So `OUT` does mark the inverting output *there*; the MC10118
+   has no inverting output to mark, and its `OUT`/`o` pair merely distinguishes
+   two gates that each have one output.
+3. Functionally two-sided: non-inverting makes `TIOA<-B` bypass ON *and*
+   `Output<-` bypass OFF. Inverting got both backwards.
+
+The MC10117 sheet also states in prose what the netlist showed — **"Pin 9 is
+common to both gates"** — confirming the cell's grouping `(6|7|9)` and
+`(9|10|11)`.
+
+**Two gates were passing because of it.** `display-test` was not even running
+its `+slowio` loop (the plusarg was never passed), so every select it counted
+came from the broken bypass; and both benches asserted that a **jammed**
+`TIOA<-B` leaves the address in TIOA. It cannot: measured across the jam window,
+`TIOAWrite'` asserts **0** times and `TIOABypass` **0** times, so a jam reaches
+neither the RAM nor the forward path. That is the same rule already recorded for
+device writes — a jam asserts `IgnoreProc`, which becomes `IgnoreCommands`.
+
+Both now gate the IM-executed loop instead, where a device write belongs: TIOA
+holds its address on 128 samples, and **32 of the strobes find address and data
+together** where zero did before. Three mutations confirm the gates bite —
+restoring the `~`, dropping `+slowio`, and pointing the loop at a wrong address.
+
+*Lesson, and it is the same one twice now:* a rule derived from one part family
+is not evidence about another. Take the sheet, and read the bubble.

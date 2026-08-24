@@ -33,10 +33,30 @@ module cell_MC10118 (
   // whichever group has only two -- which is what makes both gates 3-input,
   // as the part name says.
   //
-  // Polarity by the confirmed rule: `OUT` (pin 2) inverts, `o` (pin 15) does
-  // not. NOT verified against a data sheet -- MC10118 is not in DL122.
-  assign p2  = ~((p3 | p4 | p5) & (p6 | p7 | p9));
-  assign p15 =  ((p9 | p10 | p11) & (p12 | p13 | p14));
+  // POLARITY: NEITHER OUTPUT INVERTS, and the data sheet says so twice.
+  // This used to read `OUT` (pin 2) as inverting, by the rule taken from the
+  // OR/NOR family -- a rule already recorded as one that DOES NOT GENERALISE.
+  //
+  //   * The part is titled "DUAL 2-WIDE 3-INPUT OR-AND GATE" (1978 Motorola
+  //     MECL Data Book p.62). Its sibling the MC10117 is titled "OR-AND/
+  //     OR-AND-INVERT" -- Motorola names the inverting variant, and this is
+  //     not it.
+  //   * Read by GEOMETRY, the established method here: pins 2 and 15 each end
+  //     in a plain emitter-follower wedge with NO bubble. The MC10117 on the
+  //     same convention is the control -- it draws an unmistakable open circle
+  //     at pins 3 and 14 and a bare wedge at 2 and 15, and EclDict calls pin 3
+  //     `OUT` and pin 2 `o`. So `OUT` really does mark the inverting output
+  //     THERE; here there is no inverting output to mark, and the OUT/o pair
+  //     is only distinguishing two gates that each have ONE output.
+  //
+  // ProcH g19 is the check: its pin-2 term is (FB=4' + FA=2') & (FB=5' +
+  // FC=2' + FA=1'a), which goes low exactly for FA=1/FB=5/FC=2 -- `TIOA<-B`.
+  // h20 NORs that with Curr=Next' to make TIOABypass, so non-inverting gives
+  // bypass ON during a TIOA<- and OFF otherwise. Inverting gave exactly the
+  // opposite in both cases, which left TIOA reloading from B on EVERY
+  // instruction and no I/O address surviving to the Output<- that uses it.
+  assign p2  = ((p3 | p4 | p5) & (p6 | p7 | p9));
+  assign p15 = ((p9 | p10 | p11) & (p12 | p13 | p14));
 
 endmodule
 
