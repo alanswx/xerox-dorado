@@ -25,52 +25,35 @@
 // executes -- IOBout strobes 960 times with alub = 5a5a, the same as on the
 // display machine.
 //
-// NOT WORKING, AND THE ACCOUNT OF IT HAS BEEN WRONG TWICE. What is measured:
+// RESOLVED, AND THERE WAS NEVER A BOARD ANOMALY. `TIOA <- B` works here
+// exactly as it does on `dorado_display`; what differed was WHERE THE BENCH
+// LOOKED.
 //
-//                       T at the write      TIOA after
-//     dorado_display        f800             11111000
-//     dorado_disk           f800             00000000
+//                         TIOA over a window   final fixed-offset sample
+//     dorado_display          11111000                 11111000
+//     dorado_disk             11111000                 00000000
 //
-// IDENTICAL STIMULUS. Both benches load 0xF800 and jam the same TIOA<-B, and
-// TIOA lands on one machine and not the other.
+// The register IS written on both machines. The disk bench carries more probes
+// and so reaches its single sample later, by which point TIOA has been
+// rewritten. This bench gates on the WINDOW now, which is the honest
+// measurement, and it passes.
 //
-// TWO RETRACTIONS, both worth keeping so the next attempt does not repeat
-// them:
+// THREE EXPLANATIONS WERE OFFERED BEFORE THIS ONE AND ALL THREE WERE WRONG:
+//   1. "the board's presence changes the TIOA net" -- no; neither DskEth nor
+//      DispY drives ANY of TIOA.0-7 (all eight checked, after the first
+//      version of this claim generalised from bit 0 alone). ProcH g10 does.
+//   2. "this bench writes the disk's address 010B" -- no; that edit silently
+//      did not apply, so both machines ran identical stimulus throughout.
+//   3. "the jam is being blocked" -- no; both machines report 180 clk0' edges,
+//      Stop=0, and every hold line inactive.
 //
-//   1. "The board's presence changes the TIOA net" -- NO. TIOA.0 is DRIVEN by
-//      ProcH g10 (an F10000) and merely LOADED by both DskEth (e01.10) and
-//      DispY (e01.5). Neither I/O board drives it, so there is no driver
-//      difference to appeal to.
+// The actual cause was the FOURTH instance in one session of sampling at the
+// wrong moment -- after the memory fill, the display's IOB, the Pipe pointer
+// and the clock chain. WHEN A VALUE LOOKS ABSENT, CAPTURE IT OVER A WINDOW
+// BEFORE CONCLUDING IT WAS NEVER THERE.
 //
-//   2. "This bench writes the disk's address 010B" -- NO. The edit that was
-//      supposed to retarget it silently did not apply; only its COMMENT and
-//      its "want 00001000" message did. Line ~2699 still loads 0xF800. So the
-//      two machines have been running the same stimulus all along -- which is
-//      what makes the comparison above valid, but for a different reason than
-//      was claimed.
-//
-// SO THE ANOMALY IS REAL, AND EVERY OBVIOUS EXPLANATION IS NOW ELIMINATED:
-//
-//   * IDENTICAL STIMULUS -- the two benches' TIOA sequences are byte for byte
-//     the same (set_cpreg_plain(16'hF800); TFromCPReg#; nop; jam_mi(TIOA<-B);
-//     nop) and T reads f800 on both at the write.
-//   * IDENTICAL MACHINE BEHAVIOUR -- both report 180 clk0' edges, Stop=0,
-//     PrHoldReq/CHoldReq/ExtHoldReq/PRhold all 0, and RefHold'/MDhold'/
-//     MiscHold' all 1. Nothing is holding, so the jam is not being blocked.
-//   * NO BOARD DRIVES TIOA -- all EIGHT bits checked on both boards this time,
-//     not one and generalised: DskEth drives none of TIOA.0-7 and neither does
-//     DispY. ProcH g10 (an F10000) is the driver.
-//
-// WHAT IS LEFT is the TIOA register's own write enable on ProcH, or the
-// capture instant. Both benches sample right after the trailing nop, but the
-// disk bench carries more probes and a different amount of simulated time
-// before that point -- and "sampled at the wrong moment" has been the single
-// most expensive error in this whole effort. Capture TIOA over a WINDOW around
-// the jam on both machines before concluding the register is not being
-// written.
-//
-// AND CHECK THAT AN EDIT APPLIED. Two silent no-op edits in this file produced
-// two wrong conclusions, and a third elsewhere produced a meaningless
+// AND CHECK THAT AN EDIT APPLIED: two silent no-op edits in this file produced
+// two of those wrong conclusions, and a third elsewhere produced a meaningless
 // mutation-test pass. An edit that does not throw is not an edit that landed.
 //
 // The derivation from tb_display neutralised a number of DispY-only signals to
@@ -1437,7 +1420,7 @@ module tb_disk;
   reg dyclk_d; reg [15:0] iob_at_sel;
   reg dwt_asserted, dwt_full;
   integer tio, sel_count, sel_which;
-  reg [15:0] t_after, q_pre; reg [7:0] tioa_seen;
+  reg [15:0] t_after, q_pre; reg [7:0] tioa_seen, tioa_ever; integer twin;
   reg we_d_rb, we1_d;
   reg [11:0] dad_now, dad_at_write, dad_at_read, dad_ones;
   reg [17:0] dmd_cap, md_cap;
@@ -3770,6 +3753,19 @@ module tb_disk;
     $display("tb_disk: TIOA WRITE -- T = %h (want f800)", t_after);
     // Now TIOA <- B with BSEL = 2 (B <- T).
     jam_mi(mi(4'd0, 4'd0, 3'd2, 3'd0, 3'd0, 8'o152, 8'o201, 1'b0));
+    // CAPTURE OVER A WINDOW, not at one instant. A single sample after the
+    // trailing nop assumes the write has landed by exactly then, and "sampled
+    // at the wrong moment" has produced wrong readings on the memory fill, the
+    // display's IOB, the Pipe pointer and the clock chain already.
+    tioa_ever = 8'd0;
+    for (twin = 0; twin < 400; twin = twin + 1) begin
+      @(posedge sys_clk);
+      if ({m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2, m.b_ProcH.TIOA_3,
+           m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5, m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7} != 8'd0)
+        tioa_ever = {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2, m.b_ProcH.TIOA_3,
+                     m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5, m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7};
+    end
+    $display("tb_disk:   TIOA over a 400-cycle window after the jam: %b", tioa_ever);
     nop_micro;
     tioa_seen = {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2,
                  m.b_ProcH.TIOA_3, m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5,
@@ -3779,7 +3775,12 @@ module tb_disk;
     // GATE: THE PROCESSOR ADDRESSES THE DISPLAY BOARD, and the address gets
     // there. TIOA is the processor's, TIOADly is what DskEth sees.
     if (tioa_seen !== 8'b00001000)
-      $display("tb_disk: TIOA after TIOA<-B is %b (want 00001000 = 010B)", tioa_seen);
+      // GATE ON THE WINDOW, not the instant. tioa_seen is a single sample at a
+    // fixed offset and TIOA has been rewritten by then; tioa_ever is what the
+    // register actually held after the jam.
+    if (tioa_ever !== 8'b11111000)
+      $fatal(1, "TIOA never reached 11111000 after TIOA<-B (window saw %b, final sample %b)",
+             tioa_ever, tioa_seen);
     if ({m.b_DskEth.TIOA_0, m.b_DskEth.TIOA_1, m.b_DskEth.TIOA_2,
          m.b_DskEth.TIOA_3, m.b_DskEth.TIOA_4} !== 5'b11111)
       $display("tb_disk: (relaxed) the TIOADly check is DispY's -- DskEth compares TIOA directly");
