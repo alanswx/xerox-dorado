@@ -172,6 +172,8 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     output wire Selected1_p___drv,
     output wire Selected2_p___drv,
     output wire Selected3_p___drv,
+    output wire TWReq_06__drv,
+    output wire TWReq_07__drv,
     output wire TagBus_0_p___drv,
     output wire TagBus_00_p___drv,
     output wire TagBus_000_p___drv,
@@ -194,8 +196,6 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     output wire TtlSector_p___drv,
     output wire TtlSeekInc_p___drv,
     output wire TtlTerm_p___drv,
-    output wire WakeEthRx__drv,
-    output wire WakeEthTx__drv,
     output wire XmtData_p___drv
 );
 
@@ -4720,13 +4720,13 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .sys_clk(sys_clk),
     .p2(Ether13_sil_pl_8),
     .p3(IOatt__drv),
-    .p4(WakeEthRx__drv),
+    .p4(TWReq_07__drv),
     .p5(Ether13_sil_pl_17),
     .p6(Ether13_sil_pl_3),
     .p7(Ether05_sil_pl_7),
     .p9(Clock0_p_Dd),
     .p10(Ether06_sil_pl_5),
-    .p13(WakeEthTx__drv)
+    .p13(TWReq_06__drv)
   ); // MC10176
   cell_MC10197 u_k01 (
     .p2(bIOB_05),

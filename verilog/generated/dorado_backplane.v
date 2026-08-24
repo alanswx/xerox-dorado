@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ProcH ProcL ContA ContB IFU MemC MemD MemX DskEth DispY BaseBd
-// 508 internal nets (83 with several contributors), 391 top-level ports.
+// 510 internal nets (83 with several contributors), 387 top-level ports.
 
 `default_nettype none
 
@@ -367,8 +367,6 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     input  wire TWReq_02                  ,  // to a backplane connector (cable)
     input  wire TWReq_04                  ,  // to a backplane connector (cable)
     input  wire TWReq_05                  ,  // to a backplane connector (cable)
-    input  wire TWReq_06                  ,  // to a backplane connector (cable)
-    input  wire TWReq_07                  ,  // to a backplane connector (cable)
     input  wire TWReq_08                  ,  // to a backplane connector (cable)
     input  wire TWReq_09                  ,  // to a backplane connector (cable)
     input  wire TWReq_10                  ,  // to a backplane connector (cable)
@@ -405,14 +403,12 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     output wire TurnOnPwr_p_              ,  // to a backplane connector (cable)
     output wire VBlank                    ,  // awaits DispM
     output wire VSync                     ,  // awaits DispM
-    output wire WakeEthRx                 ,  // to a backplane connector (cable)
-    output wire WakeEthTx                 ,  // to a backplane connector (cable)
     input  wire XHsync                    ,  // to a backplane connector (cable)
     output wire XSyncEn_p_                ,  // to a backplane connector (cable)
     input  wire dStartClockPulse             // to a backplane connector (cable)
 );
 
-  // 508 nets between boards, plus one contribution wire
+  // 510 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -809,6 +805,8 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire TNIA_14;
   wire TNIA_15;
   wire TWReq_03;
+  wire TWReq_06;
+  wire TWReq_07;
   wire TWReq_11;
   wire TWReq_15;
   wire TagInEc1;
@@ -1683,6 +1681,8 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire TNIA_15__ContA;
   wire TTLIOReset_p___BaseBd;
   wire TWReq_03__DispY;
+  wire TWReq_06__DskEth;
+  wire TWReq_07__DskEth;
   wire TWReq_11__DispY;
   wire TWReq_15__MemX;
   wire TagBus_0_p___DskEth;
@@ -1724,8 +1724,6 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire VicInPair_p___MemC;
   wire VicOrFS1C__MemC;
   wire WPinEc1__MemX;
-  wire WakeEthRx__DskEth;
-  wire WakeEthTx__DskEth;
   wire WantIfuHold_p___IFU;
   wire WantIfuRef_p___IFU;
   wire XSyncEn_p___DispY;
@@ -2437,6 +2435,8 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   assign TNIA_15 = TNIA_15__ContA;
   assign TTLIOReset_p_ = TTLIOReset_p___BaseBd;
   assign TWReq_03 = TWReq_03__DispY;
+  assign TWReq_06 = TWReq_06__DskEth;
+  assign TWReq_07 = TWReq_07__DskEth;
   assign TWReq_11 = TWReq_11__DispY;
   assign TWReq_15 = TWReq_15__MemX;
   assign TagBus_0_p_ = TagBus_0_p___DskEth;
@@ -2477,8 +2477,6 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   assign VicInPair_p_ = VicInPair_p___MemC;
   assign VicOrFS1C = VicOrFS1C__MemC;
   assign WPinEc1 = WPinEc1__MemX;
-  assign WakeEthRx = WakeEthRx__DskEth;
-  assign WakeEthTx = WakeEthTx__DskEth;
   assign WantIfuHold_p_ = WantIfuHold_p___IFU;
   assign WantIfuRef_p_ = WantIfuRef_p___IFU;
   assign XSyncEn_p_ = XSyncEn_p___DispY;
@@ -4451,6 +4449,8 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     .Selected1_p___drv(Selected1_p___DskEth),
     .Selected2_p___drv(Selected2_p___DskEth),
     .Selected3_p___drv(Selected3_p___DskEth),
+    .TWReq_06__drv(TWReq_06__DskEth),
+    .TWReq_07__drv(TWReq_07__DskEth),
     .TagBus_0_p___drv(TagBus_0_p___DskEth),
     .TagBus_00_p___drv(TagBus_00_p___DskEth),
     .TagBus_000_p___drv(TagBus_000_p___DskEth),
@@ -4473,8 +4473,6 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     .TtlSector_p___drv(TtlSector_p___DskEth),
     .TtlSeekInc_p___drv(TtlSeekInc_p___DskEth),
     .TtlTerm_p___drv(TtlTerm_p___DskEth),
-    .WakeEthRx__drv(WakeEthRx__DskEth),
-    .WakeEthTx__drv(WakeEthTx__DskEth),
     .XmtData_p___drv(XmtData_p___DskEth)
   );
 
@@ -4791,7 +4789,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 251 signals, 32 at a time;
+// probe_val exposes 249 signals, 32 at a time;
 // dorado_backplane.probes lists which bit is which.
 module dorado_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
@@ -5038,8 +5036,6 @@ module dorado_machine #(parameter integer SYSPER = 16) (
   wire TurnOnPwr_p_;
   wire VBlank;
   wire VSync;
-  wire WakeEthRx;
-  wire WakeEthTx;
   wire XSyncEn_p_;
 
   // The clock fanout, read out of the machine: 10 nets,
@@ -5088,7 +5084,7 @@ module dorado_machine #(parameter integer SYSPER = 16) (
   // synthesis read_comments_as_HDL off
 
   wire [255:0] probe = {
-    5'd0,
+    7'd0,
     CLK_pl_p__probe,
     CLK_ph_p__probe,
     CLK_mx_p__probe,
@@ -5100,8 +5096,6 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     CLK_cb_p__probe,
     CLK_ca_p__probe,
     XSyncEn_p_,
-    WakeEthTx,
-    WakeEthRx,
     VSync,
     VBlank,
     TurnOnPwr_p_,
@@ -5692,8 +5686,6 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .TWReq_02(1'b0),
     .TWReq_04(1'b0),
     .TWReq_05(1'b0),
-    .TWReq_06(1'b0),
-    .TWReq_07(1'b0),
     .TWReq_08(1'b0),
     .TWReq_09(1'b0),
     .TWReq_10(1'b0),
@@ -5730,8 +5722,6 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .TurnOnPwr_p_(TurnOnPwr_p_),
     .VBlank(VBlank),
     .VSync(VSync),
-    .WakeEthRx(WakeEthRx),
-    .WakeEthTx(WakeEthTx),
     .XHsync(1'b0),
     .XSyncEn_p_(XSyncEn_p_),
     .dStartClockPulse(1'b0)
