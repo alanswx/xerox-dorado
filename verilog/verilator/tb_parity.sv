@@ -83,10 +83,36 @@
 // turns the polarity question into the same vector-for-vector cross-check that
 // already settles the ALU -- and neither side is derived from the other.
 //
-// The one thing to pin down first is what `aluF0` is in the ALUFM entry's
-// terms ({Cn, S3, S2, S1, S0, M}), since the vectors are indexed by the entry
-// rather than by the ALUF field. Do not guess it: trace it from whichever
-// board drives it.
+// SETTLED 2026-08-23, AND THE CELL FIX IS CONFIRMED A THIRD WAY.
+//
+// `aluF0` is S3: it lands on pin 13 of BOTH MC10181s, which tb_alu_vs_c
+// already maps to S[3], so it is bit 4 of the {Cn,S3,S2,S1,S0,M} entry.
+//
+// With that, `tb_alu_vs_c` now runs ProcH d13 -- an MC10170 wired as PARC
+// wires it -- against cpu.c's own `ovf`, over 2560 arithmetic vectors:
+//
+//     ALUFM entry    p15 INVERTED (today)    p15 NOT inverted (the fix)
+//        14                0 of 256                256 of 256
+//        22                0 of 256                256 of 256
+//        54                0 of 256                256 of 256
+//
+// Three entries, 768 vectors, unanimous both ways. Nothing else in the table
+// splits cleanly because alu_op() uses a DIFFERENT overflow formula per
+// operation (HM section 3.7) while d13 computes one fixed function of the
+// sign bits, the carry and S3 -- entries 14/22/54 are the ones where the C's
+// formula IS the hardware's.
+//
+// So the polarity is now confirmed by THREE INDEPENDENT ROUTES: the data
+// sheet's logic diagram, PARC's thirteen IRTable entries reading PE' = 1 with
+// parity enabled, and cpu.c's overflow logic written from the manual. None of
+// them owes anything to the others.
+//
+// WHAT REMAINS is not the polarity but the five benches that break when it is
+// corrected -- datapath-test, operand-test, step-test, sendmir, compute-test.
+// On this evidence they are calibrated against the BUG, exactly as msa-test
+// turned out to be for the SN74166. Re-derive them one at a time against the
+// corrected cell; do not weaken them, and do not revert the cell to make them
+// green.
 //
 // One more thing an earlier session established, in tb_compute.sv: a general
 // microinstruction encoder `mi()` that reproduces all thirteen IRTable entries

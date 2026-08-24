@@ -58,8 +58,13 @@ int main(void)
                     uint8_t carry = 0, ovf = 0, arith = 0;
                     uint16_t r = alu_op(entry, vals[i], vals[j], 0,
                                         &carry, &ovf, &arith);
-                    printf("%02x %04x %04x %04x %d\n",
-                           entry, vals[i], vals[j], r, carry);
+                    /* ovf is the SIGNED OVERFLOW alu_op() already computes.
+                     * It used to be passed in and thrown away; the RTL side
+                     * now checks ProcH d13 (an MC10170 wired as an overflow
+                     * detector) against it, which is the independent oracle
+                     * the IM-parity question needs. */
+                    printf("%02x %04x %04x %04x %d %d\n",
+                           entry, vals[i], vals[j], r, carry, ovf);
                 }
     return 0;
 }
