@@ -369,7 +369,6 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->tb_display__DOT__m__DOT__SubTask_1 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2551797936528395003ull);
     vlSelf->tb_display__DOT__m__DOT__TWReq_01 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2373280000124062910ull);
     vlSelf->tb_display__DOT__m__DOT__TWReq_02 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9516711541942424649ull);
-    vlSelf->tb_display__DOT__m__DOT__TWReq_03 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7040862006737642389ull);
     vlSelf->tb_display__DOT__m__DOT__TWReq_04 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 876634410423605486ull);
     vlSelf->tb_display__DOT__m__DOT__TWReq_05 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10704739848844666587ull);
     vlSelf->tb_display__DOT__m__DOT__TWReq_06 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5210116317880992974ull);
@@ -3621,7 +3620,6 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_10a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15684657669708710154ull);
     vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_11 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12659520457647042941ull);
     vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_11a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14740262050146708838ull);
-    vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9856371943351148100ull);
     vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_12a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5882672272725919527ull);
     vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_13 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7110153629600440805ull);
     vlSelf->tb_display__DOT__m__DOT__b_ProcL__DOT__alub_13a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6902130081418706747ull);
@@ -9372,6 +9370,7 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->__Vtask_tb_display__DOT__parc_micro__426__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
     vlSelf->__Vtask_tb_display__DOT__parc_micro__426__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
     vlSelf->__Vtask_tb_display__DOT__strobe__427__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelf->__Vtableidx45 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;

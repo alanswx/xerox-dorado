@@ -1854,12 +1854,24 @@ Measured over 85,735 sys_clk:
 | `WakeDHT` high | **85,734** — the board is asking for the bus |
 | `TWReq.11` high | **0** |
 
-The first two are gated. The third is a **known gap, not a fault**: `WakeDWT`
-→ `TWReq.11` is wired (`BACKPLANE_WAKEUP_JUMPERS`, from the board's own
-`DWTTask = 1011` strap), but the display HEAD task's line is one of the ones
-nothing yet says a slot number for — so `WakeDHT` asserts and reaches no
-`TWReq` at all, and the display task cannot be scheduled. Wiring it is the
-next step.
+**And the head task is wired now.** `include/display.h` names all four
+display tasks — DHT 3, DWT 13₈, AHT 4, AWT 11₈ — and **the table cross-checks
+itself**: 13₈ = 11 and 11₈ = 9 are exactly the two word-task numbers the
+boards' own straps give (DispY `DWTTask = 1011`, DispM `AltoWTask = 1001`).
+Two independent derivations agreeing on the pair we already knew is what makes
+the pair we did not — the head tasks, **3 and 4** — safe to take from the same
+table. So `WakeDHT → TWReq.03` and `WakeAHT → TWReq.04` join
+`BACKPLANE_WAKEUP_JUMPERS`, and DispY's head-task wakeup now reaches ContA.
+
+`TWReq.11` staying low is expected: the WORD task needs a display list to
+fetch, and nothing in this bench installs one.
+
+**A side effect worth noting.** With DispY present and its head task wired,
+`MemState` reaches **8 of 8** steps against `tb_readback`'s 2, and `MemIdle`
+falls 1,752 times — the display task is driving real memory activity. That
+activity overwrites the seeded cache exactly as the four-instruction loop's own
+Store does, so `tb_readback`'s inherited assertions are relaxed to displays
+here, the way `tb_ifufetch` relaxes `tb_memrun`'s.
 
 `CLK.display'` is the fifth board on which leaving a slot clock undriven would
 have looked exactly like a gating bug.

@@ -116,9 +116,9 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     input  wire TIOA_5,
     input  wire TIOA_6,
     input  wire TIOA_7,
+    input  wire TWReq_04,
     input  wire VBlank,
     input  wire VSync,
-    input  wire WakeAHT,
     output wire DACBlue__drv,
     output wire DACGreen__drv,
     output wire DACRed__drv,
@@ -157,8 +157,8 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     output wire TTLCSync_p___drv,
     output wire TTLHSync_p___drv,
     output wire TTLVSync_p___drv,
-    output wire TWReq_09__drv,
-    output wire WakeAHT__drv
+    output wire TWReq_04__drv,
+    output wire TWReq_09__drv
 );
 
   // 716 internal nets
@@ -2001,14 +2001,14 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   ); // MC10176
   cell_MC10135 u_d02 (
     .sys_clk(sys_clk),
-    .p2(WakeAHT__drv),
+    .p2(TWReq_04__drv),
     .p4(AHTShutUp),
     .p6(NLCBCommand_p_),
     .p7(DispM05_sil_pl_1),
     .p9(clk0_p_Aa),
     .p10(AHTWantsProc_p_),
     .p11(True),
-    .p13(WakeAHT),
+    .p13(TWReq_04),
     .p14(DispM05_sil_pl_1)
   ); // MC10135
   cell_MC10105 u_d03 (
@@ -2118,7 +2118,7 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p9(AltoPixelClk_p_Ac),
     .p10(kHWindow_p_),
     .p11(True),
-    .p13(WakeAHT),
+    .p13(TWReq_04),
     .p14(AHTWantsProc_p_)
   ); // MC10135
   cell_K1115A #(.FREQ_KHZ(20000)) u_d13 (

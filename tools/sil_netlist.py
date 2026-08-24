@@ -175,15 +175,32 @@ BACKPLANE_CASE_ALIASES = {
 #                                 and the C emulator's include/memory.h, and
 #                                 MemX's own net name says 15
 #
-# NOT wired yet, because nothing yet says which line they take: the two HEAD
-# tasks (DispM WakeAHT, DispY WakeDHT, both on C121) and DskEth's WakeEthRx /
-# WakeEthTx. DskEth's strap is an I/O ADDRESS, not a task number, so its task
-# has to come from elsewhere -- the C emulator has DORADO_DISK_TASK = 014
-# octal = 12 decimal for the disk, but DskEth's two lines here are the ETHERNET
-# ones, and the disk's wakeup is not among the nets this board drives.
+#   DispY  WakeDHT  -> TWReq.03   the display HEAD task
+#   DispM  WakeAHT  -> TWReq.04   DispM's terminal-interface head task
+#
+# THE TWO HEAD TASKS ARE NOW WIRED, and the source cross-checks itself. The C
+# emulator's include/display.h names all four display tasks:
+#
+#     DHT  task 3     Display Horizontal Task (low priority)
+#     DWT  task 13o   Display Word Task (high priority)
+#     AHT  task 4     DispM terminal-interface horizontal task
+#     AWT  task 11o   DispM terminal-interface word task
+#
+# and 13o = 11, 11o = 9 -- EXACTLY the two word-task numbers the boards' own
+# straps give (DispY DWTTask = 1011, DispM AltoWTask = 1001). Two independent
+# derivations agreeing on the pair we already knew is what makes the pair we
+# did not -- the head tasks, 3 and 4 -- safe to take from the same table.
+#
+# STILL NOT WIRED: DskEth's WakeEthRx / WakeEthTx. DskEth's strap is an I/O
+# ADDRESS, not a task number, so its task has to come from elsewhere -- the C
+# emulator has DORADO_DISK_TASK = 014 octal = 12 decimal for the disk, but
+# DskEth's two lines here are the ETHERNET ones, and the disk's wakeup is not
+# among the nets this board drives.
 BACKPLANE_WAKEUP_JUMPERS = {
     'WakeAWT': 'TWReq.09',
     'WakeDWT': 'TWReq.11',
+    'WakeDHT': 'TWReq.03',
+    'WakeAHT': 'TWReq.04',
     'TWReq15': 'TWReq.15',
 }
 
