@@ -107,42 +107,40 @@
 // parity enabled, and cpu.c's overflow logic written from the manual. None of
 // them owes anything to the others.
 //
-// THE MECHANISM IS `SetMidasStopMIRClk`, A MANIFOLD WRITE -- NOT THE DoControl
-// SEQUENCE. Three attempts at the jam sequence were made and all three failed
-// IDENTICALLY, which is itself the clue: the jam never executes at all.
+// THE JAM SEQUENCE IS NOT THE PROBLEM, AND NEITHER IS SetMidasStopMIRClk.
+// Both were tried; here is what is ruled out, so nobody repeats it.
 //
-// `doradocpint.masm`'s DoDoradoMicroInst tail is THREE DoControls, not two:
+// (1) THE DoControl TAIL. `doradocpint.masm`'s DoDoradoMicroInst ends with
+// THREE DoControls -- the first two byte-identical, which is why they read as
+// one:
 //
 //     LDA ShouldSingleStep ; LSRA ; LDAI SetRun ; JSR DoControl
 //   BasicStopDorado:
-//     LDAI SetRun ; SEC ; JSR DoControl      (byte-identical to the above,
-//                                             which is why it reads as one)
-//     LDAI 0      ; SEC ; JSR DoControl      clear SetRun, keep SetSS
+//     LDAI SetRun ; SEC ; JSR DoControl
+//     LDAI 0      ; SEC ; JSR DoControl
 //
 // Adding the second, the third, and both -- spaced and unspaced -- leaves all
-// five benches failing with their ORIGINAL messages, and breaks `step-test`
-// into a free run. None of it is the fix, and all of it is reverted.
+// five failing with their ORIGINAL messages, and one variant turns step-test
+// into a free run. All reverted; jam_step is unchanged.
 //
-// WHAT ACTUALLY HOLDS THE MIR is `StopMIRClk`, and `doradomufman.masm` turns
-// it on with a MANIFOLD word, once, just after the supplies come up:
+// (2) THE MIR HOLD. `doradomufman.masm` turns StopMIRClk on with a manifold
+// word, and the value can be derived from that file: with `.RDX 16` and `^`
+// as shift-left, ControlBManifold = 0, MidasStopMIRClk = 7^6 = 0x1C0, so
+// SetMidasStopMIRClk = 0x1C0 + 0x20 = 0x1E0. (The derivation checks itself:
+// DisableDoradoErrors = ParityEnables + 0x30 = 0x030, which is the value the
+// benches already use.) THIRTEEN BENCHES ALREADY WRITE `manifold(12'h1E0)`,
+// including every one of the five. So the hold is being requested.
 //
-//     SetMidasStopMIRClk = .-MufflerTable
-//         .ADR  (MidasStopMIRClk+20)^4    ; turn on MIR debug feature
+// AND YET `StopMIRClkEn` READS 0. tb_memrun writes 12'h1E0 in its startup and
+// still reports `StopMIRClkEn=0 StopMIRClk=0`. THAT is the live question: the
+// manifold write is issued, its value is right, and the enable does not come
+// on. Chase the manifold WRITE PATH -- SetMufflerAddress shifting the address
+// into the chain, then DoClock(UseDMD) and DoClock(0) -- and find where it
+// stops. `muffler-test` already gates the BaseBoard end of that chain.
 //
-// The benches never write it -- they report `StopMIRClkEn=0` -- so with
-// CORRECT parity nothing holds the MIR and the jam is reloaded from IM before
-// it can act. With the INVERTED p15 PARC's own IRTable entries fail IM parity
-// and the freeze does the job by accident. That is the whole dependency.
-//
-// SO THE WORK IS: give the benches PARC's manifold-write path (SetManifold /
-// DatumToManifold in doradomufman.masm) and issue `SetMidasStopMIRClk` in the
-// startup, THEN correct the cell. Do not keep adjusting Control strobes; the
-// hold is not a Control-strobe function.
-//
-// (A trap while measuring this: tb_step.sv defines neither GAP nor WT, so a
-// spacing edit copied from the other benches is a COMPILE error there, and
-// its "FAIL" said nothing about the logic. One experiment was scored wrong
-// because of it. READ THE FAILURE BEFORE COUNTING IT.)
+// (An earlier version of this note claimed the benches never write
+// SetMidasStopMIRClk. That was read off the `StopMIRClkEn=0` line alone,
+// without checking whether the write was issued. It is issued.)
 //
 // WHAT REMAINS is not the polarity but the five benches that break when it is
 // corrected -- datapath-test, operand-test, step-test, sendmir, compute-test.
