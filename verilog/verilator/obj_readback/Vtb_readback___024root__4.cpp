@@ -13,7 +13,7 @@ VlCoroutine Vtb_readback___024root___eval_initial__TOP__Vtiming__1(Vtb_readback_
         co_await vlSelfRef.__VdlySched.delay(1ULL, 
                                              nullptr, 
                                              "verilog/verilator/tb_readback.sv", 
-                                             1043);
+                                             1054);
         vlSelfRef.tb_readback__DOT__sys_clk = (1U & 
                                                (~ (IData)(vlSelfRef.tb_readback__DOT__sys_clk)));
     }
@@ -4118,16 +4118,6 @@ void Vtb_readback___024root___nba_sequent__TOP__0(Vtb_readback___024root* vlSelf
     if (vlSelfRef.tb_readback__DOT__m__DOT__MemError) {
         vlSelfRef.tb_readback__DOT__n_merr = ((IData)(1U) 
                                               + vlSelfRef.tb_readback__DOT__n_merr);
-    }
-    if (((~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemD__DOT__WriteD0_p_a)) 
-         & (IData)(vlSelfRef.tb_readback__DOT__we_d_rb))) {
-        vlSelfRef.tb_readback__DOT__n_we_fall = ((IData)(1U) 
-                                                 + vlSelfRef.tb_readback__DOT__n_we_fall);
-        if (((IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemD__DOT__D0in_00) 
-             == (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemD__DOT__SinD_00))) {
-            vlSelfRef.tb_readback__DOT__n_we_match 
-                = ((IData)(1U) + vlSelfRef.tb_readback__DOT__n_we_match);
-        }
     }
     if ((1U & (~ (IData)(vlSelfRef.tb_readback__DOT__m__DOT__b_MemD__DOT__D0ACE_p_a)))) {
         vlSelfRef.tb_readback__DOT__n_cce = ((IData)(1U) 

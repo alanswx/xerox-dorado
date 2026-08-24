@@ -1786,12 +1786,27 @@ that number means a gate stopped biting.
   `D0in.00` agrees with `SinD.00` on 25 of those (16 with the seed). The data
   path into the array is live and carrying the fetched word.
 
-What reads back is still zero, which points at the **address** rather than the
-data: either the fill writes a different row than the read, or it lands outside
-the row the reference is looking at. Next measurement: compare the F10470
-address pins at the `WE'` fall against the address at the read — count the
-coincidence, and **qualify the match on `SinD` being high**, since
-`D0in == SinD` is also satisfied when both are zero.
+What reads back is still zero — and the address turns out **not** to be
+broadly wrong. a03's twelve address pins read the SAME at the write and at the
+read (`110000000000` both), so the fill is not landing in an unrelated row.
+
+**What is wrong is narrower.** Of 28 `WE'` falls, the ones that actually carry
+a **one** — the only kind distinguishable from an empty array afterwards:
+
+| | writes carrying a 1 | at address |
+|---|---|---|
+| cache seeded | 0 of 28 | — |
+| cache empty | **2** of 28 | `110000000001` |
+
+one word **above** the address being read. For a cache LINE fill that is the
+word-within-line, so the likely story is that the fill deposits a different
+word of the line than the reference wants, or the reference reads a word the
+fill has not reached. **Two samples is thin evidence** — get more before
+building on it.
+
+Note the qualification that made this visible: `D0in == SinD` is also satisfied
+when *both are zero*, so the 25-of-28 that looked encouraging was mostly zero
+matching zero. **Qualify a data match on the data being non-trivial.**
 
 **A trap that cost three wrong comparisons here:** the bench binary must be run
 from the **repo root**, the way the Makefile runs it (`cd ../..`). Run from
