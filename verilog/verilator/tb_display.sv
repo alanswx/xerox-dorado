@@ -1274,6 +1274,7 @@ module tb_display;
   integer n_we_fall, n_we_match, n_sind1, n_we_ones, n_we1, n_we1_ones, n_ce0, n_ce1;
   integer n_dyclk, n_twr11, n_wdht, n_tot; reg dyclk_d;
   reg dwt_asserted, dwt_full;
+  integer tio, sel_count, sel_which;
   reg we_d_rb, we1_d;
   reg [11:0] dad_now, dad_at_write, dad_at_read, dad_ones;
   reg [17:0] dmd_cap, md_cap;
@@ -3403,6 +3404,37 @@ module tb_display;
     if (dwt_asserted === dwt_full)
       $fatal(1, "DWTWantsProc does not follow the FIFO (both %b) -- the traced condition is wrong",
              dwt_asserted);
+
+    // ---------------------------------------------------------------------
+    // THE BOARD'S SLOW-I/O ADDRESS. A WCB is set up by writing DispY's
+    // registers, and the board answers only when TIOA matches its strap.
+    // e02/e03 (MC10113 XORs) compare DDCTIOA.00-04 against TIOADly.00-04 and
+    // wire-OR the result into TIOASaysDDC' -- low when they match.
+    //
+    // The strap says 37B (strap-test: DispY g42, no legs cut, DDCTIOA = 37B ->
+    // 0370-0377), and the C emulator's display.c claims the same four
+    // addresses. So exactly ONE of the 32 five-bit values must select the
+    // board, and it must be 31.
+    sel_count = 0; sel_which = -1;
+    for (tio = 0; tio < 32; tio = tio + 1) begin
+      force m.b_DispY.TIOADly_00 = tio[4];
+      force m.b_DispY.TIOADly_01 = tio[3];
+      force m.b_DispY.TIOADly_02 = tio[2];
+      force m.b_DispY.TIOADly_03 = tio[1];
+      force m.b_DispY.TIOADly_04 = tio[0];
+      force m.b_DispY.IgnoreCommands = 1'b0;
+      repeat (WT(40)) @(posedge sys_clk);
+      if (!m.b_DispY.TIOASaysDDC_p_) begin sel_count = sel_count + 1; sel_which = tio; end
+    end
+    release m.b_DispY.TIOADly_00; release m.b_DispY.TIOADly_01;
+    release m.b_DispY.TIOADly_02; release m.b_DispY.TIOADly_03;
+    release m.b_DispY.TIOADly_04; release m.b_DispY.IgnoreCommands;
+    $display("tb_display: SLOW I/O -- of 32 TIOA values, %0d select the board; the one that does is %0d (want 31 = 37B)",
+             sel_count, sel_which);
+    if (sel_count != 1)
+      $fatal(1, "%0d TIOA values select DispY, not exactly one", sel_count);
+    if (sel_which != 31)
+      $fatal(1, "DispY answers at TIOA %0d, not 31 -- the DDCTIOA strap says 37B", sel_which);
 
     $display("tb_display: PASS -- A WORD COMES OUT OF PARC'S STORAGE ARRAY:");
     $display("tb_display:   real microcode runs, the memory section sequences a DRAM cycle,");

@@ -1926,3 +1926,19 @@ channel.
 
 `KillDWTWakeup` is forced inactive for the measurement too, so the D flip-flop
 is not being cleared while the question is asked.
+
+### DispY's slow-I/O address decodes, and only at 37B (2026-08-24)
+
+A WCB is set up by writing the board's registers, and the board answers only
+when TIOA matches its strap. e02/e03 (MC10113 XORs) compare `DDCTIOA.00-04`
+against `TIOADly.00-04` and wire-OR the result into **`TIOASaysDDC'`**, low
+when they match.
+
+Sweeping all 32 five-bit values: **exactly one selects the board, and it is
+31 = 37B.** That is the same `muffler-test` shape, and it agrees with two
+independent statements of the range — the board's own strap (`strap-test`:
+DispY g42, no legs cut, `DDCTIOA = 37B` → 0370-0377) and the C emulator's
+`display.c`, which claims those four addresses.
+
+So the write path into DispY is open and addressable. What remains for a real
+WCB is microcode to drive `TIOA←` and `IOB←` at those addresses.
