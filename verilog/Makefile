@@ -189,6 +189,9 @@ readback-test:
 display-test:
 	@$(MAKE) -C verilator display-test
 
+disk-test:
+	@$(MAKE) -C verilator disk-test
+
 # A WORD INTO THE STORAGE ARRAY: the msa board standalone, where the bench owns
 # the DRAM strobes, so a write can be driven without a memory reference.
 msa-test:
@@ -242,6 +245,9 @@ backplane: generated-boards
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_display.v \
 		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,DispY \
 		--module=dorado_display >/dev/null
+	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_disk.v \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,DskEth \
+		--module=dorado_disk >/dev/null
 
 cells:
 	@python3 $(TOOLS)/sil_emit_cells.py --sil $(SIL) \
