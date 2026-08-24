@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ContA ContB ProcH ProcL MemC MemD MemX msa DispY
-// 480 internal nets (48 with several contributors), 223 top-level ports.
+// 481 internal nets (48 with several contributors), 221 top-level ports.
 
 `default_nettype none
 
@@ -221,7 +221,6 @@ module dorado_display #(parameter integer SYSPER = 16) (
     input  wire SubTask_1                 ,  // awaits IOTest
     input  wire TWReq_01                  ,  // to a backplane connector (cable)
     input  wire TWReq_02                  ,  // to a backplane connector (cable)
-    input  wire TWReq_03                  ,  // to a backplane connector (cable)
     input  wire TWReq_04                  ,  // to a backplane connector (cable)
     input  wire TWReq_05                  ,  // to a backplane connector (cable)
     input  wire TWReq_06                  ,  // to a backplane connector (cable)
@@ -237,14 +236,13 @@ module dorado_display #(parameter integer SYSPER = 16) (
     output wire TestTW                    ,  // to a backplane connector (cable)
     output wire VBlank                    ,  // awaits DispM
     output wire VSync                     ,  // awaits DispM
-    output wire WakeDHT                   ,  // to a backplane connector (cable)
     input  wire WantIfuHold_p_            ,  // awaits IFU
     input  wire WantIfuRef_p_             ,  // awaits IFU
     input  wire XHsync                    ,  // to a backplane connector (cable)
     output wire XSyncEn_p_                   // to a backplane connector (cable)
 );
 
-  // 480 nets between boards, plus one contribution wire
+  // 481 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -617,6 +615,7 @@ module dorado_display #(parameter integer SYSPER = 16) (
   wire TNIA_13;
   wire TNIA_14;
   wire TNIA_15;
+  wire TWReq_03;
   wire TWReq_11;
   wire TWReq_15;
   wire TagInEc1;
@@ -1304,6 +1303,7 @@ module dorado_display #(parameter integer SYSPER = 16) (
   wire TNIA_13__ContA;
   wire TNIA_14__ContA;
   wire TNIA_15__ContA;
+  wire TWReq_03__DispY;
   wire TWReq_11__DispY;
   wire TWReq_15__MemX;
   wire TagInEc1__MemC;
@@ -1317,7 +1317,6 @@ module dorado_display #(parameter integer SYSPER = 16) (
   wire VicInPair_p___MemC;
   wire VicOrFS1C__MemC;
   wire WPinEc1__MemX;
-  wire WakeDHT__DispY;
   wire XSyncEn_p___DispY;
   wire XWantsPipe__MemX;
   wire _u_Config__MemC;
@@ -1900,6 +1899,7 @@ module dorado_display #(parameter integer SYSPER = 16) (
   assign TNIA_13 = TNIA_13__ContA;
   assign TNIA_14 = TNIA_14__ContA;
   assign TNIA_15 = TNIA_15__ContA;
+  assign TWReq_03 = TWReq_03__DispY;
   assign TWReq_11 = TWReq_11__DispY;
   assign TWReq_15 = TWReq_15__MemX;
   assign TagInEc1 = TagInEc1__MemC;
@@ -1913,7 +1913,6 @@ module dorado_display #(parameter integer SYSPER = 16) (
   assign VicInPair_p_ = VicInPair_p___MemC;
   assign VicOrFS1C = VicOrFS1C__MemC;
   assign WPinEc1 = WPinEc1__MemX;
-  assign WakeDHT = WakeDHT__DispY;
   assign XSyncEn_p_ = XSyncEn_p___DispY;
   assign XWantsPipe = XWantsPipe__MemX;
   assign _u_Config = _u_Config__MemC;
@@ -3725,10 +3724,10 @@ module dorado_display #(parameter integer SYSPER = 16) (
     .TIOA_5(TIOA_5),
     .TIOA_6(TIOA_6),
     .TIOA_7(TIOA_7),
+    .TWReq_03(TWReq_03),
     .TermIsLF(TermIsLF),
     .VBlank(VBlank),
     .VSync(VSync),
-    .WakeDHT(WakeDHT),
     .XHsync(XHsync),
     .XSyncEn_p_(XSyncEn_p_),
     .n_24Bit__drv(n_24Bit__DispY),
@@ -3784,10 +3783,10 @@ module dorado_display #(parameter integer SYSPER = 16) (
     .OISData_3__drv(OISData_3__DispY),
     .OISData_3_p___drv(OISData_3_p___DispY),
     .SubTask_0__drv(SubTask_0__DispY),
+    .TWReq_03__drv(TWReq_03__DispY),
     .TWReq_11__drv(TWReq_11__DispY),
     .VBlank__drv(VBlank__DispY),
     .VSync__drv(VSync__DispY),
-    .WakeDHT__drv(WakeDHT__DispY),
     .XSyncEn_p___drv(XSyncEn_p___DispY)
   );
 
@@ -3811,7 +3810,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 112 signals, 32 at a time;
+// probe_val exposes 111 signals, 32 at a time;
 // dorado_display.probes lists which bit is which.
 module dorado_display_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
@@ -3930,13 +3929,11 @@ module dorado_display_machine #(parameter integer SYSPER = 16) (
   wire TestTW;
   wire VBlank;
   wire VSync;
-  wire WakeDHT;
   wire XSyncEn_p_;
 
   wire [127:0] probe = {
-    16'd0,
+    17'd0,
     XSyncEn_p_,
-    WakeDHT,
     VSync,
     VBlank,
     TestTW,
@@ -4253,7 +4250,6 @@ module dorado_display_machine #(parameter integer SYSPER = 16) (
     .SubTask_1(1'b0),
     .TWReq_01(1'b0),
     .TWReq_02(1'b0),
-    .TWReq_03(1'b0),
     .TWReq_04(1'b0),
     .TWReq_05(1'b0),
     .TWReq_06(1'b0),
@@ -4269,7 +4265,6 @@ module dorado_display_machine #(parameter integer SYSPER = 16) (
     .TestTW(TestTW),
     .VBlank(VBlank),
     .VSync(VSync),
-    .WakeDHT(WakeDHT),
     .WantIfuHold_p_(1'b0),
     .WantIfuRef_p_(1'b0),
     .XHsync(1'b0),

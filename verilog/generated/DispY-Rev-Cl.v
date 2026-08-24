@@ -110,10 +110,10 @@ module DispY_m_Rev_m_Cl #(parameter integer SYSPER = 16) (
     input  wire TIOA_5,
     input  wire TIOA_6,
     input  wire TIOA_7,
+    input  wire TWReq_03,
     input  wire TermIsLF,
     input  wire VBlank,
     input  wire VSync,
-    input  wire WakeDHT,
     input  wire XHsync,
     input  wire XSyncEn_p_,
     output wire n_24Bit__drv,
@@ -169,10 +169,10 @@ module DispY_m_Rev_m_Cl #(parameter integer SYSPER = 16) (
     output wire OISData_3__drv,
     output wire OISData_3_p___drv,
     output wire SubTask_0__drv,
+    output wire TWReq_03__drv,
     output wire TWReq_11__drv,
     output wire VBlank__drv,
     output wire VSync__drv,
-    output wire WakeDHT__drv,
     output wire XSyncEn_p___drv
 );
 
@@ -2617,7 +2617,7 @@ module DispY_m_Rev_m_Cl #(parameter integer SYSPER = 16) (
   ); // F10016
   cell_MC10135 u_f01 (
     .sys_clk(sys_clk),
-    .p2(WakeDHT__drv),
+    .p2(TWReq_03__drv),
     .p4(DHTShutUp),
     .p6(NLCBCommand_p_),
     .p7(DispY13_sil_pl_1),
@@ -3033,7 +3033,7 @@ module DispY_m_Rev_m_Cl #(parameter integer SYSPER = 16) (
     .p9(PixelClk_s_2_p_Ba),
     .p10(kHWindow_p_),
     .p11(True),
-    .p13(WakeDHT),
+    .p13(TWReq_03),
     .p14(DHTWantsProc_p_)
   ); // MC10135
   cell_F10016 u_g09 (
