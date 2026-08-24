@@ -1673,3 +1673,29 @@ The file is located, the reader is written, and that is all that is missing.
 (`set_cpreg_plain` was added to `tb_taskrun` on the way -- B and T carry
 opposite senses of CPReg, so T must be loaded through the plain form, not the
 tilde one.)
+
+### ...and MemBase's, which is addressed by `LastNext'` (2026-08-24)
+
+The processor's per-task files are now fully mapped, and the two halves use
+DIFFERENT task addresses:
+
+| state | files | addressed by | bypass |
+|---|---|---|---|
+| **T** | ProcH l03/l04, ProcL l03/l04 (16 bits) | `CurrLast'` | `TbBypass` |
+| **MemBase** | ProcH j16 (4 bits), j17 (1 bit) | `LastNext'` | `MBBypass` |
+
+That split is not an oddity -- the Dorado pipelines the task switch and the
+stages do not agree on which task is current, which is exactly why ProcH
+carries two task addresses at all. **Both are already gated for ADDRESSING**
+by `taskrun-test`'s existing check that every per-task file is indexed by the
+running task (TPCAd, TLinkAd, CurrLast, LastNext).
+
+Traced: h16 (an MC10158 2:1) selects j16's outputs against `ProcH25.sil+2..5`
+under `MBBypass`, h17 does the same for j17's against `+1`, and both feed
+g23's D inputs -- g23 being the MC10231 that drives `MemBase.0`/`MemBase.1`.
+
+`membase_of(task)` reads it now. Like `t_of`, it is **reported and not
+asserted**: MemBase reads `1f` in both slots (the uninitialised default) and T
+reads `0000`, so an "unchanged" assertion on either would be vacuous. What
+both need is microcode that WRITES them -- see the T entry above for why a jam
+cannot do it (`ClrCT`).
