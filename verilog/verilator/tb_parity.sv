@@ -131,16 +131,31 @@
 // benches already use.) THIRTEEN BENCHES ALREADY WRITE `manifold(12'h1E0)`,
 // including every one of the five. So the hold is being requested.
 //
-// AND YET `StopMIRClkEn` READS 0. tb_memrun writes 12'h1E0 in its startup and
-// still reports `StopMIRClkEn=0 StopMIRClk=0`. THAT is the live question: the
-// manifold write is issued, its value is right, and the enable does not come
-// on. Chase the manifold WRITE PATH -- SetMufflerAddress shifting the address
-// into the chain, then DoClock(UseDMD) and DoClock(0) -- and find where it
-// stops. `muffler-test` already gates the BaseBoard end of that chain.
+// AND `StopMIRClkEn` READING 0 IS NOT AN ANOMALY EITHER. tb_exec's startup --
+// which tb_memrun and the others reuse -- writes 12'h1E0 to turn the hold ON
+// for the IM load, and then LATER writes 12'h1C0 and 12'h000 to turn it off
+// again along with the parity enables, before free-running:
 //
-// (An earlier version of this note claimed the benches never write
-// SetMidasStopMIRClk. That was read off the `StopMIRClkEn=0` line alone,
-// without checking whether the write was issued. It is issued.)
+//     manifold(12'h030);  manifold(12'h1E0);   // hold ON, to load
+//     ...
+//     manifold(12'h1C0);  manifold(12'h000);   // hold OFF, IM parity OFF
+//
+// So the 0 is the bench doing what it meant to. tb_memrun's own header states
+// the structure too: `StopMIRClk` is `NOR(parity-error term, StopMIRClkEn')`,
+// and it notes that clearing the parity enables releases the MIR clock on its
+// own, making the explicit release belt-and-braces.
+//
+// THREE LEADS CHASED HERE AND ALL THREE WERE ALREADY ANSWERED IN THE BENCHES.
+// The DoControl tail, the missing manifold write, and this. Each was read off
+// one measurement without checking the surrounding startup. THE NEXT PERSON
+// SHOULD START BY READING tb_exec's AND tb_memrun's STARTUP IN FULL rather
+// than continuing this chain -- what holds a jam, and when each bench turns
+// that hold on and off, is written down there.
+//
+// What is genuinely known: the polarity is settled (three independent ways,
+// above), and correcting it breaks five benches whose jams currently survive
+// only because PARC's IRTable entries FAIL our parity check. Nothing about
+// WHY those five need re-deriving has been established beyond that.
 //
 // WHAT REMAINS is not the polarity but the five benches that break when it is
 // corrected -- datapath-test, operand-test, step-test, sendmir, compute-test.
