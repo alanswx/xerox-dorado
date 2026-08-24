@@ -2668,7 +2668,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__6(Vtb_display
                                                                  nullptr, 
                                                                  "@(posedge tb_display.sys_clk)", 
                                                                  "verilog/verilator/tb_display.sv", 
-                                                                 3495);
+                                                                 3508);
             tb_display__DOT__unnamedblk1_33__DOT____Vrepeat32 
                 = (tb_display__DOT__unnamedblk1_33__DOT____Vrepeat32 
                    - (IData)(1U));
@@ -2711,19 +2711,19 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__6(Vtb_display
     VL_WRITEF_NX("tb_display: SLOW I/O -- of 32 TIOA values, %0d select the board; the one that does is %0d (want 31 = 37B)\n",0,
                  32,tb_display__DOT__sel_count,32,tb_display__DOT__sel_which);
     if (VL_UNLIKELY(((1U != tb_display__DOT__sel_count)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3504: Assertion failed in %Ntb_display: %0d TIOA values select DispY, not exactly one\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3517: Assertion failed in %Ntb_display: %0d TIOA values select DispY, not exactly one\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_display__DOT__sel_count);
-        VL_STOP_MT("verilog/verilator/tb_display.sv", 3504, "", false);
+        VL_STOP_MT("verilog/verilator/tb_display.sv", 3517, "", false);
     }
     if (VL_UNLIKELY(((0x0000001fU != tb_display__DOT__sel_which)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3506: Assertion failed in %Ntb_display: DispY answers at TIOA %0d, not 31 -- the DDCTIOA strap says 37B\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3519: Assertion failed in %Ntb_display: DispY answers at TIOA %0d, not 31 -- the DDCTIOA strap says 37B\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      32,tb_display__DOT__sel_which);
-        VL_STOP_MT("verilog/verilator/tb_display.sv", 3506, "", false);
+        VL_STOP_MT("verilog/verilator/tb_display.sv", 3519, "", false);
     }
     VL_WRITEF_NX("tb_display: PASS -- A WORD COMES OUT OF PARC'S STORAGE ARRAY:\ntb_display:   real microcode runs, the memory section sequences a DRAM cycle,\ntb_display:   the MK4096s are parallel-loaded into the SN74166s in the part's\ntb_display:   own stage order, and the data reaches Sin on the backplane.\ntb_display:   AND THE RETURN PATH CARRIES A WORD TO THE PROCESSOR: a seeded\ntb_display:   cache word arrives intact on dMD and on Md, which is what\ntb_display:   microcode reads and what cpu.c models.\n",0);
-    VL_FINISH_MT("verilog/verilator/tb_display.sv", 3515, "");
+    VL_FINISH_MT("verilog/verilator/tb_display.sv", 3528, "");
     co_return;}
 
 VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__1(Vtb_display___024root* vlSelf) {
