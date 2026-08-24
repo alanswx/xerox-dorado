@@ -1583,33 +1583,34 @@ exactly as `msa-test` turned out to be for the SN74166 stage order. Re-derive
 them one at a time against the corrected cell. Do not weaken them, and do not
 revert the cell to make them green.
 
-### RETRACTED and sharpened: the benches DO write SetMidasStopMIRClk
+### Three leads chased, all three already answered in the benches (2026-08-24)
 
-The entry that stood here said the benches never enable the MIR hold. **They
-all do**, and that conclusion was read off a single `StopMIRClkEn=0` line
-without checking whether the write was issued.
+Recorded as a warning, not a result. Trying to fix the five benches that break
+under the corrected `cell_MC10170`, I chased three causes and every one was
+already documented in the bench sources I was editing:
 
-What is ruled out, so nobody repeats it:
+1. **The `DoControl` tail.** `DoDoradoMicroInst` ends with THREE DoControls
+   (the first two byte-identical). Adding them, spaced and unspaced, changes
+   nothing and one variant free-runs `step-test`. Reverted.
+2. **A missing `SetMidasStopMIRClk`.** All thirteen benches already write
+   `manifold(12'h1E0)`. (The value does derive correctly from
+   `doradomufman.masm`: `MidasStopMIRClk = 7^6 = 0x1C0`, `+0x20`; and the
+   derivation self-checks against `DisableDoradoErrors = 0x030`.)
+3. **`StopMIRClkEn` reading 0.** Deliberate. `tb_exec`'s startup -- reused by
+   the others -- turns the hold ON to load IM and then OFF again before
+   free-running: `manifold(12'h1E0)` … `manifold(12'h1C0); manifold(12'h000)`.
+   `tb_memrun`'s header also already states `StopMIRClk =
+   NOR(parity-error term, StopMIRClkEn')`.
 
-**(1) The DoControl tail.** `DoDoradoMicroInst` ends with THREE DoControls
-(the first two byte-identical, which is why they read as one). Adding the
-second, the third, and both -- spaced and unspaced -- leaves all five benches
-failing with their **original** messages, and one variant turns `step-test`
-into a free run. All reverted.
+Each was read off a single measurement without checking the surrounding
+startup. **Read `tb_exec`'s and `tb_memrun`'s startup in full before
+continuing this** — what holds a jam, and when each bench turns that hold on
+and off, is written down there.
 
-**(2) The MIR hold.** `doradomufman.masm`'s value can be derived: with
-`.RDX 16` and `^` as shift-left, `MidasStopMIRClk = 7^6 = 0x1C0`, so
-`SetMidasStopMIRClk = 0x1E0`. The derivation checks itself --
-`DisableDoradoErrors = ParityEnables + 0x30 = 0x030`, the value the benches
-already use. **Thirteen benches already write `manifold(12'h1E0)`**, including
-all five.
-
-**And yet `StopMIRClkEn` reads 0.** `tb_memrun` writes `12'h1E0` in its
-startup and still reports `StopMIRClkEn=0 StopMIRClk=0`. That is the live
-question: the write is issued, its value is right, and the enable does not
-come on. Chase the manifold WRITE PATH -- `SetMufflerAddress` shifting the
-address into the chain, then `DoClock(UseDMD)` and `DoClock(0)` -- and find
-where it stops. `muffler-test` already gates the BaseBoard end of that chain.
+What is genuinely known: the polarity is settled three independent ways, and
+correcting it breaks five benches whose jams currently survive only because
+PARC's IRTable entries FAIL our parity check. Nothing about why those five
+need re-deriving has been established beyond that.
 
 ### PARC's second DoControl is NOT the fix (2026-08-23, negative result)
 
