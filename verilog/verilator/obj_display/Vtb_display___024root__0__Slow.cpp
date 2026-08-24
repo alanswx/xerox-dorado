@@ -435,6 +435,10 @@ VL_ATTR_COLD void Vtb_display___024root___eval_initial__TOP(Vtb_display___024roo
     vlSelfRef.tb_display__DOT__n_q_held = 0U;
     vlSelfRef.tb_display__DOT__n_q_chg = 0U;
     vlSelfRef.tb_display__DOT__n_out_q = 0U;
+    vlSelfRef.tb_display__DOT__n_acur = 0U;
+    vlSelfRef.tb_display__DOT__n_anext = 0U;
+    vlSelfRef.tb_display__DOT__n_afifo = 0U;
+    vlSelfRef.tb_display__DOT__n_dwt = 0U;
     vlSelfRef.tb_display__DOT__q_last = 0U;
     vlSelfRef.tb_display__DOT__dyclk_d = 0U;
     vlSelfRef.tb_display__DOT__iob_at_sel = 0U;
@@ -522,7 +526,7 @@ VL_ATTR_COLD void Vtb_display___024root___eval_settle(Vtb_display___024root* vlS
 #ifdef VL_DEBUG
             Vtb_display___024root___dump_triggers__stl(vlSelfRef.__VstlTriggered, "stl"s);
 #endif
-            VL_FATAL_MT("verilog/verilator/tb_display.sv", 1127, "", "Settle region did not converge after 100 tries");
+            VL_FATAL_MT("verilog/verilator/tb_display.sv", 1151, "", "Settle region did not converge after 100 tries");
         }
         __VstlIterCount = ((IData)(1U) + __VstlIterCount);
     } while (Vtb_display___024root___eval_phase__stl(vlSelf));

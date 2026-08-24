@@ -393,6 +393,10 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->tb_display__DOT__n_q_held = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 819285282838424912ull);
     vlSelf->tb_display__DOT__n_q_chg = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 17653422055725867880ull);
     vlSelf->tb_display__DOT__n_out_q = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 13743484854045069392ull);
+    vlSelf->tb_display__DOT__n_acur = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 18361580434526550898ull);
+    vlSelf->tb_display__DOT__n_anext = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14496779285682372286ull);
+    vlSelf->tb_display__DOT__n_afifo = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 1933096227588880237ull);
+    vlSelf->tb_display__DOT__n_dwt = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 5596349111529548831ull);
     vlSelf->tb_display__DOT__q_now = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 9603094316187205431ull);
     vlSelf->tb_display__DOT__q_last = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 4524751225052239261ull);
     vlSelf->tb_display__DOT__alub_at_out = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 7170325141403375789ull);
