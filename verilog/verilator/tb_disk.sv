@@ -25,11 +25,30 @@
 // executes -- IOBout strobes 960 times with alub = 5a5a, the same as on the
 // display machine.
 //
-// NOT WORKING, and the first thing to chase: `TIOA <- B` leaves TIOA at
-// 00000000 here, where the identical sequence on `dorado_display` gives
-// 11111000. So the address write itself does not reproduce on this machine,
-// and everything downstream (the board select, the compare against TIOA-Ad)
-// is moot until it does. Do NOT start from the DskEth end.
+// NOT WORKING, AND NARROWED TO THE BOARD. `TIOA <- B` leaves TIOA at
+// 00000000 here, where the IDENTICAL sequence on `dorado_display` gives
+// 11111000. Measured side by side, same jam, same operand:
+//
+//                       T at the write      TIOA after
+//     dorado_display        f800             11111000
+//     dorado_disk           f800             00000000
+//
+// SO IT IS NOT THE BENCH AND NOT THE PROCESSOR -- T is identical, the jam is
+// identical, and only the I/O board differs. The board's PRESENCE is changing
+// the TIOA net, and everything downstream (the select, the TIOA-Ad compare)
+// is moot until that is understood.
+//
+// Where to look: TIOA crosses the backplane as a wired-OR, and DskEth carries
+// SIP pull networks -- the same class of thing that once made six active-low
+// drive-status lines read ASSERTED and fabricated a disk that was not
+// attached (sip_drives in sil_to_verilog.py). Check what DskEth contributes
+// to TIOA.0-4's driver tree, and whether it is input-only on those nets as
+// DispY effectively is. Do NOT start from the DskEth register end.
+//
+// SECOND, SMALLER BUG, not to be confused with the first: this bench's
+// post-run section still loads 0xF800, so its "want 00001000" message
+// compares against the wrong expectation -- it should want 370B there. The
+// 00000000 is the real anomaly.
 //
 // The derivation from tb_display neutralised a number of DispY-only signals to
 // constants (IgnoreCommands among them -- it reads 140559 of 140559 precisely
