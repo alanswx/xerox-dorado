@@ -62,58 +62,52 @@
 // MEMORY REFERENCE AT ALL, so F's clock barely ticks and never while data is
 // present.
 //
-// AND IT IS MemC'S CLOCK, RUNNING 379x TOO FAST WITH THE IFU PRESENT.
+// AND IT IS `UseAsrn`, GATED BY THE IFU'S OWN `IfuAckIfHit'`.
 //
-// Chased from the symptom: PipeAd <- k02 (MemC, an MC10141 whose two select
-// pins are open, so every clk0'A edge is a PARALLEL LOAD) <- dPipe02Ad <-
-// MemX h23 (a quad 2:1 selecting Asrn or PEsrn under UseAsrn). Measured on
-// the SAME microcode in both machines:
+// RETRACTED FIRST: there is NO clock difference. An earlier version of this
+// header said MemC's clk0'A ran "379x too fast" with the IFU present. That
+// was a MEASUREMENT ARTEFACT, twice over -- see the methodology note below.
+// With both benches counting free-running over the same 272,747 sys_clk,
+// every hop of the clock chain is IDENTICAL in the two machines:
 //
-//                              tb_memrun    tb_ifufetch
-//     UseAsrn high                 32            41
-//     Asrn changed                  6             9   <- source is MORE active
-//     dPipe02Ad changed             4             2
-//     k02's clk0'A EDGES           45        17,045   <- 379x
-//     Pipe pointer moved           11             0
+//     CLK.mc' edges     34093 = 34093      MemClkEnable'a high  41 = 41
+//     CLKEnable'b high 262953 = 262953     ppclk2'a edges    34089 = 34089
+//     preSH'x edges     17045 = 17045      preClk0'B edges   17045 = 17045
+//     k02's clk0'A      17045 = 17045
 //
-// So the pointer is not STALLED, it is PINNED: clk0'A reloads it on every one
-// of 17,045 edges from a dPipe02Ad that reads 0000 nearly all the time, so it
-// can never be caught holding an SRN. The source moves MORE here, not less --
-// which is why "no references are being made" was the wrong reading, and this
-// header said so for a while.
+// WHAT ACTUALLY DIFFERS IS THE MUX SELECT:
 //
-// THE QUESTION IS THEREFORE WHY MemC'S clk0'A FREE-RUNS WHEN THE IFU IS IN
-// THE MACHINE -- and the 379x IS REAL, but only once both benches measure it
-// the same way. See the methodology note below; the first version of this
-// comparison was invalid.
+//                          tb_memrun         tb_ifufetch
+//     UseAsrn high      270,089 (99%)        41 (0.015%)
+//     Asrn changed            8                 9
+//     PEsrn changed           0 (0000)          0 (0000)
+//     dPipe02Ad changed      14                 2
+//     Pipe pointer moved     11                 0
 //
-// clk0'A IS NOT GATED BY HoldOrIP OR BrHi_'. MemC j08 is an SE10210 whose two
-// gates were read as one, which produced a wrong equation. The pins say:
+// MemX h23 selects Asrn or PEsrn on UseAsrn. With the IFU in the machine the
+// mux sits on PEsrn, which never leaves 0000, so the pointer is PINNED -- not
+// stalled, and nothing about the clock or the reference machinery is wrong.
 //
-//   gate a: IN 5,6,7 -> OUT 2,3   only pin 7 = preClk0'B is connected
-//                                 => clk0'A = clk0'B = preClk0'B, a BUFFER
-//   gate b: IN 9,10,11 = HoldOrIP, BrHi_', clk0'B -> OUT 12,13
-//                                 => WrBrHi'b / WrBrHi'a, the BR-write
-//                                    strobes, nothing to do with the clock
+// AND UseAsrn IS DRIVEN BY MemC f24, AN MC10121 4-WIDE OR-AND WHOSE `e` INPUT
+// GROUP IS PINS 4,5,6 = IfuAckIfHit', (open), Hit'a. So an IFU SIGNAL gates
+// which source the Pipe pointer takes -- which is why the difference appears
+// exactly when the IFU board is added and nowhere else.
 //
-// Consistent with the measurement: HoldOrIP is high 96% and BrHi_' 100% in
-// BOTH machines, so they cannot be what differs.
+// THE NEXT QUESTION IS WHETHER THIS IS A BUG AT ALL. Without the IFU,
+// IfuAckIfHit' is undriven and reads 0 in the OR tree, so tb_memrun is the
+// ARTIFICIAL configuration and tb_ifufetch may simply be showing real
+// behaviour: the IFU's acknowledgement participating in the Pipe source
+// select. Read HM section 5 on the Pipe and the A/B slots before calling it
+// broken, and check whether IfuAckIfHit' should be asserted as steadily as it
+// is here.
 //
-// SO THE NEXT HOP IS UPSTREAM OF preClk0'B:
-//   preClk0'B <- h13 (SE10210) from ppclk2'a and preSH'x
-//   ppclk2'a  <- l01 (SE10210) from MemClkEnable'a, CLK.mc', CLKEnable'b
-//   preSH'x   <- l06 (MC10105) from PipeStore_', MapTroubleInEc1, DisBR, ...
-// MemClkEnable' is the gate mem-test already knows about. Measure those three
-// in both machines, normalised, and one of them will differ.
-//
-// METHODOLOGY, AND IT COST A WRONG COMMIT. The first "379x" measurement put
-// this bench's counters in a FREE-RUNNING always block and tb_memrun's inside
-// its window-gated sampling loop, so the two ran over 272,747 and 704 sys_clk
-// respectively and the raw counts were not comparable at all. Both are
-// free-running now and both report their denominator; over the SAME 272,747
-// samples the difference is 17,045 edges against 45, which is the real
-// finding. ANY CROSS-BENCH COMPARISON OF A RAW COUNT NEEDS ITS DENOMINATOR
-// PRINTED BESIDE IT.
+// METHODOLOGY, AND IT COST TWO WRONG COMMITS. The "379x" came from counters
+// placed in DIFFERENT CONTEXTS -- free-running here, inside the window-gated
+// sampling loop in tb_memrun -- so they ran over 272,747 and 704 sys_clk and
+// the raw counts were never comparable. Worse, the first "correction" moved
+// only PART of the block and left n_k02 behind, so the retraction appeared to
+// confirm the artefact. ANY CROSS-BENCH COMPARISON OF A RAW COUNT NEEDS ITS
+// DENOMINATOR PRINTED BESIDE IT, and when you move a probe, move ALL of it.
 //
 // (The earlier framing, kept because the reasoning is still useful:)
 // THE CAUSE IS THE IFU BOARD ITSELF, NOT THE MICROCODE. That was
@@ -150,7 +144,8 @@
 
 
 module tb_ifufetch;
-  integer n_ua, n_asrn, n_pesrn, n_k02, n_dpipe, n_hoip, n_brhi, n_hold, n_tot;
+  integer n_ua, n_asrn, n_pesrn, n_k02, n_dpipe, n_hoip, n_brhi, n_hold, n_tot, n_pp, n_sh, n_pc, n_mc, n_mce, n_ceb;
+  reg pp_d, sh_d, pc_d, mc_d;
   reg k02clk_d; reg [3:0] dpipe_now, dpipe_last;
   reg [3:0] asrn_now, asrn_last, pesrn_now, pesrn_last;
 
@@ -294,7 +289,8 @@ module tb_ifufetch;
   reg [8:0] fg_seen, fg_last;
 
   reg [17:0] f_seen, g_seen;
-  initial begin n_ua=0; n_asrn=0; n_pesrn=0; n_k02=0; n_dpipe=0; n_hoip=0; n_brhi=0; n_hold=0; n_tot=0; k02clk_d=1'bx; dpipe_last=4'bx; asrn_last=4'bx; pesrn_last=4'bx; n_fg=0; n_fgnz=0; n_f=0; n_g=0; n_d=0; n_fclk=0; n_enfg=0; n_fclk_r=0; n_fclk_coin=0; n_wir=0; n_ro=0; n_ifra=0; n_wpr=0; n_both=0; fclk_d=1'bx; fg_last=9'bx; fg_seen=9'd0; f_seen=0; g_seen=0; end
+  initial begin n_ua=0; n_asrn=0; n_pesrn=0; n_k02=0; n_dpipe=0; n_hoip=0; n_brhi=0; n_hold=0; n_tot=0; n_pp=0; n_sh=0; n_pc=0; n_mc=0; n_mce=0; n_ceb=0;
+    pp_d=1'bx; sh_d=1'bx; pc_d=1'bx; mc_d=1'bx; k02clk_d=1'bx; dpipe_last=4'bx; asrn_last=4'bx; pesrn_last=4'bx; n_fg=0; n_fgnz=0; n_f=0; n_g=0; n_d=0; n_fclk=0; n_enfg=0; n_fclk_r=0; n_fclk_coin=0; n_wir=0; n_ro=0; n_ifra=0; n_wpr=0; n_both=0; fclk_d=1'bx; fg_last=9'bx; fg_seen=9'd0; f_seen=0; g_seen=0; end
   always @(posedge sys_clk) begin
     if (m.FG_0 !== fg_last[0]) begin n_fg = n_fg + 1; fg_last[0] = m.FG_0; end
     if (m.b_MemD.F_00) n_f = n_f + 1;
@@ -321,6 +317,17 @@ module tb_ifufetch;
     if (m.b_MemC.BrHi_u__p_) n_brhi = n_brhi + 1;
     if (m.b_MemC.Hold)     n_hold = n_hold + 1;
     n_tot = n_tot + 1;   // TOTAL sys_clk -- these counters are NOT window-gated
+    // THE CLOCK CHAIN, one hop at a time, EDGES not levels:
+    //   preClk0'B <- h13 from ppclk2'a and preSH'x
+    //   ppclk2'a  <- l01 from MemClkEnable'a, CLK.mc', CLKEnable'b
+    // Whichever of these already differs is where the IFU's effect enters.
+    if (m.b_MemC.ppclk2_p_a  !== pp_d)  begin n_pp  = n_pp  + 1; pp_d  = m.b_MemC.ppclk2_p_a;  end
+    if (m.b_MemC.preSH_p_x   !== sh_d)  begin n_sh  = n_sh  + 1; sh_d  = m.b_MemC.preSH_p_x;   end
+    if (m.b_MemC.preClk0_p_B !== pc_d)  begin n_pc  = n_pc  + 1; pc_d  = m.b_MemC.preClk0_p_B; end
+    if (m.b_MemC.CLK_mc_p_   !== mc_d)  begin n_mc  = n_mc  + 1; mc_d  = m.b_MemC.CLK_mc_p_;   end
+    if (m.b_MemC.MemClkEnable_p_a) n_mce = n_mce + 1;
+    if (m.b_MemC.CLKEnable_p_b)    n_ceb = n_ceb + 1;
+
     // ...and k02's OWN CLOCK. PipeAd is a parallel load on clk0'A (both
     // select pins open = load), so a dead clock holds the pointer whatever
     // its source does.
@@ -2027,6 +2034,8 @@ module tb_ifufetch;
              n_hoip, n_brhi, n_hold);
     $display("tb_ifufetch:   ...OF %0d TOTAL sys_clk -- so HoldOrIP %0d%%, BrHi_' %0d%%, and clk0'A edges per 1000 sys_clk = %0d",
              n_tot, (100*n_hoip)/n_tot, (100*n_brhi)/n_tot, (1000*n_k02)/n_tot);
+    $display("tb_ifufetch:   ...CLOCK CHAIN over %0d sys_clk -- CLK.mc' edges %0d | MemClkEnable'a high %0d | CLKEnable'b high %0d | ppclk2'a edges %0d | preSH'x edges %0d | preClk0'B edges %0d",
+             n_tot, n_mc, n_mce, n_ceb, n_pp, n_sh, n_pc);
     $display("tb_ifufetch: holds -- PrHoldReq=%b CHoldReq=%b ExtHoldReq=%b PRhold=%b",
              m.PrHoldReq, m.CHoldReq, m.ExtHoldReq, m.PRhold);
     // WHICH of the three Hold flip-flops is asserting. `Hold` is a wired-OR of
