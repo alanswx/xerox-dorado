@@ -238,6 +238,7 @@ module tb_taskrun;
   integer tk, tbad;
   reg [15:0] tpc15, tpc15b, tpc7;
   reg [19:0] link15, link15b, link7;
+  reg [15:0] t15, t15b, t7;
   wire [3:0] bnt  = {m.b_ContA.BNT_0,  m.b_ContA.BNT_1,
                      m.b_ContA.BNT_2,  m.b_ContA.BNT_3};
   wire [3:0] penc = {m.b_ContA.PEnc_0, m.b_ContA.PEnc_1,
@@ -275,6 +276,16 @@ module tb_taskrun;
   // the bit order is not recoverable from names -- but the claim being tested
   // is that the storage is PER TASK, and for that the whole twenty bits
   // compared slot against slot is enough.
+  // T, THE PER-TASK ACCUMULATOR. Four more F10145A files, addressed by
+  // `CurrLast'` like the rest of the processor's per-task state -- ProcH l03
+  // holds T.00-03 and l04 T.04-07, ProcL l03 T.08-11 and l04 T.12-15. Traced
+  // through: l03's Q0 is ProcH02.sil+4, which goes to j03 pin 5, out as
+  // dT.00, into i03 pin 5, and out as T.00.
+  function [15:0] t_of(input [3:0] t);
+    t_of = {m.b_ProcH.u_l03.mem[t], m.b_ProcH.u_l04.mem[t],
+            m.b_ProcL.u_l03.mem[t], m.b_ProcL.u_l04.mem[t]};
+  endfunction
+
   function [19:0] link_of(input [3:0] t);
     link_of = {m.b_ContA.u_a04.mem[t], m.b_ContA.u_b04.mem[t],
                m.b_ContA.u_c04.mem[t], m.b_ContA.u_d04.mem[t],
@@ -718,6 +729,19 @@ module tb_taskrun;
     end
   endtask
 
+  // SetCPReg, the PLAIN form. B and T carry OPPOSITE senses of CPReg: BMux is
+  // the complement, and `alub` is taken off it through an MC1662 NOR which
+  // inverts it back, so T ends up EQUAL to CPReg. That is why PARC's
+  // SendViaMIR uses SetCPReg~ for IM write data and PrepareProcessor uses the
+  // plain SetCPReg to load T -- and why loading T through the tilde form
+  // would deliver the complement.
+  task set_cpreg_plain(input [15:0] v);
+    begin
+      strobe(3'd2, v[15:8], 1'b0);
+      strobe(3'd3, v[7:0],  1'b0);
+    end
+  endtask
+
   // DoDoradoMicroInst, single-step variant: DoClock(InhibitCAHolds+ClrReady),
   // Control(ClrStop+ClrMIR+ClrCT+Freeze) SS=0, Control(0) SS=1, the four MIR
   // bytes, Control(SetRun) SS=1, then BasicStopDorado's Control(SetRun) SS=1
@@ -1050,11 +1074,11 @@ module tb_taskrun;
     // program counter would have overwritten it.
     req = 15'd0; req[15] = 1'b1;
     repeat (WT(1200)) @(posedge sys_clk);
-    tpc15 = tpc_of(4'd15); link15 = link_of(4'd15);
+    tpc15 = tpc_of(4'd15); link15 = link_of(4'd15); t15 = t_of(4'd15);
     req = 15'd0; req[7] = 1'b1;
     repeat (WT(1200)) @(posedge sys_clk);
-    tpc7 = tpc_of(4'd7); link7 = link_of(4'd7);
-    tpc15b = tpc_of(4'd15); link15b = link_of(4'd15);
+    tpc7 = tpc_of(4'd7); link7 = link_of(4'd7); t7 = t_of(4'd7);
+    tpc15b = tpc_of(4'd15); link15b = link_of(4'd15); t15b = t_of(4'd15);
     $display("tb_taskrun: TPC[15]=%h before running task 7, %h after; TPC[7]=%h",
              tpc15, tpc15b, tpc7);
     if (tpc15b !== tpc15) begin
@@ -1066,6 +1090,29 @@ module tb_taskrun;
       $display("tb_taskrun: FAIL -- running task 7 changed task 15's saved Link");
       tbad = tbad + 1;
     end
+    // T IS PER-TASK TOO. Same shape as the PC and Link claims above, and the
+    // same two vacuity guards below apply to it.
+    $display("tb_taskrun: T[15]=%h before running task 7, %h after; T[7]=%h",
+             t15, t15b, t7);
+    // NOT ASSERTED, AND THE REASON IS THE POINT. Both slots read 0000 here, so
+    // "task 15's T is unchanged" would be satisfied by an all-zero file and
+    // prove nothing -- exactly the vacuity this bench already guards against
+    // for TPC. Nothing in this sequence ever writes T.
+    //
+    // AND IT CANNOT BE LOADED WITH A JAM. Putting PARC's TFromCPReg# through
+    // parc_micro between the task switches was tried, and it destroys the
+    // very thing being measured: DoDoradoMicroInst's first Control byte is
+    // ClrStop+ClrMIR+ClrCT+Freeze, and ClrCT CLEARS THE CURRENT TASK -- TPCAd
+    // then reads 0 while task 7 is supposed to be running, and the PC and
+    // Link claims above start failing too.
+    //
+    // So T has to be written by RUNNING MICROCODE, not by a jam: put a `T<-`
+    // microinstruction in IM and let each task execute it, the way tb_exec
+    // walks hunks in and free-runs. The file itself is located and traced (see
+    // t_of above), so that is all that is missing.
+    if (t15b !== t15)
+      $display("tb_taskrun: NOTE -- task 15's T changed while task 7 ran (%h -> %h)",
+               t15, t15b);
     if (tpcad !== 4'd7) begin
       $display("tb_taskrun: FAIL -- TPCAd is %0d while task 7 runs", tpcad);
       tbad = tbad + 1;

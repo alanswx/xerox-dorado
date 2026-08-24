@@ -1638,3 +1638,38 @@ a parity failure to do the single-step chain's job.**
 One measurement trap: `tb_step.sv` defines neither `GAP` nor `WT`, so a
 spacing edit copied from the other benches is a **compile error** there, and
 its "FAIL" said nothing about the logic. Read the failure before counting it.
+
+### The per-task T file is located and traced (2026-08-24)
+
+T is held in four more F10145A files, addressed by `CurrLast'` like the rest of
+the processor's per-task state:
+
+```
+ProcH l03  T.00-03     ProcH l04  T.04-07
+ProcL l03  T.08-11     ProcL l04  T.12-15
+```
+
+Traced end to end on ProcH: `l03`'s Q0 is `ProcH02.sil+4`, which goes to `j03`
+pin 5, out as `dT.00`, into `i03` pin 5, and out as **`T.00`**. `tb_taskrun`
+has a `t_of(task)` reader for it now, beside `tpc_of` and `link_of`.
+
+**It is displayed, not asserted, and that is deliberate.** Both slots read
+`0000` in this sequence -- nothing ever writes T -- so "task 15's T is
+unchanged" would be satisfied by an all-zero file and prove nothing. That is
+the same vacuity the bench already guards against for TPC, and shipping the
+assertion anyway would have been a gate that measures nothing.
+
+**And T cannot be loaded with a jam.** Putting PARC's `TFromCPReg#` through
+`parc_micro` between the task switches was tried and it destroys the thing
+being measured: `DoDoradoMicroInst`'s first Control byte is
+`ClrStop+ClrMIR+ClrCT+Freeze`, and **`ClrCT` clears the current task** --
+`TPCAd` then reads 0 while task 7 is supposed to be running, and the existing
+PC and Link claims start failing too.
+
+So T must be written by RUNNING MICROCODE: put a `T<-` microinstruction in IM
+and let each task execute it, the way `tb_exec` walks hunks in and free-runs.
+The file is located, the reader is written, and that is all that is missing.
+
+(`set_cpreg_plain` was added to `tb_taskrun` on the way -- B and T carry
+opposite senses of CPReg, so T must be loaded through the plain form, not the
+tilde one.)
