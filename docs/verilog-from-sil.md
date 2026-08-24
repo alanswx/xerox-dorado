@@ -2177,3 +2177,27 @@ MC10166 comparing `TIOA.0-4` against the strap with X>Y and X<Y wire-ORed, so
 that net is **low when they match**. And DskEth compares **TIOA directly** —
 it has no `TIOADly` of its own, unlike DispY, which is a difference worth
 confirming rather than inheriting.
+
+### ...and the disk anomaly is the BOARD, not the bench (2026-08-24)
+
+Measured side by side, same jam, same operand:
+
+| | T at the write | TIOA after |
+|---|---|---|
+| `dorado_display` | `f800` | **`11111000`** |
+| `dorado_disk` | `f800` | **`00000000`** |
+
+**So it is not the bench and not the processor.** T is identical, the jam is
+identical, and only the I/O board differs — the board's *presence* is changing
+the TIOA net.
+
+Where to look: TIOA crosses the backplane as a wired-OR, and DskEth is a board
+with SIP pull networks — the same class of thing that once made six active-low
+drive-status lines read ASSERTED and fabricated a disk that was not attached
+(`sip_drives`). Check what DskEth contributes to `TIOA.0-4`'s driver tree, and
+whether it is input-only on those nets as DispY effectively is.
+
+(Separately: `tb_disk`'s post-run section still loads `0xF800`, so its
+"want 00001000" message compares against the wrong expectation — it should
+want 370B there. The `00000000` is the real anomaly; the expectation string is
+a second, smaller bug.)
