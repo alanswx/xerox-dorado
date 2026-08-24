@@ -1834,3 +1834,32 @@ from the **repo root**, the way the Makefile runs it (`cd ../..`). Run from
 `verilog/verilator/` it cannot find `boot0.vec` or the PROM images, loads no
 microcode, makes no references, and every counter reads zero — which looks
 exactly like a behavioural difference and is not one. Second time today.
+
+### The monochrome display board is in a machine (2026-08-24)
+
+`make -C verilog display-test`. A new `dorado_display` config -- ContA, ContB,
+ProcH, ProcL, MemC, MemD, MemX, msa and **DispY** -- derived from
+`tb_readback`, so it brings the whole storage and memory section with it and
+runs real `AEmu.mb!2` microcode out of IM.
+
+**DispM is deliberately absent.** It plugs INTO DispY rather than replacing it
+(42 nets are shared by the two boards and no other), so a monochrome machine
+is both smaller and the right first target. Colour is not on the path.
+
+Measured over 85,735 sys_clk:
+
+| | |
+|---|---|
+| DispY local clock edges | **5,356** |
+| `WakeDHT` high | **85,734** — the board is asking for the bus |
+| `TWReq.11` high | **0** |
+
+The first two are gated. The third is a **known gap, not a fault**: `WakeDWT`
+→ `TWReq.11` is wired (`BACKPLANE_WAKEUP_JUMPERS`, from the board's own
+`DWTTask = 1011` strap), but the display HEAD task's line is one of the ones
+nothing yet says a slot number for — so `WakeDHT` asserts and reaches no
+`TWReq` at all, and the display task cannot be scheduled. Wiring it is the
+next step.
+
+`CLK.display'` is the fifth board on which leaving a slot clock undriven would
+have looked exactly like a gating bug.

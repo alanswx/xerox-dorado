@@ -991,6 +991,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **THE MEMORY SECTION RUNS DRAM CYCLES** (re-earned 2026-08-23) | `memrun-test` -- the earlier green was an artifact of a mis-shifted Map-Mem PROM; `preStartMem'` now PULSES |
 | **A WORD COMES OUT OF PARC'S STORAGE ARRAY** | `readback-test` -- eight boards, real microcode, the seeded word back through the SN74166s onto `Sin` |
 | **...AND THE RETURN PATH CARRIES A WORD TO THE PROCESSOR** | `readback-test` -- cache -> `dMD` -> `Md`, the register microcode reads and `cpu.c` models |
+| **THE MONOCHROME DISPLAY BOARD IS IN A MACHINE AND ASKING** | `display-test` -- nine boards, DispY clocked and raising `WakeDHT` |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
 Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is
