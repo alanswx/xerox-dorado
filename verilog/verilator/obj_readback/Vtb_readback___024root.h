@@ -8331,14 +8331,14 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_readback___024root final {
             IData/*31:0*/ tb_readback__DOT__nf;
             IData/*31:0*/ tb_readback__DOT__ha;
             IData/*31:0*/ tb_readback__DOT__hcount;
+            IData/*31:0*/ __Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_18__DOT____Vrepeat17;
             IData/*31:0*/ __Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_19__DOT____Vrepeat18;
             IData/*31:0*/ __Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_20__DOT____Vrepeat19;
-            IData/*31:0*/ __Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20;
         };
         struct {
+            IData/*31:0*/ __Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_21__DOT____Vrepeat20;
             IData/*31:0*/ __Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21;
             IData/*31:0*/ __Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22;
-            IData/*31:0*/ __Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_24__DOT____Vrepeat23;
             IData/*31:0*/ __Vtask_tb_readback__DOT__strobe__427__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2;
             IData/*31:0*/ __VactIterCount;
             VlUnpacked<IData/*31:0*/, 32> tb_readback__DOT__i14_hit;

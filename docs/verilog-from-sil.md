@@ -1583,6 +1583,48 @@ exactly as `msa-test` turned out to be for the SN74166 stage order. Re-derive
 them one at a time against the corrected cell. Do not weaken them, and do not
 revert the cell to make them green.
 
+### The jam hold is `SetMidasStopMIRClk`, a MANIFOLD write (2026-08-23)
+
+Three attempts at the jam's DoControl sequence, all failing IDENTICALLY --
+which is the clue: the jam never executes at all.
+
+`doradocpint.masm`'s `DoDoradoMicroInst` tail is **three** DoControls (the
+first two are byte-identical, which is why they read as one):
+
+```
+LDA ShouldSingleStep ; LSRA ; LDAI SetRun ; JSR DoControl
+BasicStopDorado:
+  LDAI SetRun ; SEC ; JSR DoControl
+  LDAI 0      ; SEC ; JSR DoControl
+```
+
+Adding the second, the third, and both -- spaced and unspaced -- leaves all
+five benches failing with their **original** messages and turns `step-test`
+into a free run. None of it is the fix; all of it is reverted.
+
+**What actually holds the MIR is `StopMIRClk`, and `doradomufman.masm` turns
+it on with a MANIFOLD word:**
+
+```
+SetMidasStopMIRClk = .-MufflerTable
+    .ADR (MidasStopMIRClk+20)^4    ; turn on MIR debug feature
+```
+
+The benches never write it -- they report `StopMIRClkEn=0` -- so with CORRECT
+parity nothing holds the MIR and the jam is reloaded from IM before it can
+act. With the INVERTED `p15`, PARC's own IRTable entries fail IM parity and
+the freeze does the job by accident. **That is the entire dependency.**
+
+So the work is: give the benches PARC's manifold-write path (`SetManifold` /
+`DatumToManifold`) and issue `SetMidasStopMIRClk` at startup, **then** correct
+the cell. Stop adjusting Control strobes — the hold is not a Control-strobe
+function.
+
+One measurement trap: `tb_step.sv` defines neither `GAP` nor `WT`, so a
+spacing edit copied from the other benches is a **compile error** there, and
+its "FAIL" said nothing about the logic. One experiment was scored wrong
+because of it.
+
 ### PARC's second DoControl is NOT the fix (2026-08-23, negative result)
 
 `doradocpint.masm`'s `BasicStopDorado` is **two** DoControls and our `jam_step`
