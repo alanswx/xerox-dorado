@@ -2065,17 +2065,31 @@ With T = `0xF800` (the address) and Q = `0x5A5A` (the data), the loop becomes
 `5a5a` before the run, and the board now selects on **992** samples against
 928 for the T-only loop and 448 baseline.
 
-**The address half works. The data half does not yet.** Over 140,559 samples
-IOB is non-zero on only **32** and never carries `5a5a`. Candidates, none
-measured, so do not assume:
+**The address half works, and so does the STROBE.** ProcH h01 is an MC10197
+hex AND — `IOB = IOBout & alub` — so `IOBout` asserting is the write actually
+happening:
 
-- **BSEL=3 may not select Q the way this loop assumes** — `cpu.c`'s `b_bus`
-  case 3 is *"Q (or Q←B with external)"*, two behaviours, and the external
-  qualifier is not being driven here
-- the IOB drive may need a qualifier this loop does not assert
-- `IOB.00-15`'s bit order at the board may not be what the probe packs
+| | `IOBout` high | `alub` at that moment |
+|---|---|---|
+| baseline | **0** of 85,735 | — |
+| `+slowio` | **32** of 140,559 | `0015` |
 
-Measure which before changing anything: read the ProcH/ProcL end of the IOB
-drive and the B bus **during the `Output←` instruction specifically**, not over
-the whole run. Asking at the wrong moment has been the single most expensive
-mistake in this effort.
+Those 32 match IOB's 32 non-zero samples exactly. **The `Output←` instruction
+decodes and strobes**, and both directions are gated (asserting with the loop
+loaded, silent without).
+
+**Open, and narrowed to one thing: B does not carry Q.** At the moment
+`IOBout` is high, `alub` reads `0015`, not the `5a5a` that Q demonstrably
+holds. So the strobe is right and the **data selection** is wrong — BSEL=3 is
+not delivering Q.
+
+That was the first of three candidates; **the other two are now ruled out** —
+the IOB drive needs no qualifier beyond `IOBout`, and bit order cannot explain
+a value that is not Q at all.
+
+`cpu.c`'s `b_bus` case 3 is *"Q (or Q←B with external)"* — two behaviours
+sharing one BSEL, and the external qualifier is not driven here. Worth noting
+what `0015` **is**: `0o25 = 0x15`, and `0o25` is exactly the value PARC's own
+`QFromCPReg#` sends in `tb_compute` — so `0015` may be a stale or default B
+rather than a wrong register.
+
