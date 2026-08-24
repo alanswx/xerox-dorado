@@ -239,6 +239,7 @@ module tb_taskrun;
   reg [15:0] tpc15, tpc15b, tpc7;
   reg [19:0] link15, link15b, link7;
   reg [15:0] t15, t15b, t7;
+  reg [4:0] mb15, mb15b, mb7;
   wire [3:0] bnt  = {m.b_ContA.BNT_0,  m.b_ContA.BNT_1,
                      m.b_ContA.BNT_2,  m.b_ContA.BNT_3};
   wire [3:0] penc = {m.b_ContA.PEnc_0, m.b_ContA.PEnc_1,
@@ -284,6 +285,23 @@ module tb_taskrun;
   function [15:0] t_of(input [3:0] t);
     t_of = {m.b_ProcH.u_l03.mem[t], m.b_ProcH.u_l04.mem[t],
             m.b_ProcL.u_l03.mem[t], m.b_ProcL.u_l04.mem[t]};
+  endfunction
+
+  // MemBase, THE OTHER PROCESSOR-SIDE PER-TASK FILE, and it is addressed by
+  // `LastNext'` rather than `CurrLast'` -- the Dorado pipelines the task
+  // switch and the two stages do not agree on which task is current, which is
+  // exactly why ProcH carries two different task addresses.
+  //
+  //   ProcH j16  four bits, Q -> ProcH25.sil+19..22
+  //   ProcH j17  one bit,   Q -> ProcH25.sil+18
+  //
+  // Traced: h16 (an MC10158 2:1) selects j16's outputs against
+  // ProcH25.sil+2..5 under `MBBypass`, h17 does the same for j17's against
+  // +1, and both feed g23's D inputs -- g23 being the MC10231 that drives
+  // MemBase.0 and MemBase.1. `MBBypass` is the same shape as `TbBypass` on
+  // the T path (i03 pin 9).
+  function [4:0] membase_of(input [3:0] t);
+    membase_of = {m.b_ProcH.u_j17.mem[t], m.b_ProcH.u_j16.mem[t]};
   endfunction
 
   function [19:0] link_of(input [3:0] t);
@@ -1075,10 +1093,13 @@ module tb_taskrun;
     req = 15'd0; req[15] = 1'b1;
     repeat (WT(1200)) @(posedge sys_clk);
     tpc15 = tpc_of(4'd15); link15 = link_of(4'd15); t15 = t_of(4'd15);
+    mb15 = membase_of(4'd15);
     req = 15'd0; req[7] = 1'b1;
     repeat (WT(1200)) @(posedge sys_clk);
     tpc7 = tpc_of(4'd7); link7 = link_of(4'd7); t7 = t_of(4'd7);
+    mb7 = membase_of(4'd7);
     tpc15b = tpc_of(4'd15); link15b = link_of(4'd15); t15b = t_of(4'd15);
+    mb15b = membase_of(4'd15);
     $display("tb_taskrun: TPC[15]=%h before running task 7, %h after; TPC[7]=%h",
              tpc15, tpc15b, tpc7);
     if (tpc15b !== tpc15) begin
@@ -1113,6 +1134,10 @@ module tb_taskrun;
     if (t15b !== t15)
       $display("tb_taskrun: NOTE -- task 15's T changed while task 7 ran (%h -> %h)",
                t15, t15b);
+    // MemBase, same treatment and the same caveat: nothing here writes it, so
+    // this is reported and not asserted.
+    $display("tb_taskrun: MemBase[15]=%h before running task 7, %h after; MemBase[7]=%h",
+             mb15, mb15b, mb7);
     if (tpcad !== 4'd7) begin
       $display("tb_taskrun: FAIL -- TPCAd is %0d while task 7 runs", tpcad);
       tbad = tbad + 1;
