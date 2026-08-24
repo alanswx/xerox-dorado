@@ -1413,6 +1413,7 @@ module tb_disk;
   reg d00_last, dmd_last, md_last;
   integer n_coin_dmd, n_h05out, n_cwe, n_cce, n_d0in, n_dmd_ok, n_md_ok, n_dmd16, n_md16;
   integer n_we_fall, n_we_match, n_sind1, n_we_ones, n_we1, n_we1_ones, n_ce0, n_ce1;
+  integer n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag;
   integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q, n_acur, n_anext, n_afifo, n_dwt;
   reg [15:0] q_now, q_last;
   reg [15:0] alub_at_out;
@@ -1430,7 +1431,7 @@ module tb_disk;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
     dad_at_write=12'bx; dad_at_read=12'bx; dad_ones=12'bx;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
@@ -1517,6 +1518,23 @@ module tb_disk;
     // post-run section jams, and a jam asserts IgnoreProc by definition.
     if (!1'b0)   n_igc_lo = n_igc_lo + 1;
     if (!m.b_DskEth.DskEth02_sil_pl_1)   n_sel    = n_sel    + 1;
+    // WHICH REGISTER? f07 is an MC10161 1-of-8 decoder taking the registered
+    // board select (TIOA=Us') as its enable and TIOA.5a-7a as the address, and
+    // its outputs are -- in pin order -- exactly include/disk.h's registers in
+    // address order:
+    //
+    //     Q0' TIOA=Cont'   010 DISKCONTROL     Q3' TIOA=Ram'  013 DISKRAM
+    //     Q1' TIOA=Muff'   011 DISKMUFF        Q4' TIOA=Tag'  014 DISKTAG
+    //     Q2' TIOA=Data'   012 DISKDATA        Q5'/Q6' Eth{Data,Ctrl}' 015/016
+    //
+    // Two independent derivations agreeing on all five. The loop writes 010B,
+    // so TIOA=Cont' is the one that must assert -- and the others must not, or
+    // "the board is addressed" would not mean "this register is addressed".
+    if (!m.b_DskEth.TIOA_eq_Cont_p_)     n_r_cont = n_r_cont + 1;
+    if (!m.b_DskEth.TIOA_eq_Muff_p_)     n_r_muff = n_r_muff + 1;
+    if (!m.b_DskEth.TIOA_eq_Data_p_)     n_r_data = n_r_data + 1;
+    if (!m.b_DskEth.TIOA_eq_Ram_p_)      n_r_ram  = n_r_ram  + 1;
+    if (!m.b_DskEth.TIOA_eq_Tag_p_)      n_r_tag  = n_r_tag  + 1;
     if (!1'b0 && !m.b_DskEth.DskEth02_sil_pl_1) n_sel_free = n_sel_free + 1;
     // IOB over the WHOLE run, not only at select: the select is asserted for
     // hundreds of samples while `Output<-` is ONE instruction, so asking only
@@ -3635,6 +3653,15 @@ module tb_disk;
       if (n_sel !== n_sel_free)
         $fatal(1, "DskEth selected on %0d samples but only %0d with the processor free",
                n_sel, n_sel_free);
+      // AND IT ADDRESSES ONE REGISTER, NOT JUST THE BOARD. The loop writes
+      // 010B, so f07's Cont output must assert and the other four must not --
+      // otherwise "the board is addressed" would not imply "DISKCONTROL is
+      // addressed", and every later register write would be unverifiable.
+      if (n_r_cont == 0)
+        $fatal(1, "TIOA=Cont' never asserted -- the write reached the board but no register");
+      if (n_r_muff != 0 || n_r_data != 0 || n_r_ram != 0 || n_r_tag != 0)
+        $fatal(1, "a write to 010B also selected Muff %0d Data %0d Ram %0d Tag %0d",
+               n_r_muff, n_r_data, n_r_ram, n_r_tag);
     end
 
     if (n_sel !== n_sel_free)
@@ -3642,6 +3669,8 @@ module tb_disk;
              n_sel, n_sel_free);
     $display("tb_disk:   DURING THE RUN -- IgnoreCommands LOW on %0d of %0d, board SELECTED on %0d, and selected while free on %0d",
              n_igc_lo, n_tot, n_sel, n_sel_free);
+    $display("tb_disk:   REGISTER DECODE -- Cont %0d, Muff %0d, Data %0d, Ram %0d, Tag %0d (of %0d selects)",
+             n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag, n_sel);
     $display("tb_disk:   IOB AT SELECT -- last %h, and %0d of %0d selects carried 5a5a",
              iob_at_sel, n_iob_ok, n_sel);
     $display("tb_disk:   IOB OVER THE RUN -- non-zero on %0d of %0d, and carrying 5a5a on %0d",
