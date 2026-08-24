@@ -107,6 +107,33 @@
 // parity enabled, and cpu.c's overflow logic written from the manual. None of
 // them owes anything to the others.
 //
+// TRIED AND RULED OUT 2026-08-23: PARC's SECOND DoControl IS NOT THE FIX.
+//
+// `doradocpint.masm`'s BasicStopDorado is two DoControls, and jam_step only
+// had the first:
+//
+//     BasicStopDorado:
+//       LDAI SetRun ; SEC ; JSR DoControl   keep SetRun, assert SetSS
+//       LDAI 0      ; SEC ; JSR DoControl   CLEAR SetRun, keep SetSS, no ClrStop
+//
+// The second is added now, in all ten benches that define jam_step, because it
+// is what PARC does -- but it does NOT repair the five. With the corrected
+// cell they still fail with their ORIGINAL messages (RSTK not reaching the
+// processor, B<-Link' not enabling the CPReg mux, CPRegToLink# not landing,
+// the first word not reaching IM, T taking 1200 instead of 1234). Spacing the
+// two strobes apart does not help either.
+//
+// So the jam sequence needs re-deriving AS A WHOLE against doradocpint.masm,
+// not repairing one strobe at a time. Note what actually holds a jam today:
+// with the inverted p15 PARC's own IRTable entries FAIL IM parity, the MIR
+// freezes, and the jam survives -- these benches have been depending on a
+// parity failure to do the single-step chain's job.
+//
+// (A trap while measuring this: tb_step.sv defines neither GAP nor WT, so a
+// spacing edit copied from the other benches is a COMPILE error there, and
+// its "FAIL" said nothing about the logic at all. Read the failure before
+// counting it.)
+//
 // WHAT REMAINS is not the polarity but the five benches that break when it is
 // corrected -- datapath-test, operand-test, step-test, sendmir, compute-test.
 // On this evidence they are calibrated against the BUG, exactly as msa-test
@@ -799,6 +826,21 @@ module tb_parity;
       strobe(3'd4, b1, b0[7]); strobe(3'd5, b2, b0[6]);
       strobe(3'd6, b3, b0[5]); strobe(3'd7, b4, b0[4]);
       strobe(3'd0, 8'h01, 1'b1);
+      // PARC'S BasicStopDorado IS TWO DoControls, AND THIS IS THE SECOND:
+      //
+      //     BasicStopDorado:
+      //       LDAI SetRun ; SEC ; JSR DoControl   keep SetRun, assert SetSS
+      //       LDAI 0      ; SEC ; JSR DoControl   CLEAR SetRun, keep SetSS,
+      //                                           and do NOT ClrStop
+      //
+      // (doradocpint.masm). Without it the machine is left with SetRun still
+      // asserted, so the jam is only held while its microinstruction FAILS IM
+      // PARITY and freezes the MIR -- which is why these benches used to
+      // depend on cell_MC10170's inverted p15 and broke the moment it was
+      // corrected. Holding the jam is the SINGLE-STEP chain's job, not the
+      // parity checker's.
+      repeat (GAP) @(posedge sys_clk);
+      strobe(3'd0, 8'h00, 1'b1);
     end
   endtask
 

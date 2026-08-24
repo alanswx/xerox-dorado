@@ -13594,12 +13594,12 @@ VL_ATTR_COLD void Vtb_memrun___024root___ctor_var_reset(Vtb_memrun___024root* vl
     vlSelf->__Vtask_tb_memrun__DOT__parc_micro__426__b2 = 0;
     vlSelf->__Vtask_tb_memrun__DOT__parc_micro__426__b3 = 0;
     vlSelf->__Vtask_tb_memrun__DOT__parc_micro__426__b4 = 0;
-    vlSelf->__Vtask_tb_memrun__DOT__parc_micro__426__tb_memrun__DOT__unnamedblk1_18__DOT____Vrepeat17 = 0;
     vlSelf->__Vtask_tb_memrun__DOT__parc_micro__426__tb_memrun__DOT__unnamedblk1_19__DOT____Vrepeat18 = 0;
     vlSelf->__Vtask_tb_memrun__DOT__parc_micro__426__tb_memrun__DOT__unnamedblk1_20__DOT____Vrepeat19 = 0;
     vlSelf->__Vtask_tb_memrun__DOT__parc_micro__426__tb_memrun__DOT__unnamedblk1_21__DOT____Vrepeat20 = 0;
     vlSelf->__Vtask_tb_memrun__DOT__parc_micro__426__tb_memrun__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
     vlSelf->__Vtask_tb_memrun__DOT__parc_micro__426__tb_memrun__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
+    vlSelf->__Vtask_tb_memrun__DOT__parc_micro__426__tb_memrun__DOT__unnamedblk1_24__DOT____Vrepeat23 = 0;
     vlSelf->__Vtask_tb_memrun__DOT__strobe__427__tb_memrun__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
