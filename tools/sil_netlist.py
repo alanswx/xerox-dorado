@@ -204,11 +204,26 @@ BACKPLANE_CASE_ALIASES = {
 # to come from elsewhere -- and ethernet.h is a genuinely independent source,
 # registering its slow-IO handlers on exactly those two tasks.
 #
-# THE DISK'S OWN WAKEUP IS STILL NOT WIRED, and cannot be: the C emulator has
-# DORADO_DISK_TASK = 014 octal = 12 decimal, but DskEth drives only WakeEthRx
-# and WakeEthTx -- there is no disk wakeup net on this board at all, so there
-# is nothing to jumper. Where the disk task's request comes from is an open
-# question about the machine, not a gap in this table.
+#   DskEth DiskTW    -> TWReq.12   the DSK task
+#
+# AND THE DISK'S WAKEUP IS WIRED TOO -- it was there all along under a
+# DIFFERENT NAMING CONVENTION. An earlier version of this note said DskEth
+# drove no disk wakeup net; that was a search for `Wake*`, and this board uses
+# `*TW` (Task Wakeup) instead. It carries nine of them:
+#
+#     ClearIndexTW  ClearSectorTW  DiskTW  IndexTW  RdFifoTW
+#     SectorTW      SeekTagTW      SetTagTW  WrFifoTW
+#
+# and exactly ONE leaves the board: DiskTW, driven by e04 (an MC10231). The
+# other eight are internal, which is what makes DiskTW identifiable as the
+# backplane wakeup rather than one of the board's own strobes.
+#
+# Its number comes from include/disk.h's DORADO_DISK_TASK = 014 octal = 12
+# decimal, the same file whose DISK_TIOA_DISKCONTROL 010 independently
+# confirms the TIOA-Ad strap.
+#
+# TWO NAMING CONVENTIONS FOR THE SAME THING is worth remembering: the display
+# boards say `WakeDWT`, DskEth says `DiskTW`. Search for both.
 BACKPLANE_WAKEUP_JUMPERS = {
     'WakeAWT': 'TWReq.09',
     'WakeDWT': 'TWReq.11',
@@ -216,6 +231,7 @@ BACKPLANE_WAKEUP_JUMPERS = {
     'WakeAHT': 'TWReq.04',
     'WakeEthTx': 'TWReq.06',
     'WakeEthRx': 'TWReq.07',
+    'DiskTW':    'TWReq.12',
     'TWReq15': 'TWReq.15',
 }
 

@@ -2380,8 +2380,23 @@ it registers its slow-IO handlers on exactly those two tasks.
 | `WakeEthRx` | `TWReq.07` | `ethernet.h` EIT |
 | `TWReq15` | `TWReq.15` | the fault task, HM §4.1 and `memory.h` |
 
-**The disk's own wakeup is still not wired, and cannot be.** `memory.h`'s
-sibling `disk.h` has `DORADO_DISK_TASK = 014` octal = 12 decimal, but **DskEth
-drives no disk wakeup net at all** — only `WakeEthRx` and `WakeEthTx`. There is
-nothing to jumper. Where the disk task's request originates is an open question
-about the machine, not a gap in the table.
+**And the disk's wakeup is wired too — it was there all along under a
+different naming convention.** An earlier version of this note said DskEth
+drove no disk wakeup net; that was a search for `Wake*`, and **this board uses
+`*TW`** (Task Wakeup) instead. It carries nine:
+
+```
+ClearIndexTW  ClearSectorTW  DiskTW  IndexTW  RdFifoTW
+SectorTW      SeekTagTW      SetTagTW  WrFifoTW
+```
+
+and exactly **one leaves the board** — `DiskTW`, driven by e04 (an MC10231).
+The other eight are internal, which is what makes `DiskTW` identifiable as the
+backplane wakeup rather than one of the board's own strobes. Its number is
+`include/disk.h`'s `DORADO_DISK_TASK = 014₈ = 12` — the same file whose
+`DISK_TIOA_DISKCONTROL 010` independently confirms the `TIOA-Ad` strap.
+
+So `DiskTW → TWReq.12` completes the table.
+
+**Two naming conventions for the same thing** is the lesson: the display
+boards say `WakeDWT`, DskEth says `DiskTW`. Search for both.
