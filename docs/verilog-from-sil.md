@@ -1942,3 +1942,26 @@ DispY g42, no legs cut, `DDCTIOA = 37B` → 0370-0377) and the C emulator's
 
 So the write path into DispY is open and addressable. What remains for a real
 WCB is microcode to drive `TIOA←` and `IOB←` at those addresses.
+
+### The two slow-I/O microinstructions (2026-08-24)
+
+Derived from `cpu.c`'s FF decode and cross-checked:
+
+| operation | FA | FB | FC | FF |
+|---|---|---|---|---|
+| `TIOA ← B[0:7]` | 1 | 5 | 2 | **0o152** |
+| `Output ← B` (the IOB write) | 0 | 3 | 6 | **0o036** |
+
+The FF field packs as `{FA(2 bits), FB(3), FC(3)}`, and that is checkable
+against a case already on record: `←Map` is FA=0 FB=3 FC=1 and its FF subfield
+is documented as `0o31` — and `00 011 001 = 0o031` exactly. So both encodings
+above are trustworthy without needing a second source.
+
+`build_hunk4()` and `mi()` are already in `tb_display` (inherited from
+`tb_memrun` via `tb_readback`), so a WCB write is a `TIOA←` carrying 0370-0377
+followed by an `Output←` carrying the WCB word.
+
+**The three requirements from the T-write attempt apply unchanged**: the
+instructions must come from IM rather than a jam (`DoDoradoMicroInst`'s first
+Control byte carries `ClrCT`); the IM load must happen in the startup for the
+same reason; and the loop must keep tasking ON or `CTask` sticks.

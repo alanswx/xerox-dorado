@@ -10,6 +10,28 @@
 // and no other board), so a monochrome machine is the smaller and the right
 // first target.
 //
+// THE TWO SLOW-I/O MICROINSTRUCTIONS, derived from cpu.c and cross-checked:
+//
+//     TIOA <- B[0:7]      FA=1 FB=5 FC=2      FF = 0o152
+//     Output <- B (IOB)   FA=0 FB=3 FC=6      FF = 0o036
+//
+// The FF field packs as {FA(2 bits), FB(3), FC(3)}, which is checkable against
+// a case the project already records: `_Map` is FA=0 FB=3 FC=1 and its FF
+// subfield is documented as 0o31 -- and 00 011 001 = 0o031 exactly. So the two
+// above are trustworthy without a second source.
+//
+// build_hunk4() and mi() are both already in this bench (inherited from
+// tb_memrun through tb_readback), so a WCB write is:
+//
+//     1. a TIOA<- instruction carrying 0370-0377 on B
+//     2. an Output<- instruction carrying the WCB word on B
+//
+// and THE THREE REQUIREMENTS FROM THE T-WRITE ATTEMPT APPLY UNCHANGED (see
+// tb_taskrun's header): the instructions must come from IM rather than a jam,
+// because DoDoradoMicroInst's first Control byte carries ClrCT; the IM LOAD
+// must happen in the startup for the same reason; and the loop must keep
+// tasking ON or CTask sticks.
+//
 // WHAT THE WORD TASK NEEDS, traced (2026-08-24):
 //
 //   TWReq.11  <- d03, an MC10231 D flip-flop: D = DWTWantsProc, clocked by
