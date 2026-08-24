@@ -38,15 +38,26 @@
 // AND THE CACHE IS BEING WRITTEN. a03's WE' falls 28 times, and D0in.00
 // agrees with SinD.00 on 25 of those (16 with the seed). So the data path
 // into the array is live and carrying the fetched word. What it reads back is
-// still zero, which points at the ADDRESS rather than the data: either the
-// fill writes a different row than the read, or the write is landing outside
-// the row the reference is looking at.
+// still zero. MEASURED, and it is NOT a broad address error: a03's twelve
+// address pins read the SAME at the write and at the read -- 110000000000
+// both -- so the fill is not landing in some unrelated row.
 //
-// NEXT MEASUREMENT: compare the F10470 address pins at the WE' fall against
-// the address at the read, exactly as the '166 stage order was settled --
-// count the coincidence, and beware that D0in == SinD is satisfied when BOTH
-// ARE ZERO, so qualify the match on SinD being high.
+// WHAT IS WRONG IS NARROWER. Of 28 WE' falls, the ones that actually CARRY A
+// ONE -- the only kind distinguishable from an empty array afterwards --
+// number
 //
+//     cache seeded    0 of 28
+//     cache empty     2 of 28, at address 110000000001
+//
+// one word ABOVE the address being read. For a cache LINE fill that is the
+// word-within-line, so the likely story is that the fill deposits a different
+// word of the line than the reference wants, or the reference reads a word the
+// fill has not reached. TWO SAMPLES IS THIN; get more before building on it.
+//
+// NOTE the qualification that made this visible: `D0in == SinD` is ALSO
+// satisfied when both are zero, so the 25-of-28 that looked encouraging was
+// mostly zero matching zero. Qualify a data match on the data being
+// non-trivial.
 // A TRAP THAT COST THREE WRONG COMPARISONS HERE: this binary must be run from
 // the REPO ROOT, the way the Makefile runs it (`cd ../..`). Run from
 // verilog/verilator/ it cannot find boot0.vec or the PROM images, loads no
@@ -1198,7 +1209,8 @@ module tb_readback;
   integer n_d00, n_mdd, n_dmd, n_md, n_d00_e, n_dmd_e, n_md_e, n_merr, n_ecf;
   reg d00_last, dmd_last, md_last;
   integer n_coin_dmd, n_h05out, n_cwe, n_cce, n_d0in, n_dmd_ok, n_md_ok, n_dmd16, n_md16;
-  integer n_we_fall, n_we_match, n_sind1; reg we_d_rb;
+  integer n_we_fall, n_we_match, n_sind1, n_we_ones; reg we_d_rb;
+  reg [11:0] dad_now, dad_at_write, dad_at_read, dad_ones;
   reg [17:0] dmd_cap, md_cap;
   reg outck_d_rb, load_pend_rb, seen_load;
   reg [7:0] q_at_load;
@@ -1206,7 +1218,8 @@ module tb_readback;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; we_d_rb=1'b1;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1;
+    dad_at_write=12'bx; dad_at_read=12'bx; dad_ones=12'bx;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
     q_at_load = 8'hxx; sin_at_load = 1'bx; qh_at_load = 1'bx;
@@ -1282,6 +1295,26 @@ module tb_readback;
     end
     we_d_rb <= m.b_MemD.u_a03.p15;
     if (m.b_MemD.SinD_00) n_sind1 = n_sind1 + 1;
+    // THE FILL'S ADDRESS. a03's twelve address pins are Dad_00a..Dad_08a plus
+    // Dad0_10a..Dad0_12a (PARC skips 09 on this bank). Capture it AT THE
+    // WRITE and AT A READ and compare -- if the fill writes a different row
+    // than the reference reads, the array is being filled correctly and
+    // looked up somewhere else.
+    dad_now = {m.b_MemD.Dad_00a, m.b_MemD.Dad_01a, m.b_MemD.Dad_02a,
+               m.b_MemD.Dad_03a, m.b_MemD.Dad_04a, m.b_MemD.Dad_05a,
+               m.b_MemD.Dad_06a, m.b_MemD.Dad_07a, m.b_MemD.Dad_08a,
+               m.b_MemD.Dad0_10a, m.b_MemD.Dad0_11a, m.b_MemD.Dad0_12a};
+    if (!m.b_MemD.u_a03.p15 && we_d_rb) begin
+      dad_at_write <= dad_now;
+      // ...and a WRITE THAT CARRIES A ONE, which is the only kind that can be
+      // told apart from an empty array afterwards.
+      if (m.b_MemD.SinD_00) begin
+        n_we_ones = n_we_ones + 1;
+        dad_ones  <= dad_now;
+      end
+    end
+    // A read: MD_D selects the cache as the MD source.
+    if (m.b_MemD.MD_u_D) dad_at_read <= dad_now;
     if (m.b_MemD.D_00  !== d00_last)  begin d00_last  = m.b_MemD.D_00;  n_d00_e = n_d00_e + 1; end
     if (m.dMD_00       !== dmd_last)  begin dmd_last  = m.dMD_00;       n_dmd_e = n_dmd_e + 1; end
     if (m.b_ProcH.Md_00!== md_last)   begin md_last   = m.b_ProcH.Md_00;n_md_e  = n_md_e  + 1; end
@@ -3191,6 +3224,8 @@ module tb_readback;
              n_cwe, n_cce, n_d0in);
     $display("tb_readback:   THE FILL -- a03 WE' falling edges %0d, of which D0in.00 == SinD.00: %0d | SinD.00 high on %0d",
              n_we_fall, n_we_match, n_sind1);
+    $display("tb_readback:   FILL ADDRESS -- last write %b, last write CARRYING A ONE %b (%0d such), last read %b",
+             dad_at_write, dad_ones, n_we_ones, dad_at_read);
     $display("tb_readback:   RETURN WORD (cache seeded %b) -- dMD=%b matched on %0d | Md=%b matched on %0d",
              CPAT, dmd_cap, n_dmd_ok, md_cap, n_md_ok);
     $display("tb_readback:   ...16-bit data word alone -- dMD matched on %0d, Md matched on %0d of %0d MD_D samples",
