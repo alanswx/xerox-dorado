@@ -57,6 +57,37 @@
 // oracle in the C emulator's overflow logic (HM section 3.7, QW7), and the
 // ContB e01 path can be read off `writeim-test`, which does still pass.
 //
+// NARROWED 2026-08-23 TO ONE USE: ProcH d13, `SignedCarry`.
+//
+// With the fix APPLIED, `writeim-test` and `alu-diff` BOTH STILL PASS. So the
+// ContB e01 IM-write-parity path is fine and so is the ALU proper; the damage
+// is entirely via ProcH d13. What fails with it applied: datapath-test,
+// operand-test, step-test, sendmir and compute-test.
+//
+// AND d13 IS SIGNED-OVERFLOW DETECTION, which the wire list settles -- its
+// inputs are the two operand SIGN bits, the result sign, and the carry:
+//
+//     pin  3  alub.00a   B operand bit 00 (PARC is MSB-first: the sign)
+//     pin  4  alua.00    A operand sign
+//     pin  9  aluF0      NO DRIVER ON ProcH -- a backplane input, the ALUF
+//                        function bit that separates arithmetic from logic
+//     pin 13  alu.00     e61 pin 6, the ALU result's most significant bit
+//     pin 14  aluCout    e61 pin 5, the ALU's carry out
+//     pin 15  SignedCarry
+//
+// THE ORACLE IS ALREADY HALF-BUILT. `cpu.c`'s `alu_op()` computes overflow --
+// its signature is `alu_op(entry, a, b, ..., &carry, &ovf, &arith)` -- and
+// `dorado/tests/alu_vectors.c` ALREADY CALLS IT WITH `&ovf` and then throws
+// the value away: it prints `entry a b result carry` and nothing more. Adding
+// `ovf` as a sixth field, and an MC10170 wired as d13 to `tb_alu_vs_c.sv`,
+// turns the polarity question into the same vector-for-vector cross-check that
+// already settles the ALU -- and neither side is derived from the other.
+//
+// The one thing to pin down first is what `aluF0` is in the ALUFM entry's
+// terms ({Cn, S3, S2, S1, S0, M}), since the vectors are indexed by the entry
+// rather than by the ALUF field. Do not guess it: trace it from whichever
+// board drives it.
+//
 // One more thing an earlier session established, in tb_compute.sv: a general
 // microinstruction encoder `mi()` that reproduces all thirteen IRTable entries
 // byte for byte, and now computes P015/P1631 by the rule above.
