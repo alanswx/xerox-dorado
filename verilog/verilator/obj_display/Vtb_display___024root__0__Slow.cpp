@@ -424,6 +424,9 @@ VL_ATTR_COLD void Vtb_display___024root___eval_initial__TOP(Vtb_display___024roo
     vlSelfRef.tb_display__DOT__n_twr11 = 0U;
     vlSelfRef.tb_display__DOT__n_wdht = 0U;
     vlSelfRef.tb_display__DOT__n_tot = 0U;
+    vlSelfRef.tb_display__DOT__n_igc_lo = 0U;
+    vlSelfRef.tb_display__DOT__n_sel = 0U;
+    vlSelfRef.tb_display__DOT__n_sel_free = 0U;
     vlSelfRef.tb_display__DOT__dyclk_d = 0U;
     vlSelfRef.tb_display__DOT__we1_d = 1U;
     vlSelfRef.tb_display__DOT__n_we1 = 0U;
