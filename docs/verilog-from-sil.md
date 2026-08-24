@@ -1699,3 +1699,33 @@ asserted**: MemBase reads `1f` in both slots (the uninitialised default) and T
 reads `0000`, so an "unchanged" assertion on either would be vacuous. What
 both need is microcode that WRITES them -- see the T entry above for why a jam
 cannot do it (`ClrCT`).
+
+### Writing T from IM: the specification, derived by trying it (2026-08-24)
+
+Three requirements, each found by hitting it:
+
+1. **The write must come from IM, not a jam.** `DoDoradoMicroInst`'s first
+   Control byte is `ClrStop+ClrMIR+ClrCT+Freeze`, and **`ClrCT` clears the
+   current task** — `TPCAd` then reads 0 while task 7 should be running, and
+   the existing PC and Link claims start failing.
+2. **And so must the IM load.** `send_a_hunk` goes through the same jam path,
+   so building the hunk in the middle of the task-switch section breaks it the
+   same way. Load it in the startup, beside the AEmu hunks.
+3. **And the loop must keep tasking ON.** With a loop of plain `TFromCPReg#`
+   (FF = `0o176`) `CTask` sticks at 15 and every later task is refused —
+   `Switcha`/`BNTGtCT'` need `FF = TaskingOn`, which is why PARC's own
+   `Return#` is "TaskingOff,Return".
+
+**The encoding is in hand.** PARC's `TFromCPReg#` is `70 03 0F 04 C0`, and
+through `mi()`'s byte layout those decode to
+
+```
+rstk 0, aluf 0, bsel 0, lc 1, asel 4, ff 0o176, jcn 0o201, block 0
+```
+
+which `build_hunk4` takes directly. Its value comes from **CPReg, which is not
+per-task** — and that is what makes the test possible: set CPReg to one word
+while task 15 runs and another while task 7 runs, and the two slots must end
+up holding different values. (`tb_compute`'s variant changes ASEL 4 → 6 so the
+ALU gets a real second operand, and notes `TFromCPReg#` "requires ALUFM[0]=B",
+so the ALUFM prologue may be needed too.)

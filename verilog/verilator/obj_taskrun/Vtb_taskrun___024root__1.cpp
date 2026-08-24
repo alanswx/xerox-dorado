@@ -1470,7 +1470,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             770);
+                                                             800);
         __Vtask_tb_taskrun__DOT__parc_micro__681__tb_taskrun__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_taskrun__DOT__parc_micro__681__tb_taskrun__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -1551,7 +1551,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             772);
+                                                             802);
         __Vtask_tb_taskrun__DOT__parc_micro__681__tb_taskrun__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_taskrun__DOT__parc_micro__681__tb_taskrun__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -1632,7 +1632,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             774);
+                                                             804);
         __Vtask_tb_taskrun__DOT__parc_micro__681__tb_taskrun__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_taskrun__DOT__parc_micro__681__tb_taskrun__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -2004,7 +2004,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             782);
+                                                             812);
         __Vtask_tb_taskrun__DOT__parc_micro__681__tb_taskrun__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_taskrun__DOT__parc_micro__681__tb_taskrun__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -2085,7 +2085,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             784);
+                                                             814);
         __Vtask_tb_taskrun__DOT__parc_micro__681__tb_taskrun__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_taskrun__DOT__parc_micro__681__tb_taskrun__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -2173,7 +2173,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             786);
+                                                             816);
         __Vtask_tb_taskrun__DOT__parc_micro__681__tb_taskrun__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_taskrun__DOT__parc_micro__681__tb_taskrun__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -2292,7 +2292,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             770);
+                                                             800);
         __Vtask_tb_taskrun__DOT__parc_micro__725__tb_taskrun__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_taskrun__DOT__parc_micro__725__tb_taskrun__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -2373,7 +2373,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             772);
+                                                             802);
         __Vtask_tb_taskrun__DOT__parc_micro__725__tb_taskrun__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_taskrun__DOT__parc_micro__725__tb_taskrun__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -2454,7 +2454,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             774);
+                                                             804);
         __Vtask_tb_taskrun__DOT__parc_micro__725__tb_taskrun__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_taskrun__DOT__parc_micro__725__tb_taskrun__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -2826,7 +2826,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             782);
+                                                             812);
         __Vtask_tb_taskrun__DOT__parc_micro__725__tb_taskrun__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_taskrun__DOT__parc_micro__725__tb_taskrun__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -2907,7 +2907,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             784);
+                                                             814);
         __Vtask_tb_taskrun__DOT__parc_micro__725__tb_taskrun__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_taskrun__DOT__parc_micro__725__tb_taskrun__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -2995,7 +2995,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             786);
+                                                             816);
         __Vtask_tb_taskrun__DOT__parc_micro__725__tb_taskrun__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_taskrun__DOT__parc_micro__725__tb_taskrun__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -3116,7 +3116,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             955);
+                                                             985);
         __Vtask_tb_taskrun__DOT__parc_run__768__tb_taskrun__DOT__unnamedblk1_24__DOT____Vrepeat23 
             = (__Vtask_tb_taskrun__DOT__parc_run__768__tb_taskrun__DOT__unnamedblk1_24__DOT____Vrepeat23 
                - (IData)(1U));
@@ -3197,7 +3197,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             957);
+                                                             987);
         __Vtask_tb_taskrun__DOT__parc_run__768__tb_taskrun__DOT__unnamedblk1_25__DOT____Vrepeat24 
             = (__Vtask_tb_taskrun__DOT__parc_run__768__tb_taskrun__DOT__unnamedblk1_25__DOT____Vrepeat24 
                - (IData)(1U));
@@ -3278,7 +3278,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             959);
+                                                             989);
         __Vtask_tb_taskrun__DOT__parc_run__768__tb_taskrun__DOT__unnamedblk1_26__DOT____Vrepeat25 
             = (__Vtask_tb_taskrun__DOT__parc_run__768__tb_taskrun__DOT__unnamedblk1_26__DOT____Vrepeat25 
                - (IData)(1U));
@@ -3578,7 +3578,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             965);
+                                                             995);
         __Vtask_tb_taskrun__DOT__parc_run__768__tb_taskrun__DOT__unnamedblk1_27__DOT____Vrepeat26 
             = (__Vtask_tb_taskrun__DOT__parc_run__768__tb_taskrun__DOT__unnamedblk1_27__DOT____Vrepeat26 
                - (IData)(1U));
@@ -3661,7 +3661,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             1041);
+                                                             1071);
         if (((IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__clk0_p_Ca) 
              != (IData)(vlSelfRef.tb_taskrun__DOT__p0))) {
             tb_taskrun__DOT__n0a = ((IData)(1U) + tb_taskrun__DOT__n0a);
@@ -3672,9 +3672,9 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
     VL_WRITEF_NX("tb_taskrun: machine running -- %0d clk0' edges, Stop=%b\n",0,
                  32,tb_taskrun__DOT__n0a,1,(IData)(vlSelfRef.tb_taskrun__DOT__m__DOT__b_ContA__DOT__u_j04__DOT__qa));
     if (VL_UNLIKELY((VL_GTS_III(32, 0x00000064U, tb_taskrun__DOT__n0a)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_taskrun.sv:1045: Assertion failed in %Ntb_taskrun: the microinstruction clock is not free-running\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_taskrun.sv:1075: Assertion failed in %Ntb_taskrun: the microinstruction clock is not free-running\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_taskrun.sv", 1045, "", false);
+        VL_STOP_MT("verilog/verilator/tb_taskrun.sv", 1075, "", false);
     }
     tb_taskrun__DOT__tbad = 0U;
     tb_taskrun__DOT__tk = 0x0000000fU;
@@ -3709,7 +3709,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                                  nullptr, 
                                                                  "@(posedge tb_taskrun.sys_clk)", 
                                                                  "verilog/verilator/tb_taskrun.sv", 
-                                                                 1051);
+                                                                 1081);
             tb_taskrun__DOT__unnamedblk1_29__DOT____Vrepeat28 
                 = (tb_taskrun__DOT__unnamedblk1_29__DOT____Vrepeat28 
                    - (IData)(1U));
@@ -3775,7 +3775,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             1072);
+                                                             1102);
         tb_taskrun__DOT__unnamedblk1_30__DOT____Vrepeat29 
             = (tb_taskrun__DOT__unnamedblk1_30__DOT____Vrepeat29 
                - (IData)(1U));
@@ -3807,7 +3807,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             1081);
+                                                             1111);
         tb_taskrun__DOT__unnamedblk1_31__DOT____Vrepeat30 
             = (tb_taskrun__DOT__unnamedblk1_31__DOT____Vrepeat30 
                - (IData)(1U));
@@ -3835,7 +3835,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             1094);
+                                                             1124);
         tb_taskrun__DOT__unnamedblk1_32__DOT____Vrepeat31 
             = (tb_taskrun__DOT__unnamedblk1_32__DOT____Vrepeat31 
                - (IData)(1U));
@@ -3900,7 +3900,7 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
                                                              nullptr, 
                                                              "@(posedge tb_taskrun.sys_clk)", 
                                                              "verilog/verilator/tb_taskrun.sv", 
-                                                             1098);
+                                                             1128);
         tb_taskrun__DOT__unnamedblk1_33__DOT____Vrepeat32 
             = (tb_taskrun__DOT__unnamedblk1_33__DOT____Vrepeat32 
                - (IData)(1U));
@@ -4075,12 +4075,12 @@ VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__0__2(Vtb_taskrun
         tb_taskrun__DOT__tbad = ((IData)(1U) + tb_taskrun__DOT__tbad);
     }
     if (VL_UNLIKELY(((0U != tb_taskrun__DOT__tbad)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_taskrun.sv:1168: Assertion failed in %Ntb_taskrun: the BNT register does not follow the priority encoder\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_taskrun.sv:1198: Assertion failed in %Ntb_taskrun: the BNT register does not follow the priority encoder\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_taskrun.sv", 1168, "", false);
+        VL_STOP_MT("verilog/verilator/tb_taskrun.sv", 1198, "", false);
     }
     VL_WRITEF_NX("tb_taskrun: PASS -- switches to all 15 tasks; PC and Link are per-task\n",0);
-    VL_FINISH_MT("verilog/verilator/tb_taskrun.sv", 1170, "");
+    VL_FINISH_MT("verilog/verilator/tb_taskrun.sv", 1200, "");
     co_return;}
 
 VlCoroutine Vtb_taskrun___024root___eval_initial__TOP__Vtiming__1(Vtb_taskrun___024root* vlSelf) {
