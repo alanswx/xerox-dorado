@@ -1875,3 +1875,30 @@ here, the way `tb_ifufetch` relaxes `tb_memrun`'s.
 
 `CLK.display'` is the fifth board on which leaving a slot clock undriven would
 have looked exactly like a gating bug.
+
+### What the display WORD task needs (2026-08-24)
+
+Traced, so the next step is specified rather than explored:
+
+```
+TWReq.11      <- d03, an MC10231 D flip-flop: D = DWTWantsProc, clocked by
+                 clk0'Ab, killed by KillDWTWakeup
+DWTWantsProc  <- g11, an MC10117 OR-AND, per channel:
+                   A: ACurrentWCBFlag' AFifoNotFull' ACurrentWCBFlag ANextWCBFlag'
+                   B: the same four
+KillDWTWakeup <- e24 (an F10016) from CurTaskIsDWT', StopWakeCount,
+                 WakeupWait.0-3 and DWTShutUp -- a wakeup HOLDOFF so the task
+                 cannot re-ask immediately -- wire-ORed with f24's
+                 IOHold/NextSaysDWT' term
+```
+
+**WCB is the Word Control Block — the display list.** So the word task asks
+when a channel's FIFO has room *and* its WCB flags say there is work. The next
+step is therefore **slow-I/O writes to set up a WCB**: DispY's registers are at
+`DDCTIOA = 37B` → **0370-0377**, from the board's own strap (`strap-test`), and
+the C emulator's `display.c` claims exactly those four addresses — two
+independent statements of the same range.
+
+The HEAD task is simpler, which is why it already asks: `TWReq.03` is f01, an
+MC10135 JK flip-flop gated by `DHTShutUp` and `NLCBCommand'`, with no FIFO or
+WCB in the way.

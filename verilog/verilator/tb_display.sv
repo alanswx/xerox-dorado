@@ -10,6 +10,29 @@
 // and no other board), so a monochrome machine is the smaller and the right
 // first target.
 //
+// WHAT THE WORD TASK NEEDS, traced (2026-08-24):
+//
+//   TWReq.11  <- d03, an MC10231 D flip-flop: D = DWTWantsProc, clocked by
+//                clk0'Ab, and killed by KillDWTWakeup
+//   DWTWantsProc <- g11, an MC10117 OR-AND, per channel:
+//                     A: ACurrentWCBFlag'(4) AFifoNotFull'(5)
+//                        ACurrentWCBFlag(6)  ANextWCBFlag'(7)
+//                     B: the same four on 10-13
+//   KillDWTWakeup <- e24 (an F10016 counter) from CurTaskIsDWT', StopWakeCount,
+//                    WakeupWait.0-3 and DWTShutUp -- a wakeup HOLDOFF, so the
+//                    task cannot re-ask immediately -- wire-ORed with f24's
+//                    IOHold/NextSaysDWT' term.
+//
+// WCB IS THE WORD CONTROL BLOCK -- the display list. So the word task asks
+// when a channel's FIFO HAS ROOM and its WCB flags say there is work, which
+// means the next step is SLOW-I/O WRITES to set one up: DispY's registers are
+// at DDCTIOA = 37B -> 0370-0377, from the board's own strap (strap-test), and
+// the C emulator's display.c claims exactly those four addresses.
+//
+// The HEAD task is simpler and is why it already asks: TWReq.03 <- f01, an
+// MC10135 JK flip-flop gated by DHTShutUp and NLCBCommand', with no FIFO or
+// WCB in the way.
+//
 // DispY's task is DWTTask = 1011 = 11, from the board's own strap
 // (strap-test), and `WakeDWT` is jumpered to `TWReq.11` on the backplane --
 // the routing BACKPLANE_WAKEUP_JUMPERS carries, because these lines match
