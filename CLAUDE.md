@@ -991,7 +991,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **THE MEMORY SECTION RUNS DRAM CYCLES** (re-earned 2026-08-23) | `memrun-test` -- the earlier green was an artifact of a mis-shifted Map-Mem PROM; `preStartMem'` now PULSES |
 | **A WORD COMES OUT OF PARC'S STORAGE ARRAY** | `readback-test` -- eight boards, real microcode, the seeded word back through the SN74166s onto `Sin` |
 | **...AND THE RETURN PATH CARRIES A WORD TO THE PROCESSOR** | `readback-test` -- cache -> `dMD` -> `Md`, the register microcode reads and `cpu.c` models |
-| **THE PROCESSOR ADDRESSES THE DISPLAY BOARD** | `display-test` -- nine boards; DispY clocked, HEAD task reaching ContA, WORD task's condition proven, slow-I/O decoding to 37B alone, and `TIOA<-B` putting 370B on the backplane where DispY sees it |
+| **THE DISPLAY BOARD ANSWERS A COMMAND** | `display-test` -- nine boards; DispY clocked, HEAD task reaching ContA, WORD task's condition proven, slow-I/O decoding to 37B alone, `TIOA<-B` putting 370B on the backplane, and the board SELECTING from running microcode (`+slowio`: 928 samples, every one with the processor free) |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
 Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is

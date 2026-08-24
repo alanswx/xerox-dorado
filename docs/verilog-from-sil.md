@@ -2015,3 +2015,38 @@ list the T-write attempt started:
 
 All four are properties of the jam mechanism, and together they say the same
 thing: a jam is for setting up processor state, not for driving the machine.
+
+### The display board answers a command (2026-08-24)
+
+`display-test +slowio` loads a slow-I/O loop into **IM[0..3]** and runs it:
+
+```
+IM[0]  TIOA <- B     FA=1 FB=5 FC=2 -> FF 0o152, BSEL=2 (B <- T)
+IM[1]  Output <- B   FA=0 FB=3 FC=6 -> FF 0o036, BSEL=2 (B <- T)
+IM[2]  quiet         ASEL=4
+IM[3]  quiet, jumping back to 0
+```
+
+with T preloaded to `0xF800` by a jam before the run — a jam is exactly right
+for that, because T is processor state; what a jam cannot do is make a device
+answer.
+
+| | board SELECTED | of which with the processor free |
+|---|---|---|
+| baseline | 448 | 448 |
+| **`+slowio`** | **928** | **928** |
+
+**The board answers, from running microcode**, and every select happens while
+`IgnoreCommands` is low. Both are gated: a select with the processor stepped
+would mean the model lets a jammed instruction drive a device, which the
+hardware does not.
+
+All four jam limitations were applied in advance rather than discovered:
+the loop is in IM, its **load** is in the startup, it keeps quiet slots, and
+the device write is not jammed. That is the first piece of this work where the
+constraints were known before the first attempt.
+
+Measuring **during** the run matters: the post-run section jams, so
+`IgnoreCommands` reads 1 there by definition, and an earlier reading taken
+there looked like the board was refusing commands when it was simply being
+asked at the wrong moment.
