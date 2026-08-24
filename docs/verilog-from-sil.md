@@ -1544,3 +1544,41 @@ inverting f24's MC10121 output reproduces `tb_memrun`'s exact 99%, and making
 k02 count instead of parallel-load is caught. (The first attempt at the second
 mutation silently did not apply, and its "pass" was meaningless: **check that
 a mutation actually changed the file.**)
+
+### IM parity: the MC10170 polarity is settled, three ways (2026-08-23)
+
+`cell_MC10170`'s `p15` is written `~(par9 ^ p13 ^ p14)` and should be
+`par9 ^ p13 ^ p14`. Three independent confirmations, none owing anything to
+the others:
+
+1. **The data sheet's logic diagram** draws B as a plain three-input XOR --
+   no bubble. The inversion its truth table shows comes from the nominal
+   control levels the same diagram labels, which the Dorado does not use.
+2. **PARC's thirteen IRTable microinstructions** must read `PE' = 1`, because
+   `InitManifolds` leaves IM parity errors ENABLED. With the fix all thirteen
+   do; with the inversion none do.
+3. **`cpu.c`'s overflow logic**, new here. ProcH d13 is an MC10170 wired as a
+   signed-overflow detector -- its inputs are the two operand sign bits, the
+   result sign, `aluCout`, and `aluF0` (= S3: it lands on pin 13 of both
+   MC10181s). `tb_alu_vs_c` now runs it against `alu_op`'s own `ovf`:
+
+   | ALUFM entry | p15 inverted (today) | p15 not inverted (the fix) |
+   |---|---|---|
+   | 14 | 0 of 256 | **256 of 256** |
+   | 22 | 0 of 256 | **256 of 256** |
+   | 54 | 0 of 256 | **256 of 256** |
+
+   768 vectors, unanimous both ways. Nothing else in the table splits cleanly
+   because `alu_op()` uses a DIFFERENT overflow formula per operation (HM
+   section 3.7) while d13 computes one fixed function -- 14/22/54 are the
+   entries where the C's formula IS the hardware's.
+
+`dorado/tests/alu_vectors.c` already computed `ovf` and threw it away; it
+emits it now, as a sixth column.
+
+**What remains is not the polarity but five benches** -- `datapath-test`,
+`operand-test`, `step-test`, `sendmir`, `compute-test` -- which break when the
+cell is corrected. On this evidence they are calibrated against the BUG,
+exactly as `msa-test` turned out to be for the SN74166 stage order. Re-derive
+them one at a time against the corrected cell. Do not weaken them, and do not
+revert the cell to make them green.
