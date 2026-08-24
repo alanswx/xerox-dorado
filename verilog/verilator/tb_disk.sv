@@ -49,16 +49,29 @@
 //      what makes the comparison above valid, but for a different reason than
 //      was claimed.
 //
-// SO THE ANOMALY IS REAL AND UNEXPLAINED: same operand, same jam, no driver
-// difference on the net, and TIOA is 0 on the disk machine. Start by asking
-// whether the JAM ITSELF executes here -- DskEth's presence could be holding
-// the processor (it drives hold lines the display board does not), and a jam
-// that never runs writes nothing. Measure the hold lines and the clk0' edge
-// count on both machines before touching TIOA again.
+// SO THE ANOMALY IS REAL, AND EVERY OBVIOUS EXPLANATION IS NOW ELIMINATED:
 //
-// AND CHECK THAT AN EDIT APPLIED. Two silent no-op edits in this file alone
-// produced two wrong conclusions; an edit that does not throw is not an edit
-// that landed.
+//   * IDENTICAL STIMULUS -- the two benches' TIOA sequences are byte for byte
+//     the same (set_cpreg_plain(16'hF800); TFromCPReg#; nop; jam_mi(TIOA<-B);
+//     nop) and T reads f800 on both at the write.
+//   * IDENTICAL MACHINE BEHAVIOUR -- both report 180 clk0' edges, Stop=0,
+//     PrHoldReq/CHoldReq/ExtHoldReq/PRhold all 0, and RefHold'/MDhold'/
+//     MiscHold' all 1. Nothing is holding, so the jam is not being blocked.
+//   * NO BOARD DRIVES TIOA -- all EIGHT bits checked on both boards this time,
+//     not one and generalised: DskEth drives none of TIOA.0-7 and neither does
+//     DispY. ProcH g10 (an F10000) is the driver.
+//
+// WHAT IS LEFT is the TIOA register's own write enable on ProcH, or the
+// capture instant. Both benches sample right after the trailing nop, but the
+// disk bench carries more probes and a different amount of simulated time
+// before that point -- and "sampled at the wrong moment" has been the single
+// most expensive error in this whole effort. Capture TIOA over a WINDOW around
+// the jam on both machines before concluding the register is not being
+// written.
+//
+// AND CHECK THAT AN EDIT APPLIED. Two silent no-op edits in this file produced
+// two wrong conclusions, and a third elsewhere produced a meaningless
+// mutation-test pass. An edit that does not throw is not an edit that landed.
 //
 // The derivation from tb_display neutralised a number of DispY-only signals to
 // constants (IgnoreCommands among them -- it reads 140559 of 140559 precisely
