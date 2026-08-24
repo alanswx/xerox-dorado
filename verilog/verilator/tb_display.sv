@@ -1294,7 +1294,8 @@ module tb_display;
   reg d00_last, dmd_last, md_last;
   integer n_coin_dmd, n_h05out, n_cwe, n_cce, n_d0in, n_dmd_ok, n_md_ok, n_dmd16, n_md16;
   integer n_we_fall, n_we_match, n_sind1, n_we_ones, n_we1, n_we1_ones, n_ce0, n_ce1;
-  integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout;
+  integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q;
+  reg [15:0] q_now, q_last;
   reg [15:0] alub_at_out;
   reg [15:0] iob_now;
   reg dyclk_d; reg [15:0] iob_at_sel;
@@ -1310,7 +1311,7 @@ module tb_display;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
     dad_at_write=12'bx; dad_at_read=12'bx; dad_ones=12'bx;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
@@ -1414,8 +1415,22 @@ module tb_display;
     // the Output<- has to assert IOBout, and alub has to carry the data.
     // Sample alub WHEN IOBout IS HIGH -- that is the moment the write happens,
     // and it is one instruction wide.
+    // AND WHAT IS IN Q DURING THE RUN? The mux says BSEL=3 selects Q -- ProcH
+    // b01 is an MC10174 whose X0 is Q.00 and whose selects Bmux0'/Bmux1' are
+    // PRIMED, so BSEL=3 drives both low and picks X0. If the selection is
+    // right, the value must be wrong: Q may not be HOLDING.
+    q_now = {m.b_ProcH.Q_00, m.b_ProcH.Q_01, m.b_ProcH.Q_02, m.b_ProcH.Q_03,
+             m.b_ProcH.Q_04, m.b_ProcH.Q_05, m.b_ProcH.Q_06, m.b_ProcH.Q_07,
+             m.b_ProcL.Q_08, m.b_ProcL.Q_09, m.b_ProcL.Q_10, m.b_ProcL.Q_11,
+             m.b_ProcL.Q_12, m.b_ProcL.Q_13, m.b_ProcL.Q_14, m.b_ProcL.Q_15};
+    if (q_now == 16'h5A5A) n_q_held = n_q_held + 1;
+    if (q_now !== q_last) begin n_q_chg = n_q_chg + 1; q_last = q_now; end
     if (m.b_ProcH.IOBout) begin
       n_iobout = n_iobout + 1;
+      // ...and was Q ALREADY LOADED when the strobe happened? Q is loaded
+      // near the END of the startup, so it holds 5a5a for only the last few
+      // thousand samples. A strobe before that reads whatever Q was.
+      if (q_now == 16'h5A5A) n_out_q = n_out_q + 1;
       alub_at_out <= {m.b_ProcH.alub_00a, m.b_ProcH.alub_01a, m.b_ProcH.alub_02a,
                       m.b_ProcH.alub_03a, m.b_ProcH.alub_04a, m.b_ProcH.alub_05a,
                       m.b_ProcH.alub_06a, m.b_ProcH.alub_07a,
@@ -2564,6 +2579,29 @@ module tb_display;
                   '{8'o201, 8'o202, 8'o203, 8'o200});
       send_a_hunk(16'd0);          // AT IM[0..3]: the executing loop is there
       $display("tb_display: +slowio -- IM[0..3] = TIOA<- / Output<- / quiet / quiet");
+      // T CARRIES THE VALUE FOR BOTH SLOW-I/O INSTRUCTIONS, so load it before
+      // the run. A jam is exactly right for this -- T is processor state, and
+      // jams set that perfectly well; what they cannot do is make a DEVICE
+      // answer. 0xF800 puts 370B in B's high byte, which is what TIOA<-B takes.
+        set_cpreg_plain(16'hF800);
+        parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);   // TFromCPReg#
+        nop_micro;
+        // AND A SECOND VALUE, so the loop can write a WCB word rather than the
+        // address twice. FF is consumed by the opcode, so B cannot carry a
+        // literal -- it has to come from a register, and Q is the second one
+        // available (BSEL=3). PARC's QFromCPReg# loads it, and note its own
+        // caveat from tb_compute: Q IS NOT LOADED BY QFromCPReg#, IT IS LOADED
+        // BY THE NOP AFTER IT, because the controls in force at a load edge are
+        // the ones the PREVIOUS instruction latched.
+        set_cpreg_plain(16'h5A5A);
+        parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40);   // QFromCPReg#
+        nop_micro;
+        q_pre = {m.b_ProcH.Q_00, m.b_ProcH.Q_01, m.b_ProcH.Q_02, m.b_ProcH.Q_03,
+                 m.b_ProcH.Q_04, m.b_ProcH.Q_05, m.b_ProcH.Q_06, m.b_ProcH.Q_07,
+                 m.b_ProcL.Q_08, m.b_ProcL.Q_09, m.b_ProcL.Q_10, m.b_ProcL.Q_11,
+                 m.b_ProcL.Q_12, m.b_ProcL.Q_13, m.b_ProcL.Q_14, m.b_ProcL.Q_15};
+        $display("tb_display: +slowio -- T and Q loaded for the loop (Q = %h, want 5a5a)", q_pre);
+
     end
     // ARE THE FOUR COPIES ACTUALLY IDENTICAL? IM is four INTERLEAVED banks --
     // the low two address bits pick the bank -- so IM[0..3] are bank 0..3 at
@@ -2705,30 +2743,6 @@ module tb_display;
     end
     $display("tb_display: ALL 21 map bit planes preloaded to 1 (parity experiment)");
 
-    // T CARRIES THE VALUE FOR BOTH SLOW-I/O INSTRUCTIONS, so load it before
-    // the run. A jam is exactly right for this -- T is processor state, and
-    // jams set that perfectly well; what they cannot do is make a DEVICE
-    // answer. 0xF800 puts 370B in B's high byte, which is what TIOA<-B takes.
-    if ($test$plusargs("slowio")) begin
-      set_cpreg_plain(16'hF800);
-      parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);   // TFromCPReg#
-      nop_micro;
-      // AND A SECOND VALUE, so the loop can write a WCB word rather than the
-      // address twice. FF is consumed by the opcode, so B cannot carry a
-      // literal -- it has to come from a register, and Q is the second one
-      // available (BSEL=3). PARC's QFromCPReg# loads it, and note its own
-      // caveat from tb_compute: Q IS NOT LOADED BY QFromCPReg#, IT IS LOADED
-      // BY THE NOP AFTER IT, because the controls in force at a load edge are
-      // the ones the PREVIOUS instruction latched.
-      set_cpreg_plain(16'h5A5A);
-      parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40);   // QFromCPReg#
-      nop_micro;
-      q_pre = {m.b_ProcH.Q_00, m.b_ProcH.Q_01, m.b_ProcH.Q_02, m.b_ProcH.Q_03,
-               m.b_ProcH.Q_04, m.b_ProcH.Q_05, m.b_ProcH.Q_06, m.b_ProcH.Q_07,
-               m.b_ProcL.Q_08, m.b_ProcL.Q_09, m.b_ProcL.Q_10, m.b_ProcL.Q_11,
-               m.b_ProcL.Q_12, m.b_ProcL.Q_13, m.b_ProcL.Q_14, m.b_ProcL.Q_15};
-      $display("tb_display: +slowio -- T and Q loaded for the loop (Q = %h, want 5a5a)", q_pre);
-    end
 
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
     for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
@@ -3493,6 +3507,10 @@ module tb_display;
              n_iob_nz, n_tot, n_iob_any);
     $display("tb_display:   THE STROBE -- IOBout high on %0d of %0d, and alub at that moment = %h",
              n_iobout, n_tot, alub_at_out);
+    $display("tb_display:   AND Q -- holds 5a5a on %0d of %0d samples, changes %0d times, ends at %h",
+             n_q_held, n_tot, n_q_chg, q_now);
+    $display("tb_display:   COINCIDENCE -- of %0d IOBout strobes, %0d happened while Q held 5a5a",
+             n_iobout, n_out_q);
     // GATE: THE Output<- INSTRUCTION DECODES AND STROBES. ProcH h01 is an
     // MC10197 hex AND -- IOB = IOBout & alub -- so IOBout asserting is the
     // write actually happening. It is high on 32 samples with +slowio and on
@@ -3502,22 +3520,35 @@ module tb_display;
     if (!$test$plusargs("slowio") && n_iobout != 0)
       $fatal(1, "IOBout asserted %0d times with no slow-I/O loop loaded", n_iobout);
 
-    // OPEN, AND NARROWED TO ONE THING: B DOES NOT CARRY Q.
+    // GATE: THE PROCESSOR WRITES A WORD TO THE DISPLAY BOARD.
     //
-    // At the moment IOBout is high, alub reads 0015 -- not the 5a5a that Q
-    // demonstrably holds (the pre-run readback confirms it). So the strobe is
-    // right and the DATA SELECTION is wrong: BSEL=3 is not delivering Q.
+    // Every IOBout strobe must find the data on B, and the same number of
+    // samples must carry it at the board -- IOB = IOBout & alub, so those two
+    // counts agreeing is the write landing.
+    if ($test$plusargs("slowio")) begin
+      if (alub_at_out !== 16'h5A5A)
+        $fatal(1, "alub is %h at the IOBout strobe, not 5a5a -- B is not carrying Q",
+               alub_at_out);
+      if (n_out_q !== n_iobout)
+        $fatal(1, "only %0d of %0d strobes happened with Q loaded -- the loop is running before its operands exist",
+               n_out_q, n_iobout);
+      if (n_iob_any !== n_iobout)
+        $fatal(1, "IOB carried the word on %0d samples but IOBout strobed %0d times",
+               n_iob_any, n_iobout);
+    end
     //
-    // That is the first of the three candidates this bench listed, and the
-    // other two are now ruled out -- the IOB drive needs no qualifier beyond
-    // IOBout, and the bit order cannot explain a value that is not Q at all.
+    // WHAT MADE THIS WORK, and it was ordering, not logic. The first version
+    // loaded T and Q after the map preload -- LATE -- and the loop had already
+    // been running since the IM send. Zero of 32 strobes coincided with Q
+    // holding its value, alub read a stale 0015, and it looked exactly like
+    // BSEL=3 failing to select Q. It was not: the mux is right (ProcH b01, an
+    // MC10174 whose X0 is Q and whose selects Bmux0'/Bmux1' are PRIMED, so
+    // BSEL=3 drives both low and picks X0). Moving the operand load to
+    // immediately after the IM send took the strobes from 32 to 960 and alub
+    // from 0015 to 5a5a.
     //
-    // cpu.c's b_bus case 3 is "Q (or Q<-B with external)" -- TWO behaviours
-    // sharing one BSEL, and the external qualifier is not driven here. Read
-    // what ProcH/ProcL actually select for BSEL=3 and what 0015 IS: note that
-    // 0o25 = 0x15, and 0o25 is exactly the value PARC's own QFromCPReg#
-    // sends in tb_compute, so 0015 may be a stale or default B rather than a
-    // wrong register.
+    // OPERANDS BEFORE THE LOOP THAT USES THEM. Obvious in hindsight, and it
+    // cost a wrong hypothesis about the B multiplexer.
     if (n_dyclk == 0)
       $fatal(1, "DispY has no local clock -- is CLK.display' driven?");
     // AND THE BOARD IS ASKING. WakeDHT is the display HEAD task's wakeup and
