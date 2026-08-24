@@ -1582,3 +1582,30 @@ cell is corrected. On this evidence they are calibrated against the BUG,
 exactly as `msa-test` turned out to be for the SN74166 stage order. Re-derive
 them one at a time against the corrected cell. Do not weaken them, and do not
 revert the cell to make them green.
+
+### PARC's second DoControl is NOT the fix (2026-08-23, negative result)
+
+`doradocpint.masm`'s `BasicStopDorado` is **two** DoControls and our `jam_step`
+had only the first:
+
+```
+BasicStopDorado:
+  LDAI SetRun ; SEC ; JSR DoControl   keep SetRun, assert SetSS
+  LDAI 0      ; SEC ; JSR DoControl   CLEAR SetRun, keep SetSS, no ClrStop
+```
+
+The second is added now in all ten benches that define `jam_step`, because it
+is what PARC does and the tree stays green with it. **But it does not repair
+the five benches** that break under the corrected `cell_MC10170`: they still
+fail with their original messages, and spacing the two strobes apart does not
+help either.
+
+So the jam sequence needs re-deriving **as a whole** against
+`doradocpint.masm`, not repairing one strobe at a time. And note what holds a
+jam today: with the inverted `p15`, PARC's own IRTable entries FAIL IM parity,
+the MIR freezes, and the jam survives — **these benches have been depending on
+a parity failure to do the single-step chain's job.**
+
+One measurement trap: `tb_step.sv` defines neither `GAP` nor `WT`, so a
+spacing edit copied from the other benches is a **compile error** there, and
+its "FAIL" said nothing about the logic. Read the failure before counting it.

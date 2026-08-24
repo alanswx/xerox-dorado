@@ -591,6 +591,21 @@ module tb_taskrun;
       strobe(3'd4, b1, b0[7]); strobe(3'd5, b2, b0[6]);
       strobe(3'd6, b3, b0[5]); strobe(3'd7, b4, b0[4]);
       strobe(3'd0, 8'h01, 1'b1);
+      // PARC'S BasicStopDorado IS TWO DoControls, AND THIS IS THE SECOND:
+      //
+      //     BasicStopDorado:
+      //       LDAI SetRun ; SEC ; JSR DoControl   keep SetRun, assert SetSS
+      //       LDAI 0      ; SEC ; JSR DoControl   CLEAR SetRun, keep SetSS,
+      //                                           and do NOT ClrStop
+      //
+      // (doradocpint.masm). Without it the machine is left with SetRun still
+      // asserted, so the jam is only held while its microinstruction FAILS IM
+      // PARITY and freezes the MIR -- which is why these benches used to
+      // depend on cell_MC10170's inverted p15 and broke the moment it was
+      // corrected. Holding the jam is the SINGLE-STEP chain's job, not the
+      // parity checker's.
+      repeat (GAP) @(posedge sys_clk);
+      strobe(3'd0, 8'h00, 1'b1);
     end
   endtask
 
