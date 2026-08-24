@@ -1297,6 +1297,7 @@ module tb_display;
   integer n_dyclk, n_twr11, n_wdht, n_tot; reg dyclk_d;
   reg dwt_asserted, dwt_full;
   integer tio, sel_count, sel_which;
+  reg [15:0] t_after; reg [7:0] tioa_seen;
   reg we_d_rb, we1_d;
   reg [11:0] dad_now, dad_at_write, dad_at_read, dad_ones;
   reg [17:0] dmd_cap, md_cap;
@@ -3426,6 +3427,52 @@ module tb_display;
     if (dwt_asserted === dwt_full)
       $fatal(1, "DWTWantsProc does not follow the FIFO (both %b) -- the traced condition is wrong",
              dwt_asserted);
+
+    // ---------------------------------------------------------------------
+    // THE PROCESSOR ADDRESSES THE DISPLAY BOARD. TIOA <- B[0:7] takes B's HIGH
+    // byte, and the board select is TIOA[0:4] = 37B, so B must be 0xF800.
+    //
+    // The constant cannot come from the FF field: BSEL=6 is `FF,,0` but FF is
+    // consumed by the opcode (TIOA<-B is FA=1 FB=5 FC=2 = FF 0o152), so the
+    // two conflict. It comes from T instead, loaded the way compute-test does
+    // it -- PARC's TFromCPReg# with the PLAIN CPReg sense, because B and T
+    // carry opposite senses of CPReg.
+    set_cpreg_plain(16'hF800);
+    parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);   // TFromCPReg#
+    nop_micro;
+    t_after = {m.b_ProcH.T_00, m.b_ProcH.T_01, m.b_ProcH.T_02, m.b_ProcH.T_03,
+               m.b_ProcH.T_04, m.b_ProcH.T_05, m.b_ProcH.T_06, m.b_ProcH.T_07,
+               m.b_ProcL.T_08, m.b_ProcL.T_09, m.b_ProcL.T_10, m.b_ProcL.T_11,
+               m.b_ProcL.T_12, m.b_ProcL.T_13, m.b_ProcL.T_14, m.b_ProcL.T_15};
+    $display("tb_display: TIOA WRITE -- T = %h (want f800)", t_after);
+    // Now TIOA <- B with BSEL = 2 (B <- T).
+    jam_mi(mi(4'd0, 4'd0, 3'd2, 3'd0, 3'd0, 8'o152, 8'o201, 1'b0));
+    nop_micro;
+    tioa_seen = {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2,
+                 m.b_ProcH.TIOA_3, m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5,
+                 m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7};
+    $display("tb_display:            ...TIOA = %b (want 11111000 = 370B), board selected: %b",
+             tioa_seen, !m.b_DispY.TIOASaysDDC_p_);
+    // GATE: THE PROCESSOR ADDRESSES THE DISPLAY BOARD, and the address gets
+    // there. TIOA is the processor's, TIOADly is what DispY sees.
+    if (tioa_seen !== 8'b11111000)
+      $fatal(1, "TIOA is %b after TIOA<-B, not 11111000 (370B)", tioa_seen);
+    if ({m.b_DispY.TIOADly_00, m.b_DispY.TIOADly_01, m.b_DispY.TIOADly_02,
+         m.b_DispY.TIOADly_03, m.b_DispY.TIOADly_04} !== 5'b11111)
+      $fatal(1, "DispY sees TIOADly %b%b%b%b%b, not 11111 -- the address did not cross the backplane",
+             m.b_DispY.TIOADly_00, m.b_DispY.TIOADly_01, m.b_DispY.TIOADly_02,
+             m.b_DispY.TIOADly_03, m.b_DispY.TIOADly_04);
+    // AND THE BOARD STILL DOES NOT SELECT, because IgnoreCommands is high.
+    // That is the next thing to clear, and it is why the sweep below forces it
+    // low: with the address right and IgnoreCommands high, TIOASaysDDC' stays
+    // deasserted. Find what sets IgnoreCommands -- a reset state the microcode
+    // clears, or a control register write.
+    if (m.b_DispY.IgnoreCommands)
+      $display("tb_display: OPEN -- address correct at the board, but IgnoreCommands=1 blocks the select");
+
+    $display("tb_display:            ...TIOADly = %b%b%b%b%b, IgnoreCommands = %b",
+             m.b_DispY.TIOADly_00, m.b_DispY.TIOADly_01, m.b_DispY.TIOADly_02,
+             m.b_DispY.TIOADly_03, m.b_DispY.TIOADly_04, m.b_DispY.IgnoreCommands);
 
     // ---------------------------------------------------------------------
     // THE BOARD'S SLOW-I/O ADDRESS. A WCB is set up by writing DispY's

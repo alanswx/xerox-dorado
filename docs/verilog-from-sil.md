@@ -1965,3 +1965,30 @@ followed by an `Output←` carrying the WCB word.
 instructions must come from IM rather than a jam (`DoDoradoMicroInst`'s first
 Control byte carries `ClrCT`); the IM load must happen in the startup for the
 same reason; and the loop must keep tasking ON or `CTask` sticks.
+
+### The processor addresses the display board (2026-08-24)
+
+`TIOA ← B[0:7]` takes B's HIGH byte, and DispY's select is TIOA[0:4] = 37B, so
+B must be `0xF800`. **The constant cannot come from the FF field** — BSEL=6 is
+`FF,,0`, but FF is consumed by the opcode (`TIOA←B` is FA=1 FB=5 FC=2 =
+FF `0o152`), so the two conflict. It comes from **T** instead, loaded the way
+`compute-test` does it: PARC's `TFromCPReg#` with the **plain** CPReg sense,
+because B and T carry opposite senses of CPReg.
+
+Measured:
+
+```
+T        = f843        high byte f8, as loaded
+TIOA     = 11111000    370B -- exactly right
+TIOADly  = 11111       the address crossed the backplane intact
+IgnoreCommands = 1     <- and this is what blocks the select
+```
+
+The first three are gated. The fourth is the next step: with the address
+correct at the board, `TIOASaysDDC'` stays deasserted because
+`IgnoreCommands` is high — which is why the TIOA sweep above forces it low.
+Find what sets it: a reset state the microcode clears, or a control-register
+write.
+
+(The `f843` low byte is left over from the startup's `T=0043`; only the high
+byte matters to TIOA, but it is worth knowing `TFromCPReg#` did not clear it.)

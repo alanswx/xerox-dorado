@@ -13,12 +13,6 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
     tb_display__DOT__dwt_asserted = 0;
     CData/*0:0*/ tb_display__DOT__dwt_full;
     tb_display__DOT__dwt_full = 0;
-    IData/*31:0*/ tb_display__DOT__tio;
-    tb_display__DOT__tio = 0;
-    IData/*31:0*/ tb_display__DOT__sel_count;
-    tb_display__DOT__sel_count = 0;
-    IData/*31:0*/ tb_display__DOT__sel_which;
-    tb_display__DOT__sel_which = 0;
     IData/*31:0*/ tb_display__DOT__tbad;
     tb_display__DOT__tbad = 0;
     IData/*31:0*/ tb_display__DOT__nmemclk;
@@ -351,8 +345,6 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
     tb_display__DOT__unnamedblk1_31__DOT____Vrepeat30 = 0;
     IData/*31:0*/ tb_display__DOT__unnamedblk1_32__DOT____Vrepeat31;
     tb_display__DOT__unnamedblk1_32__DOT____Vrepeat31 = 0;
-    IData/*31:0*/ tb_display__DOT__unnamedblk1_33__DOT____Vrepeat32;
-    tb_display__DOT__unnamedblk1_33__DOT____Vrepeat32 = 0;
     SData/*15:0*/ __Vfunc_tb_display__DOT__rd_L0__1762__Vfuncout;
     __Vfunc_tb_display__DOT__rd_L0__1762__Vfuncout = 0;
     IData/*31:0*/ __Vfunc_tb_display__DOT__rd_L0__1762__idx;
@@ -1289,10 +1281,536 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
     __Vfunc_tb_display__DOT__WT__1922__Vfuncout = 0;
     IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1922__n;
     __Vfunc_tb_display__DOT__WT__1922__n = 0;
-    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1923__Vfuncout;
-    __Vfunc_tb_display__DOT__WT__1923__Vfuncout = 0;
-    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1923__n;
-    __Vfunc_tb_display__DOT__WT__1923__n = 0;
+    SData/*15:0*/ __Vtask_tb_display__DOT__set_cpreg_plain__1923__v;
+    __Vtask_tb_display__DOT__set_cpreg_plain__1923__v = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1924__fn;
+    __Vtask_tb_display__DOT__strobe__1924__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1924__data;
+    __Vtask_tb_display__DOT__strobe__1924__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1924__ss;
+    __Vtask_tb_display__DOT__strobe__1924__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1925__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1925__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1925__n;
+    __Vfunc_tb_display__DOT__WT__1925__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1926__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1926__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1926__n;
+    __Vfunc_tb_display__DOT__WT__1926__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1927__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1927__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1927__n;
+    __Vfunc_tb_display__DOT__WT__1927__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1928__fn;
+    __Vtask_tb_display__DOT__strobe__1928__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1928__data;
+    __Vtask_tb_display__DOT__strobe__1928__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1928__ss;
+    __Vtask_tb_display__DOT__strobe__1928__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1929__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1929__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1929__n;
+    __Vfunc_tb_display__DOT__WT__1929__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1930__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1930__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1930__n;
+    __Vfunc_tb_display__DOT__WT__1930__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1931__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1931__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1931__n;
+    __Vfunc_tb_display__DOT__WT__1931__n = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__parc_micro__1932__b0;
+    __Vtask_tb_display__DOT__parc_micro__1932__b0 = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__parc_micro__1932__b1;
+    __Vtask_tb_display__DOT__parc_micro__1932__b1 = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__parc_micro__1932__b2;
+    __Vtask_tb_display__DOT__parc_micro__1932__b2 = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__parc_micro__1932__b3;
+    __Vtask_tb_display__DOT__parc_micro__1932__b3 = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__parc_micro__1932__b4;
+    __Vtask_tb_display__DOT__parc_micro__1932__b4 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17;
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18;
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19;
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20;
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21;
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22;
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1933__fn;
+    __Vtask_tb_display__DOT__strobe__1933__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1933__data;
+    __Vtask_tb_display__DOT__strobe__1933__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1933__ss;
+    __Vtask_tb_display__DOT__strobe__1933__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1934__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1934__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1934__n;
+    __Vfunc_tb_display__DOT__WT__1934__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1935__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1935__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1935__n;
+    __Vfunc_tb_display__DOT__WT__1935__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1936__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1936__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1936__n;
+    __Vfunc_tb_display__DOT__WT__1936__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1937__fn;
+    __Vtask_tb_display__DOT__strobe__1937__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1937__data;
+    __Vtask_tb_display__DOT__strobe__1937__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1937__ss;
+    __Vtask_tb_display__DOT__strobe__1937__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1938__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1938__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1938__n;
+    __Vfunc_tb_display__DOT__WT__1938__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1939__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1939__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1939__n;
+    __Vfunc_tb_display__DOT__WT__1939__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1940__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1940__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1940__n;
+    __Vfunc_tb_display__DOT__WT__1940__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1941__fn;
+    __Vtask_tb_display__DOT__strobe__1941__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1941__data;
+    __Vtask_tb_display__DOT__strobe__1941__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1941__ss;
+    __Vtask_tb_display__DOT__strobe__1941__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1942__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1942__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1942__n;
+    __Vfunc_tb_display__DOT__WT__1942__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1943__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1943__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1943__n;
+    __Vfunc_tb_display__DOT__WT__1943__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1944__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1944__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1944__n;
+    __Vfunc_tb_display__DOT__WT__1944__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1945__fn;
+    __Vtask_tb_display__DOT__strobe__1945__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1945__data;
+    __Vtask_tb_display__DOT__strobe__1945__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1945__ss;
+    __Vtask_tb_display__DOT__strobe__1945__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1946__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1946__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1946__n;
+    __Vfunc_tb_display__DOT__WT__1946__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1947__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1947__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1947__n;
+    __Vfunc_tb_display__DOT__WT__1947__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1948__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1948__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1948__n;
+    __Vfunc_tb_display__DOT__WT__1948__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1949__fn;
+    __Vtask_tb_display__DOT__strobe__1949__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1949__data;
+    __Vtask_tb_display__DOT__strobe__1949__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1949__ss;
+    __Vtask_tb_display__DOT__strobe__1949__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1950__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1950__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1950__n;
+    __Vfunc_tb_display__DOT__WT__1950__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1951__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1951__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1951__n;
+    __Vfunc_tb_display__DOT__WT__1951__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1952__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1952__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1952__n;
+    __Vfunc_tb_display__DOT__WT__1952__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1953__fn;
+    __Vtask_tb_display__DOT__strobe__1953__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1953__data;
+    __Vtask_tb_display__DOT__strobe__1953__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1953__ss;
+    __Vtask_tb_display__DOT__strobe__1953__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1954__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1954__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1954__n;
+    __Vfunc_tb_display__DOT__WT__1954__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1955__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1955__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1955__n;
+    __Vfunc_tb_display__DOT__WT__1955__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1956__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1956__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1956__n;
+    __Vfunc_tb_display__DOT__WT__1956__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1957__fn;
+    __Vtask_tb_display__DOT__strobe__1957__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1957__data;
+    __Vtask_tb_display__DOT__strobe__1957__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1957__ss;
+    __Vtask_tb_display__DOT__strobe__1957__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1958__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1958__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1958__n;
+    __Vfunc_tb_display__DOT__WT__1958__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1959__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1959__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1959__n;
+    __Vfunc_tb_display__DOT__WT__1959__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1960__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1960__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1960__n;
+    __Vfunc_tb_display__DOT__WT__1960__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1962__fn;
+    __Vtask_tb_display__DOT__strobe__1962__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1962__data;
+    __Vtask_tb_display__DOT__strobe__1962__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1962__ss;
+    __Vtask_tb_display__DOT__strobe__1962__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1963__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1963__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1963__n;
+    __Vfunc_tb_display__DOT__WT__1963__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1964__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1964__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1964__n;
+    __Vfunc_tb_display__DOT__WT__1964__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1965__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1965__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1965__n;
+    __Vfunc_tb_display__DOT__WT__1965__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1966__fn;
+    __Vtask_tb_display__DOT__strobe__1966__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1966__data;
+    __Vtask_tb_display__DOT__strobe__1966__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1966__ss;
+    __Vtask_tb_display__DOT__strobe__1966__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1967__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1967__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1967__n;
+    __Vfunc_tb_display__DOT__WT__1967__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1968__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1968__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1968__n;
+    __Vfunc_tb_display__DOT__WT__1968__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1969__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1969__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1969__n;
+    __Vfunc_tb_display__DOT__WT__1969__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1970__fn;
+    __Vtask_tb_display__DOT__strobe__1970__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1970__data;
+    __Vtask_tb_display__DOT__strobe__1970__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1970__ss;
+    __Vtask_tb_display__DOT__strobe__1970__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1971__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1971__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1971__n;
+    __Vfunc_tb_display__DOT__WT__1971__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1972__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1972__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1972__n;
+    __Vfunc_tb_display__DOT__WT__1972__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1973__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1973__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1973__n;
+    __Vfunc_tb_display__DOT__WT__1973__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1974__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1974__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1974__n;
+    __Vfunc_tb_display__DOT__WT__1974__n = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__parc_micro__1976__b0;
+    __Vtask_tb_display__DOT__parc_micro__1976__b0 = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__parc_micro__1976__b2;
+    __Vtask_tb_display__DOT__parc_micro__1976__b2 = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__parc_micro__1976__b3;
+    __Vtask_tb_display__DOT__parc_micro__1976__b3 = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__parc_micro__1976__b4;
+    __Vtask_tb_display__DOT__parc_micro__1976__b4 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17;
+    __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18;
+    __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19;
+    __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20;
+    __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1977__fn;
+    __Vtask_tb_display__DOT__strobe__1977__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1977__data;
+    __Vtask_tb_display__DOT__strobe__1977__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1977__ss;
+    __Vtask_tb_display__DOT__strobe__1977__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1978__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1978__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1978__n;
+    __Vfunc_tb_display__DOT__WT__1978__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1979__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1979__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1979__n;
+    __Vfunc_tb_display__DOT__WT__1979__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1980__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1980__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1980__n;
+    __Vfunc_tb_display__DOT__WT__1980__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1981__fn;
+    __Vtask_tb_display__DOT__strobe__1981__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1981__data;
+    __Vtask_tb_display__DOT__strobe__1981__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1981__ss;
+    __Vtask_tb_display__DOT__strobe__1981__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1982__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1982__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1982__n;
+    __Vfunc_tb_display__DOT__WT__1982__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1983__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1983__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1983__n;
+    __Vfunc_tb_display__DOT__WT__1983__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1984__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1984__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1984__n;
+    __Vfunc_tb_display__DOT__WT__1984__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1985__fn;
+    __Vtask_tb_display__DOT__strobe__1985__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1985__data;
+    __Vtask_tb_display__DOT__strobe__1985__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1985__ss;
+    __Vtask_tb_display__DOT__strobe__1985__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1986__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1986__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1986__n;
+    __Vfunc_tb_display__DOT__WT__1986__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1987__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1987__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1987__n;
+    __Vfunc_tb_display__DOT__WT__1987__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1988__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1988__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1988__n;
+    __Vfunc_tb_display__DOT__WT__1988__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1989__fn;
+    __Vtask_tb_display__DOT__strobe__1989__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1989__data;
+    __Vtask_tb_display__DOT__strobe__1989__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1989__ss;
+    __Vtask_tb_display__DOT__strobe__1989__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1990__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1990__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1990__n;
+    __Vfunc_tb_display__DOT__WT__1990__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1991__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1991__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1991__n;
+    __Vfunc_tb_display__DOT__WT__1991__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1992__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1992__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1992__n;
+    __Vfunc_tb_display__DOT__WT__1992__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1993__fn;
+    __Vtask_tb_display__DOT__strobe__1993__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1993__data;
+    __Vtask_tb_display__DOT__strobe__1993__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1993__ss;
+    __Vtask_tb_display__DOT__strobe__1993__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1994__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1994__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1994__n;
+    __Vfunc_tb_display__DOT__WT__1994__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1995__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1995__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1995__n;
+    __Vfunc_tb_display__DOT__WT__1995__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1996__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1996__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1996__n;
+    __Vfunc_tb_display__DOT__WT__1996__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__1997__fn;
+    __Vtask_tb_display__DOT__strobe__1997__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__1997__data;
+    __Vtask_tb_display__DOT__strobe__1997__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__1997__ss;
+    __Vtask_tb_display__DOT__strobe__1997__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1998__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1998__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1998__n;
+    __Vfunc_tb_display__DOT__WT__1998__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1999__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__1999__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__1999__n;
+    __Vfunc_tb_display__DOT__WT__1999__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2000__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__2000__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2000__n;
+    __Vfunc_tb_display__DOT__WT__2000__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__2001__fn;
+    __Vtask_tb_display__DOT__strobe__2001__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__2001__data;
+    __Vtask_tb_display__DOT__strobe__2001__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__2001__ss;
+    __Vtask_tb_display__DOT__strobe__2001__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2002__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__2002__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2002__n;
+    __Vfunc_tb_display__DOT__WT__2002__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2003__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__2003__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2003__n;
+    __Vfunc_tb_display__DOT__WT__2003__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2004__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__2004__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2004__n;
+    __Vfunc_tb_display__DOT__WT__2004__n = 0;
+    CData/*2:0*/ __Vtask_tb_display__DOT__strobe__2006__fn;
+    __Vtask_tb_display__DOT__strobe__2006__fn = 0;
+    CData/*7:0*/ __Vtask_tb_display__DOT__strobe__2006__data;
+    __Vtask_tb_display__DOT__strobe__2006__data = 0;
+    CData/*0:0*/ __Vtask_tb_display__DOT__strobe__2006__ss;
+    __Vtask_tb_display__DOT__strobe__2006__ss = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1;
+    __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2;
+    __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2007__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__2007__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2007__n;
+    __Vfunc_tb_display__DOT__WT__2007__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2008__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__2008__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2008__n;
+    __Vfunc_tb_display__DOT__WT__2008__n = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2009__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__2009__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2009__n;
+    __Vfunc_tb_display__DOT__WT__2009__n = 0;
+    IData/*31:0*/ __Vtask_tb_display__DOT__strobe__2010__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0;
+    __Vtask_tb_display__DOT__strobe__2010__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2011__Vfuncout;
+    __Vfunc_tb_display__DOT__WT__2011__Vfuncout = 0;
+    IData/*31:0*/ __Vfunc_tb_display__DOT__WT__2011__n;
+    __Vfunc_tb_display__DOT__WT__2011__n = 0;
     // Body
     VL_WRITEF_NX("tb_display: IM[0..3] overwritten with ASEL=1 FF=100B references\n",0);
     VL_WRITEF_NX("tb_display:   IM[0] L=%x R=%x   IM[1] L=%x R=%x\n",0,
@@ -3583,7 +4101,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                                  nullptr, 
                                                                  "@(posedge tb_display.sys_clk)", 
                                                                  "verilog/verilator/tb_display.sv", 
-                                                                 1478);
+                                                                 1479);
             __Vtask_tb_display__DOT__manifold__1778__tb_display__DOT__unnamedblk1_4__DOT____Vrepeat3 
                 = (__Vtask_tb_display__DOT__manifold__1778__tb_display__DOT__unnamedblk1_4__DOT____Vrepeat3 
                    - (IData)(1U));
@@ -3604,7 +4122,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                                  nullptr, 
                                                                  "@(posedge tb_display.sys_clk)", 
                                                                  "verilog/verilator/tb_display.sv", 
-                                                                 1479);
+                                                                 1480);
             __Vtask_tb_display__DOT__manifold__1778__tb_display__DOT__unnamedblk1_5__DOT____Vrepeat4 
                 = (__Vtask_tb_display__DOT__manifold__1778__tb_display__DOT__unnamedblk1_5__DOT____Vrepeat4 
                    - (IData)(1U));
@@ -3625,7 +4143,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                                  nullptr, 
                                                                  "@(posedge tb_display.sys_clk)", 
                                                                  "verilog/verilator/tb_display.sv", 
-                                                                 1480);
+                                                                 1481);
             __Vtask_tb_display__DOT__manifold__1778__tb_display__DOT__unnamedblk1_6__DOT____Vrepeat5 
                 = (__Vtask_tb_display__DOT__manifold__1778__tb_display__DOT__unnamedblk1_6__DOT____Vrepeat5 
                    - (IData)(1U));
@@ -3649,7 +4167,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1482);
+                                                             1483);
         __Vtask_tb_display__DOT__manifold__1778__tb_display__DOT__unnamedblk1_7__DOT____Vrepeat6 
             = (__Vtask_tb_display__DOT__manifold__1778__tb_display__DOT__unnamedblk1_7__DOT____Vrepeat6 
                - (IData)(1U));
@@ -3670,7 +4188,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1483);
+                                                             1484);
         __Vtask_tb_display__DOT__manifold__1778__tb_display__DOT__unnamedblk1_8__DOT____Vrepeat7 
             = (__Vtask_tb_display__DOT__manifold__1778__tb_display__DOT__unnamedblk1_8__DOT____Vrepeat7 
                - (IData)(1U));
@@ -3705,7 +4223,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                                  nullptr, 
                                                                  "@(posedge tb_display.sys_clk)", 
                                                                  "verilog/verilator/tb_display.sv", 
-                                                                 1478);
+                                                                 1479);
             __Vtask_tb_display__DOT__manifold__1784__tb_display__DOT__unnamedblk1_4__DOT____Vrepeat3 
                 = (__Vtask_tb_display__DOT__manifold__1784__tb_display__DOT__unnamedblk1_4__DOT____Vrepeat3 
                    - (IData)(1U));
@@ -3726,7 +4244,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                                  nullptr, 
                                                                  "@(posedge tb_display.sys_clk)", 
                                                                  "verilog/verilator/tb_display.sv", 
-                                                                 1479);
+                                                                 1480);
             __Vtask_tb_display__DOT__manifold__1784__tb_display__DOT__unnamedblk1_5__DOT____Vrepeat4 
                 = (__Vtask_tb_display__DOT__manifold__1784__tb_display__DOT__unnamedblk1_5__DOT____Vrepeat4 
                    - (IData)(1U));
@@ -3747,7 +4265,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                                  nullptr, 
                                                                  "@(posedge tb_display.sys_clk)", 
                                                                  "verilog/verilator/tb_display.sv", 
-                                                                 1480);
+                                                                 1481);
             __Vtask_tb_display__DOT__manifold__1784__tb_display__DOT__unnamedblk1_6__DOT____Vrepeat5 
                 = (__Vtask_tb_display__DOT__manifold__1784__tb_display__DOT__unnamedblk1_6__DOT____Vrepeat5 
                    - (IData)(1U));
@@ -3771,7 +4289,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1482);
+                                                             1483);
         __Vtask_tb_display__DOT__manifold__1784__tb_display__DOT__unnamedblk1_7__DOT____Vrepeat6 
             = (__Vtask_tb_display__DOT__manifold__1784__tb_display__DOT__unnamedblk1_7__DOT____Vrepeat6 
                - (IData)(1U));
@@ -3792,7 +4310,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1483);
+                                                             1484);
         __Vtask_tb_display__DOT__manifold__1784__tb_display__DOT__unnamedblk1_8__DOT____Vrepeat7 
             = (__Vtask_tb_display__DOT__manifold__1784__tb_display__DOT__unnamedblk1_8__DOT____Vrepeat7 
                - (IData)(1U));
@@ -3877,7 +4395,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1791__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1791__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3896,7 +4414,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1791__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1791__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3920,7 +4438,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1791__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1791__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -3948,7 +4466,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1795__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1795__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -3967,7 +4485,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1795__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1795__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -3991,7 +4509,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1795__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1795__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4029,7 +4547,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1800__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1800__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4048,7 +4566,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1800__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1800__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4072,7 +4590,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1800__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1800__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4083,7 +4601,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2037);
+                                                             2038);
         __Vtask_tb_display__DOT__parc_micro__1799__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_display__DOT__parc_micro__1799__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -4110,7 +4628,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1804__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1804__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4129,7 +4647,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1804__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1804__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4153,7 +4671,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1804__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1804__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4164,7 +4682,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2039);
+                                                             2040);
         __Vtask_tb_display__DOT__parc_micro__1799__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_display__DOT__parc_micro__1799__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -4191,7 +4709,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1808__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1808__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4210,7 +4728,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1808__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1808__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4234,7 +4752,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1808__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1808__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4245,7 +4763,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2041);
+                                                             2042);
         __Vtask_tb_display__DOT__parc_micro__1799__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_display__DOT__parc_micro__1799__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -4274,7 +4792,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1812__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1812__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4293,7 +4811,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1812__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1812__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4317,7 +4835,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1812__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1812__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4346,7 +4864,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1816__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1816__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4365,7 +4883,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1816__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1816__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4389,7 +4907,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1816__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1816__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4418,7 +4936,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1820__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1820__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4437,7 +4955,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1820__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1820__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4461,7 +4979,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1820__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1820__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4490,7 +5008,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1824__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1824__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4509,7 +5027,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1824__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1824__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4533,7 +5051,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1824__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1824__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4563,7 +5081,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1829__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1829__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4582,7 +5100,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1829__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1829__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4606,7 +5124,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1829__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1829__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4617,7 +5135,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2049);
+                                                             2050);
         __Vtask_tb_display__DOT__parc_micro__1799__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_display__DOT__parc_micro__1799__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -4644,7 +5162,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1833__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1833__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4663,7 +5181,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1833__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1833__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4687,7 +5205,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1833__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1833__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4698,7 +5216,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2051);
+                                                             2052);
         __Vtask_tb_display__DOT__parc_micro__1799__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_display__DOT__parc_micro__1799__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -4725,7 +5243,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1837__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1837__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4744,7 +5262,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1837__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1837__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4768,7 +5286,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1837__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1837__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4786,7 +5304,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2053);
+                                                             2054);
         __Vtask_tb_display__DOT__parc_micro__1799__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_display__DOT__parc_micro__1799__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -4851,7 +5369,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1844__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1844__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4870,7 +5388,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1844__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1844__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4894,7 +5412,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1844__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1844__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4905,7 +5423,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2037);
+                                                             2038);
         __Vtask_tb_display__DOT__parc_micro__1843__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 
             = (__Vtask_tb_display__DOT__parc_micro__1843__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 
                - (IData)(1U));
@@ -4932,7 +5450,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1848__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1848__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -4951,7 +5469,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1848__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1848__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -4975,7 +5493,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1848__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1848__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -4986,7 +5504,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2039);
+                                                             2040);
         __Vtask_tb_display__DOT__parc_micro__1843__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 
             = (__Vtask_tb_display__DOT__parc_micro__1843__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 
                - (IData)(1U));
@@ -5013,7 +5531,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1852__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1852__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5032,7 +5550,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1852__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1852__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5056,7 +5574,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1852__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1852__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5067,7 +5585,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2041);
+                                                             2042);
         __Vtask_tb_display__DOT__parc_micro__1843__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 
             = (__Vtask_tb_display__DOT__parc_micro__1843__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 
                - (IData)(1U));
@@ -5096,7 +5614,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1856__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1856__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5115,7 +5633,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1856__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1856__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5139,7 +5657,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1856__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1856__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5168,7 +5686,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1860__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1860__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5187,7 +5705,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1860__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1860__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5211,7 +5729,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1860__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1860__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5240,7 +5758,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1864__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1864__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5259,7 +5777,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1864__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1864__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5283,7 +5801,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1864__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1864__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5312,7 +5830,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1868__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1868__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5331,7 +5849,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1868__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1868__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5355,7 +5873,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1868__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1868__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5385,7 +5903,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1873__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1873__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5404,7 +5922,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1873__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1873__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5428,7 +5946,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1873__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1873__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5439,7 +5957,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2049);
+                                                             2050);
         __Vtask_tb_display__DOT__parc_micro__1843__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 
             = (__Vtask_tb_display__DOT__parc_micro__1843__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 
                - (IData)(1U));
@@ -5466,7 +5984,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1877__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1877__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5485,7 +6003,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1877__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1877__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5509,7 +6027,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1877__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1877__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5520,7 +6038,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2051);
+                                                             2052);
         __Vtask_tb_display__DOT__parc_micro__1843__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21 
             = (__Vtask_tb_display__DOT__parc_micro__1843__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21 
                - (IData)(1U));
@@ -5547,7 +6065,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1881__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1881__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5566,7 +6084,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1881__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1881__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5590,7 +6108,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1881__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1881__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5608,7 +6126,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2053);
+                                                             2054);
         __Vtask_tb_display__DOT__parc_micro__1843__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 
             = (__Vtask_tb_display__DOT__parc_micro__1843__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 
                - (IData)(1U));
@@ -5675,7 +6193,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1887__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1887__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5694,7 +6212,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1887__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1887__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5718,7 +6236,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1887__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1887__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5729,7 +6247,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2317);
+                                                             2318);
         __Vtask_tb_display__DOT__parc_run__1886__tb_display__DOT__unnamedblk1_24__DOT____Vrepeat23 
             = (__Vtask_tb_display__DOT__parc_run__1886__tb_display__DOT__unnamedblk1_24__DOT____Vrepeat23 
                - (IData)(1U));
@@ -5756,7 +6274,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1891__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1891__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5775,7 +6293,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1891__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1891__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5799,7 +6317,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1891__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1891__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5810,7 +6328,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2319);
+                                                             2320);
         __Vtask_tb_display__DOT__parc_run__1886__tb_display__DOT__unnamedblk1_25__DOT____Vrepeat24 
             = (__Vtask_tb_display__DOT__parc_run__1886__tb_display__DOT__unnamedblk1_25__DOT____Vrepeat24 
                - (IData)(1U));
@@ -5837,7 +6355,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1895__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1895__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5856,7 +6374,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1895__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1895__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5880,7 +6398,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1895__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1895__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5891,7 +6409,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2321);
+                                                             2322);
         __Vtask_tb_display__DOT__parc_run__1886__tb_display__DOT__unnamedblk1_26__DOT____Vrepeat25 
             = (__Vtask_tb_display__DOT__parc_run__1886__tb_display__DOT__unnamedblk1_26__DOT____Vrepeat25 
                - (IData)(1U));
@@ -5920,7 +6438,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1899__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1899__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -5939,7 +6457,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1899__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1899__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -5963,7 +6481,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1899__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1899__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -5992,7 +6510,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1903__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1903__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6011,7 +6529,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1903__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1903__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6035,7 +6553,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1903__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1903__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6064,7 +6582,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1907__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1907__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6083,7 +6601,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1907__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1907__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6107,7 +6625,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1907__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1907__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6136,7 +6654,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1911__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1911__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6155,7 +6673,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1911__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1911__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6179,7 +6697,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1911__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1911__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6191,7 +6709,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2327);
+                                                             2328);
         __Vtask_tb_display__DOT__parc_run__1886__tb_display__DOT__unnamedblk1_27__DOT____Vrepeat26 
             = (__Vtask_tb_display__DOT__parc_run__1886__tb_display__DOT__unnamedblk1_27__DOT____Vrepeat26 
                - (IData)(1U));
@@ -6218,7 +6736,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1459);
+                                                             1460);
         __Vtask_tb_display__DOT__strobe__1915__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
             = (__Vtask_tb_display__DOT__strobe__1915__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
                - (IData)(1U));
@@ -6237,7 +6755,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1460);
+                                                             1461);
         __Vtask_tb_display__DOT__strobe__1915__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
             = (__Vtask_tb_display__DOT__strobe__1915__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
                - (IData)(1U));
@@ -6261,7 +6779,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             1466);
+                                                             1467);
         __Vtask_tb_display__DOT__strobe__1915__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
             = (__Vtask_tb_display__DOT__strobe__1915__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
                - (IData)(1U));
@@ -6630,7 +7148,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             2628);
+                                                             2629);
         if (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__clk0_p_Ca) 
              != (IData)(vlSelfRef.tb_display__DOT__p0))) {
             tb_display__DOT__n0a = ((IData)(1U) + tb_display__DOT__n0a);
@@ -8390,7 +8908,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                                  nullptr, 
                                                                  "@(posedge tb_display.sys_clk)", 
                                                                  "verilog/verilator/tb_display.sv", 
-                                                                 3292);
+                                                                 3293);
             tb_display__DOT__unnamedblk1_29__DOT____Vrepeat28 
                 = (tb_display__DOT__unnamedblk1_29__DOT____Vrepeat28 
                    - (IData)(1U));
@@ -8456,7 +8974,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             3309);
+                                                             3310);
         tb_display__DOT__unnamedblk1_30__DOT____Vrepeat29 
             = (tb_display__DOT__unnamedblk1_30__DOT____Vrepeat29 
                - (IData)(1U));
@@ -8560,14 +9078,14 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                  32,vlSelfRef.tb_display__DOT__n_twr11,
                  32,vlSelfRef.tb_display__DOT__n_wdht);
     if (VL_UNLIKELY(((0U == vlSelfRef.tb_display__DOT__n_dyclk)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3373: Assertion failed in %Ntb_display: DispY has no local clock -- is CLK.display' driven?\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3374: Assertion failed in %Ntb_display: DispY has no local clock -- is CLK.display' driven?\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_display.sv", 3373, "", false);
+        VL_STOP_MT("verilog/verilator/tb_display.sv", 3374, "", false);
     }
     if (VL_UNLIKELY(((0U == vlSelfRef.tb_display__DOT__n_wdht)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3377: Assertion failed in %Ntb_display: DispY never raised its head-task wakeup on TWReq.03\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3378: Assertion failed in %Ntb_display: DispY never raised its head-task wakeup on TWReq.03\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name());
-        VL_STOP_MT("verilog/verilator/tb_display.sv", 3377, "", false);
+        VL_STOP_MT("verilog/verilator/tb_display.sv", 3378, "", false);
     }
     if (VL_UNLIKELY(((0U == vlSelfRef.tb_display__DOT__n_twr11)))) {
         VL_WRITEF_NX("tb_display: OPEN -- TWReq.11 never asserted; WakeDWT needs a display list to fetch\n",0);
@@ -8612,7 +9130,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             3412);
+                                                             3413);
         tb_display__DOT__unnamedblk1_31__DOT____Vrepeat30 
             = (tb_display__DOT__unnamedblk1_31__DOT____Vrepeat30 
                - (IData)(1U));
@@ -8637,7 +9155,7 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
                                                              nullptr, 
                                                              "@(posedge tb_display.sys_clk)", 
                                                              "verilog/verilator/tb_display.sv", 
-                                                             3418);
+                                                             3419);
         tb_display__DOT__unnamedblk1_32__DOT____Vrepeat31 
             = (tb_display__DOT__unnamedblk1_32__DOT____Vrepeat31 
                - (IData)(1U));
@@ -8676,120 +9194,1630 @@ VlCoroutine Vtb_display___024root___eval_initial__TOP__Vtiming__0__5(Vtb_display
     vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__BNextWCBFlag_p___VforceEn = 0U;
     if (VL_UNLIKELY((((IData)(tb_display__DOT__dwt_asserted) 
                       == (IData)(tb_display__DOT__dwt_full))))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3427: Assertion failed in %Ntb_display: DWTWantsProc does not follow the FIFO (both %b) -- the traced condition is wrong\n",0,
+        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3428: Assertion failed in %Ntb_display: DWTWantsProc does not follow the FIFO (both %b) -- the traced condition is wrong\n",0,
                      64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
                      1,(IData)(tb_display__DOT__dwt_asserted));
-        VL_STOP_MT("verilog/verilator/tb_display.sv", 3427, "", false);
+        VL_STOP_MT("verilog/verilator/tb_display.sv", 3428, "", false);
     }
-    tb_display__DOT__sel_count = 0U;
-    tb_display__DOT__sel_which = 0xffffffffU;
-    tb_display__DOT__tio = 0U;
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceVal 
-        = (1U & tb_display__DOT__tio);
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceVal 
-        = (1U & (tb_display__DOT__tio >> 1U));
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceVal 
-        = (1U & (tb_display__DOT__tio >> 2U));
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceVal 
-        = (1U & (tb_display__DOT__tio >> 3U));
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceVal 
-        = (1U & (tb_display__DOT__tio >> 4U));
-    while (VL_GTS_III(32, 0x00000020U, tb_display__DOT__tio)) {
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceEn = 1U;
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceVal 
-            = (1U & (tb_display__DOT__tio >> 4U));
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceRd 
-            = (1U & (tb_display__DOT__tio >> 4U));
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceEn = 1U;
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceVal 
-            = (1U & (tb_display__DOT__tio >> 3U));
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceRd 
-            = (1U & (tb_display__DOT__tio >> 3U));
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceEn = 1U;
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceVal 
-            = (1U & (tb_display__DOT__tio >> 2U));
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceRd 
-            = (1U & (tb_display__DOT__tio >> 2U));
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceEn = 1U;
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceVal 
-            = (1U & (tb_display__DOT__tio >> 1U));
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceRd 
-            = (1U & (tb_display__DOT__tio >> 1U));
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceEn = 1U;
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceVal 
-            = (1U & tb_display__DOT__tio);
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceRd 
-            = (1U & tb_display__DOT__tio);
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands__VforceEn = 1U;
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands__VforceVal = 0U;
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands__VforceRd = 0U;
-        __Vfunc_tb_display__DOT__WT__1923__n = 0x00000028U;
-        __Vfunc_tb_display__DOT__WT__1923__Vfuncout 
-            = VL_DIVS_III(32, VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1923__n), (IData)(0x00000010U));
-        if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1923__Vfuncout)) {
-            __Vfunc_tb_display__DOT__WT__1923__Vfuncout = 1U;
-        }
-        tb_display__DOT__unnamedblk1_33__DOT____Vrepeat32 
-            = __Vfunc_tb_display__DOT__WT__1923__Vfuncout;
-        while (VL_LTS_III(32, 0U, tb_display__DOT__unnamedblk1_33__DOT____Vrepeat32)) {
-            co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
-                                                                 nullptr, 
-                                                                 "@(posedge tb_display.sys_clk)", 
-                                                                 "verilog/verilator/tb_display.sv", 
-                                                                 3448);
-            tb_display__DOT__unnamedblk1_33__DOT____Vrepeat32 
-                = (tb_display__DOT__unnamedblk1_33__DOT____Vrepeat32 
-                   - (IData)(1U));
-        }
-        if ((1U & (~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOASaysDDC_p_)))) {
-            tb_display__DOT__sel_count = ((IData)(1U) 
-                                          + tb_display__DOT__sel_count);
-            tb_display__DOT__sel_which = tb_display__DOT__tio;
-        }
-        tb_display__DOT__tio = ((IData)(1U) + tb_display__DOT__tio);
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceVal 
-            = (1U & tb_display__DOT__tio);
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceVal 
-            = (1U & (tb_display__DOT__tio >> 1U));
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceVal 
-            = (1U & (tb_display__DOT__tio >> 2U));
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceVal 
-            = (1U & (tb_display__DOT__tio >> 3U));
-        vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceVal 
-            = (1U & (tb_display__DOT__tio >> 4U));
+    __Vtask_tb_display__DOT__set_cpreg_plain__1923__v = 0xf800U;
+    __Vtask_tb_display__DOT__strobe__1924__ss = 0U;
+    __Vtask_tb_display__DOT__strobe__1924__data = (0x000000ffU 
+                                                   & ((IData)(__Vtask_tb_display__DOT__set_cpreg_plain__1923__v) 
+                                                      >> 8U));
+    __Vtask_tb_display__DOT__strobe__1924__fn = 2U;
+    __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1924__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1924__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1924__ss));
+    __Vfunc_tb_display__DOT__WT__1925__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1925__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1925__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1925__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1925__Vfuncout = 1U;
     }
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceRd 
-        = vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00;
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_00__VforceEn = 0U;
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceRd 
-        = vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01;
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_01__VforceEn = 0U;
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceRd 
-        = vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02;
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_02__VforceEn = 0U;
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceRd 
-        = vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03;
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_03__VforceEn = 0U;
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceRd 
-        = vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04;
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__TIOADly_04__VforceEn = 0U;
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands__VforceRd 
-        = vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands;
-    vlSelfRef.tb_display__DOT__m__DOT__b_DispY__DOT__IgnoreCommands__VforceEn = 0U;
-    VL_WRITEF_NX("tb_display: SLOW I/O -- of 32 TIOA values, %0d select the board; the one that does is %0d (want 31 = 37B)\n",0,
-                 32,tb_display__DOT__sel_count,32,tb_display__DOT__sel_which);
-    if (VL_UNLIKELY(((1U != tb_display__DOT__sel_count)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3457: Assertion failed in %Ntb_display: %0d TIOA values select DispY, not exactly one\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
-                     32,tb_display__DOT__sel_count);
-        VL_STOP_MT("verilog/verilator/tb_display.sv", 3457, "", false);
+    __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1925__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
     }
-    if (VL_UNLIKELY(((0x0000001fU != tb_display__DOT__sel_which)))) {
-        VL_WRITEF_NX("[%0t] %%Fatal: tb_display.sv:3459: Assertion failed in %Ntb_display: DispY answers at TIOA %0d, not 31 -- the DDCTIOA strap says 37B\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,vlSymsp->name(),
-                     32,tb_display__DOT__sel_which);
-        VL_STOP_MT("verilog/verilator/tb_display.sv", 3459, "", false);
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1926__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1926__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1926__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1926__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1926__Vfuncout = 1U;
     }
-    VL_WRITEF_NX("tb_display: PASS -- A WORD COMES OUT OF PARC'S STORAGE ARRAY:\ntb_display:   real microcode runs, the memory section sequences a DRAM cycle,\ntb_display:   the MK4096s are parallel-loaded into the SN74166s in the part's\ntb_display:   own stage order, and the data reaches Sin on the backplane.\ntb_display:   AND THE RETURN PATH CARRIES A WORD TO THE PROCESSOR: a seeded\ntb_display:   cache word arrives intact on dMD and on Md, which is what\ntb_display:   microcode reads and what cpu.c models.\n",0);
-    VL_FINISH_MT("verilog/verilator/tb_display.sv", 3468, "");
+    __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1926__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1924__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1924__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1924__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1927__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1927__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1927__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1927__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1927__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1927__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1924__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1928__ss = 0U;
+    __Vtask_tb_display__DOT__strobe__1928__data = (0x000000ffU 
+                                                   & (IData)(__Vtask_tb_display__DOT__set_cpreg_plain__1923__v));
+    __Vtask_tb_display__DOT__strobe__1928__fn = 3U;
+    __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1928__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1928__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1928__ss));
+    __Vfunc_tb_display__DOT__WT__1929__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1929__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1929__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1929__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1929__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1929__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1930__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1930__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1930__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1930__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1930__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1930__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1928__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1928__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1928__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1931__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1931__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1931__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1931__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1931__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1931__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1928__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__parc_micro__1932__b4 = 0xc0U;
+    __Vtask_tb_display__DOT__parc_micro__1932__b3 = 4U;
+    __Vtask_tb_display__DOT__parc_micro__1932__b2 = 0x0fU;
+    __Vtask_tb_display__DOT__parc_micro__1932__b1 = 3U;
+    __Vtask_tb_display__DOT__parc_micro__1932__b0 = 0x70U;
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 = 0;
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 = 0;
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 = 0;
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 = 0;
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
+    __Vtask_tb_display__DOT__strobe__1933__ss = 0U;
+    __Vtask_tb_display__DOT__strobe__1933__data = 0x21U;
+    __Vtask_tb_display__DOT__strobe__1933__fn = 1U;
+    __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1933__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1933__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1933__ss));
+    __Vfunc_tb_display__DOT__WT__1934__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1934__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1934__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1934__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1934__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1934__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1935__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1935__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1935__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1935__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1935__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1935__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1933__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1933__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1933__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1936__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1936__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1936__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1936__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1936__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1936__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1933__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 = 0x000000c8U;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             2038);
+        __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 
+            = (__Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1937__ss = 0U;
+    __Vtask_tb_display__DOT__strobe__1937__data = 0x4eU;
+    __Vtask_tb_display__DOT__strobe__1937__fn = 0U;
+    __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1937__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1937__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1937__ss));
+    __Vfunc_tb_display__DOT__WT__1938__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1938__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1938__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1938__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1938__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1938__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1939__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1939__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1939__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1939__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1939__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1939__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1937__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1937__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1937__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1940__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1940__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1940__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1940__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1940__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1940__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1937__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 = 0x000000c8U;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             2040);
+        __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 
+            = (__Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1941__ss = 1U;
+    __Vtask_tb_display__DOT__strobe__1941__data = 0U;
+    __Vtask_tb_display__DOT__strobe__1941__fn = 0U;
+    __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1941__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1941__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1941__ss));
+    __Vfunc_tb_display__DOT__WT__1942__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1942__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1942__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1942__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1942__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1942__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1943__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1943__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1943__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1943__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1943__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1943__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1941__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1941__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1941__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1944__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1944__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1944__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1944__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1944__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1944__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1941__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 = 0x000000c8U;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             2042);
+        __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 
+            = (__Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1945__ss = (1U 
+                                                 & ((IData)(__Vtask_tb_display__DOT__parc_micro__1932__b0) 
+                                                    >> 7U));
+    __Vtask_tb_display__DOT__strobe__1945__data = __Vtask_tb_display__DOT__parc_micro__1932__b1;
+    __Vtask_tb_display__DOT__strobe__1945__fn = 4U;
+    __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1945__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1945__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1945__ss));
+    __Vfunc_tb_display__DOT__WT__1946__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1946__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1946__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1946__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1946__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1946__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1947__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1947__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1947__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1947__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1947__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1947__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1945__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1945__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1945__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1948__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1948__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1948__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1948__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1948__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1948__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1945__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1949__ss = (1U 
+                                                 & ((IData)(__Vtask_tb_display__DOT__parc_micro__1932__b0) 
+                                                    >> 6U));
+    __Vtask_tb_display__DOT__strobe__1949__data = __Vtask_tb_display__DOT__parc_micro__1932__b2;
+    __Vtask_tb_display__DOT__strobe__1949__fn = 5U;
+    __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1949__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1949__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1949__ss));
+    __Vfunc_tb_display__DOT__WT__1950__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1950__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1950__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1950__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1950__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1950__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1951__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1951__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1951__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1951__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1951__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1951__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1949__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1949__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1949__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1952__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1952__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1952__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1952__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1952__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1952__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1949__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1953__ss = (1U 
+                                                 & ((IData)(__Vtask_tb_display__DOT__parc_micro__1932__b0) 
+                                                    >> 5U));
+    __Vtask_tb_display__DOT__strobe__1953__data = __Vtask_tb_display__DOT__parc_micro__1932__b3;
+    __Vtask_tb_display__DOT__strobe__1953__fn = 6U;
+    __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1953__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1953__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1953__ss));
+    __Vfunc_tb_display__DOT__WT__1954__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1954__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1954__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1954__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1954__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1954__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1955__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1955__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1955__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1955__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1955__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1955__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1953__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1953__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1953__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1956__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1956__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1956__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1956__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1956__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1956__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1953__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1957__ss = (1U 
+                                                 & ((IData)(__Vtask_tb_display__DOT__parc_micro__1932__b0) 
+                                                    >> 4U));
+    __Vtask_tb_display__DOT__strobe__1957__data = __Vtask_tb_display__DOT__parc_micro__1932__b4;
+    __Vtask_tb_display__DOT__strobe__1957__fn = 7U;
+    __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1957__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1957__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1957__ss));
+    __Vfunc_tb_display__DOT__WT__1958__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1958__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1958__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1958__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1958__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1958__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1959__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1959__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1959__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1959__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1959__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1959__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1957__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1957__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1957__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1960__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1960__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1960__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1960__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1960__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1960__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1957__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__n0 = 0U;
+    vlSelfRef.tb_display__DOT__n1 = 0U;
+    vlSelfRef.tb_display__DOT__n2 = 0U;
+    __Vtask_tb_display__DOT__strobe__1962__ss = 1U;
+    __Vtask_tb_display__DOT__strobe__1962__data = 1U;
+    __Vtask_tb_display__DOT__strobe__1962__fn = 0U;
+    __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1962__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1962__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1962__ss));
+    __Vfunc_tb_display__DOT__WT__1963__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1963__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1963__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1963__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1963__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1963__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1964__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1964__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1964__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1964__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1964__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1964__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1962__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1962__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1962__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1965__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1965__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1965__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1965__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1965__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1965__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1962__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 = 0x000000c8U;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             2050);
+        __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 
+            = (__Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1966__ss = 1U;
+    __Vtask_tb_display__DOT__strobe__1966__data = 1U;
+    __Vtask_tb_display__DOT__strobe__1966__fn = 0U;
+    __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1966__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1966__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1966__ss));
+    __Vfunc_tb_display__DOT__WT__1967__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1967__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1967__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1967__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1967__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1967__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1968__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1968__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1968__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1968__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1968__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1968__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1966__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1966__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1966__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1969__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1969__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1969__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1969__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1969__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1969__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1966__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0x000000c8U;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             2052);
+        __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21 
+            = (__Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1970__ss = 1U;
+    __Vtask_tb_display__DOT__strobe__1970__data = 0U;
+    __Vtask_tb_display__DOT__strobe__1970__fn = 0U;
+    __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1970__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1970__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1970__ss));
+    __Vfunc_tb_display__DOT__WT__1971__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1971__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1971__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1971__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1971__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1971__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1972__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1972__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1972__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1972__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1972__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1972__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1970__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1970__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1970__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1973__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1973__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1973__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1973__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1973__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1973__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1970__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vfunc_tb_display__DOT__WT__1974__n = 0x00000320U;
+    __Vfunc_tb_display__DOT__WT__1974__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1974__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1974__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1974__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 
+        = __Vfunc_tb_display__DOT__WT__1974__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             2054);
+        __Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 
+            = (__Vtask_tb_display__DOT__parc_micro__1932__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 
+               - (IData)(1U));
+    }
+    VL_WRITEF_NX("      micro %02x: clk0' %0d clk1' %0d clk2' %0d | Stop=%b Link=%x FF=%b\n",0,
+                 8,__Vtask_tb_display__DOT__parc_micro__1932__b1,
+                 32,vlSelfRef.tb_display__DOT__n0,32,
+                 vlSelfRef.tb_display__DOT__n1,32,vlSelfRef.tb_display__DOT__n2,
+                 1,(IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_j04__DOT__qa),
+                 12,(0x00000fffU & (~ (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_c14__DOT__q) 
+                                        << 8U) | (((IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_d14__DOT__q) 
+                                                   << 4U) 
+                                                  | (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q))))),
+                 8,(0x000000ffU & (~ (((((2U & ((~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_a24__DOT__qb)) 
+                                                << 1U)) 
+                                         | (1U & (~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_a24__DOT__qa)))) 
+                                        << 6U) | ((
+                                                   (2U 
+                                                    & ((~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_a23__DOT__qb)) 
+                                                       << 1U)) 
+                                                   | (1U 
+                                                      & (~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_a23__DOT__qa)))) 
+                                                  << 4U)) 
+                                      | ((((2U & ((~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_b24__DOT__qb)) 
+                                                  << 1U)) 
+                                           | (1U & 
+                                              (~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_b24__DOT__qa)))) 
+                                          << 2U) | 
+                                         ((2U & ((~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_b23__DOT__qb)) 
+                                                 << 1U)) 
+                                          | (1U & (~ (IData)(vlSelfRef.tb_display__DOT__m__DOT__b_ContA__DOT__u_b23__DOT__qa)))))))));
+    __Vtask_tb_display__DOT__parc_micro__1976__b4 = 0x40U;
+    __Vtask_tb_display__DOT__parc_micro__1976__b3 = 0x4cU;
+    __Vtask_tb_display__DOT__parc_micro__1976__b2 = 0x0fU;
+    vlSelfRef.__Vtask_tb_display__DOT__parc_micro__1976__b1 = 1U;
+    __Vtask_tb_display__DOT__parc_micro__1976__b0 = 0x70U;
+    __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 = 0;
+    __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 = 0;
+    __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 = 0;
+    __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 = 0;
+    vlSelf->__Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
+    vlSelf->__Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
+    __Vtask_tb_display__DOT__strobe__1977__ss = 0U;
+    __Vtask_tb_display__DOT__strobe__1977__data = 0x21U;
+    __Vtask_tb_display__DOT__strobe__1977__fn = 1U;
+    __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1977__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1977__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1977__ss));
+    __Vfunc_tb_display__DOT__WT__1978__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1978__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1978__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1978__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1978__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1978__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1979__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1979__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1979__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1979__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1979__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1979__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1977__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1977__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1977__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1980__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1980__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1980__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1980__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1980__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1980__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1977__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 = 0x000000c8U;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             2038);
+        __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 
+            = (__Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_18__DOT____Vrepeat17 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1981__ss = 0U;
+    __Vtask_tb_display__DOT__strobe__1981__data = 0x4eU;
+    __Vtask_tb_display__DOT__strobe__1981__fn = 0U;
+    __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1981__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1981__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1981__ss));
+    __Vfunc_tb_display__DOT__WT__1982__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1982__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1982__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1982__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1982__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1982__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1983__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1983__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1983__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1983__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1983__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1983__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1981__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1981__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1981__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1984__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1984__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1984__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1984__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1984__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1984__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1981__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 = 0x000000c8U;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             2040);
+        __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 
+            = (__Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_19__DOT____Vrepeat18 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1985__ss = 1U;
+    __Vtask_tb_display__DOT__strobe__1985__data = 0U;
+    __Vtask_tb_display__DOT__strobe__1985__fn = 0U;
+    __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1985__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1985__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1985__ss));
+    __Vfunc_tb_display__DOT__WT__1986__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1986__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1986__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1986__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1986__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1986__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1987__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1987__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1987__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1987__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1987__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1987__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1985__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1985__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1985__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1988__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1988__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1988__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1988__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1988__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1988__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1985__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 = 0x000000c8U;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             2042);
+        __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 
+            = (__Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_20__DOT____Vrepeat19 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1989__ss = (1U 
+                                                 & ((IData)(__Vtask_tb_display__DOT__parc_micro__1976__b0) 
+                                                    >> 7U));
+    __Vtask_tb_display__DOT__strobe__1989__data = vlSelfRef.__Vtask_tb_display__DOT__parc_micro__1976__b1;
+    __Vtask_tb_display__DOT__strobe__1989__fn = 4U;
+    __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1989__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1989__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1989__ss));
+    __Vfunc_tb_display__DOT__WT__1990__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1990__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1990__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1990__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1990__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1990__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1991__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1991__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1991__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1991__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1991__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1991__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1989__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1989__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1989__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1992__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1992__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1992__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1992__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1992__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1992__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1989__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1993__ss = (1U 
+                                                 & ((IData)(__Vtask_tb_display__DOT__parc_micro__1976__b0) 
+                                                    >> 6U));
+    __Vtask_tb_display__DOT__strobe__1993__data = __Vtask_tb_display__DOT__parc_micro__1976__b2;
+    __Vtask_tb_display__DOT__strobe__1993__fn = 5U;
+    __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1993__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1993__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1993__ss));
+    __Vfunc_tb_display__DOT__WT__1994__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1994__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1994__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1994__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1994__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1994__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1995__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1995__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1995__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1995__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1995__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1995__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1993__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1993__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1993__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__1996__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1996__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1996__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1996__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1996__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__1996__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1993__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__1997__ss = (1U 
+                                                 & ((IData)(__Vtask_tb_display__DOT__parc_micro__1976__b0) 
+                                                    >> 5U));
+    __Vtask_tb_display__DOT__strobe__1997__data = __Vtask_tb_display__DOT__parc_micro__1976__b3;
+    __Vtask_tb_display__DOT__strobe__1997__fn = 6U;
+    __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__1997__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__1997__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__1997__ss));
+    __Vfunc_tb_display__DOT__WT__1998__n = 4U;
+    __Vfunc_tb_display__DOT__WT__1998__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1998__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1998__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1998__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__1998__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__1999__n = 6U;
+    __Vfunc_tb_display__DOT__WT__1999__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__1999__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__1999__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__1999__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__1999__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__1997__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__1997__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__1997__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__2000__n = 4U;
+    __Vfunc_tb_display__DOT__WT__2000__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__2000__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__2000__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__2000__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__2000__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__1997__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__strobe__2001__ss = (1U 
+                                                 & ((IData)(__Vtask_tb_display__DOT__parc_micro__1976__b0) 
+                                                    >> 4U));
+    __Vtask_tb_display__DOT__strobe__2001__data = __Vtask_tb_display__DOT__parc_micro__1976__b4;
+    __Vtask_tb_display__DOT__strobe__2001__fn = 7U;
+    __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__2001__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__2001__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__2001__ss));
+    __Vfunc_tb_display__DOT__WT__2002__n = 4U;
+    __Vfunc_tb_display__DOT__WT__2002__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__2002__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__2002__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__2002__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__2002__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__2003__n = 6U;
+    __Vfunc_tb_display__DOT__WT__2003__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__2003__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__2003__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__2003__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__2003__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__2001__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__2001__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__2001__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__2004__n = 4U;
+    __Vfunc_tb_display__DOT__WT__2004__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__2004__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__2004__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__2004__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__2004__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__2001__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__n0 = 0U;
+    vlSelfRef.tb_display__DOT__n1 = 0U;
+    vlSelfRef.tb_display__DOT__n2 = 0U;
+    __Vtask_tb_display__DOT__strobe__2006__ss = 1U;
+    __Vtask_tb_display__DOT__strobe__2006__data = 1U;
+    __Vtask_tb_display__DOT__strobe__2006__fn = 0U;
+    __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(__Vtask_tb_display__DOT__strobe__2006__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(__Vtask_tb_display__DOT__strobe__2006__data) 
+                                         << 1U) | (IData)(__Vtask_tb_display__DOT__strobe__2006__ss));
+    __Vfunc_tb_display__DOT__WT__2007__n = 4U;
+    __Vfunc_tb_display__DOT__WT__2007__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__2007__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__2007__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__2007__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__2007__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    __Vfunc_tb_display__DOT__WT__2008__n = 6U;
+    __Vfunc_tb_display__DOT__WT__2008__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__2008__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__2008__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__2008__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+        = __Vfunc_tb_display__DOT__WT__2008__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1461);
+        __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+            = (__Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 1U;
+    if ((0U == (IData)(__Vtask_tb_display__DOT__strobe__2006__fn))) {
+        vlSelfRef.tb_display__DOT__setrun = (1U & (IData)(__Vtask_tb_display__DOT__strobe__2006__data));
+        vlSelfRef.tb_display__DOT__setss_n = (1U & 
+                                              (~ (IData)(__Vtask_tb_display__DOT__strobe__2006__ss)));
+    }
+    __Vfunc_tb_display__DOT__WT__2009__n = 4U;
+    __Vfunc_tb_display__DOT__WT__2009__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__2009__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__2009__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__2009__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+        = __Vfunc_tb_display__DOT__WT__2009__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1467);
+        __Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+            = (__Vtask_tb_display__DOT__strobe__2006__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 
+               - (IData)(1U));
+    }
+    __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 = 0x000000c8U;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             2050);
+        __Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 
+            = (__Vtask_tb_display__DOT__parc_micro__1976__tb_display__DOT__unnamedblk1_21__DOT____Vrepeat20 
+               - (IData)(1U));
+    }
+    vlSelfRef.__Vtask_tb_display__DOT__strobe__2010__ss = 1U;
+    vlSelfRef.__Vtask_tb_display__DOT__strobe__2010__data = 1U;
+    vlSelfRef.__Vtask_tb_display__DOT__strobe__2010__fn = 0U;
+    __Vtask_tb_display__DOT__strobe__2010__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    vlSelf->__Vtask_tb_display__DOT__strobe__2010__tb_display__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    vlSelf->__Vtask_tb_display__DOT__strobe__2010__tb_display__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelfRef.tb_display__DOT__addr_n = (7U & (~ (IData)(vlSelfRef.__Vtask_tb_display__DOT__strobe__2010__fn)));
+    vlSelfRef.tb_display__DOT__cpout = (((IData)(vlSelfRef.__Vtask_tb_display__DOT__strobe__2010__data) 
+                                         << 1U) | (IData)(vlSelfRef.__Vtask_tb_display__DOT__strobe__2010__ss));
+    __Vfunc_tb_display__DOT__WT__2011__n = 4U;
+    __Vfunc_tb_display__DOT__WT__2011__Vfuncout = VL_DIVS_III(32, 
+                                                              VL_MULS_III(32, (IData)(0x00000010U), __Vfunc_tb_display__DOT__WT__2011__n), (IData)(0x00000010U));
+    if (VL_GTS_III(32, 1U, __Vfunc_tb_display__DOT__WT__2011__Vfuncout)) {
+        __Vfunc_tb_display__DOT__WT__2011__Vfuncout = 1U;
+    }
+    __Vtask_tb_display__DOT__strobe__2010__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+        = __Vfunc_tb_display__DOT__WT__2011__Vfuncout;
+    while (VL_LTS_III(32, 0U, __Vtask_tb_display__DOT__strobe__2010__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0)) {
+        co_await vlSelfRef.__VtrigSched_h0bd61196__0.trigger(0U, 
+                                                             nullptr, 
+                                                             "@(posedge tb_display.sys_clk)", 
+                                                             "verilog/verilator/tb_display.sv", 
+                                                             1460);
+        __Vtask_tb_display__DOT__strobe__2010__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+            = (__Vtask_tb_display__DOT__strobe__2010__tb_display__DOT__unnamedblk1_1__DOT____Vrepeat0 
+               - (IData)(1U));
+    }
+    vlSelfRef.tb_display__DOT__strb_n = 0U;
+    vlSelfRef.__Vfunc_tb_display__DOT__WT__2012__n = 6U;
     co_return;}
