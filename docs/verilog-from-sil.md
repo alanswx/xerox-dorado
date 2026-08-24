@@ -1427,3 +1427,34 @@ which is a much smaller question than "the IFU does not fetch".
 
 Third time in one session that the answer was **count the coincidence**, not
 the levels.
+
+### ...and the IFU BOARD is what stops the references (2026-08-23)
+
+Isolated by making `tb_ifufetch`'s loop **byte-identical** to `tb_memrun`'s --
+the same four instructions, `<-Map` / `Store` / `Flush` / quiet slot:
+
+| | `tb_memrun` | `tb_ifufetch`, identical loop |
+|---|---|---|
+| `MapFnc.0'` / `MapFnc.1'` | 0 / 0 | 0 / 0 (now matches) |
+| Pipe pointer moved | **9** | **0** |
+| `MemRASa` | 2 | 0 |
+
+Same microcode, same seven boards. **The only difference is that
+`dorado_ifu` adds the IFU**, and with it in the machine the processor's
+references stop landing in the Pipe altogether. `IfuHold` is released on 3000
+of 3000 samples, so the IFU is free-running and prefetching; the obvious
+suspicion is that it is taking the memory section's attention -- but that is a
+suspicion, not a measurement. The next step is to find what the IFU asserts
+that stops a processor reference being RECORDED.
+
+Two dead ends on the way, worth not repeating:
+
+- Moving the `IFetch<-` from IM[3] to IM[2] and restoring the quiet slot does
+  not help; `MemRASa` goes to 0 and the Pipe still does not move.
+- Four references back to back (IFetch in IM[3], no quiet slot) is worse:
+  `MapFnc` never leaves 1/1, so no map function is requested at all. The quiet
+  slot is load-bearing here exactly as it is in `tb_memrun`.
+
+The bench's loop is left identical to `tb_memrun`'s on purpose, because that
+is the clean demonstration. Restoring the `IFetch<-` is one FF field:
+IM[2] `0o100` -> `0o200`.

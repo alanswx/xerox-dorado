@@ -60,9 +60,36 @@
 // That last line is the real one. The data path is wired and live from the
 // cache to F's D inputs; what is missing is that THIS BENCH RECORDS NO
 // MEMORY REFERENCE AT ALL, so F's clock barely ticks and never while data is
-// present. The fetch is still upstream-blocked, and the block is now
-// "tb_ifufetch's loop does not put a reference into the Pipe", which is a
-// much smaller question than "the IFU does not fetch".
+// present.
+//
+// AND THE CAUSE IS THE IFU BOARD ITSELF, NOT THE MICROCODE. That was
+// isolated by making this bench's loop BYTE-IDENTICAL to tb_memrun's -- the
+// same four instructions, <-Map / Store / Flush / quiet slot, IM[2] back to
+// FF = 0o100:
+//
+//                          tb_memrun      tb_ifufetch (identical loop)
+//   MapFnc.0' / MapFnc.1'    0 / 0            0 / 0     <- now matches
+//   Pipe pointer moved       9                0
+//   MemRASa                  2                0
+//
+// Same microcode, same seven boards, and the ONLY difference is that
+// `dorado_ifu` adds the IFU. With it in the machine the processor's
+// references stop landing in the Pipe altogether. `IfuHold` is released on
+// 3000 of 3000 samples, so the IFU is free-running and prefetching, and the
+// obvious suspicion is that it is taking the memory section's attention --
+// but that is a suspicion, not a measurement, and the next step is to find
+// what the IFU asserts that stops a processor reference being recorded.
+//
+// Two intermediate results on the way, both dead ends worth not repeating:
+//   - Moving the IFetch<- from IM[3] to IM[2] and restoring the quiet slot
+//     does not help; MemRASa goes 0 and the Pipe still does not move.
+//   - Four references back to back (IFetch in IM[3], no quiet slot) is worse
+//     still: MapFnc never even leaves 1/1, so no map function is requested.
+//     The quiet slot is load-bearing here exactly as it is in tb_memrun.
+//
+// THE LOOP IS LEFT IDENTICAL TO tb_memrun's on purpose, because that is the
+// clean demonstration. Putting the IFetch<- back is one FF field:
+// IM[2] 0o100 -> 0o200.
 
 
 `default_nettype none
@@ -1262,9 +1289,16 @@ module tb_ifufetch;
                   '{4'd0,   4'd0,   4'd0,   4'd0},
                   '{3'd0,   3'd0,   3'd0,   3'd0},
                   '{3'd0,   3'd0,   3'd0,   3'd0},
-                  '{3'd0,   3'd0,   3'd1,   3'd1},
-                  '{8'o100, 8'o300, 8'o100, 8'o200},
+                  '{3'd0,   3'd0,   3'd1,   3'd4},
+                  '{8'o100, 8'o300, 8'o100, 8'o000},
                   '{8'o201, 8'o202, 8'o203, 8'o200});
+                  // IM[2] IS THE `IFetch<-` AND IM[3] IS BACK TO A QUIET SLOT.
+                  // Putting the IFetch in IM[3] -- four references back to
+                  // back, no quiet slot -- recorded NO reference at all: the
+                  // Pipe pointer moved 0 times against tb_memrun's 9, so even
+                  // the <-Map/Store at IM[0..1] stopped landing. That is the
+                  // same phase-fragility tb_memrun's header documents in the
+                  // other direction, and the quiet slot is load-bearing.
                   // IM[3] IS AN `IFetch<-` NOW, not a quiet slot: ASEL = 001 with
                   // ff01 = 2 (FF.0 = 1, FF.1 = 0, so FF = 0o200), which is what
                   // refdecode-test pinned against cpu.c's DM_REF_IFETCH. The IFU
