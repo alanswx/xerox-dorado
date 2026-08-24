@@ -2701,8 +2701,10 @@ module tb_disk;
       // T CARRIES THE VALUE FOR BOTH SLOW-I/O INSTRUCTIONS, so load it before
       // the run. A jam is exactly right for this -- T is processor state, and
       // jams set that perfectly well; what they cannot do is make a DEVICE
-      // answer. 0xF800 puts 370B in B's high byte, which is what TIOA<-B takes.
-        set_cpreg_plain(16'hF800);
+      // 0x0800 puts 010B in B's high byte -- DskEth's OWN address. Its strap
+      // is an I/O ADDRESS (TIOA-Ad = 1), not a task number like the display
+      // boards', so it answers at 010-017 rather than 370-377.
+        set_cpreg_plain(16'h0800);
         parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);   // TFromCPReg#
         nop_micro;
         // AND A SECOND VALUE, so the loop can write a WCB word rather than the
@@ -3622,8 +3624,18 @@ module tb_disk;
     // baseline selected 448 times because something in the startup happens to
     // put 37B on TIOA. So this gate is meaningful only with the loop loaded,
     // and its absence at baseline is the correct answer, not a failure.
-    if ($test$plusargs("slowio") && n_sel == 0)
-      $display("tb_disk: OPEN -- DskEth never selected; see the TIOA figures below");
+    // GATE: THE PROCESSOR ADDRESSES THE DISK BOARD AND IT ANSWERS. DskEth's
+    // strap is an I/O ADDRESS (TIOA-Ad = 1 -> 010-017), not a task number, so
+    // the loop loads B = 0x0800 and TIOA<-B takes the high byte. e01 is an
+    // MC10166 comparing TIOA.0-4 against the strap with X>Y and X<Y wire-ORed,
+    // so its net is LOW on a match.
+    if ($test$plusargs("slowio")) begin
+      if (n_sel == 0)
+        $fatal(1, "DskEth never selected -- no command reached the board at 010B");
+      if (n_sel !== n_sel_free)
+        $fatal(1, "DskEth selected on %0d samples but only %0d with the processor free",
+               n_sel, n_sel_free);
+    end
 
     if (n_sel !== n_sel_free)
       $fatal(1, "DskEth selected on %0d samples but only %0d with the processor free -- a stepped processor must not reach a device",

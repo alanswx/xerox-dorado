@@ -2333,3 +2333,22 @@ whether it is input-only on those nets as DispY effectively is.
 "want 00001000" message compares against the wrong expectation — it should
 want 370B there. The `00000000` is the real anomaly; the expectation string is
 a second, smaller bug.)
+
+### The processor addresses the disk board at its own 010B (2026-08-24)
+
+`disk-test` gates it now. DskEth's strap is an I/O **address** (`TIOA-Ad = 1`
+→ 010-017), not a task number like the display boards', so the loop loads
+B = `0x0800` and `TIOA←B` takes the high byte. e01 is an MC10166 comparing
+`TIOA.0-4` against the strap with X>Y and X<Y wire-ORed, low on a match.
+
+**The board selects on 1,920 samples**, every one with the processor free —
+against **0** before the retarget.
+
+That retarget is the same one-line change that **silently failed twice**
+earlier: the line is indented eight spaces, and both previous attempts assumed
+six. Fixing it by line number, and *checking the result*, took the select from
+0 to 1,920 immediately.
+
+Two boards now answer the processor from running microcode: DispY at 370B and
+DskEth at 010B, each at the address its own strap dictates, and each
+cross-checked against the C emulator's independent claim of the same range.
