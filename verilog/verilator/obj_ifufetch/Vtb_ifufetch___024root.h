@@ -19,6 +19,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
     struct {
         struct {
             CData/*7:0*/ tb_ifufetch__DOT____Vlvbound_hc8fb13a1__0;
+            CData/*0:0*/ tb_ifufetch__DOT__k02clk_d;
+            CData/*3:0*/ tb_ifufetch__DOT__dpipe_now;
+            CData/*3:0*/ tb_ifufetch__DOT__dpipe_last;
+            CData/*3:0*/ tb_ifufetch__DOT__asrn_now;
+            CData/*3:0*/ tb_ifufetch__DOT__asrn_last;
+            CData/*3:0*/ tb_ifufetch__DOT__pesrn_now;
+            CData/*3:0*/ tb_ifufetch__DOT__pesrn_last;
             CData/*0:0*/ tb_ifufetch__DOT__sys_clk;
             CData/*3:0*/ tb_ifufetch__DOT__ckd;
             CData/*2:0*/ tb_ifufetch__DOT__addr_n;
@@ -75,6 +82,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__Fin_17;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__GenIn_00;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__GenIn_01;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__GenIn_02;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__GenIn_03;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__GenIn_04;
@@ -82,8 +91,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__GenIn_06;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__GenIn_07;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__GenIn_08;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__GenIn_09;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__GenIn_10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__GenIn_11;
@@ -141,6 +148,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__TWReq_04;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__TWReq_05;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__TWReq_06;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__TWReq_07;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__TWReq_08;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__TWReq_09;
@@ -148,8 +157,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__TWReq_11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__TWReq_12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__TWReq_13;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__TWReq_14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__ASEL_0__VforceRd;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__ASEL_0__VforceEn;
@@ -207,6 +214,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__FG_0;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__IOPE;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__IfuData_0;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__IfuData_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__IfuData_2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__IfuData_3;
@@ -214,8 +223,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__IfuData_5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__IfuData_6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__IfuData_7;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__MAR_00_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__MAR_01_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__MAR_02_p_;
@@ -273,6 +280,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__BNPC_11___05FContB;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__BNPC_12___05FContB;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__BNPC_13___05FContB;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__BNPC_14___05FContB;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__BNPC_15___05FContB;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__BNTGtCT_p_a___05FContA;
@@ -280,8 +289,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__CLKEnable_p_a___05FContA;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__CLKEnable_p_b___05FContA;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__CLKEnable_p_c___05FContA;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__CacheRef_p___05F_MemC;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__CkMdParity_p___05F_ProcL;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__CountMiss___05FMemX;
@@ -339,6 +346,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__MemPE___05FMemX;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__MemWEa___05FMemX;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__NextData_p___05F_ProcH;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__PairFull_p___05F_MemC;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__PrivRefInPair___05FMemC;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__ProcSrn_u___05Fp___05F_MemC;
@@ -346,8 +355,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__PropCnt_p___05F_ProcL;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__RScopeClk0_p___05F_ProcL;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__RbBypass_p___05F_ProcL;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__RmLtZero_p___05F_ProcH;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__RmOdd_p___05F_ProcL;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__STfree_p___05F_MemX;
@@ -378,7 +385,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__WantIfuHold_p___05F_IFU;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__WantIfuRef_p___05F_IFU;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__XWantsPipe___05FMemX;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT___u_Dbuf___05FContA;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT___u_FaultInfo___05FMemC;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT___u_MD___05FProcL;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT___u_MDI_p___05F_ProcL;
@@ -406,14 +412,14 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__dJCN_2___05FContB;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__dJCN_3___05FContB;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__dJCN_4___05FContB;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__dJCN_5___05FContB;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__dJCN_6___05FContB;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__dJCN_7___05FContB;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__dMD_00___05FMemD;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__dMD_01___05FMemD;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__dMD_02___05FMemD;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__dMD_03___05FMemD;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__dMD_04___05FMemD;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__dMD_05___05FMemD;
@@ -472,14 +478,14 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIA_13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIA_13_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIA_14;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIA_14_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIA_15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIA_15_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIAInc_00;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIAInc_01;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIAInc_02;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIAInc_03;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIAInc_04;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__CIAInc_05;
@@ -538,14 +544,14 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA13_sil_pl_5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA14_sil_pl_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA14_sil_pl_3;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA14_sil_pl_6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA15_sil_pl_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA15_sil_pl_5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA16_sil_pl_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA16_sil_pl_7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA17_sil_pl_1;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA17_sil_pl_8;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA18_sil_pl_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA18_sil_pl_8;
@@ -558,7 +564,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA28_sil_pl_6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA28_sil_pl_7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_1;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA30_sil_pl_3;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA31_sil_pl_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA31_sil_pl_2;
@@ -592,7 +597,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__FF_eq_WriteLink;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__GetTLink;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__JCN_2or3;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Jam;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Link_u_BMuxa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__Link_u_BMuxb;
@@ -606,12 +610,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__PEncGtTrueNext_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__PEncLtTrueNext_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__PreEmpting_p_;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__RBMux_04;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__RBMux_12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__RBMux_13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__RBMux_14;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__RBMux_15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__RIMorRTPCdly;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__RWTPCorRWIM;
@@ -672,12 +676,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ToPE_11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ToPE_12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ToPE_13;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ToPE_14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ToPE_15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TrueAC;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__TrueBD;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__UseCPReg;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__WriteTLink_p_a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__WriteTPC_p_a;
@@ -738,12 +742,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__sPhase0;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__n_15_s_14_s_11_s_10___05Fe13_9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__n_15_s_14_s_11_s_10___05Fd12_2;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__n_1andNot3or2_p___05F_d13_9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA05_sil_pl_2___05Fe04_2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA05_sil_pl_3___05Fe04_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA06_sil_pl_2___05Fa04_1;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA06_sil_pl_4___05Fa04_2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA07_sil_pl_2___05Fb04_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__ContA07_sil_pl_4___05Fb04_2;
@@ -804,12 +808,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_a18__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_a18__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_a18__DOT__p11;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_a19__DOT__p2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_a19__DOT__p15;
             CData/*7:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_a19__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_a21__DOT__p13;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_a22__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_a22__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_a22__DOT__p10;
@@ -870,12 +874,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b23__DOT__clka;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b23__DOT__clkb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b23__DOT__cka_d;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b23__DOT__ckb_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b23__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b23__DOT__qb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b24__DOT__p6;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b24__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b24__DOT__clka;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b24__DOT__clkb;
@@ -936,12 +940,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d01__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d06__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d06__DOT__p10;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d09__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d09__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d09__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d09__DOT__p5;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d09__DOT__clk;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d09__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_d09__DOT__ck_d;
@@ -1002,12 +1006,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e13__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e13__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__p12;
+        };
+        struct {
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e14__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e15__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e18__DOT__p13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e21__DOT__p5;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e23__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e23__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e23__DOT__clka;
@@ -1068,12 +1072,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__clka;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__cka_d;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__ckb_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__qb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__p6;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_f15__DOT__p11;
@@ -1134,12 +1138,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g16__DOT__qb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g18__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g19__DOT__p6;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g19__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g19__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g19__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g20__DOT__p6;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g20__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g20__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_g20__DOT__p11;
@@ -1200,12 +1204,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i01__DOT____VdfgRegularize_h7927e3b8_0_0;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i02__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i02__DOT__p12;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i02__DOT__ck_d;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i02__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i03__DOT__ck_d;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i03__DOT__q;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i05__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i05__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i06__DOT__p5;
@@ -1266,12 +1270,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j07__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j07__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j08__DOT__p6;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j08__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j08__DOT__clka;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j08__DOT__clkb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j08__DOT__cka_d;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j08__DOT__ckb_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j08__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j08__DOT__qb;
@@ -1332,12 +1336,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k02__DOT__ckb_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k02__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k02__DOT__qb;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k03__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k03__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k03__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k03__DOT__p9;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k03__DOT__clka;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k03__DOT__clkb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k03__DOT__cka_d;
@@ -1398,12 +1402,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l01__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l01__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l01__DOT__p10;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l02__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l02__DOT__p13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l02__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l02__DOT__p9;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l02__DOT__clka;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l02__DOT__clkb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l02__DOT__cka_d;
@@ -1464,12 +1468,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l14__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l14__DOT__p10;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l14__DOT__q;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l15__DOT__p12;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l15__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l16__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l16__DOT__p12;
-        };
-        struct {
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l16__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l17__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l17__DOT__ck_d;
@@ -1530,12 +1534,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__RBMux_00;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__RBMux_01;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__RBMux_02;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__RBMux_03;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__RBMux_04;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__RBMux_05;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__RBMux_06;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__RBMux_07;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__RBMux_08;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__RBMux_09;
@@ -1596,12 +1600,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__bdLC_0;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__bdLC_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__bdLC_2;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__bdRA_00a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__bdRA_00b;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__bdRSTK_0;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__bdRSTK_1;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__bdRSTK_2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__bdRSTK_3;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__dALUF_0;
@@ -1662,12 +1666,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a11__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a12__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a12__DOT__p7;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a12__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a12__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a14__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a15__DOT__dout_r;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a16__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a17__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a18__DOT__dout_r;
@@ -1728,12 +1732,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_c20__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_c22__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_c24__DOT__qa;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_c24__DOT__qb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d02__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d02__DOT__ck_d;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d02__DOT__q;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d05__DOT__p15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d06__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d07__DOT__dout_r;
@@ -1794,12 +1798,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_e23__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_e23__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f01__DOT__p14;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f02__DOT__p14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f03__DOT__p14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f05__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f05__DOT__p10;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f06__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f07__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f08__DOT__dout_r;
@@ -1860,12 +1864,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h10__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h11__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h12__DOT__p6;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h12__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h12__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h12__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h13__DOT__p6;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h13__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h13__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h13__DOT__p11;
@@ -1926,12 +1930,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j10__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j11__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j12__DOT__p6;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j12__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j12__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j12__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j13__DOT__p6;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j13__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j13__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j13__DOT__p11;
@@ -1992,12 +1996,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l15__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l16__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l17__DOT__dout_r;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l18__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l19__DOT__dout_r;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l20__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l22__DOT__ck_d;
-        };
-        struct {
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l22__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l23__DOT__p14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l24__DOT__p13;
@@ -2058,12 +2062,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__HoldDly;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__Holda;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__IOBin_p_;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__LC_1a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__Last_eq_Curr_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__LastNext_0_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__LastNext_1_p_;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__LastNext_2_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__LastNext_3_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__LdTaskSim_p_;
@@ -2124,12 +2128,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH11_sil_pl_7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH11_sil_pl_8;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH14_sil_pl_2;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH16_sil_pl_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH16_sil_pl_3;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH16_sil_pl_5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH18_sil_pl_1;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH20_sil_pl_3;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH23_sil_pl_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH23_sil_pl_18;
@@ -2190,12 +2194,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__TAsk2Bk_2_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__TIOAWrite_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__TIOAWriteEn_p_;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__TIOAdly_0;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__TIOAdly_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__TIOAdly_2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__TIOAdly_3;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__TIOAdly_4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__TIOAdly_5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__TIOAdly_6;
@@ -2256,12 +2260,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__PreFA_eq_1_p___05F_d24_11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH03_sil_pl_1___05Fh06_22;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH03_sil_pl_1___05Fi06_22;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH04_sil_pl_1___05Fh06_21;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH04_sil_pl_1___05Fi06_21;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH05_sil_pl_1___05Fh06_20;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH05_sil_pl_1___05Fi06_20;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH06_sil_pl_1___05Fj06_23;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH06_sil_pl_1___05Fk06_23;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__ProcH07_sil_pl_1___05Fj06_22;
@@ -2322,12 +2326,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a21__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a21__DOT__ck_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a22__DOT__p9;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_a24__DOT__p12;
             CData/*1:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_b01__DOT__sel;
             CData/*1:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_b03__DOT__sel;
             CData/*1:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_b04__DOT__sel;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_b05__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_b05__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_b05__DOT__p13;
@@ -2388,12 +2392,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_c21__DOT__p15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_c21__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_c23__DOT__p5;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_c23__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_c23__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_c24__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_c24__DOT__p11;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_d05__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_d05__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_d05__DOT__p13;
@@ -2454,12 +2458,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e17__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e19__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e20__DOT__p5;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e21__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e23__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e24__DOT__p2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e24__DOT__p15;
-        };
-        struct {
             CData/*7:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e24__DOT__q;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e61__DOT__A;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_e61__DOT__S;
@@ -2520,12 +2524,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g11__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g12__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g12__DOT__p7;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g12__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g13__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g13__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g13__DOT__p11;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g15__DOT__p3;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g15__DOT__a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_g16__DOT__p4;
@@ -2586,12 +2590,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_i01__DOT__ck_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_i02__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_i02__DOT__p11;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_i02__DOT__clk;
             CData/*4:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_i02__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_i02__DOT__ck_d;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_i03__DOT__q;
-        };
-        struct {
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_i04__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_i05__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_i05__DOT__p6;
@@ -2652,12 +2656,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_j23__DOT__p2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_j24__DOT__p2;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_k01__DOT__q;
+        };
+        struct {
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_k02__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_k10__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_k10__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_k10__DOT__p10;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_k10__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_k21__DOT__ck_d;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_ProcH__DOT__u_k21__DOT__q;
@@ -2718,12 +2722,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__BSel_eq_2_s_6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__B_u_Ext_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Clk0En_p_;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Clock0_p_Bd;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Clock0_p_Da;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Clock1_p_Aa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Clock1_p_Ca;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Clock1_p_Da;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Clock1Bd;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__CntClock_p_;
@@ -2784,12 +2788,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Pdata_08;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Pdata_09;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Pdata_10;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Pdata_11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Pdata_12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Pdata_13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Pdata_14;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Pmux0;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Pmux1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__Pmux2;
@@ -2850,12 +2854,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__RBase_1_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__RBase_2_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__RBase_3_p_;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__RBaseBypass_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__RBaseWrite_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__RBaseWriteEn_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__RForBmux;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__RSTK_0a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__RSTK_1a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__RSTK_2a;
@@ -2916,12 +2920,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__alua_15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__alua_15a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__alub_08;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__alub_08a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__alub_09;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__alub_09a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__alub_10;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__alub_10a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__alub_11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__alub_11a;
@@ -2982,12 +2986,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a08__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a08__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a08__DOT__p10;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a08__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a09__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__p4;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a10__DOT__p13;
@@ -3025,7 +3029,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a22__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a24__DOT__p12;
             CData/*1:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b01__DOT__sel;
-            CData/*1:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b03__DOT__sel;
             CData/*1:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b04__DOT__sel;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b05__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b05__DOT__p4;
@@ -3049,11 +3052,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__ckb_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b10__DOT__qb;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b11__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b11__DOT__p13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b11__DOT__p10;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b11__DOT__p7;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b11__DOT__q;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b12__DOT__q;
@@ -3064,7 +3067,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b23__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b23__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_b24__DOT__p11;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_c02__DOT__en;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_c05__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_c09__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_c09__DOT__p6;
@@ -3116,10 +3118,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e13__DOT__we_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e14__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e14__DOT__p12;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e14__DOT__p3;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e14__DOT__we_d;
         };
         struct {
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e14__DOT__p3;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e14__DOT__we_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e15__DOT__p12;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e15__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e15__DOT__ck_d;
@@ -3182,10 +3184,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g10__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g10__DOT__clka;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g10__DOT__clkb;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g10__DOT__cka_d;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g10__DOT__ckb_d;
         };
         struct {
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g10__DOT__cka_d;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g10__DOT__ckb_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g10__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g10__DOT__qb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g11__DOT__p6;
@@ -3248,10 +3250,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_h22__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_h22__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_h22__DOT__p13;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_h22__DOT__p12;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_h22__DOT__p9;
         };
         struct {
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_h22__DOT__p12;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_h22__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_h22__DOT__clka;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_h22__DOT__clkb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_h22__DOT__cka_d;
@@ -3314,10 +3316,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_j19__DOT__p13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_j19__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_j19__DOT__clka;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_j19__DOT__ckb_d;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_j19__DOT__qa;
         };
         struct {
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_j19__DOT__ckb_d;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_j19__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_j19__DOT__qb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_j20__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_j21__DOT__p2;
@@ -3380,10 +3382,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l11__DOT__cka_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l11__DOT__ckb_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l11__DOT__qa;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l11__DOT__qb;
-            CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l14__DOT__q;
         };
         struct {
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l11__DOT__qb;
+            CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l14__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l15__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l15__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_l15__DOT__p5;
@@ -3446,10 +3448,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__DisPipe4_m_15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcHasAa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__EcHasAb;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__FSinPair_p_;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__FlushStore;
         };
         struct {
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__FSinPair_p_;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__FlushStore;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__ForceDirtyMiss;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__ForceMiss;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__G24_m_27_p_;
@@ -3512,10 +3514,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC05_sil_pl_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC05_sil_pl_2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC05_sil_pl_3;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC05_sil_pl_4;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC05_sil_pl_7;
         };
         struct {
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC05_sil_pl_4;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC05_sil_pl_7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC05_sil_pl_8;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC07_sil_pl_10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC07_sil_pl_11;
@@ -3578,10 +3580,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_23;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_24;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_25;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_26;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_27;
         };
         struct {
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_26;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_27;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_28;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_29;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC12_sil_pl_3;
@@ -3598,8 +3600,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_3;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_10;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_11;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_7;
@@ -3607,7 +3607,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC18_sil_pl_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC18_sil_pl_6;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC19_sil_pl_4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MiscPCHP_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__NewBL;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__NewDirty;
@@ -3646,9 +3645,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PrVA_4_s_Par;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PrVA_5_s_20;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PrVA_6_s_21;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PrefetchInA;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__PrefetchInA;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__ProcVA_04;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__ProcVA_05;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__ProcVA_06;
@@ -3712,9 +3711,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__WantCondHold;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__WantPrivRef_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__WantProcRef_p_;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__WantVic_p_;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__WantVic_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__WrCflagsOK_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__WrPipe02_p_a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__WrPipeCol_p_;
@@ -3778,9 +3777,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__DMadr_01___05Fl22_15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__FB_eq_6_x26_PCHP_p___05F_d24_15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__HitOrEc___05Fh17_2;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_5___05Fh17_14;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_5___05Fh17_14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_5___05Fh17_15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_6___05Fh18_14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__MemC04_sil_pl_6___05Fh18_15;
@@ -3844,9 +3843,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_a20__DOT__p3;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_a20__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_a20__DOT__p5;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_a20__DOT__p6;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_a20__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_a20__DOT__sel;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_a23__DOT__p9;
             CData/*7:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_a24__DOT__q;
@@ -3910,9 +3909,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c14__DOT__qb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c15__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c15__DOT__p13;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c15__DOT__cka_d;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c15__DOT__cka_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c15__DOT__ckb_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c15__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c15__DOT__qb;
@@ -3976,9 +3975,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_d17__DOT__ckb_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_d17__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_d17__DOT__qb;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_d18__DOT__p3;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_d18__DOT__p3;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_d18__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_d18__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_d18__DOT__p6;
@@ -4042,9 +4041,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g10__DOT__en;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g14__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g14__DOT__p4;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g14__DOT__p5;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g14__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g14__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g14__DOT__p13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_g14__DOT__p12;
@@ -4108,9 +4107,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i10__DOT__ck_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i13__DOT__p3;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i14__DOT__p12;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i14__DOT__p3;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i14__DOT__p3;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i14__DOT__we_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i15__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_i15__DOT__ck_d;
@@ -4174,9 +4173,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k13__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k13__DOT__qb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k13__DOT__ck_en;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k15__DOT__p14;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k15__DOT__p14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k15__DOT__p15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k17__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_k18__DOT__p9;
@@ -4240,11 +4239,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkLastPhOrIdle;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkP0A0;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkP0A1;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkP0B0;
         };
     };
     struct {
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkP0B0;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkP0B1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkP10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__ChkP11;
@@ -4308,9 +4307,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__D1in_09;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__D1in_10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__D1in_11;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__D1in_12;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__D1in_12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__D1in_13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__D1in_14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__D1in_15;
@@ -4374,9 +4373,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_09;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_11;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_16;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_16;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__F_17;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__FHB;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__FHD;
@@ -4440,9 +4439,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD08_sil_pl_7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD08_sil_pl_8;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD08_sil_pl_9;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD09_sil_pl_1;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD09_sil_pl_1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD09_sil_pl_10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD09_sil_pl_11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD09_sil_pl_13;
@@ -4506,9 +4505,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD15_sil_pl_10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD15_sil_pl_12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD15_sil_pl_14;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD15_sil_pl_3;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD15_sil_pl_3;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD15_sil_pl_5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD15_sil_pl_6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__MemD15_sil_pl_7;
@@ -4572,9 +4571,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__dSyn1;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__dSyn2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__dSyn3;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__dSyn4;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__dSyn4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__dSyn5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__dSyn6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__preDin_00;
@@ -4638,9 +4637,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a02__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a02__DOT__p13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a02__DOT__p12;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a02__DOT__clka;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a02__DOT__clka;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a02__DOT__clkb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a02__DOT__cka_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a02__DOT__ckb_d;
@@ -4704,9 +4703,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b07__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b07__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b07__DOT__p9;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b08__DOT__p12;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b08__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b09__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b09__DOT__p11;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b09__DOT__q;
@@ -4770,9 +4769,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c01__DOT__ck_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c02__DOT__p12;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c02__DOT__q;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c06__DOT__p5;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c06__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c06__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c08__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c10__DOT__ck_d;
@@ -4836,9 +4835,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d16__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d16__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d17__DOT__dout_r;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d18__DOT__p5;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d18__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d18__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d18__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d18__DOT__p10;
@@ -4902,9 +4901,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f01__DOT__ck_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f06__DOT__ck_d;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f06__DOT__q;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f08__DOT__p12;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f08__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f10__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f10__DOT__ck_d;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_f10__DOT__q;
@@ -4968,9 +4967,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g22__DOT__clka;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g22__DOT__clkb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g22__DOT__cka_d;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g22__DOT__ckb_d;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g22__DOT__ckb_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g22__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g22__DOT__qb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_g23__DOT__p11;
@@ -5034,9 +5033,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h15__DOT__we_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h17__DOT__we_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h18__DOT__p5;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h18__DOT__p3;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h18__DOT__p3;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h18__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h18__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h20__DOT__p12;
@@ -5100,9 +5099,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j08__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j09__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j10__DOT__p5;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j10__DOT__p9;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j10__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j11__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j13__DOT__dout_r;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j14__DOT__p4;
@@ -5166,9 +5165,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k19__DOT__q;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k20__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k21__DOT__p5;
+            CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k21__DOT__q;
         };
         struct {
-            CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k21__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k23__DOT__p12;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k23__DOT__q;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_k24__DOT__q;
@@ -5232,9 +5231,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Clk0_p_Da;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Clk0_p_Dd;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Clk1_p_Aa;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Clk1_p_Ba;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Clk1_p_Ba;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Clk1_p_Ca;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__Clk2_p_Ca;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__DMadr_02;
@@ -5298,9 +5297,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapPEInMem;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapPar;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRAS_p_;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapRfshDly;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapTrouble_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapTroubleInEc2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MapTroubleInMem;
@@ -5364,9 +5363,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RP_00;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RP_01;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RP_02;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RP_03;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RP_03;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RP_04;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RP_05;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__RP_06;
@@ -5430,9 +5429,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__WriteMDM_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__WritePipe02Clk0_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__WritePipe02Clk1_p_;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__WritePipe3_p_a;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__WritePipe3_p_a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT___u_FaultInfoDly_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT___u_MapInMap;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__bNext_0;
@@ -5496,9 +5495,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*6:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a08__DOT__row;
             CData/*6:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a08__DOT__col;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a08__DOT__dout;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a08__DOT__ras_d;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a08__DOT__ras_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a08__DOT__cas_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a08__DOT__dout_r;
             CData/*6:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a09__DOT__row;
@@ -5562,9 +5561,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_b21__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_b22__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_b23__DOT__p9;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_b23__DOT__p6;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_b23__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_b23__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_b23__DOT__p13;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_b23__DOT__q;
@@ -5628,9 +5627,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d07__DOT__cas_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d07__DOT__dout_r;
             CData/*6:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d08__DOT__row;
+            CData/*6:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d08__DOT__col;
         };
         struct {
-            CData/*6:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d08__DOT__col;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d08__DOT__dout;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d08__DOT__ras_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d08__DOT__cas_d;
@@ -5694,9 +5693,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e16__DOT__a;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e16__DOT__we_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e18__DOT__p12;
+            CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e18__DOT__q;
         };
         struct {
-            CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e18__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e19__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e19__DOT__p12;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_e19__DOT__q;
@@ -5760,9 +5759,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g03__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g03__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g03__DOT__p10;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g03__DOT__p11;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g03__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g03__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g04__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_g04__DOT__p11;
@@ -5826,9 +5825,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h08__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h08__DOT__clk;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h08__DOT__q;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h08__DOT__ck_d;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h08__DOT__ck_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h09__DOT__p5;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h09__DOT__p13;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h09__DOT__q;
@@ -5892,9 +5891,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_i18__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_i19__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_i19__DOT__p10;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_i22__DOT__ck_d;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_i22__DOT__ck_d;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_i22__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j03__DOT__ck_d;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_j03__DOT__q;
@@ -5958,9 +5957,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__p11;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__p10;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__p7;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_k17__DOT__q;
@@ -6024,9 +6023,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__BetaInH_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__BetaInM;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__BrkLd_p_;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Brkins_u_;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Brkins_u_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__CntClk_p_Ba;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__DMadr_01;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__DMadr_02;
@@ -6090,9 +6089,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Ifu08_sil_pl_14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Ifu08_sil_pl_15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Ifu08_sil_pl_16;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Ifu08_sil_pl_17;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Ifu08_sil_pl_17;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Ifu08_sil_pl_2;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Ifu08_sil_pl_20;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Ifu08_sil_pl_21;
@@ -6156,9 +6155,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__LengthX_eq_3_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MClk0_p_Ca;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MDv_p_;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MLd_p_;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MLd_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MLdDly_p_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MemBK_0;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__MemBK_1;
@@ -6222,9 +6221,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Test_u_;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__Testing;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ThreeOutOfFive;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__TurnOffAlu;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__TurnOffAlu;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__TwoAlphaK;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__TwoAlphaM;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__TypeJumpK_p_;
@@ -6288,9 +6287,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ifu09_sil_pl_10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ifu09_sil_pl_11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ifu09_sil_pl_12;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ifu09_sil_pl_13;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ifu09_sil_pl_13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ifu09_sil_pl_14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ifu09_sil_pl_15;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__ifu09_sil_pl_16;
@@ -6354,9 +6353,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a01__DOT__p4;
             CData/*1:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a02__DOT__sel;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a04__DOT__p12;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a04__DOT__p11;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a04__DOT__p11;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a04__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a05__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_a05__DOT__p11;
@@ -6420,9 +6419,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b13__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b13__DOT__ck_d;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b13__DOT__q;
+            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b15__DOT__p12;
         };
         struct {
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b15__DOT__p12;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b15__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b16__DOT__p7;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b16__DOT__q;
@@ -6435,7 +6434,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b18__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b18__DOT__ck_d;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b18__DOT__q;
-            CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b19__DOT__p6;
             CData/*5:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b20__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b21__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_b22__DOT__p4;
@@ -6486,10 +6484,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c24__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c24__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c61__DOT__p14;
-        };
-        struct {
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_c61__DOT__S;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d04__DOT__p12;
+        };
+        struct {
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d04__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__p14;
             CData/*1:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_d05__DOT__sel;
@@ -6552,10 +6550,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e21__DOT__p7;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e21__DOT__p9;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e24__DOT__p13;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__p14;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__A;
+        };
+        struct {
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT__S;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT____VdfgExtracted_ha59d029f__0;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_e61__DOT____VdfgExtracted_h8f6033d0__0;
@@ -6618,10 +6616,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__A;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__S;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT__F;
-        };
-        struct {
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT____VdfgExtracted_ha59d029f__0;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT____VdfgExtracted_h8f6033d0__0;
+        };
+        struct {
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT____VdfgExtracted_h9010c2c9__0;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT____VdfgExtracted_ha54bd59c__0;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f61__DOT____VdfgExtracted_h90119b60__0;
@@ -6684,10 +6682,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h08__DOT__p13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h09__DOT__p14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h09__DOT__dout_r;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h10__DOT__p14;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h10__DOT__dout_r;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h11__DOT__p12;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h11__DOT__q;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h11__DOT__ck_d;
@@ -6750,10 +6748,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i19__DOT__p11;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i20__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i20__DOT__p5;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i20__DOT__p13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i20__DOT__p12;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i20__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i20__DOT__qb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i20__DOT__ck_d;
@@ -6816,10 +6814,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qa;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j20__DOT__qb;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j21__DOT__p10;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j24__DOT__p4;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j24__DOT__p5;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j24__DOT__p13;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j24__DOT__p12;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j24__DOT__clka;
@@ -6882,10 +6880,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l01__DOT__clka;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l01__DOT__cka_d;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l01__DOT__qa;
-        };
-        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l02__DOT__p6;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l02__DOT__p7;
+        };
+        struct {
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l02__DOT__p10;
             CData/*0:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l03__DOT__p12;
             CData/*3:0*/ tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l03__DOT__q;
@@ -6948,10 +6946,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*2:0*/ __VdfgRegularize_h4af1c392_0_50;
             CData/*0:0*/ __VdfgRegularize_h4af1c392_0_51;
             CData/*3:0*/ __VdfgRegularize_h4af1c392_0_53;
-        };
-        struct {
             CData/*3:0*/ __VdfgRegularize_h4af1c392_0_54;
             CData/*0:0*/ __VdfgRegularize_h4af1c392_0_55;
+        };
+        struct {
             CData/*0:0*/ __VdfgRegularize_h4af1c392_0_57;
             CData/*0:0*/ __VdfgRegularize_h4af1c392_0_58;
             CData/*0:0*/ __VdfgRegularize_h4af1c392_0_59;
@@ -7013,12 +7011,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*7:0*/ __VdfgRegularize_h4af1c392_0_147;
             CData/*7:0*/ __VdfgRegularize_h4af1c392_0_148;
             CData/*0:0*/ __VdfgRegularize_h4af1c392_0_150;
-            CData/*0:0*/ __VdfgRegularize_h4af1c392_0_151;
-        };
-        struct {
             CData/*0:0*/ __VdfgRegularize_h4af1c392_0_152;
             CData/*0:0*/ __VdfgRegularize_h4af1c392_0_153;
             CData/*0:0*/ __VdfgRegularize_h4af1c392_0_154;
+        };
+        struct {
             CData/*0:0*/ __VdfgRegularize_h4af1c392_0_155;
             CData/*0:0*/ __VdfgRegularize_h4af1c392_0_156;
             CData/*0:0*/ __VdfgRegularize_h4af1c392_0_157;
@@ -7029,6 +7026,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*7:0*/ __Vtask_tb_ifufetch__DOT__parc_micro__426__b2;
             CData/*7:0*/ __Vtask_tb_ifufetch__DOT__parc_micro__426__b3;
             CData/*7:0*/ __Vtask_tb_ifufetch__DOT__parc_micro__426__b4;
+            CData/*5:0*/ __Vtableidx17;
             CData/*7:0*/ __VdfgRegularize_hebeb780c_0_2;
             CData/*7:0*/ __VdfgRegularize_hebeb780c_0_3;
             CData/*7:0*/ __VdfgRegularize_hebeb780c_0_4;
@@ -7080,10 +7078,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*3:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a23__DOT__q;
             CData/*3:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b09__DOT__q;
             CData/*3:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b20__DOT__q;
-        };
-        struct {
             CData/*3:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_b23__DOT__q;
             CData/*3:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c20__DOT__q;
+        };
+        struct {
             CData/*3:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_c23__DOT__q;
             CData/*3:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d14__DOT__q;
             CData/*3:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_e09__DOT__q;
@@ -7146,10 +7144,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*3:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f14__DOT__q;
             CData/*0:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f20__DOT__qa;
             CData/*0:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f20__DOT__qb;
-        };
-        struct {
             CData/*0:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f21__DOT__qa;
             CData/*0:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f21__DOT__qb;
+        };
+        struct {
             CData/*3:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_f24__DOT__q;
             CData/*3:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_g19__DOT__q;
             CData/*3:0*/ __Vdly__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_h03__DOT__q;
@@ -7212,10 +7210,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a11__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a11__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a14__DOT__mem__v0;
-        };
-        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a14__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a15__DOT__mem__v0;
+        };
+        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a15__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a16__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a16__DOT__mem__v0;
@@ -7278,10 +7276,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d07__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d07__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d08__DOT__mem__v0;
-        };
-        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d08__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d09__DOT__mem__v0;
+        };
+        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d09__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d10__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d10__DOT__mem__v0;
@@ -7344,10 +7342,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f17__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f17__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f18__DOT__mem__v0;
-        };
-        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f18__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f19__DOT__mem__v0;
+        };
+        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f19__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_g06__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_g06__DOT__mem__v0;
@@ -7410,10 +7408,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_i11__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_i11__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_i14__DOT__mem__v0;
-        };
-        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_i14__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_i15__DOT__mem__v0;
+        };
+        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_i15__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_i16__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_i16__DOT__mem__v0;
@@ -7476,10 +7474,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l07__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l07__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l08__DOT__mem__v0;
-        };
-        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l08__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l09__DOT__mem__v0;
+        };
+        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l09__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l10__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_l10__DOT__mem__v0;
@@ -7542,10 +7540,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*3:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e13__DOT__mem__v0;
             CData/*3:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e13__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e13__DOT__mem__v0;
-        };
-        struct {
             CData/*3:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e14__DOT__mem__v0;
             CData/*3:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e14__DOT__mem__v0;
+        };
+        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_e14__DOT__mem__v0;
             CData/*3:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g15__DOT__mem__v0;
             CData/*3:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_g15__DOT__mem__v0;
@@ -7608,10 +7606,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*7:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_b20__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_b20__DOT__mem__v0;
             CData/*3:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c08__DOT__mem__v0;
-        };
-        struct {
             CData/*7:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c08__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c08__DOT__mem__v0;
+        };
+        struct {
             CData/*3:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c10__DOT__mem__v0;
             CData/*7:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c10__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c10__DOT__mem__v0;
@@ -7674,10 +7672,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a05__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a05__DOT__mem__v0;
             CData/*3:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a06__DOT__mem__v0;
-        };
-        struct {
             CData/*3:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a06__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a06__DOT__mem__v0;
+        };
+        struct {
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a07__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a07__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a09__DOT__mem__v0;
@@ -7740,10 +7738,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*3:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h06__DOT__mem__v0;
             CData/*3:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h06__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h06__DOT__mem__v0;
-        };
-        struct {
             CData/*3:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h11__DOT__mem__v0;
             CData/*3:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h11__DOT__mem__v0;
+        };
+        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h11__DOT__mem__v0;
             CData/*3:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h15__DOT__mem__v0;
             CData/*3:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_h15__DOT__mem__v0;
@@ -7806,10 +7804,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d08__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d09__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d09__DOT__mem__v0;
-        };
-        struct {
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d10__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d10__DOT__mem__v0;
+        };
+        struct {
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d11__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d11__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_d12__DOT__mem__v0;
@@ -7872,10 +7870,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j10__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j10__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j14__DOT__mem__v0;
-        };
-        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j14__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j15__DOT__mem__v0;
+        };
+        struct {
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j15__DOT__mem__v0;
             CData/*0:0*/ __VdlyVal__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_k09__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_k09__DOT__mem__v0;
@@ -7938,10 +7936,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             SData/*8:0*/ tb_ifufetch__DOT__rfshdiv;
             SData/*8:0*/ tb_ifufetch__DOT__fg_last;
             SData/*11:0*/ tb_ifufetch__DOT__link_seen;
-        };
-        struct {
             SData/*15:0*/ tb_ifufetch__DOT__imaddr;
             SData/*9:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a06__DOT__a;
+        };
+        struct {
             SData/*9:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_d06__DOT__a;
             SData/*9:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_g06__DOT__a;
             SData/*9:0*/ tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j06__DOT__a;
@@ -8004,10 +8002,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_b15__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_b16__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_b17__DOT__mem__v0;
-        };
-        struct {
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_b18__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_b19__DOT__mem__v0;
+        };
+        struct {
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_c06__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_c07__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_c08__DOT__mem__v0;
@@ -8070,10 +8068,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_g19__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h06__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h07__DOT__mem__v0;
-        };
-        struct {
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h08__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h09__DOT__mem__v0;
+        };
+        struct {
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h10__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h11__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_h14__DOT__mem__v0;
@@ -8136,10 +8134,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             SData/*11:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a09__DOT__mem__v0;
             SData/*11:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a11__DOT__mem__v0;
             SData/*11:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a13__DOT__mem__v0;
-        };
-        struct {
             SData/*11:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a15__DOT__mem__v0;
             SData/*11:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a17__DOT__mem__v0;
+        };
+        struct {
             SData/*11:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_a19__DOT__mem__v0;
             SData/*11:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d03__DOT__mem__v0;
             SData/*11:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_d05__DOT__mem__v0;
@@ -8202,10 +8200,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i14__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_i15__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j09__DOT__mem__v0;
-        };
-        struct {
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j10__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j14__DOT__mem__v0;
+        };
+        struct {
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_j15__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_k09__DOT__mem__v0;
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_k10__DOT__mem__v0;
@@ -8220,6 +8218,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             SData/*9:0*/ __VdlyDim0__tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l15__DOT__mem__v0;
             IData/*31:0*/ tb_ifufetch__DOT____Vlvbound_hff9270b6__0;
             IData/*31:0*/ tb_ifufetch__DOT____Vlvbound_h58252910__0;
+            IData/*31:0*/ tb_ifufetch__DOT__n_ua;
+            IData/*31:0*/ tb_ifufetch__DOT__n_asrn;
+            IData/*31:0*/ tb_ifufetch__DOT__n_pesrn;
+            IData/*31:0*/ tb_ifufetch__DOT__n_k02;
+            IData/*31:0*/ tb_ifufetch__DOT__n_dpipe;
             IData/*31:0*/ tb_ifufetch__DOT__n_fg;
             IData/*31:0*/ tb_ifufetch__DOT__n_f;
             IData/*31:0*/ tb_ifufetch__DOT__n_g;
@@ -8228,6 +8231,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             IData/*31:0*/ tb_ifufetch__DOT__n_enfg;
             IData/*31:0*/ tb_ifufetch__DOT__n_fclk_r;
             IData/*31:0*/ tb_ifufetch__DOT__n_fclk_coin;
+            IData/*31:0*/ tb_ifufetch__DOT__n_wir;
+            IData/*31:0*/ tb_ifufetch__DOT__n_ro;
+            IData/*31:0*/ tb_ifufetch__DOT__n_ifra;
+            IData/*31:0*/ tb_ifufetch__DOT__n_wpr;
+            IData/*31:0*/ tb_ifufetch__DOT__n_both;
             IData/*31:0*/ tb_ifufetch__DOT__k;
             IData/*31:0*/ tb_ifufetch__DOT__n0;
             IData/*31:0*/ tb_ifufetch__DOT__n1;
@@ -8260,6 +8268,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             VlUnpacked<CData/*0:0*/, 256> tb_ifufetch__DOT__ifud_seen;
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__tnia_hit;
             VlUnpacked<CData/*7:0*/, 17> tb_ifufetch__DOT__hunk;
+        };
+        struct {
             VlUnpacked<CData/*7:0*/, 17> tb_ifufetch__DOT__b;
             VlUnpacked<CData/*3:0*/, 16> tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_a04__DOT__mem;
             VlUnpacked<CData/*3:0*/, 16> tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b04__DOT__mem;
@@ -8268,8 +8278,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             VlUnpacked<CData/*3:0*/, 16> tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_e04__DOT__mem;
             VlUnpacked<CData/*3:0*/, 16> tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_i13__DOT__mem;
             VlUnpacked<CData/*3:0*/, 16> tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_j13__DOT__mem;
-        };
-        struct {
             VlUnpacked<CData/*3:0*/, 16> tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_k13__DOT__mem;
             VlUnpacked<CData/*3:0*/, 16> tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_l13__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_a06__DOT__mem;
@@ -8326,6 +8334,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_e09__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_e10__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_e11__DOT__mem;
+        };
+        struct {
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_e14__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_e15__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_e16__DOT__mem;
@@ -8334,8 +8344,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_e19__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f06__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f07__DOT__mem;
-        };
-        struct {
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f08__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f09__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_f10__DOT__mem;
@@ -8392,6 +8400,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j15__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j16__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j17__DOT__mem;
+        };
+        struct {
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j18__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_j19__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_k06__DOT__mem;
@@ -8400,8 +8410,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_k09__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_k10__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_k11__DOT__mem;
-        };
-        struct {
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_k14__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_k15__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_ContB__DOT__u_k16__DOT__mem;
@@ -8458,6 +8466,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             VlUnpacked<CData/*3:0*/, 256> tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_b08__DOT__mem;
             VlUnpacked<CData/*3:0*/, 256> tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_b10__DOT__mem;
             VlUnpacked<CData/*3:0*/, 256> tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_b12__DOT__mem;
+        };
+    };
+    struct {
+        struct {
             VlUnpacked<CData/*3:0*/, 256> tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_b18__DOT__mem;
             VlUnpacked<CData/*3:0*/, 256> tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_b20__DOT__mem;
             VlUnpacked<CData/*3:0*/, 256> tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c08__DOT__mem;
@@ -8466,10 +8478,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             VlUnpacked<CData/*3:0*/, 256> tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c18__DOT__mem;
             VlUnpacked<CData/*3:0*/, 256> tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c20__DOT__mem;
             VlUnpacked<CData/*3:0*/, 256> tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_c22__DOT__mem;
-        };
-    };
-    struct {
-        struct {
             VlUnpacked<CData/*3:0*/, 256> tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_d08__DOT__mem;
             VlUnpacked<CData/*3:0*/, 256> tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_d10__DOT__mem;
             VlUnpacked<CData/*3:0*/, 256> tb_ifufetch__DOT__m__DOT__b_MemC__DOT__u_d12__DOT__mem;
@@ -8526,6 +8534,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j11__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j13__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j15__DOT__mem;
+        };
+        struct {
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j17__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__m__DOT__b_MemD__DOT__u_j19__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a04__DOT__mem;
@@ -8534,8 +8544,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a07__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a08__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a09__DOT__mem;
-        };
-        struct {
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a10__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a11__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_a12__DOT__mem;
@@ -8592,6 +8600,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_ifufetch___024root final {
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l09__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l10__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l11__DOT__mem;
+        };
+        struct {
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l12__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l13__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_ifufetch__DOT__m__DOT__b_IFU__DOT__u_l14__DOT__mem;

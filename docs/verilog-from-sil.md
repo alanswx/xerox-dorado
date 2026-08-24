@@ -1458,3 +1458,30 @@ Two dead ends on the way, worth not repeating:
 The bench's loop is left identical to `tb_memrun`'s on purpose, because that
 is the clean demonstration. Restoring the `IFetch<-` is one FF field:
 IM[2] `0o100` -> `0o200`.
+
+### ...and it is MemC's clock, running 379x too fast (2026-08-23)
+
+Chased from the symptom. `PipeAd` <- k02 (MemC, an MC10141 whose two select
+pins are open, so every `clk0'A` edge is a **parallel load**) <- `dPipe02Ad`
+<- MemX h23 (quad 2:1 selecting `Asrn` or `PEsrn` under `UseAsrn`). Measured
+on the SAME microcode in both machines:
+
+| | `tb_memrun` | `tb_ifufetch` |
+|---|---|---|
+| `UseAsrn` high | 32 | 41 |
+| `Asrn` changed | 6 | **9** -- source is MORE active |
+| `dPipe02Ad` changed | 4 | 2 |
+| **k02's `clk0'A` edges** | **45** | **17,045** |
+| Pipe pointer moved | 11 | 0 |
+
+**The pointer is not stalled, it is PINNED.** `clk0'A` reloads it on every one
+of 17,045 edges from a `dPipe02Ad` that reads `0000` nearly all the time, so
+it can never be caught holding an SRN. The source moves MORE with the IFU
+present, not less -- which is why "no references are being made" was the wrong
+reading, and this document said so for two commits.
+
+**The open question is why MemC's `clk0'A` free-runs when the IFU is in the
+machine.** The memory boards' clocks are gated (`MemClkEnable'` from ContA,
+and `mem-test` asserts the clock runs iff enabled), so the IFU is plausibly
+holding an enable asserted -- but that is the next MEASUREMENT, not a
+conclusion. Start at MemC's `clk0'A` gating and ask which term the IFU moves.
