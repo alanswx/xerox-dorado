@@ -348,6 +348,11 @@ VL_ATTR_COLD void Vtb_disk___024root___eval_initial__TOP(Vtb_disk___024root* vlS
     vlSelfRef.tb_disk__DOT__n_igc_lo = 0U;
     vlSelfRef.tb_disk__DOT__n_sel = 0U;
     vlSelfRef.tb_disk__DOT__n_sel_free = 0U;
+    vlSelfRef.tb_disk__DOT__n_r_cont = 0U;
+    vlSelfRef.tb_disk__DOT__n_r_muff = 0U;
+    vlSelfRef.tb_disk__DOT__n_r_data = 0U;
+    vlSelfRef.tb_disk__DOT__n_r_ram = 0U;
+    vlSelfRef.tb_disk__DOT__n_r_tag = 0U;
     vlSelfRef.tb_disk__DOT__n_iob_ok = 0U;
     vlSelfRef.tb_disk__DOT__n_iob_nz = 0U;
     vlSelfRef.tb_disk__DOT__n_iob_any = 0U;
@@ -1472,8 +1477,6 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__0(Vtb_disk___024root* v
     __Vtableidx318 = 0;
     CData/*4:0*/ __Vtableidx319;
     __Vtableidx319 = 0;
-    CData/*4:0*/ __Vtableidx320;
-    __Vtableidx320 = 0;
     CData/*5:0*/ __Vtableidx321;
     __Vtableidx321 = 0;
     CData/*5:0*/ __Vtableidx322;
@@ -10444,13 +10447,13 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__0(Vtb_disk___024root* v
         = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__PreClock1_p_Ca) 
            | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_i18__DOT__p6) 
               | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TxWriteFifo_p_)));
-    __Vtableidx320 = ((vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j17__DOT__mem
-                       [vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j13__DOT__a] 
-                       << 1U) | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j17__DOT__p3));
+    vlSelfRef.__Vtableidx320 = ((vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j17__DOT__mem
+                                 [vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j13__DOT__a] 
+                                 << 1U) | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j17__DOT__p3));
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TxFifo_17 
-        = Vtb_disk__ConstPool__TABLE_hf5c1af71_0[__Vtableidx320];
+        = Vtb_disk__ConstPool__TABLE_hf5c1af71_0[vlSelfRef.__Vtableidx320];
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TxFifo_16 
-        = Vtb_disk__ConstPool__TABLE_hac186fdc_0[__Vtableidx320];
+        = Vtb_disk__ConstPool__TABLE_hac186fdc_0[vlSelfRef.__Vtableidx320];
     __Vtableidx316 = ((vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j13__DOT__mem
                        [vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j13__DOT__a] 
                        << 1U) | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j13__DOT__p3));

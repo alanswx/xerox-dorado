@@ -2400,3 +2400,28 @@ So `DiskTW → TWReq.12` completes the table.
 
 **Two naming conventions for the same thing** is the lesson: the display
 boards say `WakeDWT`, DskEth says `DiskTW`. Search for both.
+
+### The disk's register decode, and it matches the C emulator exactly (2026-08-25)
+
+DskEth registers its board select and the low TIOA bits in **e02** (an MC10175
+clocked by `FHCP`): the select becomes `TIOA=Us'` and TIOA.5-7 become
+`TIOA.5a/6a/7a`. Those then drive **f07**, an MC10161 1-of-8 decoder — and its
+outputs, in pin order, are exactly `include/disk.h`'s registers in address
+order:
+
+| decoder output | net | address | `disk.h` |
+|---|---|---|---|
+| Q0' | `TIOA=Cont'` | 010 | `DISK_TIOA_DISKCONTROL` |
+| Q1' | `TIOA=Muff'` | 011 | `DISK_TIOA_DISKMUFF` |
+| Q2' | `TIOA=Data'` | 012 | `DISK_TIOA_DISKDATA` |
+| Q3' | `TIOA=Ram'` | 013 | `DISK_TIOA_DISKRAM` |
+| Q4' | `TIOA=Tag'` | 014 | `DISK_TIOA_DISKTAG` |
+| Q5'/Q6' | `TIOA=EthData'`/`EthCtrl'` | 015/016 | (the ethernet half) |
+
+Two independent derivations — a 1979 wire list and a C emulator written from
+the manual — agreeing on all five names *and* their order.
+
+**Gated:** with the loop writing 010B, `TIOA=Cont'` asserts on 1,921 samples
+and Muff/Data/Ram/Tag on **zero**. That matters beyond the count: without it,
+"the board is addressed" would not imply "DISKCONTROL is addressed", and every
+later register write would be unverifiable.
