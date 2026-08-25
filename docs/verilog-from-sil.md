@@ -2490,3 +2490,53 @@ restoring the `~`, dropping `+slowio`, and pointing the loop at a wrong address.
 
 *Lesson, and it is the same one twice now:* a rule derived from one part family
 is not evidence about another. Take the sheet, and read the bubble.
+
+### The disk controller obeys a command (2026-08-25)
+
+With the per-task TIOA holding its address, the `+slowio` loop's `Output<-`
+reaches DskEth's control register and the board acts on it. c18 (SE10212) turns
+`TIOA=Cont'` + `bIOout'` into **`ControlRegCl`**, which clocks:
+
+| package | part | what it makes |
+|---|---|---|
+| e14 | MC10231 | `DisableRun`/`EnableRun` from `bIOB.05`, `DebugMode` from `bIOB.06` |
+| e15 | MC10231 | `BlockTillIndex`/`SectorOvfl` from `bIOB.07` |
+| b21 | — | `RamAddr.0-3`, the format-RAM address |
+| e13 | — | `Active`/`Idle` |
+
+**`src/disk.c`'s handler names every one of those**, from the Hardware Manual:
+"Output to control register zeros the format-RAM address register (HM page 98)
+... ClearEnableRun is honored. SetDebugMode is honored. SetBlockTillIndex is
+honored ... while Active, the first DiskControl output aborts the current sector
+transfer". And `include/disk.h` gives the bit positions:
+
+```
+B[5] = ClearEnableRun    B[6] = SetDebugMode    B[7] = SetBlockTillIndex
+```
+
+which is exactly `bIOB.05`, `.06`, `.07` into exactly those flip-flops. Measured:
+one `ControlRegCl` edge, all while DISKCONTROL was addressed, `bIOB.05/06/07 =
+010` (IOB bits 5-7 of `5a5a`, so `bIOB` is a straight buffer), and the register
+settles at `{DebugMode, BlockTillIndex, EnableRun} = 101` — set, clear, still on,
+which is what those three bits ask for.
+
+One detail confirms the pairing beyond the bit numbers: **e14 FF-b's RESET pin is
+`DisableRun`**, so clearing EnableRun also clears DebugMode — and `disk.c`'s
+`CLR_ENABLE_RUN` branch clears `debug_mode` in the same breath.
+
+Two traps on the way, both already on the list and both hit anyway:
+
+* **Count edges, not levels** — `ControlRegCl` is a level held across many
+  samples; it is ONE edge.
+* **Read a flip-flop after it settles, and on ITS OWN edge.** e14's DebugMode
+  half clocks on `ControlRegCl'`, the opposite edge from the one counted, so a
+  post-edge window keyed to `ControlRegCl` rising read it before it moved and
+  showed `DebugMode = 0` for a bit the manual says is set.
+
+The gate asserts the RELATION (`DebugMode` follows `bIOB.06`, `BlockTillIndex`
+follows `bIOB.07`, `EnableRun` is the complement of `bIOB.05`) rather than the
+constant, and mis-wiring the check to a neighbouring bit fails it.
+
+*Also corrected:* tb_disk's "IgnoreCommands LOW on N of N" line was inherited
+from tb_display and is a CONSTANT — DskEth has no such net. It is labelled as
+measuring nothing, and the control-register gate qualifies on `TIOA=Cont'`.
