@@ -2675,6 +2675,14 @@ module tb_disk;
   // Fields are passed as packed arrays, one entry per instruction, MSB-first
   // per mi()'s convention. Byte 0 carries RSTK.0 and BLOCK for all four, so
   // those two must be common.
+  // COLUMN ORDER, because it is easy to misread and I did. The arrays are
+  //     aluf, bsel, LC, ASEL, ff, jcn
+  // so the fifth array is the LOAD CONTROL and the sixth the A-source select.
+  // The slow-I/O loop's `'{3'd0,...}` fifth column is therefore LC = 0, "No
+  // Action" -- which is correct for a slow-I/O instruction -- and its sixth
+  // `'{3'd4,...}` is ASEL = 4. Reading them the other way round makes the loop
+  // look as though it reloads T (LC=4 is RM/STK<-Md) every instruction, which
+  // it does not.
   task build_hunk4(input [3:0] rstk,      input block,
                    input [3:0] aluf [4],  input [2:0] bsel [4],
                    input [2:0] lc   [4],  input [2:0] asel [4],
@@ -2968,6 +2976,31 @@ module tb_disk;
       // still zero, all identical). The totals are per-pass, so reordering the
       // slots moves the phase without moving the counts, and the phase did not
       // move either. The write pulse's placement is not set by loop ordering.
+      // WHY THERE IS NO SINGLE LOOP THAT CARRIES A DISTINCT ADDRESS **AND** A
+      // DISTINCT DATA WORD, which is what rung 1's sector formatter needs.
+      // Only ONE register survives a run: Q. T does not, because it is a
+      // PER-TASK FILE and a jam fills the visible register but not the file
+      // slot (#31). So one of the two slow-I/O instructions can have the value
+      // it wants and the other cannot. Three ways out were considered:
+      //
+      //   * ONE WORD FOR BOTH. Impossible for DISKCONTROL: TIOA takes B's HIGH
+      //     byte, so the disk board needs 0x08 there, while SetDebugMode is
+      //     bit 9 -- also in the high byte -- and needs 0x02. 0x0A is DISKDATA,
+      //     not DISKCONTROL.
+      //   * T <- Q FROM IM inside the loop. An instruction with LC=1 (T<-Pd),
+      //     BSEL=3 (B<-Q) and ALUF=0 does exactly that -- PARC's prologue
+      //     already loads ALUFM[0]=B, which is why TFromCPReg# works -- and
+      //     being EXECUTED it fills the per-task file properly. But it makes
+      //     T equal to Q, so there is still one value, not two.
+      //   * TWO PHASES: jam Q = address, run a T<-Q hunk so the per-task T file
+      //     holds the address, THEN jam Q = data, then load the main loop.
+      //     This is the one that works, and it needs the startup to RUN the
+      //     machine between two hunk loads, which it does not currently do.
+      //
+      // Until then `+qaddr` takes the address from Q and accepts that the data
+      // is the same word -- fine for walking the format RAM, wrong for a
+      // command whose data matters.
+      //
       // `+qaddr` TAKES THE ADDRESS FROM Q INSTEAD OF T, and the reason is the
       // whole of #31. T is a PER-TASK FILE (ProcH l03/l04, addressed by
       // CurrLast), and a jam sets the visible register but NOT the file slot --
