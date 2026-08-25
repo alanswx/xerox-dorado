@@ -3144,3 +3144,36 @@ a formatter has to write all 16 words.
 excluding it from the other gate chains put it into the DISKCONTROL branch,
 where it failed on a `ControlRegCl` that had correctly never fired. Three chains
 needed the new mode excluded, not one.
+
+### Why the loop lands only ONE register write per run (open, and narrowed) (2026-08-25)
+
+Both rungs need many writes -- sixteen to fill the format RAM, and a continuous
+stream for a formatter -- but the loop lands about one per run. The cause is
+that TIOA holds its address for only 128 of 140,559 samples, and the per-task
+TIOA file reads back zero.
+
+Narrowed by measurement, and **two false leads eliminated on the way**:
+
+* **`g15` holding `0000` is CORRECT, not a bug.** The file is a PAIR: g15 holds
+  `TIOA.0-3` and h15 `TIOA.4-7`, both F10145A, both `WE' = TIOAWrite'`, both
+  addressed by `LastNext`. For TIOA = 010B = `00001000` the LOW nibble is
+  legitimately zero and the only set bit is `TIOA.4`, in h15. Reading half the
+  file is a way to invent a fault.
+* **`CE'` being unconnected is not the fault either.** g15's `p3` has no
+  `.p3(...)` in the instantiation because the wire list leaves that pin open --
+  and it reads **0**, exactly as an open MECL input should. The write condition
+  `p13 && !we_d && !p3` is measured true on **31 samples**, with 30 rising edges
+  on `TIOAWrite'`. **Writes do happen.**
+
+So the remaining question is sharp: **h15 stores zeros in all sixteen slots when
+it should hold `TIOA.4 = 1`.** Its data comes from `ProcH23.sil+5..8`, driven by
+**h12** -- an MC10158 that is the high-half twin of h13, the low-half write mux
+selected by `FFdly.4` between `alub` and `TIOAdly`. The next measurement is what
+h12 puts on those four nets AT the write, and whether `FFdly.4` selects `alub`
+there.
+
+*(For the record, ProcH's per-task register files are: `e13`/`i11`/`l03`/`l04`
+for T and `j16`/`j17` for MemBase -- both addressed by **CurrLast** -- against
+`g15`/`h15` for TIOA, addressed by **LastNext**. Four F10145A pairs, two
+different task addresses, which is the distinction already recorded for T and
+MemBase.)*
