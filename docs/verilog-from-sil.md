@@ -2849,3 +2849,30 @@ gated, because a signal that is already high proves nothing about what raised it
 
 Next: issue the DISKMUFF clear from the running loop, then pulse, and gate that
 the wakeup goes low and comes back.
+
+### The DISKMUFF clear bits, four for four (2026-08-25)
+
+Gating the sector wakeup needs a `DISKMUFF` write to clear it first, which meant
+finding where the clear controls live. All four come from **one package** — d19,
+an MC10173 — taking four consecutive IOB bits. PARC numbers IOB MSB-first, so
+`IOB.04` is `0x0800`, and `disk.c` names the same four values from the manual:
+
+| netlist | IOB bit | value | `disk.c` |
+|---|---|---|---|
+| `bIOB.04` -> `ClearIndexTW` | IOB.04 | 0x0800 | `DORADO_DISK_MUFF_CLEAR_INDEX_TW` |
+| `bIOB.05` -> `ClearSectorTW` | IOB.05 | 0x0400 | `DORADO_DISK_MUFF_CLEAR_SECTOR_TW` |
+| `bIOB.06` -> `ClearTWs` | IOB.06 | 0x0200 | `DORADO_DISK_MUFF_CLEAR_SEEKTAG_TW` |
+| `bIOB.07` -> `ClearErrors` | IOB.07 | 0x0100 | `DORADO_DISK_MUFF_CLEAR_ERRORS` |
+
+Four bit positions, four independent agreements. The one name that differs
+(`ClearTWs` against `CLEAR_SEEKTAG_TW`) is the same bit under a broader netlist
+name.
+
+**And d19 explains a line of `disk.c` that would otherwise look arbitrary.**
+Every one of the mux's other inputs is **`DisableRun`**, so disabling the
+controller asserts all four clears at once — which is exactly why the
+`CLR_ENABLE_RUN` branch zeroes `index_tw`, `sector_tw` *and* `tag_tw` in the
+same breath. Selected by `MufAdr_IOB'` (is the IOB carrying a muffler address),
+clocked by `Clock1'Cb`.
+
+Gated in `disk-read-check`; swapping two of the four expectations fails it.
