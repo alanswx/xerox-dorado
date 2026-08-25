@@ -196,6 +196,10 @@ disk-test:
 disk-tag-test:
 	@$(MAKE) -C verilator disk-tag-test
 
+# The read direction: the board drives IOB back at the processor.
+disk-input-test:
+	@$(MAKE) -C verilator disk-input-test
+
 # A WORD INTO THE STORAGE ARRAY: the msa board standalone, where the bench owns
 # the DRAM strobes, so a write can be driven without a memory reference.
 msa-test:

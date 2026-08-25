@@ -1416,7 +1416,7 @@ module tb_disk;
   integer n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
-  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel; reg [7:0] want_tioa; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
+  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
   integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q, n_acur, n_anext, n_afifo, n_dwt;
   reg [15:0] q_now, q_last;
   reg [15:0] alub_at_out;
@@ -1436,7 +1436,7 @@ module tb_disk;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
     d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1;
     // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
-    want_tioa = $test$plusargs("tag") ? 8'o014 : 8'o010; ctlbits=3'bx; iobits=3'bx; ctl_post=3'bx; ctl_final=3'bx; ram_at_out=4'bx; byp_at_out=1'bx; ff4_at_out=1'bx; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
+    want_tioa = $test$plusargs("tag") ? 8'o014 : 8'o010; n_ioen=0; n_iobin=0; iob_at_en=16'bx; ctlbits=3'bx; iobits=3'bx; ctl_post=3'bx; ctl_final=3'bx; ram_at_out=4'bx; byp_at_out=1'bx; ff4_at_out=1'bx; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
     dad_at_write=12'bx; dad_at_read=12'bx; dad_ones=12'bx;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
@@ -1582,6 +1582,19 @@ module tb_disk;
     tag_d = m.b_DskEth.Tag_u_IOB;
     if (m.b_DskEth.TagClock && !tclk_d) n_tagclk = n_tagclk + 1;
     tclk_d = m.b_DskEth.TagClock;
+    // THE READ PATH. b11 makes the IOB output enable from bIOin' + TIOA=Us',
+    // so this is the board DRIVING the bus back at the processor -- the one
+    // direction nothing here has exercised.
+    if (!m.b_DskEth.bIOin_p_) n_iobin = n_iobin + 1;
+    // ACTIVE LOW, and reading it the other way makes a correct board look
+    // broken. b11 is an MC10103 whose pin-2 role is `o`, the NON-inverting
+    // OR, so DskEth03.sil+1 = bIOin' OR TIOA=Us' -- both active low, hence
+    // the result is asserted LOW. It drives the MC10174s' E' (pin 14), which
+    // is an active-low enable too, so the senses agree.
+    if (!m.b_DskEth.DskEth03_sil_pl_1) begin
+      n_ioen = n_ioen + 1;
+      iob_at_en <= iob_now;
+    end
     if (!m.b_DskEth.TIOA_eq_Cont_p_ && cont_first < 0) begin
       cont_first = n_tot;
       cont_first_sel = m.b_DskEth.DskEth02_sil_pl_1 ? 0 : 1;
@@ -2798,12 +2811,20 @@ module tb_disk;
     // perfectly well. 0xF800 puts 370B in B's HIGH byte, which is what
     // TIOA <- B[0:7] takes.
     if ($test$plusargs("slowio")) begin
+      // `+input` turns the third slot into `Pd<-Input` -- FA=0 FB=3 FC=2 =
+      // FF 0o032, from cpu.c's own dispatch, and the SAME FA/FB as
+      // `Output<-B` (0o036) one FC apart. The read path is the mirror of the
+      // write one: DskEth b11 makes the IOB output enable from `bIOin'` AND
+      // `TIOA=Us'`, exactly as c18 makes ControlRegCl from `bIOout'` AND
+      // `TIOA=Cont'`, and it enables ten MC10174 muxes that select among
+      // DskData / Host / EthData by {TIOA.5a, TIOA.7a}.
       build_hunk4(4'd0, 1'b0,
                   '{4'd0,   4'd0,   4'd0,   4'd0},
                   '{3'd2,   3'd3,   3'd0,   3'd0},
                   '{3'd0,   3'd0,   3'd0,   3'd0},
                   '{3'd4,   3'd4,   3'd4,   3'd4},
-                  '{8'o152, 8'o036, 8'o000, 8'o000},
+                  '{8'o152, 8'o036,
+                    $test$plusargs("input") ? 8'o032 : 8'o000, 8'o000},
                   '{8'o201, 8'o202, 8'o203, 8'o200});
       send_a_hunk(16'd0);          // AT IM[0..3]: the executing loop is there
       $display("tb_disk: +slowio -- IM[0..3] = TIOA<- / Output<- / quiet / quiet");
@@ -3752,6 +3773,8 @@ module tb_disk;
                n_crc_edge, n_crc_free, iobits, ctlbits, ctl_post, ctl_final);
       $display("tb_disk:   THE SEEK PATH -- Tag_IOB edges %0d (all while DISKTAG addressed: %0d), TagClock edges %0d",
                n_tag_edge, n_tag_free, n_tagclk);
+      $display("tb_disk:   THE READ PATH -- bIOin' asserted on %0d of %0d, IOB output enable ASSERTED (low) on %0d (IOB there = %h)",
+               n_iobin, n_tot, n_ioen, iob_at_en);
       $display("tb_disk:   ...first Cont assertion at sample %0d of %0d, board selected there: %0d",
                cont_first, n_tot, cont_first_sel);
 
@@ -3807,6 +3830,23 @@ module tb_disk;
       // across the instruction that uses it.
       if (n_tioa_out10 == 0)
         $fatal(1, "no IOBout strobe found TIOA = %o: the address never survives to the data", want_tioa);
+      // THE READ DIRECTION, and the negative half matters more than the
+      // positive one. b11 makes the IOB output enable from `bIOin'` AND
+      // `TIOA=Us'` -- the mirror of c18's `bIOout'` AND `TIOA=Cont'` -- and it
+      // enables ten MC10174 muxes that select DskData / Host / EthData by
+      // {TIOA.5a, TIOA.7a}. A board that drives the bus when nobody is reading
+      // it is a bus fight, so assert that it does NOT.
+      if ($test$plusargs("input")) begin
+        if (n_iobin == 0)
+          $fatal(1, "bIOin' never asserted -- the Pd<-Input in the loop never reached the board");
+        if (n_ioen == 0)
+          $fatal(1, "the board never drove IOB back: enable never asserted during a read");
+      end else begin
+        if (n_iobin != 0)
+          $fatal(1, "bIOin' asserted %0d times with no Pd<-Input in the loop", n_iobin);
+        if (n_ioen != 0)
+          $fatal(1, "the board drove IOB on %0d samples with nobody reading it -- a bus fight", n_ioen);
+      end
       if ($test$plusargs("tag")) begin
         // THE SEEK STROBE, and it is the control strobe's twin: b17 makes
         // Tag_IOB the same way c18 makes ControlRegCl, and d16 turns it into

@@ -2577,3 +2577,40 @@ And a fourth, on the mutation testing itself: a `python3 -c` one-liner carrying
 nested quotes failed to parse, the edit never applied, and both mutations
 reported a meaningless PASS. **Print a verification that the edit landed before
 believing the result** — the "silent no-op edit" failure mode, hit again.
+
+### The other direction: the board drives IOB back (2026-08-25)
+
+Everything above is processor -> device. `+input` puts a **`Pd<-Input`** in the
+loop's third slot -- **FA=0 FB=3 FC=2 = FF `0o032`**, from `cpu.c`'s own
+dispatch, the same FA/FB as `Output<-B` (`0o036`) one FC apart.
+
+The read path is the write path's mirror, package for package:
+
+| | write | read |
+|---|---|---|
+| strobe/enable made by | c18 (SE10212) | **b11 (MC10103)** |
+| from | `bIOout'` AND `TIOA=Cont'` | **`bIOin'` AND `TIOA=Us'`** |
+| driving | `ControlRegCl` | the **E'** of ten MC10174 muxes |
+| which select | — | `DskData` / `Host` / `EthData` by `{TIOA.5a, TIOA.7a}` |
+
+Measured: with `+input`, `bIOin'` asserts **960** times -- exactly the count of
+`Output<-` strobes, so the Input executes and reaches the board -- and the IOB
+output enable asserts on **32**, the same 32 samples where the address and the
+access coincide. Without it, both are **zero**.
+
+`IOB` reads `0000` there, and that is honest: `DskData`/`Host`/`EthData` are all
+zero because no drive is attached. The enable is what this rung proves; the data
+needs a drive model.
+
+**The negative half is the stronger gate.** A board that drives the bus when
+nobody is reading it is a bus fight, so `disk-test` and `disk-tag-test` now
+assert that the enable *never* asserts and `bIOin'` never fires. Both mutations
+bite: removing the `Pd<-Input` fails `disk-input-test`, and reading the enable in
+the wrong sense fails `disk-test`.
+
+*Which was nearly a false bug report.* `DskEth03.sil+1` is **ACTIVE LOW** --
+b11's pin-2 role is `o`, the non-inverting OR, so it is `bIOin' OR TIOA=Us'` with
+both inputs active low, and it feeds an active-low `E'`. Counted in the wrong
+sense it read "enable high on 140559 of 140559" *including when no Input existed
+at all*, which looks exactly like a stuck enable. It was a correct board read
+backwards.
