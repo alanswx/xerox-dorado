@@ -33,6 +33,19 @@ Two claims are asserted here because two models made them independently:
 Note for the C emulator: the same mux carries eight ETHERNET STATUS FLAGS in
 the low byte (RxOn, TxOn, LoopBack, TxCollision, NoWakeups, TxDataLate,
 SingleStep, TxFifoPE). `eth_read` returns zero for all of them.
+
+THE WRITE SIDE IS CHECKED TOO. A DISKMUFF output carries four clear controls,
+and d19 (MC10173) takes them from four consecutive IOB bits. PARC numbers IOB
+MSB-first, so IOB.04 is 0x0800 -- and `disk.c` names the same four values:
+
+    bIOB.04 -> ClearIndexTW    0x0800   DORADO_DISK_MUFF_CLEAR_INDEX_TW
+    bIOB.05 -> ClearSectorTW   0x0400   DORADO_DISK_MUFF_CLEAR_SECTOR_TW
+    bIOB.06 -> ClearTWs        0x0200   DORADO_DISK_MUFF_CLEAR_SEEKTAG_TW
+    bIOB.07 -> ClearErrors     0x0100   DORADO_DISK_MUFF_CLEAR_ERRORS
+
+Every one of d19's other mux inputs is `DisableRun`, so disabling the
+controller asserts all four clears -- which is why disk.c's CLR_ENABLE_RUN
+branch zeroes index_tw, sector_tw and tag_tw in the same breath.
 """
 import glob
 import sys
@@ -92,13 +105,37 @@ def main() -> int:
             failures.append(f"{out} takes {got} from the EthStatus mux input, "
                             f"not {want}; ethernet.c returns local_host << 8")
 
+    # 3. the DISKMUFF clear controls (write side), d19 -- four consecutive
+    #    IOB bits whose values disk.c names independently.
+    MUFF_CLEARS = {'IOB.04': ('ClearIndexTW', 0x0800),
+                   'IOB.05': ('ClearSectorTW', 0x0400),
+                   'IOB.06': ('ClearTWs', 0x0200),
+                   'IOB.07': ('ClearErrors', 0x0100)}
+    # EclDict @MC173: D0,5 D1,3 D2,12 D3,10 -> Q0,1 Q1,2 Q2,15 Q3,14
+    D19 = ((5, 1), (3, 2), (12, 15), (10, 14))
+    d19 = pin_of.get('d19', {})
+    print()
+    for dpin, qpin in D19:
+        src, out = d19.get(dpin), d19.get(qpin)
+        bit = (src or '').replace('bIOB.', 'IOB.')
+        want = MUFF_CLEARS.get(bit)
+        print(f"  {src or '-':<10} -> {out or '-':<16} "
+              f"{'0x%04x' % want[1] if want else ''}")
+        if want is None:
+            failures.append(f"d19 pin {dpin} takes {src}, which is not one of "
+                            f"the four DISKMUFF clear bits")
+        elif out != want[0]:
+            failures.append(f"{bit} drives {out}, not {want[0]}; disk.c gives "
+                            f"that bit the value 0x{want[1]:04x}")
+
     if failures:
         for f in failures:
             print(f"FAIL: {f}")
         return 1
     print(f"PASS: the muffler reaches IOB on {MUFFLER_BIT} alone (HM pp.101-102, "
           f"disk.c's 0x0001), and Host.0-7 occupy IOB.00-07, the high byte "
-          f"(ethernet.c's local_host << 8)")
+          f"(ethernet.c's local_host << 8), and the four DISKMUFF clear bits sit "
+          f"where disk.c's constants put them")
     return 0
 
 
