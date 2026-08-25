@@ -175,6 +175,10 @@ void Vtb_disk___024root___nba_sequent__TOP__4(Vtb_disk___024root* vlSelf) {
     CData/*4:0*/ __Vtableidx324;
     __Vtableidx324 = 0;
     // Body
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__RamAddr_3 
+        = (1U & ((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_12) 
+                 | ((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_13) 
+                    | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b21__DOT__q))));
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemC__DOT__MemC09_sil_pl_3 
         = (1U & (~ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_MemC__DOT__dAad_2_p_) 
                     ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_MemC__DOT__u_a07__DOT__p9))));

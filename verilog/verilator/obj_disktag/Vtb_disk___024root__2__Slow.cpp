@@ -417,6 +417,8 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__n_cecc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 17481667490169381745ull);
     vlSelf->tb_disk__DOT__n_shin = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 6229991482970192324ull);
     vlSelf->tb_disk__DOT__n_shiftin = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11669084918216030655ull);
+    vlSelf->tb_disk__DOT__n_rdblk = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 98659681145292871ull);
+    vlSelf->tb_disk__DOT__n_actv = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 7127140224167617869ull);
     vlSelf->tb_disk__DOT__bclkb_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13034011711874558836ull);
     vlSelf->tb_disk__DOT__shreg_first = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 1733074111851757686ull);
     vlSelf->tb_disk__DOT__shreg_last = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 10555023851428625068ull);
@@ -9589,10 +9591,13 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__426__tb_disk__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__426__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
     vlSelf->__Vtask_tb_disk__DOT__strobe__427__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
-    vlSelf->__Vtask_tb_disk__DOT__parc_micro__2700__b1 = 0;
-    vlSelf->__Vtask_tb_disk__DOT__parc_micro__2700__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
-    vlSelf->__Vtask_tb_disk__DOT__strobe__2738__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
-    vlSelf->__Vfunc_tb_disk__DOT__WT__2741__n = 0;
+    vlSelf->__Vtask_tb_disk__DOT__parc_micro__2709__b1 = 0;
+    vlSelf->__Vtask_tb_disk__DOT__parc_micro__2709__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2747__fn = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2747__data = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2747__ss = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2747__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2747__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;

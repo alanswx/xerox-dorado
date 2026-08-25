@@ -1007,6 +1007,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **...AND THE DRIVE'S SERIAL DATA REACHES THE CONTROLLER** | `disk-input-test` -- `cell_MC1650` modelled from its data sheet; 8 alternating bits give `PreReadData` 4 high / 4 low, and 0 of 8 when DESELECTED |
 | **...AND ITS BIT CLOCK REACHES THE SHIFT REGISTER** | `disk-input-test` -- 32 cable bit periods = 32 `BitClock'B` edges, chain in SHIFT mode; the DATA is gated twice by the b20 sequencer (open) |
 | **...AND THE FOUR PER-BLOCK OPS ARE SPLIT BY BIT** | `disk-read-check` -- f14 takes `bIOB.08/10/12/14`, f15 `.09/11/13/15`, both `PE'=Active` so they load while idle and shift one op per block |
+| **A REAL DISK COMMAND LOADS, AND STARTS** | `disk-cmd-test` -- DISKCONTROL `0x02C0` = SetDebugMode + Read op: `ReadBlock` AND `Active` both up; e13 has `DebugMode` on its SET pin, which is `disk.c`'s rule verbatim |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
 Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is

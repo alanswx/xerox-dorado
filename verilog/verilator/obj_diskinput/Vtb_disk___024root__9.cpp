@@ -389,6 +389,15 @@ void Vtb_disk___024root___nba_sequent__TOP__3(Vtb_disk___024root* vlSelf) {
     CData/*4:0*/ __Vtableidx319;
     __Vtableidx319 = 0;
     // Body
+    vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_h12__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_h12__DOT__mem
+        [(0x00000fffU & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_i08__DOT__addr))];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_g12__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_g12__DOT__mem
+        [(0x00000fffU & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_i08__DOT__addr))];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_f12__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_f12__DOT__mem
+        [(0x00000fffU & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_i08__DOT__addr))];
     vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_f11__DOT__dout_r 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_f11__DOT__mem
         [(0x00000fffU & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_i08__DOT__addr))];
@@ -10232,8 +10241,4 @@ void Vtb_disk___024root___nba_sequent__TOP__3(Vtb_disk___024root* vlSelf) {
                   | ((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_12) 
                      | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b21__DOT__q))) 
                  >> 1U));
-    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__RamAddr_3 
-        = (1U & ((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_12) 
-                 | ((IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_13) 
-                    | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b21__DOT__q))));
 }

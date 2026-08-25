@@ -7977,8 +7977,6 @@ void Vtb_disk___024root___nba_sequent__TOP__1(Vtb_disk___024root* vlSelf) {
             = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_e15__DOT__dout_r;
         vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_e16__DOT__dout 
             = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_e16__DOT__dout_r;
-        vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_d16__DOT__dout 
-            = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_d16__DOT__dout_r;
     }
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_d22__DOT__ck_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_B;
