@@ -2824,3 +2824,28 @@ fed and the IOB has never carried a parity-correct word. Those are cleared by a
 so the next step does not mistake them for a drive fault.
 
 Gated in `disk-input-test`; dropping `TtlTerm'` from the presented drive fails it.
+
+### The sector pulse reaches the controller and TRACKS (2026-08-25)
+
+Second rung. A Trident pulses `SecIndx'` once per sector; the pulse crosses d03
+(SN74LS153, the per-unit select mux) as `TtlSector'`, then c03 (MC10124) which
+makes `Sector` and `Index'`. Eight pulses:
+
+```
+Sector high on 8 of 8 pulses and 0 of 8 GAPS
+```
+
+**The gap half is the gate.** "High on 8 of 8 pulses" is also exactly what a net
+stuck high gives; only counting the gaps separates a working path from a stuck
+one. Both mutations bite — never pulsing, and holding the line low throughout.
+
+**The task wakeups do NOT discriminate yet, and that is not a fault.** `Index'`
+drives e05 (MC10231) whose outputs are `IndexTW` and `SectorTW`, and both are
+**already asserted before any pulse**. They are set by the pulse and cleared by
+MICROCODE — `ClearIndexTW` / `ClearSectorTW`, which `src/disk.c` reaches through
+`DORADO_DISK_MUFF_CLEAR_INDEX_TW` and `..._SECTOR_TW` on a DISKMUFF write. So
+gating them needs that write first. Recorded in the bench as open rather than
+gated, because a signal that is already high proves nothing about what raised it.
+
+Next: issue the DISKMUFF clear from the running loop, then pulse, and gate that
+the wakeup goes low and comes back.

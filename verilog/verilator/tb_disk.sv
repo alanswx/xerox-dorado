@@ -1416,7 +1416,7 @@ module tb_disk;
   integer n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
-  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
+  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
   integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q, n_acur, n_anext, n_afifo, n_dwt;
   reg [15:0] q_now, q_last;
   reg [15:0] alub_at_out;
@@ -3846,6 +3846,54 @@ module tb_disk;
             m.b_DskEth.IOBParityErr))
         $display("tb_disk:   (note) the controller-side errors cleared on their own -- unexpected, re-read this");
       $display("tb_disk:   ...so four cable lines give a HEALTHY SELECTED DRIVE; what is left is controller state");
+
+      // STEP 2: DOES THE CONTROLLER COUNT SECTORS? A Trident pulses SecIndx'
+      // once per sector and once (longer) per revolution for index. That
+      // reaches d03 (SN74LS153, the per-unit select mux) as TtlSector', then
+      // c03 (MC10124) which makes `Sector` and `Index'` -- and `Index'` drives
+      // e05 (MC10231) whose outputs are IndexTW and SectorTW, THE TASK WAKEUPS.
+      // src/disk.c models the same two as ctl->index_tw and ctl->sector_tw.
+      $display("tb_disk:   SECTOR before -- TtlSector'=%b Sector=%b Index'=%b SectorTW=%b IndexTW=%b",
+               m.b_DskEth.TtlSector_p_, m.b_DskEth.Sector, m.b_DskEth.Index_p_,
+               m.b_DskEth.SectorTW, m.b_DskEth.IndexTW);
+      force m.TtlReady_p_  = 1'b0;
+      force m.TtlOnLine_p_ = 1'b0;
+      force m.TtlTerm_p_   = 1'b0;
+      force m.Selected0_p_ = 1'b0;
+      n_sectw = 0; n_idxtw = 0; n_secpulse = 0; n_secgap = 0;
+      for (twin = 0; twin < 8; twin = twin + 1) begin
+        force m.SecIndx0_p_ = 1'b0;            // the sector pulse, active low
+        repeat (24) @(posedge sys_clk);
+        if (m.b_DskEth.Sector)   n_secpulse = n_secpulse + 1;
+        if (m.b_DskEth.SectorTW) n_sectw    = n_sectw + 1;
+        if (m.b_DskEth.IndexTW)  n_idxtw    = n_idxtw + 1;
+        force m.SecIndx0_p_ = 1'b1;
+        repeat (24) @(posedge sys_clk);
+        // COUNT THE GAP TOO. "Sector high on 8 of 8 pulses" is also what a
+        // stuck-high net gives; only the gap separates tracking from stuck.
+        if (m.b_DskEth.Sector)   n_secgap   = n_secgap + 1;
+        if (m.b_DskEth.SectorTW) n_sectw    = n_sectw + 1;
+        if (m.b_DskEth.IndexTW)  n_idxtw    = n_idxtw + 1;
+      end
+      $display("tb_disk:   SECTOR PULSES -- 8 pulses on SecIndx0': Sector high on %0d of 8 pulses and %0d of 8 GAPS, SectorTW on %0d, IndexTW on %0d (of 16)",
+               n_secpulse, n_secgap, n_sectw, n_idxtw);
+      $display("tb_disk:   SECTOR after  -- TtlSector'=%b Sector=%b Index'=%b SectorTW=%b IndexTW=%b",
+               m.b_DskEth.TtlSector_p_, m.b_DskEth.Sector, m.b_DskEth.Index_p_,
+               m.b_DskEth.SectorTW, m.b_DskEth.IndexTW);
+      // GATE: THE SECTOR PULSE REACHES THE CONTROLLER, AND TRACKS. `Sector`
+      // must be high for every pulse and low for every gap -- the gap half is
+      // what separates a working path from a net stuck high.
+      if (n_secpulse != 8)
+        $fatal(1, "SecIndx0' pulsed 8 times but Sector followed only %0d", n_secpulse);
+      if (n_secgap != 0)
+        $fatal(1, "Sector was high in %0d of 8 gaps -- it is stuck, not tracking", n_secgap);
+      // ...and the WAKEUPS do not discriminate yet: SectorTW and IndexTW are
+      // already asserted before any pulse. They are set by the pulse and
+      // CLEARED BY MICROCODE -- ClearSectorTW / ClearIndexTW, which src/disk.c
+      // reaches through DORADO_DISK_MUFF_CLEAR_SECTOR_TW on a DISKMUFF write.
+      // Gating them needs that write first; NOT proven here.
+      $display("tb_disk:   ...so the sector pulse reaches the controller and TRACKS; the TWs need a DISKMUFF clear first (open)");
+      release m.SecIndx0_p_;
       release m.TtlReady_p_; release m.TtlOnLine_p_;
       release m.TtlTerm_p_;  release m.Selected0_p_;
       repeat (64) @(posedge sys_clk);
