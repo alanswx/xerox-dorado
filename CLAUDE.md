@@ -995,6 +995,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **...AND ADDRESSES A DISK REGISTER** | `disk-test` -- nine boards with DskEth; f07 decodes `DISKCONTROL` alone (Cont 1921, Muff/Data/Ram/Tag 0) |
 | **...WITH THE ADDRESS AND THE DATA TOGETHER** | `disk-test`/`display-test` -- the per-task TIOA holds across the `Output<-` that uses it |
 | **THE DISK CONTROLLER OBEYS A COMMAND** | `disk-test` -- `ControlRegCl` clocks, and DebugMode/BlockTillIndex/EnableRun take the bits `include/disk.h` assigns them |
+| **...AND THE DECODE DISCRIMINATES** | `disk-tag-test` -- the same loop aimed at DISKTAG (014B): Tag 127 / Cont 0, `TagClock` fires, `ControlRegCl` does not |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
 Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is
