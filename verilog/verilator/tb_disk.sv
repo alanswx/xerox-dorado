@@ -3775,6 +3775,39 @@ module tb_disk;
                n_tag_edge, n_tag_free, n_tagclk);
       $display("tb_disk:   THE READ PATH -- bIOin' asserted on %0d of %0d, IOB output enable ASSERTED (low) on %0d (IOB there = %h)",
                n_iobin, n_tot, n_ioen, iob_at_en);
+      // CAN A BENCH PRESENT A DRIVE AT ALL? The 25 drive-interface nets are
+      // CONSTANT-TIED inside DskEth -- the 17 active-low TTL lines to VCC (an
+      // open-collector pull-up) and the 8 differential clock lines to GND (the
+      // termination) -- so the generator saw a driver and made each a top-level
+      // OUTPUT. Nothing external can assert them, which blocks any drive model.
+      // Probe whether `force` reaches them; that decides whether the drive
+      // model can be developed before the generator is changed.
+      $display("tb_disk:   DRIVE LINES before force -- TtlReady'=%b TtlOnLine'=%b Selected0'=%b",
+               m.TtlReady_p_, m.TtlOnLine_p_, m.Selected0_p_);
+      force m.TtlReady_p_  = 1'b0;
+      force m.TtlOnLine_p_ = 1'b0;
+      force m.Selected0_p_ = 1'b0;
+      @(posedge sys_clk); @(posedge sys_clk);
+      $display("tb_disk:   DRIVE LINES after force  -- TtlReady'=%b TtlOnLine'=%b Selected0'=%b  (0 = asserted = a drive is there)",
+               m.TtlReady_p_, m.TtlOnLine_p_, m.Selected0_p_);
+      release m.TtlReady_p_; release m.TtlOnLine_p_; release m.Selected0_p_;
+      // GATE: WITH NO DRIVE ATTACHED, THE BOARD MUST SEE NO DRIVE. All 17
+      // active-low cable lines are pulled up, so every one must read 1. This
+      // guards a bug that was already here once: `sip_drives` required the
+      // wire list to call a pack pin `out`, and pin 4 of an 8-pin SIP is
+      // routinely marked `in`, so six of these lines had NO driver and read as
+      // ASSERTED -- fabricating a disk that is not attached.
+      if (!(m.TtlDeviceCk_p_ && m.TtlEndOfCyl_p_ && m.TtlIndex_p_ &&
+            m.TtlOffSet_p_ && m.TtlOnLine_p_ && m.TtlReadOnly_p_ &&
+            m.TtlReady_p_ && m.TtlSeekInc_p_ && m.TtlTerm_p_))
+        $fatal(1, "a drive-status line reads ASSERTED with no drive attached: %b%b%b%b%b%b%b%b%b",
+               m.TtlDeviceCk_p_, m.TtlEndOfCyl_p_, m.TtlIndex_p_, m.TtlOffSet_p_,
+               m.TtlOnLine_p_, m.TtlReadOnly_p_, m.TtlReady_p_, m.TtlSeekInc_p_,
+               m.TtlTerm_p_);
+      if (!(m.SecIndx0_p_ && m.SecIndx1_p_ && m.SecIndx2_p_ && m.SecIndx3_p_ &&
+            m.Selected0_p_ && m.Selected1_p_ && m.Selected2_p_ && m.Selected3_p_))
+        $fatal(1, "a per-drive line reads ASSERTED with no drive attached");
+      $display("tb_disk:   ...and all 17 active-low cable lines idle DEASSERTED: no drive is fabricated");
       $display("tb_disk:   ...first Cont assertion at sample %0d of %0d, board selected there: %0d",
                cont_first, n_tot, cont_first_sel);
 

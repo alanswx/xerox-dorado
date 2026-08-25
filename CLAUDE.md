@@ -999,6 +999,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **...AND THE BOARD DRIVES IOB BACK** | `disk-input-test` -- a `Pd<-Input` (FF `0o032`) in the loop: `bIOin'` 960, the MC10174s' enable asserts on 32, and on ZERO without it |
 | **...AND THE READ MUX MATCHES BOTH C MODELS** | `disk-read-check` -- muffler on `IOB.15` alone (`disk.c`'s `0x0001`, HM pp.101-102) and `Host.0-7` on the HIGH byte (`ethernet.c`'s `local_host << 8`) |
 | **...AND THE DRIVE INTERFACE IS ENUMERATED** | `disk-interface-check` -- 46 signals: 4 drives x (Clock pair IN, Data pair BIDIRECTIONAL, SecIndx', Selected'), 9 status in, 13 tag out |
+| **...AND NO DISK IS FABRICATED WHEN NONE IS ATTACHED** | `disk-input-test` -- all 17 active-low cable lines idle DEASSERTED (six of them once read asserted, inventing a drive) |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
 Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is

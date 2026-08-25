@@ -995,10 +995,6 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_c21__DOT__qa 
             = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__dSyn3;
     }
-    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_i08__DOT__ck_d 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EtherClk42_5a;
-    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_i09__DOT__ck_d 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EtherClk42_5a;
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_a20__DOT__ck_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__clk2_p_Ca;
     if (vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_b18__DOT__p5) {
@@ -1010,6 +1006,10 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_b18__DOT__qa 
             = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__MemD05_sil_pl_10;
     }
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_i08__DOT__ck_d 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EtherClk42_5a;
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_i09__DOT__ck_d 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EtherClk42_5a;
     if (vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l07__DOT__p12) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l07__DOT__qb = 1U;
     } else if (vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l07__DOT__p13) {
@@ -1021,12 +1021,12 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
     }
     vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_a20__DOT__ck_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__Clock1_p_Ca;
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_i13__DOT__we_d 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__TbWrite_p_a;
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_i12__DOT__ck_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EtherClk42_5a;
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__RxSRFull_p_ 
         = (IData)((0U != (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_i12__DOT__q)));
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_i13__DOT__we_d 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__TbWrite_p_a;
     vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_i11__DOT__we_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__TbWrite_p_a;
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_i10__DOT__ck_d 
@@ -1168,6 +1168,8 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
         = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_f09__DOT__clk;
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b21__DOT__ck_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__RamCl_p_A;
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_a09__DOT__ck_d 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_a09__DOT__clk;
     if (vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e14__DOT__p12) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e14__DOT__qb = 1U;
     } else if (vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e14__DOT__qa) {
@@ -1177,8 +1179,6 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e14__DOT__qb 
             = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOB_06;
     }
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_a09__DOT__ck_d 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_a09__DOT__clk;
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_f15__DOT__ck_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_f15__DOT__clk;
     if (vlSelfRef.tb_disk__DOT__m__DOT__b_MemX__DOT__u_b01__DOT__p11) {
@@ -3253,8 +3253,6 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
     __Vtableidx210 = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_k24__DOT__q;
     vlSelfRef.tb_disk__DOT__m__DOT__Fout_00___05FMemD 
         = Vtb_disk__ConstPool__TABLE_h5b90359e_0[__Vtableidx210];
-    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h17__DOT__ck_d 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__Clock1_p_Da;
     __Vtableidx235 = vlSelfRef.tb_disk__DOT__m__DOT__b_MemX__DOT__u_j20__DOT__q;
     vlSelfRef.tb_disk__DOT__m__DOT__EcWantsA___05FMemX 
         = Vtb_disk__ConstPool__TABLE_h4780427e_0[__Vtableidx235];
@@ -3266,6 +3264,8 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
         = Vtb_disk__ConstPool__TABLE_hdbecc607_0[__Vtableidx235];
     tb_disk__DOT__m__DOT__b_MemX__DOT__MakeTransport2___05Fj20_2 
         = Vtb_disk__ConstPool__TABLE_h5b90359e_0[__Vtableidx235];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h17__DOT__ck_d 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__Clock1_p_Da;
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l23__DOT__ck_d 
         = (1U & (~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__MidasEn_01T_02F_03F_04F_p___05F_l24_9)));
     __Vtableidx329 = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l22__DOT__q;
@@ -4432,6 +4432,21 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
                   | (~ (0x0000000fU == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_e16__DOT__q)))) 
                  | ((~ (0x0000000fU == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_e15__DOT__q))) 
                     | (~ (0x0000000fU == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_d15__DOT__q))))));
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_c13__DOT__ck_d 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__clk1_p_Ca;
+    __Vtableidx7 = vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_c13__DOT__q;
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CIAInc_03 
+        = Vtb_disk__ConstPool__TABLE_h59e8c004_0[__Vtableidx7];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CIAInc_02 
+        = Vtb_disk__ConstPool__TABLE_h4780427e_0[__Vtableidx7];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CIAInc_01 
+        = Vtb_disk__ConstPool__TABLE_h75b2a61a_0[__Vtableidx7];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CIAInc_00 
+        = Vtb_disk__ConstPool__TABLE_ha477147c_0[__Vtableidx7];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__ContA06_sil_pl_7 
+        = Vtb_disk__ConstPool__TABLE_hdbecc607_0[__Vtableidx7];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__ContA06_sil_pl_10 
+        = Vtb_disk__ConstPool__TABLE_h5b90359e_0[__Vtableidx7];
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b06__DOT__ck_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_A;
     if ((1U & (~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__Clock1_p_Ca)))) {
@@ -4461,21 +4476,6 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
                                                    << 1U) 
                                                   | (1U 
                                                      & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b20__DOT__q)));
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_c13__DOT__ck_d 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__clk1_p_Ca;
-    __Vtableidx7 = vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_c13__DOT__q;
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CIAInc_03 
-        = Vtb_disk__ConstPool__TABLE_h59e8c004_0[__Vtableidx7];
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CIAInc_02 
-        = Vtb_disk__ConstPool__TABLE_h4780427e_0[__Vtableidx7];
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CIAInc_01 
-        = Vtb_disk__ConstPool__TABLE_h75b2a61a_0[__Vtableidx7];
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CIAInc_00 
-        = Vtb_disk__ConstPool__TABLE_ha477147c_0[__Vtableidx7];
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__ContA06_sil_pl_7 
-        = Vtb_disk__ConstPool__TABLE_hdbecc607_0[__Vtableidx7];
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__ContA06_sil_pl_10 
-        = Vtb_disk__ConstPool__TABLE_h5b90359e_0[__Vtableidx7];
     __Vtableidx231 = vlSelfRef.tb_disk__DOT__m__DOT__b_MemX__DOT__u_i15__DOT__q;
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemX__DOT__MapFnc_1_p_ 
         = Vtb_disk__ConstPool__TABLE_h75b2a61a_0[__Vtableidx231];
@@ -4724,7 +4724,8 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e05__DOT__qa = 0U;
     } else if ((1U & (~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e05__DOT__cka_d)))) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e05__DOT__qa 
-            = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e15__DOT__qa;
+            = (1U & (~ ((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e15__DOT__qa)) 
+                        | (~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__TtlReady_p___VforceRd)))));
     }
     if ((2U & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_d19__DOT__q))) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e05__DOT__qb = 1U;
@@ -4740,12 +4741,27 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
     } else if (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__PreBitClock_p_)) 
                 & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TagDone))) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e04__DOT__qa = 0U;
-    } else if ((1U & (~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e05__DOT__cka_d)))) {
+    } else if (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e04__DOT__cka_d)) 
+                & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e04__DOT__clka))) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e04__DOT__qa 
             = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e15__DOT__qa;
     }
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemC__DOT__u_e22__DOT__ckb_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_MemC__DOT__u_e22__DOT__clkb;
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_h02__DOT__ck_d 
+        = (1U & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_a01__DOT__q) 
+                 >> 4U));
+    __Vtableidx16 = vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_h02__DOT__q;
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CPReg_15 
+        = Vtb_disk__ConstPool__TABLE_hdbecc607_0[__Vtableidx16];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CPReg_14 
+        = Vtb_disk__ConstPool__TABLE_h5b90359e_0[__Vtableidx16];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__ckb_d 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__clka;
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__bSwitch_p_a 
+        = (1U & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_j19__DOT__p9) 
+                 | ((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__qb)) 
+                    | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_j19__DOT__p11))));
     __Vtableidx292 = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_d04__DOT__q;
     tb_disk__DOT__m__DOT__b_DskEth__DOT__TriconD05_sil_pl_4 
         = Vtb_disk__ConstPool__TABLE_h4780427e_0[__Vtableidx292];
@@ -4787,20 +4803,6 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
                                                   ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__Ram_08)
                                                   : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOB_08))));
     }
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_h02__DOT__ck_d 
-        = (1U & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_a01__DOT__q) 
-                 >> 4U));
-    __Vtableidx16 = vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_h02__DOT__q;
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CPReg_15 
-        = Vtb_disk__ConstPool__TABLE_hdbecc607_0[__Vtableidx16];
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CPReg_14 
-        = Vtb_disk__ConstPool__TABLE_h5b90359e_0[__Vtableidx16];
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__ckb_d 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__clka;
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__bSwitch_p_a 
-        = (1U & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_j19__DOT__p9) 
-                 | ((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_f14__DOT__qb)) 
-                    | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_j19__DOT__p11))));
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemC__DOT__u_e23__DOT__ckb_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_MemC__DOT__u_e23__DOT__clkb;
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h24__DOT__ck_d 
@@ -8217,11 +8219,5 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
         [(0x00000fffU & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_i06__DOT__addr))];
     vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_h10__DOT__dout_r 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_h10__DOT__mem
-        [(0x00000fffU & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_i06__DOT__addr))];
-    vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_g10__DOT__dout_r 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_g10__DOT__mem
-        [(0x00000fffU & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_i06__DOT__addr))];
-    vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_f10__DOT__dout_r 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_f10__DOT__mem
         [(0x00000fffU & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_i06__DOT__addr))];
 }
