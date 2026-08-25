@@ -3014,6 +3014,33 @@ module tb_disk;
       // BSEL 3 is B<-Q, so with +qaddr both slow-I/O instructions take Q: the
       // address for TIOA<- and the data for Output<-. That is fine where the
       // data is arbitrary (walking the format RAM) and wrong where it is not.
+      // `+tlit` GETS BOTH VALUES WITHOUT A SECOND JAM, and removes the need for
+      // a two-phase startup. BSEL 6 is `FF,,0` -- cpu.c: "high byte FF, low
+      // byte 0" -- so the FF field becomes a LITERAL on B. The note that "FF is
+      // consumed by the opcode" is true of `TIOA<-B` itself (FF = 0o152) but
+      // not of a separate instruction whose only job is to load T, and
+      // `TIOA<-B` takes B's HIGH BYTE, which is exactly where the literal
+      // lands. So FF = the TIOA value directly.
+      //
+      // Being EXECUTED rather than jammed, it fills the per-task T file
+      // properly -- which is the whole of #31 -- and it does so EVERY PASS, so
+      // T cannot decay. Q is then free to carry the DATA.
+      //
+      //   IM[0]  T <- FF,,0   BSEL 6, LC 1 (T<-Pd), ALUF 0 (PARC's prologue
+      //                       loads ALUFM[0] = B), FF = the TIOA address
+      //   IM[1]  TIOA <- B    BSEL 2 (B<-T)      FF = 0o152
+      //   IM[2]  Output <- B  BSEL 3 (B<-Q)      FF = 0o036   (or Pd<-Input)
+      //   IM[3]  quiet
+      if ($test$plusargs("tlit"))
+        build_hunk4(4'd0, 1'b0,
+                    '{4'd0,   4'd0,   4'd0,   4'd0},
+                    '{3'd6,   3'd2,   3'd3,   3'd0},
+                    '{3'd1,   3'd0,   3'd0,   3'd0},
+                    '{3'd4,   3'd4,   3'd4,   3'd4},
+                    '{want_tioa, 8'o152,
+                      $test$plusargs("input") ? 8'o032 : 8'o036, 8'o000},
+                    '{8'o201, 8'o202, 8'o203, 8'o200});
+      else
       build_hunk4(4'd0, 1'b0,
                   '{4'd0,   4'd0,   4'd0,   4'd0},
                   '{$test$plusargs("qaddr") ? 3'd3 : 3'd2,
@@ -4452,6 +4479,21 @@ module tb_disk;
           $fatal(1, "IndexTW dropped without a DISKMUFF write (%0d of %0d)",
                  n_idxtw_run, n_tot);
       end
+      // GATE: WITH THE ADDRESS AS AN FF LITERAL, THE LOOP DRIVES REAL TRAFFIC.
+      // `+tlit` loads T from `FF,,0` (BSEL 6) EVERY PASS -- executed, so the
+      // per-task file fills and cannot decay -- which frees Q to carry a
+      // DIFFERENT word as the data. That is what a real command needs, and the
+      // difference is an order of magnitude: with the address jammed into T the
+      // control register clocked ONCE in a whole run.
+      if ($test$plusargs("tlit")) begin
+        if (n_r_cont < 100)
+          $fatal(1, "with T loaded from an FF literal the board selected only %0d times", n_r_cont);
+        if ($test$plusargs("read") && n_crc_edge < 10)
+          $fatal(1, "the control register clocked only %0d times -- the loop is not sustaining writes",
+                 n_crc_edge);
+        $display("tb_disk:   ...so an FF literal in T sustains the loop: %0d selects, %0d control-register writes",
+                 n_r_cont, n_crc_edge);
+      end
       // GATE: THE ADDRESS SURVIVES THE LOOP WHEN IT COMES FROM Q. This is #31.
       // T is a PER-TASK FILE and a jam sets the visible register but not the
       // file slot, so T reverts after one pass and every later `TIOA<-B` writes
@@ -4726,11 +4768,20 @@ module tb_disk;
     //
     // Gate the POSITIVE fact instead, so this stays mutation-sensitive: a jam
     // must not reach either path.
-    if (n_tw != 0)
-      $fatal(1, "a JAMMED TIOA<-B asserted TIOAWrite' %0d times -- IgnoreCommands should block the store", n_tw);
-    if (n_byp != 0)
-      $fatal(1, "a JAMMED TIOA<-B raised TIOABypass %0d times -- g19 should not decode a jam as TIOA<-B", n_byp);
-    $display("tb_disk:   ...so a jam reaches NEITHER path: no store, no bypass (the loop is the real test)");
+    // NOT MEANINGFUL WHEN THE LOOP NEVER STOPS. This window's claim is that a
+    // jam reaches neither the per-task store nor the forward path, and that is
+    // only readable while nothing ELSE drives them. With `+tlit` the IM loop
+    // reloads T and rewrites TIOA every pass for the whole run, so these
+    // counters would be measuring the LOOP, not the jam. Skipping is the honest
+    // move; asserting here would be measuring the wrong thing.
+    if (!$test$plusargs("tlit")) begin
+      if (n_tw != 0)
+        $fatal(1, "a JAMMED TIOA<-B asserted TIOAWrite' %0d times -- IgnoreCommands should block the store", n_tw);
+      if (n_byp != 0)
+        $fatal(1, "a JAMMED TIOA<-B raised TIOABypass %0d times -- g19 should not decode a jam as TIOA<-B", n_byp);
+      $display("tb_disk:   ...so a jam reaches NEITHER path: no store, no bypass (the loop is the real test)");
+    end else
+      $display("tb_disk:   (skipped) the jam-reaches-neither-path check needs a quiet machine; +tlit's loop never stops");
     if ({m.b_DskEth.TIOA_0, m.b_DskEth.TIOA_1, m.b_DskEth.TIOA_2,
          m.b_DskEth.TIOA_3, m.b_DskEth.TIOA_4} !== 5'b11111)
       $display("tb_disk: (relaxed) the TIOADly check is DispY's -- DskEth compares TIOA directly");
