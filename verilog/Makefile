@@ -204,6 +204,10 @@ disk-muff-test:
 disk-cmd-test:
 	@$(MAKE) -C verilator disk-cmd-test
 
+# A DISKRAM write steps the format-RAM address.
+disk-ram-test:
+	@$(MAKE) -C verilator disk-ram-test
+
 # The read direction: the board drives IOB back at the processor.
 disk-input-test:
 	@$(MAKE) -C verilator disk-input-test

@@ -3105,3 +3105,42 @@ sector formatter". The model must emit the drive's own serial format so the
 controller finds sync by itself. The format RAM (b21, `RamAddr`, `TIOA=Ram'`)
 is what tells the controller the field layout, and `src/disk.c`'s
 `DORADO_DISK_FORMAT_RAM_WORDS` (16) is the same table from the other side.
+
+### The format RAM steps, and its carry is wired to EnableRun (2026-08-25)
+
+Rung 2. `+ram` points the loop at **DISKRAM (013B)**, and b21 -- the format-RAM
+ADDRESS counter -- steps:
+
+| | `Ram` selects | `RamCl'C` edges (while addressed) |
+|---|---|---|
+| default | 0 | **0** |
+| `+ram` | 127 | **1** |
+
+Two of b21's pins state what `src/disk.c` says in prose:
+
+* **`MR = ControlRegCl`** -- a DiskControl write zeroes the address, which is
+  disk.c's *"Write into the Format RAM at the current address, then
+  post-increment ... `format_ram_addr`, zeroed by writing DiskControl"*.
+* **`CO' = LastRamAddr'`** -- and d13 (an MC10102) ORs that with `RamCl'A` into
+  `TriconD02.sil+1`, which lands on **`e14.4`, the RESET pin of the DisableRun
+  flip-flop**. Resetting DisableRun *is* setting EnableRun (it is Q'). So
+  loading the LAST word of the format RAM enables the controller -- disk.c:
+  *"Loading the **last** word of Format RAM (15) sets EnableRun (HM page 98)."*
+
+The seventh independent agreement between the wire list and the C emulator on
+this board, and an unusually specific one: not just which bit, but that the
+mechanism is a counter carry resetting a flip-flop.
+
+**Gated:** `disk-ram-test` requires the address to step when DISKRAM is
+addressed and NOT to step otherwise. Aiming `+ram` at DISKCONTROL fails it.
+
+**Not gated: `LastRamAddr'` itself, which needs SIXTEEN writes.** The loop lands
+about one register write per run (TIOA holds its address for 128 of 140,559
+samples), so walking the counter to 15 needs either a longer run or a loop that
+re-addresses. That is the next concrete step and it is also what rung 1 needs --
+a formatter has to write all 16 words.
+
+*The branch-chain trap, hit again exactly as recorded.* Adding `+ram` without
+excluding it from the other gate chains put it into the DISKCONTROL branch,
+where it failed on a `ControlRegCl` that had correctly never fired. Three chains
+needed the new mode excluded, not one.

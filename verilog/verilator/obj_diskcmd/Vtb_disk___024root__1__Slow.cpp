@@ -1926,7 +1926,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
         = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__PreClock1_p_B) 
            | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__Holda) 
               | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__MBWriteEn_p_)));
-    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__RamCl_p_A 
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__RamCl_p_C 
         = (1U & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__PreClock1_p_Ca) 
                  | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOout_p_) 
                     | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_f07__DOT__q) 
