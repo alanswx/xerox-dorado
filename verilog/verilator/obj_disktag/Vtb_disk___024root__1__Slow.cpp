@@ -214,8 +214,6 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
     tb_disk__DOT__m__DOT__b_DskEth__DOT__TestCtrlClk_p_ = 0;
     CData/*0:0*/ tb_disk__DOT__m__DOT__b_DskEth__DOT__TxCtrlClk_p_;
     tb_disk__DOT__m__DOT__b_DskEth__DOT__TxCtrlClk_p_ = 0;
-    CData/*0:0*/ tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOin_p_;
-    tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOin_p_ = 0;
     CData/*0:0*/ __VdfgRegularize_h4af1c392_0_1;
     __VdfgRegularize_h4af1c392_0_1 = 0;
     CData/*0:0*/ __VdfgRegularize_h4af1c392_0_17;
@@ -1858,9 +1856,9 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
     vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__StkPSaveEn_p_ 
         = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__Holda) 
            | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__NextMacroDly_p_));
-    tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOin_p_ = 
-        ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_d24__DOT__p6) 
-         | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__IOin_p___05F_ProcL));
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOin_p_ 
+        = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_d24__DOT__p6) 
+           | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__IOin_p___05F_ProcL));
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TriconD10_sil_pl_4 
         = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_d20__DOT__ja)
             ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TriconD10_sil_pl_1)
@@ -2940,7 +2938,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
         = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__Clock1_p_Da) 
            | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__StkPSaveEn_p_));
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_k04__DOT__kb 
-        = (1U & (((~ ((IData)(tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOin_p_) 
+        = (1U & (((~ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOin_p_) 
                       | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_f07__DOT__q) 
                          >> 5U))) | (~ ((~ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_k04__DOT__qb) 
                                             ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l03__DOT__p9))) 
@@ -2948,10 +2946,10 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                  ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l03__DOT__p9)));
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TriconD08_sil_pl_13 
         = (1U & (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_f07__DOT__q) 
-                  >> 2U) | (IData)(tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOin_p_)));
-    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en 
-        = (1U & (~ ((IData)(tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOin_p_) 
-                    | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e02__DOT__q))));
+                  >> 2U) | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOin_p_)));
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1 
+        = (1U & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOin_p_) 
+                 | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e02__DOT__q)));
     __Vtableidx301 = ((vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e16__DOT__mem
                        [vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e16__DOT__a] 
                        << 1U) | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e16__DOT__p3));
@@ -4872,7 +4870,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                             : ((2U == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_b04__DOT__sel))
                                 ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_i03__DOT__q)
                                 : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_c12__DOT__q)))))));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_01 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_01 = (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
                                                & ((0U 
                                                    == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_01)
@@ -4887,7 +4885,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_01))))) 
                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_01a) 
                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qb)));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_02 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_02 = (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
                                                & ((0U 
                                                    == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_02)
@@ -4902,7 +4900,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_02))))) 
                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_02a) 
                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qb)));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_03 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_03 = (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
                                                & ((0U 
                                                    == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_03)
@@ -4917,7 +4915,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_03))))) 
                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_03a) 
                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qb)));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_00 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_00 = (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
                                                & ((0U 
                                                    == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_00)
@@ -5641,7 +5639,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemX__DOT__MemX03_sil_pl_1 
         = (1U & ((~ (0x0000000fU == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_MemX__DOT__u_f19__DOT__q))) 
                  | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_MemX__DOT__MemX03_sil_pl_2)));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_06 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_06 = (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
                                                & ((0U 
                                                    == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_06)
@@ -5656,7 +5654,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_06))))) 
                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_06a) 
                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qb)));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_07 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_07 = (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
                                                & ((0U 
                                                    == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_07)
@@ -5671,7 +5669,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_07))))) 
                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_07a) 
                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qb)));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_05 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_05 = (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
                                                & ((0U 
                                                    == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_05)
@@ -5696,7 +5694,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                           ^ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_03a) 
                              ^ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_01a) 
                                 ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_00a)))))))));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_04 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_04 = (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
                                                & ((0U 
                                                    == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_04)
@@ -5726,24 +5724,25 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
     tb_disk__DOT__m__DOT__b_ProcH__DOT__u_f61__DOT____VdfgExtracted_ha59d029f__0 
         = ((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_f61__DOT__B)) 
            & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_f61__DOT__A));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_14 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
-                                               & ((0U 
-                                                   == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                   ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_14)
-                                                   : 
-                                                  ((1U 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_14 = (1U & 
+                                              (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
+                                                & ((0U 
                                                     == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h02__DOT__p11)
+                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_14)
                                                     : 
-                                                   ((2U 
+                                                   ((1U 
                                                      == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                     ? 
-                                                    ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_g06__DOT__q) 
-                                                     >> 2U)
-                                                     : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_14))))) 
-                                              | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_14a) 
-                                                 & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb)));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_13 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
+                                                     ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h02__DOT__p11)
+                                                     : 
+                                                    ((2U 
+                                                      == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
+                                                      ? 
+                                                     ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_g06__DOT__q) 
+                                                      >> 2U)
+                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_14))))) 
+                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_14a) 
+                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb))));
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_13 = (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
                                                & ((0U 
                                                    == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_13)
@@ -5758,7 +5757,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_13))))) 
                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_13a) 
                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb)));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_15 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_15 = (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
                                                & ((0U 
                                                    == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_15)
@@ -5773,23 +5772,24 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_15))))) 
                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_15a) 
                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb)));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_12 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
-                                               & ((0U 
-                                                   == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                   ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_12)
-                                                   : 
-                                                  ((1U 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_12 = (1U & 
+                                              (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
+                                                & ((0U 
                                                     == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h03__DOT__p11)
+                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_12)
                                                     : 
-                                                   ((2U 
+                                                   ((1U 
                                                      == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                     ? 
-                                                    ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_g06__DOT__q) 
-                                                     >> 3U)
-                                                     : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_12))))) 
-                                              | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_12a) 
-                                                 & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb)));
+                                                     ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h03__DOT__p11)
+                                                     : 
+                                                    ((2U 
+                                                      == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
+                                                      ? 
+                                                     ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_g06__DOT__q) 
+                                                      >> 3U)
+                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_12))))) 
+                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_12a) 
+                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb))));
     tb_disk__DOT__m__DOT__b_ProcL__DOT__u_f61__DOT____VdfgExtracted_h90119b60__0 
         = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_f61__DOT__A) 
            ^ (IData)(tb_disk__DOT__m__DOT__b_ProcL__DOT__u_f61__DOT__B));
@@ -5805,7 +5805,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
     tb_disk__DOT__m__DOT__b_ProcL__DOT__u_f61__DOT____VdfgExtracted_ha59d029f__0 
         = ((~ (IData)(tb_disk__DOT__m__DOT__b_ProcL__DOT__u_f61__DOT__B)) 
            & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_f61__DOT__A));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_09 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_09 = (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
                                                & ((0U 
                                                    == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_09)
@@ -5820,39 +5820,41 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_09))))) 
                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_09a) 
                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb)));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_10 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
-                                               & ((0U 
-                                                   == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                   ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_10)
-                                                   : 
-                                                  ((1U 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_10 = (1U & 
+                                              (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
+                                                & ((0U 
                                                     == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_i02__DOT__p11)
+                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_10)
                                                     : 
-                                                   ((2U 
+                                                   ((1U 
                                                      == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                     ? 
-                                                    ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_g06__DOT__q) 
-                                                     >> 1U)
-                                                     : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_10))))) 
-                                              | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_10a) 
-                                                 & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb)));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_11 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
-                                               & ((0U 
-                                                   == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                   ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_11)
-                                                   : 
-                                                  ((1U 
+                                                     ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_i02__DOT__p11)
+                                                     : 
+                                                    ((2U 
+                                                      == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
+                                                      ? 
+                                                     ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_g06__DOT__q) 
+                                                      >> 1U)
+                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_10))))) 
+                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_10a) 
+                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb))));
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_11 = (1U & 
+                                              (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
+                                                & ((0U 
                                                     == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h03__DOT__p5)
+                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_11)
                                                     : 
-                                                   ((2U 
+                                                   ((1U 
                                                      == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                     ? 
-                                                    (~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_k19__DOT__qb))
-                                                     : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_11))))) 
-                                              | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_11a) 
-                                                 & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb)));
+                                                     ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h03__DOT__p5)
+                                                     : 
+                                                    ((2U 
+                                                      == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
+                                                      ? 
+                                                     (~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_k19__DOT__qb))
+                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_11))))) 
+                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_11a) 
+                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb))));
     vlSelfRef.tb_disk__DOT__m__DOT__BMux_17___05FProcL 
         = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__TrueA) 
            ^ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_15a) 
@@ -5863,7 +5865,7 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                           ^ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_11a) 
                              ^ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_09a) 
                                 ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_08a)))))))));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_08 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_08 = (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
                                                & ((0U 
                                                    == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_08)
@@ -6493,36 +6495,37 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOB_05 
         = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__ECLTrueA) 
            & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__IOB_05));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_16 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
-                                               & ((0U 
-                                                   == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                   ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_16)
-                                                   : 
-                                                  ((1U 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_16 = (1U & 
+                                              (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
+                                                & ((0U 
                                                     == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__ECLTrueA)
+                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_16)
                                                     : 
-                                                   ((2U 
+                                                   ((1U 
                                                      == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                     ? 
-                                                    (~ 
-                                                     ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_7) 
-                                                      ^ 
-                                                      ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_5) 
+                                                     ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__ECLTrueA)
+                                                     : 
+                                                    ((2U 
+                                                      == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
+                                                      ? 
+                                                     (~ 
+                                                      ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_7) 
                                                        ^ 
-                                                       ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_3) 
+                                                       ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_5) 
                                                         ^ 
-                                                        ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_1) 
+                                                        ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_3) 
                                                          ^ 
-                                                         ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_4) 
+                                                         ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_1) 
                                                           ^ 
-                                                          ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_6) 
+                                                          ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_4) 
                                                            ^ 
-                                                           ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_0) 
-                                                            ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_2)))))))))
-                                                     : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_16))))) 
-                                              | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__BMux_16___05FProcH) 
-                                                 & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qb)));
+                                                           ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_6) 
+                                                            ^ 
+                                                            ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_0) 
+                                                             ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__Host_2)))))))))
+                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_16))))) 
+                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__BMux_16___05FProcH) 
+                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_a11__DOT__qb))));
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOB_04 
         = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__ECLTrueA) 
            & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__IOB_04));
@@ -6561,34 +6564,35 @@ VL_ATTR_COLD void Vtb_disk___024root___stl_sequent__TOP__1(Vtb_disk___024root* v
                                ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__BMux_16___05FProcH))))) 
                      | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContB__DOT__MidasSW))) 
                  | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContB__DOT__RBMuxP___05Fd02_15)));
-    vlSelfRef.tb_disk__DOT__m__DOT__IOB_17 = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__en) 
-                                               & ((0U 
-                                                   == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                   ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_17)
-                                                   : 
-                                                  ((1U 
+    vlSelfRef.tb_disk__DOT__m__DOT__IOB_17 = (1U & 
+                                              (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskEth03_sil_pl_1)) 
+                                                & ((0U 
                                                     == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
-                                                    ? 
-                                                   (~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e17__DOT__qb))
+                                                    ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__DskData_17)
                                                     : 
-                                                   ((2U 
+                                                   ((1U 
                                                      == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
                                                      ? 
-                                                    (~ 
-                                                     (1U 
-                                                      & (~ 
-                                                         ((((((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_k22__DOT__qb) 
-                                                              ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_k22__DOT__qa)) 
-                                                             ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_k19__DOT__qb)) 
-                                                            ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j04__DOT__qa)) 
-                                                           ^ 
-                                                           VL_REDXOR_4(
-                                                                       (0x0eU 
-                                                                        & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_g06__DOT__q)))) 
-                                                          ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l04__DOT__qb)))))
-                                                     : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_17))))) 
-                                              | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__BMux_17___05FProcL) 
-                                                 & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb)));
+                                                    (~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e17__DOT__qb))
+                                                     : 
+                                                    ((2U 
+                                                      == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_h01__DOT__sel))
+                                                      ? 
+                                                     (~ 
+                                                      (1U 
+                                                       & (~ 
+                                                          ((((((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_k22__DOT__qb) 
+                                                               ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_k22__DOT__qa)) 
+                                                              ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_k19__DOT__qb)) 
+                                                             ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j04__DOT__qa)) 
+                                                            ^ 
+                                                            VL_REDXOR_4(
+                                                                        (0x0eU 
+                                                                         & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_g06__DOT__q)))) 
+                                                           ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l04__DOT__qb)))))
+                                                      : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EthData_17))))) 
+                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__BMux_17___05FProcL) 
+                                                  & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qb))));
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__bIOB_08 
         = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__ECLTrueA) 
            & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__IOB_08));
