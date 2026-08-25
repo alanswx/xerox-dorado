@@ -2741,3 +2741,45 @@ differential data -> bit/word shifter (`ShiftIn`, `sCountBits`, `WordClock'`)
 **format RAM** (`RamAddr`, `TIOA=Ram'`) sequencing the sector layout. That
 format RAM is the same one a `DISKCONTROL` write zeroes, which `disk.c` notes
 as "zeros the format-RAM address register (HM page 98)".
+
+### Nothing external can assert the drive lines -- and a bench can anyway (2026-08-25)
+
+The first thing a drive model needs is to be able to say "a drive is attached",
+and it cannot. All **25** drive-interface nets are CONSTANT-TIED inside DskEth:
+
+```
+17 active-low TTL lines   assign X__drv = 1'b1;   // tied to VCC-xx  (open-collector pull-up)
+ 8 differential clocks    assign X__drv = 1'b0;   // tied to GND-xx  (the termination)
+```
+
+The generator saw a driver and made each one a top-level **`output`**, so the
+port a cable would arrive on cannot be written. Measured machine-wide, **all 25
+constant-tied board outputs are these** and no others — the problem is contained
+to one board and one interface.
+
+**The physics says what the fix is.** A disk cable is open-collector: the pull-up
+is the idle default and a drive pulls the line LOW, so the resolution is a
+wired-AND (`net = pullup & cable`), not the wired-OR this backplane uses
+everywhere else. The differential pairs are the mirror case — a 0 tie with an OR.
+That is a generator change of the same shape as `WEAK_PORT_DRIVERS` (the 6532
+pull-up that "loses where something else drives, stands where nothing does"),
+and it is needed for synthesis, where a real cable needs a real port.
+
+**It is not needed to develop the drive model.** Verilator's `force` reaches
+these nets, which is exactly the right expression of "a cable is attached and
+pulling this line low":
+
+```
+DRIVE LINES before force -- TtlReady'=1 TtlOnLine'=1 Selected0'=1
+DRIVE LINES after force  -- TtlReady'=0 TtlOnLine'=0 Selected0'=0
+```
+
+So the drive model can be built and gated as a bench now, and the port change
+can follow when an FPGA build needs it.
+
+**And the idle state is now gated**, which guards a bug that was here once: all
+17 active-low cable lines must read DEASSERTED with nothing attached. `sip_drives`
+used to require the wire list to call a pack pin `out`, and pin 4 of an 8-pin SIP
+is routinely marked `in` — so six of these lines had no driver at all and read as
+ASSERTED, fabricating a disk that is not there. Flipping one tie to `1'b0` fails
+the gate.
