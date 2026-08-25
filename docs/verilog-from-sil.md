@@ -2906,3 +2906,45 @@ block left `+muff` falling into the DISKCONTROL branch, where it failed on a
 `ControlRegCl` that had correctly never fired. The chain has to EXCLUDE the new
 mode explicitly, not merely handle it earlier — an `else` binds to the nearest
 `if`, and a mode added at the top of one chain is not excluded from the next.
+
+### The drive's serial data reaches the controller (2026-08-25)
+
+Step 4, and the blocker was an unmodelled cell rather than anything about the
+disk: **`cell_MC1650` was a stub** — "BEHAVIOUR IS NOT MODELLED YET" — and all
+four of its positions ARE the disk read path (f01/f02 receive drive 0-1 clock
+and data, c01/c02 drive 2-3). Nothing could enter the board.
+
+The Motorola data sheet gives the function outright:
+
+```
+C     V1, V2     Q0(n+1)   Q0'(n+1)
+H     V1 > V2       H         L          "when Ca is at a logic high level, Q0
+H     V1 < V2       L         H           will be at a logic high level provided
+L      x    x     Q0(n)     Q0'(n)        that V1 > V2 ... when the clock input
+                                          goes low the outputs are latched"
+```
+
+a differential comparator with an output latch, and the pin assignment matches
+EclDict exactly. **Digital reduction:** each input is one bit and the two are a
+differential pair, so `V1 > V2` is `V1 & ~V2`. When they are EQUAL the
+comparison is undefined and a real comparator holds near its threshold — so the
+model holds its previous value, which also makes an undriven pair (both 0, as
+these cable nets idle) read as "no transition" rather than a fabricated level.
+Level-sensitive, so it runs on `sys_clk` with C as an enable, per the recorded
+rule that a level-sensitive part is not a `always @*` latch here.
+
+With it modelled, and a drive presented:
+
+```
+8 alternating bits: PreReadData high 4, low 4;  PrePreBitClock high 8
+deselected:         PreReadData high on 0 of 8
+```
+
+**The deselected half is the second gate.** f05 (MC10174) is the per-drive mux —
+ch0 takes each drive's data to `PreReadData`, ch1 each drive's read clock to
+`PrePreBitClock`, selected by `{Select.0, Select.1}` — and its **ENABLE is
+`NotSelected`**. An MC10174's enable forces the outputs LOW, so the whole read
+path is dead unless a drive is selected. Same stimulus, opposite answer.
+
+Both mutations bite: returning the cell to a constant, and making the comparator
+ignore V2 so it is no longer differential. Regeneration touched only DskEth.
