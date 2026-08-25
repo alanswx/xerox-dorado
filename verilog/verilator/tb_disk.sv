@@ -1416,7 +1416,7 @@ module tb_disk;
   integer n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
-  integer n_crc_edge, n_crc_free, crc_wait; reg crc_d; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
+  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel; reg [7:0] want_tioa; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
   integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q, n_acur, n_anext, n_afifo, n_dwt;
   reg [15:0] q_now, q_last;
   reg [15:0] alub_at_out;
@@ -1434,7 +1434,9 @@ module tb_disk;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; ctlbits=3'bx; iobits=3'bx; ctl_post=3'bx; ctl_final=3'bx; ram_at_out=4'bx; byp_at_out=1'bx; ff4_at_out=1'bx; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1;
+    // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
+    want_tioa = $test$plusargs("tag") ? 8'o014 : 8'o010; ctlbits=3'bx; iobits=3'bx; ctl_post=3'bx; ctl_final=3'bx; ram_at_out=4'bx; byp_at_out=1'bx; ff4_at_out=1'bx; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
     dad_at_write=12'bx; dad_at_read=12'bx; dad_ones=12'bx;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
@@ -1570,11 +1572,34 @@ module tb_disk;
     // rising edge of ControlRegCl reads before that flip-flop has moved.
     ctl_final = {m.b_DskEth.DebugMode, m.b_DskEth.BlockTillIndex, m.b_DskEth.EnableRun};
     crc_d = m.b_DskEth.ControlRegCl;
-    if (!m.b_DskEth.TIOA_eq_Cont_p_)     n_r_cont = n_r_cont + 1;
-    if (!m.b_DskEth.TIOA_eq_Muff_p_)     n_r_muff = n_r_muff + 1;
-    if (!m.b_DskEth.TIOA_eq_Data_p_)     n_r_data = n_r_data + 1;
-    if (!m.b_DskEth.TIOA_eq_Ram_p_)      n_r_ram  = n_r_ram  + 1;
-    if (!m.b_DskEth.TIOA_eq_Tag_p_)      n_r_tag  = n_r_tag  + 1;
+    // THE SEEK PATH, wired exactly parallel to the control one: b17 (SE10211)
+    // makes Tag_IOB from TIOA=Tag' + bIOout', and d16 turns that into
+    // TagClock -- the clock that shifts a seek tag out to the drive.
+    if (m.b_DskEth.Tag_u_IOB && !tag_d) begin
+      n_tag_edge = n_tag_edge + 1;
+      if (!m.b_DskEth.TIOA_eq_Tag_p_) n_tag_free = n_tag_free + 1;
+    end
+    tag_d = m.b_DskEth.Tag_u_IOB;
+    if (m.b_DskEth.TagClock && !tclk_d) n_tagclk = n_tagclk + 1;
+    tclk_d = m.b_DskEth.TagClock;
+    if (!m.b_DskEth.TIOA_eq_Cont_p_ && cont_first < 0) begin
+      cont_first = n_tot;
+      cont_first_sel = m.b_DskEth.DskEth02_sil_pl_1 ? 0 : 1;
+    end
+    // QUALIFIED ON THE SELECT, because f07's ENABLE *is* the board select
+    // (TIOA=Us' from e02), so a decoder output means nothing while the board
+    // is not addressed. Unqualified, every mode counted exactly one stray
+    // Cont: at SAMPLE 0 the board is not selected and every net is still 0,
+    // so the active-low Q0' reads asserted before anything settles. That is a
+    // property of the initial state, not of the decode -- and "of %0d selects"
+    // in the report already claimed this qualification.
+    if (!m.b_DskEth.DskEth02_sil_pl_1) begin
+      if (!m.b_DskEth.TIOA_eq_Cont_p_)   n_r_cont = n_r_cont + 1;
+      if (!m.b_DskEth.TIOA_eq_Muff_p_)   n_r_muff = n_r_muff + 1;
+      if (!m.b_DskEth.TIOA_eq_Data_p_)   n_r_data = n_r_data + 1;
+      if (!m.b_DskEth.TIOA_eq_Ram_p_)    n_r_ram  = n_r_ram  + 1;
+      if (!m.b_DskEth.TIOA_eq_Tag_p_)    n_r_tag  = n_r_tag  + 1;
+    end
     if (!1'b0 && !m.b_DskEth.DskEth02_sil_pl_1) n_sel_free = n_sel_free + 1;
     // IOB over the WHOLE run, not only at select: the select is asserted for
     // hundreds of samples while `Output<-` is ONE instruction, so asking only
@@ -1612,7 +1637,7 @@ module tb_disk;
     tioa_now = {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2,
                 m.b_ProcH.TIOA_3, m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5,
                 m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7};
-    if (tioa_now == 8'o010) n_tioa10 = n_tioa10 + 1;
+    if (tioa_now == want_tioa) n_tioa10 = n_tioa10 + 1;
     // WHICH LEG OF THE MUX IS LIVE. g19 (MC10118 OR-AND) makes ProcH23.sil+9
     // low exactly for FA=1/FB=5/FC=2 = `TIOA<-B`, and h20 NORs it with
     // Curr=Next' -- so TIOABypass means "this instruction writes TIOA and the
@@ -1623,7 +1648,7 @@ module tb_disk;
     if (!m.b_ProcH.Curr_eq_Next_p_) n_cn = n_cn + 1;
     if (m.b_ProcH.IOBout) begin
       n_iobout = n_iobout + 1;
-      if (tioa_now == 8'o010) n_tioa_out10 = n_tioa_out10 + 1;
+      if (tioa_now == want_tioa) n_tioa_out10 = n_tioa_out10 + 1;
       if (m.b_ProcH.TIOABypass) n_byp_out = n_byp_out + 1;
       byp_at_out <= m.b_ProcH.TIOABypass;
       ff4_at_out <= m.b_ProcH.FFdly_4;
@@ -2788,7 +2813,12 @@ module tb_disk;
       // 0x0800 puts 010B in B's high byte -- DskEth's OWN address. Its strap
       // is an I/O ADDRESS (TIOA-Ad = 1), not a task number like the display
       // boards', so it answers at 010-017 rather than 370-377.
-        set_cpreg_plain(16'h0800);
+        // `+tag` POINTS THE SAME LOOP AT DISKTAG (014B = 0x0C00) instead.
+        // Writing a DIFFERENT register is the real test of f07's decode: one
+        // output asserting proves little next to the OTHER FOUR going quiet
+        // when the address changes, in a machine that is running.
+        if ($test$plusargs("tag")) set_cpreg_plain(16'h0C00);
+        else                       set_cpreg_plain(16'h0800);
         parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);   // TFromCPReg#
         nop_micro;
         // AND A SECOND VALUE, so the loop can write a WCB word rather than the
@@ -3700,6 +3730,35 @@ module tb_disk;
 
     $display("tb_disk: DISPY -- local clock edges %0d of %0d sys_clk | TWReq.11 high %0d | TWReq.03 (WakeDHT) high %0d",
              n_dyclk, n_tot, n_twr11, n_wdht);
+
+    if (n_sel !== n_sel_free)
+      $fatal(1, "DskEth selected on %0d samples but only %0d with the processor free -- a stepped processor must not reach a device",
+             n_sel, n_sel_free);
+    $display("tb_disk:   DURING THE RUN -- IgnoreCommands LOW on %0d of %0d, board SELECTED on %0d, and selected while free on %0d",
+             n_igc_lo, n_tot, n_sel, n_sel_free);
+    $display("tb_disk:   REGISTER DECODE -- Cont %0d, Muff %0d, Data %0d, Ram %0d, Tag %0d (of %0d selects)",
+             n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag, n_sel);
+    $display("tb_disk:   IOB AT SELECT -- last %h, and %0d of %0d selects carried 5a5a",
+             iob_at_sel, n_iob_ok, n_sel);
+    $display("tb_disk:   IOB OVER THE RUN -- non-zero on %0d of %0d, and carrying 5a5a on %0d",
+             n_iob_nz, n_tot, n_iob_any);
+    $display("tb_disk:   THE STROBE -- IOBout high on %0d of %0d, and alub at that moment = %h",
+             n_iobout, n_tot, alub_at_out);
+      $display("tb_disk:   THE ADDRESS AT THE STROBE -- TIOA held %o on %0d of %0d samples; of %0d IOBout strobes %0d carried it (last %o)",
+               want_tioa, n_tioa10, n_tot, n_iobout, n_tioa_out10, tioa_at_out);
+      $display("tb_disk:   THE MUX -- TIOAWrite' asserted %0d, TIOABypass high %0d, Curr=Next' asserted %0d (of %0d); at the strobe bypass=%b ff4=%b RAM nibble=%b, and %0d of %0d strobes had the bypass ON",
+               n_tw, n_byp, n_cn, n_tot, byp_at_out, ff4_at_out, ram_at_out, n_byp_out, n_iobout);
+      $display("tb_disk:   THE CONTROL REGISTER -- ControlRegCl edges %0d (all while DISKCONTROL addressed: %0d); at the last edge bIOB.05/06/07 = %b, {DebugMode,BlockTillIndex,EnableRun} = %b, 8 cycles later = %b, at end of run = %b",
+               n_crc_edge, n_crc_free, iobits, ctlbits, ctl_post, ctl_final);
+      $display("tb_disk:   THE SEEK PATH -- Tag_IOB edges %0d (all while DISKTAG addressed: %0d), TagClock edges %0d",
+               n_tag_edge, n_tag_free, n_tagclk);
+      $display("tb_disk:   ...first Cont assertion at sample %0d of %0d, board selected there: %0d",
+               cont_first, n_tot, cont_first_sel);
+
+    // GATES LAST. These used to run BEFORE the $displays above, so a failing
+    // gate aborted the run with none of the numbers needed to diagnose it
+    // printed -- which is exactly backwards for a bench whose whole value is
+    // the measurement. Print everything, then assert.
     // GATE: THE BOARD ANSWERS A COMMAND FROM RUNNING MICROCODE. Every sample
     // where DskEth selects must be one where the processor is FREE -- a select
     // while IgnoreCommands is high would mean the model is letting a stepped
@@ -3723,11 +3782,22 @@ module tb_disk;
       // 010B, so f07's Cont output must assert and the other four must not --
       // otherwise "the board is addressed" would not imply "DISKCONTROL is
       // addressed", and every later register write would be unverifiable.
-      if (n_r_cont == 0)
-        $fatal(1, "TIOA=Cont' never asserted -- the write reached the board but no register");
-      if (n_r_muff != 0 || n_r_data != 0 || n_r_ram != 0 || n_r_tag != 0)
-        $fatal(1, "a write to 010B also selected Muff %0d Data %0d Ram %0d Tag %0d",
-               n_r_muff, n_r_data, n_r_ram, n_r_tag);
+      if ($test$plusargs("tag")) begin
+        // +tag: THE SAME LOOP, ONE ADDRESS HIGHER. This is what makes the
+        // decode a decode rather than a coincidence -- Tag must assert and
+        // Cont, which asserted 1,921 times a moment ago, must go silent.
+        if (n_r_tag == 0)
+          $fatal(1, "TIOA=Tag' never asserted -- a write to 014B reached no register");
+        if (n_r_cont != 0 || n_r_muff != 0 || n_r_data != 0 || n_r_ram != 0)
+          $fatal(1, "a write to 014B also selected Cont %0d Muff %0d Data %0d Ram %0d",
+                 n_r_cont, n_r_muff, n_r_data, n_r_ram);
+      end else begin
+        if (n_r_cont == 0)
+          $fatal(1, "TIOA=Cont' never asserted -- the write reached the board but no register");
+        if (n_r_muff != 0 || n_r_data != 0 || n_r_ram != 0 || n_r_tag != 0)
+          $fatal(1, "a write to 010B also selected Muff %0d Data %0d Ram %0d Tag %0d",
+                 n_r_muff, n_r_data, n_r_ram, n_r_tag);
+      end
       // AND THE ADDRESS AND THE DATA COINCIDE. A write only lands if the board
       // is addressed AT THE MOMENT the data is on IOB: DskEth latches on its
       // own select, so an address that has gone away by the time `Output<-`
@@ -3736,60 +3806,56 @@ module tb_disk;
       // together -- so it is the gate that proves the per-task TIOA holds
       // across the instruction that uses it.
       if (n_tioa_out10 == 0)
-        $fatal(1, "no IOBout strobe found TIOA = 010B: the address never survives to the data");
+        $fatal(1, "no IOBout strobe found TIOA = %o: the address never survives to the data", want_tioa);
+      if ($test$plusargs("tag")) begin
+        // THE SEEK STROBE, and it is the control strobe's twin: b17 makes
+        // Tag_IOB the same way c18 makes ControlRegCl, and d16 turns it into
+        // TagClock, which shifts the seek tag out to the drive. So a write to
+        // 014B must produce TagClock edges and NO ControlRegCl at all.
+        if (n_tag_edge == 0)
+          $fatal(1, "Tag_IOB never fired -- DISKTAG was addressed but the seek strobe never came");
+        if (n_tag_edge !== n_tag_free)
+          $fatal(1, "Tag_IOB fired %0d times but only %0d while DISKTAG was addressed",
+                 n_tag_edge, n_tag_free);
+        if (n_tagclk == 0)
+          $fatal(1, "TagClock never clocked -- Tag_IOB fired but d16 did not pass it to the drive");
+        if (n_crc_edge != 0)
+          $fatal(1, "a write to 014B also clocked the CONTROL register %0d times", n_crc_edge);
+      end else begin
       // AND THE BOARD LATCHES IT. Addressing a register is not writing one:
-      // the control register's clock has to fire, and only while the processor
-      // is free.
-      if (n_crc_edge == 0)
-        $fatal(1, "ControlRegCl never fired -- DISKCONTROL was addressed but the register never clocked");
-      if (n_crc_edge !== n_crc_free)
-        $fatal(1, "ControlRegCl fired %0d times but only %0d while DISKCONTROL was addressed",
-               n_crc_edge, n_crc_free);
-      // AND THE FLIP-FLOPS TAKE THE HARDWARE MANUAL'S BITS. include/disk.h
-      // transcribes the control word from the manual as
-      //
-      //     B[5] = ClearEnableRun   B[6] = SetDebugMode   B[7] = SetBlockTillIndex
-      //
-      // and DskEth e14/e15 (MC10231 dual D flip-flops) wire exactly those
-      // three: e14 FF-a takes bIOB.05 with DisableRun = Q and EnableRun = Q',
-      // e14 FF-b takes bIOB.06 into DebugMode, e15 takes bIOB.07 into
-      // BlockTillIndex. e14 FF-b's RESET pin is DisableRun, so clearing
-      // EnableRun also clears DebugMode -- which is what src/disk.c does in
-      // its CLR_ENABLE_RUN branch, written from the manual and not from this.
-      //
-      // Gate the RELATION rather than the constant, so it holds for any data
-      // the loop carries. With 5a5a the three bits are 0,1,0, which tells the
-      // three apart -- a mis-wiring to a neighbouring bit fails.
-      if (ctl_final[2] !== iobits[1])
-        $fatal(1, "DebugMode %b does not follow bIOB.06 %b (B[6] = SetDebugMode)",
-               ctl_final[2], iobits[1]);
-      if (ctl_final[1] !== iobits[0])
-        $fatal(1, "BlockTillIndex %b does not follow bIOB.07 %b (B[7] = SetBlockTillIndex)",
-               ctl_final[1], iobits[0]);
-      if (ctl_final[0] === iobits[2])
-        $fatal(1, "EnableRun %b is not the COMPLEMENT of bIOB.05 %b (B[5] = ClearEnableRun)",
-               ctl_final[0], iobits[2]);
+        // the control register's clock has to fire, and only while the processor
+        // is free.
+        if (n_crc_edge == 0)
+          $fatal(1, "ControlRegCl never fired -- DISKCONTROL was addressed but the register never clocked");
+        if (n_crc_edge !== n_crc_free)
+          $fatal(1, "ControlRegCl fired %0d times but only %0d while DISKCONTROL was addressed",
+                 n_crc_edge, n_crc_free);
+        // AND THE FLIP-FLOPS TAKE THE HARDWARE MANUAL'S BITS. include/disk.h
+        // transcribes the control word from the manual as
+        //
+        //     B[5] = ClearEnableRun   B[6] = SetDebugMode   B[7] = SetBlockTillIndex
+        //
+        // and DskEth e14/e15 (MC10231 dual D flip-flops) wire exactly those
+        // three: e14 FF-a takes bIOB.05 with DisableRun = Q and EnableRun = Q',
+        // e14 FF-b takes bIOB.06 into DebugMode, e15 takes bIOB.07 into
+        // BlockTillIndex. e14 FF-b's RESET pin is DisableRun, so clearing
+        // EnableRun also clears DebugMode -- which is what src/disk.c does in
+        // its CLR_ENABLE_RUN branch, written from the manual and not from this.
+        //
+        // Gate the RELATION rather than the constant, so it holds for any data
+        // the loop carries. With 5a5a the three bits are 0,1,0, which tells the
+        // three apart -- a mis-wiring to a neighbouring bit fails.
+        if (ctl_final[2] !== iobits[1])
+          $fatal(1, "DebugMode %b does not follow bIOB.06 %b (B[6] = SetDebugMode)",
+                 ctl_final[2], iobits[1]);
+        if (ctl_final[1] !== iobits[0])
+          $fatal(1, "BlockTillIndex %b does not follow bIOB.07 %b (B[7] = SetBlockTillIndex)",
+                 ctl_final[1], iobits[0]);
+        if (ctl_final[0] === iobits[2])
+          $fatal(1, "EnableRun %b is not the COMPLEMENT of bIOB.05 %b (B[5] = ClearEnableRun)",
+                 ctl_final[0], iobits[2]);
+      end
     end
-
-    if (n_sel !== n_sel_free)
-      $fatal(1, "DskEth selected on %0d samples but only %0d with the processor free -- a stepped processor must not reach a device",
-             n_sel, n_sel_free);
-    $display("tb_disk:   DURING THE RUN -- IgnoreCommands LOW on %0d of %0d, board SELECTED on %0d, and selected while free on %0d",
-             n_igc_lo, n_tot, n_sel, n_sel_free);
-    $display("tb_disk:   REGISTER DECODE -- Cont %0d, Muff %0d, Data %0d, Ram %0d, Tag %0d (of %0d selects)",
-             n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag, n_sel);
-    $display("tb_disk:   IOB AT SELECT -- last %h, and %0d of %0d selects carried 5a5a",
-             iob_at_sel, n_iob_ok, n_sel);
-    $display("tb_disk:   IOB OVER THE RUN -- non-zero on %0d of %0d, and carrying 5a5a on %0d",
-             n_iob_nz, n_tot, n_iob_any);
-    $display("tb_disk:   THE STROBE -- IOBout high on %0d of %0d, and alub at that moment = %h",
-             n_iobout, n_tot, alub_at_out);
-      $display("tb_disk:   THE ADDRESS AT THE STROBE -- TIOA held 010B on %0d of %0d samples; of %0d IOBout strobes %0d had TIOA=010B (last %o)",
-               n_tioa10, n_tot, n_iobout, n_tioa_out10, tioa_at_out);
-      $display("tb_disk:   THE MUX -- TIOAWrite' asserted %0d, TIOABypass high %0d, Curr=Next' asserted %0d (of %0d); at the strobe bypass=%b ff4=%b RAM nibble=%b, and %0d of %0d strobes had the bypass ON",
-               n_tw, n_byp, n_cn, n_tot, byp_at_out, ff4_at_out, ram_at_out, n_byp_out, n_iobout);
-      $display("tb_disk:   THE CONTROL REGISTER -- ControlRegCl edges %0d (all while DISKCONTROL addressed: %0d); at the last edge bIOB.05/06/07 = %b, {DebugMode,BlockTillIndex,EnableRun} = %b, 8 cycles later = %b, at end of run = %b",
-               n_crc_edge, n_crc_free, iobits, ctlbits, ctl_post, ctl_final);
     $display("tb_disk:   AND Q -- holds 5a5a on %0d of %0d samples, changes %0d times, ends at %h",
              n_q_held, n_tot, n_q_chg, q_now);
     $display("tb_disk:   COINCIDENCE -- of %0d IOBout strobes, %0d happened while Q held 5a5a",

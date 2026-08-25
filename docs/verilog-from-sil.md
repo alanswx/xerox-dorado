@@ -2540,3 +2540,40 @@ constant, and mis-wiring the check to a neighbouring bit fails it.
 *Also corrected:* tb_disk's "IgnoreCommands LOW on N of N" line was inherited
 from tb_display and is a CONSTANT — DskEth has no such net. It is labelled as
 measuring nothing, and the control-register gate qualifies on `TIOA=Cont'`.
+
+### The decode DISCRIMINATES: the same loop, one address higher (2026-08-25)
+
+One decoder output asserting proves little next to the other four going quiet
+when the address changes. `+tag` points the `+slowio` loop at **DISKTAG (014B)**
+instead of DISKCONTROL, and the two runs are exactly complementary:
+
+| | `disk-test` (010B) | `disk-tag-test` (014B) |
+|---|---|---|
+| f07 decode | **Cont 127**, Muff/Data/Ram/Tag 0 | **Tag 127**, Cont/Muff/Data/Ram 0 |
+| TIOA at the strobe | held `010`, 32 of 960 strobes | held `014`, 32 of 960 strobes |
+| `ControlRegCl` | **1 edge** | **0** |
+| `Tag_IOB` / `TagClock` | **0 / 0** | **1 / 1** |
+
+The seek path is the control path's twin: b17 (SE10211) makes `Tag_IOB` from
+`TIOA=Tag'` + `bIOout'` exactly as c18 makes `ControlRegCl` from `TIOA=Cont'` +
+`bIOout'`, and d16 turns it into **`TagClock`**, which shifts the seek tag out
+to the drive.
+
+Three bench defects surfaced doing this, all worth keeping:
+
+* **The gates ran BEFORE the diagnostics**, so a failing gate aborted with none
+  of the numbers needed to diagnose it. Print everything, then assert.
+* **The register counters were unqualified**, and every mode counted exactly one
+  stray `Cont`. It was at **sample 0**, board not selected: every net is still 0
+  and the active-low `Q0'` reads asserted before anything settles. f07's *enable*
+  is the board select, so a decoder output means nothing while the board is not
+  addressed — and "of N selects" in the report already claimed that
+  qualification. Qualified, the strays vanish.
+* **`$test$plusargs` looked broken and was not.** `for m in "+slowio +tag"` in
+  zsh passes ONE unsplit argument, so the binary never saw `+tag` — the same
+  no-word-splitting trap already recorded. Separate invocations, or `bash -c`.
+
+And a fourth, on the mutation testing itself: a `python3 -c` one-liner carrying
+nested quotes failed to parse, the edit never applied, and both mutations
+reported a meaningless PASS. **Print a verification that the edit landed before
+believing the result** — the "silent no-op edit" failure mode, hit again.

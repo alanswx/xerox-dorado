@@ -192,6 +192,10 @@ display-test:
 disk-test:
 	@$(MAKE) -C verilator disk-test
 
+# The same loop aimed at DISKTAG (014B): the decode must DISCRIMINATE.
+disk-tag-test:
+	@$(MAKE) -C verilator disk-tag-test
+
 # A WORD INTO THE STORAGE ARRAY: the msa board standalone, where the bench owns
 # the DRAM strobes, so a write can be driven without a memory reference.
 msa-test:
