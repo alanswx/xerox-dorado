@@ -3268,3 +3268,31 @@ take Q, so the address and the data are the same word. That is fine where the
 data is arbitrary (walking the format RAM) and wrong where it is not -- `+read`
 needs `0x02C0` as data and `0x0800` as address, so it still uses T and still
 lands one write per run.
+
+### Why a single loop cannot carry a distinct address AND data (2026-08-25)
+
+The unblock for rung 1 needs a sustained stream with a real command, and that
+needs TWO values held across a run. **Only one register survives**: Q. T does
+not, because it is a per-task file and a jam fills the visible register but not
+the file slot (#31). Three ways out, and only the third works:
+
+* **One word for both.** Impossible for DISKCONTROL. `TIOA<-B` takes B's HIGH
+  byte, so the disk board needs `0x08` there -- while `SetDebugMode` is bit 9,
+  *also* in the high byte, and needs `0x02`. `0x0A` is DISKDATA, not
+  DISKCONTROL.
+* **`T <- Q` from IM inside the loop.** An instruction with LC=1 (`T<-Pd`),
+  BSEL=3 (`B<-Q`) and ALUF=0 does exactly that -- PARC's prologue already loads
+  `ALUFM[0] = B`, which is why `TFromCPReg#` works at all -- and being EXECUTED
+  rather than jammed it fills the per-task file properly. But it makes T equal
+  to Q, so there is still one value, not two.
+* **Two phases.** Jam Q = address, run a `T<-Q` hunk so the per-task T file
+  holds it, THEN jam Q = data, then load the main loop. This works, and it needs
+  the startup to RUN the machine between two hunk loads -- which it does not
+  currently do. That is the piece of work.
+
+*A misreading worth not repeating.* `build_hunk4`'s arrays are
+`aluf, bsel, LC, ASEL, ff, jcn` -- the FIFTH is the load control and the SIXTH
+the A-source select. Read the other way round, the slow-I/O loop looks as though
+it reloads T every instruction (LC=4 is `RM/STK<-Md`), which it does not: its LC
+is 0, "No Action", which is correct for a slow-I/O instruction. The column order
+is now stated above the task.
