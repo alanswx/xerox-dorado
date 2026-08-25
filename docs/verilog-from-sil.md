@@ -2783,3 +2783,44 @@ used to require the wire list to call a pack pin `out`, and pin 4 of an 8-pin SI
 is routinely marked `in` — so six of these lines had no driver at all and read as
 ASSERTED, fabricating a disk that is not there. Flipping one tie to `1'b0` fails
 the gate.
+
+### A Trident presents itself with FOUR cable lines (2026-08-25)
+
+First rung of the drive model. Asserting four active-low cable lines gives the
+controller a healthy, selected drive:
+
+```
+TtlReady'  TtlOnLine'  TtlTerm'  Selected0'
+      ->  NotReady=0  NotOnLine=0  DevCheck=0  SeekInc=0  HeadOvfl=0
+          NotSelected=0  DrSelected=1
+```
+
+and releasing them puts it back — which is the half that proves the reading was
+the cable rather than a stuck level.
+
+**`TtlTerm'` is part of being on line, and missing it looks like a broken
+receiver.** `NotOnLine` has TWO drivers on c24 — pin 14 from `TtlOnLine'` and
+pin 1 from `TtlTerm'`, wired-ORed — so a drive is "not on line" if it is not
+on-line **or the cable is not terminated**. Forcing `TtlOnLine'` alone leaves
+`NotOnLine` high, which reads exactly like an MC10124 that is not passing the
+cable through. (This is the recorded "split a wired-OR to find the driver"
+lesson again: the pin list said `NotOnLine` twice.)
+
+**What `ReadError` is made of** — a four-way wired-OR, and the decomposition is
+the map for the rest of the model:
+
+```
+c23.2  = DevCheck | SeekInc          <- TtlDeviceCk', TtlSeekInc'   (b24)
+c23.3  = HeadOvfl | NotSelected      <- TtlEndOfCyl', the select mux
+c23.14 = NotOnLine | NotReady        <- the four lines above clear this
+b23.15 = ReadDataErr | FifoUnderflow | FifoOverflow | SectorOvfl | IOBParityErr
+```
+
+With the drive presented, **every drive-side term is clear**. `ReadError` stays
+asserted on controller state alone — `ReadDataErr`, `FifoUnderflow` and
+`IOBParityErr`, set because no transfer has ever run: the FIFO has never been
+fed and the IOB has never carried a parity-correct word. Those are cleared by a
+`DISKCONTROL` write (`ClearErrors`), not by the cable, and the gate names them
+so the next step does not mistake them for a drive fault.
+
+Gated in `disk-input-test`; dropping `TtlTerm'` from the presented drive fails it.

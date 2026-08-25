@@ -3784,13 +3784,78 @@ module tb_disk;
       // model can be developed before the generator is changed.
       $display("tb_disk:   DRIVE LINES before force -- TtlReady'=%b TtlOnLine'=%b Selected0'=%b",
                m.TtlReady_p_, m.TtlOnLine_p_, m.Selected0_p_);
+      $display("tb_disk:   ...and the controller sees NO drive: NotReady=%b NotOnLine=%b ReadError=%b",
+               m.b_DskEth.NotReady, m.b_DskEth.NotOnLine, m.b_DskEth.ReadError);
+      // NOW PRESENT A DRIVE. These three lines are the minimum a Trident has to
+      // assert to exist: Ready, OnLine, and Selected for unit 0. They reach c24
+      // (MC10124, TTL -> ECL), which makes NotReady/NotReady'/NotOnLine -- and
+      // those are not idle status bits. NotReady drives e04 (MC10231) whose
+      // outputs are `SeekTagTW` and `TWReq.12`, THE DISK TASK'S WAKEUP, and it
+      // reaches the muffler mux (b22) so microcode can read drive state.
+      // TtlTerm' IS PART OF BEING ON LINE. `NotOnLine` has TWO drivers on c24 --
+      // pin 14 from TtlOnLine' and pin 1 from TtlTerm' -- wired-ORed, so a
+      // drive is "not on line" if it is not on-line OR THE CABLE IS NOT
+      // TERMINATED. Forcing TtlOnLine' alone leaves NotOnLine high, which
+      // looks exactly like a receiver that does not pass the cable through.
       force m.TtlReady_p_  = 1'b0;
       force m.TtlOnLine_p_ = 1'b0;
+      force m.TtlTerm_p_   = 1'b0;
       force m.Selected0_p_ = 1'b0;
-      @(posedge sys_clk); @(posedge sys_clk);
-      $display("tb_disk:   DRIVE LINES after force  -- TtlReady'=%b TtlOnLine'=%b Selected0'=%b  (0 = asserted = a drive is there)",
-               m.TtlReady_p_, m.TtlOnLine_p_, m.Selected0_p_);
-      release m.TtlReady_p_; release m.TtlOnLine_p_; release m.Selected0_p_;
+      repeat (64) @(posedge sys_clk);
+      $display("tb_disk:   DRIVE ATTACHED -- TtlReady'=%b TtlOnLine'=%b TtlTerm'=%b Selected0'=%b -> NotReady=%b NotOnLine=%b ReadError=%b",
+               m.TtlReady_p_, m.TtlOnLine_p_, m.TtlTerm_p_, m.Selected0_p_,
+               m.b_DskEth.NotReady, m.b_DskEth.NotOnLine, m.b_DskEth.ReadError);
+      // GATE: THE CONTROLLER SEES THE DRIVE. Asserting the cable lines has to
+      // move the board's own view of the drive; if NotReady stays high the
+      // receiver is not passing the cable through and no drive model can work.
+      if (m.b_DskEth.NotReady !== 1'b0)
+        $fatal(1, "TtlReady' asserted but NotReady is still %b -- c24 does not pass the cable through",
+               m.b_DskEth.NotReady);
+      if (m.b_DskEth.NotOnLine !== 1'b0)
+        $fatal(1, "TtlOnLine' asserted but NotOnLine is still %b", m.b_DskEth.NotOnLine);
+      // WHAT IS LEFT BEFORE THE DRIVE IS HEALTHY. ReadError is a four-way
+      // wired-OR and the decomposition is the map for the rest of the model:
+      //   c23.2  = DevCheck | SeekInc      <- TtlDeviceCk', TtlSeekInc' (b24)
+      //   c23.3  = HeadOvfl | NotSelected  <- TtlEndOfCyl', the select mux
+      //   c23.14 = NotOnLine | NotReady    <- cleared above
+      //   b23.15 = ReadDataErr | FifoUnderflow | FifoOverflow | SectorOvfl
+      //            | IOBParityErr
+      // Print every term rather than infer which one holds, so the next step
+      // starts from a measurement.
+      $display("tb_disk:   DRIVE HEALTH -- DevCheck=%b SeekInc=%b HeadOvfl=%b NotSelected=%b DrSelected=%b | ReadDataErr=%b FifoUnderflow=%b FifoOverflow=%b SectorOvfl=%b IOBParityErr=%b -> ReadError=%b",
+               m.b_DskEth.DevCheck, m.b_DskEth.SeekInc, m.b_DskEth.HeadOvfl,
+               m.b_DskEth.NotSelected, m.b_DskEth.DrSelected,
+               m.b_DskEth.ReadDataErr, m.b_DskEth.FifoUnderflow,
+               m.b_DskEth.FifoOverflow, m.b_DskEth.SectorOvfl,
+               m.b_DskEth.IOBParityErr, m.b_DskEth.ReadError);
+      // GATE: FOUR CABLE LINES MAKE A HEALTHY, SELECTED DRIVE. Every DRIVE-side
+      // term must clear -- that is the whole of what a Trident has to assert to
+      // be usable, and it is the foundation the rest of the model stands on.
+      if (m.b_DskEth.DevCheck || m.b_DskEth.SeekInc || m.b_DskEth.HeadOvfl)
+        $fatal(1, "a drive fault is asserted on a healthy drive: DevCheck=%b SeekInc=%b HeadOvfl=%b",
+               m.b_DskEth.DevCheck, m.b_DskEth.SeekInc, m.b_DskEth.HeadOvfl);
+      if (m.b_DskEth.NotSelected !== 1'b0 || m.b_DskEth.DrSelected !== 1'b1)
+        $fatal(1, "Selected0' asserted but the board does not see a selected drive: NotSelected=%b DrSelected=%b",
+               m.b_DskEth.NotSelected, m.b_DskEth.DrSelected);
+      // ...and what REMAINS is the controller's own state, not the drive's.
+      // ReadDataErr / FifoUnderflow / IOBParityErr are set because no transfer
+      // has ever run: the FIFO has never been fed and the IOB has never carried
+      // a parity-correct word. Naming them here keeps the next step honest --
+      // they are cleared by a DISKCONTROL write (ClearErrors), not by the cable.
+      if (!(m.b_DskEth.ReadDataErr || m.b_DskEth.FifoUnderflow ||
+            m.b_DskEth.IOBParityErr))
+        $display("tb_disk:   (note) the controller-side errors cleared on their own -- unexpected, re-read this");
+      $display("tb_disk:   ...so four cable lines give a HEALTHY SELECTED DRIVE; what is left is controller state");
+      release m.TtlReady_p_; release m.TtlOnLine_p_;
+      release m.TtlTerm_p_;  release m.Selected0_p_;
+      repeat (64) @(posedge sys_clk);
+      // ...AND IT NOTICES THE DRIVE GO AWAY, which is the half that proves the
+      // reading above was the cable and not a stuck level.
+      if (m.b_DskEth.NotReady !== 1'b1 || m.b_DskEth.NotOnLine !== 1'b1)
+        $fatal(1, "the drive was released but NotReady=%b NotOnLine=%b -- the level is stuck, not tracking",
+               m.b_DskEth.NotReady, m.b_DskEth.NotOnLine);
+      $display("tb_disk:   ...and released, the controller sees it go: NotReady=%b NotOnLine=%b",
+               m.b_DskEth.NotReady, m.b_DskEth.NotOnLine);
       // GATE: WITH NO DRIVE ATTACHED, THE BOARD MUST SEE NO DRIVE. All 17
       // active-low cable lines are pulled up, so every one must read 1. This
       // guards a bug that was already here once: `sip_drives` required the
