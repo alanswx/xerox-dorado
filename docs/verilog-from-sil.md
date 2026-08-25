@@ -2876,3 +2876,33 @@ same breath. Selected by `MufAdr_IOB'` (is the IOB carrying a muffler address),
 clocked by `Clock1'Cb`.
 
 Gated in `disk-read-check`; swapping two of the four expectations fails it.
+
+### The first wakeup this bench can move (2026-08-25)
+
+`IndexTW` and `SectorTW` come up asserted and stay that way for **140,559 of
+140,559** samples of every run, so a sector pulse proves nothing about them. To
+gate a wakeup you first have to be able to CLEAR one.
+
+`+muff` points the `+slowio` loop at **DISKMUFF (011B)**. No new data constant
+was needed: the loop's existing `5a5a` already carries `0x0800` — IOB.04, which
+d19 turns into `ClearIndexTW`. Two-sided result:
+
+| | `ClearIndexTW` | `IndexTW` |
+|---|---|---|
+| `+muff` | high on **32** (the address/data coincidence samples) | 136,754 of 140,559 — **it drops** |
+| any other mode | **0** | 140,559 — never clears |
+
+So the register write reaches d19, the clear asserts on exactly the samples where
+the address and the data coincide, and **the wakeup goes down** — the first time
+anything in this bench has moved one. `disk-muff-test` gates it; aiming `+muff`
+at DISKCONTROL instead fails it.
+
+*(`5a5a` does NOT carry `0x0400`, the sector clear, so gating `SectorTW` the same
+way needs deliberately chosen data — noted in the bench so the next step does not
+assume the index result transfers.)*
+
+**A branch-chain trap worth recording.** Adding a third mode to a two-mode gate
+block left `+muff` falling into the DISKCONTROL branch, where it failed on a
+`ControlRegCl` that had correctly never fired. The chain has to EXCLUDE the new
+mode explicitly, not merely handle it earlier — an `else` binds to the nearest
+`if`, and a mode added at the top of one chain is not excluded from the next.

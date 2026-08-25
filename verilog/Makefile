@@ -196,6 +196,10 @@ disk-test:
 disk-tag-test:
 	@$(MAKE) -C verilator disk-tag-test
 
+# A DISKMUFF write that clears the index wakeup.
+disk-muff-test:
+	@$(MAKE) -C verilator disk-muff-test
+
 # The read direction: the board drives IOB back at the processor.
 disk-input-test:
 	@$(MAKE) -C verilator disk-input-test

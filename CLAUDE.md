@@ -1003,6 +1003,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **A TRIDENT PRESENTS ITSELF WITH FOUR CABLE LINES** | `disk-input-test` -- `TtlReady'`+`TtlOnLine'`+`TtlTerm'`+`Selected0'` give `DrSelected`=1 and every drive-side fault clear |
 | **...AND ITS SECTOR PULSE REACHES THE CONTROLLER** | `disk-input-test` -- `Sector` high on 8 of 8 pulses and 0 of 8 GAPS (the gap half is what separates tracking from stuck) |
 | **...AND THE DISKMUFF CLEAR BITS SIT WHERE `disk.c` PUTS THEM** | `disk-read-check` -- d19 takes `bIOB.04-07` as ClearIndexTW/ClearSectorTW/ClearTWs/ClearErrors = 0x0800/0400/0200/0100 |
+| **...AND A DISKMUFF WRITE CLEARS A TASK WAKEUP** | `disk-muff-test` -- `ClearIndexTW` on the 32 coincidence samples, and `IndexTW` DROPS from 140559/140559 |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
 Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is
