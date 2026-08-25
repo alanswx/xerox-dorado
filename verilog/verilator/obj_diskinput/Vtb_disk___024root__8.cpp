@@ -1193,7 +1193,7 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
     vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_l16__DOT__ck_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_l16__DOT__clk;
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b10__DOT__ck_d 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_A;
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_B;
     if ((1U & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__Tag_u_IOB) 
                | (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_f10__DOT__q) 
                    | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e21__DOT__q)) 
@@ -4284,7 +4284,7 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemX__DOT__DMadr_01___05Fl21_3 
         = Vtb_disk__ConstPool__TABLE_hdbecc607_0[__Vtableidx243];
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_f08__DOT__ck_d 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_A;
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_B;
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_h01__DOT__cka_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_h01__DOT__clka;
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__Dad_07a 
@@ -4467,7 +4467,7 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TriconD10_sil_pl_21 
         = Vtb_disk__ConstPool__TABLE_h5b90359e_0[__Vtableidx285];
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c08__DOT__ck_d 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_A;
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_B;
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemC__DOT__u_l13__DOT__ck_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_MemC__DOT__clk0_p_Da;
     __Vtableidx159 = vlSelfRef.tb_disk__DOT__m__DOT__b_MemC__DOT__u_l13__DOT__q;
@@ -4505,7 +4505,7 @@ void Vtb_disk___024root___nba_sequent__TOP__2(Vtb_disk___024root* vlSelf) {
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemX__DOT__RefUsesD10InMap_p_ 
         = Vtb_disk__ConstPool__TABLE_h5b90359e_0[__Vtableidx231];
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b06__DOT__ck_d 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_A;
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_B;
     __Vtableidx305 = (((((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TriconD07_sil_pl_10)) 
                          & (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_144)) 
                         << 4U) | ((((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_144) 

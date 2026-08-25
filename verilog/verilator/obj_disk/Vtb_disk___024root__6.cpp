@@ -3102,7 +3102,7 @@ void Vtb_disk___024root___nba_sequent__TOP__0(Vtb_disk___024root* vlSelf) {
     }
     if (vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_d20__DOT__qb) {
         if (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_d22__DOT__ck_d)) 
-             & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_A))) {
+             & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_B))) {
             if (vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__NotSelected) {
                 vlSelfRef.__Vdly__tb_disk__DOT__m__DOT__b_DskEth__DOT__u_d22__DOT__q 
                     = ((((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_d22__DOT__p11) 
@@ -6043,7 +6043,7 @@ void Vtb_disk___024root___nba_sequent__TOP__0(Vtb_disk___024root* vlSelf) {
     if (vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b10__DOT__p12) {
         vlSelfRef.__Vdly__tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b10__DOT__q = 0U;
     } else if (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b10__DOT__ck_d)) 
-                & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_A))) {
+                & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__BitClock_p_B))) {
         if (vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b09__DOT__qb) {
             if ((1U & (~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b10__DOT__p6)))) {
                 vlSelfRef.__Vdly__tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b10__DOT__q 
