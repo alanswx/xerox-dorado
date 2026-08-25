@@ -3028,3 +3028,36 @@ fails.
 
 So a first-block READ is control word `0x00C0` (op 3 at shift 6) — the command
 the next step loads.
+
+### A real disk command loads, and STARTS (2026-08-25)
+
+The control word that does it is **`0x02C0`** — SetDebugMode (`0x0200`) plus op 3
+(Read) at `DORADO_DISK_CTRL_OP1_SHIFT` = 6 — and both halves are necessary:
+
+| control word | `ReadBlock` | `Active` |
+|---|---|---|
+| `5a5a` (default; op1 = `{0,1}` = **Write**) | 0 | 3797 |
+| `0x00C0` (Read op, no DebugMode) | 3798 | **0** |
+| **`0x02C0`** (Read op + DebugMode) | **3798** | **3797** |
+
+**What starts a transfer is `DebugMode`, and the netlist says so on a pin.**
+e13's Active/Idle flip-flop (an MC10231) takes **`ControlRegCl` on its RESET pin
+and `DebugMode` on its SET pin** — so a DISKCONTROL write clears Active, and only
+SetDebugMode raises it. `src/disk.c`, from the manual and by a separate route:
+
+```c
+if ((data & DORADO_DISK_CTRL_SET_DEBUG_MODE) &&
+    disk_control_has_transfer_op(data)) { ... ctl->active = 1; ... }
+```
+
+Both conditions, both models. That is the sixth independent agreement between
+the 1979 wire list and the C emulator on this board.
+
+Gated by `disk-cmd-test`, and both mutations bite — dropping SetDebugMode
+(`0x00C0`) and dropping the op (`0x0200`) each fail, one on `Active` and one on
+`ReadBlock`.
+
+**Still closed:** `ShiftIn` and `ComputeECC` remain 0 even with the transfer
+Active. b20 is an F10016 whose clock is **`WordClock'`** and whose parallel entry
+comes from a PROM, so the sequencer advances per WORD, not per bit — the next
+thing to drive.

@@ -200,6 +200,10 @@ disk-tag-test:
 disk-muff-test:
 	@$(MAKE) -C verilator disk-muff-test
 
+# A real read command: it loads, and it starts.
+disk-cmd-test:
+	@$(MAKE) -C verilator disk-cmd-test
+
 # The read direction: the board drives IOB back at the processor.
 disk-input-test:
 	@$(MAKE) -C verilator disk-input-test

@@ -1416,7 +1416,7 @@ module tb_disk;
   integer n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
-  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin; reg bclkb_d; reg [15:0] shreg_first, shreg_last; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
+  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv; reg bclkb_d; reg [15:0] shreg_first, shreg_last; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
   integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q, n_acur, n_anext, n_afifo, n_dwt;
   reg [15:0] q_now, q_last;
   reg [15:0] alub_at_out;
@@ -1434,7 +1434,7 @@ module tb_disk;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; shreg_first=16'bx; shreg_last=16'bx;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; shreg_first=16'bx; shreg_last=16'bx;
     // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
     want_tioa = $test$plusargs("tag")  ? 8'o014 :
                 $test$plusargs("muff") ? 8'o011 : 8'o010; n_ioen=0; n_iobin=0; iob_at_en=16'bx; ctlbits=3'bx; iobits=3'bx; ctl_post=3'bx; ctl_final=3'bx; ram_at_out=4'bx; byp_at_out=1'bx; ff4_at_out=1'bx; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
@@ -1587,6 +1587,12 @@ module tb_disk;
     // on a DISKMUFF write, and 5a5a carries that bit -- so with `+muff` the
     // loop should be clearing the index wakeup on every pass.
     if (m.b_DskEth.ClearIndexTW) n_clridx = n_clridx + 1;
+    // THE COMMAND ITSELF, during the run. f14's H0 is ReadBlock -- the HIGH bit
+    // of the current per-block op, 1 for both Read+Check and Read -- so a
+    // control word of 0x00C0 must raise it, and only then can the sequencer
+    // have anything to do.
+    if (m.b_DskEth.ReadBlock) n_rdblk = n_rdblk + 1;
+    if (m.b_DskEth.Active)    n_actv  = n_actv + 1;
     if (m.b_DskEth.IndexTW)      n_idxtw_run = n_idxtw_run + 1;
     // THE READ PATH. b11 makes the IOB output enable from bIOin' + TIOA=Us',
     // so this is the board DRIVING the bus back at the processor -- the one
@@ -2861,7 +2867,24 @@ module tb_disk;
         // caveat from tb_compute: Q IS NOT LOADED BY QFromCPReg#, IT IS LOADED
         // BY THE NOP AFTER IT, because the controls in force at a load edge are
         // the ones the PREVIOUS instruction latched.
-        set_cpreg_plain(16'h5A5A);
+        // `+read` makes the DATA a real DISKCONTROL command instead of the
+        // pattern 5a5a: 0x00C0 is op 3 (Read) at DORADO_DISK_CTRL_OP1_SHIFT = 6,
+        // i.e. "read the first block, then Done" -- and it carries neither
+        // ClearEnableRun (0x0400) nor SetDebugMode (0x0200), so the controller
+        // stays enabled. The gates that mention 5a5a are all $display, so this
+        // costs nothing.
+        // 0x02C0, not 0x00C0: the op alone loads ReadBlock but never STARTS.
+        // e13's Active/Idle flip-flop takes ControlRegCl on its RESET pin and
+        // **DebugMode on its SET pin**, so a DISKCONTROL write clears Active
+        // and only SetDebugMode (0x0200) raises it. src/disk.c says the same
+        // from the manual:
+        //     if ((data & DORADO_DISK_CTRL_SET_DEBUG_MODE) &&
+        //         disk_control_has_transfer_op(data)) { ... ctl->active = 1; }
+        // Measured: 0x00C0 gives ReadBlock 3798 / Active 0, and the default
+        // 5a5a -- whose op1 is {0,1} = WRITE and which happens to carry
+        // 0x0200 -- gives ReadBlock 0 / Active 3797.
+        if ($test$plusargs("read")) set_cpreg_plain(16'h02C0);
+        else                        set_cpreg_plain(16'h5A5A);
         parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40);   // QFromCPReg#
         nop_micro;
         q_pre = {m.b_ProcH.Q_00, m.b_ProcH.Q_01, m.b_ProcH.Q_02, m.b_ProcH.Q_03,
@@ -3787,6 +3810,8 @@ module tb_disk;
                n_tag_edge, n_tag_free, n_tagclk);
       $display("tb_disk:   THE MUFFLER CLEAR -- ClearIndexTW high on %0d of %0d, IndexTW high on %0d",
                n_clridx, n_tot, n_idxtw_run);
+      $display("tb_disk:   THE COMMAND -- ReadBlock high on %0d of %0d, Active high on %0d",
+               n_rdblk, n_tot, n_actv);
       $display("tb_disk:   THE READ PATH -- bIOin' asserted on %0d of %0d, IOB output enable ASSERTED (low) on %0d (IOB there = %h)",
                n_iobin, n_tot, n_ioen, iob_at_en);
       // CAN A BENCH PRESENT A DRIVE AT ALL? The 25 drive-interface nets are
@@ -4176,6 +4201,26 @@ module tb_disk;
         if (n_idxtw_run != n_tot)
           $fatal(1, "IndexTW dropped without a DISKMUFF write (%0d of %0d)",
                  n_idxtw_run, n_tot);
+      end
+      // GATE: A REAL COMMAND LOADS, AND STARTS. `+read` writes DISKCONTROL with
+      // 0x02C0 = SetDebugMode (0x0200) + op 3 (Read) at shift 6. Two things
+      // must follow, and the default 5a5a gives neither combination:
+      //   * ReadBlock, f14's H0, is the HIGH bit of the current per-block op --
+      //     1 for Read+Check and Read. 5a5a's op1 is {0,1} = WRITE, so it is 0
+      //     there.
+      //   * Active, e13's Q, has ControlRegCl on its RESET pin and DebugMode on
+      //     its SET pin, so a DISKCONTROL write clears it and only SetDebugMode
+      //     raises it -- which is src/disk.c's rule verbatim ("if SET_DEBUG_MODE
+      //     and disk_control_has_transfer_op ... ctl->active = 1").
+      if ($test$plusargs("read")) begin
+        if (n_rdblk == 0)
+          $fatal(1, "a Read op was loaded but ReadBlock never asserted");
+        if (n_actv == 0)
+          $fatal(1, "SetDebugMode + a transfer op did not make the controller Active");
+        $display("tb_disk:   ...so a REAL COMMAND loads and STARTS: ReadBlock and Active both up");
+      end else begin
+        if (n_rdblk != 0)
+          $fatal(1, "ReadBlock asserted %0d times with no Read op loaded", n_rdblk);
       end
       if ($test$plusargs("muff")) begin
         // +muff was gated just above. This chain must still EXCLUDE it, or the
