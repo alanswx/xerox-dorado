@@ -519,7 +519,7 @@ disk-ram-test:
 		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
 		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
 		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v verilog/generated/DskEth-Rev-*.v \
-		>/dev/null && { out=$$(./verilog/verilator/obj_diskram/tb_diskram +slowio +ram 2>&1); \
+		>/dev/null && { out=$$(./verilog/verilator/obj_diskram/tb_diskram +slowio +ram +qaddr 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_disk|Assertion"; exit $$rc; }
 
 # THE OTHER DIRECTION: a Pd<-Input in the loop, so the BOARD drives IOB back.

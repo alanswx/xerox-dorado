@@ -3215,3 +3215,56 @@ several cells — but here it is the DATA that moves inside the pulse).
 **Consequence meanwhile:** TIOA only ever holds its address through the BYPASS,
 never from the per-task file — which is why the loop lands one register write
 per run, and why rungs 1 and 2 are blocked on this.
+
+### #31 FIXED: T is per-task, and a jam does not write the file (2026-08-25)
+
+The sample-by-sample dump settled it in one screen. Two windows, one triggered
+by the data arriving on B and one by the write pulse opening:
+
+* **Window A** caught the STARTUP JAM, not the loop -- `alub` frozen at `1000`
+  for 45 samples with `PreClock1'D` not toggling and `TIOAWriteEn'` never
+  asserted. Useful as a control: it shows what "no machine running" looks like.
+* **Window B**, on the first `TIOAWrite'` falling edge, showed everything
+  CORRECT for eight samples: `alub = 1000`, the write open, and
+  `TIOA = 00001000 = 010B`. The pulse closes with `alub` still `1000`; the data
+  only moves one sample later.
+
+So the earlier reading -- "alub = 0000 at the write" -- was the LAST write
+captured, not a representative one. **The first write is fine.** Dumping the
+first twelve writes with the instruction that made them:
+
+```
+WR#2  addr=0011  stores 0001  alub=1000  FFdly.3-7=01010  T=0800   <- correct
+WR#3  addr=0011  stores 0000  alub=0000  FFdly.3-7=01010  T=0000   <- clobbers it
+```
+
+Same instruction each time (`01010` is `TIOA<-B`, 0o152), same slot -- **and T
+has gone to zero after one pass.**
+
+**Why: T is a PER-TASK FILE too.** ProcH l03/l04 (F10145A, addressed by
+`CurrLast`), and a jam sets the visible register but not the file slot -- the
+same limitation already recorded for TIOA itself. So T reverts, and every later
+`TIOA<-B` writes zero into the per-task TIOA file. Q, by contrast, is a SINGLE
+register and holds all run (5a5a on 10,294 samples, 2 changes).
+
+**The fix is `+qaddr`: take the slow-I/O address from Q (BSEL 3) instead of T.**
+
+| | address from T | address from Q |
+|---|---|---|
+| DISKRAM selects | 127 | **3,845** |
+| TIOA holds its address | 128 samples | **3,846** |
+| strobes carrying it | **32 of 960** | **all of them** |
+| format-RAM address steps | 1 | **30** |
+| **`LastRamAddr'` asserted** | **0** | **214** |
+| per-task TIOA file, slot 3 | `0000` | **`1101`** |
+
+**Rung 2 is therefore complete**: the format RAM walks all sixteen words and
+reaches `LastRamAddr'`, the carry that d13 turns into the reset of the
+DisableRun flip-flop -- i.e. into EnableRun. `disk-ram-test` gates both the walk
+and the coincidence; taking the address from T again fails it.
+
+**The caveat, stated in the bench:** with `+qaddr` both slow-I/O instructions
+take Q, so the address and the data are the same word. That is fine where the
+data is arbitrary (walking the format RAM) and wrong where it is not -- `+read`
+needs `0x02C0` as data and `0x0800` as address, so it still uses T and still
+lands one write per run.

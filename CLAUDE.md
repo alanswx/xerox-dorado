@@ -1008,7 +1008,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **...AND ITS BIT CLOCK REACHES THE SHIFT REGISTER** | `disk-input-test` -- 32 cable bit periods = 32 `BitClock'B` edges, chain in SHIFT mode; the DATA is gated twice by the b20 sequencer (open) |
 | **...AND THE FOUR PER-BLOCK OPS ARE SPLIT BY BIT** | `disk-read-check` -- f14 takes `bIOB.08/10/12/14`, f15 `.09/11/13/15`, both `PE'=Active` so they load while idle and shift one op per block |
 | **A REAL DISK COMMAND LOADS, AND STARTS** | `disk-cmd-test` -- DISKCONTROL `0x02C0` = SetDebugMode + Read op: `ReadBlock` AND `Active` both up; e13 has `DebugMode` on its SET pin, which is `disk.c`'s rule verbatim |
-| **THE FORMAT RAM STEPS, and its carry is wired to EnableRun** | `disk-ram-test` -- b21's `MR=ControlRegCl` zeroes the address and its `CO'` resets the DisableRun flip-flop, both `disk.c` verbatim |
+| **THE FORMAT RAM WALKS ALL SIXTEEN WORDS** | `disk-ram-test` -- `LastRamAddr'` asserts (0 -> 214) once the address comes from Q; its carry resets the DisableRun flip-flop, i.e. sets EnableRun, `disk.c` verbatim. T is PER-TASK and a jam does not write the file, so T reverts after one pass |
 | **...and the read path is a SELF-TIMED LOOP started by SYNC** | mapped, not gated -- b10's carry clocks the sequencer, the sequencer enables b10, and `sCountBits` breaks the tie when the sync pattern reaches `ShiftReg.15`. A drive model must emit a FORMATTED bit stream |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
