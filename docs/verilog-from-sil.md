@@ -2699,3 +2699,45 @@ eight status flags**. The netlist names every one of them.
 Gated by `make -C verilog disk-read-check`, which reads the wire list directly.
 Two mutations bite: pointing the muffler at `IOB.14`, and expecting the host on
 the low byte.
+
+### The Trident drive interface, enumerated (2026-08-25)
+
+"Next is a drive model" is only useful once the interface is known, and the
+board states it without a cable pinout document: **the translator packages ARE
+the interface.**
+
+| package | role | carries |
+|---|---|---|
+| MC1650 | differential line receiver | the per-drive read **Clock** and **Data** pairs |
+| MC10124 | quad TTL -> ECL | the nine drive **status** lines, in |
+| MC10125 | quad ECL -> TTL | the thirteen **tag** lines, out |
+| SN74LS08 / SN74LS153 | | `SecIndx'` and `Selected'`, per drive |
+
+**46 signals in all:**
+
+```
+per drive (x4)   ClockP/M   differential read clock, INPUT only
+                 DataP/M    differential data, BIDIRECTIONAL (the board writes)
+                 SecIndx'   sector/index pulse
+                 Selected'  drive selected
+shared in  (9)   TtlDeviceCk' E83   TtlEndOfCyl' E87   TtlIndex'   E78
+                 TtlOffSet'   E94   TtlOnLine'   E82   TtlReadOnly' E91
+                 TtlReady'    E79   TtlSeekInc'  E86   TtlTerm'    E90
+shared out (13)  TtlTag.0-9, TtlTag.00, TtlTag.000, TtlRunOK
+```
+
+The Clock/Data asymmetry is the useful detail and it falls out of the netlist
+rather than an assumption: the **Clock pairs have no on-board driver** (the read
+clock comes from the drive) while the **Data pairs do** (the board writes as
+well as reads). `make -C verilog disk-interface-check` asserts both directions
+along with the names, because a generator change can silently drop a cable
+signal — the board port lists were once inferred from `Term100` terminator
+packages and missed 703 backplane nets while inventing 833.
+
+**What sits behind `DskData`.** The read path is PARC's **Tricon** controller:
+differential data -> bit/word shifter (`ShiftIn`, `sCountBits`, `WordClock'`)
+-> FIFO (`FifoEmpty`/`FifoNotFull'`) -> `DskData` (e12/e08, MC10176 registers)
+-> the read mux -> IOB, with a check-word comparator (`CompareErr`) and a
+**format RAM** (`RamAddr`, `TIOA=Ram'`) sequencing the sector layout. That
+format RAM is the same one a `DISKCONTROL` write zeroes, which `disk.c` notes
+as "zeros the format-RAM address register (HM page 98)".
