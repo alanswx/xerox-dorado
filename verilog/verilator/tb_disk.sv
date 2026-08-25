@@ -1416,7 +1416,7 @@ module tb_disk;
   integer n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
-  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
+  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
   integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q, n_acur, n_anext, n_afifo, n_dwt;
   reg [15:0] q_now, q_last;
   reg [15:0] alub_at_out;
@@ -1434,7 +1434,7 @@ module tb_disk;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0;
     // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
     want_tioa = $test$plusargs("tag")  ? 8'o014 :
                 $test$plusargs("muff") ? 8'o011 : 8'o010; n_ioen=0; n_iobin=0; iob_at_en=16'bx; ctlbits=3'bx; iobits=3'bx; ctl_post=3'bx; ctl_final=3'bx; ram_at_out=4'bx; byp_at_out=1'bx; ff4_at_out=1'bx; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
@@ -3907,6 +3907,54 @@ module tb_disk;
       // reaches through DORADO_DISK_MUFF_CLEAR_SECTOR_TW on a DISKMUFF write.
       // Gating them needs that write first; NOT proven here.
       $display("tb_disk:   ...so the sector pulse reaches the controller and TRACKS; the TWs need a DISKMUFF clear first (open)");
+      // STEP 4: THE SERIAL DATA PATH. f05 (MC10174) is the per-drive mux --
+      // ch0 takes each drive's DATA and makes PreReadData, ch1 takes each
+      // drive's read CLOCK and makes PrePreBitClock, selected by
+      // {Select.0, Select.1} and ENABLED BY NotSelected. An MC10174's ENABLE
+      // forces both outputs LOW, so with no drive selected the data path is
+      // dead -- which is the second half of this gate.
+      //
+      // The pairs are differential: MC1650 line receivers (f01 clock, f02
+      // data), so a 1 is DataP high / DataM low.
+      $display("tb_disk:   SERIAL PATH -- Select.0=%b Select.1=%b NotSelected=%b",
+               m.b_DskEth.Select_0, m.b_DskEth.Select_1, m.b_DskEth.NotSelected);
+      for (twin = 0; twin < 8; twin = twin + 1) begin
+        force m.DataP0 = twin[0]; force m.DataM0 = ~twin[0];
+        force m.ClockP0 = 1'b1;  force m.ClockM0 = 1'b0;
+        repeat (12) @(posedge sys_clk);
+        if (m.b_DskEth.PreReadData)     n_dat1 = n_dat1 + 1;
+        else                            n_dat0 = n_dat0 + 1;
+        if (m.b_DskEth.PrePreBitClock)  n_clk1 = n_clk1 + 1;
+      end
+      $display("tb_disk:   SERIAL PATH -- 8 alternating bits: PreReadData high %0d, low %0d; PrePreBitClock high %0d",
+               n_dat1, n_dat0, n_clk1);
+      // ...AND WITH THE DRIVE DESELECTED THE PATH GOES DEAD, because f05's
+      // ENABLE is NotSelected. Same stimulus, opposite answer.
+      release m.Selected0_p_;
+      repeat (32) @(posedge sys_clk);
+      for (twin = 0; twin < 8; twin = twin + 1) begin
+        force m.DataP0 = twin[0]; force m.DataM0 = ~twin[0];
+        repeat (12) @(posedge sys_clk);
+        if (m.b_DskEth.PreReadData) n_desel = n_desel + 1;
+      end
+      $display("tb_disk:   SERIAL PATH -- deselected, NotSelected=%b, PreReadData high on %0d of 8",
+               m.b_DskEth.NotSelected, n_desel);
+      // GATE: THE DRIVE'S SERIAL DATA REACHES THE CONTROLLER, AND ONLY WHEN
+      // THE DRIVE IS SELECTED. Eight alternating bits must give four highs and
+      // four lows -- a path that passes a constant, or one stuck at either
+      // level, fails. The read clock must pass too. And with the drive
+      // DESELECTED the same stimulus must give nothing, because f05's ENABLE
+      // is NotSelected and an MC10174's enable forces the outputs LOW.
+      if (n_dat1 != 4 || n_dat0 != 4)
+        $fatal(1, "8 alternating data bits gave PreReadData high %0d low %0d, not 4/4",
+               n_dat1, n_dat0);
+      if (n_clk1 == 0)
+        $fatal(1, "the drive's read clock never reached PrePreBitClock");
+      if (n_desel != 0)
+        $fatal(1, "PreReadData followed the cable on %0d of 8 samples with the drive DESELECTED",
+               n_desel);
+      $display("tb_disk:   ...so the drive's DATA and CLOCK reach the controller, and only when selected");
+      release m.DataP0; release m.DataM0; release m.ClockP0; release m.ClockM0;
       release m.SecIndx0_p_;
       release m.TtlReady_p_; release m.TtlOnLine_p_;
       release m.TtlTerm_p_;  release m.Selected0_p_;

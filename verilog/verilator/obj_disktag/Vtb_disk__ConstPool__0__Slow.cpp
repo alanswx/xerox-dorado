@@ -24,6 +24,13 @@ extern const VlUnpacked<CData/*0:0*/, 32> Vtb_disk__ConstPool__TABLE_h0d679bef_0
     0U, 1U, 0U, 1U, 0U, 1U, 0U, 1U
 }};
 
+extern const VlUnpacked<CData/*1:0*/, 32> Vtb_disk__ConstPool__TABLE_h1d9bd5e7_0 = {{
+    0U, 0U, 0U, 1U, 0U, 1U, 0U, 0U,
+    0U, 2U, 0U, 3U, 0U, 3U, 0U, 2U,
+    0U, 2U, 0U, 3U, 0U, 3U, 0U, 2U,
+    0U, 0U, 0U, 1U, 0U, 1U, 0U, 0U
+}};
+
 extern const VlUnpacked<CData/*0:0*/, 32> Vtb_disk__ConstPool__TABLE_h2b955d68_0 = {{
     0U, 0U, 0U, 0U, 0U, 1U, 0U, 1U,
     0U, 0U, 0U, 0U, 0U, 1U, 0U, 1U,
@@ -98,6 +105,20 @@ extern const VlUnpacked<CData/*0:0*/, 32> Vtb_disk__ConstPool__TABLE_hac186fdc_0
     0U, 0U, 1U, 0U, 0U, 0U, 1U, 0U,
     0U, 0U, 1U, 0U, 0U, 0U, 1U, 0U,
     0U, 0U, 1U, 0U, 0U, 0U, 1U, 0U
+}};
+
+extern const VlUnpacked<CData/*0:0*/, 32> Vtb_disk__ConstPool__TABLE_hba7fe287_0 = {{
+    0U, 0U, 0U, 1U, 0U, 0U, 0U, 0U,
+    0U, 0U, 0U, 1U, 0U, 0U, 0U, 0U,
+    0U, 0U, 0U, 1U, 0U, 0U, 0U, 0U,
+    0U, 0U, 0U, 1U, 0U, 0U, 0U, 0U
+}};
+
+extern const VlUnpacked<CData/*0:0*/, 32> Vtb_disk__ConstPool__TABLE_hd0bd9749_0 = {{
+    0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U,
+    0U, 1U, 0U, 1U, 0U, 1U, 0U, 1U,
+    0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U,
+    0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U
 }};
 
 extern const VlUnpacked<CData/*0:0*/, 32> Vtb_disk__ConstPool__TABLE_hd5c05b5e_0 = {{

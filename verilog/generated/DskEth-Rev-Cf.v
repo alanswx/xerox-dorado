@@ -2130,6 +2130,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p13(SeekInc)
   ); // MC10124
   cell_MC1650 u_c01 (
+    .sys_clk(sys_clk),
     .p1(GND_m_39),
     .p2(TriconD07_sil_pl_4),
     .p4(ECLTrueA),
@@ -2143,6 +2144,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p14(TriconD07_sil_pl_2)
   ); // MC1650
   cell_MC1650 u_c02 (
+    .sys_clk(sys_clk),
     .p1(GND_m_38),
     .p2(TriconD07_sil_pl_5),
     .p4(ECLTrueA),
@@ -3128,6 +3130,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p15(MuxData7__e24_15)
   ); // MU10164
   cell_MC1650 u_f01 (
+    .sys_clk(sys_clk),
     .p1(GND_m_26),
     .p2(TriconD07_sil_pl_9),
     .p4(ECLTrueA),
@@ -3141,6 +3144,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p14(TriconD07_sil_pl_3)
   ); // MC1650
   cell_MC1650 u_f02 (
+    .sys_clk(sys_clk),
     .p1(GND_m_25),
     .p2(TriconD07_sil_pl_11),
     .p4(ECLTrueA),
