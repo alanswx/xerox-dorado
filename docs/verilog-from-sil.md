@@ -3296,3 +3296,50 @@ the A-source select. Read the other way round, the slow-I/O loop looks as though
 it reloads T every instruction (LC=4 is `RM/STK<-Md`), which it does not: its LC
 is 0, "No Action", which is correct for a slow-I/O instruction. The column order
 is now stated above the task.
+
+### The FF field as a LITERAL solves the two-value problem (2026-08-25)
+
+The previous entry concluded that a loop cannot carry a distinct address AND a
+distinct data word without a two-phase startup. **That was wrong, and the way
+out was already in the instruction set.**
+
+`BSEL = 6` is `FF,,0` -- `cpu.c`: *"high byte FF, low byte 0"* -- so the FF
+field becomes a **literal on B**. The objection recorded earlier ("FF is
+consumed by the opcode") is true of `TIOA<-B` itself, whose FF is `0o152`, but
+not of a SEPARATE instruction whose only job is to load T. And `TIOA<-B` takes
+B's **high byte**, which is exactly where that literal lands -- so the FF value
+IS the TIOA address.
+
+```
+IM[0]  T <- FF,,0    BSEL 6, LC 1 (T<-Pd), ALUF 0, FF = the TIOA address
+IM[1]  TIOA <- B     BSEL 2 (B<-T)        FF = 0o152
+IM[2]  Output <- B   BSEL 3 (B<-Q)        FF = 0o036
+IM[3]  quiet
+```
+
+Being **executed** rather than jammed, IM[0] fills the per-task T file properly
+-- the whole of #31 -- and it does so every pass, so T cannot decay. Q is then
+free to carry a different word as the data.
+
+| | address jammed into T | address as an FF literal |
+|---|---|---|
+| DISKCONTROL selects | 127 | **3,583** |
+| strobes carrying the address | 32 of 960 | **896 of 960** |
+| **`ControlRegCl` edges** | **1** | **28** |
+| control register | — | **`101`**: DebugMode set, EnableRun on |
+| `ReadBlock` / `Active` | 0 / 0 | **128 / 3,765** |
+
+So a real read command (`0x02C0` in Q) now loads REPEATEDLY with the controller
+Active for most of the run, instead of once. `disk-cmd-test` runs `+read +tlit`
+and gates it; dropping the literal fails it. **Task #32 -- the two-phase startup
+-- is not needed.**
+
+*One gate had to be scoped, honestly.* The post-run window that asserts "a jam
+reaches neither the per-task store nor the forward path" is only readable while
+nothing else drives them, and `+tlit`'s loop never stops -- so those counters
+would be measuring the loop, not the jam. It is skipped in that mode with the
+reason stated, rather than asserted on the wrong thing.
+
+**Still closed:** `ShiftIn` and `ComputeECC` remain 0 even with a live Active
+read command. That is the self-timed loop from two entries back -- it needs a
+formatted bit stream with a SYNC mark, which is rung 1 proper.
