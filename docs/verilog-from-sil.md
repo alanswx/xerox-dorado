@@ -2614,3 +2614,45 @@ both inputs active low, and it feeds an active-low `E'`. Counted in the wrong
 sense it read "enable high on 140559 of 140559" *including when no Input existed
 at all*, which looks exactly like a stuck enable. It was a correct board read
 backwards.
+
+### The muffler reaches IOB on ONE bit, and the manual names which (2026-08-25)
+
+A `Pd<-Input` to the disk board reads through ten MC10174 four-input
+multiplexers, one per pair of IOB bits, selected by `{TIOA.5a, TIOA.7a}`:
+
+| `{S2,S1}` | input | TIOA | source |
+|---|---|---|---|
+| 00 | X0 | 010 / 012 | `DskData` — the read FIFO |
+| 01 | X1 | 011 / 013 | **the muffler** |
+| 10 | X2 | 014 / 016 | `Host` |
+| 11 | X3 | 015 / 017 | `EthData` |
+
+DISKDATA (012) landing on `DskData` already matches `disk.c`, whose
+`DORADO_DISK_TIOA_DISKDATA` case reads the FIFO. But DISKMUFF (011) selects X1,
+which is **open on k02** — and on every other data bit too. That looked like a
+gap and is the opposite: `disk.c` says, transcribed from the manual by an
+entirely separate route,
+
+```
+/* HM pages 101-102: the selected muffler signal is driven on
+ * IOB[15]. ... */
+uint16_t v = bit ? 0x0001 : 0x0000;
+```
+
+**One bit, not sixteen.** And the 1979 wire list connects X1/Y1 on exactly three
+IOB positions and no others:
+
+```
+  IOB.15   X1/Y1 = MufData      (h01)
+  IOB.16   X1/Y1 = ECLTrueA     (i03)
+  IOB.17   X1/Y1 = MufData'     (h01)
+```
+
+`IOB.15` is the data bit the Hardware Manual names. The other two are the
+**parity** bits, and they carry a constant and the muffler's COMPLEMENT — which
+is what keeps IOB's parity right when exactly one data bit is ever driven.
+
+Gated by `make -C verilog disk-muffler-check`, which reads the wire list
+directly (a netlist property needs no running machine) and asserts the muffler
+mux input is connected on `IOB.15` alone. Pointing the expectation at `IOB.14`
+fails it, so it is reading real data rather than passing vacuously.

@@ -200,6 +200,12 @@ disk-tag-test:
 disk-input-test:
 	@$(MAKE) -C verilator disk-input-test
 
+# THE MUFFLER REACHES IOB ON ONE BIT, and the Hardware Manual names which.
+# A netlist property, so it is checked against the wire list directly rather
+# than by running a machine.
+disk-muffler-check:
+	@cd .. && python3 tools/sil_check_muffler.py
+
 # A WORD INTO THE STORAGE ARRAY: the msa board standalone, where the bench owns
 # the DRAM strobes, so a write can be driven without a memory reference.
 msa-test:
