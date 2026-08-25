@@ -2615,7 +2615,7 @@ sense it read "enable high on 140559 of 140559" *including when no Input existed
 at all*, which looks exactly like a stuck enable. It was a correct board read
 backwards.
 
-### The muffler reaches IOB on ONE bit, and the manual names which (2026-08-25)
+### The disk/ethernet READ MULTIPLEXER, decoded whole (2026-08-25)
 
 A `Pd<-Input` to the disk board reads through ten MC10174 four-input
 multiplexers, one per pair of IOB bits, selected by `{TIOA.5a, TIOA.7a}`:
@@ -2656,3 +2656,46 @@ Gated by `make -C verilog disk-muffler-check`, which reads the wire list
 directly (a netlist property needs no running machine) and asserts the muffler
 mux input is connected on `IOB.15` alone. Pointing the expectation at `IOB.14`
 fails it, so it is reading real data rather than passing vacuously.
+
+**The select encoding, from the data sheet rather than from EclDict's labels.**
+`DoradoDocs/datasheets/MC10174.pdf` gives the truth table with pin 7 (`A`) as
+the select LSB and pin 9 (`B`) as the MSB. DskEth wires A = `TIOA.7a`,
+B = `TIOA.5a` -- so **TIOA.6 is ignored** and the eight register addresses pair
+up on reads:
+
+| `{B,A}` | TIOA | source |
+|---|---|---|
+| 00 | 010 / **012** | `DskData` — **the read FIFO** |
+| 01 | **011** / 013 | **the muffler** |
+| 10 | 014 / **016** | **the ethernet status word** |
+| 11 | **015** / 017 | `EthData` |
+
+Every register either C model implements lands exactly there: `disk.c`'s
+DISKDATA (012) reads the FIFO and DISKMUFF (011) the muffler;
+`DORADO_ETHERNET_TIOA_DATA` is 015 and `..._TIOA_CTL` is 016.
+
+**And the ethernet status word is fully named by the netlist:**
+
+```
+IOB.00-07   Host.0 .. Host.7          the 8-bit host number, HIGH byte
+IOB.08-15   RxOn TxOn LoopBack TxCollision NoWakeups TxDataLate SingleStep TxFifoPE
+IOB.16-17   EthStatus.16/17           parity
+```
+
+`ethernet.c`'s `eth_read` returns `(uint16_t)eth->local_host << 8` for TIOA 016
+— the host number in the high byte, from an independent reading of the manual,
+and PARC numbers IOB MSB-first so `IOB.00-07` *is* the high byte.
+
+**`Host.0-7` is driven by no board.** It arrives on backplane pins C28, C29,
+C32, C33, C36, C37, C40, C41 and is read only by DskEth — an external strap,
+which is how an Alto-family machine carries its host number. Those same eight
+pins are `CLK.ms0Odd'` on the BaseBoard, `RSTK.2` on ContB, `GenIn.00` on the
+IFU and `Sout.08` on MemD, which is the recorded rule *a pin number is not a
+wire on this backplane* in its clearest form yet.
+
+**Open, and actionable for the C emulator:** `eth_read` returns **zero for all
+eight status flags**. The netlist names every one of them.
+
+Gated by `make -C verilog disk-read-check`, which reads the wire list directly.
+Two mutations bite: pointing the muffler at `IOB.14`, and expecting the host on
+the low byte.
