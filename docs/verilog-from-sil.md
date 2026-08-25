@@ -2948,3 +2948,47 @@ path is dead unless a drive is selected. Same stimulus, opposite answer.
 
 Both mutations bite: returning the cell to a constant, and making the comparator
 ignore V2 so it is no longer differential. Regeneration touched only DskEth.
+
+### Does the shifter run on the bit clock alone? No -- and the path is mapped (2026-08-25)
+
+The cheap experiment from the plan, and it answered definitively. Feeding the
+drive's differential clock and data:
+
+```
+32 bit periods:  PreBitClock high 32,  BitClock'B EDGES 32,  ShiftRegLd' low on 0
+                 ShiftReg 0000 -> 0000, moved on 0 samples
+                 ReadData 0,  ShiftIn 0,  ComputeECC 0,  ShiftReg.in 0
+```
+
+**The clock reaches the shift register and the register is in shift mode** — 32
+cable bit periods give 32 edges on `BitClock'B`, and `ShiftRegLd'` never goes low
+(low would mean parallel-loading from `DskData` instead of shifting). The input
+register is four F10000s chained
+
+```
+ShiftReg.in -> f09 -> .12-15 -> f10 -> .08-11 -> f11 -> .04-07 -> f12 -> .00-03
+```
+
+all on `BitClock'B`, all parallel-loaded by `ShiftRegLd'`.
+
+**But the DATA is gated twice, by the sequencer:**
+
+```
+c10 (MC10104):  TriconD07.sil+12 = ShiftIn & PreReadData
+b06 (MC10176):  ReadData = that, registered on BitClock'A
+b08 (MC10158):  ShiftReg.in = ComputeECC ? ReadData : EccData.32
+```
+
+`ShiftIn` and `ComputeECC` are both outputs of **b20**, an F10016 whose MASTER
+RESET is `Idle` and whose parallel entry comes from a PROM — a state machine, not
+a free-running counter. So the clock runs from the cable, the register shifts,
+and the data waits on a loaded transfer. Recorded as open rather than gated;
+opening it needs a DISKCONTROL command, which is the next step.
+
+What IS gated: the bit clock reaching the shift register, and the chain staying
+in shift mode. Holding the drive's read clock static fails it.
+
+*(b08 also shows the write direction, on the same package: `WriteData =
+ComputeECC ? ShiftReg.00 : EccData.32` — the shift register runs both ways, and
+`EccData.32` is what it circulates when the ECC is being computed rather than
+data moved.)*

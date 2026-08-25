@@ -1005,6 +1005,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **...AND THE DISKMUFF CLEAR BITS SIT WHERE `disk.c` PUTS THEM** | `disk-read-check` -- d19 takes `bIOB.04-07` as ClearIndexTW/ClearSectorTW/ClearTWs/ClearErrors = 0x0800/0400/0200/0100 |
 | **...AND A DISKMUFF WRITE CLEARS A TASK WAKEUP** | `disk-muff-test` -- `ClearIndexTW` on the 32 coincidence samples, and `IndexTW` DROPS from 140559/140559 |
 | **...AND THE DRIVE'S SERIAL DATA REACHES THE CONTROLLER** | `disk-input-test` -- `cell_MC1650` modelled from its data sheet; 8 alternating bits give `PreReadData` 4 high / 4 low, and 0 of 8 when DESELECTED |
+| **...AND ITS BIT CLOCK REACHES THE SHIFT REGISTER** | `disk-input-test` -- 32 cable bit periods = 32 `BitClock'B` edges, chain in SHIFT mode; the DATA is gated twice by the b20 sequencer (open) |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
 Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is
