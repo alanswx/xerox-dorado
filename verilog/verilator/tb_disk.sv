@@ -1416,7 +1416,10 @@ module tb_disk;
   integer n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
-  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv, n_wclk, n_co, n_cntdone, n_ramcl, n_lastram, n_wecond, n_werise; reg g15we_d; reg [3:0] wdata_lo, wdata_hi; reg [3:0] alub_hi, alub_fall, wdata_fall; reg ff4_at_wr, ff4_fall; integer n_fall, n_alub_ok, n_alub_ok_wr; reg wclk_d, ramcl_d; reg [3:0] ramaddr_last; reg bclkb_d; reg [15:0] shreg_first, shreg_last; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
+  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv, n_wclk, n_co, n_cntdone, n_ramcl, n_lastram, n_wecond, n_werise; reg g15we_d; reg [3:0] wdata_lo, wdata_hi; reg [3:0] alub_hi, alub_fall, wdata_fall; reg ff4_at_wr, ff4_fall; integer n_fall, n_alub_ok, n_alub_ok_wr;
+  // Two one-shot dump windows: one triggered by the DATA arriving on B, one by
+  // the WRITE PULSE opening. Whichever leads, the other window shows it.
+  integer dwin_d, dwin_w, n_wrshow; reg dtrig_d, dtrig_w; reg [3:0] alub_prev; reg wclk_d, ramcl_d; reg [3:0] ramaddr_last; reg bclkb_d; reg [15:0] shreg_first, shreg_last; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
   integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q, n_acur, n_anext, n_afifo, n_dwt;
   reg [15:0] q_now, q_last;
   reg [15:0] alub_at_out;
@@ -1434,7 +1437,7 @@ module tb_disk;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; dwin_d=-1; dwin_w=-1; dtrig_d=1'b0; dtrig_w=1'b0; alub_prev=4'bx; n_wrshow=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
     // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
     want_tioa = $test$plusargs("tag")  ? 8'o014 :
                 $test$plusargs("muff") ? 8'o011 :
@@ -1693,6 +1696,39 @@ module tb_disk;
     // but h12's is TIOAdly.4 then FFdly.5/6/7 -- the instruction's own FF field
     // supplies the REGISTER-SELECT part of a slow-I/O address while the per-task
     // file keeps the BOARD address. Both muxes select on FFdly.4.
+    // EVERY EARLY WRITE, with its address and what the slot holds a moment
+    // later. The previous capture kept the LAST write, which is why it read
+    // 0000 -- window B shows the FIRST write has alub = 1000 and TIOA already
+    // correct. If the first writes land and the slot is zero at the end, a
+    // LATER write is overwriting it.
+    if (m.b_ProcH.u_g15.p13 && !m.b_ProcH.u_g15.we_d && !m.b_ProcH.u_g15.p3
+        && n_wrshow < 12) begin
+      n_wrshow = n_wrshow + 1;
+      $display("tb_disk:   WR#%0d  addr=%b  h15 D3..D0={%b%b%b%b}  alub.04-07=%b  FFdly.4=%b  TIOA=%b%b%b%b%b%b%b%b",
+               n_wrshow,
+               {m.b_ProcH.u_h15.p10, m.b_ProcH.u_h15.p9,
+                m.b_ProcH.u_h15.p7,  m.b_ProcH.u_h15.p6},
+               m.b_ProcH.u_h15.p12, m.b_ProcH.u_h15.p11,
+               m.b_ProcH.u_h15.p4,  m.b_ProcH.u_h15.p5,
+               {m.b_ProcH.alub_04a, m.b_ProcH.alub_05a,
+                m.b_ProcH.alub_06a, m.b_ProcH.alub_07a},
+               m.b_ProcH.FFdly_4,
+               m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2, m.b_ProcH.TIOA_3,
+               m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5, m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7);
+      // AND WHICH INSTRUCTION IS DOING IT. FFdly.4 is 1 for BOTH `TIOA<-B`
+      // (0o152) and `Output<-B` (0o036), so it cannot name the instruction --
+      // print the whole delayed FF field and T, which is what BSEL=2 puts on B.
+      // Only FFdly.3-7 exist on ProcH -- the low bits are not delayed here.
+      // FF.3-7 still separates the two: TIOA<-B (0o152) has 01010 and
+      // Output<-B (0o036) has 11110.
+      $display("tb_disk:         FFdly.3-7=%b%b%b%b%b  T=%h",
+               m.b_ProcH.FFdly_3, m.b_ProcH.FFdly_4, m.b_ProcH.FFdly_5,
+               m.b_ProcH.FFdly_6, m.b_ProcH.FFdly_7,
+               {m.b_ProcH.T_00, m.b_ProcH.T_01, m.b_ProcH.T_02, m.b_ProcH.T_03,
+                m.b_ProcH.T_04, m.b_ProcH.T_05, m.b_ProcH.T_06, m.b_ProcH.T_07,
+                m.b_ProcL.T_08, m.b_ProcL.T_09, m.b_ProcL.T_10, m.b_ProcL.T_11,
+                m.b_ProcL.T_12, m.b_ProcL.T_13, m.b_ProcL.T_14, m.b_ProcL.T_15});
+    end
     if (m.b_ProcH.u_g15.p13 && !m.b_ProcH.u_g15.we_d && !m.b_ProcH.u_g15.p3) begin
       wdata_lo <= {m.b_ProcH.ProcH23_sil_pl_4, m.b_ProcH.ProcH23_sil_pl_3,
                    m.b_ProcH.ProcH23_sil_pl_2, m.b_ProcH.ProcH23_sil_pl_1};
@@ -1711,6 +1747,45 @@ module tb_disk;
          m.b_ProcH.alub_06a, m.b_ProcH.alub_07a} == 4'b1000) begin
       n_alub_ok = n_alub_ok + 1;
       if (!m.b_ProcH.TIOAWrite_p_) n_alub_ok_wr = n_alub_ok_wr + 1;
+    end
+    // ---- SAMPLE-BY-SAMPLE DUMP, one loop pass, both triggers ----------------
+    // At 16 sys_clk per microinstruction a 4-instruction pass is ~64 samples,
+    // so 80 covers one pass with margin. Print the B data, the write pulse and
+    // the three terms that MAKE that pulse -- j18's gate b is an SE10210 OR:
+    //     TIOAWrite' = PreClock1'D | Holda | TIOAWriteEn'
+    // so the pulse is PreClock1'D's LOW phase, gated by TIOAWriteEn'.
+    if (dwin_d < 0 && !dtrig_d &&
+        {m.b_ProcH.alub_04a, m.b_ProcH.alub_05a,
+         m.b_ProcH.alub_06a, m.b_ProcH.alub_07a} == 4'b1000) begin
+      dtrig_d = 1'b1; dwin_d = 0;
+      $display("tb_disk: ---- WINDOW A: triggered when alub.04-07 first reads 1000 ----");
+      $display("tb_disk:      n  alub  TIOAWrite'  PreClock1'D  Holda  TIOAWriteEn'  FFdly.4  TIOA");
+    end
+    if (dwin_d >= 0 && dwin_d < 80) begin
+      $display("tb_disk:   A%3d  %b     %b           %b            %b      %b             %b        %b",
+               dwin_d,
+               {m.b_ProcH.alub_04a, m.b_ProcH.alub_05a,
+                m.b_ProcH.alub_06a, m.b_ProcH.alub_07a},
+               m.b_ProcH.TIOAWrite_p_, m.b_ProcH.PreClock1_p_D,
+               m.b_ProcH.Holda, m.b_ProcH.TIOAWriteEn_p_, m.b_ProcH.FFdly_4,
+               {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2, m.b_ProcH.TIOA_3,
+                m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5, m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7});
+      dwin_d = dwin_d + 1;
+    end
+    if (dwin_w < 0 && !dtrig_w && !m.b_ProcH.TIOAWrite_p_ && g15we_d) begin
+      dtrig_w = 1'b1; dwin_w = 0;
+      $display("tb_disk: ---- WINDOW B: triggered on the first TIOAWrite' FALLING edge ----");
+    end
+    if (dwin_w >= 0 && dwin_w < 80) begin
+      $display("tb_disk:   B%3d  %b     %b           %b            %b      %b             %b        %b",
+               dwin_w,
+               {m.b_ProcH.alub_04a, m.b_ProcH.alub_05a,
+                m.b_ProcH.alub_06a, m.b_ProcH.alub_07a},
+               m.b_ProcH.TIOAWrite_p_, m.b_ProcH.PreClock1_p_D,
+               m.b_ProcH.Holda, m.b_ProcH.TIOAWriteEn_p_, m.b_ProcH.FFdly_4,
+               {m.b_ProcH.TIOA_0, m.b_ProcH.TIOA_1, m.b_ProcH.TIOA_2, m.b_ProcH.TIOA_3,
+                m.b_ProcH.TIOA_4, m.b_ProcH.TIOA_5, m.b_ProcH.TIOA_6, m.b_ProcH.TIOA_7});
+      dwin_w = dwin_w + 1;
     end
     if (m.b_ProcH.TIOAWrite_p_ && !g15we_d) n_werise = n_werise + 1;
     // ...AND AT THE START OF THE WRITE WINDOW. The cell latches on WE' RISING,
@@ -2893,9 +2968,23 @@ module tb_disk;
       // still zero, all identical). The totals are per-pass, so reordering the
       // slots moves the phase without moving the counts, and the phase did not
       // move either. The write pulse's placement is not set by loop ordering.
+      // `+qaddr` TAKES THE ADDRESS FROM Q INSTEAD OF T, and the reason is the
+      // whole of #31. T is a PER-TASK FILE (ProcH l03/l04, addressed by
+      // CurrLast), and a jam sets the visible register but NOT the file slot --
+      // the same limitation already recorded for TIOA. So T reverts after one
+      // pass: measured, the loop executes the SAME instruction each time
+      // (FFdly.3-7 = 01010 = TIOA<-B) with T = 0800 on the first pass and
+      // T = 0000 on every one after, which is why the per-task TIOA file ends
+      // up holding zeros. Q is a SINGLE register, not per-task, and holds its
+      // value all run (measured: 5a5a on 10,294 samples, 2 changes).
+      //
+      // BSEL 3 is B<-Q, so with +qaddr both slow-I/O instructions take Q: the
+      // address for TIOA<- and the data for Output<-. That is fine where the
+      // data is arbitrary (walking the format RAM) and wrong where it is not.
       build_hunk4(4'd0, 1'b0,
                   '{4'd0,   4'd0,   4'd0,   4'd0},
-                  '{3'd2,   3'd3,   3'd0,   3'd0},
+                  '{$test$plusargs("qaddr") ? 3'd3 : 3'd2,
+                             3'd3,   3'd0,   3'd0},
                   '{3'd0,   3'd0,   3'd0,   3'd0},
                   '{3'd4,   3'd4,   3'd4,   3'd4},
                   '{8'o152, 8'o036,
@@ -2955,7 +3044,9 @@ module tb_disk;
         // Measured: 0x00C0 gives ReadBlock 3798 / Active 0, and the default
         // 5a5a -- whose op1 is {0,1} = WRITE and which happens to carry
         // 0x0200 -- gives ReadBlock 0 / Active 3797.
-        if ($test$plusargs("read")) set_cpreg_plain(16'h02C0);
+        if ($test$plusargs("qaddr"))
+          set_cpreg_plain({want_tioa, 8'h00});   // Q = the TIOA address
+        else if ($test$plusargs("read")) set_cpreg_plain(16'h02C0);
         else                        set_cpreg_plain(16'h5A5A);
         parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40);   // QFromCPReg#
         nop_micro;
@@ -4328,6 +4419,19 @@ module tb_disk;
           $fatal(1, "IndexTW dropped without a DISKMUFF write (%0d of %0d)",
                  n_idxtw_run, n_tot);
       end
+      // GATE: THE ADDRESS SURVIVES THE LOOP WHEN IT COMES FROM Q. This is #31.
+      // T is a PER-TASK FILE and a jam sets the visible register but not the
+      // file slot, so T reverts after one pass and every later `TIOA<-B` writes
+      // ZERO into the per-task TIOA file. Q is a single register and holds.
+      // The measurable difference is total: EVERY IOBout strobe finds the
+      // address, instead of 32 of 960.
+      if ($test$plusargs("qaddr")) begin
+        if (n_tioa_out10 !== n_iobout)
+          $fatal(1, "with the address in Q only %0d of %0d strobes carried it -- it should be all of them",
+                 n_tioa_out10, n_iobout);
+        $display("tb_disk:   ...so with the address in Q, ALL %0d strobes carry it (from T it was 32 of 960)",
+                 n_tioa_out10);
+      end
       // GATE: A REAL COMMAND LOADS, AND STARTS. `+read` writes DISKCONTROL with
       // 0x02C0 = SetDebugMode (0x0200) + op 3 (Read) at shift 6. Two things
       // must follow, and the default 5a5a gives neither combination:
@@ -4346,6 +4450,13 @@ module tb_disk;
         if (n_ramcl == 0)
           $fatal(1, "DISKRAM was addressed %0d times but the format-RAM address never stepped", n_r_ram);
         $display("tb_disk:   ...so a DISKRAM write STEPS the format-RAM address (%0d edges while addressed)", n_ramcl);
+        // AND WITH THE ADDRESS COMING FROM Q IT WALKS ALL THE WAY. b21 is a
+        // 4-bit counter, so reaching LastRamAddr' means sixteen DISKRAM writes
+        // landed -- which is the whole format RAM, and what d13 turns into the
+        // reset of the DisableRun flip-flop (i.e. sets EnableRun). With the
+        // address coming from T this was 0; from Q it is hundreds.
+        if ($test$plusargs("qaddr") && n_lastram == 0)
+          $fatal(1, "the format-RAM address stepped %0d times but never reached its LAST address", n_ramcl);
       end else if (n_ramcl != 0) begin
         $fatal(1, "the format-RAM address stepped %0d times with no DISKRAM write", n_ramcl);
       end
