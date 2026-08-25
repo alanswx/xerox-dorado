@@ -1579,10 +1579,10 @@ void Vtb_disk___024root___nba_sequent__TOP__0(Vtb_disk___024root* vlSelf) {
                                            + vlSelfRef.tb_disk__DOT__n_d00_e);
     }
     if (vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__SinD_00) {
-        vlSelfRef.tb_disk__DOT__n_sind1 = ((IData)(1U) 
-                                           + vlSelfRef.tb_disk__DOT__n_sind1);
         vlSelfRef.tb_disk__DOT__n_sind_hi = ((IData)(1U) 
                                              + vlSelfRef.tb_disk__DOT__n_sind_hi);
+        vlSelfRef.tb_disk__DOT__n_sind1 = ((IData)(1U) 
+                                           + vlSelfRef.tb_disk__DOT__n_sind1);
     }
     if (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__WriteD1_p_a)) 
          & (IData)(vlSelfRef.tb_disk__DOT__we1_d))) {
@@ -1838,6 +1838,33 @@ void Vtb_disk___024root___nba_sequent__TOP__0(Vtb_disk___024root* vlSelf) {
         if ((1U & (~ (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_73)))) {
             vlSelfRef.tb_disk__DOT__n_byp_out = ((IData)(1U) 
                                                  + vlSelfRef.tb_disk__DOT__n_byp_out);
+        }
+        if ((0x5a00U == (((((((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_00a) 
+                              << 3U) | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_01a) 
+                                        << 2U)) | (
+                                                   ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_02a) 
+                                                    << 1U) 
+                                                   | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_03a))) 
+                           << 0x0000000cU) | (((((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_04a) 
+                                                 << 3U) 
+                                                | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_05a) 
+                                                   << 2U)) 
+                                               | (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_06a) 
+                                                   << 1U) 
+                                                  | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__alub_07a))) 
+                                              << 8U)) 
+                         | ((((((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_08a) 
+                                << 3U) | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_09a) 
+                                          << 2U)) | 
+                              (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_10a) 
+                                << 1U) | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_11a))) 
+                             << 4U) | ((((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_12a) 
+                                         << 3U) | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_13a) 
+                                                   << 2U)) 
+                                       | (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_14a) 
+                                           << 1U) | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_15a))))))) {
+            vlSelfRef.tb_disk__DOT__n_iob_lit = ((IData)(1U) 
+                                                 + vlSelfRef.tb_disk__DOT__n_iob_lit);
         }
         if ((0x5a5aU == (IData)(vlSelfRef.tb_disk__DOT__q_now))) {
             vlSelfRef.tb_disk__DOT__n_out_q = ((IData)(1U) 
@@ -8074,26 +8101,5 @@ void Vtb_disk___024root___nba_sequent__TOP__0(Vtb_disk___024root* vlSelf) {
                                                    : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CIAInc_15))) 
                                               & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__TLinkEn_p_)))));
         }
-    }
-    if (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_c12__DOT__ck_d)) 
-         & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__QClock_p_))) {
-        vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_c12__DOT__q 
-            = ((0U == (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__QshiftL_p_) 
-                        << 1U) | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__QshiftR_p_)))
-                ? ((((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_11a) 
-                     << 3U) | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_10a) 
-                               << 2U)) | (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_09a) 
-                                           << 1U) | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_08a)))
-                : ((1U == (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__QshiftL_p_) 
-                            << 1U) | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__QshiftR_p_)))
-                    ? ((8U & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_c11__DOT__q) 
-                              << 3U)) | (7U & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_c12__DOT__q) 
-                                               >> 1U)))
-                    : ((2U == (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__QshiftL_p_) 
-                                << 1U) | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__QshiftR_p_)))
-                        ? ((0x0000000eU & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_c12__DOT__q) 
-                                           << 1U)) 
-                           | (1U & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_c11__DOT__q) 
-                                    >> 3U))) : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_c12__DOT__q))));
     }
 }

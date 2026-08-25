@@ -191,6 +191,15 @@ void Vtb_disk___024root___nba_sequent__TOP__4(Vtb_disk___024root* vlSelf) {
     CData/*4:0*/ __Vtableidx324;
     __Vtableidx324 = 0;
     // Body
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContB__DOT__RBMux_09 
+        = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContB__DOT__True) 
+            & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__BMux_09)) 
+           | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContB__DOT__RBMux_09___05Fc02_13));
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_2 = (1U 
+                                                & (~ 
+                                                   ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__Link_u_BMuxb)
+                                                     ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__BMux_09)
+                                                     : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__CIAInc_09))));
     vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_09 
         = (1U & ((~ ((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_a11__DOT__qa)) 
                      | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__BMux_09))) 

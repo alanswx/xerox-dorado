@@ -1416,7 +1416,7 @@ module tb_disk;
   integer n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
-  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv, n_wclk, n_co, n_cntdone, n_ramcl, n_lastram, n_wecond, n_werise; reg g15we_d; reg [3:0] wdata_lo, wdata_hi; reg [3:0] alub_hi, alub_fall, wdata_fall; reg ff4_at_wr, ff4_fall; integer n_fall, n_alub_ok, n_alub_ok_wr;
+  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv, n_wclk, n_co, n_cntdone, n_ramcl, n_lastram, n_wecond, n_werise; reg g15we_d; reg [3:0] wdata_lo, wdata_hi; reg [3:0] alub_hi, alub_fall, wdata_fall; reg ff4_at_wr, ff4_fall; integer n_fall, n_alub_ok, n_alub_ok_wr, n_iob_lit;
   // Two one-shot dump windows: one triggered by the DATA arriving on B, one by
   // the WRITE PULSE opening. Whichever leads, the other window shows it.
   integer dwin_d, dwin_w, n_wrshow; reg dtrig_d, dtrig_w; reg [3:0] alub_prev; reg wclk_d, ramcl_d; reg [3:0] ramaddr_last; reg bclkb_d; reg [15:0] shreg_first, shreg_last; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
@@ -1437,7 +1437,7 @@ module tb_disk;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; dwin_d=-1; dwin_w=-1; dtrig_d=1'b0; dtrig_w=1'b0; alub_prev=4'bx; n_wrshow=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; n_iob_lit=0; dwin_d=-1; dwin_w=-1; dtrig_d=1'b0; dtrig_w=1'b0; alub_prev=4'bx; n_wrshow=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
     // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
     want_tioa = $test$plusargs("tag")  ? 8'o014 :
                 $test$plusargs("muff") ? 8'o011 :
@@ -1805,6 +1805,16 @@ module tb_disk;
     if (!m.b_ProcH.Curr_eq_Next_p_) n_cn = n_cn + 1;
     if (m.b_ProcH.IOBout) begin
       n_iobout = n_iobout + 1;
+      // COUNT THE DISTRIBUTION, not the last one. `alub_at_out` keeps the LAST
+      // strobe and that has misled twice now -- it read 0000 for the TIOA write
+      // and fcff here, while the run is full of correct values.
+      if ({m.b_ProcH.alub_00a, m.b_ProcH.alub_01a, m.b_ProcH.alub_02a,
+           m.b_ProcH.alub_03a, m.b_ProcH.alub_04a, m.b_ProcH.alub_05a,
+           m.b_ProcH.alub_06a, m.b_ProcH.alub_07a,
+           m.b_ProcL.alub_08a, m.b_ProcL.alub_09a, m.b_ProcL.alub_10a,
+           m.b_ProcL.alub_11a, m.b_ProcL.alub_12a, m.b_ProcL.alub_13a,
+           m.b_ProcL.alub_14a, m.b_ProcL.alub_15a} == 16'h5A00)
+        n_iob_lit = n_iob_lit + 1;
       if (tioa_now == want_tioa) n_tioa_out10 = n_tioa_out10 + 1;
       if (m.b_ProcH.TIOABypass) n_byp_out = n_byp_out + 1;
       byp_at_out <= m.b_ProcH.TIOABypass;
@@ -3031,7 +3041,29 @@ module tb_disk;
       //   IM[1]  TIOA <- B    BSEL 2 (B<-T)      FF = 0o152
       //   IM[2]  Output <- B  BSEL 3 (B<-Q)      FF = 0o036   (or Pd<-Input)
       //   IM[3]  quiet
-      if ($test$plusargs("tlit"))
+      // `+tdata` SWAPS THE ROLES. With `+tlit` the FF literal is the ADDRESS
+      // and Q the data; here Q holds the ADDRESS (jammed once, stable) and the
+      // FF literal is the DATA. That matters for the format RAM, whose sixteen
+      // words must each be CHOSEN -- with +tlit every write carries the same Q.
+      //
+      // The literal only reaches B's HIGH byte (`FF,,0`), so it gives bits
+      // 15..8; a format word is 12 bits (disk.c masks 0x0FFF), so this reaches
+      // bits 11..8 of one. Enough to prove the data path is independent of the
+      // address, not enough for a full format program -- see the note below.
+      //
+      //   IM[0]  T <- FF,,0   BSEL 6, LC 1, FF = the DATA byte
+      //   IM[1]  TIOA <- B    BSEL 3 (B<-Q)   FF = 0o152
+      //   IM[2]  Output <- B  BSEL 2 (B<-T)   FF = 0o036
+      //   IM[3]  quiet
+      if ($test$plusargs("tdata"))
+        build_hunk4(4'd0, 1'b0,
+                    '{4'd0,   4'd0,   4'd0,   4'd0},
+                    '{3'd6,   3'd3,   3'd2,   3'd0},
+                    '{3'd1,   3'd0,   3'd0,   3'd0},
+                    '{3'd4,   3'd4,   3'd4,   3'd4},
+                    '{8'h5A,  8'o152, 8'o036, 8'o000},
+                    '{8'o201, 8'o202, 8'o203, 8'o200});
+      else if ($test$plusargs("tlit"))
         build_hunk4(4'd0, 1'b0,
                     '{4'd0,   4'd0,   4'd0,   4'd0},
                     '{3'd6,   3'd2,   3'd3,   3'd0},
@@ -3104,7 +3136,7 @@ module tb_disk;
         // Measured: 0x00C0 gives ReadBlock 3798 / Active 0, and the default
         // 5a5a -- whose op1 is {0,1} = WRITE and which happens to carry
         // 0x0200 -- gives ReadBlock 0 / Active 3797.
-        if ($test$plusargs("qaddr"))
+        if ($test$plusargs("qaddr") || $test$plusargs("tdata"))
           set_cpreg_plain({want_tioa, 8'h00});   // Q = the TIOA address
         else if ($test$plusargs("read")) set_cpreg_plain(16'h02C0);
         else                        set_cpreg_plain(16'h5A5A);
@@ -4023,6 +4055,8 @@ module tb_disk;
              n_iob_nz, n_tot, n_iob_any);
     $display("tb_disk:   THE STROBE -- IOBout high on %0d of %0d, and alub at that moment = %h",
              n_iobout, n_tot, alub_at_out);
+    $display("tb_disk:   THE DATA WORD -- of %0d strobes, %0d carried the FF literal 5a00",
+             n_iobout, n_iob_lit);
       $display("tb_disk:   THE ADDRESS AT THE STROBE -- TIOA held %o on %0d of %0d samples; of %0d IOBout strobes %0d carried it (last %o)",
                want_tioa, n_tioa10, n_tot, n_iobout, n_tioa_out10, tioa_at_out);
       $display("tb_disk:   THE MUX -- TIOAWrite' asserted %0d, TIOABypass high %0d, Curr=Next' asserted %0d (of %0d); at the strobe bypass=%b ff4=%b RAM nibble=%b, and %0d of %0d strobes had the bypass ON",
@@ -4479,6 +4513,20 @@ module tb_disk;
           $fatal(1, "IndexTW dropped without a DISKMUFF write (%0d of %0d)",
                  n_idxtw_run, n_tot);
       end
+      // GATE: THE ADDRESS AND THE DATA ARE INDEPENDENTLY CHOSEN. `+tdata` puts
+      // the ADDRESS in Q (jammed once, stable) and the DATA in an FF literal
+      // loaded into T from IM every pass. Both halves must hold: every strobe
+      // finds the address, AND the data on B is the literal rather than the
+      // address. Without this the format RAM can only ever be written with its
+      // own address sixteen times over.
+      if ($test$plusargs("tdata")) begin
+        if (n_tioa_out10 !== n_iobout)
+          $fatal(1, "only %0d of %0d strobes carried the address", n_tioa_out10, n_iobout);
+        if (n_iob_lit == 0)
+          $fatal(1, "no strobe carried the FF literal -- the data is not independent of the address");
+        $display("tb_disk:   ...so address and data are INDEPENDENT: all %0d strobes addressed, %0d carried the literal",
+                 n_tioa_out10, n_iob_lit);
+      end
       // GATE: WITH THE ADDRESS AS AN FF LITERAL, THE LOOP DRIVES REAL TRAFFIC.
       // `+tlit` loads T from `FF,,0` (BSEL 6) EVERY PASS -- executed, so the
       // per-task file fills and cannot decay -- which frees Q to carry a
@@ -4774,14 +4822,14 @@ module tb_disk;
     // reloads T and rewrites TIOA every pass for the whole run, so these
     // counters would be measuring the LOOP, not the jam. Skipping is the honest
     // move; asserting here would be measuring the wrong thing.
-    if (!$test$plusargs("tlit")) begin
+    if (!$test$plusargs("tlit") && !$test$plusargs("tdata")) begin
       if (n_tw != 0)
         $fatal(1, "a JAMMED TIOA<-B asserted TIOAWrite' %0d times -- IgnoreCommands should block the store", n_tw);
       if (n_byp != 0)
         $fatal(1, "a JAMMED TIOA<-B raised TIOABypass %0d times -- g19 should not decode a jam as TIOA<-B", n_byp);
       $display("tb_disk:   ...so a jam reaches NEITHER path: no store, no bypass (the loop is the real test)");
     end else
-      $display("tb_disk:   (skipped) the jam-reaches-neither-path check needs a quiet machine; +tlit's loop never stops");
+      $display("tb_disk:   (skipped) the jam-reaches-neither-path check needs a quiet machine; the +tlit/+tdata loop never stops");
     if ({m.b_DskEth.TIOA_0, m.b_DskEth.TIOA_1, m.b_DskEth.TIOA_2,
          m.b_DskEth.TIOA_3, m.b_DskEth.TIOA_4} !== 5'b11111)
       $display("tb_disk: (relaxed) the TIOADly check is DispY's -- DskEth compares TIOA directly");
