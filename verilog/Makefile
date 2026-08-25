@@ -200,11 +200,13 @@ disk-tag-test:
 disk-input-test:
 	@$(MAKE) -C verilator disk-input-test
 
-# THE MUFFLER REACHES IOB ON ONE BIT, and the Hardware Manual names which.
-# A netlist property, so it is checked against the wire list directly rather
-# than by running a machine.
-disk-muffler-check:
-	@cd .. && python3 tools/sil_check_muffler.py
+# THE DISK/ETHERNET READ MULTIPLEXER, checked against both C models. A netlist
+# property, so it is read from the wire list directly rather than by running a
+# machine: the muffler reaches IOB on bit 15 alone (HM pp.101-102, disk.c's
+# 0x0001) and the host number occupies IOB.00-07, the high byte (ethernet.c's
+# local_host << 8).
+disk-read-check:
+	@cd .. && python3 tools/sil_check_diskread.py
 
 # A WORD INTO THE STORAGE ARRAY: the msa board standalone, where the bench owns
 # the DRAM strobes, so a write can be driven without a memory reference.
