@@ -6283,13 +6283,13 @@ void Vtb_disk___024root___nba_sequent__TOP__1(Vtb_disk___024root* vlSelf) {
     }
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_e09__DOT__q 
         = vlSelfRef.__Vdly__tb_disk__DOT__m__DOT__b_MemD__DOT__u_e09__DOT__q;
-    if (vlSelfRef.__VdlySet__tb_disk__DOT__m__DOT__b_ProcH__DOT__u_g15__DOT__mem__v0) {
-        vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_g15__DOT__mem[vlSelfRef.__VdlyDim0__tb_disk__DOT__m__DOT__b_ProcH__DOT__u_g15__DOT__mem__v0] 
-            = vlSelfRef.__VdlyVal__tb_disk__DOT__m__DOT__b_ProcH__DOT__u_g15__DOT__mem__v0;
-    }
     if (vlSelfRef.__VdlySet__tb_disk__DOT__m__DOT__b_ProcH__DOT__u_h15__DOT__mem__v0) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_h15__DOT__mem[vlSelfRef.__VdlyDim0__tb_disk__DOT__m__DOT__b_ProcH__DOT__u_h15__DOT__mem__v0] 
             = vlSelfRef.__VdlyVal__tb_disk__DOT__m__DOT__b_ProcH__DOT__u_h15__DOT__mem__v0;
+    }
+    if (vlSelfRef.__VdlySet__tb_disk__DOT__m__DOT__b_ProcH__DOT__u_g15__DOT__mem__v0) {
+        vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_g15__DOT__mem[vlSelfRef.__VdlyDim0__tb_disk__DOT__m__DOT__b_ProcH__DOT__u_g15__DOT__mem__v0] 
+            = vlSelfRef.__VdlyVal__tb_disk__DOT__m__DOT__b_ProcH__DOT__u_g15__DOT__mem__v0;
     }
     if (vlSelfRef.__VdlySet__tb_disk__DOT__m__DOT__b_ProcH__DOT__u_j16__DOT__mem__v0) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_j16__DOT__mem[vlSelfRef.__VdlyDim0__tb_disk__DOT__m__DOT__b_ProcH__DOT__u_j16__DOT__mem__v0] 
@@ -7719,9 +7719,9 @@ void Vtb_disk___024root___nba_sequent__TOP__1(Vtb_disk___024root* vlSelf) {
         = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__clk2_p_Aa;
     vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_a01__DOT__ck_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__TtlCKa_p_;
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_g15__DOT__we_d 
-        = vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__TIOAWrite_p_;
     vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_h15__DOT__we_d 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__TIOAWrite_p_;
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_g15__DOT__we_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__TIOAWrite_p_;
     vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__u_j16__DOT__we_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__MBWrite_p_;

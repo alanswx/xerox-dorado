@@ -424,6 +424,9 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__n_cntdone = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 17803892328692892899ull);
     vlSelf->tb_disk__DOT__n_ramcl = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14149994286544369607ull);
     vlSelf->tb_disk__DOT__n_lastram = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 12543985352007552592ull);
+    vlSelf->tb_disk__DOT__n_wecond = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 2262218739526553727ull);
+    vlSelf->tb_disk__DOT__n_werise = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11016979779056802456ull);
+    vlSelf->tb_disk__DOT__g15we_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15412902082099237119ull);
     vlSelf->tb_disk__DOT__wclk_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14639031403042899842ull);
     vlSelf->tb_disk__DOT__ramcl_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1390504289253909738ull);
     vlSelf->tb_disk__DOT__ramaddr_last = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 16210716479819333450ull);
@@ -9602,6 +9605,11 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__2718__b1 = 0;
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__2718__tb_disk__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__2718__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2752__fn = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2752__data = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2752__ss = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2752__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__2752__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;

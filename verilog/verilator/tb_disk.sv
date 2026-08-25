@@ -1416,7 +1416,7 @@ module tb_disk;
   integer n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
-  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv, n_wclk, n_co, n_cntdone, n_ramcl, n_lastram; reg wclk_d, ramcl_d; reg [3:0] ramaddr_last; reg bclkb_d; reg [15:0] shreg_first, shreg_last; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
+  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv, n_wclk, n_co, n_cntdone, n_ramcl, n_lastram, n_wecond, n_werise; reg g15we_d; reg wclk_d, ramcl_d; reg [3:0] ramaddr_last; reg bclkb_d; reg [15:0] shreg_first, shreg_last; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
   integer n_dyclk, n_twr11, n_wdht, n_tot, n_igc_lo, n_sel, n_sel_free, n_iob_ok, n_iob_nz, n_iob_any, n_iobout, n_q_held, n_q_chg, n_out_q, n_acur, n_anext, n_afifo, n_dwt;
   reg [15:0] q_now, q_last;
   reg [15:0] alub_at_out;
@@ -1434,7 +1434,7 @@ module tb_disk;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
     // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
     want_tioa = $test$plusargs("tag")  ? 8'o014 :
                 $test$plusargs("muff") ? 8'o011 :
@@ -1681,6 +1681,15 @@ module tb_disk;
     // task is not switching". During `Output<-` it must be LOW, so that g14
     // delivers the RAM's stored per-task address instead.
     if (!m.b_ProcH.TIOAWrite_p_) n_tw = n_tw + 1;
+    // THE WRITE CONDITION, INSIDE THE CELL. g15's CE' (p3) is UNCONNECTED in
+    // the instantiation -- the wire list leaves that pin open, and an open MECL
+    // input sits at VEE and reads 0. Whether that holds in the elaborated
+    // model decides whether `if (p13 && !we_d && !p3)` can ever fire, so read
+    // the cell's own pins rather than reasoning about it.
+    if (m.b_ProcH.u_g15.p13 && !m.b_ProcH.u_g15.we_d && !m.b_ProcH.u_g15.p3)
+      n_wecond = n_wecond + 1;
+    if (m.b_ProcH.TIOAWrite_p_ && !g15we_d) n_werise = n_werise + 1;
+    g15we_d = m.b_ProcH.TIOAWrite_p_;
     if (m.b_ProcH.TIOABypass)    n_byp = n_byp + 1;
     if (!m.b_ProcH.Curr_eq_Next_p_) n_cn = n_cn + 1;
     if (m.b_ProcH.IOBout) begin
@@ -3835,6 +3844,32 @@ module tb_disk;
                n_rdblk, n_tot, n_actv);
       $display("tb_disk:   THE FORMAT RAM -- RamCl'C edges %0d, LastRamAddr' asserted on %0d, address now %b",
                n_ramcl, n_lastram, ramaddr_last);
+      // THE PER-TASK TIOA FILE IS A PAIR, and reading only half of it is a way
+      // to invent a bug. g15 holds TIOA.0-3 and h15 TIOA.4-7 -- both F10145A,
+      // both WE' = TIOAWrite', both addressed by LastNext. For TIOA = 010B =
+      // 00001000 the LOW nibble is legitimately 0000 and the set bit is TIOA.4,
+      // which lives in h15. (ProcH's other per-task files, for the record:
+      // e13/i11/l03/l04 hold T and j16/j17 MemBase -- and those are addressed by
+      // CurrLast, not LastNext.)
+      $display("tb_disk:   TIOA WRITE COND -- g15 p3(CE')=%b, TIOAWrite' RISING edges %0d, cell write condition true on %0d samples",
+               m.b_ProcH.u_g15.p3, n_werise, n_wecond);
+      $display("tb_disk:   TIOA RAM g15 -- [0]=%b [1]=%b [2]=%b [3]=%b [4]=%b [5]=%b [6]=%b [7]=%b",
+               m.b_ProcH.u_g15.mem[0], m.b_ProcH.u_g15.mem[1],
+               m.b_ProcH.u_g15.mem[2], m.b_ProcH.u_g15.mem[3],
+               m.b_ProcH.u_g15.mem[4], m.b_ProcH.u_g15.mem[5],
+               m.b_ProcH.u_g15.mem[6], m.b_ProcH.u_g15.mem[7]);
+      $display("tb_disk:   TIOA RAM h15 -- [0]=%b [1]=%b [2]=%b [3]=%b [4]=%b [5]=%b [6]=%b [7]=%b",
+               m.b_ProcH.u_h15.mem[0], m.b_ProcH.u_h15.mem[1],
+               m.b_ProcH.u_h15.mem[2], m.b_ProcH.u_h15.mem[3],
+               m.b_ProcH.u_h15.mem[4], m.b_ProcH.u_h15.mem[5],
+               m.b_ProcH.u_h15.mem[6], m.b_ProcH.u_h15.mem[7]);
+      $display("tb_disk:   TIOA RAM h15 -- [8]=%b [9]=%b [10]=%b [11]=%b [12]=%b [13]=%b [14]=%b [15]=%b | read address LastNext = %b%b%b%b",
+               m.b_ProcH.u_h15.mem[8], m.b_ProcH.u_h15.mem[9],
+               m.b_ProcH.u_h15.mem[10], m.b_ProcH.u_h15.mem[11],
+               m.b_ProcH.u_h15.mem[12], m.b_ProcH.u_h15.mem[13],
+               m.b_ProcH.u_h15.mem[14], m.b_ProcH.u_h15.mem[15],
+               m.b_ProcH.LastNext_0_p_, m.b_ProcH.LastNext_1_p_,
+               m.b_ProcH.LastNext_2_p_, m.b_ProcH.LastNext_3_p_);
       $display("tb_disk:   THE READ PATH -- bIOin' asserted on %0d of %0d, IOB output enable ASSERTED (low) on %0d (IOB there = %h)",
                n_iobin, n_tot, n_ioen, iob_at_en);
       // CAN A BENCH PRESENT A DRIVE AT ALL? The 25 drive-interface nets are
