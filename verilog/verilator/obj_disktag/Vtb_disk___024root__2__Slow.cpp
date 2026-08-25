@@ -12,8 +12,8 @@ VL_ATTR_COLD void Vtb_disk___024root___eval_stl(Vtb_disk___024root* vlSelf) {
     Vtb_disk__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Locals
-    CData/*0:0*/ __Vinline__act_sequent__TOP__17_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15;
-    __Vinline__act_sequent__TOP__17_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15 = 0;
+    CData/*0:0*/ __Vinline__act_sequent__TOP__18_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15;
+    __Vinline__act_sequent__TOP__18_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15 = 0;
     // Body
     if ((1ULL & vlSelfRef.__VstlTriggered[1U])) {
         Vtb_disk___024root___stl_sequent__TOP__0(vlSelf);
@@ -21,7 +21,7 @@ VL_ATTR_COLD void Vtb_disk___024root___eval_stl(Vtb_disk___024root* vlSelf) {
     }
     if ((1ULL & (vlSelfRef.__VstlTriggered[1U] | vlSelfRef.__VstlTriggered
                  [0U]))) {
-        __Vinline__act_sequent__TOP__17_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15 
+        __Vinline__act_sequent__TOP__18_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15 
             = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c05__DOT__en) 
                & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c05__DOT__p12) 
                   ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p_)));
@@ -29,7 +29,7 @@ VL_ATTR_COLD void Vtb_disk___024root___eval_stl(Vtb_disk___024root* vlSelf) {
             = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c05__DOT__en) 
                 & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EccData_32) 
                    ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c05__DOT__p10))) 
-               | __Vinline__act_sequent__TOP__17_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15);
+               | __Vinline__act_sequent__TOP__18_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15);
     }
 }
 
@@ -178,82 +178,91 @@ VL_ATTR_COLD void Vtb_disk___024root___dump_triggers__act(const VlUnpacked<QData
         VL_DBG_MSGS("         '" + tag + "' region trigger index 38 is active: @( tb_disk.m.TtlOnLine_p___VforceVal)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000027U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 39 is active: @( tb_disk.m.Selected0_p___VforceEn)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 39 is active: @( tb_disk.m.TtlTerm_p___VforceEn)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000028U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 40 is active: @( tb_disk.m.Selected0_p___VforceRd)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 40 is active: @( tb_disk.m.TtlTerm_p___VforceRd)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000029U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 41 is active: @( tb_disk.m.Selected0_p___VforceVal)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 41 is active: @( tb_disk.m.TtlTerm_p___VforceVal)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x0000002aU)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 42 is active: @( tb_disk.m.b_DskEth.TIOA_0)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 42 is active: @( tb_disk.m.Selected0_p___VforceEn)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x0000002bU)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 43 is active: @( tb_disk.m.b_DskEth.TIOA_0__VforceEn)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 43 is active: @( tb_disk.m.Selected0_p___VforceRd)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x0000002cU)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 44 is active: @( tb_disk.m.b_DskEth.TIOA_0__VforceRd)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 44 is active: @( tb_disk.m.Selected0_p___VforceVal)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x0000002dU)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 45 is active: @( tb_disk.m.b_DskEth.TIOA_0__VforceVal)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 45 is active: @( tb_disk.m.b_DskEth.TIOA_0)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x0000002eU)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 46 is active: @( tb_disk.m.b_DskEth.TIOA_1)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 46 is active: @( tb_disk.m.b_DskEth.TIOA_0__VforceEn)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x0000002fU)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 47 is active: @( tb_disk.m.b_DskEth.TIOA_1__VforceEn)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 47 is active: @( tb_disk.m.b_DskEth.TIOA_0__VforceRd)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000030U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 48 is active: @( tb_disk.m.b_DskEth.TIOA_1__VforceRd)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 48 is active: @( tb_disk.m.b_DskEth.TIOA_0__VforceVal)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000031U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 49 is active: @( tb_disk.m.b_DskEth.TIOA_1__VforceVal)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 49 is active: @( tb_disk.m.b_DskEth.TIOA_1)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000032U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 50 is active: @( tb_disk.m.b_DskEth.TIOA_2)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 50 is active: @( tb_disk.m.b_DskEth.TIOA_1__VforceEn)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000033U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 51 is active: @( tb_disk.m.b_DskEth.TIOA_2__VforceEn)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 51 is active: @( tb_disk.m.b_DskEth.TIOA_1__VforceRd)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000034U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 52 is active: @( tb_disk.m.b_DskEth.TIOA_2__VforceRd)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 52 is active: @( tb_disk.m.b_DskEth.TIOA_1__VforceVal)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000035U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 53 is active: @( tb_disk.m.b_DskEth.TIOA_2__VforceVal)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 53 is active: @( tb_disk.m.b_DskEth.TIOA_2)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000036U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 54 is active: @( tb_disk.m.b_DskEth.TIOA_3)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 54 is active: @( tb_disk.m.b_DskEth.TIOA_2__VforceEn)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000037U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 55 is active: @( tb_disk.m.b_DskEth.TIOA_3__VforceEn)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 55 is active: @( tb_disk.m.b_DskEth.TIOA_2__VforceRd)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000038U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 56 is active: @( tb_disk.m.b_DskEth.TIOA_3__VforceRd)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 56 is active: @( tb_disk.m.b_DskEth.TIOA_2__VforceVal)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x00000039U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 57 is active: @( tb_disk.m.b_DskEth.TIOA_3__VforceVal)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 57 is active: @( tb_disk.m.b_DskEth.TIOA_3)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x0000003aU)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 58 is active: @( tb_disk.m.b_DskEth.TIOA_4)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 58 is active: @( tb_disk.m.b_DskEth.TIOA_3__VforceEn)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x0000003bU)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 59 is active: @( tb_disk.m.b_DskEth.TIOA_4__VforceEn)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 59 is active: @( tb_disk.m.b_DskEth.TIOA_3__VforceRd)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x0000003cU)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 60 is active: @( tb_disk.m.b_DskEth.TIOA_4__VforceRd)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 60 is active: @( tb_disk.m.b_DskEth.TIOA_3__VforceVal)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x0000003dU)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 61 is active: @( tb_disk.m.b_DskEth.TIOA_4__VforceVal)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 61 is active: @( tb_disk.m.b_DskEth.TIOA_4)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x0000003eU)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 62 is active: @([hybrid] tb_disk.m.b_DskEth.EccComputeErr_p_)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 62 is active: @( tb_disk.m.b_DskEth.TIOA_4__VforceEn)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 0x0000003fU)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 63 is active: @(posedge tb_disk.sys_clk)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 63 is active: @( tb_disk.m.b_DskEth.TIOA_4__VforceRd)\n");
     }
     if ((1U & (IData)(triggers[1U]))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 64 is active: @([true] __VdlySched.awaitingCurrentTime())\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 64 is active: @( tb_disk.m.b_DskEth.TIOA_4__VforceVal)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 1U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 65 is active: @([hybrid] tb_disk.m.b_DskEth.EccComputeErr_p_)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 2U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 66 is active: @(posedge tb_disk.sys_clk)\n");
+    }
+    if ((1U & (IData)((triggers[1U] >> 3U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 67 is active: @([true] __VdlySched.awaitingCurrentTime())\n");
     }
 }
 #endif  // VL_DEBUG
@@ -552,6 +561,9 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__m__DOT__TtlReady_p___VforceRd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3699371368655008925ull);
     vlSelf->tb_disk__DOT__m__DOT__TtlReady_p___VforceEn = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2251876719420841803ull);
     vlSelf->tb_disk__DOT__m__DOT__TtlReady_p___VforceVal = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13080973541904561908ull);
+    vlSelf->tb_disk__DOT__m__DOT__TtlTerm_p___VforceRd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5497118028167282869ull);
+    vlSelf->tb_disk__DOT__m__DOT__TtlTerm_p___VforceEn = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8149946997147066944ull);
+    vlSelf->tb_disk__DOT__m__DOT__TtlTerm_p___VforceVal = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17760291742129895407ull);
     vlSelf->tb_disk__DOT__m__DOT__WantIfuHold_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4802625475109045900ull);
     vlSelf->tb_disk__DOT__m__DOT__WantIfuRef_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16760714828935809894ull);
     vlSelf->tb_disk__DOT__m__DOT__ASEL_0__VforceRd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18373927507782715868ull);
@@ -8420,6 +8432,7 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__Next_eq_EthTx_x3f___05Fp_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15517458852384043435ull);
     vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__NextBlock = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6289902393290636233ull);
     vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__NextBlockCl = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6875307296885358464ull);
+    vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__NotOnLine = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2305854599117375942ull);
     vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__NotSelected = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16701635785883044654ull);
     vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__OutPar_16 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10269960003886347510ull);
     vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__OutPar_17 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4175957516288907030ull);
@@ -8461,6 +8474,7 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__RdOnlyBlock_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15432764609467344877ull);
     vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__RdOnlyData_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14219749771644423355ull);
     vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__ReadData = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2081012601791751744ull);
+    vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__ReadError = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6700820132447738816ull);
     vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__ReadTW_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8237235769850702165ull);
     vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__RxBusRegClk_p_ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 116881990192693101ull);
     vlSelf->tb_disk__DOT__m__DOT__b_DskEth__DOT__RxCRCClk = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15126913211844887146ull);
@@ -9459,14 +9473,12 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__426__tb_disk__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__426__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
     vlSelf->__Vtask_tb_disk__DOT__strobe__427__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelf->__Vtask_tb_disk__DOT__parc_micro__2735__b0 = 0;
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__2735__b1 = 0;
+    vlSelf->__Vtask_tb_disk__DOT__parc_micro__2735__b4 = 0;
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__2735__tb_disk__DOT__unnamedblk1_21__DOT____Vrepeat20 = 0;
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__2735__tb_disk__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__2735__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
-    vlSelf->__Vtask_tb_disk__DOT__strobe__2760__fn = 0;
-    vlSelf->__Vtask_tb_disk__DOT__strobe__2760__data = 0;
-    vlSelf->__Vtask_tb_disk__DOT__strobe__2760__ss = 0;
-    vlSelf->__Vtask_tb_disk__DOT__strobe__2760__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;
@@ -11021,6 +11033,9 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->__Vtrigprevexpr___TOP__tb_disk__DOT__m__DOT__TtlOnLine_p___VforceEn__0 = 0;
     vlSelf->__Vtrigprevexpr___TOP__tb_disk__DOT__m__DOT__TtlOnLine_p___VforceRd__0 = 0;
     vlSelf->__Vtrigprevexpr___TOP__tb_disk__DOT__m__DOT__TtlOnLine_p___VforceVal__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_disk__DOT__m__DOT__TtlTerm_p___VforceEn__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_disk__DOT__m__DOT__TtlTerm_p___VforceRd__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tb_disk__DOT__m__DOT__TtlTerm_p___VforceVal__0 = 0;
     vlSelf->__Vtrigprevexpr___TOP__tb_disk__DOT__m__DOT__Selected0_p___VforceEn__0 = 0;
     vlSelf->__Vtrigprevexpr___TOP__tb_disk__DOT__m__DOT__Selected0_p___VforceRd__0 = 0;
     vlSelf->__Vtrigprevexpr___TOP__tb_disk__DOT__m__DOT__Selected0_p___VforceVal__0 = 0;

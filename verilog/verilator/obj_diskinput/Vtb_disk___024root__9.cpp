@@ -159,6 +159,19 @@ void Vtb_disk___024root___nba_sequent__TOP__4(Vtb_disk___024root* vlSelf) {
     CData/*4:0*/ __Vtableidx320;
     __Vtableidx320 = 0;
     // Body
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_14 
+        = (1U & ((~ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__CurrStkPVal_p_) 
+                     | (~ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__StkP_5) 
+                           ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_k18__DOT__p9))))) 
+                 | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__CurrStkPVal_p_) 
+                    & ((0U == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
+                        ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_13)
+                        : ((1U == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
+                            ? ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_l18__DOT__q) 
+                               >> 1U) : ((2U == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
+                                          ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_6)
+                                          : ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_i17__DOT__q) 
+                                             >> 1U)))))));
     vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_13a 
         = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_c09__DOT__p6) 
            | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_13));
@@ -1633,7 +1646,11 @@ void Vtb_disk___024root___nba_sequent__TOP__4(Vtb_disk___024root* vlSelf) {
                                                ((((~ 
                                                    ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e18__DOT__q) 
                                                     >> 1U)) 
-                                                  & ((0x000000c0U 
+                                                  & (((((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__ReadError) 
+                                                        << 7U) 
+                                                       | (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__ReadError) 
+                                                           | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c09__DOT__qa)) 
+                                                          << 6U)) 
                                                       | (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c09__DOT__qa) 
                                                           << 5U) 
                                                          | (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b12__DOT__qa) 
@@ -1665,16 +1682,16 @@ void Vtb_disk___024root___nba_sequent__TOP__4(Vtb_disk___024root* vlSelf) {
                                                  & (((~ 
                                                       ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e18__DOT__q) 
                                                        >> 1U)) 
-                                                     & ((0x00000010U 
-                                                         | ((((((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c15__DOT__qb) 
-                                                                << 3U) 
-                                                               | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e15__DOT__qb) 
-                                                                  << 2U)) 
-                                                              | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__TtlReady_p___VforceRd) 
-                                                                 << 1U)) 
-                                                             << 4U) 
-                                                            | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__NotSelected) 
-                                                               << 3U))) 
+                                                     & (((((((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c15__DOT__qb) 
+                                                             << 3U) 
+                                                            | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e15__DOT__qb) 
+                                                               << 2U)) 
+                                                           | (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__TtlReady_p___VforceRd) 
+                                                               << 1U) 
+                                                              | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__NotOnLine))) 
+                                                          << 4U) 
+                                                         | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__NotSelected) 
+                                                            << 3U)) 
                                                         >> (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_131))) 
                                                     | ((IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_141) 
                                                        & ((((((2U 
@@ -5411,20 +5428,18 @@ void Vtb_disk___024root___eval_nba(Vtb_disk___024root* vlSelf) {
     Vtb_disk__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Locals
-    CData/*0:0*/ __Vinline__act_sequent__TOP__17_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15;
-    __Vinline__act_sequent__TOP__17_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15 = 0;
+    CData/*0:0*/ __Vinline__act_sequent__TOP__18_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15;
+    __Vinline__act_sequent__TOP__18_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15 = 0;
     // Body
-    if ((0x8000000000000000ULL & vlSelfRef.__VnbaTriggered
-         [0U])) {
+    if ((4ULL & vlSelfRef.__VnbaTriggered[1U])) {
         Vtb_disk___024root___nba_sequent__TOP__0(vlSelf);
         Vtb_disk___024root___nba_sequent__TOP__1(vlSelf);
         Vtb_disk___024root___nba_sequent__TOP__2(vlSelf);
         Vtb_disk___024root___nba_sequent__TOP__3(vlSelf);
         Vtb_disk___024root___nba_sequent__TOP__4(vlSelf);
     }
-    if ((0xc000000000000000ULL & vlSelfRef.__VnbaTriggered
-         [0U])) {
-        __Vinline__act_sequent__TOP__17_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15 
+    if ((6ULL & vlSelfRef.__VnbaTriggered[1U])) {
+        __Vinline__act_sequent__TOP__18_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15 
             = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c05__DOT__en) 
                & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c05__DOT__p12) 
                   ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p_)));
@@ -5432,7 +5447,7 @@ void Vtb_disk___024root___eval_nba(Vtb_disk___024root* vlSelf) {
             = (((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c05__DOT__en) 
                 & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__EccData_32) 
                    ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c05__DOT__p10))) 
-               | __Vinline__act_sequent__TOP__17_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15);
+               | __Vinline__act_sequent__TOP__18_tb_disk__DOT__m__DOT__b_DskEth__DOT__EccComputeErr_p___05F_c05_15);
     }
 }
 
@@ -5441,8 +5456,7 @@ void Vtb_disk___024root___timing_commit(Vtb_disk___024root* vlSelf) {
     Vtb_disk__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    if ((! (0x8000000000000000ULL & vlSelfRef.__VactTriggered
-            [0U]))) {
+    if ((! (4ULL & vlSelfRef.__VactTriggered[1U]))) {
         vlSelfRef.__VtrigSched_hf5f20640__0.commit(
                                                    "@(posedge tb_disk.sys_clk)");
     }
@@ -5453,12 +5467,11 @@ void Vtb_disk___024root___timing_resume(Vtb_disk___024root* vlSelf) {
     Vtb_disk__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    if ((0x8000000000000000ULL & vlSelfRef.__VactTriggered
-         [0U])) {
+    if ((4ULL & vlSelfRef.__VactTriggered[1U])) {
         vlSelfRef.__VtrigSched_hf5f20640__0.resume(
                                                    "@(posedge tb_disk.sys_clk)");
     }
-    if ((1ULL & vlSelfRef.__VactTriggered[1U])) {
+    if ((8ULL & vlSelfRef.__VactTriggered[1U])) {
         vlSelfRef.__VdlySched.resume();
     }
 }

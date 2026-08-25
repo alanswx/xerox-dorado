@@ -4190,6 +4190,15 @@ void Vtb_disk___024root___nba_sequent__TOP__3(Vtb_disk___024root* vlSelf) {
                                             ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TriconD07_sil_pl_4)
                                             : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__TriconD07_sil_pl_2)))))) 
                     ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c12__DOT__p9))));
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__ReadError 
+        = (1U & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__NotSelected) 
+                 | (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c09__DOT__qb)) 
+                     | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c15__DOT__qb) 
+                        | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_c15__DOT__qa) 
+                           | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_b12__DOT__qa) 
+                              | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e15__DOT__qb))))) 
+                    | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__NotOnLine) 
+                       | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__TtlReady_p___VforceRd)))));
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e13__DOT__qa 
         = vlSelfRef.__Vdly__tb_disk__DOT__m__DOT__b_DskEth__DOT__u_e13__DOT__qa;
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__PDCntCtrl 
@@ -10269,17 +10278,4 @@ void Vtb_disk___024root___nba_sequent__TOP__3(Vtb_disk___024root* vlSelf) {
                  & (~ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__FF_0a)
                         ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__FF_5a)
                         : (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_13)))));
-    vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_14 
-        = (1U & ((~ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__CurrStkPVal_p_) 
-                     | (~ ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__StkP_5) 
-                           ^ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_k18__DOT__p9))))) 
-                 | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__CurrStkPVal_p_) 
-                    & ((0U == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                        ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__alub_13)
-                        : ((1U == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                            ? ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_l18__DOT__q) 
-                               >> 1U) : ((2U == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                                          ? (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_6)
-                                          : ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_i17__DOT__q) 
-                                             >> 1U)))))));
 }
