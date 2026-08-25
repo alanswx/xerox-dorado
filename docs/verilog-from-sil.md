@@ -2992,3 +2992,39 @@ in shift mode. Holding the drive's read clock static fails it.
 ComputeECC ? ShiftReg.00 : EccData.32` — the shift register runs both ways, and
 `EccData.32` is what it circulates when the ECC is being computed rather than
 data moved.)*
+
+### The four per-block ops, split by BIT rather than by op (2026-08-25)
+
+Loading a real command meant finding where the control word's operation fields
+land. `include/disk.h` gives them from the manual as four 2-bit fields, one per
+block:
+
+```
+B[8:9] 1st   B[10:11] 2nd   B[12:13] 3rd   B[14:15] 4th
+0 = Done, 1 = Write, 2 = Read+Check, 3 = Read
+```
+
+The board holds them as **two parallel 4-bit shift registers, split by BIT of
+the op rather than by op**:
+
+```
+f14 (F10000):  D0-D3 = bIOB.08, bIOB.10, bIOB.12, bIOB.14   the EVEN bits
+f15 (F10000):  D0-D3 = bIOB.09, bIOB.11, bIOB.13, bIOB.15   the ODD  bits
+both:          PE' = Active     MR = DisableRun     CC = ContRegCl'
+```
+
+`PE' = Active` is the whole mechanism: an F10000 parallel-loads when PE' is low
+and shifts when it is high, so the pair **loads the four ops while the
+controller is idle and shifts one op per block while it runs**. `MR =
+DisableRun` clears the sequence when the controller is disabled.
+
+**And it explains a name.** f14's H0 is called `ReadBlock` — it is the HIGH bit
+of the current op, which is 1 for both Read+Check (2) and Read (3). "This block
+reads." f15's H0 carries the low bit that separates them.
+
+Gated in `disk-read-check`. The mutation that matters is the natural wrong
+guess: expecting `bIOB.08-11` on f14, i.e. the ops split one-per-register. It
+fails.
+
+So a first-block READ is control word `0x00C0` (op 3 at shift 6) — the command
+the next step loads.

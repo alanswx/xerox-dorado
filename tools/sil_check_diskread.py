@@ -46,6 +46,22 @@ MSB-first, so IOB.04 is 0x0800 -- and `disk.c` names the same four values:
 Every one of d19's other mux inputs is `DisableRun`, so disabling the
 controller asserts all four clears -- which is why disk.c's CLR_ENABLE_RUN
 branch zeroes index_tw, sector_tw and tag_tw in the same breath.
+
+AND THE FOUR PER-BLOCK OPS. disk.h gives the rest of the control word as four
+2-bit operation fields, one per block:
+
+    B[8:9] 1st   B[10:11] 2nd   B[12:13] 3rd   B[14:15] 4th
+    0 = Done, 1 = Write, 2 = Read+Check, 3 = Read
+
+The board holds them as TWO PARALLEL 4-BIT SHIFT REGISTERS, one per bit of the
+op rather than one per op: f14 takes the EVEN bits (bIOB.08/.10/.12/.14) and
+f15 the ODD (bIOB.09/.11/.13/.15). Both are F10000s with PE' = `Active`, so
+they PARALLEL-LOAD while the controller is idle and SHIFT while it runs --
+stepping one op per block -- and MR = `DisableRun` clears the sequence.
+
+f14's H0 is named `ReadBlock`, and that follows: it is the HIGH bit of the
+current op, which is 1 for both Read+Check (2) and Read (3). "This block
+reads."
 """
 import glob
 import sys
@@ -128,14 +144,31 @@ def main() -> int:
             failures.append(f"{bit} drives {out}, not {want[0]}; disk.c gives "
                             f"that bit the value 0x{want[1]:04x}")
 
+    # 4. the four per-block ops (write side), f14/f15 -- two 4-bit shift
+    #    registers split by BIT of the op, not by op.
+    OPS = {'f14': [f'bIOB.{i:02d}' for i in (8, 10, 12, 14)],
+           'f15': [f'bIOB.{i:02d}' for i in (9, 11, 13, 15)]}
+    D_PINS = (11, 10, 9, 7)                       # F10000 D0..D3
+    print()
+    for pkg, want in OPS.items():
+        got = [pin_of.get(pkg, {}).get(k) for k in D_PINS]
+        print(f"  {pkg}: D0-D3 = {', '.join(g or '-' for g in got)}  "
+              f"PE'={pin_of.get(pkg, {}).get(5)}  MR={pin_of.get(pkg, {}).get(12)}")
+        if got != want:
+            failures.append(f"{pkg} takes {got} as the per-block op bits, not {want}")
+        if pin_of.get(pkg, {}).get(5) != 'Active':
+            failures.append(f"{pkg}'s PE' is {pin_of.get(pkg, {}).get(5)}, not Active -- "
+                            f"it must load while idle and shift while running")
+
     if failures:
         for f in failures:
             print(f"FAIL: {f}")
         return 1
     print(f"PASS: the muffler reaches IOB on {MUFFLER_BIT} alone (HM pp.101-102, "
           f"disk.c's 0x0001), and Host.0-7 occupy IOB.00-07, the high byte "
-          f"(ethernet.c's local_host << 8), and the four DISKMUFF clear bits sit "
-          f"where disk.c's constants put them")
+          f"(ethernet.c's local_host << 8), the four DISKMUFF clear bits sit "
+          f"where disk.c's constants put them, and the four per-block ops split "
+          f"by BIT across f14/f15")
     return 0
 
 
