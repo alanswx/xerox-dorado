@@ -510,6 +510,18 @@ disk-cmd-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_diskcmd/tb_diskcmd +slowio +read 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_disk|Assertion"; exit $$rc; }
 
+# THE FORMAT RAM: a DISKRAM write steps b21, the format-RAM address counter.
+disk-ram-test:
+	@cd ../.. && $(V) --binary --top-module tb_disk $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_diskram -o tb_diskram \
+		verilog/verilator/tb_disk.sv verilog/generated/dorado_disk.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v verilog/generated/DskEth-Rev-*.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_diskram/tb_diskram +slowio +ram 2>&1); \
+		  rc=$$?; echo "$$out" | grep -E "tb_disk|Assertion"; exit $$rc; }
+
 # THE OTHER DIRECTION: a Pd<-Input in the loop, so the BOARD drives IOB back.
 disk-input-test:
 	@cd ../.. && $(V) --binary --top-module tb_disk $(V_WARN) \
