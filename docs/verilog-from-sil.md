@@ -3401,3 +3401,37 @@ walk is already gated), then feed bits either through the cable (proven to reach
 `PreReadData`) or through the DISKMUFF diagnostic path. Writing sixteen
 ARBITRARY words, which is what `+ram +qaddr` does today, walks the address
 counter but cannot produce a working field sequence -- the contents matter.
+
+### Address and data, independently chosen (2026-08-25)
+
+Loading a real format program needs sixteen DIFFERENT words, and until now the
+loop could only carry one value: `+qaddr` made the data equal to the address,
+`+tlit` freed Q for the data but Q is one word per run.
+
+`+tdata` swaps the roles: **the ADDRESS sits in Q** (jammed once, stable) and
+**the DATA is an FF literal loaded into T from IM every pass**. Two-sided:
+
+```
++ram +tdata :  all 960 strobes carry the address,  768 carry the literal 5a00
++ram +qaddr :  all 960 strobes carry the address,    0 carry it (data == address)
+```
+
+with the format RAM still walking to `LastRamAddr'`. `disk-ram-test` runs
+`+ram +tdata` and gates both halves; pointing the data back at Q fails it.
+
+**The remaining limit is honest and small**: an FF literal is `FF,,0`, so it
+reaches B's HIGH byte only -- bits 15..8 -- while a format word is 12 bits
+(`disk.c` masks `0x0FFF`). So this can choose bits 11..8 of a format entry, not
+all twelve, and every pass writes the SAME literal. Writing sixteen distinct
+12-bit words needs the loop to vary its data per slot -- a longer hunk with a
+different FF literal in each, which `build_hunk4` can do four at a time via
+`send_a_hunk` at IM[0], IM[4], IM[8], IM[12].
+
+*A measurement habit, stated because it has now misled twice.* `alub_at_out`
+keeps the LAST strobe of a run. It read `0000` for the TIOA write and `fcff`
+here, in both cases while the run was full of correct values. Counters over the
+whole run are the honest reading; a single captured sample is only a hint.
+
+*And the same scoping as before:* `+tdata`'s loop never stops, so the post-run
+"a jam reaches neither path" window is skipped in that mode too -- it would be
+measuring the loop.
