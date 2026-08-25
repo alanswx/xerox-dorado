@@ -208,6 +208,13 @@ disk-input-test:
 disk-read-check:
 	@cd .. && python3 tools/sil_check_diskread.py
 
+# THE TRIDENT DRIVE INTERFACE: the list a drive model has to satisfy, taken
+# from the packages that translate between ECL and the cable rather than from
+# a pinout document. Gated because a generator change can silently drop a
+# cable signal.
+disk-interface-check:
+	@cd .. && python3 tools/sil_disk_interface.py
+
 # A WORD INTO THE STORAGE ARRAY: the msa board standalone, where the bench owns
 # the DRAM strobes, so a write can be driven without a memory reference.
 msa-test:
