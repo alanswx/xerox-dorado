@@ -3061,3 +3061,47 @@ Gated by `disk-cmd-test`, and both mutations bite — dropping SetDebugMode
 Active. b20 is an F10016 whose clock is **`WordClock'`** and whose parallel entry
 comes from a PROM, so the sequencer advances per WORD, not per bit — the next
 thing to drive.
+
+### Why the read path cannot be poked: it is a self-timed loop started by SYNC (2026-08-25)
+
+With a real command loaded and the controller Active, the shifter still does not
+take data. Measured with 32 bit clocks on the cable:
+
+```
+WordClock' EDGES 1,  bit-counter CO' asserted 0,  CntDone' asserted 32
+ShiftIn 0,  ComputeECC 0,  ShiftReg.in 0
+```
+
+**The bit counter never reaches terminal count**, so the word sequencer never
+advances. Tracing why gives the whole structure:
+
+```
+b10 (F10016)  the BIT counter: C = BitClock'A, CE' OPEN (always counting),
+              CO' = TriconD13.sil+1 -- and that is exactly the signal gating
+              WordClock' in d15 (WordClock' = PreBitClock' | TriconD13.sil+1)
+b10's PE'   = TriconD13.sil+3
+            = b09 (MC10231) FF-b: clocked by ShiftIn, SET by sCountBits
+sCountBits  = TriconD13.sil+2 & ShiftReg.15        (c10, MC10104)
+b20 (F10016)  the WORD sequencer: C = WordClock', PE' = CntDone',
+              parallel entry from a PROM, MR = Idle; makes ShiftIn/ComputeECC
+```
+
+So **the bit counter is enabled by the sequencer, and the sequencer is clocked by
+the bit counter's carry** — they bootstrap each other, and what breaks the tie is
+`sCountBits`, which fires when the SYNC PATTERN appears at `ShiftReg.15`.
+
+That is how a Trident read actually begins: the shift register runs continuously
+on the drive's bit clock (proven above), the controller watches bit 15 for the
+sync mark, and only then does the counter start dividing and the PROM sequencer
+step. It is self-timed, and it cannot be started by forcing an intermediate
+signal — it needs a **properly formatted bit stream**: preamble, sync, data, ECC.
+
+This also explains `ShiftReg.in = ComputeECC ? ReadData : EccData.32`. Before
+sync, `ComputeECC` is 0 and the register circulates `EccData.32` rather than
+taking the cable — the controller is hunting, not reading.
+
+**Consequence for the drive model:** step 7 is not "open a gate", it is "write a
+sector formatter". The model must emit the drive's own serial format so the
+controller finds sync by itself. The format RAM (b21, `RamAddr`, `TIOA=Ram'`)
+is what tells the controller the field layout, and `src/disk.c`'s
+`DORADO_DISK_FORMAT_RAM_WORDS` (16) is the same table from the other side.
