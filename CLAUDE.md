@@ -994,6 +994,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **THE PROCESSOR WRITES A WORD TO THE DISPLAY BOARD** | `display-test +slowio` -- nine boards, running microcode: `TIOA<-` puts 370B on the bus, `Output<-` strobes `IOBout` 960 times with `alub`=5a5a, and IOB carries it at the board on exactly 960 samples |
 | **...AND ADDRESSES A DISK REGISTER** | `disk-test` -- nine boards with DskEth; f07 decodes `DISKCONTROL` alone (Cont 1921, Muff/Data/Ram/Tag 0) |
 | **...WITH THE ADDRESS AND THE DATA TOGETHER** | `disk-test`/`display-test` -- the per-task TIOA holds across the `Output<-` that uses it |
+| **THE DISK CONTROLLER OBEYS A COMMAND** | `disk-test` -- `ControlRegCl` clocks, and DebugMode/BlockTillIndex/EnableRun take the bits `include/disk.h` assigns them |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
 Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is

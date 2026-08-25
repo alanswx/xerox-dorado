@@ -15,6 +15,54 @@ void Vtb_disk___024root___nba_sequent__TOP__1(Vtb_disk___024root* vlSelf) {
     tb_disk__DOT__dad_now = 0;
     VlWide<4>/*127:0*/ __Vtemp_4;
     // Body
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_d19__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_d19__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_d09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g09__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g09__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g11__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g11__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g13__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g13__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g15__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g15__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g17__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g17__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g19__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g19__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_g09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j09__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j09__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j11__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j11__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j13__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j13__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j15__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j15__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j17__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j17__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j19__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j19__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_j09__DOT__a];
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j19__DOT__ck_d 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__Clock1_p_Da;
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_k22__DOT__ck_d 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__Clock1_p_Da;
+    vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l19__DOT__ck_d 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__Clock1_p_Da;
+    vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_a05__DOT__dout_r 
+        = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_a05__DOT__mem
+        [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_a03__DOT__a];
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_a07__DOT__dout_r 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_a07__DOT__mem
         [vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_a03__DOT__a];
@@ -7729,16 +7777,6 @@ void Vtb_disk___024root___nba_sequent__TOP__1(Vtb_disk___024root* vlSelf) {
             = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_h10__DOT__dout_r;
         vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_g10__DOT__dout 
             = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_g10__DOT__dout_r;
-        vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_f10__DOT__dout 
-            = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_f10__DOT__dout_r;
-        vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_f09__DOT__dout 
-            = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_f09__DOT__dout_r;
-        vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_g09__DOT__dout 
-            = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_g09__DOT__dout_r;
-        vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_h09__DOT__dout 
-            = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_h09__DOT__dout_r;
-        vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_i09__DOT__dout 
-            = vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_i09__DOT__dout_r;
     }
     if ((IData)((0x0cU == (0x0eU & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_g26__DOT__q))))) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_msa__DOT__u_f23__DOT__dout 
