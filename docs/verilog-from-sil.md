@@ -3343,3 +3343,61 @@ reason stated, rather than asserted on the wrong thing.
 **Still closed:** `ShiftIn` and `ComputeECC` remain 0 even with a live Active
 read command. That is the self-timed loop from two entries back -- it needs a
 formatted bit stream with a SYNC mark, which is rung 1 proper.
+
+### How a disk read actually starts: the FORMAT RAM drives it (2026-08-25)
+
+Rung 1 was framed as "write a sector formatter that emits preamble/sync/data/ECC
+so the controller finds sync". Tracing the sync condition to its source shows
+that is only half right -- **the controller does not hunt blindly; the FORMAT RAM
+tells it what to expect.**
+
+The chain, all from the wire list:
+
+```
+sCountBits   = (ShiftReg.08 | Tag.000) & ShiftReg.15        c10 (MC10104)
+Tag.000      = e21 (MC10173), a mux selected by `Idle`:
+                 running (Idle=0) -> Ram.04-07   THE FORMAT RAM
+                 idle    (Idle=1) -> bIOB.04-07  the processor
+               clocked by TagClock'
+ShiftRegLd'  = bit-counter CO' | ShiftOut'                  c11 (MC10103)
+b10 PE'      = TriconD13.sil+3 = b09 FF-b, clocked by ShiftIn, SET by sCountBits
+b20          = the word sequencer: C = WordClock', PE' = CntDone', PROM entry
+```
+
+So the bit counter is started by `sCountBits`, whose `Tag.000` term **comes from
+the format RAM while the controller runs**. The format RAM is not a passive
+table the microcode consults -- it is wired into the tag path and programs the
+field sequence directly.
+
+**And `disk.c` says what a word means**, independently:
+
+```c
+uint16_t n = (uint16_t)(ctl->format_ram[block] + 1u);   /* block length, words */
+```
+
+with the muffler read returning `(ram_addr << 12) | (format_ram[ram_addr] &
+0x0FFF)` -- a 12-bit word per entry, the first four being the four blocks'
+lengths. Eighth independent agreement on this board.
+
+**A second entry point, and it is PARC's own diagnostic.** `MufAdr_IOB'` -- "the
+IOB carries a muffler write" -- gates d18 (MC10173), whose D side is
+`bIOB.00-03`:
+
+```
+PreReadData      <- bIOB.00
+PrePreBitClock   <- bIOB.01
+TriconD11.sil+2  <- bIOB.02
+CheckSumErr      <- bIOB.03
+```
+
+So **a DISKMUFF write can drive the read data and the bit clock directly**, one
+bit at a time, with no drive attached. That is what DebugMode is for, and why
+`disk.c` ties `SetDebugMode` to the immediate-start path. The same word also
+carries the muffler address and the four clear controls -- d19 sits on
+`bIOB.04-07` under the same select.
+
+**So rung 1 restates as:** load the format RAM with a real field program (the
+walk is already gated), then feed bits either through the cable (proven to reach
+`PreReadData`) or through the DISKMUFF diagnostic path. Writing sixteen
+ARBITRARY words, which is what `+ram +qaddr` does today, walks the address
+counter but cannot produce a working field sequence -- the contents matter.
