@@ -412,8 +412,12 @@ VL_ATTR_COLD void Vtb_disk___024root___eval_initial__TOP(Vtb_disk___024root* vlS
     vlSelfRef.tb_disk__DOT__tclk_d = 0U;
     vlSelfRef.tb_disk__DOT__cont_first = 0xffffffffU;
     vlSelfRef.tb_disk__DOT__cont_first_sel = 0xffffffffU;
+    vlSelfRef.tb_disk__DOT__n_clridx = 0U;
+    vlSelfRef.tb_disk__DOT__n_idxtw_run = 0U;
     vlSelfRef.tb_disk__DOT__want_tioa = (VL_TESTPLUSARGS_I("tag"s)
-                                          ? 0x0cU : 8U);
+                                          ? 0x0cU : 
+                                         (VL_TESTPLUSARGS_I("muff"s)
+                                           ? 9U : 8U));
     vlSelfRef.tb_disk__DOT__n_ioen = 0U;
     vlSelfRef.tb_disk__DOT__n_iobin = 0U;
     vlSelfRef.tb_disk__DOT__iob_at_en = 0U;

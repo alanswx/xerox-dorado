@@ -163,6 +163,16 @@ void Vtb_disk___024root___nba_sequent__TOP__4(Vtb_disk___024root* vlSelf) {
     CData/*4:0*/ __Vtableidx320;
     __Vtableidx320 = 0;
     // Body
+    vlSelfRef.__VdfgRegularize_h4af1c392_0_74 = ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_4) 
+                                                 | (IData)(vlSelfRef.__VdfgRegularize_h4af1c392_0_72));
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__ProcL17_sil_pl_3 
+        = (1U & ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__DecCnt_p_) 
+                 | (~ (0x0000000fU == (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ProcL__DOT__u_e15__DOT__q)))));
+    vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__bDoCBr 
+        = (1U & (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__ContA05_sil_pl_9)) 
+                  | (~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__ContA05_sil_pl_10))) 
+                 | ((IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_d22__DOT__p10) 
+                    | (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__u_d22__DOT__p11))));
     tb_disk__DOT__m__DOT__DoCBr___05FContA = (1U & 
                                               ((~ (
                                                    (~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_ContA__DOT__bSwitch_p_a)) 
