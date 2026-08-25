@@ -1001,6 +1001,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **...AND THE DRIVE INTERFACE IS ENUMERATED** | `disk-interface-check` -- 46 signals: 4 drives x (Clock pair IN, Data pair BIDIRECTIONAL, SecIndx', Selected'), 9 status in, 13 tag out |
 | **...AND NO DISK IS FABRICATED WHEN NONE IS ATTACHED** | `disk-input-test` -- all 17 active-low cable lines idle DEASSERTED (six of them once read asserted, inventing a drive) |
 | **A TRIDENT PRESENTS ITSELF WITH FOUR CABLE LINES** | `disk-input-test` -- `TtlReady'`+`TtlOnLine'`+`TtlTerm'`+`Selected0'` give `DrSelected`=1 and every drive-side fault clear |
+| **...AND ITS SECTOR PULSE REACHES THE CONTROLLER** | `disk-input-test` -- `Sector` high on 8 of 8 pulses and 0 of 8 GAPS (the gap half is what separates tracking from stuck) |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
 Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is
