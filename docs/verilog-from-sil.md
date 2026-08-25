@@ -3177,3 +3177,41 @@ for T and `j16`/`j17` for MemBase -- both addressed by **CurrLast** -- against
 `g15`/`h15` for TIOA, addressed by **LastNext**. Four F10145A pairs, two
 different task addresses, which is the distinction already recorded for T and
 MemBase.)*
+
+### #31 narrowed: the TIOA write pulse and its data barely overlap (2026-08-25)
+
+Not fixed, but reduced from "the per-task TIOA file reads back zero" to one
+number. Four candidate causes eliminated by measurement:
+
+| candidate | measured | verdict |
+|---|---|---|
+| the RAM is not written | write condition true on **31** samples, 30 WE' rising edges | writes DO happen |
+| `CE'` unconnected breaks it | `p3` reads **0**, as an open MECL input should | not it |
+| `g15` should hold the address | for 010B the LOW nibble IS `0000` | correct as-is |
+| the mux picks the wrong side | `FFdly.4 = 1` at the write, so the B side is selected | correct |
+| a missing nop between the two slow-I/O instructions | every count identical (IOBout 960, TIOAWrite' 240, TIOA-held 128, 32 coincidences) | **rejected** |
+
+What is left is a timing overlap:
+
+```
+alub.04-07 = 1000 on 2815 of 140559 samples,
+and of those only 8 had TIOAWrite' OPEN
+```
+
+The address is on B for ~12 samples per loop pass and the write pulse is open
+for ~8, but they coincide on **0.27 samples per pulse** — and `alub` reads
+`0000` at BOTH the falling and the rising edge of the pulse. So the write is
+open mostly before or after the data, not around it.
+
+**That is a clock-phase question, not a wiring one.** `TIOAWrite'` comes off j18
+riding `PreClock1'D`, and the recorded rule for this machine is that control
+signals come out of registers clocked by `Clock1'` while datapath registers
+clock off the EARLIER `PreClock1'`. The next step is to establish which phase
+`alub` is valid in against which phase `TIOAWrite'` rides, and then decide
+whether the fault is the pulse's placement or `cell_F10145A`'s choice to latch
+on the RISING edge (chosen deliberately, to stop a moving ADDRESS writing
+several cells — but here it is the DATA that moves inside the pulse).
+
+**Consequence meanwhile:** TIOA only ever holds its address through the BYPASS,
+never from the per-task file — which is why the loop lands one register write
+per run, and why rungs 1 and 2 are blocked on this.
