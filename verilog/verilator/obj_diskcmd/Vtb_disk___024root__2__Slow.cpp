@@ -578,7 +578,6 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     }
     vlSelf->tb_disk__DOT__load_format_ram__Vstatic__fw = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11011613890750301032ull);
     vlSelf->tb_disk__DOT__hcount = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14486458125103242207ull);
-    vlSelf->tb_disk__DOT__unnamedblk1_46__DOT____Vrepeat45 = 0;
     vlSelf->tb_disk__DOT__m__DOT__ClkEnable_p_a = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10410962317318354644ull);
     vlSelf->tb_disk__DOT__m__DOT__ClockM0 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18384471694191318406ull);
     vlSelf->tb_disk__DOT__m__DOT__ClockM0__VforceRd = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17948737937404001148ull);
@@ -9635,12 +9634,12 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->__VdfgRegularize_hebeb780c_0_8 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_9 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_10 = 0;
-    vlSelf->__VdfgRegularize_hebeb780c_0_11 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_12 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_13 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_14 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_15 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_16 = 0;
+    vlSelf->__VdfgRegularize_hebeb780c_0_17 = 0;
     vlSelf->__Vdly__tb_disk__DOT__rfshdiv = 0;
     vlSelf->__Vdly__tb_disk__DOT__rfshper = 0;
     vlSelf->__Vdly__tb_disk__DOT__load_pend_rb = 0;

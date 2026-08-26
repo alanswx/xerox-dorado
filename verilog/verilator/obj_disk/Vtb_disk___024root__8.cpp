@@ -8152,7 +8152,7 @@ void Vtb_disk___024root___nba_sequent__TOP__1(Vtb_disk___024root* vlSelf) {
     } else if (((~ (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_MemX__DOT__u_c01__DOT__cka_d)) 
                 & (IData)(vlSelfRef.tb_disk__DOT__m__DOT__b_MemX__DOT__u_c01__DOT__clka))) {
         vlSelfRef.tb_disk__DOT__m__DOT__b_MemX__DOT__u_c01__DOT__qa 
-            = (1U & (IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_14));
+            = (1U & (IData)(vlSelfRef.__VdfgRegularize_hebeb780c_0_15));
     }
     vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_c20__DOT__ck_d 
         = vlSelfRef.tb_disk__DOT__m__DOT__b_MemD__DOT__u_c20__DOT__clk;

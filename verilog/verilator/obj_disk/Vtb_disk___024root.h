@@ -7926,12 +7926,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             CData/*7:0*/ __VdfgRegularize_hebeb780c_0_8;
             CData/*0:0*/ __VdfgRegularize_hebeb780c_0_9;
             CData/*0:0*/ __VdfgRegularize_hebeb780c_0_10;
-            CData/*0:0*/ __VdfgRegularize_hebeb780c_0_11;
-            CData/*7:0*/ __VdfgRegularize_hebeb780c_0_12;
+            CData/*0:0*/ __VdfgRegularize_hebeb780c_0_12;
             CData/*7:0*/ __VdfgRegularize_hebeb780c_0_13;
             CData/*7:0*/ __VdfgRegularize_hebeb780c_0_14;
             CData/*7:0*/ __VdfgRegularize_hebeb780c_0_15;
             CData/*7:0*/ __VdfgRegularize_hebeb780c_0_16;
+            CData/*7:0*/ __VdfgRegularize_hebeb780c_0_17;
             CData/*0:0*/ __Vdly__tb_disk__DOT__rfshper;
             CData/*0:0*/ __Vdly__tb_disk__DOT__load_pend_rb;
             CData/*3:0*/ __Vdly__tb_disk__DOT__m__DOT__b_ContA__DOT__u_a09__DOT__q;
@@ -9739,7 +9739,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             IData/*31:0*/ tb_disk__DOT__ha;
             IData/*31:0*/ tb_disk__DOT__load_format_ram__Vstatic__fw;
             IData/*31:0*/ tb_disk__DOT__hcount;
-            IData/*31:0*/ tb_disk__DOT__unnamedblk1_46__DOT____Vrepeat45;
             IData/*31:0*/ tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j20__DOT__acc;
             IData/*31:0*/ __Vtask_tb_disk__DOT__parc_micro__426__tb_disk__DOT__unnamedblk1_18__DOT____Vrepeat17;
             IData/*31:0*/ __Vtask_tb_disk__DOT__parc_micro__426__tb_disk__DOT__unnamedblk1_19__DOT____Vrepeat18;
@@ -9788,9 +9787,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_a18__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_a19__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_b06__DOT__mem;
+            VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_b07__DOT__mem;
         };
         struct {
-            VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_b07__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_b08__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_b09__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_b10__DOT__mem;
@@ -9854,9 +9853,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_g08__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_g09__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_g10__DOT__mem;
+            VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_g11__DOT__mem;
         };
         struct {
-            VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_g11__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_g14__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_g15__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_g16__DOT__mem;
@@ -9920,9 +9919,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_l14__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_l15__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_l16__DOT__mem;
+            VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_l17__DOT__mem;
         };
         struct {
-            VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_l17__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_l18__DOT__mem;
             VlUnpacked<CData/*0:0*/, 1024> tb_disk__DOT__m__DOT__b_ContB__DOT__u_l19__DOT__mem;
             VlUnpacked<CData/*7:0*/, 32> tb_disk__DOT__m__DOT__b_ProcH__DOT__u_b07__DOT__mem;
@@ -9986,9 +9985,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             VlUnpacked<CData/*3:0*/, 16> tb_disk__DOT__m__DOT__b_MemC__DOT__u_k03__DOT__mem;
             VlUnpacked<CData/*3:0*/, 16> tb_disk__DOT__m__DOT__b_MemC__DOT__u_l04__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_MemD__DOT__u_a03__DOT__mem;
+            VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_MemD__DOT__u_a05__DOT__mem;
         };
         struct {
-            VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_MemD__DOT__u_a05__DOT__mem;
             VlUnpacked<CData/*3:0*/, 16> tb_disk__DOT__m__DOT__b_MemD__DOT__u_a06__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_MemD__DOT__u_a07__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_MemD__DOT__u_a09__DOT__mem;
@@ -10052,9 +10051,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_MemX__DOT__u_d10__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_MemX__DOT__u_d11__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_MemX__DOT__u_d12__DOT__mem;
+            VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_MemX__DOT__u_d13__DOT__mem;
         };
         struct {
-            VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_MemX__DOT__u_d13__DOT__mem;
             VlUnpacked<CData/*3:0*/, 16> tb_disk__DOT__m__DOT__b_MemX__DOT__u_e16__DOT__mem;
             VlUnpacked<CData/*3:0*/, 16> tb_disk__DOT__m__DOT__b_MemX__DOT__u_e20__DOT__mem;
             VlUnpacked<CData/*3:0*/, 16> tb_disk__DOT__m__DOT__b_MemX__DOT__u_e21__DOT__mem;
@@ -10118,9 +10117,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_d12__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_d15__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_d16__DOT__mem;
+            VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_d17__DOT__mem;
         };
         struct {
-            VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_d17__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_d18__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_d19__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_d20__DOT__mem;
@@ -10184,9 +10183,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_h04__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_h05__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_h06__DOT__mem;
+            VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_h07__DOT__mem;
         };
         struct {
-            VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_h07__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_h08__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_h09__DOT__mem;
             VlUnpacked<CData/*0:0*/, 4096> tb_disk__DOT__m__DOT__b_msa__DOT__u_h10__DOT__mem;
@@ -10250,9 +10249,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_disk___024root final {
             VlUnpacked<CData/*3:0*/, 16> tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j16__DOT__mem;
             VlUnpacked<CData/*3:0*/, 16> tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j17__DOT__mem;
             VlUnpacked<CData/*3:0*/, 256> tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l10__DOT__mem;
+            VlUnpacked<CData/*3:0*/, 256> tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l15__DOT__mem;
         };
         struct {
-            VlUnpacked<CData/*3:0*/, 256> tb_disk__DOT__m__DOT__b_DskEth__DOT__u_l15__DOT__mem;
             VlUnpacked<QData/*63:0*/, 2> __VstlTriggered;
             VlUnpacked<QData/*63:0*/, 2> __VactTriggered;
             VlUnpacked<QData/*63:0*/, 2> __VnbaTriggered;
