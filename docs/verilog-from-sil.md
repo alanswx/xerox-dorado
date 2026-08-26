@@ -3799,3 +3799,56 @@ drive select and subsector count (with the sectors-per-revolution encodings:
 `Tag[4:9] = 3` gives 29 sectors for 256-word blocks), `Tag[1]` head tag,
 `Tag[2]` cylinder tag. That is what the format RAM's entries 04-07 feed, and it
 is what a drive model will have to decode.
+
+### b09's reset checked against the data sheet -- and the answer was a SECOND DRIVER (2026-08-26)
+
+The question was what puts b09 FF-b in the counting state at sector start, since
+its R is open and its only S is `sCountBits`. Checking the part first:
+
+**`cell_MC10231` is correct, and the data sheet gives no power-up guarantee.**
+DL122 rev 7's MC10131 page (the MC10231 is the MECL III version, same pinout):
+
+* **R-S truth table**: `R=L, S=L -> Qn`. With both inactive the flip-flop HOLDS,
+  so power-up is genuinely indeterminate. **Q=1 at power-up cannot be justified
+  from the data sheet**, and that candidate is dead.
+* **"C = CE + CC"** -- the effective clock is the OR of the per-half Clock Enable
+  and the common clock. EclDict's "C" on pins 6/11 is the data sheet's **CE**;
+  pin 9 is CC. The cell already ORs them (fixed 2026-08-16, quoting the same
+  passage), and b09's CC is open, so its clock is `ShiftIn`. Correct.
+* Pin senses confirmed: pin 15 = Q2, pin 14 = Q2-bar, matching EclDict.
+
+**So the model of the part was right, and the gap was a net I had only half
+traced.** `sCountBits` has **TWO drivers, wired-OR**:
+
+```
+c10.3  (MC10104)  (ShiftReg.08 | Tag.000) & ShiftReg.15    the sync detect
+b17.14 (SE10211)  NOR(TIOA=Tag', bIOout', PreClock1'Ca)    -- and b17's SIBLING
+                                                              output, pin 13, is
+                                                              `Tag_IOB`
+```
+
+**`sCountBits` IS the DISKTAG write strobe.** A tag write sets b09 FF-b, whose Q
+is b10's `PE'` (high = count), and b10's carry is what gates `WordClock'`. That
+is exactly how HM p.99's read program gets WordClocks for steps 00-02 -- *issue
+tag, delay, delay* -- before any sync exists; the note at step 03 says
+WordClocks "cease until controller has read sync word from disk", so **sync
+RESUMES the counter rather than starting it.**
+
+Measured, adding one DISKTAG write to `+ram16`:
+
+| | before | after |
+|---|---|---|
+| b10's `PE'` | 0 | **1** |
+| bit-counter `CO'` asserted | 0 | **2** |
+| `WordClock'` edges | 1 | **3** |
+
+Gated in `disk-format-test`; skipping the tag write fails it. This is the
+recorded lesson *"split a wired-OR to find the driver"* applying to a net I had
+traced through only one of its two sources -- and the tell was in the pin list
+all along, `Tag_IOB` and `sCountBits` sitting on the same gate.
+
+*Two placement bugs of my own on the way*, both the same shape: asserting
+`n_co`/`n_wclk` in the format-RAM dump, where those counters are still zero
+because they accumulate in the shifter loop further down; and leaving a stale
+copy of an assertion behind when an edit script aborted before writing. Check
+where a counter is FILLED before asserting on it.
