@@ -440,6 +440,11 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__n_iob_lit = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 12020074286852738952ull);
     vlSelf->tb_disk__DOT__fwgot = VL_SCOPED_RAND_RESET_I(12, __VscopeHash, 9461066285413289671ull);
     vlSelf->tb_disk__DOT__FEDWORD = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 2407712488397027401ull);
+    vlSelf->tb_disk__DOT__n_orw = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 1228481419052171542ull);
+    vlSelf->tb_disk__DOT__n_orf = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 18433769545179884040ull);
+    vlSelf->tb_disk__DOT__n_dsknz = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 2049101377509061667ull);
+    vlSelf->tb_disk__DOT__orw_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13032970146489769300ull);
+    vlSelf->tb_disk__DOT__dskdata_nz = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 14349665469335249112ull);
     vlSelf->tb_disk__DOT__n_irf = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 10506109572085817002ull);
     vlSelf->tb_disk__DOT__irf_d = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15230019959885543990ull);
     vlSelf->tb_disk__DOT__fwaddr_first = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 6262986568550671333ull);
@@ -4635,8 +4640,12 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_6 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3310233253612481386ull);
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC16_sil_pl_2 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14378923217085602503ull);
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_10 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8346496600570611892ull);
+    vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_11 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5211422377855805782ull);
+    vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_12 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13809110106414005417ull);
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_4 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17582890161926135741ull);
+    vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_6 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7461330343848557783ull);
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_7 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15835807311793175295ull);
+    vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_8 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6311498053868163152ull);
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_9 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8981878218822832700ull);
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC18_sil_pl_1 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12207497436144336766ull);
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC18_sil_pl_6 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11090343937775873073ull);
@@ -4815,6 +4824,8 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC15_sil_pl_4___05Fc24_2 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10353142086771670267ull);
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_1___05Fj23_15 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6158457076968895400ull);
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MemC17_sil_pl_1___05Fj23_2 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6981050855583195029ull);
+    vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MiscPCHP_p___05F_i21_3 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10252670095864361077ull);
+    vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__MiscPCHP_p___05F_i21_4 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7989868387095056956ull);
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__NewVacant___05Fh10_15 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 591874315266505937ull);
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__PipeVA_20___05Fg03_2 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6848612499972390221ull);
     vlSelf->tb_disk__DOT__m__DOT__b_MemC__DOT__PipeVA_21___05Fg03_1 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2563907242192876772ull);
@@ -9577,14 +9588,12 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->__VdfgRegularize_h4af1c392_0_94 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_95 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_96 = 0;
-    vlSelf->__VdfgRegularize_h4af1c392_0_97 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_98 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_100 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_101 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_102 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_104 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_105 = 0;
-    vlSelf->__VdfgRegularize_h4af1c392_0_106 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_108 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_109 = 0;
     vlSelf->__VdfgRegularize_h4af1c392_0_111 = 0;
@@ -9644,6 +9653,7 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->__Vtask_tb_disk__DOT__strobe__5510__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
     vlSelf->__Vtask_tb_disk__DOT__strobe__5510__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
     vlSelf->__Vtask_tb_disk__DOT__strobe__5510__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelf->__Vfunc_tb_disk__DOT__WT__5511__Vfuncout = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;
