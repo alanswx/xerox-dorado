@@ -53,14 +53,33 @@ module cell_F10000 (
   always @(posedge sys_clk) ck_d <= clk;
   wire ck_en = clk & ~ck_d;
 
+  // BIT ORDER: EclDict's H0 is the DATA SHEET's Q3, exactly as for the F10016.
+  // The two parts share a pinout -- EclDict gives both `D0,11 D1,10 D2,9 D3,7`
+  // and `H0,14 H1,15 H2,2 H3,3` -- and cell_F10016 was corrected from the
+  // Fairchild connection diagram, which makes pin 3 = Q0 (LSB) and pin 14 = Q3
+  // (MSB), pin 7 = P0 and pin 11 = P3.
+  //
+  // For PARALLEL LOAD AND HOLD this is a permutation that CANCELS: q[3] was
+  // p11 and drove p14 before, and still does. Every F10000 used as a plain
+  // register (ProcH g10/h10, the TIOA output register, with PE' an open pin)
+  // is unaffected.
+  //
+  // For a SHIFT it is the whole difference. DskEth's input register is four of
+  // these chained -- f09 takes ShiftReg.in and drives .12-.15, f10 takes
+  // ShiftReg.12 and drives .08-.11, and so on. Read the old way, DS entered
+  // q[0] = pin 14 = ShiftReg.12, so f10's DS took f09's FIRST stage: all four
+  // packages saw the same bit and the chain was not a chain. Read this way DS
+  // enters q[0] = pin 3 = ShiftReg.15, shifts toward pin 14 = ShiftReg.12, and
+  // f10 continues from there -- a proper 16-stage shift register, with data
+  // entering at the LSB end as PARC's MSB-first numbering implies.
   always @(posedge sys_clk) begin
     if (p12)            q <= 4'd0;              // MR
     else if (ck_en) begin
-      if (!p5)          q <= {p7, p9, p10, p11};// PE' parallel load
-      else              q <= {q[2:0], p6};      // shift, DS in
+      if (!p5)          q <= {p11, p10, p9, p7};// PE' load: P3,P2,P1,P0
+      else              q <= {q[2:0], p6};      // shift, DS into Q0 (pin 3)
     end
   end
-  assign {p3, p2, p15, p14} = q;
+  assign {p14, p15, p2, p3} = q;                // Q3,Q2,Q1,Q0 per the data sheet
 
 
 endmodule

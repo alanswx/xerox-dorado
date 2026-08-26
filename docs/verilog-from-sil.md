@@ -3620,3 +3620,46 @@ the "passing" entries was the tell.
 bits, either through the cable (proven to reach `PreReadData`) or through PARC's
 diagnostic path (a DISKMUFF write drives `PreReadData` from `bIOB.00` and
 `PrePreBitClock` from `bIOB.01`).
+
+### cell_F10000's bit order, corrected on evidence but NOT YET GATED (2026-08-25)
+
+Tracing why the input shift register stays at zero turned up a structural fault
+in `cell_F10000` (58 packages). EclDict gives F10000 and F10016 **identical**
+data and output pins -- `D0,11 D1,10 D2,9 D3,7` and `H0,14 H1,15 H2,2 H3,3` --
+and `cell_F10016` was already corrected from the Fairchild connection diagram,
+which makes **pin 3 = Q0 (LSB) and pin 14 = Q3 (MSB)**. `cell_F10000` still had
+it the other way.
+
+**For parallel-load-and-hold the permutation CANCELS.** `q[3]` was `p11` and
+drove `p14` before, and still does -- so every F10000 used as a plain register
+(ProcH g10/h10, the TIOA output register, whose PE' is an open pin) is
+unaffected. That is why 45 gates pass either way.
+
+**For a SHIFT it is the whole difference**, and DskEth's input register is four
+of these chained:
+
+```
+f09  DS = ShiftReg.in   -> ShiftReg.12 .13 .14 .15
+f10  DS = ShiftReg.12   -> ShiftReg.08 .09 .10 .11
+f11  DS = ShiftReg.08   -> ShiftReg.04 .05 .06 .07
+f12  DS = ShiftReg.04   -> ShiftReg.00 .01 .02 .03
+```
+
+Read the old way, DS entered `q[0]` = pin 14 = `ShiftReg.12`, so f10's DS took
+f09's **first** stage: all four packages saw the same bit and the chain was not
+a chain. Read the data sheet's way, DS enters `q[0]` = pin 3 = `ShiftReg.15` and
+shifts toward pin 14 = `ShiftReg.12`, where f10 continues -- a proper 16-stage
+register with data entering at the LSB end, which is what PARC's MSB-first
+numbering implies.
+
+**Stated plainly: this change is NOT GATED.** Audited by reverting it and
+re-running everything -- **45 of 45 pass with either bit order**. It rests on
+the shared pinout, the F10016 data sheet, and the chain topology, not on a test.
+It becomes gate-able the moment data actually flows through the chain, which is
+still blocked: `ShiftReg.in = ComputeECC ? ReadData : EccData.32` and
+`ComputeECC` is 0 until the sequencer runs.
+
+*Also fixed here:* `+ram16` now issues a real Read command (`0x02C0`) after the
+format program, so the controller ends Active with `ReadBlock` set rather than
+Idle -- its zeroing pass carries `Q = 0`, i.e. all four block ops Done. A gate
+asserting "ReadBlock must be 0 without `+read`" had to learn about that mode.

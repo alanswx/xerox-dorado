@@ -9625,6 +9625,13 @@ VL_ATTR_COLD void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__426__tb_disk__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
     vlSelf->__Vtask_tb_disk__DOT__parc_micro__426__tb_disk__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
     vlSelf->__Vtask_tb_disk__DOT__strobe__427__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
+    vlSelf->__Vtask_tb_disk__DOT__set_cpreg_plain__3957__v = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__3958__fn = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__3958__data = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__3958__ss = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__3958__tb_disk__DOT__unnamedblk1_1__DOT____Vrepeat0 = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__3958__tb_disk__DOT__unnamedblk1_2__DOT____Vrepeat1 = 0;
+    vlSelf->__Vtask_tb_disk__DOT__strobe__3958__tb_disk__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_0 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_1 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;

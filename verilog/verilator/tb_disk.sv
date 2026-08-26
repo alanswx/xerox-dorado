@@ -3327,6 +3327,25 @@ module tb_disk;
     end
     if ($test$plusargs("ram16")) load_format_ram(600);
 
+    // ...AND THEN A READ COMMAND, from the same IM[4..7] DISKCONTROL hunk. The
+    // format program alone leaves the controller Idle -- the zeroing pass
+    // carried Q = 0, i.e. all four block ops Done. 0x02C0 is SetDebugMode
+    // (0x0200) plus op 3 (Read) at shift 6, which e13 turns into Active.
+    // Writing DISKCONTROL zeroes the RAM ADDRESS again, but the sixteen words
+    // stay put -- only the address register is cleared.
+    if ($test$plusargs("ram16")) begin
+      set_cpreg_plain(16'h02C0);
+      parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40);   // QFromCPReg#
+      nop_micro;
+      set_cpreg_tilde(16'h0004);                        // start at IM[4]
+      parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
+      nop_micro;
+      parc_run(8'h60, 8'h13, 8'hE1, 8'h4A, 8'h43);      // TaskingOn,Return
+      repeat (600) @(posedge sys_clk);
+      $display("tb_disk: +ram16 -- read command 0x02C0 issued: ReadBlock=%b Active=%b Idle=%b",
+               m.b_DskEth.ReadBlock, m.b_DskEth.Active, m.b_DskEth.Idle);
+    end
+
 `ifdef FORCE_DISHOLD
     // EXPERIMENT: is DisHold the lever? WantMapWait' = (MapFnc.1' & MapFnc.0')
     // | DisHold, and WantMapWait' going HIGH is what lets h13's NOR fall and
@@ -4742,7 +4761,9 @@ module tb_disk;
         if (n_actv == 0)
           $fatal(1, "SetDebugMode + a transfer op did not make the controller Active");
         $display("tb_disk:   ...so a REAL COMMAND loads and STARTS: ReadBlock and Active both up");
-      end else begin
+      end else if (!$test$plusargs("ram16")) begin
+        // +ram16 issues a real Read command of its own after the format
+        // program, so ReadBlock asserting there is intended, not a stray.
         if (n_rdblk != 0)
           $fatal(1, "ReadBlock asserted %0d times with no Read op loaded", n_rdblk);
       end

@@ -29,6 +29,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__7(Vtb_disk___024
 VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__8(Vtb_disk___024root* vlSelf);
 VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__9(Vtb_disk___024root* vlSelf);
 VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__10(Vtb_disk___024root* vlSelf);
+VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__11(Vtb_disk___024root* vlSelf);
 
 VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0(Vtb_disk___024root* vlSelf) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_disk___024root___eval_initial__TOP__Vtiming__0\n"); );
@@ -46,6 +47,7 @@ VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0(Vtb_disk___024roo
     co_await Vtb_disk___024root___eval_initial__TOP__Vtiming__0__8(vlSelf);
     co_await Vtb_disk___024root___eval_initial__TOP__Vtiming__0__9(vlSelf);
     co_await Vtb_disk___024root___eval_initial__TOP__Vtiming__0__10(vlSelf);
+    co_await Vtb_disk___024root___eval_initial__TOP__Vtiming__0__11(vlSelf);
     co_return;}
 
 VlCoroutine Vtb_disk___024root___eval_initial__TOP__Vtiming__0__0(Vtb_disk___024root* vlSelf) {
