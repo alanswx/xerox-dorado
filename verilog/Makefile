@@ -231,6 +231,12 @@ disk-read-check:
 disk-interface-check:
 	@cd .. && python3 tools/sil_disk_interface.py
 
+# THE IM MAP: which of ContB's 144 F10415A packages holds which microinstruction
+# field bit, for which of the four banks. What a bench needs to PRELOAD a whole
+# world instead of walking it over the control-processor bus.
+im-map-check:
+	@cd .. && python3 tools/sil_im_map.py
+
 # A WORD INTO THE STORAGE ARRAY: the msa board standalone, where the bench owns
 # the DRAM strobes, so a write can be driven without a memory reference.
 msa-test:
