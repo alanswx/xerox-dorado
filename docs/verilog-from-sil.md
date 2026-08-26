@@ -3750,3 +3750,52 @@ the FIRST program action, before any sync has been seen? Either b09 FF-b comes
 out of reset in the counting state on a real machine and our model has it the
 other way, or something else releases b10's PE' at sector start. That is one
 flip-flop's power-up/reset behaviour, not a chain to trace.
+
+### The READ sequence PROM table, and it corrects the model (2026-08-26)
+
+HM page 99 gives both programs. The read one settles what the bit counter is
+for, and it is not what I had assumed:
+
+```
+Read Sequence PROM                                         Duration (WordClocks)
+00  Issue tag command in RAM[6] (head select)               1
+01  Delay (wait for head select to settle)                  RAM[13]+1
+02  Delay (skip over early part of preamble)                RAM[10]+1
+03  Issue tag command in RAM[4] (read command)              1
+    Note: WordClocks CEASE until controller has read sync word from disk
+04  Read data for first block                               RAM[0]+1
+05  Read ECC words                                          RAM[13]+1
+06  Compute first word of ECC remainder, issue tag RAM[6]   1
+07  Compute second word of ECC remainder                    RAM[14]+1
+08  Advance control register to the next block's operation  RAM[14]+1
+09  Delay (skip over early part of preamble)                RAM[11]+1
+10  Issue tag command in RAM[4] (read command)              1
+    Note: WordClocks cease until controller has read sync word from disk
+```
+
+**WordClocks RUN for steps 00-02 and only CEASE at step 03.** So the bit counter
+is free-running from sector start, and `sCountBits` **RESUMES** it after the sync
+hold -- it does not start it. I had the whole relationship backwards, and it made
+the design look circular when it is not: the sequencer walks its first three
+actions on WordClocks it already has, issues the read command, and only THEN
+waits for sync.
+
+That also explains b09 FF-b's shape. Its Q is b10's `PE'` (high = count), it is
+SET by `sCountBits` and cleared by a `ShiftIn` edge clocking its open D. Read
+correctly: the PROM asserts `ShiftIn` at step 03 to STOP the counter, and finding
+sync sets it again to resume. Our model has Q at 0 from power-up, so b10 is
+parked before step 00 ever runs -- the deadlock is ours, not the machine's.
+
+**The narrow open question is now: what puts b09 FF-b in the counting state at
+sector start?** Its R is open and its only S is `sCountBits`, so nothing in the
+netlist does -- which means either the MC10231's power-up state matters here (the
+BaseBoard's watchdog already turned on exactly that, g22's Q' powering up at 1),
+or a signal not yet traced reaches it. Worth checking `cell_MC10231`'s initial
+value against the data sheet, and re-reading DskEth's sheet for a sector-start
+reset.
+
+*Also captured while there:* HM page 100's **tag register table** -- `Tag[0]`
+drive select and subsector count (with the sectors-per-revolution encodings:
+`Tag[4:9] = 3` gives 29 sectors for 256-word blocks), `Tag[1]` head tag,
+`Tag[2]` cylinder tag. That is what the format RAM's entries 04-07 feed, and it
+is what a drive model will have to decode.
