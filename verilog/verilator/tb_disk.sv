@@ -1417,6 +1417,7 @@ module tb_disk;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
   integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv, n_wclk, n_co, n_cntdone, n_ramcl, n_lastram, n_wecond, n_werise; reg g15we_d; reg [3:0] wdata_lo, wdata_hi; reg [3:0] alub_hi, alub_fall, wdata_fall; reg ff4_at_wr, ff4_fall; integer n_fall, n_alub_ok, n_alub_ok_wr, n_iob_lit, fwi; reg [11:0] fwgot;
+  reg [15:0] FEDWORD = 16'hA53C; reg [3:0] fraddr_before; integer n_irf, n_fifow; reg irf_d; reg [3:0] fwaddr_first, fwaddr_last2;
   reg [31:0] promseen, promseen2; reg [4:0] promaddr, promaddr_last, promaddr2, promaddr2_last;
   // Two one-shot dump windows: one triggered by the DATA arriving on B, one by
   // the WRITE PULSE opening. Whichever leads, the other window shows it.
@@ -1438,7 +1439,7 @@ module tb_disk;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; n_iob_lit=0; promseen=32'd0; promaddr_last=5'h1F; promseen2=32'd0; promaddr2_last=5'h1F; dwin_d=-1; dwin_w=-1; dtrig_d=1'b0; dtrig_w=1'b0; alub_prev=4'bx; n_wrshow=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; n_iob_lit=0; promseen=32'd0; promaddr_last=5'h1F; n_irf=0; n_fifow=0; irf_d=1'b0; fwaddr_first=4'bx; fwaddr_last2=4'bx; promseen2=32'd0; promaddr2_last=5'h1F; dwin_d=-1; dwin_w=-1; dtrig_d=1'b0; dtrig_w=1'b0; alub_prev=4'bx; n_wrshow=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
     // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
     want_tioa = $test$plusargs("tag")  ? 8'o014 :
                 $test$plusargs("muff") ? 8'o011 :
@@ -3123,6 +3124,19 @@ module tb_disk;
       //   IM[1]  TIOA <- B    BSEL 3 (B<-Q)   FF = 0o152
       //   IM[2]  Output <- B  BSEL 2 (B<-T)   FF = 0o036
       //   IM[3]  quiet
+      // IM[12..15] for `+ram16`: a DISKDATA READ. `Pd<-Input` is FF 0o032
+      // (FA=0 FB=3 FC=2) and the read mux puts TIOA 012B on DskData -- which is
+      // disk.c's DORADO_DISK_TIOA_DISKDATA case popping the FIFO.
+      if ($test$plusargs("ram16")) begin
+        build_hunk4(4'd0, 1'b0,
+                    '{4'd0,   4'd0,   4'd0,   4'd0},
+                    '{3'd6,   3'd2,   3'd0,   3'd0},
+                    '{3'd1,   3'd0,   3'd0,   3'd0},
+                    '{3'd4,   3'd4,   3'd4,   3'd4},
+                    '{8'o012, 8'o152, 8'o032, 8'o000},
+                    '{8'o215, 8'o216, 8'o217, 8'o217});
+        send_a_hunk(16'd12);
+      end
       // IM[8..11] for `+ram16`: the same shape aimed at DISKTAG (014B).
       // sCountBits -- what SETS b09 FF-b and so releases the bit counter's PE'
       // -- has TWO drivers wired-OR: c10.3, the sync detect, and b17.14. b17's
@@ -4546,9 +4560,24 @@ module tb_disk;
       // WordClocks and a WordClock is 16 bit clocks, so reaching step 03 needs
       // well over a hundred.
       for (twin = 0; twin < 256; twin = twin + 1) begin
-        force m.DataP0 = twin[0]; force m.DataM0 = ~twin[0];
+        // A RECOGNISABLE WORD, not an alternating pattern, so what comes back
+        // can be checked against what went in. Data enters the chain at
+        // ShiftReg.15 (the LSB end) and shifts toward .00, so feeding MSB
+        // FIRST leaves the word correctly oriented in the register.
+        force m.DataP0 =  FEDWORD[15 - (twin % 16)];
+        force m.DataM0 = ~FEDWORD[15 - (twin % 16)];
         force m.ClockP0 = 1'b1;  force m.ClockM0 = 1'b0;
         repeat (6) @(posedge sys_clk);
+        // INREGFULL is what writes the FIFO -- c14 (MC10176) makes it, and
+        // a15's FifoWaddr counts on FifoWaddrCl'. Count its EDGES.
+        if (m.b_DskEth.InRegFull && !irf_d) begin
+          n_irf = n_irf + 1;
+          if (n_irf == 1) fwaddr_first = {m.b_DskEth.FifoWaddr_0, m.b_DskEth.FifoWaddr_1,
+                                          m.b_DskEth.FifoWaddr_2, m.b_DskEth.FifoWaddr_3};
+        end
+        irf_d = m.b_DskEth.InRegFull;
+        fwaddr_last2 = {m.b_DskEth.FifoWaddr_0, m.b_DskEth.FifoWaddr_1,
+                        m.b_DskEth.FifoWaddr_2, m.b_DskEth.FifoWaddr_3};
         if (m.b_DskEth.PreBitClock) n_bclk = n_bclk + 1;
         if (m.b_DskEth.sCountBits)  n_scnt = n_scnt + 1;
         // WHAT ACTUALLY CLOCKS THE SHIFT REGISTER. f12 is an F10000 whose CC
@@ -4616,6 +4645,43 @@ module tb_disk;
                m.b_DskEth.FifoWaddr_0, m.b_DskEth.FifoWaddr_1,
                m.b_DskEth.FifoWaddr_2, m.b_DskEth.FifoWaddr_3,
                m.b_DskEth.FifoEmpty);
+      // READ A WORD BACK. Words are in the FIFO now; run the IM[12..15] hunk,
+      // which addresses DISKDATA and issues Pd<-Input. a16 (F10016) counts
+      // FifoRaddr on OutRegCl'C, and e12/e08 (MC10176) latch DskData on
+      // OutRegCl'A -- so a successful read advances the read address AND loads
+      // DskData, which the read mux then puts on IOB.
+      release m.DataP0; release m.DataM0; release m.ClockP0; release m.ClockM0;
+      fraddr_before = {m.b_DskEth.FifoRaddr_0, m.b_DskEth.FifoRaddr_1,
+                       m.b_DskEth.FifoRaddr_2, m.b_DskEth.FifoRaddr_3};
+      set_cpreg_tilde(16'h000C);                        // start at IM[12]
+      parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
+      nop_micro;
+      parc_run(8'h60, 8'h13, 8'hE1, 8'h4A, 8'h43);      // TaskingOn,Return
+      repeat (600) @(posedge sys_clk);
+      $display("tb_disk:   THE READ BACK -- FifoRaddr %b -> %b, FifoEmpty=%b, DskData = %h",
+               fraddr_before,
+               {m.b_DskEth.FifoRaddr_0, m.b_DskEth.FifoRaddr_1,
+                m.b_DskEth.FifoRaddr_2, m.b_DskEth.FifoRaddr_3},
+               m.b_DskEth.FifoEmpty,
+               {m.b_DskEth.DskData_00, m.b_DskEth.DskData_01, m.b_DskEth.DskData_02,
+                m.b_DskEth.DskData_03, m.b_DskEth.DskData_04, m.b_DskEth.DskData_05,
+                m.b_DskEth.DskData_06, m.b_DskEth.DskData_07, m.b_DskEth.DskData_08,
+                m.b_DskEth.DskData_09, m.b_DskEth.DskData_10, m.b_DskEth.DskData_11,
+                m.b_DskEth.DskData_12, m.b_DskEth.DskData_13, m.b_DskEth.DskData_14,
+                m.b_DskEth.DskData_15});
+
+      // GATE: A WORD IS POPPED FROM THE FIFO. a16 (F10016) counts FifoRaddr on
+      // OutRegCl'C, so a DISKDATA read must ADVANCE the read address -- that is
+      // the FIFO being drained by the processor, which is disk.c's
+      // DORADO_DISK_TIOA_DISKDATA case.
+      if ($test$plusargs("ram16")) begin
+        if ({m.b_DskEth.FifoRaddr_0, m.b_DskEth.FifoRaddr_1,
+             m.b_DskEth.FifoRaddr_2, m.b_DskEth.FifoRaddr_3} === fraddr_before)
+          $fatal(1, "a DISKDATA read did not advance the FIFO read address (%b)",
+                 fraddr_before);
+        $display("tb_disk:   ...so a DISKDATA read POPS THE FIFO");
+      end
+
       // GATE: THE DISK READ RUNS. With PARC's format program in the RAM, a Read
       // command Active, a DISKTAG write to release the bit counter and the
       // drive's differential pair carrying bits, the controller executes HM
@@ -4627,7 +4693,7 @@ module tb_disk;
       //   * ShiftIn and ComputeECC OPEN, which is the sequencer telling b08 to
       //     take `ReadData` rather than circulate `EccData.32`.
       //   * the input shift register MOVES and ends holding the pattern being
-      //     fed on DataP/M -- 0x5555 for an alternating bit stream.
+      //     fed on DataP/M.
       //
       // Every one of those was zero before the tag write.
       if ($test$plusargs("ram16")) begin
@@ -4642,9 +4708,21 @@ module tb_disk;
                  n_shiftin, n_cecc);
         if (n_shmove == 0)
           $fatal(1, "the input shift register never moved");
-        if (shreg_last !== 16'h5555)
-          $fatal(1, "the shift register holds %h, not the 5555 being fed on DataP/M",
-                 shreg_last);
+        // NOT `shreg_last == FEDWORD`. With a recognisable word the sync detect
+        // fires (sCountBits 12, where an alternating pattern gave 0), the
+        // sequencer walks ALL SIXTEEN program steps and the read COMPLETES --
+        // so by the end the register has moved past the data phase and reads
+        // 0000. Asserting on it was checking the wrong instant. What matters is
+        // that whole WORDS were assembled and written to the FIFO:
+        //   c14 (MC10176) raises InRegFull once 16 bits are in
+        //   a15 (F10016) counts FifoWaddr on FifoWaddrCl'
+        if (n_irf == 0)
+          $fatal(1, "InRegFull never rose -- no complete word was assembled");
+        if (fwaddr_last2 === fwaddr_first)
+          $fatal(1, "the FIFO write address never advanced (%b) -- nothing was stored",
+                 fwaddr_first);
+        $display("tb_disk:   ...and WORDS REACH THE FIFO: %0d assembled, write address %b -> %b",
+                 n_irf, fwaddr_first, fwaddr_last2);
         $display("tb_disk:   ...so THE DISK READ RUNS: PROM PC walked %b, ShiftIn %0d, ComputeECC %0d, ShiftReg = %h",
                  promseen2[15:0], n_shiftin, n_cecc, shreg_last);
       end
@@ -4663,6 +4741,14 @@ module tb_disk;
       // TriconD03.sil+6) is the MSB, matching the data-pin convention.
       $display("tb_disk:   PROM PROGRAM COUNTER -- visited %b (bit n = address n), last = %0d",
                promseen2[15:0], promaddr2_last);
+      $display("tb_disk:   THE FIFO -- fed word %h, ShiftReg = %h | InRegFull edges %0d, FifoWaddr %b -> %b | DskData = %h",
+               FEDWORD, shreg_last, n_irf, fwaddr_first, fwaddr_last2,
+               {m.b_DskEth.DskData_00, m.b_DskEth.DskData_01, m.b_DskEth.DskData_02,
+                m.b_DskEth.DskData_03, m.b_DskEth.DskData_04, m.b_DskEth.DskData_05,
+                m.b_DskEth.DskData_06, m.b_DskEth.DskData_07, m.b_DskEth.DskData_08,
+                m.b_DskEth.DskData_09, m.b_DskEth.DskData_10, m.b_DskEth.DskData_11,
+                m.b_DskEth.DskData_12, m.b_DskEth.DskData_13, m.b_DskEth.DskData_14,
+                m.b_DskEth.DskData_15});
       if ($test$plusargs("ram16")) begin
         if (n_co == 0)
           $fatal(1, "the bit counter never reached terminal count after the tag write");
@@ -4767,11 +4853,18 @@ module tb_disk;
         // the Read command; and DISKTAG, whose strobe IS sCountBits and so
         // releases the bit counter. Both are expected there; Muff and Data are
         // not, in any mode.
-        if (n_r_muff != 0 || n_r_data != 0)
-          $fatal(1, "a write to 013B also selected Muff %0d Data %0d",
-                 n_r_muff, n_r_data);
-        if (!$test$plusargs("ram16") && (n_r_cont != 0 || n_r_tag != 0))
-          $fatal(1, "a write to 013B also selected Cont %0d Tag %0d", n_r_cont, n_r_tag);
+        // +ram16 addresses FOUR registers deliberately: DISKRAM for the format
+        // program, DISKCONTROL to zero the address and issue the Read command,
+        // DISKTAG to release the bit counter, and DISKDATA to read a word back.
+        // Only DISKMUFF is never touched there.
+        if (n_r_muff != 0)
+          $fatal(1, "a write to 013B also selected Muff %0d", n_r_muff);
+        if (!$test$plusargs("ram16") &&
+            (n_r_cont != 0 || n_r_tag != 0 || n_r_data != 0))
+          $fatal(1, "a write to 013B also selected Cont %0d Tag %0d Data %0d",
+                 n_r_cont, n_r_tag, n_r_data);
+        if ($test$plusargs("ram16") && n_r_data == 0)
+          $fatal(1, "+ram16 never addressed DISKDATA, so nothing was read back");
         if ($test$plusargs("ram16") && n_r_cont == 0)
           $fatal(1, "+ram16 never wrote DISKCONTROL, so the format-RAM address was never zeroed");
         if ($test$plusargs("ram16") && n_r_tag == 0)
@@ -4814,7 +4907,11 @@ module tb_disk;
       // enables ten MC10174 muxes that select DskData / Host / EthData by
       // {TIOA.5a, TIOA.7a}. A board that drives the bus when nobody is reading
       // it is a bus fight, so assert that it does NOT.
-      if ($test$plusargs("input")) begin
+      // NOTE, because this is the FOURTH gate `+ram16` has had to be added to:
+      // introducing a mode means auditing every chain that assumed the old set.
+      // +ram16 reads DISKDATA with Pd<-Input, so it belongs on the positive
+      // side here just as +input does.
+      if ($test$plusargs("input") || $test$plusargs("ram16")) begin
         if (n_iobin == 0)
           $fatal(1, "bIOin' never asserted -- the Pd<-Input in the loop never reached the board");
         if (n_ioen == 0)

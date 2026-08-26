@@ -24,6 +24,13 @@ VL_ATTR_COLD void Vtb_disk___024root___eval_static(Vtb_disk___024root* vlSelf) {
     vlSelfRef.tb_disk__DOT__m__DOT__UseDMD__VforceVal = 0U;
     vlSelfRef.tb_disk__DOT__rfshdiv = 0U;
     vlSelfRef.tb_disk__DOT__rfshper = 0U;
+    vlSelfRef.tb_disk__DOT__FEDWORD = 0xa53cU;
+    vlSelfRef.tb_disk__DOT__m__DOT__DataM0__VforceVal 
+        = (1U & (~ (0xa53cU >> (0x0000000fU & ((IData)(0x0fU) 
+                                               - VL_MODDIVS_III(32, vlSelfRef.tb_disk__DOT__twin, (IData)(0x00000010U)))))));
+    vlSelfRef.tb_disk__DOT__m__DOT__DataP0__VforceVal 
+        = (1U & (0xa53cU >> (0x0000000fU & ((IData)(0x0fU) 
+                                            - VL_MODDIVS_III(32, vlSelfRef.tb_disk__DOT__twin, (IData)(0x00000010U))))));
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j20__DOT__acc = 0U;
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j20__DOT__osc = 0U;
     vlSelfRef.tb_disk__DOT__m__DOT__DMuxData__VforceEn = 0U;
@@ -216,6 +223,13 @@ VL_ATTR_COLD void Vtb_disk___024root___eval_static__TOP(Vtb_disk___024root* vlSe
     vlSelfRef.tb_disk__DOT__m__DOT__UseDMD__VforceVal = 0U;
     vlSelfRef.tb_disk__DOT__rfshdiv = 0U;
     vlSelfRef.tb_disk__DOT__rfshper = 0U;
+    vlSelfRef.tb_disk__DOT__FEDWORD = 0xa53cU;
+    vlSelfRef.tb_disk__DOT__m__DOT__DataM0__VforceVal 
+        = (1U & (~ (0xa53cU >> (0x0000000fU & ((IData)(0x0fU) 
+                                               - VL_MODDIVS_III(32, vlSelfRef.tb_disk__DOT__twin, (IData)(0x00000010U)))))));
+    vlSelfRef.tb_disk__DOT__m__DOT__DataP0__VforceVal 
+        = (1U & (0xa53cU >> (0x0000000fU & ((IData)(0x0fU) 
+                                            - VL_MODDIVS_III(32, vlSelfRef.tb_disk__DOT__twin, (IData)(0x00000010U))))));
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j20__DOT__acc = 0U;
     vlSelfRef.tb_disk__DOT__m__DOT__b_DskEth__DOT__u_j20__DOT__osc = 0U;
     vlSelfRef.tb_disk__DOT__m__DOT__DMuxData__VforceEn = 0U;
@@ -486,6 +500,10 @@ VL_ATTR_COLD void Vtb_disk___024root___eval_initial__TOP(Vtb_disk___024root* vlS
     vlSelfRef.tb_disk__DOT__n_alub_ok_wr = 0U;
     vlSelfRef.tb_disk__DOT__n_iob_lit = 0U;
     vlSelfRef.tb_disk__DOT__promseen = 0U;
+    vlSelfRef.tb_disk__DOT__n_irf = 0U;
+    vlSelfRef.tb_disk__DOT__irf_d = 0U;
+    vlSelfRef.tb_disk__DOT__fwaddr_first = 0U;
+    vlSelfRef.tb_disk__DOT__fwaddr_last2 = 0U;
     vlSelfRef.tb_disk__DOT__promseen2 = 0U;
     vlSelfRef.tb_disk__DOT__promaddr2_last = 0x1fU;
     vlSelfRef.tb_disk__DOT__dwin_d = 0xffffffffU;
