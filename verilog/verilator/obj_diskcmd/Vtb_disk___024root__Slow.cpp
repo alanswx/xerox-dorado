@@ -4,6 +4,10 @@
 
 #include "Vtb_disk__pch.h"
 
+// Parameter definitions for Vtb_disk___024root
+constexpr VlUnpacked<SData/*15:0*/, 16> Vtb_disk___024root::tb_disk__DOT__FMT;
+
+
 void Vtb_disk___024root___ctor_var_reset(Vtb_disk___024root* vlSelf);
 
 Vtb_disk___024root::Vtb_disk___024root(Vtb_disk__Syms* symsp, const char* namep)

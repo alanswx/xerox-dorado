@@ -497,7 +497,9 @@ VL_ATTR_COLD void Vtb_disk___024root___eval_initial__TOP(Vtb_disk___024root* vlS
     vlSelfRef.tb_disk__DOT__want_tioa = (VL_TESTPLUSARGS_I("tag"s)
                                           ? 0x0cU : 
                                          (VL_TESTPLUSARGS_I("muff"s)
-                                           ? 9U : (VL_TESTPLUSARGS_I("ram"s)
+                                           ? 9U : (
+                                                   (VL_TESTPLUSARGS_I("ram"s) 
+                                                    || VL_TESTPLUSARGS_I("ram16"s))
                                                     ? 0x0bU
                                                     : 8U)));
     vlSelfRef.tb_disk__DOT__n_ioen = 0U;
