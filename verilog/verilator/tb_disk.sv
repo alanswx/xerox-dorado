@@ -3122,6 +3122,23 @@ module tb_disk;
       //   IM[1]  TIOA <- B    BSEL 3 (B<-Q)   FF = 0o152
       //   IM[2]  Output <- B  BSEL 2 (B<-T)   FF = 0o036
       //   IM[3]  quiet
+      // IM[8..11] for `+ram16`: the same shape aimed at DISKTAG (014B).
+      // sCountBits -- what SETS b09 FF-b and so releases the bit counter's PE'
+      // -- has TWO drivers wired-OR: c10.3, the sync detect, and b17.14. b17's
+      // gate b is NOR(TIOA=Tag', bIOout', PreClock1'Ca), and its sibling output
+      // pin 13 is `Tag_IOB`. So sCountBits IS the DISKTAG write strobe: a tag
+      // write starts the counter, which is how the sequence gets its WordClocks
+      // for steps 00-02 before any sync exists (HM p.99).
+      if ($test$plusargs("ram16")) begin
+        build_hunk4(4'd0, 1'b0,
+                    '{4'd0,   4'd0,   4'd0,   4'd0},
+                    '{3'd6,   3'd2,   3'd3,   3'd0},
+                    '{3'd1,   3'd0,   3'd0,   3'd0},
+                    '{3'd4,   3'd4,   3'd4,   3'd4},
+                    '{8'o014, 8'o152, 8'o036, 8'o000},
+                    '{8'o211, 8'o212, 8'o213, 8'o213});
+        send_a_hunk(16'd8);
+      end
       // IM[4..7] for `+ram16`: the same shape aimed at DISKCONTROL (010B), so
       // one pass there zeroes the format-RAM address before the sixteen.
       if ($test$plusargs("ram16")) begin
@@ -3344,6 +3361,20 @@ module tb_disk;
       repeat (600) @(posedge sys_clk);
       $display("tb_disk: +ram16 -- read command 0x02C0 issued: ReadBlock=%b Active=%b Idle=%b",
                m.b_DskEth.ReadBlock, m.b_DskEth.Active, m.b_DskEth.Idle);
+      // ...AND A DISKTAG WRITE, which is what asserts sCountBits and releases
+      // the bit counter. Q carries Tag[0] = drive select / subsector count
+      // (HM p.100): Tag[4:9] = 3 gives 29 sectors, the size for 256-word data
+      // blocks, which is the Alto Diablo format just loaded.
+      set_cpreg_plain(16'h00C0);
+      parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40);   // QFromCPReg#
+      nop_micro;
+      set_cpreg_tilde(16'h0008);                        // start at IM[8]
+      parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
+      nop_micro;
+      parc_run(8'h60, 8'h13, 8'hE1, 8'h4A, 8'h43);      // TaskingOn,Return
+      repeat (600) @(posedge sys_clk);
+      $display("tb_disk: +ram16 -- DISKTAG written: sCountBits seen, b10 PE'(TriconD13.sil+3)=%b, CO'=%b",
+               m.b_DskEth.TriconD13_sil_pl_3, m.b_DskEth.TriconD13_sil_pl_1);
     end
 
 `ifdef FORCE_DISHOLD
@@ -4234,6 +4265,24 @@ module tb_disk;
             $fatal(1, "format RAM[%0d] = %04o, want %04o", fwi, fwgot, FMT[fwi][11:0]);
         end
         $display("tb_disk:   ...so ALL SIXTEEN words of HM p.98's Alto Diablo format are loaded and verified");
+        // GATE: A DISKTAG WRITE RELEASES THE BIT COUNTER, AND WORDCLOCKS RUN.
+        // sCountBits has TWO drivers wired-OR -- c10.3, the sync detect, and
+        // b17.14, whose gate is NOR(TIOA=Tag', bIOout', PreClock1'Ca) and whose
+        // sibling output is `Tag_IOB`. So sCountBits IS the DISKTAG strobe. It
+        // SETS b09 FF-b, whose Q is b10's PE' (high = count), and b10's carry
+        // is what gates WordClock' in d15.
+        //
+        // That is how HM p.99's read program gets the WordClocks for steps
+        // 00-02 -- "issue tag, delay, delay" -- before any sync exists; the
+        // note at step 03 says WordClocks "cease until controller has read sync
+        // word from disk", so sync RESUMES the counter rather than starting it.
+        if (m.b_DskEth.TriconD13_sil_pl_3 !== 1'b1)
+          $fatal(1, "a DISKTAG write did not release the bit counter (b10 PE' = %b)",
+                 m.b_DskEth.TriconD13_sil_pl_3);
+        // n_co and n_wclk accumulate in the SHIFTER loop further down, so they
+        // are still zero HERE. Only the LEVEL -- b10's PE' -- is readable at
+        // this point; the counter's behaviour is asserted where it is measured.
+        $display("tb_disk:   ...and a DISKTAG write RELEASES THE BIT COUNTER: b10 PE' = 1");
       end
       // THE PER-TASK TIOA FILE IS A PAIR, and reading only half of it is a way
       // to invent a bug. g15 holds TIOA.0-3 and h15 TIOA.4-7 -- both F10145A,
@@ -4549,6 +4598,19 @@ module tb_disk;
                m.b_DskEth.FifoWaddr_0, m.b_DskEth.FifoWaddr_1,
                m.b_DskEth.FifoWaddr_2, m.b_DskEth.FifoWaddr_3,
                m.b_DskEth.FifoEmpty);
+      // GATE: THE COUNTER ACTUALLY RUNS. With the tag write done, b10 must
+      // reach terminal count and WordClock' must have edges -- that is what
+      // steps 00-02 of HM p.99's read program consume, before any sync exists.
+      // These counters accumulate in the SHIFTER loop just above, so they can
+      // only be read here, not back at the format-RAM dump.
+      if ($test$plusargs("ram16")) begin
+        if (n_co == 0)
+          $fatal(1, "the bit counter never reached terminal count after the tag write");
+        if (n_wclk < 2)
+          $fatal(1, "only %0d WordClock' edges -- the sequencer cannot step", n_wclk);
+        $display("tb_disk:   ...so the counter RUNS: CO' asserted %0d, WordClock' edges %0d",
+                 n_co, n_wclk);
+      end
       // GATE: THE DRIVE'S BIT CLOCK REACHES THE SHIFT REGISTER. f09-f12 are
       // four F10000s chained ShiftReg.in -> .12-15 -> .08-11 -> .04-07 ->
       // .00-03, all clocked by BitClock'B and parallel-loaded by ShiftRegLd'.
@@ -4640,13 +4702,20 @@ module tb_disk;
         // address (b21's MR is ControlRegCl; HM p.98: the address "is zeroed
         // when the control register is written"). So Cont is EXPECTED there and
         // only the other three must stay silent.
-        if (n_r_muff != 0 || n_r_data != 0 || n_r_tag != 0)
-          $fatal(1, "a write to 013B also selected Muff %0d Data %0d Tag %0d",
-                 n_r_muff, n_r_data, n_r_tag);
-        if (!$test$plusargs("ram16") && n_r_cont != 0)
-          $fatal(1, "a write to 013B also selected Cont %0d", n_r_cont);
+        // +ram16 DELIBERATELY writes two other registers: DISKCONTROL, to zero
+        // the format-RAM address (b21's MR is ControlRegCl) and then to issue
+        // the Read command; and DISKTAG, whose strobe IS sCountBits and so
+        // releases the bit counter. Both are expected there; Muff and Data are
+        // not, in any mode.
+        if (n_r_muff != 0 || n_r_data != 0)
+          $fatal(1, "a write to 013B also selected Muff %0d Data %0d",
+                 n_r_muff, n_r_data);
+        if (!$test$plusargs("ram16") && (n_r_cont != 0 || n_r_tag != 0))
+          $fatal(1, "a write to 013B also selected Cont %0d Tag %0d", n_r_cont, n_r_tag);
         if ($test$plusargs("ram16") && n_r_cont == 0)
           $fatal(1, "+ram16 never wrote DISKCONTROL, so the format-RAM address was never zeroed");
+        if ($test$plusargs("ram16") && n_r_tag == 0)
+          $fatal(1, "+ram16 never wrote DISKTAG, so the bit counter was never released");
       end else if ($test$plusargs("muff")) begin
         // +muff: the write must land on DISKMUFF and nowhere else.
         if (n_r_muff == 0)
