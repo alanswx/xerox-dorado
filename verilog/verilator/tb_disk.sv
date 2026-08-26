@@ -2810,6 +2810,10 @@ module tb_disk;
   // Each cycle re-establishes the start address: a jam does ClrStop+ClrMIR+
   // ClrCT+Freeze, so the loop must be restarted at IM[0] with Link and a
   // Return# exactly as the startup does it.
+  function [3:0] revn(input [3:0] n);
+    revn = {n[0], n[1], n[2], n[3]};
+  endfunction
+
   task load_format_ram(input integer runlen);
     integer fw;
     begin
@@ -2817,6 +2821,23 @@ module tb_disk;
         set_cpreg_plain(FMT[fw]);
         parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40);   // QFromCPReg#
         nop_micro;
+        // DID Q ACTUALLY TAKE IT? Q is loaded by the NOP AFTER QFromCPReg#, not
+        // by QFromCPReg# itself (the tb_compute caveat), so read it here rather
+        // than assuming. And note where the RAM address stands BEFORE the write,
+        // because the sixteen must start at 0.
+        $display("tb_disk:   FMT[%0d] want %04o -> Q = %04o %s | RamAddr before = %0d",
+                 fw, FMT[fw][11:0],
+                 {m.b_ProcH.Q_00, m.b_ProcH.Q_01, m.b_ProcH.Q_02, m.b_ProcH.Q_03,
+                  m.b_ProcH.Q_04, m.b_ProcH.Q_05, m.b_ProcH.Q_06, m.b_ProcH.Q_07,
+                  m.b_ProcL.Q_08, m.b_ProcL.Q_09, m.b_ProcL.Q_10, m.b_ProcL.Q_11,
+                  m.b_ProcL.Q_12, m.b_ProcL.Q_13, m.b_ProcL.Q_14, m.b_ProcL.Q_15},
+                 ({m.b_ProcH.Q_00, m.b_ProcH.Q_01, m.b_ProcH.Q_02, m.b_ProcH.Q_03,
+                   m.b_ProcH.Q_04, m.b_ProcH.Q_05, m.b_ProcH.Q_06, m.b_ProcH.Q_07,
+                   m.b_ProcL.Q_08, m.b_ProcL.Q_09, m.b_ProcL.Q_10, m.b_ProcL.Q_11,
+                   m.b_ProcL.Q_12, m.b_ProcL.Q_13, m.b_ProcL.Q_14, m.b_ProcL.Q_15}
+                  === FMT[fw]) ? "ok" : "WRONG",
+                 {m.b_DskEth.RamAddr_0, m.b_DskEth.RamAddr_1,
+                  m.b_DskEth.RamAddr_2, m.b_DskEth.RamAddr_3});
         set_cpreg_tilde(16'h0000);
         parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
         nop_micro;
@@ -3101,6 +3122,18 @@ module tb_disk;
       //   IM[1]  TIOA <- B    BSEL 3 (B<-Q)   FF = 0o152
       //   IM[2]  Output <- B  BSEL 2 (B<-T)   FF = 0o036
       //   IM[3]  quiet
+      // IM[4..7] for `+ram16`: the same shape aimed at DISKCONTROL (010B), so
+      // one pass there zeroes the format-RAM address before the sixteen.
+      if ($test$plusargs("ram16")) begin
+        build_hunk4(4'd0, 1'b0,
+                    '{4'd0,   4'd0,   4'd0,   4'd0},
+                    '{3'd6,   3'd2,   3'd3,   3'd0},
+                    '{3'd1,   3'd0,   3'd0,   3'd0},
+                    '{3'd4,   3'd4,   3'd4,   3'd4},
+                    '{8'o010, 8'o152, 8'o036, 8'o000},
+                    '{8'o205, 8'o206, 8'o207, 8'o207});
+        send_a_hunk(16'd4);
+      end
       if ($test$plusargs("tdata") && !$test$plusargs("ram16"))
         build_hunk4(4'd0, 1'b0,
                     '{4'd0,   4'd0,   4'd0,   4'd0},
@@ -3271,6 +3304,27 @@ module tb_disk;
 
     // +ram16: jam each of the sixteen format words into Q in turn, running the
     // loop between jams so its Output<- carries each one to DISKRAM.
+    //
+    // ZERO THE RAM ADDRESS FIRST. Measured, it stands at 2 when the sixteen
+    // begin -- the startup's own traffic has already stepped it -- so the words
+    // land at 2..15,0,1 and every one is two addresses late. b21's MR is
+    // ControlRegCl, and HM p.98 says it plainly: the RAM Address register "is
+    // zeroed when the control register is written". So run ONE pass of a
+    // DISKCONTROL write first. Its data is Q = 0, which is benign: all four
+    // block ops Done, no ClearEnableRun, no SetDebugMode.
+    if ($test$plusargs("ram16")) begin
+      set_cpreg_plain(16'h0000);
+      parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40);   // QFromCPReg#
+      nop_micro;
+      set_cpreg_tilde(16'h0004);                        // start at IM[4]
+      parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
+      nop_micro;
+      parc_run(8'h60, 8'h13, 8'hE1, 8'h4A, 8'h43);      // TaskingOn,Return
+      repeat (600) @(posedge sys_clk);
+      $display("tb_disk: +ram16 -- DISKCONTROL written to zero the RAM address (now %0d)",
+               {m.b_DskEth.RamAddr_0, m.b_DskEth.RamAddr_1,
+                m.b_DskEth.RamAddr_2, m.b_DskEth.RamAddr_3});
+    end
     if ($test$plusargs("ram16")) load_format_ram(600);
 
 `ifdef FORCE_DISHOLD
@@ -4136,12 +4190,31 @@ module tb_disk;
       if ($test$plusargs("ram16")) begin
         $display("tb_disk:   FORMAT RAM CONTENTS (12-bit, e16:f16:f17) vs HM p.98:");
         for (fwi = 0; fwi < 16; fwi = fwi + 1) begin
-          fwgot = {m.b_DskEth.u_e16.mem[fwi], m.b_DskEth.u_f16.mem[fwi],
-                   m.b_DskEth.u_f17.mem[fwi]};
+          // EACH NIBBLE IS STORED REVERSED, and reading it the other way
+          // invents nine mismatches out of sixteen. The F10145A stores
+          // `{p12,p11,p4,p5}` = {D3,D2,D1,D0}, and e16's Q pins map Ram.04 to
+          // q[0] -- so mem[] holds {Ram.07, Ram.06, Ram.05, Ram.04}, the
+          // reverse of PARC's MSB-first Ram.04..07. Undo it per nibble.
+          //
+          // The tell was that the "matching" entries were exactly the ones
+          // whose nibbles are palindromes (0000, 1111, 0110, 1001): 0377 read
+          // right, 0104 read as 0042 -- 0000 0100 0100 with each nibble
+          // reversed.
+          fwgot = {revn(m.b_DskEth.u_e16.mem[fwi]), revn(m.b_DskEth.u_f16.mem[fwi]),
+                   revn(m.b_DskEth.u_f17.mem[fwi])};
           $display("tb_disk:     [%2d] = %04o   want %04o   %s",
                    fwi, fwgot, FMT[fwi][11:0],
                    (fwgot === FMT[fwi][11:0]) ? "ok" : "MISMATCH");
+          // GATE: PARC'S OWN FORMAT PROGRAM IS IN PARC'S OWN FORMAT RAM.
+          // Every one of the sixteen words of the Alto Diablo emulation format
+          // (Hardware Manual p.98) must read back exactly -- word counts at
+          // 00-03, CONTROL TAG COMMANDS at 04-07, drive timing at 08-14. This
+          // is the prerequisite for a read: Ram.04-07 feed e21's tag mux, and
+          // `Tag.000` is half of the sCountBits that starts the bit counter.
+          if (fwgot !== FMT[fwi][11:0])
+            $fatal(1, "format RAM[%0d] = %04o, want %04o", fwi, fwgot, FMT[fwi][11:0]);
         end
+        $display("tb_disk:   ...so ALL SIXTEEN words of HM p.98's Alto Diablo format are loaded and verified");
       end
       // THE PER-TASK TIOA FILE IS A PAIR, and reading only half of it is a way
       // to invent a bug. g15 holds TIOA.0-3 and h15 TIOA.4-7 -- both F10145A,
@@ -4506,9 +4579,17 @@ module tb_disk;
         // +ram: the write must land on DISKRAM and nowhere else.
         if (n_r_ram == 0)
           $fatal(1, "TIOA=Ram' never asserted -- a write to 013B reached no register");
-        if (n_r_cont != 0 || n_r_muff != 0 || n_r_data != 0 || n_r_tag != 0)
-          $fatal(1, "a write to 013B also selected Cont %0d Muff %0d Data %0d Tag %0d",
-                 n_r_cont, n_r_muff, n_r_data, n_r_tag);
+        // +ram16 DELIBERATELY writes DISKCONTROL first, to zero the format-RAM
+        // address (b21's MR is ControlRegCl; HM p.98: the address "is zeroed
+        // when the control register is written"). So Cont is EXPECTED there and
+        // only the other three must stay silent.
+        if (n_r_muff != 0 || n_r_data != 0 || n_r_tag != 0)
+          $fatal(1, "a write to 013B also selected Muff %0d Data %0d Tag %0d",
+                 n_r_muff, n_r_data, n_r_tag);
+        if (!$test$plusargs("ram16") && n_r_cont != 0)
+          $fatal(1, "a write to 013B also selected Cont %0d", n_r_cont);
+        if ($test$plusargs("ram16") && n_r_cont == 0)
+          $fatal(1, "+ram16 never wrote DISKCONTROL, so the format-RAM address was never zeroed");
       end else if ($test$plusargs("muff")) begin
         // +muff: the write must land on DISKMUFF and nowhere else.
         if (n_r_muff == 0)

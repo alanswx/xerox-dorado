@@ -3574,3 +3574,49 @@ is the same hint), AND something is wrong with the data for the small values.
 Committed as infrastructure with the mismatch stated, not as a gate. The dump
 IS the diagnostic the next step needs: print Q and IOB at each of the sixteen
 writes and compare, rather than reasoning from the final contents.
+
+### PARC'S OWN FORMAT PROGRAM IS IN PARC'S OWN FORMAT RAM (2026-08-25)
+
+All sixteen words of the Alto Diablo emulation format -- Hardware Manual page
+98's own table -- are loaded into the modelled format RAM and read back exactly:
+
+```
+[ 0] 0001  [ 1] 0007  [ 2] 0377  [ 3] 0000     word counts, four blocks
+[ 4] 0104  [ 5] 0204  [ 6] 0004  [ 7] 0000     CONTROL TAG COMMANDS
+[ 8] 0033  [ 9] 0006  [10] 0011  [11] 0002     preamble / wait counts
+[12] 0002  [13] 0001  [14] 0000  [15] 0000     ECC and minimum counts
+```
+
+Gate: `make -C verilog disk-format-test`.
+
+**Three things had to be right, and each was a measurement rather than a guess.**
+
+* **The loop had to PARK after one pass.** Cycling it writes DISKRAM every ~118
+  cycles, so one jammed word went into thirty-four successive addresses (541
+  `RamCl'C` edges for sixteen words). IM[3] jumping to itself makes each
+  `parc_run` exactly one write: 17 edges for 16 words.
+* **The address had to be ZEROED first.** Measured, it stood at 2 when the
+  sixteen began, so every word landed two addresses late. HM p.98 says the fix
+  outright -- the RAM Address register "is zeroed when the control register is
+  written" -- and b21's `MR` is `ControlRegCl`. So `+ram16` runs one pass of a
+  DISKCONTROL write (data Q = 0: all block ops Done, no clears) from a second
+  hunk at IM[4..7] first. Skipping it fails the gate.
+* **THE DUMP was reversing each nibble, not the machine.** With the address
+  fixed, nine of sixteen still "mismatched" -- and the seven that matched were
+  exactly the ones whose nibbles are palindromes (`0000`, `1111`, `0110`,
+  `1001`). The F10145A stores `{p12,p11,p4,p5}` = `{D3,D2,D1,D0}` and e16's Q
+  pins map `Ram.04` to `q[0]`, so `mem[]` holds `{Ram.07,Ram.06,Ram.05,Ram.04}`
+  -- the reverse of PARC's MSB-first numbering. `0104` = `0000 0100 0100` read
+  nibble-reversed is `0042`, which is exactly what came out. The RAM had been
+  right all along.
+
+That last one is the MSB-first trap this project keeps meeting, in a new place:
+it was in the BENCH's reading of a correct memory, and the palindrome pattern in
+the "passing" entries was the tell.
+
+**What this unlocks.** `Ram.04-07` -- entries whose four bits feed e21's tag mux
+-- now hold the real control tag commands, and `Tag.000` is half of the
+`sCountBits` that starts the bit counter. Rung 1's remaining piece is feeding
+bits, either through the cable (proven to reach `PreReadData`) or through PARC's
+diagnostic path (a DISKMUFF write drives `PreReadData` from `bIOB.00` and
+`PrePreBitClock` from `bIOB.01`).
