@@ -1416,7 +1416,7 @@ module tb_disk;
   integer n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
-  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv, n_wclk, n_co, n_cntdone, n_ramcl, n_lastram, n_wecond, n_werise; reg g15we_d; reg [3:0] wdata_lo, wdata_hi; reg [3:0] alub_hi, alub_fall, wdata_fall; reg ff4_at_wr, ff4_fall; integer n_fall, n_alub_ok, n_alub_ok_wr, n_iob_lit;
+  integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv, n_wclk, n_co, n_cntdone, n_ramcl, n_lastram, n_wecond, n_werise; reg g15we_d; reg [3:0] wdata_lo, wdata_hi; reg [3:0] alub_hi, alub_fall, wdata_fall; reg ff4_at_wr, ff4_fall; integer n_fall, n_alub_ok, n_alub_ok_wr, n_iob_lit, fwi; reg [11:0] fwgot;
   // Two one-shot dump windows: one triggered by the DATA arriving on B, one by
   // the WRITE PULSE opening. Whichever leads, the other window shows it.
   integer dwin_d, dwin_w, n_wrshow; reg dtrig_d, dtrig_w; reg [3:0] alub_prev; reg wclk_d, ramcl_d; reg [3:0] ramaddr_last; reg bclkb_d; reg [15:0] shreg_first, shreg_last; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
@@ -1441,7 +1441,8 @@ module tb_disk;
     // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
     want_tioa = $test$plusargs("tag")  ? 8'o014 :
                 $test$plusargs("muff") ? 8'o011 :
-                $test$plusargs("ram")  ? 8'o013 : 8'o010; n_ioen=0; n_iobin=0; iob_at_en=16'bx; ctlbits=3'bx; iobits=3'bx; ctl_post=3'bx; ctl_final=3'bx; ram_at_out=4'bx; byp_at_out=1'bx; ff4_at_out=1'bx; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
+                ($test$plusargs("ram") ||
+                 $test$plusargs("ram16")) ? 8'o013 : 8'o010; n_ioen=0; n_iobin=0; iob_at_en=16'bx; ctlbits=3'bx; iobits=3'bx; ctl_post=3'bx; ctl_final=3'bx; ram_at_out=4'bx; byp_at_out=1'bx; ff4_at_out=1'bx; n_iob_ok=0; n_iob_nz=0; n_iob_any=0; n_iobout=0; alub_at_out=16'bx; n_q_held=0; n_q_chg=0; n_out_q=0; n_acur=0; n_anext=0; n_afifo=0; n_dwt=0; q_last=16'bx; dyclk_d=1'bx; iob_at_sel=16'bx; we1_d=1'b1; n_we1=0; n_we1_ones=0; n_ce0=0; n_ce1=0;
     dad_at_write=12'bx; dad_at_read=12'bx; dad_ones=12'bx;
     dmd_cap=18'bx; md_cap=18'bx;
     outck_d_rb = 0; load_pend_rb = 0; seen_load = 0;
@@ -2781,6 +2782,51 @@ module tb_disk;
   // RunDoradoInstructionStream: DoDoradoMicroInst with ShouldSingleStep = 0 --
   // DoClock(0), the clears, the four MIR bytes, then Control(SetRun) with SS
   // NOT asserted, and no BasicStopDorado. The machine free-runs from there.
+  // THE ALTO DIABLO EMULATION FORMAT, Hardware Manual page 98's own table.
+  // Word counts are ONE LESS than the desired count; entries 04-07 are CONTROL
+  // TAG COMMANDS, not counts, which is what the RTL's Ram.04-07 -> e21 tag mux
+  // consumes while disk.c reads 00-03 as block lengths. Both models are right
+  // about different addresses.
+  //
+  //   00 first block   01 second   02 third    03 fourth
+  //   04 tag: READ     05 tag: WRITE           06 tag: Head Select
+  //   07 tag: zero the bus         08 zeroes before 1st block
+  //   09 zeroes before others      10 wait before reading 1st
+  //   11 wait before others        12 ECC words + 1
+  //   13 count of 2                14 count of 1 (minimum)   15 unused
+  localparam [15:0] FMT [16] = '{
+      16'o0001, 16'o0007, 16'o0377, 16'o0000,
+      16'o0104, 16'o0204, 16'o0004, 16'o0000,
+      16'o0033, 16'o0006, 16'o0011, 16'o0002,
+      16'o0002, 16'o0001, 16'o0000, 16'o0000};
+
+  // LOAD ALL SIXTEEN, one jam per word. An FF literal cannot express these
+  // (it is `FF,,0`, eight bits in B's HIGH byte with a fixed low byte, and the
+  // values are 01 07 FF 44 84 04 1B 06 09 02 01 00 in hex) -- so each word has
+  // to arrive as its own CPReg jam into Q, and the machine has to RUN between
+  // jams for the loop's Output<- to carry it. b21's address auto-increments,
+  // so the words land in order.
+  //
+  // Each cycle re-establishes the start address: a jam does ClrStop+ClrMIR+
+  // ClrCT+Freeze, so the loop must be restarted at IM[0] with Link and a
+  // Return# exactly as the startup does it.
+  task load_format_ram(input integer runlen);
+    integer fw;
+    begin
+      for (fw = 0; fw < 16; fw = fw + 1) begin
+        set_cpreg_plain(FMT[fw]);
+        parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40);   // QFromCPReg#
+        nop_micro;
+        set_cpreg_tilde(16'h0000);
+        parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
+        nop_micro;
+        parc_run(8'h60, 8'h13, 8'hE1, 8'h4A, 8'h43);     // TaskingOn,Return
+        repeat (runlen) @(posedge sys_clk);
+      end
+      $display("tb_disk: +ram16 -- all sixteen format words jammed and run");
+    end
+  endtask
+
   task parc_run(input [7:0] b0, input [7:0] b1, input [7:0] b2,
                 input [7:0] b3, input [7:0] b4);
     begin
@@ -3055,7 +3101,7 @@ module tb_disk;
       //   IM[1]  TIOA <- B    BSEL 3 (B<-Q)   FF = 0o152
       //   IM[2]  Output <- B  BSEL 2 (B<-T)   FF = 0o036
       //   IM[3]  quiet
-      if ($test$plusargs("tdata"))
+      if ($test$plusargs("tdata") && !$test$plusargs("ram16"))
         build_hunk4(4'd0, 1'b0,
                     '{4'd0,   4'd0,   4'd0,   4'd0},
                     '{3'd6,   3'd3,   3'd2,   3'd0},
@@ -3063,7 +3109,13 @@ module tb_disk;
                     '{3'd4,   3'd4,   3'd4,   3'd4},
                     '{8'h5A,  8'o152, 8'o036, 8'o000},
                     '{8'o201, 8'o202, 8'o203, 8'o200});
-      else if ($test$plusargs("tlit"))
+      else if ($test$plusargs("tlit") || $test$plusargs("ram16"))
+        // `+ram16` PARKS after one pass instead of cycling. The loop otherwise
+        // writes DISKRAM every ~118 cycles, so a 4000-cycle run per jammed word
+        // put ONE word into THIRTY-FOUR successive addresses -- measured: 541
+        // RamCl'C edges for sixteen words. Making IM[3] jump to ITSELF turns
+        // each `parc_run` into exactly one pass, hence exactly one write, so
+        // b21's auto-increment lands the sixteen words in the sixteen slots.
         build_hunk4(4'd0, 1'b0,
                     '{4'd0,   4'd0,   4'd0,   4'd0},
                     '{3'd6,   3'd2,   3'd3,   3'd0},
@@ -3071,7 +3123,8 @@ module tb_disk;
                     '{3'd4,   3'd4,   3'd4,   3'd4},
                     '{want_tioa, 8'o152,
                       $test$plusargs("input") ? 8'o032 : 8'o036, 8'o000},
-                    '{8'o201, 8'o202, 8'o203, 8'o200});
+                    '{8'o201, 8'o202, 8'o203,
+                      $test$plusargs("ram16") ? 8'o203 : 8'o200});
       else
       build_hunk4(4'd0, 1'b0,
                   '{4'd0,   4'd0,   4'd0,   4'd0},
@@ -3215,6 +3268,10 @@ module tb_disk;
     // turns 142 into 143 -- checked by decoding both back through the byte
     // layout doradoboot.masm states.
     parc_run(8'h60, 8'h13, 8'hE1, 8'h4A, 8'h43);      // TaskingOn,Return
+
+    // +ram16: jam each of the sixteen format words into Q in turn, running the
+    // loop between jams so its Output<- carries each one to DISKRAM.
+    if ($test$plusargs("ram16")) load_format_ram(600);
 
 `ifdef FORCE_DISHOLD
     // EXPERIMENT: is DisHold the lever? WantMapWait' = (MapFnc.1' & MapFnc.0')
@@ -4071,6 +4128,21 @@ module tb_disk;
                n_rdblk, n_tot, n_actv);
       $display("tb_disk:   THE FORMAT RAM -- RamCl'C edges %0d, LastRamAddr' asserted on %0d, address now %b",
                n_ramcl, n_lastram, ramaddr_last);
+      // THE FORMAT RAM'S ACTUAL CONTENTS. Three F10145As hold it -- e16 is
+      // Ram.04-07, f16 Ram.08-11, f17 Ram.12-15 -- a 12-BIT word, which is
+      // exactly disk.c's `format_ram[addr] & 0x0FFF`. PARC numbers MSB-first,
+      // so Ram.04 is bit 11 and Ram.15 is bit 0. Read the storage rather than
+      // inferring from the address counter.
+      if ($test$plusargs("ram16")) begin
+        $display("tb_disk:   FORMAT RAM CONTENTS (12-bit, e16:f16:f17) vs HM p.98:");
+        for (fwi = 0; fwi < 16; fwi = fwi + 1) begin
+          fwgot = {m.b_DskEth.u_e16.mem[fwi], m.b_DskEth.u_f16.mem[fwi],
+                   m.b_DskEth.u_f17.mem[fwi]};
+          $display("tb_disk:     [%2d] = %04o   want %04o   %s",
+                   fwi, fwgot, FMT[fwi][11:0],
+                   (fwgot === FMT[fwi][11:0]) ? "ok" : "MISMATCH");
+        end
+      end
       // THE PER-TASK TIOA FILE IS A PAIR, and reading only half of it is a way
       // to invent a bug. g15 holds TIOA.0-3 and h15 TIOA.4-7 -- both F10145A,
       // both WE' = TIOAWrite', both addressed by LastNext. For TIOA = 010B =
@@ -4430,7 +4502,7 @@ module tb_disk;
       // 010B, so f07's Cont output must assert and the other four must not --
       // otherwise "the board is addressed" would not imply "DISKCONTROL is
       // addressed", and every later register write would be unverifiable.
-      if ($test$plusargs("ram")) begin
+      if ($test$plusargs("ram") || $test$plusargs("ram16")) begin
         // +ram: the write must land on DISKRAM and nowhere else.
         if (n_r_ram == 0)
           $fatal(1, "TIOA=Ram' never asserted -- a write to 013B reached no register");
@@ -4503,7 +4575,7 @@ module tb_disk;
         if (n_idxtw_run >= n_tot)
           $fatal(1, "ClearIndexTW fired %0d times but IndexTW stayed high on all %0d samples",
                  n_clridx, n_tot);
-      end else if (!$test$plusargs("ram")) begin
+      end else if (!$test$plusargs("ram") && !$test$plusargs("ram16")) begin
         // ...and with the loop pointed anywhere else, neither happens. +ram is
         // excluded: it addresses a different register, so it makes no claim
         // either way about the muffler clear.
@@ -4593,8 +4665,9 @@ module tb_disk;
         if (n_rdblk != 0)
           $fatal(1, "ReadBlock asserted %0d times with no Read op loaded", n_rdblk);
       end
-      if ($test$plusargs("ram") || $test$plusargs("muff")) begin
-        // +ram and +muff were gated just above. This chain must still EXCLUDE
+      if ($test$plusargs("ram") || $test$plusargs("ram16") ||
+          $test$plusargs("muff")) begin
+        // +ram, +ram16 and +muff were gated just above. This chain must still EXCLUDE
         // them, or the
         // DISKCONTROL block below runs in muffler mode and fails on a
         // ControlRegCl that correctly never fired.
@@ -4822,7 +4895,8 @@ module tb_disk;
     // reloads T and rewrites TIOA every pass for the whole run, so these
     // counters would be measuring the LOOP, not the jam. Skipping is the honest
     // move; asserting here would be measuring the wrong thing.
-    if (!$test$plusargs("tlit") && !$test$plusargs("tdata")) begin
+    if (!$test$plusargs("tlit") && !$test$plusargs("tdata") &&
+        !$test$plusargs("ram16")) begin
       if (n_tw != 0)
         $fatal(1, "a JAMMED TIOA<-B asserted TIOAWrite' %0d times -- IgnoreCommands should block the store", n_tw);
       if (n_byp != 0)

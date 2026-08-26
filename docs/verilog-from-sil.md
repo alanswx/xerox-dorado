@@ -3539,3 +3539,38 @@ pack."* That is the self-timed loop from earlier, described by its designers.
 0033 0006 0011 0002 0001 0000` -- in hex `01 07 FF 44 84 04 1B 06 09 02 01 00`.
 Only `0377` fits an FF literal's `{high byte, 0x00 or 0xFF}` form. Sixteen jams
 into Q it is.
+
+### Sixteen format words go in; the values are not right yet (2026-08-25)
+
+`+ram16` implements #32: jam each of the sixteen format words into Q in turn,
+running the loop between jams so its `Output<-` carries each one to DISKRAM.
+Two things had to be got right, and one is a lesson.
+
+**The loop had to be made to PARK after one pass.** Cycling, it writes DISKRAM
+about every 118 cycles, so a 4000-cycle run per jammed word put ONE word into
+THIRTY-FOUR successive addresses -- measured, 541 `RamCl'C` edges for sixteen
+words. Pointing IM[3]'s jump at ITSELF makes each `parc_run` exactly one pass,
+hence exactly one write. That gives **17 edges for 16 words**, and b21's
+auto-increment lays them out in order.
+
+**And the RAM is readable.** Three F10145As hold it -- e16 is `Ram.04-07`, f16
+`Ram.08-11`, f17 `Ram.12-15` -- a **12-bit** word, which is exactly `disk.c`'s
+`format_ram[addr] & 0x0FFF`, with PARC's MSB-first numbering making `Ram.04`
+bit 11. So the contents can be dumped and compared against HM p.98 directly
+rather than inferred from the address counter.
+
+**The values are wrong, and the pattern is a clue rather than noise:**
+
+```
+want  0001 0007 0377 0000 0104 0204 0004 0000 0033 0006 0011 0002 0002 0001 0000 0000
+got   0000 0000 0010 0016 0377 0000 0042 0022 0002 0000 0215 0006 0011 0004 0004 0010
+```
+
+`0377`, `0006` and `0011` each land **exactly two addresses late** -- and those
+are three of the four largest values. The others do not match at any offset.
+So the address counter is ahead by two when the sixteen begin (17 edges, not 16,
+is the same hint), AND something is wrong with the data for the small values.
+
+Committed as infrastructure with the mismatch stated, not as a gate. The dump
+IS the diagnostic the next step needs: print Q and IOB at each of the sixteen
+writes and compare, rather than reasoning from the final contents.
