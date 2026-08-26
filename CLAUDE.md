@@ -1009,6 +1009,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **...AND THE FOUR PER-BLOCK OPS ARE SPLIT BY BIT** | `disk-read-check` -- f14 takes `bIOB.08/10/12/14`, f15 `.09/11/13/15`, both `PE'=Active` so they load while idle and shift one op per block |
 | **A REAL DISK COMMAND LOADS, AND KEEPS LOADING** | `disk-cmd-test` -- `0x02C0` = SetDebugMode + Read op; the address rides an FF LITERAL (BSEL 6 = `FF,,0`) so T is written from IM every pass: 28 control-register writes, `Active` on 3,765 samples |
 | **THE FORMAT RAM WALKS ALL SIXTEEN WORDS** | `disk-ram-test` -- `LastRamAddr'` asserts (0 -> 214) once the address comes from Q; its carry resets the DisableRun flip-flop, i.e. sets EnableRun, `disk.c` verbatim. T is PER-TASK and a jam does not write the file, so T reverts after one pass |
+| **the FORMAT RAM's contents are SPECIFIED** (HM p.98) -- word counts at 00-03, CONTROL TAG COMMANDS at 04-07, drive timing at 08-14; `disk.c` reads the first four and the RTL's `Ram.04-07` the next four, so both models were right | mapped |
 | **...and the read path is STARTED BY THE FORMAT RAM** | mapped, not gated -- `sCountBits = (ShiftReg.08 \| Tag.000) & ShiftReg.15`, and `Tag.000` comes from `Ram.04-07` while running. A DISKMUFF write can also drive `PreReadData`/`PrePreBitClock` directly (PARC's diagnostic path) |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
 
