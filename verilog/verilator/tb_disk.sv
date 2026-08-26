@@ -4453,6 +4453,25 @@ module tb_disk;
                m.b_DskEth.Idle, m.b_DskEth.Active, shreg_first, m.b_DskEth.InRegFull,
                m.b_DskEth.FifoWaddr_0, m.b_DskEth.FifoWaddr_1,
                m.b_DskEth.FifoWaddr_2, m.b_DskEth.FifoWaddr_3);
+      // A SECTOR PULSE FIRST, because that is what starts the sequence. HM p.98:
+      // the sequence PROMs "are addressed by a program counter that is
+      // initialized to zero at the beginning of a SECTOR and is incremented
+      // upon completion of each PROM program action". The shifter test forced
+      // the drive lines but never pulsed SecIndx' while a command was active,
+      // so the counter had no reason to start.
+      force m.SecIndx0_p_ = 1'b0;
+      repeat (32) @(posedge sys_clk);
+      force m.SecIndx0_p_ = 1'b1;
+      repeat (32) @(posedge sys_clk);
+      $display("tb_disk:   AFTER A SECTOR PULSE -- Sector=%b Active=%b ShiftIn=%b ComputeECC=%b sCountBits=%b ShiftReg=%h",
+               m.b_DskEth.Sector, m.b_DskEth.Active, m.b_DskEth.ShiftIn,
+               m.b_DskEth.ComputeECC, m.b_DskEth.sCountBits,
+               {m.b_DskEth.ShiftReg_00, m.b_DskEth.ShiftReg_01, m.b_DskEth.ShiftReg_02,
+                m.b_DskEth.ShiftReg_03, m.b_DskEth.ShiftReg_04, m.b_DskEth.ShiftReg_05,
+                m.b_DskEth.ShiftReg_06, m.b_DskEth.ShiftReg_07, m.b_DskEth.ShiftReg_08,
+                m.b_DskEth.ShiftReg_09, m.b_DskEth.ShiftReg_10, m.b_DskEth.ShiftReg_11,
+                m.b_DskEth.ShiftReg_12, m.b_DskEth.ShiftReg_13, m.b_DskEth.ShiftReg_14,
+                m.b_DskEth.ShiftReg_15});
       // 32 bit-clock periods carrying an alternating data pattern.
       for (twin = 0; twin < 32; twin = twin + 1) begin
         force m.DataP0 = twin[0]; force m.DataM0 = ~twin[0];
