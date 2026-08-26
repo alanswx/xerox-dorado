@@ -3852,3 +3852,50 @@ all along, `Tag_IOB` and `sCountBits` sitting on the same gate.
 because they accumulate in the shifter loop further down; and leaving a stale
 copy of an assertion behind when an edit script aborted before writing. Check
 where a counter is FILLED before asserting on it.
+
+### THE DISK READ RUNS (2026-08-26)
+
+From a cold machine, `disk-format-test` now drives a real Trident read:
+
+1. sixteen format words jammed into the format RAM and verified against HM p.98
+2. a DISKCONTROL write to zero the RAM address, then `0x02C0` -- SetDebugMode
+   plus a Read op -- so the controller goes Active with `ReadBlock` set
+3. a DISKTAG write, whose strobe IS `sCountBits`, releasing the bit counter
+4. four cable lines presenting a healthy selected drive, and 256 bit periods of
+   an alternating pattern on `DataP/M0` with the clock on `ClockP/M0`
+
+and the controller executes PARC's own read program:
+
+```
+PROM program counter visited 0,1,2,3,4,5
+ShiftIn 177,  ComputeECC 177          the sequencer opening the data path
+ReadData 88,  ShiftReg.in 88          drive data entering
+ShiftReg moved on 175 samples, 0000 -> 5555   the fed pattern, in the register
+```
+
+Step 03 is *"issue tag command in RAM[4] (read command)"*, 04 is *"read data for
+first block"*, 05 is *"read ECC words"*. **Every one of those counters was zero
+before the tag write.**
+
+**The durations match the manual exactly.** Earlier, with only 32 bit periods,
+the walk stopped at step 2 after **3** WordClocks -- and HM gives step 00 a
+duration of 1 and step 01 `RAM[13]+1`, with `RAM[13] = 0001`, i.e. 2. 1 + 2 = 3.
+The sequencer is not merely stepping; it is stepping on the manual's own counts,
+read out of the format RAM this bench loaded.
+
+**A0 is the MOST SIGNIFICANT address bit**, settled by measurement rather than
+assumed. `dorado_proms.py` grounds "Q0 is the most significant" in
+`DiskProms.bcpl` for the DATA outputs and says nothing about A0..A4, so both
+orderings were tried: `{PromA4, sil+9..sil+6}` visited 0 and 8 -- not a walk --
+while `{sil+6..sil+9, PromA4}` visited 0, 1, 2. Only one of those is a program
+counter.
+
+**And this GATES the F10000 fix.** Reverting `cell_F10000`'s bit order now fails
+`disk-format-test`, where before it was invisible to all 45 gates. The shift
+chain read the old way was not a chain -- every package saw f09's first stage --
+and a running read is what finally distinguishes them. The change was made on
+the shared pinout, the F10016 data sheet and the chain topology; it is no longer
+resting on those alone.
+
+Mutations that bite: feeding a constant instead of an alternating stream, and
+reverting the F10000 bit order.

@@ -485,6 +485,9 @@ VL_ATTR_COLD void Vtb_disk___024root___eval_initial__TOP(Vtb_disk___024root* vlS
     vlSelfRef.tb_disk__DOT__n_alub_ok = 0U;
     vlSelfRef.tb_disk__DOT__n_alub_ok_wr = 0U;
     vlSelfRef.tb_disk__DOT__n_iob_lit = 0U;
+    vlSelfRef.tb_disk__DOT__promseen = 0U;
+    vlSelfRef.tb_disk__DOT__promseen2 = 0U;
+    vlSelfRef.tb_disk__DOT__promaddr2_last = 0x1fU;
     vlSelfRef.tb_disk__DOT__dwin_d = 0xffffffffU;
     vlSelfRef.tb_disk__DOT__dwin_w = 0xffffffffU;
     vlSelfRef.tb_disk__DOT__dtrig_d = 0U;

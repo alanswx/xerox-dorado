@@ -1417,6 +1417,7 @@ module tb_disk;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
   integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv, n_wclk, n_co, n_cntdone, n_ramcl, n_lastram, n_wecond, n_werise; reg g15we_d; reg [3:0] wdata_lo, wdata_hi; reg [3:0] alub_hi, alub_fall, wdata_fall; reg ff4_at_wr, ff4_fall; integer n_fall, n_alub_ok, n_alub_ok_wr, n_iob_lit, fwi; reg [11:0] fwgot;
+  reg [31:0] promseen, promseen2; reg [4:0] promaddr, promaddr_last, promaddr2, promaddr2_last;
   // Two one-shot dump windows: one triggered by the DATA arriving on B, one by
   // the WRITE PULSE opening. Whichever leads, the other window shows it.
   integer dwin_d, dwin_w, n_wrshow; reg dtrig_d, dtrig_w; reg [3:0] alub_prev; reg wclk_d, ramcl_d; reg [3:0] ramaddr_last; reg bclkb_d; reg [15:0] shreg_first, shreg_last; reg [7:0] want_tioa; integer n_ioen, n_iobin; reg [15:0] iob_at_en; reg [2:0] ctlbits, iobits, ctl_post, ctl_final;
@@ -1437,7 +1438,7 @@ module tb_disk;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; n_iob_lit=0; dwin_d=-1; dwin_w=-1; dtrig_d=1'b0; dtrig_w=1'b0; alub_prev=4'bx; n_wrshow=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; n_iob_lit=0; promseen=32'd0; promaddr_last=5'h1F; promseen2=32'd0; promaddr2_last=5'h1F; dwin_d=-1; dwin_w=-1; dtrig_d=1'b0; dtrig_w=1'b0; alub_prev=4'bx; n_wrshow=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
     // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
     want_tioa = $test$plusargs("tag")  ? 8'o014 :
                 $test$plusargs("muff") ? 8'o011 :
@@ -4541,7 +4542,10 @@ module tb_disk;
                m.b_DskEth.PromA4_p_, m.b_DskEth.TriconD03_sil_pl_10,
                m.b_DskEth.TriconD03_sil_pl_2, m.b_DskEth.TriconD03_sil_pl_13);
       // 32 bit-clock periods carrying an alternating data pattern.
-      for (twin = 0; twin < 32; twin = twin + 1) begin
+      // 256 bit periods, not 32: step 02's duration is RAM[10]+1 = 10
+      // WordClocks and a WordClock is 16 bit clocks, so reaching step 03 needs
+      // well over a hundred.
+      for (twin = 0; twin < 256; twin = twin + 1) begin
         force m.DataP0 = twin[0]; force m.DataM0 = ~twin[0];
         force m.ClockP0 = 1'b1;  force m.ClockM0 = 1'b0;
         repeat (6) @(posedge sys_clk);
@@ -4572,7 +4576,21 @@ module tb_disk;
         // divided down to ONE WordClock' edge per word, and that edge is what
         // advances b20, whose parallel entry comes from a PROM and whose load
         // is `CntDone'`. Count edges on WordClock', not levels.
-        if (m.b_DskEth.WordClock_p_ && !wclk_d) n_wclk = n_wclk + 1;
+        // DOES THE PROGRAM COUNTER ADVANCE? a22 counts PromA4' and PromA4 toggles on
+    // every b20 load, so the PROM address should walk 00 -> 01 -> 02 -> 03 as
+    // the WordClocks arrive. Record EVERY address the sequencer visits, not
+    // just the one at some sampling instant.
+    promaddr = {m.b_DskEth.PromA4, m.b_DskEth.TriconD03_sil_pl_9,
+                m.b_DskEth.TriconD03_sil_pl_8, m.b_DskEth.TriconD03_sil_pl_7,
+                m.b_DskEth.TriconD03_sil_pl_6};
+    promseen[promaddr] = 1'b1;
+    promaddr_last = promaddr;
+    promaddr2 = {m.b_DskEth.TriconD03_sil_pl_6, m.b_DskEth.TriconD03_sil_pl_7,
+                 m.b_DskEth.TriconD03_sil_pl_8, m.b_DskEth.TriconD03_sil_pl_9,
+                 m.b_DskEth.PromA4};
+    promseen2[promaddr2] = 1'b1;
+    promaddr2_last = promaddr2;
+    if (m.b_DskEth.WordClock_p_ && !wclk_d) n_wclk = n_wclk + 1;
         wclk_d = m.b_DskEth.WordClock_p_;
         if (!m.b_DskEth.TriconD13_sil_pl_1) n_co = n_co + 1;
         if (!m.b_DskEth.CntDone_p_)         n_cntdone = n_cntdone + 1;
@@ -4590,19 +4608,61 @@ module tb_disk;
         if (m.b_DskEth.BitClock_p_B && !bclkb_d) n_bclkb = n_bclkb + 1;
         bclkb_d = m.b_DskEth.BitClock_p_B;
       end
-      $display("tb_disk:   SHIFTER after  -- 32 bit clocks: PreBitClock high %0d, BitClock'B EDGES %0d, ShiftRegLd' low on %0d, sCountBits high %0d, ShiftReg moved on %0d (%h -> %h)",
+      $display("tb_disk:   SHIFTER after  -- 256 bit clocks: PreBitClock high %0d, BitClock'B EDGES %0d, ShiftRegLd' low on %0d, sCountBits high %0d, ShiftReg moved on %0d (%h -> %h)",
                n_bclk, n_bclkb, n_shld, n_scnt, n_shmove, shreg_first, shreg_last);
-      $display("tb_disk:   SHIFTER entry  -- ReadData %0d of 32, ShiftIn %0d, ComputeECC %0d, ShiftReg.in %0d\ntb_disk:   SEQUENCER      -- WordClock' EDGES %0d, bit-counter CO' asserted %0d, CntDone' asserted %0d\ntb_disk:   SHIFTER state  -- Idle=%b Active=%b InRegFull=%b FifoWaddr=%b%b%b%b FifoEmpty=%b",
+      $display("tb_disk:   SHIFTER entry  -- ReadData %0d, ShiftIn %0d, ComputeECC %0d, ShiftReg.in %0d\ntb_disk:   SEQUENCER      -- WordClock' EDGES %0d, bit-counter CO' asserted %0d, CntDone' asserted %0d\ntb_disk:   SHIFTER state  -- Idle=%b Active=%b InRegFull=%b FifoWaddr=%b%b%b%b FifoEmpty=%b",
                n_rdata, n_shiftin, n_cecc, n_shin, n_wclk, n_co, n_cntdone,
                m.b_DskEth.Idle, m.b_DskEth.Active, m.b_DskEth.InRegFull,
                m.b_DskEth.FifoWaddr_0, m.b_DskEth.FifoWaddr_1,
                m.b_DskEth.FifoWaddr_2, m.b_DskEth.FifoWaddr_3,
                m.b_DskEth.FifoEmpty);
+      // GATE: THE DISK READ RUNS. With PARC's format program in the RAM, a Read
+      // command Active, a DISKTAG write to release the bit counter and the
+      // drive's differential pair carrying bits, the controller executes HM
+      // p.99's read program and takes the data in:
+      //
+      //   * the PROM program counter WALKS -- 0,1,2,3,4,5 -- through step 03
+      //     ("issue tag command in RAM[4], read command") into 04 ("read data
+      //     for first block") and 05 ("read ECC words").
+      //   * ShiftIn and ComputeECC OPEN, which is the sequencer telling b08 to
+      //     take `ReadData` rather than circulate `EccData.32`.
+      //   * the input shift register MOVES and ends holding the pattern being
+      //     fed on DataP/M -- 0x5555 for an alternating bit stream.
+      //
+      // Every one of those was zero before the tag write.
+      if ($test$plusargs("ram16")) begin
+        if (promseen2[0] !== 1'b1 || promseen2[1] !== 1'b1 || promseen2[2] !== 1'b1)
+          $fatal(1, "the PROM program counter did not walk its first steps (visited %b)",
+                 promseen2[15:0]);
+        if (promseen2[4] !== 1'b1)
+          $fatal(1, "the sequencer never reached step 04, 'read data for first block' (visited %b)",
+                 promseen2[15:0]);
+        if (n_shiftin == 0 || n_cecc == 0)
+          $fatal(1, "the sequencer never opened the data path: ShiftIn %0d ComputeECC %0d",
+                 n_shiftin, n_cecc);
+        if (n_shmove == 0)
+          $fatal(1, "the input shift register never moved");
+        if (shreg_last !== 16'h5555)
+          $fatal(1, "the shift register holds %h, not the 5555 being fed on DataP/M",
+                 shreg_last);
+        $display("tb_disk:   ...so THE DISK READ RUNS: PROM PC walked %b, ShiftIn %0d, ComputeECC %0d, ShiftReg = %h",
+                 promseen2[15:0], n_shiftin, n_cecc, shreg_last);
+      end
       // GATE: THE COUNTER ACTUALLY RUNS. With the tag write done, b10 must
       // reach terminal count and WordClock' must have edges -- that is what
       // steps 00-02 of HM p.99's read program consume, before any sync exists.
       // These counters accumulate in the SHIFTER loop just above, so they can
       // only be read here, not back at the format-RAM dump.
+      // A0 IS THE MOST SIGNIFICANT ADDRESS BIT, settled by measurement rather
+      // than assumed. dorado_proms.py's "Q0 is the most significant" is
+      // grounded in DiskProms.bcpl's `Pin1 = #200` for the DATA outputs and
+      // says nothing about A0..A4, so both orderings were tried:
+      //   {PromA4, sil+9, sil+8, sil+7, sil+6}  visited 0 and 8   -- not a walk
+      //   {sil+6, sil+7, sil+8, sil+9, PromA4}  visited 0, 1, 2   -- a WALK
+      // The second is the sequencer stepping its program, so A0 (pin 14,
+      // TriconD03.sil+6) is the MSB, matching the data-pin convention.
+      $display("tb_disk:   PROM PROGRAM COUNTER -- visited %b (bit n = address n), last = %0d",
+               promseen2[15:0], promaddr2_last);
       if ($test$plusargs("ram16")) begin
         if (n_co == 0)
           $fatal(1, "the bit counter never reached terminal count after the tag write");
