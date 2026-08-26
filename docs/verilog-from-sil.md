@@ -3705,3 +3705,48 @@ one being chased.
 
 Recorded rather than pursued: this is the fourth hop of a chain in one sitting,
 and the last three framings of rung 1 each needed correcting a step later.
+
+### The read sequencer is at step 0, doing exactly what the manual says (2026-08-26)
+
+The previous entry guessed the sequence PROMs were delivering zeros. They are
+not, and measuring the address and enables shows the controller is behaving
+correctly at every point checked:
+
+```
+addr = 00000        the PROM program counter, at zero
+a20 CE' = 1         the WRITE PROM, correctly DISABLED for a read
+a21 CE' = 0         the READ PROM, ENABLED
+b20 D   = 1000      the sequencer's parallel entry -- NOT zero
+```
+
+a20 and a21 share the address `{PromA4, sil+9..sil+6}` and share outputs Q1-Q7
+wired-OR; they are selected by their enables alone, a20's being `WriteBlock'`.
+They also drive `RamAddr.0-3`, wired-OR with b21's counter -- HM p.98: *"the
+format RAM is addressed in two ways. During a transfer, sequence PROMs move data
+from the RAM ... At other times, the Dorado may address the RAM with the RAM
+Address register."*
+
+**And step 0 decodes exactly as the manual's program says.** `tools/dorado_proms.py`
+grounds the bit order in `DoradoProms.defs`'s own pin declarations -- **Q0 is the
+MOST significant output** -- so a21's word 0, `0x16` = `0001 0110`, gives
+
+```
+Q0=0 Q1=0 Q2=0 Q3=1        Q4..Q7 = 0,1,1,0  ->  RamAddr = 6
+```
+
+`Q1 = 0` is exactly the measured `TriconD03.sil+2 = 0`, and **the PROM selects
+format RAM entry 6** -- which is HM p.99's first program action, *"Issue tag
+command in RAM[6] (head select)"*. `ShiftIn` and `ComputeECC` being 0 there is
+CORRECT: step 0 issues a tag, it does not move data.
+
+**So the state is understood, and it is not a fault.** The read sequencer is
+parked at its first action, waiting for `WordClock` to complete it -- HM gives
+that action a duration of "1 WordClock". `WordClock'` is `PreBitClock' |
+TriconD13.sil+1`, the bit counter's carry, and b10 is held parallel-loading by
+`TriconD13.sil+3` (b09 FF-b, SET by `sCountBits`).
+
+**The one open question is therefore narrow**: what runs the bit counter during
+the FIRST program action, before any sync has been seen? Either b09 FF-b comes
+out of reset in the counting state on a real machine and our model has it the
+other way, or something else releases b10's PE' at sector start. That is one
+flip-flop's power-up/reset behaviour, not a chain to trace.

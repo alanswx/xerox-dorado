@@ -4472,6 +4472,25 @@ module tb_disk;
                 m.b_DskEth.ShiftReg_09, m.b_DskEth.ShiftReg_10, m.b_DskEth.ShiftReg_11,
                 m.b_DskEth.ShiftReg_12, m.b_DskEth.ShiftReg_13, m.b_DskEth.ShiftReg_14,
                 m.b_DskEth.ShiftReg_15});
+      // THE SEQUENCE PROMs' ADDRESS AND ENABLES. a20 and a21 share the address
+      // {PromA4, sil+9, sil+8, sil+7, sil+6} -- the program counter -- and share
+      // outputs Q1-Q7 wired-OR. They are ENABLE-SELECTED: a20's CE' is
+      // `WriteBlock'` (it IS the write PROM, per its generated header) and
+      // a21's is `TriconD03.sil+1`. An SG10139 with CE' high drives its outputs
+      // LOW, so if neither is enabled the sequencer sees zeros -- which is
+      // exactly the symptom. Read both enables before blaming anything else.
+      //
+      // They also drive RamAddr.0-3, wired-OR with b21's counter: HM p.98 says
+      // "the format RAM is addressed in two ways -- during a transfer, sequence
+      // PROMs move data from the RAM ... at other times, the Dorado may address
+      // the RAM with the RAM Address register".
+      $display("tb_disk:   SEQUENCE PROMS -- addr = %b%b%b%b%b | a20 CE'(WriteBlock')=%b  a21 CE'=%b | b20 D = %b%b%b%b",
+               m.b_DskEth.PromA4, m.b_DskEth.TriconD03_sil_pl_9,
+               m.b_DskEth.TriconD03_sil_pl_8, m.b_DskEth.TriconD03_sil_pl_7,
+               m.b_DskEth.TriconD03_sil_pl_6,
+               m.b_DskEth.WriteBlock_p_, m.b_DskEth.TriconD03_sil_pl_1,
+               m.b_DskEth.PromA4_p_, m.b_DskEth.TriconD03_sil_pl_10,
+               m.b_DskEth.TriconD03_sil_pl_2, m.b_DskEth.TriconD03_sil_pl_13);
       // 32 bit-clock periods carrying an alternating data pattern.
       for (twin = 0; twin < 32; twin = twin + 1) begin
         force m.DataP0 = twin[0]; force m.DataM0 = ~twin[0];
