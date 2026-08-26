@@ -3469,3 +3469,73 @@ the same word, and the whole point of a "real format program" is that the RTL's
 interpretation is the one that must be satisfied. HM page 98 and the DskEth
 format-RAM sheet should say what the twelve bits mean before any program is
 written -- guessing here would be the third framing of rung 1 in a day.
+
+### The format RAM, from the manual: BOTH models were right (2026-08-25)
+
+I flagged a worry that `disk.c` reads a format word as a block LENGTH while the
+RTL wires `Ram.04-07` into the TAG mux, and that one of them must be wrong.
+Neither is. Hardware Manual page 98 (PDF 105) gives the table, and **the format
+RAM holds both kinds of entry at different addresses**:
+
+```
+Addr  Description                                                Example (octal)
+ 00   Word count of the first block                                   0001
+ 01   Word count of the second block                                  0007
+ 02   Word count of the third block                                   0377
+ 03   Word count of the fourth block                                  0000
+ 04   Control tag command for a READ operation                        0104
+ 05   Control tag command for a WRITE operation                       0204
+ 06   Control tag command to set Head Select                          0004
+ 07   Control tag command to zero the tag bus                         0000
+ 08   Word count to write zeroes before the 1st block of a sector     0033
+ 09   Word count to write zeroes before successive blocks             0006
+ 10   Word count to wait before READING the 1st block of a sector     0011
+ 11   Word count to wait before reading successive blocks             0002
+ 12   Word count of ECC words plus one                                0002
+ 13   Word count of 2                                                 0001
+ 14   Word count of 1 (minimum count)                                 0000
+ 15   Not used                                                        0000
+```
+
+> "Notice that the format RAM contains both word counts and tag commands. Word
+> counts are 1 less than the desired count. ... The values in the right column
+> are those used for the **Alto Diablo emulation format**."
+
+So `disk.c`'s `format_ram[block] + 1` is right for **00-03**, and the RTL's
+`Ram.04-07` -> e21's tag mux is right for **04-07** -- those four entries ARE the
+control tag commands. Ninth agreement, and this one resolves an apparent
+conflict rather than adding a new match.
+
+Two more things the same page confirms, both already gated here:
+
+* *"Loading the last word in the format RAM turns on the EnableRun flip-flop
+  allowing normal disk control activity"* -- which is `LastRamAddr'` through d13
+  onto the DisableRun flip-flop's reset.
+* *"executing an Output to the DiskRam register writes IOB into the RAM at the
+  current address and then increments the address"*, with the address *"zeroed
+  when the control register is written"* -- b21's `MR = ControlRegCl`.
+
+And page 99 gives the WRITE sequence PROM program, which is what the two PROMs
+step through:
+
+```
+00  Issue tag command in RAM[6] (head select)             1
+01  Delay (wait for head select to settle)                RAM[13]+1
+02  Issue tag command in RAM[5] (write command)           1
+03  Write long preamble for first block                   RAM[8]+1
+04  Write sync word                                       1
+05  Write data for first block                            RAM[0]+1
+06  Write first ECC word                                  RAM[14]+1
+07  Write second ECC word and 2 postamble words           RAM[12]+1
+08  Advance control register to the next block's op       RAM[14]+1
+...
+```
+
+*"The sequence PROMs are clocked by WordClock, which is derived from the disk bit
+clock, which in turn is derived from timing information pre-recorded on the disk
+pack."* That is the self-timed loop from earlier, described by its designers.
+
+**Consequence for #32.** The example values are `0001 0007 0377 0104 0204 0004
+0033 0006 0011 0002 0001 0000` -- in hex `01 07 FF 44 84 04 1B 06 09 02 01 00`.
+Only `0377` fits an FF literal's `{high byte, 0x00 or 0xFF}` form. Sixteen jams
+into Q it is.
