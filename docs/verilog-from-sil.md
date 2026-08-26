@@ -3435,3 +3435,37 @@ whole run are the honest reading; a single captured sample is only a hint.
 *And the same scoping as before:* `+tdata`'s loop never stops, so the post-run
 "a jam reaches neither path" window is skipped in that mode too -- it would be
 measuring the loop.
+
+### An FF literal cannot express a format word -- #32 is needed after all (2026-08-25)
+
+Before building a sixteen-slot loop, the arithmetic: what values does a real
+format program hold? `disk.c` says each entry is a block LENGTH minus one, with
+the defaults coming from the drive geometry:
+
+```c
+case 0: return disk_drive_header_words(d);   /* Trident: 2  -> entry 1   */
+case 1: return disk_drive_label_words(d);    /*          8  -> entry 7   */
+case 2: return disk_drive_data_words(d);     /*        256  -> entry 255 */
+```
+
+An FF literal is `FF,,0` or `FF,,0o377` -- eight chosen bits in B's HIGH byte
+with the low byte forced to `0x00` or `0xFF`. So it can express `0x00FF` (255)
+and **cannot express `0x0001` or `0x0007`**. More loop slots do not help; the
+values themselves are out of reach.
+
+**So exactly one arbitrary 16-bit constant can enter a run** -- via a CPReg jam
+into Q, the only register that both takes a jam and survives. T does not (it is
+per-task, #31); the IM literal forms are 8 bits plus a fixed low byte.
+
+**That reopens #32**, which was closed as "not needed" because the FF literal
+solved the ADDRESS-vs-DATA case. It does not solve the SIXTEEN-ARBITRARY-WORDS
+case, and the fix is the same one: let the startup RUN the machine between jams,
+so several different constants can be loaded into Q and consumed in turn.
+
+**And one thing to establish first, from the schematic rather than by
+inference.** `disk.c` treats a format word as a block length; the RTL wires
+`Ram.04-07` into the tag mux (e21). Those two need not be the same reading of
+the same word, and the whole point of a "real format program" is that the RTL's
+interpretation is the one that must be satisfied. HM page 98 and the DskEth
+format-RAM sheet should say what the twelve bits mean before any program is
+written -- guessing here would be the third framing of rung 1 in a day.
