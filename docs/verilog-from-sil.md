@@ -3940,3 +3940,44 @@ it required amending FOUR separate gate chains that had assumed the older set --
 the register-decode branch, the muffler-clear branch, the ReadBlock branch and
 the `bIOin'` read-direction branch. Introducing a mode means auditing every
 chain, not just the one being extended.
+
+### A WORD COMES OFF THE DISK AND REACHES THE PROCESSOR (2026-08-26)
+
+Rung 3 complete. `disk-format-test` now runs the whole path from a cold machine:
+
+```
+format program -> Read command -> tag write -> bits on the cable
+   -> shift register -> FIFO -> DskData -> the read mux -> the processor
+
+FifoWaddr 0011 -> 0111   four words assembled and written
+FifoRaddr 0001 -> 0111   six words popped
+FifoEmpty = 1            the FIFO DRAINS
+DskData   = 0aa0         a real word out, non-zero on 19,450 samples
+```
+
+**`DskData` is not loaded by a read, and that was the whole difficulty.** c17
+gate a is `OR(PreClock1'Cb, OutRegWrite')`, and `OutRegWrite'` comes from b11
+gate d as a function of `OutRegFull` and `FifoEmpty` -- so e12/e08 latch
+AUTOMATICALLY whenever the FIFO holds a word and the output register is free.
+
+`OutRegFull` is high on **468,042 of 468,075** samples: the output register
+reports full from the start, which blocks `OutRegWrite'` (2 falls in a whole
+run). c16 clears it on a DISKDATA read (`TIOA=Data'`). So one read clears it
+once and one word can load -- **the microcode is expected to DRAIN**. With the
+read hunk looping instead of parking after a single pass, `OutRegWrite'` falls 7
+times, the FIFO empties, and a real word arrives.
+
+**The last-value trap was ruled out first, not assumed away.** Sampled over the
+whole run rather than at one instant, `DskData` was non-zero on **0 of 468,075**
+samples before the change -- genuinely always zero, not a badly-timed reading.
+That mattered: the same trap had already produced two wrong conclusions here.
+
+*What the word means, honestly:* `0aa0` is not `0xA53C`, and should not be
+expected to be. The sequencer walked all sixteen program steps, so the four
+words assembled span the data, ECC and postamble phases, and the bit alignment
+depends on where sync fired in the stream. Proving a SPECIFIC word end to end
+needs the sequencer stopped in the data phase, which is the next piece of work.
+What is gated here is that the path carries data at all -- FIFO written, FIFO
+drained, non-zero word at the processor.
+
+Mutation that bites: parking the read hunk after one pass instead of looping.

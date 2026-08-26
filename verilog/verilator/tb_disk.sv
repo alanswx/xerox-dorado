@@ -1417,7 +1417,8 @@ module tb_disk;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
   integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv, n_wclk, n_co, n_cntdone, n_ramcl, n_lastram, n_wecond, n_werise; reg g15we_d; reg [3:0] wdata_lo, wdata_hi; reg [3:0] alub_hi, alub_fall, wdata_fall; reg ff4_at_wr, ff4_fall; integer n_fall, n_alub_ok, n_alub_ok_wr, n_iob_lit, fwi; reg [11:0] fwgot;
-  reg [15:0] FEDWORD = 16'hA53C; reg [3:0] fraddr_before; integer n_irf, n_fifow; reg irf_d; reg [3:0] fwaddr_first, fwaddr_last2;
+  reg [15:0] FEDWORD = 16'hA53C; reg [3:0] fraddr_before;
+  integer n_orw, n_orf, n_dsknz; reg orw_d; reg [15:0] dskdata_nz, dskdata_now; integer n_irf, n_fifow; reg irf_d; reg [3:0] fwaddr_first, fwaddr_last2;
   reg [31:0] promseen, promseen2; reg [4:0] promaddr, promaddr_last, promaddr2, promaddr2_last;
   // Two one-shot dump windows: one triggered by the DATA arriving on B, one by
   // the WRITE PULSE opening. Whichever leads, the other window shows it.
@@ -1439,7 +1440,7 @@ module tb_disk;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; n_iob_lit=0; promseen=32'd0; promaddr_last=5'h1F; n_irf=0; n_fifow=0; irf_d=1'b0; fwaddr_first=4'bx; fwaddr_last2=4'bx; promseen2=32'd0; promaddr2_last=5'h1F; dwin_d=-1; dwin_w=-1; dtrig_d=1'b0; dtrig_w=1'b0; alub_prev=4'bx; n_wrshow=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; n_iob_lit=0; promseen=32'd0; promaddr_last=5'h1F; n_irf=0; n_fifow=0; irf_d=1'b0; n_orw=0; n_orf=0; n_dsknz=0; orw_d=1'b1; dskdata_nz=16'h0000; fwaddr_first=4'bx; fwaddr_last2=4'bx; promseen2=32'd0; promaddr2_last=5'h1F; dwin_d=-1; dwin_w=-1; dtrig_d=1'b0; dtrig_w=1'b0; alub_prev=4'bx; n_wrshow=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
     // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
     want_tioa = $test$plusargs("tag")  ? 8'o014 :
                 $test$plusargs("muff") ? 8'o011 :
@@ -1853,6 +1854,24 @@ module tb_disk;
            m.b_DskEth.IOB_12, m.b_DskEth.IOB_13, m.b_DskEth.IOB_14, m.b_DskEth.IOB_15}
           == 16'h5A5A) n_iob_ok = n_iob_ok + 1;
     end
+    // DskData IS NOT LOADED BY A READ. c17 gate a is OR(PreClock1'Cb,
+    // OutRegWrite'), and OutRegWrite' is b11 gate d from OutRegFull and
+    // FifoEmpty -- so e12/e08 latch AUTOMATICALLY when the FIFO has a word and
+    // the output register is free. Sample over the WHOLE RUN and keep any
+    // NON-ZERO value: a single reading at the end has misled twice here.
+    dskdata_now = {m.b_DskEth.DskData_00, m.b_DskEth.DskData_01, m.b_DskEth.DskData_02,
+                   m.b_DskEth.DskData_03, m.b_DskEth.DskData_04, m.b_DskEth.DskData_05,
+                   m.b_DskEth.DskData_06, m.b_DskEth.DskData_07, m.b_DskEth.DskData_08,
+                   m.b_DskEth.DskData_09, m.b_DskEth.DskData_10, m.b_DskEth.DskData_11,
+                   m.b_DskEth.DskData_12, m.b_DskEth.DskData_13, m.b_DskEth.DskData_14,
+                   m.b_DskEth.DskData_15};
+    if (dskdata_now != 16'h0000) begin
+      n_dsknz = n_dsknz + 1;
+      dskdata_nz = dskdata_now;
+    end
+    if (!m.b_DskEth.OutRegWrite_p_ && orw_d) n_orw = n_orw + 1;
+    orw_d = m.b_DskEth.OutRegWrite_p_;
+    if (m.b_DskEth.OutRegFull) n_orf = n_orf + 1;
     n_tot = n_tot + 1;   // denominator, always printed beside a raw count
     // THE FILL'S ADDRESS. a03's twelve address pins are Dad_00a..Dad_08a plus
     // Dad0_10a..Dad0_12a (PARC skips 09 on this bank). Capture it AT THE
@@ -3134,7 +3153,13 @@ module tb_disk;
                     '{3'd1,   3'd0,   3'd0,   3'd0},
                     '{3'd4,   3'd4,   3'd4,   3'd4},
                     '{8'o012, 8'o152, 8'o032, 8'o000},
-                    '{8'o215, 8'o216, 8'o217, 8'o217});
+                    // LOOP, do not park. OutRegFull is high on essentially every
+                    // sample -- the output register reports full from the start
+                    // -- and c16 clears it on a DISKDATA read (TIOA=Data'). With
+                    // OutRegFull high, b11 gate d blocks OutRegWrite', so the
+                    // FIFO cannot load e12/e08 and DskData stays 0000. One read
+                    // clears it once; the microcode is expected to DRAIN.
+                    '{8'o215, 8'o216, 8'o217, 8'o214});
         send_a_hunk(16'd12);
       end
       // IM[8..11] for `+ram16`: the same shape aimed at DISKTAG (014B).
@@ -4657,7 +4682,7 @@ module tb_disk;
       parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
       nop_micro;
       parc_run(8'h60, 8'h13, 8'hE1, 8'h4A, 8'h43);      // TaskingOn,Return
-      repeat (600) @(posedge sys_clk);
+      repeat (20000) @(posedge sys_clk);                 // long enough to DRAIN
       $display("tb_disk:   THE READ BACK -- FifoRaddr %b -> %b, FifoEmpty=%b, DskData = %h",
                fraddr_before,
                {m.b_DskEth.FifoRaddr_0, m.b_DskEth.FifoRaddr_1,
@@ -4679,7 +4704,17 @@ module tb_disk;
              m.b_DskEth.FifoRaddr_2, m.b_DskEth.FifoRaddr_3} === fraddr_before)
           $fatal(1, "a DISKDATA read did not advance the FIFO read address (%b)",
                  fraddr_before);
-        $display("tb_disk:   ...so a DISKDATA read POPS THE FIFO");
+        // AND DRAINING IT DELIVERS DATA. OutRegFull is high from the start and
+        // is cleared by a DISKDATA read (c16, on TIOA=Data'); while it is high,
+        // b11 gate d blocks OutRegWrite' so the FIFO cannot load e12/e08. One
+        // read clears it once -- the microcode is expected to DRAIN, and with a
+        // looping read hunk the FIFO empties and a real word reaches DskData.
+        if (m.b_DskEth.FifoEmpty !== 1'b1)
+          $fatal(1, "the FIFO did not drain: FifoEmpty = %b", m.b_DskEth.FifoEmpty);
+        if (n_dsknz == 0)
+          $fatal(1, "DskData never carried a non-zero word out of the FIFO");
+        $display("tb_disk:   ...so a DISKDATA read POPS THE FIFO, and DRAINING it delivers %h to the processor",
+                 dskdata_nz);
       end
 
       // GATE: THE DISK READ RUNS. With PARC's format program in the RAM, a Read
@@ -4749,6 +4784,8 @@ module tb_disk;
                 m.b_DskEth.DskData_09, m.b_DskEth.DskData_10, m.b_DskEth.DskData_11,
                 m.b_DskEth.DskData_12, m.b_DskEth.DskData_13, m.b_DskEth.DskData_14,
                 m.b_DskEth.DskData_15});
+      $display("tb_disk:   DskData OVER THE RUN -- non-zero on %0d of %0d samples, last non-zero = %h | OutRegWrite' falls %0d, OutRegFull high %0d",
+               n_dsknz, n_tot, dskdata_nz, n_orw, n_orf);
       if ($test$plusargs("ram16")) begin
         if (n_co == 0)
           $fatal(1, "the bit counter never reached terminal count after the tag write");
