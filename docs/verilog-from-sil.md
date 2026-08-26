@@ -3899,3 +3899,44 @@ resting on those alone.
 
 Mutations that bite: feeding a constant instead of an alternating stream, and
 reverting the F10000 bit order.
+
+### Words reach the FIFO, and a DISKDATA read pops it (2026-08-26)
+
+Rung 3. Feeding a RECOGNISABLE word (`0xA53C`) rather than an alternating
+pattern changes the run completely, and for a good reason:
+
+```
+sCountBits high 12          the sync detect FIRES (alternating gave 0)
+PROM PC visited ALL 16      the sequencer walks the whole read program
+InRegFull edges 4           four complete words assembled
+FifoWaddr 0011 -> 0111      FOUR FIFO WRITES
+```
+
+Then a `Pd<-Input` at DISKDATA (012B), from a fourth hunk at IM[12..15]:
+
+```
+FifoRaddr 0001 -> 0010      the FIFO read address ADVANCES -- a word is popped
+```
+
+which is `disk.c`'s `DORADO_DISK_TIOA_DISKDATA` case popping the FIFO, and the
+read mux's `{B,A} = 00` selecting `DskData`.
+
+**A gate I had to correct rather than satisfy.** I first asserted `ShiftReg ==
+FEDWORD` at the end of the run, and it read `0000`. That was checking the wrong
+instant: with a recognisable word the sync detect fires, the sequencer walks all
+sixteen steps and **the read COMPLETES**, so by the end the register has moved
+past the data phase. What matters is that whole WORDS were assembled and stored
+-- `InRegFull` rising and `FifoWaddr` advancing -- not what the shifter holds
+after everything is over.
+
+**Still open:** `DskData` reads `0000` after the pop, where it should hold the
+popped word. e12/e08 latch it on `OutRegCl'A`, so either that strobe is not
+firing on this path or the sampling is after it has been reloaded -- the same
+"last value" trap that has already misled twice here. The FIFO's *behaviour* is
+gated (a read advances the address); its *contents* are not.
+
+*Process note.* `+ram16` is now the fourth mode this bench carries, and adding
+it required amending FOUR separate gate chains that had assumed the older set --
+the register-decode branch, the muffler-clear branch, the ReadBlock branch and
+the `bIOin'` read-direction branch. Introducing a mode means auditing every
+chain, not just the one being extended.
