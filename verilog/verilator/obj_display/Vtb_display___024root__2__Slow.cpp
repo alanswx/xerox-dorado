@@ -709,6 +709,7 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->tb_display__DOT__m__DOT__dMD_17 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4406544864059693258ull);
     vlSelf->tb_display__DOT__m__DOT__rMIRa = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4899063566051328788ull);
     vlSelf->tb_display__DOT__m__DOT__AcanhaveMap_p___05F_MemX = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16339322156655792314ull);
+    vlSelf->tb_display__DOT__m__DOT__AfreeOrEc_p_b___05FMemC = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14244948594855794578ull);
     vlSelf->tb_display__DOT__m__DOT__At_eq_Curt_p___05F_MemX = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 895556551913740671ull);
     vlSelf->tb_display__DOT__m__DOT__AwantsDifHit_p___05F_MemC = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10537245954931078328ull);
     vlSelf->tb_display__DOT__m__DOT__BMux_16___05FProcH = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5283154507521331625ull);
@@ -1227,6 +1228,7 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->tb_display__DOT__m__DOT__b_ContA__DOT__ContA18_sil_pl_2___05Fd04_15 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8625600221007446982ull);
     vlSelf->tb_display__DOT__m__DOT__b_ContA__DOT__ContA19_sil_pl_1___05Fd04_14 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7975250235824650521ull);
     vlSelf->tb_display__DOT__m__DOT__b_ContA__DOT__DMuxEnable_p___05F_l24_9 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17821388371873008689ull);
+    vlSelf->tb_display__DOT__m__DOT__b_ContA__DOT__IFUNext_p_a___05Fe22_13 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14531844142272748582ull);
     vlSelf->tb_display__DOT__m__DOT__b_ContA__DOT__IfuNextMacro_p___05F_d21_9 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15000365573594370544ull);
     vlSelf->tb_display__DOT__m__DOT__b_ContA__DOT__SetReady_01___05Fa08_2 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16603918774889342386ull);
     vlSelf->tb_display__DOT__m__DOT__b_ContA__DOT__SetReady_02___05Fa08_3 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1414019262886713290ull);
@@ -5403,7 +5405,16 @@ VL_ATTR_COLD void Vtb_display___024root___ctor_var_reset(Vtb_display___024root* 
     vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_18 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17957180279474225822ull);
     vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_2 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16995554041016491573ull);
     vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_28 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4969334833464806494ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_29 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3974403655385974089ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_3 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15379641918863026869ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_30 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13906330356425602271ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_31 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4250985946991281648ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_32 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7899387326805556704ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_33 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8474909734411525809ull);
     vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_34 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17266309398686854988ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_35 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5442848886262508294ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_4 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18426947377950984774ull);
+    vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_5 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9079415796570116479ull);
     vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD04_sil_pl_8 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3197786329022011491ull);
     vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD05_sil_pl_1 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9030339964084004189ull);
     vlSelf->tb_display__DOT__m__DOT__b_MemD__DOT__MemD05_sil_pl_10 = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12345038120650215831ull);

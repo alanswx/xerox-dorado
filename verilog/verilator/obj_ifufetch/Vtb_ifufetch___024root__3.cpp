@@ -7672,10 +7672,11 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__5(Vtb_ifufet
                  32,tb_ifufetch__DOT__nd0,32,tb_ifufetch__DOT__nsamp,
                  1,(IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__MemIdle),
                  1,vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__TrueBD,
-                 1,(1U & (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h08__DOT__q)),
-                 1,(1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_i10__DOT__q) 
+                 1,(1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_h08__DOT__q) 
                           >> 3U)),1,(1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_i10__DOT__q) 
-                                           >> 1U)));
+                                           >> 3U)),
+                 1,(1U & ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_MemX__DOT__u_i10__DOT__q) 
+                          >> 1U)));
     VL_WRITEF_NX("tb_ifufetch:   MAP SEQUENCER -- MapState took %0d of 8 values, MapFnc %0d of 4 | preStartMem' low on %0d, StartMem' low on %0d\ntb_ifufetch:   STORE cycles with Store_ asserted: %0d   |   HitColDirty during the flush: %0d\ntb_ifufetch:   FlushStore = ~(FSinPair' | EcHasAb) -- FSinPair'=0 on %0d, EcHasAb=0 on %0d of %0d\ntb_ifufetch:   STORAGE PATH WHILE RUNNING -- FlushStore %0d, ForceMiss %0d, MISS(a) %0d, MISS(b) %0d of %0d\n",0,
                  32,tb_ifufetch__DOT__nmapst,32,tb_ifufetch__DOT__nmapfn,
                  32,tb_ifufetch__DOT__npsm2,32,tb_ifufetch__DOT__nsm2,
@@ -7861,8 +7862,8 @@ VlCoroutine Vtb_ifufetch___024root___eval_initial__TOP__Vtiming__0__5(Vtb_ifufet
                  1,(1U & ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__ProcL24_sil_pl_11)) 
                           | ((~ (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__ProcL24_sil_pl_10)) 
                              | (~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__SimHoldDis) 
-                                   | ((~ (((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a04__DOT__q) 
-                                           >> 3U) | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a01__DOT__p7))) 
+                                   | ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a04__DOT__q) 
+                                          | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_a01__DOT__p7))) 
                                       | (IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ProcL__DOT__u_h20__DOT__p13))))))),
                  1,(1U & ((~ ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b18__DOT__p9) 
                               | ((IData)(vlSelfRef.tb_ifufetch__DOT__m__DOT__b_ContA__DOT__u_b18__DOT__p10) 

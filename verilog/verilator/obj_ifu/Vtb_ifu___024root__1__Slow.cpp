@@ -68,10 +68,6 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
     tb_ifu__DOT__m__DOT__b_ContB__DOT__CS0_p_BDc___05Fi22_6 = 0;
     CData/*0:0*/ tb_ifu__DOT__m__DOT__b_ProcH__DOT__aluP2;
     tb_ifu__DOT__m__DOT__b_ProcH__DOT__aluP2 = 0;
-    CData/*0:0*/ tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00___05Fh06_23;
-    tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00___05Fh06_23 = 0;
-    CData/*0:0*/ tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00___05Fi06_23;
-    tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00___05Fi06_23 = 0;
     CData/*0:0*/ tb_ifu__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_1___05Fd22_14;
     tb_ifu__DOT__m__DOT__b_ProcH__DOT__ProcH24_sil_pl_1___05Fd22_14 = 0;
     CData/*3:0*/ tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_e61__DOT__B;
@@ -122,10 +118,6 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
     tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_14 = 0;
     CData/*0:0*/ tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_15;
     tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_15 = 0;
-    CData/*0:0*/ tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15___05Fj06_20;
-    tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15___05Fj06_20 = 0;
-    CData/*0:0*/ tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15___05Fk06_20;
-    tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15___05Fk06_20 = 0;
     CData/*0:0*/ tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_d12__DOT__b1;
     tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_d12__DOT__b1 = 0;
     CData/*0:0*/ tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_d12__DOT____VdfgRegularize_h35e00a9f_0_1;
@@ -543,17 +535,17 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
         = ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_j16__DOT__p6) 
            | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Da));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_j16__DOT__clkb 
-        = (IData)((((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_k18__DOT__q) 
-                    >> 3U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Da)));
+        = (1U & ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_k18__DOT__q) 
+                 | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Da)));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_k18__DOT__clk 
         = ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_k18__DOT__p13) 
            | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Da));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_l16__DOT__clka 
         = (1U & (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_k18__DOT__q) 
-                  >> 1U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Da)));
+                  >> 2U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Da)));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_l16__DOT__clkb 
         = (1U & (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_k18__DOT__q) 
-                  >> 2U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Da)));
+                  >> 1U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Da)));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_a18__DOT__clk 
         = ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Ca) 
            | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_a18__DOT__p4));
@@ -561,14 +553,14 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
         = ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_b18__DOT__p6) 
            | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Ca));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_b18__DOT__clkb 
-        = (IData)((((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_e13__DOT__q) 
-                    >> 3U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Ca)));
+        = (1U & ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_e13__DOT__q) 
+                 | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Ca)));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_b19__DOT__clka 
         = (1U & (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_e13__DOT__q) 
-                  >> 1U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Ca)));
+                  >> 2U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Ca)));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_b19__DOT__clkb 
         = (1U & (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_e13__DOT__q) 
-                  >> 2U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Ca)));
+                  >> 1U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Ca)));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_b20__DOT__clk 
         = ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__u_b20__DOT__p13) 
            | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemD__DOT__clk2_p_Ca));
@@ -615,7 +607,7 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
         = Vtb_ifu__ConstPool__TABLE_h0d679bef_0[__Vtableidx52];
     vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__ProcH03_sil_pl_1___05Fh06_22 
         = Vtb_ifu__ConstPool__TABLE_h2b955d68_0[__Vtableidx52];
-    tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00___05Fh06_23 
+    vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00___05Fh06_23 
         = Vtb_ifu__ConstPool__TABLE_h3f51cb6d_0[__Vtableidx52];
     __Vtableidx57 = ((vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_i06__DOT__mem
                       [vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_i06__DOT__a] 
@@ -626,7 +618,7 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
         = Vtb_ifu__ConstPool__TABLE_h0d679bef_0[__Vtableidx57];
     vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__ProcH03_sil_pl_1___05Fi06_22 
         = Vtb_ifu__ConstPool__TABLE_h2b955d68_0[__Vtableidx57];
-    tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00___05Fi06_23 
+    vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00___05Fi06_23 
         = Vtb_ifu__ConstPool__TABLE_h3f51cb6d_0[__Vtableidx57];
     __Vtableidx81 = ((vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_h06__DOT__mem
                       [vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_h06__DOT__a] 
@@ -653,7 +645,7 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
     __Vtableidx86 = ((vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j06__DOT__mem
                       [vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_h06__DOT__a] 
                       << 1U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__SelectStk_p_b));
-    tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15___05Fj06_20 
+    vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15___05Fj06_20 
         = Vtb_ifu__ConstPool__TABLE_h05186285_0[__Vtableidx86];
     vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL08_sil_pl_1___05Fj06_21 
         = Vtb_ifu__ConstPool__TABLE_h0d679bef_0[__Vtableidx86];
@@ -664,7 +656,7 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
     __Vtableidx88 = ((vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_k06__DOT__mem
                       [vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i06__DOT__a] 
                       << 1U) | (1U & (~ (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__SelectStk_p_b))));
-    tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15___05Fk06_20 
+    vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15___05Fk06_20 
         = Vtb_ifu__ConstPool__TABLE_h05186285_0[__Vtableidx88];
     vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL08_sil_pl_1___05Fk06_21 
         = Vtb_ifu__ConstPool__TABLE_h0d679bef_0[__Vtableidx88];
@@ -1664,8 +1656,8 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
         = (1U & (((~ (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL24_sil_pl_11)) 
                   | ((~ (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL24_sil_pl_10)) 
                      | (~ ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__SimHoldDis) 
-                           | ((~ (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_a04__DOT__q) 
-                                   >> 3U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_a01__DOT__p7))) 
+                           | ((~ ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_a04__DOT__q) 
+                                  | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_a01__DOT__p7))) 
                               | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_h20__DOT__p13)))))) 
                  | ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__ExtHoldReq) 
                     | ((~ ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ContA__DOT__u_b18__DOT__p9) 
@@ -2027,11 +2019,11 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
         = ((~ (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemC__DOT__u_k13__DOT__ck_d)) 
            & (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_MemC__DOT__clk0_p_Da));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00 
-        = ((IData)(tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00___05Fh06_23) 
-           | (IData)(tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00___05Fi06_23));
+        = ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00___05Fh06_23) 
+           | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__ddR_00___05Fi06_23));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15 
-        = ((IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15___05Fj06_20) 
-           | (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15___05Fk06_20));
+        = ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15___05Fj06_20) 
+           | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ddR_15___05Fk06_20));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l21__DOT__ck_en 
         = ((~ (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__u_l21__DOT__ck_d)) 
            & (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_IFU__DOT__dblClk_p_Da));
@@ -4107,23 +4099,22 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
                      & ((0U == (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_i15__DOT__sel))
                          ? ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__MB_u_Ifu_0) 
                             | ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_f16__DOT__q) 
-                               >> 1U)) : ((1U == (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_i15__DOT__sel))
+                               >> 2U)) : ((1U == (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_i15__DOT__sel))
                                            ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__FFdly_5)
                                            : ((2U == (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_i15__DOT__sel))
                                                ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__MBdly_2)
-                                               : ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_f16__DOT__q) 
-                                                  >> 3U))))));
+                                               : (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_f16__DOT__q))))));
         vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__ProcH25_sil_pl_2 
             = (1U & ((~ (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_i16__DOT__p14)) 
                      & ((0U == (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_i15__DOT__sel))
                          ? ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__MB_u_Ifu_0) 
-                            | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_f16__DOT__q))
-                         : ((1U == (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_i15__DOT__sel))
-                             ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__FFdly_4)
-                             : ((2U == (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_i15__DOT__sel))
-                                 ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__MBdly_1)
-                                 : ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_f16__DOT__q) 
-                                    >> 2U))))));
+                            | ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_f16__DOT__q) 
+                               >> 3U)) : ((1U == (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_i15__DOT__sel))
+                                           ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__FFdly_4)
+                                           : ((2U == (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_i15__DOT__sel))
+                                               ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__MBdly_1)
+                                               : ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_f16__DOT__q) 
+                                                  >> 1U))))));
     }
     if (vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__FFdly_4) {
         vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__ProcH23_sil_pl_2 
@@ -4761,7 +4752,7 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
                         ? (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_14)
                         : ((1U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                             ? ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_l18__DOT__q) 
-                               >> 2U) : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
+                               >> 1U) : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                                           ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_8)
                                           : ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i17__DOT__q) 
                                              >> 2U)))))));
@@ -4787,7 +4778,7 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
                         ? (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_13)
                         : ((1U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                             ? ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_l18__DOT__q) 
-                               >> 1U) : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
+                               >> 2U) : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                                           ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_6)
                                           : ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i17__DOT__q) 
                                              >> 1U)))))));
@@ -4806,11 +4797,11 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
                     & ((0U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                         ? (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_15)
                         : ((1U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                            ? ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_l18__DOT__q) 
-                               >> 3U) : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                                          ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_7)
-                                          : ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i17__DOT__q) 
-                                             >> 3U)))))));
+                            ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_l18__DOT__q)
+                            : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
+                                ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_7)
+                                : ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i17__DOT__q) 
+                                   >> 3U)))))));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_15a 
         = ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_c09__DOT__p12) 
            | (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_15));
@@ -4832,10 +4823,10 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
                     & ((0U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                         ? (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_12)
                         : ((1U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                            ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_l18__DOT__q)
-                            : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                                ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_9)
-                                : (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i17__DOT__q)))))));
+                            ? ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_l18__DOT__q) 
+                               >> 3U) : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
+                                          ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_9)
+                                          : (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i17__DOT__q)))))));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_12a 
         = ((IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_12) 
            | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_c09__DOT__p5));
@@ -4853,7 +4844,7 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
                         ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_09)
                         : ((1U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                             ? ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_l16__DOT__q) 
-                               >> 1U) : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
+                               >> 2U) : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                                           ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__StkP_1)
                                           : ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i16__DOT__q) 
                                              >> 1U)))))));
@@ -4869,7 +4860,7 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
                         ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_10)
                         : ((1U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                             ? ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_l16__DOT__q) 
-                               >> 2U) : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
+                               >> 1U) : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                                           ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_10)
                                           : ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i16__DOT__q) 
                                              >> 2U)))))));
@@ -4884,11 +4875,11 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
                     & ((0U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                         ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_11)
                         : ((1U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                            ? ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_l16__DOT__q) 
-                               >> 3U) : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                                          ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_11)
-                                          : ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i16__DOT__q) 
-                                             >> 3U)))))));
+                            ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_l16__DOT__q)
+                            : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
+                                ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__ProcL25_sil_pl_11)
+                                : ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i16__DOT__q) 
+                                   >> 3U)))))));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_11a 
         = ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_b09__DOT__p12) 
            | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_11));
@@ -4900,10 +4891,10 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
                     & ((0U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
                         ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_08)
                         : ((1U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                            ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_l16__DOT__q)
-                            : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
-                                ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__StkP_0)
-                                : (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i16__DOT__q)))))));
+                            ? ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_l16__DOT__q) 
+                               >> 3U) : ((2U == (IData)(tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_j13__DOT__sel))
+                                          ? (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__StkP_0)
+                                          : (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_i16__DOT__q)))))));
     vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_08a 
         = ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__alub_08) 
            | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcL__DOT__u_b09__DOT__p5));
@@ -7055,7 +7046,7 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
     vlSelfRef.tb_ifu__DOT__m__DOT__Pdata_15 = (1U & 
                                                (((~ 
                                                   ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_g16__DOT__q) 
-                                                   >> 2U)) 
+                                                   >> 1U)) 
                                                  & ((((((2U 
                                                          & ((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__u_c12__DOT__q) 
                                                             << 1U)) 
@@ -7117,4 +7108,22 @@ VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__1(Vtb_ifu___024root* vlS
                     >> (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__Pmux0) 
                          << 2U) | (((IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__Pmux1) 
                                     << 1U) | (IData)(vlSelfRef.tb_ifu__DOT__m__DOT__b_ProcH__DOT__shmv_04))))));
+}
+
+VL_ATTR_COLD void Vtb_ifu___024root___stl_sequent__TOP__0(Vtb_ifu___024root* vlSelf);
+void Vtb_ifu___024root___act_comb__TOP__0(Vtb_ifu___024root* vlSelf);
+
+VL_ATTR_COLD void Vtb_ifu___024root___eval_stl(Vtb_ifu___024root* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_ifu___024root___eval_stl\n"); );
+    Vtb_ifu__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Body
+    if ((1ULL & vlSelfRef.__VstlTriggered[1U])) {
+        Vtb_ifu___024root___stl_sequent__TOP__0(vlSelf);
+        Vtb_ifu___024root___stl_sequent__TOP__1(vlSelf);
+    }
+    if ((1ULL & (vlSelfRef.__VstlTriggered[1U] | vlSelfRef.__VstlTriggered
+                 [0U]))) {
+        Vtb_ifu___024root___act_comb__TOP__0(vlSelf);
+    }
 }

@@ -6785,7 +6785,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_readback___024root final {
             CData/*7:0*/ __Vtask_tb_readback__DOT__parc_micro__426__b2;
             CData/*7:0*/ __Vtask_tb_readback__DOT__parc_micro__426__b3;
             CData/*7:0*/ __Vtask_tb_readback__DOT__parc_micro__426__b4;
-            CData/*5:0*/ __Vtableidx37;
+            CData/*5:0*/ __Vtableidx239;
             CData/*7:0*/ __VdfgRegularize_hebeb780c_0_2;
             CData/*7:0*/ __VdfgRegularize_hebeb780c_0_3;
             CData/*7:0*/ __VdfgRegularize_hebeb780c_0_4;

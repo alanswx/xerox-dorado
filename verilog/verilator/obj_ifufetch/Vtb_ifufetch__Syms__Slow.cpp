@@ -11,7 +11,7 @@ Vtb_ifufetch__Syms::Vtb_ifufetch__Syms(VerilatedContext* contextp, const char* n
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(2582);
+    Verilated::stackCheck(2586);
     // Setup sub module instances
     // Configure time unit / time precision
     _vm_contextp__->timeunit(-12);

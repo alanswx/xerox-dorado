@@ -8176,7 +8176,7 @@ VL_ATTR_COLD void Vtb_readback___024root___ctor_var_reset(Vtb_readback___024root
     vlSelf->__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_22__DOT____Vrepeat21 = 0;
     vlSelf->__Vtask_tb_readback__DOT__parc_micro__426__tb_readback__DOT__unnamedblk1_23__DOT____Vrepeat22 = 0;
     vlSelf->__Vtask_tb_readback__DOT__strobe__427__tb_readback__DOT__unnamedblk1_3__DOT____Vrepeat2 = 0;
-    vlSelf->__Vtableidx37 = 0;
+    vlSelf->__Vtableidx239 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_2 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_3 = 0;
     vlSelf->__VdfgRegularize_hebeb780c_0_4 = 0;

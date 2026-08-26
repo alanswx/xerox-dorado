@@ -3663,3 +3663,45 @@ still blocked: `ShiftReg.in = ComputeECC ? ReadData : EccData.32` and
 format program, so the controller ends Active with `ReadBlock` set rather than
 Idle -- its zeroing pass carries `Q = 0`, i.e. all four block ops Done. A gate
 asserting "ReadBlock must be 0 without `+read`" had to learn about that mode.
+
+### The sequence PROMs are present and loaded; the knot is one hop further in (2026-08-26)
+
+With the format program in the RAM and a Read command Active, the read still
+does not start. Three candidates eliminated by looking rather than reasoning:
+
+* **The sequence PROMs exist and are populated.** a20 and a21 are SG10139s --
+  the read and write sequence PROMs HM describes -- and both are bound to
+  generated images from PARC's own BCPL (`DskEth-a20.mem`, `DskEth-a21.mem`),
+  **35 non-zero words each**. They are not empty.
+* **`cell_MC10104` is right.** `sCountBits = TriconD13.sil+2 & ShiftReg.15` is a
+  plain AND, and the cell's complementary-pair reasoning (MC10102 and MC10104
+  share a dictionary block, so the part NAME decides the function) is sound.
+* **A sector pulse does not start it either.** HM p.98 says the PROM program
+  counter "is initialized to zero at the beginning of a sector", so the bench
+  now pulses `SecIndx'` with the command Active. `ShiftIn`, `ComputeECC` and
+  `sCountBits` all stay 0.
+
+**Where the knot actually is.** `CntDone'` is asserted on all 32 samples -- that
+is b20's PE', so the word sequencer is CONTINUOUSLY PARALLEL-LOADING from the
+PROMs rather than holding a state. And its outputs read zero. So the PROM bits
+feeding it are zero **at whatever address it is being read at**.
+
+b20's parallel entry is only four bits, and only three come from the PROMs:
+
+```
+b20 D0 = TriconD03.sil+13   a20.1
+b20 D1 = TriconD03.sil+2    a20.2 / a21.2   (wired-OR)
+b20 D2 = TriconD03.sil+10   a21.1
+b20 D3 = PromA4'            b19, the program counter's own bit
+```
+
+**The next measurement is therefore the PROM ADDRESS**, not another signal in
+the chain: read a20/a21's address pins (`p10 = PromA4`, `p11/p12/p13 =
+TriconD03.sil+9/+8/+7`, and the rest) and compare what the image holds there
+against what b20 receives. If the counter is parked at 0 and entry 0's bits
+genuinely are 0 for these three positions, then the PROM is behaving and the
+program counter is what never advances -- which is a different fault from the
+one being chased.
+
+Recorded rather than pursued: this is the fourth hop of a chain in one sitting,
+and the last three framings of rung 1 each needed correcting a step later.
