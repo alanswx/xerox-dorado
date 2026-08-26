@@ -3981,3 +3981,49 @@ What is gated here is that the path carries data at all -- FIFO written, FIFO
 drained, non-zero word at the processor.
 
 Mutation that bites: parking the read hunk after one pass instead of looping.
+
+### The IM map: what a bench needs to preload a whole world (2026-08-26)
+
+Running a real microprogram -- rung 4, the one between here and a boot -- means
+getting 4096 microinstructions into IM. Walking them over the control-processor
+bus is not viable in simulation: `boot0-test` does 16 microinstructions and
+`exec-test` four hunks, and a world is a thousand times that. A bench has to
+preload the arrays directly.
+
+That is legitimate -- the CP-bus path is ALREADY gated by `boot0-test`, so
+preloading skips nothing unproven -- but it needs the layout, and the netlist
+gives it exactly. `make -C verilog im-map-check`:
+
+```
+144 IM packages, 36 field bits, 4 banks
+
+field bit    bank0   bank1   bank2   bank3
+  dALUF.0    i10     i11     i14     i15
+  dASEL.0    a06     a07     a08     a09
+  dBSEL.0    f06     f07     f08     f09
+  ...
+address (A0..A9, MSB first): RA.01 .. RA.10   (12 fan-out copies)
+```
+
+**The 36 output nets ARE a Dorado microinstruction**, which is the check that the
+map is right:
+
+```
+RSTK.0-3  ALUF.0-3  BSEL.0-2  LC.0-2  ASEL.0-2  FF.0-7  JCN.0-7  Block'  IMLH IMRH
+   4    +    4    +    3    +   3   +    3    +   8   +   8    +   1   +   2   = 36
+```
+
+Each bit has four packages, one per bank, selected by `CS0'`..`CS3'`. The address
+is ten bits within a bank, read **MSB-first** -- pin 2 takes `RA.01a`, which comes
+from `TNIA.05`. Getting that backwards is what once made a Write-IM addressing
+195 deposit at 780.
+
+*One trap the check itself hit:* the address nets carry a **fan-out suffix**
+(`RA.01a`, `RA.01b`, ...) -- copies of one bit driven to different parts of the
+array, not different bits. Compared naively, 144 packages look like twelve
+address buses.
+
+**When the preloader is written it must be VERIFIED the way `boot0-test`
+verifies its load** -- read the arrays back and compare against the `.MB` -- not
+trusted because it looked right. A wrong interleave produces a machine executing
+garbage, which is indistinguishable from a boot that fails for its own reasons.
