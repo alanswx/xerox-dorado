@@ -208,6 +208,10 @@ disk-cmd-test:
 disk-ram-test:
 	@$(MAKE) -C verilator disk-ram-test
 
+# All sixteen format words of HM p.98, loaded and verified.
+disk-format-test:
+	@$(MAKE) -C verilator disk-format-test
+
 # The read direction: the board drives IOB back at the processor.
 disk-input-test:
 	@$(MAKE) -C verilator disk-input-test
