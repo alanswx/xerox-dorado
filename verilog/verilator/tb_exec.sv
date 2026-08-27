@@ -124,10 +124,32 @@ module tb_exec;
   reg [7:0]  dpat;      // storage, {H,G,F,E,D,C,B,A}
   reg [17:0] cpat;      // cache, cpat[k] is D.k
   integer    dp, cp, si, ci;
+  reg        hi_par, lo_par;
   initial begin
     if (!$value$plusargs("dpat=%d", dp)) dp = 172;      // 8'b1010_1100
     if (!$value$plusargs("cpat=%d", cp)) cp = 52045;
     dpat = dp[7:0]; cpat = cp[17:0];
+    // FG PARITY. The cache word is 16 data bits plus TWO parity bits, one per
+    // instruction byte -- D.16 and D.17 -- and the IFU checks them as the bytes
+    // come through (FGParityErr). An arbitrary seed pattern cannot satisfy
+    // that, so with `+cpatpar` the two are COMPUTED from the data instead:
+    // D.16 over one byte and D.17 over the other. Which byte pairs with which
+    // bit, and whether the convention is even or odd, are the two things not
+    // stated anywhere we have read -- so both are switches (`+cpatswap`,
+    // `+cpatodd`) and the measurement decides.
+    if (!$test$plusargs("cpatraw")) begin
+      // MEASURED, not assumed: the convention is ODD per byte, D.17 over
+      // D.08-15 and D.16 over D.00-07. All four combinations of sense and
+      // pairing were swept. Two of them cleared FGParityErr -- but only
+      // because the default pattern's two bytes have DIFFERENT parity, which
+      // makes "swap both bits" and "invert both bits" the SAME assignment.
+      // Re-run with 0xC003, whose bytes have EQUAL parity so a swap is a
+      // no-op, and the ambiguity resolves: odd clears it (50000 -> 176),
+      // swapping does nothing.
+      hi_par = ~(^cpat[15:8]);     // D.08-15
+      lo_par = ~(^cpat[7:0]);      // D.00-07
+      cpat[17:16] = {hi_par, lo_par};
+    end
     for (si = 0; si < 4096; si = si + 1) begin
       m.b_msa.u_b05.mem[si] = dpat[0];   // A
       m.b_msa.u_c05.mem[si] = dpat[1];   // B
