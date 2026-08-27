@@ -157,6 +157,11 @@ exec-parity:
 exec-tasking:
 	@$(MAKE) -C verilator exec-tasking
 
+# THE FAULT TASK RUNS ITS OWN HANDLER, once MemX's fault counter is armed and
+# TPC[15] points at AEmu's FAULTTASK.
+exec-init:
+	@$(MAKE) -C verilator exec-init
+
 # The IM/ALUFM/IFUM field maps, derived from the wire lists and checked
 # against HM Table 11d, HM Table 20 and cpu.c.
 

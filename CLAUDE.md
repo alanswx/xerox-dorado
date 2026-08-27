@@ -1024,8 +1024,9 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **IM PARITY, the long-open question, ANSWERED** | `im-parity-check` -- ODD over the 17-bit half, and the array stores its COMPLEMENT |
 | **THE MACHINE RUNS WITH IM PARITY ENABLED** | `exec-parity` -- Error propagated on 0 of 400,000 samples, Stop never set |
 | **THE FAULT TASK SERVICES A STACK UNDERFLOW** | `exec-tasking` -- RepeatCur 0, task 15 runs, 25 addresses, longest run 3 |
+| **THE FAULT TASK RUNS ITS OWN HANDLER** | `exec-init` -- TPC[15] set; task 15 runs BEGINENUMERATEMAP / IWRITEMAPFLAGS |
 
-Forty-eight gates in all; `make -C verilog` has the list. **The datapath is
+Forty-nine gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
@@ -1229,6 +1230,18 @@ The second error was FG parity over the instruction
   real boot does not jump a cold world at START with the fault counter unarmed
   and every task PC unset -- Initial and the world's own InitMem do that first,
   and preloading IM skips exactly that.
+- **AND THE FAULT TASK RUNS ITS OWN HANDLER once TPC[15] is set.** A woken task
+  resumes at its own TPC -- there is no separate vector -- so an uninitialised
+  TPC[15] made the fault task run EMULATOR handlers. ContA i13/j13/k13/l13 are
+  F10145A holding TPC in four-bit slices (l13 .00-03, i13 .04-07, j13 .08-11,
+  k13 .12-15), and **the address pins are PRIMED** (`TPCAd.0-3'`), so `a = ~task`
+  and TPC[15] is `mem[0]` -- the same reversal as RM's `~RSTK`. Not taken on
+  faith: `+tpcslot=15` writes the un-reversed slot and has NO effect at all,
+  while slot 0 changes everything. Gate: `exec-init`. With MemX's fault counter
+  armed and TPC[15] = AEmu's `FAULTTASK` (octal 3747), `Hold` falls 399,419 ->
+  **96** and task 15 executes **octal 3700-3733**, which mbdis names
+  **`BEGINENUMERATEMAP`** and **`IWRITEMAPFLAGS`** -- a fault task walking the
+  map and writing map flags, one instruction carrying `ASEL = Fetch<-RM/STK`.
 - **SAMPLING A LEVEL AT TEN POINTS IS NOT MEASURING IT.** The hold chain was
   previously read as "all eight signals 0, whole run" from ten instantaneous
   `$display`s -- true of the machine BEFORE IFUM was loaded and the parity
