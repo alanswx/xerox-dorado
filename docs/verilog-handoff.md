@@ -44,6 +44,7 @@ can run.
 | **IFUM**, the opcode decode tables | **works** -- 256 entries, layout confirms cpu.c's Table 20 bit for bit | `exec-world9` |
 | **NINE BOARDS DISPATCH AN ALTO OPCODE** | **works** -- START, the IFU traps, RESTARTIFU, then AND1 and SKPC | `exec-world9` |
 | ...and then it STOPS FETCHING | **open** -- `IfuMemRef` makes 6 transitions and the opcode changes ONCE | `exec-world9` |
+| **IM PARITY, the long-open question** | **ANSWERED** -- ODD over the 17-bit half, array stores the COMPLEMENT | `im-parity-check` |
 
 ### Every gate
 
@@ -498,6 +499,71 @@ microinstructions on a single address, still one opcode delivered.
 - **A GENERATED INCLUDE IS SHARED**, so anything in it that reaches into a
   board must be guarded: the IFUM tasks name `m.b_IFU`, and `tb_boot0` and the
   default `tb_exec` run on four boards that have no IFU.
+
+
+## IM PARITY, ANSWERED (2026-08-27)
+
+The machine has always had to run with the IM parity enables CLEARED, and this
+file put the alternatives plainly: "either PARC's IRTable entries carry parity
+that satisfies the generator, or our MC10170 parity generators on ContB j20/j21
+compute something different". **It is the second, by exactly one inversion --
+and that inversion is already known from elsewhere.**
+
+    PARC's convention is ODD parity over the 17-bit half, and the IM ARRAY
+    STORES ITS COMPLEMENT -- exactly as `dBlock'` does.
+
+Three steps, none of them assumed, and each independent of the others.
+
+**1. WHICH BITS EACH HALF COVERS, fitted rather than guessed.** `im_image` now
+emits, for every present address, both the decoded fields AND the two 17-bit
+half-words parity is computed over. Fitting one against the other across 2,148
+AEmu addresses gives a UNIQUE match for every one of the 34 bits, with no
+ambiguity and no inversions:
+
+    left  half = RSTK.1-3, ALUF, BSEL, LC, ASEL   + RSTK.0 as the secondary
+    right half = FF, JCN                          + BLOCK  as the secondary
+
+**2. THE SENSE THE ARRAY WANTS, measured on the running machine.** Preloading
+IM parity and sweeping sense against secondary-inclusion, over 200,000 samples:
+
+| rule | IMLHPE |
+|---|---|
+| **even, secondary included** | **125** |
+| odd, secondary included | 200000 |
+| even, secondary excluded | 199680 |
+| odd, secondary excluded | 445 |
+
+**3. THE SENSE PARC USES, read off PARC's own hand-coding.** The IRTable's
+five-byte format carries explicit `P015` and `P1631` bits -- and they VARY
+(1/1 for `Nop#`, 1/0 for `Return#`, 0/1 for `CPRegToLink#`), so they are real
+computed parity, not padding. All eight entries carry ODD parity over the same
+17 bits: **8 of 8, 16 of 16 bits.**
+
+Steps 2 and 3 are complements, which is the answer.
+
+### What the check CANNOT tell you
+
+Mutating `im-parity-check` four ways, two do NOT fail -- and both for
+principled reasons rather than fixable ones, so the PASS must not be read as
+covering them. The tool prints both limits beside its own result.
+
+- **Whether the SECONDARY bit is included.** Every one of PARC's eight entries
+  has `RSTK.0 = 0` and `BLOCK = 0`, so the dataset cannot separate 16-bit from
+  17-bit parity. Step 2's machine measurement is what settles it, and the two
+  steps are therefore not redundant.
+- **The bit ORDER within a field.** Reversing it is a PERMUTATION of the bits
+  parity is taken over, and parity is invariant under permutation. No parity
+  check can ever detect it.
+
+### What is still open
+
+`tb_compute.sv`'s `mi()` sets `P015` and `P1631` to 1 unconditionally, with the
+comment "a jammed instruction fails IM parity anyway -- that is the jam
+mechanism". PARC's own entries show those bits varying, so the blanket 1s are
+wrong. Computing them is what would let a JAM pass parity -- and `+imparityon`
+already shows that with correct IM parity the only remaining failure is the
+jammed `Return#` in the MIR at startup: 133 parity samples out of 400,000, not
+400,000.
 
 ## START HERE: two open questions
 

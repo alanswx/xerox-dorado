@@ -255,6 +255,12 @@ disk-interface-check:
 im-map-check:
 	@cd .. && python3 tools/sil_im_map.py
 
+# IM PARITY: the convention, derived from data and checked against PARC's own
+# hand-coded microinstructions. The IRTable's five-byte format carries explicit
+# P015/P1631 bits, and all eight entries carry ODD parity over the 17-bit half.
+im-parity-check:
+	@cd .. && python3 tools/sil_im_parity.py
+
 # A WORD INTO THE STORAGE ARRAY: the msa board standalone, where the bench owns
 # the DRAM strobes, so a write can be driven without a memory reference.
 msa-test:

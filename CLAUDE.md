@@ -1021,8 +1021,9 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | ...through a field map DERIVED from the wire lists | `boot0-test` -- 65 addresses, all 8 fields, against a CP-bus load |
 | **ALUFM and IFUM too** | `exec-world9` -- 16 + 256 entries; they confirm HM Table 11d and cpu.c's Table 20 |
 | **NINE BOARDS DISPATCH AN ALTO OPCODE** | `exec-world9` -- START, the IFU traps, RESTARTIFU, then AND1 and SKPC |
+| **IM PARITY, the long-open question, ANSWERED** | `im-parity-check` -- ODD over the 17-bit half, and the array stores its COMPLEMENT |
 
-Forty-five gates in all; `make -C verilog` has the list. **The datapath is
+Forty-six gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
@@ -1135,6 +1136,34 @@ The second error was FG parity over the instruction
   EXACTLY ZERO and entries are read continuously. **A level is not an event:
   before believing a sample count, check that the thing it counts actually
   happened.**
+- **IM PARITY IS ANSWERED: ODD over the 17-bit half, stored COMPLEMENTED.**
+  The machine used to run only with the parity enables cleared, and the
+  question was whether PARC's IRTable entries satisfy our generator or our
+  MC10170s compute something different. It is the second, by exactly one
+  inversion. Three steps, none assumed. **Which bits each half covers was
+  FITTED**, not guessed: `im_image` emits both the decoded fields and the two
+  17-bit half-words, and fitting one against the other across 2,148 AEmu
+  addresses gives a UNIQUE match for all 34 bits -- left half = `RSTK.1-3,
+  ALUF, BSEL, LC, ASEL` + `RSTK.0` as secondary, right half = `FF, JCN` +
+  `BLOCK`. **The sense the array wants was MEASURED** on the running machine:
+  preloading even parity takes `IMLHPE` from 200,000 samples to 125, odd gives
+  200,000, and dropping the secondary gives 199,680. **The sense PARC uses was
+  READ OFF PARC's own hand-coding**: the IRTable's five-byte format carries
+  explicit `P015`/`P1631` bits, and all eight entries carry ODD parity over
+  those same 17 bits -- 8 of 8, 16 of 16 bits. The two are complements, so the
+  array stores the complement of the parity bit, **exactly as `dBlock'` does**
+  (tb_boot0 measured all 64 right-half secondary bits inverted). Two
+  independent instances of one storage convention. Gate: `im-parity-check`.
+  Consequence still open: `tb_compute.sv`'s `mi()` sets both parity bits to 1
+  unconditionally, but PARC's own entries vary them, so computing them is what
+  would let a JAM pass parity and the machine run with the enables on.
+- **A GREEN CHECK IS WHAT PEOPLE QUOTE, so make it say what it cannot test.**
+  Mutating `im-parity-check` four ways, two do NOT fail, both for principled
+  reasons: every one of PARC's eight entries has `RSTK.0 = 0` and `BLOCK = 0`,
+  so the dataset cannot separate 16-bit from 17-bit parity (the machine
+  measurement does); and reversing the bit order within a field is a
+  PERMUTATION, which parity is invariant under -- no parity check can ever
+  detect it. The tool prints both limits beside its PASS.
 - **Five ways a bench can lie to you, all found in one sitting.** `mbdis`
   prints IM addresses in OCTAL, so a hex visited-set must be converted before
   it is looked up. A bank SEARCH matches a wiped bank whenever the wanted value
