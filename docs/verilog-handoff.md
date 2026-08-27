@@ -47,6 +47,7 @@ can run.
 | **IM PARITY, the long-open question** | **ANSWERED** -- ODD over the 17-bit half, array stores the COMPLEMENT | `im-parity-check` |
 | **THE MACHINE RUNS WITH IM PARITY ENABLED** | **works** -- Error propagated on 0 of 400,000, Stop never set | `exec-parity` |
 | **THE FAULT TASK SERVICES THE STACK UNDERFLOW** | **works** -- RepeatCur 0, task 15 runs, 25 addresses, longest run 3 | `exec-tasking` |
+| **THE FAULT TASK RUNS ITS OWN HANDLER** | **works** -- TPC[15] set, task 15 runs BEGINENUMERATEMAP / IWRITEMAPFLAGS | `exec-init` |
 
 ### Every gate
 
@@ -649,7 +650,49 @@ that far.
 addresses); it is `+faultinit` that moves the machine. Both are kept, because
 the negative result is what pins the load.
 
-**The real fix is upstream: nothing has initialised this machine.** A real boot
+### THE FAULT TASK RUNS ITS OWN HANDLER
+
+When a task is woken it resumes at its own `TPC` -- there is no separate vector
+-- so an uninitialised `TPC[15]` makes the fault task run whatever it lands on,
+which is why it was executing EMULATOR handlers. AEmu's own handler is
+`FAULTTASK`, octal 3747.
+
+ContA i13/j13/k13/l13 are F10145A holding TPC in four-bit slices -- l13
+TPC.00-03, i13 TPC.04-07, j13 TPC.08-11, k13 TPC.12-15, with
+`q = {q3,q2,q1,q0} = {p14,p15,p1,p2}` -- and TPC.04-15 is the 12-bit IM address,
+MSB first.
+
+**AND THE ADDRESS PINS ARE PRIMED**, `TPCAd.0-3'`, so `a = ~task` and `TPC[15]`
+lives at `mem[0]`. The same reversal CLAUDE.md records for RM's `~RSTK`. That is
+not taken on faith: `+tpcslot=15` writes the un-reversed slot and has **no
+effect at all** -- counts identical to not presetting -- while slot 0 changes
+everything. The measurement settles it.
+
+`make -C verilog exec-init` arms MemX's fault counter and presets TPC[15]:
+
+| | `+taskingon` | `+faultinit` | `+faultinit +tpcinit` |
+|---|---|---|---|
+| task 0 addresses | 2 | 20 | 15 |
+| task 15 addresses | 23 | 10 | 12 |
+| `Hold` | 399,419 | 72,635 | **96** |
+| `RepeatCur` | 399,419 | 72,635 | **64** |
+| task 15's code | emulator handlers | emulator handlers | **octal 3700-3733** |
+
+Those addresses are the fault-handler region, and `mbdis` names two of them:
+**`BEGINENUMERATEMAP`** (3722) and **`IWRITEMAPFLAGS`** (3732), one carrying
+`ASEL = Fetch<-RM/STK`. That is a fault task doing its actual job -- walking the
+map and writing map flags -- in RTL generated from the wire lists.
+
+**Two gate thresholds were widened, both with the reason measured rather than
+assumed.** The microinstruction-clock floor assumed ~one instruction per SYSPER
+fabric cycles with nothing stalling; a machine issuing real memory references
+legitimately issues fewer, and it falls to 16,676 of a 25,000 ceiling while
+`Stop` stays clear and `Hold` is on 96 of 400,000 samples -- work, not a stall.
+And the clk0'/clk1' slack went from one to two, because once instructions can
+REPEAT a second window boundary lands the same way (16,676 against 16,678). Two
+is a property holding; a real divergence is thousands.
+
+**The real fix is still upstream: nothing has initialised this machine.** A real boot
 does not jump a cold world at `START` with the fault counter unarmed and every
 task PC unset; Initial and the world's own `InitMem` do that first. That is what
 `exec-world9` skips by preloading IM and jumping straight in.
