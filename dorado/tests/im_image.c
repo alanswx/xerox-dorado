@@ -60,7 +60,21 @@ int main(int argc, char **argv)
                u->asel & 7, u->block & 1, u->ff & 0xFF, u->jcn & 0xFF);
         n++;
     }
-    fprintf(stderr, "im_image: %d of %d addresses present in %s\n",
-            n, IM_SIZE, path);
+    /* ALUFM -- the sixteen ALU operations this world uses. ALUF is a POINTER
+     * into this memory, not an opcode, so a world without it has whatever the
+     * array powered up with. One line per present entry:
+     *
+     *   ALUFM <idx> <6-bit entry>
+     *
+     * The entry is bit 5 = B.08 (the ALU's carry in) and bits 4..0 = B.11-15,
+     * which is HM Table 11d's "ALUFMEM <- B.8, B[11:15]". */
+    int na = 0;
+    for (int a = 0; a < 16; a++) {
+        if (!mc.alufm_present[a]) continue;
+        printf("ALUFM %x %02x\n", a, mc.alufm[a] & 077);
+        na++;
+    }
+    fprintf(stderr, "im_image: %d of %d addresses present in %s; %d ALUFM entries\n",
+            n, IM_SIZE, path, na);
     return 0;
 }

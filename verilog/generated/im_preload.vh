@@ -339,3 +339,28 @@ task automatic im_readback_word(input int unsigned addr,
     endcase
   end
 endtask
+
+
+// ALUFM -- 16 x 6, ProcL e13/e14. See tools/sil_im_map.py.
+// The entry is the C emulator's byte: bit 5 is B.08 (the ALU CARRY IN),
+// bits 4..0 are B.11..B.15. ALUFdec.n is bit 5-n of it.
+task automatic alufm_preload_word(input int unsigned aluf, input  [5:0] e);
+  begin
+    m.b_ProcL.u_e13.mem[aluf[3:0]][3] = e[2];   // ALUFdec.3
+    m.b_ProcL.u_e13.mem[aluf[3:0]][2] = e[3];   // ALUFdec.2
+    m.b_ProcL.u_e13.mem[aluf[3:0]][1] = e[4];   // ALUFdec.1
+    m.b_ProcL.u_e13.mem[aluf[3:0]][0] = e[5];   // ALUFdec.0
+    m.b_ProcL.u_e14.mem[aluf[3:0]][1] = e[0];   // ALUFdec.5
+    m.b_ProcL.u_e14.mem[aluf[3:0]][0] = e[1];   // ALUFdec.4
+  end
+endtask
+task automatic alufm_readback_word(input int unsigned aluf, output [5:0] e);
+  begin
+    e[2] = m.b_ProcL.u_e13.mem[aluf[3:0]][3];   // ALUFdec.3
+    e[3] = m.b_ProcL.u_e13.mem[aluf[3:0]][2];   // ALUFdec.2
+    e[4] = m.b_ProcL.u_e13.mem[aluf[3:0]][1];   // ALUFdec.1
+    e[5] = m.b_ProcL.u_e13.mem[aluf[3:0]][0];   // ALUFdec.0
+    e[0] = m.b_ProcL.u_e14.mem[aluf[3:0]][1];   // ALUFdec.5
+    e[1] = m.b_ProcL.u_e14.mem[aluf[3:0]][0];   // ALUFdec.4
+  end
+endtask

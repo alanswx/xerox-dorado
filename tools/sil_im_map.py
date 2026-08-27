@@ -225,6 +225,89 @@ def emit_verilog(rows, out):
     w("    endcase\n  end\nendtask\n")
 
 
+
+# ---------------------------------------------------------------------------
+# ALUFM -- 16 entries of 6 bits, and it is TWO PACKAGES on ProcL.
+#
+# ALUF is not an opcode; it is a 4-bit pointer into a 16-entry memory the
+# microcoder loads at startup with the sixteen ALU operations that world
+# actually uses. That memory is ProcL e13 and e14, a pair of F10145A (16x4)
+# whose DATA pins come straight off the B bus -- which is how you recognise
+# them, and it matches HM Table 11d exactly: "ALUFMEM <- B.8, B[11:15]". The
+# entry's most significant bit is the ALU's CARRY IN and comes from B.08, not
+# from a contiguous field.
+#
+# The outputs are ALUFdec.0..5, and the F10145A cell fixes the correspondence:
+#   mem[a] <= {p12, p11, p4, p5}   and   {p14, p15, p1, p2} = mem[a]
+# so pin 12 is the entry's top bit and pin 2 its bottom one.
+#
+# THE C EMULATOR AGREES, INDEPENDENTLY. cpu.c keeps the entry as a byte in LSB
+# order and spells out the same correspondence: alufm[5]=B[8], alufm[4]=B[11],
+# alufm[3]=B[12], alufm[2]=B[13], alufm[1]=B[14], alufm[0]=B[15]. So
+# ALUFdec.n is bit 5-n of the C emulator's byte, and neither model was derived
+# from the other.
+_ALUFM_WR = {12: 3, 11: 2, 4: 1, 5: 0}     # data pin -> bit within the package
+_ALUFM_RD = {14: 3, 15: 2, 1: 1, 2: 0}     # output pin -> bit within the package
+
+
+def alufm_packages():
+    """[(pkg, {bit-in-package: ALUFdec index}, {bit: B index})] for ProcL."""
+    board = sn.load_board(glob.glob('chm/sil/ProcL*/*.wl')[0])
+    out = []
+    for pkg, rec in sorted(board.packages.items()):
+        if rec.get('type') != 'F10145A':
+            continue
+        pins = {p['pin']: nm for nm, nt in board.nets.items()
+                for p in nt['pins'] if p['pkg'] == pkg}
+        # The ALUFM packages are the ones fed from the B bus.
+        if not any((pins.get(k) or '').startswith('alub.') for k in _ALUFM_WR):
+            continue
+        rd, wr = {}, {}
+        for pin, bit in _ALUFM_RD.items():
+            nm = pins.get(pin) or ''
+            if nm.startswith('ALUFdec.'):
+                rd[bit] = int(nm.split('.')[1])
+        for pin, bit in _ALUFM_WR.items():
+            nm = pins.get(pin) or ''
+            if nm.startswith('alub.'):
+                wr[bit] = int(nm[5:7])
+        out.append((pkg, rd, wr))
+    return out
+
+
+def emit_alufm(out):
+    rows = alufm_packages()
+    bad = []
+    seen = {}
+    for pkg, rd, wr in rows:
+        for bit, dec in rd.items():
+            if bit in wr:
+                seen[dec] = wr[bit]
+    # HM Table 11d: the six bits are B.08 then B.11..B.15, in ALUFdec order.
+    want = {0: 8, 1: 11, 2: 12, 3: 13, 4: 14, 5: 15}
+    if seen != want:
+        bad.append(f"ALUFdec -> B mapping is {seen}, not HM Table 11d's {want}")
+
+    w = out.write
+    w("\n\n// ALUFM -- 16 x 6, ProcL e13/e14. See tools/sil_im_map.py.\n")
+    w("// The entry is the C emulator's byte: bit 5 is B.08 (the ALU CARRY IN),\n")
+    w("// bits 4..0 are B.11..B.15. ALUFdec.n is bit 5-n of it.\n")
+    for name, val, assign in (("alufm_preload_word", "input  [5:0] e", True),
+                              ("alufm_readback_word", "output [5:0] e", False)):
+        w(f"task automatic {name}(input int unsigned aluf, {val});\n  begin\n")
+        for pkg, rd, _ in rows:
+            for bit in sorted(rd, reverse=True):
+                dec = rd[bit]
+                if assign:
+                    w(f"    m.b_ProcL.u_{pkg}.mem[aluf[3:0]][{bit}] = e[{5-dec}];"
+                      f"   // ALUFdec.{dec}\n")
+                else:
+                    w(f"    e[{5-dec}] = m.b_ProcL.u_{pkg}.mem[aluf[3:0]][{bit}];"
+                      f"   // ALUFdec.{dec}\n")
+        w("  end\nendtask\n")
+    return bad
+
+
 def main() -> int:
     rows = im_packages()
     bits = collections.defaultdict(dict)
@@ -294,6 +377,11 @@ def main() -> int:
         path = 'verilog/generated/im_preload.vh'
         with open(path, 'w') as f:
             emit_verilog(rows, f)
+            abad = emit_alufm(f)
+        if abad:
+            for x in abad:
+                print(f"FAIL: {x}")
+            return 1
         print(f"\nwrote {path}")
     print("\nPASS: 36 field bits x 4 banks = 144 packages, one shared address bus")
     return 0

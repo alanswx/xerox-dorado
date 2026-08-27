@@ -858,8 +858,10 @@ module tb_boot0;
     if ($value$plusargs("imimage=%s", impath)) begin
       imfd = $fopen(impath, "r");
       if (imfd == 0) $fatal(1, "tb_boot0: cannot open %s", impath);
-      while (!$feof(imfd)) begin
-        void'($fgets(line, imfd));
+      // $fgets RETURNS 0 AT END OF FILE and leaves `line` alone, so the
+      // `while (!$feof(...))` idiom processes the LAST line TWICE -- which
+      // counted 17 ALUFM entries out of a 16-entry file. Gate on the read.
+      while ($fgets(line, imfd) != 0) begin
         // NINE values after the tag: addr rstk aluf bsel lc asel BLOCK ff jcn.
         // Dropping `block` shifts ff and jcn one column and makes a correct map
         // look half wrong -- which is exactly how this read the first time.
