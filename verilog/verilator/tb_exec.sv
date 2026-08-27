@@ -1170,6 +1170,19 @@ module tb_exec;
   // fault task, HM section 4.1), so a memory fault at startup is the
   // candidate. Record the first switch and count the request line.
   integer n_twr15, first_switch; reg [3:0] first_switch_to;
+  // ...and its three inputs. MemX h03 is an MC10104 (quad AND) wired
+  //     TWReq.15 = (Faults & WakeEnable) | (WakeEnable & StkWake)
+  // and StkWake is exactly the stack wakeup HM Table 6 names as the response to
+  // an empty-stack operation. Count all three; do not sample them.
+  integer n_faults, n_wen, n_stkwake;
+  // ...and WHICH FAULT. `Faults` is an F10016 (k09) whose parallel inputs are
+  // TrueBD -- hardwired true -- so it reads 1 whenever it loads; the load is
+  // gated by `_FaultInfoDly'` and `ReportFault'`. ReportFault' is k07, an
+  // MC10121 whose inputs NAME the fault classes:
+  //   ChkLastPh6' | ReportSE' | ECFault' | MemError' | ValidMapFltInEc2'
+  //   | CacheLoad' | WakeOnCL'
+  // all active-low, so count them ASSERTED.
+  integer n_rf, n_fid, n_se, n_ecf, n_merr, n_vmf, n_cl, n_wocl, n_chk;
   reg fclk_prev, gld_prev; reg [8:0] fg_prev;
   // HOW MUCH OF THE WORLD ACTUALLY EXECUTES. The distinct-value lists above cap
   // at 32, which is fine for "is it sequencing at all" and useless for "how far
@@ -1435,6 +1448,26 @@ module tb_exec;
       force m.b_ContA.IMRH = 1'b1;          // Return#: XOR(rh) = 1, XOR(lh) = 0
       $display("tb_exec: JAMPAR forcing IMRH=1 across the jam (Return# even parity)");
     end
+    // THE FAULT COUNTER, PRESET AFTER STARTUP.
+    //
+    // MemX k09 is an F10016 whose TERMINAL COUNT output is the net `Faults`,
+    // and TC is LOW only at 1111. Its four parallel inputs are all `TrueBD`, a
+    // hardwired true, so the design is: LOAD 1111 = no fault; a `ReportFault'`
+    // pulse COUNTS it, and reaching 0000 asserts the wakeup, since
+    // `TWReq.15 = Faults & WakeEnable`.
+    //
+    // Measured: the counter reads 0001 by the time the run starts, so ONE
+    // FAULT IS REPORTED DURING STARTUP and nothing ever reloads it -- on real
+    // hardware the fault task reads the fault info and the load re-arms it,
+    // and here the fault task runs emulator code because TPC[15] was never
+    // initialised. Presetting it in an `initial` is too early; it counts away.
+`ifdef WORLD
+    if ($test$plusargs("faultinit")) begin
+      m.b_MemX.u_k09.q = 4'b1111;
+      $display("tb_exec: FAULTINIT -- k09 preset to 1111, Faults now %b", m.b_MemX.Faults);
+    end
+`endif
+
     // TASKING ON, so fault task 15 can service the stack underflow.
     //
     // The world holds forever on StkP = 0, which HM Table 6 calls the EMPTY
@@ -1471,6 +1504,8 @@ module tb_exec;
     n_smc = 0; n_smce = 0; n_imlhpe = 0; n_imrhpe = 0; n_err = 0;
     first_pe = -1; last_pe = -1; first_stop = -1;
     n_freeze = 0; n_ctchg = 0; n_rep = 0; n_twr15 = 0; first_switch = -1;
+    n_faults = 0; n_wen = 0; n_stkwake = 0;
+    n_rf = 0; n_fid = 0; n_se = 0; n_ecf = 0; n_merr = 0; n_vmf = 0; n_cl = 0; n_wocl = 0; n_chk = 0;
     n_cah = 0; n_swu = 0; n_holdA = 0; n_hold_top = 0;
     n_h_hold = 0; n_h_pr = 0; n_h_cb = 0; n_h_ifu = 0; n_h_io = 0; n_h_mx = 0;
     n_h_dis = 0; n_h_creq = 0; n_h_lg = 0; n_h_hmb = 0; n_h_ext = 0;
@@ -1538,9 +1573,23 @@ module tb_exec;
         last_pe = j2;
       end
       if (m.b_ContA.Stop && first_stop < 0) first_stop = j2;
+`ifdef WORLD
       if (m.Freeze) n_freeze = n_freeze + 1;
       if (m.b_ContA.RepeatCur) n_rep = n_rep + 1;
       if (m.TWReq_15) n_twr15 = n_twr15 + 1;
+      if (m.b_MemX.Faults)     n_faults   = n_faults + 1;
+      if (m.b_MemX.WakeEnable) n_wen      = n_wen + 1;
+      if (m.b_MemX.StkWake)    n_stkwake  = n_stkwake + 1;
+      if (!m.b_MemX.ReportFault_p_)        n_rf   = n_rf + 1;
+      if (!m.b_MemX._u_FaultInfoDly_p_)      n_fid  = n_fid + 1;
+      if (!m.b_MemX.ReportSE_p_)           n_se   = n_se + 1;
+      if (!m.b_MemX.ECFault_p_)            n_ecf  = n_ecf + 1;
+      if (!m.b_MemX.MemError_p_)           n_merr = n_merr + 1;
+      if (!m.b_MemX.ValidMapFltInEc2_p_)   n_vmf  = n_vmf + 1;
+      if (!m.b_MemX.CacheLoad_p_)          n_cl   = n_cl + 1;
+      if (!m.b_MemX.WakeOnCL_p_)           n_wocl = n_wocl + 1;
+      if (!m.b_MemX.ChkLastPh6_p_)         n_chk  = n_chk + 1;
+`endif
       if (m.b_ContA.CAHold_p_) n_cah    = n_cah + 1;
       if (m.b_ContA.SwitchUp)  n_swu    = n_swu + 1;
       if (m.b_ContA.Hold)      n_holdA  = n_holdA + 1;
@@ -1704,6 +1753,14 @@ module tb_exec;
              n_h_mx, n_h_dis, n_h_creq, n_h_lg, n_h_hmb, n_h_ext);
     $display("tb_exec: REPEAT -- at f20: CAHold'=%0d SwitchUp=%0d ContA.Hold=%0d (of %0d); top Hold=%0d",
              n_cah, n_swu, n_holdA, runcycles, n_hold_top);
+    $display("tb_exec: FAULTSRC of %0d -- ReportFault %0d, _FaultInfoDly %0d | ReportSE %0d ECFault %0d MemError %0d ValidMapFlt %0d CacheLoad %0d WakeOnCL %0d ChkLastPh6 %0d",
+             runcycles, n_rf, n_fid, n_se, n_ecf, n_merr, n_vmf, n_cl, n_wocl, n_chk);
+`ifdef WORLD
+    $display("tb_exec: FAULTCTR -- k09 q=%b, Faults=%b (TC is LOW only at 1111)",
+             m.b_MemX.u_k09.q, m.b_MemX.Faults);
+`endif
+    $display("tb_exec: WAKESRC of %0d -- Faults %0d, WakeEnable %0d, StkWake %0d",
+             runcycles, n_faults, n_wen, n_stkwake);
     $display("tb_exec: WAKE -- TWReq.15 high on %0d of %0d; first task switch at cycle %0d, to task %0d",
              n_twr15, runcycles, first_switch, first_switch_to);
     $write("tb_exec: TASK -- Freeze %0d, RepeatCur %0d of %0d; CTask changed %0d times; occupancy:",

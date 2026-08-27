@@ -591,10 +591,46 @@ the fault task is running whatever code it landed on, in a 23-address cycle.
   other lands back in the 0x0c4 spin with 12,490+ on one address. START is the
   right entry.
 
-So the blocker is narrow and named: **something asserts the fault-task wakeup
-out of reset and nothing clears it.** Find MemX's `TWReq15` driver and what
-condition holds it -- the fault sources are the map, the storage-parity and the
-memory-error paths, and the map is already ruled out.
+### FOUND: `Faults` is a TERMINAL COUNT, and the counter sits at 0000
+
+MemX h03 is an MC10104 (quad AND) wired
+
+    TWReq.15 = (Faults & WakeEnable) | (WakeEnable & StkWake)
+
+`StkWake` -- the stack wakeup HM Table 6 names -- reads **0** all run, so it is
+the `Faults` term. And `Faults` is MemX **k09 pin 4**, which on an F10016 is the
+**TERMINAL COUNT** output: `~(&q)`, LOW only at `1111`.
+
+Its four parallel inputs are all `TrueBD`, a hardwired true. So the design is:
+
+    LOAD 1111  = no fault          (PE' = `_FaultInfoDly'`)
+    COUNT      = a fault reported  (CE' = `ReportFault'`), reaching 0000
+
+**`Faults` is high because the counter is at 0000, not because a fault is
+currently happening.** Measured: it reads `0001` by the time the run starts, so
+ONE FAULT IS REPORTED DURING STARTUP -- and nothing ever reloads it, because on
+real hardware the fault task reads the fault info and the load re-arms it, while
+here the fault task runs emulator code (`TPC[15]` was never initialised).
+
+**Presetting it proves the chain.** `+faultinit` sets k09 to `1111` *after*
+startup -- an `initial` is too early, the counter counts away from it:
+
+| | default | `+faultinit` |
+|---|---|---|
+| `TWReq.15` | 400,000 of 400,000 | **108,939** |
+| first task switch | cycle 181 | cycle 661 |
+| task 0 addresses | **2** | **20** |
+| task 15 addresses | 23 | 10 |
+| `RepeatCur` | 399,419 | 72,635 |
+
+The emulator task actually runs. It is not a clean state yet -- the stack
+underflow at cycle 565 still holds it intermittently and the fault task still
+services it with the wrong PC -- so `+faultinit` is a diagnostic, not the fix.
+
+**The real fix is upstream: nothing has initialised this machine.** A real boot
+does not jump a cold world at `START` with the fault counter unarmed and every
+task PC unset; Initial and the world's own `InitMem` do that first. That is what
+`exec-world9` skips by preloading IM and jumping straight in.
 
 ### Traps found on the way
 
