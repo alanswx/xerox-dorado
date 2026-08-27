@@ -1022,8 +1022,9 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **ALUFM and IFUM too** | `exec-world9` -- 16 + 256 entries; they confirm HM Table 11d and cpu.c's Table 20 |
 | **NINE BOARDS DISPATCH AN ALTO OPCODE** | `exec-world9` -- START, the IFU traps, RESTARTIFU, then AND1 and SKPC |
 | **IM PARITY, the long-open question, ANSWERED** | `im-parity-check` -- ODD over the 17-bit half, and the array stores its COMPLEMENT |
+| **THE MACHINE RUNS WITH IM PARITY ENABLED** | `exec-parity` -- Error propagated on 0 of 400,000 samples, Stop never set |
 
-Forty-six gates in all; `make -C verilog` has the list. **The datapath is
+Forty-seven gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
@@ -1157,6 +1158,25 @@ The second error was FG parity over the instruction
   Consequence still open: `tb_compute.sv`'s `mi()` sets both parity bits to 1
   unconditionally, but PARC's own entries vary them, so computing them is what
   would let a JAM pass parity and the machine run with the enables on.
+- **AND THE MACHINE NOW RUNS WITH IM PARITY ENABLED** -- the rung this project
+  could never reach; `exec-test` has always had to clear the enables. Gate:
+  `exec-parity`. What was in the way was not the parity VALUES at all. Bucketing
+  the errors by TIME instead of totalling them shows they run from cycle 0 to
+  **148 and then clear by themselves, never returning across 400,000 cycles**:
+  the preloaded array's parity is correct and the machine's own power-up
+  transient is what fails. With the enables on from the start, `Stop` latches at
+  cycle **125** -- inside that window -- and **`Stop` gates the clock that would
+  clear it**, so it is permanent. Switching the enables on at cycle 400 instead
+  gives `Error` propagated on **0** samples, `Stop` never set, 24,991 clk0'
+  edges. A TOTAL SAID "parity is broken"; A DISTRIBUTION SAID "the enables are
+  on 148 cycles too early".
+- **The jam never delivered a parity bit at all**, which is worth knowing
+  separately. Jamming `CPRegToLink#` (P015=0) and `Nop#` (P015=1) both leave the
+  MIR's `IMLH` at 0, because `sIMLH` is driven from `CPOut.8` -- the ninth
+  CP-bus bit, which the benches use for the single-step flag. Both checkers work
+  out to `IM?HPE' = ~(XOR(17 field bits) ^ IM?H)`, so a zero parity bit passes
+  only when the field-XOR is zero -- true of `Nop#` alone among PARC's eight
+  entries, and NOT of `Return#`, which is what the startup jams.
 - **A GREEN CHECK IS WHAT PEOPLE QUOTE, so make it say what it cannot test.**
   Mutating `im-parity-check` four ways, two do NOT fail, both for principled
   reasons: every one of PARC's eight entries has `RSTK.0 = 0` and `BLOCK = 0`,

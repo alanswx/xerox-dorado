@@ -1046,6 +1046,11 @@ module tb_exec;
   // word, which is wrong for most of them. The enables are cleared at startup;
   // whether the error TERM still reaches the MIR clock is the question.
   integer n_smc, n_smce, n_imlhpe, n_imrhpe, n_err;
+  // WHEN, not just how often. A total says 85 of 400,000; a distribution says
+  // whether that is a transient at the start or a fault throughout. Reading a
+  // total instead of a distribution has produced wrong conclusions in this
+  // project twice already.
+  integer first_pe, last_pe, first_stop;  reg late_par;
   // A SHORT PC TRACE. Counters say how often; a trace says in what ORDER, and
   // for "why is it stuck" that is the difference between theorising and
   // looking. First N microinstructions only -- the interesting part is the
@@ -1240,12 +1245,53 @@ module tb_exec;
     // address is an input here; 0 is what this bench has always used.
     if (!$value$plusargs("start=%d", startaddr)) startaddr = 0;
     $display("tb_exec: starting at IM[0x%h]", startaddr[11:0]);
+    // DOES A JAM'S PARITY BIT REACH THE MIR IN THE SAME SENSE?
+    //
+    // The checker (ContB j20/j21, an MC10170 cascade) covers 17 field bits plus
+    // the stored bit as `IMLH'`, and works out to IMLHPE' = ~(XOR(17) ^ IMLH):
+    // no error requires IMLH = XOR(17), i.e. the EVEN parity bit. That is what
+    // the preload measurement found independently.
+    //
+    // But PARC's IRTable entries carry ODD parity, and their bit reaches the
+    // MIR by a different route -- c24's SET input `sIMLH`, driven from CPOut.8
+    // -- rather than through `dIMLH` from the array. So jam entries whose P015
+    // is KNOWN and read the MIR back. Three points, both senses covered:
+    //     CPRegToLink#  30 13 EF 04 40   P015=0  P1631=1
+    //     Nop#          70 01 0F 4C 40   P015=1  P1631=1
+    //     Return#       60 13 E1 42 43   P015=1  P1631=0
+    parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#, P015=0
+    $display("tb_exec: JAMPAR CPRegToLink# P015=0 -> MIR IMLH=%b", m.b_ContB.IMLH);
+    nop_micro;                                        // Nop#, P015=1
+    $display("tb_exec: JAMPAR Nop#         P015=1 -> MIR IMLH=%b", m.b_ContB.IMLH);
+
     set_cpreg_tilde(startaddr[15:0]);
     parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
     nop_micro;
     $display("tb_exec: Link[4:15]=%h", link_hi);
 
+    // PROVE THE DIAGNOSIS. Both parity checkers -- ContB j20/j21 for the left
+    // half, ContA e18/e19 for the right -- work out to
+    //     IM?HPE' = ~( XOR(17 field bits) ^ IM?H )
+    // so NO ERROR requires the MIR's parity bit to be the EVEN one. Our jam
+    // leaves both at 0 (measured: jamming P015=0 and P015=1 both give MIR
+    // IMLH=0), so only an entry whose field-XOR is zero can pass -- Nop# alone
+    // of PARC's eight. Return#, which the startup jams, has XOR(rh)=1.
+    //
+    // So supply that one bit and see whether the machine runs with the enables
+    // ON. Forced only across the jam and released immediately, because once
+    // the machine is fetching from IM the array carries correct parity itself.
+    if ($test$plusargs("jampar")) begin
+      force m.b_ContA.IMRH = 1'b1;          // Return#: XOR(rh) = 1, XOR(lh) = 0
+      $display("tb_exec: JAMPAR forcing IMRH=1 across the jam (Return# even parity)");
+    end
     parc_run(8'h60, 8'h13, 8'hE1, 8'h42, 8'h43);      // Return#, free-running
+    if ($test$plusargs("jampar")) begin
+      repeat (40) @(posedge sys_clk);
+      release m.b_ContA.IMRH;
+    end
+
+    // TURN PARITY ON *AFTER* THE TRANSIENT -- see the sampling loop below.
+    late_par = $test$plusargs("imparitylate");
 
     n0a = 0; n1a = 0; nff = 0; n_tnia = 0; n_ff = 0;
 `ifdef WORLD
@@ -1256,6 +1302,7 @@ module tb_exec;
     n_d0 = 0; n_d1 = 0; n_both = 0; n_neither = 0; n_addrdiff = 0;
     n_pcf = 0; n_tr = 0;
     n_smc = 0; n_smce = 0; n_imlhpe = 0; n_imrhpe = 0; n_err = 0;
+    first_pe = -1; last_pe = -1; first_stop = -1;
     fclk_prev = m.b_MemD.Fclk_p_a; gld_prev = m.b_MemD.GLd_p_; fg_prev = fg_now;
 `endif
     for (i = 0; i < 4096; i = i + 1) visited[i] = 1'b0;
@@ -1296,6 +1343,11 @@ module tb_exec;
       if (!m.b_ContB.IMLHPE_p_)      n_imlhpe = n_imlhpe + 1;
       if (!m.b_ContB.IMRHPE_p_)      n_imrhpe = n_imrhpe + 1;
       if (!m.b_ContA.Error_p_)       n_err    = n_err + 1;
+      if (!m.b_ContB.IMLHPE_p_ || !m.b_ContB.IMRHPE_p_) begin
+        if (first_pe < 0) first_pe = j2;
+        last_pe = j2;
+      end
+      if (m.b_ContA.Stop && first_stop < 0) first_stop = j2;
       if (n_ff < 32) begin
         for (q = 0; q < n_ff; q = q + 1)
           if (ff_seen[q] === ff_now) q = 1000;
@@ -1337,6 +1389,17 @@ module tb_exec;
       // until the reference completes. `PRhold` (ProcH/ProcL) and `PrHold`
       // (MemC) are ONE BACKPLANE WIRE spelled two ways -- so print who is
       // asking, and what the memory section is doing about it.
+      // Measured: the parity error runs from cycle 0 to ~148 and then clears
+      // by itself, never returning across 400,000 cycles -- the preloaded
+      // array's parity is CORRECT. With the enables on from the start, `Stop`
+      // latches at cycle 125, inside that window, and Stop GATES THE CLOCK
+      // THAT WOULD CLEAR IT, so it is permanent. Switching them on once the
+      // machine is running out of IM is the whole difference.
+      if (late_par && j2 == 400) begin
+        manifold(12'h030);
+        $display("tb_exec: LATE parity enables IMLH=%b IMRH=%b, Stop=%b",
+                 m.b_ContB.IMLHPEenable, m.b_ContB.IMRHPEenable, m.b_ContA.Stop);
+      end
       if (j2 % (runcycles/10) == 0)
         $display("tb_exec: HOLD: Hold=%b PRhold=%b CBHold=%b IfuHold=%b IOHold=%b MXHold=%b DisHold=%b CHoldReq=%b",
                  m.Hold, m.PRhold, m.CBHold, m.IfuHold, m.IOHold, m.MXHold,
@@ -1388,6 +1451,8 @@ module tb_exec;
     $write("tb_exec: TRACE (pc/ff, first %0d):", n_tr);
     for (i = 0; i < n_tr; i = i + 1) $write(" %h/%o", tr_pc[i], tr_ff[i]);
     $write("\n");
+    $display("tb_exec: WHEN -- first parity error at cycle %0d, last at %0d; Stop first set at %0d",
+             first_pe, last_pe, first_stop);
     $display("tb_exec: MIR -- StopMIRClk %0d, StopMIRClkEn %0d, IMLHPE %0d, IMRHPE %0d, Error %0d, of %0d",
              n_smc, n_smce, n_imlhpe, n_imrhpe, n_err, runcycles);
     $display("tb_exec: PCF -- `PCF<-B` (FF=0o100, starts the IFU pipeline) seen on %0d samples",
@@ -1421,7 +1486,12 @@ module tb_exec;
     // used to demand exact equality, and that is a boundary artifact rather
     // than a real difference: at 8 sys_clk per microinstruction it read
     // 2492 against 2493 out of ~2492.
-    if (n1a > n0a + 1 || n0a > n1a + 1)
+    // ...and a WIDER slack when the parity enables are switched on mid-run,
+    // because `manifold()` BLOCKS the sampling loop for many sys_clk while it
+    // shifts twelve bits out, so edges of both clocks go uncounted and not
+    // evenly. That is the bench's own instrumentation gap, not the machine:
+    // measured 24991 against 24994. Not widened for the ordinary run.
+    if (n1a > n0a + (late_par ? 8 : 1) || n0a > n1a + (late_par ? 8 : 1))
       $fatal(1, "clk1' must run with clk0', one of each per microinstruction (%0d vs %0d)",
              n0a, n1a);
     // A machine fetching from WIPED IM would sit on one instruction for ever.
@@ -1429,6 +1499,21 @@ module tb_exec;
       $fatal(1, "TNIA is not sequencing -- the machine is not fetching from IM");
     if (n_ff < 4)
       $fatal(1, "the decoded FF field never changes -- nothing is being fetched");
+    if (late_par) begin
+      // THE POINT OF THE MODE: the machine runs with IM parity ENABLED. The
+      // errors counted are the power-up transient BEFORE the enables went on
+      // at cycle 400; what matters is that `Error'` never propagated and the
+      // machine never stopped.
+      $display("tb_exec: IM PARITY ENABLED -- Error propagated on %0d samples, Stop=%b, %0d clk0' edges",
+               n_err, m.b_ContA.Stop, n0a);
+      if (n_err != 0)
+        $fatal(1, "an IM parity error propagated with the enables on");
+      if (m.b_ContA.Stop !== 1'b0)
+        $fatal(1, "the machine stopped with the IM parity enables on");
+      if (last_pe > 400)
+        $fatal(1, "IM parity errors continue past the enable point -- the preloaded array's parity is wrong");
+      $display("tb_exec: THE MACHINE RUNS WITH IM PARITY ON.");
+    end
     $display("tb_exec: the machine executes microcode out of IM.");
     $finish;
   end

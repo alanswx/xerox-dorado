@@ -147,6 +147,11 @@ exec-world:
 exec-world9:
 	@$(MAKE) -C verilator exec-world9 EXECARGS="$(EXECARGS)"
 
+# THE MACHINE EXECUTES MICROCODE OUT OF IM WITH PARITY ENABLED -- the rung the
+# project could never reach. See docs/verilog-handoff.md, "IM PARITY".
+exec-parity:
+	@$(MAKE) -C verilator exec-parity
+
 # The IM/ALUFM/IFUM field maps, derived from the wire lists and checked
 # against HM Table 11d, HM Table 20 and cpu.c.
 
