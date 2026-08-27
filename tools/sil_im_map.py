@@ -308,6 +308,91 @@ def emit_alufm(out):
     return bad
 
 
+
+# ---------------------------------------------------------------------------
+# IFUM -- 1024 x 27, and it is the IFU's twenty-seven F10415A.
+#
+# The IFU decodes an opcode by looking it up here, so a world loaded without
+# IFUM cannot dispatch at all: it takes the IFU fault handlers and never
+# reaches an opcode implementation.
+#
+# EVERY PIECE OF THE LAYOUT IS IN THE NETLIST. Each package's OUTPUT names the
+# field bit (InstrAddrK.0'-9', NK.0-3, MemBK.0/1, MemBK34, LengthK.0'/1',
+# SignK, TypeJumpK', TypePauseK', RBaseSelK', TwoAlphaK, RamParity.0-2 = 27),
+# its ADDRESS pins are {InstrSet.0, InstrSet.1, J.0..J.7} -- two bits of
+# instruction set and the eight-bit opcode, MSB first, giving 256 entries x 4
+# instruction sets -- and its DATA pin names the bit of the 16-bit write bus:
+# RcvdBMux.00 is the MSB, PARC numbering.
+#
+# THE TWO HALVES ARE TWO WRITE ENABLES, DecHi' and DecLo', which is why a .MB
+# stores two words per entry. Which half is which is settled by comparing the
+# bit positions against cpu.c, and the agreement is exact and complete:
+#
+#   DecLo' group, all sixteen bits, against cpu.c's ifu_decode_lh (HM Table 20)
+#       00 Sign | 01-03 IPar | 04-05 Length' | 06 RBaseB' | 07-09 MemB
+#       10 TPause' | 11 TJump' | 12-15 N
+#   DecHi' group, eleven bits 05-15, against cpu.c's `ifum_lo[addr] & 0x07FF`
+#       05 TwoAlpha | 06-15 InstrAddr (the microcode entry point)
+#
+# So DecLo' holds what the C emulator calls ifum_hi (.MB word 1) and DecHi'
+# holds ifum_lo (.MB word 0). The names cross over; the bits do not.
+_IFUM_WE = {"DecHi_'": 0, "DecLo_'": 1}     # write enable -> .MB word index
+
+
+def ifum_packages():
+    """[(pkg, word-index, MSB-first bit, output net)] for the IFU board."""
+    board = sn.load_board(glob.glob('chm/sil/IFU*/*.wl')[0])
+    out = []
+    for pkg, rec in sorted(board.packages.items()):
+        if rec.get('type') != 'F10415A':
+            continue
+        pins = {p['pin']: nm for nm, nt in board.nets.items()
+                for p in nt['pins'] if p['pkg'] == pkg}
+        we = pins.get(13)
+        di = pins.get(15) or ''
+        if we not in _IFUM_WE or not di.startswith('RcvdBMux.'):
+            continue
+        out.append((pkg, _IFUM_WE[we], int(di.split('.')[1]), pins.get(1)))
+    return out
+
+
+def emit_ifum(out):
+    rows = ifum_packages()
+    bad = []
+    if len(rows) != 27:
+        bad.append(f"expected 27 IFUM packages, found {len(rows)}")
+    lo = sorted(b for _, w, b, _ in rows if w == 0)
+    hi = sorted(b for _, w, b, _ in rows if w == 1)
+    if lo != list(range(5, 16)):
+        bad.append(f"DecHi' bits are {lo}, not 05-15 (cpu.c masks ifum_lo & 0x07FF)")
+    if hi != list(range(0, 16)):
+        bad.append(f"DecLo' bits are {hi}, not 00-15 (cpu.c's Table 20 layout)")
+
+    w = out.write
+    w("\n\n// IFUM -- 1024 x 27, the IFU's F10415A. See tools/sil_im_map.py.\n")
+    w("// Address is {InstrSet[1:0], opcode[7:0]}. `lo` is .MB word 0 (written\n")
+    w("// by DecHi'), `hi` is .MB word 1 (DecLo'). RcvdBMux.00 is the MSB, so\n")
+    w("// MSB-first bit n is bit 15-n of the C-side word.\n")
+    for name, sig, assign in (("ifum_preload_word", "input  [15:0]", True),
+                              ("ifum_readback_word", "output [15:0]", False)):
+        w(f"task automatic {name}(input int unsigned addr, {sig} lo, {sig} hi);\n")
+        w("  int idx;\n  begin\n    idx = addr[9:0];\n")
+        for pkg, word, bit, netname in rows:
+            var = ('lo', 'hi')[word]
+            if assign:
+                w(f"    m.b_IFU.u_{pkg}.mem[idx] = {var}[{15-bit}];"
+                  f"   // {netname}\n")
+            else:
+                w(f"    {var}[{15-bit}] = m.b_IFU.u_{pkg}.mem[idx];"
+                  f"   // {netname}\n")
+        if not assign:
+            # the five bits DecHi' does not hold read back as zero
+            for k in range(5):
+                w(f"    lo[{15-k}] = 1'b0;   // DecHi' holds only bits 05-15\n")
+        w("  end\nendtask\n")
+    return bad
+
+
 def main() -> int:
     rows = im_packages()
     bits = collections.defaultdict(dict)
@@ -377,7 +462,7 @@ def main() -> int:
         path = 'verilog/generated/im_preload.vh'
         with open(path, 'w') as f:
             emit_verilog(rows, f)
-            abad = emit_alufm(f)
+            abad = emit_alufm(f) + emit_ifum(f)
         if abad:
             for x in abad:
                 print(f"FAIL: {x}")

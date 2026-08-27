@@ -364,3 +364,80 @@ task automatic alufm_readback_word(input int unsigned aluf, output [5:0] e);
     e[1] = m.b_ProcL.u_e14.mem[aluf[3:0]][0];   // ALUFdec.4
   end
 endtask
+
+
+// IFUM -- 1024 x 27, the IFU's F10415A. See tools/sil_im_map.py.
+// Address is {InstrSet[1:0], opcode[7:0]}. `lo` is .MB word 0 (written
+// by DecHi'), `hi` is .MB word 1 (DecLo'). RcvdBMux.00 is the MSB, so
+// MSB-first bit n is bit 15-n of the C-side word.
+task automatic ifum_preload_word(input int unsigned addr, input  [15:0] lo, input  [15:0] hi);
+  int idx;
+  begin
+    idx = addr[9:0];
+    m.b_IFU.u_g09.mem[idx] = lo[10];   // TwoAlphaK
+    m.b_IFU.u_g10.mem[idx] = hi[5];   // TypePauseK'
+    m.b_IFU.u_g11.mem[idx] = hi[4];   // TypeJumpK'
+    m.b_IFU.u_g14.mem[idx] = hi[9];   // RBaseSelK'
+    m.b_IFU.u_g15.mem[idx] = hi[11];   // LengthK.0'
+    m.b_IFU.u_h09.mem[idx] = hi[15];   // SignK
+    m.b_IFU.u_h10.mem[idx] = hi[12];   // RamParity.2
+    m.b_IFU.u_h14.mem[idx] = hi[8];   // MemBK34
+    m.b_IFU.u_i09.mem[idx] = hi[3];   // NK.0
+    m.b_IFU.u_i10.mem[idx] = hi[7];   // MemBK.0
+    m.b_IFU.u_i14.mem[idx] = lo[7];   // InstrAddrK.2'
+    m.b_IFU.u_i15.mem[idx] = hi[10];   // LengthK.1'
+    m.b_IFU.u_j09.mem[idx] = hi[2];   // NK.1
+    m.b_IFU.u_j10.mem[idx] = lo[6];   // InstrAddrK.3'
+    m.b_IFU.u_j14.mem[idx] = lo[5];   // InstrAddrK.4'
+    m.b_IFU.u_j15.mem[idx] = lo[4];   // InstrAddrK.5'
+    m.b_IFU.u_k09.mem[idx] = hi[1];   // NK.2
+    m.b_IFU.u_k10.mem[idx] = hi[6];   // MemBK.1
+    m.b_IFU.u_k14.mem[idx] = lo[3];   // InstrAddrK.6'
+    m.b_IFU.u_k15.mem[idx] = lo[2];   // InstrAddrK.7'
+    m.b_IFU.u_l09.mem[idx] = hi[0];   // NK.3
+    m.b_IFU.u_l10.mem[idx] = lo[9];   // InstrAddrK.0'
+    m.b_IFU.u_l11.mem[idx] = lo[8];   // InstrAddrK.1'
+    m.b_IFU.u_l12.mem[idx] = hi[14];   // RamParity.0
+    m.b_IFU.u_l13.mem[idx] = hi[13];   // RamParity.1
+    m.b_IFU.u_l14.mem[idx] = lo[1];   // InstrAddrK.8'
+    m.b_IFU.u_l15.mem[idx] = lo[0];   // InstrAddrK.9'
+  end
+endtask
+task automatic ifum_readback_word(input int unsigned addr, output [15:0] lo, output [15:0] hi);
+  int idx;
+  begin
+    idx = addr[9:0];
+    lo[10] = m.b_IFU.u_g09.mem[idx];   // TwoAlphaK
+    hi[5] = m.b_IFU.u_g10.mem[idx];   // TypePauseK'
+    hi[4] = m.b_IFU.u_g11.mem[idx];   // TypeJumpK'
+    hi[9] = m.b_IFU.u_g14.mem[idx];   // RBaseSelK'
+    hi[11] = m.b_IFU.u_g15.mem[idx];   // LengthK.0'
+    hi[15] = m.b_IFU.u_h09.mem[idx];   // SignK
+    hi[12] = m.b_IFU.u_h10.mem[idx];   // RamParity.2
+    hi[8] = m.b_IFU.u_h14.mem[idx];   // MemBK34
+    hi[3] = m.b_IFU.u_i09.mem[idx];   // NK.0
+    hi[7] = m.b_IFU.u_i10.mem[idx];   // MemBK.0
+    lo[7] = m.b_IFU.u_i14.mem[idx];   // InstrAddrK.2'
+    hi[10] = m.b_IFU.u_i15.mem[idx];   // LengthK.1'
+    hi[2] = m.b_IFU.u_j09.mem[idx];   // NK.1
+    lo[6] = m.b_IFU.u_j10.mem[idx];   // InstrAddrK.3'
+    lo[5] = m.b_IFU.u_j14.mem[idx];   // InstrAddrK.4'
+    lo[4] = m.b_IFU.u_j15.mem[idx];   // InstrAddrK.5'
+    hi[1] = m.b_IFU.u_k09.mem[idx];   // NK.2
+    hi[6] = m.b_IFU.u_k10.mem[idx];   // MemBK.1
+    lo[3] = m.b_IFU.u_k14.mem[idx];   // InstrAddrK.6'
+    lo[2] = m.b_IFU.u_k15.mem[idx];   // InstrAddrK.7'
+    hi[0] = m.b_IFU.u_l09.mem[idx];   // NK.3
+    lo[9] = m.b_IFU.u_l10.mem[idx];   // InstrAddrK.0'
+    lo[8] = m.b_IFU.u_l11.mem[idx];   // InstrAddrK.1'
+    hi[14] = m.b_IFU.u_l12.mem[idx];   // RamParity.0
+    hi[13] = m.b_IFU.u_l13.mem[idx];   // RamParity.1
+    lo[1] = m.b_IFU.u_l14.mem[idx];   // InstrAddrK.8'
+    lo[0] = m.b_IFU.u_l15.mem[idx];   // InstrAddrK.9'
+    lo[15] = 1'b0;   // DecHi' holds only bits 05-15
+    lo[14] = 1'b0;   // DecHi' holds only bits 05-15
+    lo[13] = 1'b0;   // DecHi' holds only bits 05-15
+    lo[12] = 1'b0;   // DecHi' holds only bits 05-15
+    lo[11] = 1'b0;   // DecHi' holds only bits 05-15
+  end
+endtask
