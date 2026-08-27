@@ -399,9 +399,55 @@ processor, so the whole chain is printed -- `Hold`, `PRhold`, `CBHold`,
 `IfuHold`, `IOHold`, `MXHold`, `DisHold`, `CHoldReq`. All eight are 0 for the
 entire run.
 
-**So the next question is narrow: why does the IFU stop referencing?** Not a
-vague stall -- six transitions, one opcode, and a named counter for each.
-`ifufetch-test` already gates IFU fetch behaviour and is the place to start.
+### ANSWERED: it was PARITY, twice -- and one of them is the first parity
+### agreement between the two models
+
+**The IFU was sitting in a permanent RAM parity error.** `RamPe` high on
+200,000 of 200,000 samples, `SawRamParityErr` latched on 199,523.
+
+**THE .MB DOES NOT CARRY IFUM PARITY.** The real machine computes the three
+IPar bits in its LOAD microcode -- `cpu.c` cites `ifuRamSubrs.mc:ifuAddParity`
+-- and 248 of AEmu's 256 entries FAIL `cpu.c`'s own `ifum_parity_ok` as stored,
+which is why the C emulator only checks it behind `DORADO_IFUM_PARITY_TRAP`. A
+preload that copies the stored bits hands the IFU 248 bad entries. Computing
+them per HM Table 20's three disjoint even-parity groups takes `RamPe` and
+`SawRamParityErr` to **ZERO**.
+
+**That is the first parity agreement established between the two models.** The
+RTL's parity generators come from PARC's wire lists; `cpu.c`'s grouping comes
+from `ifuRamSubrs.mc` and the manual. Neither was derived from the other, and
+feeding the RTL a word whose parity satisfies `cpu.c` makes the RTL's error
+signal go clean. **IM parity is the same question** -- the machine still runs
+only with the enables cleared -- and this is a tractable second instance of it.
+
+**Then FG parity, over the instruction BYTES.** The cache word is 16 data bits
+plus TWO parity bits, D.16 and D.17, one per byte. The convention is **ODD**,
+D.17 over D.08-15 and D.16 over D.00-07: 50,000 errors in 100,000 samples down
+to 176.
+
+**AND THE SWEEP THAT FOUND IT NEARLY LIED.** All four combinations of sense
+(even/odd) and pairing were tried and TWO cleared the error -- which looks like
+two right answers and is really one measurement that cannot distinguish them.
+The default pattern's two bytes happen to have DIFFERENT parity, so "swap the
+two bits" and "invert both bits" are the SAME assignment for it. Re-running
+with `0xC003`, whose bytes have EQUAL parity so a swap is a no-op, resolves it:
+odd clears the error, swapping does nothing. **When two candidate explanations
+both fit, find the input that separates them.**
+
+With both clear the machine reaches three addresses it had never touched --
+octal 100, 435 and 464, the last of which `mbdis` names `CVEND` and whose ASEL
+is `Fetch<-RM/STK`. It is executing microcode that issues storage references.
+
+**HOW IT WAS FOUND, because the order mattered.** The chain was measured from
+the far end inward. The byte path from the cache (MemD `e06` -> `f22` -> `f23`
+-> `FG`) MOVES in a running world -- `Fclk'a` 10 edges, `GLd'` 4, `FG` changed
+7, where `tb_ifufetch`'s synthetic loop got 0 for all three -- and it stops in
+lockstep with `IfuMemRef`. So nothing downstream was broken and memory was not
+failing to serve; the IFU had stopped ASKING. The run visits `AEMUIFURAMPE`
+early, which named the suspect.
+
+**The next question is what it is waiting on now** -- still 12,482
+microinstructions on a single address, still one opcode delivered.
 
 ### Traps found on the way
 
