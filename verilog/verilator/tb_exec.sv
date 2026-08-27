@@ -124,7 +124,8 @@ module tb_exec;
   reg [7:0]  dpat;      // storage, {H,G,F,E,D,C,B,A}
   reg [17:0] cpat;      // cache, cpat[k] is D.k
   integer    dp, cp, si, ci;
-  reg        hi_par, lo_par, prog_cache;
+  reg        hi_par, lo_par, prog_cache, prog_swap, prog_even;
+  integer    prog_fn;
   reg [17:0] cw;
   initial begin
     if (!$value$plusargs("dpat=%d", dp)) dp = 172;      // 8'b1010_1100
@@ -139,15 +140,32 @@ module tb_exec;
     // stated anywhere we have read -- so both are switches (`+cpatswap`,
     // `+cpatodd`) and the measurement decides.
     prog_cache = $test$plusargs("cprog");
+    prog_swap  = $test$plusargs("cprogswap");
+    prog_even  = $test$plusargs("cprogeven");
+    if (!$value$plusargs("cprogfn=%d", prog_fn)) prog_fn = 0;
     if (!$test$plusargs("cpatraw")) begin
-      // MEASURED, not assumed: the convention is ODD per byte, D.17 over
-      // D.08-15 and D.16 over D.00-07. All four combinations of sense and
-      // pairing were swept. Two of them cleared FGParityErr -- but only
-      // because the default pattern's two bytes have DIFFERENT parity, which
-      // makes "swap both bits" and "invert both bits" the SAME assignment.
-      // Re-run with 0xC003, whose bytes have EQUAL parity so a swap is a
-      // no-op, and the ambiguity resolves: odd clears it (50000 -> 176),
-      // swapping does nothing.
+      // ODD per byte, D.17 over D.08-15 and D.16 over D.00-07. This
+      // MINIMISES FGParityErr across six different constant patterns
+      // (52045, 49155, 0, 65535, 21845, 4660), all of which give exactly the
+      // same residual 176 -- so the level does respond to these bits, and
+      // consistently.
+      //
+      // IT IS NOT ESTABLISHED AS THE HARDWARE CONVENTION, and the honest
+      // reason is worth keeping. With `+cprog` giving each line its own word,
+      // WHICH assignment wins changes with the DATA FUNCTION: the plain rule
+      // is clean for a byte-swapped word (`+cprogfn=3`) and dirty for the
+      // plain one, and vice versa, while `+cprogfn=1` is nearly clean under
+      // both. No real parity convention can depend on the data.
+      //
+      // What that means is that this counter is not measuring what it looks
+      // like it measures. `IfuMemRef` makes TWO to SIX transitions over the
+      // whole run, so there are essentially NO fetches -- and a count of
+      // samples where a combinational signal sits high over 200,000 cycles is
+      // an IDLE LEVEL, not a per-fetch check. Establishing the convention
+      // needs the error sampled AT a fetch, which needs a machine that
+      // fetches. See the IFUM parity above for the contrast: RamPe went to
+      // EXACTLY ZERO, and IFUM entries are read continuously, so there the
+      // level is meaningful.
       hi_par = ~(^cpat[15:8]);     // D.08-15
       lo_par = ~(^cpat[7:0]);      // D.00-07
       cpat[17:16] = {hi_par, lo_par};
@@ -169,9 +187,27 @@ module tb_exec;
       // instruction stream varies. Parity is recomputed per word, odd per
       // byte, because a fixed pair of parity bits is wrong for varying data.
       if (prog_cache) begin
-        cw[15:0]  = ci[15:0];
-        cw[16]    = ~(^ci[7:0]);
-        cw[17]    = ~(^ci[15:8]);
+        // The WORD each line holds. Varying it is the point: a parity rule
+        // that only holds for `ci` is a coincidence of the data, not a rule.
+        case (prog_fn)
+          1:       cw[15:0] = ci[15:0] ^ 16'h5A5A;
+          2:       cw[15:0] = ci[15:0] * 16'd3;
+          3:       cw[15:0] = {ci[7:0], ci[15:8]};
+          default: cw[15:0] = ci[15:0];
+        endcase
+        // The pairing could not be pinned by the CONSTANT-pattern sweep: with
+        // one word in every line, F and G always agree and the two bytes are
+        // fetched from the same value, so a swapped assignment is invisible
+        // unless the byte parities differ -- and then "swap" and "invert both"
+        // are the same thing. Varying data separates them, so try it here.
+        if (prog_swap) begin
+          cw[16] = ~(^cw[15:8]);
+          cw[17] = ~(^cw[7:0]);
+        end else begin
+          cw[16] = ~(^cw[7:0]);
+          cw[17] = ~(^cw[15:8]);
+        end
+        if (prog_even) cw[17:16] = ~cw[17:16];
       end else cw = cpat;
       m.b_MemD.u_a03.mem[ci] = cw[0];
       m.b_MemD.u_d03.mem[ci] = cw[0];
@@ -985,6 +1021,14 @@ module tb_exec;
   // generator computes something different, the IFU raises a RAM parity error
   // and stops fetching, which is exactly the shape measured.
   integer n_rampe, n_sawram, n_fgpe, n_sawfg;
+  // THE CACHE IS TWO HALVES, and the netlist says so plainly: a03 and d03 both
+  // drive D.00, but a03 takes Dad0.10-12 with enable D0ACE' and d03 takes
+  // Dad1.10-12 with enable D1ACE'. They are separate 4096x1 arrays wired-OR
+  // onto one data bus, so exactly ONE should be enabled at a time. If both
+  // are, a CONSTANT seed hides it completely -- both halves hold the same word
+  // -- and varying data does not. That is the candidate for +cprog failing FG
+  // parity, so count it rather than argue about it.
+  integer n_d0, n_d1, n_both, n_neither, n_addrdiff;
   reg fclk_prev, gld_prev; reg [8:0] fg_prev;
   // HOW MUCH OF THE WORLD ACTUALLY EXECUTES. The distinct-value lists above cap
   // at 32, which is fine for "is it sequencing at all" and useless for "how far
@@ -1159,6 +1203,7 @@ module tb_exec;
     ifu_prev_ref = m.b_IFU.IfuMemRef; ifu_prev_ack = m.b_IFU.IfuMemAck; j_prev = j_now;
     n_fclk = 0; n_gld = 0; n_fg = 0; n_enfg = 0;
     n_rampe = 0; n_sawram = 0; n_fgpe = 0; n_sawfg = 0;
+    n_d0 = 0; n_d1 = 0; n_both = 0; n_neither = 0; n_addrdiff = 0;
     fclk_prev = m.b_MemD.Fclk_p_a; gld_prev = m.b_MemD.GLd_p_; fg_prev = fg_now;
 `endif
     for (i = 0; i < 4096; i = i + 1) visited[i] = 1'b0;
@@ -1214,6 +1259,14 @@ module tb_exec;
       if (m.b_IFU.SawRamParityErr)   n_sawram = n_sawram + 1;
       if (!m.b_IFU.FGParityErr_p_)   n_fgpe   = n_fgpe + 1;
       if (m.b_IFU.SawFGParityErr)    n_sawfg  = n_sawfg + 1;
+      if (!m.b_MemD.D0ACE_p_a &&  m.b_MemD.D1ACE_p_a) n_d0 = n_d0 + 1;
+      if ( m.b_MemD.D0ACE_p_a && !m.b_MemD.D1ACE_p_a) n_d1 = n_d1 + 1;
+      if (!m.b_MemD.D0ACE_p_a && !m.b_MemD.D1ACE_p_a) n_both = n_both + 1;
+      if ( m.b_MemD.D0ACE_p_a &&  m.b_MemD.D1ACE_p_a) n_neither = n_neither + 1;
+      // ...and whether the two halves are even addressed alike.
+      if ({m.b_MemD.Dad0_10a, m.b_MemD.Dad0_11a, m.b_MemD.Dad0_12a} !==
+          {m.b_MemD.Dad1_10a, m.b_MemD.Dad1_11a, m.b_MemD.Dad1_12a})
+        n_addrdiff = n_addrdiff + 1;
       // SITTING ON ONE ADDRESS IS THE SIGNATURE OF A HOLD, not of a self-jump:
       // the memory section freezes the processor on the same microinstruction
       // until the reference completes. `PRhold` (ProcH/ProcL) and `PrHold`
@@ -1243,6 +1296,8 @@ module tb_exec;
     $display("tb_exec: %0d distinct TNIA values, %0d distinct FF values seen",
              n_tnia, n_ff);
 `ifdef WORLD
+    $display("tb_exec: CACHE -- D0 only %0d, D1 only %0d, BOTH enabled %0d, neither %0d, addr differs %0d, of %0d",
+             n_d0, n_d1, n_both, n_neither, n_addrdiff, runcycles);
     $display("tb_exec: IFUPE -- RamPe high %0d, SawRamParityErr %0d, FGParityErr %0d, SawFGParityErr %0d, of %0d",
              n_rampe, n_sawram, n_fgpe, n_sawfg, runcycles);
     $display("tb_exec: BYTES -- Fclk'a %0d edges, GLd' %0d, FG changed %0d, EnableFG' low on %0d of %0d",
