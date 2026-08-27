@@ -932,13 +932,21 @@ module tb_exec;
   reg [1023:0] impath;
   reg [31:0] ia, ib, ic, id, ie, ig, ih, ii, ij;
   integer imfd, imn, mapaddr, nloaded, nver, nverbad, runcycles, startaddr;
-  integer nalufm, nalufmbad;  reg [5:0] r_alu;
+  integer nalufm, nalufmbad, nifum, nifumbad;
+  reg [5:0]  r_alu;
+  reg [15:0] r_lo, r_hi;
+  integer n_ifuref, n_ifuack, n_jchg;
+  reg ifu_prev_ref, ifu_prev_ack; reg [7:0] j_prev;
   // HOW MUCH OF THE WORLD ACTUALLY EXECUTES. The distinct-value lists above cap
   // at 32, which is fine for "is it sequencing at all" and useless for "how far
   // does it get". A bitmap over the whole address space answers the second.
   reg       visited [0:4095];
   integer   nvisited, lastpc, stuck, maxrun, prevpc;
 
+`ifdef WORLD
+  wire [7:0] j_now = {m.b_IFU.J_0a, m.b_IFU.J_1a, m.b_IFU.J_2a, m.b_IFU.J_3a,
+                      m.b_IFU.J_4a, m.b_IFU.J_5a, m.b_IFU.J_6a, m.b_IFU.J_7a};
+`endif
   initial begin
     force m.DMuxData = dmd;
     force m.DMuxClk  = dmc;
@@ -956,7 +964,7 @@ module tb_exec;
       imfd = $fopen(impath, "r");
       if (imfd == 0) $fatal(1, "cannot open %s", impath);
       for (i = 0; i < 4096; i = i + 1) f_have[i] = 1'b0;
-      nalufm = 0; nalufmbad = 0;
+      nalufm = 0; nalufmbad = 0; nifum = 0; nifumbad = 0;
       // $fgets RETURNS 0 AT END OF FILE and leaves `line` alone, so the
       // `while (!$feof(...))` idiom processes the LAST line TWICE -- which
       // counted 17 ALUFM entries out of a 16-entry file. Gate on the read.
@@ -972,6 +980,22 @@ module tb_exec;
         // convert. A three-field ALUFM line read with a ten-field format comes
         // back as -1 with tag, ia and ib all correct, so gating on the count
         // silently skipped every one of them. Gate on the TAG.
+        // IFUM -- 1024 x 27 on the IFU board, two words per entry because the
+        // board has two write enables. Without it the IFU cannot decode an
+        // opcode at all.
+        if (tag == "IFUM") begin
+          ifum_preload_word(ia[9:0], ib[15:0], ic[15:0]);
+          ifum_readback_word(ia[9:0], r_lo, r_hi);
+          nifum = nifum + 1;
+          // DecHi' holds only bits 05-15 of word 0, so compare that mask.
+          if ((r_lo & 16'h07FF) !== (ib[15:0] & 16'h07FF) || r_hi !== ic[15:0]) begin
+            nifumbad = nifumbad + 1;
+            if (nifumbad < 6)
+              $display("tb_exec: IFUM[%h] read %h/%h want %h/%h",
+                       ia[9:0], r_lo, r_hi, ib[15:0], ic[15:0]);
+          end
+          continue;
+        end
         if (tag == "ALUFM") begin
           alufm_preload_word(ia[3:0], ib[5:0]);
           alufm_readback_word(ia[3:0], r_alu);
@@ -1016,6 +1040,8 @@ module tb_exec;
       $display("tb_exec: PRELOAD -- %0d microinstructions written, %0d read back, %0d wrong",
                nloaded, nver, nverbad);
       $display("tb_exec: PRELOAD -- %0d ALUFM entries written, %0d wrong", nalufm, nalufmbad);
+      $display("tb_exec: PRELOAD -- %0d IFUM entries written, %0d wrong", nifum, nifumbad);
+      if (nifumbad != 0) $fatal(1, "IFUM does not hold what was preloaded");
       if (nalufmbad != 0) $fatal(1, "ALUFM does not hold what was preloaded");
       if (nloaded == 0)  $fatal(1, "the preload file held no microinstructions");
       if (nverbad != 0)  $fatal(1, "IM does not hold what was preloaded");
@@ -1063,6 +1089,10 @@ module tb_exec;
     parc_run(8'h60, 8'h13, 8'hE1, 8'h42, 8'h43);      // Return#, free-running
 
     n0a = 0; n1a = 0; nff = 0; n_tnia = 0; n_ff = 0;
+`ifdef WORLD
+    n_ifuref = 0; n_ifuack = 0; n_jchg = 0;
+    ifu_prev_ref = m.b_IFU.IfuMemRef; ifu_prev_ack = m.b_IFU.IfuMemAck; j_prev = j_now;
+`endif
     for (i = 0; i < 4096; i = i + 1) visited[i] = 1'b0;
     nvisited = 0; stuck = 0; maxrun = 0; prevpc = -1;
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca;
@@ -1094,6 +1124,18 @@ module tb_exec;
         if (q < 1000) begin ff_seen[n_ff] = ff_now; n_ff = n_ff + 1; end
       end
 `ifdef WORLD
+      // IS THE IFU ACTUALLY FETCHING? The opcode it decodes is J.0-7, and the
+      // reference it makes to get it is IfuMemRef/IfuMemAck. If the opcode
+      // never changes, the machine is dispatching on a stuck value rather than
+      // on an instruction stream -- which is exactly the difference between
+      // "it reaches an opcode handler" and "it is running a program".
+      if (m.b_IFU.IfuMemRef !== ifu_prev_ref) begin
+        n_ifuref = n_ifuref + 1; ifu_prev_ref = m.b_IFU.IfuMemRef;
+      end
+      if (m.b_IFU.IfuMemAck !== ifu_prev_ack) begin
+        n_ifuack = n_ifuack + 1; ifu_prev_ack = m.b_IFU.IfuMemAck;
+      end
+      if (j_now !== j_prev) begin n_jchg = n_jchg + 1; j_prev = j_now; end
       // SITTING ON ONE ADDRESS IS THE SIGNATURE OF A HOLD, not of a self-jump:
       // the memory section freezes the processor on the same microinstruction
       // until the reference completes. `PRhold` (ProcH/ProcL) and `PrHold`
@@ -1122,6 +1164,10 @@ module tb_exec;
              n0a, n1a, runcycles, m.b_ContA.Stop);
     $display("tb_exec: %0d distinct TNIA values, %0d distinct FF values seen",
              n_tnia, n_ff);
+`ifdef WORLD
+    $display("tb_exec: IFU -- IfuMemRef %0d transitions, IfuMemAck %0d, opcode J changed %0d times",
+             n_ifuref, n_ifuack, n_jchg);
+`endif
     $display("tb_exec: %0d distinct IM addresses executed; last TNIA=%h; longest run on one address=%0d",
              nvisited, lastpc[11:0], maxrun);
     // Name them. A short cycle is the normal shape of a microcode wait loop, and

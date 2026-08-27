@@ -74,7 +74,23 @@ int main(int argc, char **argv)
         printf("ALUFM %x %02x\n", a, mc.alufm[a] & 077);
         na++;
     }
-    fprintf(stderr, "im_image: %d of %d addresses present in %s; %d ALUFM entries\n",
-            n, IM_SIZE, path, na);
+    /* IFUM -- the opcode decode tables, 256 entries per instruction set. The
+     * IFU cannot dispatch without them, so a world loaded with IM alone takes
+     * the IFU fault handlers and never reaches an opcode implementation.
+     * Two words per entry, exactly as the .MB stores them and as the board's
+     * two write enables (DecHi'/DecLo') take them:
+     *
+     *   IFUM <addr> <word0 = ifum_lo> <word1 = ifum_hi>
+     */
+    int ni = 0;
+    for (int a = 0; a < IFUM_SIZE; a++) {
+        if (!mc.ifum_present[a]) continue;
+        printf("IFUM %03x %04x %04x\n", a, mc.ifum_lo[a] & 0xFFFF,
+               mc.ifum_hi[a] & 0xFFFF);
+        ni++;
+    }
+    fprintf(stderr,
+            "im_image: %d of %d addresses present in %s; %d ALUFM, %d IFUM\n",
+            n, IM_SIZE, path, na, ni);
     return 0;
 }
