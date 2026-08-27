@@ -134,6 +134,32 @@ def odd_parity(bits):
     return (sum(bits) & 1) ^ 1
 
 
+
+def encode(d):
+    """Fields back to PARC's five bytes, parity INCLUDED -- the same encoder
+    tb_compute.sv's mi() implements. A round trip through this reproduces all
+    of PARC's hand-coded microinstructions exactly, which is a stronger check
+    than comparing the parity bits alone: it also pins the byte layout."""
+    def bits(v, w):
+        return [(v >> i) & 1 for i in range(w)]
+    P015 = odd_parity(bits(d['rstk'], 4) + bits(d['aluf'], 4) +
+                      bits(d['bsel'], 3) + bits(d['lc'], 3) + bits(d['asel'], 3))
+    P1631 = odd_parity([d['block']] + bits(d['jcn'], 8) + bits(d['ff'], 8))
+    r, a, bs_, l, s = d['rstk'], d['aluf'], d['bsel'], d['lc'], d['asel']
+    ff, jcn, blk = d['ff'], d['jcn'], d['block']
+    return (
+        (_b(r, 3) << 7) | (P015 << 6) | (_b(jcn, 0) << 5) | (P1631 << 4),
+        (_b(r, 2) << 7) | (_b(r, 1) << 6) | (_b(r, 0) << 5) | (_b(a, 3) << 4) |
+        (blk << 3) | (_b(ff, 7) << 2) | (_b(ff, 6) << 1) | _b(ff, 5),
+        (_b(a, 2) << 7) | (_b(a, 1) << 6) | (_b(a, 0) << 5) | (_b(bs_, 2) << 4) |
+        (_b(ff, 4) << 3) | (_b(ff, 3) << 2) | (_b(ff, 2) << 1) | _b(ff, 1),
+        (_b(bs_, 1) << 7) | (_b(bs_, 0) << 6) | (_b(l, 2) << 5) | (_b(l, 1) << 4) |
+        (_b(ff, 0) << 3) | (_b(jcn, 7) << 2) | (_b(jcn, 6) << 1) | _b(jcn, 5),
+        (_b(l, 0) << 7) | (_b(s, 2) << 6) | (_b(s, 1) << 5) | (_b(s, 0) << 4) |
+        (_b(jcn, 4) << 3) | (_b(jcn, 3) << 2) | (_b(jcn, 2) << 1) | _b(jcn, 1),
+    )
+
+
 def main() -> int:
     bad = []
     print(f"{'entry':17} {'P015':>5}{'odd':>5}  {'P1631':>7}{'odd':>5}   agrees")
@@ -148,6 +174,21 @@ def main() -> int:
               f"{'YES' if ok else 'no'}")
     print(f"\n{agree} of {len(IRTABLE)} of PARC's hand-coded entries carry ODD "
           f"parity over the 17-bit half")
+
+    # THE ROUND TRIP. Stronger than comparing parity bits alone: regenerating
+    # all five bytes pins the byte layout too, so a wrong field position shows
+    # up here even where parity (being permutation-invariant) would not.
+    exact = 0
+    for name, bs in sorted(IRTABLE.items()):
+        got = encode(decode(bs))
+        exact += (got == bs)
+        if got != bs:
+            print(f"  {name:17} PARC {' '.join('%02X' % x for x in bs)}   "
+                  f"encode() {' '.join('%02X' % x for x in got)}")
+    print(f"{exact} of {len(IRTABLE)} reproduced BYTE FOR BYTE, parity included")
+    if exact != len(IRTABLE):
+        bad.append(f"only {exact} of {len(IRTABLE)} entries round-trip -- the "
+                   f"byte layout or the parity rule is wrong")
     if agree != len(IRTABLE):
         bad.append(f"only {agree} of {len(IRTABLE)} entries match ODD parity -- "
                    f"the convention is not what this file states")
