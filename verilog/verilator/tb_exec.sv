@@ -1462,6 +1462,22 @@ module tb_exec;
     // and here the fault task runs emulator code because TPC[15] was never
     // initialised. Presetting it in an `initial` is too early; it counts away.
 `ifdef WORLD
+    // THE STACK POINTER. HM Table 6: StkP[0:1] is the region, StkP[2:7] the
+    // per-region offset with valid range 1..77 octal, and offset 0 DENOTES AN
+    // EMPTY STACK. Out of reset it reads 0x3f -- region 0, offset 63, the top
+    // of the region -- and one stack operation takes it to 0, which underflows
+    // and holds the processor (correctly). A world would set it up in its own
+    // initialisation; this bench never gets that far.
+    //
+    // ProcL l14 is an MC10176 holding StkP.0-5 as {p15,p14,p13,p4,p3,p2} = q,
+    // so StkP.n is q[n]; l15 is an MC10231 with StkP.6 = qb and StkP.7 = qa.
+    // Region 0, offset 32 = mid-range: q = 000100, both l15 bits 0.
+    if ($test$plusargs("stkinit")) begin
+      m.b_ProcL.u_l14.q  = 6'b000100;
+      m.b_ProcL.u_l15.qa = 1'b0;
+      m.b_ProcL.u_l15.qb = 1'b0;
+      $display("tb_exec: STKINIT -- StkP preset to region 0 offset 32");
+    end
     if ($test$plusargs("faultinit")) begin
       m.b_MemX.u_k09.q = 4'b1111;
       $display("tb_exec: FAULTINIT -- k09 preset to 1111, Faults now %b", m.b_MemX.Faults);

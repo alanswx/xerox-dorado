@@ -627,6 +627,28 @@ The emulator task actually runs. It is not a clean state yet -- the stack
 underflow at cycle 565 still holds it intermittently and the fault task still
 services it with the wrong PC -- so `+faultinit` is a diagnostic, not the fix.
 
+### And StkP is LOADED with 0, not decremented into it
+
+`+stkinit` presets the stack pointer to region 0, offset 32 -- ProcL l14 is an
+MC10176 holding StkP.0-5 as `{p15,p14,p13,p4,p3,p2} = q`, so StkP.n is q[n];
+l15 is an MC10231 with StkP.6 = qb and StkP.7 = qa.
+
+The preset takes (the held value goes 0x3f -> 0x20) **and StkP still reaches 0
+at the same cycle, 565**. That rules out a decrement: HM Table 6's RSTK[1:3]
+adjusts StkP by -4..+3 only, so 32 could not reach 0 in one step, and the change
+detector records TWO transitions in the whole run rather than the eight a
+walk-down would give. **Something LOADS StkP with zero.**
+
+Which is consistent with a world initialising an empty stack -- and then the
+next stack operation with the check enabled underflows, because `cpu.c`'s Table
+6 note says underflow fires "if StkP originally 0 OR finally 0". So the world
+must raise StkP off zero before it uses the stack, and this bench never gets it
+that far.
+
+`+stkinit` alone therefore changes nothing measurable (task 0 still runs 2
+addresses); it is `+faultinit` that moves the machine. Both are kept, because
+the negative result is what pins the load.
+
 **The real fix is upstream: nothing has initialised this machine.** A real boot
 does not jump a cold world at `START` with the fault counter unarmed and every
 task PC unset; Initial and the world's own `InitMem` do that first. That is what
