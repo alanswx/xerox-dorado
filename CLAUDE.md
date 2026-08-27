@@ -1023,8 +1023,9 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **NINE BOARDS DISPATCH AN ALTO OPCODE** | `exec-world9` -- START, the IFU traps, RESTARTIFU, then AND1 and SKPC |
 | **IM PARITY, the long-open question, ANSWERED** | `im-parity-check` -- ODD over the 17-bit half, and the array stores its COMPLEMENT |
 | **THE MACHINE RUNS WITH IM PARITY ENABLED** | `exec-parity` -- Error propagated on 0 of 400,000 samples, Stop never set |
+| **THE FAULT TASK SERVICES A STACK UNDERFLOW** | `exec-tasking` -- RepeatCur 0, task 15 runs, 25 addresses, longest run 3 |
 
-Forty-seven gates in all; `make -C verilog` has the list. **The datapath is
+Forty-eight gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
@@ -1192,8 +1193,16 @@ The second error was FG parity over the instruction
   **the C emulator is the one that does not model it**. The hold is permanent
   only because this bench starts with `Return#` = `TaskingOff,Return`, so fault
   task 15 -- the thing that would service the underflow -- can never run; CTask
-  is task 0 for all 400,000 samples. Running with tasking ON is the next step,
-  and it is a bench change rather than an RTL one.
+  is task 0 for all 400,000 samples. **And with tasking ON it does.** `Return#`'s
+  FF is `0o142` = FA 1, FB 4, FC 2 = TaskingOff; FC 3 is TaskingOn, and
+  re-encoding it as FF `0o143` gives `70 13 E1 4A 43`. Gate: `exec-tasking`.
+  `RepeatCur` 399,419 -> **0**; CTask t0=400,000 -> **t15=399,819**; distinct
+  addresses 15 -> **25**; longest run on one address 12,481 -> **3**. The fault
+  task runs, the hold clears, and the machine sequences through real Alto opcode
+  handlers -- `LDAIZ`, `JMPI2`, `DOCRYS`, `SKP1C`, `TRAP17`, `JSRIIX`, the last
+  with ASEL = `Fetch<-T`. **The manual's mechanism working end to end in
+  generated RTL**: a stack operation on an empty stack holds the processor,
+  wakes the fault task, and the fault task clears it.
 - **SAMPLING A LEVEL AT TEN POINTS IS NOT MEASURING IT.** The hold chain was
   previously read as "all eight signals 0, whole run" from ten instantaneous
   `$display`s -- true of the machine BEFORE IFUM was loaded and the parity
