@@ -23,6 +23,7 @@
  *
  * OUTPUT, one line per PRESENT address:
  *   IM <addr> <rstk> <aluf> <bsel> <lc> <asel> <block> <ff> <jcn>
+ *              <left half, 17 bits> <right half, 17 bits>
  * all hex, no 0x. Absent addresses are skipped, so the count tells you how much
  * of the world is really there.
  */
@@ -86,9 +87,22 @@ int main(int argc, char **argv)
     for (int a = 0; a < IM_SIZE; a++) {
         if (!mc.im_present[a]) continue;
         const dorado_uinstr *u = &mc.im[a];
-        printf("IM %03x %x %x %x %x %x %x %02x %02x\n",
+        /* ...and the two HALF-WORDS the hardware's parity is computed over.
+         * cpu.c's Write-IM, read the other way round (see boot0_hunks.c):
+         *   left  half  B = iw0,                      secondary = iw2 bit 15
+         *   right half  B = (iw1[14:0] << 1) | iw2[14], secondary = iw1 bit 15
+         * Seventeen bits each -- sixteen on B plus the secondary. The RTL
+         * needs them because THE PRELOAD MUST SUPPLY IM PARITY: a real
+         * Write-IM generates it, a direct array write does not, and IMLHPE /
+         * IMRHPE then sit asserted for the whole run. */
+        unsigned lh = ((unsigned)u->iw0 << 1) | ((u->iw2 >> 15) & 1u);
+        unsigned rh = ((unsigned)(((u->iw1 & 0x7FFFu) << 1)
+                                  | ((u->iw2 >> 14) & 1u)) << 1)
+                      | ((u->iw1 >> 15) & 1u);
+        printf("IM %03x %x %x %x %x %x %x %02x %02x %05x %05x\n",
                a, u->rstk & 0xF, u->aluf & 0xF, u->bsel & 7, u->lc & 7,
-               u->asel & 7, u->block & 1, u->ff & 0xFF, u->jcn & 0xFF);
+               u->asel & 7, u->block & 1, u->ff & 0xFF, u->jcn & 0xFF,
+               lh & 0x1FFFF, rh & 0x1FFFF);
         n++;
     }
     /* ALUFM -- the sixteen ALU operations this world uses. ALUF is a POINTER
