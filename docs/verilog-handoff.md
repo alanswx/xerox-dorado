@@ -562,6 +562,40 @@ has ASEL = `Fetch<-T`, a genuine storage reference.
 operation on an empty stack holds the processor, wakes the fault task, and the
 fault task clears it.
 
+### But the fault task is requested from RESET, and never released
+
+`TWReq.15` -- MemX's fault-task wakeup -- is high on **400,000 of 400,000**
+samples. So with tasking on the machine switches to task 15 at cycle 181 (as
+soon as TaskingOn takes effect; HM p.27 gives it a two-instruction delay) and
+never comes back:
+
+```
+PER TASK -- t0:2 addresses  t15:23 addresses
+```
+
+**Task 0 executes TWO instructions.** And the 23 addresses task 15 executes are
+ALTO EMULATOR handlers -- `LDAIZ`, `JMPI2`, `DOCRYS`, `SKP1C`, `TRAP17`,
+`JSRIIX` -- not a fault handler, which means `TPC[15]` was never initialised and
+the fault task is running whatever code it landed on, in a 23-address cycle.
+
+**Two candidate causes tested and BOTH ELIMINATED:**
+
+- *An empty Map entry failing its parity check.* `tb_readback` documents that at
+  length as the cause of `MapTrouble`, so its 21-array MemX map seeding was
+  lifted into this bench. `TWReq.15` is unchanged: 400,000 of 400,000 with the
+  seed and without it (`+nomapseed` keeps the control).
+- *The wrong entry point.* AEmu has named entries -- `START` 0, `STARTMB` 53,
+  `AEMUNEXT` 51, `BOOT` 652, `STARTEMULATOR` 656 (octal) -- and `BOOT`/
+  `STARTEMULATOR` looked far more plausible than 0. Sweeping all five with
+  `+start=`, **0 is the best of them** (25 addresses, longest run 3); every
+  other lands back in the 0x0c4 spin with 12,490+ on one address. START is the
+  right entry.
+
+So the blocker is narrow and named: **something asserts the fault-task wakeup
+out of reset and nothing clears it.** Find MemX's `TWReq15` driver and what
+condition holds it -- the fault sources are the map, the storage-parity and the
+memory-error paths, and the map is already ruled out.
+
 ### Traps found on the way
 
 - **THE ADDRESSES ARE OCTAL.** `mbdis` prints IM addresses in octal -- its

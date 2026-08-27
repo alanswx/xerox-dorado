@@ -110,6 +110,46 @@ module tb_exec;
       .ChipsAre256_s_16K(chips16k), .ChipsAre64K(chips64k)
   );
 
+  // ---- SEED THE MAP --------------------------------------------------------
+  //
+  // WITHOUT THIS THE FAULT TASK IS REQUESTED FROM CYCLE 0. `TWReq.15` -- MemX's
+  // fault-task wakeup -- reads high on 400,000 of 400,000 samples on an
+  // unseeded machine, so with tasking on the machine switches to task 15 at
+  // cycle 181 and never comes back: task 0 executes TWO instructions.
+  //
+  // The cause is the one tb_readback already documents at length: an empty Map
+  // entry FAILS ITS PARITY CHECK, MapTrouble asserts, and it never clears. The
+  // 21 MemX arrays here are that bench's map seeding, lifted -- every entry
+  // valid, which is what a world would find after its own InitMem had run.
+  //
+  // `+nomapseed` leaves it empty, which is how the fault-task wakeup was
+  // measured in the first place and is worth keeping as the control.
+  integer mi;
+  initial if (!$test$plusargs("nomapseed"))
+    for (mi = 0; mi < 4096; mi = mi + 1) begin
+      m.b_MemX.u_a04.mem[mi] = 1'b1;
+      m.b_MemX.u_a05.mem[mi] = 1'b1;
+      m.b_MemX.u_a06.mem[mi] = 1'b1;
+      m.b_MemX.u_a07.mem[mi] = 1'b1;
+      m.b_MemX.u_a08.mem[mi] = 1'b1;
+      m.b_MemX.u_a09.mem[mi] = 1'b1;
+      m.b_MemX.u_a10.mem[mi] = 1'b1;
+      m.b_MemX.u_a11.mem[mi] = 1'b1;
+      m.b_MemX.u_a12.mem[mi] = 1'b1;
+      m.b_MemX.u_a13.mem[mi] = 1'b1;
+      m.b_MemX.u_a14.mem[mi] = 1'b1;
+      m.b_MemX.u_d04.mem[mi] = 1'b1;
+      m.b_MemX.u_d05.mem[mi] = 1'b1;
+      m.b_MemX.u_d06.mem[mi] = 1'b1;
+      m.b_MemX.u_d07.mem[mi] = 1'b1;
+      m.b_MemX.u_d08.mem[mi] = 1'b1;
+      m.b_MemX.u_d09.mem[mi] = 1'b1;
+      m.b_MemX.u_d10.mem[mi] = 1'b1;
+      m.b_MemX.u_d11.mem[mi] = 1'b1;
+      m.b_MemX.u_d12.mem[mi] = 1'b1;
+      m.b_MemX.u_d13.mem[mi] = 1'b1;
+    end
+
   // ---- SEED MEMORY ---------------------------------------------------------
   //
   // A microcode world reads its INSTRUCTIONS through the memory section, so an
@@ -1119,13 +1159,23 @@ module tb_exec;
   // trust for the path; pairing them needs the offset established first, and
   // reading them as one instruction produced a wrong lookup.
   integer n_tr, koff, nmatch, ncmp;
-  reg [11:0] tr_pc [0:255]; reg [7:0] tr_ff [0:255];
+  reg [11:0] tr_pc [0:255]; reg [7:0] tr_ff [0:255]; reg [3:0] tr_ct [0:255];
+  // ...and per-task address coverage. The visited bitmap does not separate by
+  // task, so "25 addresses" hides whether the emulator ran at all or the fault
+  // handler ran 25 of its own. Count both.
+  integer nvis_t [0:15]; reg vis_t [0:15][0:4095];
+  // WHAT WAKES TASK 15, AND WHEN. The switch happens within TWO
+  // microinstructions of START -- long before the stack underflow at cycle 565
+  // -- so the underflow is not what summoned it. MemX drives TWReq15 (the
+  // fault task, HM section 4.1), so a memory fault at startup is the
+  // candidate. Record the first switch and count the request line.
+  integer n_twr15, first_switch; reg [3:0] first_switch_to;
   reg fclk_prev, gld_prev; reg [8:0] fg_prev;
   // HOW MUCH OF THE WORLD ACTUALLY EXECUTES. The distinct-value lists above cap
   // at 32, which is fine for "is it sequencing at all" and useless for "how far
   // does it get". A bitmap over the whole address space answers the second.
   reg       visited [0:4095];
-  integer   nvisited, lastpc, stuck, maxrun, prevpc, maxpc;
+  integer   nvisited, lastpc, stuck, maxrun, prevpc, maxpc;  reg [3:0] ctnow;
 
 `ifdef WORLD
   wire [8:0] fg_now = {m.FG_0, m.FG_1, m.FG_2, m.FG_3, m.FG_4,
@@ -1420,7 +1470,7 @@ module tb_exec;
     n_pcf = 0; n_tr = 0;
     n_smc = 0; n_smce = 0; n_imlhpe = 0; n_imrhpe = 0; n_err = 0;
     first_pe = -1; last_pe = -1; first_stop = -1;
-    n_freeze = 0; n_ctchg = 0; n_rep = 0;
+    n_freeze = 0; n_ctchg = 0; n_rep = 0; n_twr15 = 0; first_switch = -1;
     n_cah = 0; n_swu = 0; n_holdA = 0; n_hold_top = 0;
     n_h_hold = 0; n_h_pr = 0; n_h_cb = 0; n_h_ifu = 0; n_h_io = 0; n_h_mx = 0;
     n_h_dis = 0; n_h_creq = 0; n_h_lg = 0; n_h_hmb = 0; n_h_ext = 0;
@@ -1433,6 +1483,10 @@ module tb_exec;
     fclk_prev = m.b_MemD.Fclk_p_a; gld_prev = m.b_MemD.GLd_p_; fg_prev = fg_now;
 `endif
     for (i = 0; i < 4096; i = i + 1) visited[i] = 1'b0;
+    for (i = 0; i < 16; i = i + 1) begin
+      nvis_t[i] = 0;
+      for (q = 0; q < 4096; q = q + 1) vis_t[i][q] = 1'b0;
+    end
     nvisited = 0; stuck = 0; maxrun = 0; prevpc = -1; maxpc = -1;
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca;
     if (!$value$plusargs("cycles=%d", runcycles)) runcycles = 20000;
@@ -1446,7 +1500,16 @@ module tb_exec;
             visited[lastpc[11:0]] = 1'b1; nvisited = nvisited + 1;
           end
           if (n_tr < 256) begin
-            tr_pc[n_tr] = lastpc[11:0]; tr_ff[n_tr] = ff_now; n_tr = n_tr + 1;
+            tr_pc[n_tr] = lastpc[11:0]; tr_ff[n_tr] = ff_now;
+            tr_ct[n_tr] = {m.b_ContA.CTask_0, m.b_ContA.CTask_1,
+                           m.b_ContA.CTask_2, m.b_ContA.CTask_3};
+            n_tr = n_tr + 1;
+          end
+          ctnow = {m.b_ContA.CTask_0, m.b_ContA.CTask_1,
+                   m.b_ContA.CTask_2, m.b_ContA.CTask_3};
+          if (!vis_t[ctnow][lastpc[11:0]]) begin
+            vis_t[ctnow][lastpc[11:0]] = 1'b1;
+            nvis_t[ctnow] = nvis_t[ctnow] + 1;
           end
           if (lastpc === prevpc) begin
             stuck = stuck + 1;
@@ -1477,6 +1540,7 @@ module tb_exec;
       if (m.b_ContA.Stop && first_stop < 0) first_stop = j2;
       if (m.Freeze) n_freeze = n_freeze + 1;
       if (m.b_ContA.RepeatCur) n_rep = n_rep + 1;
+      if (m.TWReq_15) n_twr15 = n_twr15 + 1;
       if (m.b_ContA.CAHold_p_) n_cah    = n_cah + 1;
       if (m.b_ContA.SwitchUp)  n_swu    = n_swu + 1;
       if (m.b_ContA.Hold)      n_holdA  = n_holdA + 1;
@@ -1487,6 +1551,11 @@ module tb_exec;
                  m.b_ContA.CTask_2, m.b_ContA.CTask_3}] + 1;
       if ({m.b_ContA.CTask_0, m.b_ContA.CTask_1,
            m.b_ContA.CTask_2, m.b_ContA.CTask_3} !== ct_prev) begin
+        if (first_switch < 0) begin
+          first_switch = j2;
+          first_switch_to = {m.b_ContA.CTask_0, m.b_ContA.CTask_1,
+                             m.b_ContA.CTask_2, m.b_ContA.CTask_3};
+        end
         n_ctchg = n_ctchg + 1;
         ct_prev = {m.b_ContA.CTask_0, m.b_ContA.CTask_1,
                    m.b_ContA.CTask_2, m.b_ContA.CTask_3};
@@ -1616,7 +1685,7 @@ module tb_exec;
                koff, (koff < 0) ? "-" : "+", (koff < 0) ? -koff : koff, nmatch, ncmp);
     end
     $write("tb_exec: TRACE (pc/ff, first %0d):", n_tr);
-    for (i = 0; i < n_tr; i = i + 1) $write(" %h/%o", tr_pc[i], tr_ff[i]);
+    for (i = 0; i < n_tr; i = i + 1) $write(" t%0d:%h", tr_ct[i], tr_pc[i]);
     $write("\n");
     for (i = 0; i < n_stkchg && i < 8; i = i + 1)
       $display("tb_exec: STKP change %0d at cycle %0d: %02h -> %02h  (TNIA=%h FF=%03o RSTK=%h)",
@@ -1635,6 +1704,8 @@ module tb_exec;
              n_h_mx, n_h_dis, n_h_creq, n_h_lg, n_h_hmb, n_h_ext);
     $display("tb_exec: REPEAT -- at f20: CAHold'=%0d SwitchUp=%0d ContA.Hold=%0d (of %0d); top Hold=%0d",
              n_cah, n_swu, n_holdA, runcycles, n_hold_top);
+    $display("tb_exec: WAKE -- TWReq.15 high on %0d of %0d; first task switch at cycle %0d, to task %0d",
+             n_twr15, runcycles, first_switch, first_switch_to);
     $write("tb_exec: TASK -- Freeze %0d, RepeatCur %0d of %0d; CTask changed %0d times; occupancy:",
            n_freeze, n_rep, runcycles, n_ctchg);
     for (i = 0; i < 16; i = i + 1) if (n_ctask[i] != 0) $write(" t%0d=%0d", i, n_ctask[i]);
@@ -1659,7 +1730,11 @@ module tb_exec;
     // Name them. A short cycle is the normal shape of a microcode wait loop, and
     // knowing WHICH addresses turns "it loops" into something disassemblable.
     if (nvisited <= 64) begin
-      $write("tb_exec: addresses executed:");
+      $write("tb_exec: PER TASK --");
+    for (i = 0; i < 16; i = i + 1)
+      if (nvis_t[i] != 0) $write(" t%0d:%0d addresses", i, nvis_t[i]);
+    $write("\n");
+    $write("tb_exec: addresses executed:");
       for (i = 0; i < 4096; i = i + 1) if (visited[i]) $write(" %h", i[11:0]);
       $write("\n");
     end
