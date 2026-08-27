@@ -1174,7 +1174,7 @@ module tb_exec;
   //     TWReq.15 = (Faults & WakeEnable) | (WakeEnable & StkWake)
   // and StkWake is exactly the stack wakeup HM Table 6 names as the response to
   // an empty-stack operation. Count all three; do not sample them.
-  integer n_faults, n_wen, n_stkwake, tpcslot, nfault_region, nboot_region;
+  integer n_faults, n_wen, n_stkwake, tpcslot, nfault_region, nboot_region, bootfeed;
   // ...and WHICH FAULT. `Faults` is an F10016 (k09) whose parallel inputs are
   // TrueBD -- hardwired true -- so it reads 1 whenever it loads; the load is
   // gated by `_FaultInfoDly'` and `ReportFault'`. ReportFault' is k07, an
@@ -1520,6 +1520,17 @@ module tb_exec;
     // encoder that reproduces all eight of PARC's IRTable entries byte for
     // byte gives `70 13 E1 4A 43`, parity included; it re-decodes to the same
     // fields with only FF changed.
+    // FEED BOOTSTRAP ONE VALUE. Its poll loop reads the control-processor
+    // register: cpu.c gives FB=7 FC=6 as `B <- RWCPReg`, "HM page 31:
+    // B<-RWCPReg = Link<-B, B<-CPReg'" -- the COMPLEMENT -- and Bootstrap's
+    // loop carries FF=176, exactly that. `+bootfeed=N` leaves N in CPReg
+    // before the machine starts, so whether the loop is DATA-DEPENDENT can be
+    // measured rather than assumed.
+    if ($value$plusargs("bootfeed=%d", bootfeed)) begin
+      set_cpreg_tilde(bootfeed[15:0]);
+      $display("tb_exec: BOOTFEED -- CPReg left holding %h", bootfeed[15:0]);
+    end
+
     if ($test$plusargs("taskingon"))
       parc_run(8'h70, 8'h13, 8'hE1, 8'h4A, 8'h43);    // Return# with TaskingOn
     else
