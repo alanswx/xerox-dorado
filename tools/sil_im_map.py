@@ -369,7 +369,10 @@ def emit_ifum(out):
         bad.append(f"DecLo' bits are {hi}, not 00-15 (cpu.c's Table 20 layout)")
 
     w = out.write
-    w("\n\n// IFUM -- 1024 x 27, the IFU's F10415A. See tools/sil_im_map.py.\n")
+    # GUARDED, because these reach into m.b_IFU and the four-board machine has
+    # no IFU board: tb_boot0 and the default tb_exec include this same file.
+    w("\n\n`ifdef WORLD\n")
+    w("// IFUM -- 1024 x 27, the IFU's F10415A. See tools/sil_im_map.py.\n")
     w("// Address is {InstrSet[1:0], opcode[7:0]}. `lo` is .MB word 0 (written\n")
     w("// by DecHi'), `hi` is .MB word 1 (DecLo'). RcvdBMux.00 is the MSB, so\n")
     w("// MSB-first bit n is bit 15-n of the C-side word.\n")
@@ -390,6 +393,7 @@ def emit_ifum(out):
             for k in range(5):
                 w(f"    lo[{15-k}] = 1'b0;   // DecHi' holds only bits 05-15\n")
         w("  end\nendtask\n")
+    w("`endif\n")
     return bad
 
 

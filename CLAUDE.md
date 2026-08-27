@@ -1017,8 +1017,12 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **the READ SEQUENCER sits at step 0 doing what HM p.99 says** -- a21 enabled, a20 disabled, and the PROM selects format `RAM[6]`, "issue tag command in RAM[6] (head select)" | mapped |
 | **...and the read path is STARTED BY THE FORMAT RAM** | mapped, not gated -- `sCountBits = (ShiftReg.08 \| Tag.000) & ShiftReg.15`, and `Tag.000` comes from `Ram.04-07` while running. A DISKMUFF write can also drive `PreReadData`/`PrePreBitClock` directly (PARC's diagnostic path) |
 | ...and TWO REFERENCE KINDS match the C emulator's table | `memrun-test` -- `LFetch<-` and `IFetch<-`, each in its own cell of sixteen |
+| **A WHOLE WORLD PRELOADS INTO IM** | `exec-world` -- 2,148 microinstructions of AEmu.mb, every one read back |
+| ...through a field map DERIVED from the wire lists | `boot0-test` -- 65 addresses, all 8 fields, against a CP-bus load |
+| **ALUFM and IFUM too** | `exec-world9` -- 16 + 256 entries; they confirm HM Table 11d and cpu.c's Table 20 |
+| **NINE BOARDS DISPATCH AN ALTO OPCODE** | `exec-world9` -- START, the IFU traps, RESTARTIFU, then AND1 and SKPC |
 
-Twenty-nine gates in all; `make -C verilog` has the list. **The datapath is
+Forty-five gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
@@ -1089,6 +1093,34 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   and the 5-bit field is the top of an 8-bit address whose low three bits
   select the register.
 
+- **A WHOLE MICROCODE WORLD LOADS INTO THE RTL, and the three memories were
+  each derived from the netlist rather than assumed.** IM is ContB's 144
+  F10415A as 4096x36 with `bank = {addr[11], addr[0]}` -- and knowing WHICH
+  BITS pick a bank is not knowing which VALUE picks which bank, so the bank
+  ordering is EVALUATED from the two MC10101s' gate polarities. ALUFM is ProcL
+  e13/e14, recognisable because their data pins come off the B bus, and it
+  confirms HM Table 11d: `ALUFdec.0..5` = `B.08, B.11..B.15`, the top bit being
+  the ALU's CARRY IN and NOT part of a contiguous field. IFUM is the IFU's 27
+  F10415A, addressed `{InstrSet, opcode}`, whose two write enables `DecHi'` and
+  `DecLo'` ARE the .MB's two words per entry -- and whose bit positions match
+  `cpu.c`'s HM Table 20 layout exactly, with the names crossing over (`DecLo'`
+  holds what the C emulator calls `ifum_hi`). Gate: `boot0-test` checks the map
+  against a control-processor-bus load of the same microcode, 65 addresses and
+  all eight fields, and three mutations of the generator are caught.
+  **The nine-board machine then dispatches a real Alto opcode** -- `AND1`, and
+  `SKPC` once IFUM is loaded. It is NOT running a program: `IfuMemRef` makes
+  six transitions in 12,500 microinstructions and the opcode changes once, so
+  the IFU stops fetching and the emulator loops on one stuck opcode. It is not
+  a hold either -- all eight hold signals read 0 for the whole run.
+- **Five ways a bench can lie to you, all found in one sitting.** `mbdis`
+  prints IM addresses in OCTAL, so a hex visited-set must be converted before
+  it is looked up. A bank SEARCH matches a wiped bank whenever the wanted value
+  is `0000`, which `IM[0x805]` in AEmu.mb is. A vector set confined to low
+  addresses leaves `addr[11]` always 0 and exercises half an interleave.
+  `$sscanf` returns -1 on a PARTIAL match while still filling the fields it did
+  convert, so gating on the count silently skips every short line. And `$fgets`
+  returns 0 at EOF leaving its buffer alone, so `while (!$feof(fd))` processes
+  the last line twice.
 - **TAKE THE SHEET THE WIRE LIST NAMES -- the PDFs are other revisions.** Each
   `.wl` header lists every constituent `.sil` file with its own Rev and Date.
   `DoradoDocs/schematics/DispY.pdf` is `DispY31.sil Rev Ci 11/02/79`; the wire

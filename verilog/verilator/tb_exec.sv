@@ -982,7 +982,9 @@ module tb_exec;
         // silently skipped every one of them. Gate on the TAG.
         // IFUM -- 1024 x 27 on the IFU board, two words per entry because the
         // board has two write enables. Without it the IFU cannot decode an
-        // opcode at all.
+        // opcode at all. GUARDED: the four-board machine has no IFU, and
+        // tb_boot0 and the default tb_exec include the same generated map.
+`ifdef WORLD
         if (tag == "IFUM") begin
           ifum_preload_word(ia[9:0], ib[15:0], ic[15:0]);
           ifum_readback_word(ia[9:0], r_lo, r_hi);
@@ -996,6 +998,7 @@ module tb_exec;
           end
           continue;
         end
+`endif
         if (tag == "ALUFM") begin
           alufm_preload_word(ia[3:0], ib[5:0]);
           alufm_readback_word(ia[3:0], r_alu);
@@ -1040,8 +1043,10 @@ module tb_exec;
       $display("tb_exec: PRELOAD -- %0d microinstructions written, %0d read back, %0d wrong",
                nloaded, nver, nverbad);
       $display("tb_exec: PRELOAD -- %0d ALUFM entries written, %0d wrong", nalufm, nalufmbad);
+`ifdef WORLD
       $display("tb_exec: PRELOAD -- %0d IFUM entries written, %0d wrong", nifum, nifumbad);
       if (nifumbad != 0) $fatal(1, "IFUM does not hold what was preloaded");
+`endif
       if (nalufmbad != 0) $fatal(1, "ALUFM does not hold what was preloaded");
       if (nloaded == 0)  $fatal(1, "the preload file held no microinstructions");
       if (nverbad != 0)  $fatal(1, "IM does not hold what was preloaded");

@@ -133,6 +133,24 @@ exec-test:
 boot0-test:
 	@$(MAKE) -C verilator boot0-test
 
+# A WHOLE WORLD preloaded into IM through the derived field map, then run.
+# Four boards: the world spends its life in the trap vectors, which is correct
+# for a machine with no memory section and no IFU.
+#   make exec-world EXECARGS='+cycles=2000000'
+exec-world:
+	@$(MAKE) -C verilator exec-world EXECARGS="$(EXECARGS)"
+
+# The same world on NINE boards -- memory section, storage array and IFU as
+# well -- with IM, ALUFM and IFUM all loaded and read back. This is the rung
+# where the machine dispatches an Alto opcode.
+#   make exec-world9 EXECARGS='+cycles=2000000'
+exec-world9:
+	@$(MAKE) -C verilator exec-world9 EXECARGS="$(EXECARGS)"
+
+# The IM/ALUFM/IFUM field maps, derived from the wire lists and checked
+# against HM Table 11d, HM Table 20 and cpu.c.
+
+
 # PARC's SendViaMIR: Boot0's inner loop, loading words into IM.
 sendmir:
 	@$(MAKE) -C verilator sendmir
