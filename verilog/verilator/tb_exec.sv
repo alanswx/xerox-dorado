@@ -1000,11 +1000,13 @@ module tb_exec;
   reg [3:0] r_rstk, r_aluf;  reg [2:0] r_bsel, r_lc, r_asel;
   reg [7:0] r_ff, r_jcn;     reg r_blk;
   reg [1023:0] impath;
-  reg [31:0] ia, ib, ic, id, ie, ig, ih, ii, ij;
+  reg [31:0] ia, ib, ic, id, ie, ig, ih, ii, ij, ilh, irh;
+  reg p_lh, p_rh, impar_odd, impar_nosec;
   integer imfd, imn, mapaddr, nloaded, nver, nverbad, runcycles, startaddr;
   integer nalufm, nalufmbad, nifum, nifumbad;
   reg [5:0]  r_alu;
   reg [15:0] r_lo, r_hi, ifum_want;  reg ifum_raw;
+  reg r_lh_p, r_rh_p;
   integer n_ifuref, n_ifuack, n_jchg;
   reg ifu_prev_ref, ifu_prev_ack; reg [7:0] j_prev;
   // THE INSTRUCTION BYTE STREAM, the path tb_ifufetch traced on MemD:
@@ -1090,13 +1092,16 @@ module tb_exec;
       for (i = 0; i < 4096; i = i + 1) f_have[i] = 1'b0;
       nalufm = 0; nalufmbad = 0; nifum = 0; nifumbad = 0;
       ifum_raw = $test$plusargs("ifumraw");
+      impar_odd   = $test$plusargs("imparodd");
+      impar_nosec = $test$plusargs("imparnosec");
       // $fgets RETURNS 0 AT END OF FILE and leaves `line` alone, so the
       // `while (!$feof(...))` idiom processes the LAST line TWICE -- which
       // counted 17 ALUFM entries out of a 16-entry file. Gate on the read.
       while ($fgets(line, imfd) != 0) begin
-        // addr rstk aluf bsel lc asel BLOCK ff jcn -- nine values after the tag.
-        imn = $sscanf(line, "%s %h %h %h %h %h %h %h %h %h",
-                      tag, ia, ib, ic, id, ie, ig, ij, ih, ii);
+        // ELEVEN values after the tag: addr, the eight fields, and the two
+        // 17-bit HALF-WORDS the hardware computes IM parity over.
+        imn = $sscanf(line, "%s %h %h %h %h %h %h %h %h %h %h %h",
+                      tag, ia, ib, ic, id, ie, ig, ij, ih, ii, ilh, irh);
         // ALUFM -- 16 entries of 6 bits, ProcL e13/e14. ALUF is a POINTER into
         // this memory, so a world loaded without it runs on whatever the array
         // powered up with. Same file, its own tag.
@@ -1142,7 +1147,7 @@ module tb_exec;
           end
           continue;
         end
-        if (imn != 10 || tag != "IM") continue;
+        if (imn != 12 || tag != "IM") continue;
         mapaddr = ia[11:0];
         f_rstk[mapaddr] = ib[3:0];  f_aluf[mapaddr] = ic[3:0];
         f_bsel[mapaddr] = id[2:0];  f_lc[mapaddr]   = ie[2:0];
@@ -1152,8 +1157,18 @@ module tb_exec;
         // dBlock' -- the array stores the COMPLEMENT (tb_boot0 measured all 64
         // right-half secondary bits inverted; BLOCK is the one field bit the
         // MIR wires through Q' rather than Q).
+        // IM PARITY MUST BE SUPPLIED BY THE PRELOAD. A real Write-IM generates
+        // it in hardware; a direct array write does not, and IMLHPE/IMRHPE
+        // then sit asserted for the entire run (measured: 399,808 of 400,000).
+        // The convention is not stated anywhere we have read and the C
+        // emulator does not model it at all, so it is computed here with the
+        // sense and the secondary-bit inclusion as SWITCHES and the
+        // measurement decides -- exactly as the IFUM parity was settled.
+        p_lh = impar_nosec ? (^ilh[16:1]) : (^ilh[16:0]);
+        p_rh = impar_nosec ? (^irh[16:1]) : (^irh[16:0]);
+        if (impar_odd) begin p_lh = ~p_lh; p_rh = ~p_rh; end
         im_preload_word(mapaddr, ib[3:0], ic[3:0], id[2:0], ie[2:0], ig[2:0],
-                        ih[7:0], ii[7:0], ~ij[0]);
+                        ih[7:0], ii[7:0], ~ij[0], p_lh, p_rh);
         nloaded = nloaded + 1;
       end
       $fclose(imfd);
@@ -1161,7 +1176,8 @@ module tb_exec;
       // READ IT ALL BACK. This is the part not to skip.
       for (i = 0; i < 4096; i = i + 1) begin
         if (!f_have[i]) continue;
-        im_readback_word(i, r_rstk, r_aluf, r_bsel, r_lc, r_asel, r_ff, r_jcn, r_blk);
+        im_readback_word(i, r_rstk, r_aluf, r_bsel, r_lc, r_asel, r_ff, r_jcn,
+                         r_blk, r_lh_p, r_rh_p);
         nver = nver + 1;
         if (r_rstk !== f_rstk[i] || r_aluf !== f_aluf[i] || r_bsel !== f_bsel[i] ||
             r_lc !== f_lc[i] || r_asel !== f_asel[i] || r_ff !== f_ff[i] ||
@@ -1208,7 +1224,12 @@ module tb_exec;
     // RELEASE the MIR clock -- register 7, data bit 0 -- so the MIR can reload
     // from IM. Without this the jam is held and nothing is ever fetched.
     manifold(12'h1C0);
-    manifold(12'h000);          // ParityEnables := 0 -- IM parity OFF
+    // IM PARITY OFF -- but only because a preload could not supply it. Now
+    // that it can (even parity over the 17-bit half, measured), `+imparityon`
+    // leaves the enables as InitManifolds does, which is how PARC's own
+    // firmware runs the machine.
+    if (!$test$plusargs("imparityon"))
+      manifold(12'h000);        // ParityEnables := 0 -- IM parity OFF
     $display("tb_exec: parity enables IMLH=%b IMRH=%b, StopMIRClkEn=%b StopMIRClk=%b",
              m.b_ContB.IMLHPEenable, m.b_ContB.IMRHPEenable,
              m.b_ContB.StopMIRClkEn, m.StopMIRClk);

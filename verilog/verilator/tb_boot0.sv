@@ -777,7 +777,7 @@ module tb_boot0;
   reg [7:0] f_jcn  [0:4095];   reg       f_blk  [0:4095];
   reg       f_have [0:4095];
   reg [3:0] r_rstk, r_aluf;  reg [2:0] r_bsel, r_lc, r_asel;
-  reg [7:0] r_ff, r_jcn;     reg r_blk;
+  reg [7:0] r_ff, r_jcn;     reg r_blk, r_lh_p, r_rh_p;
   integer imfd, imn, mapaddr, mapchecked, mapbad;
   reg [1023:0] impath;
   reg [31:0] ia, ib, ic, id, ie, ig, ih, ii, ij;
@@ -938,7 +938,7 @@ module tb_boot0;
         // shows up as every address failing; a wrong bit order as one field.
         if (f_have[(ha + w) & 12'hFFF]) begin
           im_readback_word((ha + w) & 12'hFFF, r_rstk, r_aluf, r_bsel, r_lc,
-                           r_asel, r_ff, r_jcn, r_blk);
+                           r_asel, r_ff, r_jcn, r_blk, r_lh_p, r_rh_p);
           mapchecked = mapchecked + 1;
           mapaddr = (ha + w) & 12'hFFF;
           if (r_rstk !== f_rstk[mapaddr] || r_aluf !== f_aluf[mapaddr] ||
