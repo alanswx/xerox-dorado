@@ -1174,7 +1174,7 @@ module tb_exec;
   //     TWReq.15 = (Faults & WakeEnable) | (WakeEnable & StkWake)
   // and StkWake is exactly the stack wakeup HM Table 6 names as the response to
   // an empty-stack operation. Count all three; do not sample them.
-  integer n_faults, n_wen, n_stkwake, tpcslot, nfault_region;
+  integer n_faults, n_wen, n_stkwake, tpcslot, nfault_region, nboot_region;
   // ...and WHICH FAULT. `Faults` is an F10016 (k09) whose parallel inputs are
   // TrueBD -- hardwired true -- so it reads 1 whenever it loads; the load is
   // gated by `_FaultInfoDly'` and `ReportFault'`. ReportFault' is k07, an
@@ -1887,6 +1887,33 @@ module tb_exec;
       if (last_pe > 400)
         $fatal(1, "IM parity errors continue past the enable point -- the preloaded array's parity is wrong");
       $display("tb_exec: THE MACHINE RUNS WITH IM PARITY ON.");
+    end
+    if ($test$plusargs("bootchain")) begin
+      // PARC'S OWN BOOT CHAIN, first two stages. Initial.mb occupies real
+      // 0xc00-0xfbf and Bootstrap.mb 0xfc0-0xfff -- adjacent and disjoint, so
+      // they coexist by design. `INITIAL` is image 1 = real 0xf40, and its
+      // JCN is 0xff, a GLOBAL CALL: TNIA = CIA[2:3] || JCN[2:7] || 000000 =
+      // 0b11 || 111111 || 000000 = 0xfc0, which is Bootstrap image 54,
+      // `READBB` -- read BaseBoard.
+      //
+      // So the machine runs Initial's entry, calls into Bootstrap, and sits in
+      // the read-from-control-processor loop (images 55/56/57/60 = real
+      // 0xfe7/0xfe2/0xfe1/0xfe6) waiting to be fed. THAT IS THE CORRECT PLACE
+      // TO STOP: this configuration has no BaseBoard, and nothing is sending.
+      nboot_region = 0;
+      for (i = 12'hfe0; i <= 12'hfff; i = i + 1)
+        if (visited[i]) nboot_region = nboot_region + 1;
+      $display("tb_exec: BOOTCHAIN -- INITIAL(0xf40)=%b READBB(0xfc0)=%b, %0d addresses in Bootstrap's poll loop, longest run %0d",
+               visited[12'hf40], visited[12'hfc0], nboot_region, maxrun);
+      if (!visited[12'hf40])
+        $fatal(1, "Initial's entry never executed");
+      if (!visited[12'hfc0])
+        $fatal(1, "Initial did not call Bootstrap's READBB");
+      if (nboot_region < 3)
+        $fatal(1, "Bootstrap is not running its read loop -- %0d addresses", nboot_region);
+      if (maxrun > 8)
+        $fatal(1, "the boot chain is stuck: %0d microinstructions on one address", maxrun);
+      $display("tb_exec: PARC'S BOOT CHAIN RUNS -- Initial calls Bootstrap, which waits for the control processor.");
     end
     if ($test$plusargs("tpcinit")) begin
       // THE FAULT TASK RUNS ITS OWN HANDLER. With TPC[15] preset to AEmu's

@@ -322,6 +322,34 @@ exec-init:
 		    +preload=verilog/verilator/obj_exec/im.txt +taskingon +faultinit +tpcinit +cycles=400000 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_exec; exit $$rc; }
 
+# PARC'S OWN BOOT CHAIN: Initial's entry global-calls Bootstrap's READBB, which
+# waits for the control processor to feed it. See docs/verilog-handoff.md.
+.PHONY: exec-boot
+exec-boot:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
+	@mkdir -p obj_exec obj_exec9
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
+	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 4 \
+		> verilog/verilator/obj_exec/exec.vec
+	@cd ../.. && ./dorado/build/im_image chm/dorado/AEmu.mb\!2 \
+		> verilog/verilator/obj_exec/im.txt 2>/dev/null
+	@# PARC's boot chain: Initial (0xc00-0xfbf) and Bootstrap (0xfc0-0xfff),
+	@# adjacent and disjoint, so they coexist exactly as the machine expects.
+	@cd ../.. && { ./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Initial.mb' 2>/dev/null; \
+		./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb' 2>/dev/null \
+		| grep -v '^\#'; } > verilog/verilator/obj_exec/boot.txt
+	@cd ../.. && $(V) --binary --top-module tb_exec $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_exec9 -o tb_exec9 +define+WORLD \
+		verilog/verilator/tb_exec.sv verilog/generated/dorado_world.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
+		verilog/generated/IFU-Rev-Ch.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_exec9/tb_exec9 \
+		    +preload=verilog/verilator/obj_exec/boot.txt +bootchain +start=3904 +cycles=400000 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_exec; exit $$rc; }
+
 # PARC's BLOCK LOADER: a 17-byte hunk walked into IM, read back word for word.
 .PHONY: boot0-test
 boot0-test:

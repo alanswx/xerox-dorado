@@ -48,6 +48,7 @@ can run.
 | **THE MACHINE RUNS WITH IM PARITY ENABLED** | **works** -- Error propagated on 0 of 400,000, Stop never set | `exec-parity` |
 | **THE FAULT TASK SERVICES THE STACK UNDERFLOW** | **works** -- RepeatCur 0, task 15 runs, 25 addresses, longest run 3 | `exec-tasking` |
 | **THE FAULT TASK RUNS ITS OWN HANDLER** | **works** -- TPC[15] set, task 15 runs BEGINENUMERATEMAP / IWRITEMAPFLAGS | `exec-init` |
+| **PARC'S BOOT CHAIN RUNS** | **works** -- Initial calls Bootstrap's READBB, which waits for the control processor | `exec-boot` |
 
 ### Every gate
 
@@ -692,7 +693,58 @@ And the clk0'/clk1' slack went from one to two, because once instructions can
 REPEAT a second window boundary lands the same way (16,676 against 16,678). Two
 is a property holding; a real divergence is thousands.
 
-**The real fix is still upstream: nothing has initialised this machine.** A real boot
+### PARC'S OWN BOOT CHAIN RUNS (2026-08-27)
+
+Register-patching goes only so far; `exec-init` pokes three registers, which is
+not how a Dorado starts. The real chain is BaseBoard -> Boot0 -> Initial ->
+the world, and **the first two stages of it now run in generated RTL.**
+
+`make -C verilog exec-boot`:
+
+```
+PRELOAD -- 976 microinstructions written, 976 read back, 0 wrong
+addresses executed: f40 fc0 fe1 fe2 fe6 fe7
+BOOTCHAIN -- INITIAL(0xf40)=1 READBB(0xfc0)=1, 4 addresses in Bootstrap's poll loop, longest run 0
+PARC'S BOOT CHAIN RUNS -- Initial calls Bootstrap, which waits for the control processor.
+```
+
+**They are designed to coexist, and the addresses prove it.** `Initial.mb`
+occupies real `0xc00-0xfbf` (926 microinstructions) and `Bootstrap.mb`
+`0xfc0-0xfff` (50) -- adjacent and disjoint, the top of IM, so a world can be
+loaded beneath them. Both load through the same derived field map, 976 written
+and 976 read back.
+
+**And the call is checkable arithmetic.** `INITIAL` is image 1 = real `0xf40`,
+and `IM[0xf40]`'s JCN is `0xff` -- a GLOBAL CALL. The formula gives
+
+    TNIA = CIA[2:3] || JCN[2:7] || 000000
+         = 0b11 || 0b111111 || 0b000000
+         = 0xfc0
+
+which is Bootstrap image 54, **`READBB`** -- read BaseBoard. The machine then
+cycles images 55/56/57/60 (real `0xfe7/0xfe2/0xfe1/0xfe6`) with **longest run on
+one address = 0**: it never repeats, it polls.
+
+**THAT IS THE CORRECT PLACE TO STOP.** This configuration has no BaseBoard --
+`dorado_world` deliberately excludes it, because the bench drives the CP bus
+itself -- so nothing is sending, and Bootstrap waits. It is not stuck; it is
+doing its job.
+
+Two things fall out. **Initial does not underflow the stack**: StkP holds `0x3f`
+for the whole run, where AEmu reached 0 at cycle 565. And Initial's symbol table
+names exactly the three things `exec-init` was patching by hand -- `RMINITL`
+(35), **`STKINITL`** (56), `IFUMINITL` (61), **`TASKINITLOOP`** (106),
+**`GETTASKINITPC`** (112), `TASKINIT` (113), `BOOTEMULATOR` (133). The machine
+initialisation this project has been supplying from the testbench is a routine
+sitting in the microcode, waiting to be run.
+
+**The next step is to feed Bootstrap.** `boot0-test` already walks real microcode
+into IM over the control-processor bus using PARC's own hunk format and
+`SendViaMIR`; pointing that at Bootstrap's `READBB` loop is what turns this from
+"the boot chain starts" into "the boot chain completes".
+
+**And the register-patching route's fix is still upstream: nothing has
+initialised this machine.** A real boot
 does not jump a cold world at `START` with the fault counter unarmed and every
 task PC unset; Initial and the world's own `InitMem` do that first. That is what
 `exec-world9` skips by preloading IM and jumping straight in.
