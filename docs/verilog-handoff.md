@@ -599,12 +599,37 @@ propagated errors and a machine that free-runs.
 cycles too early".** That is the third time in this project that reading a total
 instead of a distribution produced a wrong conclusion.
 
-### Still open: the jam never delivers a parity bit at all
+### The jam's parity routing WORKS -- a claim of mine, retracted
 
-Separate from the above, and worth knowing. Jamming `CPRegToLink#` (P015=0) and
-`Nop#` (P015=1) BOTH leave the MIR's `IMLH` at 0. `sIMLH` -- c24's SET input --
-is driven from `CPOut.8`, the ninth CP-bus bit, which the benches use for the
-single-step flag; the parity bit in byte 0 never reaches it.
+**Retracted:** I wrote that "the jam never delivers a parity bit at all",
+because capturing `IMLH` inside `parc_micro` reads 0 after all four data
+strobes even for `Nop#`, whose `P015` is 1. Sweeping the actual routing refutes
+it.
+
+**Byte 0 is FOUR BITS, and they ride as the NINTH CP-BUS BIT of the four data
+strobes** -- which is why its low four bits are always zero:
+
+    b0[7] RSTK.0 -> fn 4        b0[6] P015  -> fn 5
+    b0[5] JCN.7  -> fn 6        b0[4] P1631 -> fn 7
+
+`make -C verilog/verilator exec-world9 EXECARGS='+jamsweep'` drives the ninth
+bit alone on each function code and reads the MIR back:
+
+```
+JAMSWEEP fn=5  ninth=0 -> IMLH=0 IMRH=0   ninth=1 -> IMLH=1 IMRH=0
+JAMSWEEP fn=7  ninth=0 -> IMLH=0 IMRH=0   ninth=1 -> IMLH=0 IMRH=1
+```
+
+Exactly what the byte layout implies, and it holds under every variant tried:
+one strobe or two (`+jamsweep1`), preceded by fn 4 or not, and with any data on
+the eight data bits (`+swdata=`).
+
+**So the open question is narrower than I said**: the path delivers the bit,
+and something in `parc_micro`'s full sequence clears it between the strobe and
+the capture. That is a testbench-timing question about where to sample, not a
+missing connection -- and it is not what makes `exec-parity` work, since that
+switches the enables on after the startup transient and needs no jam parity at
+all.
 
 Both checkers work out to the same rule, derived from the netlist and the cell:
 
@@ -616,10 +641,11 @@ Both checkers work out to the same rule, derived from the netlist and the cell:
 requires the stored bit to be the EVEN one, which is exactly what the preload
 measurement found.
 
-With the jam's bits stuck at 0, an entry passes only if its field-XOR is zero --
+With a MIR parity bit of 0, an entry passes only if its field-XOR is zero --
 true of `Nop#` alone among PARC's eight, and NOT of `Return#`, which is what the
-startup jams (XOR(rh) = 1). That is why the enables could never be left on
-through startup.
+startup jams (XOR(rh) = 1). Forcing `IMRH=1` across the jam (`+jampar`) drops
+the error count 133 -> 85, which confirms the arithmetic even though the
+startup transient is what actually gates the enables.
 
 ### The remaining inversion
 
