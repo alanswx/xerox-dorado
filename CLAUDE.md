@@ -1108,10 +1108,28 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   against a control-processor-bus load of the same microcode, 65 addresses and
   all eight fields, and three mutations of the generator are caught.
   **The nine-board machine then dispatches a real Alto opcode** -- `AND1`, and
-  `SKPC` once IFUM is loaded. It is NOT running a program: `IfuMemRef` makes
-  six transitions in 12,500 microinstructions and the opcode changes once, so
-  the IFU stops fetching and the emulator loops on one stuck opcode. It is not
-  a hold either -- all eight hold signals read 0 for the whole run.
+  `SKPC` once IFUM is loaded.
+- **THE IFU STOPPED FETCHING BECAUSE OF PARITY, TWICE -- and clearing the first
+  is the FIRST PARITY AGREEMENT between the two models.** The `.MB` does NOT
+  carry IFUM parity: the real machine computes the three IPar bits in its LOAD
+  microcode (`ifuRamSubrs.mc:ifuAddParity`), and 248 of AEmu's 256 entries fail
+  `cpu.c`'s own `ifum_parity_ok` as stored -- which is why the C emulator only
+  checks it behind `DORADO_IFUM_PARITY_TRAP`. Copying them verbatim left the
+  IFU in a permanent RAM parity error, `RamPe` high on 200,000 of 200,000
+  samples; computing them takes it to ZERO. The RTL's generators come from the
+  wire lists and `cpu.c`'s grouping from the microcode and the manual, neither
+  derived from the other, so **IM parity -- where the machine still runs only
+  with the enables cleared -- is the same question with a tractable second
+  instance now solved.** The second error was FG parity over the instruction
+  BYTES: the cache word is 16 data bits plus TWO parity bits, D.16 and D.17,
+  and the convention is **ODD**, D.17 over D.08-15 and D.16 over D.00-07.
+  **The sweep that found it nearly lied** -- two of four combinations cleared
+  the error, because the test pattern's two bytes had DIFFERENT parity, which
+  makes "swap the two bits" and "invert both" the same assignment; a pattern
+  with EQUAL byte parities separates them. When two explanations both fit,
+  find the input that tells them apart. With both clear the machine reaches
+  `CVEND`, whose ASEL is `Fetch<-RM/STK` -- microcode issuing real storage
+  references.
 - **Five ways a bench can lie to you, all found in one sitting.** `mbdis`
   prints IM addresses in OCTAL, so a hex visited-set must be converted before
   it is looked up. A bank SEARCH matches a wiped bank whenever the wanted value
