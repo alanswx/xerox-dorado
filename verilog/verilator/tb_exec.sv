@@ -1036,6 +1036,14 @@ module tb_exec;
   // which is exactly that trap region -- so count the instruction that starts
   // it. FF = {FA,FB,FC} = {1,0,0} = 0o100.
   integer n_pcf;
+  // IS THE MIR FROZEN? At the lock the decoded FF is 073 while IM[0o100] holds
+  // 144, so the machine is NOT executing what IM contains -- which is what a
+  // held MIR looks like: constant FF, constant TNIA, clk0' still running, no
+  // hold asserted. This bench's header states StopMIRClk = NOR(parity-error
+  // term, StopMIRClkEn'), and THE PRELOAD WRITES IM PARITY AS ZERO for every
+  // word, which is wrong for most of them. The enables are cleared at startup;
+  // whether the error TERM still reaches the MIR clock is the question.
+  integer n_smc, n_smce, n_imlhpe, n_imrhpe, n_err;
   // A SHORT PC TRACE. Counters say how often; a trace says in what ORDER, and
   // for "why is it stuck" that is the difference between theorising and
   // looking. First N microinstructions only -- the interesting part is the
@@ -1048,7 +1056,8 @@ module tb_exec;
   // stuck PC is not that address's own field. The PC column is the one to
   // trust for the path; pairing them needs the offset established first, and
   // reading them as one instruction produced a wrong lookup.
-  integer n_tr; reg [11:0] tr_pc [0:255]; reg [7:0] tr_ff [0:255];
+  integer n_tr, koff, nmatch, ncmp;
+  reg [11:0] tr_pc [0:255]; reg [7:0] tr_ff [0:255];
   reg fclk_prev, gld_prev; reg [8:0] fg_prev;
   // HOW MUCH OF THE WORLD ACTUALLY EXECUTES. The distinct-value lists above cap
   // at 32, which is fine for "is it sequencing at all" and useless for "how far
@@ -1225,6 +1234,7 @@ module tb_exec;
     n_rampe = 0; n_sawram = 0; n_fgpe = 0; n_sawfg = 0;
     n_d0 = 0; n_d1 = 0; n_both = 0; n_neither = 0; n_addrdiff = 0;
     n_pcf = 0; n_tr = 0;
+    n_smc = 0; n_smce = 0; n_imlhpe = 0; n_imrhpe = 0; n_err = 0;
     fclk_prev = m.b_MemD.Fclk_p_a; gld_prev = m.b_MemD.GLd_p_; fg_prev = fg_now;
 `endif
     for (i = 0; i < 4096; i = i + 1) visited[i] = 1'b0;
@@ -1260,6 +1270,11 @@ module tb_exec;
         if (q < 1000) begin tnia_seen[n_tnia] = tnia_now; n_tnia = n_tnia + 1; end
       end
       if (ff_now === 8'o100) n_pcf = n_pcf + 1;
+      if (m.StopMIRClk)              n_smc    = n_smc + 1;
+      if (m.b_ContB.StopMIRClkEn)    n_smce   = n_smce + 1;
+      if (!m.b_ContB.IMLHPE_p_)      n_imlhpe = n_imlhpe + 1;
+      if (!m.b_ContB.IMRHPE_p_)      n_imrhpe = n_imrhpe + 1;
+      if (!m.b_ContA.Error_p_)       n_err    = n_err + 1;
       if (n_ff < 32) begin
         for (q = 0; q < n_ff; q = q + 1)
           if (ff_seen[q] === ff_now) q = 1000;
@@ -1325,9 +1340,35 @@ module tb_exec;
     $display("tb_exec: %0d distinct TNIA values, %0d distinct FF values seen",
              n_tnia, n_ff);
 `ifdef WORLD
+    // PIN THE OFFSET, rather than eyeballing it. The preload already loaded
+    // every address's FF from the .MB, so the question "how many stages apart
+    // are TNIA and the decoded FF" is answerable by correlation: for each
+    // candidate offset, count the samples where the observed FF equals the FF
+    // the .MB gives for the address at that offset. The right offset should
+    // stand far above the others; if none does, the two are not simply skewed
+    // and pairing them at all is wrong.
+    for (koff = -3; koff <= 3; koff = koff + 1) begin
+      nmatch = 0; ncmp = 0;
+      for (i = 0; i < n_tr; i = i + 1) begin
+        if (i + koff < 0 || i + koff >= n_tr) continue;
+        if (!f_have[tr_pc[i + koff]]) continue;
+        // ONLY WHERE THE PC MOVES. 240 of the 256 samples are the identical
+        // stuck pair, and counting them drowns the signal in a constant
+        // mismatch -- the first attempt scored 14 of 255 at best and looked
+        // like "no offset fits" when it really meant "the sample is 94% one
+        // repeated point".
+        if (i > 0 && tr_pc[i] === tr_pc[i-1]) continue;
+        ncmp = ncmp + 1;
+        if (tr_ff[i] === f_ff[tr_pc[i + koff]]) nmatch = nmatch + 1;
+      end
+      $display("tb_exec: OFFSET %0d: FF matches the .MB at pc[i%0s%0d] on %0d of %0d",
+               koff, (koff < 0) ? "-" : "+", (koff < 0) ? -koff : koff, nmatch, ncmp);
+    end
     $write("tb_exec: TRACE (pc/ff, first %0d):", n_tr);
     for (i = 0; i < n_tr; i = i + 1) $write(" %h/%o", tr_pc[i], tr_ff[i]);
     $write("\n");
+    $display("tb_exec: MIR -- StopMIRClk %0d, StopMIRClkEn %0d, IMLHPE %0d, IMRHPE %0d, Error %0d, of %0d",
+             n_smc, n_smce, n_imlhpe, n_imrhpe, n_err, runcycles);
     $display("tb_exec: PCF -- `PCF<-B` (FF=0o100, starts the IFU pipeline) seen on %0d samples",
              n_pcf);
     $display("tb_exec: CACHE -- D0 only %0d, D1 only %0d, BOTH enabled %0d, neither %0d, addr differs %0d, of %0d",
