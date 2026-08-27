@@ -207,17 +207,26 @@ exec-test:
 # PARC's BLOCK LOADER: a 17-byte hunk walked into IM, read back word for word.
 .PHONY: boot0-test
 boot0-test:
-	@$(MAKE) -s -C ../../dorado build/boot0_hunks
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
 	@mkdir -p obj_boot0
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
 	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 16 \
 		> verilog/verilator/obj_boot0/boot0.vec
+	@# ...and four hunks from ABOVE 2048. The bank is {addr[11], addr[0]}, so a
+	@# vector set confined to low addresses leaves addr[11] always 0 and exercises
+	@# only half the interleave -- a swapped bank ordering would go unseen there.
+	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 0x800 4 \
+		>> verilog/verilator/obj_boot0/boot0.vec
+	@cd ../.. && ./dorado/build/im_image chm/dorado/AEmu.mb\!2 \
+		> verilog/verilator/obj_boot0/im.txt 2>/dev/null
 	@cd ../.. && $(V) --binary --top-module tb_boot0 $(V_WARN) \
-		-Iverilog/cells --Mdir verilog/verilator/obj_boot0 -o tb_boot0 \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_boot0 -o tb_boot0 \
 		verilog/verilator/tb_boot0.sv verilog/generated/dorado_proc.v \
 		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
 		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_boot0/tb_boot0 \
-		    +vectors=verilog/verilator/obj_boot0/boot0.vec 2>&1); rc=$$?; \
+		    +vectors=verilog/verilator/obj_boot0/boot0.vec \
+		    +imimage=verilog/verilator/obj_boot0/im.txt 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_boot0; exit $$rc; }
 
 # PARC's SendViaMIR: Boot0's inner loop, loading words into IM.

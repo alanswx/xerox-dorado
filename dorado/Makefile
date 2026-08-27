@@ -17,7 +17,7 @@ SDL_LIBS   := $(shell sdl2-config --libs 2>/dev/null)
 
 MB_OBJS   := $(OBJDIR)/mb.o $(OBJDIR)/disasm.o $(OBJDIR)/microcode.o $(OBJDIR)/cpu.o $(OBJDIR)/baseboard.o $(OBJDIR)/memory.o $(OBJDIR)/io.o $(OBJDIR)/display.o $(OBJDIR)/dispm.o $(OBJDIR)/disk.o $(OBJDIR)/ethernet.o $(OBJDIR)/fastio.o $(OBJDIR)/pdi.o $(OBJDIR)/mbdis.o
 LIB_OBJS  := $(OBJDIR)/mb.o $(OBJDIR)/disasm.o $(OBJDIR)/microcode.o $(OBJDIR)/cpu.o $(OBJDIR)/baseboard.o $(OBJDIR)/memory.o $(OBJDIR)/io.o $(OBJDIR)/display.o $(OBJDIR)/dispm.o $(OBJDIR)/disk.o $(OBJDIR)/ethernet.o $(OBJDIR)/fastio.o $(OBJDIR)/altoref.o $(OBJDIR)/pdi.o
-EXTRA_OBJS := $(OBJDIR)/mctrace.o $(OBJDIR)/bbtrace.o $(OBJDIR)/bbdis.o $(OBJDIR)/pdi.o $(OBJDIR)/pdidump.o $(OBJDIR)/test_pdi.o $(OBJDIR)/machine.o $(OBJDIR)/dorado.o $(OBJDIR)/dorado_web.o $(OBJDIR)/test_mb.o $(OBJDIR)/test_disasm.o $(OBJDIR)/test_microcode.o $(OBJDIR)/test_cpu.o $(OBJDIR)/test_baseboard.o $(OBJDIR)/test_memory.o $(OBJDIR)/test_display.o $(OBJDIR)/test_disk.o $(OBJDIR)/test_dsk2trident.o $(OBJDIR)/test_ethernet.o $(OBJDIR)/test_fastio.o $(OBJDIR)/audit_alufm.o $(OBJDIR)/alu_vectors.o $(OBJDIR)/cpreg_vectors.o $(OBJDIR)/baseboard_rom_dump.o $(OBJDIR)/boot0_hunks.o $(OBJDIR)/altodiff_dorado.o $(OBJDIR)/test_snapshot.o
+EXTRA_OBJS := $(OBJDIR)/mctrace.o $(OBJDIR)/bbtrace.o $(OBJDIR)/bbdis.o $(OBJDIR)/pdi.o $(OBJDIR)/pdidump.o $(OBJDIR)/test_pdi.o $(OBJDIR)/machine.o $(OBJDIR)/dorado.o $(OBJDIR)/dorado_web.o $(OBJDIR)/test_mb.o $(OBJDIR)/test_disasm.o $(OBJDIR)/test_microcode.o $(OBJDIR)/test_cpu.o $(OBJDIR)/test_baseboard.o $(OBJDIR)/test_memory.o $(OBJDIR)/test_display.o $(OBJDIR)/test_disk.o $(OBJDIR)/test_dsk2trident.o $(OBJDIR)/test_ethernet.o $(OBJDIR)/test_fastio.o $(OBJDIR)/audit_alufm.o $(OBJDIR)/alu_vectors.o $(OBJDIR)/cpreg_vectors.o $(OBJDIR)/baseboard_rom_dump.o $(OBJDIR)/boot0_hunks.o $(OBJDIR)/im_image.o $(OBJDIR)/altodiff_dorado.o $(OBJDIR)/test_snapshot.o
 PALO_SRC ?= ../AltoInfo/palo/src
 PALO_FS_OBJS := $(addprefix $(PALO_SRC)/,fs/basic.o fs/check.o fs/dir.o fs/disk.o fs/file.o fs/fs.o fs/meta.o fs/scan.o fs/print.o common/utils.o)
 # Header-dependency tracking. We -include every .d file actually present in
@@ -755,6 +755,11 @@ $(BINDIR)/test_snapshot: $(LIB_OBJS) $(OBJDIR)/machine.o $(OBJDIR)/test_snapshot
 # Real microcode packed into PARC's 17-byte hunks, for the RTL's Boot0 loader
 # to walk in and compare against. See dorado/tests/boot0_hunks.c.
 $(BINDIR)/boot0_hunks: $(LIB_OBJS) $(OBJDIR)/boot0_hunks.o | $(BINDIR)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+# A whole world as IM field bits, for the RTL to preload. See
+# dorado/tests/im_image.c and tools/sil_im_map.py.
+$(BINDIR)/im_image: $(LIB_OBJS) $(OBJDIR)/im_image.o | $(BINDIR)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(BINDIR)/audit_alufm: $(LIB_OBJS) $(OBJDIR)/audit_alufm.o | $(BINDIR)
