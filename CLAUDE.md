@@ -1183,8 +1183,17 @@ The second error was FG parity over the instruction
   `MXHold` (which comes from `Hold`) into its own request, and the reset
   `DisHold` is a MODE BIT in a control register, not a per-cycle clear. `MDhold`
   and `RefHold` are 0, so the memory is not waiting for data or refresh; the
-  processor is holding itself. Still open: whether StkP=0 is CORRECT, since a
-  world that never pushes has an empty stack and a real Dorado would hold too.
+  processor is holding itself. **And StkP=0 is CORRECT** -- `cpu.c`'s own
+  transcription of HM Table 6 says `StkP[2:7] = 0 denotes empty stack`, that
+  `RSTK[0]=1` enables the underflow check ("underflow if StkP originally 0 OR
+  finally 0"), and that underflow "would HOLD + wake fault task 15 on real
+  hardware -- **we just track the flags**". The instruction at the hold carries
+  RSTK = 8, i.e. `RSTK[0] = 1`. So the RTL is doing what the manual says and
+  **the C emulator is the one that does not model it**. The hold is permanent
+  only because this bench starts with `Return#` = `TaskingOff,Return`, so fault
+  task 15 -- the thing that would service the underflow -- can never run; CTask
+  is task 0 for all 400,000 samples. Running with tasking ON is the next step,
+  and it is a bench change rather than an RTL one.
 - **SAMPLING A LEVEL AT TEN POINTS IS NOT MEASURING IT.** The hold chain was
   previously read as "all eight signals 0, whole run" from ten instantaneous
   `$display`s -- true of the machine BEFORE IFUM was loaded and the parity

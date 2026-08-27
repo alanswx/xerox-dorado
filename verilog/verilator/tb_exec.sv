@@ -1099,6 +1099,12 @@ module tb_exec;
   // Dorado's stack overflow/underflow hold: a stack operation that would run
   // off either end holds the processor instead. Read the pointer.
   integer n_stk [0:255]; reg [7:0] stk_prev; integer n_stkchg;
+  // WHEN it moves, and what was executing. StkP reads 0x3f for 565 samples and
+  // then 0x00 for the rest, so SOMETHING moves it exactly once -- and whether
+  // that was a legitimate stack operation or an uninitialised register settling
+  // is the whole question.
+  integer stk_when [0:7]; reg [7:0] stk_from [0:7], stk_to [0:7];
+  reg [11:0] stk_pc [0:7]; reg [7:0] stk_ff [0:7]; reg [3:0] stk_rstk [0:7];
   integer swf, swdata;
   // A SHORT PC TRACE. Counters say how often; a trace says in what ORDER, and
   // for "why is it stuck" that is the difference between theorising and
@@ -1535,6 +1541,15 @@ module tb_exec;
       if ({m.b_ProcL.StkP_0, m.b_ProcL.StkP_1, m.b_ProcL.StkP_2,
            m.b_ProcL.StkP_3, m.b_ProcL.StkP_4, m.b_ProcL.StkP_5,
            m.b_ProcL.StkP_6, m.b_ProcL.StkP_7} !== stk_prev) begin
+        if (n_stkchg < 8) begin
+          stk_when[n_stkchg] = j2;  stk_from[n_stkchg] = stk_prev;
+          stk_to[n_stkchg]   = {m.b_ProcL.StkP_0, m.b_ProcL.StkP_1, m.b_ProcL.StkP_2,
+                                m.b_ProcL.StkP_3, m.b_ProcL.StkP_4, m.b_ProcL.StkP_5,
+                                m.b_ProcL.StkP_6, m.b_ProcL.StkP_7};
+          stk_pc[n_stkchg]   = tnia_now[11:0];
+          stk_ff[n_stkchg]   = ff_now;
+          stk_rstk[n_stkchg] = {m.RSTK_0, m.RSTK_1, m.RSTK_2, m.RSTK_3};
+        end
         n_stkchg = n_stkchg + 1;
         stk_prev = {m.b_ProcL.StkP_0, m.b_ProcL.StkP_1, m.b_ProcL.StkP_2,
                     m.b_ProcL.StkP_3, m.b_ProcL.StkP_4, m.b_ProcL.StkP_5,
@@ -1587,6 +1602,9 @@ module tb_exec;
     $write("tb_exec: TRACE (pc/ff, first %0d):", n_tr);
     for (i = 0; i < n_tr; i = i + 1) $write(" %h/%o", tr_pc[i], tr_ff[i]);
     $write("\n");
+    for (i = 0; i < n_stkchg && i < 8; i = i + 1)
+      $display("tb_exec: STKP change %0d at cycle %0d: %02h -> %02h  (TNIA=%h FF=%03o RSTK=%h)",
+               i, stk_when[i], stk_from[i], stk_to[i], stk_pc[i], stk_ff[i], stk_rstk[i]);
     $write("tb_exec: STKP -- changed %0d times; values held:", n_stkchg);
     for (i = 0; i < 256; i = i + 1)
       if (n_stk[i] != 0) $write(" %02h(x%0d)", i[7:0], n_stk[i]);

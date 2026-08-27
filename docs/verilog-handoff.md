@@ -507,14 +507,37 @@ fixed, and long superseded by the time it was being quoted. Holds are counted
 now, not sampled. **Sampling a level at ten points is not measuring it**, and a
 conclusion drawn that way needs re-taking whenever the machine changes.
 
-### What is still open
+### RESOLVED: StkP = 0 is CORRECT, and the RTL is more faithful than the C emulator
 
-Whether `StkP = 0` is CORRECT here. A world that never pushes has an empty
-stack, and a real Dorado would hold too -- in which case this is downstream of
-the IFU delivering only one opcode, not a separate fault. The way to tell them
-apart is to check whether the microcode ever executes a `StkP<-` to initialise
-it, and whether the RSTK field at the held instruction is really a stack
-operation.
+`cpu.c`'s own transcription of HM Table 6 settles it:
+
+> `RSTK[0]`: 0 = no underflow check; 1 = underflow if StkP originally 0 OR
+> finally 0. Underflow / overflow set StkUnd / StkOvf flags ... and **would HOLD
+> + wake fault task 15 on real hardware -- we just track the flags**.
+>
+> `StkP[0:1]` selects one of 4 stack regions (each 100 octal words).
+> `StkP[2:7]` is the per-region offset, valid range 1..77 octal.
+> **`StkP[2:7] = 0 denotes empty stack.`**
+
+So offset 0 is the documented EMPTY-STACK sentinel, not a wrong value, and the
+hold is the documented hardware response. The measurements line up exactly:
+
+- StkP powers up at `0x3f` -- region 0, offset 63, the top of the region.
+- At cycle 565 it reaches `0x00` -- region 0, offset 0, EMPTY.
+- The instruction there carries **RSTK = 8**, i.e. `RSTK[0] = 1`: the underflow
+  check ENABLED, which is precisely the condition Table 6 names.
+- ProcL j20 gates `PrHoldReq` on `StkP.6/7` and the RSTK field, and asserts.
+
+**Our RTL does what the manual says. The C emulator explicitly does not** --
+"we just track the flags" -- which is a deliberate simplification there and a
+divergence worth knowing about when the two are compared.
+
+**And the hold is permanent here for a reason the bench controls.** The manual's
+response is HOLD *and wake fault task 15*; task 15 is what services the
+underflow and releases it. This bench starts the machine with `Return#`, which
+is `TaskingOff,Return`, and CTask is measured at task 0 for all 400,000 samples
+-- so the fault task can never run. **Running with tasking ON is the next step**,
+and it is a bench change, not an RTL one.
 
 ### Traps found on the way
 
