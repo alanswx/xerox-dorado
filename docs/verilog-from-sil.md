@@ -4027,3 +4027,36 @@ address buses.
 verifies its load** -- read the arrays back and compare against the `.MB` -- not
 trusted because it looked right. A wrong interleave produces a machine executing
 garbage, which is indistinguishable from a boot that fails for its own reasons.
+
+### The IM interleave, derived: bank = {addr[11], addr[0]} (2026-08-26)
+
+Task #35 said *derive it, do not assume*, and the guess would have been wrong.
+The four chip selects are driven by TWO MC10101s, wired-OR, and their inputs
+name the bits outright:
+
+```
+d21   bdRA.11a on all four gate inputs, common DoCBr
+d22   bdRA.00a on all four gate inputs
+```
+
+So the bank is chosen by **`RA.00` and `RA.11` -- the TOP and BOTTOM of the
+twelve address bits** (PARC numbers MSB-first), while `RA.01..RA.10` are the
+ten-bit index within a bank:
+
+```
+bank  = {addr[11], addr[0]}
+index = addr[10:1]
+```
+
+Consecutive addresses alternate banks on the LSB, which is exactly what
+`tb_exec` records from the other direction -- *"copies 0,2 are A and 1,3 are B,
+so IM[0] = A and IM[1] = B"*. Two independent readings of the same structure.
+
+My guess had been "the low two bits pick the bank", which is the ordinary way to
+interleave four ways and is not what this machine does. Gated by
+`im-map-check`; expecting any other pair of address bits fails it.
+
+That was the last unknown in the preload layout. What remains for #35 is the
+mechanical part -- emit each `.MB` word as 36 field bits, write them into the
+144 arrays at `{bank, index}`, and READ THEM BACK against the `.MB` before
+trusting any run that follows.

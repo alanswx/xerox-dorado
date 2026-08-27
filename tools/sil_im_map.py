@@ -16,6 +16,23 @@ microinstruction for ONE bank, and the netlist says which:
     them MSB-FIRST: pin 2 takes RA.01a, which comes from TNIA.05. Getting that
     backwards is what once made a Write-IM addressing 195 deposit at 780.
 
+THE INTERLEAVE, derived rather than assumed. The four chip selects are driven by
+TWO MC10101s, wired-OR, and their inputs name the bits:
+
+    d21  bdRA.11a on all four gate inputs, common DoCBr
+    d22  bdRA.00a on all four gate inputs
+
+So the bank is chosen by RA.00 and RA.11 -- the TOP and BOTTOM of the twelve
+address bits, PARC numbering MSB-first -- while RA.01..RA.10 are the ten-bit
+index within a bank:
+
+    bank  = {addr[11], addr[0]}
+    index = addr[10:1]
+
+Consecutive addresses therefore alternate banks on the LSB, which is exactly
+what tb_exec records as "copies 0,2 are A and 1,3 are B, so IM[0] = A and
+IM[1] = B".
+
 WHY THIS EXISTS: walking a whole 4096-word world into IM over the
 control-processor bus takes far too long to simulate -- boot0-test does 16
 microinstructions and exec-test 4 hunks. A bench that wants to RUN a real world
@@ -82,6 +99,30 @@ def main() -> int:
     else:
         print(f"\naddress (A0..A9, MSB first): {', '.join(addr.pop())}")
         print(f"  ({len({r[4] for r in rows})} fan-out copies of it across the array)")
+
+    # THE INTERLEAVE. The chip selects must be driven by exactly two address
+    # bits, and they must be RA.00 and RA.11 -- the top and bottom of the twelve.
+    board = sn.load_board(glob.glob('chm/sil/ContB*/*.wl')[0])
+    csdrv = set()
+    for cs in ("CS0'ACa", "CS1'ACa", "CS2'ACa", "CS3'ACa"):
+        net = board.nets.get(cs)
+        if not net:
+            bad.append(f"{cs} not found")
+            continue
+        for p in net['pins']:
+            if p['dir'] != 'out':
+                continue
+            for nm, nt in board.nets.items():
+                if any(q['pkg'] == p['pkg'] and q['dir'] == 'in' and
+                       nm.startswith('bdRA.') for q in nt['pins']):
+                    csdrv.add(nm)
+    want = {'bdRA.00a', 'bdRA.11a'}
+    print(f"\nbank select driven by: {sorted(csdrv)}")
+    if csdrv != want:
+        bad.append(f"bank select is driven by {sorted(csdrv)}, not {sorted(want)} "
+                   f"-- the interleave is not bank={{addr[11],addr[0]}}")
+    else:
+        print("  => bank = {addr[11], addr[0]},  index = addr[10:1]")
 
     if len(rows) != 144 or len(bits) != 36:
         bad.append(f"expected 144 packages and 36 field bits, got "
