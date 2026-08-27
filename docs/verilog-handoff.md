@@ -769,6 +769,39 @@ bits, so a real feed is a SEQUENCE the bench must supply as the 6502 does. But
 the mechanism is now identified and demonstrated rather than inferred, which is
 what the next step needs.
 
+### Bootstrap's byte protocol, read off its own microcode
+
+The eight dispatch arms `WRITE000`..`WRITE111` (images 33, 35, 37, 41, 43, 45,
+47, 51 -- every second address, so each arm is two instructions) are
+**IDENTICAL except for RSTK**: all carry `ALUF=00 BSEL=T LC=NoLoad
+ASEL=A<-RM/STK FF=077 JCN=177(fast)`. Only the register-file address differs.
+
+So a received byte is stashed into one of eight RM registers chosen by the
+byte's own 3-bit code, and the mapping is a permutation:
+
+| code | RSTK | | code | RSTK |
+|---|---|---|---|---|
+| 000 | 001 | | 100 | 101 |
+| 001 | 011 | | 101 | 111 |
+| 010 | 000 | | 110 | 100 |
+| 011 | 010 | | 111 | 110 |
+
+which is exactly **`RSTK = {n[2], n[0], ~n[1]}`**, all eight. That is not
+arbitrary: CLAUDE.md already records that RM's low address bits are `~RSTK`, so
+the permutation here is the microcode compensating for the same wiring, and
+consecutive codes land in consecutive RM registers.
+
+**So the protocol is: each byte carries data plus a 3-bit destination, and
+Bootstrap assembles a microinstruction in RM before writing IM.** That is the
+same shape as `SendViaMIR`'s eight half-words, reached by a different route --
+this one is MICROCODE polling `B<-RWCPReg`, where `boot0-test`'s loader is the
+BaseBoard's hardware jam path.
+
+**The handshake is the remaining unknown.** Image 57 reads CPReg (`FF=176`) and
+branches `JCN=131(fast)` -- a conditional -- so there is a ready/valid test, and
+what the BaseBoard must assert to satisfy it is what a real feed needs. Chase it
+from image 57's branch condition.
+
 **The next step is to feed Bootstrap properly.** `boot0-test` already walks real microcode
 into IM over the control-processor bus using PARC's own hunk format and
 `SendViaMIR`; pointing that at Bootstrap's `READBB` loop is what turns this from
