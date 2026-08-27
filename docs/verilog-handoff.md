@@ -555,15 +555,44 @@ covering them. The tool prints both limits beside its own result.
   parity is taken over, and parity is invariant under permutation. No parity
   check can ever detect it.
 
-### What is still open
+### The encoder now reproduces PARC's microinstructions EXACTLY
 
-`tb_compute.sv`'s `mi()` sets `P015` and `P1631` to 1 unconditionally, with the
-comment "a jammed instruction fails IM parity anyway -- that is the jam
-mechanism". PARC's own entries show those bits varying, so the blanket 1s are
-wrong. Computing them is what would let a JAM pass parity -- and `+imparityon`
-already shows that with correct IM parity the only remaining failure is the
-jammed `Return#` in the MIR at startup: 133 parity samples out of 400,000, not
-400,000.
+`mi()` in six benches used to set `P015` and `P1631` to 1 unconditionally, on
+the reasoning that "a jammed instruction fails IM parity anyway -- that is the
+jam mechanism". It computes them now, and the halves turn out to be simply the
+fields, since parity does not care about order:
+
+    P015  = odd parity over  RSTK, ALUF, BSEL, LC, ASEL   (4+4+3+3+3 = 17)
+    P1631 = odd parity over  BLOCK, JCN, FF               (1+8+8     = 17)
+
+With that, the encoder reproduces **all eight of PARC's hand-coded IRTable
+entries byte for byte, parity INCLUDED** -- where its comment previously had to
+say "parity bits aside". `im-parity-check` gates the round trip, which is a
+stronger check than comparing parity bits alone: regenerating all five bytes
+pins the BYTE LAYOUT too, so a wrong field position is caught where parity,
+being permutation-invariant, would not catch it. 46/46 gates stay green.
+
+### What is still open, and it is now one inversion in one place
+
+`+imparityon` still stops the machine after two `clk0'` edges -- but with only
+133 parity samples out of 400,000, so what fails is the jammed `Return#` in the
+MIR at startup and nothing else.
+
+The discrepancy is sharp: **the ARRAY wants EVEN (preloading even parity clears
+IMLHPE; that is measured) while the JAM supplies PARC's ODD (Return# carries
+P015=1, P1631=0, which is odd parity over its halves; that is read off PARC's
+source).** In the real machine both paths satisfy one generator, so our RTL has
+an inversion in one of them that the hardware does not.
+
+`cell_MC10170` is the obvious suspect and was NOT changed, deliberately: it
+matches its data sheet (A is odd parity over the nine data bits, B is even with
+the controls folded in) and its header records that it was already tuned
+against PARC's IRTable, fixing eleven of thirteen entries. Changing a
+datasheet-correct cell on a hunch is how the last round of parity confusion
+started. The place to look is where the two paths differ -- the CP-bus write
+complements its data (`BMux` is the complement of `CPReg`, which is why
+`SendViaMIR` uses `SetCPReg~` for IM data and the plain form for T), and
+whether the jam path does the same is the question.
 
 ## START HERE: two open questions
 

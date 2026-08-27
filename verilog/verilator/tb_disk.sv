@@ -2551,7 +2551,22 @@ module tb_disk;
                      input [7:0] jcn,  input block);
     reg [7:0] b0, b1, b2, b3, b4;
     begin
-      b0 = {rstk[3], 1'b1,    jcn[0],  1'b1,    4'b0000};
+      // PARITY, COMPUTED. It used to be two hard-wired 1s, on the reasoning
+      // that "a jammed instruction fails IM parity anyway -- that is the jam
+      // mechanism". PARC's own IRTable entries show these bits VARYING -- 1/1
+      // for Nop#, 1/0 for Return#, 0/1 for CPRegToLink# -- so they are real
+      // computed parity, and all eight carry ODD parity over the 17-bit half
+      // (make -C verilog im-parity-check).
+      //
+      // THE HALVES ARE JUST THE FIELDS, and parity does not care about order:
+      //   left  = RSTK, ALUF, BSEL, LC, ASEL   (4+4+3+3+3 = 17)
+      //   right = BLOCK, JCN, FF               (1+8+8      = 17)
+      // fitted bit for bit against 2,148 AEmu addresses, unique for all 34.
+      b0 = {rstk[3],
+            ~(^{rstk, aluf, bsel, lc, asel}),   // P015
+            jcn[0],
+            ~(^{block, jcn, ff}),               // P1631
+            4'b0000};
       b1 = {rstk[2], rstk[1], rstk[0], aluf[3], block, ff[7], ff[6], ff[5]};
       b2 = {aluf[2], aluf[1], aluf[0], bsel[2], ff[4], ff[3], ff[2], ff[1]};
       b3 = {bsel[1], bsel[0], lc[2],   lc[1],   ff[0], jcn[7], jcn[6], jcn[5]};
