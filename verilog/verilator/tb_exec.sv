@@ -124,7 +124,8 @@ module tb_exec;
   reg [7:0]  dpat;      // storage, {H,G,F,E,D,C,B,A}
   reg [17:0] cpat;      // cache, cpat[k] is D.k
   integer    dp, cp, si, ci;
-  reg        hi_par, lo_par;
+  reg        hi_par, lo_par, prog_cache;
+  reg [17:0] cw;
   initial begin
     if (!$value$plusargs("dpat=%d", dp)) dp = 172;      // 8'b1010_1100
     if (!$value$plusargs("cpat=%d", cp)) cp = 52045;
@@ -137,6 +138,7 @@ module tb_exec;
     // bit, and whether the convention is even or odd, are the two things not
     // stated anywhere we have read -- so both are switches (`+cpatswap`,
     // `+cpatodd`) and the measurement decides.
+    prog_cache = $test$plusargs("cprog");
     if (!$test$plusargs("cpatraw")) begin
       // MEASURED, not assumed: the convention is ODD per byte, D.17 over
       // D.08-15 and D.16 over D.00-07. All four combinations of sense and
@@ -161,42 +163,52 @@ module tb_exec;
       m.b_msa.u_b06.mem[si] = dpat[7];   // H
     end
     for (ci = 0; ci < 4096; ci = ci + 1) begin
-      m.b_MemD.u_a03.mem[ci] = cpat[0];
-      m.b_MemD.u_d03.mem[ci] = cpat[0];
-      m.b_MemD.u_a05.mem[ci] = cpat[1];
-      m.b_MemD.u_d05.mem[ci] = cpat[1];
-      m.b_MemD.u_g03.mem[ci] = cpat[2];
-      m.b_MemD.u_j03.mem[ci] = cpat[2];
-      m.b_MemD.u_g05.mem[ci] = cpat[3];
-      m.b_MemD.u_j05.mem[ci] = cpat[3];
-      m.b_MemD.u_a13.mem[ci] = cpat[4];
-      m.b_MemD.u_d13.mem[ci] = cpat[4];
-      m.b_MemD.u_a15.mem[ci] = cpat[5];
-      m.b_MemD.u_d15.mem[ci] = cpat[5];
-      m.b_MemD.u_g13.mem[ci] = cpat[6];
-      m.b_MemD.u_j13.mem[ci] = cpat[6];
-      m.b_MemD.u_g15.mem[ci] = cpat[7];
-      m.b_MemD.u_j15.mem[ci] = cpat[7];
-      m.b_MemD.u_a09.mem[ci] = cpat[8];
-      m.b_MemD.u_d09.mem[ci] = cpat[8];
-      m.b_MemD.u_a11.mem[ci] = cpat[9];
-      m.b_MemD.u_d11.mem[ci] = cpat[9];
-      m.b_MemD.u_g09.mem[ci] = cpat[10];
-      m.b_MemD.u_j09.mem[ci] = cpat[10];
-      m.b_MemD.u_g11.mem[ci] = cpat[11];
-      m.b_MemD.u_j11.mem[ci] = cpat[11];
-      m.b_MemD.u_a17.mem[ci] = cpat[12];
-      m.b_MemD.u_d17.mem[ci] = cpat[12];
-      m.b_MemD.u_a19.mem[ci] = cpat[13];
-      m.b_MemD.u_d19.mem[ci] = cpat[13];
-      m.b_MemD.u_g17.mem[ci] = cpat[14];
-      m.b_MemD.u_j17.mem[ci] = cpat[14];
-      m.b_MemD.u_g19.mem[ci] = cpat[15];
-      m.b_MemD.u_j19.mem[ci] = cpat[15];
-      m.b_MemD.u_a07.mem[ci] = cpat[16];
-      m.b_MemD.u_d07.mem[ci] = cpat[16];
-      m.b_MemD.u_g07.mem[ci] = cpat[17];
-      m.b_MemD.u_j07.mem[ci] = cpat[17];
+      // EVERY ADDRESS ANSWERING THE SAME WORD is a machine that fetches ONE
+      // opcode for ever, however well the IFU works. With `+cprog` the cache
+      // holds a DIFFERENT word per line -- the line number itself -- so the
+      // instruction stream varies. Parity is recomputed per word, odd per
+      // byte, because a fixed pair of parity bits is wrong for varying data.
+      if (prog_cache) begin
+        cw[15:0]  = ci[15:0];
+        cw[16]    = ~(^ci[7:0]);
+        cw[17]    = ~(^ci[15:8]);
+      end else cw = cpat;
+      m.b_MemD.u_a03.mem[ci] = cw[0];
+      m.b_MemD.u_d03.mem[ci] = cw[0];
+      m.b_MemD.u_a05.mem[ci] = cw[1];
+      m.b_MemD.u_d05.mem[ci] = cw[1];
+      m.b_MemD.u_g03.mem[ci] = cw[2];
+      m.b_MemD.u_j03.mem[ci] = cw[2];
+      m.b_MemD.u_g05.mem[ci] = cw[3];
+      m.b_MemD.u_j05.mem[ci] = cw[3];
+      m.b_MemD.u_a13.mem[ci] = cw[4];
+      m.b_MemD.u_d13.mem[ci] = cw[4];
+      m.b_MemD.u_a15.mem[ci] = cw[5];
+      m.b_MemD.u_d15.mem[ci] = cw[5];
+      m.b_MemD.u_g13.mem[ci] = cw[6];
+      m.b_MemD.u_j13.mem[ci] = cw[6];
+      m.b_MemD.u_g15.mem[ci] = cw[7];
+      m.b_MemD.u_j15.mem[ci] = cw[7];
+      m.b_MemD.u_a09.mem[ci] = cw[8];
+      m.b_MemD.u_d09.mem[ci] = cw[8];
+      m.b_MemD.u_a11.mem[ci] = cw[9];
+      m.b_MemD.u_d11.mem[ci] = cw[9];
+      m.b_MemD.u_g09.mem[ci] = cw[10];
+      m.b_MemD.u_j09.mem[ci] = cw[10];
+      m.b_MemD.u_g11.mem[ci] = cw[11];
+      m.b_MemD.u_j11.mem[ci] = cw[11];
+      m.b_MemD.u_a17.mem[ci] = cw[12];
+      m.b_MemD.u_d17.mem[ci] = cw[12];
+      m.b_MemD.u_a19.mem[ci] = cw[13];
+      m.b_MemD.u_d19.mem[ci] = cw[13];
+      m.b_MemD.u_g17.mem[ci] = cw[14];
+      m.b_MemD.u_j17.mem[ci] = cw[14];
+      m.b_MemD.u_g19.mem[ci] = cw[15];
+      m.b_MemD.u_j19.mem[ci] = cw[15];
+      m.b_MemD.u_a07.mem[ci] = cw[16];
+      m.b_MemD.u_d07.mem[ci] = cw[16];
+      m.b_MemD.u_g07.mem[ci] = cw[17];
+      m.b_MemD.u_j07.mem[ci] = cw[17];
     end
     $display("tb_exec: seeded storage dpat=%b cache cpat=%b", dpat, cpat);
   end
