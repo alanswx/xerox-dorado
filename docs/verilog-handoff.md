@@ -797,10 +797,32 @@ same shape as `SendViaMIR`'s eight half-words, reached by a different route --
 this one is MICROCODE polling `B<-RWCPReg`, where `boot0-test`'s loader is the
 BaseBoard's hardware jam path.
 
-**The handshake is the remaining unknown.** Image 57 reads CPReg (`FF=176`) and
-branches `JCN=131(fast)` -- a conditional -- so there is a ready/valid test, and
-what the BaseBoard must assert to satisfy it is what a real feed needs. Chase it
-from image 57's branch condition.
+### THE HANDSHAKE IS BIT 15 OF THE CP REGISTER
+
+Image 57 reads CPReg (`FF=176` = `B<-RWCPReg`) and branches `JCN=131`. Decoding
+that against the table here: `JCN[0]=0` with `ccc = 1`, a **Conditional Jump**
+on condition 1, which Table 13 gives as **`ALU < 0`** -- the sign bit of the last
+ALU result.
+
+So Bootstrap polls the CP register and proceeds when the value it reads is
+NEGATIVE, i.e. when **bit 15 is set**. Measured over six values, three each way:
+
+| `+bootfeed` | bit 15 | addresses executed |
+|---|---|---|
+| `0x8000` | 1 | **11** |
+| `0xffff` | 1 | **11** |
+| `0xaaaa` | 1 | **11** |
+| `0x7fff` | 0 | 6 |
+| `0x5555` | 0 | 6 |
+| `0x0001` | 0 | 6 |
+
+Perfectly separated, and it explains the first `+bootfeed` result -- `0xaaaa`
+worked and `0x00ff` did not purely because of bit 15.
+
+**So the BaseBoard's side of the protocol is: put the byte in the CP register
+with bit 15 set to mean "ready", and clear it between bytes.** That, with the
+3-bit destination code the `WRITE` arms decode, is the whole of what a feed has
+to do.
 
 **The next step is to feed Bootstrap properly.** `boot0-test` already walks real microcode
 into IM over the control-processor bus using PARC's own hunk format and
