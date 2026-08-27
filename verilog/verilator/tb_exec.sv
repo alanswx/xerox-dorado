@@ -1029,12 +1029,32 @@ module tb_exec;
   // -- and varying data does not. That is the candidate for +cprog failing FG
   // parity, so count it rather than argue about it.
   integer n_d0, n_d1, n_both, n_neither, n_addrdiff;
+  // DOES THE IFU PIPELINE EVER GET STARTED? cpu.c on FA=1 FB=0 FC=0: "PCF <- B
+  // ... Loads PCF and starts the IFU pipeline. The pipeline needs ~5 cycles to
+  // fill before the first IFUJump can succeed (HM page 67). Until then,
+  // IFUJump traps to *34-37 NotReady." Our visited set is FULL of octal 10-17,
+  // which is exactly that trap region -- so count the instruction that starts
+  // it. FF = {FA,FB,FC} = {1,0,0} = 0o100.
+  integer n_pcf;
+  // A SHORT PC TRACE. Counters say how often; a trace says in what ORDER, and
+  // for "why is it stuck" that is the difference between theorising and
+  // looking. First N microinstructions only -- the interesting part is the
+  // approach to the loop, not the loop.
+  //
+  // READ THE TWO COLUMNS SEPARATELY UNTIL THE OFFSET IS PINNED. `TNIA` and the
+  // decoded `FF` are sampled from DIFFERENT PIPELINE STAGES, so the pair
+  // printed on one line is not one instruction: the first three entries line
+  // up as (next-address of A, FF of A-1), and the FF that appears beside the
+  // stuck PC is not that address's own field. The PC column is the one to
+  // trust for the path; pairing them needs the offset established first, and
+  // reading them as one instruction produced a wrong lookup.
+  integer n_tr; reg [11:0] tr_pc [0:255]; reg [7:0] tr_ff [0:255];
   reg fclk_prev, gld_prev; reg [8:0] fg_prev;
   // HOW MUCH OF THE WORLD ACTUALLY EXECUTES. The distinct-value lists above cap
   // at 32, which is fine for "is it sequencing at all" and useless for "how far
   // does it get". A bitmap over the whole address space answers the second.
   reg       visited [0:4095];
-  integer   nvisited, lastpc, stuck, maxrun, prevpc;
+  integer   nvisited, lastpc, stuck, maxrun, prevpc, maxpc;
 
 `ifdef WORLD
   wire [8:0] fg_now = {m.FG_0, m.FG_1, m.FG_2, m.FG_3, m.FG_4,
@@ -1204,10 +1224,11 @@ module tb_exec;
     n_fclk = 0; n_gld = 0; n_fg = 0; n_enfg = 0;
     n_rampe = 0; n_sawram = 0; n_fgpe = 0; n_sawfg = 0;
     n_d0 = 0; n_d1 = 0; n_both = 0; n_neither = 0; n_addrdiff = 0;
+    n_pcf = 0; n_tr = 0;
     fclk_prev = m.b_MemD.Fclk_p_a; gld_prev = m.b_MemD.GLd_p_; fg_prev = fg_now;
 `endif
     for (i = 0; i < 4096; i = i + 1) visited[i] = 1'b0;
-    nvisited = 0; stuck = 0; maxrun = 0; prevpc = -1;
+    nvisited = 0; stuck = 0; maxrun = 0; prevpc = -1; maxpc = -1;
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca;
     if (!$value$plusargs("cycles=%d", runcycles)) runcycles = 20000;
     for (j2 = 0; j2 < runcycles; j2 = j2 + 1) begin
@@ -1219,8 +1240,15 @@ module tb_exec;
           if (!visited[lastpc[11:0]]) begin
             visited[lastpc[11:0]] = 1'b1; nvisited = nvisited + 1;
           end
+          if (n_tr < 256) begin
+            tr_pc[n_tr] = lastpc[11:0]; tr_ff[n_tr] = ff_now; n_tr = n_tr + 1;
+          end
           if (lastpc === prevpc) begin
-            stuck = stuck + 1; if (stuck > maxrun) maxrun = stuck;
+            stuck = stuck + 1;
+            // WHICH address it spins on, not just how long. A spin is a
+            // microcode wait loop, and naming the address turns it into
+            // something mbdis can disassemble.
+            if (stuck > maxrun) begin maxrun = stuck; maxpc = lastpc; end
           end else stuck = 0;
           prevpc = lastpc;
         end
@@ -1231,6 +1259,7 @@ module tb_exec;
           if (tnia_seen[q] === tnia_now) q = 1000;
         if (q < 1000) begin tnia_seen[n_tnia] = tnia_now; n_tnia = n_tnia + 1; end
       end
+      if (ff_now === 8'o100) n_pcf = n_pcf + 1;
       if (n_ff < 32) begin
         for (q = 0; q < n_ff; q = q + 1)
           if (ff_seen[q] === ff_now) q = 1000;
@@ -1296,6 +1325,11 @@ module tb_exec;
     $display("tb_exec: %0d distinct TNIA values, %0d distinct FF values seen",
              n_tnia, n_ff);
 `ifdef WORLD
+    $write("tb_exec: TRACE (pc/ff, first %0d):", n_tr);
+    for (i = 0; i < n_tr; i = i + 1) $write(" %h/%o", tr_pc[i], tr_ff[i]);
+    $write("\n");
+    $display("tb_exec: PCF -- `PCF<-B` (FF=0o100, starts the IFU pipeline) seen on %0d samples",
+             n_pcf);
     $display("tb_exec: CACHE -- D0 only %0d, D1 only %0d, BOTH enabled %0d, neither %0d, addr differs %0d, of %0d",
              n_d0, n_d1, n_both, n_neither, n_addrdiff, runcycles);
     $display("tb_exec: IFUPE -- RamPe high %0d, SawRamParityErr %0d, FGParityErr %0d, SawFGParityErr %0d, of %0d",
@@ -1305,8 +1339,8 @@ module tb_exec;
     $display("tb_exec: IFU -- IfuMemRef %0d transitions, IfuMemAck %0d, opcode J changed %0d times",
              n_ifuref, n_ifuack, n_jchg);
 `endif
-    $display("tb_exec: %0d distinct IM addresses executed; last TNIA=%h; longest run on one address=%0d",
-             nvisited, lastpc[11:0], maxrun);
+    $display("tb_exec: %0d distinct IM addresses executed; last TNIA=%h; longest run on one address=%0d at TNIA=%h",
+             nvisited, lastpc[11:0], maxrun, maxpc[11:0]);
     // Name them. A short cycle is the normal shape of a microcode wait loop, and
     // knowing WHICH addresses turns "it loops" into something disassemblable.
     if (nvisited <= 64) begin
