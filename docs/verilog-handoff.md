@@ -473,8 +473,48 @@ lockstep with `IfuMemRef`. So nothing downstream was broken and memory was not
 failing to serve; the IFU had stopped ASKING. The run visits `AEMUIFURAMPE`
 early, which named the suspect.
 
-**The next question is what it is waiting on now** -- still 12,482
-microinstructions on a single address, still one opcode delivered.
+### ANSWERED: it is a HOLD, and the stack pointer is at zero
+
+The chain is measured end to end, every link a counter over 400,000 samples:
+
+| link | evidence |
+|---|---|
+| `StkP` = 0x00 | 399,435 samples (and 0x3f for 565 at the start) |
+| ProcL asserts `PrHoldReq` | **399,435** -- exactly co-extensive with StkP=0 |
+| MemC latches `MiscHold` | 399,419, sixteen samples later = one microinstruction |
+| `Hold` on the backplane | 399,419, fanned out as PRhold/CBHold/IfuHold/IOHold/MXHold, all the same count |
+| ContA f20 makes `RepeatCur` | 399,419 |
+| the MIR holds, TNIA frozen at 0x040 | 12,481 microinstructions on one address |
+
+**`StkP = 0` is stack UNDERFLOW.** ProcL j20 (an MC10117) drives `PrHoldReq`
+from `StkP.6/7` and the RSTK field, which is the Dorado's stack
+overflow/underflow hold: a stack operation that would run off either end holds
+the processor instead of corrupting STK.
+
+**And it sustains itself.** MemC c24 ORs `PrHoldReq, ExtHoldReq, CHoldReq,
+WantCR'` and **`MXHold`** -- and `MXHold` comes from `Hold`. So once set the
+hold feeds its own request. The reset, `DisHold`, is a MODE BIT in a control
+register (k08, clocked by `LdMcr'` from the MAR), not a per-cycle clear, so
+nothing releases it on its own.
+
+**`MDhold` and `RefHold` are both 0**, so the memory section is not waiting for
+data or refresh -- the processor is holding itself.
+
+**THE EARLIER "NO HOLD ANYWHERE, EVER" WAS STALE AND THE METHOD WAS WRONG.**
+That reading came from printing the eight hold signals at TEN INSTANTS and
+seeing zeros -- true of the machine BEFORE IFUM was loaded and the parity
+fixed, and long superseded by the time it was being quoted. Holds are counted
+now, not sampled. **Sampling a level at ten points is not measuring it**, and a
+conclusion drawn that way needs re-taking whenever the machine changes.
+
+### What is still open
+
+Whether `StkP = 0` is CORRECT here. A world that never pushes has an empty
+stack, and a real Dorado would hold too -- in which case this is downstream of
+the IFU delivering only one opcode, not a separate fault. The way to tell them
+apart is to check whether the microcode ever executes a `StkP<-` to initialise
+it, and whether the RSTK field at the held instruction is really a stack
+operation.
 
 ### Traps found on the way
 
