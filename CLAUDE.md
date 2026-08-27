@@ -1203,6 +1203,18 @@ The second error was FG parity over the instruction
   with ASEL = `Fetch<-T`. **The manual's mechanism working end to end in
   generated RTL**: a stack operation on an empty stack holds the processor,
   wakes the fault task, and the fault task clears it.
+- **BUT THE FAULT TASK IS REQUESTED FROM RESET.** `TWReq.15` reads high on
+  400,000 of 400,000 samples, so with tasking on the machine switches to task 15
+  at cycle 181 and never returns: **task 0 executes TWO instructions** and task
+  15 runs 23 -- and those 23 are ALTO EMULATOR handlers, not a fault handler,
+  so `TPC[15]` was never initialised and the fault task is running whatever it
+  landed on. Two candidates tested and BOTH ELIMINATED: seeding the Map with
+  `tb_readback`'s own 21-array MemX seeding changes nothing (`+nomapseed` is the
+  control), and sweeping AEmu's five named entry points -- `START` 0, `STARTMB`
+  53, `AEMUNEXT` 51, `BOOT` 652, `STARTEMULATOR` 656 octal -- shows **0 is the
+  best of them**, every other landing back in the 0x0c4 spin. So the blocker is
+  narrow: something asserts the fault-task wakeup out of reset and nothing
+  clears it.
 - **SAMPLING A LEVEL AT TEN POINTS IS NOT MEASURING IT.** The hold chain was
   previously read as "all eight signals 0, whole run" from ten instantaneous
   `$display`s -- true of the machine BEFORE IFUM was loaded and the parity
