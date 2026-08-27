@@ -74,6 +74,112 @@ module tb_exec;
   reg       setrun = 1'b0, setss_n = 1'b1;
   reg       dmd = 1'b0, dmc = 1'b0, udmd = 1'b0;
 
+  // THE MACHINE. Four boards by default -- ContA, ContB, ProcH, ProcL -- which
+  // is enough to fetch and decode microinstructions and nothing else. With
+  // `+define+WORLD` it is NINE: the memory section, the storage array and the
+  // IFU as well, i.e. everything a microcode world needs except the I/O boards
+  // and the BaseBoard. The BaseBoard is deliberately absent even there, because
+  // this bench drives the control-processor bus itself.
+`ifdef WORLD
+  // The BaseBoard fans the clock to EVERY slot, so a bigger configuration has
+  // more CLK ports. Leaving them undriven gives those boards zero local clock
+  // edges with their enables already asserted, which looks exactly like a
+  // gating bug and is not one.
+  reg [8:0] rfshdiv = 9'd0;
+  reg       rfshper = 1'b0;
+  always @(posedge sys_clk) begin
+    rfshdiv <= rfshdiv + 9'd1;
+    if (rfshdiv == 9'd0) rfshper <= ~rfshper;
+  end
+  // THE MEMORY SIZE IS A BACKPLANE INPUT: MemX takes these from the MSA and
+  // they are the CHIP ENABLES on the two DRAM timing PROMs, so with both
+  // undriven the memory state machine has no timing table at all. MemProms.bcpl
+  // records the build -- from late 1979 the machines carry 16K parts.
+  reg chips16k = 1'b1, chips64k = 1'b0;
+  dorado_world m (
+      .sys_clk(sys_clk),
+      .CLK_ca_p_(mclk), .CLK_cb_p_(mclk), .CLK_ph_p_(mclk), .CLK_pl_p_(mclk),
+      .CLK_mc_p_(mclk), .CLK_md_p_(mclk), .CLK_mx_p_(mclk),
+      .CLK_ms0Even_p_(mclk), .CLK_ifu_p_(mclk),
+      .CPAddr_0_p_(addr_n[2]), .CPAddr_1_p_(addr_n[1]), .CPAddr_2_p_(addr_n[0]),
+      .CPOut_0(cpout[8]), .CPOut_1(cpout[7]), .CPOut_2(cpout[6]),
+      .CPOut_3(cpout[5]), .CPOut_4(cpout[4]), .CPOut_5(cpout[3]),
+      .CPOut_6(cpout[2]), .CPOut_7(cpout[1]), .CPOut_8(cpout[0]),
+      .CPStrb_p_(strb_n), .SetRun(setrun), .SetSS_p_(setss_n),
+      .SetRunRfsh(1'b1), .RfshPeriod(rfshper),
+      .ChipsAre256_s_16K(chips16k), .ChipsAre64K(chips64k)
+  );
+
+  // ---- SEED MEMORY ---------------------------------------------------------
+  //
+  // A microcode world reads its INSTRUCTIONS through the memory section, so an
+  // unseeded machine is a machine with nothing to run. Both levels are filled:
+  // the MSA's eight DRAMs (storage) and MemD's 72 F10470s (the cache), each
+  // cell holding that bit's value, so every address answers the same word --
+  // the arrangement tb_readback already uses to gate the return path.
+  //
+  // The pattern is a RUN-TIME argument, `+dpat=` / `+cpat=`, precisely so two
+  // different values can be compared: if what executes depends on what memory
+  // holds, the world is reading it. That is the whole experiment.
+  reg [7:0]  dpat;      // storage, {H,G,F,E,D,C,B,A}
+  reg [17:0] cpat;      // cache, cpat[k] is D.k
+  integer    dp, cp, si, ci;
+  initial begin
+    if (!$value$plusargs("dpat=%d", dp)) dp = 172;      // 8'b1010_1100
+    if (!$value$plusargs("cpat=%d", cp)) cp = 52045;
+    dpat = dp[7:0]; cpat = cp[17:0];
+    for (si = 0; si < 4096; si = si + 1) begin
+      m.b_msa.u_b05.mem[si] = dpat[0];   // A
+      m.b_msa.u_c05.mem[si] = dpat[1];   // B
+      m.b_msa.u_d05.mem[si] = dpat[2];   // C
+      m.b_msa.u_e05.mem[si] = dpat[3];   // D
+      m.b_msa.u_e06.mem[si] = dpat[4];   // E
+      m.b_msa.u_d06.mem[si] = dpat[5];   // F
+      m.b_msa.u_c06.mem[si] = dpat[6];   // G
+      m.b_msa.u_b06.mem[si] = dpat[7];   // H
+    end
+    for (ci = 0; ci < 4096; ci = ci + 1) begin
+      m.b_MemD.u_a03.mem[ci] = cpat[0];
+      m.b_MemD.u_d03.mem[ci] = cpat[0];
+      m.b_MemD.u_a05.mem[ci] = cpat[1];
+      m.b_MemD.u_d05.mem[ci] = cpat[1];
+      m.b_MemD.u_g03.mem[ci] = cpat[2];
+      m.b_MemD.u_j03.mem[ci] = cpat[2];
+      m.b_MemD.u_g05.mem[ci] = cpat[3];
+      m.b_MemD.u_j05.mem[ci] = cpat[3];
+      m.b_MemD.u_a13.mem[ci] = cpat[4];
+      m.b_MemD.u_d13.mem[ci] = cpat[4];
+      m.b_MemD.u_a15.mem[ci] = cpat[5];
+      m.b_MemD.u_d15.mem[ci] = cpat[5];
+      m.b_MemD.u_g13.mem[ci] = cpat[6];
+      m.b_MemD.u_j13.mem[ci] = cpat[6];
+      m.b_MemD.u_g15.mem[ci] = cpat[7];
+      m.b_MemD.u_j15.mem[ci] = cpat[7];
+      m.b_MemD.u_a09.mem[ci] = cpat[8];
+      m.b_MemD.u_d09.mem[ci] = cpat[8];
+      m.b_MemD.u_a11.mem[ci] = cpat[9];
+      m.b_MemD.u_d11.mem[ci] = cpat[9];
+      m.b_MemD.u_g09.mem[ci] = cpat[10];
+      m.b_MemD.u_j09.mem[ci] = cpat[10];
+      m.b_MemD.u_g11.mem[ci] = cpat[11];
+      m.b_MemD.u_j11.mem[ci] = cpat[11];
+      m.b_MemD.u_a17.mem[ci] = cpat[12];
+      m.b_MemD.u_d17.mem[ci] = cpat[12];
+      m.b_MemD.u_a19.mem[ci] = cpat[13];
+      m.b_MemD.u_d19.mem[ci] = cpat[13];
+      m.b_MemD.u_g17.mem[ci] = cpat[14];
+      m.b_MemD.u_j17.mem[ci] = cpat[14];
+      m.b_MemD.u_g19.mem[ci] = cpat[15];
+      m.b_MemD.u_j19.mem[ci] = cpat[15];
+      m.b_MemD.u_a07.mem[ci] = cpat[16];
+      m.b_MemD.u_d07.mem[ci] = cpat[16];
+      m.b_MemD.u_g07.mem[ci] = cpat[17];
+      m.b_MemD.u_j07.mem[ci] = cpat[17];
+    end
+    $display("tb_exec: seeded storage dpat=%b cache cpat=%b", dpat, cpat);
+  end
+
+`else
   dorado_proc m (
       .sys_clk(sys_clk),
       .CLK_ca_p_(mclk), .CLK_cb_p_(mclk), .CLK_ph_p_(mclk), .CLK_pl_p_(mclk),
@@ -84,6 +190,7 @@ module tb_exec;
       .CPStrb_p_(strb_n), .SetRun(setrun), .SetSS_p_(setss_n)
   );
 
+`endif
   // THE BASEBOARD'S CONTROL REGISTER, modelled here because this machine has no
   // BaseBoard. `SetRun` and `SetSS'` are BACKPLANE wires, not CP-bus lines --
   // BaseBd f02 (an MC10124 TTL-to-ECL translator) drives them, and what it
@@ -962,6 +1069,17 @@ module tb_exec;
           if (ff_seen[q] === ff_now) q = 1000;
         if (q < 1000) begin ff_seen[n_ff] = ff_now; n_ff = n_ff + 1; end
       end
+`ifdef WORLD
+      // SITTING ON ONE ADDRESS IS THE SIGNATURE OF A HOLD, not of a self-jump:
+      // the memory section freezes the processor on the same microinstruction
+      // until the reference completes. `PRhold` (ProcH/ProcL) and `PrHold`
+      // (MemC) are ONE BACKPLANE WIRE spelled two ways -- so print who is
+      // asking, and what the memory section is doing about it.
+      if (j2 % (runcycles/10) == 0)
+        $display("tb_exec: HOLD: Hold=%b PRhold=%b CBHold=%b IfuHold=%b IOHold=%b MXHold=%b DisHold=%b CHoldReq=%b",
+                 m.Hold, m.PRhold, m.CBHold, m.IfuHold, m.IOHold, m.MXHold,
+                 m.DisHold, m.CHoldReq);
+`endif
       if (j2 % (runcycles/10) == 0)
         $display("      Error'=%b IMLHPE'=%b IMRHPE'=%b A31+5=%b dStop=%b Run'=%b",
           m.b_ContA.Error_p_, m.b_ContB.IMLHPE_p_, m.b_ContB.IMRHPE_p_,
