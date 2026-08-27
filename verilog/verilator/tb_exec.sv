@@ -801,6 +801,36 @@ module tb_exec;
                         m.b_ContA.FF_3_p_,m.b_ContA.FF_4_p_,m.b_ContA.FF_5_p_,
                         m.b_ContA.FF_6_p_,m.b_ContA.FF_7_p_};
 
+  // ---- PRELOAD: a WHOLE WORLD in IM ---------------------------------------
+  //
+  // The control-processor bus above is the REAL loader and boot0-test gates it,
+  // but 4,096 microinstructions of it will not simulate in reasonable time --
+  // sixteen hunks already take a couple of million fabric cycles. So with
+  // `+preload=<file>` the arrays are written directly, through the map
+  // tools/sil_im_map.py derives from ContB's own wire list and boot0-test
+  // checks against a CP-bus load of the same microcode.
+  //
+  // NOTHING IS TAKEN ON TRUST: every address written is read back through the
+  // same map and compared against the file before the machine is started. A
+  // wrong interleave gives a machine executing garbage, which is
+  // INDISTINGUISHABLE from a boot that fails for its own reasons.
+`include "im_preload.vh"
+  reg [3:0] f_rstk [0:4095];   reg [3:0] f_aluf [0:4095];
+  reg [2:0] f_bsel [0:4095];   reg [2:0] f_lc   [0:4095];
+  reg [2:0] f_asel [0:4095];   reg [7:0] f_ff   [0:4095];
+  reg [7:0] f_jcn  [0:4095];   reg       f_blk  [0:4095];
+  reg       f_have [0:4095];
+  reg [3:0] r_rstk, r_aluf;  reg [2:0] r_bsel, r_lc, r_asel;
+  reg [7:0] r_ff, r_jcn;     reg r_blk;
+  reg [1023:0] impath;
+  reg [31:0] ia, ib, ic, id, ie, ig, ih, ii, ij;
+  integer imfd, imn, mapaddr, nloaded, nver, nverbad, runcycles, startaddr;
+  // HOW MUCH OF THE WORLD ACTUALLY EXECUTES. The distinct-value lists above cap
+  // at 32, which is fine for "is it sequencing at all" and useless for "how far
+  // does it get". A bitmap over the whole address space answers the second.
+  reg       visited [0:4095];
+  integer   nvisited, lastpc, stuck, maxrun, prevpc;
+
   initial begin
     force m.DMuxData = dmd;
     force m.DMuxClk  = dmc;
@@ -813,6 +843,52 @@ module tb_exec;
     wipe_im;
     nop_micro; nop_micro;
 
+    nloaded = 0; nver = 0; nverbad = 0;
+    if ($value$plusargs("preload=%s", impath)) begin
+      imfd = $fopen(impath, "r");
+      if (imfd == 0) $fatal(1, "cannot open %s", impath);
+      for (i = 0; i < 4096; i = i + 1) f_have[i] = 1'b0;
+      while (!$feof(imfd)) begin
+        void'($fgets(line, imfd));
+        // addr rstk aluf bsel lc asel BLOCK ff jcn -- nine values after the tag.
+        imn = $sscanf(line, "%s %h %h %h %h %h %h %h %h %h",
+                      tag, ia, ib, ic, id, ie, ig, ij, ih, ii);
+        if (imn != 10 || tag != "IM") continue;
+        mapaddr = ia[11:0];
+        f_rstk[mapaddr] = ib[3:0];  f_aluf[mapaddr] = ic[3:0];
+        f_bsel[mapaddr] = id[2:0];  f_lc[mapaddr]   = ie[2:0];
+        f_asel[mapaddr] = ig[2:0];  f_ff[mapaddr]   = ih[7:0];
+        f_jcn[mapaddr]  = ii[7:0];  f_blk[mapaddr]  = ij[0];
+        f_have[mapaddr] = 1'b1;
+        // dBlock' -- the array stores the COMPLEMENT (tb_boot0 measured all 64
+        // right-half secondary bits inverted; BLOCK is the one field bit the
+        // MIR wires through Q' rather than Q).
+        im_preload_word(mapaddr, ib[3:0], ic[3:0], id[2:0], ie[2:0], ig[2:0],
+                        ih[7:0], ii[7:0], ~ij[0]);
+        nloaded = nloaded + 1;
+      end
+      $fclose(imfd);
+
+      // READ IT ALL BACK. This is the part not to skip.
+      for (i = 0; i < 4096; i = i + 1) begin
+        if (!f_have[i]) continue;
+        im_readback_word(i, r_rstk, r_aluf, r_bsel, r_lc, r_asel, r_ff, r_jcn, r_blk);
+        nver = nver + 1;
+        if (r_rstk !== f_rstk[i] || r_aluf !== f_aluf[i] || r_bsel !== f_bsel[i] ||
+            r_lc !== f_lc[i] || r_asel !== f_asel[i] || r_ff !== f_ff[i] ||
+            r_jcn !== f_jcn[i] || r_blk !== ~f_blk[i]) begin
+          nverbad = nverbad + 1;
+          if (nverbad < 8)
+            $display("tb_exec: PRELOAD IM[0x%h] mismatch: rstk %h/%h ff %h/%h jcn %h/%h blk %b/%b",
+                     i[11:0], r_rstk, f_rstk[i], r_ff, f_ff[i], r_jcn, f_jcn[i],
+                     r_blk, ~f_blk[i]);
+        end
+      end
+      $display("tb_exec: PRELOAD -- %0d microinstructions written, %0d read back, %0d wrong",
+               nloaded, nver, nverbad);
+      if (nloaded == 0)  $fatal(1, "the preload file held no microinstructions");
+      if (nverbad != 0)  $fatal(1, "IM does not hold what was preloaded");
+    end else begin
     // Load real microcode at its own addresses.
     if (!$value$plusargs("vectors=%s", path)) path = "boot0.vec";
     fd = $fopen(path, "r");
@@ -832,6 +908,7 @@ module tb_exec;
     end
     $fclose(fd);
     $display("tb_exec: loaded %0d hunks (%0d microinstructions)", hcount, hcount*4);
+    end
 
     // RELEASE the MIR clock -- register 7, data bit 0 -- so the MIR can reload
     // from IM. Without this the jam is held and nothing is ever fetched.
@@ -842,7 +919,12 @@ module tb_exec;
              m.b_ContB.StopMIRClkEn, m.StopMIRClk);
 
     // Put the start address in Link, then Return# to jump there and run.
-    set_cpreg_tilde(16'h0000);
+    // The .MB carries no entry point -- that comes from the loader's STAMP, not
+    // the file (mb2eb takes `start 01070` as a separate argument). So the start
+    // address is an input here; 0 is what this bench has always used.
+    if (!$value$plusargs("start=%d", startaddr)) startaddr = 0;
+    $display("tb_exec: starting at IM[0x%h]", startaddr[11:0]);
+    set_cpreg_tilde(startaddr[15:0]);
     parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
     nop_micro;
     $display("tb_exec: Link[4:15]=%h", link_hi);
@@ -850,10 +932,25 @@ module tb_exec;
     parc_run(8'h60, 8'h13, 8'hE1, 8'h42, 8'h43);      // Return#, free-running
 
     n0a = 0; n1a = 0; nff = 0; n_tnia = 0; n_ff = 0;
+    for (i = 0; i < 4096; i = i + 1) visited[i] = 1'b0;
+    nvisited = 0; stuck = 0; maxrun = 0; prevpc = -1;
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca;
-    for (j2 = 0; j2 < 20000; j2 = j2 + 1) begin
+    if (!$value$plusargs("cycles=%d", runcycles)) runcycles = 20000;
+    for (j2 = 0; j2 < runcycles; j2 = j2 + 1) begin
       @(posedge sys_clk);
-      if (m.b_ContA.clk0_p_Ca !== p0) begin n0a = n0a + 1; p0 = m.b_ContA.clk0_p_Ca; end
+      if (m.b_ContA.clk0_p_Ca !== p0) begin
+        n0a = n0a + 1; p0 = m.b_ContA.clk0_p_Ca;
+        if (p0 === 1'b1) begin           // one sample per microinstruction
+          lastpc = tnia_now;
+          if (!visited[lastpc[11:0]]) begin
+            visited[lastpc[11:0]] = 1'b1; nvisited = nvisited + 1;
+          end
+          if (lastpc === prevpc) begin
+            stuck = stuck + 1; if (stuck > maxrun) maxrun = stuck;
+          end else stuck = 0;
+          prevpc = lastpc;
+        end
+      end
       if (m.b_ContA.clk1_p_Ca !== p1) begin n1a = n1a + 1; p1 = m.b_ContA.clk1_p_Ca; end
       if (n_tnia < 32) begin
         for (q = 0; q < n_tnia; q = q + 1)
@@ -865,11 +962,11 @@ module tb_exec;
           if (ff_seen[q] === ff_now) q = 1000;
         if (q < 1000) begin ff_seen[n_ff] = ff_now; n_ff = n_ff + 1; end
       end
-      if (j2 % 2000 == 0)
+      if (j2 % (runcycles/10) == 0)
         $display("      Error'=%b IMLHPE'=%b IMRHPE'=%b A31+5=%b dStop=%b Run'=%b",
           m.b_ContA.Error_p_, m.b_ContB.IMLHPE_p_, m.b_ContB.IMRHPE_p_,
           m.b_ContA.ContA31_sil_pl_5, m.b_ContA.dStop, m.b_ContA.Run_p_);
-      if (j2 % 2000 == 0)
+      if (j2 % (runcycles/10) == 0)
         $display("   t=%5d  clk0'=%0d  FF=%b RSTK=%b%b%b%b TNIA=%h Stop=%b",
           j2, n0a,
           ~{m.b_ContA.FF_0_p_,m.b_ContA.FF_1_p_,m.b_ContA.FF_2_p_,m.b_ContA.FF_3_p_,
@@ -879,13 +976,22 @@ module tb_exec;
            m.TNIA_10,m.TNIA_11,m.TNIA_12,m.TNIA_13,m.TNIA_14,m.TNIA_15},
           m.b_ContA.Stop);
     end
-    $display("tb_exec: %0d clk0' edges, %0d clk1' over 20000 cycles, Stop=%b",
-             n0a, n1a, m.b_ContA.Stop);
+    $display("tb_exec: %0d clk0' edges, %0d clk1' over %0d cycles, Stop=%b",
+             n0a, n1a, runcycles, m.b_ContA.Stop);
     $display("tb_exec: %0d distinct TNIA values, %0d distinct FF values seen",
              n_tnia, n_ff);
+    $display("tb_exec: %0d distinct IM addresses executed; last TNIA=%h; longest run on one address=%0d",
+             nvisited, lastpc[11:0], maxrun);
+    // Name them. A short cycle is the normal shape of a microcode wait loop, and
+    // knowing WHICH addresses turns "it loops" into something disassemblable.
+    if (nvisited <= 64) begin
+      $write("tb_exec: addresses executed:");
+      for (i = 0; i < 4096; i = i + 1) if (visited[i]) $write(" %h", i[11:0]);
+      $write("\n");
+    end
     if (m.b_ContA.Stop !== 1'b0)
       $fatal(1, "the machine stopped -- with the parity enables on it stops after one instruction");
-    if (n0a < 1000)
+    if (n0a < runcycles/20)
       $fatal(1, "the microinstruction clock is not free-running");
     // ONE OF EACH PER MICROINSTRUCTION, to within the window boundary. The
     // sample window is a fixed number of FABRIC cycles, so it can close

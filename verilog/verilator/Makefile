@@ -191,17 +191,40 @@ parity-probe:
 # THE MACHINE EXECUTES MICROCODE OUT OF IM.
 .PHONY: exec-test
 exec-test:
-	@$(MAKE) -s -C ../../dorado build/boot0_hunks
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
 	@mkdir -p obj_exec
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
 	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 4 \
 		> verilog/verilator/obj_exec/exec.vec
+	@cd ../.. && ./dorado/build/im_image chm/dorado/AEmu.mb\!2 \
+		> verilog/verilator/obj_exec/im.txt 2>/dev/null
 	@cd ../.. && $(V) --binary --top-module tb_exec $(V_WARN) \
-		-Iverilog/cells --Mdir verilog/verilator/obj_exec -o tb_exec \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_exec -o tb_exec \
 		verilog/verilator/tb_exec.sv verilog/generated/dorado_proc.v \
 		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
 		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_exec/tb_exec \
 		    +vectors=verilog/verilator/obj_exec/exec.vec 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_exec; exit $$rc; }
+
+# A WHOLE WORLD in IM, preloaded through the derived field map, then run.
+# `make exec-world EXECARGS='+cycles=200000 +start=100'`.
+.PHONY: exec-world
+exec-world:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
+	@mkdir -p obj_exec
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
+	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 4 \
+		> verilog/verilator/obj_exec/exec.vec
+	@cd ../.. && ./dorado/build/im_image chm/dorado/AEmu.mb\!2 \
+		> verilog/verilator/obj_exec/im.txt 2>/dev/null
+	@cd ../.. && $(V) --binary --top-module tb_exec $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_exec -o tb_exec \
+		verilog/verilator/tb_exec.sv verilog/generated/dorado_proc.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_exec/tb_exec \
+		    +preload=verilog/verilator/obj_exec/im.txt $(EXECARGS) 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_exec; exit $$rc; }
 
 # PARC's BLOCK LOADER: a 17-byte hunk walked into IM, read back word for word.
