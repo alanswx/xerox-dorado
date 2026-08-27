@@ -1063,6 +1063,42 @@ module tb_exec;
   // project twice already.
   integer first_pe, last_pe, first_stop;  reg late_par;
   reg jam_imlh, jam_imrh, sw_l0, sw_r0;  reg [7:0] jt;
+  // WHY IS TNIA STUCK AT 0x040? It is not the instruction there: IM[0x040]'s
+  // JCN is a LOCAL JUMP to 0x041, and 0x041 never appears. Nothing else in the
+  // world local-jumps to 0x040 either. So something is HOLDING the next
+  // address. Holds read 0, so the candidates are Freeze (which holds the
+  // current task's PC) and tasking switching back to a task whose TPC is 0x040.
+  integer n_freeze, n_ctask [0:15]; reg [3:0] ct_prev; integer n_ctchg;
+  // ...and RepeatCur, which is the MIR-level mechanism for re-executing the
+  // current microinstruction. A CONSTANT MIR with a RUNNING clock is exactly
+  // what it looks like, and it would explain a decoded FF that never matches
+  // IM at the address TNIA names.
+  integer n_rep;
+  // ...and the three signals AT THE GATE. cell_MC1660 gives f20 as
+  //     gate b: CAHold' = ~Hold          (pin 10 -> pin 14)
+  //     gate a: RepeatCur = ~(CAHold' | SwitchUp)
+  // so with Hold=0 -> CAHold'=1 -> RepeatCur=0. RepeatCur is measured HIGH,
+  // so one of the three does not read what the top-level probe said.
+  integer n_cah, n_swu, n_holdA, n_hold_top;
+  integer n_h_hold, n_h_pr, n_h_cb, n_h_ifu, n_h_io, n_h_mx, n_h_dis,
+          n_h_creq, n_h_lg, n_h_hmb, n_h_ext;
+  // WHICH of MemC's THREE hold sources. `Hold` is a wired-OR of three MC10231
+  // flip-flop outputs -- e22 (RefHold' and MDhold') and e23 (MiscHold') -- so
+  // the primed siblings name the cause: waiting for memory DATA, waiting for
+  // REFRESH, or the misc/retry path.
+  integer n_md, n_ref, n_misc, n_blr;
+  // WHAT REQUESTS THE MISC HOLD. MemC c24 (MC10212) ORs PrHoldReq, ExtHoldReq,
+  // CHoldReq, WantCR' and MXHold -- and MXHold comes from Hold itself, so the
+  // chain LATCHES: once set it sustains itself until DisHold resets it, and
+  // DisHold is a MODE BIT in a control register (k08, clocked by LdMcr' from
+  // the MAR), not a per-cycle clear. So the interesting question is which
+  // REQUEST set it in the first place.
+  integer n_prq, n_wcr;
+  // AND WHAT THE PROCESSOR IS WAITING FOR. ProcL j20 drives PrHoldReq from
+  // StkP.6/7 and the RSTK field -- StkP is the STACK POINTER, so this is the
+  // Dorado's stack overflow/underflow hold: a stack operation that would run
+  // off either end holds the processor instead. Read the pointer.
+  integer n_stk [0:255]; reg [7:0] stk_prev; integer n_stkchg;
   integer swf, swdata;
   // A SHORT PC TRACE. Counters say how often; a trace says in what ORDER, and
   // for "why is it stuck" that is the difference between theorising and
@@ -1362,6 +1398,16 @@ module tb_exec;
     n_pcf = 0; n_tr = 0;
     n_smc = 0; n_smce = 0; n_imlhpe = 0; n_imrhpe = 0; n_err = 0;
     first_pe = -1; last_pe = -1; first_stop = -1;
+    n_freeze = 0; n_ctchg = 0; n_rep = 0;
+    n_cah = 0; n_swu = 0; n_holdA = 0; n_hold_top = 0;
+    n_h_hold = 0; n_h_pr = 0; n_h_cb = 0; n_h_ifu = 0; n_h_io = 0; n_h_mx = 0;
+    n_h_dis = 0; n_h_creq = 0; n_h_lg = 0; n_h_hmb = 0; n_h_ext = 0;
+    n_md = 0; n_ref = 0; n_misc = 0; n_blr = 0; n_prq = 0; n_wcr = 0;
+    n_stkchg = 0; for (i = 0; i < 256; i = i + 1) n_stk[i] = 0;
+    stk_prev = 8'hFF;
+    for (i = 0; i < 16; i = i + 1) n_ctask[i] = 0;
+    ct_prev = {m.b_ContA.CTask_0, m.b_ContA.CTask_1,
+               m.b_ContA.CTask_2, m.b_ContA.CTask_3};
     fclk_prev = m.b_MemD.Fclk_p_a; gld_prev = m.b_MemD.GLd_p_; fg_prev = fg_now;
 `endif
     for (i = 0; i < 4096; i = i + 1) visited[i] = 1'b0;
@@ -1407,6 +1453,22 @@ module tb_exec;
         last_pe = j2;
       end
       if (m.b_ContA.Stop && first_stop < 0) first_stop = j2;
+      if (m.Freeze) n_freeze = n_freeze + 1;
+      if (m.b_ContA.RepeatCur) n_rep = n_rep + 1;
+      if (m.b_ContA.CAHold_p_) n_cah    = n_cah + 1;
+      if (m.b_ContA.SwitchUp)  n_swu    = n_swu + 1;
+      if (m.b_ContA.Hold)      n_holdA  = n_holdA + 1;
+      if (m.Hold)              n_hold_top = n_hold_top + 1;
+      n_ctask[{m.b_ContA.CTask_0, m.b_ContA.CTask_1,
+               m.b_ContA.CTask_2, m.b_ContA.CTask_3}] =
+        n_ctask[{m.b_ContA.CTask_0, m.b_ContA.CTask_1,
+                 m.b_ContA.CTask_2, m.b_ContA.CTask_3}] + 1;
+      if ({m.b_ContA.CTask_0, m.b_ContA.CTask_1,
+           m.b_ContA.CTask_2, m.b_ContA.CTask_3} !== ct_prev) begin
+        n_ctchg = n_ctchg + 1;
+        ct_prev = {m.b_ContA.CTask_0, m.b_ContA.CTask_1,
+                   m.b_ContA.CTask_2, m.b_ContA.CTask_3};
+      end
       if (n_ff < 32) begin
         for (q = 0; q < n_ff; q = q + 1)
           if (ff_seen[q] === ff_now) q = 1000;
@@ -1443,26 +1505,41 @@ module tb_exec;
       if ({m.b_MemD.Dad0_10a, m.b_MemD.Dad0_11a, m.b_MemD.Dad0_12a} !==
           {m.b_MemD.Dad1_10a, m.b_MemD.Dad1_11a, m.b_MemD.Dad1_12a})
         n_addrdiff = n_addrdiff + 1;
-      // SITTING ON ONE ADDRESS IS THE SIGNATURE OF A HOLD, not of a self-jump:
-      // the memory section freezes the processor on the same microinstruction
-      // until the reference completes. `PRhold` (ProcH/ProcL) and `PrHold`
-      // (MemC) are ONE BACKPLANE WIRE spelled two ways -- so print who is
-      // asking, and what the memory section is doing about it.
-      // Measured: the parity error runs from cycle 0 to ~148 and then clears
-      // by itself, never returning across 400,000 cycles -- the preloaded
-      // array's parity is CORRECT. With the enables on from the start, `Stop`
-      // latches at cycle 125, inside that window, and Stop GATES THE CLOCK
-      // THAT WOULD CLEAR IT, so it is permanent. Switching them on once the
-      // machine is running out of IM is the whole difference.
-      if (late_par && j2 == 400) begin
-        manifold(12'h030);
-        $display("tb_exec: LATE parity enables IMLH=%b IMRH=%b, Stop=%b",
-                 m.b_ContB.IMLHPEenable, m.b_ContB.IMRHPEenable, m.b_ContA.Stop);
+      // THE HOLD CHAIN, COUNTED. This used to print the eight signals at ten
+      // instants and conclude "all zero, whole run" -- which was true of the
+      // machine BEFORE IFUM was loaded and the parity fixed, and is stale now.
+      // `Hold` is asserted 99.85% of the time here. COUNT, do not sample.
+      if (m.Hold)     n_h_hold  = n_h_hold + 1;
+      if (m.PRhold)   n_h_pr    = n_h_pr + 1;
+      if (m.CBHold)   n_h_cb    = n_h_cb + 1;
+      if (m.IfuHold)  n_h_ifu   = n_h_ifu + 1;
+      if (m.IOHold)   n_h_io    = n_h_io + 1;
+      if (m.MXHold)   n_h_mx    = n_h_mx + 1;
+      if (m.DisHold)  n_h_dis   = n_h_dis + 1;
+      if (m.CHoldReq) n_h_creq  = n_h_creq + 1;
+      if (m.LargeHold) n_h_lg   = n_h_lg + 1;
+      if (m.HoldMapBuf) n_h_hmb = n_h_hmb + 1;
+      if (m.ExtHoldReq) n_h_ext = n_h_ext + 1;
+      if (!m.b_MemC.MDhold_p_)   n_md   = n_md + 1;
+      if (!m.b_MemC.RefHold_p_)  n_ref  = n_ref + 1;
+      if (!m.b_MemC.MiscHold_p_) n_misc = n_misc + 1;
+      if (m.b_MemC.BLretry)      n_blr  = n_blr + 1;
+      if (m.PrHoldReq)      n_prq = n_prq + 1;
+      if (m.b_MemC.WantCR)  n_wcr = n_wcr + 1;
+      n_stk[{m.b_ProcL.StkP_0, m.b_ProcL.StkP_1, m.b_ProcL.StkP_2,
+             m.b_ProcL.StkP_3, m.b_ProcL.StkP_4, m.b_ProcL.StkP_5,
+             m.b_ProcL.StkP_6, m.b_ProcL.StkP_7}] =
+        n_stk[{m.b_ProcL.StkP_0, m.b_ProcL.StkP_1, m.b_ProcL.StkP_2,
+               m.b_ProcL.StkP_3, m.b_ProcL.StkP_4, m.b_ProcL.StkP_5,
+               m.b_ProcL.StkP_6, m.b_ProcL.StkP_7}] + 1;
+      if ({m.b_ProcL.StkP_0, m.b_ProcL.StkP_1, m.b_ProcL.StkP_2,
+           m.b_ProcL.StkP_3, m.b_ProcL.StkP_4, m.b_ProcL.StkP_5,
+           m.b_ProcL.StkP_6, m.b_ProcL.StkP_7} !== stk_prev) begin
+        n_stkchg = n_stkchg + 1;
+        stk_prev = {m.b_ProcL.StkP_0, m.b_ProcL.StkP_1, m.b_ProcL.StkP_2,
+                    m.b_ProcL.StkP_3, m.b_ProcL.StkP_4, m.b_ProcL.StkP_5,
+                    m.b_ProcL.StkP_6, m.b_ProcL.StkP_7};
       end
-      if (j2 % (runcycles/10) == 0)
-        $display("tb_exec: HOLD: Hold=%b PRhold=%b CBHold=%b IfuHold=%b IOHold=%b MXHold=%b DisHold=%b CHoldReq=%b",
-                 m.Hold, m.PRhold, m.CBHold, m.IfuHold, m.IOHold, m.MXHold,
-                 m.DisHold, m.CHoldReq);
 `endif
       if (j2 % (runcycles/10) == 0)
         $display("      Error'=%b IMLHPE'=%b IMRHPE'=%b A31+5=%b dStop=%b Run'=%b",
@@ -1509,6 +1586,24 @@ module tb_exec;
     end
     $write("tb_exec: TRACE (pc/ff, first %0d):", n_tr);
     for (i = 0; i < n_tr; i = i + 1) $write(" %h/%o", tr_pc[i], tr_ff[i]);
+    $write("\n");
+    $write("tb_exec: STKP -- changed %0d times; values held:", n_stkchg);
+    for (i = 0; i < 256; i = i + 1)
+      if (n_stk[i] != 0) $write(" %02h(x%0d)", i[7:0], n_stk[i]);
+    $write("\n");
+    $display("tb_exec: HOLDREQ of %0d -- PrHoldReq %0d, WantCR %0d (CHoldReq/ExtHoldReq are 0)",
+             runcycles, n_prq, n_wcr);
+    $display("tb_exec: HOLDSRC of %0d -- MDhold %0d, RefHold %0d, MiscHold %0d, BLretry %0d",
+             runcycles, n_md, n_ref, n_misc, n_blr);
+    $display("tb_exec: HOLDS of %0d -- Hold %0d PRhold %0d CBHold %0d IfuHold %0d IOHold %0d",
+             runcycles, n_h_hold, n_h_pr, n_h_cb, n_h_ifu, n_h_io);
+    $display("tb_exec: HOLDS       MXHold %0d DisHold %0d CHoldReq %0d LargeHold %0d HoldMapBuf %0d ExtHoldReq %0d",
+             n_h_mx, n_h_dis, n_h_creq, n_h_lg, n_h_hmb, n_h_ext);
+    $display("tb_exec: REPEAT -- at f20: CAHold'=%0d SwitchUp=%0d ContA.Hold=%0d (of %0d); top Hold=%0d",
+             n_cah, n_swu, n_holdA, runcycles, n_hold_top);
+    $write("tb_exec: TASK -- Freeze %0d, RepeatCur %0d of %0d; CTask changed %0d times; occupancy:",
+           n_freeze, n_rep, runcycles, n_ctchg);
+    for (i = 0; i < 16; i = i + 1) if (n_ctask[i] != 0) $write(" t%0d=%0d", i, n_ctask[i]);
     $write("\n");
     $display("tb_exec: WHEN -- first parity error at cycle %0d, last at %0d; Stop first set at %0d",
              first_pe, last_pe, first_stop);

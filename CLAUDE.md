@@ -1170,6 +1170,27 @@ The second error was FG parity over the instruction
   gives `Error` propagated on **0** samples, `Stop` never set, 24,991 clk0'
   edges. A TOTAL SAID "parity is broken"; A DISTRIBUTION SAID "the enables are
   on 148 cycles too early".
+- **THE WORLD'S LOOP IS A HOLD, AND THE STACK POINTER IS AT ZERO.** Measured
+  end to end, each link a counter over 400,000 samples: `StkP` = 0x00 on
+  399,435 -> ProcL asserts `PrHoldReq` on **exactly 399,435** -> MemC latches
+  `MiscHold` on 399,419, sixteen samples (one microinstruction) later -> `Hold`
+  goes onto the backplane and is fanned out as PRhold/CBHold/IfuHold/IOHold/
+  MXHold, all the same count -> ContA f20 (`CAHold' = ~Hold`, `RepeatCur =
+  ~(CAHold' | SwitchUp)`) asserts `RepeatCur` -> the MIR holds and TNIA freezes
+  at 0x040 for 12,481 microinstructions. **`StkP = 0` is stack UNDERFLOW**:
+  ProcL j20 drives `PrHoldReq` from `StkP.6/7` and the RSTK field, which is the
+  Dorado's stack overflow/underflow hold. **It sustains itself** -- MemC c24 ORs
+  `MXHold` (which comes from `Hold`) into its own request, and the reset
+  `DisHold` is a MODE BIT in a control register, not a per-cycle clear. `MDhold`
+  and `RefHold` are 0, so the memory is not waiting for data or refresh; the
+  processor is holding itself. Still open: whether StkP=0 is CORRECT, since a
+  world that never pushes has an empty stack and a real Dorado would hold too.
+- **SAMPLING A LEVEL AT TEN POINTS IS NOT MEASURING IT.** The hold chain was
+  previously read as "all eight signals 0, whole run" from ten instantaneous
+  `$display`s -- true of the machine BEFORE IFUM was loaded and the parity
+  fixed, and stale by the time it was being quoted. It is 99.85% HIGH. Count
+  levels, do not sample them, and re-take any level-based conclusion whenever
+  the machine changes underneath it.
 - **BYTE 0 OF A JAM IS FOUR BITS, and they ride as the NINTH CP-BUS BIT** of
   the four data strobes -- `b0[7]` RSTK.0 on fn 4, `b0[6]` P015 on fn 5,
   `b0[5]` JCN.7 on fn 6, `b0[4]` P1631 on fn 7 -- which is why byte 0's low four
