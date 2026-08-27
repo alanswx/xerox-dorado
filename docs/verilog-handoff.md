@@ -45,6 +45,7 @@ can run.
 | **NINE BOARDS DISPATCH AN ALTO OPCODE** | **works** -- START, the IFU traps, RESTARTIFU, then AND1 and SKPC | `exec-world9` |
 | ...and then it STOPS FETCHING | **open** -- `IfuMemRef` makes 6 transitions and the opcode changes ONCE | `exec-world9` |
 | **IM PARITY, the long-open question** | **ANSWERED** -- ODD over the 17-bit half, array stores the COMPLEMENT | `im-parity-check` |
+| **THE MACHINE RUNS WITH IM PARITY ENABLED** | **works** -- Error propagated on 0 of 400,000, Stop never set | `exec-parity` |
 
 ### Every gate
 
@@ -572,7 +573,55 @@ stronger check than comparing parity bits alone: regenerating all five bytes
 pins the BYTE LAYOUT too, so a wrong field position is caught where parity,
 being permutation-invariant, would not catch it. 46/46 gates stay green.
 
-### What is still open, and it is now one inversion in one place
+### AND THE MACHINE RUNS WITH THE ENABLES ON
+
+`make -C verilog exec-parity`:
+
+```
+tb_exec: LATE parity enables IMLH=1 IMRH=1, Stop=0
+tb_exec: WHEN -- first parity error at cycle 0, last at 148; Stop first set at -1
+tb_exec: IM PARITY ENABLED -- Error propagated on 0 samples, Stop=0, 24991 clk0' edges
+tb_exec: THE MACHINE RUNS WITH IM PARITY ON.
+```
+
+**What was in the way was not the parity VALUES.** Bucketing the errors by TIME
+rather than totalling them settles it: they run from cycle 0 to **148** and then
+**clear by themselves, never returning across 400,000 cycles**. The preloaded
+array's parity is correct; what fails is the machine's own power-up transient.
+
+With the enables on from the start, `Stop` latches at cycle **125** -- inside
+that window -- and **`Stop` gates the clock that would clear it** (`bCLKEnable'
+= Stop | Run'` gates `clk2'`, the stop latch's own clock), so a momentary error
+is permanent. Switching the enables on at cycle 400 instead gives zero
+propagated errors and a machine that free-runs.
+
+**A TOTAL SAID "parity is broken". A DISTRIBUTION SAID "the enables are on 148
+cycles too early".** That is the third time in this project that reading a total
+instead of a distribution produced a wrong conclusion.
+
+### Still open: the jam never delivers a parity bit at all
+
+Separate from the above, and worth knowing. Jamming `CPRegToLink#` (P015=0) and
+`Nop#` (P015=1) BOTH leave the MIR's `IMLH` at 0. `sIMLH` -- c24's SET input --
+is driven from `CPOut.8`, the ninth CP-bus bit, which the benches use for the
+single-step flag; the parity bit in byte 0 never reaches it.
+
+Both checkers work out to the same rule, derived from the netlist and the cell:
+
+    ContB j20/j21 (left)   IMLHPE' = ~( XOR(17 field bits) ^ IMLH )
+    ContA e18/e19 (right)  IMRHPE' = ~( XOR(17 field bits) ^ IMRH )
+
+-- and they reach it by different routes, the left taking `IMLH'` and three
+`LC'` (four inversions, which cancel), the right taking `IMRH` true. So NO ERROR
+requires the stored bit to be the EVEN one, which is exactly what the preload
+measurement found.
+
+With the jam's bits stuck at 0, an entry passes only if its field-XOR is zero --
+true of `Nop#` alone among PARC's eight, and NOT of `Return#`, which is what the
+startup jams (XOR(rh) = 1). That is why the enables could never be left on
+through startup.
+
+### The remaining inversion
 
 `+imparityon` still stops the machine after two `clk0'` edges -- but with only
 133 parity samples out of 400,000, so what fails is the jammed `Return#` in the
