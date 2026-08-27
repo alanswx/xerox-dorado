@@ -366,6 +366,7 @@ task automatic alufm_readback_word(input int unsigned aluf, output [5:0] e);
 endtask
 
 
+`ifdef WORLD
 // IFUM -- 1024 x 27, the IFU's F10415A. See tools/sil_im_map.py.
 // Address is {InstrSet[1:0], opcode[7:0]}. `lo` is .MB word 0 (written
 // by DecHi'), `hi` is .MB word 1 (DecLo'). RcvdBMux.00 is the MSB, so
@@ -441,3 +442,4 @@ task automatic ifum_readback_word(input int unsigned addr, output [15:0] lo, out
     lo[11] = 1'b0;   // DecHi' holds only bits 05-15
   end
 endtask
+`endif

@@ -38,6 +38,12 @@ can run.
 | **RM, the per-task register file** | **works** -- four addresses written and read, and each lands where the address pins say | `compute-test` |
 | **the MEMORY section is in a machine and clocked** | **works** -- seven boards; each memory board's local clock follows its `MemClkEnable'` | `mem-test` |
 | the REAL firmware runs the machine | boots itself past power-up and pacifies its watchdog; reaches `SetManifold`, then ends up executing filler ROM | `firmware-probe` |
+| **A WHOLE WORLD PRELOADS INTO IM** | **works** -- 2,148 microinstructions of AEmu.mb, every one read back | `exec-world` |
+| ...through a field map DERIVED from the wire list | **works** -- 65 addresses, all 8 fields, against a CP-bus load | `boot0-test`, `im-map-check` |
+| **ALUFM**, the sixteen ALU operations the world uses | **works** -- derived from ProcL e13/e14, confirms HM Table 11d | `exec-world9` |
+| **IFUM**, the opcode decode tables | **works** -- 256 entries, layout confirms cpu.c's Table 20 bit for bit | `exec-world9` |
+| **NINE BOARDS DISPATCH AN ALTO OPCODE** | **works** -- START, the IFU traps, RESTARTIFU, then AND1 and SKPC | `exec-world9` |
+| ...and then it STOPS FETCHING | **open** -- `IfuMemRef` makes 6 transitions and the opcode changes ONCE | `exec-world9` |
 
 ### Every gate
 
@@ -310,6 +316,117 @@ comparators, a DAC, a transistor array, an ADC, analog muxes) and belong as
 substitutions if at all. The 22 digital ones need datasheets this repository
 does not hold: `F100181` (8, the MemC ALU), `MC10163`, `MC10182`, `MC10179`,
 `F9401`.
+
+## A WHOLE WORLD IN IM, and the machine dispatches an Alto opcode (2026-08-26)
+
+`make -C verilog exec-world9 EXECARGS='+cycles=200000'` preloads all three
+memories a microcode world needs and runs it on nine boards:
+
+```
+tb_exec: PRELOAD -- 2148 microinstructions written, 2148 read back, 0 wrong
+tb_exec: PRELOAD -- 16 ALUFM entries written, 0 wrong
+tb_exec: PRELOAD -- 256 IFUM entries written, 0 wrong
+tb_exec: IFU -- IfuMemRef 6 transitions, IfuMemAck 6, opcode J changed 1 times
+tb_exec: 14 distinct IM addresses executed; last TNIA=0fc; longest run on one address=6233
+```
+
+**Why preload at all.** The control-processor bus is the REAL loader and
+`boot0-test` gates it; but sixteen hunks already cost a couple of million
+fabric cycles, so 4,096 microinstructions of it will not simulate. Preloading
+skips nothing unproven -- provided the map is right, which is the point of the
+next paragraph.
+
+**The map is DERIVED and GATED.** `tools/sil_im_map.py --verilog` emits
+`verilog/generated/im_preload.vh` from ContB's, ProcL's and the IFU's own wire
+lists. `boot0-test` then checks it against a control-processor-bus load of the
+same microcode: 65 addresses, all eight fields, 0 wrong. Three mutations of the
+generator are caught -- a swapped bank ordering (23 wrong), LSB-first field
+numbering (50), and using the whole address as the index (49).
+
+### The three memories
+
+| memory | where | size | how the layout was fixed |
+|---|---|---|---|
+| IM | ContB, 144 F10415A | 4096 x 36 | bank = `{addr[11], addr[0]}`, EVALUATED from the CS gate polarities |
+| ALUFM | ProcL e13/e14, 2 F10145A | 16 x 6 | data pins come off the B bus; confirms HM Table 11d |
+| IFUM | IFU, 27 F10415A | 1024 x 27 | two write enables = the .MB's two words; confirms cpu.c's Table 20 |
+
+**Knowing WHICH BITS pick a bank is not knowing which VALUE picks which bank.**
+`CS0'..CS3'` are net NAMES; nothing says `CS0'` is the corner where both
+address bits are 0. The generator evaluates the two MC10101s' gate polarities
+-- d21 puts `RA.11a` through OR into CS0'/CS2' and NOR into CS1'/CS3', d22 puts
+`RA.00a` through OR into CS0'/CS1' and NOR into CS2'/CS3' -- and gets exactly
+one selecting value per bank.
+
+**ALUFM confirms HM Table 11d from the netlist alone.** `ALUFdec.0..5` are
+`B.08, B.11, B.12, B.13, B.14, B.15` in order: the entry's top bit is the ALU's
+CARRY IN and is NOT part of a contiguous field. Three independent
+confirmations, none derived from another -- `cpu.c` spells out the same
+correspondence in LSB order; ALUFM[0] in AEmu.mb is 0x15 = **25 octal**, the
+value PARC's own ALU prologue stores in `tb_compute`; and ALUFM[e] is 01 =
+"NOT A", HM Table 9.
+
+**IFUM's two halves are two write enables**, `DecHi'` and `DecLo'`, which is
+why a .MB stores two words per entry. Comparing bit positions against `cpu.c`
+settles which is which, and the agreement is exact and complete: `DecLo'`
+carries all sixteen bits of `ifu_decode_lh`'s Table 20 layout (Sign 00, IPar
+01-03, Length' 04-05, RBaseB' 06, MemB 07-09, TPause' 10, TJump' 11, N 12-15),
+and `DecHi'` carries the eleven bits `cpu.c` masks as `ifum_lo & 0x07FF`
+(TwoAlpha 05, InstrAddr 06-15). **The names cross over -- DecLo' holds what
+the C emulator calls `ifum_hi` -- and the bits do not.**
+
+### What the machine does, and what it does not
+
+On FOUR boards the world spends all 124,994 microinstructions in the trap
+vectors at the bottom of IM. That is correct for a machine with no memory
+section and no IFU, not a bug.
+
+On NINE it runs START, passes through `AEMUIFURAMPE` / `AEMUIFUFGPARITY` /
+`AEMUIFUMAPFAULT`, reaches `RESTARTIFU`, and dispatches into **`AND1`** -- a
+real Alto-emulator opcode implementation. Loading IFUM adds a second,
+**`SKPC`**, which is how you know the dispatch through IFUM is real.
+
+**IT IS NOT RUNNING A PROGRAM, AND THE PROBE SAYS SO PRECISELY.** Over 12,500
+microinstructions `IfuMemRef` makes SIX transitions and the decoded opcode `J`
+changes ONCE. The IFU makes a handful of references at startup and then stops
+fetching, so the emulator dispatches on one stuck opcode and loops -- 6,233
+microinstructions on a single address. Varying the seeded memory pattern
+changes nothing now, where before IFUM was loaded it did.
+
+**IT IS ALSO NOT A HOLD**, which is the obvious first theory and is wrong.
+Sitting on one address looks exactly like the memory section freezing the
+processor, so the whole chain is printed -- `Hold`, `PRhold`, `CBHold`,
+`IfuHold`, `IOHold`, `MXHold`, `DisHold`, `CHoldReq`. All eight are 0 for the
+entire run.
+
+**So the next question is narrow: why does the IFU stop referencing?** Not a
+vague stall -- six transitions, one opcode, and a named counter for each.
+`ifufetch-test` already gates IFU fetch behaviour and is the place to start.
+
+### Traps found on the way
+
+- **THE ADDRESSES ARE OCTAL.** `mbdis` prints IM addresses in octal -- its
+  listing runs `...207, 210...` -- so a visited set collected in hex must be
+  converted before it is looked up. Reading them as decimal named the wrong
+  trap handler in a commit message.
+- **`find_word` SEARCHED FOR THE BANK**, which is wrong whenever the wanted
+  half is `0000`: a WIPED bank matches it too, so the search returned bank 0
+  and read that bank's secondary bit. `IM[0x805]`'s right half in AEmu.mb IS
+  `0000`. It computes the bank now; the search survives as the diagnostic that
+  says where a missing word actually landed.
+- **A VECTOR SET CONFINED TO LOW ADDRESSES** leaves `addr[11]` always 0 and
+  exercises half the interleave, so `boot0-test` also loads four hunks from
+  above 2048.
+- **`$sscanf` RETURNS -1 ON A PARTIAL MATCH**, not the number of conversions it
+  made -- while still correctly filling the arguments it DID convert. A
+  three-field line read with a ten-field format comes back as -1 with every
+  field right, so gating on the count silently skipped all of them.
+- **`$fgets` RETURNS 0 AT END OF FILE** and leaves its buffer alone, so the
+  `while (!$feof(fd))` idiom processes the LAST line TWICE -- 17 ALUFM entries
+  out of a 16-entry file.
+- **A GENERATED INCLUDE IS SHARED**, so anything in it that reaches into a
+  board must be guarded: the IFUM tasks name `m.b_IFU`, and `tb_boot0` and the
+  default `tb_exec` run on four boards that have no IFU.
 
 ## START HERE: two open questions
 
