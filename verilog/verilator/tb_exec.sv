@@ -1385,7 +1385,23 @@ module tb_exec;
       force m.b_ContA.IMRH = 1'b1;          // Return#: XOR(rh) = 1, XOR(lh) = 0
       $display("tb_exec: JAMPAR forcing IMRH=1 across the jam (Return# even parity)");
     end
-    parc_run(8'h60, 8'h13, 8'hE1, 8'h42, 8'h43);      // Return#, free-running
+    // TASKING ON, so fault task 15 can service the stack underflow.
+    //
+    // The world holds forever on StkP = 0, which HM Table 6 calls the EMPTY
+    // STACK sentinel; the manual's response is HOLD *and wake fault task 15*,
+    // and task 15 is what services it and releases the hold. `Return#` is
+    // "TaskingOff,Return" -- its FF is 0o142 = FA 1, FB 4, FC 2, which cpu.c
+    // names TaskingOff -- so with it the fault task can never run and CTask
+    // sits at 0 for the whole run.
+    //
+    // FC 3 is TaskingOn. Re-encoding Return# with FF = 0o143 through the same
+    // encoder that reproduces all eight of PARC's IRTable entries byte for
+    // byte gives `70 13 E1 4A 43`, parity included; it re-decodes to the same
+    // fields with only FF changed.
+    if ($test$plusargs("taskingon"))
+      parc_run(8'h70, 8'h13, 8'hE1, 8'h4A, 8'h43);    // Return# with TaskingOn
+    else
+      parc_run(8'h60, 8'h13, 8'hE1, 8'h42, 8'h43);    // Return#, free-running
     if ($test$plusargs("jampar")) begin
       repeat (40) @(posedge sys_clk);
       release m.b_ContA.IMRH;
@@ -1685,6 +1701,23 @@ module tb_exec;
       if (last_pe > 400)
         $fatal(1, "IM parity errors continue past the enable point -- the preloaded array's parity is wrong");
       $display("tb_exec: THE MACHINE RUNS WITH IM PARITY ON.");
+    end
+    if ($test$plusargs("taskingon")) begin
+      // WITH TASKING ON, the stack underflow is SERVICED. HM Table 6's response
+      // to StkP = 0 is HOLD *and wake fault task 15*; task 15 is what releases
+      // it. With TaskingOff,Return the fault task can never run and the machine
+      // freezes on one instruction for ever; with TaskingOn it does run.
+      $display("tb_exec: TASKING -- RepeatCur %0d (was 399419 with tasking off), fault task 15 held CTask on %0d samples",
+               n_rep, n_ctask[15]);
+      if (n_rep != 0)
+        $fatal(1, "the machine is still being held with tasking on");
+      if (n_ctask[15] == 0)
+        $fatal(1, "fault task 15 never ran -- the underflow was not serviced");
+      if (nvisited < 20)
+        $fatal(1, "only %0d distinct addresses -- the machine is not sequencing", nvisited);
+      if (maxrun > 100)
+        $fatal(1, "still spinning: %0d microinstructions on one address", maxrun);
+      $display("tb_exec: THE FAULT TASK SERVICES THE STACK UNDERFLOW AND THE MACHINE RUNS.");
     end
     $display("tb_exec: the machine executes microcode out of IM.");
     $finish;

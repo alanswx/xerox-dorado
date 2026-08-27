@@ -152,6 +152,11 @@ exec-world9:
 exec-parity:
 	@$(MAKE) -C verilator exec-parity
 
+# THE FAULT TASK SERVICES THE STACK UNDERFLOW: with tasking on the machine is
+# no longer held and sequences through real Alto opcode handlers.
+exec-tasking:
+	@$(MAKE) -C verilator exec-tasking
+
 # The IM/ALUFM/IFUM field maps, derived from the wire lists and checked
 # against HM Table 11d, HM Table 20 and cpu.c.
 

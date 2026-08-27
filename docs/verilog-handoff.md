@@ -46,6 +46,7 @@ can run.
 | ...and then it STOPS FETCHING | **open** -- `IfuMemRef` makes 6 transitions and the opcode changes ONCE | `exec-world9` |
 | **IM PARITY, the long-open question** | **ANSWERED** -- ODD over the 17-bit half, array stores the COMPLEMENT | `im-parity-check` |
 | **THE MACHINE RUNS WITH IM PARITY ENABLED** | **works** -- Error propagated on 0 of 400,000, Stop never set | `exec-parity` |
+| **THE FAULT TASK SERVICES THE STACK UNDERFLOW** | **works** -- RepeatCur 0, task 15 runs, 25 addresses, longest run 3 | `exec-tasking` |
 
 ### Every gate
 
@@ -532,12 +533,34 @@ hold is the documented hardware response. The measurements line up exactly:
 "we just track the flags" -- which is a deliberate simplification there and a
 divergence worth knowing about when the two are compared.
 
-**And the hold is permanent here for a reason the bench controls.** The manual's
+**And the hold was permanent for a reason the bench controlled.** The manual's
 response is HOLD *and wake fault task 15*; task 15 is what services the
-underflow and releases it. This bench starts the machine with `Return#`, which
-is `TaskingOff,Return`, and CTask is measured at task 0 for all 400,000 samples
--- so the fault task can never run. **Running with tasking ON is the next step**,
-and it is a bench change, not an RTL one.
+underflow and releases it. The bench started the machine with `Return#`, which
+is `TaskingOff,Return` -- its FF is `0o142` = FA 1, FB 4, FC 2, which `cpu.c`
+names TaskingOff -- so the fault task could never run.
+
+### AND WITH TASKING ON, IT DOES
+
+FC 3 is TaskingOn. Re-encoding `Return#` with FF = `0o143` through the encoder
+that reproduces all eight of PARC's IRTable entries byte for byte gives
+`70 13 E1 4A 43`, parity included, re-decoding to the same fields with only FF
+changed. `make -C verilog exec-tasking`:
+
+| | tasking OFF | tasking ON |
+|---|---|---|
+| `RepeatCur` | 399,419 of 400,000 | **0** |
+| CTask occupancy | t0 = 400,000 | t0 = 181, **t15 = 399,819** |
+| distinct IM addresses | 15 | **25** |
+| longest run on one address | **12,481** | **3** |
+
+The fault task runs, the hold goes away, and the machine sequences instead of
+freezing. And what it executes are real Alto opcode handlers -- `mbdis` names
+`LDAIZ`, `JMPI2`, `DOCRYS`, `SKP1C`, `TRAP17` and `JSRIIX`, the last of which
+has ASEL = `Fetch<-T`, a genuine storage reference.
+
+**This is the manual's mechanism working end to end in generated RTL**: a stack
+operation on an empty stack holds the processor, wakes the fault task, and the
+fault task clears it.
 
 ### Traps found on the way
 
