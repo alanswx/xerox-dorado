@@ -1025,8 +1025,9 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **THE MACHINE RUNS WITH IM PARITY ENABLED** | `exec-parity` -- Error propagated on 0 of 400,000 samples, Stop never set |
 | **THE FAULT TASK SERVICES A STACK UNDERFLOW** | `exec-tasking` -- RepeatCur 0, task 15 runs, 25 addresses, longest run 3 |
 | **THE FAULT TASK RUNS ITS OWN HANDLER** | `exec-init` -- TPC[15] set; task 15 runs BEGINENUMERATEMAP / IWRITEMAPFLAGS |
+| **PARC'S BOOT CHAIN RUNS** | `exec-boot` -- Initial global-calls Bootstrap's READBB, which polls for the control processor |
 
-Forty-nine gates in all; `make -C verilog` has the list. **The datapath is
+Fifty gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
@@ -1242,6 +1243,23 @@ The second error was FG parity over the instruction
   **96** and task 15 executes **octal 3700-3733**, which mbdis names
   **`BEGINENUMERATEMAP`** and **`IWRITEMAPFLAGS`** -- a fault task walking the
   map and writing map flags, one instruction carrying `ASEL = Fetch<-RM/STK`.
+- **PARC'S OWN BOOT CHAIN RUNS, first two stages.** `Initial.mb` occupies real
+  `0xc00-0xfbf` (926 microinstructions) and `Bootstrap.mb` `0xfc0-0xfff` (50) --
+  ADJACENT AND DISJOINT, the top of IM, so a world loads beneath them. Both go in
+  through the derived field map, 976 written and 976 read back. `INITIAL` is
+  image 1 = real `0xf40`, and its JCN is `0xff`, a GLOBAL CALL:
+  `TNIA = CIA[2:3] || JCN[2:7] || 000000` = `0b11 || 111111 || 000000` = **0xfc0**,
+  which is Bootstrap image 54, **`READBB`** -- read BaseBoard. The machine then
+  cycles `0xfe7/0xfe2/0xfe1/0xfe6` with **longest run on one address = 0**: it
+  polls, it does not stick. **That is the correct place to stop** -- this
+  configuration has no BaseBoard, so nothing is sending. Gate: `exec-boot`.
+  Two things fall out: **Initial does NOT underflow the stack** (StkP holds
+  0x3f all run, where AEmu reached 0 at cycle 565), and Initial's symbols name
+  exactly what `exec-init` was patching by hand -- `RMINITL`, **`STKINITL`**,
+  `IFUMINITL`, **`TASKINITLOOP`**, **`GETTASKINITPC`**, `TASKINIT`,
+  `BOOTEMULATOR`. The initialisation being supplied from the testbench is a
+  routine sitting in the microcode waiting to be run. Next: feed Bootstrap over
+  the CP bus, which `boot0-test` already knows how to do.
 - **SAMPLING A LEVEL AT TEN POINTS IS NOT MEASURING IT.** The hold chain was
   previously read as "all eight signals 0, whole run" from ten instantaneous
   `$display`s -- true of the machine BEFORE IFUM was loaded and the parity

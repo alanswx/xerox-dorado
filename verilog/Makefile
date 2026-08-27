@@ -162,6 +162,11 @@ exec-tasking:
 exec-init:
 	@$(MAKE) -C verilator exec-init
 
+# PARC'S BOOT CHAIN: Initial calls Bootstrap, which waits for the control
+# processor. The first two stages of a real Dorado boot, in generated RTL.
+exec-boot:
+	@$(MAKE) -C verilator exec-boot
+
 # The IM/ALUFM/IFUM field maps, derived from the wire lists and checked
 # against HM Table 11d, HM Table 20 and cpu.c.
 

@@ -82,6 +82,14 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    /* The image->real placement for a few low image addresses, so a bench can
+     * be told where a SYMBOL landed. mbdis prints IMAGE addresses (and octal);
+     * everything else here is REAL. Initial's entry `INITIAL` is image 1. */
+    for (int im = 0; im < IM_SIZE; im++)
+        if (mc.image_present[im])
+            fprintf(stderr, "im_image: image %o -> real 0x%03x\n",
+                    im, mc.image_to_real[im]);
+
     int n = 0;
     printf("# %s -- IM field bits for RTL preload\n", path);
     for (int a = 0; a < IM_SIZE; a++) {
