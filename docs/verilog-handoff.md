@@ -738,7 +738,38 @@ names exactly the three things `exec-init` was patching by hand -- `RMINITL`
 initialisation this project has been supplying from the testbench is a routine
 sitting in the microcode, waiting to be run.
 
-**The next step is to feed Bootstrap.** `boot0-test` already walks real microcode
+### And Bootstrap's poll loop IS data-dependent -- feeding it moves the chain on
+
+`cpu.c` names the function Bootstrap's loop carries: `FB=7 FC=6` is
+**`B <- RWCPReg`**, "HM page 31: `B<-RWCPReg = Link<-B, B<-CPReg'`" -- the
+COMPLEMENT. `FF=176` in images 55 and 57 is exactly that, so the loop is reading
+the control-processor register.
+
+`+bootfeed=N` leaves N in CPReg before the machine starts, which is enough to
+tell a poll from a dependency:
+
+| CPReg | addresses executed |
+|---|---|
+| (none) | `f40 fc0 fe1 fe2 fe6 fe7` |
+| `0000` | `f40 fc0 fe1 fe2 fe6 fe7` |
+| `00ff` | `f40 fc0 fe1 fe2 fe6 fe7` |
+| **`aaaa`** | `f40 f41 f42 f46 f4b fc0 fcd fe1 fe2 fe6 fe7` |
+
+**With `aaaa` the machine LEAVES the poll loop and returns into Initial's body.**
+`f41`, `f42`, `f46`, `f4b` are Initial images 2, 3, 5 and 4 -- `INITIAL1` and its
+successors -- reached via `fcd`, a Bootstrap address the poll never touches. So
+Bootstrap read the value, dispatched on it, and returned.
+
+It then sticks at `f46` (12,485 microinstructions on one address), which is the
+next thing to chase and is a different question from the one this answers.
+
+**One static value is not the protocol** -- Bootstrap's symbols (`BOOTBYTEL`,
+`WRITE000`..`WRITE111`, `BOOTSTAGE2`) say it reads a byte and dispatches on three
+bits, so a real feed is a SEQUENCE the bench must supply as the 6502 does. But
+the mechanism is now identified and demonstrated rather than inferred, which is
+what the next step needs.
+
+**The next step is to feed Bootstrap properly.** `boot0-test` already walks real microcode
 into IM over the control-processor bus using PARC's own hunk format and
 `SendViaMIR`; pointing that at Bootstrap's `READBB` loop is what turns this from
 "the boot chain starts" into "the boot chain completes".
