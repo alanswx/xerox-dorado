@@ -1212,9 +1212,23 @@ The second error was FG parity over the instruction
   `tb_readback`'s own 21-array MemX seeding changes nothing (`+nomapseed` is the
   control), and sweeping AEmu's five named entry points -- `START` 0, `STARTMB`
   53, `AEMUNEXT` 51, `BOOT` 652, `STARTEMULATOR` 656 octal -- shows **0 is the
-  best of them**, every other landing back in the 0x0c4 spin. So the blocker is
-  narrow: something asserts the fault-task wakeup out of reset and nothing
-  clears it.
+  best of them**, every other landing back in the 0x0c4 spin. **And the cause is found**: MemX h03 wires
+  `TWReq.15 = (Faults & WakeEnable) | (WakeEnable & StkWake)`, `StkWake` reads 0
+  all run, and `Faults` is MemX k09 pin 4 -- which on an F10016 is the TERMINAL
+  COUNT output, `~(&q)`, LOW only at `1111`. Its four parallel inputs are all
+  `TrueBD`, so the design is LOAD 1111 = no fault, COUNT to 0000 = fault.
+  **`Faults` is high because the counter sits at 0000**, not because a fault is
+  happening: it reads `0001` by the time the run starts, so one fault is
+  reported during startup and nothing reloads it -- on real hardware the fault
+  task reads the fault info and the load re-arms it, and here the fault task
+  runs emulator code because TPC[15] was never initialised. `+faultinit` presets
+  it after startup (an `initial` is too early; the counter counts away) and the
+  chain moves: `TWReq.15` 400,000 -> 108,939, first switch cycle 181 -> 661,
+  **task 0 addresses 2 -> 20**, RepeatCur 399,419 -> 72,635. It is a diagnostic,
+  not the fix: **the real gap is that nothing has INITIALISED this machine**. A
+  real boot does not jump a cold world at START with the fault counter unarmed
+  and every task PC unset -- Initial and the world's own InitMem do that first,
+  and preloading IM skips exactly that.
 - **SAMPLING A LEVEL AT TEN POINTS IS NOT MEASURING IT.** The hold chain was
   previously read as "all eight signals 0, whole run" from ten instantaneous
   `$display`s -- true of the machine BEFORE IFUM was loaded and the parity
