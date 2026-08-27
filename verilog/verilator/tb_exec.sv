@@ -932,6 +932,7 @@ module tb_exec;
   reg [1023:0] impath;
   reg [31:0] ia, ib, ic, id, ie, ig, ih, ii, ij;
   integer imfd, imn, mapaddr, nloaded, nver, nverbad, runcycles, startaddr;
+  integer nalufm, nalufmbad;  reg [5:0] r_alu;
   // HOW MUCH OF THE WORLD ACTUALLY EXECUTES. The distinct-value lists above cap
   // at 32, which is fine for "is it sequencing at all" and useless for "how far
   // does it get". A bitmap over the whole address space answers the second.
@@ -955,11 +956,32 @@ module tb_exec;
       imfd = $fopen(impath, "r");
       if (imfd == 0) $fatal(1, "cannot open %s", impath);
       for (i = 0; i < 4096; i = i + 1) f_have[i] = 1'b0;
-      while (!$feof(imfd)) begin
-        void'($fgets(line, imfd));
+      nalufm = 0; nalufmbad = 0;
+      // $fgets RETURNS 0 AT END OF FILE and leaves `line` alone, so the
+      // `while (!$feof(...))` idiom processes the LAST line TWICE -- which
+      // counted 17 ALUFM entries out of a 16-entry file. Gate on the read.
+      while ($fgets(line, imfd) != 0) begin
         // addr rstk aluf bsel lc asel BLOCK ff jcn -- nine values after the tag.
         imn = $sscanf(line, "%s %h %h %h %h %h %h %h %h %h",
                       tag, ia, ib, ic, id, ie, ig, ij, ih, ii);
+        // ALUFM -- 16 entries of 6 bits, ProcL e13/e14. ALUF is a POINTER into
+        // this memory, so a world loaded without it runs on whatever the array
+        // powered up with. Same file, its own tag.
+        // NOTE $sscanf RETURNS -1 ON A PARTIAL MATCH, not the number of
+        // conversions it made -- while still filling the arguments it DID
+        // convert. A three-field ALUFM line read with a ten-field format comes
+        // back as -1 with tag, ia and ib all correct, so gating on the count
+        // silently skipped every one of them. Gate on the TAG.
+        if (tag == "ALUFM") begin
+          alufm_preload_word(ia[3:0], ib[5:0]);
+          alufm_readback_word(ia[3:0], r_alu);
+          nalufm = nalufm + 1;
+          if (r_alu !== ib[5:0]) begin
+            nalufmbad = nalufmbad + 1;
+            $display("tb_exec: ALUFM[%h] read %h want %h", ia[3:0], r_alu, ib[5:0]);
+          end
+          continue;
+        end
         if (imn != 10 || tag != "IM") continue;
         mapaddr = ia[11:0];
         f_rstk[mapaddr] = ib[3:0];  f_aluf[mapaddr] = ic[3:0];
@@ -993,6 +1015,8 @@ module tb_exec;
       end
       $display("tb_exec: PRELOAD -- %0d microinstructions written, %0d read back, %0d wrong",
                nloaded, nver, nverbad);
+      $display("tb_exec: PRELOAD -- %0d ALUFM entries written, %0d wrong", nalufm, nalufmbad);
+      if (nalufmbad != 0) $fatal(1, "ALUFM does not hold what was preloaded");
       if (nloaded == 0)  $fatal(1, "the preload file held no microinstructions");
       if (nverbad != 0)  $fatal(1, "IM does not hold what was preloaded");
     end else begin
