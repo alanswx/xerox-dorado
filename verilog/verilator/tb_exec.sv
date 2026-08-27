@@ -934,9 +934,24 @@ module tb_exec;
   integer imfd, imn, mapaddr, nloaded, nver, nverbad, runcycles, startaddr;
   integer nalufm, nalufmbad, nifum, nifumbad;
   reg [5:0]  r_alu;
-  reg [15:0] r_lo, r_hi;
+  reg [15:0] r_lo, r_hi, ifum_want;  reg ifum_raw;
   integer n_ifuref, n_ifuack, n_jchg;
   reg ifu_prev_ref, ifu_prev_ack; reg [7:0] j_prev;
+  // THE INSTRUCTION BYTE STREAM, the path tb_ifufetch traced on MemD:
+  //   cache -> e06 (F register, clocked by Fclk'a) -> f22 (G, loaded on GLd')
+  //   -> f23 (the 4:1 mux, enabled by EnableFG') -> FG.0-8 -> the IFU
+  // tb_ifufetch found this never clocks in a SYNTHETIC four-instruction loop
+  // and said the reason was that memory could not serve the reference. A real
+  // world issues real IFetches, so measuring it here is a new datum.
+  integer n_fclk, n_gld, n_fg, n_enfg;
+  // IFU PARITY. The run visits AEMUIFURAMPE and AEMUIFUFGPARITY early, and the
+  // IM parity generators are already a known open question (the machine stops
+  // dead unless exec-test clears the IM parity enables). IFUM carries three
+  // RamParity bits which the preload takes verbatim from the .MB -- so if our
+  // generator computes something different, the IFU raises a RAM parity error
+  // and stops fetching, which is exactly the shape measured.
+  integer n_rampe, n_sawram, n_fgpe, n_sawfg;
+  reg fclk_prev, gld_prev; reg [8:0] fg_prev;
   // HOW MUCH OF THE WORLD ACTUALLY EXECUTES. The distinct-value lists above cap
   // at 32, which is fine for "is it sequencing at all" and useless for "how far
   // does it get". A bitmap over the whole address space answers the second.
@@ -944,6 +959,8 @@ module tb_exec;
   integer   nvisited, lastpc, stuck, maxrun, prevpc;
 
 `ifdef WORLD
+  wire [8:0] fg_now = {m.FG_0, m.FG_1, m.FG_2, m.FG_3, m.FG_4,
+                       m.FG_5, m.FG_6, m.FG_7, m.FG_8};
   wire [7:0] j_now = {m.b_IFU.J_0a, m.b_IFU.J_1a, m.b_IFU.J_2a, m.b_IFU.J_3a,
                       m.b_IFU.J_4a, m.b_IFU.J_5a, m.b_IFU.J_6a, m.b_IFU.J_7a};
 `endif
@@ -965,6 +982,7 @@ module tb_exec;
       if (imfd == 0) $fatal(1, "cannot open %s", impath);
       for (i = 0; i < 4096; i = i + 1) f_have[i] = 1'b0;
       nalufm = 0; nalufmbad = 0; nifum = 0; nifumbad = 0;
+      ifum_raw = $test$plusargs("ifumraw");
       // $fgets RETURNS 0 AT END OF FILE and leaves `line` alone, so the
       // `while (!$feof(...))` idiom processes the LAST line TWICE -- which
       // counted 17 ALUFM entries out of a 16-entry file. Gate on the read.
@@ -986,15 +1004,23 @@ module tb_exec;
         // tb_boot0 and the default tb_exec include the same generated map.
 `ifdef WORLD
         if (tag == "IFUM") begin
-          ifum_preload_word(ia[9:0], ib[15:0], ic[15:0]);
+          // THE .MB DOES NOT CARRY IFUM PARITY -- the real machine computes it
+          // in its LOAD microcode (ifuRamSubrs.mc:ifuAddParity), and 248 of
+          // AEmu's 256 entries fail cpu.c's own check as stored. Copying them
+          // verbatim leaves the IFU in a permanent RAM parity error. The
+          // fourth column is the fields word with the three IPar bits
+          // recomputed; `+ifumraw` takes the stored ones instead, so the two
+          // can be compared.
+          ifum_want = ifum_raw ? ic[15:0] : id[15:0];
+          ifum_preload_word(ia[9:0], ib[15:0], ifum_want);
           ifum_readback_word(ia[9:0], r_lo, r_hi);
           nifum = nifum + 1;
           // DecHi' holds only bits 05-15 of word 0, so compare that mask.
-          if ((r_lo & 16'h07FF) !== (ib[15:0] & 16'h07FF) || r_hi !== ic[15:0]) begin
+          if ((r_lo & 16'h07FF) !== (ib[15:0] & 16'h07FF) || r_hi !== ifum_want) begin
             nifumbad = nifumbad + 1;
             if (nifumbad < 6)
               $display("tb_exec: IFUM[%h] read %h/%h want %h/%h",
-                       ia[9:0], r_lo, r_hi, ib[15:0], ic[15:0]);
+                       ia[9:0], r_lo, r_hi, ib[15:0], ifum_want);
           end
           continue;
         end
@@ -1097,6 +1123,9 @@ module tb_exec;
 `ifdef WORLD
     n_ifuref = 0; n_ifuack = 0; n_jchg = 0;
     ifu_prev_ref = m.b_IFU.IfuMemRef; ifu_prev_ack = m.b_IFU.IfuMemAck; j_prev = j_now;
+    n_fclk = 0; n_gld = 0; n_fg = 0; n_enfg = 0;
+    n_rampe = 0; n_sawram = 0; n_fgpe = 0; n_sawfg = 0;
+    fclk_prev = m.b_MemD.Fclk_p_a; gld_prev = m.b_MemD.GLd_p_; fg_prev = fg_now;
 `endif
     for (i = 0; i < 4096; i = i + 1) visited[i] = 1'b0;
     nvisited = 0; stuck = 0; maxrun = 0; prevpc = -1;
@@ -1141,6 +1170,16 @@ module tb_exec;
         n_ifuack = n_ifuack + 1; ifu_prev_ack = m.b_IFU.IfuMemAck;
       end
       if (j_now !== j_prev) begin n_jchg = n_jchg + 1; j_prev = j_now; end
+      if (m.b_MemD.Fclk_p_a !== fclk_prev) begin
+        n_fclk = n_fclk + 1; fclk_prev = m.b_MemD.Fclk_p_a;
+      end
+      if (m.b_MemD.GLd_p_ !== gld_prev) begin n_gld = n_gld + 1; gld_prev = m.b_MemD.GLd_p_; end
+      if (fg_now !== fg_prev) begin n_fg = n_fg + 1; fg_prev = fg_now; end
+      if (!m.b_MemD.EnableFG_p_) n_enfg = n_enfg + 1;
+      if (m.b_IFU.RamPe)             n_rampe  = n_rampe + 1;
+      if (m.b_IFU.SawRamParityErr)   n_sawram = n_sawram + 1;
+      if (!m.b_IFU.FGParityErr_p_)   n_fgpe   = n_fgpe + 1;
+      if (m.b_IFU.SawFGParityErr)    n_sawfg  = n_sawfg + 1;
       // SITTING ON ONE ADDRESS IS THE SIGNATURE OF A HOLD, not of a self-jump:
       // the memory section freezes the processor on the same microinstruction
       // until the reference completes. `PRhold` (ProcH/ProcL) and `PrHold`
@@ -1170,6 +1209,10 @@ module tb_exec;
     $display("tb_exec: %0d distinct TNIA values, %0d distinct FF values seen",
              n_tnia, n_ff);
 `ifdef WORLD
+    $display("tb_exec: IFUPE -- RamPe high %0d, SawRamParityErr %0d, FGParityErr %0d, SawFGParityErr %0d, of %0d",
+             n_rampe, n_sawram, n_fgpe, n_sawfg, runcycles);
+    $display("tb_exec: BYTES -- Fclk'a %0d edges, GLd' %0d, FG changed %0d, EnableFG' low on %0d of %0d",
+             n_fclk, n_gld, n_fg, n_enfg, runcycles);
     $display("tb_exec: IFU -- IfuMemRef %0d transitions, IfuMemAck %0d, opcode J changed %0d times",
              n_ifuref, n_ifuack, n_jchg);
 `endif

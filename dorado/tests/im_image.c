@@ -26,11 +26,42 @@
  * all hex, no 0x. Absent addresses are skipped, so the count tells you how much
  * of the world is really there.
  */
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "mb.h"
 #include "microcode.h"
 #include "disasm.h"
+
+
+/* IFUM parity, mirroring cpu.c's ifum_parity_ok (which cites
+ * ifuRamSubrs.mc:ifuAddParity and HM Table 20). THE .MB DOES NOT CARRY IT:
+ * 248 of AEmu's 256 entries fail the check as stored, because the real machine
+ * computes the three IPar bits in its LOAD microcode rather than storing them.
+ * A preload that copies them verbatim leaves the IFU in a permanent RAM parity
+ * error -- measured: RamPe high on 200,000 of 200,000 samples.
+ * The three IPar bits are EVEN parity over disjoint groups. */
+static unsigned bitcnt(unsigned v, unsigned shift, unsigned width)
+{
+    unsigned x = (v >> shift) & ((1u << width) - 1u), n = 0;
+    while (x) { n += x & 1u; x >>= 1; }
+    return n;
+}
+
+static uint16_t ifum_with_parity(uint16_t addr_word, uint16_t fields)
+{
+    unsigned p0 = bitcnt(fields, 0, 4) + bitcnt(fields, 6, 2)
+                + bitcnt(addr_word, 8, 2);
+    unsigned p1 = bitcnt(addr_word, 0, 8);
+    unsigned p2 = bitcnt(addr_word, 10, 1) + bitcnt(fields, 15, 1)
+                + bitcnt(fields, 4, 2) + bitcnt(fields, 8, 2)
+                + bitcnt(fields, 10, 2);
+    uint16_t out = (uint16_t)(fields & (uint16_t)~0x7000u);
+    out |= (uint16_t)((p0 & 1u) << 14);
+    out |= (uint16_t)((p1 & 1u) << 13);
+    out |= (uint16_t)((p2 & 1u) << 12);
+    return out;
+}
 
 int main(int argc, char **argv)
 {
@@ -80,13 +111,15 @@ int main(int argc, char **argv)
      * Two words per entry, exactly as the .MB stores them and as the board's
      * two write enables (DecHi'/DecLo') take them:
      *
-     *   IFUM <addr> <word0 = ifum_lo> <word1 = ifum_hi>
+     *   IFUM <addr> <word0 = ifum_lo> <word1 = ifum_hi> <word1 with parity>
      */
     int ni = 0;
     for (int a = 0; a < IFUM_SIZE; a++) {
         if (!mc.ifum_present[a]) continue;
-        printf("IFUM %03x %04x %04x\n", a, mc.ifum_lo[a] & 0xFFFF,
-               mc.ifum_hi[a] & 0xFFFF);
+        printf("IFUM %03x %04x %04x %04x\n", a, mc.ifum_lo[a] & 0xFFFF,
+               mc.ifum_hi[a] & 0xFFFF,
+               ifum_with_parity((uint16_t)mc.ifum_lo[a],
+                                (uint16_t)mc.ifum_hi[a]));
         ni++;
     }
     fprintf(stderr,
