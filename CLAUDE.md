@@ -1121,15 +1121,20 @@ boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
   derived from the other, so **IM parity -- where the machine still runs only
   with the enables cleared -- is the same question with a tractable second
   instance now solved.** The second error was FG parity over the instruction
-  BYTES: the cache word is 16 data bits plus TWO parity bits, D.16 and D.17,
-  and the convention is **ODD**, D.17 over D.08-15 and D.16 over D.00-07.
-  **The sweep that found it nearly lied** -- two of four combinations cleared
-  the error, because the test pattern's two bytes had DIFFERENT parity, which
-  makes "swap the two bits" and "invert both" the same assignment; a pattern
-  with EQUAL byte parities separates them. When two explanations both fit,
-  find the input that tells them apart. With both clear the machine reaches
-  `CVEND`, whose ASEL is `Fetch<-RM/STK` -- microcode issuing real storage
-  references.
+The second error was FG parity over the instruction
+  BYTES, and it is only PARTLY settled. Odd parity per byte -- D.17 over
+  D.08-15, D.16 over D.00-07 -- minimises the error identically across six
+  constant patterns, and with it the machine reaches `CVEND`, whose ASEL is
+  `Fetch<-RM/STK`. But it is NOT established as the hardware convention:
+  giving each cache line its own word makes the winning assignment depend on
+  the DATA FUNCTION, which no real convention can do. **The counter is not
+  measuring what it looks like** -- `IfuMemRef` makes two to six transitions
+  over a whole run, so there are essentially no fetches, and a count of
+  samples where a combinational signal sits high is an IDLE LEVEL rather than
+  a per-fetch check. Contrast the IFUM parity above, where `RamPe` went to
+  EXACTLY ZERO and entries are read continuously. **A level is not an event:
+  before believing a sample count, check that the thing it counts actually
+  happened.**
 - **Five ways a bench can lie to you, all found in one sitting.** `mbdis`
   prints IM addresses in OCTAL, so a hex visited-set must be converted before
   it is looked up. A bank SEARCH matches a wiped bank whenever the wanted value

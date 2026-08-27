@@ -420,19 +420,44 @@ feeding the RTL a word whose parity satisfies `cpu.c` makes the RTL's error
 signal go clean. **IM parity is the same question** -- the machine still runs
 only with the enables cleared -- and this is a tractable second instance of it.
 
-**Then FG parity, over the instruction BYTES.** The cache word is 16 data bits
-plus TWO parity bits, D.16 and D.17, one per byte. The convention is **ODD**,
-D.17 over D.08-15 and D.16 over D.00-07: 50,000 errors in 100,000 samples down
-to 176.
+**Then FG parity, over the instruction BYTES -- and this one is only PARTLY
+settled.** The cache word is 16 data bits plus TWO parity bits, D.16 and D.17,
+one per byte. Odd parity per byte -- D.17 over D.08-15, D.16 over D.00-07 --
+minimises `FGParityErr` identically (176 residual) across six different
+constant patterns: 52045, 49155, 0, 65535, 21845, 4660.
 
-**AND THE SWEEP THAT FOUND IT NEARLY LIED.** All four combinations of sense
-(even/odd) and pairing were tried and TWO cleared the error -- which looks like
-two right answers and is really one measurement that cannot distinguish them.
-The default pattern's two bytes happen to have DIFFERENT parity, so "swap the
-two bits" and "invert both bits" are the SAME assignment for it. Re-running
-with `0xC003`, whose bytes have EQUAL parity so a swap is a no-op, resolves it:
-odd clears the error, swapping does nothing. **When two candidate explanations
-both fit, find the input that separates them.**
+**IT IS NOT ESTABLISHED AS THE HARDWARE CONVENTION, and chasing it is what
+showed why.** Three structural hypotheses were raised and all three REFUTED
+from the netlist and from measurement:
+
+- *The cache's two columns wire-OR different words.* MemD's a03 and d03 both
+  drive D.00 but are separate 4096x1 arrays -- a03 on `Dad0.10-12` with enable
+  `D0ACE'`, d03 on `Dad1.10-12` with `D1ACE'`. Refuted by counting: D0 only on
+  199,603 samples, D1 only 0, BOTH 0, addresses never differ. They are
+  perfectly exclusive.
+- *The F/G mux takes the byte from one register and the parity from the
+  other.* Refuted structurally: `i22` selects `FG.8` from
+  `{G.16, F.16, G.17, F.17}` under the SAME `PcFG.15`/`GDv'` as the eight data
+  muxes, so parity tracks both the byte choice and the F/G choice.
+- *`G.16`/`G.17` are never loaded.* Refuted: `i21`, an F10016, loads them from
+  `F.16`/`F.17` on the same `GLd'` that loads the data bits.
+
+**What finally gave it away is that the winning assignment DEPENDS ON THE
+DATA.** With `+cprog` giving each line its own word, the plain rule is clean
+for a byte-swapped word (`+cprogfn=3`) and dirty for the plain one, and the
+reverse for `+cprogfn=0`; `+cprogfn=1` is nearly clean under both. No real
+parity convention can do that.
+
+**So the counter is not measuring what it looks like.** `IfuMemRef` makes TWO
+to SIX transitions over a whole run -- there are essentially no fetches -- and
+a count of samples where a combinational signal sits high over 200,000 cycles
+is an IDLE LEVEL, not a per-fetch check. Contrast the IFUM parity above:
+`RamPe` went to EXACTLY ZERO, and IFUM entries are read continuously, so there
+the level is meaningful. **A level is not an event. Before believing a sample
+count, check that the thing it counts actually happened.**
+
+Settling FG parity needs the error sampled AT a fetch, which needs a machine
+that fetches -- so it is downstream of the same question, not beside it.
 
 With both clear the machine reaches three addresses it had never touched --
 octal 100, 435 and 464, the last of which `mbdis` names `CVEND` and whose ASEL
