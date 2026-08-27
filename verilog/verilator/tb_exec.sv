@@ -627,8 +627,19 @@ module tb_exec;
       repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h00, 1'b1);
       repeat (GAP) @(posedge sys_clk);
-      strobe(3'd4, b1, b0[7]); strobe(3'd5, b2, b0[6]);
-      strobe(3'd6, b3, b0[5]); strobe(3'd7, b4, b0[4]);
+      // BYTE 0 IS FOUR BITS, AND THEY RIDE AS THE NINTH CP-BUS BIT of the four
+      // data strobes -- which is why its low four bits are always zero:
+      //     b0[7] RSTK.0 -> fn 4      b0[6] P015  -> fn 5
+      //     b0[5] JCN.7  -> fn 6      b0[4] P1631 -> fn 7
+      // Capture the MIR's parity bits AS THEY ARE SET, not after the task
+      // returns: parc_micro ends with a Control strobe and 800 settling cycles,
+      // by which time the MIR has reloaded from IM and the jam's bits are gone.
+      // Reading them afterwards is how they first looked stuck at 0.
+      strobe(3'd4, b1, b0[7]);  jt[0] = m.b_ContB.IMLH; jt[4] = m.b_ContA.IMRH;
+      strobe(3'd5, b2, b0[6]);  jt[1] = m.b_ContB.IMLH; jt[5] = m.b_ContA.IMRH;
+      strobe(3'd6, b3, b0[5]);  jt[2] = m.b_ContB.IMLH; jt[6] = m.b_ContA.IMRH;
+      strobe(3'd7, b4, b0[4]);  jt[3] = m.b_ContB.IMLH; jt[7] = m.b_ContA.IMRH;
+      jam_imlh = jt[1]; jam_imrh = jt[3];
       strobe(3'd0, 8'h01, 1'b1);
     end
   endtask
@@ -1051,6 +1062,8 @@ module tb_exec;
   // total instead of a distribution has produced wrong conclusions in this
   // project twice already.
   integer first_pe, last_pe, first_stop;  reg late_par;
+  reg jam_imlh, jam_imrh, sw_l0, sw_r0;  reg [7:0] jt;
+  integer swf, swdata;
   // A SHORT PC TRACE. Counters say how often; a trace says in what ORDER, and
   // for "why is it stuck" that is the difference between theorising and
   // looking. First N microinstructions only -- the interesting part is the
@@ -1245,6 +1258,47 @@ module tb_exec;
     // address is an input here; 0 is what this bench has always used.
     if (!$value$plusargs("start=%d", startaddr)) startaddr = 0;
     $display("tb_exec: starting at IM[0x%h]", startaddr[11:0]);
+    // WHICH FUNCTION CODE ROUTES THE NINTH CP-BUS BIT TO WHICH MIR BIT?
+    //
+    // RESULT: exactly what the byte layout implies. fn 5's ninth bit sets IMLH
+    // and fn 7's sets IMRH -- which is b0[6] = P015 and b0[4] = P1631. The
+    // routing WORKS, and it works under every variant tried: one strobe or
+    // two, preceded by fn 4 or not, and with any data on the eight data bits
+    // (`+jamsweep1`, `+swdata=`).
+    //
+    // THIS RETRACTS an earlier reading of mine. Capturing IMLH inside
+    // parc_micro shows 0 after all four data strobes even for Nop#, whose
+    // P015 is 1, and I wrote that up as "the jam never delivers a parity bit".
+    // The sweep says the delivery path is fine, so what parc_micro's full
+    // sequence does to the bit between the strobe and the capture is the real
+    // question -- a narrower one, and NOT the same claim.
+    if ($test$plusargs("jamsweep")) begin
+      // The DATA the strobe carries, because that is the last difference
+      // between this sweep and a real jam: parc_micro sends Nop#'s 0x0F on
+      // fn 5, this sent 0x00.
+      if (!$value$plusargs("swdata=%d", swdata)) swdata = 0;
+      for (swf = 0; swf < 8; swf = swf + 1) begin
+        strobe(3'd1, 8'h21, 1'b0); repeat (GAP) @(posedge sys_clk);
+        strobe(3'd0, 8'h4E, 1'b0); repeat (GAP) @(posedge sys_clk);
+        strobe(3'd0, 8'h00, 1'b1); repeat (GAP) @(posedge sys_clk);
+        // TWO VARIANTS, because the first sweep and the real jam disagreed and
+        // the only difference was the strobe SEQUENCE. `+jamsweep1` sends ONE
+        // strobe on the function code, the way parc_micro does; the default
+        // sends a ninth=0 strobe first, which is what made IMLH set.
+        if ($test$plusargs("jamsweep1")) begin
+          strobe(3'd4, swdata[7:0], 1'b0);    // ...preceded by fn 4, as in a jam
+          sw_l0 = m.b_ContB.IMLH; sw_r0 = m.b_ContA.IMRH;
+          strobe(swf[2:0], swdata[7:0], 1'b1);
+        end else begin
+          strobe(swf[2:0], 8'h00, 1'b0);
+          sw_l0 = m.b_ContB.IMLH; sw_r0 = m.b_ContA.IMRH;
+          strobe(swf[2:0], 8'h00, 1'b1);
+        end
+        $display("tb_exec: JAMSWEEP fn=%0d  ninth=0 -> IMLH=%b IMRH=%b   ninth=1 -> IMLH=%b IMRH=%b",
+                 swf, sw_l0, sw_r0, m.b_ContB.IMLH, m.b_ContA.IMRH);
+      end
+    end
+
     // DOES A JAM'S PARITY BIT REACH THE MIR IN THE SAME SENSE?
     //
     // The checker (ContB j20/j21, an MC10170 cascade) covers 17 field bits plus
@@ -1260,9 +1314,14 @@ module tb_exec;
     //     Nop#          70 01 0F 4C 40   P015=1  P1631=1
     //     Return#       60 13 E1 42 43   P015=1  P1631=0
     parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#, P015=0
-    $display("tb_exec: JAMPAR CPRegToLink# P015=0 -> MIR IMLH=%b", m.b_ContB.IMLH);
+    $display("tb_exec: JAMPAR CPRegToLink# P015=0 P1631=1 -> MIR IMLH=%b IMRH=%b",
+             jam_imlh, jam_imrh);
     nop_micro;                                        // Nop#, P015=1
-    $display("tb_exec: JAMPAR Nop#         P015=1 -> MIR IMLH=%b", m.b_ContB.IMLH);
+    $display("tb_exec: JAMPAR Nop#         P015=1 P1631=1 -> MIR IMLH=%b IMRH=%b",
+             jam_imlh, jam_imrh);
+    $display("tb_exec: JAMPAR   IMLH after each of the four data strobes: %b%b%b%b",
+             jt[0], jt[1], jt[2], jt[3]);
+    $display("tb_exec: JAMPAR   IMRH after each: %b%b%b%b", jt[4], jt[5], jt[6], jt[7]);
 
     set_cpreg_tilde(startaddr[15:0]);
     parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#

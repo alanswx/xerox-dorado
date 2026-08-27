@@ -1170,13 +1170,18 @@ The second error was FG parity over the instruction
   gives `Error` propagated on **0** samples, `Stop` never set, 24,991 clk0'
   edges. A TOTAL SAID "parity is broken"; A DISTRIBUTION SAID "the enables are
   on 148 cycles too early".
-- **The jam never delivered a parity bit at all**, which is worth knowing
-  separately. Jamming `CPRegToLink#` (P015=0) and `Nop#` (P015=1) both leave the
-  MIR's `IMLH` at 0, because `sIMLH` is driven from `CPOut.8` -- the ninth
-  CP-bus bit, which the benches use for the single-step flag. Both checkers work
-  out to `IM?HPE' = ~(XOR(17 field bits) ^ IM?H)`, so a zero parity bit passes
-  only when the field-XOR is zero -- true of `Nop#` alone among PARC's eight
-  entries, and NOT of `Return#`, which is what the startup jams.
+- **BYTE 0 OF A JAM IS FOUR BITS, and they ride as the NINTH CP-BUS BIT** of
+  the four data strobes -- `b0[7]` RSTK.0 on fn 4, `b0[6]` P015 on fn 5,
+  `b0[5]` JCN.7 on fn 6, `b0[4]` P1631 on fn 7 -- which is why byte 0's low four
+  bits are always zero. Sweeping the ninth bit against each function code
+  (`+jamsweep`) confirms it: fn 5 sets `IMLH`, fn 7 sets `IMRH`, under every
+  variant tried. **This retracts a claim of mine** that "the jam never delivers
+  a parity bit": capturing `IMLH` inside `parc_micro` reads 0 even for `Nop#`
+  (P015=1), but the routing is sound, so the question is where to SAMPLE, not a
+  missing connection. Both checkers reduce to
+  `IM?HPE' = ~(XOR(17 field bits) ^ IM?H)`, so a zero parity bit passes only
+  when the field-XOR is zero -- `Nop#` alone of PARC's eight, and not `Return#`,
+  which is what the startup jams.
 - **A GREEN CHECK IS WHAT PEOPLE QUOTE, so make it say what it cannot test.**
   Mutating `im-parity-check` four ways, two do NOT fail, both for principled
   reasons: every one of PARC's eight entries has `RSTK.0 = 0` and `BLOCK = 0`,
