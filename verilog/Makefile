@@ -187,6 +187,10 @@ converge-test:
 term-test:
 	@$(MAKE) -C verilator term-test
 
+# A Trident drive at the end of the cable -- presence and 3600 RPM rotation.
+trident-test:
+	@$(MAKE) -C verilator trident-test
+
 # Does the RTL keyboard put each key where the C emulator's key_map puts it?
 # A formula was tried first and is WRONG -- word 2 carries only fifteen keys --
 # so the two tables are compared file against file on every run.
