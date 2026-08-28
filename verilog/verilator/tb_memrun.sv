@@ -1018,8 +1018,21 @@ module tb_memrun;
     end
   endfunction
 
-  always @(posedge sys_clk) ckd <= ckd + 4'd1;
-  wire mclk = ckd[3];
+  // THE MACHINE CLOCK, AT THE OVERSAMPLING RATIO. This was `ckd[3]` of a
+  // free-running 4-bit counter -- a hard-coded divide-by-16 that ignored
+  // SYSPER entirely. SYSPER reaches only `cell_CLOCKGEN`, which lives on the
+  // BaseBoard, and none of the sub-machines (dorado_mem/_ifu/_proc/_control)
+  // contains one: their CLK_* ports are inputs marked "awaits BaseBd" and the
+  // bench drives them. So lowering SYSPER compressed the BENCH's stimulus
+  // while the machine's clock stayed at 16 sys_clk per microinstruction --
+  // which is a different experiment, not a lower ratio.
+  //
+  // One microinstruction is SYSPER sys_clk now, which is what N means in
+  // cell_CLOCKGEN. At SYSPER=16 this is bit for bit the counter it replaces:
+  // ckd counts 0..15 and mclk is ckd >= 8, i.e. ckd[3].
+  always @(posedge sys_clk)
+    ckd <= (ckd == SYSPER - 1) ? 4'd0 : ckd + 4'd1;
+  wire mclk = (ckd >= SYSPER / 2);
 
   reg [2:0] addr_n = 3'b111;
   reg [8:0] cpout  = 9'd0;
@@ -1153,6 +1166,11 @@ module tb_memrun;
   reg pmras, pmcas;
   reg smc_d, sec_d;
   integer n_ldp_lo, n_ldp_edge, n_ldp_coin, n_d_at_edge, n_hcd_at_edge;  reg ldp_d;
+  // UNGATED TWINS. The counters above live inside the flush-instruction
+  // gate (ASEL.0=0 && ASEL.2=1), so they see only the edges that fall while
+  // that instruction is in force -- a SUBSET, which is not what "every
+  // LdPair' edge" means. These count over the whole run.
+  integer n_ldp_edge_u, n_d_at_edge_u, n_hcd_at_edge_u;  reg ldp_du;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd, nvc_wv, nvc_dv, nvc_fdm, nvc_fia, nvc_vip, nvc_via, nvc_ios, nvc_wia, nvc_wim, nvc_wimem, nvc_smc, nvc_sec, nvc_smc_e, nvc_sec_e, nvc_coin, nvc_coin2;
   integer smc_first, smc_last, wia_first, wia_last, sm_first, sm_last;
   integer gap_min, gap_sum, gap_n;
@@ -2277,7 +2295,7 @@ build_hunk4(4'd0, 1'b0,
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
     for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
     ntnia=0; nff0=0; nsamp=0;
-    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0; nvc_wv=0; nvc_dv=0; nvc_fdm=0; nvc_fia=0; nvc_vip=0; nvc_via=0; nvc_ios=0; nvc_wia=0; nvc_wim=0; nvc_wimem=0; nvc_smc=0; nvc_sec=0; nvc_smc_e=0; nvc_sec_e=0; nvc_coin=0; nvc_coin2=0; n_ldp_lo=0; n_ldp_edge=0; n_ldp_coin=0; ldp_d=1'b1; n_d_at_edge=0; n_hcd_at_edge=0;
+    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0; nvc_wv=0; nvc_dv=0; nvc_fdm=0; nvc_fia=0; nvc_vip=0; nvc_via=0; nvc_ios=0; nvc_wia=0; nvc_wim=0; nvc_wimem=0; nvc_smc=0; nvc_sec=0; nvc_smc_e=0; nvc_sec_e=0; nvc_coin=0; nvc_coin2=0; n_ldp_lo=0; n_ldp_edge=0; n_ldp_coin=0; ldp_d=1'b1; n_d_at_edge=0; n_hcd_at_edge=0; n_ldp_edge_u=0; n_d_at_edge_u=0; n_hcd_at_edge_u=0; ldp_du=1'b1;
     smc_first=-1; smc_last=-1; wia_first=-1; wia_last=-1; sm_first=-1; sm_last=-1;
     gap_min=-1; gap_sum=0; gap_n=0;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
@@ -2349,6 +2367,14 @@ build_hunk4(4'd0, 1'b0,
       if (m.b_MemC.WantProcRef_p_    !== pwpr) begin nwpr=nwpr+1; pwpr=m.b_MemC.WantProcRef_p_;    end
       if (m.b_MemC.RefHold_p_        !== prh ) begin nrh =nrh +1; prh =m.b_MemC.RefHold_p_;        end
       if (m.b_MemC.LdPair_p_         !== pldp) begin nldp=nldp+1; pldp=m.b_MemC.LdPair_p_;         end
+      // EVERY LdPair' RISING EDGE IN THE RUN, and what k21's D input reads
+      // at each. This is the measurement the gated pair above cannot make.
+      if (m.b_MemC.LdPair_p_ && !ldp_du) begin
+        n_ldp_edge_u = n_ldp_edge_u + 1;
+        if (m.b_MemC.MemC17_sil_pl_16) n_d_at_edge_u = n_d_at_edge_u + 1;
+        if (m.b_MemC.HitColDirty)      n_hcd_at_edge_u = n_hcd_at_edge_u + 1;
+      end
+      ldp_du = m.b_MemC.LdPair_p_;
       if (m.b_MemC.PairHasA          !== ppha) begin npha=npha+1; ppha=m.b_MemC.PairHasA;          end
       if (m.b_MemC.CacheRefInA       !== pcra) begin ncra=ncra+1; pcra=m.b_MemC.CacheRefInA;       end
       if (m.b_MemC.Hit_p_a           !== pha ) begin nha =nha +1; pha =m.b_MemC.Hit_p_a;           end
@@ -2693,6 +2719,12 @@ build_hunk4(4'd0, 1'b0,
              n_ldp_lo, n_ldp_edge, n_ldp_coin);
     $display("tb_memrun: FLUSHD -- at the LdPair' EDGE: D (MemC17.sil+16) high %0d of %0d, HitColDirty high %0d",
              n_d_at_edge, n_ldp_edge, n_hcd_at_edge);
+    // The same question asked of the WHOLE RUN rather than of the flush
+    // window. If D is high at every ungated edge too, then k21 captures the
+    // same value at both ratios and the assertion above is reading a state
+    // the machine never leaves -- a bench artifact, not a timing fault.
+    $display("tb_memrun: FLUSHD-UNGATED -- LdPair' edges %0d, D high %0d, HitColDirty high %0d",
+             n_ldp_edge_u, n_d_at_edge_u, n_hcd_at_edge_u);
     if (nff0_st  == 0) $fatal(1, "the Store never asserted -- nothing dirties a line");
     if (nff0_hcd == 0) $fatal(1, "HitColDirty never true -- the Store did not dirty the flushed line");
     if (nff0_fsp == 0) $fatal(1, "FSinPair' never fell -- the flush was not latched into the pair");
