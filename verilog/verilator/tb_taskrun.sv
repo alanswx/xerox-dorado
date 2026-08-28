@@ -1035,7 +1035,14 @@ module tb_taskrun;
   // in every task's slot, either the window spans several addresses or it
   // fires several times. Count both, at whatever SYSPER is in force, and the
   // 16x-vs-8x difference says which.
-  integer n_wr_lo, n_wr_edge, n_ad_distinct, n_wr_slot0;
+  integer n_wr_lo, n_wr_edge, n_ad_distinct, n_wr_slot0, n_slot0_chg;
+  reg [19:0] slot0_prev;
+  wire [19:0] slot0_data = {
+      m.b_ContA.u_a04.p12, m.b_ContA.u_a04.p11, m.b_ContA.u_a04.p4, m.b_ContA.u_a04.p5,
+      m.b_ContA.u_b04.p12, m.b_ContA.u_b04.p11, m.b_ContA.u_b04.p4, m.b_ContA.u_b04.p5,
+      m.b_ContA.u_c04.p12, m.b_ContA.u_c04.p11, m.b_ContA.u_c04.p4, m.b_ContA.u_c04.p5,
+      m.b_ContA.u_d04.p12, m.b_ContA.u_d04.p11, m.b_ContA.u_d04.p4, m.b_ContA.u_d04.p5,
+      m.b_ContA.u_e04.p11, m.b_ContA.u_e04.p4,  m.b_ContA.u_e04.p5, 1'b0};
   reg     wr_d;
   reg [15:0] ad_seen;               // bitmap of TLinkAd values seen while low
   wire [3:0] tlad = {m.b_ContA.TLinkAd_0, m.b_ContA.TLinkAd_1,
@@ -1045,11 +1052,28 @@ module tb_taskrun;
     if (!m.b_ContA.WriteTLink_p_a && !m.b_ContA.TLinkEn_p_) begin
       n_wr_lo <= n_wr_lo + 1;
       ad_seen <= ad_seen | (16'b1 << tlad);
-      if (tlad == 4'd0) n_wr_slot0 <= n_wr_slot0 + 1;
+      if (tlad == 4'd0) begin
+        n_wr_slot0 <= n_wr_slot0 + 1;
+        // THE DATA AT THE WRITE INSTANT, printed INLINE rather than in `final`
+        // -- the bench $fatals at 8x and `final` never runs, which is why the
+        // 8x counts had to be inferred last time. Five is enough to see
+        // whether the value written to task 0's slot differs by ratio.
+        // PRINT ONLY WHEN IT CHANGES. The first five writes are identical at
+        // both ratios, so the divergence is later -- what matters is the
+        // SEQUENCE of distinct values written to task 0's slot, not the start.
+        // Inline rather than in `final`, which never runs when the bench
+        // $fatals at 8x.
+        if (slot0_data !== slot0_prev) begin
+          $display("tb_taskrun: LINKDATA slot 0 <- %05h (change %0d, at write %0d)",
+                   slot0_data, n_slot0_chg, n_wr_slot0);
+          slot0_prev  <= slot0_data;
+          n_slot0_chg <= n_slot0_chg + 1;
+        end
+      end
     end
     if (m.b_ContA.WriteTLink_p_a && !wr_d) n_wr_edge <= n_wr_edge + 1;
   end
-  initial begin n_wr_lo = 0; n_wr_edge = 0; ad_seen = 0; wr_d = 1'b1; n_wr_slot0 = 0; end
+  initial begin n_wr_lo = 0; n_wr_edge = 0; ad_seen = 0; wr_d = 1'b1; n_wr_slot0 = 0; n_slot0_chg = 0; slot0_prev = 20'hFFFFF; end
 
   final begin
     n_ad_distinct = 0;
