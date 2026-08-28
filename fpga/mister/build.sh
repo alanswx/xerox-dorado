@@ -30,8 +30,14 @@ sed 's/Template/Dorado/g' "$TEMPLATE/Template.qpf" > "$OUT/Dorado.qpf"
 cp "$HERE/Dorado.sv" "$OUT/"
 rm -f "$OUT/Template.sv" "$OUT/rtl/mycore.v"
 
-# Point the project at our sources. The template's qsf names Template.sv and
-# its own rtl; swap in ours and append the machine.
+# Point the project at our sources. THE TEMPLATE'S FILE LIST IS files.qip, NOT
+# the qsf -- the qsf only does `source files.qip` -- so renaming Template.sv in
+# the qsf alone leaves the project with no `emu` at all, which is exactly how
+# this failed the first time. Fix both.
+sed -i.bak -e 's|Template\.sv|Dorado.sv|g' -e 's|Template\.sdc|Dorado.sdc|g' \
+    -e '/mycore\.v/d' "$OUT/files.qip"
+rm -f "$OUT/files.qip.bak"
+
 sed -i.bak \
     -e 's|Template\.sv|Dorado.sv|g' \
     -e 's|Template|Dorado|g' \
