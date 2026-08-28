@@ -1028,6 +1028,35 @@ module tb_taskrun;
                         m.b_ContA.FF_3_p_,m.b_ContA.FF_4_p_,m.b_ContA.FF_5_p_,
                         m.b_ContA.FF_6_p_,m.b_ContA.FF_7_p_};
 
+  // HOW MANY ADDRESSES DOES ONE WRITE WINDOW SPAN?
+  //
+  // The Link file is ContA a04-e04, F10145A addressed by TLinkAd with write
+  // enable WriteTLink'a and chip enable TLinkEn'. If the startup Link<- lands
+  // in every task's slot, either the window spans several addresses or it
+  // fires several times. Count both, at whatever SYSPER is in force, and the
+  // 16x-vs-8x difference says which.
+  integer n_wr_lo, n_wr_edge, n_ad_distinct;
+  reg     wr_d;
+  reg [15:0] ad_seen;               // bitmap of TLinkAd values seen while low
+  wire [3:0] tlad = {m.b_ContA.TLinkAd_0, m.b_ContA.TLinkAd_1,
+                     m.b_ContA.TLinkAd_2, m.b_ContA.TLinkAd_3};
+  always @(posedge sys_clk) begin
+    wr_d <= m.b_ContA.WriteTLink_p_a;
+    if (!m.b_ContA.WriteTLink_p_a && !m.b_ContA.TLinkEn_p_) begin
+      n_wr_lo <= n_wr_lo + 1;
+      ad_seen <= ad_seen | (16'b1 << tlad);
+    end
+    if (m.b_ContA.WriteTLink_p_a && !wr_d) n_wr_edge <= n_wr_edge + 1;
+  end
+  initial begin n_wr_lo = 0; n_wr_edge = 0; ad_seen = 0; wr_d = 1'b1; end
+
+  final begin
+    n_ad_distinct = 0;
+    for (int k = 0; k < 16; k++) if (ad_seen[k]) n_ad_distinct = n_ad_distinct + 1;
+    $display("tb_taskrun: LINKWR -- WriteTLink' low on %0d samples, %0d rising edges, spanning %0d distinct TLinkAd values (mask %h)",
+             n_wr_lo, n_wr_edge, n_ad_distinct, ad_seen);
+  end
+
   initial begin
     force m.DMuxData = dmd;
     force m.DMuxClk  = dmc;
