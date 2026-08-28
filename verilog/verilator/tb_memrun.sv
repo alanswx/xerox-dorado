@@ -1152,7 +1152,7 @@ module tb_memrun;
   integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nwm, nall3, nrw, nwp, ndty, nevn, nckw, nprf, nthi, nmt, nmtp, nmras, nmcas, nmrd, nmwr, nd13w;
   reg pmras, pmcas;
   reg smc_d, sec_d;
-  integer n_ldp_lo, n_ldp_edge, n_ldp_coin;  reg ldp_d;
+  integer n_ldp_lo, n_ldp_edge, n_ldp_coin, n_d_at_edge, n_hcd_at_edge;  reg ldp_d;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd, nvc_wv, nvc_dv, nvc_fdm, nvc_fia, nvc_vip, nvc_via, nvc_ios, nvc_wia, nvc_wim, nvc_wimem, nvc_smc, nvc_sec, nvc_smc_e, nvc_sec_e, nvc_coin, nvc_coin2;
   integer smc_first, smc_last, wia_first, wia_last, sm_first, sm_last;
   integer gap_min, gap_sum, gap_n;
@@ -2277,7 +2277,7 @@ build_hunk4(4'd0, 1'b0,
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
     for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
     ntnia=0; nff0=0; nsamp=0;
-    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0; nvc_wv=0; nvc_dv=0; nvc_fdm=0; nvc_fia=0; nvc_vip=0; nvc_via=0; nvc_ios=0; nvc_wia=0; nvc_wim=0; nvc_wimem=0; nvc_smc=0; nvc_sec=0; nvc_smc_e=0; nvc_sec_e=0; nvc_coin=0; nvc_coin2=0; n_ldp_lo=0; n_ldp_edge=0; n_ldp_coin=0; ldp_d=1'b1;
+    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0; nvc_wv=0; nvc_dv=0; nvc_fdm=0; nvc_fia=0; nvc_vip=0; nvc_via=0; nvc_ios=0; nvc_wia=0; nvc_wim=0; nvc_wimem=0; nvc_smc=0; nvc_sec=0; nvc_smc_e=0; nvc_sec_e=0; nvc_coin=0; nvc_coin2=0; n_ldp_lo=0; n_ldp_edge=0; n_ldp_coin=0; ldp_d=1'b1; n_d_at_edge=0; n_hcd_at_edge=0;
     smc_first=-1; smc_last=-1; wia_first=-1; wia_last=-1; sm_first=-1; sm_last=-1;
     gap_min=-1; gap_sum=0; gap_n=0;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
@@ -2570,7 +2570,16 @@ build_hunk4(4'd0, 1'b0,
           n_ldp_lo = n_ldp_lo + 1;
           if (m.b_MemC.HitColDirty) n_ldp_coin = n_ldp_coin + 1;
         end
-        if (m.b_MemC.LdPair_p_ && !ldp_d) n_ldp_edge = n_ldp_edge + 1;
+        if (m.b_MemC.LdPair_p_ && !ldp_d) begin
+          n_ldp_edge = n_ldp_edge + 1;
+          // WHAT THE FLIP-FLOP ACTUALLY CAPTURES, sampled ON THE EDGE.
+          // k21 is an MC10176 (hex D FF, not a level latch): FSinPair' is p15
+          // and takes p12 = MemC17.sil+16. A level count across LdPair's low
+          // window can look healthy while the EDGE sees the wrong value, which
+          // is the distinction that resolved the taskrun failure one level up.
+          if (m.b_MemC.MemC17_sil_pl_16) n_d_at_edge = n_d_at_edge + 1;
+          if (m.b_MemC.HitColDirty)      n_hcd_at_edge = n_hcd_at_edge + 1;
+        end
         ldp_d = m.b_MemC.LdPair_p_;
         if (!m.b_MemC.EcHasAb)        nff0_ech = nff0_ech + 1;
         if (m.b_MemC.ForceMiss)       nff0_fm  = nff0_fm  + 1;
@@ -2682,6 +2691,8 @@ build_hunk4(4'd0, 1'b0,
     // separates those two -- and they need different fixes.
     $display("tb_memrun: FLUSHCLK -- LdPair' low %0d, rising edges %0d, coincident with HitColDirty %0d",
              n_ldp_lo, n_ldp_edge, n_ldp_coin);
+    $display("tb_memrun: FLUSHD -- at the LdPair' EDGE: D (MemC17.sil+16) high %0d of %0d, HitColDirty high %0d",
+             n_d_at_edge, n_ldp_edge, n_hcd_at_edge);
     if (nff0_st  == 0) $fatal(1, "the Store never asserted -- nothing dirties a line");
     if (nff0_hcd == 0) $fatal(1, "HitColDirty never true -- the Store did not dirty the flushed line");
     if (nff0_fsp == 0) $fatal(1, "FSinPair' never fell -- the flush was not latched into the pair");
