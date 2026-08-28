@@ -4682,7 +4682,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p14(Ether08_sil_pl_10),
     .p15(sPendulum)
   ); // MC10135
-  cell_K1115A #(.FREQ_KHZ(20000), .SYSPER(SYSPER)) u_j20 (
+  cell_K1115A u_j20 (
     .sys_clk(sys_clk),
     .p7(GND_m_8),
     .p8(EClk0),

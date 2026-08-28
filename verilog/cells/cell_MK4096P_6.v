@@ -29,7 +29,15 @@ module cell_MK4096P_6 (
     input  wire p12,
     input  wire p13,
     input  wire p15,
-    output wire p14
+    output wire p14,
+
+    // THE ROW/COLUMN LATCH LIVES OUTSIDE, in cell_MK4096P_addr, shared by
+    // every chip driven by the same strobes and address pins. On the msa
+    // board that is 16 groups across 144 chips, so 128 copies of sixteen
+    // registers go away -- which matters because this array is what took the
+    // DE10-Nano fit to 97% of its ALMs. The generator wires it; see
+    // tools/sil_to_verilog.py's DRAM grouping.
+    input  wire [11:0] addr_i
 );
 
   // Standard 16-pin dynamic RAM: 7 MULTIPLEXED address lines, row latched on
@@ -37,7 +45,6 @@ module cell_MK4096P_6 (
   //
   // Address order is read off the BOARD's own net names, not assumed:
   // A0'=13 A1'=5 A2'=7 A3'=6 A4'=12 A5'=11 A6'=10.
-  reg [6:0] row, col;
   // ONE BIT WIDE, because the part is 4K x 1. This was `reg [11:0]` while
   // storing a single bit -- functionally right (the write zero-extends, the
   // read takes bit 0) and TWELVE TIMES the memory, across 309 packages.
@@ -45,8 +52,6 @@ module cell_MK4096P_6 (
   // into registers and stopped Analysis & Synthesis outright.
   reg mem [0:4095];
   reg        dout;
-
-  wire [6:0] a = {p10, p11, p12, p6, p7, p5, p13};   // A6..A0
 
 
   // FPGA: ONE CLOCK, and the strobes become ENABLES.
@@ -56,14 +61,8 @@ module cell_MK4096P_6 (
   // combinational nets, and a level-sensitive write that lands in registers
   // rather than block RAM -- 165 MosRam plus 144 MK4096 packages of it. So
   // the strobes are oversampled on `sys_clk` and used as one-cycle enables.
-  reg ras_d, cas_d;
-  always @(posedge sys_clk) begin ras_d <= p4; cas_d <= p15; end
-  always @(posedge sys_clk) begin
-    if (~p4  & ras_d) row <= a;                      // RAS' falling
-    if (~p15 & cas_d) col <= a;                      // CAS' falling
-  end
-
-  wire [13:0] addr = {row, col};
+  // ...and the latch itself is in cell_MK4096P_addr now, one per group.
+  wire [11:0] addr = addr_i;
 
   // Synchronous read and write, so this INFERS BLOCK RAM.
   // THE READ MUST BE UNCONDITIONAL FOR QUARTUS TO INFER M10K. This is the
@@ -89,8 +88,8 @@ module cell_MK4096P_6 (
   // only valid then.
   reg dout_r;
   always @(posedge sys_clk) begin
-    dout_r <= mem[addr[11:0]];
-    if (!p4 && !p15 && !p3) mem[addr[11:0]] <= p2;
+    dout_r <= mem[addr];
+    if (!p4 && !p15 && !p3) mem[addr] <= p2;
   end
   always @(posedge sys_clk)
     if (!p4 && !p15 && p3) dout <= dout_r;
