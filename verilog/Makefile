@@ -183,6 +183,10 @@ startseq:
 converge-test:
 	@$(MAKE) -C verilator converge-test
 
+# The terminal microcomputer -- the keyboard's own processor, as RTL.
+term-test:
+	@$(MAKE) -C verilator term-test
+
 # Does the assembled machine run? Rebuilds the harness it tests.
 machine-test:
 	@$(MAKE) -C verilator machine-test

@@ -912,3 +912,14 @@ run: all
 
 clean:
 	rm -rf obj_dir
+
+# THE TERMINAL MICROCOMPUTER: HM Table 24 framing, the manual's own priority
+# (a keyboard transition outranks a mouse move) and the excess-200B mouse
+# encoding. The module is the RTL half of what dorado/src/display.c models.
+.PHONY: term-test
+term-test:
+	@cd ../.. && $(V) --binary --top-module tb_term $(V_WARN) \
+		--Mdir verilog/verilator/obj_term -o tb_term \
+		verilog/verilator/tb_term.sv verilog/cells/dorado_terminal.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_term/tb_term 2>&1); \
+		  rc=$$?; echo "$$out" | grep tb_term; exit $$rc; }
