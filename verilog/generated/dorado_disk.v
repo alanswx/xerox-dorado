@@ -215,18 +215,18 @@ module dorado_disk #(parameter integer SYSPER = 16) (
     input  wire SW                        ,  // to a backplane connector (cable)
     output wire SWb                       ,  // to a backplane connector (cable)
     output wire SWm                       ,  // to a backplane connector (cable)
-    output wire SecIndx0_p_               ,  // to a backplane connector (cable)
-    output wire SecIndx1_p_               ,  // to a backplane connector (cable)
-    output wire SecIndx2_p_               ,  // to a backplane connector (cable)
-    output wire SecIndx3_p_               ,  // to a backplane connector (cable)
+    input  wire SecIndx0_p_               ,  // to a backplane connector (cable)
+    input  wire SecIndx1_p_               ,  // to a backplane connector (cable)
+    input  wire SecIndx2_p_               ,  // to a backplane connector (cable)
+    input  wire SecIndx3_p_               ,  // to a backplane connector (cable)
     output wire Select0_p_                ,  // to a backplane connector (cable)
     output wire Select1_p_                ,  // to a backplane connector (cable)
     output wire Select2_p_                ,  // to a backplane connector (cable)
     output wire Select3_p_                ,  // to a backplane connector (cable)
-    output wire Selected0_p_              ,  // to a backplane connector (cable)
-    output wire Selected1_p_              ,  // to a backplane connector (cable)
-    output wire Selected2_p_              ,  // to a backplane connector (cable)
-    output wire Selected3_p_              ,  // to a backplane connector (cable)
+    input  wire Selected0_p_              ,  // to a backplane connector (cable)
+    input  wire Selected1_p_              ,  // to a backplane connector (cable)
+    input  wire Selected2_p_              ,  // to a backplane connector (cable)
+    input  wire Selected3_p_              ,  // to a backplane connector (cable)
     input  wire SetRun                    ,  // awaits BaseBd
     input  wire SetRunRfsh                ,  // awaits BaseBd
     input  wire SetSS_p_                  ,  // awaits BaseBd
@@ -262,15 +262,15 @@ module dorado_disk #(parameter integer SYSPER = 16) (
     input  wire TempRef                   ,  // awaits BaseBd IFU
     output wire TestTW                    ,  // to a backplane connector (cable)
     output wire TtlDeviceCk_p_            ,  // to a backplane connector (cable)
-    output wire TtlEndOfCyl_p_            ,  // to a backplane connector (cable)
-    output wire TtlIndex_p_               ,  // to a backplane connector (cable)
+    input  wire TtlEndOfCyl_p_            ,  // to a backplane connector (cable)
+    input  wire TtlIndex_p_               ,  // to a backplane connector (cable)
     output wire TtlOffSet_p_              ,  // to a backplane connector (cable)
-    output wire TtlOnLine_p_              ,  // to a backplane connector (cable)
-    output wire TtlReadOnly_p_            ,  // to a backplane connector (cable)
-    output wire TtlReady_p_               ,  // to a backplane connector (cable)
+    input  wire TtlOnLine_p_              ,  // to a backplane connector (cable)
+    input  wire TtlReadOnly_p_            ,  // to a backplane connector (cable)
+    input  wire TtlReady_p_               ,  // to a backplane connector (cable)
     output wire TtlSector_p_              ,  // to a backplane connector (cable)
     output wire TtlSeekInc_p_             ,  // to a backplane connector (cable)
-    output wire TtlTerm_p_                ,  // to a backplane connector (cable)
+    input  wire TtlTerm_p_                ,  // to a backplane connector (cable)
     input  wire WantIfuHold_p_            ,  // awaits IFU
     input  wire WantIfuRef_p_             ,  // awaits IFU
     output wire XmtData_p_                   // awaits BaseBd
@@ -1198,20 +1198,12 @@ module dorado_disk #(parameter integer SYSPER = 16) (
   wire STfree_p___MemX;
   wire SWb__ContA;
   wire SWm__ContA;
-  wire SecIndx0_p___DskEth;
-  wire SecIndx1_p___DskEth;
-  wire SecIndx2_p___DskEth;
-  wire SecIndx3_p___DskEth;
   wire Select0_p___DskEth;
   wire Select1_p___DskEth;
   wire Select2_p___DskEth;
   wire Select3_p___DskEth;
   wire SelectRm_p_a__ProcL;
   wire SelectStk_p_a__ProcL;
-  wire Selected0_p___DskEth;
-  wire Selected1_p___DskEth;
-  wire Selected2_p___DskEth;
-  wire Selected3_p___DskEth;
   wire ShA_00__ProcH;
   wire ShA_01__ProcH;
   wire ShA_02__ProcH;
@@ -1341,15 +1333,9 @@ module dorado_disk #(parameter integer SYSPER = 16) (
   wire TestTW__ProcH;
   wire Transport_p___MemX;
   wire TtlDeviceCk_p___DskEth;
-  wire TtlEndOfCyl_p___DskEth;
-  wire TtlIndex_p___DskEth;
   wire TtlOffSet_p___DskEth;
-  wire TtlOnLine_p___DskEth;
-  wire TtlReadOnly_p___DskEth;
-  wire TtlReady_p___DskEth;
   wire TtlSector_p___DskEth;
   wire TtlSeekInc_p___DskEth;
-  wire TtlTerm_p___DskEth;
   wire UseAsrn__MemC;
   wire UseDMD__ContA;
   wire VicIfMiss_p___MemC;
@@ -1804,20 +1790,12 @@ module dorado_disk #(parameter integer SYSPER = 16) (
   assign STfree_p_ = STfree_p___MemX;
   assign SWb = SWb__ContA;
   assign SWm = SWm__ContA;
-  assign SecIndx0_p_ = SecIndx0_p___DskEth;
-  assign SecIndx1_p_ = SecIndx1_p___DskEth;
-  assign SecIndx2_p_ = SecIndx2_p___DskEth;
-  assign SecIndx3_p_ = SecIndx3_p___DskEth;
   assign Select0_p_ = Select0_p___DskEth;
   assign Select1_p_ = Select1_p___DskEth;
   assign Select2_p_ = Select2_p___DskEth;
   assign Select3_p_ = Select3_p___DskEth;
   assign SelectRm_p_a = SelectRm_p_a__ProcL;
   assign SelectStk_p_a = SelectStk_p_a__ProcL;
-  assign Selected0_p_ = Selected0_p___DskEth;
-  assign Selected1_p_ = Selected1_p___DskEth;
-  assign Selected2_p_ = Selected2_p___DskEth;
-  assign Selected3_p_ = Selected3_p___DskEth;
   assign ShA_00 = ShA_00__ProcH;
   assign ShA_01 = ShA_01__ProcH;
   assign ShA_02 = ShA_02__ProcH;
@@ -1947,15 +1925,9 @@ module dorado_disk #(parameter integer SYSPER = 16) (
   assign TestTW = TestTW__ProcH;
   assign Transport_p_ = Transport_p___MemX;
   assign TtlDeviceCk_p_ = TtlDeviceCk_p___DskEth;
-  assign TtlEndOfCyl_p_ = TtlEndOfCyl_p___DskEth;
-  assign TtlIndex_p_ = TtlIndex_p___DskEth;
   assign TtlOffSet_p_ = TtlOffSet_p___DskEth;
-  assign TtlOnLine_p_ = TtlOnLine_p___DskEth;
-  assign TtlReadOnly_p_ = TtlReadOnly_p___DskEth;
-  assign TtlReady_p_ = TtlReady_p___DskEth;
   assign TtlSector_p_ = TtlSector_p___DskEth;
   assign TtlSeekInc_p_ = TtlSeekInc_p___DskEth;
-  assign TtlTerm_p_ = TtlTerm_p___DskEth;
   assign UseAsrn = UseAsrn__MemC;
   assign UseDMD = UseDMD__ContA;
   assign VicIfMiss_p_ = VicIfMiss_p___MemC;
@@ -3822,18 +3794,10 @@ module dorado_disk #(parameter integer SYSPER = 16) (
     .OS1__drv(OS1__DskEth),
     .OS2__drv(OS2__DskEth),
     .OS3__drv(OS3__DskEth),
-    .SecIndx0_p___drv(SecIndx0_p___DskEth),
-    .SecIndx1_p___drv(SecIndx1_p___DskEth),
-    .SecIndx2_p___drv(SecIndx2_p___DskEth),
-    .SecIndx3_p___drv(SecIndx3_p___DskEth),
     .Select0_p___drv(Select0_p___DskEth),
     .Select1_p___drv(Select1_p___DskEth),
     .Select2_p___drv(Select2_p___DskEth),
     .Select3_p___drv(Select3_p___DskEth),
-    .Selected0_p___drv(Selected0_p___DskEth),
-    .Selected1_p___drv(Selected1_p___DskEth),
-    .Selected2_p___drv(Selected2_p___DskEth),
-    .Selected3_p___drv(Selected3_p___DskEth),
     .TWReq_06__drv(TWReq_06__DskEth),
     .TWReq_07__drv(TWReq_07__DskEth),
     .TWReq_12__drv(TWReq_12__DskEth),
@@ -3850,15 +3814,9 @@ module dorado_disk #(parameter integer SYSPER = 16) (
     .TagBus_8_p___drv(TagBus_8_p___DskEth),
     .TagBus_9_p___drv(TagBus_9_p___DskEth),
     .TtlDeviceCk_p___drv(TtlDeviceCk_p___DskEth),
-    .TtlEndOfCyl_p___drv(TtlEndOfCyl_p___DskEth),
-    .TtlIndex_p___drv(TtlIndex_p___DskEth),
     .TtlOffSet_p___drv(TtlOffSet_p___DskEth),
-    .TtlOnLine_p___drv(TtlOnLine_p___DskEth),
-    .TtlReadOnly_p___drv(TtlReadOnly_p___DskEth),
-    .TtlReady_p___drv(TtlReady_p___DskEth),
     .TtlSector_p___drv(TtlSector_p___DskEth),
     .TtlSeekInc_p___drv(TtlSeekInc_p___DskEth),
-    .TtlTerm_p___drv(TtlTerm_p___DskEth),
     .XmtData_p___drv(XmtData_p___DskEth)
   );
 
@@ -3882,7 +3840,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 141 signals, 32 at a time;
+// probe_val exposes 127 signals, 32 at a time;
 // dorado_disk.probes lists which bit is which.
 module dorado_disk_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
@@ -3994,18 +3952,10 @@ module dorado_disk_machine #(parameter integer SYSPER = 16) (
   wire RScopeClk0_p_;
   wire SWb;
   wire SWm;
-  wire SecIndx0_p_;
-  wire SecIndx1_p_;
-  wire SecIndx2_p_;
-  wire SecIndx3_p_;
   wire Select0_p_;
   wire Select1_p_;
   wire Select2_p_;
   wire Select3_p_;
-  wire Selected0_p_;
-  wire Selected1_p_;
-  wire Selected2_p_;
-  wire Selected3_p_;
   wire ShiftSinO;
   wire ShiftSoutO;
   wire TagBus_0_p_;
@@ -4022,29 +3972,17 @@ module dorado_disk_machine #(parameter integer SYSPER = 16) (
   wire TagBus_9_p_;
   wire TestTW;
   wire TtlDeviceCk_p_;
-  wire TtlEndOfCyl_p_;
-  wire TtlIndex_p_;
   wire TtlOffSet_p_;
-  wire TtlOnLine_p_;
-  wire TtlReadOnly_p_;
-  wire TtlReady_p_;
   wire TtlSector_p_;
   wire TtlSeekInc_p_;
-  wire TtlTerm_p_;
   wire XmtData_p_;
 
-  wire [159:0] probe = {
-    19'd0,
+  wire [127:0] probe = {
+    1'd0,
     XmtData_p_,
-    TtlTerm_p_,
     TtlSeekInc_p_,
     TtlSector_p_,
-    TtlReady_p_,
-    TtlReadOnly_p_,
-    TtlOnLine_p_,
     TtlOffSet_p_,
-    TtlIndex_p_,
-    TtlEndOfCyl_p_,
     TtlDeviceCk_p_,
     TestTW,
     TagBus_9_p_,
@@ -4061,18 +3999,10 @@ module dorado_disk_machine #(parameter integer SYSPER = 16) (
     TagBus_0_p_,
     ShiftSoutO,
     ShiftSinO,
-    Selected3_p_,
-    Selected2_p_,
-    Selected1_p_,
-    Selected0_p_,
     Select3_p_,
     Select2_p_,
     Select1_p_,
     Select0_p_,
-    SecIndx3_p_,
-    SecIndx2_p_,
-    SecIndx1_p_,
-    SecIndx0_p_,
     SWm,
     SWb,
     RScopeClk0_p_,
@@ -4376,18 +4306,18 @@ module dorado_disk_machine #(parameter integer SYSPER = 16) (
     .SW(1'b0),
     .SWb(SWb),
     .SWm(SWm),
-    .SecIndx0_p_(SecIndx0_p_),
-    .SecIndx1_p_(SecIndx1_p_),
-    .SecIndx2_p_(SecIndx2_p_),
-    .SecIndx3_p_(SecIndx3_p_),
+    .SecIndx0_p_(1'b1),
+    .SecIndx1_p_(1'b1),
+    .SecIndx2_p_(1'b1),
+    .SecIndx3_p_(1'b1),
     .Select0_p_(Select0_p_),
     .Select1_p_(Select1_p_),
     .Select2_p_(Select2_p_),
     .Select3_p_(Select3_p_),
-    .Selected0_p_(Selected0_p_),
-    .Selected1_p_(Selected1_p_),
-    .Selected2_p_(Selected2_p_),
-    .Selected3_p_(Selected3_p_),
+    .Selected0_p_(1'b1),
+    .Selected1_p_(1'b1),
+    .Selected2_p_(1'b1),
+    .Selected3_p_(1'b1),
     .SetRun(1'b0),
     .SetRunRfsh(1'b0),
     .SetSS_p_(1'b0),
@@ -4423,21 +4353,21 @@ module dorado_disk_machine #(parameter integer SYSPER = 16) (
     .TempRef(1'b0),
     .TestTW(TestTW),
     .TtlDeviceCk_p_(TtlDeviceCk_p_),
-    .TtlEndOfCyl_p_(TtlEndOfCyl_p_),
-    .TtlIndex_p_(TtlIndex_p_),
+    .TtlEndOfCyl_p_(1'b1),
+    .TtlIndex_p_(1'b1),
     .TtlOffSet_p_(TtlOffSet_p_),
-    .TtlOnLine_p_(TtlOnLine_p_),
-    .TtlReadOnly_p_(TtlReadOnly_p_),
-    .TtlReady_p_(TtlReady_p_),
+    .TtlOnLine_p_(1'b1),
+    .TtlReadOnly_p_(1'b1),
+    .TtlReady_p_(1'b1),
     .TtlSector_p_(TtlSector_p_),
     .TtlSeekInc_p_(TtlSeekInc_p_),
-    .TtlTerm_p_(TtlTerm_p_),
+    .TtlTerm_p_(1'b1),
     .WantIfuHold_p_(1'b0),
     .WantIfuRef_p_(1'b0),
     .XmtData_p_(XmtData_p_)
   );
 
-  assign probe_words = 16'd5;
+  assign probe_words = 16'd4;
   assign probe_val = (probe_sel < probe_words)
                    ? probe[32 * probe_sel +: 32] : 32'd0;
 

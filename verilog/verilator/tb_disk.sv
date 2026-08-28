@@ -1330,8 +1330,40 @@ module tb_disk;
   end
 
   reg chips16k = 1'b1, chips64k = 1'b0;
+  // THE DRIVE CABLE IS DRIVEN, NOT FORCED.
+  //
+  // These fourteen lines used to be top-level OUTPUTS, because the only thing
+  // driving them on DskEth is a SIP pull-up ("d52.7 TtlReady', tied to
+  // VCC-68"), and the generator read that contribution as the board driving
+  // the net. It is backwards -- the far end is a DRIVE -- so they are ports
+  // now (CABLE_DRIVE_INPUTS in tools/sil_backplane.py) and `dorado_trident`
+  // can be plugged into them.
+  //
+  // AND THAT MEANS force/release NO LONGER WORKS HERE, which cost a reverted
+  // attempt to find out. `release` restores the value the DRIVER supplies,
+  // and a released net only takes it when that driver next evaluates. While
+  // these were outputs the driver was a continuous `assign ... = 1'b1` inside
+  // the board, which re-evaluates; as an input driven by a testbench reg that
+  // never changes again, nothing re-drives it and the released line KEEPS THE
+  // FORCED VALUE. That showed up as `NotSelected=0` after a `release` where
+  // the passing run reads 1 -- the drive never deselecting.
+  //
+  // So the cable is a register and the bench assigns it. ACTIVE LOW, so idle
+  // is 1: an unconnected input reads 0 and FABRICATES A DRIVE, which is the
+  // failure this bench's own first assertion exists to catch.
+  reg cab_ready_n   = 1'b1, cab_online_n = 1'b1, cab_term_n = 1'b1;
+  reg cab_sel0_n    = 1'b1, cab_secidx0_n = 1'b1;
+
   dorado_disk #(.SYSPER(SYSPER)) m (
       .sys_clk(sys_clk),
+      .TtlReady_p_(cab_ready_n), .TtlOnLine_p_(cab_online_n),
+      .TtlTerm_p_(cab_term_n),   .Selected0_p_(cab_sel0_n),
+      .SecIndx0_p_(cab_secidx0_n),
+      // The rest of the cable has no drive on it in this bench, and idles
+      // DEASSERTED for the same reason.
+      .TtlReadOnly_p_(1'b1), .TtlEndOfCyl_p_(1'b1), .TtlIndex_p_(1'b1),
+      .Selected1_p_(1'b1), .Selected2_p_(1'b1), .Selected3_p_(1'b1),
+      .SecIndx1_p_(1'b1),  .SecIndx2_p_(1'b1),  .SecIndx3_p_(1'b1),
       .CLK_ca_p_(mclk), .CLK_cb_p_(mclk), .CLK_ph_p_(mclk), .CLK_pl_p_(mclk),
       // The BaseBoard fans the clock to EVERY slot, and dorado_mem has three
       // more than dorado_proc. Leaving them undriven is why MemC's local clock
@@ -4442,10 +4474,10 @@ module tb_disk;
       // drive is "not on line" if it is not on-line OR THE CABLE IS NOT
       // TERMINATED. Forcing TtlOnLine' alone leaves NotOnLine high, which
       // looks exactly like a receiver that does not pass the cable through.
-      force m.TtlReady_p_  = 1'b0;
-      force m.TtlOnLine_p_ = 1'b0;
-      force m.TtlTerm_p_   = 1'b0;
-      force m.Selected0_p_ = 1'b0;
+      cab_ready_n  = 1'b0;
+      cab_online_n = 1'b0;
+      cab_term_n   = 1'b0;
+      cab_sel0_n = 1'b0;
       repeat (64) @(posedge sys_clk);
       $display("tb_disk:   DRIVE ATTACHED -- TtlReady'=%b TtlOnLine'=%b TtlTerm'=%b Selected0'=%b -> NotReady=%b NotOnLine=%b ReadError=%b",
                m.TtlReady_p_, m.TtlOnLine_p_, m.TtlTerm_p_, m.Selected0_p_,
@@ -4501,18 +4533,18 @@ module tb_disk;
       $display("tb_disk:   SECTOR before -- TtlSector'=%b Sector=%b Index'=%b SectorTW=%b IndexTW=%b",
                m.b_DskEth.TtlSector_p_, m.b_DskEth.Sector, m.b_DskEth.Index_p_,
                m.b_DskEth.SectorTW, m.b_DskEth.IndexTW);
-      force m.TtlReady_p_  = 1'b0;
-      force m.TtlOnLine_p_ = 1'b0;
-      force m.TtlTerm_p_   = 1'b0;
-      force m.Selected0_p_ = 1'b0;
+      cab_ready_n  = 1'b0;
+      cab_online_n = 1'b0;
+      cab_term_n   = 1'b0;
+      cab_sel0_n = 1'b0;
       n_sectw = 0; n_idxtw = 0; n_secpulse = 0; n_secgap = 0;
       for (twin = 0; twin < 8; twin = twin + 1) begin
-        force m.SecIndx0_p_ = 1'b0;            // the sector pulse, active low
+        cab_secidx0_n = 1'b0;            // the sector pulse, active low
         repeat (24) @(posedge sys_clk);
         if (m.b_DskEth.Sector)   n_secpulse = n_secpulse + 1;
         if (m.b_DskEth.SectorTW) n_sectw    = n_sectw + 1;
         if (m.b_DskEth.IndexTW)  n_idxtw    = n_idxtw + 1;
-        force m.SecIndx0_p_ = 1'b1;
+        cab_secidx0_n = 1'b1;
         repeat (24) @(posedge sys_clk);
         // COUNT THE GAP TOO. "Sector high on 8 of 8 pulses" is also what a
         // stuck-high net gives; only the gap separates tracking from stuck.
@@ -4561,7 +4593,7 @@ module tb_disk;
                n_dat1, n_dat0, n_clk1);
       // ...AND WITH THE DRIVE DESELECTED THE PATH GOES DEAD, because f05's
       // ENABLE is NotSelected. Same stimulus, opposite answer.
-      release m.Selected0_p_;
+      cab_sel0_n = 1'b1;   // deselect the drive
       repeat (32) @(posedge sys_clk);
       for (twin = 0; twin < 8; twin = twin + 1) begin
         force m.DataP0 = twin[0]; force m.DataM0 = ~twin[0];
@@ -4590,7 +4622,7 @@ module tb_disk;
       // clock ALONE, or does it need the controller Active? b20 (an F10016)
       // makes ShiftIn/sCountBits/CntDone' and takes `Idle` as an input, which
       // suggests the latter -- but measure rather than infer.
-      force m.Selected0_p_ = 1'b0;
+      cab_sel0_n = 1'b0;
       repeat (32) @(posedge sys_clk);
       shreg_first = {m.b_DskEth.ShiftReg_00, m.b_DskEth.ShiftReg_01,
                      m.b_DskEth.ShiftReg_02, m.b_DskEth.ShiftReg_03,
@@ -4610,9 +4642,9 @@ module tb_disk;
       // upon completion of each PROM program action". The shifter test forced
       // the drive lines but never pulsed SecIndx' while a command was active,
       // so the counter had no reason to start.
-      force m.SecIndx0_p_ = 1'b0;
+      cab_secidx0_n = 1'b0;
       repeat (32) @(posedge sys_clk);
-      force m.SecIndx0_p_ = 1'b1;
+      cab_secidx0_n = 1'b1;
       repeat (32) @(posedge sys_clk);
       $display("tb_disk:   AFTER A SECTOR PULSE -- Sector=%b Active=%b ShiftIn=%b ComputeECC=%b sCountBits=%b ShiftReg=%h",
                m.b_DskEth.Sector, m.b_DskEth.Active, m.b_DskEth.ShiftIn,
@@ -4881,9 +4913,13 @@ module tb_disk;
       else
         $display("tb_disk:   (note) the sequencer gates opened without a loaded command -- re-read this");
       release m.DataP0; release m.DataM0; release m.ClockP0; release m.ClockM0;
-      release m.SecIndx0_p_;
-      release m.TtlReady_p_; release m.TtlOnLine_p_;
-      release m.TtlTerm_p_;  release m.Selected0_p_;
+      // Deassert the whole cable -- the drive goes away. (These were
+      // `release` statements while the lines were outputs.)
+      cab_secidx0_n = 1'b1;
+      cab_ready_n   = 1'b1;
+      cab_online_n  = 1'b1;
+      cab_term_n    = 1'b1;
+      cab_sel0_n    = 1'b1;
       repeat (64) @(posedge sys_clk);
       // ...AND IT NOTICES THE DRIVE GO AWAY, which is the half that proves the
       // reading above was the cable and not a stuck level.

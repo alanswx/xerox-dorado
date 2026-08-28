@@ -176,6 +176,31 @@ def drivers(boards) -> dict[str, list[str]]:
     return out
 
 
+# A CABLE LINE WHOSE ONLY ON-BOARD DRIVER IS A RESISTOR TIE.
+#
+# DskEth's drive-interface lines are pulled up by SIPs -- `TtlReady'` is
+# "d52.7 tied to VCC-68", `SecIndx0'` is "g42.2 tied to VCC-62" -- and the
+# board also SENSES them. The generator sees a board contribution and makes
+# the net a top-level OUTPUT, which is backwards: the far end of that cable is
+# a DRIVE, and the pull-up is only what the line reads when none is attached.
+# Left that way the machine has no way to RECEIVE one.
+#
+# So they become INPUTS and the board's pull-up contribution is dropped -- the
+# same shape as WEAK_PORT_DRIVERS in sil_to_verilog.py, except that here the
+# something-else is off-board and the port is how it gets in.
+#
+# The fourteen that EXIST, taken from the generated port list rather than
+# recalled: a first draft also listed TtlSeekError', TtlNotSelected' and
+# TtlSectorMark', which are not nets, and a frozenset makes a wrong entry
+# SILENTLY INERT -- no error, no effect, the port list quietly one short.
+CABLE_DRIVE_INPUTS = frozenset({
+    "TtlReady'", "TtlOnLine'", "TtlTerm'", "TtlReadOnly'",
+    "TtlEndOfCyl'", "TtlIndex'",
+    "Selected0'", "Selected1'", "Selected2'", "Selected3'",
+    "SecIndx0'", "SecIndx1'", "SecIndx2'", "SecIndx3'",
+})
+
+
 def report() -> int:
     boards = load_backplane()
     print(f'{len(boards)} boards, '
@@ -439,7 +464,14 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
             absent_partner[net] = sorted(b for b in everything
                                          if net in everything[b]
                                          and b not in names)
-            ports[net] = 'output' if contribs[net] else 'input'
+            # A cable line the board only pulls up is an INPUT -- see
+            # CABLE_DRIVE_INPUTS. Its contribution is dropped so the port is
+            # the only source.
+            if net in CABLE_DRIVE_INPUTS:
+                ports[net] = 'input'
+                contribs[net] = []
+            else:
+                ports[net] = 'output' if contribs[net] else 'input'
         else:
             internal[net] = len(contribs[net])
 
@@ -510,8 +542,12 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
             A(f'  {d["module"]} b_{short} (')
         conns = ['    .sys_clk(sys_clk)']
         conns += [f'    .{vname(n)}({vname(n)})' for n in sorted(d['ports'])]
+        # A cable line that is now an INPUT has no contribution wire -- the
+        # board's pull-up output is left unconnected, so the port is the only
+        # source. See CABLE_DRIVE_INPUTS.
         conns += [f'    .{vname(n)}__drv({vname(n)}__{short})'
-                  for n in sorted(d['exports'])]
+                  for n in sorted(d['exports'])
+                  if n not in CABLE_DRIVE_INPUTS]
         A(',\n'.join(conns))
         A('  );')
         A("")
@@ -619,6 +655,11 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
             conns.append(f'    .{vname(n)}(dorado_clk)')
         elif n in loopback and loopback[n] in ports:
             conns.append(f'    .{vname(n)}({vname(loopback[n])})')
+        elif n in CABLE_DRIVE_INPUTS:
+            # An active-low cable line with no drive attached reads HIGH.
+            # Tying it to 0 would fabricate a drive -- six of these once did
+            # exactly that -- so the wrapper idles them DEASSERTED.
+            conns.append(f"    .{vname(n)}(1'b1)")
         elif ports[n] == 'input':
             conns.append(f"    .{vname(n)}(1'b0)")
         else:
