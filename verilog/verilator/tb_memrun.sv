@@ -2662,6 +2662,13 @@ build_hunk4(4'd0, 1'b0,
     // b24/a24 make Store<-IfCR' = Q0 | ASEL.2 -- so ASEL = 000 with
     // FF.0 = FF.1 = 1. Then the flush finds HitColDirty, k21 latches
     // FSinPair' on LdPair', l19 makes FlushStore, and k19 makes ForceMiss.
+    // COUNTS BEFORE THE ASSERTIONS. At 8x the first $fatal fires and the
+    // summary further down never prints, so the numbers that would say
+    // WHETHER THE MACHINE DIFFERS OR ONLY THE SAMPLING were invisible. The
+    // taskrun failure turned out to be exactly that -- identical machine,
+    // different read point -- so print first, assert second.
+    $display("tb_memrun: FLUSHSEQ -- Store %0d, HitColDirty %0d, FSinPair' low %0d",
+             nff0_st, nff0_hcd, nff0_fsp);
     if (nff0_st  == 0) $fatal(1, "the Store never asserted -- nothing dirties a line");
     if (nff0_hcd == 0) $fatal(1, "HitColDirty never true -- the Store did not dirty the flushed line");
     if (nff0_fsp == 0) $fatal(1, "FSinPair' never fell -- the flush was not latched into the pair");
