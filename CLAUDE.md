@@ -1033,13 +1033,51 @@ done**; parity is the one open item in the boot chain. Cell coverage is
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
 boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
 
-**AND IT RUNS AT REAL DORADO SPEED ON THE FPGA (2026-08-28).** The MiSTer
-core fits and MEETS TIMING at `SYSPER=2` with the PLL at 33.333333 MHz --
-34,519/41,910 ALMs (82%), 179/553 RAM blocks, machine-clock Fmax **39.56
-MHz**, setup slack **+4.720 ns**, and the worst slack anywhere in the core
-+0.175 ns on the framework's own HDMI PLL. 33.33 MHz / 2 = **16.67 MHz of
-microinstructions, a 60 ns cycle, 1.0x a real Dorado**, with room for 1.19x
-at Fmax. Reports: `fpga/mister/reports/`.
+**AND IT RUNS AT REAL DORADO SPEED ON THE FPGA, WITH MEMORY AND A KEYBOARD
+(2026-08-28).** The MiSTer core fits and MEETS TIMING at `SYSPER=2` with the
+PLL at 33.333333 MHz -- 33.33 / 2 = **16.67 MHz of microinstructions, a 60 ns
+cycle, 1.0x a real Dorado**:
+
+| | ALMs | RAM blocks | Fmax | slack @33.33 |
+|---|---|---|---|---|
+| eleven boards, no storage | 34,519 (82%) | 179 (32%) | 39.56 MHz | +4.720 ns |
+| + `msa` storage module | 40,631 (97%) | 323 (58%) | 34.49 MHz | +1.002 ns |
+| + shared DRAM latch, keyboard, terminal | **34,866 (83%)** | **251 (45%)** | **44.32 MHz** | **+7.437 ns** |
+
+The middle row is the warning and the third is the answer. Adding PARC's
+storage module -- without which the machine HAS NO MEMORY AT ALL, its
+`MemAd`/`RAS`/`CAS` leaving as ports and `Sin` reading whatever the outside
+drives -- cost 6,112 ALMs and nearly all the timing margin. Measuring where
+they went rather than guessing found that the ARRAY was fine (144 chips, 144
+inferred block RAMs) and the cost was the ADDRESS FRONT END: every chip
+carried its own `row`/`col`/`ras_d`/`cas_d`, and grouping the 144 instances
+by their full nine-pin control tuple gives **sixteen** groups, so 128 copies
+were redundant. `cell_MK4096P_addr` holds one latch per group. That one
+change gave back 5,765 ALMs and 29% of Fmax -- while ALSO absorbing the
+keyboard and terminal, which the 97% build did not contain.
+
+**A keyboard reaches the machine.** Tracing where a keystroke enters settled
+a long-vague question: it arrives at the **BASEBOARD**, on the `OISData`
+differential pair, through pure level translation (MC10125 -> MC10124) to
+DispY's c22 -- which is clocked by `RamdHBlank`. So the terminal
+microcomputer sends **one bit per scan line** and a 32-bit HM Table 24
+message takes 32 of them; a real terminal has no choice either, being a
+separate box whose only timing reference is the video sent to it.
+`dorado_terminal.v` implements Table 24 with the manual's own arbitration (a
+keyboard transition outranks a mouse move), `dorado_keyboard.v` maps PS/2 to
+the 61-key matrix, and `Dorado.sv` clocks it from `hblank`. Gates:
+`make -C verilog term-test` and `key-matrix-check`.
+
+**And the matrix has a hole.** `key_map` looks purely positional and
+`word = (idx-1)/16` reproduces the first FORTY-SEVEN keys -- then breaks,
+because word 2 carries only fifteen. The formula puts R in word 2 bit 0
+where the real matrix starts word 3 with it, so fourteen keys would have
+landed one place out and the guest would have seen a different letter,
+silently. `tools/check_key_matrix.py` now compares the RTL against
+`display.c` file-to-file and is mutation-tested (four injected errors, all
+caught, including that one).
+
+Reports: `fpga/mister/reports/`.
 
 Getting there meant discovering that **the whole oversampling sweep had been
 measuring the wrong thing**. `SYSPER` reaches exactly one module,
