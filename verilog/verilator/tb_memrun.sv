@@ -1152,6 +1152,7 @@ module tb_memrun;
   integer nmapst, nmapfn, npsm2, nsm2, nload, ncnt, nd0, nwim, nx10, nmti, nwm, nall3, nrw, nwp, ndty, nevn, nckw, nprf, nthi, nmt, nmtp, nmras, nmcas, nmrd, nmwr, nd13w;
   reg pmras, pmcas;
   reg smc_d, sec_d;
+  integer n_ldp_lo, n_ldp_edge, n_ldp_coin;  reg ldp_d;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd, nvc_wv, nvc_dv, nvc_fdm, nvc_fia, nvc_vip, nvc_via, nvc_ios, nvc_wia, nvc_wim, nvc_wimem, nvc_smc, nvc_sec, nvc_smc_e, nvc_sec_e, nvc_coin, nvc_coin2;
   integer smc_first, smc_last, wia_first, wia_last, sm_first, sm_last;
   integer gap_min, gap_sum, gap_n;
@@ -2276,7 +2277,7 @@ build_hunk4(4'd0, 1'b0,
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
     for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
     ntnia=0; nff0=0; nsamp=0;
-    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0; nvc_wv=0; nvc_dv=0; nvc_fdm=0; nvc_fia=0; nvc_vip=0; nvc_via=0; nvc_ios=0; nvc_wia=0; nvc_wim=0; nvc_wimem=0; nvc_smc=0; nvc_sec=0; nvc_smc_e=0; nvc_sec_e=0; nvc_coin=0; nvc_coin2=0;
+    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0; nvc_wv=0; nvc_dv=0; nvc_fdm=0; nvc_fia=0; nvc_vip=0; nvc_via=0; nvc_ios=0; nvc_wia=0; nvc_wim=0; nvc_wimem=0; nvc_smc=0; nvc_sec=0; nvc_smc_e=0; nvc_sec_e=0; nvc_coin=0; nvc_coin2=0; n_ldp_lo=0; n_ldp_edge=0; n_ldp_coin=0; ldp_d=1'b1;
     smc_first=-1; smc_last=-1; wia_first=-1; wia_last=-1; sm_first=-1; sm_last=-1;
     gap_min=-1; gap_sum=0; gap_n=0;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
@@ -2565,6 +2566,12 @@ build_hunk4(4'd0, 1'b0,
         //     FlushStore = ~(FSinPair' | EcHasAb)
         // so the flush must be LATCHED INTO THE A/B PAIR first.
         if (!m.b_MemC.FSinPair_p_)    nff0_fsp = nff0_fsp + 1;
+        if (!m.b_MemC.LdPair_p_) begin
+          n_ldp_lo = n_ldp_lo + 1;
+          if (m.b_MemC.HitColDirty) n_ldp_coin = n_ldp_coin + 1;
+        end
+        if (m.b_MemC.LdPair_p_ && !ldp_d) n_ldp_edge = n_ldp_edge + 1;
+        ldp_d = m.b_MemC.LdPair_p_;
         if (!m.b_MemC.EcHasAb)        nff0_ech = nff0_ech + 1;
         if (m.b_MemC.ForceMiss)       nff0_fm  = nff0_fm  + 1;
         if (m.b_MemC.Hit_p_a)         nff0_mia = nff0_mia + 1;   // Hit' high = MISS
@@ -2669,6 +2676,12 @@ build_hunk4(4'd0, 1'b0,
     // different read point -- so print first, assert second.
     $display("tb_memrun: FLUSHSEQ -- Store %0d, HitColDirty %0d, FSinPair' low %0d",
              nff0_st, nff0_hcd, nff0_fsp);
+    // AND THE LATCH'S OWN CLOCK. k21 latches FSinPair' on LdPair'. If the
+    // latch never fires at 8x, either LdPair' stops pulsing or HitColDirty is
+    // no longer asserted when it does. Counting both, plus their coincidence,
+    // separates those two -- and they need different fixes.
+    $display("tb_memrun: FLUSHCLK -- LdPair' low %0d, rising edges %0d, coincident with HitColDirty %0d",
+             n_ldp_lo, n_ldp_edge, n_ldp_coin);
     if (nff0_st  == 0) $fatal(1, "the Store never asserted -- nothing dirties a line");
     if (nff0_hcd == 0) $fatal(1, "HitColDirty never true -- the Store did not dirty the flushed line");
     if (nff0_fsp == 0) $fatal(1, "FSinPair' never fell -- the flush was not latched into the pair");
