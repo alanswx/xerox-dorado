@@ -1617,7 +1617,11 @@ module tb_ifufetch;
     $display("tb_ifufetch: ALL 21 map bit planes preloaded to 1 (parity experiment)");
 
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
-    for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
+    // AND THE WINDOW IS A NUMBER OF MICROINSTRUCTIONS, NOT OF SAMPLES.
+    // Now that mclk scales with SYSPER, a fixed 3000 sys_clk covers 187
+    // microinstructions at 16x but 1500 at 2x -- a longer experiment, not
+    // the same one at a different rate. WT() is exactly 3000 at SYSPER=16.
+    for (j2 = 0; j2 < WT(3000); j2 = j2 + 1) begin
       @(posedge sys_clk);
       if (m.b_ContA.clk0_p_Ca !== p0) begin n0a = n0a + 1; p0 = m.b_ContA.clk0_p_Ca; end
       if (m.b_MemC.clk0_p_A !== pmc) begin nmemclk = nmemclk + 1; pmc = m.b_MemC.clk0_p_A; end
