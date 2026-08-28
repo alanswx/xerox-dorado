@@ -1185,7 +1185,13 @@ module tb_display;
   // the very first jam at time 0.
   function automatic integer WT(input integer n);
     begin
-      WT = (n * SYSPER) / 16;
+      // ROUND TO NEAREST, not toward zero. Truncation flattens the SHAPE of a
+      // waveform at low ratios -- at SYSPER=4 a 4-cycle low and a 6-cycle
+      // setup both truncate to 1, turning 4:6 into 1:1 -- and the single-step
+      // chain depends on strobe SPACING (SetRun must survive three RunClk'
+      // edges). That cost step-test at 4x and nothing else. Exact at
+      // SYSPER=16, where WT(n) = n with no remainder.
+      WT = (n * SYSPER + 8) / 16;
       if (WT < 1) WT = 1;
     end
   endfunction

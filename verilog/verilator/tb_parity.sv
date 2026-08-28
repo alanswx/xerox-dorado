@@ -456,13 +456,44 @@
 
 module tb_parity;
 
-  localparam integer GAP = 200;   // sys_clk between Control strobes
+
+  // THE OVERSAMPLING RATIO -- sys_clk per microinstruction. SYSPER reaches only
+  // `cell_CLOCKGEN`, which lives on the BaseBoard, so a sub-machine's clock is
+  // whatever its bench drives; this one used to hard-code a divide-by-16 and
+  // therefore only ever ran at 16x. Real time needs sys_clk = SYSPER x 16.67
+  // MHz and measured Fmax is 48.99 MHz, so SYSPER=2 is the target.
+  //
+  //     make -C verilog/verilator <gate> SYSPER=2
+`ifndef SYSPER_OVERRIDE
+  `define SYSPER_OVERRIDE 16
+`endif
+  localparam integer SYSPER = `SYSPER_OVERRIDE;
+  // SCALE A FABRIC-CYCLE WAIT so it means the same amount of DORADO time at any
+  // ratio. NOT `SYSPER / 16` -- integer division gives ZERO below 16x, which
+  // turns every `repeat` into no wait at all.
+  function automatic integer WT(input integer n);
+    begin
+      // ROUND TO NEAREST, not toward zero. Truncation flattens the SHAPE of a
+      // waveform at low ratios -- at SYSPER=4 a 4-cycle low and a 6-cycle
+      // setup both truncate to 1, turning 4:6 into 1:1 -- and the single-step
+      // chain depends on strobe SPACING (SetRun must survive three RunClk'
+      // edges). That cost step-test at 4x and nothing else. Exact at
+      // SYSPER=16, where WT(n) = n with no remainder.
+      WT = (n * SYSPER + 8) / 16;
+      if (WT < 1) WT = 1;
+    end
+  endfunction
+
+  localparam integer GAP = (200 * SYSPER) / 16;   // sys_clk between Control strobes
 
   reg sys_clk = 1'b0;
   always #1 sys_clk = ~sys_clk;
   reg [3:0] ckd = 4'd0;
-  always @(posedge sys_clk) ckd <= ckd + 4'd1;
-  wire mclk = ckd[3];
+  // At SYSPER=16 this is bit for bit the counter it replaces:
+  // ckd counts 0..15 and mclk is ckd >= 8, i.e. ckd[3].
+  always @(posedge sys_clk)
+    ckd <= (ckd == SYSPER - 1) ? 4'd0 : ckd + 4'd1;
+  wire mclk = (ckd >= SYSPER / 2);
 
   reg [2:0] addr_n = 3'b111;
   reg [8:0] cpout  = 9'd0;
@@ -497,14 +528,14 @@ module tb_parity;
   task strobe(input [2:0] fn, input [7:0] data, input ss);
     begin
       addr_n = ~fn; cpout = {data, ss};
-      repeat (4) @(posedge sys_clk);
-      strb_n = 1'b0; repeat (6) @(posedge sys_clk);
+      repeat (WT(4)) @(posedge sys_clk);
+      strb_n = 1'b0; repeat (WT(6)) @(posedge sys_clk);
       strb_n = 1'b1;
       if (fn == 3'd0) begin           // Control: g07 clocks on release
         setrun  =  data[0];
         setss_n = ~ss;
       end
-      repeat (4) @(posedge sys_clk);
+      repeat (WT(4)) @(posedge sys_clk);
     end
   endtask
 
@@ -516,12 +547,12 @@ module tb_parity;
     begin
       for (k = 11; k >= 0; k = k - 1) begin
         dmd = word[k];
-        repeat (4) @(posedge sys_clk); dmc = 1'b1;
-        repeat (4) @(posedge sys_clk); dmc = 1'b0;   // the chain shifts on the fall
-        repeat (4) @(posedge sys_clk);
+        repeat (WT(4)) @(posedge sys_clk); dmc = 1'b1;
+        repeat (WT(4)) @(posedge sys_clk); dmc = 1'b0;   // the chain shifts on the fall
+        repeat (WT(4)) @(posedge sys_clk);
       end
-      udmd = 1'b1; repeat (12) @(posedge sys_clk);
-      udmd = 1'b0; repeat (12) @(posedge sys_clk);
+      udmd = 1'b1; repeat (WT(12)) @(posedge sys_clk);
+      udmd = 1'b0; repeat (WT(12)) @(posedge sys_clk);
     end
   endtask
 
@@ -565,7 +596,7 @@ module tb_parity;
   task jam_link(input [15:0] v);
     begin
       setrun = 0; setss_n = 1;
-      repeat (400) @(posedge sys_clk);
+      repeat (WT(400)) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0);
       strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0);
       strobe(3'd0, 8'h4E, 1'b0);
@@ -573,7 +604,7 @@ module tb_parity;
       strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b0);
       strobe(3'd6, 8'h04, 1'b0); strobe(3'd7, 8'h40, 1'b0);
       strobe(3'd0, 8'h41, 1'b1);
-      repeat (600) @(posedge sys_clk);
+      repeat (WT(600)) @(posedge sys_clk);
     end
   endtask
 
@@ -812,7 +843,7 @@ module tb_parity;
       // Stop first. With the MIR clock held, a running machine repeats the
       // jammed instruction forever, and the next jam has to start from rest.
       setrun = 0; setss_n = 1;
-      repeat (400) @(posedge sys_clk);
+      repeat (WT(400)) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0);                       // Clock: InhibitCAHolds+ClrReady
       strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0);
       strobe(3'd0, 8'h4E, 1'b0);
@@ -820,7 +851,7 @@ module tb_parity;
       strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b0);
       strobe(3'd6, 8'h03, 1'b1); strobe(3'd7, 8'h4F, 1'b0);
       strobe(3'd0, 8'h41, 1'b1);
-      repeat (600) @(posedge sys_clk);
+      repeat (WT(600)) @(posedge sys_clk);
     end
   endtask
 
@@ -832,7 +863,7 @@ module tb_parity;
     if (m.b_ContA.clk2_p_Bc !== p2) begin n2 = n2 + 1; p2 = m.b_ContA.clk2_p_Bc; end
   end
   task zero; begin n0 = 0; n1 = 0; n2 = 0; end endtask
-  task settle; begin repeat (200) @(posedge sys_clk); end endtask
+  task settle; begin repeat (WT(200)) @(posedge sys_clk); end endtask
 
   // Jam a microinstruction and take the first step: ClrStop+ClrMIR+ClrCT+
   // Freeze, then the four MIR bytes, then SetRun with SS and no ClrStop.
@@ -840,7 +871,7 @@ module tb_parity;
                 input [7:0] b3, input [7:0] b4);
     begin
       setrun = 0; setss_n = 1;
-      repeat (400) @(posedge sys_clk);
+      repeat (WT(400)) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0); repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h4E, 1'b0);
       repeat (GAP) @(posedge sys_clk);
@@ -999,7 +1030,7 @@ module tb_parity;
       strobe(3'd0, 8'h01, 1'b1);               // BasicStopDorado
       repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h00, 1'b1);
-      repeat (800) @(posedge sys_clk);
+      repeat (WT(800)) @(posedge sys_clk);
       $display("      micro %02h: clk0' %0d clk1' %0d clk2' %0d | Stop=%b Link=%h FF=%b",
         b1, n0, n1, n2, m.b_ContA.Stop, link_hi,
         ~{m.b_ContA.FF_0_p_,m.b_ContA.FF_1_p_,m.b_ContA.FF_2_p_,m.b_ContA.FF_3_p_,
@@ -1207,13 +1238,13 @@ module tb_parity;
                 input [7:0] b3, input [7:0] b4);
     begin
       setrun = 0; setss_n = 1;
-      repeat (400) @(posedge sys_clk);
+      repeat (WT(400)) @(posedge sys_clk);
       strobe(3'd1, 8'h21, 1'b0); repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h4E, 1'b0); repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h00, 1'b1); repeat (GAP) @(posedge sys_clk);
       strobe(3'd4, b1, b0[7]); strobe(3'd5, b2, b0[6]);
       strobe(3'd6, b3, b0[5]); strobe(3'd7, b4, b0[4]);
-      repeat (200) @(posedge sys_clk);
+      repeat (WT(200)) @(posedge sys_clk);
     end
   endtask
 
@@ -1239,7 +1270,7 @@ module tb_parity;
     force m.DMuxData = dmd;
     force m.DMuxClk  = dmc;
     force m.UseDMD   = udmd;
-    repeat (2000) @(posedge sys_clk);
+    repeat (WT(2000)) @(posedge sys_clk);
     manifold(12'h030);          // DisableDoradoErrors: IM parity errors ON
     $display("tb_parity: IMLHPEenable=%b IMRHPEenable=%b",
              m.b_ContB.IMLHPEenable, m.b_ContB.IMRHPEenable);

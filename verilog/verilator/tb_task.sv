@@ -45,6 +45,34 @@
 
 module tb_task;
 
+
+  // THE OVERSAMPLING RATIO -- sys_clk per microinstruction. SYSPER reaches only
+  // `cell_CLOCKGEN`, which lives on the BaseBoard, so a sub-machine's clock is
+  // whatever its bench drives; this one used to hard-code a divide-by-16 and
+  // therefore only ever ran at 16x. Real time needs sys_clk = SYSPER x 16.67
+  // MHz and measured Fmax is 48.99 MHz, so SYSPER=2 is the target.
+  //
+  //     make -C verilog/verilator <gate> SYSPER=2
+`ifndef SYSPER_OVERRIDE
+  `define SYSPER_OVERRIDE 16
+`endif
+  localparam integer SYSPER = `SYSPER_OVERRIDE;
+  // SCALE A FABRIC-CYCLE WAIT so it means the same amount of DORADO time at any
+  // ratio. NOT `SYSPER / 16` -- integer division gives ZERO below 16x, which
+  // turns every `repeat` into no wait at all.
+  function automatic integer WT(input integer n);
+    begin
+      // ROUND TO NEAREST, not toward zero. Truncation flattens the SHAPE of a
+      // waveform at low ratios -- at SYSPER=4 a 4-cycle low and a 6-cycle
+      // setup both truncate to 1, turning 4:6 into 1:1 -- and the single-step
+      // chain depends on strobe SPACING (SetRun must survive three RunClk'
+      // edges). That cost step-test at 4x and nothing else. Exact at
+      // SYSPER=16, where WT(n) = n with no remainder.
+      WT = (n * SYSPER + 8) / 16;
+      if (WT < 1) WT = 1;
+    end
+  endfunction
+
   reg sys_clk = 1'b0;
   always #1 sys_clk = ~sys_clk;
 
@@ -57,8 +85,11 @@ module tb_task;
   // static on purpose -- tb_mirreg does, because a running microinstruction
   // clock would reload every MIR bit -- which is why this one cannot copy them.
   reg [3:0] ckd = 4'd0;
-  always @(posedge sys_clk) ckd <= ckd + 4'd1;
-  wire mclk = ckd[3];
+  // At SYSPER=16 this is bit for bit the counter it replaces:
+  // ckd counts 0..15 and mclk is ckd >= 8, i.e. ckd[3].
+  always @(posedge sys_clk)
+    ckd <= (ckd == SYSPER - 1) ? 4'd0 : ckd + 4'd1;
+  wire mclk = (ckd >= SYSPER / 2);
 
   dorado_control m (
       .sys_clk(sys_clk), .CLK_ca_p_(mclk), .CLK_cb_p_(mclk),
@@ -97,7 +128,7 @@ module tb_task;
   task check(input [15:1] r, input [200*8-1:0] why);
     begin
       req = r;
-      repeat (40) @(posedge sys_clk);
+      repeat (WT(40)) @(posedge sys_clk);
       if (penc !== want_bnt(r) || bpenc !== want_bnt(r)) begin
         $display("tb_task: FAIL req=%b -> PEnc %0d bPEnc %0d, want %0d  (%0s)",
                  r, penc, bpenc, want_bnt(r), why);
@@ -108,7 +139,7 @@ module tb_task;
 
   initial begin
     bad = 0;
-    repeat (200) @(posedge sys_clk);
+    repeat (WT(200)) @(posedge sys_clk);
 
     // No request at all: task 0, the emulator, which is always available.
     check(15'd0, "idle");

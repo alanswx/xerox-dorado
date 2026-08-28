@@ -647,6 +647,10 @@ class Generator:
         ('DispY', 'a05'): {'FREQ_KHZ': 50000},
         ('DispM', 'c05'): {'FREQ_KHZ': 10000},
         ('DispM', 'd13'): {'FREQ_KHZ': 20000},
+        # DskEth j20 has no stated frequency and keeps the cell's default, but
+        # it still needs SYSPER -- so it must appear here to be parameterised
+        # at all. 20000 is the cell's own default, so this changes nothing.
+        ('DskEth', 'j20'): {'FREQ_KHZ': 20000},
     }
 
     BROKEN_PACKAGE_PINS = {
@@ -1144,9 +1148,13 @@ class Generator:
             if extra:
                 # A value that belongs to the fitted component, not the part
                 # type -- see CELL_PARAMS.
-                params = ('#(' + ', '.join(f'.{k}({v})'
-                                           for k, v in sorted(extra.items()))
-                          + ') ')
+                # SYSPER goes with it: an oscillator is an absolute time
+                # reference, so its cell must know what a sys_clk is worth.
+                # The board module has SYSPER as a parameter already.
+                items = [f'.{k}({v})' for k, v in sorted(extra.items())]
+                if vpart(ptype) == 'K1115A':
+                    items.append('.SYSPER(SYSPER)')
+                params = '#(' + ', '.join(items) + ') '
             # A bus the part drives AND reads: hand back what the OTHER
             # drivers put on it. See read_excluding.
             for port, pins in self.READBACK.get(vpart(ptype), {}).items():
