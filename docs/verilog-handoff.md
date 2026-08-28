@@ -4193,3 +4193,48 @@ the chain stage by stage, each gate cross-checked against the C emulator; an
 FPGA is where anything boots. Do not spend effort trying to make a simulation
 boot an OS.
 
+
+
+## SYSPER: the oversampling ratio is now testable, and 8x breaks three gates
+
+**Why this matters.** The RTL recovers each distributed ECL clock net by
+sampling it SYSPER times per microinstruction, so real time on an FPGA needs
+`sys_clk = SYSPER x 16.67 MHz`. Measured Fmax for the eleven-board machine is
+**48.99 MHz** (`fpga/quartus/reports`), which makes SYSPER=2 the real-time
+target and the default 16 a 0.18x machine.
+
+**The benches could not test it.** Six carried a local
+`localparam integer SYSPER = 16` for scaling their own waits, and the machine
+carried its own `parameter integer SYSPER = 16`. **The two were never
+connected** -- they simply both happened to say 16 -- so no bench had ever run
+the machine at a different ratio. They pass it down now, overridable:
+
+    make -C verilog/verilator taskrun-test SYSPER=8
+
+**At 16 all six pass. At 8, three fail:**
+
+| gate | at 8x |
+|---|---|
+| display-test | pass |
+| disk-test | pass |
+| readback-test | pass |
+| **taskrun-test** | **fail** -- the startup Link<- did not land in task 0's slot alone, and BNT stops following the priority encoder |
+| **memrun-test** | **fail** -- FSinPair' never fell, so the flush was not latched into the pair |
+| **ifufetch-test** | **fail** -- the Pipe pointer advanced twice, where ProcSRN is a FIXED slot and non-I/O references must all overwrite it |
+
+**The first is a KNOWN CLASS, and its recurrence is the point.** The handoff
+already records it against `cell_F10145A`: taking "write while WE' is LOW"
+literally writes on every sys_clk the pulse spans, and if the address moves
+inside the pulse it writes SEVERAL CELLS -- "that is exactly what happened at 8
+sys_clk per microinstruction: the startup `Link<-` landed in every task's slot
+instead of task 0's ... **it survived at 16x only because the pulse happened to
+sit inside one stable address there.**"
+
+The cell was fixed to write once, on the rising edge of WE'. It fails again at
+8x, so the remaining question is whether the ADDRESS is still stable at that
+edge when there are half as many samples -- a question about when the address
+is captured, not about how many writes occur.
+
+**These are real bugs in the cell models, not bench artifacts.** They are
+exactly what a lower ratio exists to expose, and they must be fixed before
+SYSPER=2, which is what a real-time FPGA Dorado needs.

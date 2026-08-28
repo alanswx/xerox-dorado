@@ -60,7 +60,15 @@ V_SRC    = sim.v $(TOP_GEN) $(BOARD_V)
 # LATCH is the F10145A 16x4 ECL register file doing what the part does: its
 # write is ASYNCHRONOUS (level-sensitive on CE'/WE'), so a latch is correct
 # and 405 instances of it would drown a real warning.
-V_WARN   = -Wno-PINMISSING -Wno-DECLFILENAME -Wno-UNDRIVEN -Wno-UNUSEDSIGNAL \
+# THE OVERSAMPLING RATIO. Real time on the FPGA needs sys_clk = SYSPER x 16.67
+# MHz and measured Fmax is 48.99 MHz, so SYSPER=2 is the target and the default
+# 16 runs at 0.18x. Lowering it stresses cell fidelity -- one bug "survived at
+# 16x only because the pulse happened to sit inside one stable address" -- so
+# these gates are exactly the tool for finding what breaks:
+#     make -C verilog/verilator taskrun-test SYSPER=8
+# Only the six benches with a WT() wait-scaler honour it; the rest hardcode 16.
+SYSPER  ?= 16
+V_WARN   = +define+SYSPER_OVERRIDE=$(SYSPER) -Wno-PINMISSING -Wno-DECLFILENAME -Wno-UNDRIVEN -Wno-UNUSEDSIGNAL \
            -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNOPTFLAT -Wno-MULTIDRIVEN \
            -Wno-LATCH -Wno-fatal
 

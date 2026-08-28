@@ -989,7 +989,24 @@ module tb_memrun;
   // whatever the ratio -- otherwise halving the ratio doubles how much of the
   // machine's execution each `repeat` covers, and a bench that samples at a
   // chosen moment samples somewhere else entirely.
-  localparam integer SYSPER = 16;
+  // THE OVERSAMPLING RATIO IS NOW OVERRIDABLE, and it is passed DOWN.
+  //
+  // These benches have always had a local SYSPER for scaling their own waits,
+  // and the machine has always had its own `parameter integer SYSPER = 16`.
+  // The two were never connected -- they simply both happened to say 16. So a
+  // bench could not test the machine at a different ratio at all.
+  //
+  // That matters for the FPGA: real time needs sys_clk = SYSPER x 16.67 MHz,
+  // measured Fmax is 48.99 MHz, so SYSPER=2 is the target and 16 is 0.18x.
+  // Lowering it stresses cell fidelity -- one bug "survived at 16x only
+  // because the pulse happened to sit inside one stable address" -- which is
+  // exactly what these gates exist to catch.
+  //
+  //     make -C verilog/verilator <gate> SYSPER=8
+`ifndef SYSPER_OVERRIDE
+  `define SYSPER_OVERRIDE 16
+`endif
+  localparam integer SYSPER = `SYSPER_OVERRIDE;
   // SCALE A FABRIC-CYCLE WAIT so it means the same amount of DORADO time at
   // any ratio. NOT `SYSPER / 16` -- that is integer division and evaluates to
   // ZERO below 16x, which turns every `repeat` into no wait at all and fails
@@ -1027,7 +1044,7 @@ module tb_memrun;
   end
 
   reg chips16k = 1'b1, chips64k = 1'b0;
-  dorado_mem m (
+  dorado_mem #(.SYSPER(SYSPER)) m (
       .sys_clk(sys_clk),
       .CLK_ca_p_(mclk), .CLK_cb_p_(mclk), .CLK_ph_p_(mclk), .CLK_pl_p_(mclk),
       // The BaseBoard fans the clock to EVERY slot, and dorado_mem has three
