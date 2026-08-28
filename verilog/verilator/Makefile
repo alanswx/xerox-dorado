@@ -42,9 +42,13 @@ SIM      = ./sim
 # `dorado_backplane` instantiates. Override BOARDS to build a subset, and
 # regenerate a matching top with
 #   make -C .. backplane MACHINE="--boards=ProcH,ProcL --module=dorado_proc"
+# `msa` is the STORAGE MODULE and carries no -Rev- in its file name, which is
+# why a glob over the revisioned boards misses it. Without it in the machine
+# there is no memory at all: MemAd/RAS/CAS/WE leave as ports and Sin reads
+# whatever the outside drives.
 BOARDS  ?= ProcH-Rev-Ce ProcL-Rev-Ci ContA-Rev-Cd ContB-Rev-Cd IFU-Rev-Ch \
            MemC-Rev-Be MemD-Rev-Ca MemX-Rev-Ch DskEth-Rev-Cf DispY-Rev-Cl \
-           BaseBd-Rev-Am
+           BaseBd-Rev-Am msa
 BOARD_V  = $(addprefix $(GEN)/,$(addsuffix .v,$(BOARDS)))
 
 # The generated top module carries both `dorado_backplane` and the

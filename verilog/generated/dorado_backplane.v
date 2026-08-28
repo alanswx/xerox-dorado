@@ -12,8 +12,8 @@
 // module ORs them -- MECL open emitters wired together, in a form that
 // synthesises. No `inout`, no multiply-driven net.
 //
-// Configuration: ProcH ProcL ContA ContB IFU MemC MemD MemX DskEth DispY BaseBd
-// 511 internal nets (83 with several contributors), 385 top-level ports.
+// Configuration: ProcH ProcL ContA ContB IFU MemC MemD MemX DskEth DispY BaseBd msa
+// 569 internal nets (83 with several contributors), 330 top-level ports.
 
 `default_nettype none
 
@@ -99,7 +99,6 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     output wire CLK_io22_p_               ,  // to a backplane connector (cable)
     output wire CLK_io23_p_               ,  // to a backplane connector (cable)
     output wire CLK_io24_p_               ,  // awaits IOTest
-    output wire CLK_ms0Even_p_            ,  // awaits PCMSA msa
     output wire CLK_ms0Odd_p_             ,  // to a backplane connector (cable)
     output wire CLK_ms1Even_p_            ,  // to a backplane connector (cable)
     output wire CLK_ms1Odd_p_             ,  // to a backplane connector (cable)
@@ -107,8 +106,10 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     output wire CLK_ms2Odd_p_             ,  // to a backplane connector (cable)
     output wire CLK_ms3Even_p_            ,  // to a backplane connector (cable)
     output wire CLK_ms3Odd_p_             ,  // to a backplane connector (cable)
+    input  wire ChipsAre16k               ,  // to a backplane connector (cable)
     input  wire ChipsAre256_s_16K         ,  // to a backplane connector (cable)
-    input  wire ChipsAre64K               ,  // awaits msa
+    input  wire ChipsAre4k                ,  // to a backplane connector (cable)
+    input  wire ChipsAre64K               ,  // to a backplane connector (cable)
     input  wire ClkEnable_p_a             ,  // to a backplane connector (cable)
     output wire ClockM0                   ,  // to a backplane connector (cable)
     output wire ClockM1                   ,  // to a backplane connector (cable)
@@ -136,14 +137,8 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     input  wire DiskOnRet                 ,  // to a backplane connector (cable)
     output wire DriveTag_p_               ,  // to a backplane connector (cable)
     output wire EcDcomingForCt_p_         ,  // to a backplane connector (cable)
-    input  wire EcIn_0                    ,  // awaits PCMSA msa
-    input  wire EcIn_1                    ,  // awaits PCMSA msa
-    output wire EcOut_0                   ,  // awaits PCMSA msa
-    output wire EcOut_1                   ,  // awaits PCMSA msa
     output wire EcOut_2                   ,  // to a backplane connector (cable)
     output wire EcOut_3                   ,  // to a backplane connector (cable)
-    output wire EcOut_4                   ,  // awaits PCMSA msa
-    output wire EcOut_5                   ,  // awaits PCMSA msa
     output wire EcOut_6                   ,  // to a backplane connector (cable)
     output wire EcOut_7_p_                ,  // to a backplane connector (cable)
     input  wire EventA                    ,  // to a backplane connector (cable)
@@ -241,31 +236,16 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     input  wire LEDOnRet                  ,  // to a backplane connector (cable)
     output wire LScopeFH                  ,  // to a backplane connector (cable)
     output wire LargeHold                 ,  // to a backplane connector (cable)
-    output wire LoadEcOut_p_              ,  // awaits PCMSA msa
-    output wire LoadSinE                  ,  // awaits PCMSA msa
     output wire LoadSinO                  ,  // to a backplane connector (cable)
-    output wire LoadSoutE_p_              ,  // awaits PCMSA msa
     output wire LoadSoutO_p_              ,  // to a backplane connector (cable)
-    input  wire M0                        ,  // awaits PCMSA msa
     input  wire M1                        ,  // to a backplane connector (cable)
     input  wire M2                        ,  // to a backplane connector (cable)
     input  wire M3                        ,  // to a backplane connector (cable)
+    input  wire Mb0                       ,  // awaits PCMSA
     output wire MemAd_0                   ,  // awaits PCMSA
-    output wire MemAd_1                   ,  // awaits PCMSA msa
-    output wire MemAd_2                   ,  // awaits PCMSA msa
-    output wire MemAd_3                   ,  // awaits PCMSA msa
-    output wire MemAd_4                   ,  // awaits PCMSA msa
-    output wire MemCASa                   ,  // awaits PCMSA msa
-    output wire MemCASb                   ,  // awaits PCMSA msa
     input  wire MemClkEn_p_a              ,  // to a backplane connector (cable)
     output wire MemClkEnable_p_b          ,  // to a backplane connector (cable)
     input  wire MemClkEnable_p_c          ,  // to a backplane connector (cable)
-    output wire MemRASa                   ,  // awaits PCMSA msa
-    output wire MemRASb                   ,  // awaits PCMSA msa
-    output wire MemWEa                    ,  // awaits PCMSA msa
-    output wire MemWEb                    ,  // awaits PCMSA msa
-    output wire Mod0SinEn_p_              ,  // awaits PCMSA msa
-    output wire Mod0StrEn_p_              ,  // awaits PCMSA msa
     output wire Mod1SinEn_p_              ,  // to a backplane connector (cable)
     output wire Mod1StrEn_p_              ,  // to a backplane connector (cable)
     output wire Mod2SinEn_p_              ,  // to a backplane connector (cable)
@@ -320,45 +300,10 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     input  wire Serial_200                ,  // to a backplane connector (cable)
     input  wire Serial_4                  ,  // to a backplane connector (cable)
     input  wire Serial_40                 ,  // to a backplane connector (cable)
-    output wire ShiftEcOut                ,  // awaits PCMSA msa
-    output wire ShiftSinE                 ,  // awaits PCMSA msa
     output wire ShiftSinO                 ,  // to a backplane connector (cable)
-    output wire ShiftSoutE                ,  // awaits PCMSA msa
     output wire ShiftSoutO                ,  // to a backplane connector (cable)
     input  wire SimHoldDis                ,  // to a backplane connector (cable)
-    input  wire Sin_00                    ,  // awaits PCMSA msa
-    input  wire Sin_01                    ,  // awaits PCMSA msa
-    input  wire Sin_02                    ,  // awaits PCMSA msa
-    input  wire Sin_03                    ,  // awaits PCMSA msa
-    input  wire Sin_04                    ,  // awaits PCMSA msa
-    input  wire Sin_05                    ,  // awaits PCMSA msa
-    input  wire Sin_06                    ,  // awaits PCMSA msa
-    input  wire Sin_07                    ,  // awaits PCMSA msa
-    input  wire Sin_08                    ,  // awaits PCMSA msa
-    input  wire Sin_09                    ,  // awaits PCMSA msa
-    input  wire Sin_10                    ,  // awaits PCMSA msa
-    input  wire Sin_11                    ,  // awaits PCMSA msa
-    input  wire Sin_12                    ,  // awaits PCMSA msa
-    input  wire Sin_13                    ,  // awaits PCMSA msa
-    input  wire Sin_14                    ,  // awaits PCMSA msa
-    input  wire Sin_15                    ,  // awaits PCMSA msa
     output wire SkipWait_p_               ,  // to a backplane connector (cable)
-    output wire Sout_00                   ,  // awaits PCMSA msa
-    output wire Sout_01                   ,  // awaits PCMSA msa
-    output wire Sout_02                   ,  // awaits PCMSA msa
-    output wire Sout_03                   ,  // awaits PCMSA msa
-    output wire Sout_04                   ,  // awaits PCMSA msa
-    output wire Sout_05                   ,  // awaits PCMSA msa
-    output wire Sout_06                   ,  // awaits PCMSA msa
-    output wire Sout_07                   ,  // awaits PCMSA msa
-    output wire Sout_08                   ,  // awaits PCMSA msa
-    output wire Sout_09                   ,  // awaits PCMSA msa
-    output wire Sout_10                   ,  // awaits PCMSA msa
-    output wire Sout_11                   ,  // awaits PCMSA msa
-    output wire Sout_12                   ,  // awaits PCMSA msa
-    output wire Sout_13                   ,  // awaits PCMSA msa
-    output wire Sout_14                   ,  // awaits PCMSA msa
-    output wire Sout_15                   ,  // awaits PCMSA msa
     output wire StartClockPulse           ,  // to a backplane connector (cable)
     input  wire SubTask_1                 ,  // awaits IOTest
     output wire TTLIOReset_p_             ,  // to a backplane connector (cable)
@@ -406,7 +351,7 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     input  wire dStartClockPulse             // to a backplane connector (cable)
 );
 
-  // 511 nets between boards, plus one contribution wire
+  // 569 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -471,6 +416,7 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire CLK_ifu_p_;
   wire CLK_mc_p_;
   wire CLK_md_p_;
+  wire CLK_ms0Even_p_;
   wire CLK_mx_p_;
   wire CLK_ph_p_;
   wire CLK_pl_p_;
@@ -510,7 +456,13 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire DisHold;
   wire DoCBr;
   wire ECFault;
+  wire EcIn_0;
+  wire EcIn_1;
   wire EcKeepsAbusy;
+  wire EcOut_0;
+  wire EcOut_1;
+  wire EcOut_4;
+  wire EcOut_5;
   wire EcWantsA;
   wire EmuOrFT_p_;
   wire EnableFG_p_;
@@ -623,6 +575,10 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire LC_1;
   wire LC_2;
   wire LdPipeVAdly_p_;
+  wire LoadEcOut_p_;
+  wire LoadSinE;
+  wire LoadSoutE_p_;
+  wire M0;
   wire MAR_00_p_;
   wire MAR_01_p_;
   wire MAR_02_p_;
@@ -664,6 +620,10 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire McrD_u__p_;
   wire Mcr_u__p_;
   wire MdPE;
+  wire MemAd_1;
+  wire MemAd_2;
+  wire MemAd_3;
+  wire MemAd_4;
   wire MemAd_5;
   wire MemAd_6;
   wire MemAd_7;
@@ -676,12 +636,20 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire MemBase_2;
   wire MemBase_3;
   wire MemBase_4;
+  wire MemCASa;
+  wire MemCASb;
   wire MemClkEnable_p_a;
   wire MemError;
   wire MemPE;
+  wire MemRASa;
+  wire MemRASb;
   wire MemRfsh;
   wire MemSH;
   wire MemSH_p_;
+  wire MemWEa;
+  wire MemWEb;
+  wire Mod0SinEn_p_;
+  wire Mod0StrEn_p_;
   wire Next_0;
   wire Next_1;
   wire Next_2;
@@ -762,7 +730,42 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire ShcAlu_1;
   wire ShcAlu_2;
   wire ShcAlu_3;
+  wire ShiftEcOut;
+  wire ShiftSinE;
+  wire ShiftSoutE;
   wire SignIfuData;
+  wire Sin_00;
+  wire Sin_01;
+  wire Sin_02;
+  wire Sin_03;
+  wire Sin_04;
+  wire Sin_05;
+  wire Sin_06;
+  wire Sin_07;
+  wire Sin_08;
+  wire Sin_09;
+  wire Sin_10;
+  wire Sin_11;
+  wire Sin_12;
+  wire Sin_13;
+  wire Sin_14;
+  wire Sin_15;
+  wire Sout_00;
+  wire Sout_01;
+  wire Sout_02;
+  wire Sout_03;
+  wire Sout_04;
+  wire Sout_05;
+  wire Sout_06;
+  wire Sout_07;
+  wire Sout_08;
+  wire Sout_09;
+  wire Sout_10;
+  wire Sout_11;
+  wire Sout_12;
+  wire Sout_13;
+  wire Sout_14;
+  wire Sout_15;
   wire StartCycle_p_a;
   wire StartEcChk_p_;
   wire StartEcGen_p_;
@@ -1201,6 +1204,8 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire DriveTag_p___DskEth;
   wire ECFault__MemD;
   wire EcDcomingForCt_p___MemX;
+  wire EcIn_0__msa;
+  wire EcIn_1__msa;
   wire EcKeepsAbusy__MemC;
   wire EcOut_0__MemD;
   wire EcOut_1__MemD;
@@ -1395,6 +1400,7 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire LoadSinO__MemX;
   wire LoadSoutE_p___MemX;
   wire LoadSoutO_p___MemX;
+  wire M0__msa;
   wire MAR_00_p___IFU;
   wire MAR_00_p___ProcH;
   wire MAR_01_p___IFU;
@@ -1620,6 +1626,22 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire ShiftSoutE__MemX;
   wire ShiftSoutO__MemX;
   wire SignIfuData__IFU;
+  wire Sin_00__msa;
+  wire Sin_01__msa;
+  wire Sin_02__msa;
+  wire Sin_03__msa;
+  wire Sin_04__msa;
+  wire Sin_05__msa;
+  wire Sin_06__msa;
+  wire Sin_07__msa;
+  wire Sin_08__msa;
+  wire Sin_09__msa;
+  wire Sin_10__msa;
+  wire Sin_11__msa;
+  wire Sin_12__msa;
+  wire Sin_13__msa;
+  wire Sin_14__msa;
+  wire Sin_15__msa;
   wire SkipWait_p___BaseBd;
   wire Sout_00__MemD;
   wire Sout_01__MemD;
@@ -2008,6 +2030,8 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   assign DriveTag_p_ = DriveTag_p___DskEth;
   assign ECFault = ECFault__MemD;
   assign EcDcomingForCt_p_ = EcDcomingForCt_p___MemX;
+  assign EcIn_0 = EcIn_0__msa;
+  assign EcIn_1 = EcIn_1__msa;
   assign EcKeepsAbusy = EcKeepsAbusy__MemC;
   assign EcOut_0 = EcOut_0__MemD;
   assign EcOut_1 = EcOut_1__MemD;
@@ -2176,6 +2200,7 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   assign LoadSinO = LoadSinO__MemX;
   assign LoadSoutE_p_ = LoadSoutE_p___MemX;
   assign LoadSoutO_p_ = LoadSoutO_p___MemX;
+  assign M0 = M0__msa;
   assign MAR_00_p_ = MAR_00_p___IFU | MAR_00_p___ProcH;
   assign MAR_01_p_ = MAR_01_p___IFU | MAR_01_p___ProcH;
   assign MAR_02_p_ = MAR_02_p___IFU | MAR_02_p___ProcH;
@@ -2374,6 +2399,22 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   assign ShiftSoutE = ShiftSoutE__MemX;
   assign ShiftSoutO = ShiftSoutO__MemX;
   assign SignIfuData = SignIfuData__IFU;
+  assign Sin_00 = Sin_00__msa;
+  assign Sin_01 = Sin_01__msa;
+  assign Sin_02 = Sin_02__msa;
+  assign Sin_03 = Sin_03__msa;
+  assign Sin_04 = Sin_04__msa;
+  assign Sin_05 = Sin_05__msa;
+  assign Sin_06 = Sin_06__msa;
+  assign Sin_07 = Sin_07__msa;
+  assign Sin_08 = Sin_08__msa;
+  assign Sin_09 = Sin_09__msa;
+  assign Sin_10 = Sin_10__msa;
+  assign Sin_11 = Sin_11__msa;
+  assign Sin_12 = Sin_12__msa;
+  assign Sin_13 = Sin_13__msa;
+  assign Sin_14 = Sin_14__msa;
+  assign Sin_15 = Sin_15__msa;
   assign SkipWait_p_ = SkipWait_p___BaseBd;
   assign Sout_00 = Sout_00__MemD;
   assign Sout_01 = Sout_01__MemD;
@@ -4768,6 +4809,77 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     .UseDMD__drv(UseDMD__BaseBd)
   );
 
+  // ---- msa
+  msa b_msa (
+    .sys_clk(sys_clk),
+    .CLK_ms0Even_p_(CLK_ms0Even_p_),
+    .ChipsAre16k(ChipsAre16k),
+    .ChipsAre4k(ChipsAre4k),
+    .ChipsAre64K(ChipsAre64K),
+    .EcOut_0(EcOut_0),
+    .EcOut_1(EcOut_1),
+    .EcOut_4(EcOut_4),
+    .EcOut_5(EcOut_5),
+    .LoadEcOut_p_(LoadEcOut_p_),
+    .LoadSinE(LoadSinE),
+    .LoadSoutE_p_(LoadSoutE_p_),
+    .Mb0(Mb0),
+    .MemAd_1(MemAd_1),
+    .MemAd_2(MemAd_2),
+    .MemAd_3(MemAd_3),
+    .MemAd_4(MemAd_4),
+    .MemAd_5(MemAd_5),
+    .MemAd_6(MemAd_6),
+    .MemAd_7(MemAd_7),
+    .MemAd_8(MemAd_8),
+    .MemCASa(MemCASa),
+    .MemCASb(MemCASb),
+    .MemRASa(MemRASa),
+    .MemRASb(MemRASb),
+    .MemWEa(MemWEa),
+    .MemWEb(MemWEb),
+    .Mod0SinEn_p_(Mod0SinEn_p_),
+    .Mod0StrEn_p_(Mod0StrEn_p_),
+    .ShiftEcOut(ShiftEcOut),
+    .ShiftSinE(ShiftSinE),
+    .ShiftSoutE(ShiftSoutE),
+    .Sout_00(Sout_00),
+    .Sout_01(Sout_01),
+    .Sout_02(Sout_02),
+    .Sout_03(Sout_03),
+    .Sout_04(Sout_04),
+    .Sout_05(Sout_05),
+    .Sout_06(Sout_06),
+    .Sout_07(Sout_07),
+    .Sout_08(Sout_08),
+    .Sout_09(Sout_09),
+    .Sout_10(Sout_10),
+    .Sout_11(Sout_11),
+    .Sout_12(Sout_12),
+    .Sout_13(Sout_13),
+    .Sout_14(Sout_14),
+    .Sout_15(Sout_15),
+    .EcIn_0__drv(EcIn_0__msa),
+    .EcIn_1__drv(EcIn_1__msa),
+    .M0__drv(M0__msa),
+    .Sin_00__drv(Sin_00__msa),
+    .Sin_01__drv(Sin_01__msa),
+    .Sin_02__drv(Sin_02__msa),
+    .Sin_03__drv(Sin_03__msa),
+    .Sin_04__drv(Sin_04__msa),
+    .Sin_05__drv(Sin_05__msa),
+    .Sin_06__drv(Sin_06__msa),
+    .Sin_07__drv(Sin_07__msa),
+    .Sin_08__drv(Sin_08__msa),
+    .Sin_09__drv(Sin_09__msa),
+    .Sin_10__drv(Sin_10__msa),
+    .Sin_11__drv(Sin_11__msa),
+    .Sin_12__drv(Sin_12__msa),
+    .Sin_13__drv(Sin_13__msa),
+    .Sin_14__drv(Sin_14__msa),
+    .Sin_15__drv(Sin_15__msa)
+  );
+
 endmodule
 `default_nettype wire
 
@@ -4788,7 +4900,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 248 signals, 32 at a time;
+// probe_val exposes 210 signals, 32 at a time;
 // dorado_backplane.probes lists which bit is which.
 module dorado_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
@@ -4842,7 +4954,6 @@ module dorado_machine #(parameter integer SYSPER = 16) (
   wire CLK_io22_p_;
   wire CLK_io23_p_;
   wire CLK_io24_p_;
-  wire CLK_ms0Even_p_;
   wire CLK_ms0Odd_p_;
   wire CLK_ms1Even_p_;
   wire CLK_ms1Odd_p_;
@@ -4873,12 +4984,8 @@ module dorado_machine #(parameter integer SYSPER = 16) (
   wire DataP3;
   wire DriveTag_p_;
   wire EcDcomingForCt_p_;
-  wire EcOut_0;
-  wire EcOut_1;
   wire EcOut_2;
   wire EcOut_3;
-  wire EcOut_4;
-  wire EcOut_5;
   wire EcOut_6;
   wire EcOut_7_p_;
   wire FA_eq_0_p_;
@@ -4923,25 +5030,10 @@ module dorado_machine #(parameter integer SYSPER = 16) (
   wire JunkTW;
   wire LScopeFH;
   wire LargeHold;
-  wire LoadEcOut_p_;
-  wire LoadSinE;
   wire LoadSinO;
-  wire LoadSoutE_p_;
   wire LoadSoutO_p_;
   wire MemAd_0;
-  wire MemAd_1;
-  wire MemAd_2;
-  wire MemAd_3;
-  wire MemAd_4;
-  wire MemCASa;
-  wire MemCASb;
   wire MemClkEnable_p_b;
-  wire MemRASa;
-  wire MemRASb;
-  wire MemWEa;
-  wire MemWEb;
-  wire Mod0SinEn_p_;
-  wire Mod0StrEn_p_;
   wire Mod1SinEn_p_;
   wire Mod1StrEn_p_;
   wire Mod2SinEn_p_;
@@ -4981,28 +5073,9 @@ module dorado_machine #(parameter integer SYSPER = 16) (
   wire Selected2_p_;
   wire Selected3_p_;
   wire Sequence0_p_;
-  wire ShiftEcOut;
-  wire ShiftSinE;
   wire ShiftSinO;
-  wire ShiftSoutE;
   wire ShiftSoutO;
   wire SkipWait_p_;
-  wire Sout_00;
-  wire Sout_01;
-  wire Sout_02;
-  wire Sout_03;
-  wire Sout_04;
-  wire Sout_05;
-  wire Sout_06;
-  wire Sout_07;
-  wire Sout_08;
-  wire Sout_09;
-  wire Sout_10;
-  wire Sout_11;
-  wire Sout_12;
-  wire Sout_13;
-  wire Sout_14;
-  wire Sout_15;
   wire StartClockPulse;
   wire TTLIOReset_p_;
   wire TagBus_0_p_;
@@ -5036,7 +5109,7 @@ module dorado_machine #(parameter integer SYSPER = 16) (
   wire VSync;
   wire XSyncEn_p_;
 
-  // The clock fanout, read out of the machine: 10 nets,
+  // The clock fanout, read out of the machine: 11 nets,
   // BaseBoard to one slot each. These are the first thing to watch --
   // if they are not toggling, nothing downstream can be.
   //
@@ -5053,6 +5126,7 @@ module dorado_machine #(parameter integer SYSPER = 16) (
   wire CLK_ifu_p__probe;
   wire CLK_mc_p__probe;
   wire CLK_md_p__probe;
+  wire CLK_ms0Even_p__probe;
   wire CLK_mx_p__probe;
   wire CLK_ph_p__probe;
   wire CLK_pl_p__probe;
@@ -5064,6 +5138,7 @@ module dorado_machine #(parameter integer SYSPER = 16) (
   assign CLK_ifu_p__probe = u_machine.CLK_ifu_p_;
   assign CLK_mc_p__probe = u_machine.CLK_mc_p_;
   assign CLK_md_p__probe = u_machine.CLK_md_p_;
+  assign CLK_ms0Even_p__probe = u_machine.CLK_ms0Even_p_;
   assign CLK_mx_p__probe = u_machine.CLK_mx_p_;
   assign CLK_ph_p__probe = u_machine.CLK_ph_p_;
   assign CLK_pl_p__probe = u_machine.CLK_pl_p_;
@@ -5076,16 +5151,18 @@ module dorado_machine #(parameter integer SYSPER = 16) (
   // assign CLK_ifu_p__probe = 1'b0;
   // assign CLK_mc_p__probe = 1'b0;
   // assign CLK_md_p__probe = 1'b0;
+  // assign CLK_ms0Even_p__probe = 1'b0;
   // assign CLK_mx_p__probe = 1'b0;
   // assign CLK_ph_p__probe = 1'b0;
   // assign CLK_pl_p__probe = 1'b0;
   // synthesis read_comments_as_HDL off
 
-  wire [255:0] probe = {
-    8'd0,
+  wire [223:0] probe = {
+    14'd0,
     CLK_pl_p__probe,
     CLK_ph_p__probe,
     CLK_mx_p__probe,
+    CLK_ms0Even_p__probe,
     CLK_md_p__probe,
     CLK_mc_p__probe,
     CLK_ifu_p__probe,
@@ -5125,28 +5202,9 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     TagBus_0_p_,
     TTLIOReset_p_,
     StartClockPulse,
-    Sout_15,
-    Sout_14,
-    Sout_13,
-    Sout_12,
-    Sout_11,
-    Sout_10,
-    Sout_09,
-    Sout_08,
-    Sout_07,
-    Sout_06,
-    Sout_05,
-    Sout_04,
-    Sout_03,
-    Sout_02,
-    Sout_01,
-    Sout_00,
     SkipWait_p_,
     ShiftSoutO,
-    ShiftSoutE,
     ShiftSinO,
-    ShiftSinE,
-    ShiftEcOut,
     Sequence0_p_,
     Selected3_p_,
     Selected2_p_,
@@ -5186,25 +5244,10 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     Mod2SinEn_p_,
     Mod1StrEn_p_,
     Mod1SinEn_p_,
-    Mod0StrEn_p_,
-    Mod0SinEn_p_,
-    MemWEb,
-    MemWEa,
-    MemRASb,
-    MemRASa,
     MemClkEnable_p_b,
-    MemCASb,
-    MemCASa,
-    MemAd_4,
-    MemAd_3,
-    MemAd_2,
-    MemAd_1,
     MemAd_0,
     LoadSoutO_p_,
-    LoadSoutE_p_,
     LoadSinO,
-    LoadSinE,
-    LoadEcOut_p_,
     LargeHold,
     LScopeFH,
     JunkTW,
@@ -5249,12 +5292,8 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     FA_eq_0_p_,
     EcOut_7_p_,
     EcOut_6,
-    EcOut_5,
-    EcOut_4,
     EcOut_3,
     EcOut_2,
-    EcOut_1,
-    EcOut_0,
     EcDcomingForCt_p_,
     DriveTag_p_,
     DataP3,
@@ -5285,7 +5324,6 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     CLK_ms1Odd_p_,
     CLK_ms1Even_p_,
     CLK_ms0Odd_p_,
-    CLK_ms0Even_p_,
     CLK_io24_p_,
     CLK_io23_p_,
     CLK_io22_p_,
@@ -5415,7 +5453,6 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .CLK_io22_p_(CLK_io22_p_),
     .CLK_io23_p_(CLK_io23_p_),
     .CLK_io24_p_(CLK_io24_p_),
-    .CLK_ms0Even_p_(CLK_ms0Even_p_),
     .CLK_ms0Odd_p_(CLK_ms0Odd_p_),
     .CLK_ms1Even_p_(CLK_ms1Even_p_),
     .CLK_ms1Odd_p_(CLK_ms1Odd_p_),
@@ -5423,7 +5460,9 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .CLK_ms2Odd_p_(CLK_ms2Odd_p_),
     .CLK_ms3Even_p_(CLK_ms3Even_p_),
     .CLK_ms3Odd_p_(CLK_ms3Odd_p_),
+    .ChipsAre16k(1'b0),
     .ChipsAre256_s_16K(1'b0),
+    .ChipsAre4k(1'b0),
     .ChipsAre64K(1'b0),
     .ClkEnable_p_a(1'b0),
     .ClockM0(ClockM0),
@@ -5452,14 +5491,8 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .DiskOnRet(1'b0),
     .DriveTag_p_(DriveTag_p_),
     .EcDcomingForCt_p_(EcDcomingForCt_p_),
-    .EcIn_0(1'b0),
-    .EcIn_1(1'b0),
-    .EcOut_0(EcOut_0),
-    .EcOut_1(EcOut_1),
     .EcOut_2(EcOut_2),
     .EcOut_3(EcOut_3),
-    .EcOut_4(EcOut_4),
-    .EcOut_5(EcOut_5),
     .EcOut_6(EcOut_6),
     .EcOut_7_p_(EcOut_7_p_),
     .EventA(1'b0),
@@ -5557,31 +5590,16 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .LEDOnRet(1'b0),
     .LScopeFH(LScopeFH),
     .LargeHold(LargeHold),
-    .LoadEcOut_p_(LoadEcOut_p_),
-    .LoadSinE(LoadSinE),
     .LoadSinO(LoadSinO),
-    .LoadSoutE_p_(LoadSoutE_p_),
     .LoadSoutO_p_(LoadSoutO_p_),
-    .M0(1'b0),
     .M1(1'b0),
     .M2(1'b0),
     .M3(1'b0),
+    .Mb0(1'b0),
     .MemAd_0(MemAd_0),
-    .MemAd_1(MemAd_1),
-    .MemAd_2(MemAd_2),
-    .MemAd_3(MemAd_3),
-    .MemAd_4(MemAd_4),
-    .MemCASa(MemCASa),
-    .MemCASb(MemCASb),
     .MemClkEn_p_a(1'b0),
     .MemClkEnable_p_b(MemClkEnable_p_b),
     .MemClkEnable_p_c(1'b0),
-    .MemRASa(MemRASa),
-    .MemRASb(MemRASb),
-    .MemWEa(MemWEa),
-    .MemWEb(MemWEb),
-    .Mod0SinEn_p_(Mod0SinEn_p_),
-    .Mod0StrEn_p_(Mod0StrEn_p_),
     .Mod1SinEn_p_(Mod1SinEn_p_),
     .Mod1StrEn_p_(Mod1StrEn_p_),
     .Mod2SinEn_p_(Mod2SinEn_p_),
@@ -5636,45 +5654,10 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .Serial_200(1'b0),
     .Serial_4(1'b0),
     .Serial_40(1'b0),
-    .ShiftEcOut(ShiftEcOut),
-    .ShiftSinE(ShiftSinE),
     .ShiftSinO(ShiftSinO),
-    .ShiftSoutE(ShiftSoutE),
     .ShiftSoutO(ShiftSoutO),
     .SimHoldDis(1'b0),
-    .Sin_00(1'b0),
-    .Sin_01(1'b0),
-    .Sin_02(1'b0),
-    .Sin_03(1'b0),
-    .Sin_04(1'b0),
-    .Sin_05(1'b0),
-    .Sin_06(1'b0),
-    .Sin_07(1'b0),
-    .Sin_08(1'b0),
-    .Sin_09(1'b0),
-    .Sin_10(1'b0),
-    .Sin_11(1'b0),
-    .Sin_12(1'b0),
-    .Sin_13(1'b0),
-    .Sin_14(1'b0),
-    .Sin_15(1'b0),
     .SkipWait_p_(SkipWait_p_),
-    .Sout_00(Sout_00),
-    .Sout_01(Sout_01),
-    .Sout_02(Sout_02),
-    .Sout_03(Sout_03),
-    .Sout_04(Sout_04),
-    .Sout_05(Sout_05),
-    .Sout_06(Sout_06),
-    .Sout_07(Sout_07),
-    .Sout_08(Sout_08),
-    .Sout_09(Sout_09),
-    .Sout_10(Sout_10),
-    .Sout_11(Sout_11),
-    .Sout_12(Sout_12),
-    .Sout_13(Sout_13),
-    .Sout_14(Sout_14),
-    .Sout_15(Sout_15),
     .StartClockPulse(StartClockPulse),
     .SubTask_1(1'b0),
     .TTLIOReset_p_(TTLIOReset_p_),
@@ -5722,7 +5705,7 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .dStartClockPulse(1'b0)
   );
 
-  assign probe_words = 16'd8;
+  assign probe_words = 16'd7;
   assign probe_val = (probe_sel < probe_words)
                    ? probe[32 * probe_sel +: 32] : 32'd0;
 

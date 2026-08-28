@@ -322,8 +322,15 @@ def ports() -> int:
 #
 # msa and PCMSA are two generations of storage-module board; IOTest is a test
 # fixture and Music an option.
+# ...including `msa`, the STORAGE MODULE. Without it the machine has no
+# memory at all: MemAd/RAS/CAS/WE and Sout leave as ports and Sin comes back
+# from nothing, so every reference reads whatever the outside drives. One
+# module is 144 MK4096P (4K x 1 DRAM) = 576 Kbit, which is small enough to
+# infer as block RAM, and `readback-test` already gates a real word going
+# into PARC's array and coming back out to the processor.
 DEFAULT_MACHINE = ['ProcH', 'ProcL', 'ContA', 'ContB', 'IFU',
-                   'MemC', 'MemD', 'MemX', 'DskEth', 'DispY', 'BaseBd']
+                   'MemC', 'MemD', 'MemX', 'DskEth', 'DispY', 'BaseBd',
+                   'msa']
 
 
 def _board_dirs() -> dict[str, str]:
