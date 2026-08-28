@@ -923,3 +923,15 @@ term-test:
 		verilog/verilator/tb_term.sv verilog/cells/dorado_terminal.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_term/tb_term 2>&1); \
 		  rc=$$?; echo "$$out" | grep tb_term; exit $$rc; }
+
+# A TRIDENT AT THE END OF THE CABLE: presence (Ready+OnLine+TERM together) and
+# rotation at 3600 RPM. The gaps are counted as well as the pulses -- a line
+# stuck low gives a healthy pulse count and only the duty cycle tells them
+# apart, which is the lesson disk-input-test paid for.
+.PHONY: trident-test
+trident-test:
+	@cd ../.. && $(V) --binary --top-module tb_trident $(V_WARN) \
+		--Mdir verilog/verilator/obj_trident -o tb_trident \
+		verilog/verilator/tb_trident.sv verilog/cells/dorado_trident.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_trident/tb_trident 2>&1); \
+		  rc=$$?; echo "$$out" | grep tb_trident; exit $$rc; }
