@@ -104,21 +104,27 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 //     SYSPER=8  -> 133.3 MHz     SYSPER=2 -> 33.3 MHz
 //
 // Measured Fmax for the eleven-board machine on this device is 48.99 MHz
-// (fpga/quartus/reports), so SYSPER=2 at 33.3 MHz is the real-time target and
-// is what a PLL should eventually produce. This first core runs sys_clk from
-// CLK_50M directly: it is deliberate and honest -- 50 MHz is just above Fmax,
-// so the timing report will say so, and that is the measurement this build
-// exists to take. Do not read a small negative slack here as a surprise.
+// (fpga/quartus/reports), so SYSPER=2 at 33.3 MHz is the real-time target --
+// and SYSPER=2 IS NOW GATED. Every whole-machine bench passes at 16x, 8x, 4x
+// and 2x alike: the memory section, the IFU, the disk, the display, the
+// storage array, and the full nine-board world running PARC's own microcode,
+// boot chain included. It is a real ratio change, not a relabelled one -- over
+// an unchanged 20,000-cycle budget tb_exec executes 1,242 microinstructions at
+// 16x and 9,994 at 2x, a clean doubling per halving, with identical decoded
+// results. cell_CLOCKGEN's header says the oversampled detector cascade "is
+// what forces 16 sys_clk per microinstruction"; for every section gated so
+// far, it does not.
 
 // CLK_VIDEO MUST COME FROM A PLL, not a clock pin -- the framework's clock
 // select blocks reject a pin driver outright ("inclk[3] ... must be driven by
 // a PLL's output clock"). So the PLL is not optional dressing here.
 //
-// The template PLL gives 20 MHz from the 50 MHz reference. At SYSPER=16 that is
-// 1.25 MHz of microinstructions, 0.075x a real Dorado -- slow, but it RUNS and
-// it passes timing with enormous margin against the 48.99 MHz Fmax. Regenerate
-// the PLL for 33.3 MHz once SYSPER=2 is validated (see task 50) and the same
-// core becomes real-time.
+// build.sh retunes the template PLL from 20 MHz to 33.333333 MHz, which at
+// SYSPER=2 is 16.67 MHz of microinstructions -- a 60 ns cycle, REAL DORADO
+// TIME -- and still 32% below the 48.99 MHz Fmax. (The old 20 MHz at SYSPER=16
+// was 1.25 MHz, 0.075x.) Going faster than real time is possible up to Fmax,
+// but authentic speed is the right default for a machine whose software was
+// written against a 60 ns cycle.
 wire clk_sys, pll_locked;
 pll pll
 (
@@ -139,7 +145,11 @@ wire pixel_clk = clk_sys;
 
 wire alto_video, alto_hsync, alto_vsync_n, hblank, vblank;
 
-dorado_backplane u_dorado
+// SYSPER=2 -- one microinstruction per two sys_clk. The parameter defaults to
+// 16 and MUST be passed: leaving it default with the retuned PLL would give
+// 33.3/16 = 2.08 MHz of microinstructions, i.e. an eighth of real time, and
+// nothing would look wrong.
+dorado_backplane #(.SYSPER(2)) u_dorado
 (
 	.sys_clk      (clk_sys),
 	.RawPixelClk  (pixel_clk),

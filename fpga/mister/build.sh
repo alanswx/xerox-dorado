@@ -30,6 +30,21 @@ sed 's/Template/Dorado/g' "$TEMPLATE/Template.qpf" > "$OUT/Dorado.qpf"
 cp "$HERE/Dorado.sv" "$OUT/"
 rm -f "$OUT/Template.sv" "$OUT/rtl/mycore.v"
 
+# THE PLL, RETUNED FOR REAL TIME. The template's PLL emits 20 MHz, which at the
+# old SYSPER=16 was 1.25 MHz of microinstructions -- 0.075x a real Dorado. The
+# RTL is now gated ratio-invariant down to SYSPER=2 (memory, IFU, disk,
+# display, storage and the full nine-board world, plus PARC's boot chain), and
+# a 60 ns microinstruction at SYSPER=2 needs sys_clk = 2 x 16.67 = 33.33 MHz.
+# That is REAL TIME, and it sits 32% under the 48.99 MHz measured Fmax.
+#
+# Patched here rather than in the template so the retune belongs to this repo
+# and survives a template refresh.
+sed -i.bak 's|output_clock_frequency0("20.000000 MHz")|output_clock_frequency0("33.333333 MHz")|' \
+    "$OUT/rtl/pll/pll_0002.v"
+rm -f "$OUT/rtl/pll/pll_0002.v.bak"
+grep -q '33.333333 MHz' "$OUT/rtl/pll/pll_0002.v" || {
+    echo "PLL retune did not apply -- template PLL frequency changed?"; exit 1; }
+
 # Point the project at our sources. THE TEMPLATE'S FILE LIST IS files.qip, NOT
 # the qsf -- the qsf only does `source files.qip` -- so renaming Template.sv in
 # the qsf alone leaves the project with no `emu` at all, which is exactly how
