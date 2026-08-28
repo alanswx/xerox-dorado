@@ -45,7 +45,16 @@ module cell_K1115A #(
     // DskEth j20 keeps this default: Ether12.sil draws it driving EClk0 with
     // no value stated, and the 23.530 MHz elsewhere in DskEth belongs to a
     // different xtalosc in the parts list.
-    parameter integer FREQ_KHZ = 20000
+    parameter integer FREQ_KHZ = 20000,
+    // sys_clk per microinstruction. The accumulator counts sys_clk edges, so
+    // it has to know what a sys_clk IS -- and sys_clk is SYSPER x 16.67 MHz,
+    // not a constant. Hard-coded at 266.667 MHz (i.e. SYSPER=16) this cell
+    // emitted the right number of edges per SYS_CLK and therefore the WRONG
+    // frequency relative to the machine at any other ratio: at SYSPER=2 every
+    // crystal ran eight times slow against a microinstruction rate that had
+    // not moved. That is a real infidelity, not a bench artifact -- the
+    // oscillator is an absolute time reference and the ratio is not.
+    parameter integer SYSPER = 16
 ) (
     input  wire sys_clk,
     output wire p8,     // oscillator output
@@ -53,8 +62,10 @@ module cell_K1115A #(
     input  wire p14     // VCC
 );
 
-  // 16 sys_clk to a 60 ns microinstruction.
-  localparam integer SYS_KHZ = 266667;
+  // SYSPER sys_clk to a 60 ns microinstruction. Written as a scaling of the
+  // old constant rather than SYSPER * 16667 so that SYSPER=16 is EXACTLY the
+  // 266667 it has always been, bit for bit, and no gate moves.
+  localparam integer SYS_KHZ = (SYSPER * 266667) / 16;
   localparam integer STEP    = 2 * FREQ_KHZ;   // two edges to a period
 
   integer acc = 0;

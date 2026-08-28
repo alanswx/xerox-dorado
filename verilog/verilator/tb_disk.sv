@@ -1280,7 +1280,13 @@ module tb_disk;
   // the very first jam at time 0.
   function automatic integer WT(input integer n);
     begin
-      WT = (n * SYSPER) / 16;
+      // ROUND TO NEAREST, not toward zero. Truncation flattens the SHAPE of a
+      // waveform at low ratios -- at SYSPER=4 a 4-cycle low and a 6-cycle
+      // setup both truncate to 1, turning 4:6 into 1:1 -- and the single-step
+      // chain depends on strobe SPACING (SetRun must survive three RunClk'
+      // edges). That cost step-test at 4x and nothing else. Exact at
+      // SYSPER=16, where WT(n) = n with no remainder.
+      WT = (n * SYSPER + 8) / 16;
       if (WT < 1) WT = 1;
     end
   endfunction
@@ -1445,6 +1451,12 @@ module tb_disk;
   integer n_we_fall, n_we_match, n_sind1, n_we_ones, n_we1, n_we1_ones, n_ce0, n_ce1;
   integer n_r_cont, n_r_muff, n_r_data, n_r_ram, n_r_tag;
   reg [7:0] tioa_now, tioa_at_out; integer n_tioa10, n_tioa_out10;
+  // WHERE the misses fall, not just how many. A total says "8 short of
+  // 6848"; a first/last index says whether they are a startup transient or
+  // scattered through the run, which is the difference between a bench
+  // boundary and an intermittent fault. Same lesson as the IM parity
+  // window, which read as broken until it was bucketed by time.
+  integer miss_first, miss_last, n_miss;
   integer n_tw, n_byp, n_byp_out, n_cn; reg [3:0] ram_at_out; reg byp_at_out, ff4_at_out;
   integer n_crc_edge, n_crc_free, crc_wait, n_tag_edge, n_tag_free, n_tagclk; reg crc_d; reg tag_d, tclk_d; integer cont_first, cont_first_sel, n_sectw, n_idxtw, n_secpulse, n_secgap, n_clridx, n_idxtw_run, n_dat1, n_dat0, n_clk1, n_desel, n_bclk, n_scnt, n_shmove, n_bclkb, n_shld, n_rdata, n_cecc, n_shin, n_shiftin, n_rdblk, n_actv, n_wclk, n_co, n_cntdone, n_ramcl, n_lastram, n_wecond, n_werise; reg g15we_d; reg [3:0] wdata_lo, wdata_hi; reg [3:0] alub_hi, alub_fall, wdata_fall; reg ff4_at_wr, ff4_fall; integer n_fall, n_alub_ok, n_alub_ok_wr, n_iob_lit, fwi; reg [11:0] fwgot;
   reg [15:0] FEDWORD = 16'hA53C; reg [3:0] fraddr_before;
@@ -1470,7 +1482,7 @@ module tb_disk;
   initial begin
     n_load_edge_rb = 0; n_sin_hi = 0; n_sind_hi = 0;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
-    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; n_iob_lit=0; promseen=32'd0; promaddr_last=5'h1F; n_irf=0; n_fifow=0; irf_d=1'b0; n_orw=0; n_orf=0; n_dsknz=0; orw_d=1'b1; dskdata_nz=16'h0000; fwaddr_first=4'bx; fwaddr_last2=4'bx; promseen2=32'd0; promaddr2_last=5'h1F; dwin_d=-1; dwin_w=-1; dtrig_d=1'b0; dtrig_w=1'b0; alub_prev=4'bx; n_wrshow=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
+    d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; miss_first=-1; miss_last=-1; n_miss=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; n_iob_lit=0; promseen=32'd0; promaddr_last=5'h1F; n_irf=0; n_fifow=0; irf_d=1'b0; n_orw=0; n_orf=0; n_dsknz=0; orw_d=1'b1; dskdata_nz=16'h0000; fwaddr_first=4'bx; fwaddr_last2=4'bx; promseen2=32'd0; promaddr2_last=5'h1F; dwin_d=-1; dwin_w=-1; dtrig_d=1'b0; dtrig_w=1'b0; alub_prev=4'bx; n_wrshow=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
     // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
     want_tioa = $test$plusargs("tag")  ? 8'o014 :
                 $test$plusargs("muff") ? 8'o011 :
@@ -1850,6 +1862,11 @@ module tb_disk;
            m.b_ProcL.alub_14a, m.b_ProcL.alub_15a} == 16'h5A00)
         n_iob_lit = n_iob_lit + 1;
       if (tioa_now == want_tioa) n_tioa_out10 = n_tioa_out10 + 1;
+      else begin
+        n_miss = n_miss + 1;
+        if (miss_first < 0) miss_first = n_iobout;
+        miss_last = n_iobout;
+      end
       if (m.b_ProcH.TIOABypass) n_byp_out = n_byp_out + 1;
       byp_at_out <= m.b_ProcH.TIOABypass;
       ff4_at_out <= m.b_ProcH.FFdly_4;
@@ -5038,8 +5055,11 @@ module tb_disk;
       // address. Without this the format RAM can only ever be written with its
       // own address sixteen times over.
       if ($test$plusargs("tdata")) begin
+        $display("tb_disk: TIOA MISSES -- %0d of %0d, strobe indices %0d..%0d",
+                 n_miss, n_iobout, miss_first, miss_last);
         if (n_tioa_out10 !== n_iobout)
-          $fatal(1, "only %0d of %0d strobes carried the address", n_tioa_out10, n_iobout);
+          $fatal(1, "only %0d of %0d strobes carried the address (misses at strobes %0d..%0d)",
+                 n_tioa_out10, n_iobout, miss_first, miss_last);
         if (n_iob_lit == 0)
           $fatal(1, "no strobe carried the FF literal -- the data is not independent of the address");
         $display("tb_disk:   ...so address and data are INDEPENDENT: all %0d strobes addressed, %0d carried the literal",

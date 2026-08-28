@@ -1270,7 +1270,7 @@ module DispY_m_Rev_m_Cl #(parameter integer SYSPER = 16) (
     .p6(DispY25_sil_pl_1),
     .p9(VCC50)
   ); // MC10124
-  cell_K1115A #(.FREQ_KHZ(50000)) u_a05 (
+  cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(SYSPER)) u_a05 (
     .sys_clk(sys_clk),
     .p7(GND8),
     .p8(DispY25_sil_pl_1),

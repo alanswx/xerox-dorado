@@ -67,6 +67,34 @@
 
 module tb_mem;
 
+
+  // THE OVERSAMPLING RATIO -- sys_clk per microinstruction. SYSPER reaches only
+  // `cell_CLOCKGEN`, which lives on the BaseBoard, so a sub-machine's clock is
+  // whatever its bench drives; this one used to hard-code a divide-by-16 and
+  // therefore only ever ran at 16x. Real time needs sys_clk = SYSPER x 16.67
+  // MHz and measured Fmax is 48.99 MHz, so SYSPER=2 is the target.
+  //
+  //     make -C verilog/verilator <gate> SYSPER=2
+`ifndef SYSPER_OVERRIDE
+  `define SYSPER_OVERRIDE 16
+`endif
+  localparam integer SYSPER = `SYSPER_OVERRIDE;
+  // SCALE A FABRIC-CYCLE WAIT so it means the same amount of DORADO time at any
+  // ratio. NOT `SYSPER / 16` -- integer division gives ZERO below 16x, which
+  // turns every `repeat` into no wait at all.
+  function automatic integer WT(input integer n);
+    begin
+      // ROUND TO NEAREST, not toward zero. Truncation flattens the SHAPE of a
+      // waveform at low ratios -- at SYSPER=4 a 4-cycle low and a 6-cycle
+      // setup both truncate to 1, turning 4:6 into 1:1 -- and the single-step
+      // chain depends on strobe SPACING (SetRun must survive three RunClk'
+      // edges). That cost step-test at 4x and nothing else. Exact at
+      // SYSPER=16, where WT(n) = n with no remainder.
+      WT = (n * SYSPER + 8) / 16;
+      if (WT < 1) WT = 1;
+    end
+  endfunction
+
   reg sys_clk = 1'b0;
   always #1 sys_clk = ~sys_clk;
 
@@ -74,8 +102,11 @@ module tb_mem;
   // other testbenches do it -- the BaseBoard is not in this configuration, so
   // the backplane clocks are driven here.
   reg [3:0] ckd = 4'd0;
-  always @(posedge sys_clk) ckd <= ckd + 4'd1;
-  wire mclk = ckd[3];
+  // At SYSPER=16 this is bit for bit the counter it replaces:
+  // ckd counts 0..15 and mclk is ckd >= 8, i.e. ckd[3].
+  always @(posedge sys_clk)
+    ckd <= (ckd == SYSPER - 1) ? 4'd0 : ckd + 4'd1;
+  wire mclk = (ckd >= SYSPER / 2);
 
   reg [2:0] addr_n = 3'b111;
   reg [8:0] cpout  = 9'd0;
@@ -99,13 +130,13 @@ module tb_mem;
       .SetRunRfsh(setrunrfsh)
   );
 
-  localparam integer GAP = 200;
+  localparam integer GAP = (200 * SYSPER) / 16;
   integer k;
   task strobe(input [2:0] fn, input [7:0] data, input ss);
     begin
       addr_n = ~fn; cpout = {ss, data}; setss_n = ~ss;
-      repeat (4) @(posedge sys_clk); strb_n = 1'b0;
-      repeat (8) @(posedge sys_clk); strb_n = 1'b1;
+      repeat (WT(4)) @(posedge sys_clk); strb_n = 1'b0;
+      repeat (WT(8)) @(posedge sys_clk); strb_n = 1'b1;
       repeat (GAP) @(posedge sys_clk);
     end
   endtask
@@ -115,7 +146,7 @@ module tb_mem;
   reg pc, pd, px;
 
   initial begin
-    repeat (200) @(posedge sys_clk);
+    repeat (WT(200)) @(posedge sys_clk);
     pc = m.b_MemC.clk0_p_A;
     pd = m.b_MemD.clk0_p_B;
     px = m.b_MemX.Clk0_p_Aa;
@@ -162,7 +193,7 @@ module tb_mem;
     strobe(3'd0, 8'h00, 1'b1); setss_n = 0; // undo the clears, SetSS
     strobe(3'd0, 8'h41, 1'b1); setrun = 1;  // ClrStop AND SetRun together
     setrunrfsh = 1'b1;                      // ...and what the BaseBoard asserts
-    repeat (400) @(posedge sys_clk);
+    repeat (WT(400)) @(posedge sys_clk);
 
     pc = m.b_MemC.clk0_p_A; pd = m.b_MemD.clk0_p_B; px = m.b_MemX.Clk0_p_Aa;
     nc = 0; nd = 0; nx = 0;

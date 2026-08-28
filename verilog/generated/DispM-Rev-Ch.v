@@ -1780,7 +1780,7 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p9(VCC_m_28),
     .p16(GND_m_21)
   ); // MC10124
-  cell_K1115A #(.FREQ_KHZ(10000)) u_c05 (
+  cell_K1115A #(.FREQ_KHZ(10000), .SYSPER(SYSPER)) u_c05 (
     .sys_clk(sys_clk),
     .p7(GND_m_22),
     .p8(DispM23_sil_pl_16),
@@ -2121,7 +2121,7 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p13(TWReq_04),
     .p14(AHTWantsProc_p_)
   ); // MC10135
-  cell_K1115A #(.FREQ_KHZ(20000)) u_d13 (
+  cell_K1115A #(.FREQ_KHZ(20000), .SYSPER(SYSPER)) u_d13 (
     .sys_clk(sys_clk),
     .p7(GND_m_18),
     .p8(DispM25_sil_pl_1),
