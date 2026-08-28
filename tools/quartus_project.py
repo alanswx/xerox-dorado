@@ -67,6 +67,20 @@ def main() -> int:
         return 1
     srcs += cells
 
+    # THE BASEBOARD'S TWO REAL CORES. cell_MCS6502 and cell_MCS6532 are
+    # wrappers -- they instantiate chip_6502 and M6532, which are vendored
+    # rather than generated, so a cell_*.v glob misses them and every BaseBd
+    # package fails to elaborate. The Verilator benches pick them up through
+    # -Iverilog/vendor/6502 -Iverilog/vendor/riot; Quartus needs them listed.
+    vendor = []
+    for sub in ("6502", "riot"):
+        vendor += sorted(glob.glob(os.path.join(ROOT, "verilog", "vendor", sub, "*.v")))
+        vendor += sorted(glob.glob(os.path.join(ROOT, "verilog", "vendor", sub, "*.sv")))
+    if not vendor:
+        print("FAIL: no vendored 6502/6532 cores found")
+        return 1
+    srcs += vendor
+
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, "dorado.qpf"), "w") as f:
         f.write("QUARTUS_VERSION = \"17.0\"\nPROJECT_REVISION = \"dorado\"\n")
@@ -82,6 +96,12 @@ def main() -> int:
         w(f'set_global_assignment -name DEVICE {DEVICE}\n')
         w(f'set_global_assignment -name TOP_LEVEL_ENTITY {TOP}\n')
         w('set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files\n')
+        # THE PROM CELLS $readmemh PATHS RELATIVE TO THE REPO ROOT --
+        # verilog/proms/packages/<board>-<pkg>.mem -- and Quartus runs from the
+        # PROJECT directory, so without this every PROM package fails to
+        # elaborate with "can't open Verilog Design File". SEARCH_PATH is what
+        # Quartus uses to resolve memory initialisation files.
+        w('set_global_assignment -name SEARCH_PATH "../.."\n')
         w('set_global_assignment -name SDC_FILE dorado.sdc\n')
         w('set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL\n')
         # The generator emits plain Verilog-2001 plus a little SystemVerilog.
@@ -110,7 +130,7 @@ def main() -> int:
     print(f"wrote {OUT}/dorado.qsf")
     print(f"  device {DEVICE} ({FAMILY}), top {TOP}")
     print(f"  boards: {' '.join(boards)}")
-    print(f"  {len(srcs)} source files ({len(cells)} cell models)")
+    print(f"  {len(srcs)} source files ({len(cells)} cells, {len(vendor)} vendored)")
     print(f"  {n} virtual pins, 1 real pin")
     return 0
 
