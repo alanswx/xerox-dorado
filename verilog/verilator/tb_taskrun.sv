@@ -1146,6 +1146,17 @@ module tb_taskrun;
     parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
     nop_micro;
     $display("tb_taskrun: Link[4:15]=%h", link_hi);
+    // WHICH SLOT DID THE JAM WRITE? The Link file is addressed by TLinkAd,
+    // which follows CTask, so a jam that lands while the machine is in some
+    // other task writes that task's slot instead -- and the assertion below
+    // ("Link[0] must differ from the slots nobody wrote") would then fail
+    // without anything being wrong with the tasking. Read the address and
+    // the slot HERE, before the machine runs, so the two cases separate.
+    $display("tb_taskrun: AT THE JAM -- CTask=%0d TLinkAd=%0d WriteTLink'a=%b TLinkEn'=%b | Link[0]=%h Link[15]=%h",
+             {m.b_ContA.CTask_0, m.b_ContA.CTask_1, m.b_ContA.CTask_2, m.b_ContA.CTask_3},
+             {m.b_ContA.TLinkAd_0, m.b_ContA.TLinkAd_1, m.b_ContA.TLinkAd_2, m.b_ContA.TLinkAd_3},
+             m.b_ContA.WriteTLink_p_a, m.b_ContA.TLinkEn_p_,
+             link_of(4'd0), link_of(4'd15));
 
     // TaskingOn,Return. PARC's Return# is 60 13 E1 42 43 = "TaskingOff,Return"
     // with FF[142]; ContA a16 decodes FF=TaskingOn as FA=1,FB=4,FC=3 = 143
@@ -1157,7 +1168,13 @@ module tb_taskrun;
 
     n0a = 0;
     p0 = m.b_ContA.clk0_p_Ca;
-    for (j2 = 0; j2 < 3000; j2 = j2 + 1) begin
+    // AND THE WINDOW IS A NUMBER OF MICROINSTRUCTIONS, NOT OF SAMPLES.
+    // Now that mclk scales with SYSPER, a fixed 3000 sys_clk covers 187
+    // microinstructions at 16x but 1500 at 2x, so the machine runs further
+    // at a lower ratio and `Return` (which reloads Link with CIA+1) gets more
+    // chances to overwrite task 0's slot. WT() makes the experiment the same
+    // length in the machine's own units, and is exactly 3000 at SYSPER=16.
+    for (j2 = 0; j2 < WT(3000); j2 = j2 + 1) begin
       @(posedge sys_clk);
       if (m.b_ContA.clk0_p_Ca !== p0) begin n0a = n0a + 1; p0 = m.b_ContA.clk0_p_Ca; end
     end

@@ -1171,6 +1171,8 @@ module tb_memrun;
   // that instruction is in force -- a SUBSET, which is not what "every
   // LdPair' edge" means. These count over the whole run.
   integer n_ldp_edge_u, n_d_at_edge_u, n_hcd_at_edge_u;  reg ldp_du;
+  integer n_fsp_lo_u, n_fsp_fall_u;  reg fsp_du;
+  integer n_fs_rise_u, n_fm_rise_u;  reg fs_du, fm_du;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd, nvc_wv, nvc_dv, nvc_fdm, nvc_fia, nvc_vip, nvc_via, nvc_ios, nvc_wia, nvc_wim, nvc_wimem, nvc_smc, nvc_sec, nvc_smc_e, nvc_sec_e, nvc_coin, nvc_coin2;
   integer smc_first, smc_last, wia_first, wia_last, sm_first, sm_last;
   integer gap_min, gap_sum, gap_n;
@@ -2295,7 +2297,7 @@ build_hunk4(4'd0, 1'b0,
     for (int zj = 0; zj < 8; zj++) mapst_hit[zj] = 1'b0;
     for (int zk = 0; zk < 4; zk++) mapfn_hit[zk] = 1'b0;
     ntnia=0; nff0=0; nsamp=0;
-    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0; nvc_wv=0; nvc_dv=0; nvc_fdm=0; nvc_fia=0; nvc_vip=0; nvc_via=0; nvc_ios=0; nvc_wia=0; nvc_wim=0; nvc_wimem=0; nvc_smc=0; nvc_sec=0; nvc_smc_e=0; nvc_sec_e=0; nvc_coin=0; nvc_coin2=0; n_ldp_lo=0; n_ldp_edge=0; n_ldp_coin=0; ldp_d=1'b1; n_d_at_edge=0; n_hcd_at_edge=0; n_ldp_edge_u=0; n_d_at_edge_u=0; n_hcd_at_edge_u=0; ldp_du=1'b1;
+    nff0_wpr=0; nff0_cr=0; nff0_alt=0; nff0_fl=0; nff0_a1=0; nff0_ign=0; nff0_a0=0; nff0_ffok=0; nff0_bad=0; nff0_fs=0; nff0_fm=0; nff0_mia=0; nff0_mib=0; nff0_fsp=0; nff0_ech=0; nff0_st=0; nff0_hcd=0; nvc_wv=0; nvc_dv=0; nvc_fdm=0; nvc_fia=0; nvc_vip=0; nvc_via=0; nvc_ios=0; nvc_wia=0; nvc_wim=0; nvc_wimem=0; nvc_smc=0; nvc_sec=0; nvc_smc_e=0; nvc_sec_e=0; nvc_coin=0; nvc_coin2=0; n_ldp_lo=0; n_ldp_edge=0; n_ldp_coin=0; ldp_d=1'b1; n_d_at_edge=0; n_hcd_at_edge=0; n_ldp_edge_u=0; n_d_at_edge_u=0; n_hcd_at_edge_u=0; ldp_du=1'b1; n_fsp_lo_u=0; n_fsp_fall_u=0; fsp_du=1'b1; n_fs_rise_u=0; n_fm_rise_u=0; fs_du=1'b0; fm_du=1'b0;
     smc_first=-1; smc_last=-1; wia_first=-1; wia_last=-1; sm_first=-1; sm_last=-1;
     gap_min=-1; gap_sum=0; gap_n=0;
     for (int zi = 0; zi < 4096; zi++) tnia_hit[zi] = 1'b0;
@@ -2337,7 +2339,11 @@ build_hunk4(4'd0, 1'b0,
     $display("tb_memrun: ALL 21 map bit planes preloaded to 1 (parity experiment)");
 
     p0 = m.b_ContA.clk0_p_Ca; pmc = m.b_MemC.clk0_p_A;
-    for (j2 = 0; j2 < `RUNLEN; j2 = j2 + 1) begin
+    // AND THE WINDOW IS A NUMBER OF MICROINSTRUCTIONS, NOT OF SAMPLES.
+    // Now that mclk scales with SYSPER, a fixed 3000 sys_clk covers 187
+    // microinstructions at 16x but 1500 at 2x -- a longer experiment, not
+    // the same one at a different rate. WT() is exactly 3000 at SYSPER=16.
+    for (j2 = 0; j2 < WT(`RUNLEN); j2 = j2 + 1) begin
       @(posedge sys_clk);
       if (m.b_ContA.clk0_p_Ca !== p0) begin n0a = n0a + 1; p0 = m.b_ContA.clk0_p_Ca; end
       if (m.b_MemC.clk0_p_A !== pmc) begin nmemclk = nmemclk + 1; pmc = m.b_MemC.clk0_p_A; end
@@ -2375,6 +2381,19 @@ build_hunk4(4'd0, 1'b0,
         if (m.b_MemC.HitColDirty)      n_hcd_at_edge_u = n_hcd_at_edge_u + 1;
       end
       ldp_du = m.b_MemC.LdPair_p_;
+      // FSinPair' OVER THE WHOLE RUN. The gated count beside it only sees the
+      // samples where the flush instruction is the one executing, so a level
+      // asserted for a fixed few machine cycles can fall entirely outside a
+      // short window and read 0 without anything having changed.
+      if (!m.b_MemC.FSinPair_p_) n_fsp_lo_u = n_fsp_lo_u + 1;
+      if (!m.b_MemC.FSinPair_p_ && fsp_du) n_fsp_fall_u = n_fsp_fall_u + 1;
+      fsp_du = m.b_MemC.FSinPair_p_;
+      // ...and the two stages FSinPair' feeds, counted the same way. Both are
+      // active high, so the RISING edge is the event: l19 makes FlushStore
+      // from FSinPair'|EcHasAb, and k19 makes ForceMiss from it.
+      if (m.b_MemC.FlushStore && !fs_du) n_fs_rise_u = n_fs_rise_u + 1;
+      if (m.b_MemC.ForceMiss  && !fm_du) n_fm_rise_u = n_fm_rise_u + 1;
+      fs_du = m.b_MemC.FlushStore;  fm_du = m.b_MemC.ForceMiss;
       if (m.b_MemC.PairHasA          !== ppha) begin npha=npha+1; ppha=m.b_MemC.PairHasA;          end
       if (m.b_MemC.CacheRefInA       !== pcra) begin ncra=ncra+1; pcra=m.b_MemC.CacheRefInA;       end
       if (m.b_MemC.Hit_p_a           !== pha ) begin nha =nha +1; pha =m.b_MemC.Hit_p_a;           end
@@ -2675,8 +2694,12 @@ build_hunk4(4'd0, 1'b0,
     // GATE: with the ASEL=1 reference actually executing, the front door must
     // be open on EVERY cycle it runs -- WantProcRef' low, from IgnoreProc = 0
     // and ASEL.0 = 0, which is b24 gate c's algebra exactly.
-    if (nff0 < 100)
-      $fatal(1, "the ASEL=1 reference barely ran (%0d samples) -- it must be the executing instruction", nff0);
+    // A FLOOR IN SAMPLES MUST SCALE WITH THE SAMPLING RATE. The reference
+    // occupies the same FRACTION of the window at every ratio -- 704 of 3000
+    // at 16x and 88 of 375 at 2x are both 23.5% -- so a fixed 100 rejects a
+    // correct low-ratio run. WT(100) is exactly 100 at SYSPER=16.
+    if (nff0 < WT(100))
+      $fatal(1, "the ASEL=1 reference barely ran (%0d samples of %0d) -- it must be the executing instruction", nff0, WT(`RUNLEN));
     if (nff0_wpr !== nff0)
       $fatal(1, "WantProcRef' was not asserted on every cycle the reference ran (%0d of %0d)",
              nff0_wpr, nff0);
@@ -2725,11 +2748,26 @@ build_hunk4(4'd0, 1'b0,
     // the machine never leaves -- a bench artifact, not a timing fault.
     $display("tb_memrun: FLUSHD-UNGATED -- LdPair' edges %0d, D high %0d, HitColDirty high %0d",
              n_ldp_edge_u, n_d_at_edge_u, n_hcd_at_edge_u);
+    $display("tb_memrun: FSINPAIR-UNGATED -- low on %0d samples over the run, %0d falling edges",
+             n_fsp_lo_u, n_fsp_fall_u);
+    $display("tb_memrun: FLUSHCHAIN-UNGATED -- FlushStore rising %0d, ForceMiss rising %0d",
+             n_fs_rise_u, n_fm_rise_u);
     if (nff0_st  == 0) $fatal(1, "the Store never asserted -- nothing dirties a line");
     if (nff0_hcd == 0) $fatal(1, "HitColDirty never true -- the Store did not dirty the flushed line");
-    if (nff0_fsp == 0) $fatal(1, "FSinPair' never fell -- the flush was not latched into the pair");
-    if (nff0_fs  == 0) $fatal(1, "FlushStore never asserted");
-    if (nff0_fm  == 0) $fatal(1, "ForceMiss never asserted");
+    // ASSERT ON THE EVENT, NOT ON THE OVERLAP. This used to require
+    // `nff0_fsp != 0` -- FSinPair' low on samples where the flush instruction
+    // was also the executing one. Both halves of that are sampled quantities,
+    // and at a low ratio the level (a fixed ~30 machine cycles) can fall
+    // outside a window that is itself shorter in samples, giving 0 with
+    // nothing changed. The falling EDGE is the physical event the message
+    // claims -- "the flush was latched into the pair" -- and counted over the
+    // whole run it is 5 at SYSPER 16, 8, 4 and 2 alike, while the level
+    // samples halve with the sampling density (480/240/120/40). So this is
+    // both the more faithful assertion and the ratio-invariant one.
+    if (n_fsp_fall_u == 0) $fatal(1, "FSinPair' never fell -- the flush was not latched into the pair");
+    // Edges, not gated levels -- see the FSinPair' note above.
+    if (n_fs_rise_u == 0) $fatal(1, "FlushStore never asserted");
+    if (n_fm_rise_u == 0) $fatal(1, "ForceMiss never asserted");
     if (nff0_mia == 0 || nff0_mib == 0)
       $fatal(1, "the cache never missed (a %0d, b %0d)", nff0_mia, nff0_mib);
     // GATE: the MapState sequencer walks and the start signal asserts. MemX
