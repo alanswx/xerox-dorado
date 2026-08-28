@@ -19,12 +19,20 @@ module tb_term;
   integer i, bad = 0; reg [31:0] got;
   // Shift 32 bits out, MSB first, one per line_tick -- exactly how DispY's
   // c22 samples it (clocked by RamdHBlank).
+  // RACE-FREE, and it has to be said explicitly. The first version drove
+  // `line_tick` with a NON-BLOCKING assign and sampled `ois` on the same
+  // posedge that consumed it. `ois` is combinational from the message
+  // register, so whether the sample sees the bit before or after the tick is
+  // scheduler-dependent: Verilator 5.050 gave the right 32 bits and 5.044 gave
+  // all of them shifted one place, `(want << 1) | 1`. The RTL was identical.
+  // So: move the stimulus to the NEGEDGE, away from the sampling edge, and
+  // sample at the posedge, which reads pre-NBA values by definition.
   task grab; begin
     got = 32'd0;
     for (i = 0; i < 32; i = i + 1) begin
-      @(posedge sys_clk); line_tick <= 1'b1;
-      @(posedge sys_clk); got = {got[30:0], ois}; line_tick <= 1'b0;
-      @(posedge sys_clk);
+      @(negedge sys_clk); line_tick = 1'b1;
+      @(posedge sys_clk); got = {got[30:0], ois};
+      @(negedge sys_clk); line_tick = 1'b0;
     end
   end endtask
 
