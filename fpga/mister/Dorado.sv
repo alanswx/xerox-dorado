@@ -69,6 +69,10 @@ assign VIDEO_ARY = (!ar) ? 12'd4 : 12'd0;
 localparam CONF_STR = {
 	"Dorado;;",
 	"-;",
+	// A Trident pack. The framework mounts the file and reports its size;
+	// `img_size` being non-zero is what tells the drive it exists at all.
+	"S0,PACKDSK,Mount Trident;",
+	"-;",
 	"O[122:121],Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"-;",
 	"R[0],Reset;",
@@ -98,8 +102,18 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	// strobe TOGGLES, so an edge on it is an event -- a repeat of the same
 	// code is a distinct event, which matters here because the Dorado's
 	// terminal reports TRANSITIONS.
-	.ps2_key(ps2_key)
+	.ps2_key(ps2_key),
+
+	// The virtual drive. `img_size` is non-zero once the user mounts a pack,
+	// which is what tells the Trident a drive is there at all.
+	.img_mounted(img_mounted),
+	.img_readonly(img_readonly),
+	.img_size(img_size)
 );
+
+wire [1:0]  img_mounted;
+wire        img_readonly;
+wire [63:0] img_size;
 
 //////////////////  Clocks  //////////////////
 //
@@ -213,6 +227,39 @@ dorado_terminal u_term
 	.OISData_n     (ois_data_n)
 );
 
+//////////////////  The disk  //////////////////
+//
+// Everything past the DskEth connector is a separate box, so a drive has to
+// be modelled and plugged in. `dorado_trident` presents Ready/OnLine/TERM
+// together (TERM is part of being on line -- c24 wired-ORs them), Selected
+// separately, and SecIndx' rotating at a real 3600 RPM.
+//
+// The cable lines are INPUTS to the machine now. They used to be outputs,
+// because their only on-board driver is a SIP pull-up and the generator read
+// that as the board driving them -- backwards, since the far end is a drive.
+//
+// `attached` comes from the HPS: a drive exists when an image is mounted.
+// With nothing mounted every line idles DEASSERTED, which is what "no drive"
+// has to look like -- six of these once read asserted and invented one.
+wire disk_attached = |img_size;
+
+wire dsk_ready_n, dsk_online_n, dsk_term_n, dsk_sel0_n, dsk_secidx0_n;
+
+dorado_trident #(.SYSPER(2)) u_disk0
+(
+	.sys_clk    (clk_sys),
+	.reset      (reset),
+	.attached   (disk_attached),
+	// Unit selection comes from the controller's tag lines; until those are
+	// decoded here, unit 0 answers whenever a pack is mounted.
+	.selected   (disk_attached),
+	.TtlReady_n (dsk_ready_n),
+	.TtlOnLine_n(dsk_online_n),
+	.TtlTerm_n  (dsk_term_n),
+	.Selected_n (dsk_sel0_n),
+	.SecIndx_n  (dsk_secidx0_n)
+);
+
 //////////////////  The machine  //////////////////
 
 // SYSPER=2 -- one microinstruction per two sys_clk. The parameter defaults to
@@ -233,7 +280,21 @@ dorado_backplane #(.SYSPER(2)) u_dorado
 
 	// The terminal's return channel, at the BaseBoard.
 	.OISData      (ois_data),
-	.OISData_p_   (ois_data_n)
+	.OISData_p_   (ois_data_n),
+
+	// The drive cable. Unit 0 is modelled; the rest of the cable idles
+	// DEASSERTED, which is ACTIVE LOW and therefore 1 -- tying any of these
+	// to 0 fabricates a drive.
+	.TtlReady_p_    (dsk_ready_n),
+	.TtlOnLine_p_   (dsk_online_n),
+	.TtlTerm_p_     (dsk_term_n),
+	.Selected0_p_   (dsk_sel0_n),
+	.SecIndx0_p_    (dsk_secidx0_n),
+	.TtlReadOnly_p_ (1'b1),
+	.TtlEndOfCyl_p_ (1'b1),
+	.TtlIndex_p_    (1'b1),
+	.Selected1_p_   (1'b1), .Selected2_p_(1'b1), .Selected3_p_(1'b1),
+	.SecIndx1_p_    (1'b1), .SecIndx2_p_ (1'b1), .SecIndx3_p_ (1'b1)
 
 	// Every other port is left unconnected on purpose -- see the header.
 );
