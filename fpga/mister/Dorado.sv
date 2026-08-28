@@ -91,7 +91,14 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.forced_scandoubler(forced_scandoubler),
 	.buttons(buttons),
 	.status(status),
-	.status_menumask(0)
+	.status_menumask(0),
+
+	// The framework decodes the USB/PS2 keyboard for us and hands over one
+	// event at a time: {strobe_toggle, pressed, extended, code[7:0]}. The
+	// strobe TOGGLES, so an edge on it is an event -- a repeat of the same
+	// code is a distinct event, which matters here because the Dorado's
+	// terminal reports TRANSITIONS.
+	.ps2_key(ps2_key)
 );
 
 //////////////////  Clocks  //////////////////
@@ -141,9 +148,72 @@ wire reset = RESET | status[0] | buttons[1] | ~pll_locked;
 // drives it -- right by construction rather than approximation.
 wire pixel_clk = clk_sys;
 
-//////////////////  The machine  //////////////////
-
+// Declared here because the terminal's bit clock below is derived from
+// `hblank`, which the machine drives further down.
 wire alto_video, alto_hsync, alto_vsync_n, hblank, vblank;
+
+//////////////////  Keyboard, and the terminal that carries it  //////////////
+//
+// The Dorado's keyboard does not reach the machine as parallel bits. A
+// microcomputer in the TERMINAL serialises keyboard, keyset and mouse into
+// the 32-bit messages of HM Table 24 and sends them back up the 7-wire cable,
+// arriving at the BaseBoard as the OISData differential pair:
+//
+//     BaseBd OISData/OISData' -> MC10125 -> TKeyboardData -> MC10124
+//         -> KeyboardData -> backplane -> DispY c22 -> OISRcvdData -> IOB.00
+//
+// c22 is clocked by RamdHBlank, so the machine samples that line ONCE PER
+// SCAN LINE and a message takes 32 lines. A real terminal is a separate box
+// whose only timing reference is the video being sent to it, so it clocks its
+// reply off that -- which is exactly what `hblank` is doing here. The rate is
+// right by construction rather than by a constant to keep in step.
+
+wire [10:0] ps2_key;
+wire [15:0] kw0, kw1, kw2, kw3;
+
+dorado_keyboard u_kbd
+(
+	.sys_clk   (clk_sys),
+	.reset     (reset),
+	.ps2_key   (ps2_key),
+	.key_word0 (kw0),
+	.key_word1 (kw1),
+	.key_word2 (kw2),
+	.key_word3 (kw3)
+);
+
+// One pulse per horizontal blanking -- the terminal's bit clock.
+reg hblank_d;
+always @(posedge clk_sys) hblank_d <= hblank;
+wire line_tick = hblank & ~hblank_d;
+
+wire ois_data, ois_data_n;
+
+dorado_terminal u_term
+(
+	.sys_clk       (clk_sys),
+	.reset         (reset),
+	.line_tick     (line_tick),
+	.key_word0     (kw0),
+	.key_word1     (kw1),
+	.key_word2     (kw2),
+	.key_word3     (kw3),
+	// Word 4 is mouse buttons and the keyset (Alto 177033B). No mouse is
+	// wired yet, and the cell is ACTIVE LOW -- an unseeded one reads as every
+	// button and keyset key HELD, which is what once stopped Smalltalk with
+	// "the keyset is stuck". So it idles all-ones deliberately.
+	.key_word4     (16'hFFFF),
+	.mouse_dx      (9'sd0),
+	.mouse_dy      (9'sd0),
+	.mouse_pending (1'b0),
+	.mouse_taken   (),
+	.mouse_sent_dx (),
+	.mouse_sent_dy (),
+	.OISData       (ois_data),
+	.OISData_n     (ois_data_n)
+);
+
+//////////////////  The machine  //////////////////
 
 // SYSPER=2 -- one microinstruction per two sys_clk. The parameter defaults to
 // 16 and MUST be passed: leaving it default with the retuned PLL would give
@@ -159,7 +229,11 @@ dorado_backplane #(.SYSPER(2)) u_dorado
 	.AltoHSync    (alto_hsync),
 	.AltoVSync_p_ (alto_vsync_n),
 	.HBlank       (hblank),
-	.VBlank       (vblank)
+	.VBlank       (vblank),
+
+	// The terminal's return channel, at the BaseBoard.
+	.OISData      (ois_data),
+	.OISData_p_   (ois_data_n)
 
 	// Every other port is left unconnected on purpose -- see the header.
 );

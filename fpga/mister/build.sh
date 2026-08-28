@@ -70,6 +70,8 @@ rm -f "$OUT/Dorado.qsf.bak"
            "$REPO"/verilog/generated/*-Rev-*.v \
            "$REPO"/verilog/generated/msa.v \
            "$REPO"/verilog/cells/cell_*.v \
+           "$REPO"/verilog/cells/dorado_terminal.v \
+           "$REPO"/verilog/cells/dorado_keyboard.v \
            "$REPO"/verilog/vendor/6502/*.v \
            "$REPO"/verilog/vendor/riot/*.sv; do
     [ -f "$f" ] && echo "set_global_assignment -name SYSTEMVERILOG_FILE $f"
