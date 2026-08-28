@@ -1,0 +1,15 @@
+# Quartus build detritus -- 192 MB of it, and all reproducible from the
+# generator. This repo already carries 1,217 tracked Verilator artifacts
+# (see the task list); do not add a second pile.
+db/
+incremental_db/
+output_files/
+c5_pin_model_dump.txt
+compile.log
+*.qws
+*.rpt
+*.done
+*.pin
+*.sof
+*.jdi
+*.smsg

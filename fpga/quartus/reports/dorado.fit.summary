@@ -1,0 +1,20 @@
+Fitter Status : Successful - Thu Aug 27 20:50:37 2026
+Quartus Prime Version : 17.0.2 Build 602 07/19/2017 SJ Lite Edition
+Revision Name : dorado
+Top-level Entity Name : dorado_backplane
+Family : Cyclone V
+Device : 5CSEBA6U23I7
+Timing Models : Final
+Logic utilization (in ALMs) : 25,644 / 41,910 ( 61 % )
+Total registers : 40894
+Total pins : 1 / 314 ( < 1 % )
+Total virtual pins : 385
+Total block memory bits : 523,696 / 5,662,720 ( 9 % )
+Total RAM Blocks : 87 / 553 ( 16 % )
+Total DSP Blocks : 0 / 112 ( 0 % )
+Total HSSI RX PCSs : 0
+Total HSSI PMA RX Deserializers : 0
+Total HSSI TX PCSs : 0
+Total HSSI PMA TX Serializers : 0
+Total PLLs : 0 / 6 ( 0 % )
+Total DLLs : 0 / 4 ( 0 % )
