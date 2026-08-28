@@ -110,13 +110,30 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 // so the timing report will say so, and that is the measurement this build
 // exists to take. Do not read a small negative slack here as a surprise.
 
-wire clk_sys = CLK_50M;
-wire reset = RESET | status[0] | buttons[1];
+// CLK_VIDEO MUST COME FROM A PLL, not a clock pin -- the framework's clock
+// select blocks reject a pin driver outright ("inclk[3] ... must be driven by
+// a PLL's output clock"). So the PLL is not optional dressing here.
+//
+// The template PLL gives 20 MHz from the 50 MHz reference. At SYSPER=16 that is
+// 1.25 MHz of microinstructions, 0.075x a real Dorado -- slow, but it RUNS and
+// it passes timing with enormous margin against the 48.99 MHz Fmax. Regenerate
+// the PLL for 33.3 MHz once SYSPER=2 is validated (see task 50) and the same
+// core becomes real-time.
+wire clk_sys, pll_locked;
+pll pll
+(
+	.refclk   (CLK_50M),
+	.rst      (1'b0),
+	.outclk_0 (clk_sys),
+	.locked   (pll_locked)
+);
+
+wire reset = RESET | status[0] | buttons[1] | ~pll_locked;
 
 // DispY's pixel clock is an INPUT to the machine: its crystal (a05, 50 MHz on
-// the built Rev Cl sheet) is outside the generated netlist. Driving it from
-// CLK_50M is right by construction rather than approximation.
-wire pixel_clk = CLK_50M;
+// the built Rev Cl sheet) sits outside the generated netlist, so the core
+// drives it -- right by construction rather than approximation.
+wire pixel_clk = clk_sys;
 
 //////////////////  The machine  //////////////////
 
@@ -153,6 +170,10 @@ assign VGA_HS = alto_hsync;
 assign VGA_VS = ~alto_vsync_n;      // the machine's VSync is active low
 assign VGA_DE = ~(hblank | vblank);
 
-assign LED_USER = 1'b0;
+// THE MACHINE HAS NO RESET PORT and that is correct: the BaseBoard generates
+// its own, through the g21/g22/g23 watchdog chain that firmware-probe
+// measures. So `reset` here is the FRAMEWORK's reset, and until it is wired
+// into the BaseBoard's boot button it is only shown, not applied.
+assign LED_USER = reset;
 
 endmodule
