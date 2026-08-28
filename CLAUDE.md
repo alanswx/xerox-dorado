@@ -1027,11 +1027,59 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **THE FAULT TASK RUNS ITS OWN HANDLER** | `exec-init` -- TPC[15] set; task 15 runs BEGINENUMERATEMAP / IWRITEMAPFLAGS |
 | **PARC'S BOOT CHAIN RUNS** | `exec-boot` -- Initial global-calls Bootstrap's READBB, which polls for the control processor |
 
-Fifty gates in all; `make -C verilog` has the list. **The datapath is
+Forty-eight gates in all; `make -C verilog` has the list. **The datapath is
 done**; parity is the one open item in the boot chain. Cell coverage is
 **97.7%** of the eleven-board machine, and of the 64 packages left 42 are
 analog. Four machine configurations are generated (`dorado_backplane` at eleven
 boards, plus BaseBd alone, ContA+ContB, and ContA/ContB/ProcH/ProcL).
+
+**AND IT RUNS AT REAL DORADO SPEED ON THE FPGA (2026-08-28).** The MiSTer
+core fits and MEETS TIMING at `SYSPER=2` with the PLL at 33.333333 MHz --
+34,519/41,910 ALMs (82%), 179/553 RAM blocks, machine-clock Fmax **39.56
+MHz**, setup slack **+4.720 ns**, and the worst slack anywhere in the core
++0.175 ns on the framework's own HDMI PLL. 33.33 MHz / 2 = **16.67 MHz of
+microinstructions, a 60 ns cycle, 1.0x a real Dorado**, with room for 1.19x
+at Fmax. Reports: `fpga/mister/reports/`.
+
+Getting there meant discovering that **the whole oversampling sweep had been
+measuring the wrong thing**. `SYSPER` reaches exactly one module,
+`cell_CLOCKGEN`, and that lives on the BaseBoard -- which none of the
+sub-machines contains, their `CLK_*` ports being inputs the generator marks
+"awaits BaseBd". All twenty benches drove them from a hard-coded
+divide-by-16, so `make ... SYSPER=8` compressed the BENCH's stimulus against
+a machine clock that never moved. The tell was already in the logs: at the
+old 8x every line of `tb_memrun`'s output up to the flush was byte-identical
+to 16x, `FF.0mem'=1 on 704 of 3000 samples` included, and a machine running
+twice as fast cannot occupy the same number of samples. Every bench derives
+`mclk` from `SYSPER` now (bit for bit the old counter at 16), and `tb_exec`
+proves the ratio really changed: over an unchanged 20,000-cycle budget it
+executes **1,242 microinstructions at 16x and 9,994 at 2x**, a clean
+doubling per halving, with identical decoded results and PARC's boot chain
+word for word the same.
+
+The three benches that then still failed were all **gated level counts
+compared against zero**. Counted as EVENTS over the whole run -- which is
+what their messages claimed -- the flush chain is ratio-invariant
+(`FSinPair'` falls 5 times, `FlushStore` rises 5, `ForceMiss` 6, at every
+ratio) while the LEVEL samples halve with the sampling density
+(480/240/120/40). **A level is not an event**, for the third time in this
+file.
+
+Two real defects fell out of the sweep rather than out of reading:
+**`cell_K1115A` hard-coded `SYS_KHZ = 266667`** -- an oscillator is an
+absolute time reference and `sys_clk` is not, so at `SYSPER=2` every crystal
+in the machine ran EIGHT TIMES SLOW against an unchanged microinstruction
+rate; and **`WT()` truncated instead of rounding**, which flattens a
+waveform's SHAPE at low ratios (a 4-cycle low and a 6-cycle setup both
+truncate to 1, turning 4:6 into 1:1) and cost `step-test` at 4x. Both fixes
+are exact no-ops at 16x.
+
+Sweep, all 48 gates: **16x 48 pass, 8x 47, 4x 47, 2x 48**. The two
+intermediate failures are one disk gate each and both pass at 16x AND 2x --
+failing in the middle and passing at both ends is a phase relationship, and
+the measurement says so: `disk-ram-test`'s eight misses sit at strobe
+indices 1849..1856 of 6848, eight CONSECUTIVE strobes mid-run, not a startup
+transient.
 
 **Findings worth not rediscovering**, each written up in the handoff:
 
