@@ -69,10 +69,29 @@ module cell_F10145A (
   // instead of task 0's, and tb_taskrun read the same value out of all
   // sixteen. It survived at 16x only because the pulse happened to sit inside
   // one stable address there.
+  //
+  // AND THE ADDRESS IS LATCHED DURING THE WINDOW, not sampled after it.
+  // "Latches what is on its pins at the END of that window" means the pins
+  // WHILE WE' IS LOW. Sampling `a` on the RISING edge instead reads the address
+  // once the window has already closed -- which is a different cycle's address
+  // as soon as the pulse is short. At 8 sys_clk per microinstruction the
+  // startup `Link<-` landed in the wrong task's slot AGAIN, for this reason
+  // rather than the multiple-write one; at 16x the address simply had not
+  // moved yet. Latching during the window is what the part does and is
+  // RATIO-INDEPENDENT, which is the property that matters: real time on an
+  // FPGA needs SYSPER=2, not 16.
   reg we_d;
-  always @(posedge sys_clk) we_d <= p13;
-  always @(posedge sys_clk)
-    if (p13 && !we_d && !p3) mem[a] <= {p12, p11, p4, p5};  // WE' rising, CE' low
+  reg [3:0] a_lat, d_lat;
+  reg       ce_lat;
+  always @(posedge sys_clk) begin
+    we_d <= p13;
+    if (!p13) begin                          // while WE' is asserted (low)
+      a_lat  <= a;
+      d_lat  <= {p12, p11, p4, p5};
+      ce_lat <= ~p3;
+    end
+    if (p13 && !we_d && ce_lat) mem[a_lat] <= d_lat;   // WE' rising: commit
+  end
   wire [3:0] q = mem[a];
   assign {p14, p15, p1, p2} = (!p3) ? q : 4'b0000;          // CE' gates the read
 
