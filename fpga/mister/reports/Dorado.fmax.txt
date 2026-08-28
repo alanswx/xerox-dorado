@@ -1,8 +1,4 @@
-  6. Fmax Summary
-  7. Timing Closure Recommendations
-  8. Setup Summary
-  9. Hold Summary
- 10. Recovery Summary
- 11. Removal Summary
- 12. Minimum Pulse Width Summary
- 13. Metastability Summary
+; 34.49 MHz  ; 34.49 MHz       ; emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk           ;      ;
+; 49.84 MHz  ; 49.84 MHz       ; pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk   ;      ;
+; 74.37 MHz  ; 74.37 MHz       ; FPGA_CLK1_50                                                                      ;      ;
+; 122.73 MHz ; 122.73 MHz      ; FPGA_CLK2_50                                                                      ;      ;
