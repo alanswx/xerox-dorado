@@ -168,8 +168,21 @@ module tb_taskrun;
     end
   endfunction
 
-  always @(posedge sys_clk) ckd <= ckd + 4'd1;
-  wire mclk = ckd[3];
+  // THE MACHINE CLOCK, AT THE OVERSAMPLING RATIO. This was `ckd[3]` of a
+  // free-running 4-bit counter -- a hard-coded divide-by-16 that ignored
+  // SYSPER entirely. SYSPER reaches only `cell_CLOCKGEN`, which lives on the
+  // BaseBoard, and none of the sub-machines (dorado_mem/_ifu/_proc/_control)
+  // contains one: their CLK_* ports are inputs marked "awaits BaseBd" and the
+  // bench drives them. So lowering SYSPER compressed the BENCH's stimulus
+  // while the machine's clock stayed at 16 sys_clk per microinstruction --
+  // which is a different experiment, not a lower ratio.
+  //
+  // One microinstruction is SYSPER sys_clk now, which is what N means in
+  // cell_CLOCKGEN. At SYSPER=16 this is bit for bit the counter it replaces:
+  // ckd counts 0..15 and mclk is ckd >= 8, i.e. ckd[3].
+  always @(posedge sys_clk)
+    ckd <= (ckd == SYSPER - 1) ? 4'd0 : ckd + 4'd1;
+  wire mclk = (ckd >= SYSPER / 2);
 
   reg [2:0] addr_n = 3'b111;
   reg [8:0] cpout  = 9'd0;
