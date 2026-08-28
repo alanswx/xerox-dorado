@@ -647,10 +647,6 @@ class Generator:
         ('DispY', 'a05'): {'FREQ_KHZ': 50000},
         ('DispM', 'c05'): {'FREQ_KHZ': 10000},
         ('DispM', 'd13'): {'FREQ_KHZ': 20000},
-        # DskEth j20 has no stated frequency and keeps the cell's default, but
-        # it still needs SYSPER -- so it must appear here to be parameterised
-        # at all. 20000 is the cell's own default, so this changes nothing.
-        ('DskEth', 'j20'): {'FREQ_KHZ': 20000},
     }
 
     BROKEN_PACKAGE_PINS = {
@@ -1059,6 +1055,47 @@ class Generator:
 
         A('  // ---- packages')
         placed = 0
+        # THE DRAM ADDRESS LATCH IS SHARED. A 4K x 1 dynamic RAM latches a row
+        # on RAS' falling and a column on CAS' falling, and every chip driven
+        # by the SAME strobes and the SAME seven address pins computes exactly
+        # the same pair. On the msa board there are 16 such groups across 144
+        # chips, so 128 copies of sixteen registers are redundant -- 2,048
+        # registers, on the board that took the DE10-Nano fit from 82% to 97%.
+        # One `cell_MK4096P_addr` is emitted per group and its output goes to
+        # every member's `addr_i`. Faithful, not approximate: the members see
+        # identical inputs, so the shared latch is bit-for-bit theirs.
+        dram_group = {}          # pos -> wire name
+        dram_emit = {}           # wire name -> (ras, cas, a-pins tuple)
+        DRAM_CTRL = (4, 15, 10, 11, 12, 6, 7, 5, 13)   # RAS', CAS', A6..A0
+        for pos in sorted(self.b.packages):
+            if not self.b.packages[pos].get('type', '').startswith('MK4096P'):
+                continue
+            key = tuple(pinnet.get((pos, pn)) for pn in DRAM_CTRL)
+            if None in key:
+                continue          # an unwired chip keeps its own latch
+            name = dram_emit.get(key)
+            if name is None:
+                name = 'dram_addr_%d' % len(dram_emit)
+                dram_emit[key] = name
+            dram_group[pos] = name
+        if dram_emit:
+            A('')
+            A('  // ---- DRAM row/column latches, one per control group -----')
+            A('  // %d chips share %d latches; see cell_MK4096P_addr.'
+              % (len(dram_group), len(dram_emit)))
+            for key, name in sorted(dram_emit.items(), key=lambda kv: kv[1]):
+                ras, cas = key[0], key[1]
+                abits = ', '.join(self.read_name(n) for n in key[2:])
+                A('  wire [11:0] %s;' % name)
+                A('  cell_MK4096P_addr u_%s (' % name)
+                A('    .sys_clk(sys_clk),')
+                A('    .p4(%s),' % self.read_name(ras))
+                A('    .p15(%s),' % self.read_name(cas))
+                A('    .a({%s}),' % abits)
+                A('    .addr(%s)' % name)
+                A('  );')
+            A('')
+
         for pos in sorted(self.b.packages):
             pkg = self.b.packages[pos]
             ptype = pkg.get('type', '')
@@ -1148,13 +1185,9 @@ class Generator:
             if extra:
                 # A value that belongs to the fitted component, not the part
                 # type -- see CELL_PARAMS.
-                # SYSPER goes with it: an oscillator is an absolute time
-                # reference, so its cell must know what a sys_clk is worth.
-                # The board module has SYSPER as a parameter already.
-                items = [f'.{k}({v})' for k, v in sorted(extra.items())]
-                if vpart(ptype) == 'K1115A':
-                    items.append('.SYSPER(SYSPER)')
-                params = '#(' + ', '.join(items) + ') '
+                params = ('#(' + ', '.join(f'.{k}({v})'
+                                           for k, v in sorted(extra.items()))
+                          + ') ')
             # A bus the part drives AND reads: hand back what the OTHER
             # drivers put on it. See read_excluding.
             for port, pins in self.READBACK.get(vpart(ptype), {}).items():
@@ -1167,6 +1200,8 @@ class Generator:
             if vpart(ptype) in self.clocked:
                 conns = ['    .sys_clk(sys_clk)'] + conns
                 self.clocked_placed += 1
+            if pos in dram_group:
+                conns = conns + ['    .addr_i(%s)' % dram_group[pos]]
             A(',\n'.join(conns) if conns else '    // no connections')
             A(f'  ); // {ptype}')
             placed += 1

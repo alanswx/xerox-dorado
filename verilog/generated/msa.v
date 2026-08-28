@@ -900,6 +900,138 @@ module msa #(parameter integer SYSPER = 16) (
   assign VTT8 = 1'b0;
 
   // ---- packages
+
+  // ---- DRAM row/column latches, one per control group -----
+  // 144 chips share 16 latches; see cell_MK4096P_addr.
+  wire [11:0] dram_addr_0;
+  cell_MK4096P_addr u_dram_addr_0 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_a0),
+    .p15(CAS_p_a0),
+    .a({A6a0, A5a0, A4a0, A3a0, A2a0, A1a0, A0a0}),
+    .addr(dram_addr_0)
+  );
+  wire [11:0] dram_addr_1;
+  cell_MK4096P_addr u_dram_addr_1 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_c0),
+    .p15(CAS_p_c0),
+    .a({A6c0, A5c0, A4c0, A3c0, A2c0, A1c0, A0c0}),
+    .addr(dram_addr_1)
+  );
+  wire [11:0] dram_addr_10;
+  cell_MK4096P_addr u_dram_addr_10 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_d2),
+    .p15(CAS_p_d2),
+    .a({A6_p_d2, A5_p_d2, A4_p_d2, A3_p_d2, A2_p_d2, A1_p_d2, A0_p_d2}),
+    .addr(dram_addr_10)
+  );
+  wire [11:0] dram_addr_11;
+  cell_MK4096P_addr u_dram_addr_11 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_b2),
+    .p15(CAS_p_b2),
+    .a({A6_p_b2, A5_p_b2, A4_p_b2, A3_p_b2, A2_p_b2, A1_p_b2, A0_p_b2}),
+    .addr(dram_addr_11)
+  );
+  wire [11:0] dram_addr_12;
+  cell_MK4096P_addr u_dram_addr_12 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_d1),
+    .p15(CAS_p_d1),
+    .a({A6d1, A5d1, A4d1, A3d1, A2d1, A1d1, A0d1}),
+    .addr(dram_addr_12)
+  );
+  wire [11:0] dram_addr_13;
+  cell_MK4096P_addr u_dram_addr_13 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_b1),
+    .p15(CAS_p_b1),
+    .a({A6b1, A5b1, A4b1, A3b1, A2b1, A1b1, A0b1}),
+    .addr(dram_addr_13)
+  );
+  wire [11:0] dram_addr_14;
+  cell_MK4096P_addr u_dram_addr_14 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_d0),
+    .p15(CAS_p_d0),
+    .a({A6_p_d0, A5_p_d0, A4_p_d0, A3_p_d0, A2_p_d0, A1_p_d0, A0_p_d0}),
+    .addr(dram_addr_14)
+  );
+  wire [11:0] dram_addr_15;
+  cell_MK4096P_addr u_dram_addr_15 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_b0),
+    .p15(CAS_p_b0),
+    .a({A6_p_b0, A5_p_b0, A4_p_b0, A3_p_b0, A2_p_b0, A1_p_b0, A0_p_b0}),
+    .addr(dram_addr_15)
+  );
+  wire [11:0] dram_addr_2;
+  cell_MK4096P_addr u_dram_addr_2 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_a1),
+    .p15(CAS_p_a1),
+    .a({A6_p_a1, A5_p_a1, A4_p_a1, A3_p_a1, A2_p_a1, A1_p_a1, A0_p_a1}),
+    .addr(dram_addr_2)
+  );
+  wire [11:0] dram_addr_3;
+  cell_MK4096P_addr u_dram_addr_3 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_c1),
+    .p15(CAS_p_c1),
+    .a({A6_p_c1, A5_p_c1, A4_p_c1, A3_p_c1, A2_p_c1, A1_p_c1, A0_p_c1}),
+    .addr(dram_addr_3)
+  );
+  wire [11:0] dram_addr_4;
+  cell_MK4096P_addr u_dram_addr_4 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_a2),
+    .p15(CAS_p_a2),
+    .a({A6a2, A5a2, A4a2, A3a2, A2a2, A1a2, A0a2}),
+    .addr(dram_addr_4)
+  );
+  wire [11:0] dram_addr_5;
+  cell_MK4096P_addr u_dram_addr_5 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_c2),
+    .p15(CAS_p_c2),
+    .a({A6c2, A5c2, A4c2, A3c2, A2c2, A1c2, A0c2}),
+    .addr(dram_addr_5)
+  );
+  wire [11:0] dram_addr_6;
+  cell_MK4096P_addr u_dram_addr_6 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_a3),
+    .p15(CAS_p_a3),
+    .a({A6_p_a3, A5_p_a3, A4_p_a3, A3_p_a3, A2_p_a3, A1_p_a3, A0_p_a3}),
+    .addr(dram_addr_6)
+  );
+  wire [11:0] dram_addr_7;
+  cell_MK4096P_addr u_dram_addr_7 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_c3),
+    .p15(CAS_p_c3),
+    .a({A6_p_c3, A5_p_c3, A4_p_c3, A3_p_c3, A2_p_c3, A1_p_c3, A0_p_c3}),
+    .addr(dram_addr_7)
+  );
+  wire [11:0] dram_addr_8;
+  cell_MK4096P_addr u_dram_addr_8 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_d3),
+    .p15(CAS_p_d3),
+    .a({A6d3, A5d3, A4d3, A3d3, A2d3, A1d3, A0d3}),
+    .addr(dram_addr_8)
+  );
+  wire [11:0] dram_addr_9;
+  cell_MK4096P_addr u_dram_addr_9 (
+    .sys_clk(sys_clk),
+    .p4(RAS_p_b3),
+    .p15(CAS_p_b3),
+    .a({A6b3, A5b3, A4b3, A3b3, A2b3, A1b3, A0b3}),
+    .addr(dram_addr_9)
+  );
+
   cell_MC10141 u_a01 (
     .sys_clk(sys_clk),
     .p2(msa02_sil_pl_9),
@@ -1349,7 +1481,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a0),
     .p13(A0a0),
     .p14(msa12_sil_pl_7),
-    .p15(CAS_p_a0)
+    .p15(CAS_p_a0),
+    .addr_i(dram_addr_0)
   ); // MK4096P-6
   cell_MK4096P_6 u_b05 (
     .sys_clk(sys_clk),
@@ -1364,7 +1497,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a0),
     .p13(A0a0),
     .p14(msa04_sil_pl_37),
-    .p15(CAS_p_a0)
+    .p15(CAS_p_a0),
+    .addr_i(dram_addr_0)
   ); // MK4096P-6
   cell_MK4096P_6 u_b06 (
     .sys_clk(sys_clk),
@@ -1379,7 +1513,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c0),
     .p13(A0c0),
     .p14(msa04_sil_pl_1),
-    .p15(CAS_p_c0)
+    .p15(CAS_p_c0),
+    .addr_i(dram_addr_1)
   ); // MK4096P-6
   cell_MK4096P_6 u_b07 (
     .sys_clk(sys_clk),
@@ -1394,7 +1529,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a1),
     .p13(A0_p_a1),
     .p14(msa04_sil_pl_36),
-    .p15(CAS_p_a1)
+    .p15(CAS_p_a1),
+    .addr_i(dram_addr_2)
   ); // MK4096P-6
   cell_MK4096P_6 u_b08 (
     .sys_clk(sys_clk),
@@ -1409,7 +1545,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c1),
     .p13(A0_p_c1),
     .p14(msa04_sil_pl_28),
-    .p15(CAS_p_c1)
+    .p15(CAS_p_c1),
+    .addr_i(dram_addr_3)
   ); // MK4096P-6
   cell_MK4096P_6 u_b09 (
     .sys_clk(sys_clk),
@@ -1424,7 +1561,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a2),
     .p13(A0a2),
     .p14(msa05_sil_pl_35),
-    .p15(CAS_p_a2)
+    .p15(CAS_p_a2),
+    .addr_i(dram_addr_4)
   ); // MK4096P-6
   cell_MK4096P_6 u_b10 (
     .sys_clk(sys_clk),
@@ -1439,7 +1577,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c2),
     .p13(A0c2),
     .p14(msa05_sil_pl_1),
-    .p15(CAS_p_c2)
+    .p15(CAS_p_c2),
+    .addr_i(dram_addr_5)
   ); // MK4096P-6
   cell_MK4096P_6 u_b11 (
     .sys_clk(sys_clk),
@@ -1454,7 +1593,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a3),
     .p13(A0_p_a3),
     .p14(msa05_sil_pl_34),
-    .p15(CAS_p_a3)
+    .p15(CAS_p_a3),
+    .addr_i(dram_addr_6)
   ); // MK4096P-6
   cell_MK4096P_6 u_b12 (
     .sys_clk(sys_clk),
@@ -1469,7 +1609,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c3),
     .p13(A0_p_c3),
     .p14(msa05_sil_pl_28),
-    .p15(CAS_p_c3)
+    .p15(CAS_p_c3),
+    .addr_i(dram_addr_7)
   ); // MK4096P-6
   cell_SN74166 u_b13 (
     .sys_clk(sys_clk),
@@ -1518,7 +1659,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d3),
     .p13(A0d3),
     .p14(msa07_sil_pl_28),
-    .p15(CAS_p_d3)
+    .p15(CAS_p_d3),
+    .addr_i(dram_addr_8)
   ); // MK4096P-6
   cell_MK4096P_6 u_b16 (
     .sys_clk(sys_clk),
@@ -1533,7 +1675,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b3),
     .p13(A0b3),
     .p14(msa07_sil_pl_35),
-    .p15(CAS_p_b3)
+    .p15(CAS_p_b3),
+    .addr_i(dram_addr_9)
   ); // MK4096P-6
   cell_MK4096P_6 u_b17 (
     .sys_clk(sys_clk),
@@ -1548,7 +1691,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d2),
     .p13(A0_p_d2),
     .p14(msa07_sil_pl_1),
-    .p15(CAS_p_d2)
+    .p15(CAS_p_d2),
+    .addr_i(dram_addr_10)
   ); // MK4096P-6
   cell_MK4096P_6 u_b18 (
     .sys_clk(sys_clk),
@@ -1563,7 +1707,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b2),
     .p13(A0_p_b2),
     .p14(msa07_sil_pl_36),
-    .p15(CAS_p_b2)
+    .p15(CAS_p_b2),
+    .addr_i(dram_addr_11)
   ); // MK4096P-6
   cell_MK4096P_6 u_b19 (
     .sys_clk(sys_clk),
@@ -1578,7 +1723,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d1),
     .p13(A0d1),
     .p14(msa06_sil_pl_1),
-    .p15(CAS_p_d1)
+    .p15(CAS_p_d1),
+    .addr_i(dram_addr_12)
   ); // MK4096P-6
   cell_MK4096P_6 u_b20 (
     .sys_clk(sys_clk),
@@ -1593,7 +1739,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b1),
     .p13(A0b1),
     .p14(msa06_sil_pl_30),
-    .p15(CAS_p_b1)
+    .p15(CAS_p_b1),
+    .addr_i(dram_addr_13)
   ); // MK4096P-6
   cell_MK4096P_6 u_b21 (
     .sys_clk(sys_clk),
@@ -1608,7 +1755,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d0),
     .p13(A0_p_d0),
     .p14(msa06_sil_pl_28),
-    .p15(CAS_p_d0)
+    .p15(CAS_p_d0),
+    .addr_i(dram_addr_14)
   ); // MK4096P-6
   cell_MK4096P_6 u_b22 (
     .sys_clk(sys_clk),
@@ -1623,7 +1771,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b0),
     .p13(A0_p_b0),
     .p14(msa06_sil_pl_29),
-    .p15(CAS_p_b0)
+    .p15(CAS_p_b0),
+    .addr_i(dram_addr_15)
   ); // MK4096P-6
   cell_MK4096P_6 u_b23 (
     .sys_clk(sys_clk),
@@ -1638,7 +1787,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b0),
     .p13(A0_p_b0),
     .p14(msa12_sil_pl_24),
-    .p15(CAS_p_b0)
+    .p15(CAS_p_b0),
+    .addr_i(dram_addr_15)
   ); // MK4096P-6
   cell_SN74S174 u_b24 (
     .sys_clk(sys_clk),
@@ -1735,7 +1885,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c0),
     .p13(A0c0),
     .p14(msa12_sil_pl_4),
-    .p15(CAS_p_c0)
+    .p15(CAS_p_c0),
+    .addr_i(dram_addr_1)
   ); // MK4096P-6
   cell_MK4096P_6 u_c05 (
     .sys_clk(sys_clk),
@@ -1750,7 +1901,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c0),
     .p13(A0c0),
     .p14(msa04_sil_pl_7),
-    .p15(CAS_p_c0)
+    .p15(CAS_p_c0),
+    .addr_i(dram_addr_1)
   ); // MK4096P-6
   cell_MK4096P_6 u_c06 (
     .sys_clk(sys_clk),
@@ -1765,7 +1917,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a0),
     .p13(A0a0),
     .p14(msa04_sil_pl_2),
-    .p15(CAS_p_a0)
+    .p15(CAS_p_a0),
+    .addr_i(dram_addr_0)
   ); // MK4096P-6
   cell_MK4096P_6 u_c07 (
     .sys_clk(sys_clk),
@@ -1780,7 +1933,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c1),
     .p13(A0_p_c1),
     .p14(msa04_sil_pl_22),
-    .p15(CAS_p_c1)
+    .p15(CAS_p_c1),
+    .addr_i(dram_addr_3)
   ); // MK4096P-6
   cell_MK4096P_6 u_c08 (
     .sys_clk(sys_clk),
@@ -1795,7 +1949,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a1),
     .p13(A0_p_a1),
     .p14(msa04_sil_pl_27),
-    .p15(CAS_p_a1)
+    .p15(CAS_p_a1),
+    .addr_i(dram_addr_2)
   ); // MK4096P-6
   cell_MK4096P_6 u_c09 (
     .sys_clk(sys_clk),
@@ -1810,7 +1965,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c2),
     .p13(A0c2),
     .p14(msa05_sil_pl_7),
-    .p15(CAS_p_c2)
+    .p15(CAS_p_c2),
+    .addr_i(dram_addr_5)
   ); // MK4096P-6
   cell_MK4096P_6 u_c10 (
     .sys_clk(sys_clk),
@@ -1825,7 +1981,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a2),
     .p13(A0a2),
     .p14(msa05_sil_pl_2),
-    .p15(CAS_p_a2)
+    .p15(CAS_p_a2),
+    .addr_i(dram_addr_4)
   ); // MK4096P-6
   cell_MK4096P_6 u_c11 (
     .sys_clk(sys_clk),
@@ -1840,7 +1997,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c3),
     .p13(A0_p_c3),
     .p14(msa05_sil_pl_22),
-    .p15(CAS_p_c3)
+    .p15(CAS_p_c3),
+    .addr_i(dram_addr_7)
   ); // MK4096P-6
   cell_MK4096P_6 u_c12 (
     .sys_clk(sys_clk),
@@ -1855,7 +2013,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a3),
     .p13(A0_p_a3),
     .p14(msa05_sil_pl_27),
-    .p15(CAS_p_a3)
+    .p15(CAS_p_a3),
+    .addr_i(dram_addr_6)
   ); // MK4096P-6
   cell_SN74166 u_c13 (
     .sys_clk(sys_clk),
@@ -1904,7 +2063,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b3),
     .p13(A0b3),
     .p14(msa07_sil_pl_27),
-    .p15(CAS_p_b3)
+    .p15(CAS_p_b3),
+    .addr_i(dram_addr_9)
   ); // MK4096P-6
   cell_MK4096P_6 u_c16 (
     .sys_clk(sys_clk),
@@ -1919,7 +2079,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d3),
     .p13(A0d3),
     .p14(msa07_sil_pl_22),
-    .p15(CAS_p_d3)
+    .p15(CAS_p_d3),
+    .addr_i(dram_addr_8)
   ); // MK4096P-6
   cell_MK4096P_6 u_c17 (
     .sys_clk(sys_clk),
@@ -1934,7 +2095,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b2),
     .p13(A0_p_b2),
     .p14(msa07_sil_pl_2),
-    .p15(CAS_p_b2)
+    .p15(CAS_p_b2),
+    .addr_i(dram_addr_11)
   ); // MK4096P-6
   cell_MK4096P_6 u_c18 (
     .sys_clk(sys_clk),
@@ -1949,7 +2111,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d2),
     .p13(A0_p_d2),
     .p14(msa07_sil_pl_7),
-    .p15(CAS_p_d2)
+    .p15(CAS_p_d2),
+    .addr_i(dram_addr_10)
   ); // MK4096P-6
   cell_MK4096P_6 u_c19 (
     .sys_clk(sys_clk),
@@ -1964,7 +2127,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b1),
     .p13(A0b1),
     .p14(msa06_sil_pl_2),
-    .p15(CAS_p_b1)
+    .p15(CAS_p_b1),
+    .addr_i(dram_addr_13)
   ); // MK4096P-6
   cell_MK4096P_6 u_c20 (
     .sys_clk(sys_clk),
@@ -1979,7 +2143,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d1),
     .p13(A0d1),
     .p14(msa06_sil_pl_7),
-    .p15(CAS_p_d1)
+    .p15(CAS_p_d1),
+    .addr_i(dram_addr_12)
   ); // MK4096P-6
   cell_MK4096P_6 u_c21 (
     .sys_clk(sys_clk),
@@ -1994,7 +2159,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b0),
     .p13(A0_p_b0),
     .p14(msa06_sil_pl_27),
-    .p15(CAS_p_b0)
+    .p15(CAS_p_b0),
+    .addr_i(dram_addr_15)
   ); // MK4096P-6
   cell_MK4096P_6 u_c22 (
     .sys_clk(sys_clk),
@@ -2009,7 +2175,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d0),
     .p13(A0_p_d0),
     .p14(msa06_sil_pl_22),
-    .p15(CAS_p_d0)
+    .p15(CAS_p_d0),
+    .addr_i(dram_addr_14)
   ); // MK4096P-6
   cell_MK4096P_6 u_c23 (
     .sys_clk(sys_clk),
@@ -2024,7 +2191,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d0),
     .p13(A0_p_d0),
     .p14(msa12_sil_pl_28),
-    .p15(CAS_p_d0)
+    .p15(CAS_p_d0),
+    .addr_i(dram_addr_14)
   ); // MK4096P-6
   cell_SN74S174 u_c24 (
     .sys_clk(sys_clk),
@@ -2100,7 +2268,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a0),
     .p13(A0a0),
     .p14(msa12_sil_pl_5),
-    .p15(CAS_p_a0)
+    .p15(CAS_p_a0),
+    .addr_i(dram_addr_0)
   ); // MK4096P-6
   cell_MK4096P_6 u_d05 (
     .sys_clk(sys_clk),
@@ -2115,7 +2284,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a0),
     .p13(A0a0),
     .p14(msa04_sil_pl_6),
-    .p15(CAS_p_a0)
+    .p15(CAS_p_a0),
+    .addr_i(dram_addr_0)
   ); // MK4096P-6
   cell_MK4096P_6 u_d06 (
     .sys_clk(sys_clk),
@@ -2130,7 +2300,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c0),
     .p13(A0c0),
     .p14(msa04_sil_pl_3),
-    .p15(CAS_p_c0)
+    .p15(CAS_p_c0),
+    .addr_i(dram_addr_1)
   ); // MK4096P-6
   cell_MK4096P_6 u_d07 (
     .sys_clk(sys_clk),
@@ -2145,7 +2316,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a1),
     .p13(A0_p_a1),
     .p14(msa04_sil_pl_23),
-    .p15(CAS_p_a1)
+    .p15(CAS_p_a1),
+    .addr_i(dram_addr_2)
   ); // MK4096P-6
   cell_MK4096P_6 u_d08 (
     .sys_clk(sys_clk),
@@ -2160,7 +2332,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c1),
     .p13(A0_p_c1),
     .p14(msa04_sil_pl_26),
-    .p15(CAS_p_c1)
+    .p15(CAS_p_c1),
+    .addr_i(dram_addr_3)
   ); // MK4096P-6
   cell_MK4096P_6 u_d09 (
     .sys_clk(sys_clk),
@@ -2175,7 +2348,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a2),
     .p13(A0a2),
     .p14(msa05_sil_pl_6),
-    .p15(CAS_p_a2)
+    .p15(CAS_p_a2),
+    .addr_i(dram_addr_4)
   ); // MK4096P-6
   cell_MK4096P_6 u_d10 (
     .sys_clk(sys_clk),
@@ -2190,7 +2364,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c2),
     .p13(A0c2),
     .p14(msa05_sil_pl_3),
-    .p15(CAS_p_c2)
+    .p15(CAS_p_c2),
+    .addr_i(dram_addr_5)
   ); // MK4096P-6
   cell_MK4096P_6 u_d11 (
     .sys_clk(sys_clk),
@@ -2205,7 +2380,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a3),
     .p13(A0_p_a3),
     .p14(msa05_sil_pl_23),
-    .p15(CAS_p_a3)
+    .p15(CAS_p_a3),
+    .addr_i(dram_addr_6)
   ); // MK4096P-6
   cell_MK4096P_6 u_d12 (
     .sys_clk(sys_clk),
@@ -2220,7 +2396,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c3),
     .p13(A0_p_c3),
     .p14(msa05_sil_pl_26),
-    .p15(CAS_p_c3)
+    .p15(CAS_p_c3),
+    .addr_i(dram_addr_7)
   ); // MK4096P-6
   cell_SN74166 u_d13 (
     .sys_clk(sys_clk),
@@ -2269,7 +2446,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d3),
     .p13(A0d3),
     .p14(msa07_sil_pl_26),
-    .p15(CAS_p_d3)
+    .p15(CAS_p_d3),
+    .addr_i(dram_addr_8)
   ); // MK4096P-6
   cell_MK4096P_6 u_d16 (
     .sys_clk(sys_clk),
@@ -2284,7 +2462,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b3),
     .p13(A0b3),
     .p14(msa07_sil_pl_23),
-    .p15(CAS_p_b3)
+    .p15(CAS_p_b3),
+    .addr_i(dram_addr_9)
   ); // MK4096P-6
   cell_MK4096P_6 u_d17 (
     .sys_clk(sys_clk),
@@ -2299,7 +2478,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d2),
     .p13(A0_p_d2),
     .p14(msa07_sil_pl_3),
-    .p15(CAS_p_d2)
+    .p15(CAS_p_d2),
+    .addr_i(dram_addr_10)
   ); // MK4096P-6
   cell_MK4096P_6 u_d18 (
     .sys_clk(sys_clk),
@@ -2314,7 +2494,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b2),
     .p13(A0_p_b2),
     .p14(msa07_sil_pl_6),
-    .p15(CAS_p_b2)
+    .p15(CAS_p_b2),
+    .addr_i(dram_addr_11)
   ); // MK4096P-6
   cell_MK4096P_6 u_d19 (
     .sys_clk(sys_clk),
@@ -2329,7 +2510,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d1),
     .p13(A0d1),
     .p14(msa06_sil_pl_3),
-    .p15(CAS_p_d1)
+    .p15(CAS_p_d1),
+    .addr_i(dram_addr_12)
   ); // MK4096P-6
   cell_MK4096P_6 u_d20 (
     .sys_clk(sys_clk),
@@ -2344,7 +2526,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b1),
     .p13(A0b1),
     .p14(msa06_sil_pl_6),
-    .p15(CAS_p_b1)
+    .p15(CAS_p_b1),
+    .addr_i(dram_addr_13)
   ); // MK4096P-6
   cell_MK4096P_6 u_d21 (
     .sys_clk(sys_clk),
@@ -2359,7 +2542,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d0),
     .p13(A0_p_d0),
     .p14(msa06_sil_pl_26),
-    .p15(CAS_p_d0)
+    .p15(CAS_p_d0),
+    .addr_i(dram_addr_14)
   ); // MK4096P-6
   cell_MK4096P_6 u_d22 (
     .sys_clk(sys_clk),
@@ -2374,7 +2558,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b0),
     .p13(A0_p_b0),
     .p14(msa06_sil_pl_23),
-    .p15(CAS_p_b0)
+    .p15(CAS_p_b0),
+    .addr_i(dram_addr_15)
   ); // MK4096P-6
   cell_MK4096P_6 u_d23 (
     .sys_clk(sys_clk),
@@ -2389,7 +2574,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b0),
     .p13(A0_p_b0),
     .p14(msa12_sil_pl_27),
-    .p15(CAS_p_b0)
+    .p15(CAS_p_b0),
+    .addr_i(dram_addr_15)
   ); // MK4096P-6
   cell_SN74S174 u_d24 (
     .sys_clk(sys_clk),
@@ -2475,7 +2661,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c0),
     .p13(A0c0),
     .p14(msa12_sil_pl_6),
-    .p15(CAS_p_c0)
+    .p15(CAS_p_c0),
+    .addr_i(dram_addr_1)
   ); // MK4096P-6
   cell_MK4096P_6 u_e05 (
     .sys_clk(sys_clk),
@@ -2490,7 +2677,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c0),
     .p13(A0c0),
     .p14(msa04_sil_pl_5),
-    .p15(CAS_p_c0)
+    .p15(CAS_p_c0),
+    .addr_i(dram_addr_1)
   ); // MK4096P-6
   cell_MK4096P_6 u_e06 (
     .sys_clk(sys_clk),
@@ -2505,7 +2693,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a0),
     .p13(A0a0),
     .p14(msa04_sil_pl_4),
-    .p15(CAS_p_a0)
+    .p15(CAS_p_a0),
+    .addr_i(dram_addr_0)
   ); // MK4096P-6
   cell_MK4096P_6 u_e07 (
     .sys_clk(sys_clk),
@@ -2520,7 +2709,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c1),
     .p13(A0_p_c1),
     .p14(msa04_sil_pl_24),
-    .p15(CAS_p_c1)
+    .p15(CAS_p_c1),
+    .addr_i(dram_addr_3)
   ); // MK4096P-6
   cell_MK4096P_6 u_e08 (
     .sys_clk(sys_clk),
@@ -2535,7 +2725,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a1),
     .p13(A0_p_a1),
     .p14(msa04_sil_pl_25),
-    .p15(CAS_p_a1)
+    .p15(CAS_p_a1),
+    .addr_i(dram_addr_2)
   ); // MK4096P-6
   cell_MK4096P_6 u_e09 (
     .sys_clk(sys_clk),
@@ -2550,7 +2741,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c2),
     .p13(A0c2),
     .p14(msa05_sil_pl_5),
-    .p15(CAS_p_c2)
+    .p15(CAS_p_c2),
+    .addr_i(dram_addr_5)
   ); // MK4096P-6
   cell_MK4096P_6 u_e10 (
     .sys_clk(sys_clk),
@@ -2565,7 +2757,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a2),
     .p13(A0a2),
     .p14(msa05_sil_pl_4),
-    .p15(CAS_p_a2)
+    .p15(CAS_p_a2),
+    .addr_i(dram_addr_4)
   ); // MK4096P-6
   cell_MK4096P_6 u_e11 (
     .sys_clk(sys_clk),
@@ -2580,7 +2773,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c3),
     .p13(A0_p_c3),
     .p14(msa05_sil_pl_24),
-    .p15(CAS_p_c3)
+    .p15(CAS_p_c3),
+    .addr_i(dram_addr_7)
   ); // MK4096P-6
   cell_MK4096P_6 u_e12 (
     .sys_clk(sys_clk),
@@ -2595,7 +2789,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a3),
     .p13(A0_p_a3),
     .p14(msa05_sil_pl_25),
-    .p15(CAS_p_a3)
+    .p15(CAS_p_a3),
+    .addr_i(dram_addr_6)
   ); // MK4096P-6
   cell_MC10210 u_e13 (
     .p1(GND170),
@@ -2633,7 +2828,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b3),
     .p13(A0b3),
     .p14(msa07_sil_pl_25),
-    .p15(CAS_p_b3)
+    .p15(CAS_p_b3),
+    .addr_i(dram_addr_9)
   ); // MK4096P-6
   cell_MK4096P_6 u_e16 (
     .sys_clk(sys_clk),
@@ -2648,7 +2844,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d3),
     .p13(A0d3),
     .p14(msa07_sil_pl_24),
-    .p15(CAS_p_d3)
+    .p15(CAS_p_d3),
+    .addr_i(dram_addr_8)
   ); // MK4096P-6
   cell_MK4096P_6 u_e17 (
     .sys_clk(sys_clk),
@@ -2663,7 +2860,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b2),
     .p13(A0_p_b2),
     .p14(msa07_sil_pl_4),
-    .p15(CAS_p_b2)
+    .p15(CAS_p_b2),
+    .addr_i(dram_addr_11)
   ); // MK4096P-6
   cell_MK4096P_6 u_e18 (
     .sys_clk(sys_clk),
@@ -2678,7 +2876,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d2),
     .p13(A0_p_d2),
     .p14(msa07_sil_pl_5),
-    .p15(CAS_p_d2)
+    .p15(CAS_p_d2),
+    .addr_i(dram_addr_10)
   ); // MK4096P-6
   cell_MK4096P_6 u_e19 (
     .sys_clk(sys_clk),
@@ -2693,7 +2892,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b1),
     .p13(A0b1),
     .p14(msa06_sil_pl_4),
-    .p15(CAS_p_b1)
+    .p15(CAS_p_b1),
+    .addr_i(dram_addr_13)
   ); // MK4096P-6
   cell_MK4096P_6 u_e20 (
     .sys_clk(sys_clk),
@@ -2708,7 +2908,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d1),
     .p13(A0d1),
     .p14(msa06_sil_pl_5),
-    .p15(CAS_p_d1)
+    .p15(CAS_p_d1),
+    .addr_i(dram_addr_12)
   ); // MK4096P-6
   cell_MK4096P_6 u_e21 (
     .sys_clk(sys_clk),
@@ -2723,7 +2924,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b0),
     .p13(A0_p_b0),
     .p14(msa06_sil_pl_25),
-    .p15(CAS_p_b0)
+    .p15(CAS_p_b0),
+    .addr_i(dram_addr_15)
   ); // MK4096P-6
   cell_MK4096P_6 u_e22 (
     .sys_clk(sys_clk),
@@ -2738,7 +2940,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d0),
     .p13(A0_p_d0),
     .p14(msa06_sil_pl_24),
-    .p15(CAS_p_d0)
+    .p15(CAS_p_d0),
+    .addr_i(dram_addr_14)
   ); // MK4096P-6
   cell_MK4096P_6 u_e23 (
     .sys_clk(sys_clk),
@@ -2753,7 +2956,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d0),
     .p13(A0_p_d0),
     .p14(msa12_sil_pl_25),
-    .p15(CAS_p_d0)
+    .p15(CAS_p_d0),
+    .addr_i(dram_addr_14)
   ); // MK4096P-6
   cell_SN74166 u_e24 (
     .sys_clk(sys_clk),
@@ -2840,7 +3044,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a0),
     .p13(A0a0),
     .p14(msa12_sil_pl_8),
-    .p15(CAS_p_a0)
+    .p15(CAS_p_a0),
+    .addr_i(dram_addr_0)
   ); // MK4096P-6
   cell_MK4096P_6 u_f05 (
     .sys_clk(sys_clk),
@@ -2855,7 +3060,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a0),
     .p13(A0a0),
     .p14(msa08_sil_pl_24),
-    .p15(CAS_p_a0)
+    .p15(CAS_p_a0),
+    .addr_i(dram_addr_0)
   ); // MK4096P-6
   cell_MK4096P_6 u_f06 (
     .sys_clk(sys_clk),
@@ -2870,7 +3076,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c0),
     .p13(A0c0),
     .p14(msa08_sil_pl_25),
-    .p15(CAS_p_c0)
+    .p15(CAS_p_c0),
+    .addr_i(dram_addr_1)
   ); // MK4096P-6
   cell_MK4096P_6 u_f07 (
     .sys_clk(sys_clk),
@@ -2885,7 +3092,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a1),
     .p13(A0_p_a1),
     .p14(msa08_sil_pl_5),
-    .p15(CAS_p_a1)
+    .p15(CAS_p_a1),
+    .addr_i(dram_addr_2)
   ); // MK4096P-6
   cell_MK4096P_6 u_f08 (
     .sys_clk(sys_clk),
@@ -2900,7 +3108,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c1),
     .p13(A0_p_c1),
     .p14(msa08_sil_pl_4),
-    .p15(CAS_p_c1)
+    .p15(CAS_p_c1),
+    .addr_i(dram_addr_3)
   ); // MK4096P-6
   cell_MK4096P_6 u_f09 (
     .sys_clk(sys_clk),
@@ -2915,7 +3124,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a2),
     .p13(A0a2),
     .p14(msa09_sil_pl_5),
-    .p15(CAS_p_a2)
+    .p15(CAS_p_a2),
+    .addr_i(dram_addr_4)
   ); // MK4096P-6
   cell_MK4096P_6 u_f10 (
     .sys_clk(sys_clk),
@@ -2930,7 +3140,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c2),
     .p13(A0c2),
     .p14(msa09_sil_pl_4),
-    .p15(CAS_p_c2)
+    .p15(CAS_p_c2),
+    .addr_i(dram_addr_5)
   ); // MK4096P-6
   cell_MK4096P_6 u_f11 (
     .sys_clk(sys_clk),
@@ -2945,7 +3156,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a3),
     .p13(A0_p_a3),
     .p14(msa09_sil_pl_24),
-    .p15(CAS_p_a3)
+    .p15(CAS_p_a3),
+    .addr_i(dram_addr_6)
   ); // MK4096P-6
   cell_MK4096P_6 u_f12 (
     .sys_clk(sys_clk),
@@ -2960,7 +3172,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c3),
     .p13(A0_p_c3),
     .p14(msa09_sil_pl_25),
-    .p15(CAS_p_c3)
+    .p15(CAS_p_c3),
+    .addr_i(dram_addr_7)
   ); // MK4096P-6
   cell_MC10210 u_f14 (
     .p1(GND216),
@@ -2989,7 +3202,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d3),
     .p13(A0d3),
     .p14(msa11_sil_pl_25),
-    .p15(CAS_p_d3)
+    .p15(CAS_p_d3),
+    .addr_i(dram_addr_8)
   ); // MK4096P-6
   cell_MK4096P_6 u_f16 (
     .sys_clk(sys_clk),
@@ -3004,7 +3218,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b3),
     .p13(A0b3),
     .p14(msa11_sil_pl_24),
-    .p15(CAS_p_b3)
+    .p15(CAS_p_b3),
+    .addr_i(dram_addr_9)
   ); // MK4096P-6
   cell_MK4096P_6 u_f17 (
     .sys_clk(sys_clk),
@@ -3019,7 +3234,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d2),
     .p13(A0_p_d2),
     .p14(msa11_sil_pl_4),
-    .p15(CAS_p_d2)
+    .p15(CAS_p_d2),
+    .addr_i(dram_addr_10)
   ); // MK4096P-6
   cell_MK4096P_6 u_f18 (
     .sys_clk(sys_clk),
@@ -3034,7 +3250,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b2),
     .p13(A0_p_b2),
     .p14(msa11_sil_pl_5),
-    .p15(CAS_p_b2)
+    .p15(CAS_p_b2),
+    .addr_i(dram_addr_11)
   ); // MK4096P-6
   cell_MK4096P_6 u_f19 (
     .sys_clk(sys_clk),
@@ -3049,7 +3266,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d1),
     .p13(A0d1),
     .p14(msa10_sil_pl_4),
-    .p15(CAS_p_d1)
+    .p15(CAS_p_d1),
+    .addr_i(dram_addr_12)
   ); // MK4096P-6
   cell_MK4096P_6 u_f20 (
     .sys_clk(sys_clk),
@@ -3064,7 +3282,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b1),
     .p13(A0b1),
     .p14(msa10_sil_pl_5),
-    .p15(CAS_p_b1)
+    .p15(CAS_p_b1),
+    .addr_i(dram_addr_13)
   ); // MK4096P-6
   cell_MK4096P_6 u_f21 (
     .sys_clk(sys_clk),
@@ -3079,7 +3298,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d0),
     .p13(A0_p_d0),
     .p14(msa10_sil_pl_25),
-    .p15(CAS_p_d0)
+    .p15(CAS_p_d0),
+    .addr_i(dram_addr_14)
   ); // MK4096P-6
   cell_MK4096P_6 u_f22 (
     .sys_clk(sys_clk),
@@ -3094,7 +3314,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b0),
     .p13(A0_p_b0),
     .p14(msa10_sil_pl_24),
-    .p15(CAS_p_b0)
+    .p15(CAS_p_b0),
+    .addr_i(dram_addr_15)
   ); // MK4096P-6
   cell_MK4096P_6 u_f23 (
     .sys_clk(sys_clk),
@@ -3109,7 +3330,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b0),
     .p13(A0_p_b0),
     .p14(msa12_sil_pl_23),
-    .p15(CAS_p_b0)
+    .p15(CAS_p_b0),
+    .addr_i(dram_addr_15)
   ); // MK4096P-6
   cell_SN74166 u_f24 (
     .sys_clk(sys_clk),
@@ -3195,7 +3417,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c0),
     .p13(A0c0),
     .p14(msa12_sil_pl_10),
-    .p15(CAS_p_c0)
+    .p15(CAS_p_c0),
+    .addr_i(dram_addr_1)
   ); // MK4096P-6
   cell_MK4096P_6 u_g05 (
     .sys_clk(sys_clk),
@@ -3210,7 +3433,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c0),
     .p13(A0c0),
     .p14(msa08_sil_pl_23),
-    .p15(CAS_p_c0)
+    .p15(CAS_p_c0),
+    .addr_i(dram_addr_1)
   ); // MK4096P-6
   cell_MK4096P_6 u_g06 (
     .sys_clk(sys_clk),
@@ -3225,7 +3449,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a0),
     .p13(A0a0),
     .p14(msa08_sil_pl_26),
-    .p15(CAS_p_a0)
+    .p15(CAS_p_a0),
+    .addr_i(dram_addr_0)
   ); // MK4096P-6
   cell_MK4096P_6 u_g07 (
     .sys_clk(sys_clk),
@@ -3240,7 +3465,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c1),
     .p13(A0_p_c1),
     .p14(msa08_sil_pl_6),
-    .p15(CAS_p_c1)
+    .p15(CAS_p_c1),
+    .addr_i(dram_addr_3)
   ); // MK4096P-6
   cell_MK4096P_6 u_g08 (
     .sys_clk(sys_clk),
@@ -3255,7 +3481,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a1),
     .p13(A0_p_a1),
     .p14(msa08_sil_pl_3),
-    .p15(CAS_p_a1)
+    .p15(CAS_p_a1),
+    .addr_i(dram_addr_2)
   ); // MK4096P-6
   cell_MK4096P_6 u_g09 (
     .sys_clk(sys_clk),
@@ -3270,7 +3497,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c2),
     .p13(A0c2),
     .p14(msa09_sil_pl_6),
-    .p15(CAS_p_c2)
+    .p15(CAS_p_c2),
+    .addr_i(dram_addr_5)
   ); // MK4096P-6
   cell_MK4096P_6 u_g10 (
     .sys_clk(sys_clk),
@@ -3285,7 +3513,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a2),
     .p13(A0a2),
     .p14(msa09_sil_pl_3),
-    .p15(CAS_p_a2)
+    .p15(CAS_p_a2),
+    .addr_i(dram_addr_4)
   ); // MK4096P-6
   cell_MK4096P_6 u_g11 (
     .sys_clk(sys_clk),
@@ -3300,7 +3529,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c3),
     .p13(A0_p_c3),
     .p14(msa09_sil_pl_23),
-    .p15(CAS_p_c3)
+    .p15(CAS_p_c3),
+    .addr_i(dram_addr_7)
   ); // MK4096P-6
   cell_MK4096P_6 u_g12 (
     .sys_clk(sys_clk),
@@ -3315,7 +3545,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a3),
     .p13(A0_p_a3),
     .p14(msa09_sil_pl_26),
-    .p15(CAS_p_a3)
+    .p15(CAS_p_a3),
+    .addr_i(dram_addr_6)
   ); // MK4096P-6
   cell_SN74166 u_g13 (
     .sys_clk(sys_clk),
@@ -3364,7 +3595,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b3),
     .p13(A0b3),
     .p14(msa11_sil_pl_26),
-    .p15(CAS_p_b3)
+    .p15(CAS_p_b3),
+    .addr_i(dram_addr_9)
   ); // MK4096P-6
   cell_MK4096P_6 u_g16 (
     .sys_clk(sys_clk),
@@ -3379,7 +3611,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d3),
     .p13(A0d3),
     .p14(msa11_sil_pl_23),
-    .p15(CAS_p_d3)
+    .p15(CAS_p_d3),
+    .addr_i(dram_addr_8)
   ); // MK4096P-6
   cell_MK4096P_6 u_g17 (
     .sys_clk(sys_clk),
@@ -3394,7 +3627,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b2),
     .p13(A0_p_b2),
     .p14(msa11_sil_pl_3),
-    .p15(CAS_p_b2)
+    .p15(CAS_p_b2),
+    .addr_i(dram_addr_11)
   ); // MK4096P-6
   cell_MK4096P_6 u_g18 (
     .sys_clk(sys_clk),
@@ -3409,7 +3643,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d2),
     .p13(A0_p_d2),
     .p14(msa11_sil_pl_6),
-    .p15(CAS_p_d2)
+    .p15(CAS_p_d2),
+    .addr_i(dram_addr_10)
   ); // MK4096P-6
   cell_MK4096P_6 u_g19 (
     .sys_clk(sys_clk),
@@ -3424,7 +3659,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b1),
     .p13(A0b1),
     .p14(msa10_sil_pl_3),
-    .p15(CAS_p_b1)
+    .p15(CAS_p_b1),
+    .addr_i(dram_addr_13)
   ); // MK4096P-6
   cell_MK4096P_6 u_g20 (
     .sys_clk(sys_clk),
@@ -3439,7 +3675,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d1),
     .p13(A0d1),
     .p14(msa10_sil_pl_6),
-    .p15(CAS_p_d1)
+    .p15(CAS_p_d1),
+    .addr_i(dram_addr_12)
   ); // MK4096P-6
   cell_MK4096P_6 u_g21 (
     .sys_clk(sys_clk),
@@ -3454,7 +3691,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b0),
     .p13(A0_p_b0),
     .p14(msa10_sil_pl_26),
-    .p15(CAS_p_b0)
+    .p15(CAS_p_b0),
+    .addr_i(dram_addr_15)
   ); // MK4096P-6
   cell_MK4096P_6 u_g22 (
     .sys_clk(sys_clk),
@@ -3469,7 +3707,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d0),
     .p13(A0_p_d0),
     .p14(msa10_sil_pl_23),
-    .p15(CAS_p_d0)
+    .p15(CAS_p_d0),
+    .addr_i(dram_addr_14)
   ); // MK4096P-6
   cell_MK4096P_6 u_g23 (
     .sys_clk(sys_clk),
@@ -3484,7 +3723,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d0),
     .p13(A0_p_d0),
     .p14(msa12_sil_pl_22),
-    .p15(CAS_p_d0)
+    .p15(CAS_p_d0),
+    .addr_i(dram_addr_14)
   ); // MK4096P-6
   cell_SN74S174 u_g24 (
     .sys_clk(sys_clk),
@@ -3568,7 +3808,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a0),
     .p13(A0a0),
     .p14(msa12_sil_pl_11),
-    .p15(CAS_p_a0)
+    .p15(CAS_p_a0),
+    .addr_i(dram_addr_0)
   ); // MK4096P-6
   cell_MK4096P_6 u_h05 (
     .sys_clk(sys_clk),
@@ -3583,7 +3824,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a0),
     .p13(A0a0),
     .p14(msa08_sil_pl_22),
-    .p15(CAS_p_a0)
+    .p15(CAS_p_a0),
+    .addr_i(dram_addr_0)
   ); // MK4096P-6
   cell_MK4096P_6 u_h06 (
     .sys_clk(sys_clk),
@@ -3598,7 +3840,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c0),
     .p13(A0c0),
     .p14(msa08_sil_pl_27),
-    .p15(CAS_p_c0)
+    .p15(CAS_p_c0),
+    .addr_i(dram_addr_1)
   ); // MK4096P-6
   cell_MK4096P_6 u_h07 (
     .sys_clk(sys_clk),
@@ -3613,7 +3856,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a1),
     .p13(A0_p_a1),
     .p14(msa08_sil_pl_7),
-    .p15(CAS_p_a1)
+    .p15(CAS_p_a1),
+    .addr_i(dram_addr_2)
   ); // MK4096P-6
   cell_MK4096P_6 u_h08 (
     .sys_clk(sys_clk),
@@ -3628,7 +3872,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c1),
     .p13(A0_p_c1),
     .p14(msa08_sil_pl_2),
-    .p15(CAS_p_c1)
+    .p15(CAS_p_c1),
+    .addr_i(dram_addr_3)
   ); // MK4096P-6
   cell_MK4096P_6 u_h09 (
     .sys_clk(sys_clk),
@@ -3643,7 +3888,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a2),
     .p13(A0a2),
     .p14(msa09_sil_pl_7),
-    .p15(CAS_p_a2)
+    .p15(CAS_p_a2),
+    .addr_i(dram_addr_4)
   ); // MK4096P-6
   cell_MK4096P_6 u_h10 (
     .sys_clk(sys_clk),
@@ -3658,7 +3904,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c2),
     .p13(A0c2),
     .p14(msa09_sil_pl_2),
-    .p15(CAS_p_c2)
+    .p15(CAS_p_c2),
+    .addr_i(dram_addr_5)
   ); // MK4096P-6
   cell_MK4096P_6 u_h11 (
     .sys_clk(sys_clk),
@@ -3673,7 +3920,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a3),
     .p13(A0_p_a3),
     .p14(msa09_sil_pl_22),
-    .p15(CAS_p_a3)
+    .p15(CAS_p_a3),
+    .addr_i(dram_addr_6)
   ); // MK4096P-6
   cell_MK4096P_6 u_h12 (
     .sys_clk(sys_clk),
@@ -3688,7 +3936,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c3),
     .p13(A0_p_c3),
     .p14(msa09_sil_pl_27),
-    .p15(CAS_p_c3)
+    .p15(CAS_p_c3),
+    .addr_i(dram_addr_7)
   ); // MK4096P-6
   cell_SN74166 u_h13 (
     .sys_clk(sys_clk),
@@ -3737,7 +3986,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d3),
     .p13(A0d3),
     .p14(msa11_sil_pl_27),
-    .p15(CAS_p_d3)
+    .p15(CAS_p_d3),
+    .addr_i(dram_addr_8)
   ); // MK4096P-6
   cell_MK4096P_6 u_h16 (
     .sys_clk(sys_clk),
@@ -3752,7 +4002,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b3),
     .p13(A0b3),
     .p14(msa11_sil_pl_22),
-    .p15(CAS_p_b3)
+    .p15(CAS_p_b3),
+    .addr_i(dram_addr_9)
   ); // MK4096P-6
   cell_MK4096P_6 u_h17 (
     .sys_clk(sys_clk),
@@ -3767,7 +4018,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d2),
     .p13(A0_p_d2),
     .p14(msa11_sil_pl_2),
-    .p15(CAS_p_d2)
+    .p15(CAS_p_d2),
+    .addr_i(dram_addr_10)
   ); // MK4096P-6
   cell_MK4096P_6 u_h18 (
     .sys_clk(sys_clk),
@@ -3782,7 +4034,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b2),
     .p13(A0_p_b2),
     .p14(msa11_sil_pl_7),
-    .p15(CAS_p_b2)
+    .p15(CAS_p_b2),
+    .addr_i(dram_addr_11)
   ); // MK4096P-6
   cell_MK4096P_6 u_h19 (
     .sys_clk(sys_clk),
@@ -3797,7 +4050,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d1),
     .p13(A0d1),
     .p14(msa10_sil_pl_2),
-    .p15(CAS_p_d1)
+    .p15(CAS_p_d1),
+    .addr_i(dram_addr_12)
   ); // MK4096P-6
   cell_MK4096P_6 u_h20 (
     .sys_clk(sys_clk),
@@ -3812,7 +4066,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b1),
     .p13(A0b1),
     .p14(msa10_sil_pl_7),
-    .p15(CAS_p_b1)
+    .p15(CAS_p_b1),
+    .addr_i(dram_addr_13)
   ); // MK4096P-6
   cell_MK4096P_6 u_h21 (
     .sys_clk(sys_clk),
@@ -3827,7 +4082,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d0),
     .p13(A0_p_d0),
     .p14(msa10_sil_pl_27),
-    .p15(CAS_p_d0)
+    .p15(CAS_p_d0),
+    .addr_i(dram_addr_14)
   ); // MK4096P-6
   cell_MK4096P_6 u_h22 (
     .sys_clk(sys_clk),
@@ -3842,7 +4098,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b0),
     .p13(A0_p_b0),
     .p14(msa10_sil_pl_22),
-    .p15(CAS_p_b0)
+    .p15(CAS_p_b0),
+    .addr_i(dram_addr_15)
   ); // MK4096P-6
   cell_MK4096P_6 u_h23 (
     .sys_clk(sys_clk),
@@ -3857,7 +4114,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b0),
     .p13(A0_p_b0),
     .p14(msa12_sil_pl_21),
-    .p15(CAS_p_b0)
+    .p15(CAS_p_b0),
+    .addr_i(dram_addr_15)
   ); // MK4096P-6
   cell_SN74S174 u_h24 (
     .sys_clk(sys_clk),
@@ -3949,7 +4207,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c0),
     .p13(A0c0),
     .p14(msa12_sil_pl_15),
-    .p15(CAS_p_c0)
+    .p15(CAS_p_c0),
+    .addr_i(dram_addr_1)
   ); // MK4096P-6
   cell_MK4096P_6 u_i05 (
     .sys_clk(sys_clk),
@@ -3964,7 +4223,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c0),
     .p13(A0c0),
     .p14(msa08_sil_pl_29),
-    .p15(CAS_p_c0)
+    .p15(CAS_p_c0),
+    .addr_i(dram_addr_1)
   ); // MK4096P-6
   cell_MK4096P_6 u_i06 (
     .sys_clk(sys_clk),
@@ -3979,7 +4239,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a0),
     .p13(A0a0),
     .p14(msa08_sil_pl_28),
-    .p15(CAS_p_a0)
+    .p15(CAS_p_a0),
+    .addr_i(dram_addr_0)
   ); // MK4096P-6
   cell_MK4096P_6 u_i07 (
     .sys_clk(sys_clk),
@@ -3994,7 +4255,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c1),
     .p13(A0_p_c1),
     .p14(msa08_sil_pl_30),
-    .p15(CAS_p_c1)
+    .p15(CAS_p_c1),
+    .addr_i(dram_addr_3)
   ); // MK4096P-6
   cell_MK4096P_6 u_i08 (
     .sys_clk(sys_clk),
@@ -4009,7 +4271,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a1),
     .p13(A0_p_a1),
     .p14(msa08_sil_pl_1),
-    .p15(CAS_p_a1)
+    .p15(CAS_p_a1),
+    .addr_i(dram_addr_2)
   ); // MK4096P-6
   cell_MK4096P_6 u_i09 (
     .sys_clk(sys_clk),
@@ -4024,7 +4287,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4c2),
     .p13(A0c2),
     .p14(msa09_sil_pl_36),
-    .p15(CAS_p_c2)
+    .p15(CAS_p_c2),
+    .addr_i(dram_addr_5)
   ); // MK4096P-6
   cell_MK4096P_6 u_i10 (
     .sys_clk(sys_clk),
@@ -4039,7 +4303,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4a2),
     .p13(A0a2),
     .p14(msa09_sil_pl_1),
-    .p15(CAS_p_a2)
+    .p15(CAS_p_a2),
+    .addr_i(dram_addr_4)
   ); // MK4096P-6
   cell_MK4096P_6 u_i11 (
     .sys_clk(sys_clk),
@@ -4054,7 +4319,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_c3),
     .p13(A0_p_c3),
     .p14(msa09_sil_pl_35),
-    .p15(CAS_p_c3)
+    .p15(CAS_p_c3),
+    .addr_i(dram_addr_7)
   ); // MK4096P-6
   cell_MK4096P_6 u_i12 (
     .sys_clk(sys_clk),
@@ -4069,7 +4335,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_a3),
     .p13(A0_p_a3),
     .p14(msa09_sil_pl_28),
-    .p15(CAS_p_a3)
+    .p15(CAS_p_a3),
+    .addr_i(dram_addr_6)
   ); // MK4096P-6
   cell_SN74166 u_i13 (
     .sys_clk(sys_clk),
@@ -4118,7 +4385,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b3),
     .p13(A0b3),
     .p14(msa11_sil_pl_28),
-    .p15(CAS_p_b3)
+    .p15(CAS_p_b3),
+    .addr_i(dram_addr_9)
   ); // MK4096P-6
   cell_MK4096P_6 u_i16 (
     .sys_clk(sys_clk),
@@ -4133,7 +4401,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d3),
     .p13(A0d3),
     .p14(msa11_sil_pl_34),
-    .p15(CAS_p_d3)
+    .p15(CAS_p_d3),
+    .addr_i(dram_addr_8)
   ); // MK4096P-6
   cell_MK4096P_6 u_i17 (
     .sys_clk(sys_clk),
@@ -4148,7 +4417,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b2),
     .p13(A0_p_b2),
     .p14(msa11_sil_pl_1),
-    .p15(CAS_p_b2)
+    .p15(CAS_p_b2),
+    .addr_i(dram_addr_11)
   ); // MK4096P-6
   cell_MK4096P_6 u_i18 (
     .sys_clk(sys_clk),
@@ -4163,7 +4433,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d2),
     .p13(A0_p_d2),
     .p14(msa11_sil_pl_35),
-    .p15(CAS_p_d2)
+    .p15(CAS_p_d2),
+    .addr_i(dram_addr_10)
   ); // MK4096P-6
   cell_MK4096P_6 u_i19 (
     .sys_clk(sys_clk),
@@ -4178,7 +4449,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4b1),
     .p13(A0b1),
     .p14(msa10_sil_pl_1),
-    .p15(CAS_p_b1)
+    .p15(CAS_p_b1),
+    .addr_i(dram_addr_13)
   ); // MK4096P-6
   cell_MK4096P_6 u_i20 (
     .sys_clk(sys_clk),
@@ -4193,7 +4465,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4d1),
     .p13(A0d1),
     .p14(msa10_sil_pl_30),
-    .p15(CAS_p_d1)
+    .p15(CAS_p_d1),
+    .addr_i(dram_addr_12)
   ); // MK4096P-6
   cell_MK4096P_6 u_i21 (
     .sys_clk(sys_clk),
@@ -4208,7 +4481,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_b0),
     .p13(A0_p_b0),
     .p14(msa10_sil_pl_28),
-    .p15(CAS_p_b0)
+    .p15(CAS_p_b0),
+    .addr_i(dram_addr_15)
   ); // MK4096P-6
   cell_MK4096P_6 u_i22 (
     .sys_clk(sys_clk),
@@ -4223,7 +4497,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d0),
     .p13(A0_p_d0),
     .p14(msa10_sil_pl_29),
-    .p15(CAS_p_d0)
+    .p15(CAS_p_d0),
+    .addr_i(dram_addr_14)
   ); // MK4096P-6
   cell_MK4096P_6 u_i23 (
     .sys_clk(sys_clk),
@@ -4238,7 +4513,8 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(A4_p_d0),
     .p13(A0_p_d0),
     .p14(msa12_sil_pl_16),
-    .p15(CAS_p_d0)
+    .p15(CAS_p_d0),
+    .addr_i(dram_addr_14)
   ); // MK4096P-6
   cell_SN74S174 u_i24 (
     .sys_clk(sys_clk),
