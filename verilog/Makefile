@@ -187,6 +187,12 @@ converge-test:
 term-test:
 	@$(MAKE) -C verilator term-test
 
+# Does the RTL keyboard put each key where the C emulator's key_map puts it?
+# A formula was tried first and is WRONG -- word 2 carries only fifteen keys --
+# so the two tables are compared file against file on every run.
+key-matrix-check:
+	@python3 $(TOOLS)/check_key_matrix.py
+
 # Does the assembled machine run? Rebuilds the harness it tests.
 machine-test:
 	@$(MAKE) -C verilator machine-test
