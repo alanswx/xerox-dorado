@@ -222,6 +222,7 @@ module tb_firmware;
   integer n_ahascp = 0, n_samp_ah = 0;
   integer bootbtn_at, n_bb1 = 0, n_bno = 0;
   reg bootbtn_lvl;
+  integer bootbtn_lvl_i;
   integer n_cpstrb = 0, n_manclk = 0, n_dmuxclk = 0;
   reg     p_cpstrb = 1'b1, p_manclk = 1'b1, p_dmuxclk = 1'b0;
   reg [15:0] pc_lo = 16'hFFFF, pc_hi = 16'h0000, last_a = 16'h0;
@@ -282,7 +283,15 @@ module tb_firmware;
     end
     win_armed[0] = 1'b1;   // g22 comes up armed unless G22_DISARMED
     if (!$value$plusargs("bootbtn=%d", bootbtn_at)) bootbtn_at = -1;
-    bootbtn_lvl = $test$plusargs("bootlow") ? 1'b0 : 1'b1;
+    // `+bootlvl=0` / `+bootlvl=1`. A BARE `$test$plusargs("bootlow")` FLAG
+    // READ 0 EVEN WHEN PASSED, while `$value$plusargs("bootbtn=%d")` in the
+    // same block worked -- which is why forcing the two opposite levels gave
+    // byte-identical results and made an inverter look like it did not
+    // invert. The measurement was fine; the knob was not connected. Use the
+    // value form, which is the one demonstrably working here.
+    if (!$value$plusargs("bootlvl=%d", bootbtn_lvl_i)) bootbtn_lvl_i = 1;
+    bootbtn_lvl = bootbtn_lvl_i[0];
+    $display("tb_firmware: bootbtn_lvl = %b", bootbtn_lvl);
     for (i = 0; i < 4096; i = i + 1) begin hot[i] = 0; hotx[i] = 0; end
     for (i = 0; i < 8; i = i + 1) fn_seen[i] = 0;
 
