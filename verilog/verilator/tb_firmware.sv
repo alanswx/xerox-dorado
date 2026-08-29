@@ -222,7 +222,7 @@ module tb_firmware;
   integer n_ahascp = 0, n_samp_ah = 0;
   integer bootbtn_at, n_bb1 = 0, n_bno = 0;
   reg bootbtn_lvl;
-  integer bootbtn_lvl_i;
+  integer bootbtn_lvl_i, bootpress;
   integer n_cpstrb = 0, n_manclk = 0, n_dmuxclk = 0;
   reg     p_cpstrb = 1'b1, p_manclk = 1'b1, p_dmuxclk = 1'b0;
   reg [15:0] pc_lo = 16'hFFFF, pc_hi = 16'h0000, last_a = 16'h0;
@@ -289,6 +289,11 @@ module tb_firmware;
     // byte-identical results and made an inverter look like it did not
     // invert. The measurement was fine; the knob was not connected. Use the
     // value form, which is the one demonstrably working here.
+    // A tick is 100 ms and the 2^21-MCPreClk watchdog window is ~168 M
+    // sys_clk, so ~84 M cycles to the second: a 40 M press is about half a
+    // second -- comfortably more than the 3 subticks a push needs and well
+    // under the 2 s that counts as a mistake.
+    if (!$value$plusargs("bootpress=%d", bootpress)) bootpress = 40000000;
     if (!$value$plusargs("bootlvl=%d", bootbtn_lvl_i)) bootbtn_lvl_i = 1;
     bootbtn_lvl = bootbtn_lvl_i[0];
     $display("tb_firmware: bootbtn_lvl = %b", bootbtn_lvl);
@@ -314,9 +319,28 @@ module tb_firmware;
       // The MPQ6002 is analog and has no cell, so that last net is DEAD and
       // `Boot'` can never go low -- which is why WaitForInitialBoot never
       // exits. Two inversions between there and Boot', so a 1 here is a push.
-      if (bootbtn_at >= 0 && i == bootbtn_at) begin
-        force `BB.BaseBd15_sil_pl_4 = bootbtn_lvl;
-        $display("tb_firmware: BOOT BUTTON pressed at cycle %0d (level %b)", i, bootbtn_lvl);
+      // A REAL PRESS: idle NOT-PUSHED, go down, come back up.
+      //
+      // The button's net is undriven (its MPQ6002 has no cell) and so reads
+      // 0, which through two inverters puts BootNO -- MiscByte bit 6, `Boot'`,
+      // ACTIVE LOW -- at 0 as well. The firmware's `ANDI Boot' / BNE
+      // BootNotPushed` therefore takes the PUSHED path for ever, and
+      // CheckKbdBootButton's `BootTicksOn >= 20 (2 sec) -> ClearPushCount`
+      // ("user says he made a mistake") then throws the push away. The machine
+      // thinks the button is JAMMED DOWN. Same shape as the unseeded UTILIN
+      // cell that once stopped Smalltalk with "the keyset is stuck".
+      //
+      // So: hold it UP from reset, press for `+bootpress` cycles, release.
+      if (bootbtn_at >= 0) begin
+        if (i == 0) force `BB.BaseBd15_sil_pl_4 = 1'b1;        // up
+        if (i == bootbtn_at) begin
+          force `BB.BaseBd15_sil_pl_4 = 1'b0;                  // down
+          $display("tb_firmware: BOOT BUTTON DOWN at cycle %0d", i);
+        end
+        if (i == bootbtn_at + bootpress) begin
+          force `BB.BaseBd15_sil_pl_4 = 1'b1;                  // up again
+          $display("tb_firmware: BOOT BUTTON RELEASED at cycle %0d", i);
+        end
       end
       // DOES THE PRESS PROPAGATE? Two inverters lie between the forced net
       // and BootNO, and the 6532 reads BootNO as MiscByte bit 6. Sampling all
