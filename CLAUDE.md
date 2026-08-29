@@ -1100,7 +1100,13 @@ DRIVEN, not forced.
 |---|---|---|---|---|
 | storage + keyboard + terminal | 34,866 (83%) | 251 | 44.32 MHz | +7.437 ns |
 | ...and a Trident | 34,513 (82%) | 251 | 35.94 MHz | +2.177 ns |
-| **...and two combinational loops fixed** | **35,244 (84%)** | 251 | **47.63 MHz** | **+8.212 ns** |
+| ...and two combinational loops fixed | 35,244 (84%) | 251 | 47.63 MHz | +8.212 ns |
+| **...and the drive's read stream** | **34,820 (83%)** | **251** | **47.56 MHz** | **+8.976 ns** |
+
+The last row is the one to read for what a healthy fit looks like: adding the
+data and clock pairs -- eight `__in` ports, four units' worth -- cost NOTHING,
+both differences being inside re-place-and-route noise. The row above it is
+why that is worth remarking on.
 
 **TWO COMBINATIONAL LOOPS WERE THE CRITICAL PATH ALL ALONG, and the fitter had
 been saying so for months.** Quartus reported exactly two, both 18 nodes, both
