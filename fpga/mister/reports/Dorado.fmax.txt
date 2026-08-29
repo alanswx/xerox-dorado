@@ -1,5 +1,5 @@
-; 47.63 MHz  ; 47.63 MHz       ; emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk           ;      ;
-; 51.79 MHz  ; 51.79 MHz       ; pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk   ;      ;
-; 76.94 MHz  ; 76.94 MHz       ; FPGA_CLK1_50                                                                      ;      ;
-; 128.97 MHz ; 128.97 MHz      ; FPGA_CLK2_50                                                                      ;      ;
--rw-rw-r-- 1 alans alans 3741204 21:09 /home/alans/mister/Dorado_MiSTer/output_files/Dorado.rbf
+; 47.56 MHz  ; 47.56 MHz       ; emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk           ;      ;
+; 55.35 MHz  ; 55.35 MHz       ; pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk   ;      ;
+; 76.78 MHz  ; 76.78 MHz       ; FPGA_CLK1_50                                                                      ;      ;
+; 120.26 MHz ; 120.26 MHz      ; FPGA_CLK2_50                                                                      ;      ;
+-rw-rw-r-- 1 alans alans 3796040 21:54 /home/alans/mister/Dorado_MiSTer/output_files/Dorado.rbf
