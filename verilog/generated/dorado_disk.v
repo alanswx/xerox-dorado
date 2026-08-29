@@ -52,25 +52,41 @@ module dorado_disk #(parameter integer SYSPER = 16) (
     input  wire ChipsAre64K               ,  // to a backplane connector (cable)
     input  wire ClkEnable_p_a             ,  // to a backplane connector (cable)
     output wire ClockM0                   ,  // to a backplane connector (cable)
+    input  wire ClockM0__in               ,  // driven by the device on the cable
     output wire ClockM1                   ,  // to a backplane connector (cable)
+    input  wire ClockM1__in               ,  // driven by the device on the cable
     output wire ClockM2                   ,  // to a backplane connector (cable)
+    input  wire ClockM2__in               ,  // driven by the device on the cable
     output wire ClockM3                   ,  // to a backplane connector (cable)
+    input  wire ClockM3__in               ,  // driven by the device on the cable
     output wire ClockP0                   ,  // to a backplane connector (cable)
+    input  wire ClockP0__in               ,  // driven by the device on the cable
     output wire ClockP1                   ,  // to a backplane connector (cable)
+    input  wire ClockP1__in               ,  // driven by the device on the cable
     output wire ClockP2                   ,  // to a backplane connector (cable)
+    input  wire ClockP2__in               ,  // driven by the device on the cable
     output wire ClockP3                   ,  // to a backplane connector (cable)
+    input  wire ClockP3__in               ,  // driven by the device on the cable
     input  wire Collision                 ,  // awaits BaseBd
     output wire ContTag_p_                ,  // to a backplane connector (cable)
     output wire CountMiss                 ,  // awaits IFU
     output wire CylinderTag_p_            ,  // to a backplane connector (cable)
     output wire DataM0                    ,  // to a backplane connector (cable)
+    input  wire DataM0__in                ,  // driven by the device on the cable
     output wire DataM1                    ,  // to a backplane connector (cable)
+    input  wire DataM1__in                ,  // driven by the device on the cable
     output wire DataM2                    ,  // to a backplane connector (cable)
+    input  wire DataM2__in                ,  // driven by the device on the cable
     output wire DataM3                    ,  // to a backplane connector (cable)
+    input  wire DataM3__in                ,  // driven by the device on the cable
     output wire DataP0                    ,  // to a backplane connector (cable)
+    input  wire DataP0__in                ,  // driven by the device on the cable
     output wire DataP1                    ,  // to a backplane connector (cable)
+    input  wire DataP1__in                ,  // driven by the device on the cable
     output wire DataP2                    ,  // to a backplane connector (cable)
+    input  wire DataP2__in                ,  // driven by the device on the cable
     output wire DataP3                    ,  // to a backplane connector (cable)
+    input  wire DataP3__in                ,  // driven by the device on the cable
     input  wire DcomingForCt_p_           ,  // to a backplane connector (cable)
     output wire DriveTag_p_               ,  // to a backplane connector (cable)
     output wire EcDcomingForCt_p_         ,  // to a backplane connector (cable)
@@ -1514,13 +1530,21 @@ module dorado_disk #(parameter integer SYSPER = 16) (
   assign CacheRefInEc1 = CacheRefInEc1__MemC;
   assign CkMdParity_p_ = CkMdParity_p___ProcL;
   assign ClockM0 = ClockM0__DskEth;
+  wire ClockM0__bus = ClockM0 | ClockM0__in;
   assign ClockM1 = ClockM1__DskEth;
+  wire ClockM1__bus = ClockM1 | ClockM1__in;
   assign ClockM2 = ClockM2__DskEth;
+  wire ClockM2__bus = ClockM2 | ClockM2__in;
   assign ClockM3 = ClockM3__DskEth;
+  wire ClockM3__bus = ClockM3 | ClockM3__in;
   assign ClockP0 = ClockP0__DskEth;
+  wire ClockP0__bus = ClockP0 | ClockP0__in;
   assign ClockP1 = ClockP1__DskEth;
+  wire ClockP1__bus = ClockP1 | ClockP1__in;
   assign ClockP2 = ClockP2__DskEth;
+  wire ClockP2__bus = ClockP2 | ClockP2__in;
   assign ClockP3 = ClockP3__DskEth;
+  wire ClockP3__bus = ClockP3 | ClockP3__in;
   assign Cnt_eq_Zero_p_ = Cnt_eq_Zero_p___ProcH | Cnt_eq_Zero_p___ProcL;
   assign ContTag_p_ = ContTag_p___DskEth;
   assign CountMiss = CountMiss__MemX;
@@ -1530,13 +1554,21 @@ module dorado_disk #(parameter integer SYSPER = 16) (
   assign Dad_00 = Dad_00__MemC;
   assign Dad_01 = Dad_01__MemC;
   assign DataM0 = DataM0__DskEth;
+  wire DataM0__bus = DataM0 | DataM0__in;
   assign DataM1 = DataM1__DskEth;
+  wire DataM1__bus = DataM1 | DataM1__in;
   assign DataM2 = DataM2__DskEth;
+  wire DataM2__bus = DataM2 | DataM2__in;
   assign DataM3 = DataM3__DskEth;
+  wire DataM3__bus = DataM3 | DataM3__in;
   assign DataP0 = DataP0__DskEth;
+  wire DataP0__bus = DataP0 | DataP0__in;
   assign DataP1 = DataP1__DskEth;
+  wire DataP1__bus = DataP1 | DataP1__in;
   assign DataP2 = DataP2__DskEth;
+  wire DataP2__bus = DataP2 | DataP2__in;
   assign DataP3 = DataP3__DskEth;
+  wire DataP3__bus = DataP3 | DataP3__in;
   assign Dbuf_u__p_ = Dbuf_u__p___MemC;
   assign DdataGood_p_ = DdataGood_p___MemX;
   assign DirtyIoFetchInA_p_ = DirtyIoFetchInA_p___MemC;
@@ -3666,25 +3698,25 @@ module dorado_disk #(parameter integer SYSPER = 16) (
     .Block(Block),
     .CLK_disk_p_(CLK_disk_p_),
     .CLKEnable_p_a(CLKEnable_p_a),
-    .ClockM0(ClockM0),
-    .ClockM1(ClockM1),
-    .ClockM2(ClockM2),
-    .ClockM3(ClockM3),
-    .ClockP0(ClockP0),
-    .ClockP1(ClockP1),
-    .ClockP2(ClockP2),
-    .ClockP3(ClockP3),
+    .ClockM0(ClockM0__bus),
+    .ClockM1(ClockM1__bus),
+    .ClockM2(ClockM2__bus),
+    .ClockM3(ClockM3__bus),
+    .ClockP0(ClockP0__bus),
+    .ClockP1(ClockP1__bus),
+    .ClockP2(ClockP2__bus),
+    .ClockP3(ClockP3__bus),
     .Collision(Collision),
     .DMuxClk(DMuxClk),
     .DMuxData(DMuxData),
-    .DataM0(DataM0),
-    .DataM1(DataM1),
-    .DataM2(DataM2),
-    .DataM3(DataM3),
-    .DataP0(DataP0),
-    .DataP1(DataP1),
-    .DataP2(DataP2),
-    .DataP3(DataP3),
+    .DataM0(DataM0__bus),
+    .DataM1(DataM1__bus),
+    .DataM2(DataM2__bus),
+    .DataM3(DataM3__bus),
+    .DataP0(DataP0__bus),
+    .DataP1(DataP1__bus),
+    .DataP2(DataP2__bus),
+    .DataP3(DataP3__bus),
     .Host_0(Host_0),
     .Host_1(Host_1),
     .Host_2(Host_2),
