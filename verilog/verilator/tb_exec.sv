@@ -1208,6 +1208,15 @@ module tb_exec;
   // and StkWake is exactly the stack wakeup HM Table 6 names as the response to
   // an empty-stack operation. Count all three; do not sample them.
   integer n_faults, n_wen, n_stkwake, tpcslot, nfault_region, nboot_region, bootfeed;
+  // A CONTROL PROCESSOR THAT ANSWERS. `+bootfeed` leaves ONE value in CPReg
+  // and never changes it, which is enough to prove the poll loop is
+  // data-dependent (bit 15 clear -> it polls, longest run 0; bit 15 set ->
+  // it leaves the loop and sticks for 12,485 cycles) but not enough to boot:
+  // Bootstrap takes the byte and then waits for the handshake to come back.
+  // `+bootcp` plays the other half -- present a byte with bit 15 SET, wait,
+  // clear bit 15, wait, and repeat -- which is what a BaseBoard does.
+  integer bootcp_period, bootcp_n, bootcp_byte;
+  reg     bootcp_phase;
   // ...and WHICH FAULT. `Faults` is an F10016 (k09) whose parallel inputs are
   // TrueBD -- hardwired true -- so it reads 1 whenever it loads; the load is
   // gated by `_FaultInfoDly'` and `ReportFault'`. ReportFault' is k07, an
@@ -1608,8 +1617,28 @@ module tb_exec;
     nvisited = 0; stuck = 0; maxrun = 0; prevpc = -1; maxpc = -1;
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca;
     if (!$value$plusargs("cycles=%d", runcycles)) runcycles = 20000;
+    bootcp_n = 0; bootcp_phase = 1'b0; bootcp_byte = 0;
+    if (!$value$plusargs("bootcp=%d", bootcp_period)) bootcp_period = 0;
+    if (bootcp_period) $display("tb_exec: BOOTCP -- toggling the handshake every %0d cycles",
+                                bootcp_period);
+
     for (j2 = 0; j2 < runcycles; j2 = j2 + 1) begin
       @(posedge sys_clk);
+      // THE CONTROL PROCESSOR'S HALF OF THE HANDSHAKE. Bit 15 says "a byte is
+      // ready"; Bootstrap reads it, and the sender must then take it away
+      // before offering the next. Driving CPReg from here is exactly what the
+      // BaseBoard's 6502 does over the same bus -- see set_cpreg_tilde, which
+      // is PARC's own two-strobe sequence.
+      if (bootcp_period && (j2 % bootcp_period) == 0) begin
+        bootcp_phase = ~bootcp_phase;
+        if (bootcp_phase) begin
+          set_cpreg_tilde({1'b1, 7'd0, bootcp_byte[7:0]});
+          bootcp_byte = bootcp_byte + 1;
+          bootcp_n = bootcp_n + 1;
+        end else begin
+          set_cpreg_tilde(16'h0000);
+        end
+      end
       if (m.b_ContA.clk0_p_Ca !== p0) begin
         n0a = n0a + 1; p0 = m.b_ContA.clk0_p_Ca;
         if (p0 === 1'b1) begin           // one sample per microinstruction
