@@ -224,6 +224,8 @@ module tb_firmware;
   reg bootbtn_lvl;
   integer bootbtn_lvl_i, bootpress;
   integer hi, hj, hbest, haddr;
+  integer n_irq_lo = 0, n_irq_fall = 0, n_nmi_lo = 0;
+  reg irq_d = 1'b1;
   integer n_cpstrb = 0, n_manclk = 0, n_dmuxclk = 0;
   reg     p_cpstrb = 1'b1, p_manclk = 1'b1, p_dmuxclk = 1'b0;
   reg [15:0] pc_lo = 16'hFFFF, pc_hi = 16'h0000, last_a = 16'h0;
@@ -351,6 +353,14 @@ module tb_firmware;
       if (`BB.BaseBd15_sil_pl_1) n_bb1 = n_bb1 + 1;
       if (`BB.BootNO__drv)       n_bno = n_bno + 1;
       n_samp_ah = n_samp_ah + 1;
+      // THE 2 ms INTERRUPT. FastKbdBootCheck -- the only thing that reads the
+      // boot button -- is called from the 6502's interrupt handler, and the
+      // 6532's timer is what raises it. If MCIRQ' never asserts, the button
+      // is irrelevant and the timer is the subject. ACTIVE LOW.
+      if (!`BB.MCIRQ_p_) n_irq_lo = n_irq_lo + 1;
+      if (!`BB.MCIRQ_p_ && irq_d) n_irq_fall = n_irq_fall + 1;
+      irq_d = `BB.MCIRQ_p_;
+      if (!`BB.MCNMI_p_) n_nmi_lo = n_nmi_lo + 1;
       if (`BB.AHasCP) n_ahascp = n_ahascp + 1;
       // SYNC marks an OPCODE FETCH. Without it the address bus shows data
       // reads too, and this histogram counted table lookups as if they were
@@ -547,6 +557,8 @@ module tb_firmware;
         hotx[haddr] = 0;
       end
     end
+    $display("tb_firmware: INTERRUPTS -- MCIRQ' low on %0d samples, %0d falling edges; MCNMI' low on %0d (of %0d)",
+             n_irq_lo, n_irq_fall, n_nmi_lo, n_samp_ah);
     $display("tb_firmware: BOOT CHAIN -- BaseBd15.sil+1 high %0d, BootNO high %0d, of %0d",
              n_bb1, n_bno, n_samp_ah);
     $display("tb_firmware: AHasCP high on %0d of %0d samples (SET = an Alto holds the CP bus)",
