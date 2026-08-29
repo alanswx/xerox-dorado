@@ -219,6 +219,7 @@ module tb_firmware;
                      `BB.MCA_03, `BB.MCA_02, `BB.MCA_01, `BB.MCA_00};
 
   integer i;
+  integer n_ahascp = 0, n_samp_ah = 0;
   integer n_cpstrb = 0, n_manclk = 0, n_dmuxclk = 0;
   reg     p_cpstrb = 1'b1, p_manclk = 1'b1, p_dmuxclk = 1'b0;
   reg [15:0] pc_lo = 16'hFFFF, pc_hi = 16'h0000, last_a = 16'h0;
@@ -289,6 +290,8 @@ module tb_firmware;
     for (i = 0; i < 4_000_000; i = i + 1) begin
 `endif
       @(posedge sys_clk);
+      n_samp_ah = n_samp_ah + 1;
+      if (`BB.AHasCP) n_ahascp = n_ahascp + 1;
       // SYNC marks an OPCODE FETCH. Without it the address bus shows data
       // reads too, and this histogram counted table lookups as if they were
       // execution -- which is how `FF00`/`FF80` came to look like a PC parked
@@ -461,6 +464,15 @@ module tb_firmware;
              n_cpdc, n_cpdd);
     $display("tb_firmware: ContB DMD changes %0d, ManClk.0' pulses %0d, final DMD=%03h",
              n_dmd, n_cbmanclk, dmd);
+    // AHasCP -- THE ACTUAL GATE, one line past TryGettingMufManControl.
+    // `SeeWhosInCharge` reads CPRegH, ANDs AHasCP, and loops in
+    // WaitForAltoToRelease while it is SET: the Alto/Midas debugger holding
+    // the control-processor bus. A Dorado with no Alto attached should read
+    // it CLEAR, and if it does not the firmware waits for a machine that is
+    // not there. Counted over the whole run -- a single sample of a level has
+    // misled on this board before.
+    $display("tb_firmware: AHasCP high on %0d of %0d samples (SET = an Alto holds the CP bus)",
+             n_ahascp, n_samp_ah);
     $display("tb_firmware: TSetRun(= MCPBusL bit SetRunIn, the TryGettingMufManControl gate)=%b",
              `BB.TSetRun);
     $display("tb_firmware: TRYGETTINGMUFMANCONTROL(FA0E) visits %0d, WAITFORCPCONTROL(FA1F) %0d",
