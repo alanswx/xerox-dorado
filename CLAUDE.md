@@ -1099,12 +1099,30 @@ DRIVEN, not forced.
 | | ALMs | RAM | Fmax | slack @33.33 |
 |---|---|---|---|---|
 | storage + keyboard + terminal | 34,866 (83%) | 251 | 44.32 MHz | +7.437 ns |
-| ...and a Trident | **34,513 (82%)** | 251 | **35.94 MHz** | **+2.177 ns** |
+| ...and a Trident | 34,513 (82%) | 251 | 35.94 MHz | +2.177 ns |
+| **...and two combinational loops fixed** | **35,244 (84%)** | 251 | **47.63 MHz** | **+8.212 ns** |
 
-The drive costs almost no AREA -- 353 ALMs fewer, because fourteen pull-up
-drivers went away with the ports -- but it costs Fmax, and the margin over
-real-time falls from 7.4 ns to 2.2 ns. Still positive, still loadable, and
-now the tightest thing in the design (task #56).
+**TWO COMBINATIONAL LOOPS WERE THE CRITICAL PATH ALL ALONG, and the fitter had
+been saying so for months.** Quartus reported exactly two, both 18 nodes, both
+on `DMuxData` -- the muffler readback chain -- closing through ProcH's a06 and
+l24 multiplexers. `sil_to_verilog.py` has `read_excluding` one level down, so a
+PACKAGE cannot read back what it drives; the backplane had no equivalent, so a
+BOARD could. `BOARD_READ_EXCLUDING` fixes it for the one pair that closes:
+loops 2 -> 0, Fmax 35.94 -> **47.63 MHz**, for 731 ALMs.
+
+Two things worth keeping from that. **A predicted cause was wrong**: when the
+drive went in and Fmax fell, the guess was the Trident's 20-bit revolution
+comparison. It costs essentially nothing -- the extra logic simply gave Quartus
+a different place to CUT the pre-existing loops, and a loop cut is arbitrary,
+so the Fmax it yields is arbitrary. The earlier 44.32 was equally soft. And
+**435 board-net pairs read a bus they also drive**, which is NOT 435 bugs: it
+is the ECL wired-OR modelled honestly, since a real receiver does see its own
+open-emitter driver. Only 2 close a combinational path; the other 433 go
+through a register and must stay as they are.
+
+**Diagnostic worth keeping:** `grep -c "Found combinational loop"` on the
+Quartus log. It should be 0. Nothing in the Verilator suite can see this --
+`loop-check` passes, because its scheduler resolves what a synthesiser cannot.
 
 Reports: `fpga/mister/reports/`.
 
