@@ -220,6 +220,7 @@ module tb_firmware;
 
   integer i;
   integer n_ahascp = 0, n_samp_ah = 0;
+  integer bootbtn_at;
   integer n_cpstrb = 0, n_manclk = 0, n_dmuxclk = 0;
   reg     p_cpstrb = 1'b1, p_manclk = 1'b1, p_dmuxclk = 1'b0;
   reg [15:0] pc_lo = 16'hFFFF, pc_hi = 16'h0000, last_a = 16'h0;
@@ -279,6 +280,7 @@ module tb_firmware;
       bucket[i] = 0; win_start[i] = 0; win_resets[i] = 0; win_armed[i] = 1'b0;
     end
     win_armed[0] = 1'b1;   // g22 comes up armed unless G22_DISARMED
+    if (!$value$plusargs("bootbtn=%d", bootbtn_at)) bootbtn_at = -1;
     for (i = 0; i < 4096; i = i + 1) begin hot[i] = 0; hotx[i] = 0; end
     for (i = 0; i < 8; i = i + 1) fn_seen[i] = 0;
 
@@ -290,6 +292,21 @@ module tb_firmware;
     for (i = 0; i < 4_000_000; i = i + 1) begin
 `endif
       @(posedge sys_clk);
+      // PRESS THE BOOT BUTTON. `+bootbtn=N` grounds the button's net after N
+      // cycles. The chain, traced from the firmware back through the netlist:
+      //
+      //   MiscByte bit 6 `Boot'` (6532 port B at 0x480, ACTIVE LOW)
+      //     <- BootNO          <- c01, an SN74LS01 wired as an inverter
+      //     <- BaseBd15.sil+1  <- c08 pin 8, an SN74LS04 inverter
+      //     <- BaseBd15.sil+4  <- c05 pin 14, an MPQ6002 TRANSISTOR QUAD
+      //
+      // The MPQ6002 is analog and has no cell, so that last net is DEAD and
+      // `Boot'` can never go low -- which is why WaitForInitialBoot never
+      // exits. Two inversions between there and Boot', so a 1 here is a push.
+      if (bootbtn_at >= 0 && i == bootbtn_at) begin
+        force `BB.BaseBd15_sil_pl_4 = 1'b1;
+        $display("tb_firmware: BOOT BUTTON pressed at cycle %0d", i);
+      end
       n_samp_ah = n_samp_ah + 1;
       if (`BB.AHasCP) n_ahascp = n_ahascp + 1;
       // SYNC marks an OPCODE FETCH. Without it the address bus shows data
