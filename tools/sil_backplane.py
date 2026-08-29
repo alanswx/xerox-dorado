@@ -176,6 +176,31 @@ def drivers(boards) -> dict[str, list[str]]:
     return out
 
 
+# A BOARD THAT MUST NOT SEE ITS OWN CONTRIBUTION.
+#
+# `sil_to_verilog.py` has `read_excluding` one level down: it hands a PACKAGE
+# what the OTHER drivers put on a net, so a package cannot read back what it
+# is driving. The backplane had no equivalent, so a BOARD can -- and on a
+# wired-OR bus that is CORRECT, because a real ECL receiver does see its own
+# open-emitter driver and the logic is designed for it. 435 board-net pairs
+# read a bus they also drive, and 433 are fine: the path from the read back to
+# the drive goes through a register.
+#
+# Two do not. Quartus reports exactly two combinational loops in the whole
+# machine, both 18 nodes, both on `DMuxData` -- the muffler readback chain --
+# closing through ProcH's a06 and l24 multiplexers. A synthesiser cuts such a
+# loop wherever it likes, which makes timing across those paths meaningless;
+# Verilator's scheduler resolves them, so `loop-check` passes and this is
+# invisible from simulation.
+#
+# So the pairs listed here get the net EXCLUDING their own contribution.
+# Narrow on purpose: applied to all 435 it would change a wired-OR reading
+# that is right everywhere else and that the gates have established.
+BOARD_READ_EXCLUDING = frozenset({
+    ('ProcH', "DMuxData"),
+})
+
+
 # A CABLE LINE WHOSE ONLY ON-BOARD DRIVER IS A RESISTOR TIE.
 #
 # DskEth's drive-interface lines are pulled up by SIPs -- `TtlReady'` is
@@ -530,6 +555,20 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
         A(f'  assign {vname(net)} = {expr};')
     A("")
 
+    # The per-board reads that exclude their own contribution -- see
+    # BOARD_READ_EXCLUDING. One extra wire each, and only for the pairs named.
+    excl = sorted({(b, n) for (b, n) in BOARD_READ_EXCLUDING
+                   if b in names and n in contribs and b in contribs[n]})
+    if excl:
+        A('  // ---- reads that must not include the reader -----------------')
+        A('  // A board on a wired-OR bus normally DOES see its own driver;')
+        A('  // these are the ones where that closes a combinational loop.')
+        for b, n in excl:
+            others = [x for x in contribs[n] if x != b]
+            expr = ' | '.join(f'{vname(n)}__{x}' for x in others) or "1'b0"
+            A(f'  wire {vname(n)}__rd_{b} = {expr};')
+        A("")
+
     for short in names:
         d = info[short]
         A(f'  // ---- {short}')
@@ -541,7 +580,11 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
         else:
             A(f'  {d["module"]} b_{short} (')
         conns = ['    .sys_clk(sys_clk)']
-        conns += [f'    .{vname(n)}({vname(n)})' for n in sorted(d['ports'])]
+        conns += [f'    .{vname(n)}({vname(n)}__rd_{short})'
+                  if (short, n) in BOARD_READ_EXCLUDING and
+                     any(b == short and nn == n for b, nn in excl)
+                  else f'    .{vname(n)}({vname(n)})'
+                  for n in sorted(d['ports'])]
         # A cable line that is now an INPUT has no contribution wire -- the
         # board's pull-up output is left unconnected, so the port is the only
         # source. See CABLE_DRIVE_INPUTS.
