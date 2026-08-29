@@ -1016,6 +1016,11 @@ module dorado_proc #(parameter integer SYSPER = 16) (
   assign jcnt = jcnt__ContA;
   assign rMIRa = rMIRa__ContA | rMIRa__ContB;
 
+  // ---- reads that must not include the reader -----------------
+  // A board on a wired-OR bus normally DOES see its own driver;
+  // these are the ones where that closes a combinational loop.
+  wire DMuxData__rd_ProcH = DMuxData__ContA | DMuxData__ContB | DMuxData__ProcL;
+
   // ---- ContA
   ContA_m_Rev_m_Cd b_ContA (
     .sys_clk(sys_clk),
@@ -1446,7 +1451,7 @@ module dorado_proc #(parameter integer SYSPER = 16) (
     .CkMdParity_p_(CkMdParity_p_),
     .Cnt_eq_Zero_p_(Cnt_eq_Zero_p_),
     .DMuxClk(DMuxClk),
-    .DMuxData(DMuxData),
+    .DMuxData(DMuxData__rd_ProcH),
     .FF_0(FF_0),
     .FF_0mem_p_(FF_0mem_p_),
     .FF_1(FF_1),
