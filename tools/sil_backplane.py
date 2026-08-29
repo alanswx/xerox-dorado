@@ -176,6 +176,39 @@ def drivers(boards) -> dict[str, list[str]]:
     return out
 
 
+# A CABLE LINE BOTH ENDS DRIVE.
+#
+# The drive's data pair is genuinely bidirectional: DskEth drives it through
+# g02, an SN74125 QUAD TRI-STATE BUFFER enabled by `Unit0'Data'` (writes),
+# and the drive drives it the rest of the time (reads). Neither
+# CABLE_DRIVE_INPUTS (which would break writing) nor leaving it an output
+# (which gives the drive no way in) is right.
+#
+# A disabled SN74125 contributes 0 -- the same rule as the MC10159, and the
+# whole point of an enable on a part whose outputs are wired together -- so
+# the wired-OR already does the arbitration. All the far end needs is a
+# CONTRIBUTION of its own, exactly like a board's:
+#
+#     <net>       output   what the MACHINE drives (its boards ORed)
+#     <net>__in   input    what the DRIVE drives
+#     internally, the boards read the OR of the two.
+#
+# That is the same shape the backplane already uses for every multi-driver
+# net, with the cable as one more contributor.
+# The CLOCK pair belongs here too, for a slightly different reason: DskEth
+# ties it to ground ("h41.4 ClockP0, tied to GND-15"), a bias network at the
+# receiver rather than a driver. That contributes 0, so the OR gives whatever
+# the drive puts on it -- which is what a read clock is. Modelling it as a
+# pure input would throw the bias tie away; this keeps it and lets the drive
+# win, which is what the network is for.
+CABLE_BIDIR = frozenset({
+    "DataP0", "DataM0", "DataP1", "DataM1",
+    "DataP2", "DataM2", "DataP3", "DataM3",
+    "ClockP0", "ClockM0", "ClockP1", "ClockM1",
+    "ClockP2", "ClockM2", "ClockP3", "ClockM3",
+})
+
+
 # A BOARD THAT MUST NOT SEE ITS OWN CONTRIBUTION.
 #
 # `sil_to_verilog.py` has `read_excluding` one level down: it hands a PACKAGE
@@ -532,7 +565,13 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
                else 'awaits ' + ' '.join(absent_partner[net]))
         kw = 'input ' if ports[net] == 'input' else 'output'
         comma = ',' if i < len(names_sorted) - 1 else ''
-        decl.append(f'    {kw} wire {vname(net):<26}{comma:<2} // {why}')
+        decl.append(f'    {kw} wire {vname(net):<26},  // {why}'
+                    if net in CABLE_BIDIR and ports[net] == 'output'
+                    else f'    {kw} wire {vname(net):<26}{comma:<2} // {why}')
+        if net in CABLE_BIDIR and ports[net] == 'output':
+            # What the far end of the cable drives -- see CABLE_BIDIR.
+            decl.append(f'    input  wire {vname(net) + "__in":<26}{comma:<2}'
+                        f' // driven by the device on the cable')
     A('\n'.join(decl) if decl else '    // no external ports')
     A(');')
     A("")
@@ -552,7 +591,14 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
         if not contribs[net]:
             continue
         expr = ' | '.join(f'{vname(net)}__{b}' for b in contribs[net])
-        A(f'  assign {vname(net)} = {expr};')
+        if net in CABLE_BIDIR and net in ports:
+            # Both ends drive this one -- see CABLE_BIDIR. The port carries
+            # what the MACHINE contributes; `__in` brings the drive's in; the
+            # boards read the OR.
+            A(f'  assign {vname(net)} = {expr};')
+            A(f'  wire {vname(net)}__bus = {vname(net)} | {vname(net)}__in;')
+        else:
+            A(f'  assign {vname(net)} = {expr};')
     A("")
 
     # The per-board reads that exclude their own contribution -- see
@@ -580,11 +626,13 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
         else:
             A(f'  {d["module"]} b_{short} (')
         conns = ['    .sys_clk(sys_clk)']
-        conns += [f'    .{vname(n)}({vname(n)}__rd_{short})'
-                  if (short, n) in BOARD_READ_EXCLUDING and
-                     any(b == short and nn == n for b, nn in excl)
-                  else f'    .{vname(n)}({vname(n)})'
-                  for n in sorted(d['ports'])]
+        def _read(n: str) -> str:
+            if (short, n) in BOARD_READ_EXCLUDING and (short, n) in set(excl):
+                return f'{vname(n)}__rd_{short}'
+            if n in CABLE_BIDIR and n in ports and contribs.get(n):
+                return f'{vname(n)}__bus'      # includes the drive's end
+            return vname(n)
+        conns += [f'    .{vname(n)}({_read(n)})' for n in sorted(d['ports'])]
         # A cable line that is now an INPUT has no contribution wire -- the
         # board's pull-up output is left unconnected, so the port is the only
         # source. See CABLE_DRIVE_INPUTS.
