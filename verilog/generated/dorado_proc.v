@@ -2110,6 +2110,14 @@ module dorado_proc_machine #(parameter integer SYSPER = 16) (
     ASEL_0
   };
 
+  // DispY's pixel clock -- see the RawPixelClk note below. 50 MHz on
+  // the built Rev Cl sheet; the accumulator is told what a sys_clk is
+  // worth so it holds at any oversampling ratio.
+  wire pixel_clk;
+  cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(SYSPER)) u_pixclk (
+    .sys_clk(sys_clk), .p8(pixel_clk), .p7(1'b0), .p14(1'b1)
+  );
+
   dorado_proc #(.SYSPER(SYSPER)) u_machine (
     .sys_clk(sys_clk),
     .ASEL_0(ASEL_0),

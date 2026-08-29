@@ -4051,6 +4051,14 @@ module dorado_display_machine #(parameter integer SYSPER = 16) (
     n_24Bit
   };
 
+  // DispY's pixel clock -- see the RawPixelClk note below. 50 MHz on
+  // the built Rev Cl sheet; the accumulator is told what a sys_clk is
+  // worth so it holds at any oversampling ratio.
+  wire pixel_clk;
+  cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(SYSPER)) u_pixclk (
+    .sys_clk(sys_clk), .p8(pixel_clk), .p7(1'b0), .p14(1'b1)
+  );
+
   dorado_display #(.SYSPER(SYSPER)) u_machine (
     .sys_clk(sys_clk),
     .n_24Bit(n_24Bit),
@@ -4237,9 +4245,9 @@ module dorado_display_machine #(parameter integer SYSPER = 16) (
     .OISData_3(OISData_3),
     .OISData_3_p_(OISData_3_p_),
     .PcFG_15(1'b0),
-    .PixelClkVCO(1'b0),
+    .PixelClkVCO(pixel_clk),
     .RScopeClk0_p_(RScopeClk0_p_),
-    .RawPixelClk(1'b0),
+    .RawPixelClk(pixel_clk),
     .RefOutstanding_p_(1'b0),
     .RfshPeriod(1'b0),
     .SW(1'b0),

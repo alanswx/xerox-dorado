@@ -739,6 +739,14 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
                  for n in reversed(probed)))
     A('  };')
     A("")
+    A('  // DispY\'s pixel clock -- see the RawPixelClk note below. 50 MHz on')
+    A('  // the built Rev Cl sheet; the accumulator is told what a sys_clk is')
+    A('  // worth so it holds at any oversampling ratio.')
+    A('  wire pixel_clk;')
+    A('  cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(SYSPER)) u_pixclk (')
+    A('    .sys_clk(sys_clk), .p8(pixel_clk), .p7(1\'b0), .p14(1\'b1)')
+    A('  );')
+    A("")
     A(f'  {module} #(.SYSPER(SYSPER)) u_machine (')
     conns = ['    .sys_clk(sys_clk)']
     for n in names_sorted:
@@ -746,6 +754,20 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
             conns.append(f'    .{vname(n)}(dorado_clk)')
         elif n in loopback and loopback[n] in ports:
             conns.append(f'    .{vname(n)}({vname(loopback[n])})')
+        elif n in ('RawPixelClk', 'PixelClkVCO'):
+            # THE PIXEL CLOCK, which the harness was tying to ZERO. DispY
+            # cannot generate a line of video without it, and with it dead
+            # NOTHING on the display moves -- AltoTTLVideo, AltoHSync,
+            # AltoVSync', HBlank and VBlank all sat still over 400,000
+            # cycles, which reads exactly like an uninitialised display board
+            # and is not one. The MiSTer core drives these; the simulation
+            # harness must too, or the two are not running the same machine.
+            #
+            # Substituted the same way as every other oscillator here -- a
+            # cell_K1115A phase accumulator, told what a sys_clk is worth --
+            # so it stays right at any SYSPER. DispY a05 is 50 MHz on the
+            # built Rev Cl sheet.
+            conns.append(f'    .{vname(n)}(pixel_clk)')
         elif n in CABLE_DRIVE_INPUTS:
             # An active-low cable line with no drive attached reads HIGH.
             # Tying it to 0 would fabricate a drive -- six of these once did

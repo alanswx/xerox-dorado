@@ -89,7 +89,13 @@ module emu (
   wire [31:0] mach_probe;
   wire [15:0] mach_probe_words;
 
-  dorado_machine u_machine (
+  // SYSPER=2 -- one microinstruction per two sys_clk, the ratio the MiSTer
+  // core ships and the whole gate suite now passes at. The default is 16, and
+  // at 16 this harness spends EIGHT TIMES as long per emulated microsecond:
+  // ~180,000 sys_clk/s is 11,250 microinstructions/s at 16 and 90,000 at 2.
+  // In frames, a 60 Hz field is 277,778 microinstructions, so 24.7 s per
+  // frame becomes 3.1 s.
+  dorado_machine #(.SYSPER(2)) u_machine (
       .sys_clk     (clk_sys),
       .probe_sel   (probe_sel - 16'd2),
       .probe_val   (mach_probe),
