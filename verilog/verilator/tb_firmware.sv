@@ -557,6 +557,18 @@ module tb_firmware;
         hotx[haddr] = 0;
       end
     end
+    // DOES THE INTERRUPT HANDLER RUN? Its address is not guessed: the
+    // 6502's IRQ vector at FFFE/FFFF reads F2A2 out of the ROM image (with
+    // the bytes bit-reversed, as the 2716s store them), and the same read
+    // gives RESET = F3A7 and NMI = F000 -- F3A7 being an address the reset
+    // histogram already showed, which checks the read.
+    //
+    // `FastKbdBootCheck` -- the only reader of the boot button -- is the
+    // second thing this handler calls. If F2A2 runs and the button still does
+    // nothing, the question moves inside the handler; if it does not run, the
+    // interrupt is asserting and not being TAKEN.
+    $display("tb_firmware: IRQ HANDLER (F2A2) entered %0d times",
+             hotx[16'h02A2]);
     $display("tb_firmware: INTERRUPTS -- MCIRQ' low on %0d samples, %0d falling edges; MCNMI' low on %0d (of %0d)",
              n_irq_lo, n_irq_fall, n_nmi_lo, n_samp_ah);
     $display("tb_firmware: BOOT CHAIN -- BaseBd15.sil+1 high %0d, BootNO high %0d, of %0d",
