@@ -223,6 +223,7 @@ module tb_firmware;
   integer bootbtn_at, n_bb1 = 0, n_bno = 0;
   reg bootbtn_lvl;
   integer bootbtn_lvl_i, bootpress;
+  integer hi, hj, hbest, haddr;
   integer n_cpstrb = 0, n_manclk = 0, n_dmuxclk = 0;
   reg     p_cpstrb = 1'b1, p_manclk = 1'b1, p_dmuxclk = 1'b0;
   reg [15:0] pc_lo = 16'hFFFF, pc_hi = 16'h0000, last_a = 16'h0;
@@ -530,6 +531,22 @@ module tb_firmware;
     // it CLEAR, and if it does not the firmware waits for a machine that is
     // not there. Counted over the whole run -- a single sample of a level has
     // misled on this board before.
+    // WHERE THE FIRMWARE ACTUALLY IS. Every address probe so far names a
+    // routine and asks "did it run"; this asks the opposite and better
+    // question -- what is it running MOST -- which needs no address guessed
+    // in advance. If the answer is a tight cluster, that is the loop it sits
+    // in, and it can be looked up in the disassembly rather than predicted.
+    for (hi = 0; hi < 12; hi = hi + 1) begin
+      hbest = 0; haddr = 0;
+      for (hj = 0; hj < 4096; hj = hj + 1)
+        if (hotx[hj] > hbest) begin hbest = hotx[hj]; haddr = hj; end
+      if (hbest == 0) hi = 12;
+      else begin
+        $display("tb_firmware: HOT #%0d  PC %04h  %0d fetches", hi + 1,
+                 16'hF000 + haddr[15:0], hbest);
+        hotx[haddr] = 0;
+      end
+    end
     $display("tb_firmware: BOOT CHAIN -- BaseBd15.sil+1 high %0d, BootNO high %0d, of %0d",
              n_bb1, n_bno, n_samp_ah);
     $display("tb_firmware: AHasCP high on %0d of %0d samples (SET = an Alto holds the CP bus)",
