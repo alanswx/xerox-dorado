@@ -1,12 +1,12 @@
-Fitter Status : Successful - Fri Aug 28 18:21:59 2026
+Fitter Status : Successful - Fri Aug 28 20:07:28 2026
 Quartus Prime Version : 17.0.2 Build 602 07/19/2017 SJ Lite Edition
 Revision Name : Dorado
 Top-level Entity Name : sys_top
 Family : Cyclone V
 Device : 5CSEBA6U23I7
 Timing Models : Final
-Logic utilization (in ALMs) : 34,866 / 41,910 ( 83 % )
-Total registers : 64024
+Logic utilization (in ALMs) : 34,513 / 41,910 ( 82 % )
+Total registers : 64128
 Total pins : 145 / 314 ( 46 % )
 Total virtual pins : 0
 Total block memory bits : 1,492,481 / 5,662,720 ( 26 % )
