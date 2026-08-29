@@ -244,6 +244,13 @@ dorado_terminal u_term
 wire disk_attached = |img_size;
 
 wire dsk_ready_n, dsk_online_n, dsk_term_n, dsk_sel0_n, dsk_secidx0_n;
+wire dsk_dp, dsk_dm, dsk_cp, dsk_cm, dsk_adv;
+
+// THE PACK'S CONTENTS. Nothing fills this yet -- the HPS block-read path is
+// the next piece -- so the drive reads a blank pack, which is a truthful
+// state rather than a fabricated one. `data_adv` is where a real buffer
+// would be advanced.
+wire dsk_bit = 1'b0;
 
 dorado_trident #(.SYSPER(2)) u_disk0
 (
@@ -257,7 +264,11 @@ dorado_trident #(.SYSPER(2)) u_disk0
 	.TtlOnLine_n(dsk_online_n),
 	.TtlTerm_n  (dsk_term_n),
 	.Selected_n (dsk_sel0_n),
-	.SecIndx_n  (dsk_secidx0_n)
+	.SecIndx_n  (dsk_secidx0_n),
+	.data_bit   (dsk_bit),
+	.data_adv   (dsk_adv),
+	.DataP      (dsk_dp), .DataM(dsk_dm),
+	.ClockP     (dsk_cp), .ClockM(dsk_cm)
 );
 
 //////////////////  The machine  //////////////////
@@ -294,7 +305,19 @@ dorado_backplane #(.SYSPER(2)) u_dorado
 	.TtlEndOfCyl_p_ (1'b1),
 	.TtlIndex_p_    (1'b1),
 	.Selected1_p_   (1'b1), .Selected2_p_(1'b1), .Selected3_p_(1'b1),
-	.SecIndx1_p_    (1'b1), .SecIndx2_p_ (1'b1), .SecIndx3_p_ (1'b1)
+	.SecIndx1_p_    (1'b1), .SecIndx2_p_ (1'b1), .SecIndx3_p_ (1'b1),
+
+	// The read stream. These are the CABLE's contribution to a wired-OR the
+	// machine also drives (the controller's SN74125 tri-states, for writes),
+	// so they arrive on `__in` and the boards read the OR.
+	.DataP0__in     (dsk_dp), .DataM0__in (dsk_dm),
+	.ClockP0__in    (dsk_cp), .ClockM0__in(dsk_cm),
+	.DataP1__in     (1'b0), .DataM1__in (1'b0),
+	.DataP2__in     (1'b0), .DataM2__in (1'b0),
+	.DataP3__in     (1'b0), .DataM3__in (1'b0),
+	.ClockP1__in    (1'b0), .ClockM1__in(1'b0),
+	.ClockP2__in    (1'b0), .ClockM2__in(1'b0),
+	.ClockP3__in    (1'b0), .ClockM3__in(1'b0)
 
 	// Every other port is left unconnected on purpose -- see the header.
 );
