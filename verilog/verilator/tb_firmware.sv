@@ -220,7 +220,8 @@ module tb_firmware;
 
   integer i;
   integer n_ahascp = 0, n_samp_ah = 0;
-  integer bootbtn_at;
+  integer bootbtn_at, n_bb1 = 0, n_bno = 0;
+  reg bootbtn_lvl;
   integer n_cpstrb = 0, n_manclk = 0, n_dmuxclk = 0;
   reg     p_cpstrb = 1'b1, p_manclk = 1'b1, p_dmuxclk = 1'b0;
   reg [15:0] pc_lo = 16'hFFFF, pc_hi = 16'h0000, last_a = 16'h0;
@@ -281,6 +282,7 @@ module tb_firmware;
     end
     win_armed[0] = 1'b1;   // g22 comes up armed unless G22_DISARMED
     if (!$value$plusargs("bootbtn=%d", bootbtn_at)) bootbtn_at = -1;
+    bootbtn_lvl = $test$plusargs("bootlow") ? 1'b0 : 1'b1;
     for (i = 0; i < 4096; i = i + 1) begin hot[i] = 0; hotx[i] = 0; end
     for (i = 0; i < 8; i = i + 1) fn_seen[i] = 0;
 
@@ -304,9 +306,16 @@ module tb_firmware;
       // `Boot'` can never go low -- which is why WaitForInitialBoot never
       // exits. Two inversions between there and Boot', so a 1 here is a push.
       if (bootbtn_at >= 0 && i == bootbtn_at) begin
-        force `BB.BaseBd15_sil_pl_4 = 1'b1;
-        $display("tb_firmware: BOOT BUTTON pressed at cycle %0d", i);
+        force `BB.BaseBd15_sil_pl_4 = bootbtn_lvl;
+        $display("tb_firmware: BOOT BUTTON pressed at cycle %0d (level %b)", i, bootbtn_lvl);
       end
+      // DOES THE PRESS PROPAGATE? Two inverters lie between the forced net
+      // and BootNO, and the 6532 reads BootNO as MiscByte bit 6. Sampling all
+      // three says whether a press reaches the firmware at all -- which the
+      // 260 M run could not, because it changed NOTHING and that is equally
+      // consistent with the press not arriving.
+      if (`BB.BaseBd15_sil_pl_1) n_bb1 = n_bb1 + 1;
+      if (`BB.BootNO__drv)       n_bno = n_bno + 1;
       n_samp_ah = n_samp_ah + 1;
       if (`BB.AHasCP) n_ahascp = n_ahascp + 1;
       // SYNC marks an OPCODE FETCH. Without it the address bus shows data
@@ -488,6 +497,8 @@ module tb_firmware;
     // it CLEAR, and if it does not the firmware waits for a machine that is
     // not there. Counted over the whole run -- a single sample of a level has
     // misled on this board before.
+    $display("tb_firmware: BOOT CHAIN -- BaseBd15.sil+1 high %0d, BootNO high %0d, of %0d",
+             n_bb1, n_bno, n_samp_ah);
     $display("tb_firmware: AHasCP high on %0d of %0d samples (SET = an Alto holds the CP bus)",
              n_ahascp, n_samp_ah);
     $display("tb_firmware: TSetRun(= MCPBusL bit SetRunIn, the TryGettingMufManControl gate)=%b",
