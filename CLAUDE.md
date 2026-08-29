@@ -1077,6 +1077,35 @@ silently. `tools/check_key_matrix.py` now compares the RTL against
 `display.c` file-to-file and is mutation-tested (four injected errors, all
 caught, including that one).
 
+**AND IT HAS A DISK (2026-08-28).** `dorado_trident.v` is a Trident at the end
+of the cable: Ready/OnLine/**TERM** asserted together (TERM is part of being
+on line -- c24 wired-ORs them), Selected separately, and `SecIndx'` rotating
+at a real **3600 RPM** derived from `SYSPER` x the C emulator's own
+`DORADO_DISK_CYCLES_PER_REV`. Gate `trident-test` counts the GAPS as well as
+the pulses, because a line stuck low gives a healthy pulse count and only the
+duty cycle tells them apart.
+
+Attaching it needed the fourteen DskEth cable lines to stop being top-level
+OUTPUTS. They were outputs because their only on-board driver is a SIP
+pull-up ("d52.7 TtlReady', tied to VCC-68"), which the generator read as the
+board driving the net -- backwards, since the far end is a DRIVE.
+`CABLE_DRIVE_INPUTS` flips them. **The first attempt was reverted and the
+cause was in the BENCH:** `release` restores a net to its driver only when
+that driver next EVALUATES, so a line released back to a never-changing
+testbench reg keeps the FORCED value; as an output the driver was a
+continuous assign inside the board, which re-evaluates. A port must be
+DRIVEN, not forced.
+
+| | ALMs | RAM | Fmax | slack @33.33 |
+|---|---|---|---|---|
+| storage + keyboard + terminal | 34,866 (83%) | 251 | 44.32 MHz | +7.437 ns |
+| ...and a Trident | **34,513 (82%)** | 251 | **35.94 MHz** | **+2.177 ns** |
+
+The drive costs almost no AREA -- 353 ALMs fewer, because fourteen pull-up
+drivers went away with the ports -- but it costs Fmax, and the margin over
+real-time falls from 7.4 ns to 2.2 ns. Still positive, still loadable, and
+now the tightest thing in the design (task #56).
+
 Reports: `fpga/mister/reports/`.
 
 Getting there meant discovering that **the whole oversampling sweep had been
