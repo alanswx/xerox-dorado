@@ -176,6 +176,31 @@ def drivers(boards) -> dict[str, list[str]]:
     return out
 
 
+# AN ACTIVE-LOW OPEN-DRAIN NET, WHICH IS A WIRED-AND.
+#
+# Every other multi-contributor net here is resolved with OR, and that is
+# right for the ECL OPEN-EMITTER backplane this generator was written for: an
+# idle contributor puts 0 on the wire and any driver pulls it up.
+#
+# Active-low open-drain TTL is the opposite discipline. An idle contributor
+# lets the line float HIGH and any driver pulls it LOW, so the resolution is
+# AND. Getting it wrong does not corrupt a value -- it STICKS THE NET AT ONE
+# LEVEL FOR EVER, which reads as a peripheral that is simply never busy.
+#
+# `MCIRQ'` is the proven case and it is why the RTL Dorado does not boot.
+# Five 6532s share it; ORed, it can only assert when ALL FIVE do at once, so
+# it sat high for 260,000,000 cycles with ZERO falling edges. The 6502 never
+# took an interrupt, `FastKbdBootCheck` (the only reader of the boot button)
+# never ran, and no press of any duration could matter.
+#
+# NARROW ON PURPOSE: these two are the 6502's interrupt inputs, open-drain by
+# its own datasheet, and both were measured stuck. Widening belongs with
+# evidence per net -- the ECL buses (the B bus, DMuxData) must stay ORed.
+WIRED_AND_NETS = frozenset({
+    "MCIRQ'", "MCNMI'",
+})
+
+
 # A CABLE LINE BOTH ENDS DRIVE.
 #
 # The drive's data pair is genuinely bidirectional: DskEth drives it through
@@ -591,7 +616,11 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
         if not contribs[net]:
             continue
         expr = ' | '.join(f'{vname(net)}__{b}' for b in contribs[net])
-        if net in CABLE_BIDIR and net in ports:
+        if net in WIRED_AND_NETS:
+            # Open-drain, active low: idle contributors are 1, so AND.
+            A(f'  assign {vname(net)} = '
+              + ' & '.join(f'{vname(net)}__{b}' for b in contribs[net]) + ';')
+        elif net in CABLE_BIDIR and net in ports:
             # Both ends drive this one -- see CABLE_BIDIR. The port carries
             # what the MACHINE contributes; `__in` brings the drive's in; the
             # boards read the OR.

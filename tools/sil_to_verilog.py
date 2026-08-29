@@ -81,6 +81,16 @@ def vname(name: str) -> str:
     return s
 
 
+# Nets that are ACTIVE-LOW OPEN-DRAIN and therefore resolve with AND, not
+# the OR every other multi-driver net here uses. Narrow and named: these two
+# are the 6502's interrupt inputs, open-drain by its own datasheet, and both
+# were MEASURED stuck high across a 260,000,000-cycle run. Widening this
+# belongs with evidence per net -- the ECL buses must stay ORed.
+WIRED_AND_NETS = frozenset({
+    "MCIRQ'", "MCNMI'",
+})
+
+
 class Generator:
     def __init__(self, board, ecl: EclDict, cells: set[str],
                  cell_dirs: dict | None = None,
@@ -965,8 +975,23 @@ class Generator:
                       f'net and')
                     A('  // overrides the wired-OR -- see OVERRIDE_DRIVERS.')
                     drivers = over
-                terms = ' | '.join(f'{vname(name)}__{vname(p["pkg"])}_{p["pin"]}'
-                                   for p in drivers)
+                # AN ACTIVE-LOW OPEN-DRAIN NET IS A WIRED-AND, not a
+                # wired-OR. The OR below is right for the ECL open-emitter
+                # nets this generator was written for: an idle contributor
+                # puts 0 on the wire and any driver pulls it up. Open-drain
+                # TTL is the opposite -- an idle contributor floats HIGH and
+                # any driver pulls LOW -- so it resolves with AND.
+                #
+                # Getting it wrong does not corrupt a value, it STICKS THE
+                # NET at one level for ever. `MCIRQ'` is shared by five
+                # 6532s; ORed it could only assert when all five did at once,
+                # so it sat high for 260,000,000 cycles with zero falling
+                # edges, the 6502 never took an interrupt, and the boot
+                # button -- read only from the interrupt handler -- could
+                # never be seen. That is why the RTL Dorado did not boot.
+                op = ' & ' if name in WIRED_AND_NETS else ' | '
+                terms = op.join(f'{vname(name)}__{vname(p["pkg"])}_{p["pin"]}'
+                                for p in drivers)
                 tgt = f'{vname(name)}__drv' if name in self.exports else vname(name)
                 if self.rail_value(name) and name not in self.exports:
                     # A POWER RAIL IS NOT A WIRED-OR NET. Two on BaseBd have

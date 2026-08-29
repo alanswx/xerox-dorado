@@ -932,7 +932,7 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
   wire MCIRQ_p___c62_25;
   wire MCIRQ_p___f62_25;
   wire MCIRQ_p___f63_25;
-  assign MCIRQ_p_ = MCIRQ_p___l62_25 | MCIRQ_p___i62_25 | MCIRQ_p___c62_25 | MCIRQ_p___f62_25 | MCIRQ_p___f63_25;
+  assign MCIRQ_p_ = MCIRQ_p___l62_25 & MCIRQ_p___i62_25 & MCIRQ_p___c62_25 & MCIRQ_p___f62_25 & MCIRQ_p___f63_25;
   wire MCManif_0__l62_24;
   wire MCManif_0__k08_12;
   // MCManif.0: a 6532 port pin here is an INPUT (its pull-up loses)
