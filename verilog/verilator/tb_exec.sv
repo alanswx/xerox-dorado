@@ -129,7 +129,46 @@ module tb_exec;
   // undriven the memory state machine has no timing table at all. MemProms.bcpl
   // records the build -- from late 1979 the machines carry 16K parts.
   reg chips16k = 1'b1, chips64k = 1'b0;
+`ifdef SCREEN
+  // The six signals a monitor is made of. Every one of them read `toggled =
+  // False` over 400,000 cycles on the twelve-board machine, which is what
+  // "DispY is never initialised" means -- so they are counted here, not
+  // sampled. A LEVEL IS NOT AN EVENT: this counts TRANSITIONS.
+  wire vid, hsync, vsync_n, hblank, vblank, halfline;
+  integer n_vid = 0, n_hs = 0, n_vs = 0, n_hb = 0, n_vb = 0, n_hl = 0;
+  reg d_vid, d_hs, d_vs, d_hb, d_vb, d_hl;
+  integer n_xtal = 0, n_wdwt = 0, n_wdht = 0;
+  reg d_xtal, d_wdwt, d_wdht;
+  wire w_xtal = m.b_DispY.DispY25_sil_pl_1;   // a05 pin 8, the 50 MHz crystal
+  wire w_wdwt = m.b_DispY.AltoCSync_p___drv;  // composite sync, DispY's own output
+  wire w_wdht = m.b_DispY.DispY25_sil_pl_1;   // (same crystal, as a control)
+  always @(posedge sys_clk) begin
+    if (w_xtal !== d_xtal) n_xtal = n_xtal + 1;
+    if (w_wdwt !== d_wdwt) n_wdwt = n_wdwt + 1;
+    if (w_wdht !== d_wdht) n_wdht = n_wdht + 1;
+    d_xtal<=w_xtal; d_wdwt<=w_wdwt; d_wdht<=w_wdht;
+  end
+  always @(posedge sys_clk) begin
+    if (vid      !== d_vid) n_vid = n_vid + 1;
+    if (hsync    !== d_hs ) n_hs  = n_hs  + 1;
+    if (vsync_n  !== d_vs ) n_vs  = n_vs  + 1;
+    if (hblank   !== d_hb ) n_hb  = n_hb  + 1;
+    if (vblank   !== d_vb ) n_vb  = n_vb  + 1;
+    if (halfline !== d_hl ) n_hl  = n_hl  + 1;
+    d_vid<=vid; d_hs<=hsync; d_vs<=vsync_n; d_hb<=hblank; d_vb<=vblank; d_hl<=halfline;
+  end
+`endif
+`ifdef SCREEN
+  // The TEN-board machine: the nine of `dorado_world` plus DispY, the
+  // monochrome display board. Everything else here is identical, so any
+  // difference in what the microcode does is the display board's doing.
+  dorado_screen m (
+      .CLK_display_p_(mclk),
+      .AltoTTLVideo(vid), .AltoHSync(hsync), .AltoVSync_p_(vsync_n),
+      .HBlank(hblank), .VBlank(vblank), .HalfLine(halfline),
+`else
   dorado_world m (
+`endif
       .sys_clk(sys_clk),
       .CLK_ca_p_(mclk), .CLK_cb_p_(mclk), .CLK_ph_p_(mclk), .CLK_pl_p_(mclk),
       .CLK_mc_p_(mclk), .CLK_md_p_(mclk), .CLK_mx_p_(mclk),
@@ -2034,6 +2073,21 @@ module tb_exec;
         $fatal(1, "still spinning: %0d microinstructions on one address", maxrun);
       $display("tb_exec: THE FAULT TASK SERVICES THE STACK UNDERFLOW AND THE MACHINE RUNS.");
     end
+`ifdef SCREEN
+    // IS THE CRYSTAL EVEN TURNING? DispY carries its own 50 MHz oscillator
+    // (a05, a K1115A), which free-runs regardless of what the microcode does
+    // -- so if the horizontal timing chain is dead while the crystal turns,
+    // the fault is downstream, and if the crystal is dead nothing else can
+    // matter. Check the source before the sink.
+    $display("tb_exec: DISPY CLOCK -- crystal a05 out %0d transitions, AltoCSync' %0d (control: same crystal %0d)",
+             n_xtal, n_wdwt, n_wdht);
+    $display("tb_exec: VIDEO transitions -- AltoTTLVideo %0d, AltoHSync %0d, AltoVSync' %0d, HBlank %0d, VBlank %0d, HalfLine %0d",
+             n_vid, n_hs, n_vs, n_hb, n_vb, n_hl);
+    if (n_vid + n_hs + n_vs + n_hb + n_vb + n_hl <= 6)
+      $display("tb_exec: the display board is DEAD -- no video signal moved (a count of 1 is the power-up settle out of X, not a transition).");
+    else
+      $display("tb_exec: THE DISPLAY BOARD IS ALIVE.");
+`endif
     $display("tb_exec: the machine executes microcode out of IM.");
     $finish;
   end
