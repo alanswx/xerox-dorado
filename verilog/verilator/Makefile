@@ -386,7 +386,7 @@ exec-boot:
 		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
 		verilog/generated/IFU-Rev-Ch.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_exec9/tb_exec9 \
-		    +preload=verilog/verilator/obj_exec/boot.txt +bootchain +start=3904 +cycles=400000 2>&1); rc=$$?; \
+		    $(EXECARGS) +preload=verilog/verilator/obj_exec/boot.txt +bootchain +start=3904 +cycles=400000 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_exec; exit $$rc; }
 
 # PARC's BLOCK LOADER: a 17-byte hunk walked into IM, read back word for word.
