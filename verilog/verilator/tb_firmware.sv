@@ -225,6 +225,7 @@ module tb_firmware;
   integer bootbtn_lvl_i, bootpress;
   integer hi, hj, hbest, haddr;
   integer n_irq_lo = 0, n_irq_fall = 0, n_nmi_lo = 0;
+  integer n_press = 0, n_pb6_in = 0, n_pb6_out = 0, n_pb6_dir = 0;
   reg irq_d = 1'b1;
   integer n_cpstrb = 0, n_manclk = 0, n_dmuxclk = 0;
   reg     p_cpstrb = 1'b1, p_manclk = 1'b1, p_dmuxclk = 1'b0;
@@ -350,6 +351,18 @@ module tb_firmware;
       // three says whether a press reaches the firmware at all -- which the
       // 260 M run could not, because it changed NOTHING and that is equally
       // consistent with the press not arriving.
+      // WHAT THE CHIP SEES, during the press and outside it. Every port-level
+      // probe so far ran on the SHORT run, where the press never happens and
+      // no interrupt is taken -- so nothing has yet watched the 6532 return a
+      // value for PB6 while the button is down. M6532 reads an input pin as
+      // `PB_in & PB_out` with `PB_out = out_b | ~dir_b`, so for dir_b=0 it is
+      // the pin; this counts both the pin and what the core would return.
+      if (bootbtn_at >= 0 && i >= bootbtn_at && i < bootbtn_at + bootpress) begin
+        n_press = n_press + 1;
+        if (`BB.u_l62.u_riot.PB_in[6])  n_pb6_in   = n_pb6_in + 1;
+        if (`BB.u_l62.u_riot.PB_out[6]) n_pb6_out  = n_pb6_out + 1;
+        if (`BB.u_l62.u_riot.dir_b[6])  n_pb6_dir  = n_pb6_dir + 1;
+      end
       if (`BB.BaseBd15_sil_pl_1) n_bb1 = n_bb1 + 1;
       if (`BB.BootNO__drv)       n_bno = n_bno + 1;
       n_samp_ah = n_samp_ah + 1;
@@ -573,6 +586,8 @@ module tb_firmware;
     // $0098 has A7=1, A8=A9=0, so g14's LS138 selects Ram1' = l62, the same
     // chip as MiscByte at 0x480 (the RS pin separates RAM from I/O), at RAM
     // offset 0x18.
+    $display("tb_firmware: PB6 DURING THE PRESS -- of %0d samples: PB_in high %0d, PB_out high %0d, DDR-out %0d",
+             n_press, n_pb6_in, n_pb6_out, n_pb6_dir);
     $display("tb_firmware: IRQ VECTOR -- $0098/$0099 = %02X %02X  -> $%02X%02X",
              `BB.u_l62.u_riot.riot_ram[8'h18], `BB.u_l62.u_riot.riot_ram[8'h19],
              `BB.u_l62.u_riot.riot_ram[8'h19], `BB.u_l62.u_riot.riot_ram[8'h18]);
