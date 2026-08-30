@@ -237,6 +237,61 @@ module tb_exec;
   endtask
   initial if ($test$plusargs("hram")) preload_hram;
 
+  // ---- DRAW WHAT THE DISPLAY IS EMITTING ----------------------------------
+  //
+  // Sample the video signals at the HRam's own rate and write a PGM. There
+  // is no VERTICAL timing yet -- that comes from the NLCB, which the display
+  // task drives once per field, and no task is running -- so there is no
+  // frame boundary to key on. HSync is the only boundary available, so this
+  // draws ONE LINE PER HORIZONTAL SYNC: a raster strip, not a picture of
+  // anything. What it shows is the SHAPE of a scan line, and that is exactly
+  // what has just been made to work.
+  //
+  // Three greys so the structure is legible: visible, blanked, sync.
+  integer pgm, px, py;
+  reg [7:0] fb [0:127][0:511];       // 128 lines x 512 samples
+  reg d_hs_fb;
+  integer pgm_on;
+  initial begin
+    pgm_on = $test$plusargs("pgm");
+    px = 0; py = 0; d_hs_fb = 1'b0;
+    for (pgm = 0; pgm < 128; pgm = pgm + 1)
+      for (px = 0; px < 512; px = px + 1) fb[pgm][px] = 8'd0;
+    px = 0;
+  end
+  // One sample per PixelClk edge, which is the rate the HRam is walked at.
+  reg d_pixfb;
+  always @(posedge sys_clk) if (pgm_on) begin
+    d_pixfb <= pixel_clk;
+    if (pixel_clk && !d_pixfb) begin
+      // A new line starts on the FALLING edge of sync.
+      if (!hsync && d_hs_fb) begin
+        if (py < 127) py = py + 1;
+        px = 0;
+      end
+      d_hs_fb <= hsync;
+      if (px < 512 && py < 128) begin
+        fb[py][px] = hsync   ? 8'd255 :        // sync pulse: white
+                     hblank  ? 8'd128 :        // blanking:   grey
+                               8'd0;           // visible:    black
+        px = px + 1;
+      end
+    end
+  end
+  task write_pgm;
+    integer f, r, c;
+    begin
+      f = $fopen("dorado_raster.pgm", "w");
+      $fwrite(f, "P2\n512 128\n255\n");
+      for (r = 0; r < 128; r = r + 1) begin
+        for (c = 0; c < 512; c = c + 1) $fwrite(f, "%0d ", fb[r][c]);
+        $fwrite(f, "\n");
+      end
+      $fclose(f);
+      $display("tb_exec: +pgm -- wrote dorado_raster.pgm, %0d lines captured", py);
+    end
+  endtask
+
   // THE DECISIVE EXPERIMENT. If `CountHRamAddr'` is the only thing stopping
   // the display, forcing it low must make the counter count and the sync
   // chain move. If it does not, the diagnosis is incomplete and something
@@ -2286,6 +2341,7 @@ module tb_exec;
     // -- so if the horizontal timing chain is dead while the crystal turns,
     // the fault is downstream, and if the crystal is dead nothing else can
     // matter. Check the source before the sink.
+    if (pgm_on) write_pgm;
     $display("tb_exec: DISPY CLOCK -- PixelClk %0d, crystal a05 out %0d transitions, AltoCSync' %0d (control: same crystal %0d)",
              n_pix, n_xtal, n_wdwt, n_wdht);
     $display("tb_exec: HRAM GATE -- DoradoHasHRam high on %0d of %0d samples; ClkHRamAddr' %0d transitions",
