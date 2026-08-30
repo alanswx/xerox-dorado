@@ -611,6 +611,15 @@ module tb_firmware;
     // total cannot tell those apart -- only the count against the run.
     $display("tb_firmware: BOOT ROUTINE -- LoadDoradoCode(FAAE) %0d, StopDorado(F948) %0d, ReadMufflerField(F99B) %0d",
              hotx[16'h0AAE], hotx[16'h0948], hotx[16'h099B]);
+    // WHO CALLS StopDorado? It runs 543 times and LoadDoradoCode never does,
+    // so the calls come from one of the other four `JSR $F948` sites found by
+    // scanning the ROM. Counting the CALL SITES names what the firmware is
+    // actually doing -- the mistake corrected in the previous commit was
+    // attributing a count to the routine I hoped was running, when the caller
+    // was never checked.
+    $display("tb_firmware: StopDorado CALLERS -- F42D %0d, F56B %0d, F629 %0d, FB67 %0d (FAB1 is LoadDoradoCode's, %0d)",
+             hotx[16'h042D], hotx[16'h056B], hotx[16'h0629],
+             hotx[16'h0B67], hotx[16'h0AB1]);
     $display("tb_firmware: PB6 DURING THE PRESS -- of %0d samples: PB_in high %0d, PB_out high %0d, DDR-out %0d",
              n_press, n_pb6_in, n_pb6_out, n_pb6_dir);
     $display("tb_firmware: IRQ VECTOR -- $0098/$0099 = %02X %02X  -> $%02X%02X",
