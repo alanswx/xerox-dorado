@@ -135,11 +135,60 @@ module tb_exec;
   // "DispY is never initialised" means -- so they are counted here, not
   // sampled. A LEVEL IS NOT AN EVENT: this counts TRANSITIONS.
   wire vid, hsync, vsync_n, hblank, vblank, halfline;
+  // 50 MHz on the built Rev Cl sheet (the 20 MHz on the bitsavers scan is
+  // the superseded Rev Ci). The accumulator is told what a sys_clk is worth
+  // so it holds at any oversampling ratio.
+  wire pixel_clk;
+  cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(16)) u_pixclk (
+      .sys_clk(sys_clk), .p8(pixel_clk), .p7(1'b0), .p14(1'b1));
+  integer n_pix = 0; reg d_pix;
+  always @(posedge sys_clk) begin
+    if (pixel_clk !== d_pix) n_pix = n_pix + 1;
+    d_pix <= pixel_clk;
+  end
   integer n_vid = 0, n_hs = 0, n_vs = 0, n_hb = 0, n_vb = 0, n_hl = 0;
   reg d_vid, d_hs, d_vs, d_hb, d_vb, d_hl;
   integer n_xtal = 0, n_wdwt = 0, n_wdht = 0;
   reg d_xtal, d_wdwt, d_wdht;
   wire w_xtal = m.b_DispY.DispY25_sil_pl_1;   // a05 pin 8, the 50 MHz crystal
+  // THE SYNC PATTERN IS STORED, NOT GENERATED. `preHSync` comes out of h14,
+  // an F10415A ECL RAM addressed by a counter -- the HRam. So a blank DispY
+  // has no horizontal timing at all until the microcode loads it. Probe the
+  // ADDRESS COUNTER separately from the RAM's output: a stuck counter and an
+  // empty RAM look identical at the output and need different fixes.
+  // ClkHRamAddr' is the pixel clock GATED BY `DoradoHasHRam` (k14, an
+  // MC10118). If that gate is shut the address counter cannot advance no
+  // matter how well the pixel clock runs -- so read the gate, not just the
+  // clock.
+  wire w_hasram = m.b_DispY.DoradoHasHRam;
+  wire w_clkhra = m.b_DispY.ClkHRamAddr_p_;
+  integer n_hasram1 = 0, n_clkhra = 0; reg d_clkhra;
+  always @(posedge sys_clk) begin
+    if (w_hasram) n_hasram1 = n_hasram1 + 1;
+    if (w_clkhra !== d_clkhra) n_clkhra = n_clkhra + 1;
+    d_clkhra <= w_clkhra;
+  end
+  // h13 is an F10016: CE (p6, CountHRamAddr') is LOW TO COUNT, PE (p5) loads,
+  // and p12 (ClearHRamAddr) is master reset. A clocked counter that does not
+  // count is one of these three, and they are all DispY control bits.
+  wire w_cnt = m.b_DispY.CountHRamAddr_p_;
+  wire w_ld  = m.b_DispY.LdHRamAddr_p_;
+  wire w_clr = m.b_DispY.ClearHRamAddr;
+  integer n_cnt1 = 0, n_ld1 = 0, n_clr1 = 0, n_samp = 0;
+  always @(posedge sys_clk) begin
+    n_samp = n_samp + 1;
+    if (w_cnt) n_cnt1 = n_cnt1 + 1;
+    if (w_ld ) n_ld1  = n_ld1  + 1;
+    if (w_clr) n_clr1 = n_clr1 + 1;
+  end
+  wire w_hra = m.b_DispY.HRamAddr_01;
+  wire w_phs = m.b_DispY.preHSync;
+  integer n_hra = 0, n_phs = 0; reg d_hra, d_phs;
+  always @(posedge sys_clk) begin
+    if (w_hra !== d_hra) n_hra = n_hra + 1;
+    if (w_phs !== d_phs) n_phs = n_phs + 1;
+    d_hra <= w_hra; d_phs <= w_phs;
+  end
   wire w_wdwt = m.b_DispY.AltoCSync_p___drv;  // composite sync, DispY's own output
   wire w_wdht = m.b_DispY.DispY25_sil_pl_1;   // (same crystal, as a control)
   always @(posedge sys_clk) begin
@@ -164,6 +213,17 @@ module tb_exec;
   // difference in what the microcode does is the display board's doing.
   dorado_screen m (
       .CLK_display_p_(mclk),
+      // THE VIDEO TIMING CHAIN'S CLOCK, and it does not come from DispY.
+      // DispY's own 50 MHz crystal (a05) has exactly ONE consumer on the
+      // board -- a04, an MC10124 that sends it straight OFF-BOARD as
+      // `Crystal`. Nothing on DispY is clocked by it. What clocks the sync
+      // generators (l09, l10) is `PixelClk'Bd`, which descends from
+      // `RawPixelClk`/`PixelClkVCO` -- INPUT ports marked "awaits DispM",
+      // i.e. the pixel clock is made by the COLOUR board's VCO and a
+      // monochrome-only machine has to supply it from somewhere.
+      // Unconnected they default to 0 and the whole chain is frozen while
+      // the crystal turns, which is exactly what was measured.
+      .PixelClkVCO(pixel_clk), .RawPixelClk(pixel_clk),
       .AltoTTLVideo(vid), .AltoHSync(hsync), .AltoVSync_p_(vsync_n),
       .HBlank(hblank), .VBlank(vblank), .HalfLine(halfline),
 `else
@@ -2079,8 +2139,14 @@ module tb_exec;
     // -- so if the horizontal timing chain is dead while the crystal turns,
     // the fault is downstream, and if the crystal is dead nothing else can
     // matter. Check the source before the sink.
-    $display("tb_exec: DISPY CLOCK -- crystal a05 out %0d transitions, AltoCSync' %0d (control: same crystal %0d)",
-             n_xtal, n_wdwt, n_wdht);
+    $display("tb_exec: DISPY CLOCK -- PixelClk %0d, crystal a05 out %0d transitions, AltoCSync' %0d (control: same crystal %0d)",
+             n_pix, n_xtal, n_wdwt, n_wdht);
+    $display("tb_exec: HRAM GATE -- DoradoHasHRam high on %0d of %0d samples; ClkHRamAddr' %0d transitions",
+             n_hasram1, n_samp, n_clkhra);
+    $display("tb_exec: HRAM COUNTER -- CountHRamAddr' high (NOT counting) on %0d, LdHRamAddr' on %0d, ClearHRamAddr on %0d, of %0d",
+             n_cnt1, n_ld1, n_clr1, n_samp);
+    $display("tb_exec: HRAM -- address counter bit01 %0d transitions, preHSync (the RAM's output) %0d",
+             n_hra, n_phs);
     $display("tb_exec: VIDEO transitions -- AltoTTLVideo %0d, AltoHSync %0d, AltoVSync' %0d, HBlank %0d, VBlank %0d, HalfLine %0d",
              n_vid, n_hs, n_vs, n_hb, n_vb, n_hl);
     if (n_vid + n_hs + n_vs + n_hb + n_vb + n_hl <= 6)
