@@ -333,7 +333,7 @@ exec-screen:
 		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
 		verilog/generated/IFU-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_screen/tb_screen \
-		    +preload=verilog/verilator/obj_exec/im.txt +taskingon \
+		    $(SCREENARGS) +preload=verilog/verilator/obj_exec/im.txt +taskingon \
 		    +cycles=$(or $(CYCLES),400000) 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_exec; exit $$rc; }
 
