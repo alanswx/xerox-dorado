@@ -310,6 +310,33 @@ exec-tasking:
 		    +preload=verilog/verilator/obj_exec/im.txt +taskingon +cycles=400000 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_exec; exit $$rc; }
 
+# DOES ANY VIDEO SIGNAL MOVE? The same machine as `exec-world` plus DispY --
+# the monochrome display board -- so the ONLY difference is the display. The
+# six signals a monitor is made of are counted as TRANSITIONS, not sampled: a
+# level sitting high is not a display running.
+.PHONY: exec-screen
+exec-screen:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
+	@mkdir -p obj_exec obj_screen
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
+	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 4 \
+		> verilog/verilator/obj_exec/exec.vec
+	@cd ../.. && ./dorado/build/im_image chm/dorado/AEmu.mb\!2 \
+		> verilog/verilator/obj_exec/im.txt 2>/dev/null
+	@cd ../.. && $(V) --binary --top-module tb_exec $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_screen \
+		-o tb_screen +define+WORLD +define+SCREEN \
+		verilog/verilator/tb_exec.sv verilog/generated/dorado_screen.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
+		verilog/generated/IFU-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_screen/tb_screen \
+		    +preload=verilog/verilator/obj_exec/im.txt +taskingon \
+		    +cycles=$(or $(CYCLES),400000) 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_exec; exit $$rc; }
+
 # THE FAULT TASK RUNS ITS OWN HANDLER: arm MemX's fault counter and preset
 # TPC[15] to AEmu's FAULTTASK, and task 15 executes the fault-handler region
 # instead of emulator code. See docs/verilog-handoff.md.
