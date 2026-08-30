@@ -226,6 +226,7 @@ module tb_firmware;
   integer hi, hj, hbest, haddr;
   integer n_irq_lo = 0, n_irq_fall = 0, n_nmi_lo = 0;
   integer n_press = 0, n_pb6_in = 0, n_pb6_out = 0, n_pb6_dir = 0;
+  integer runlen;
   reg irq_d = 1'b1;
   integer n_cpstrb = 0, n_manclk = 0, n_dmuxclk = 0;
   reg     p_cpstrb = 1'b1, p_manclk = 1'b1, p_dmuxclk = 1'b0;
@@ -297,6 +298,7 @@ module tb_firmware;
     // sys_clk, so ~84 M cycles to the second: a 40 M press is about half a
     // second -- comfortably more than the 3 subticks a push needs and well
     // under the 2 s that counts as a mistake.
+    if (!$value$plusargs("runlen=%d", runlen)) runlen = 400000000;
     if (!$value$plusargs("bootpress=%d", bootpress)) bootpress = 40000000;
     if (!$value$plusargs("bootlvl=%d", bootbtn_lvl_i)) bootbtn_lvl_i = 1;
     bootbtn_lvl = bootbtn_lvl_i[0];
@@ -307,7 +309,13 @@ module tb_firmware;
     // Long enough to cross a real watchdog interval (2^21 MCPreClk cycles at
     // 80 sys_clk each = ~168 M) with +define+LONG_RUN.
 `ifdef LONG_RUN
-    for (i = 0; i < 260_000_000; i = i + 1) begin
+    // 400 M, not 260 M. CheckBootButton will not act on a push until the
+    // button has been UP for 1.5 SECONDS (`CMPI 15.` on BootTicksOff, so a
+    // double-click can be told from a single) -- about 126 M cycles at ~84 M
+    // to the second. A press released at 240 M left only 20 M before the old
+    // bound, so the firmware was still counting when the run stopped.
+    // `+runlen=N` overrides.
+    for (i = 0; i < runlen; i = i + 1) begin
 `else
     for (i = 0; i < 4_000_000; i = i + 1) begin
 `endif
