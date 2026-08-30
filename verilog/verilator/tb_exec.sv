@@ -181,6 +181,62 @@ module tb_exec;
     if (w_ld ) n_ld1  = n_ld1  + 1;
     if (w_clr) n_clr1 = n_clr1 + 1;
   end
+  // ---- PARC'S OWN HRam WAVEFORM -------------------------------------------
+  //
+  // The horizontal timing is a TABLE, not a counter, and PARC's table
+  // survives: `DisplayAux.mc!1 HRamTable` builds seven groups from four
+  // numbers in `DisplayDefs.mc!1 HorizontalWaveforms`. For the Alto monitor
+  // those are #1=760 total pixels/scan line, #2=656 visible, #3=14 from end
+  // of visible to start of sync, #4=70 sync width. Every count is HALVED
+  // because "the HRam is clocked on PixelClk/2" -- the macro stores
+  // RShift[WF,1].
+  //
+  //   group          expression                  /2    data
+  //   WF1     #4-2                        =  68   34    HSync|HBlank
+  //   WF2     #1-#2-#3-#4                 =  20   10    HBlank
+  //   WF3     (#2+#3)-(#1/2)              = 290  145    0
+  //   WF4     #4                          =  70   35    HalfLine
+  //   WF5     (#1/2)-#3-#4                = 296  148    0
+  //   WF6     #3                          =  14    7    HBlank
+  //   last    1                                    1    HSync|HBlank
+  //                                            -----
+  //                                              380  = #1/2, exactly.
+  //
+  // THE BIT ASSIGNMENTS CROSS-CHECK. DisplayDefs says HalfLine=1, HBlank=2,
+  // HSync=4; PARC numbers MSB-first, so in a 16-bit word those are RIOB.15,
+  // .14 and .13 -- and the netlist gives j14 (preHalfLine) data pin RIOB_15,
+  // i14 (preHBlank) RIOB_14, h14 (preHSync) RIOB_13. The microcode and the
+  // wire list agree exactly, and neither was derived from the other.
+  //
+  // This writes the RAMs directly, the way IM/IFUM/ALUFM are preloaded. It
+  // stands in for `InitHRam`, which the microcode runs at THT startup -- and
+  // which never runs here because the machine is stuck in the fault task.
+  task preload_hram;
+    integer a, g, k;
+    integer cnt [0:6];
+    integer dat [0:6];
+    begin
+      cnt[0]= 34; dat[0]='b110;   // HSync|HBlank
+      cnt[1]= 10; dat[1]='b010;   // HBlank
+      cnt[2]=145; dat[2]='b000;
+      cnt[3]= 35; dat[3]='b001;   // HalfLine
+      cnt[4]=148; dat[4]='b000;
+      cnt[5]=  7; dat[5]='b010;   // HBlank
+      cnt[6]=  1; dat[6]='b110;   // HSync|HBlank
+      a = 0;
+      for (g = 0; g < 7; g = g + 1)
+        for (k = 0; k < cnt[g]; k = k + 1) begin
+          m.b_DispY.u_h14.mem[a] = dat[g][2];   // preHSync
+          m.b_DispY.u_i14.mem[a] = dat[g][1];   // preHBlank
+          m.b_DispY.u_j14.mem[a] = dat[g][0];   // preHalfLine
+          a = a + 1;
+        end
+      // The rest of the 1024 stays 0; the line is 380 HRam steps long.
+      $display("tb_exec: +hram -- PARC's Alto waveform loaded, %0d of 1024 HRam locations", a);
+    end
+  endtask
+  initial if ($test$plusargs("hram")) preload_hram;
+
   // THE DECISIVE EXPERIMENT. If `CountHRamAddr'` is the only thing stopping
   // the display, forcing it low must make the counter count and the sync
   // chain move. If it does not, the diagnosis is incomplete and something
@@ -190,6 +246,28 @@ module tb_exec;
   initial if ($test$plusargs("hramforce")) begin
     force m.b_DispY.CountHRamAddr_p_ = 1'b0;
     $display("tb_exec: +hramforce -- CountHRamAddr' forced LOW (F10016 CE is low to count)");
+  end
+  // l10's p12 is MR -- MASTER RESET, active high on the F10016 -- and the
+  // net wired to it is `DoradoHasHRam`, which reads high on every sample. A
+  // register held in reset explains RamHSync exactly. Either our polarity
+  // for DoradoHasHRam is inverted (g08's Q vs Q-bar) or the part's MR is
+  // active low; forcing the pin low decides whether this is the last link.
+  initial if ($test$plusargs("mrlow")) begin
+    force m.b_DispY.u_l10.p12 = 1'b0;
+    $display("tb_exec: +mrlow -- l10's MR forced LOW");
+  end
+
+  // preHSync -> l10 (F10016) -> RamHSync -> h04 -> HSync. l10's CE is
+  // PC'2ClkEn', so it is the same shape of question one link further on.
+  wire w_rhs = m.b_DispY.RamHSync;
+  wire w_hs2 = m.b_DispY.HSync;
+  wire w_pce = m.b_DispY.PC_s_2ClkEn_p_;
+  integer n_rhs = 0, n_hs2 = 0, n_pce1 = 0; reg d_rhs, d_hs2;
+  always @(posedge sys_clk) begin
+    if (w_rhs !== d_rhs) n_rhs = n_rhs + 1;
+    if (w_hs2 !== d_hs2) n_hs2 = n_hs2 + 1;
+    if (w_pce) n_pce1 = n_pce1 + 1;
+    d_rhs <= w_rhs; d_hs2 <= w_hs2;
   end
   wire w_hra = m.b_DispY.HRamAddr_01;
   wire w_phs = m.b_DispY.preHSync;
@@ -2157,6 +2235,8 @@ module tb_exec;
              n_cnt1, n_ld1, n_clr1, n_samp);
     $display("tb_exec: HRAM -- address counter bit01 %0d transitions, preHSync (the RAM's output) %0d",
              n_hra, n_phs);
+    $display("tb_exec: SYNC CHAIN -- RamHSync %0d transitions, HSync %0d; PC'2ClkEn' high (l10 NOT counting) on %0d of %0d",
+             n_rhs, n_hs2, n_pce1, n_samp);
     $display("tb_exec: VIDEO transitions -- AltoTTLVideo %0d, AltoHSync %0d, AltoVSync' %0d, HBlank %0d, VBlank %0d, HalfLine %0d",
              n_vid, n_hs, n_vs, n_hb, n_vb, n_hl);
     if (n_vid + n_hs + n_vs + n_hb + n_vb + n_hl <= 6)
