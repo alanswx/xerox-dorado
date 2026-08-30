@@ -181,6 +181,16 @@ module tb_exec;
     if (w_ld ) n_ld1  = n_ld1  + 1;
     if (w_clr) n_clr1 = n_clr1 + 1;
   end
+  // THE DECISIVE EXPERIMENT. If `CountHRamAddr'` is the only thing stopping
+  // the display, forcing it low must make the counter count and the sync
+  // chain move. If it does not, the diagnosis is incomplete and something
+  // further down is also held. `+hramforce` (named so it shares no prefix
+  // with another plusarg -- a plusarg queried after one sharing its prefix
+  // is silently not found).
+  initial if ($test$plusargs("hramforce")) begin
+    force m.b_DispY.CountHRamAddr_p_ = 1'b0;
+    $display("tb_exec: +hramforce -- CountHRamAddr' forced LOW (F10016 CE is low to count)");
+  end
   wire w_hra = m.b_DispY.HRamAddr_01;
   wire w_phs = m.b_DispY.preHSync;
   integer n_hra = 0, n_phs = 0; reg d_hra, d_phs;
