@@ -567,6 +567,15 @@ module tb_firmware;
     // second thing this handler calls. If F2A2 runs and the button still does
     // nothing, the question moves inside the handler; if it does not run, the
     // interrupt is asserting and not being TAKEN.
+    // THE IRQ VECTOR IN RAM. F2B1 is `JMP ($0098)`, so the interrupt goes
+    // wherever zero page $0098/$0099 points -- doradocontinuous.masm's
+    // CallPtr. UpdateTimer and FastKbdBootCheck are reached ONLY through it.
+    // $0098 has A7=1, A8=A9=0, so g14's LS138 selects Ram1' = l62, the same
+    // chip as MiscByte at 0x480 (the RS pin separates RAM from I/O), at RAM
+    // offset 0x18.
+    $display("tb_firmware: IRQ VECTOR -- $0098/$0099 = %02X %02X  -> $%02X%02X",
+             `BB.u_l62.u_riot.riot_ram[8'h18], `BB.u_l62.u_riot.riot_ram[8'h19],
+             `BB.u_l62.u_riot.riot_ram[8'h19], `BB.u_l62.u_riot.riot_ram[8'h18]);
     $display("tb_firmware: IRQ HANDLER (F2A2) entered %0d times",
              hotx[16'h02A2]);
     $display("tb_firmware: INTERRUPTS -- MCIRQ' low on %0d samples, %0d falling edges; MCNMI' low on %0d (of %0d)",
