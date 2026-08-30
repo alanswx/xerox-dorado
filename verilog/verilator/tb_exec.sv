@@ -1550,11 +1550,28 @@ module tb_exec;
                m.b_MemC.RMar_08, m.b_MemC.RMar_09, m.b_MemC.RMar_10,
                m.b_MemC.DisHold__drv, m.b_MemC.NoRef,
                m.b_ProcL.MarMuxAEn_p_, m.b_ProcL.dAmux0, m.b_ProcL.T_09);
+      $display("tb_exec: LDMCR2 stubs c24=%b c22=%b b20=%b | ASel21_43'=%b ASel23'=%b ASel57'=%b ASel67'=%b ASEL1'=%b | Amux1'=%b",
+               m.b_ProcL.dAmux0__c24_3, m.b_ProcL.dAmux0__c22_2,
+               m.b_ProcL.dAmux0__b20_3, 1'b0,
+               m.b_ProcL.ASel_eq_2_s_3_p_, m.b_ProcL.ASel_eq_5_s_7_p_,
+               m.b_ProcL.ASel_eq_6_s_7_p_, m.b_ProcL.ASEL_1_p_,
+               m.b_ProcL.Amux1_p_);
       d_mcr <= m.b_MemC.LdMcr_p_;
     end
     if (!m.b_MemC.MDhold_p_ && c_mdh < 0) c_mdh = n_cyc2;
     if (m.b_MemC.DisHold__drv && c_dish < 0) c_dish = n_cyc2;
   end
+  // TIME COURSE around the LoadMCR instruction: every sys_clk in a window,
+  // the combinational decode (dAmux0, BSel=2/6), the REGISTERED enable
+  // (MarMuxAEn'), b11's load strobe (ProcL14_sil_pl_2), and RMar_09.
+  integer tcs = 0, tce = 0;
+  initial if ($value$plusargs("tcwin=%d", tcs)) tce = tcs + 60;
+  always @(posedge sys_clk)
+    if (tce != 0 && n_cyc2 >= tcs && n_cyc2 < tce)
+      $display("tb_exec: TC @%0d dAmux0=%b BSel26=%b MarMuxAEn'=%b b11ld=%b RMar09=%b LdMcr'=%b",
+               n_cyc2, m.b_ProcL.dAmux0, m.b_ProcL.BSel_eq_2_s_6,
+               m.b_ProcL.MarMuxAEn_p_, m.b_ProcL.ProcL14_sil_pl_2,
+               m.b_MemC.RMar_09, m.b_MemC.LdMcr_p_);
   integer n_marA = 0;
   always @(posedge sys_clk) if (m.b_ProcL.MarMuxAEn_p_) n_marA = n_marA + 1;
   integer n_twr = 0; reg d_tbw = 1'b1;
