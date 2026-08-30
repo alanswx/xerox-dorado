@@ -1107,12 +1107,19 @@ module tb_exec;
   // sends the complement and the run reports whether the poll loop breaks.
   task bb_word(input [15:0] w);
     begin
+      // LOW BYTE FIRST, TAG BYTE LAST. The sync bit lives in the HIGH byte,
+      // and ReadBB polls continuously -- it will happily sample in the window
+      // between the two strobes. Strobed high-first, the tag flips while the
+      // LOW byte is still stale, and the consumed word is {new tag, old
+      // data}: measured as ChkSum = 0x00bf for EVERY payload, the stale low
+      // byte of the startup's last jam. Data first, tag last, and the word
+      // is stable by the time the tag says it is there.
       if ($test$plusargs("bbinv")) begin
-        strobe(3'd2, ~w[15:8], 1'b0);
         strobe(3'd3, ~w[7:0],  1'b0);
+        strobe(3'd2, ~w[15:8], 1'b0);
       end else begin
-        strobe(3'd2,  w[15:8], 1'b0);
         strobe(3'd3,  w[7:0],  1'b0);
+        strobe(3'd2,  w[15:8], 1'b0);
       end
       // Hold well past the two reads and the branch between them.
       repeat (WT(600)) @(posedge sys_clk);
@@ -1126,12 +1133,25 @@ module tb_exec;
   integer bb_sent = 0;
   initial if ($test$plusargs("bbfeed")) begin : bbfeeder
     integer k;
+    reg [15:0] bbw;
     repeat (WT(20000)) @(posedge sys_clk);   // let it reach the poll loop
-    for (k = 0; k < 40; k = k + 1) begin
-      bb_word({k[0], 15'h0055});
+    // THE CHECKSUM WORD. Initial's entry (InitialMain.mc) calls ReadBB
+    // exactly ONCE: "Read checksum word -- that should make computed sum
+    // zero", then tests `LSH[ChkSum, 1]` -- the low 15 bits, the tag bit
+    // ignored. In this preloaded configuration nothing was ever streamed,
+    // ChkSum is an RM cell and Verilator zeroes RM at power-up, so the
+    // word that cancels it is 0x0000. The MSB alternates as always (it is
+    // the sync bit); the check ignores it by construction.
+    // `+bbword=<hex>` sets the low 15 bits. The bench is deterministic, so
+    // whatever ChkSum accumulates to before the read, the cancelling word is
+    // a constant of the configuration -- observed once via the CKT trace at
+    // f41 (`T_ LSH[ChkSum,1]` puts ChkSum on B) and then fed back here.
+    if (!$value$plusargs("bbword=%h", bbw)) bbw = 15'h0000;
+    for (k = 0; k < 8; k = k + 1) begin
+      bb_word({k[0], bbw[14:0]});
       bb_sent = bb_sent + 1;
     end
-    $display("tb_exec: +bbfeed -- sent %0d words to ReadBB", bb_sent);
+    $display("tb_exec: +bbfeed -- sent %0d checksum words (low15=%h) to ReadBB", bb_sent, bbw[14:0]);
   end
 
   // DoDoradoMicroInst, single-step variant: DoClock(InhibitCAHolds+ClrReady),
@@ -1501,6 +1521,58 @@ module tb_exec;
   // and StkWake is exactly the stack wakeup HM Table 6 names as the response to
   // an empty-stack operation. Count all three; do not sample them.
   integer n_faults, n_wen, n_stkwake, tpcslot, nfault_region, nboot_region, bootfeed;
+  integer cktrace, n_ckt = 0;
+  // EVERY T-FILE WRITE: strobe = ProcH TbWrite'a falling, slot = CurrLast'
+  // (the per-task address), data = dTm. Prints the first 24 so the startup's
+  // own writes are visible too -- what T holds at the checksum test is
+  // whatever the LAST of these left in slot 0.
+  // BOOT-BLOCKER PROBES: first-assert cycles for the hold and the two FF
+  // side effects Initial needs -- IFUReset reaching the IFU and LoadMCR
+  // reaching MemC's k08. Counts, not samples.
+  integer c_ifur = -1, c_mcr = -1, c_mdh = -1, c_dish = -1;
+  integer n_ifur = 0, n_mcr = 0, n_cyc2 = 0;
+  reg d_ifur = 1'b0, d_mcr = 1'b0;
+  always @(posedge sys_clk) begin
+    n_cyc2 = n_cyc2 + 1;
+    if (m.b_IFU.IfuReset !== d_ifur) begin
+      if (m.b_IFU.IfuReset && c_ifur < 0) c_ifur = n_cyc2;
+      if (m.b_IFU.IfuReset) n_ifur = n_ifur + 1;
+      d_ifur <= m.b_IFU.IfuReset;
+    end
+    if (m.b_MemC.LdMcr_p_ !== d_mcr) begin
+      if (!m.b_MemC.LdMcr_p_ && c_mcr < 0) c_mcr = n_cyc2;  // active low assumed
+      n_mcr = n_mcr + 1;
+      // At each edge: what data does k08 see? RMar_09 should carry disHold
+      // (manual Mcr[9], memory.c's "mcr.disHold = b9") and A = T = 0x0041.
+      $display("tb_exec: LDMCR edge@%0d %b->%b  RMar[00,01,07,08,09,10]=%b%b_%b%b%b%b  DisHold=%b NoRef=%b MarMuxAEn'=%b dAmux0=%b T09=%b",
+               n_cyc2, d_mcr, m.b_MemC.LdMcr_p_,
+               m.b_MemC.RMar_00, m.b_MemC.RMar_01, m.b_MemC.RMar_07,
+               m.b_MemC.RMar_08, m.b_MemC.RMar_09, m.b_MemC.RMar_10,
+               m.b_MemC.DisHold__drv, m.b_MemC.NoRef,
+               m.b_ProcL.MarMuxAEn_p_, m.b_ProcL.dAmux0, m.b_ProcL.T_09);
+      d_mcr <= m.b_MemC.LdMcr_p_;
+    end
+    if (!m.b_MemC.MDhold_p_ && c_mdh < 0) c_mdh = n_cyc2;
+    if (m.b_MemC.DisHold__drv && c_dish < 0) c_dish = n_cyc2;
+  end
+  integer n_marA = 0;
+  always @(posedge sys_clk) if (m.b_ProcL.MarMuxAEn_p_) n_marA = n_marA + 1;
+  integer n_twr = 0; reg d_tbw = 1'b1;
+  wire [15:0] w_dtm = {m.b_ProcH.dTm_00, m.b_ProcH.dTm_01, m.b_ProcH.dTm_02,
+                       m.b_ProcH.dTm_03, m.b_ProcH.dTm_04, m.b_ProcH.dTm_05,
+                       m.b_ProcH.dTm_06, m.b_ProcH.dTm_07,
+                       m.b_ProcL.dTm_08, m.b_ProcL.dTm_09, m.b_ProcL.dTm_10,
+                       m.b_ProcL.dTm_11, m.b_ProcL.dTm_12, m.b_ProcL.dTm_13,
+                       m.b_ProcL.dTm_14, m.b_ProcL.dTm_15};
+  wire [3:0] w_tslot = {m.b_ProcH.CurrLast_3_p_, m.b_ProcH.CurrLast_2_p_,
+                        m.b_ProcH.CurrLast_1_p_, m.b_ProcH.CurrLast_0_p_};
+  always @(posedge sys_clk) begin
+    if (cktrace && !m.b_ProcH.TbWrite_p_a && d_tbw && n_twr < 24) begin
+      $display("tb_exec: TWR slot=%h dTm=%h (pc around %h)", w_tslot, w_dtm, tnia_now);
+      n_twr = n_twr + 1;
+    end
+    d_tbw <= m.b_ProcH.TbWrite_p_a;
+  end
   // A CONTROL PROCESSOR THAT ANSWERS. `+bootfeed` leaves ONE value in CPReg
   // and never changes it, which is enough to prove the poll loop is
   // data-dependent (bit 15 clear -> it polls, longest run 0; bit 15 set ->
@@ -1912,6 +1984,7 @@ module tb_exec;
     if (!$value$plusargs("cycles=%d", runcycles)) runcycles = 20000;
     bootcp_n = 0; bootcp_phase = 1'b0; bootcp_byte = 0;
     if (!$value$plusargs("bootcp=%d", bootcp_period)) bootcp_period = 0;
+    cktrace = $test$plusargs("cktrace");
     if (bootcp_period) $display("tb_exec: BOOTCP -- toggling the handshake every %0d cycles",
                                 bootcp_period);
 
@@ -1936,6 +2009,34 @@ module tb_exec;
         n0a = n0a + 1; p0 = m.b_ContA.clk0_p_Ca;
         if (p0 === 1'b1) begin           // one sample per microinstruction
           lastpc = tnia_now;
+          // CHECKSUM TRACE: the Initial entry sequence and ReadBB, with the
+          // B bus alongside -- ProcH carries alub.00-07, ProcL .08-15.
+          if (cktrace && ((lastpc[11:0] >= 12'hf40 && lastpc[11:0] <= 12'hf4f)
+                       || (n_ckt < 40 && lastpc[11:0] >= 12'hfc0)))
+          begin
+            $display("tb_exec: CKT pc=%h ff=%h alua=%h pd=%h alub=%h eq0'=%b(H%b L%b) ResEq0'=%b", lastpc[11:0], ff_now,
+                     {m.b_ProcH.alua_00, m.b_ProcH.alua_01, m.b_ProcH.alua_02,
+                      m.b_ProcH.alua_03, m.b_ProcH.alua_04, m.b_ProcH.alua_05,
+                      m.b_ProcH.alua_06, m.b_ProcH.alua_07,
+                      m.b_ProcL.alua_08, m.b_ProcL.alua_09, m.b_ProcL.alua_10,
+                      m.b_ProcL.alua_11, m.b_ProcL.alua_12, m.b_ProcL.alua_13,
+                      m.b_ProcL.alua_14, m.b_ProcL.alua_15},
+                     {m.b_ProcH.Pdata_00, m.b_ProcH.Pdata_01, m.b_ProcH.Pdata_02,
+                      m.b_ProcH.Pdata_03, m.b_ProcH.Pdata_04, m.b_ProcH.Pdata_05,
+                      m.b_ProcH.Pdata_06, m.b_ProcH.Pdata_07,
+                      m.b_ProcL.Pdata_08, m.b_ProcL.Pdata_09, m.b_ProcL.Pdata_10,
+                      m.b_ProcL.Pdata_11, m.b_ProcL.Pdata_12, m.b_ProcL.Pdata_13,
+                      m.b_ProcL.Pdata_14, m.b_ProcL.Pdata_15},
+                     {m.b_ProcH.alub_00, m.b_ProcH.alub_01, m.b_ProcH.alub_02,
+                      m.b_ProcH.alub_03, m.b_ProcH.alub_04, m.b_ProcH.alub_05,
+                      m.b_ProcH.alub_06, m.b_ProcH.alub_07,
+                      m.b_ProcL.alub_08, m.b_ProcL.alub_09, m.b_ProcL.alub_10,
+                      m.b_ProcL.alub_11, m.b_ProcL.alub_12, m.b_ProcL.alub_13,
+                      m.b_ProcL.alub_14, m.b_ProcL.alub_15},
+                     m.aluOut_eq_0_p_, m.aluOut_eq_0_p___ProcH,
+                     m.aluOut_eq_0_p___ProcL, m.ResEqZero_p_);
+            n_ckt = n_ckt + 1;
+          end
           if (!visited[lastpc[11:0]]) begin
             visited[lastpc[11:0]] = 1'b1; nvisited = nvisited + 1;
           end
@@ -2266,6 +2367,16 @@ module tb_exec;
       // the read-from-control-processor loop (images 55/56/57/60 = real
       // 0xfe7/0xfe2/0xfe1/0xfe6) waiting to be fed. THAT IS THE CORRECT PLACE
       // TO STOP: this configuration has no BaseBoard, and nothing is sending.
+      // INITIAL'S MILESTONES, each a label from InitialMain/InitialDisplay
+      // mapped through im_image (whose image indices print in OCTAL, the
+      // same trap as mbdis). visited[] is indexed by real IM address.
+      $display("tb_exec: MARMUX -- MarMuxAEn' high on %0d of %0d", n_marA, n_cyc2);
+      $display("tb_exec: BOOTFF -- IfuReset first@%0d (%0d edges), LdMcr' first@%0d (%0d edges), MDhold first@%0d, DisHold first@%0d",
+               c_ifur, n_ifur, c_mcr, n_mcr, c_mdh, c_dish);
+      $display("tb_exec: INITIAL MILESTONES -- ChkSumErr(f46)=%0d RMINITL(c42)=%0d STKINITL(c4a)=%0d IFUMINITL(c65)=%0d TASKINITLOOP(c45)=%0d BOOTEMULATOR(c92)=%0d INITHRAM(e20)=%0d",
+               visited[12'hf46], visited[12'hc42], visited[12'hc4a],
+               visited[12'hc65], visited[12'hc45], visited[12'hc92],
+               visited[12'he20]);
       nboot_region = 0;
       for (i = 12'hfe0; i <= 12'hfff; i = i + 1)
         if (visited[i]) nboot_region = nboot_region + 1;
