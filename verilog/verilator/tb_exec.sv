@@ -1028,6 +1028,57 @@ module tb_exec;
     end
   endtask
 
+  // ---- BEING THE BASEBOARD: the ReadBB sync-bit handshake ------------------
+  //
+  // Bootstrap's ReadBB (BootstrapMain.mc at ReadBBLoc) is a one-byte-at-a-
+  // time handshake with no ready/ack line -- the SYNC BIT is the whole
+  // protocol:
+  //
+  //     T_ RWCPReg;  PD_ (Tag) XOR T;
+  //     T_ RWCPReg, Branch[.-2, ALU<0];   * wait until CPReg[0] = Tag[0]
+  //     Tag_ NOT (Tag), ...  ChkSum_ (ChkSum) XOR T, Return;
+  //
+  // `CPReg[0]` is the MOST SIGNIFICANT bit -- PARC numbers MSB-first and the
+  // test is `ALU<0`, a SIGN test, so only the top bit can satisfy it.
+  //
+  // The byte must be HELD STABLE, because the microcode reads RWCPReg TWICE:
+  // once to test the tag and again "before believing the data", the source's
+  // own caution about unsynchronized data on the BMux. So this presents each
+  // word and then waits, rather than pulsing it.
+  //
+  // POLARITY IS NOT GUESSED. B carries the COMPLEMENT of CPReg while T ends
+  // up equal to it, which is why PARC has both `SetCPReg` and `SetCPReg~`;
+  // rather than reason about which applies to a B-source read, `+bbinv`
+  // sends the complement and the run reports whether the poll loop breaks.
+  task bb_word(input [15:0] w);
+    begin
+      if ($test$plusargs("bbinv")) begin
+        strobe(3'd2, ~w[15:8], 1'b0);
+        strobe(3'd3, ~w[7:0],  1'b0);
+      end else begin
+        strobe(3'd2,  w[15:8], 1'b0);
+        strobe(3'd3,  w[7:0],  1'b0);
+      end
+      // Hold well past the two reads and the branch between them.
+      repeat (WT(600)) @(posedge sys_clk);
+    end
+  endtask
+
+  // Feed the handshake while the machine runs. The starting PHASE does not
+  // matter: if the first word carries the wrong sync bit the microcode simply
+  // keeps waiting, and the next word -- which carries the other -- satisfies
+  // it. Alternating from either phase therefore synchronises within one word.
+  integer bb_sent = 0;
+  initial if ($test$plusargs("bbfeed")) begin : bbfeeder
+    integer k;
+    repeat (WT(20000)) @(posedge sys_clk);   // let it reach the poll loop
+    for (k = 0; k < 40; k = k + 1) begin
+      bb_word({k[0], 15'h0055});
+      bb_sent = bb_sent + 1;
+    end
+    $display("tb_exec: +bbfeed -- sent %0d words to ReadBB", bb_sent);
+  end
+
   // DoDoradoMicroInst, single-step variant: DoClock(InhibitCAHolds+ClrReady),
   // Control(ClrStop+ClrMIR+ClrCT+Freeze) SS=0, Control(0) SS=1, the four MIR
   // bytes, Control(SetRun) SS=1, then BasicStopDorado's Control(SetRun) SS=1
