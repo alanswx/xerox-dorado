@@ -594,6 +594,23 @@ module tb_firmware;
     // $0098 has A7=1, A8=A9=0, so g14's LS138 selects Ram1' = l62, the same
     // chip as MiscByte at 0x480 (the RS pin separates RAM from I/O), at RAM
     // offset 0x18.
+    // THE BOOT ROUTINE ITSELF. These addresses are not guessed and not from a
+    // listing (the archive has none) -- they were found by scanning the ROM
+    // for `JSR $FA1F` (WaitForCPControl, already known) and matching the six
+    // instructions that follow against doradoboot.masm's own text:
+    //
+    //   FAAE  JSR $FA1F   WaitForCPControl      <- LoadDoradoCode
+    //   FAB1  JSR $F948   StopDorado
+    //   FAB4  LDY #$07    an 8-bit field
+    //   FAB6  LDX #$32    ClockSpeedMufField
+    //   FAB8  JSR $F99B   ReadMufflerField
+    //   FABB  CMP #$3F    StdClockSet
+    //
+    // ENTERED ONCE means the boot is progressing; entered MANY times means it
+    // is retrying, and then the clock-speed value is the thing to look at. A
+    // total cannot tell those apart -- only the count against the run.
+    $display("tb_firmware: BOOT ROUTINE -- LoadDoradoCode(FAAE) %0d, StopDorado(F948) %0d, ReadMufflerField(F99B) %0d",
+             hotx[16'h0AAE], hotx[16'h0948], hotx[16'h099B]);
     $display("tb_firmware: PB6 DURING THE PRESS -- of %0d samples: PB_in high %0d, PB_out high %0d, DDR-out %0d",
              n_press, n_pb6_in, n_pb6_out, n_pb6_dir);
     $display("tb_firmware: IRQ VECTOR -- $0098/$0099 = %02X %02X  -> $%02X%02X",
