@@ -1539,6 +1539,36 @@ module tb_exec;
   // an empty-stack operation. Count all three; do not sample them.
   integer n_faults, n_wen, n_stkwake, tpcslot, nfault_region, nboot_region, bootfeed;
   integer cktrace, n_ckt = 0;
+  integer fastwait, n_clip = 0;
+  initial fastwait = $test$plusargs("fastwait");
+  // ---- FAST-FORWARD THE WAITS ---------------------------------------------
+  //
+  // Initial's LongWait ("wait T+2 cycles") is real time on real hardware --
+  // milliseconds of DRAM settling -- which at SYSPER=16 is millions of
+  // sys_clk PER CALL, and it is called repeatedly. T was PROVEN to decrement
+  // correctly (TWR: 1578, 1577, 1576... one per iteration), so nothing is
+  // learned by simulating the whole countdown. `+fastwait` clips T to 4
+  // whenever the machine is spinning at LWRETN with a large count. The T
+  // file is per-task: ProcH l03/l04 hold bits 0-7, ProcL l03/l04 bits 8-15,
+  // and task 0's slot is 0xf (the address pins are primed, like TPC).
+  reg fw_said = 1'b0;
+  always @(posedge sys_clk)
+    if (fastwait && tnia_now == 12'hc0a && !fw_said) begin
+      fw_said <= 1'b1;
+      $display("tb_exec: FASTWAIT sees c0a: T nibbles H={%h,%h} L={%h,%h}",
+               m.b_ProcH.u_l03.mem[4'hf], m.b_ProcH.u_l04.mem[4'hf],
+               m.b_ProcL.u_l03.mem[4'hf], m.b_ProcL.u_l04.mem[4'hf]);
+    end
+  always @(posedge sys_clk)
+    if (fastwait && tnia_now == 12'hc0a
+        && {m.b_ProcL.u_l03.mem[4'hf], m.b_ProcL.u_l04.mem[4'hf]} > 8'h10) begin
+      m.b_ProcH.u_l03.mem[4'hf] = 4'h0;  // T.00-03
+      m.b_ProcH.u_l04.mem[4'hf] = 4'h0;  // T.04-07
+      m.b_ProcL.u_l03.mem[4'hf] = 4'h0;  // T.08-11
+      m.b_ProcL.u_l04.mem[4'hf] = 4'h4;  // T.12-15 -> T = 0x0004
+      n_clip = n_clip + 1;
+    end
+
   // EVERY T-FILE WRITE: strobe = ProcH TbWrite'a falling, slot = CurrLast'
   // (the per-task address), data = dTm. Prints the first 24 so the startup's
   // own writes are visible too -- what T holds at the checksum test is
@@ -2456,6 +2486,7 @@ module tb_exec;
       $display("tb_exec: MARMUX -- MarMuxAEn' high on %0d of %0d", n_marA, n_cyc2);
       $display("tb_exec: BOOTFF -- IfuReset first@%0d (%0d edges), LdMcr' first@%0d (%0d edges), MDhold first@%0d, DisHold first@%0d",
                c_ifur, n_ifur, c_mcr, n_mcr, c_mdh, c_dish);
+      if (fastwait) $display("tb_exec: FASTWAIT -- clipped LongWait %0d times", n_clip);
       $display("tb_exec: INITIAL MILESTONES -- ChkSumErr(f46)=%0d RMINITL(c42)=%0d STKINITL(c4a)=%0d IFUMINITL(c65)=%0d TASKINITLOOP(c45)=%0d BOOTEMULATOR(c92)=%0d INITHRAM(e20)=%0d",
                visited[12'hf46], visited[12'hc42], visited[12'hc4a],
                visited[12'hc65], visited[12'hc45], visited[12'hc92],
