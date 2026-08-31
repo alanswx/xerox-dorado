@@ -205,9 +205,12 @@ module IOTest_m_Rev_m_Ad #(parameter integer SYSPER = 16) (
   wire WordAd_2;
   wire WordAd_3;
   wire clk0_p_Ba;
-  wire clk1_p_Aa;
-  wire clk1_p_Ca;
-  wire clk1_p_Da;
+  wire clk1_p_Aa__lead;
+  reg  clk1_p_Aa;
+  wire clk1_p_Ca__lead;
+  reg  clk1_p_Ca;
+  wire clk1_p_Da__lead;
+  reg  clk1_p_Da;
   wire clk2_p_Ca;
   wire clk2_p_Cb;
   wire clk2_p_Da;
@@ -272,6 +275,14 @@ module IOTest_m_Rev_m_Ad #(parameter integer SYSPER = 16) (
   wire rIOB_07;
   wire rIOout_p_;
   wire rIOreset;
+
+  // ---- 3 clk1-family nets, one sys_clk behind
+  //      their pre siblings (see clock_lag above)
+  always @(posedge sys_clk) begin
+    clk1_p_Aa <= clk1_p_Aa__lead;
+    clk1_p_Ca <= clk1_p_Ca__lead;
+    clk1_p_Da <= clk1_p_Da__lead;
+  end
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
   // An explicit OR of the drivers: what the open emitters
@@ -481,7 +492,7 @@ module IOTest_m_Rev_m_Ad #(parameter integer SYSPER = 16) (
     .p9(clk1_p_Aa)
   ); // MC10176
   cell_SE10210 u_d06 (
-    .p3(clk1_p_Aa),
+    .p3(clk1_p_Aa__lead),
     .p7(preClk1_p_A),
     .p15(GND156)
   ); // SE10210
@@ -490,7 +501,7 @@ module IOTest_m_Rev_m_Ad #(parameter integer SYSPER = 16) (
     .p3(clk2_p_Ca),
     .p7(preClk2_p_C),
     .p11(preClk1_p_C),
-    .p13(clk1_p_Ca),
+    .p13(clk1_p_Ca__lead),
     .p15(GND182)
   ); // SE10210
   cell_MC10176 u_d22 (
@@ -863,7 +874,7 @@ module IOTest_m_Rev_m_Ad #(parameter integer SYSPER = 16) (
     .p15(GND446)
   ); // SE10210
   cell_SE10210 u_j19 (
-    .p3(clk1_p_Da),
+    .p3(clk1_p_Da__lead),
     .p7(preClk1_p_D),
     .p15(GND470)
   ); // SE10210

@@ -220,18 +220,27 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
   wire ClearSectorTW;
   wire ClearTWs;
   wire Clk0;
-  wire Clk1;
+  wire Clk1__lead;
+  reg  Clk1;
   wire Clock0_p_Bc;
   wire Clock0_p_Da;
   wire Clock0_p_Dd;
-  wire Clock1_p_Bb;
-  wire Clock1_p_Bd;
-  wire Clock1_p_Ca;
-  wire Clock1_p_Cb;
-  wire Clock1_p_Cc;
-  wire Clock1_p_Da;
-  wire Clock1_p_Db;
-  wire Clock1_p_Dd;
+  wire Clock1_p_Bb__lead;
+  reg  Clock1_p_Bb;
+  wire Clock1_p_Bd__lead;
+  reg  Clock1_p_Bd;
+  wire Clock1_p_Ca__lead;
+  reg  Clock1_p_Ca;
+  wire Clock1_p_Cb__lead;
+  reg  Clock1_p_Cb;
+  wire Clock1_p_Cc__lead;
+  reg  Clock1_p_Cc;
+  wire Clock1_p_Da__lead;
+  reg  Clock1_p_Da;
+  wire Clock1_p_Db__lead;
+  reg  Clock1_p_Db;
+  wire Clock1_p_Dd__lead;
+  reg  Clock1_p_Dd;
   wire CntDone_p_;
   wire CompareErr_p_;
   wire ComputeECC;
@@ -1167,6 +1176,20 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
   wire sCountBits;
   wire sPendulum;
 
+  // ---- 9 clk1-family nets, one sys_clk behind
+  //      their pre siblings (see clock_lag above)
+  always @(posedge sys_clk) begin
+    Clk1 <= Clk1__lead;
+    Clock1_p_Bb <= Clock1_p_Bb__lead;
+    Clock1_p_Bd <= Clock1_p_Bd__lead;
+    Clock1_p_Ca <= Clock1_p_Ca__lead;
+    Clock1_p_Cb <= Clock1_p_Cb__lead;
+    Clock1_p_Cc <= Clock1_p_Cc__lead;
+    Clock1_p_Da <= Clock1_p_Da__lead;
+    Clock1_p_Db <= Clock1_p_Db__lead;
+    Clock1_p_Dd <= Clock1_p_Dd__lead;
+  end
+
   // ---- wired-OR nets (MECL 10K open emitters tied together)
   // An explicit OR of the drivers: what the open emitters
   // compute, and one LUT level rather than a multiply-driven
@@ -2040,9 +2063,9 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p5(PreClock1_p_Ca),
     .p7(InRegFull_p_),
     .p9(PreClock1_p_Ca),
-    .p12(Clock1_p_Cb),
-    .p13(Clock1_p_Ca),
-    .p14(Clock1_p_Cc),
+    .p12(Clock1_p_Cb__lead),
+    .p13(Clock1_p_Ca__lead),
+    .p14(Clock1_p_Cc__lead),
     .p15(GND_m_40),
     .p16(GND_m_40)
   ); // SE10210
@@ -3626,7 +3649,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
   cell_SE10212 u_g13 (
     .p2(DskEth04_sil_pl_1),
     .p3(PreSHCP_p_),
-    .p4(Clk1),
+    .p4(Clk1__lead),
     .p5(Clk0),
     .p10(Clk1),
     .p14(FHCP),
@@ -4501,8 +4524,8 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p2(Clock0_p_Bc),
     .p5(PreClock0_p_B),
     .p9(PreClock1_p_Bb),
-    .p12(Clock1_p_Bd),
-    .p13(Clock1_p_Bb),
+    .p12(Clock1_p_Bd__lead),
+    .p13(Clock1_p_Bb__lead),
     .p15(GND_m_4),
     .p16(GND_m_4)
   ); // SE10210
@@ -4665,9 +4688,9 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p3(Clock0_p_Dd),
     .p5(PreClock0_p_D),
     .p9(PreClock1_p_D),
-    .p12(Clock1_p_Db),
-    .p13(Clock1_p_Da),
-    .p14(Clock1_p_Dd),
+    .p12(Clock1_p_Db__lead),
+    .p13(Clock1_p_Da__lead),
+    .p14(Clock1_p_Dd__lead),
     .p15(GND_m_3),
     .p16(GND_m_3)
   ); // SE10210

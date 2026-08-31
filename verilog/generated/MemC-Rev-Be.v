@@ -909,11 +909,16 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
   wire clk0_p_Da;
   wire clk0_p_Db;
   wire clk0_p_Dc;
-  wire clk1_p_B;
-  wire clk1_p_Da;
-  wire clk1_p_Db;
-  wire clk1_p_Dc;
-  wire clk1B;
+  wire clk1_p_B__lead;
+  reg  clk1_p_B;
+  wire clk1_p_Da__lead;
+  reg  clk1_p_Da;
+  wire clk1_p_Db__lead;
+  reg  clk1_p_Db;
+  wire clk1_p_Dc__lead;
+  reg  clk1_p_Dc;
+  wire clk1B__lead;
+  reg  clk1B;
   wire dAad_0_p_;
   wire dAad_1_p_;
   wire dAad_2_p_;
@@ -986,6 +991,16 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
   wire sAad_5;
   wire sAad_6;
   wire sAad_7;
+
+  // ---- 5 clk1-family nets, one sys_clk behind
+  //      their pre siblings (see clock_lag above)
+  always @(posedge sys_clk) begin
+    clk1_p_B <= clk1_p_B__lead;
+    clk1_p_Da <= clk1_p_Da__lead;
+    clk1_p_Db <= clk1_p_Db__lead;
+    clk1_p_Dc <= clk1_p_Dc__lead;
+    clk1B <= clk1B__lead;
+  end
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
   // An explicit OR of the drivers: what the open emitters
@@ -4112,9 +4127,9 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p5(AcanhaveMap_p_),
     .p7(preClk1_p_D),
     .p11(preClk1_p_D),
-    .p12(clk1_p_Db),
-    .p13(clk1_p_Da),
-    .p14(clk1_p_Dc),
+    .p12(clk1_p_Db__lead),
+    .p13(clk1_p_Da__lead),
+    .p14(clk1_p_Dc__lead),
     .p15(GND420)
   ); // SE10210
   cell_MC10170 u_i19 (
@@ -4321,8 +4336,8 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p15(GND448)
   ); // SE10210
   cell_SE10212 u_j09 (
-    .p2(clk1_p_B),
-    .p4(clk1B),
+    .p2(clk1_p_B__lead),
+    .p4(clk1B__lead),
     .p5(preClk1_p_B),
     .p9(preClk1_p_B),
     .p10(HoldOrIP),

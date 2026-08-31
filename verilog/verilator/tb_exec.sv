@@ -1114,10 +1114,22 @@ module tb_exec;
       // data}: measured as ChkSum = 0x00bf for EVERY payload, the stale low
       // byte of the startup's last jam. Data first, tag last, and the word
       // is stable by the time the tag says it is there.
+      // TWICE. With the clk1-family lag, ReadBB's stale-by-one branch
+      // condition can consume a half-updated CPReg even with low-first
+      // ordering (measured: ChkSum = {feeder tag byte, STARTUP low byte}
+      // regardless of payload). Writing the pair again while the tag is
+      // unchanged corrects any half-capture: the tag cannot re-match a
+      // wrong phase, and the data settles before the real consume.
       if ($test$plusargs("bbinv")) begin
         strobe(3'd3, ~w[7:0],  1'b0);
         strobe(3'd2, ~w[15:8], 1'b0);
+        repeat (WT(40)) @(posedge sys_clk);
+        strobe(3'd3, ~w[7:0],  1'b0);
+        strobe(3'd2, ~w[15:8], 1'b0);
       end else begin
+        strobe(3'd3,  w[7:0],  1'b0);
+        strobe(3'd2,  w[15:8], 1'b0);
+        repeat (WT(40)) @(posedge sys_clk);
         strobe(3'd3,  w[7:0],  1'b0);
         strobe(3'd2,  w[15:8], 1'b0);
       end
@@ -1537,6 +1549,9 @@ module tb_exec;
   integer c_ifur = -1, c_mcr = -1, c_mdh = -1, c_dish = -1;
   integer n_ifur = 0, n_mcr = 0, n_cyc2 = 0;
   reg d_ifur = 1'b0, d_mcr = 1'b0;
+`ifdef WORLD
+  // These probes reach into the IFU and MemC, which only the nine-board
+  // dorado_world contains -- the four-board exec-test builds without them.
   always @(posedge sys_clk) begin
     n_cyc2 = n_cyc2 + 1;
     if (m.b_IFU.IfuReset !== d_ifur) begin
@@ -1566,11 +1581,15 @@ module tb_exec;
     if (!m.b_MemC.MDhold_p_ && c_mdh < 0) c_mdh = n_cyc2;
     if (m.b_MemC.DisHold__drv && c_dish < 0) c_dish = n_cyc2;
   end
+`else
+  always @(posedge sys_clk) n_cyc2 = n_cyc2 + 1;
+`endif
   // TIME COURSE around the LoadMCR instruction: every sys_clk in a window,
   // the combinational decode (dAmux0, BSel=2/6), the REGISTERED enable
   // (MarMuxAEn'), b11's load strobe (ProcL14_sil_pl_2), and RMar_09.
   integer tcs = 0, tce = 0;
   initial if ($value$plusargs("tcwin=%d", tcs)) tce = tcs + 60;
+`ifdef WORLD
   always @(posedge sys_clk)
     if (tce != 0 && n_cyc2 >= tcs && n_cyc2 < tce)
       $display("tb_exec: TC @%0d pc=%h ff=%h dAmux0=%b(c24=%b c22=%b b20=%b) BSel26=%b MarMuxAEn'=%b pl2=%b RMar09=%b LdMcr'=%b | McClk1=%b McPreClk1=%b PlClk1'=%b Mcr_u'=%b LdMcr'=%b",
@@ -1582,6 +1601,7 @@ module tb_exec;
                m.b_MemC.clk1_p_B, m.b_MemC.preClk1_p_B,
                m.b_ProcL.Clock1_p_Ac,
                m.b_MemC.Mcr_u__p_, m.b_MemC.LdMcr_p_);
+`endif
   integer n_marA = 0;
   always @(posedge sys_clk) if (m.b_ProcL.MarMuxAEn_p_) n_marA = n_marA + 1;
   integer n_twr = 0; reg d_tbw = 1'b1;

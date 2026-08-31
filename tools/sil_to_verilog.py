@@ -90,6 +90,30 @@ WIRED_AND_NETS = frozenset({
     "MCIRQ'", "MCNMI'",
 })
 
+# THE PreClock1'/Clock1' ORDERING IS REAL, AND ZERO DELAY ERASES IT. On the
+# board, preClk1' and clk1' are one signal through different buffer depths:
+# every plain clk1-family net is a single SE10210/SE10212 tap off a pre net
+# (verified across ContA/ProcL/MemC -- no plain->plain chains), and PARC's
+# design counts on the few nanoseconds between them -- "control signals come
+# out of registers clocked by Clock1' while the datapath registers clock off
+# the EARLIER PreClock1'". Zero-delay simulation makes the two edges
+# simultaneous; a PreClock1'-clocked capture (MemC l09's Mcr_u_') then
+# resolves AFTER the Clock1'-gated strobe window that consumes it (j09's
+# LdMcr'), the strobe misses by a full instruction, LoadMCR loads an empty
+# bus, and Initial parks on the very hold it was disabling.
+#
+# So the plain family is given ONE sys_clk of lag, restoring the ordering the
+# buffers provide on the real board. The lag is per NET, and cannot
+# accumulate because there are no plain->plain buffer chains. Derived gated
+# clocks (FFClk1, SpecClk1, RIOBclk1...) are left alone: derived from a
+# lagged plain net they inherit the lag; derived from a pre net they keep
+# today's behaviour. Names must be the BARE distribution copies:
+#   clk1B  clk1'<sheet>  Clk1'<sheet>  Clock1B*  Clock1'<sheet>
+_CLOCK_LAG_RE = re.compile(r"^(?:clk1|Clk1|Clock1)(?:$|B|')")
+
+def clock_lag(netname: str) -> bool:
+    return bool(_CLOCK_LAG_RE.match(netname))
+
 
 class Generator:
     def __init__(self, board, ecl: EclDict, cells: set[str],
@@ -932,9 +956,25 @@ class Generator:
         internal = [n for n in sorted(self.b.nets)
                     if n not in self.ports and n not in self.exports]
         A(f'  // {len(internal)} internal nets')
+        lagged = [n for n in internal if clock_lag(n)]
         for n in internal:
-            A(f'  wire {vname(n)};')
+            if n in lagged:
+                # clk1-family: the buffer's output is taken one sys_clk
+                # late, restoring the PreClock1'/Clock1' ordering the real
+                # board gets from propagation delay. See clock_lag() above.
+                A(f'  wire {vname(n)}__lead;')
+                A(f'  reg  {vname(n)};')
+            else:
+                A(f'  wire {vname(n)};')
         A('')
+        if lagged:
+            A(f'  // ---- {len(lagged)} clk1-family nets, one sys_clk behind')
+            A('  //      their pre siblings (see clock_lag above)')
+            A('  always @(posedge sys_clk) begin')
+            for n in lagged:
+                A(f'    {vname(n)} <= {vname(n)}__lead;')
+            A('  end')
+            A('')
 
         # Which net does each (package,pin) belong to?
         pinnet: dict[tuple[str, int], str] = {}
@@ -992,7 +1032,9 @@ class Generator:
                 op = ' & ' if name in WIRED_AND_NETS else ' | '
                 terms = op.join(f'{vname(name)}__{vname(p["pkg"])}_{p["pin"]}'
                                 for p in drivers)
-                tgt = f'{vname(name)}__drv' if name in self.exports else vname(name)
+                tgt = f'{vname(name)}__drv' if name in self.exports else (
+                    f'{vname(name)}__lead' if name not in self.ports and clock_lag(name)
+                    else vname(name))
                 if self.rail_value(name) and name not in self.exports:
                     # A POWER RAIL IS NOT A WIRED-OR NET. Two on BaseBd have
                     # pins Sil marks `out` sitting on them -- MPQ6002 c05 on
@@ -1150,6 +1192,8 @@ class Generator:
                     target = f'{vname(netname)}__{vname(pos)}_{pin}'
                 elif isout and netname in self.exports:
                     target = f'{vname(netname)}__drv'
+                elif isout and netname not in self.ports and clock_lag(netname):
+                    target = f'{vname(netname)}__lead'
                 else:
                     target = vname(netname)
                 if (self.b.name.split('-Rev')[0], pos, str(pin)) in self.CLOCKGEN_PINS:
