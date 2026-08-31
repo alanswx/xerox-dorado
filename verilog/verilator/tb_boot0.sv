@@ -831,6 +831,8 @@ module tb_boot0;
     // give it a handful of cycles before checking, which is also what the
     // real 6502's instruction spacing provides.
     repeat (WT(8)) @(posedge sys_clk);
+    $display("tb_boot0: pre-jam error state -- bIMLHPE=%b bIMRHPE=%b IMLHPEDly=%b StopMIRClk=%b",
+             m.b_ContB.bIMLHPE, m.b_ContB.bIMRHPE, m.b_ContB.IMLHPEDly__drv, m.StopMIRClk);
     if (m.StopMIRClk !== 1'b1) begin
       integer sw;
       for (sw = 0; sw < 200 && m.StopMIRClk !== 1'b1; sw = sw + 1)
