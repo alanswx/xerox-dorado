@@ -190,13 +190,26 @@ module tb_boot0;
     begin
       setrun = 0; setss_n = 1;
       repeat (WT(400)) @(posedge sys_clk);
-      strobe(3'd1, 8'h21, 1'b0);
+      // PARC's full DoDoradoMicroInst spacing: the real sender is a 1 MHz
+      // 6502 with JSR DoControl between strobes (GAP models that), and the
+      // sequence ends with BasicStopDorado's SetRun-SS + Control(0)-SS pair
+      // -- the "one DoControl short" difference the memory file names, which
+      // depth-lagged controls finally make load-bearing.
+      strobe(3'd1, 8'h21, 1'b0); repeat (GAP) @(posedge sys_clk);
       strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0);
+      repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h4E, 1'b0);
+      repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h00, 1'b1);
+      repeat (GAP) @(posedge sys_clk);
       strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b0);
       strobe(3'd6, 8'h04, 1'b0); strobe(3'd7, 8'h40, 1'b0);
+      repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h41, 1'b1);
+      repeat (GAP) @(posedge sys_clk);
+      strobe(3'd0, 8'h01, 1'b1);
+      repeat (GAP) @(posedge sys_clk);
+      strobe(3'd0, 8'h00, 1'b1);
       repeat (WT(600)) @(posedge sys_clk);
     end
   endtask
