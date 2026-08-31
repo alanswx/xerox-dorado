@@ -1593,6 +1593,7 @@ module tb_exec;
   // side effects Initial needs -- IFUReset reaching the IFU and LoadMCR
   // reaching MemC's k08. Counts, not samples.
   integer c_ifur = -1, c_mcr = -1, c_mdh = -1, c_dish = -1;
+  integer n_noref1 = 0;
   integer n_ifur = 0, n_mcr = 0, n_cyc2 = 0;
   reg d_ifur = 1'b0, d_mcr = 1'b0;
 `ifdef WORLD
@@ -1610,12 +1611,12 @@ module tb_exec;
       n_mcr = n_mcr + 1;
       // At each edge: what data does k08 see? RMar_09 should carry disHold
       // (manual Mcr[9], memory.c's "mcr.disHold = b9") and A = T = 0x0041.
-      $display("tb_exec: LDMCR edge@%0d %b->%b  RMar[00,01,07,08,09,10]=%b%b_%b%b%b%b  DisHold=%b NoRef=%b MarMuxAEn'=%b dAmux0=%b T09=%b",
+      $display("tb_exec: LDMCR edge@%0d %b->%b  RMar[00,01,07,08,09,10]=%b%b_%b%b%b%b  d_pre=%b DisHold=%b NoRef=%b",
                n_cyc2, d_mcr, m.b_MemC.LdMcr_p_,
                m.b_MemC.RMar_00, m.b_MemC.RMar_01, m.b_MemC.RMar_07,
                m.b_MemC.RMar_08, m.b_MemC.RMar_09, m.b_MemC.RMar_10,
-               m.b_MemC.DisHold__drv, m.b_MemC.NoRef,
-               m.b_ProcL.MarMuxAEn_p_, m.b_ProcL.dAmux0, m.b_ProcL.T_09);
+               m.b_MemC.u_k08.d_pre,
+               m.b_MemC.DisHold__drv, m.b_MemC.NoRef);
       $display("tb_exec: LDMCR2 stubs c24=%b c22=%b b20=%b | ASel21_43'=%b ASel23'=%b ASel57'=%b ASel67'=%b ASEL1'=%b | Amux1'=%b",
                m.b_ProcL.dAmux0__c24_3, m.b_ProcL.dAmux0__c22_2,
                m.b_ProcL.dAmux0__b20_3, 1'b0,
@@ -1626,6 +1627,7 @@ module tb_exec;
     end
     if (!m.b_MemC.MDhold_p_ && c_mdh < 0) c_mdh = n_cyc2;
     if (m.b_MemC.DisHold__drv && c_dish < 0) c_dish = n_cyc2;
+    if (m.b_MemC.NoRef) n_noref1 = n_noref1 + 1;
   end
 `else
   always @(posedge sys_clk) n_cyc2 = n_cyc2 + 1;
@@ -2500,8 +2502,8 @@ module tb_exec;
       // mapped through im_image (whose image indices print in OCTAL, the
       // same trap as mbdis). visited[] is indexed by real IM address.
       $display("tb_exec: MARMUX -- MarMuxAEn' high on %0d of %0d", n_marA, n_cyc2);
-      $display("tb_exec: BOOTFF -- IfuReset first@%0d (%0d edges), LdMcr' first@%0d (%0d edges), MDhold first@%0d, DisHold first@%0d",
-               c_ifur, n_ifur, c_mcr, n_mcr, c_mdh, c_dish);
+      $display("tb_exec: BOOTFF -- IfuReset first@%0d (%0d edges), LdMcr' first@%0d (%0d edges), MDhold first@%0d, DisHold first@%0d, NoRef high %0d",
+               c_ifur, n_ifur, c_mcr, n_mcr, c_mdh, c_dish, n_noref1);
       if (fastwait) $display("tb_exec: FASTWAIT -- clipped LongWait %0d times", n_clip);
       $display("tb_exec: INITIAL MILESTONES -- ChkSumErr(f46)=%0d RMINITL(c42)=%0d STKINITL(c4a)=%0d IFUMINITL(c65)=%0d TASKINITLOOP(c45)=%0d BOOTEMULATOR(c92)=%0d INITHRAM(e20)=%0d",
                visited[12'hf46], visited[12'hc42], visited[12'hc4a],
