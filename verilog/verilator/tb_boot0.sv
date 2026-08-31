@@ -830,6 +830,17 @@ module tb_boot0;
   reg [15:0] hw [0:7];
 
   initial begin
+    // POWER-UP ENTROPY, MODELLED. Real hardware's MIR wakes as analog
+    // garbage that fails parity almost surely, and THAT is what arms the
+    // StopMIRClk freeze InitManifolds counts on -- the freeze is the MIR
+    // WRITE ENABLE, so without it no jam can land. Verilator's zeros have
+    // VALID parity under the stored-complement convention (odd parity of
+    // 17 zeros wants 1, stored complemented = 0), so the freeze must be
+    // armed deliberately: hold the IMRH parity flop at 1 across startup
+    // (zero data XOR with IMRH=1 fails, the +jampar precedent), release
+    // once the freeze is latched -- after which the jams' own bad parity
+    // (Return#'s XOR(rh)=1) sustains it exactly as in default mode.
+    force m.b_ContA.IMRH = 1'b1;
     force m.DMuxData = dmd;
     force m.DMuxClk  = dmc;
     force m.UseDMD   = udmd;
@@ -860,6 +871,7 @@ module tb_boot0;
       if (m.StopMIRClk !== 1'b1)
         $display("tb_boot0: WARNING -- no parity freeze; relying on SetSS stepping");
     end
+    release m.b_ContA.IMRH;
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca; p2 = m.b_ContA.clk2_p_Bc;
     zero;
     wipe_im;
