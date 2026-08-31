@@ -132,8 +132,10 @@ module tb_boot0;
         repeat (WT(4)) @(posedge sys_clk); dmc = 1'b0;   // the chain shifts on the fall
         repeat (WT(4)) @(posedge sys_clk);
       end
-      udmd = 1'b1; repeat (WT(12)) @(posedge sys_clk);
-      udmd = 1'b0; repeat (WT(12)) @(posedge sys_clk);
+      // Under the depth-derived clock lag the ManClk commit pulse arrives
+      // several lagged stages after UseDMD asserts; hold long enough for it.
+      udmd = 1'b1; repeat (WT(24)) @(posedge sys_clk);
+      udmd = 1'b0; repeat (WT(24)) @(posedge sys_clk);
     end
   endtask
 
@@ -834,6 +836,9 @@ module tb_boot0;
       for (sw = 0; sw < 200 && m.StopMIRClk !== 1'b1; sw = sw + 1)
         @(posedge sys_clk);
       $display("tb_boot0: StopMIRClk rose after %0d extra sys_clk (0=immediately)", sw);
+      $display("tb_boot0: legs -- StopMIRClkEn=%b IMLHPEenable=%b IMRHPEenable=%b (g03 d_pre=%b ManClk_7'=%b)",
+               m.b_ContB.StopMIRClkEn, m.b_ContB.IMLHPEenable, m.b_ContB.IMRHPEenable,
+               m.b_ContB.u_g03.d_pre, m.b_ContB.ManClk_7_p_);
       if (m.StopMIRClk !== 1'b1) $fatal(1, "the MIR clock is not held (never rose in 200)");
     end
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca; p2 = m.b_ContA.clk2_p_Bc;
