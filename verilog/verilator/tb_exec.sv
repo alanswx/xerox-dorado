@@ -1573,15 +1573,15 @@ module tb_exec;
   initial if ($value$plusargs("tcwin=%d", tcs)) tce = tcs + 60;
   always @(posedge sys_clk)
     if (tce != 0 && n_cyc2 >= tcs && n_cyc2 < tce)
-      $display("tb_exec: TC @%0d pc=%h ff=%h dAmux0=%b(c24=%b c22=%b b20=%b) BSel26=%b MarMuxAEn'=%b pl2=%b RMar09=%b LdMcr'=%b | ASel67=%b AuId'=%b dAmux1'=%b Amux0=%b Mcr_u'=%b",
+      $display("tb_exec: TC @%0d pc=%h ff=%h dAmux0=%b(c24=%b c22=%b b20=%b) BSel26=%b MarMuxAEn'=%b pl2=%b RMar09=%b LdMcr'=%b | McClk1=%b McPreClk1=%b PlClk1'=%b Mcr_u'=%b LdMcr'=%b",
                n_cyc2, tnia_now, ff_now, m.b_ProcL.dAmux0,
                m.b_ProcL.dAmux0__c24_3, m.b_ProcL.dAmux0__c22_2, m.b_ProcL.dAmux0__b20_3,
                m.b_ProcL.BSel_eq_2_s_6,
                m.b_ProcL.MarMuxAEn_p_, m.b_ProcL.ProcL14_sil_pl_2,
                m.b_MemC.RMar_09, m.b_MemC.LdMcr_p_,
-               m.b_ProcL.ASel_eq_6_s_7, m.b_ProcL.A_u_Id_p_,
-               m.b_ProcL.dAmux1_p_, m.b_ProcL.Amux0,
-               m.b_MemC.Mcr_u__p_);
+               m.b_MemC.clk1_p_B, m.b_MemC.preClk1_p_B,
+               m.b_ProcL.Clock1_p_Ac,
+               m.b_MemC.Mcr_u__p_, m.b_MemC.LdMcr_p_);
   integer n_marA = 0;
   always @(posedge sys_clk) if (m.b_ProcL.MarMuxAEn_p_) n_marA = n_marA + 1;
   integer n_twr = 0; reg d_tbw = 1'b1;
