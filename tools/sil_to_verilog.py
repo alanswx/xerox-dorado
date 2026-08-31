@@ -109,10 +109,22 @@ WIRED_AND_NETS = frozenset({
 # lagged plain net they inherit the lag; derived from a pre net they keep
 # today's behaviour. Names must be the BARE distribution copies:
 #   clk1B  clk1'<sheet>  Clk1'<sheet>  Clock1B*  Clock1'<sheet>
-_CLOCK_LAG_RE = re.compile(r"^(?:clk1|Clk1|Clock1)(?:$|B|')")
-
-def clock_lag(netname: str) -> bool:
-    return bool(_CLOCK_LAG_RE.match(netname))
+# THE DEPTH PASS SUPERSEDES THE NAME LIST. BaseBd j02 proved every board
+# receives ONE identical pulse per microinstruction (all five slot-group
+# sources are parallel copies of SCP' | ECP | dSCP), so a board's internal
+# phase ordering lives ENTIRELY in its clock-buffer depths -- MemC's netlist
+# makes preClk0' and preClk1' sibling taps of one net, and distinguishes
+# PrClk1'D from preClk1'D by a single j18 buffer. Zero-delay simulation
+# erased all of it, which is what the clk1 lag, the SHCP experiments and the
+# MC10176 setup capture were each hand-patching a corner of. Here the lag is
+# DERIVED: BFS from the board's CLK input through the clock-buffer cell
+# families, each net lagged one sys_clk per buffer stage. Relative depths are
+# the model; the uniform base shift is harmless.
+CLOCK_BUFFER_CELLS = frozenset({
+    'SE10210', 'SE10211', 'MC10210', 'MC10211',
+    'MC10101', 'MC1660', 'MC1662', 'MC1664', 'SE10212',
+})
+CLOCK_DEPTH_CAP = 6
 
 
 class Generator:
@@ -839,6 +851,73 @@ class Generator:
         t = self.b.packages.get(p['pkg'], {}).get('type', '')
         return p['pin'] in self.WEAK_PORT_DRIVERS.get(t, ())
 
+    def _clock_depths(self) -> dict[str, int]:
+        """Per-net buffer depth from this board's CLK input(s), by BFS.
+
+        Entered packages are restricted to CLOCK_BUFFER_CELLS, and a package
+        is only entered through a net already known to be clock -- so a
+        buffer used as plain logic elsewhere is never claimed unless the
+        clock tree genuinely reaches it. Min-depth wins where trees rejoin.
+        """
+        # driving pin -> package, and package -> driven nets
+        pkg_out: dict[str, set[str]] = {}
+        pkg_in: dict[str, set[str]] = {}
+        for name, net in self.b.nets.items():
+            drv = {p['pkg'] for p in self.drivers_in_rtl(name)}
+            for p in net['pins']:
+                if p['pkg'] in drv and any(
+                        q['pkg'] == p['pkg'] and q['pin'] == p['pin']
+                        for q in self.drivers_in_rtl(name)):
+                    pkg_out.setdefault(p['pkg'], set()).add(name)
+                else:
+                    pkg_in.setdefault(p['pkg'], set()).add(name)
+        # PARC's raw name is CLK.<slot>' -- the sanitised CLK_ form exists
+        # only in the emitted Verilog. Match the raw spelling.
+        roots = [n for n, d in self.ports.items()
+                 if d == 'input' and n.startswith('CLK.')]
+        depth: dict[str, int] = {n: 0 for n in roots}
+        frontier = list(roots)
+        while frontier:
+            nxt = []
+            for n in frontier:
+                d = depth[n]
+                if d >= CLOCK_DEPTH_CAP:
+                    continue
+                for pos, ins in pkg_in.items():
+                    if n not in ins:
+                        continue
+                    ptype = self.b.packages.get(pos, {}).get('type', '')
+                    if vpart(ptype) not in CLOCK_BUFFER_CELLS:
+                        continue
+                    for out in pkg_out.get(pos, ()):  # all the package's outputs
+                        if depth.get(out, 99) > d + 1:
+                            depth[out] = d + 1
+                            nxt.append(out)
+            frontier = nxt
+        return depth
+
+    # The depth pass is OPT-IN (DORADO_CLOCK_DEPTH=1) until the jam-era
+    # benches are re-derived against it: enabled wholesale it moves 200+
+    # nets per board by up to CLOCK_DEPTH_CAP stages, and boot0/compute/
+    # exec-test fail while mirreg/run/exec-world pass -- the foundation is
+    # right (it puts l09's capture BEFORE j09's strobe by construction:
+    # PrClk1'Db depth 2 < clk1'B/LdMcr' depth 3 on MemC, matching the
+    # netlist exactly) but landing it green is a session of re-derivation,
+    # not a default flip. Default = the measured clk1-only lag.
+    _CLOCK_LAG_RE = re.compile(r"^(?:clk1|Clk1|Clock1)(?:$|B|')")
+
+    def clock_lag_stages(self, netname: str) -> int:
+        if netname in self.ports or netname in self.exports:
+            return 0
+        if os.environ.get('DORADO_CLOCK_DEPTH') == '1':
+            if not hasattr(self, '_clkdepth'):
+                self._clkdepth = self._clock_depths()
+            return self._clkdepth.get(netname, 0)
+        return 1 if self._CLOCK_LAG_RE.match(netname) else 0
+
+    def clock_lag(self, netname: str) -> bool:
+        return self.clock_lag_stages(netname) > 0
+
     def drivers_in_rtl(self, name: str) -> list[dict]:
         """The pins that actually DRIVE this net in the emitted RTL.
 
@@ -956,7 +1035,7 @@ class Generator:
         internal = [n for n in sorted(self.b.nets)
                     if n not in self.ports and n not in self.exports]
         A(f'  // {len(internal)} internal nets')
-        lagged = [n for n in internal if clock_lag(n)]
+        lagged = [n for n in internal if self.clock_lag(n)]
         for n in internal:
             if n in lagged:
                 # clk1-family: the buffer's output is taken one sys_clk
@@ -970,9 +1049,20 @@ class Generator:
         if lagged:
             A(f'  // ---- {len(lagged)} clk1-family nets, one sys_clk behind')
             A('  //      their pre siblings (see clock_lag above)')
+            for n in lagged:
+                st = self.clock_lag_stages(n)
+                for k in range(1, st):
+                    A(f'  reg  {vname(n)}__lag{k};')
             A('  always @(posedge sys_clk) begin')
             for n in lagged:
-                A(f'    {vname(n)} <= {vname(n)}__lead;')
+                st = self.clock_lag_stages(n)
+                if st == 1:
+                    A(f'    {vname(n)} <= {vname(n)}__lead;')
+                else:
+                    A(f'    {vname(n)}__lag1 <= {vname(n)}__lead;')
+                    for k in range(2, st):
+                        A(f'    {vname(n)}__lag{k} <= {vname(n)}__lag{k-1};')
+                    A(f'    {vname(n)} <= {vname(n)}__lag{st-1};')
             A('  end')
             A('')
 
@@ -1033,7 +1123,7 @@ class Generator:
                 terms = op.join(f'{vname(name)}__{vname(p["pkg"])}_{p["pin"]}'
                                 for p in drivers)
                 tgt = f'{vname(name)}__drv' if name in self.exports else (
-                    f'{vname(name)}__lead' if name not in self.ports and clock_lag(name)
+                    f'{vname(name)}__lead' if name not in self.ports and self.clock_lag(name)
                     else vname(name))
                 if self.rail_value(name) and name not in self.exports:
                     # A POWER RAIL IS NOT A WIRED-OR NET. Two on BaseBd have
@@ -1192,7 +1282,7 @@ class Generator:
                     target = f'{vname(netname)}__{vname(pos)}_{pin}'
                 elif isout and netname in self.exports:
                     target = f'{vname(netname)}__drv'
-                elif isout and netname not in self.ports and clock_lag(netname):
+                elif isout and netname not in self.ports and self.clock_lag(netname):
                     target = f'{vname(netname)}__lead'
                 else:
                     target = vname(netname)
