@@ -330,16 +330,26 @@ module ProcL_m_Rev_m_Ci #(parameter integer SYSPER = 16) (
   wire Clock0_p_Da;
   wire Clock0_p_Db;
   wire Clock0_p_Dc;
-  wire Clock1_p_Aa;
-  wire Clock1_p_Ac;
-  wire Clock1_p_Ba;
-  wire Clock1_p_Bb;
-  wire Clock1_p_Ca;
-  wire Clock1_p_Cb;
-  wire Clock1_p_Da;
-  wire Clock1_p_Db;
-  wire Clock1_p_Dc;
-  wire Clock1Bd;
+  wire Clock1_p_Aa__lead;
+  reg  Clock1_p_Aa;
+  wire Clock1_p_Ac__lead;
+  reg  Clock1_p_Ac;
+  wire Clock1_p_Ba__lead;
+  reg  Clock1_p_Ba;
+  wire Clock1_p_Bb__lead;
+  reg  Clock1_p_Bb;
+  wire Clock1_p_Ca__lead;
+  reg  Clock1_p_Ca;
+  wire Clock1_p_Cb__lead;
+  reg  Clock1_p_Cb;
+  wire Clock1_p_Da__lead;
+  reg  Clock1_p_Da;
+  wire Clock1_p_Db__lead;
+  reg  Clock1_p_Db;
+  wire Clock1_p_Dc__lead;
+  reg  Clock1_p_Dc;
+  wire Clock1Bd__lead;
+  reg  Clock1Bd;
   wire Cnt_08_p_;
   wire Cnt_09_p_;
   wire Cnt_10_p_;
@@ -972,6 +982,21 @@ module ProcL_m_Rev_m_Ci #(parameter integer SYSPER = 16) (
   wire shmv_14;
   wire shmv_15;
 
+  // ---- 10 clk1-family nets, one sys_clk behind
+  //      their pre siblings (see clock_lag above)
+  always @(posedge sys_clk) begin
+    Clock1_p_Aa <= Clock1_p_Aa__lead;
+    Clock1_p_Ac <= Clock1_p_Ac__lead;
+    Clock1_p_Ba <= Clock1_p_Ba__lead;
+    Clock1_p_Bb <= Clock1_p_Bb__lead;
+    Clock1_p_Ca <= Clock1_p_Ca__lead;
+    Clock1_p_Cb <= Clock1_p_Cb__lead;
+    Clock1_p_Da <= Clock1_p_Da__lead;
+    Clock1_p_Db <= Clock1_p_Db__lead;
+    Clock1_p_Dc <= Clock1_p_Dc__lead;
+    Clock1Bd <= Clock1Bd__lead;
+  end
+
   // ---- wired-OR nets (MECL 10K open emitters tied together)
   // An explicit OR of the drivers: what the open emitters
   // compute, and one LUT level rather than a multiply-driven
@@ -1453,8 +1478,8 @@ module ProcL_m_Rev_m_Ci #(parameter integer SYSPER = 16) (
     .p4(RScopeClk0_p___drv),
     .p5(PreClock0_p_A),
     .p9(PreClock1_p_A),
-    .p12(Clock1_p_Ac),
-    .p13(Clock1_p_Aa),
+    .p12(Clock1_p_Ac__lead),
+    .p13(Clock1_p_Aa__lead),
     .p15(GND16)
   ); // SE10210
   cell_SE10210 u_a09 (
@@ -2200,8 +2225,8 @@ module ProcL_m_Rev_m_Ci #(parameter integer SYSPER = 16) (
     .p15(FC_eq_0_p_)
   ); // MC10119
   cell_SE10210 u_c18 (
-    .p2(Clock1_p_Cb),
-    .p3(Clock1_p_Ca),
+    .p2(Clock1_p_Cb__lead),
+    .p3(Clock1_p_Ca__lead),
     .p5(PreClock1_p_C),
     .p9(PreSHCP_p_C),
     .p12(SHSelect_p_C),
@@ -3894,9 +3919,9 @@ module ProcL_m_Rev_m_Ci #(parameter integer SYSPER = 16) (
     .p15(T_14)
   ); // MC10173
   cell_SE10212 u_i05 (
-    .p2(Clock1Bd),
-    .p3(Clock1_p_Ba),
-    .p4(Clock1_p_Bb),
+    .p2(Clock1Bd__lead),
+    .p3(Clock1_p_Ba__lead),
+    .p4(Clock1_p_Bb__lead),
     .p7(PreClock1B),
     .p15(GND394)
   ); // SE10212
@@ -4362,9 +4387,9 @@ module ProcL_m_Rev_m_Ci #(parameter integer SYSPER = 16) (
     .p4(Clock0_p_Dc),
     .p5(PreClock0_p_D),
     .p9(PreClock1_p_D),
-    .p12(Clock1_p_Dc),
-    .p13(Clock1_p_Da),
-    .p14(Clock1_p_Db),
+    .p12(Clock1_p_Dc__lead),
+    .p13(Clock1_p_Da__lead),
+    .p14(Clock1_p_Db__lead),
     .p15(GND468)
   ); // SE10210
   cell_MC10231 u_j19 (

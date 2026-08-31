@@ -988,14 +988,22 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
   wire b_u_Pipe4_p_;
   wire clk0_p_B;
   wire clk0_p_D;
-  wire clk1_p_Aa;
-  wire clk1_p_Ab;
-  wire clk1_p_Ac;
-  wire clk1_p_Ba;
-  wire clk1_p_Bb;
-  wire clk1_p_Ca;
-  wire clk1_p_Cb;
-  wire clk1_p_Cc;
+  wire clk1_p_Aa__lead;
+  reg  clk1_p_Aa;
+  wire clk1_p_Ab__lead;
+  reg  clk1_p_Ab;
+  wire clk1_p_Ac__lead;
+  reg  clk1_p_Ac;
+  wire clk1_p_Ba__lead;
+  reg  clk1_p_Ba;
+  wire clk1_p_Bb__lead;
+  reg  clk1_p_Bb;
+  wire clk1_p_Ca__lead;
+  reg  clk1_p_Ca;
+  wire clk1_p_Cb__lead;
+  reg  clk1_p_Cb;
+  wire clk1_p_Cc__lead;
+  reg  clk1_p_Cc;
   wire clk2_p_Aa;
   wire clk2_p_Ab;
   wire clk2_p_Ac;
@@ -1074,6 +1082,19 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
   wire tSyn5;
   wire tSyn6;
   wire tSyn7x;
+
+  // ---- 8 clk1-family nets, one sys_clk behind
+  //      their pre siblings (see clock_lag above)
+  always @(posedge sys_clk) begin
+    clk1_p_Aa <= clk1_p_Aa__lead;
+    clk1_p_Ab <= clk1_p_Ab__lead;
+    clk1_p_Ac <= clk1_p_Ac__lead;
+    clk1_p_Ba <= clk1_p_Ba__lead;
+    clk1_p_Bb <= clk1_p_Bb__lead;
+    clk1_p_Ca <= clk1_p_Ca__lead;
+    clk1_p_Cb <= clk1_p_Cb__lead;
+    clk1_p_Cc <= clk1_p_Cc__lead;
+  end
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
   // An explicit OR of the drivers: what the open emitters
@@ -1901,9 +1922,9 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p15(Pipe4_10)
   ); // F10145A
   cell_SE10210 u_b07 (
-    .p2(clk1_p_Ab),
-    .p3(clk1_p_Aa),
-    .p4(clk1_p_Ac),
+    .p2(clk1_p_Ab__lead),
+    .p3(clk1_p_Aa__lead),
+    .p4(clk1_p_Ac__lead),
     .p7(preClk1_p_A),
     .p10(F_u_D_p_),
     .p11(preClk1_p_A),
@@ -2938,9 +2959,9 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p15(F_13)
   ); // F10016
   cell_SE10210 u_e19 (
-    .p2(clk1_p_Cb),
-    .p3(clk1_p_Ca),
-    .p4(clk1_p_Cc),
+    .p2(clk1_p_Cb__lead),
+    .p3(clk1_p_Ca__lead),
+    .p4(clk1_p_Cc__lead),
     .p7(preClk1_p_C),
     .p15(GND230)
   ); // SE10210
@@ -4192,8 +4213,8 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p17(D0in_03)
   ); // F10470
   cell_SE10210 u_j06 (
-    .p2(clk1_p_Bb),
-    .p3(clk1_p_Ba),
+    .p2(clk1_p_Bb__lead),
+    .p3(clk1_p_Ba__lead),
     .p7(preClk1_p_B),
     .p10(McrD_u__p_),
     .p11(preClk1_p_B),

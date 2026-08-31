@@ -726,10 +726,14 @@ module IFU_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   wire clk0_p_Dd;
   wire clk0_p_De;
   wire clk0_p_Df;
-  wire clk1_p_Aa;
-  wire clk1_p_Ab;
-  wire clk1_p_Ac;
-  wire clk1_p_Da;
+  wire clk1_p_Aa__lead;
+  reg  clk1_p_Aa;
+  wire clk1_p_Ab__lead;
+  reg  clk1_p_Ab;
+  wire clk1_p_Ac__lead;
+  reg  clk1_p_Ac;
+  wire clk1_p_Da__lead;
+  reg  clk1_p_Da;
   wire dGoodIfuJump;
   wire dHJ_0;
   wire dHJ_1;
@@ -983,6 +987,15 @@ module IFU_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   wire prepreDblClk_p_Y;
   wire prepreDblClk_p_Z;
   wire prepreFH_p_;
+
+  // ---- 4 clk1-family nets, one sys_clk behind
+  //      their pre siblings (see clock_lag above)
+  always @(posedge sys_clk) begin
+    clk1_p_Aa <= clk1_p_Aa__lead;
+    clk1_p_Ab <= clk1_p_Ab__lead;
+    clk1_p_Ac <= clk1_p_Ac__lead;
+    clk1_p_Da <= clk1_p_Da__lead;
+  end
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
   // An explicit OR of the drivers: what the open emitters
@@ -1884,9 +1897,9 @@ module IFU_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p15(ifu02_sil_pl_11)
   ); // MC10106
   cell_SE10210 u_c06 (
-    .p2(clk1_p_Ab),
-    .p3(clk1_p_Aa),
-    .p4(clk1_p_Ac),
+    .p2(clk1_p_Ab__lead),
+    .p3(clk1_p_Aa__lead),
+    .p4(clk1_p_Ac__lead),
     .p5(PipeClkEn_p_),
     .p6(preClk1_p_A),
     .p15(GND108)
@@ -4174,7 +4187,7 @@ module IFU_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p6(preDblClk_p_D),
     .p9(bPipeClkEn_p_d),
     .p10(preClk1_p_D),
-    .p13(clk1_p_Da),
+    .p13(clk1_p_Da__lead),
     .p15(GND470)
   ); // SE10210
   cell_MC10231 u_j20 (

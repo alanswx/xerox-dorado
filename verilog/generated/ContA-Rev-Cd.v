@@ -1008,12 +1008,18 @@ module ContA_m_Rev_m_Cd #(parameter integer SYSPER = 16) (
   wire clk0_p_Da;
   wire clk0_p_Db;
   wire clk0_p_Dc;
-  wire clk1_p_Aa;
-  wire clk1_p_Ab;
-  wire clk1_p_Ac;
-  wire clk1_p_Ca;
-  wire clk1_p_Cb;
-  wire clk1_p_Da;
+  wire clk1_p_Aa__lead;
+  reg  clk1_p_Aa;
+  wire clk1_p_Ab__lead;
+  reg  clk1_p_Ab;
+  wire clk1_p_Ac__lead;
+  reg  clk1_p_Ac;
+  wire clk1_p_Ca__lead;
+  reg  clk1_p_Ca;
+  wire clk1_p_Cb__lead;
+  reg  clk1_p_Cb;
+  wire clk1_p_Da__lead;
+  reg  clk1_p_Da;
   wire clk2_p_Ba;
   wire clk2_p_Bb;
   wire clk2_p_Bc;
@@ -1103,6 +1109,17 @@ module ContA_m_Rev_m_Cd #(parameter integer SYSPER = 16) (
   wire sJCN_6;
   wire sJCN_7;
   wire sPhase0;
+
+  // ---- 6 clk1-family nets, one sys_clk behind
+  //      their pre siblings (see clock_lag above)
+  always @(posedge sys_clk) begin
+    clk1_p_Aa <= clk1_p_Aa__lead;
+    clk1_p_Ab <= clk1_p_Ab__lead;
+    clk1_p_Ac <= clk1_p_Ac__lead;
+    clk1_p_Ca <= clk1_p_Ca__lead;
+    clk1_p_Cb <= clk1_p_Cb__lead;
+    clk1_p_Da <= clk1_p_Da__lead;
+  end
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
   // An explicit OR of the drivers: what the open emitters
@@ -2577,9 +2594,9 @@ module ContA_m_Rev_m_Cd #(parameter integer SYSPER = 16) (
     .p6(CAHold),
     .p7(ContA30_sil_pl_3),
     .p11(preclk1_p_Aa),
-    .p12(clk1_p_Ab),
-    .p13(clk1_p_Aa),
-    .p14(clk1_p_Ac),
+    .p12(clk1_p_Ab__lead),
+    .p13(clk1_p_Aa__lead),
+    .p14(clk1_p_Ac__lead),
     .p15(GND156)
   ); // SE10210
   cell_SE10210 u_d07 (
@@ -2713,8 +2730,8 @@ module ContA_m_Rev_m_Cd #(parameter integer SYSPER = 16) (
     .p4(clk0_p_Cc),
     .p7(preclk0_p_Ca),
     .p11(preclk1_p_Ca),
-    .p12(clk1_p_Cb),
-    .p13(clk1_p_Ca),
+    .p12(clk1_p_Cb__lead),
+    .p13(clk1_p_Ca__lead),
     .p15(GND180)
   ); // SE10210
   cell_MC10162 u_d19 (
@@ -4524,7 +4541,7 @@ module ContA_m_Rev_m_Cd #(parameter integer SYSPER = 16) (
     .p15(GND468)
   ); // SE10210
   cell_SE10212 u_j19 (
-    .p2(clk1_p_Da),
+    .p2(clk1_p_Da__lead),
     .p5(preclk1_p_Da),
     .p10(Switch_p_a),
     .p12(SWm__drv),

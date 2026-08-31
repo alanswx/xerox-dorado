@@ -921,14 +921,22 @@ module DispY_m_Rev_m_Cl #(parameter integer SYSPER = 16) (
   wire clk0_p_Da;
   wire clk0_p_Db;
   wire clk0_p_Dc;
-  wire clk1_p_Aa;
-  wire clk1_p_Ab;
-  wire clk1_p_Ca;
-  wire clk1_p_Cb;
-  wire clk1_p_Cc;
-  wire clk1_p_Da;
-  wire clk1_p_Db;
-  wire clk1_p_Dc;
+  wire clk1_p_Aa__lead;
+  reg  clk1_p_Aa;
+  wire clk1_p_Ab__lead;
+  reg  clk1_p_Ab;
+  wire clk1_p_Ca__lead;
+  reg  clk1_p_Ca;
+  wire clk1_p_Cb__lead;
+  reg  clk1_p_Cb;
+  wire clk1_p_Cc__lead;
+  reg  clk1_p_Cc;
+  wire clk1_p_Da__lead;
+  reg  clk1_p_Da;
+  wire clk1_p_Db__lead;
+  reg  clk1_p_Db;
+  wire clk1_p_Dc__lead;
+  reg  clk1_p_Dc;
   wire clk2_p_Aa;
   wire clk2_p_Ab;
   wire clk2_p_Ac;
@@ -1033,6 +1041,19 @@ module DispY_m_Rev_m_Cl #(parameter integer SYSPER = 16) (
   wire ttlHSync_p_;
   wire ttlVSync;
   wire ttlVideo;
+
+  // ---- 8 clk1-family nets, one sys_clk behind
+  //      their pre siblings (see clock_lag above)
+  always @(posedge sys_clk) begin
+    clk1_p_Aa <= clk1_p_Aa__lead;
+    clk1_p_Ab <= clk1_p_Ab__lead;
+    clk1_p_Ca <= clk1_p_Ca__lead;
+    clk1_p_Cb <= clk1_p_Cb__lead;
+    clk1_p_Cc <= clk1_p_Cc__lead;
+    clk1_p_Da <= clk1_p_Da__lead;
+    clk1_p_Db <= clk1_p_Db__lead;
+    clk1_p_Dc <= clk1_p_Dc__lead;
+  end
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
   // An explicit OR of the drivers: what the open emitters
@@ -1971,9 +1992,9 @@ module DispY_m_Rev_m_Cl #(parameter integer SYSPER = 16) (
     .p5(IgnoreProca),
     .p7(preclk0_p_C),
     .p11(preclk1_p_C),
-    .p12(clk1_p_Cb),
-    .p13(clk1_p_Ca),
-    .p14(clk1_p_Cc),
+    .p12(clk1_p_Cb__lead),
+    .p13(clk1_p_Ca__lead),
+    .p14(clk1_p_Cc__lead),
     .p15(GND134)
   ); // SE10210
   cell_F10000 u_c20 (
@@ -2096,8 +2117,8 @@ module DispY_m_Rev_m_Cl #(parameter integer SYSPER = 16) (
     .p15(DispY21_sil_pl_2)
   ); // F10016
   cell_SE10210 u_d06 (
-    .p2(clk1_p_Ab),
-    .p3(clk1_p_Aa),
+    .p2(clk1_p_Ab__lead),
+    .p3(clk1_p_Aa__lead),
     .p7(preclk1_p_A),
     .p9(preclk1_p_A),
     .p11(MiniMixCommand_p_),
@@ -4040,9 +4061,9 @@ module DispY_m_Rev_m_Cl #(parameter integer SYSPER = 16) (
     .p15(BReaderPtr_5)
   ); // F10016
   cell_SE10210 u_j18 (
-    .p2(clk1_p_Db),
-    .p3(clk1_p_Da),
-    .p4(clk1_p_Dc),
+    .p2(clk1_p_Db__lead),
+    .p3(clk1_p_Da__lead),
+    .p4(clk1_p_Dc__lead),
     .p7(preclk1_p_Db),
     .p9(DWTCommand_p_),
     .p10(RIOB_11),

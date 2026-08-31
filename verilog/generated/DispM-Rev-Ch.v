@@ -835,17 +835,28 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   wire WriterPtr_7;
   wire clk0_p_Aa;
   wire clk0_p_Ab;
-  wire clk1_p_Aa;
-  wire clk1_p_Ab;
-  wire clk1_p_Ba;
-  wire clk1_p_Bb;
-  wire clk1_p_Bc;
-  wire clk1_p_Bd;
-  wire clk1_p_Be;
-  wire clk1_p_Bf;
-  wire clk1_p_Ca;
-  wire clk1_p_Cb;
-  wire clk1_p_Cc;
+  wire clk1_p_Aa__lead;
+  reg  clk1_p_Aa;
+  wire clk1_p_Ab__lead;
+  reg  clk1_p_Ab;
+  wire clk1_p_Ba__lead;
+  reg  clk1_p_Ba;
+  wire clk1_p_Bb__lead;
+  reg  clk1_p_Bb;
+  wire clk1_p_Bc__lead;
+  reg  clk1_p_Bc;
+  wire clk1_p_Bd__lead;
+  reg  clk1_p_Bd;
+  wire clk1_p_Be__lead;
+  reg  clk1_p_Be;
+  wire clk1_p_Bf__lead;
+  reg  clk1_p_Bf;
+  wire clk1_p_Ca__lead;
+  reg  clk1_p_Ca;
+  wire clk1_p_Cb__lead;
+  reg  clk1_p_Cb;
+  wire clk1_p_Cc__lead;
+  reg  clk1_p_Cc;
   wire clk2_p_Ca;
   wire clk2_p_Da;
   wire clk2_p_Db;
@@ -878,6 +889,22 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   wire prepreclk2_p_a;
   wire prepreclk2_p_b;
   wire prepreclk2_p_c;
+
+  // ---- 11 clk1-family nets, one sys_clk behind
+  //      their pre siblings (see clock_lag above)
+  always @(posedge sys_clk) begin
+    clk1_p_Aa <= clk1_p_Aa__lead;
+    clk1_p_Ab <= clk1_p_Ab__lead;
+    clk1_p_Ba <= clk1_p_Ba__lead;
+    clk1_p_Bb <= clk1_p_Bb__lead;
+    clk1_p_Bc <= clk1_p_Bc__lead;
+    clk1_p_Bd <= clk1_p_Bd__lead;
+    clk1_p_Be <= clk1_p_Be__lead;
+    clk1_p_Bf <= clk1_p_Bf__lead;
+    clk1_p_Ca <= clk1_p_Ca__lead;
+    clk1_p_Cb <= clk1_p_Cb__lead;
+    clk1_p_Cc <= clk1_p_Cc__lead;
+  end
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
   // An explicit OR of the drivers: what the open emitters
@@ -1787,8 +1814,8 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(VCC_m_28)
   ); // K1115A
   cell_SE10210 u_c06 (
-    .p2(clk1_p_Ab),
-    .p3(clk1_p_Aa),
+    .p2(clk1_p_Ab__lead),
+    .p3(clk1_p_Aa__lead),
     .p7(preclk1_p_A),
     .p9(NLCBCommand_p_),
     .p10(HWindow),
@@ -1943,9 +1970,9 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p16(GND_m_17)
   ); // SE10210
   cell_SE10210 u_c19 (
-    .p2(clk1_p_Cb),
-    .p3(clk1_p_Ca),
-    .p4(clk1_p_Cc),
+    .p2(clk1_p_Cb__lead),
+    .p3(clk1_p_Ca__lead),
+    .p4(clk1_p_Cc__lead),
     .p7(preclk1_p_C),
     .p10(preclk2_p_Ca),
     .p11(DisplayReadingFifo_p_),
@@ -3402,14 +3429,14 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p15(IOB_01__drv)
   ); // MC10159
   cell_SE10210 u_i06 (
-    .p2(clk1_p_Bb),
-    .p3(clk1_p_Ba),
-    .p4(clk1_p_Bc),
+    .p2(clk1_p_Bb__lead),
+    .p3(clk1_p_Ba__lead),
+    .p4(clk1_p_Bc__lead),
     .p7(preclk1_p_Bb),
     .p11(preclk1_p_Bb),
-    .p12(clk1_p_Be),
-    .p13(clk1_p_Bd),
-    .p14(clk1_p_Bf),
+    .p12(clk1_p_Be__lead),
+    .p13(clk1_p_Bd__lead),
+    .p14(clk1_p_Bf__lead),
     .p15(GND_m_8),
     .p16(GND_m_8)
   ); // SE10210

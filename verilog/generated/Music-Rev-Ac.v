@@ -92,9 +92,12 @@ module Music_m_Rev_m_Ac #(parameter integer SYSPER = 16) (
   wire Clk0WIF_p_Ba;
   wire Clk0WIF_p_Bb;
   wire Clk0WIF_p_Bc;
-  wire Clk1_p_Ba;
-  wire Clk1_p_Bb;
-  wire Clk1_p_Bc;
+  wire Clk1_p_Ba__lead;
+  reg  Clk1_p_Ba;
+  wire Clk1_p_Bb__lead;
+  reg  Clk1_p_Bb;
+  wire Clk1_p_Bc__lead;
+  reg  Clk1_p_Bc;
   wire Clk1WOF_p_Ba;
   wire Clk1WOF_p_Bb;
   wire Clk1WOF_p_Bc;
@@ -208,6 +211,14 @@ module Music_m_Rev_m_Ac #(parameter integer SYSPER = 16) (
   wire prepreDblClk_p_X;
   wire prepreDblClk_p_Y;
   wire prepreFH_p_;
+
+  // ---- 3 clk1-family nets, one sys_clk behind
+  //      their pre siblings (see clock_lag above)
+  always @(posedge sys_clk) begin
+    Clk1_p_Ba <= Clk1_p_Ba__lead;
+    Clk1_p_Bb <= Clk1_p_Bb__lead;
+    Clk1_p_Bc <= Clk1_p_Bc__lead;
+  end
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
   // An explicit OR of the drivers: what the open emitters
@@ -670,9 +681,9 @@ module Music_m_Rev_m_Ac #(parameter integer SYSPER = 16) (
     .p15(INA2)
   ); // MC10158
   cell_SE10210 u_i06 (
-    .p2(Clk1_p_Bb),
-    .p3(Clk1_p_Ba),
-    .p4(Clk1_p_Bc),
+    .p2(Clk1_p_Bb__lead),
+    .p3(Clk1_p_Ba__lead),
+    .p4(Clk1_p_Bc__lead),
     .p7(preClk1_p_Ba),
     .p11(preClk0_p_Ba),
     .p12(Clk0_p_Bb),
