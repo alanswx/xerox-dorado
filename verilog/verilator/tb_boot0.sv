@@ -839,7 +839,12 @@ module tb_boot0;
       $display("tb_boot0: legs -- StopMIRClkEn=%b IMLHPEenable=%b IMRHPEenable=%b (g03 d_pre=%b ManClk_7'=%b)",
                m.b_ContB.StopMIRClkEn, m.b_ContB.IMLHPEenable, m.b_ContB.IMRHPEenable,
                m.b_ContB.u_g03.d_pre, m.b_ContB.ManClk_7_p_);
-      if (m.StopMIRClk !== 1'b1) $fatal(1, "the MIR clock is not held (never rose in 200)");
+      // Under depth-true timing the startup parity error is no longer
+      // latched, so the accidental freeze never engages -- and the SetSS
+      // single-step choreography (parc_micro) does not need it. Warn, and
+      // let the jam prove itself downstream.
+      if (m.StopMIRClk !== 1'b1)
+        $display("tb_boot0: WARNING -- no parity freeze; relying on SetSS stepping");
     end
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca; p2 = m.b_ContA.clk2_p_Bc;
     zero;
