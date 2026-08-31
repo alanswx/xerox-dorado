@@ -1560,7 +1560,7 @@ module tb_exec;
                m.b_ProcL.u_l03.mem[4'hf], m.b_ProcL.u_l04.mem[4'hf]);
     end
   always @(posedge sys_clk)
-    if (fastwait && tnia_now == 12'hc0a
+    if (fastwait && (tnia_now == 12'hc40 || tnia_now == 12'hc0a)
         && {m.b_ProcL.u_l03.mem[4'hf], m.b_ProcL.u_l04.mem[4'hf]} > 8'h10) begin
       m.b_ProcH.u_l03.mem[4'hf] = 4'h0;  // T.00-03
       m.b_ProcH.u_l04.mem[4'hf] = 4'h0;  // T.04-07
@@ -1568,6 +1568,22 @@ module tb_exec;
       m.b_ProcL.u_l04.mem[4'hf] = 4'h4;  // T.12-15 -> T = 0x0004
       n_clip = n_clip + 1;
     end
+  // The file clip cannot beat the BYPASS (the loop forwards its own
+  // decrement), so the wait is exited by its CONDITION instead: while the
+  // machine sits at LWRETN, pulse the latched ALU=0 the branch tests.
+  // Zero-true sense is LOW (measured at the checksum: ResEq0'=0 captured
+  // the XOR's zero). Held a few cycles, released, with a gap so each
+  // LongWait call exits once rather than every branch mis-taking.
+  integer fw_ph = 0;
+  always @(posedge sys_clk) begin
+    if (fastwait && tnia_now == 12'hc0a) begin
+      fw_ph = fw_ph + 1;
+      if (fw_ph == 64)  force m.ResEqZero_p_ = 1'b0;
+      if (fw_ph == 128) begin release m.ResEqZero_p_; fw_ph = 0; end
+    end else if (fw_ph != 0 && tnia_now != 12'hc0a) begin
+      release m.ResEqZero_p_; fw_ph = 0;
+    end
+  end
 
   // EVERY T-FILE WRITE: strobe = ProcH TbWrite'a falling, slot = CurrLast'
   // (the per-task address), data = dTm. Prints the first 24 so the startup's
