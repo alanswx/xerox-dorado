@@ -1573,14 +1573,16 @@ module tb_exec;
   initial if ($value$plusargs("tcwin=%d", tcs)) tce = tcs + 60;
   always @(posedge sys_clk)
     if (tce != 0 && n_cyc2 >= tcs && n_cyc2 < tce)
-      $display("tb_exec: TC @%0d dAmux0=%b(c24=%b c22=%b b20=%b) BSel26=%b MarMuxAEn'=%b pl2=%b RMar09=%b LdMcr'=%b | BEn'=%b Amux1'=%b Ain09=%b Q09=%b FFok'b=%b",
+      $display("tb_exec: TC @%0d dAmux0=%b(c24=%b c22=%b b20=%b) BSel26=%b MarMuxAEn'=%b pl2=%b RMar09=%b LdMcr'=%b | rawMcr(2,3,13,14,15)=%b%b%b%b%b PrClk1'=%b Mcr_u'=%b",
                n_cyc2, m.b_ProcL.dAmux0,
                m.b_ProcL.dAmux0__c24_3, m.b_ProcL.dAmux0__c22_2, m.b_ProcL.dAmux0__b20_3,
                m.b_ProcL.BSel_eq_2_s_6,
                m.b_ProcL.MarMuxAEn_p_, m.b_ProcL.ProcL14_sil_pl_2,
                m.b_MemC.RMar_09, m.b_MemC.LdMcr_p_,
-               m.b_ProcL.MarMuxBEn_p_, m.b_ProcL.Amux1_p_,
-               m.b_ProcL.Ain_09, m.b_ProcL.Q_09, m.b_ProcL.FFok_p_b);
+               m.b_MemC.MemC19_sil_pl_2, m.b_MemC.MemC19_sil_pl_3,
+               m.b_MemC.MemC19_sil_pl_13, m.b_MemC.MemC19_sil_pl_14,
+               m.b_MemC.MemC19_sil_pl_15,
+               m.b_MemC.PrClk1_p_Db, m.b_MemC.Mcr_u__p_);
   integer n_marA = 0;
   always @(posedge sys_clk) if (m.b_ProcL.MarMuxAEn_p_) n_marA = n_marA + 1;
   integer n_twr = 0; reg d_tbw = 1'b1;
