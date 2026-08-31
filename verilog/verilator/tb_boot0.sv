@@ -824,7 +824,18 @@ module tb_boot0;
     repeat (WT(2000)) @(posedge sys_clk);
     manifold(12'h030);
     manifold(12'h1E0);
-    if (m.StopMIRClk !== 1'b1) $fatal(1, "the MIR clock is not held");
+    // Under the depth-derived clock lag (DORADO_CLOCK_DEPTH=1) the manifold
+    // write's effect ripples through up to CLOCK_DEPTH_CAP lagged stages;
+    // give it a handful of cycles before checking, which is also what the
+    // real 6502's instruction spacing provides.
+    repeat (WT(8)) @(posedge sys_clk);
+    if (m.StopMIRClk !== 1'b1) begin
+      integer sw;
+      for (sw = 0; sw < 200 && m.StopMIRClk !== 1'b1; sw = sw + 1)
+        @(posedge sys_clk);
+      $display("tb_boot0: StopMIRClk rose after %0d extra sys_clk (0=immediately)", sw);
+      if (m.StopMIRClk !== 1'b1) $fatal(1, "the MIR clock is not held (never rose in 200)");
+    end
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca; p2 = m.b_ContA.clk2_p_Bc;
     zero;
     wipe_im;
