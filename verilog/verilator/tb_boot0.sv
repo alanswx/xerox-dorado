@@ -106,6 +106,16 @@ module tb_boot0;
   // the ninth bit, where DoControl's CARRY lands ("LDAI Control^1 / RORA"),
   // i.e. SetSS. So a Control strobe ALREADY carries both, and setting the
   // ports by hand as well was a second, unsynchronised copy of the same state.
+  // COUNT, DO NOT SAMPLE: the pre-jam parity error may pulse.
+  integer n_rhpe_hi = 0, n_rhpe_edge = 0, n_ck0ba_edge = 0;
+  reg d_rhpe = 1'b0, d_ck0ba = 1'b0;
+  always @(posedge sys_clk) begin
+    if (m.b_ContB.bIMRHPE) n_rhpe_hi = n_rhpe_hi + 1;
+    if (m.b_ContB.bIMRHPE !== d_rhpe) n_rhpe_edge = n_rhpe_edge + 1;
+    if (m.b_ContB.clk0_p_Ba && !d_ck0ba) n_ck0ba_edge = n_ck0ba_edge + 1;
+    d_rhpe <= m.b_ContB.bIMRHPE; d_ck0ba <= m.b_ContB.clk0_p_Ba;
+  end
+
   task strobe(input [2:0] fn, input [7:0] data, input ss);
     begin
       addr_n = ~fn; cpout = {data, ss};
@@ -833,6 +843,8 @@ module tb_boot0;
     repeat (WT(8)) @(posedge sys_clk);
     $display("tb_boot0: pre-jam error state -- bIMLHPE=%b bIMRHPE=%b IMLHPEDly=%b StopMIRClk=%b",
              m.b_ContB.bIMLHPE, m.b_ContB.bIMRHPE, m.b_ContB.IMLHPEDly__drv, m.StopMIRClk);
+    $display("tb_boot0: pre-jam COUNTS -- bIMRHPE high %0d cyc / %0d edges; clk0'Ba edges %0d",
+             n_rhpe_hi, n_rhpe_edge, n_ck0ba_edge);
     if (m.StopMIRClk !== 1'b1) begin
       integer sw;
       for (sw = 0; sw < 200 && m.StopMIRClk !== 1'b1; sw = sw + 1)
