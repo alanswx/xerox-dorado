@@ -53,8 +53,22 @@ module cell_MC10176 (
   always @(posedge sys_clk) ck_d <= p9;
   wire ck_en = p9 & ~ck_d;
 
+  // PRE-EDGE CAPTURE -- a real flip-flop's SETUP TIME, restored. The
+  // oversampling transform detects the modelled clock's edge one sys_clk
+  // after it happens, and by then a D that changed ON that same edge has
+  // already settled to its NEW value -- so a same-edge coincidence captured
+  // data the real part could never have seen (zero setup). Measured on
+  // ProcL d17: its SHCP'C edge and its D transition land on the same
+  // sys_clk, it captured the NEW enable, ProcL's half of T missed its
+  // write, and Bootstrap's checksum read {new high, old low}. Registering
+  // D every sys_clk and capturing the PRE-EDGE copy makes every capture see
+  // the data as it stood before the detected edge -- the conservative,
+  // real-FF resolution of every such coincidence, uniformly.
+  reg [5:0] d_pre;
+  always @(posedge sys_clk) d_pre <= {p12, p11, p10, p7, p6, p5};
+
   reg [5:0] q;
-  always @(posedge sys_clk) if (ck_en) q <= {p12, p11, p10, p7, p6, p5};
+  always @(posedge sys_clk) if (ck_en) q <= d_pre;
   assign {p15, p14, p13, p4, p3, p2} = q;
 
   wire _unused_pins = &{1'b0, p1, p8, p16, 1'b0};
