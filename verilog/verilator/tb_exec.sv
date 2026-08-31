@@ -1604,7 +1604,7 @@ module tb_exec;
 `endif
   integer n_marA = 0;
   always @(posedge sys_clk) if (m.b_ProcL.MarMuxAEn_p_) n_marA = n_marA + 1;
-  integer n_twr = 0; reg d_tbw = 1'b1;
+  integer n_twr = 0; reg d_tbw = 1'b1; reg [15:0] twr_last = 16'hxxxx;
   wire [15:0] w_dtm = {m.b_ProcH.dTm_00, m.b_ProcH.dTm_01, m.b_ProcH.dTm_02,
                        m.b_ProcH.dTm_03, m.b_ProcH.dTm_04, m.b_ProcH.dTm_05,
                        m.b_ProcH.dTm_06, m.b_ProcH.dTm_07,
@@ -1614,9 +1614,11 @@ module tb_exec;
   wire [3:0] w_tslot = {m.b_ProcH.CurrLast_3_p_, m.b_ProcH.CurrLast_2_p_,
                         m.b_ProcH.CurrLast_1_p_, m.b_ProcH.CurrLast_0_p_};
   always @(posedge sys_clk) begin
-    if (cktrace && !m.b_ProcH.TbWrite_p_a && d_tbw && n_twr < 24) begin
-      $display("tb_exec: TWR slot=%h dTm=%h (pc around %h)", w_tslot, w_dtm, tnia_now);
+    if (cktrace && !m.b_ProcH.TbWrite_p_a && d_tbw && n_twr < 40
+        && w_dtm !== twr_last) begin
+      $display("tb_exec: TWR slot=%h dTm=%h (pc around %h, @%0d)", w_tslot, w_dtm, tnia_now, n_cyc2);
       n_twr = n_twr + 1;
+      twr_last = w_dtm;
     end
     d_tbw <= m.b_ProcH.TbWrite_p_a;
   end
