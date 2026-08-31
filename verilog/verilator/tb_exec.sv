@@ -1573,8 +1573,8 @@ module tb_exec;
   initial if ($value$plusargs("tcwin=%d", tcs)) tce = tcs + 60;
   always @(posedge sys_clk)
     if (tce != 0 && n_cyc2 >= tcs && n_cyc2 < tce)
-      $display("tb_exec: TC @%0d dAmux0=%b(c24=%b c22=%b b20=%b) BSel26=%b MarMuxAEn'=%b pl2=%b RMar09=%b LdMcr'=%b | ASel67=%b AuId'=%b dAmux1'=%b Amux0=%b Mcr_u'=%b",
-               n_cyc2, m.b_ProcL.dAmux0,
+      $display("tb_exec: TC @%0d pc=%h ff=%h dAmux0=%b(c24=%b c22=%b b20=%b) BSel26=%b MarMuxAEn'=%b pl2=%b RMar09=%b LdMcr'=%b | ASel67=%b AuId'=%b dAmux1'=%b Amux0=%b Mcr_u'=%b",
+               n_cyc2, tnia_now, ff_now, m.b_ProcL.dAmux0,
                m.b_ProcL.dAmux0__c24_3, m.b_ProcL.dAmux0__c22_2, m.b_ProcL.dAmux0__b20_3,
                m.b_ProcL.BSel_eq_2_s_6,
                m.b_ProcL.MarMuxAEn_p_, m.b_ProcL.ProcL14_sil_pl_2,
