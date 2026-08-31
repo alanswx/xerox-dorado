@@ -1460,6 +1460,10 @@ module tb_exec;
   // what it looks like, and it would explain a decoded FF that never matches
   // IM at the address TNIA names.
   integer n_rep;
+  integer n_repp = 0, n_swup = 0, n_cah20 = 0, n_cahp2 = 0, n_hold2 = 0;
+  integer ph_hold [0:15];
+  integer n_hgap = 0, gap_run = 0, gap_max = 0, gap_last = 0; reg d_hold3 = 1'b0;
+  initial for (integer pi = 0; pi < 16; pi = pi + 1) ph_hold[pi] = 0;
   // ...and the three signals AT THE GATE. cell_MC1660 gives f20 as
   //     gate b: CAHold' = ~Hold          (pin 10 -> pin 14)
   //     gate a: RepeatCur = ~(CAHold' | SwitchUp)
@@ -2103,6 +2107,21 @@ module tb_exec;
 `ifdef WORLD
       if (m.Freeze) n_freeze = n_freeze + 1;
       if (m.b_ContA.RepeatCur) n_rep = n_rep + 1;
+      if (m.b_ContA.RepeatCur_p_)  n_repp  = n_repp + 1;
+      if (m.b_ContA.CAHold_p_)     n_cahp2 = n_cahp2 + 1;
+      if (m.b_ContA.Hold)          n_hold2 = n_hold2 + 1;
+      if (m.b_ContA.Hold)          ph_hold[j2 % 16] = ph_hold[j2 % 16] + 1;
+      // EPISODES, not levels: each deassertion is a window in which the
+      // machine can advance. Count edges, the longest gap, and the last one.
+      if (!m.b_ContA.Hold && d_hold3) n_hgap = n_hgap + 1;
+      if (!m.b_ContA.Hold) begin
+        gap_run = gap_run + 1;
+        if (gap_run > gap_max) gap_max = gap_run;
+        gap_last = j2;
+      end else gap_run = 0;
+      d_hold3 = m.b_ContA.Hold;
+      if (m.b_ContA.SwitchUp)      n_swup  = n_swup + 1;
+      if (m.b_ContA.CAHold)        n_cah20 = n_cah20 + 1;
       if (m.TWReq_15) n_twr15 = n_twr15 + 1;
       if (m.b_MemX.Faults)     n_faults   = n_faults + 1;
       if (m.b_MemX.WakeEnable) n_wen      = n_wen + 1;
@@ -2290,6 +2309,13 @@ module tb_exec;
              runcycles, n_faults, n_wen, n_stkwake);
     $display("tb_exec: WAKE -- TWReq.15 high on %0d of %0d; first task switch at cycle %0d, to task %0d",
              n_twr15, runcycles, first_switch, first_switch_to);
+    $display("tb_exec: HOLD GAPS -- %0d deassert episodes, longest %0d samples, last not-held at %0d of %0d",
+             n_hgap, gap_max, gap_last, runcycles);
+    $write("tb_exec: HOLD BY PHASE --");
+    for (i = 0; i < 16; i = i + 1) $write(" %0d", ph_hold[i]);
+    $write("\n");
+    $display("tb_exec: F20 -- RepeatCur %0d RepeatCur' %0d SwitchUp %0d CAHold %0d CAHold' %0d Hold %0d",
+             n_rep, n_repp, n_swup, n_cah20, n_cahp2, n_hold2);
     $write("tb_exec: TASK -- Freeze %0d, RepeatCur %0d of %0d; CTask changed %0d times; occupancy:",
            n_freeze, n_rep, runcycles, n_ctchg);
     for (i = 0; i < 16; i = i + 1) if (n_ctask[i] != 0) $write(" t%0d=%0d", i, n_ctask[i]);
