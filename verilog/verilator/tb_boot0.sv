@@ -617,9 +617,27 @@ module tb_boot0;
   // Control(ClrStop+ClrMIR+ClrCT+Freeze) SS=0, Control(0) SS=1, the four MIR
   // bytes, Control(SetRun) SS=1, then BasicStopDorado's Control(SetRun) SS=1
   // and Control(0) SS=1.
+  // Per-sys_clk geometry of one jam under depth timing: MIR bytes landing,
+  // the step's lagged clk pulses, Link's value, Stop/Run. +jamtrace arms it
+  // for the NEXT parc_micro call only.
+  integer jamtrace = 0, jt_on = 0, jt_n = 0;
+  initial jamtrace = $test$plusargs("jamtrace");
+  always @(posedge sys_clk)
+    if (jt_on && jt_n < 400) begin
+      jt_n = jt_n + 1;
+      if (jt_n % 4 == 1)
+        $display("tb_boot0: JT +%0d clk0'Ca=%b clk1'Ca=%b Stop=%b dRun=%b Link=%h MIRff=%b%b%b%b%b%b%b%b",
+                 jt_n, m.b_ContA.clk0_p_Ca, m.b_ContA.clk1_p_Ca,
+                 m.b_ContA.Stop, m.b_ContA.dRun, link_hi,
+                 ~m.b_ContA.FF_0_p_, ~m.b_ContA.FF_1_p_, ~m.b_ContA.FF_2_p_,
+                 ~m.b_ContA.FF_3_p_, ~m.b_ContA.FF_4_p_, ~m.b_ContA.FF_5_p_,
+                 ~m.b_ContA.FF_6_p_, ~m.b_ContA.FF_7_p_);
+    end
+
   task parc_micro(input [7:0] b0, input [7:0] b1, input [7:0] b2,
                   input [7:0] b3, input [7:0] b4);
     begin
+      if (jamtrace) begin jt_on = 1; jt_n = 0; jamtrace = 0; end
       strobe(3'd1, 8'h21, 1'b0); repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h4E, 1'b0);
       repeat (GAP) @(posedge sys_clk);
