@@ -1461,6 +1461,7 @@ module tb_exec;
   // IM at the address TNIA names.
   integer n_rep;
   integer n_repp = 0, n_swup = 0, n_cah20 = 0, n_cahp2 = 0, n_hold2 = 0;
+  integer n_hx2a_held = 0, n_tnia_held = 0; reg d_hx2a = 1'b0; reg [11:0] d_tnia_h = 12'h0;
   integer ph_hold [0:15];
   integer n_hgap = 0, gap_run = 0, gap_max = 0, gap_last = 0; reg d_hold3 = 1'b0;
   initial for (integer pi = 0; pi < 16; pi = pi + 1) ph_hold[pi] = 0;
@@ -2107,6 +2108,16 @@ module tb_exec;
 `ifdef WORLD
       if (m.Freeze) n_freeze = n_freeze + 1;
       if (m.b_ContA.RepeatCur) n_rep = n_rep + 1;
+      // Does the gated MIR clock edge WHILE the repeat is asserted? c19
+      // (SE10210) makes h*clk0' = RepeatCurC | StopMIRClk | preclk0', so a
+      // high RepeatCurC should pin it high: zero edges. Each copy checked,
+      // and TNIA changes counted in the same era.
+      if (m.b_ContA.RepeatCurC) begin
+        if (m.b_ContA.h_x2a_clk0_p_Ca && !d_hx2a) n_hx2a_held = n_hx2a_held + 1;
+        if (tnia_now !== d_tnia_h) n_tnia_held = n_tnia_held + 1;
+      end
+      d_hx2a  = m.b_ContA.h_x2a_clk0_p_Ca;
+      d_tnia_h = tnia_now;
       if (m.b_ContA.RepeatCur_p_)  n_repp  = n_repp + 1;
       if (m.b_ContA.CAHold_p_)     n_cahp2 = n_cahp2 + 1;
       if (m.b_ContA.Hold)          n_hold2 = n_hold2 + 1;
@@ -2309,6 +2320,8 @@ module tb_exec;
              runcycles, n_faults, n_wen, n_stkwake);
     $display("tb_exec: WAKE -- TWReq.15 high on %0d of %0d; first task switch at cycle %0d, to task %0d",
              n_twr15, runcycles, first_switch, first_switch_to);
+    $display("tb_exec: MIRCLK -- h*clk0'(Ca) rising edges while RepeatCurC=1: %0d; TNIA changes while RepeatCurC=1: %0d",
+             n_hx2a_held, n_tnia_held);
     $display("tb_exec: HOLD GAPS -- %0d deassert episodes, longest %0d samples, last not-held at %0d of %0d",
              n_hgap, gap_max, gap_last, runcycles);
     $write("tb_exec: HOLD BY PHASE --");
