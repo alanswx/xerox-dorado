@@ -1640,15 +1640,15 @@ module tb_exec;
 `ifdef WORLD
   always @(posedge sys_clk)
     if (tce != 0 && n_cyc2 >= tcs && n_cyc2 < tce)
-      $display("tb_exec: TC @%0d pc=%h ff=%h dAmux0=%b(c24=%b c22=%b b20=%b) BSel26=%b MarMuxAEn'=%b pl2=%b RMar09=%b LdMcr'=%b | SHCP'C=%b Clk0Da=%b D_H=%b D_L=%b EnH'=%b EnL'=%b",
+      $display("tb_exec: TC @%0d pc=%h ff=%h dAmux0=%b(c24=%b c22=%b b20=%b) BSel26=%b MarMuxAEn'=%b pl2=%b RMar09=%b LdMcr'=%b | RMar09=%b RMar10=%b AEn'=%b BEn'=%b Amux1'=%b LdMcr'=%b",
                n_cyc2, tnia_now, ff_now, m.b_ProcL.dAmux0,
                m.b_ProcL.dAmux0__c24_3, m.b_ProcL.dAmux0__c22_2, m.b_ProcL.dAmux0__b20_3,
                m.b_ProcL.BSel_eq_2_s_6,
                m.b_ProcL.MarMuxAEn_p_, m.b_ProcL.ProcL14_sil_pl_2,
                m.b_MemC.RMar_09, m.b_MemC.LdMcr_p_,
-               m.b_ProcL.SHCP_p_C, m.b_ProcH.Clock0_p_Da,
-               m.b_ProcH.ProcH20_sil_pl_5, m.b_ProcL.ProcL20_sil_pl_6,
-               m.b_ProcH.TbWriteEn_p_, m.b_ProcL.TbWriteEn_p_);
+               m.b_MemC.RMar_09, m.b_MemC.RMar_10,
+               m.b_ProcL.MarMuxAEn_p_, m.b_ProcL.MarMuxBEn_p_,
+               m.b_ProcL.Amux1_p_, m.b_MemC.LdMcr_p_);
 `endif
   integer n_marA = 0;
   always @(posedge sys_clk) if (m.b_ProcL.MarMuxAEn_p_) n_marA = n_marA + 1;
