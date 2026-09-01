@@ -727,13 +727,13 @@ module IFU_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   wire clk0_p_De;
   wire clk0_p_Df;
   wire clk1_p_Aa__lead;
-  reg  clk1_p_Aa;
+  reg  clk1_p_Aa = 1'b1;
   wire clk1_p_Ab__lead;
-  reg  clk1_p_Ab;
+  reg  clk1_p_Ab = 1'b1;
   wire clk1_p_Ac__lead;
-  reg  clk1_p_Ac;
+  reg  clk1_p_Ac = 1'b1;
   wire clk1_p_Da__lead;
-  reg  clk1_p_Da;
+  reg  clk1_p_Da = 1'b1;
   wire dGoodIfuJump;
   wire dHJ_0;
   wire dHJ_1;

@@ -93,11 +93,11 @@ module Music_m_Rev_m_Ac #(parameter integer SYSPER = 16) (
   wire Clk0WIF_p_Bb;
   wire Clk0WIF_p_Bc;
   wire Clk1_p_Ba__lead;
-  reg  Clk1_p_Ba;
+  reg  Clk1_p_Ba = 1'b1;
   wire Clk1_p_Bb__lead;
-  reg  Clk1_p_Bb;
+  reg  Clk1_p_Bb = 1'b1;
   wire Clk1_p_Bc__lead;
-  reg  Clk1_p_Bc;
+  reg  Clk1_p_Bc = 1'b1;
   wire Clk1WOF_p_Ba;
   wire Clk1WOF_p_Bb;
   wire Clk1WOF_p_Bc;

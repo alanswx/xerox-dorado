@@ -1051,8 +1051,16 @@ class Generator:
                 # clk1-family: the buffer's output is taken one sys_clk
                 # late, restoring the PreClock1'/Clock1' ordering the real
                 # board gets from propagation delay. See clock_lag() above.
+                #
+                # IDLE-LEVEL INIT: primed clock nets idle HIGH, and a lag
+                # register that wakes at 0 presents every downstream
+                # level-sensitive decode with an asserted clock during the
+                # settle window -- state latched off that wrong level held
+                # the depth-mode phase ring frozen. Initialise each stage
+                # to the net's idle level instead.
+                idle = "1'b1" if "'" in n else "1'b0"
                 A(f'  wire {vname(n)}__lead;')
-                A(f'  reg  {vname(n)};')
+                A(f'  reg  {vname(n)} = {idle};')
             else:
                 A(f'  wire {vname(n)};')
         A('')
@@ -1061,8 +1069,9 @@ class Generator:
             A('  //      their pre siblings (see clock_lag above)')
             for n in lagged:
                 st = self.clock_lag_stages(n)
+                idle = "1'b1" if "'" in n else "1'b0"
                 for k in range(1, st):
-                    A(f'  reg  {vname(n)}__lag{k};')
+                    A(f'  reg  {vname(n)}__lag{k} = {idle};')
             A('  always @(posedge sys_clk) begin')
             for n in lagged:
                 st = self.clock_lag_stages(n)
