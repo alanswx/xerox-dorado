@@ -187,13 +187,25 @@ correctly (b15 is faithful; and FF_eq_BDispatch legitimately does NOT
 fire, since PARC's BDispatch is FA=0/FB=7/FC=1, an entirely different
 instruction). So the blocker is NOT a collapsed pipeline and NOT a
 decode miss -- it is a CONDITION that evaluates to "exit" every time.
-The likely cause is upstream: the T register (the loop counter) was
-measured CYCLING (0008/0004/000c) instead of counting 1..17, so
-ResLt0 is stuck. Next: probe c47's FFBrOnResLt0 and the ALU
-result/sign against T in the loop, and find why T does not advance
-monotonically -- a much more tractable, well-scoped question than
-"the phase ring". +wtpcfix stays; the WTPC half is understood and its
-write is sound (taskrun-test).
+CONCLUSIVELY MEASURED (probe brres.log): T DOES advance -- the values
+0008/0004/000c are C's T=1,2,3 with the low nibble BIT-REVERSED (the
+same reversal the RM/TPC/T address lines use), so the counter is fine.
+And the condition IS selected: at c47 (samples where pc=c44, MIR=c47)
+FFBrOnResLt0=1 and CBrOnResLt0'=0 (asserted). THE ROOT IS
+PHASE-SAMPLING: ResLtZero' TOGGLES 1<->0 WITHIN c47's residency
+(result >=0 at one phase, <0 at another), and the branch captures the
+>=0 phase -> TNIA15=0 -> exit (c44), where the oracle's SETTLED result
+is <0 -> continue (c45). So the condition is computed correctly but
+SAMPLED AT THE WRONG PHASE -- the SAME phase-collapse root as the WTPC
+6-cycle residency and the whole depth-mode campaign. The task-init
+loop is phase-dependent THROUGHOUT (WTPC residency + conditional-branch
+condition-sampling), so landing the boot needs the PHASE MODEL, not
+per-mechanism knobs. +wtpcfix stays as the demonstration that the WTPC
+half is understood (write sound per taskrun-test); the
+conditional-branch sampling is the next instance of the ONE root, not
+a new bug. DEFINITIVE CONCLUSION of the task-init investigation: it is
+the depth/phase model's territory, holistically -- the same core the
+2026-08-29..31 depth campaign built the per-net buffer-depth lag for.
 
 **And the WTPC WRITE MECHANISM IS PROVEN SOUND IN ISOLATION**, which
 reframes the write failure: `taskrun-test` PASSES and writes TPC
