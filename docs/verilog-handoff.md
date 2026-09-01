@@ -141,10 +141,13 @@ sub-decoder, enabled by e21's `Return'` and JCN[2],[3],[4], producing
 `WTPC'`/`RTPC'`/`RIM'`/`WIM'` -- and WTPC' asserts (low) exactly during
 c46's decode. But **RepeatCur is 0 on EVERY sample**: the 6-cycle TPC/IM
 RESIDENCY never happens. The phases toggle (Ph0'/Ph4' alternate
-per-instruction) but the op completes in ONE cycle, so ContA's f21
-branch-source mux (an MU10164; inputs LocalBr'/IMRH/IFUNext'/LongJump'/
-**Return'a**/CondBr') takes the Return'a source -> TNIA = Link = 0o6141
-= c61, and c61 (TASKINIT, the VALUE being written) is FETCHED AND
+per-instruction) but the op completes in ONE cycle, so ContA's TNIA mux
+(i24/i22/i21 for TNIA.10, and siblings) takes the **Return'c** source
+-> TNIA = Link = 0o6141 = c61 (**CORRECTION**: an earlier commit called
+f21 the branch-source mux; f21/j03 are the MUFFLER readback muxes
+feeding DMuxData -- the real next-address path is i21(MC10159)/
+i22(MC10101) for the CIA-relative address and i24(MC10121) which ORs in
+`Link_10'` under `Return'c`), and c61 (TASKINIT, the VALUE being written) is FETCHED AND
 EXECUTED as a spurious instruction. The full RTL loop is
 c45 -> c60 -> c46 -> **c61** -> c47 -> c44; the oracle's is
 c45 -> c60 -> c46 -> c47 -> c45. Two things are wrong and the first
@@ -152,13 +155,23 @@ causes the second: (1) WTPC fetches Link as an instruction because
 nothing holds it for its 6 cycles; (2) the loop's BDispatch exit-control
 (c47, FF=0o061, ORs Link[13:15] into the next TNIA) then lands c44 where
 the oracle lands c45 -- the dispatch value is polluted by the spurious
-c61. **THE FIX is the 6-cycle TPC/IM addressing flow (HM §4.8, Figure 7,
-"these take 6 cycles and use the RSTK field as a sub-decode")**: WTPC
-must assert a hold/residency so Link is never fetched, and the op
-advances to CIA+1 when it completes. This is a real control-section
-feature (the same phase-collapse theme as the depth-mode campaign: our
-SYSPER model runs the 6 phases in fewer cycles), the right size for a
-dedicated session -- NOT a one-net jumper. A bench stand-in is possible
+c61. **THE FIX is the 6-cycle TPC/IM addressing flow, and it is ROOTED IN
+THE PHASE RING** (HM §4.8, Figure 7). The residency mechanism is
+LOCATED: `RWTPCorRWIM` (d21) feeds **j05 (MC10117)** together with
+`dStartCycle`, `Phase0'`, `Phase4'`, `preStartCycle` -- i.e. TPC/IM ops
+SUPPRESS the start of a new microcycle so the phase ring holds the
+instruction for its 6 cycles, during which Link is written to TPC (data)
+and, at completion, TNIA advances to CIA+1. RepeatCur=0 (measured)
+because our SYSPER model COLLAPSES the phase ring: the StartCycle
+suppression that should span 6 real cycles runs in one, so the op
+completes immediately and i24's Return'c -> Link is fetched. **This is
+the SAME phase-collapse root as the depth-mode campaign** (`dStartCycle`/
+`preStartCycle` are the exact nets that campaign fought), not a decode
+gap and not a jumper. The tractable next step is the depth/phase model
+for the TPC/IM residency specifically -- make j05's StartCycle
+suppression hold the phase ring for the op's real duration -- which is a
+scoped instance of the general phase-ring problem rather than the whole
+thing. A bench stand-in is possible
 but entangled with the BDispatch, so it will not cleanly land the boot
 alone. The probe kit (TSW with WTPC'/RTPC'/Return'a/GetTLink'/RepeatCur/
 Phase) is in tb_exec.
