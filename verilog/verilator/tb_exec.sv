@@ -302,14 +302,16 @@ module tb_exec;
   // empty. If VSync never asserts the buffer degrades to the strip capture's
   // behaviour (lines accumulate to the bottom and hold), which is itself the
   // diagnostic: horizontal timing without vertical timing.
-  integer frame_on, n_fields = 0, fpx = 0, fpy = 0;
+  integer frame_on, n_fields = 0, fpx = 0, fpy = 0, fi, fj;
   reg [7:0] ffb [0:895][0:1023];
   reg fd_hs, fd_vs, fd_pix;
   initial begin
     frame_on = $test$plusargs("frame");
     fpx = 0; fpy = 0; fd_hs = 1'b0; fd_vs = 1'b1; fd_pix = 1'b0;
-    for (py = 0; py < 896; py = py + 1)
-      for (px = 0; px < 1024; px = px + 1) ffb[py][px] = 8'd128;
+    // Dedicated loop variables: the first cut borrowed the strip capture's
+    // py/px and left them at 896/1024, silently disabling that capture.
+    for (fi = 0; fi < 896; fi = fi + 1)
+      for (fj = 0; fj < 1024; fj = fj + 1) ffb[fi][fj] = 8'd128;
   end
   always @(posedge sys_clk) if (frame_on) begin
     if (pixel_clk && !fd_pix) begin
@@ -342,8 +344,8 @@ module tb_exec;
         $fwrite(f, "\n");
       end
       $fclose(f);
-      $display("tb_exec: +frame -- wrote dorado_frame.pgm, %0d fields seen, last line %0d",
-               n_fields, fpy);
+      $display("tb_exec: +frame -- wrote dorado_frame.pgm, %0d fields seen, last line %0d (transitions: hsync %0d vsync' %0d vid %0d)",
+               n_fields, fpy, n_hs, n_vs, n_vid);
     end
   endtask
 
@@ -365,6 +367,83 @@ module tb_exec;
   initial if ($test$plusargs("mrlow")) begin
     force m.b_DispY.u_l10.p12 = 1'b0;
     $display("tb_exec: +mrlow -- l10's MR forced LOW");
+  end
+  // `+hasram` -- what INITHRAM's control write does, done as state. h15 (an
+  // MC10231) is the DoradoHasHRam flip-flop: D = RIOB.00, reset = IOReset,
+  // and its clock is clk1'Dc ORed with HRamCommand' -- so it clocks ONLY
+  // during an HRam command write, and a deposited value sticks. Power-up
+  // leaves qa = 0, whose Q' IS DoradoHasHRam = 1, and that net is l10's
+  // MASTER RESET: RamHSync/HSync can never move on an unconfigured board,
+  // which is correct hardware behaviour, not a bug. (The older `+mrlow`
+  // pin force is INERT under module inlining -- the forced port aliases the
+  // whole net -- which is why its green era stopped reproducing.) Setting
+  // qa = 1 is exactly the state INITHRAM's control write leaves.
+  // ...and h15's OTHER flip-flop is HRamWE (qb), which powers up with
+  // HRamWE' = qb = 0 -- ASSERTED. h14/i14/j14 then WRITE RIOB into
+  // mem[addr] on every cycle as the address walks, bulldozing the +hram
+  // preload: measured as 35 one-sys_clk preHSync slivers per run (one per
+  // 1024-walk) where a 34-entry sync run should read high for whole
+  // stretches. Both bits are exactly the state the microcode's HRam-load
+  // teardown leaves: table valid (qa=1), write path off (qb=1). The +hram
+  // preload is REAPPLIED after the deposit because the walk has already
+  // clobbered part of the table by then.
+  initial if ($test$plusargs("hasram")) begin
+    repeat (1000) @(posedge sys_clk);
+    m.b_DispY.u_h15.qa = 1'b1;
+    m.b_DispY.u_h15.qb = 1'b1;
+    if ($test$plusargs("hram")) preload_hram;
+    $display("tb_exec: +hasram -- h15 qa,qb deposited: DoradoHasHRam low, HRamWE' deasserted, table reloaded");
+  end
+
+  // WHAT DOES L10 SEE AT ITS OWN EDGES? Replicate the cell's oversampled
+  // edge detect (q updates at the first sys_clk where the modelled clock
+  // already reads high) and sample PE' and D exactly there. If PE' reads
+  // high at every detected edge while toggling overall, the load enable and
+  // the clock are in a same-edge phase collision -- the cbf5b94f class.
+  reg d_l10ck = 1'b0;
+  integer n_l10edge = 0, n_l10pe0 = 0, n_l10d1 = 0;
+  always @(posedge sys_clk) begin
+    if (m.b_DispY.PixelClk_p_Bd && !d_l10ck) begin
+      n_l10edge = n_l10edge + 1;
+      if (!m.b_DispY.PC_s_2ClkEn_p_) begin
+        n_l10pe0 = n_l10pe0 + 1;
+        if (m.b_DispY.preHSync) n_l10d1 = n_l10d1 + 1;
+      end
+    end
+    d_l10ck <= m.b_DispY.PixelClk_p_Bd;
+  end
+
+  // THE WALK ORDER: the address at consecutive ClkHRamAddr' edges. The
+  // preload writes mem[0..379] LINEARLY; if the counter walk is not +1 in
+  // the RAM's own address bits {_01.._10}, the two disagree and every sync
+  // entry is visited as an isolated step -- which is what the one-sys_clk
+  // preHSync slivers say.
+  integer n_walk = 0; reg d_walkck = 1'b0;
+  always @(posedge sys_clk) begin
+    if (m.b_DispY.ClkHRamAddr_p_ && !d_walkck && n_walk < 24 && n_cyc2 > 2000) begin
+      n_walk = n_walk + 1;
+      $display("tb_exec: WALK addr01_10=%b%b%b%b%b%b%b%b%b%b addr11=%b",
+               m.b_DispY.HRamAddr_01, m.b_DispY.HRamAddr_02, m.b_DispY.HRamAddr_03,
+               m.b_DispY.HRamAddr_04, m.b_DispY.HRamAddr_05, m.b_DispY.HRamAddr_06,
+               m.b_DispY.HRamAddr_07, m.b_DispY.HRamAddr_08, m.b_DispY.HRamAddr_09,
+               m.b_DispY.HRamAddr_10, m.b_DispY.HRamAddr_11);
+    end
+    d_walkck <= m.b_DispY.ClkHRamAddr_p_;
+  end
+
+  // One pulse, cycle by cycle: on preHSync's rising edge print the next 40
+  // sys_clk of the whole neighbourhood (twice per run).
+  integer n_pht = 0; reg d_phs2 = 1'b0;
+  always @(posedge sys_clk) begin
+    if (m.b_DispY.preHSync && !d_phs2 && n_pht < 80) n_pht = n_pht + 40;
+    if (n_pht > 0 && n_pht % 40 != 0) begin end
+    if (n_pht > 0) begin
+      $display("tb_exec: PHT pclk=%b clkhra'=%b pce'=%b preHS=%b RamHS=%b",
+               m.b_DispY.PixelClk_p_Bd, m.b_DispY.ClkHRamAddr_p_,
+               m.b_DispY.PC_s_2ClkEn_p_, m.b_DispY.preHSync, m.b_DispY.RamHSync);
+      n_pht = n_pht - 1;
+    end
+    d_phs2 <= m.b_DispY.preHSync;
   end
 
   // preHSync -> l10 (F10016) -> RamHSync -> h04 -> HSync. l10's CE is
@@ -2651,6 +2730,12 @@ module tb_exec;
         $fatal(1, "IM parity errors continue past the enable point -- the preloaded array's parity is wrong");
       $display("tb_exec: THE MACHINE RUNS WITH IM PARITY ON.");
     end
+`ifdef SCREEN
+    // Write the captures BEFORE any gate can $fatal: a park or a failed
+    // threshold is exactly when the picture is the evidence you want.
+    if (pgm_on) write_pgm;
+    if (frame_on) write_frame;
+`endif
     if ($test$plusargs("bootchain")) begin
       // PARC'S OWN BOOT CHAIN, first two stages. Initial.mb occupies real
       // 0xc00-0xfbf and Bootstrap.mb 0xfc0-0xfff -- adjacent and disjoint, so
@@ -2749,8 +2834,6 @@ module tb_exec;
     // -- so if the horizontal timing chain is dead while the crystal turns,
     // the fault is downstream, and if the crystal is dead nothing else can
     // matter. Check the source before the sink.
-    if (pgm_on) write_pgm;
-    if (frame_on) write_frame;
     $display("tb_exec: DISPY CLOCK -- PixelClk %0d, crystal a05 out %0d transitions, AltoCSync' %0d (control: same crystal %0d)",
              n_pix, n_xtal, n_wdwt, n_wdht);
     $display("tb_exec: HRAM GATE -- DoradoHasHRam high on %0d of %0d samples; ClkHRamAddr' %0d transitions",
@@ -2761,6 +2844,8 @@ module tb_exec;
              n_hra, n_phs);
     $display("tb_exec: SYNC CHAIN -- RamHSync %0d transitions, HSync %0d; PC'2ClkEn' high (l10 NOT counting) on %0d of %0d",
              n_rhs, n_hs2, n_pce1, n_samp);
+    $display("tb_exec: L10 EDGES -- %0d detected; PE' low at %0d of them; D(preHSync)=1 at %0d of those",
+             n_l10edge, n_l10pe0, n_l10d1);
     $display("tb_exec: VIDEO transitions -- AltoTTLVideo %0d, AltoHSync %0d, AltoVSync' %0d, HBlank %0d, VBlank %0d, HalfLine %0d",
              n_vid, n_hs, n_vs, n_hb, n_vb, n_hl);
     if (n_vid + n_hs + n_vs + n_hb + n_vb + n_hl <= 6)
