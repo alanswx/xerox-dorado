@@ -93,20 +93,26 @@ cycles**: the enable that lets module 0 drive its shifted data onto the
 Sin bus never enables during the transport, so the read's data never
 reaches MemD, the cache line is never written, CacheLoad stays 0, BL
 never clears, and the retry cycles that follow are CAS-less because the
-error state re-wedges. The decode is now traced to its
-end: Mod0SinEn' registers Mod0En'a (j01), which registers e03's 1-of-4
-decode of **Mod_0/Mod_1 -- the module field of the MAPPED PHYSICAL
-ADDRESS** (f03, loaded at StartMem'a). And the bench's all-ones map
-seed -- whose only purpose was valid map PARITY -- maps every VA to
-the all-ones physical page, i.e. **MODULE 3, which does not exist**:
-the read selects an absent module, nothing drives Sin, and the
-transport never completes. Fix order: (1) teach the bench seed to map
-into module 0 (page bits low) while keeping map parity valid -- the 21
-MemX arrays' bit roles are in tb_readback's seeding notes; (2) fit
-MemC's ST-parity write side against its checker (the im-parity-check
-method) so +stperroff retires; (3) re-examine whether an absent-module
-read should still COMPLETE with error flags (real hardware reports and
-finishes; wedging forever is not the manual's behaviour). The full probe kit is in tb_exec (MAPWEDGE, DRAMWIN,
+error state re-wedges. The decode is traced to its end,
+WITH A RETRACTION: "Mod0SinEn' never enables" was an idle-level
+misread -- the net is ACTIVE LOW and idles asserted (1 transition =
+one deassert). The full-window probe shows the read running with
+module 0's Sin enable asserted throughout, and **ModEn'a = 1110: the
+read targets MODULE 3** -- correctly, because **RP.00-07 read all-ones
+AT REFERENCE TIME** even after the bench seed was changed to map into
+module 0 (RP planes = MosRam a04-a11; zeroing eight planes preserves
+e11's parity; the change is in tb_exec and keeps its comment). So the
+entry the miss translates through is all-ones at 82k -- Initial's own
+RESETMAPL-era contents, i.e. a VACANT entry -- and **the map-fault
+path never fires** (ValidMapFlt = 0 across every run): a reference to
+a vacant page runs a real storage read into an absent module instead
+of map-faulting, and the BL flag wedges. THE NEXT LINK: why MemX's
+vacant/map-fault detect (ValidMapFlt) never asserts -- that is the
+protection that turns this scenario into a handled fault on real
+hardware. Then: (2) fit MemC's ST-parity write side against its
+checker (the im-parity-check method) so +stperroff retires; (3) check
+that a faulted/absent read still COMPLETES with error flags rather
+than wedging (the manual reports and finishes). The full probe kit is in tb_exec (MAPWEDGE, DRAMWIN,
 TRANSPORT/TRANSPORT2, CFLAGS, VICWIN, W0STROBE, +stperroff).
 
 **The original blocker text (still true as far as it goes):** after map init and the module
