@@ -1866,9 +1866,29 @@ standing diagnoses:
   teardown leaves. The old `+mrlow` force was INERT (an inlined port
   aliases the net), which is why its green era stopped reproducing.
 
-Boot frontier (end of session, fully diagnosed): the park at
-RESETFAULTINFO's `B<-FaultInfo'` bottoms out in TWO defects, each
-measured. **STPerr** -- MemC's tag-store parity check, failing on every
+Boot frontier (end of session): the RESETFAULTINFO park FELL and the
+boot now runs Initial's TASKINITLOOP -- longest run on one address
+971,971 -> 7. Four things cleared it: a delayed map seed (the entry
+reads VACANT, so the first miss FAULTS instead of reading absent
+storage -- ReportFault 0 -> 32, the first fault this campaign ever
+reported), `+stperroff` (the ST-parity latch off the CAS-register
+reset), `+blfix` (the fault path's Being-Loaded-flag cleanup), and the
+one REAL fix -- the JUNK-TASK WAKEUP jumper (IFU JunkTW -> TWReq.02,
+cpu.c's DORADO_JUNK_TASK=2; unwired, the slot-jumper class). **Task
+init then SPINS, and the C emulator names the exact divergence**: the
+oracle runs c45->c60->c46->c47->c45 (writing TPC[1..15]=0o6141); our
+RTL runs c45->c60->c46->**c61** -- at c46, a WRITE-TPC (JCN=0o157,
+return-class JCN[2:4]=5), it takes TNIA<-Link like a RETURN. ContA e21
+decodes Return' from JCN[0]/[1]/[5:7] only, never JCN[2:4], so it
+cannot tell Write-TPC from Return; the distinction is the 6-cycle
+TPC/IM addressing flow (HM 4.8), not run in free execution. That flow
+is the task-init blocker. The method that cracked all of it: **the C
+emulator is the oracle** -- DORADO_PCDIS/DORADO_TASK_TRACE dump the
+exact microcode behavior and the RTL diverges at a named instruction.
+The earlier RESETFAULTINFO bottom-out is below.
+
+Superseded detail: the park at RESETFAULTINFO's `B<-FaultInfo'` had
+bottomed out in two defects, each measured. **STPerr** -- MemC's tag-store parity check, failing on every
 sample, the THIRD instance of the stored-parity-convention question
 after IM and IFUM -- holds the CAS register (MemX i10's master reset)
 so every DRAM read is a RAS-only stub; `+stperroff` un-gates it and the
