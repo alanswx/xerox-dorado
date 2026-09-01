@@ -1866,12 +1866,25 @@ standing diagnoses:
   teardown leaves. The old `+mrlow` force was INERT (an inlined port
   aliases the net), which is why its green era stopped reproducing.
 
-Boot frontier: the world run now parks at RESETFAULTINFO's `B<-FaultInfo'`
-under BLretry+HoldMapBuf -- a storage reference retrying forever holds the
-MapBuf, which FaultInfo' shares. Also bisected: **cbf5b94f (the MC10176
-setup capture) broke exec-tasking/exec-init** -- green at 07d57e4e,
-failing since, unnoticed because gate claims go stale silently. And
-`SYSPER=2` breaks the ReadBB stage; boot runs stay at 16x.
+Boot frontier (end of session, fully diagnosed): the park at
+RESETFAULTINFO's `B<-FaultInfo'` bottoms out in TWO defects, each
+measured. **STPerr** -- MemC's tag-store parity check, failing on every
+sample, the THIRD instance of the stored-parity-convention question
+after IM and IFUM -- holds the CAS register (MemX i10's master reset)
+so every DRAM read is a RAS-only stub; `+stperroff` un-gates it and the
+first read then runs COMPLETE (CAS through six states, both munch
+halves load). Behind it: the miss translates through a VACANT map entry
+(RP reads all-ones at reference time) and **ValidMapFlt never fires**,
+so instead of map-faulting the machine reads absent module 3 and the
+line's Being-Loaded flag wedges forever. Next probes, in order, in
+`docs/verilog-handoff.md`: the ValidMapFlt vacant-detect, the ST-parity
+fit (the im-parity-check method), and faulted-read completion
+semantics. One retraction on the way: "Mod0SinEn' never enables" was an
+idle-level misread -- it is active low and idles asserted. Also
+bisected: **cbf5b94f (the MC10176 setup capture) broke
+exec-tasking/exec-init** -- green at 07d57e4e, failing since, unnoticed
+because gate claims go stale silently. And `SYSPER=2` breaks the ReadBB
+stage; boot runs stay at 16x.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 
