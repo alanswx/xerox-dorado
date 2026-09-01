@@ -623,14 +623,16 @@ module tb_boot0;
   integer jamtrace = 0, jt_on = 0, jt_n = 0;
   initial jamtrace = $test$plusargs("jamtrace");
   always @(posedge sys_clk)
-    if (jt_on && jt_n < 400) begin
+    if (jt_on && jt_n < 1200) begin
       jt_n = jt_n + 1;
-      if (jt_n % 4 == 1)
-        $display("tb_boot0: JT +%0d clk0'Ca=%b clk1'Ca=%b Stop=%b dRun=%b Ph0=%b Ph2=%b StartCyc=%b RunClkB=%b Link=%h",
-                 jt_n, m.b_ContA.clk0_p_Ca, m.b_ContA.clk1_p_Ca,
-                 m.b_ContA.Stop, m.b_ContA.dRun,
-                 m.b_ContA.Phase0, m.b_ContA.Phase2,
-                 m.b_ContA.StartCycle, m.b_ContA.RunClk_p_b, link_hi);
+      if (jt_n % 4 == 1 || jt_n > 350)
+        $display("tb_boot0: JT +%0d dRun=%b Ph0=%b StartCyc=%b RunClkB=%b SetRun=%b SetSS'=%b A31=%b%b%b%b%b",
+                 jt_n, m.b_ContA.dRun,
+                 m.b_ContA.Phase0, m.b_ContA.StartCycle, m.b_ContA.RunClk_p_b,
+                 m.b_ContA.SetRun, m.b_ContA.SetSS_p_,
+                 m.b_ContA.ContA31_sil_pl_1, m.b_ContA.ContA31_sil_pl_2,
+                 m.b_ContA.ContA31_sil_pl_3, m.b_ContA.ContA31_sil_pl_4,
+                 m.b_ContA.ContA31_sil_pl_5);
     end
 
   task parc_micro(input [7:0] b0, input [7:0] b1, input [7:0] b2,
