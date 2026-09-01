@@ -337,6 +337,37 @@ exec-screen:
 		    +cycles=$(or $(CYCLES),400000) 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_exec; exit $$rc; }
 
+# THE BOOT SCREEN: the ten-board machine (dorado_world + DispY) running
+# PARC's own boot chain -- Initial + Bootstrap through the ReadBB handshake,
+# exactly as exec-boot -- with the display board along for the ride and the
+# frame capture on. What Initial's INITHRAM loads into the HRam is what the
+# monitor gets; dorado_frame.pgm is what it painted. Tasking starts OFF (the
+# jam is TaskingOff,Return) so DispY's wakeup cannot preempt Initial before
+# TASKINITLOOP has set the task PCs -- the f12b9ae2 failure was the AEmu
+# world with +taskingon, not this path.
+.PHONY: exec-bootscreen
+exec-bootscreen:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
+	@mkdir -p obj_exec obj_screen
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
+	@cd ../.. && { ./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Initial.mb' 2>/dev/null; \
+		./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb' 2>/dev/null \
+		| grep -v '^\#'; } > verilog/verilator/obj_exec/boot.txt
+	@cd ../.. && $(V) --binary --top-module tb_exec $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_screen \
+		-o tb_screen +define+WORLD +define+SCREEN \
+		verilog/verilator/tb_exec.sv verilog/generated/dorado_screen.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
+		verilog/generated/IFU-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_screen/tb_screen \
+		    $(SCREENARGS) +fastwait +bbword=0000 +bbfeed +frame \
+		    +preload=verilog/verilator/obj_exec/boot.txt +bootchain +start=3904 \
+		    +cycles=$(or $(CYCLES),4000000) 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_exec; exit $$rc; }
+
 # THE FAULT TASK RUNS ITS OWN HANDLER: arm MemX's fault counter and preset
 # TPC[15] to AEmu's FAULTTASK, and task 15 executes the fault-handler region
 # instead of emulator code. See docs/verilog-handoff.md.
