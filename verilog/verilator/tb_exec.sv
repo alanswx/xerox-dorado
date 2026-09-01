@@ -1833,7 +1833,9 @@ module tb_exec;
   integer n_cfdec = 0, n_cfok = 0, n_wcf [0:3], n_wvm = 0, n_vicwin = 0;
   integer n_psm = 0, n_stmap = 0;
   integer n_rasa = 0, n_casa = 0, n_lsin = 0, n_ssin = 0, n_lsout = 0,
-          n_trans = 0, n_mkmd = 0, n_sin0 = 0, cas_t0 = 0;
+          n_trans = 0, n_mkmd = 0, n_sin0 = 0, cas_t0 = 0,
+          n_lsino = 0, n_m0sin = 0, n_m0str = 0, n_mkt0 = 0;
+  reg [3:0] d_tr2 = 4'd0;
   reg [7:0] d_tr = 8'd0;
   reg d_cfdec = 1'b1, d_wvm = 1'b1, d_psm = 1'b1, d_stmap = 1'b1;
   reg [3:0] d_wcf4 = 4'b1111;
@@ -1890,6 +1892,11 @@ module tb_exec;
     if (m.Transport_p_ !== d_tr[5]) n_trans = n_trans + 1;
     if (m.MakeMDM_u_D_p_ !== d_tr[6]) n_mkmd = n_mkmd + 1;
     if (m.Sin_00 !== d_tr[7]) n_sin0 = n_sin0 + 1;
+    if (m.LoadSinO !== d_tr2[0]) n_lsino = n_lsino + 1;
+    if (m.Mod0SinEn_p_ !== d_tr2[1]) n_m0sin = n_m0sin + 1;
+    if (m.Mod0StrEn_p_ !== d_tr2[2]) n_m0str = n_m0str + 1;
+    if (m.b_MemX.MakeTransport0 !== d_tr2[3]) n_mkt0 = n_mkt0 + 1;
+    d_tr2 <= {m.b_MemX.MakeTransport0, m.Mod0StrEn_p_, m.Mod0SinEn_p_, m.LoadSinO};
     d_tr <= {m.Sin_00, m.MakeMDM_u_D_p_, m.Transport_p_,
              m.LoadSoutE_p_, m.ShiftSinE, m.LoadSinE,
              m.MemCASa, m.MemRASa};
@@ -2791,6 +2798,8 @@ module tb_exec;
              n_psm, n_stmap);
     $display("tb_exec: TRANSPORT -- RASa %0d CASa %0d LoadSinE %0d ShiftSinE %0d LoadSoutE' %0d Transport' %0d MakeMD_D' %0d Sin00 %0d",
              n_rasa, n_casa, n_lsin, n_ssin, n_lsout, n_trans, n_mkmd, n_sin0);
+    $display("tb_exec: TRANSPORT2 -- LoadSinO %0d Mod0SinEn' %0d Mod0StrEn' %0d MakeTransport0 %0d",
+             n_lsino, n_m0sin, n_m0str, n_mkt0);
     $display("tb_exec: HOLDREQ of %0d -- PrHoldReq %0d, WantCR %0d (CHoldReq/ExtHoldReq are 0)",
              runcycles, n_prq, n_wcr);
     $display("tb_exec: HOLDSRC of %0d -- MDhold %0d, RefHold %0d, MiscHold %0d, BLretry %0d",

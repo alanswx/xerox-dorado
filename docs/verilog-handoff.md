@@ -85,16 +85,21 @@ before it). `+stperroff` forces it low. Layer 2, found by that force:
 CAS then fires EXACTLY ONCE in 140M cycles (CASa 4 transitions, RASa
 257,114 -- the retry loop's RAS spam), the munch transport never
 completes (CacheLoad 0 always), and the boot parks at the same
-RESETFAULTINFO spot. So after the first CAS + LoadSinE something in
-the transport/error pipeline (Ec stages, or the PROM row family the
-RETRY cycles walk) wedges and every later cycle is CAS-less again.
-Next probes, in order: (1) fit MemC's ST-parity write side against its
+RESETFAULTINFO spot. Layer 2, then pinned finer with
+counters under the force: the read cycle COMPLETES (CAS through states
+1-6, both halves load -- LoadSinE and LoadSinO one pulse each -- and
+MakeTransport0 pulses), but **Mod0SinEn' makes ONE transition in 200k
+cycles**: the enable that lets module 0 drive its shifted data onto the
+Sin bus never enables during the transport, so the read's data never
+reaches MemD, the cache line is never written, CacheLoad stays 0, BL
+never clears, and the retry cycles that follow are CAS-less because the
+error state re-wedges. Next probes, in order: (1) the Mod0SinEn' decode
+on MemX (its driver, and whether the module-select field of the
+physical address picks module 0 -- this interlocks with the Mb0
+presence chain); (2) fit MemC's ST-parity write side against its
 checker (the im-parity-check method) so layer 1 is fixed properly, not
-forced; (2) window the SECOND storage cycle after the first CAS under
-+stperroff and read i10's D (pl12) there -- if 0, the retry walks a
-different PROM row family; if 1, the register is blocked by another
-input. The full probe kit is in tb_exec (MAPWEDGE, DRAMWIN, TRANSPORT,
-CFLAGS, VICWIN, W0STROBE).
+forced. The full probe kit is in tb_exec (MAPWEDGE, DRAMWIN,
+TRANSPORT/TRANSPORT2, CFLAGS, VICWIN, W0STROBE, +stperroff).
 
 **The original blocker text (still true as far as it goes):** after map init and the module
 scan (155 addresses, 294k stack ops), the world run parks 1.28M
