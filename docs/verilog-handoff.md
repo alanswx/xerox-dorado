@@ -93,12 +93,20 @@ cycles**: the enable that lets module 0 drive its shifted data onto the
 Sin bus never enables during the transport, so the read's data never
 reaches MemD, the cache line is never written, CacheLoad stays 0, BL
 never clears, and the retry cycles that follow are CAS-less because the
-error state re-wedges. Next probes, in order: (1) the Mod0SinEn' decode
-on MemX (its driver, and whether the module-select field of the
-physical address picks module 0 -- this interlocks with the Mb0
-presence chain); (2) fit MemC's ST-parity write side against its
-checker (the im-parity-check method) so layer 1 is fixed properly, not
-forced. The full probe kit is in tb_exec (MAPWEDGE, DRAMWIN,
+error state re-wedges. The decode is now traced to its
+end: Mod0SinEn' registers Mod0En'a (j01), which registers e03's 1-of-4
+decode of **Mod_0/Mod_1 -- the module field of the MAPPED PHYSICAL
+ADDRESS** (f03, loaded at StartMem'a). And the bench's all-ones map
+seed -- whose only purpose was valid map PARITY -- maps every VA to
+the all-ones physical page, i.e. **MODULE 3, which does not exist**:
+the read selects an absent module, nothing drives Sin, and the
+transport never completes. Fix order: (1) teach the bench seed to map
+into module 0 (page bits low) while keeping map parity valid -- the 21
+MemX arrays' bit roles are in tb_readback's seeding notes; (2) fit
+MemC's ST-parity write side against its checker (the im-parity-check
+method) so +stperroff retires; (3) re-examine whether an absent-module
+read should still COMPLETE with error flags (real hardware reports and
+finishes; wedging forever is not the manual's behaviour). The full probe kit is in tb_exec (MAPWEDGE, DRAMWIN,
 TRANSPORT/TRANSPORT2, CFLAGS, VICWIN, W0STROBE, +stperroff).
 
 **The original blocker text (still true as far as it goes):** after map init and the module
