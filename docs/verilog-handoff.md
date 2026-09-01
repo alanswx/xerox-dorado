@@ -1,6 +1,69 @@
 # Verilog from Sil: handoff
 
-## START HERE (2026-08-31) -- the boot campaign, and where it stands NOW
+## START HERE (2026-09-01) -- three parks fell in one sitting; the boot is deep in Initial
+
+The 2026-08-31 state below is history now. What changed today, in order,
+each with the measurement that settled it:
+
+1. **THE LOADMCR SAGA IS CLOSED, AS A BENCH ARTIFACT.** The full 11-bit
+   RMar probe (`+tcwin`/`+tclen`, change-only MCRWIN lines) showed the
+   "in-residency data" of 355e67bb was the bus's ALL-ONES IDLE (every bit
+   1, two were read), and the true data phase (MarMuxAEn'=0) read all
+   zeros because **`+fastwait`'s T-file clip had zapped the SetMCR value**:
+   the clip fired while TNIA read c0a with T > 0x10, and the second
+   LoadMCR executes exactly there with its value (0x67) in T, A<-T. Clip
+   off (`+clip` restores it), every LoadMCR captures true data at its own
+   edge -- NoRef sets AND clears under microcode control, the d27 park is
+   gone, and **no timing fix was ever needed**. The l09/j09 strobe-phase
+   hunt and the depth-mode motivating case are retracted (depth mode's
+   PreClock1'/Clock1' physics still stand; its jam-Link open item is now
+   uncoupled from the boot).
+2. **NOSTORAGE: nothing originated the module-presence token.** Past the
+   (bounded, ~35M sys_clk) RESETMAPL/WAITFORMAPBUF map init, Initial
+   parked 758k microinstructions at real 6247 = NOSTORAGE. B<-Config'
+   reads modules from M0..M3; MemX's four M pins are all INPUTS; the msa
+   RELAYS Mb0 (C181) to its M0 output (h26, pure OR) on C184 -- MemX's M1
+   PIN (slot-jumper pattern; pin != wire). The origin is the backplane
+   ("awaits PCMSA"). The bench drives it under **`+mb0`** (opt-in: the
+   AEmu jump-start gates were calibrated on the no-module machine), and
+   `MACHINE_CONFIG_TIES` in sil_backplane.py ties it (plus
+   ChipsAre256/16K) for the dorado_machine wrapper.
+3. **THE STACK-POINTER ADDER WAS A SKELETON.** Next park: 3.57M
+   microinstructions at real 6001 = DORETURN (BLOCK + RSTK=1000 = read
+   STK[StkP], check on) -- StkP had sat at STKINITL's offset-0 through
+   every push. The adjust value StkP[2:7] + sign-extend(RSTK[1:3]) is
+   computed by ProcL j17/k17/l17, three **MC10182**s, and the cell was a
+   TODO skeleton ("no datasheet" was stale -- MC10182.pdf is in
+   DoradoDocs/datasheets). Modelled from EclDict + the datasheet (dict is
+   MSB-first: D0=A1, H0=F1, F0=S1; S/M unconnected = LOW = A plus B plus
+   Cn), StkP moves: 1,228 changes in 400k cycles, pushes +3/+1, pops -1.
+
+**The boot command now:**
+
+    make -C verilog/verilator exec-boot EXECARGS="+fastwait +bbword=0000 +bbfeed +mb0"
+
+**The boot screen path:** `make -C verilog/verilator exec-bootscreen`
+runs the same chain on dorado_screen (world + DispY) with `+frame` -- a
+full-field 1024x896 PGM (`dorado_frame.pgm`, new-line-on-HSync,
+new-field-on-VSync, degrades to a strip when vertical timing is absent).
+VSync is a MICROCODE-driven register (DispY d03, VSyncEn) -- a full frame
+needs the display task's field program, so watch TASKINITLOOP first.
+
+**Known-stale gates (pre-existing, NOT this session):** exec-tasking and
+exec-init fail at the pre-session commit ef12ce0e too (its own tb against
+current generated/) -- a depth-campaign RTL regression, unbisected. The
+`SYSPER=2` ratio breaks the ReadBB/checksum stage (RMINITL never
+reached); boot runs stay at 16x.
+
+**Traps added today:** a bench force can destroy the very data under
+diagnosis (the clip ate three sessions of strobe-phase work); an ALL-ONES
+bus read through a 2-bit probe looks like armed data; `+mb0`,
+`+addrs` (print visited past 64), `+trwin=N` (steady-state trace),
+`+tclen` (widen tcwin), STKADJ/STKWIN probes.
+
+---
+
+## The 2026-08-31 state (history; superseded above)
 
 Everything below the rule is the 2026-08-18 state and still true as
 history. The CURRENT frontier is the BOOT CAMPAIGN of 2026-08-29..31,
