@@ -159,7 +159,6 @@ module IFU_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     output wire IfuData_7__drv,
     output wire IfuFaultInEc2__drv,
     output wire IfuRBaseSel_p___drv,
-    output wire JunkTW__drv,
     output wire MAR_00_p___drv,
     output wire MAR_01_p___drv,
     output wire MAR_02_p___drv,
@@ -182,6 +181,7 @@ module IFU_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     output wire PcFG_15__drv,
     output wire RefOutstanding_p___drv,
     output wire SignIfuData__drv,
+    output wire TWReq_02__drv,
     output wire WantIfuHold_p___drv,
     output wire WantIfuRef_p___drv
 );
@@ -4031,7 +4031,7 @@ module IFU_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p9(SpecClk0_p_Ba),
     .p10(ifu15_sil_pl_4),
     .p13(ShutUp),
-    .p15(JunkTW__drv)
+    .p15(TWReq_02__drv)
   ); // MC10231
   cell_F10415A u_j09 (
     .sys_clk(sys_clk),

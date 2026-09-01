@@ -224,7 +224,19 @@ BACKPLANE_CASE_ALIASES = {
 #
 # TWO NAMING CONVENTIONS FOR THE SAME THING is worth remembering: the display
 # boards say `WakeDWT`, DskEth says `DiskTW`. Search for both.
+#
+#   IFU    JunkTW    -> TWReq.02   the JUNK task. cpu.c's DORADO_JUNK_TASK
+#                                  = 2, and the IFU board holds the junk
+#                                  TIMER (a18 drives JunkTW; the Wakeup[JNK]
+#                                  and AckJunkTW FFs control it). Unwired,
+#                                  Initial's TASKINITLOOP spins forever at
+#                                  c44/c60/c46/c47 -- TaskingOn, get the
+#                                  init PC, test, repeat -- waiting for the
+#                                  junk task's first run, measured as
+#                                  "TASKINITLOOP entries 1" over 600M
+#                                  cycles with CTask never changing.
 BACKPLANE_WAKEUP_JUMPERS = {
+    'JunkTW':  'TWReq.02',
     'WakeAWT': 'TWReq.09',
     'WakeDWT': 'TWReq.11',
     'WakeDHT': 'TWReq.03',

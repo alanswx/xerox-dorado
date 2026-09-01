@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ContA ContB ProcH ProcL MemC MemD MemX msa IFU
-// 473 internal nets (62 with several contributors), 215 top-level ports.
+// 474 internal nets (62 with several contributors), 213 top-level ports.
 
 `default_nettype none
 
@@ -178,7 +178,6 @@ module dorado_world #(parameter integer SYSPER = 16) (
     output wire IOout_p_                  ,  // awaits DskEth IOTest Music
     input  wire IfuAWantsDifHit_p_        ,  // to a backplane connector (cable)
     input  wire IfuStartMap_p_            ,  // to a backplane connector (cable)
-    output wire JunkTW                    ,  // to a backplane connector (cable)
     output wire LScopeFH                  ,  // to a backplane connector (cable)
     output wire LargeHold                 ,  // to a backplane connector (cable)
     output wire LoadSinO                  ,  // to a backplane connector (cable)
@@ -219,7 +218,6 @@ module dorado_world #(parameter integer SYSPER = 16) (
     output wire TIOA_6                    ,  // awaits DispM DispY DskEth IOTest Music
     output wire TIOA_7                    ,  // awaits DispM DispY DskEth IOTest Music
     input  wire TWReq_01                  ,  // to a backplane connector (cable)
-    input  wire TWReq_02                  ,  // to a backplane connector (cable)
     input  wire TWReq_03                  ,  // to a backplane connector (cable)
     input  wire TWReq_04                  ,  // to a backplane connector (cable)
     input  wire TWReq_05                  ,  // to a backplane connector (cable)
@@ -236,7 +234,7 @@ module dorado_world #(parameter integer SYSPER = 16) (
     output wire TestTW                       // to a backplane connector (cable)
 );
 
-  // 473 nets between boards, plus one contribution wire
+  // 474 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -601,6 +599,7 @@ module dorado_world #(parameter integer SYSPER = 16) (
   wire TNIA_13;
   wire TNIA_14;
   wire TNIA_15;
+  wire TWReq_02;
   wire TWReq_15;
   wire TagInEc1;
   wire Transport_p_;
@@ -1044,7 +1043,6 @@ module dorado_world #(parameter integer SYSPER = 16) (
   wire IfuRefInEc1__MemC;
   wire IoFetchInA_p___MemC;
   wire IoStoreInA__MemC;
-  wire JunkTW__IFU;
   wire LC_0__ContB;
   wire LC_1__ContB;
   wire LC_2__ContB;
@@ -1317,6 +1315,7 @@ module dorado_world #(parameter integer SYSPER = 16) (
   wire TNIA_13__ContA;
   wire TNIA_14__ContA;
   wire TNIA_15__ContA;
+  wire TWReq_02__IFU;
   wire TWReq_15__MemX;
   wire TagInEc1__MemC;
   wire TestTW__ProcH;
@@ -1662,7 +1661,6 @@ module dorado_world #(parameter integer SYSPER = 16) (
   assign IfuRefInEc1 = IfuRefInEc1__MemC;
   assign IoFetchInA_p_ = IoFetchInA_p___MemC;
   assign IoStoreInA = IoStoreInA__MemC;
-  assign JunkTW = JunkTW__IFU;
   assign LC_0 = LC_0__ContB;
   assign LC_1 = LC_1__ContB;
   assign LC_2 = LC_2__ContB;
@@ -1908,6 +1906,7 @@ module dorado_world #(parameter integer SYSPER = 16) (
   assign TNIA_13 = TNIA_13__ContA;
   assign TNIA_14 = TNIA_14__ContA;
   assign TNIA_15 = TNIA_15__ContA;
+  assign TWReq_02 = TWReq_02__IFU;
   assign TWReq_15 = TWReq_15__MemX;
   assign TagInEc1 = TagInEc1__MemC;
   assign TestTW = TestTW__ProcH;
@@ -2019,6 +2018,11 @@ module dorado_world #(parameter integer SYSPER = 16) (
   assign jcnt = jcnt__ContA;
   assign preMCSb = preMCSb__MemX;
   assign rMIRa = rMIRa__ContA | rMIRa__ContB;
+
+  // ---- reads that must not include the reader -----------------
+  // A board on a wired-OR bus normally DOES see its own driver;
+  // these are the ones where that closes a combinational loop.
+  wire DMuxData__rd_ProcH = DMuxData__ContA | DMuxData__ContB | DMuxData__IFU | DMuxData__MemC | DMuxData__MemD | DMuxData__MemX | DMuxData__ProcL;
 
   // ---- ContA
   ContA_m_Rev_m_Cd b_ContA (
@@ -2450,7 +2454,7 @@ module dorado_world #(parameter integer SYSPER = 16) (
     .CkMdParity_p_(CkMdParity_p_),
     .Cnt_eq_Zero_p_(Cnt_eq_Zero_p_),
     .DMuxClk(DMuxClk),
-    .DMuxData(DMuxData),
+    .DMuxData(DMuxData__rd_ProcH),
     .FF_0(FF_0),
     .FF_0mem_p_(FF_0mem_p_),
     .FF_1(FF_1),
@@ -3779,7 +3783,6 @@ module dorado_world #(parameter integer SYSPER = 16) (
     .IfuData_7__drv(IfuData_7__IFU),
     .IfuFaultInEc2__drv(IfuFaultInEc2__IFU),
     .IfuRBaseSel_p___drv(IfuRBaseSel_p___IFU),
-    .JunkTW__drv(JunkTW__IFU),
     .MAR_00_p___drv(MAR_00_p___IFU),
     .MAR_01_p___drv(MAR_01_p___IFU),
     .MAR_02_p___drv(MAR_02_p___IFU),
@@ -3802,6 +3805,7 @@ module dorado_world #(parameter integer SYSPER = 16) (
     .PcFG_15__drv(PcFG_15__IFU),
     .RefOutstanding_p___drv(RefOutstanding_p___IFU),
     .SignIfuData__drv(SignIfuData__IFU),
+    .TWReq_02__drv(TWReq_02__IFU),
     .WantIfuHold_p___drv(WantIfuHold_p___IFU),
     .WantIfuRef_p___drv(WantIfuRef_p___IFU)
   );
@@ -3826,7 +3830,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 114 signals, 32 at a time;
+// probe_val exposes 113 signals, 32 at a time;
 // dorado_world.probes lists which bit is which.
 module dorado_world_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
@@ -3923,7 +3927,6 @@ module dorado_world_machine #(parameter integer SYSPER = 16) (
   wire IOHold;
   wire IOin_p_;
   wire IOout_p_;
-  wire JunkTW;
   wire LScopeFH;
   wire LargeHold;
   wire LoadSinO;
@@ -3951,7 +3954,7 @@ module dorado_world_machine #(parameter integer SYSPER = 16) (
   wire TestTW;
 
   wire [127:0] probe = {
-    14'd0,
+    15'd0,
     TestTW,
     TIOA_7,
     TIOA_6,
@@ -3977,7 +3980,6 @@ module dorado_world_machine #(parameter integer SYSPER = 16) (
     LoadSinO,
     LargeHold,
     LScopeFH,
-    JunkTW,
     IOout_p_,
     IOin_p_,
     IOHold,
@@ -4068,6 +4070,14 @@ module dorado_world_machine #(parameter integer SYSPER = 16) (
     BNTGtCT_p_b
   };
 
+  // DispY's pixel clock -- see the RawPixelClk note below. 50 MHz on
+  // the built Rev Cl sheet; the accumulator is told what a sys_clk is
+  // worth so it holds at any oversampling ratio.
+  wire pixel_clk;
+  cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(SYSPER)) u_pixclk (
+    .sys_clk(sys_clk), .p8(pixel_clk), .p7(1'b0), .p14(1'b1)
+  );
+
   dorado_world #(.SYSPER(SYSPER)) u_machine (
     .sys_clk(sys_clk),
     .BNTGtCT_p_b(BNTGtCT_p_b),
@@ -4100,7 +4110,7 @@ module dorado_world_machine #(parameter integer SYSPER = 16) (
     .CPOut_8(1'b0),
     .CPStrb_p_(1'b0),
     .ChipsAre16k(1'b0),
-    .ChipsAre256_s_16K(1'b0),
+    .ChipsAre256_s_16K(1'b1),
     .ChipsAre4k(1'b0),
     .ChipsAre64K(1'b0),
     .ClkEnable_p_a(1'b0),
@@ -4229,7 +4239,6 @@ module dorado_world_machine #(parameter integer SYSPER = 16) (
     .IOout_p_(IOout_p_),
     .IfuAWantsDifHit_p_(1'b0),
     .IfuStartMap_p_(1'b0),
-    .JunkTW(JunkTW),
     .LScopeFH(LScopeFH),
     .LargeHold(LargeHold),
     .LoadSinO(LoadSinO),
@@ -4237,7 +4246,7 @@ module dorado_world_machine #(parameter integer SYSPER = 16) (
     .M1(1'b0),
     .M2(1'b0),
     .M3(1'b0),
-    .Mb0(1'b0),
+    .Mb0(1'b1),
     .MemAd_0(MemAd_0),
     .MemClkEn_p_a(1'b0),
     .MemClkEnable_p_b(MemClkEnable_p_b),
@@ -4270,7 +4279,6 @@ module dorado_world_machine #(parameter integer SYSPER = 16) (
     .TIOA_6(TIOA_6),
     .TIOA_7(TIOA_7),
     .TWReq_01(1'b0),
-    .TWReq_02(1'b0),
     .TWReq_03(1'b0),
     .TWReq_04(1'b0),
     .TWReq_05(1'b0),
