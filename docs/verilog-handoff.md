@@ -167,7 +167,29 @@ suppression that should span 6 real cycles runs in one, so the op
 completes immediately and i24's Return'c -> Link is fetched. **This is
 the SAME phase-collapse root as the depth-mode campaign** (`dStartCycle`/
 `preStartCycle` are the exact nets that campaign fought), not a decode
-gap and not a jumper. **BUT THE WTPC WRITE MECHANISM IS PROVEN SOUND IN ISOLATION**, which
+gap and not a jumper. **+wtpcfix WORKS AND KILLS THE SPIN, exposing the NEXT collapsed
+pipeline (2026-09-01, later still).** The CIA-based +wtpcfix (force
+TNIA = CIA+1 while a WTPC is in the MIR -- CIA is ContA's current-
+instruction-address register, the clean source; the first cut's
+sys_clk history tracking glitched) fires exactly 15 times at CIA=c46
+-> c47 and the RESULT IS DECISIVE: longest-run-on-one-address falls
+**96,721 -> 7**, the stuck-fatal is gone, the machine sequences. But it
+still does not reach BOOTEMULATOR: a SECOND collapsed-pipeline
+mechanism is now exposed -- **the BDispatch at c47** (FF=0o061). The
+oracle (DORADO_PCDIS) shows c47 ALTERNATES: c47->c45 (continue, 14
+iterations) and c47->c44->6131->task-switch (exit, once), the choice
+made by the loop counter via the dispatch value OR'd into the next
+TNIA. Our RTL takes c47->c44 EVERY time (and even c44 targets c60, not
+its own 6131), because the dispatch-pipe (task_dispatch OR'd into the
+following instruction's TNIA, HM §4.4) is ALSO collapsed by the SYSPER
+model. So the task-init loop is a NEST of pipelined mechanisms -- the
+6-cycle WTPC and the BDispatch dispatch-pipe -- that zero-delay/
+collapsed execution breaks, and per-mechanism stand-ins would be
+whack-a-mole. This is the depth/phase model's territory holistically,
+not a chain of knobs. +wtpcfix is kept as the demonstration that the
+WTPC half is understood and the write is sound.
+
+**And the WTPC WRITE MECHANISM IS PROVEN SOUND IN ISOLATION**, which
 reframes the write failure: `taskrun-test` PASSES and writes TPC
 correctly ("TPC[15] survives task 7", "the startup Link lands in slot
 0") -- from JAMMED single instructions. So the h04/k06/k09 access path
