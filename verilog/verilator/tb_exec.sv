@@ -292,6 +292,61 @@ module tb_exec;
     end
   endtask
 
+  // ---- A WHOLE FRAME, WHEN THERE IS ONE -----------------------------------
+  //
+  // `+frame`: the same pixel-rate sampling, but organised as a FIELD -- a new
+  // line on HSync's falling edge, a new field on VSync's assertion -- into a
+  // 1024x896 buffer written as dorado_frame.pgm at the end of the run. The
+  // monochrome monitor is paper-white: vid=0 paints white, vid=1 paints
+  // black, blanking paints grey so the frame's geometry is legible even
+  // empty. If VSync never asserts the buffer degrades to the strip capture's
+  // behaviour (lines accumulate to the bottom and hold), which is itself the
+  // diagnostic: horizontal timing without vertical timing.
+  integer frame_on, n_fields = 0, fpx = 0, fpy = 0;
+  reg [7:0] ffb [0:895][0:1023];
+  reg fd_hs, fd_vs, fd_pix;
+  initial begin
+    frame_on = $test$plusargs("frame");
+    fpx = 0; fpy = 0; fd_hs = 1'b0; fd_vs = 1'b1; fd_pix = 1'b0;
+    for (py = 0; py < 896; py = py + 1)
+      for (px = 0; px < 1024; px = px + 1) ffb[py][px] = 8'd128;
+  end
+  always @(posedge sys_clk) if (frame_on) begin
+    if (pixel_clk && !fd_pix) begin
+      // Field boundary: AltoVSync' asserting (falling, it is active low).
+      if (!vsync_n && fd_vs) begin
+        n_fields = n_fields + 1;
+        fpy = 0; fpx = 0;
+      end
+      fd_vs <= vsync_n;
+      if (!hsync && fd_hs) begin
+        if (fpy < 895) fpy = fpy + 1;
+        fpx = 0;
+      end
+      fd_hs <= hsync;
+      if (fpx < 1024 && fpy < 896) begin
+        ffb[fpy][fpx] = (hblank || vblank) ? 8'd128 :
+                        vid                ? 8'd0   : 8'd255;
+        fpx = fpx + 1;
+      end
+    end
+    fd_pix <= pixel_clk;
+  end
+  task write_frame;
+    integer f, r, c;
+    begin
+      f = $fopen("dorado_frame.pgm", "w");
+      $fwrite(f, "P2\n1024 896\n255\n");
+      for (r = 0; r < 896; r = r + 1) begin
+        for (c = 0; c < 1024; c = c + 1) $fwrite(f, "%0d ", ffb[r][c]);
+        $fwrite(f, "\n");
+      end
+      $fclose(f);
+      $display("tb_exec: +frame -- wrote dorado_frame.pgm, %0d fields seen, last line %0d",
+               n_fields, fpy);
+    end
+  endtask
+
   // THE DECISIVE EXPERIMENT. If `CountHRamAddr'` is the only thing stopping
   // the display, forcing it low must make the counter count and the sync
   // chain move. If it does not, the diagnosis is incomplete and something
@@ -382,7 +437,16 @@ module tb_exec;
       .CPOut_6(cpout[2]), .CPOut_7(cpout[1]), .CPOut_8(cpout[0]),
       .CPStrb_p_(strb_n), .SetRun(setrun), .SetSS_p_(setss_n),
       .SetRunRfsh(1'b1), .RfshPeriod(rfshper),
-      .ChipsAre256_s_16K(chips16k), .ChipsAre64K(chips64k)
+      .ChipsAre256_s_16K(chips16k), .ChipsAre64K(chips64k),
+      // MODULE PRESENCE IS A BACKPLANE INPUT TOO. The msa relays Mb0 to its
+      // M0 output (h26, a pure OR buffer: M0 = Mb0), MemX reads M0..M3 as
+      // inputs (b02/b41/c03/c42, all receiving pins), and nothing on any
+      // board ORIGINATES the token -- the backplane ties it at the module
+      // slot ("awaits PCMSA" on the port). Left at 0, B<-Config' reports NO
+      // storage modules and Initial's FINDMODULE scan lands at NOSTORAGE
+      // (real 6247), the 758k-microinstruction park. Driven, MemX reads
+      // M0=1 M1..3=0: one module, which is what this machine has.
+      .Mb0(1'b1)
   );
 
   // ---- SEED THE MAP --------------------------------------------------------
@@ -1539,6 +1603,8 @@ module tb_exec;
   // an empty-stack operation. Count all three; do not sample them.
   integer n_faults, n_wen, n_stkwake, tpcslot, nfault_region, nboot_region, bootfeed;
   integer cktrace, n_ckt = 0;
+  integer trwin = 0;
+  initial void'($value$plusargs("trwin=%d", trwin));
   integer fastwait, n_clip = 0;
   initial fastwait = $test$plusargs("fastwait");
   // ---- FAST-FORWARD THE WAITS ---------------------------------------------
@@ -1559,8 +1625,19 @@ module tb_exec;
                m.b_ProcH.u_l03.mem[4'hf], m.b_ProcH.u_l04.mem[4'hf],
                m.b_ProcL.u_l03.mem[4'hf], m.b_ProcL.u_l04.mem[4'hf]);
     end
+  // THE CLIP IS OFF (2026-09-01): it was DESTROYING the SetMCR data. The
+  // clip fired on every sys_clk while TNIA read c0a with T > 0x10 -- and the
+  // second LoadMCR (InitialSubrs' SetMCR, the noRef family) executes exactly
+  // in that window, its MCR value in T (0x67 > 0x10), A<-T. Measured with the
+  // full RMar vector: during the LoadMCR's enabled phase the Mar carries all
+  // zeros -- T had already been clipped to 4 -- which is the whole of "LoadMCR
+  // #2 misses its data" (a9026abc): a bench artifact, not a strobe-timing
+  // bug. The ResEqZero pulse below is what actually exits LongWait (the clip
+  // "loses to the bypass" and never could); it stays, the clip goes. `+clip`
+  // turns it back on to reproduce the artifact.
   always @(posedge sys_clk)
-    if (fastwait && (tnia_now == 12'hc40 || tnia_now == 12'hc0a)
+    if (fastwait && $test$plusargs("clip")
+        && (tnia_now == 12'hc40 || tnia_now == 12'hc0a)
         && {m.b_ProcL.u_l03.mem[4'hf], m.b_ProcL.u_l04.mem[4'hf]} > 8'h10) begin
       m.b_ProcH.u_l03.mem[4'hf] = 4'h0;  // T.00-03
       m.b_ProcH.u_l04.mem[4'hf] = 4'h0;  // T.04-07
@@ -1632,11 +1709,44 @@ module tb_exec;
 `else
   always @(posedge sys_clk) n_cyc2 = n_cyc2 + 1;
 `endif
+`ifdef WORLD
+  // ---- THE MAR BUS, WATCHED WHOLE ----------------------------------------
+  //
+  // All eleven MCR-relevant Mar bits, printed on CHANGE inside the +tcwin
+  // window. This probe is what closed the LoadMCR saga (2026-09-01): with
+  // every bit visible, the "in-residency data" of 355e67bb (RMar09=RMar10=1)
+  // turned out to be the bus's ALL-ONES idle -- every bit was 1, two were
+  // read -- and the true data phase is the MarMuxAEn'=0 window, where the
+  // bus read ALL ZEROS because `+fastwait`'s T-file clip had already zapped
+  // the SetMCR value (T carries it, A<-T, and the clip fired on every
+  // sys_clk while TNIA read c0a with T > 0x10 -- the LoadMCR executes
+  // exactly there). With the clip off, every LoadMCR captures its true data
+  // at its own edge and no deposit knob is needed at all: the strobe timing
+  // was never the bug. A `+mcrfix` deposit knob briefly existed and was
+  // removed with the diagnosis it encoded.
+  integer tcs = 0, tce = 0, tcl = 60;
+  initial if ($value$plusargs("tcwin=%d", tcs)) begin
+    void'($value$plusargs("tclen=%d", tcl));
+    tce = tcs + tcl;
+  end
+  wire [10:0] w_rmar = {m.b_MemC.RMar_10, m.b_MemC.RMar_09, m.b_MemC.RMar_08,
+                        m.b_MemC.RMar_07, m.b_MemC.RMar_06, m.b_MemC.RMar_05,
+                        m.b_MemC.RMar_04, m.b_MemC.RMar_03, m.b_MemC.RMar_02,
+                        m.b_MemC.RMar_01, m.b_MemC.RMar_00};
+  reg [10:0] d_rmarw = 11'd0; reg [7:0] d_ffw = 8'd0; reg d_aenw = 1'b0;
+  always @(posedge sys_clk) begin
+    if (tce != 0 && n_cyc2 >= tcs && n_cyc2 < tce
+        && (w_rmar !== d_rmarw || ff_now !== d_ffw
+            || m.b_ProcL.MarMuxAEn_p_ !== d_aenw))
+      $display("tb_exec: MCRWIN @%0d ff=%h AEn'=%b RMar[10:0]=%b LdMcr'=%b", n_cyc2,
+               ff_now, m.b_ProcL.MarMuxAEn_p_, w_rmar, m.b_MemC.LdMcr_p_);
+    d_rmarw <= w_rmar; d_ffw <= ff_now; d_aenw <= m.b_ProcL.MarMuxAEn_p_;
+  end
+`endif
   // TIME COURSE around the LoadMCR instruction: every sys_clk in a window,
   // the combinational decode (dAmux0, BSel=2/6), the REGISTERED enable
   // (MarMuxAEn'), b11's load strobe (ProcL14_sil_pl_2), and RMar_09.
-  integer tcs = 0, tce = 0;
-  initial if ($value$plusargs("tcwin=%d", tcs)) tce = tcs + 60;
+  // (tcs/tce are declared with the +mcrfix knob above, which shares them.)
 `ifdef WORLD
   always @(posedge sys_clk)
     if (tce != 0 && n_cyc2 >= tcs && n_cyc2 < tce)
@@ -2137,7 +2247,10 @@ module tb_exec;
           if (!visited[lastpc[11:0]]) begin
             visited[lastpc[11:0]] = 1'b1; nvisited = nvisited + 1;
           end
-          if (n_tr < 256) begin
+          // `+trwin=N` delays trace collection to cycle N, so the 256
+          // entries show the STEADY STATE of a late loop instead of the
+          // long-known startup.
+          if (n_tr < 256 && n_cyc2 >= trwin) begin
             tr_pc[n_tr] = lastpc[11:0]; tr_ff[n_tr] = ff_now;
             tr_ct[n_tr] = {m.b_ContA.CTask_0, m.b_ContA.CTask_1,
                            m.b_ContA.CTask_2, m.b_ContA.CTask_3};
@@ -2423,7 +2536,7 @@ module tb_exec;
              nvisited, lastpc[11:0], maxrun, maxpc[11:0]);
     // Name them. A short cycle is the normal shape of a microcode wait loop, and
     // knowing WHICH addresses turns "it loops" into something disassemblable.
-    if (nvisited <= 64) begin
+    if (nvisited <= 64 || $test$plusargs("addrs")) begin
       $write("tb_exec: PER TASK --");
     for (i = 0; i < 16; i = i + 1)
       if (nvis_t[i] != 0) $write(" t%0d:%0d addresses", i, nvis_t[i]);
@@ -2585,6 +2698,7 @@ module tb_exec;
     // the fault is downstream, and if the crystal is dead nothing else can
     // matter. Check the source before the sink.
     if (pgm_on) write_pgm;
+    if (frame_on) write_frame;
     $display("tb_exec: DISPY CLOCK -- PixelClk %0d, crystal a05 out %0d transitions, AltoCSync' %0d (control: same crystal %0d)",
              n_pix, n_xtal, n_wdwt, n_wdht);
     $display("tb_exec: HRAM GATE -- DoradoHasHRam high on %0d of %0d samples; ClkHRamAddr' %0d transitions",
