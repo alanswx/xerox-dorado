@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ProcH ProcL ContA ContB IFU MemC MemD MemX DskEth DispY BaseBd msa
-// 569 internal nets (83 with several contributors), 330 top-level ports.
+// 570 internal nets (83 with several contributors), 328 top-level ports.
 
 `default_nettype none
 
@@ -248,7 +248,6 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     input  wire IfuAWantsDifHit_p_        ,  // to a backplane connector (cable)
     input  wire IfuStartMap_p_            ,  // to a backplane connector (cable)
     output wire JamVBlank                 ,  // to a backplane connector (cable)
-    output wire JunkTW                    ,  // to a backplane connector (cable)
     input  wire LEDOnRet                  ,  // to a backplane connector (cable)
     output wire LScopeFH                  ,  // to a backplane connector (cable)
     output wire LargeHold                 ,  // to a backplane connector (cable)
@@ -324,7 +323,6 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     input  wire SubTask_1                 ,  // awaits IOTest
     output wire TTLIOReset_p_             ,  // to a backplane connector (cable)
     input  wire TWReq_01                  ,  // to a backplane connector (cable)
-    input  wire TWReq_02                  ,  // to a backplane connector (cable)
     input  wire TWReq_04                  ,  // to a backplane connector (cable)
     input  wire TWReq_05                  ,  // to a backplane connector (cable)
     input  wire TWReq_08                  ,  // to a backplane connector (cable)
@@ -367,7 +365,7 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     input  wire dStartClockPulse             // to a backplane connector (cable)
 );
 
-  // 569 nets between boards, plus one contribution wire
+  // 570 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -821,6 +819,7 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire TNIA_13;
   wire TNIA_14;
   wire TNIA_15;
+  wire TWReq_02;
   wire TWReq_03;
   wire TWReq_06;
   wire TWReq_07;
@@ -1403,7 +1402,6 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire IoFetchInA_p___MemC;
   wire IoStoreInA__MemC;
   wire JamVBlank__DispY;
-  wire JunkTW__IFU;
   wire KeyboardData__BaseBd;
   wire LC_0__ContB;
   wire LC_1__ContB;
@@ -1708,6 +1706,7 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   wire TNIA_14__ContA;
   wire TNIA_15__ContA;
   wire TTLIOReset_p___BaseBd;
+  wire TWReq_02__IFU;
   wire TWReq_03__DispY;
   wire TWReq_06__DskEth;
   wire TWReq_07__DskEth;
@@ -2205,7 +2204,6 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   assign IoFetchInA_p_ = IoFetchInA_p___MemC;
   assign IoStoreInA = IoStoreInA__MemC;
   assign JamVBlank = JamVBlank__DispY;
-  assign JunkTW = JunkTW__IFU;
   assign KeyboardData = KeyboardData__BaseBd;
   assign LC_0 = LC_0__ContB;
   assign LC_1 = LC_1__ContB;
@@ -2483,6 +2481,7 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
   assign TNIA_14 = TNIA_14__ContA;
   assign TNIA_15 = TNIA_15__ContA;
   assign TTLIOReset_p_ = TTLIOReset_p___BaseBd;
+  assign TWReq_02 = TWReq_02__IFU;
   assign TWReq_03 = TWReq_03__DispY;
   assign TWReq_06 = TWReq_06__DskEth;
   assign TWReq_07 = TWReq_07__DskEth;
@@ -3659,7 +3658,6 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     .IfuData_7__drv(IfuData_7__IFU),
     .IfuFaultInEc2__drv(IfuFaultInEc2__IFU),
     .IfuRBaseSel_p___drv(IfuRBaseSel_p___IFU),
-    .JunkTW__drv(JunkTW__IFU),
     .MAR_00_p___drv(MAR_00_p___IFU),
     .MAR_01_p___drv(MAR_01_p___IFU),
     .MAR_02_p___drv(MAR_02_p___IFU),
@@ -3682,6 +3680,7 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     .PcFG_15__drv(PcFG_15__IFU),
     .RefOutstanding_p___drv(RefOutstanding_p___IFU),
     .SignIfuData__drv(SignIfuData__IFU),
+    .TWReq_02__drv(TWReq_02__IFU),
     .WantIfuHold_p___drv(WantIfuHold_p___IFU),
     .WantIfuRef_p___drv(WantIfuRef_p___IFU)
   );
@@ -4895,7 +4894,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 196 signals, 32 at a time;
+// probe_val exposes 195 signals, 32 at a time;
 // dorado_backplane.probes lists which bit is which.
 module dorado_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
@@ -5022,7 +5021,6 @@ module dorado_machine #(parameter integer SYSPER = 16) (
   wire IMRHPEDly;
   wire IOut_m_;
   wire JamVBlank;
-  wire JunkTW;
   wire LScopeFH;
   wire LargeHold;
   wire LoadSinO;
@@ -5139,7 +5137,7 @@ module dorado_machine #(parameter integer SYSPER = 16) (
   // synthesis read_comments_as_HDL off
 
   wire [223:0] probe = {
-    28'd0,
+    29'd0,
     CLK_pl_p__probe,
     CLK_ph_p__probe,
     CLK_mx_p__probe,
@@ -5217,7 +5215,6 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     LoadSinO,
     LargeHold,
     LScopeFH,
-    JunkTW,
     JamVBlank,
     IOut_m_,
     IMRHPEDly,
@@ -5436,7 +5433,7 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .CLK_ms3Even_p_(CLK_ms3Even_p_),
     .CLK_ms3Odd_p_(CLK_ms3Odd_p_),
     .ChipsAre16k(1'b0),
-    .ChipsAre256_s_16K(1'b0),
+    .ChipsAre256_s_16K(1'b1),
     .ChipsAre4k(1'b0),
     .ChipsAre64K(1'b0),
     .ClkEnable_p_a(1'b0),
@@ -5561,7 +5558,6 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .IfuAWantsDifHit_p_(1'b0),
     .IfuStartMap_p_(1'b0),
     .JamVBlank(JamVBlank),
-    .JunkTW(JunkTW),
     .LEDOnRet(1'b0),
     .LScopeFH(LScopeFH),
     .LargeHold(LargeHold),
@@ -5570,7 +5566,7 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .M1(1'b0),
     .M2(1'b0),
     .M3(1'b0),
-    .Mb0(1'b0),
+    .Mb0(1'b1),
     .MemAd_0(MemAd_0),
     .MemClkEn_p_a(1'b0),
     .MemClkEnable_p_b(MemClkEnable_p_b),
@@ -5637,7 +5633,6 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .SubTask_1(1'b0),
     .TTLIOReset_p_(TTLIOReset_p_),
     .TWReq_01(1'b0),
-    .TWReq_02(1'b0),
     .TWReq_04(1'b0),
     .TWReq_05(1'b0),
     .TWReq_08(1'b0),

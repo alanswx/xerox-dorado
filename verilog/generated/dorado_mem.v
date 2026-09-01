@@ -3724,7 +3724,7 @@ module dorado_mem_machine #(parameter integer SYSPER = 16) (
     .CPOut_7(1'b0),
     .CPOut_8(1'b0),
     .CPStrb_p_(1'b0),
-    .ChipsAre256_s_16K(1'b0),
+    .ChipsAre256_s_16K(1'b1),
     .ChipsAre64K(1'b0),
     .ClkEnable_p_a(1'b0),
     .CountMiss(CountMiss),
