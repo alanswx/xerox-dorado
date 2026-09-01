@@ -1873,6 +1873,36 @@ module tb_exec;
     d_mwe <= m.b_MemX.RTMapWE_p_b;
   end
 
+  // `+blfix` -- the fault path's cache-flag cleanup, as a bench stand-in.
+  // The miss writes its tag + Being-Loaded flag at @82272, 42 cycles BEFORE
+  // the map read returns VACANT and faults (@82314): the optimistic
+  // address-section write against the later fault verdict is the same
+  // zero-delay ordering class as the campaign's other coincidences. On real
+  // hardware a vacant-page reference cannot leave a permanent BL flag --
+  // demand paging would wedge the machine daily -- so either the write is
+  // suppressed in time (nanosecond gates) or the fault path cleans up.
+  // Until that is settled from the gates, this knob does the cleanup: on
+  // each ReportFault edge, clear the BL bit (bit 3 of the 4-bit flag word)
+  // in all four way-planes at every row. A legitimately in-flight load at
+  // the same instant would lose its flag; in this bench faults and loads
+  // do not overlap.
+  integer blfix_i; reg d_rfault = 1'b0;
+  initial if ($test$plusargs("blfix")) begin
+    forever begin
+      @(posedge sys_clk);
+      if (m.b_MemX.ReportFault_p_ === 1'b0 && d_rfault === 1'b1) begin
+        for (blfix_i = 0; blfix_i < 256; blfix_i = blfix_i + 1) begin
+          m.b_MemC.u_a08.mem[blfix_i][3] = 1'b0;
+          m.b_MemC.u_b08.mem[blfix_i][3] = 1'b0;
+          m.b_MemC.u_c08.mem[blfix_i][3] = 1'b0;
+          m.b_MemC.u_d08.mem[blfix_i][3] = 1'b0;
+        end
+        $display("tb_exec: +blfix -- BL flags cleared after ReportFault @%0d", n_cyc2);
+      end
+      d_rfault <= m.b_MemX.ReportFault_p_;
+    end
+  end
+
   final begin : mapplane_census
     integer zi, nwp0, ndirty0, nrp0;
     nwp0 = 0; ndirty0 = 0; nrp0 = 0;
