@@ -1554,6 +1554,51 @@ module tb_exec;
                         m.b_ContA.FF_3_p_,m.b_ContA.FF_4_p_,m.b_ContA.FF_5_p_,
                         m.b_ContA.FF_6_p_,m.b_ContA.FF_7_p_};
 
+  // ---- +wtpcfix: STAND-IN FOR THE 6-CYCLE WRITE-TPC RESIDENCY -------------
+  //
+  // A Write-TPC (c46 in the task-init loop) should advance to CIA+1; the RTL
+  // takes TNIA<-Link (i24's Return'c path) = the TPC value being written =
+  // c61, and executes it as a spurious instruction, because the 6-cycle
+  // phase-ring residency that would update Link to CIA+1 BEFORE the
+  // next-address latches is collapsed to one cycle in our SYSPER model.
+  // taskrun-test proves the WTPC WRITE mechanism is sound, so redirecting
+  // ONLY the spurious next-fetch to CIA+1 -- letting the write proceed --
+  // is the functional stand-in cpu.c implements (next = real_PC + 1). This
+  // forces the combinational TNIA to CIA+1 while a WTPC is in the MIR;
+  // dRA (ContB) then latches CIA+1 instead of Link. CIA = the WTPC's own
+  // address = the last distinct TNIA before the spurious Link target.
+  // CIA (ContA's Current Instruction Address register) IS the WTPC's own
+  // address while it executes -- so CIA+1 is the correct successor, no
+  // history tracking (which glitched on sys_clk transients in the first cut).
+  wire [11:0] cia_now = {m.b_ContA.CIA_04, m.b_ContA.CIA_05, m.b_ContA.CIA_06,
+                         m.b_ContA.CIA_07, m.b_ContA.CIA_08, m.b_ContA.CIA_09,
+                         m.b_ContA.CIA_10, m.b_ContA.CIA_11, m.b_ContA.CIA_12,
+                         m.b_ContA.CIA_13, m.b_ContA.CIA_14, m.b_ContA.CIA_15};
+  integer wtpcfix; initial wtpcfix = $test$plusargs("wtpcfix");
+  reg [11:0] wtpc_tgt = 12'h0;
+  reg wtpc_active = 1'b0; integer n_wtpcfix = 0;
+  always @(posedge sys_clk) if (wtpcfix) begin
+    if (!m.b_ContA.WTPC_p_ && !wtpc_active) begin
+      wtpc_tgt = cia_now + 12'd1;
+      wtpc_active <= 1'b1;
+      n_wtpcfix = n_wtpcfix + 1;
+      if (n_wtpcfix <= 8)
+        $display("tb_exec: +wtpcfix -- WTPC at CIA=%h, redirect Link->%h @%0d",
+                 cia_now, wtpc_tgt, n_cyc2);
+      force m.TNIA_04 = wtpc_tgt[11]; force m.TNIA_05 = wtpc_tgt[10];
+      force m.TNIA_06 = wtpc_tgt[9];  force m.TNIA_07 = wtpc_tgt[8];
+      force m.TNIA_08 = wtpc_tgt[7];  force m.TNIA_09 = wtpc_tgt[6];
+      force m.TNIA_10 = wtpc_tgt[5];  force m.TNIA_11 = wtpc_tgt[4];
+      force m.TNIA_12 = wtpc_tgt[3];  force m.TNIA_13 = wtpc_tgt[2];
+      force m.TNIA_14 = wtpc_tgt[1];  force m.TNIA_15 = wtpc_tgt[0];
+    end else if (m.b_ContA.WTPC_p_ && wtpc_active) begin
+      wtpc_active <= 1'b0;
+      release m.TNIA_04; release m.TNIA_05; release m.TNIA_06; release m.TNIA_07;
+      release m.TNIA_08; release m.TNIA_09; release m.TNIA_10; release m.TNIA_11;
+      release m.TNIA_12; release m.TNIA_13; release m.TNIA_14; release m.TNIA_15;
+    end
+  end
+
   // ---- PRELOAD: a WHOLE WORLD in IM ---------------------------------------
   //
   // The control-processor bus above is the REAL loader and boot0-test gates it,
