@@ -93,8 +93,9 @@ cycles**: the enable that lets module 0 drive its shifted data onto the
 Sin bus never enables during the transport, so the read's data never
 reaches MemD, the cache line is never written, CacheLoad stays 0, BL
 never clears, and the retry cycles that follow are CAS-less because the
-error state re-wedges. The decode is traced to its end,
-WITH A RETRACTION: "Mod0SinEn' never enables" was an idle-level
+error state re-wedges. SUPERSEDED AGAIN, deeper (see
+the dated block below this one for the final state). The decode is
+traced to its end, WITH A RETRACTION: "Mod0SinEn' never enables" was an idle-level
 misread -- the net is ACTIVE LOW and idles asserted (1 transition =
 one deassert). The full-window probe shows the read running with
 module 0's Sin enable asserted throughout, and **ModEn'a = 1110: the
@@ -112,7 +113,40 @@ protection that turns this scenario into a handled fault on real
 hardware. Then: (2) fit MemC's ST-parity write side against its
 checker (the im-parity-check method) so +stperroff retires; (3) check
 that a faulted/absent read still COMPLETES with error flags rather
-than wedging (the manual reports and finishes). The full probe kit is in tb_exec (MAPWEDGE, DRAMWIN,
+than wedging (the manual reports and finishes).
+
+**FINAL STATE OF THE PARK DIAGNOSIS (2026-09-01, end of session).** Two
+more measurements overturned the stored-complement claim (retracted:
+the MAPCENSUS-vs-readback contradiction was the MosRam's dout HOLDING
+between reads -- a probe trap, not a convention) and closed the chain:
+
+- **The map READ path is CORRECT.** MAPRAM trace at the miss: RAS'a and
+  CAS'a fall, addr=0000, dout_r takes mem[0], dout delivers it, the
+  THi-strobed MC10124 puts it on RP (non-inverting 'o' output for
+  RP.00). The identical RP=ff readback under opposite seeds happened
+  because the read hits the ONE entry the machine itself had written
+  (index 0 -- the MAPCENSUS's single flipped bit in each plane).
+- **So the miss translates through INITIAL'S OWN Map<- write**, which
+  stored WP=0, Dirty=1, RP=11111111. A map-reset should store VACANT
+  (WP=1 AND Dirty=1, HM p.45). Stored-vs-intended differs in the
+  pattern of the KNOWN B-bus inversion ("B carries the COMPLEMENT" --
+  why PARC has SetCPReg and SetCPReg~): if the map write data rides the
+  BMux complement and the write path stores it uncorrected, Initial's
+  RP=0/WP=1 becomes RP=ff/WP=0 -- module 3, resident -- exactly what
+  reads back. The Dirty bit reading 1 either rides a different
+  translator sense (e10's 'o' vs 'OUT') or a different plane than
+  assumed (census: d13 carries the single 0, d11 none -- so d13 is
+  likelier the WP plane, d11 the Dirty).
+- **NEXT, one focused fit** (the im-parity-check method, fourth
+  instance): trace the Map<- WRITE data path (Mapbuf b01 loads from
+  BMux) bit-for-bit against memory.c's map-entry layout, and settle
+  which side of the B inversion each stored plane is on. When the write
+  path stores what Initial means, entry 0 reads vacant, ValidMapFlt has
+  something to detect, and the module field points at real storage.
+- Also verified on the way: the map RAM is strobed once per translation
+  (RTMapRAS'/CAS' a- and b-side); the vacant detect (g14/MapTrouble)
+  correctly does NOT fire for the WP=0 entry -- no-fault is right given
+  the stored content. The defect is upstream, in what got stored. The full probe kit is in tb_exec (MAPWEDGE, DRAMWIN,
 TRANSPORT/TRANSPORT2, CFLAGS, VICWIN, W0STROBE, +stperroff).
 
 **The original blocker text (still true as far as it goes):** after map init and the module

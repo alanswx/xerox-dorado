@@ -550,26 +550,25 @@ module tb_exec;
   //
   // `+nomapseed` leaves it empty, which is how the fault-task wakeup was
   // measured in the first place and is worth keeping as the control.
-  // ...AND THE SEED MUST MAP INTO MODULE 0. The all-ones seed (kept for map
-  // PARITY) put every real page at all-ones, whose module field -- e05 muxes
-  // Mod_0/Mod_1 from RP.00-07 per chip size -- is MODULE 3, and this machine
-  // has one module, in slot 0: the read selected an absent module, nothing
-  // drove Sin, and no cache load could ever complete (the RESETFAULTINFO
-  // park's deepest link). RP.00-07 are MosRam planes a04-a11 in order
-  // (measured through the b06/b09/b12 translators); zeroing EIGHT planes
-  // flips an even number of bits per entry, so e11's 9-bit parity check
-  // still passes. RP.08 (a12) stays 1.
+  // ...AND THE MAP PLANES STORE THE COMPLEMENT. Measured (MAPCENSUS vs the
+  // DRAMWIN map-stage readback): with a plane holding 1 the translated read
+  // (MC10124, inverting) delivers 0 -- the array stores the complement of
+  // the logical bit, the same convention as IM parity and dBlock'. So the
+  // ALL-ONES seed reads back as RP = 0 (module 0 -- correct for this
+  // one-module machine) and WP = 0 (resident -- which is why no reference
+  // ever map-faults on the seeded map). A brief 'fix' that zeroed the RP
+  // planes to force module 0 did the opposite and is reverted here.
   integer mi;
   initial if (!$test$plusargs("nomapseed"))
     for (mi = 0; mi < 4096; mi = mi + 1) begin
-      m.b_MemX.u_a04.mem[mi] = 1'b0;
-      m.b_MemX.u_a05.mem[mi] = 1'b0;
-      m.b_MemX.u_a06.mem[mi] = 1'b0;
-      m.b_MemX.u_a07.mem[mi] = 1'b0;
-      m.b_MemX.u_a08.mem[mi] = 1'b0;
-      m.b_MemX.u_a09.mem[mi] = 1'b0;
-      m.b_MemX.u_a10.mem[mi] = 1'b0;
-      m.b_MemX.u_a11.mem[mi] = 1'b0;
+      m.b_MemX.u_a04.mem[mi] = 1'b1;
+      m.b_MemX.u_a05.mem[mi] = 1'b1;
+      m.b_MemX.u_a06.mem[mi] = 1'b1;
+      m.b_MemX.u_a07.mem[mi] = 1'b1;
+      m.b_MemX.u_a08.mem[mi] = 1'b1;
+      m.b_MemX.u_a09.mem[mi] = 1'b1;
+      m.b_MemX.u_a10.mem[mi] = 1'b1;
+      m.b_MemX.u_a11.mem[mi] = 1'b1;
       m.b_MemX.u_a12.mem[mi] = 1'b1;
       m.b_MemX.u_a13.mem[mi] = 1'b1;
       m.b_MemX.u_a14.mem[mi] = 1'b1;
@@ -1820,6 +1819,49 @@ module tb_exec;
     $display("tb_exec: +stperroff -- STPerr forced LOW (the ST parity latch)");
   end
 
+  // HOW MANY MAP ENTRIES HAVE WP=0 / DIRTY=0 at the end of the run? The
+  // seed writes 1 everywhere; Initial's map-reset writes VACANT = WP=1 AND
+  // Dirty=1 (HM p.45). Zeros in these planes can only come from the machine's
+  // own Map<- writes -- so a large zero count in the WP plane is the write
+  // path storing WP INVERTED.
+  // Map-DRAM strobe edges in the miss window: does the MAP RAM actually get
+  // read for this reference?
+  integer n_mras = 0, n_mcas2 = 0; reg d_mras2 = 1'b1, d_mcas3 = 1'b1;
+  always @(posedge sys_clk) begin
+    if (n_cyc2 >= 82260 && n_cyc2 < 83000) begin
+      if (m.b_MemX.RTMapRAS_p_b !== d_mras2) n_mras = n_mras + 1;
+      if (m.b_MemX.RTMapCAS_p_b !== d_mcas3) n_mcas2 = n_mcas2 + 1;
+    end
+    d_mras2 <= m.b_MemX.RTMapRAS_p_b; d_mcas3 <= m.b_MemX.RTMapCAS_p_b;
+  end
+
+  reg [5:0] d_mrw = 6'd0;
+  always @(posedge sys_clk) begin
+    if (n_cyc2 >= 82260 && n_cyc2 < 83000
+        && {m.b_MemX.RTMapRAS_p_a, m.b_MemX.RTMapCAS_p_a, m.b_MemX.RTMapWE_p_a,
+            m.b_MemX.u_a04.dout, m.b_MemX.u_a04.dout_r, m.b_MemX.MemX12_sil_pl_4} !== d_mrw)
+      $display("tb_exec: MAPRAM @%0d RAS'a=%b CAS'a=%b WE'a=%b a04.dout=%b a04.dout_r=%b pl4=%b addr=%h",
+               n_cyc2, m.b_MemX.RTMapRAS_p_a, m.b_MemX.RTMapCAS_p_a,
+               m.b_MemX.RTMapWE_p_a, m.b_MemX.u_a04.dout, m.b_MemX.u_a04.dout_r,
+               m.b_MemX.MemX12_sil_pl_4, m.b_MemX.u_a04.addr);
+    d_mrw <= {m.b_MemX.RTMapRAS_p_a, m.b_MemX.RTMapCAS_p_a, m.b_MemX.RTMapWE_p_a,
+              m.b_MemX.u_a04.dout, m.b_MemX.u_a04.dout_r, m.b_MemX.MemX12_sil_pl_4};
+  end
+
+  final begin : mapplane_census
+    integer zi, nwp0, ndirty0, nrp0;
+    nwp0 = 0; ndirty0 = 0; nrp0 = 0;
+    for (zi = 0; zi < 4096; zi = zi + 1) begin
+      if (m.b_MemX.u_d11.mem[zi] === 1'b0) nwp0 = nwp0 + 1;
+      if (m.b_MemX.u_d13.mem[zi] === 1'b0) ndirty0 = ndirty0 + 1;
+      if (m.b_MemX.u_a04.mem[zi] === 1'b0) nrp0 = nrp0 + 1;
+    end
+    $display("tb_exec: MAPCENSUS -- WP-plane zeros %0d, Dirty-plane zeros %0d, RP00-plane zeros %0d (of 4096)",
+             nwp0, ndirty0, nrp0);
+    $display("tb_exec: MAPSTROBE -- window 82260-83000: MapRAS' %0d transitions, MapCAS' %0d",
+             n_mras, n_mcas2);
+  end
+
   // ---- THE MAPBUF WEDGE ---------------------------------------------------
   //
   // At the BLretry park a reference retries forever and everything sharing
@@ -1885,19 +1927,18 @@ module tb_exec;
       n_casa = n_casa + 1;
       if (cas_t0 == 0 && n_cyc2 > 1000) cas_t0 = n_cyc2 - 60;
     end
-    if (n_cyc2 >= 82600 && n_cyc2 < 83800)
-      $display("tb_exec: DRAMWIN @%0d pc=%h MemState=%b%b%b%b RAS=%b CAS=%b pSM'=%b StartMap'=%b MemFree=%b MapFree=%b RfshInMem=%b MakeCAS=%b Mod=%b%b ModEn'a=%b%b%b%b SinEn'=%b RP07_00=%b%b%b%b%b%b%b%b",
+    if (n_cyc2 >= 82260 && n_cyc2 < 83000)
+      $display("tb_exec: DRAMWIN @%0d pc=%h MemState=%b%b%b%b RAS=%b CAS=%b pSM'=%b StartMap'=%b MemFree=%b MapFree=%b MakeCAS=%b Mod=%b%b RP7_0=%b%b%b%b%b%b%b%b MapWP=%b MapDirty=%b MapTrouble=%b VMFEc2'=%b MapInMap=%b",
                n_cyc2, tnia_now,
                m.b_MemX.MemState_0, m.b_MemX.MemState_1, m.b_MemX.MemState_2, m.b_MemX.MemState_3,
                m.MemRASa, m.MemCASa, m.b_MemX.preStartMem_p_, m.b_MemX.StartMap_p_,
                m.b_MemX.MemFree, m.b_MemX.MapFree,
-               m.b_MemX.RfshInMem, m.b_MemX.MakeMemCAS,
+               m.b_MemX.MakeMemCAS,
                m.b_MemX.Mod_0, m.b_MemX.Mod_1,
-               m.b_MemX.Mod0En_p_a, m.b_MemX.Mod1En_p_a,
-               m.b_MemX.Mod2En_p_a, m.b_MemX.Mod3En_p_a,
-               m.b_MemX.Mod0SinEn_p___drv,
                m.b_MemX.RP_07, m.b_MemX.RP_06, m.b_MemX.RP_05, m.b_MemX.RP_04,
-               m.b_MemX.RP_03, m.b_MemX.RP_02, m.b_MemX.RP_01, m.b_MemX.RP_00);
+               m.b_MemX.RP_03, m.b_MemX.RP_02, m.b_MemX.RP_01, m.b_MemX.RP_00,
+               m.b_MemX.MapWP, m.b_MemX.MapDirtya, m.b_MemX.MapTrouble,
+               m.b_MemX.ValidMapFltInEc2_p_, m.b_MemX.Map_u_InMap);
     if (m.LoadSinE !== d_tr[2]) n_lsin = n_lsin + 1;
     if (m.ShiftSinE !== d_tr[3]) n_ssin = n_ssin + 1;
     if (m.LoadSoutE_p_ !== d_tr[4]) n_lsout = n_lsout + 1;
