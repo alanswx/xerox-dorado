@@ -1976,11 +1976,12 @@ module tb_exec;
                m.b_ContA.TaskingIsOff_p_);
     end
     if (tce != 0 && n_cyc2 >= tcs && n_cyc2 < tce)
-      $display("tb_exec: TSW @%0d pc=%h ff=%h WTPC'=%b RTPC'=%b Return'a=%b GetTLink'=%b RepeatCur=%b Ph0'=%b Ph4'=%b",
+      $display("tb_exec: TSW @%0d pc=%h ff=%h FFBDisp=%b Disp=%b NoDisp=%b ToTNIA(8_12'=%b 13_15'=%b 14'=%b) alubL=%b%b%b",
                n_cyc2, tnia_now, ff_now,
-               m.b_ContA.WTPC_p_, m.b_ContA.RTPC_p_, m.b_ContA.Return_p_a,
-               m.b_ContA.GetTLink_p_, m.b_ContA.RepeatCur,
-               m.b_ContA.Phase0_p_, m.b_ContA.Phase4_p_);
+               m.b_ContA.FF_eq_BDispatch, m.b_ContA.Dispatch, m.b_ContA.NoDispatch,
+               m.b_ContA.ToTNIA8_m_12_p_a, m.b_ContA.ToTNIA13_m_15_p_,
+               m.b_ContA.ToTNIA14_p_,
+               m.b_ProcL.alub_13, m.b_ProcL.alub_14, m.b_ProcL.alub_15);
     if (!m.b_ContA.TaskingIsOff_p_) n_taskon = n_taskon + 1;
     if (m.b_ContA.StopTasks) n_stoptasks = n_stoptasks + 1;
     if (!m.b_ContA.PEncGtTrueNext_p_) n_pencgt = n_pencgt + 1;
