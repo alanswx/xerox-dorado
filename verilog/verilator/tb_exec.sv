@@ -1797,6 +1797,149 @@ module tb_exec;
   always @(posedge sys_clk) n_cyc2 = n_cyc2 + 1;
 `endif
 `ifdef WORLD
+  // ---- THE MAPBUF WEDGE ---------------------------------------------------
+  //
+  // At the BLretry park a reference retries forever and everything sharing
+  // the MapBuf (B<-FaultInfo' included) waits. HoldMapBuf PULSES during the
+  // retry loop -- 23M total samples but never 10k continuous, which is why a
+  // continuous-run detector never fired -- so the trigger is the TNIA freeze
+  // itself: at stuck == 100,000 the main loop calls dump_mapwedge. The
+  // instruction-history ring stops writing whenever stuck > 32, so it
+  // preserves the APPROACH to the park rather than 64 copies of the parked
+  // address.
+  reg [11:0] ihist_pc [0:63]; reg [7:0] ihist_ff [0:63];
+  integer ihist_w = 0, mbw_i, mbw_dumps = 0;
+  // Count cache-flag writes by the BL value they deposit (way 0's RAM; the
+  // strobe is WrCflags0' falling). Are BL flags ever CLEARED?
+  integer n_blwr1 = 0, n_blwr0 = 0; reg d_wrcf = 1'b1;
+  // ...and the whole strobe chain, counted: the CFlags<-A' decode
+  // (Cflags^' from MemC l10, the FF decoder), WrCflagsOK', and all four
+  // per-way strobes. At each of the first 12 decode assertions, print j16's
+  // product terms so the blocking one names itself.
+  integer n_cfdec = 0, n_cfok = 0, n_wcf [0:3], n_wvm = 0, n_vicwin = 0;
+  integer n_psm = 0, n_stmap = 0;
+  integer n_rasa = 0, n_casa = 0, n_lsin = 0, n_ssin = 0, n_lsout = 0,
+          n_trans = 0, n_mkmd = 0, n_sin0 = 0, cas_t0 = 0;
+  reg [7:0] d_tr = 8'd0;
+  reg d_cfdec = 1'b1, d_wvm = 1'b1, d_psm = 1'b1, d_stmap = 1'b1;
+  reg [3:0] d_wcf4 = 4'b1111;
+  initial begin n_wcf[0]=0; n_wcf[1]=0; n_wcf[2]=0; n_wcf[3]=0; end
+  always @(posedge sys_clk) begin
+    if (!m.b_MemC.WrCflags0_p_ && d_wrcf) begin
+      if (m.b_MemC.NewBL) n_blwr1 = n_blwr1 + 1; else n_blwr0 = n_blwr0 + 1;
+    end
+    d_wrcf <= m.b_MemC.WrCflags0_p_;
+    if (!m.b_MemC.Cflags_u__p_) begin
+      n_cfdec = n_cfdec + 1;
+      if (n_cfdec <= 12 || (n_cfdec % 100000) == 0)
+        $display("tb_exec: CFDEC #%0d @%0d pc=%h WrCflagsOK'=%b | VicIfMiss'=%b PairHasA'b=%b AfreeOrEc'b=%b Hit'b=%b EcHasA'=%b pl12=%b | Cflags0^'=%b Cflags1^'=%b NewBL=%b",
+                 n_cfdec, n_cyc2, tnia_now, m.b_MemC.WrCflagsOK_p_,
+                 m.b_MemC.VicIfMiss_p_, m.b_MemC.PairHasA_p_b,
+                 m.b_MemC.AfreeOrEc_p_b, m.b_MemC.Hit_p_b, m.b_MemC.EcHasA_p_,
+                 m.b_MemC.MemC02_sil_pl_12,
+                 m.b_MemC.Cflags0_u__p_, m.b_MemC.Cflags1_u__p_, m.b_MemC.NewBL);
+      if (n_cfdec <= 12)
+        $display("tb_exec: CFDEC+ ColVic=%b%b Victim'=%b%b Col'=%b%b HitOrEc=%b UseMcrV=%b Hold=%b Cflags23^'=%b%b Aad=%b%b%b%b%b%b%b%b",
+                 m.b_MemC.ColVic_0, m.b_MemC.ColVic_1,
+                 m.b_MemC.Victim_0_p_, m.b_MemC.Victim_1_p_,
+                 m.b_MemC.Col_0_p_, m.b_MemC.Col_1_p_,
+                 m.b_MemC.HitOrEc, m.b_MemC.UseMcrV, m.b_MemC.Hold,
+                 m.b_MemC.Cflags2_u__p_, m.b_MemC.Cflags3_u__p_,
+                 m.b_MemC.Aad_0a, m.b_MemC.Aad_1a, m.b_MemC.Aad_2a, m.b_MemC.Aad_3a,
+                 m.b_MemC.Aad_4a, m.b_MemC.Aad_5a, m.b_MemC.Aad_6a, m.b_MemC.Aad_7a);
+    end
+    if (!m.b_MemC.WrCflagsOK_p_) n_cfok = n_cfok + 1;
+    if (!m.b_MemC.WrVicMem_p_ && d_wvm) n_wvm = n_wvm + 1;
+    d_wvm <= m.b_MemC.WrVicMem_p_;
+    if (!m.b_MemX.preStartMem_p_ && d_psm) n_psm = n_psm + 1;
+    d_psm <= m.b_MemX.preStartMem_p_;
+    if (!m.b_MemX.StartMap_p_ && d_stmap) n_stmap = n_stmap + 1;
+    d_stmap <= m.b_MemX.StartMap_p_;
+    if (m.MemRASa !== d_tr[0]) n_rasa = n_rasa + 1;
+    if (m.MemCASa !== d_tr[1]) begin
+      n_casa = n_casa + 1;
+      if (cas_t0 == 0 && n_cyc2 > 1000) cas_t0 = n_cyc2 - 60;
+    end
+    if (n_cyc2 >= 82600 && n_cyc2 < 83800)
+      $display("tb_exec: DRAMWIN @%0d pc=%h MemState=%b%b%b%b RAS=%b CAS=%b pSM'=%b StartMap'=%b MemFree=%b MapFree=%b RfshInMem=%b MakeCAS=%b STPerr=%b STWait-Mem'=%b pl12=%b MemIdle=%b WantPR'=%b Dbusy=%b",
+               n_cyc2, tnia_now,
+               m.b_MemX.MemState_0, m.b_MemX.MemState_1, m.b_MemX.MemState_2, m.b_MemX.MemState_3,
+               m.MemRASa, m.MemCASa, m.b_MemX.preStartMem_p_, m.b_MemX.StartMap_p_,
+               m.b_MemX.MemFree, m.b_MemX.MapFree,
+               m.b_MemX.RfshInMem, m.b_MemX.MakeMemCAS,
+               m.b_MemX.STPerr, m.b_MemX.STWait_m_Mem_p_,
+               m.b_MemX.MemX07_sil_pl_12, m.b_MemX.MemIdle,
+               m.b_MemC.WantProcRef_p_, m.b_MemC.Dbusy);
+    if (m.LoadSinE !== d_tr[2]) n_lsin = n_lsin + 1;
+    if (m.ShiftSinE !== d_tr[3]) n_ssin = n_ssin + 1;
+    if (m.LoadSoutE_p_ !== d_tr[4]) n_lsout = n_lsout + 1;
+    if (m.Transport_p_ !== d_tr[5]) n_trans = n_trans + 1;
+    if (m.MakeMDM_u_D_p_ !== d_tr[6]) n_mkmd = n_mkmd + 1;
+    if (m.Sin_00 !== d_tr[7]) n_sin0 = n_sin0 + 1;
+    d_tr <= {m.Sin_00, m.MakeMDM_u_D_p_, m.Transport_p_,
+             m.LoadSoutE_p_, m.ShiftSinE, m.LoadSinE,
+             m.MemCASa, m.MemRASa};
+    // A whole cache-reference residency at the WrVicMem strobe gate: the
+    // first 3 CacheRefInA episodes after cycle 80000 (the clear-loop era),
+    // every sys_clk.
+    if (m.b_MemC.CacheRefInA && n_cyc2 > 80000 && n_vicwin < 120) begin
+      n_vicwin = n_vicwin + 1;
+      $display("tb_exec: VICWIN @%0d pc=%h CacheRefInA=%b WrVicMem'=%b | LdVNV'=%b UseMcrV=%b McrV=%b%b%b%b ramV=%b%b%b%b Victim=%b%b NextV=%b%b",
+               n_cyc2, tnia_now, m.b_MemC.CacheRefInA, m.b_MemC.WrVicMem_p_,
+               m.b_MemC.LdVNV_p_, m.b_MemC.UseMcrV,
+               m.b_MemC.MemC04_sil_pl_1, m.b_MemC.MemC04_sil_pl_2,
+               m.b_MemC.MemC04_sil_pl_3, m.b_MemC.MemC04_sil_pl_4,
+               m.b_MemC.MemC04_sil_pl_10, m.b_MemC.MemC04_sil_pl_11,
+               m.b_MemC.MemC04_sil_pl_12, m.b_MemC.MemC04_sil_pl_13,
+               m.b_MemC.Victim_0, m.b_MemC.Victim_1,
+               m.b_MemC.NextV_0, m.b_MemC.NextV_1);
+    end
+    if (!m.b_MemC.WrCflags0_p_ && d_wcf4[0]) begin
+      n_wcf[0] = n_wcf[0] + 1;
+      if (n_wcf[0] <= 8)
+        $display("tb_exec: W0STROBE #%0d @%0d pc=%h NewBL=%b NewVacant=%b NewDirty=%b NewWP=%b Aad=%b%b%b%b%b%b%b%b ColVic=%b%b UseMcrV=%b",
+                 n_wcf[0], n_cyc2, tnia_now, m.b_MemC.NewBL, m.b_MemC.NewVacant,
+                 m.b_MemC.NewDirty, m.b_MemC.NewWP,
+                 m.b_MemC.Aad_0a, m.b_MemC.Aad_1a, m.b_MemC.Aad_2a, m.b_MemC.Aad_3a,
+                 m.b_MemC.Aad_4a, m.b_MemC.Aad_5a, m.b_MemC.Aad_6a, m.b_MemC.Aad_7a,
+                 m.b_MemC.ColVic_0, m.b_MemC.ColVic_1, m.b_MemC.UseMcrV);
+    end
+    if (!m.b_MemC.WrCflags1_p_ && d_wcf4[1]) n_wcf[1] = n_wcf[1] + 1;
+    if (!m.b_MemC.WrCflags2_p_ && d_wcf4[2]) n_wcf[2] = n_wcf[2] + 1;
+    if (!m.b_MemC.WrCflags3_p_ && d_wcf4[3]) n_wcf[3] = n_wcf[3] + 1;
+    d_wcf4 <= {m.b_MemC.WrCflags3_p_, m.b_MemC.WrCflags2_p_,
+               m.b_MemC.WrCflags1_p_, m.b_MemC.WrCflags0_p_};
+  end
+  task dump_mapwedge;
+    begin
+      $display("tb_exec: MAPWEDGE park confirmed @%0d (stuck=100000)", n_cyc2);
+      $display("tb_exec: MAPWEDGE state Map'InPair'=%b Map'InMap=%b MapFree=%b MemFree=%b MapWait=%b preStartMem'=%b WantMapWait'=%b MDhold'=%b RefHold'=%b BLretry=%b HoldMapBuf=%b",
+               m.b_MemX.Map_u_InPair_p_, m.b_MemX.Map_u_InMap, m.b_MemX.MapFree,
+               m.b_MemX.MemFree, m.b_MemX.MapWait, m.b_MemX.preStartMem_p_,
+               m.b_MemX.WantMapWait_p_, m.b_MemC.MDhold_p_, m.b_MemC.RefHold_p_,
+               m.b_MemC.BLretry, m.b_MemX.HoldMapBuf__drv);
+      // The BL story: dBL0-3 are the BEING-LOADED flags of the four ways at
+      // the addressed cache row (a08/b08/c08/d08, the MB7071H flags RAM).
+      // BLretry = retry while the line is being loaded; a stuck BL flag is
+      // a load that never completed -- or one marked under noRef, whose
+      // suppressed storage cycle could never clear it.
+      $display("tb_exec: MAPWEDGE BL dBL[0:3]=%b%b%b%b BLreg[1:3]=%b%b%b Aad=%b%b%b%b%b%b%b%b VicIfMiss'=%b FlushInA=%b IoStoreInA=%b FlushStore=%b DbufBusy'=%b Hit'b=%b",
+               m.b_MemC.dBL0, m.b_MemC.dBL1, m.b_MemC.dBL2, m.b_MemC.dBL3,
+               m.b_MemC.BL1, m.b_MemC.BL2, m.b_MemC.BL3,
+               m.b_MemC.Aad_0a, m.b_MemC.Aad_1a, m.b_MemC.Aad_2a, m.b_MemC.Aad_3a,
+               m.b_MemC.Aad_4a, m.b_MemC.Aad_5a, m.b_MemC.Aad_6a, m.b_MemC.Aad_7a,
+               m.b_MemC.VicIfMiss_p_, m.b_MemC.FlushInA, m.b_MemC.IoStoreInA,
+               m.b_MemC.FlushStore, m.b_MemC.DbufBusy_p_, m.b_MemC.Hit_p_b);
+      $display("tb_exec: MAPWEDGE BLWR flag-RAM writes: NewBL=1 on %0d, NewBL=0 on %0d (way0 row-writes)",
+               n_blwr1, n_blwr0);
+      $display("tb_exec: MAPWEDGE CF decode asserted %0d samples, WrCflagsOK %0d; strobes w0=%0d w1=%0d w2=%0d w3=%0d",
+               n_cfdec, n_cfok, n_wcf[0], n_wcf[1], n_wcf[2], n_wcf[3]);
+      for (mbw_i = 0; mbw_i < 64; mbw_i = mbw_i + 1)
+        $display("tb_exec: MAPWEDGE hist[-%0d] pc=%h ff=%h", 63 - mbw_i,
+                 ihist_pc[(ihist_w + mbw_i) & 63], ihist_ff[(ihist_w + mbw_i) & 63]);
+    end
+  endtask
+
   // ---- THE STACK POINTER'S ADJUST PATH -----------------------------------
   //
   // Initial pushes with delta +3/+1 (BOOTMEM, PRESETMAP, WRITEMAP) and pops
@@ -2376,6 +2519,18 @@ module tb_exec;
           if (!visited[lastpc[11:0]]) begin
             visited[lastpc[11:0]] = 1'b1; nvisited = nvisited + 1;
           end
+`ifdef WORLD
+          // The MAPWEDGE ring freezes once a long repeat begins, so it holds
+          // the approach; it resumes if the repeat resolves (stuck resets).
+          if (stuck <= 32) begin
+            ihist_pc[ihist_w] = lastpc[11:0]; ihist_ff[ihist_w] = ff_now;
+            ihist_w = (ihist_w + 1) & 63;
+          end
+          if (stuck == 100000 && mbw_dumps < 1) begin
+            mbw_dumps = mbw_dumps + 1;
+            dump_mapwedge;
+          end
+`endif
           // `+trwin=N` delays trace collection to cycle N, so the 256
           // entries show the STEADY STATE of a late loop instead of the
           // long-known startup.
@@ -2615,6 +2770,13 @@ module tb_exec;
     $write("\n");
     $display("tb_exec: STKADJ -- NewStkPVal' hi %0d lo %0d; StkWadr!=StkP on %0d samples",
              n_newstkp1, n_newstkp0, n_wadr_ne);
+    $display("tb_exec: CFLAGS -- decode %0d, WrCflagsOK %0d; strobes w0=%0d w1=%0d w2=%0d w3=%0d; way0 NewBL=1 %0d NewBL=0 %0d",
+             n_cfdec, n_cfok, n_wcf[0], n_wcf[1], n_wcf[2], n_wcf[3], n_blwr1, n_blwr0);
+    $display("tb_exec: VICMEM -- WrVicMem' strobes %0d", n_wvm);
+    $display("tb_exec: STARTCHAIN -- preStartMem' pulses %0d, StartMap' pulses %0d",
+             n_psm, n_stmap);
+    $display("tb_exec: TRANSPORT -- RASa %0d CASa %0d LoadSinE %0d ShiftSinE %0d LoadSoutE' %0d Transport' %0d MakeMD_D' %0d Sin00 %0d",
+             n_rasa, n_casa, n_lsin, n_ssin, n_lsout, n_trans, n_mkmd, n_sin0);
     $display("tb_exec: HOLDREQ of %0d -- PrHoldReq %0d, WantCR %0d (CHoldReq/ExtHoldReq are 0)",
              runcycles, n_prq, n_wcr);
     $display("tb_exec: HOLDSRC of %0d -- MDhold %0d, RefHold %0d, MiscHold %0d, BLretry %0d",
