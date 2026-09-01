@@ -38,16 +38,54 @@ each with the measurement that settled it:
    MSB-first: D0=A1, H0=F1, F0=S1; S/M unconnected = LOW = A plus B plus
    Cn), StkP moves: 1,228 changes in 400k cycles, pushes +3/+1, pops -1.
 
+4. **THE MACHINE PAINTS ITS BOOT SCREEN**
+   (`docs/images/rtl-boot-raster-2026-09-01.png`): 891 scan lines of
+   full-height synced raster -- sync, blanking band, dark visible field,
+   what a real Dorado monitor shows before a world installs a display
+   list -- from the ten-board machine WHILE Initial boots. What was in
+   the way was TWO POWER-UP STATES, both in DispY h15 (one MC10231):
+   FF a (DoradoHasHRam, clocked only during an HRamCommand' strobe)
+   powers up with its Q' HIGH, and that net is l10's MASTER RESET --
+   HSync can never move on an unconfigured board, correct hardware; and
+   FF b (HRamWE) powers up with HRamWE' ASSERTED, so the walking HRam
+   address BULLDOZES the +hram preload (measured: 35 one-sys_clk
+   preHSync slivers where a 34-entry sync run should read high --
+   38,795 l10 loads, preHSync=1 at ZERO of them). `+hasram` deposits
+   both FFs to the state the microcode's HRam-load teardown leaves and
+   reapplies the table. The older `+mrlow` pin force is INERT (module
+   inlining aliases the forced port to the whole net). Ruled out by
+   measurement: walk order (perfectly linear), the address counter
+   (bit01's 25 transitions over 25,951 counts is a HIGH-ORDER bit doing
+   its job -- the "nearly stuck" reading watched the wrong bit), and
+   LdHRamAddr' (never spuriously loads).
+
 **The boot command now:**
 
     make -C verilog/verilator exec-boot EXECARGS="+fastwait +bbword=0000 +bbfeed +mb0"
 
-**The boot screen path:** `make -C verilog/verilator exec-bootscreen`
-runs the same chain on dorado_screen (world + DispY) with `+frame` -- a
-full-field 1024x896 PGM (`dorado_frame.pgm`, new-line-on-HSync,
-new-field-on-VSync, degrades to a strip when vertical timing is absent).
-VSync is a MICROCODE-driven register (DispY d03, VSyncEn) -- a full frame
-needs the display task's field program, so watch TASKINITLOOP first.
+**The boot screen now:**
+
+    make -C verilog/verilator exec-bootscreen CYCLES=3600000 SCREENARGS="+hram +hasram"
+
+writes `dorado_frame.pgm` (1024x896, line-per-HSync, field-per-VSync,
+degrades to a top-fill when vertical timing is absent -- as now) and
+`dorado_raster.pgm` (the scan-line strip) in the repo root; `pnmtopng`
+renders them. `+hram +hasram` stand in for INITHRAM, which the boot has
+not reached.
+
+**THE BOOT'S NEXT BLOCKER, measured:** after map init and the module
+scan (155 addresses, 294k stack ops), the world run parks 1.28M
+microinstructions at RESETFAULTINFO's `B<-FaultInfo'` (FF=0o160, next
+address c01=DORETURN) under **BLretry 41M + HoldMapBuf 23M** -- a
+storage reference retrying forever keeps the MapBuf busy, and
+FaultInfo' shares the MapBuf (memory.h: "Map<- shares MapBuf with
+LoadMcr, ProcSRN, and LoadTestSyndrome"). PrHoldReq is 32 samples all
+run -- the stack story is CLOSED. Find which reference retries and why
+its DRAM cycle never completes; `tb_memrun`/`tb_readback` own the
+machinery for that question. VSync is a MICROCODE-driven register
+(DispY d03, VSyncEn, DWT task) -- a full frame with real vertical
+timing needs the display task's field program, downstream of
+TASKINITLOOP.
 
 **Known-stale gates (pre-existing, NOT this session), BISECTED:**
 exec-tasking (and exec-init) fail at the pre-session commit ef12ce0e.

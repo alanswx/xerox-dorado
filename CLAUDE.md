@@ -1835,6 +1835,44 @@ The second error was FG parity over the instruction
   bits, the CPIn readout selects, and an IRTable of hand-coded microinstructions
   whose byte-layout comment is the mir-diff table from the other side.
 
+**THE RTL MACHINE PAINTS ITS BOOT SCREEN (2026-09-01).**
+`docs/images/rtl-boot-raster-2026-09-01.png`: 891 scan lines of synced
+raster from the ten-board machine (`exec-bootscreen`) while PARC's Initial
+boots -- what a real Dorado monitor shows before a world installs a display
+list. Four blockers fell in one sitting, three of them retractions of
+standing diagnoses:
+
+- **The LoadMCR saga was a BENCH ARTIFACT.** The full 11-bit Mar probe
+  showed 355e67bb's "in-residency data" was the bus's all-ones idle, and
+  the true data phase read zero because `+fastwait`'s T-file clip was
+  zapping the SetMCR value in T on every sys_clk at TNIA=c0a -- where the
+  LoadMCR executes. Clip off, every load captures true data at its own
+  edge; the strobe timing was never the bug, and the whole l09/j09 phase
+  hunt chased a value the bench had destroyed. **A bench force can destroy
+  the very data under diagnosis.**
+- **NOSTORAGE: nothing originated the module-presence token.** MemX's four
+  M pins all receive; the msa RELAYS Mb0 to its M0 output; the origin is
+  the backplane at the slot ("awaits PCMSA"). `+mb0` drives it; the
+  wrapper ties it via `MACHINE_CONFIG_TIES`.
+- **The stack-pointer adder was a SKELETON.** ProcL j17/k17/l17 are
+  MC10182s -- the "no datasheet" note was stale, MC10182.pdf is in
+  DoradoDocs/datasheets -- computing StkP[2:7] + sign-extend(RSTK[1:3]).
+  Modelled, StkP moves (1,228 changes in 400k where 150M cycles had 3) and
+  the DORETURN underflow park is gone.
+- **The display was held by TWO POWER-UP STATES in one package** -- DispY
+  h15: FF a's Q' IS DoradoHasHRam = l10's master reset, and FF b powers up
+  with HRamWE' asserted so the walking address bulldozes the preloaded
+  HRam table. `+hasram` deposits the state the microcode's HRam-load
+  teardown leaves. The old `+mrlow` force was INERT (an inlined port
+  aliases the net), which is why its green era stopped reproducing.
+
+Boot frontier: the world run now parks at RESETFAULTINFO's `B<-FaultInfo'`
+under BLretry+HoldMapBuf -- a storage reference retrying forever holds the
+MapBuf, which FaultInfo' shares. Also bisected: **cbf5b94f (the MC10176
+setup capture) broke exec-tasking/exec-init** -- green at 07d57e4e,
+failing since, unnoticed because gate claims go stale silently. And
+`SYSPER=2` breaks the ReadBB stage; boot runs stay at 16x.
+
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 
 Full plan, including what is missing and the suggested order:
