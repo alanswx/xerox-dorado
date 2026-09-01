@@ -446,8 +446,16 @@ module tb_exec;
       // storage modules and Initial's FINDMODULE scan lands at NOSTORAGE
       // (real 6247), the 758k-microinstruction park. Driven, MemX reads
       // M0=1 M1..3=0: one module, which is what this machine has.
-      .Mb0(1'b1)
+      //
+      // OPT-IN (`+mb0`), because the AEmu jump-start gates were calibrated
+      // on the no-module machine: with the module present their fault-task
+      // choreography changes and exec-tasking/exec-init fail their
+      // thresholds. The boot targets pass +mb0; recalibrating the AEmu
+      // gates on the with-storage machine is a separate, worthwhile task.
+      .Mb0(mb0_tie)
   );
+  reg mb0_tie = 1'b0;
+  initial mb0_tie = $test$plusargs("mb0");
 
   // ---- SEED THE MAP --------------------------------------------------------
   //
@@ -1710,6 +1718,48 @@ module tb_exec;
   always @(posedge sys_clk) n_cyc2 = n_cyc2 + 1;
 `endif
 `ifdef WORLD
+  // ---- THE STACK POINTER'S ADJUST PATH -----------------------------------
+  //
+  // Initial pushes with delta +3/+1 (BOOTMEM, PRESETMAP, WRITEMAP) and pops
+  // with -1, yet StkP changed only THREE times in 150M cycles -- all loads
+  // -- and then DORETURN (BLOCK, RSTK=1000: read STK[StkP], check on) trips
+  // the underflow hold the moment map init clears DisHold. So the question
+  // is whether the adjust path ever produces a new value: StkWadr (the
+  // XOR-adder l12/l13 through muxes i16/i17) against StkP, and whether
+  // NewStkPVal' (h18) ever selects it into l14/l15. Counters, not samples.
+  wire [7:0] w_stkp_v = {m.b_ProcL.StkP_0, m.b_ProcL.StkP_1, m.b_ProcL.StkP_2,
+                         m.b_ProcL.StkP_3, m.b_ProcL.StkP_4, m.b_ProcL.StkP_5,
+                         m.b_ProcL.StkP_6, m.b_ProcL.StkP_7};
+  wire [7:0] w_stkwadr = {m.b_ProcL.StkWadr_0, m.b_ProcL.StkWadr_1,
+                          m.b_ProcL.StkWadr_2, m.b_ProcL.StkWadr_3,
+                          m.b_ProcL.StkWadr_4, m.b_ProcL.StkWadr_5,
+                          m.b_ProcL.StkWadr_6, m.b_ProcL.StkWadr_7};
+  integer n_newstkp1 = 0, n_newstkp0 = 0, n_wadr_ne = 0, n_stkprint = 0;
+  reg [11:0] d_stkpc = 12'h0;
+  always @(posedge sys_clk) begin
+    // In the +tcwin window: one line per instruction, the whole stack path.
+    if (tce != 0 && n_cyc2 >= tcs && n_cyc2 < tce && tnia_now !== d_stkpc) begin
+      $display("tb_exec: STKWIN @%0d pc=%h ff=%h PrBlock'=%b StkSel'a=%b StkSela=%b RSTKa=%b%b%b%b StkP=%h StkWadr=%h New'=%b Curr'=%b",
+               n_cyc2, tnia_now, ff_now, m.b_ProcL.PrBlock_p_,
+               m.b_ProcL.StkSel_p_a, m.b_ProcL.StkSela,
+               m.b_ProcL.RSTK_0a, m.b_ProcL.RSTK_1a, m.b_ProcL.RSTK_2a, m.b_ProcL.RSTK_3a,
+               w_stkp_v, w_stkwadr,
+               m.b_ProcL.NewStkPVal_p_, m.b_ProcL.CurrStkPVal_p_);
+    end
+    d_stkpc <= tnia_now;
+    if (m.b_ProcL.NewStkPVal_p_) n_newstkp1 = n_newstkp1 + 1;
+    else                         n_newstkp0 = n_newstkp0 + 1;
+    if (w_stkwadr !== w_stkp_v) begin
+      n_wadr_ne = n_wadr_ne + 1;
+      if (n_stkprint < 24 && n_cyc2 > 100000) begin
+        n_stkprint = n_stkprint + 1;
+        $display("tb_exec: STKADJ @%0d pc=%h StkP=%h StkWadr=%h NewStkPVal'=%b CurrStkPVal'=%b",
+                 n_cyc2, tnia_now, w_stkp_v, w_stkwadr,
+                 m.b_ProcL.NewStkPVal_p_, m.b_ProcL.CurrStkPVal_p_);
+      end
+    end
+  end
+
   // ---- THE MAR BUS, WATCHED WHOLE ----------------------------------------
   //
   // All eleven MCR-relevant Mar bits, printed on CHANGE inside the +tcwin
@@ -2484,6 +2534,8 @@ module tb_exec;
     for (i = 0; i < 256; i = i + 1)
       if (n_stk[i] != 0) $write(" %02h(x%0d)", i[7:0], n_stk[i]);
     $write("\n");
+    $display("tb_exec: STKADJ -- NewStkPVal' hi %0d lo %0d; StkWadr!=StkP on %0d samples",
+             n_newstkp1, n_newstkp0, n_wadr_ne);
     $display("tb_exec: HOLDREQ of %0d -- PrHoldReq %0d, WantCR %0d (CHoldReq/ExtHoldReq are 0)",
              runcycles, n_prq, n_wcr);
     $display("tb_exec: HOLDSRC of %0d -- MDhold %0d, RefHold %0d, MiscHold %0d, BLretry %0d",

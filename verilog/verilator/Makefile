@@ -363,9 +363,9 @@ exec-bootscreen:
 		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
 		verilog/generated/IFU-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_screen/tb_screen \
-		    $(SCREENARGS) +fastwait +bbword=0000 +bbfeed +frame \
+		    $(SCREENARGS) +fastwait +bbword=0000 +bbfeed +frame +mb0 \
 		    +preload=verilog/verilator/obj_exec/boot.txt +bootchain +start=3904 \
-		    +cycles=$(or $(CYCLES),4000000) 2>&1); rc=$$?; \
+		    +cycles=$(or $(CYCLES),120000000) 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_exec; exit $$rc; }
 
 # THE FAULT TASK RUNS ITS OWN HANDLER: arm MemX's fault counter and preset

@@ -283,6 +283,27 @@ CABLE_DRIVE_INPUTS = frozenset({
     "SecIndx0'", "SecIndx1'", "SecIndx2'", "SecIndx3'",
 })
 
+# MACHINE CONFIGURATION TIES for the dorado_machine wrapper: backplane inputs
+# that state what the machine IS, which "tie every input to 0" answers
+# wrongly.
+#
+# Mb0 is the storage-module presence token. The msa RELAYS it (h26, a pure OR
+# buffer: its M0 output = Mb0 in), MemX's four M pins are all receivers
+# (b02/b41/c03/c42), and nothing on any board originates it -- the origin is
+# the backplane at the module slot ('awaits PCMSA'). Tied 0, B<-Config'
+# reports NO storage modules and Initial's FINDMODULE scan ends at NOSTORAGE
+# (real 6247, measured as a 758k-microinstruction park); tied 1 the machine
+# reads M0=1 M1..3=0 -- one module, which is what this machine has.
+#
+# ChipsAre256/16K and ChipsAre64K are the chip-enables on MemX's two DRAM
+# timing PROMs (both 0 = no timing table at all). MemProms.bcpl records the
+# build: from late 1979 the machines carry 16K parts.
+MACHINE_CONFIG_TIES = {
+    'Mb0': "1'b1",
+    'ChipsAre256/16K': "1'b1",
+    'ChipsAre64K': "1'b0",
+}
+
 
 def report() -> int:
     boards = load_backplane()
@@ -802,6 +823,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
             # Tying it to 0 would fabricate a drive -- six of these once did
             # exactly that -- so the wrapper idles them DEASSERTED.
             conns.append(f"    .{vname(n)}(1'b1)")
+        elif n in MACHINE_CONFIG_TIES:
+            conns.append(f"    .{vname(n)}({MACHINE_CONFIG_TIES[n]})")
         elif ports[n] == 'input':
             conns.append(f"    .{vname(n)}(1'b0)")
         else:
