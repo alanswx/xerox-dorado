@@ -135,8 +135,36 @@ c47 (=CIA+1). **c46 (0o6106) is a WRITE-TPC** (JCN=0o157: return-class,
 JCN[2:4]=5). Write-TPC's next address is CIA+1; our RTL takes TNIA<-Link
 like a RETURN (JCN[2:4]=0), and Link there holds 0o6141.
 
-**THE GATE: ContA e21 (MC10210) decodes `Return'` from JCN[0], JCN[1],
-JCN[5:7] ONLY -- never JCN[2:4]** -- so it CANNOT tell Write-TPC from
+**THE MECHANISM, MEASURED AIRTIGHT (2026-09-01, probe TSW at c46).**
+The RTL DOES decode WTPC: ContA d20 (MC10161) is the JCN[2:4]
+sub-decoder, enabled by e21's `Return'` and JCN[2],[3],[4], producing
+`WTPC'`/`RTPC'`/`RIM'`/`WIM'` -- and WTPC' asserts (low) exactly during
+c46's decode. But **RepeatCur is 0 on EVERY sample**: the 6-cycle TPC/IM
+RESIDENCY never happens. The phases toggle (Ph0'/Ph4' alternate
+per-instruction) but the op completes in ONE cycle, so ContA's f21
+branch-source mux (an MU10164; inputs LocalBr'/IMRH/IFUNext'/LongJump'/
+**Return'a**/CondBr') takes the Return'a source -> TNIA = Link = 0o6141
+= c61, and c61 (TASKINIT, the VALUE being written) is FETCHED AND
+EXECUTED as a spurious instruction. The full RTL loop is
+c45 -> c60 -> c46 -> **c61** -> c47 -> c44; the oracle's is
+c45 -> c60 -> c46 -> c47 -> c45. Two things are wrong and the first
+causes the second: (1) WTPC fetches Link as an instruction because
+nothing holds it for its 6 cycles; (2) the loop's BDispatch exit-control
+(c47, FF=0o061, ORs Link[13:15] into the next TNIA) then lands c44 where
+the oracle lands c45 -- the dispatch value is polluted by the spurious
+c61. **THE FIX is the 6-cycle TPC/IM addressing flow (HM §4.8, Figure 7,
+"these take 6 cycles and use the RSTK field as a sub-decode")**: WTPC
+must assert a hold/residency so Link is never fetched, and the op
+advances to CIA+1 when it completes. This is a real control-section
+feature (the same phase-collapse theme as the depth-mode campaign: our
+SYSPER model runs the 6 phases in fewer cycles), the right size for a
+dedicated session -- NOT a one-net jumper. A bench stand-in is possible
+but entangled with the BDispatch, so it will not cleanly land the boot
+alone. The probe kit (TSW with WTPC'/RTPC'/Return'a/GetTLink'/RepeatCur/
+Phase) is in tb_exec.
+
+**THE (superseded) one-line gate summary: ContA e21 (MC10210) decodes
+`Return'` from JCN[0], JCN[1], JCN[5:7] ONLY -- never JCN[2:4]** -- so it CANNOT tell Write-TPC from
 Return. On real hardware that distinction is the **6-cycle TPC/IM
 addressing flow** (HM §4.8, Figure 7, "these take 6 cycles and use the
 RSTK field as a sub-decode"), which overrides the next address; our

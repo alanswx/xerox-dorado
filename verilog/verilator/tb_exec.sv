@@ -1931,16 +1931,11 @@ module tb_exec;
                m.b_ContA.TaskingIsOff_p_);
     end
     if (tce != 0 && n_cyc2 >= tcs && n_cyc2 < tce)
-      $display("tb_exec: TSW @%0d pc=%h ff=%h T=%h%h%h%h FFBDisp=%b Disp=%b NoDisp=%b alub=%h%h%h%h StopT=%b",
+      $display("tb_exec: TSW @%0d pc=%h ff=%h WTPC'=%b RTPC'=%b Return'a=%b GetTLink'=%b RepeatCur=%b Ph0'=%b Ph4'=%b",
                n_cyc2, tnia_now, ff_now,
-               m.b_ProcH.u_l03.mem[4'hf], m.b_ProcH.u_l04.mem[4'hf],
-               m.b_ProcL.u_l03.mem[4'hf], m.b_ProcL.u_l04.mem[4'hf],
-               m.b_ContA.FF_eq_BDispatch, m.b_ContA.Dispatch, m.b_ContA.NoDispatch,
-               {m.b_ProcH.alub_00, m.b_ProcH.alub_01, m.b_ProcH.alub_02, m.b_ProcH.alub_03},
-               {m.b_ProcH.alub_04, m.b_ProcH.alub_05, m.b_ProcH.alub_06, m.b_ProcH.alub_07},
-               {m.b_ProcL.alub_08, m.b_ProcL.alub_09, m.b_ProcL.alub_10, m.b_ProcL.alub_11},
-               {m.b_ProcL.alub_12, m.b_ProcL.alub_13, m.b_ProcL.alub_14, m.b_ProcL.alub_15},
-               m.b_ContA.StopTasks);
+               m.b_ContA.WTPC_p_, m.b_ContA.RTPC_p_, m.b_ContA.Return_p_a,
+               m.b_ContA.GetTLink_p_, m.b_ContA.RepeatCur,
+               m.b_ContA.Phase0_p_, m.b_ContA.Phase4_p_);
     if (!m.b_ContA.TaskingIsOff_p_) n_taskon = n_taskon + 1;
     if (m.b_ContA.StopTasks) n_stoptasks = n_stoptasks + 1;
     if (!m.b_ContA.PEncGtTrueNext_p_) n_pencgt = n_pencgt + 1;
