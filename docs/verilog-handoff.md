@@ -167,27 +167,33 @@ suppression that should span 6 real cycles runs in one, so the op
 completes immediately and i24's Return'c -> Link is fetched. **This is
 the SAME phase-collapse root as the depth-mode campaign** (`dStartCycle`/
 `preStartCycle` are the exact nets that campaign fought), not a decode
-gap and not a jumper. **+wtpcfix WORKS AND KILLS THE SPIN, exposing the NEXT collapsed
-pipeline (2026-09-01, later still).** The CIA-based +wtpcfix (force
+gap and not a jumper. **+wtpcfix WORKS AND KILLS THE SPIN; the loop's SECOND blocker is a
+CONDITIONAL BRANCH, not a pipeline (2026-09-01, later still --
+CORRECTS an earlier claim in this same file).** The CIA-based +wtpcfix (force
 TNIA = CIA+1 while a WTPC is in the MIR -- CIA is ContA's current-
 instruction-address register, the clean source; the first cut's
 sys_clk history tracking glitched) fires exactly 15 times at CIA=c46
 -> c47 and the RESULT IS DECISIVE: longest-run-on-one-address falls
 **96,721 -> 7**, the stuck-fatal is gone, the machine sequences. But it
-still does not reach BOOTEMULATOR: a SECOND collapsed-pipeline
-mechanism is now exposed -- **the BDispatch at c47** (FF=0o061). The
-oracle (DORADO_PCDIS) shows c47 ALTERNATES: c47->c45 (continue, 14
-iterations) and c47->c44->6131->task-switch (exit, once), the choice
-made by the loop counter via the dispatch value OR'd into the next
-TNIA. Our RTL takes c47->c44 EVERY time (and even c44 targets c60, not
-its own 6131), because the dispatch-pipe (task_dispatch OR'd into the
-following instruction's TNIA, HM §4.4) is ALSO collapsed by the SYSPER
-model. So the task-init loop is a NEST of pipelined mechanisms -- the
-6-cycle WTPC and the BDispatch dispatch-pipe -- that zero-delay/
-collapsed execution breaks, and per-mechanism stand-ins would be
-whack-a-mole. This is the depth/phase model's territory holistically,
-not a chain of knobs. +wtpcfix is kept as the demonstration that the
-WTPC half is understood and the write is sound.
+still does not reach BOOTEMULATOR: the loop still does not
+complete: c47 always branches to c44 (exit), never c45 (continue), so
+task init never iterates all 15 tasks. **c47 is NOT a BDispatch** --
+that was a wrong turn (cpu.c LABELS FA=0/FB=6/FC=1 "BDispatch", but
+PARC's decode is different): PARC's b15 (MC10162, raw wire list) makes
+FA=0/FB=6 the BRANCH-ON-CONDITION group (FFBrOnRes=0, FFBrOnResLt0,
+FFBrOnCnt=0, ...), and c47's FC=1 selects **FFBrOnResLt0** -- "branch
+while the ALU result < 0", the loop-counter test. The RTL DECODES this
+correctly (b15 is faithful; and FF_eq_BDispatch legitimately does NOT
+fire, since PARC's BDispatch is FA=0/FB=7/FC=1, an entirely different
+instruction). So the blocker is NOT a collapsed pipeline and NOT a
+decode miss -- it is a CONDITION that evaluates to "exit" every time.
+The likely cause is upstream: the T register (the loop counter) was
+measured CYCLING (0008/0004/000c) instead of counting 1..17, so
+ResLt0 is stuck. Next: probe c47's FFBrOnResLt0 and the ALU
+result/sign against T in the loop, and find why T does not advance
+monotonically -- a much more tractable, well-scoped question than
+"the phase ring". +wtpcfix stays; the WTPC half is understood and its
+write is sound (taskrun-test).
 
 **And the WTPC WRITE MECHANISM IS PROVEN SOUND IN ISOLATION**, which
 reframes the write failure: `taskrun-test` PASSES and writes TPC
