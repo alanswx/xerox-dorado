@@ -206,11 +206,11 @@ module IOTest_m_Rev_m_Ad #(parameter integer SYSPER = 16) (
   wire WordAd_3;
   wire clk0_p_Ba;
   wire clk1_p_Aa__lead;
-  reg  clk1_p_Aa;
+  reg  clk1_p_Aa = 1'b1;
   wire clk1_p_Ca__lead;
-  reg  clk1_p_Ca;
+  reg  clk1_p_Ca = 1'b1;
   wire clk1_p_Da__lead;
-  reg  clk1_p_Da;
+  reg  clk1_p_Da = 1'b1;
   wire clk2_p_Ca;
   wire clk2_p_Cb;
   wire clk2_p_Da;
