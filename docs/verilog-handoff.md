@@ -49,11 +49,18 @@ new-field-on-VSync, degrades to a strip when vertical timing is absent).
 VSync is a MICROCODE-driven register (DispY d03, VSyncEn) -- a full frame
 needs the display task's field program, so watch TASKINITLOOP first.
 
-**Known-stale gates (pre-existing, NOT this session):** exec-tasking and
-exec-init fail at the pre-session commit ef12ce0e too (its own tb against
-current generated/) -- a depth-campaign RTL regression, unbisected. The
-`SYSPER=2` ratio breaks the ReadBB/checksum stage (RMINITL never
-reached); boot runs stay at 16x.
+**Known-stale gates (pre-existing, NOT this session), BISECTED:**
+exec-tasking (and exec-init) fail at the pre-session commit ef12ce0e.
+Worktree runs, each self-consistent: **GREEN at 07d57e4e** ("exec suite
+green" was real), FAILING at 4c323994 -- and the ONLY commit in that
+range touching cells/ or generated/ is **cbf5b94f, the MC10176 pre-edge
+setup-time capture**. The same change that made Initial pass its
+checksum broke the AEmu jump-start choreography (failure shape at 4c:
+held forever with tasking on; at ef12ce0e: fault task never runs). The
+capture is load-bearing for the boot, so the fix is re-diagnosing the
+jump-start scenario under it, not a revert. Separately: `SYSPER=2`
+breaks the ReadBB/checksum stage (RMINITL never reached); boot runs
+stay at 16x.
 
 **Traps added today:** a bench force can destroy the very data under
 diagnosis (the clip ate three sessions of strobe-phase work); an ALL-ONES
