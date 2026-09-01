@@ -1,5 +1,67 @@
 # Verilog from Sil: handoff
 
+## START HERE (2026-08-31) -- the boot campaign, and where it stands NOW
+
+Everything below the rule is the 2026-08-18 state and still true as
+history. The CURRENT frontier is the BOOT CAMPAIGN of 2026-08-29..31,
+whose complete live state -- established chain, next probe, traps -- is
+maintained in TASK #48 (the task list) and in the last ~40 commit
+messages on `verilog-backplane`, each of which is a self-contained
+measurement log. Summary:
+
+**DEFAULT MODE (the committed generation; every core gate green):**
+PARC's Initial BOOTS deep into its own initialisation on `dorado_world`:
+
+    make -C verilog/verilator exec-boot EXECARGS="+fastwait +bbword=0000 +bbfeed"
+
+runs the ReadBB handshake (data byte first, TAG byte last -- the sync
+bit is the MSB of the high byte), passes Bootstrap's checksum, executes
+the self-modifying ALUFM init, RMINITL, STKINITL, IFUMINITL, loads
+DisHold (no hold ever asserts), beats LongWait (`+fastwait` pulses the
+ALU=0 condition at LWRETN c0a -- the T-file clip loses to the bypass),
+and parks at Initial's FIRST STORAGE REFERENCE (a Store at image 253,
+RefHold+BLretry) which should be SUPPRESSED by the MCR's noRef bit --
+the bit LoadMCR #2 misses because its strobe fires one window after its
+data (the LoadMCR saga; see the commits from cbf5b94f forward).
+Key fixes that got here: the MC10176 pre-edge/setup-time capture
+(cbf5b94f), the clk1-family lag, the byte-order fix in the sender.
+The DISPLAY is proven separately: `exec-screen` (dorado_screen = world
++ DispY) generates real HSync/video from PARC's own HRam table under
+three bench forces; Initial's own INITHRAM (real 0xe20) replaces them
+once the boot gets there. MILESTONE addresses (visited[] printed every
+run): RMINITL c42, STKINITL c4a, IFUMINITL c65, TASKINITLOOP c45,
+BOOTEMULATOR c92, INITHRAM e20.
+
+**DEPTH MODE (opt-in: `DORADO_CLOCK_DEPTH=1 make -C verilog
+generated-boards`; REGENERATE DEFAULT AFTERWARDS before committing
+generated/):** the principled timing model -- every clock net lagged by
+its BUFFER DEPTH from the board's CLK input (BaseBd j02 proves all
+boards get ONE identical pulse per microinstruction; a board's phase
+ordering lives entirely in buffer depths, which zero-delay erased).
+Bring-up ledger: manifolds ✓ freeze mechanism ✓ (StopMIRClk is the
+MIR-WRITE ENABLE and hold; armed by the entropy poke -- IMRH forced 1
+across startup, since Verilator's zero IM has VALID parity)
+choreography ✓ exclusions ✓ (RunClk/CPStrb/TCPBus are TTL-side, out of
+the tree) idle-level init ✓ | OPEN: the jam's Link load. THE PREMISE
+REFUTATION (6a90f123): a WORKING default jam shows NO SetRun, NO phase
+pulses -- the jam was never stepped execution; Link loads via the
+frozen MIR's FF decode + an always-live clock on the Link register,
+and THAT clock is what depth broke. Next: find the Link regs' clock
+(ContA a13 region), its lag depth, trace both modes
+(`make boot0-test BOOT0ARGS=+jamtrace`, 1200-sample window).
+
+**THE TRAP LIST** (each cost a session): mbdis/im_image image indices
+print OCTAL; the TC/CKT pc column is the NEXT address; ff prints HEX
+(0x56 = 0o126 = LoadMCR); Mcr_u_' is ACTIVE LOW; alua is the primed
+bus (= ~pd); MC10159 INVERTS; `BSel=2/6` means 2 OR 6; j2 vs n_cyc2
+time bases differ by the bench startup (~15k); broad clock-family lag
+parks the machine at f40; a knob's announce line can print while its
+logic is ifdef'd out; the prime is INTERIOR in raw net names
+(endswith() lies); package-level BFS overclaims; CHECK THE PREMISE
+AGAINST THE WORKING MODE FIRST.
+
+---
+
 2026-08-18. This file is written to be picked up cold: "Where it stands" is
 the state of the machine, "START HERE" is the open work, and "How to read
 the rest" maps the sections below. Read `docs/verilog-from-sil.md` for the
