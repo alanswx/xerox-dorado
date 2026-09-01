@@ -2203,6 +2203,7 @@ module tb_exec;
   // at 32, which is fine for "is it sequencing at all" and useless for "how far
   // does it get". A bitmap over the whole address space answers the second.
   reg       visited [0:4095];
+  integer   n_tinit;
   integer   nvisited, lastpc, stuck, maxrun, prevpc, maxpc;  reg [3:0] ctnow;
 
 `ifdef WORLD
@@ -2587,7 +2588,7 @@ module tb_exec;
       nvis_t[i] = 0;
       for (q = 0; q < 4096; q = q + 1) vis_t[i][q] = 1'b0;
     end
-    nvisited = 0; stuck = 0; maxrun = 0; prevpc = -1; maxpc = -1;
+    nvisited = 0; stuck = 0; maxrun = 0; prevpc = -1; maxpc = -1; n_tinit = 0;
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca;
     if (!$value$plusargs("cycles=%d", runcycles)) runcycles = 20000;
     bootcp_n = 0; bootcp_phase = 1'b0; bootcp_byte = 0;
@@ -2645,6 +2646,7 @@ module tb_exec;
                      m.aluOut_eq_0_p___ProcL, m.ResEqZero_p_);
             n_ckt = n_ckt + 1;
           end
+          if (lastpc[11:0] == 12'hc45) n_tinit = n_tinit + 1;
           if (!visited[lastpc[11:0]]) begin
             visited[lastpc[11:0]] = 1'b1; nvisited = nvisited + 1;
           end
@@ -2956,8 +2958,8 @@ module tb_exec;
     $display("tb_exec: IFU -- IfuMemRef %0d transitions, IfuMemAck %0d, opcode J changed %0d times",
              n_ifuref, n_ifuack, n_jchg);
 `endif
-    $display("tb_exec: %0d distinct IM addresses executed; last TNIA=%h; longest run on one address=%0d at TNIA=%h",
-             nvisited, lastpc[11:0], maxrun, maxpc[11:0]);
+    $display("tb_exec: %0d distinct IM addresses executed; last TNIA=%h; longest run on one address=%0d at TNIA=%h; TASKINITLOOP entries %0d",
+             nvisited, lastpc[11:0], maxrun, maxpc[11:0], n_tinit);
     // Name them. A short cycle is the normal shape of a microcode wait loop, and
     // knowing WHICH addresses turns "it loops" into something disassemblable.
     if (nvisited <= 64 || $test$plusargs("addrs")) begin
@@ -2980,7 +2982,14 @@ module tb_exec;
     // stays clear and `Hold` is asserted on only 96 samples of 400,000. That is
     // work, not a stall, so the floor is halved rather than the machine
     // declared broken.
-    if (n0a < (($test$plusargs("tpcinit")) ? runcycles/40 : runcycles/20))
+    // ...and lower again for the FULL BOOT: through TASKINITLOOP the machine
+    // issues one instruction per ~20.3 fabric cycles (14,768,760 edges in
+    // 300M -- real task-init work with holds, Stop clear throughout), which
+    // sat just under the /20 floor and killed the run BEFORE the milestone
+    // report. /25 for +bootchain, the same measured-reason widening as the
+    // two above.
+    if (n0a < (($test$plusargs("tpcinit")) ? runcycles/40 :
+               ($test$plusargs("bootchain")) ? runcycles/25 : runcycles/20))
       $fatal(1, "the microinstruction clock is not free-running (%0d edges)", n0a);
     // ONE OF EACH PER MICROINSTRUCTION, to within the window boundary. The
     // sample window is a fixed number of FABRIC cycles, so it can close
