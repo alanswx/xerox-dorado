@@ -167,7 +167,32 @@ suppression that should span 6 real cycles runs in one, so the op
 completes immediately and i24's Return'c -> Link is fetched. **This is
 the SAME phase-collapse root as the depth-mode campaign** (`dStartCycle`/
 `preStartCycle` are the exact nets that campaign fought), not a decode
-gap and not a jumper. AND THE WTPC ACCESS ITSELF IS WRONG, not just the next-address: the
+gap and not a jumper. **BUT THE WTPC WRITE MECHANISM IS PROVEN SOUND IN ISOLATION**, which
+reframes the write failure: `taskrun-test` PASSES and writes TPC
+correctly ("TPC[15] survives task 7", "the startup Link lands in slot
+0") -- from JAMMED single instructions. So the h04/k06/k09 access path
+works when the instruction is properly controlled; the free-execution
+0x368 is a CONSEQUENCE of the collapsed-timing detour (the spurious c61
+polluting the loop), not an independently broken write. That means the
+phase-ring residency fix would land BOTH the next-address AND the write
+-- it is the complete fix, and there is no separate write bug to chase.
+
+A clean bench stand-in is nonetheless blocked by a specific collapse:
+in the one-cycle model Link serves DOUBLE DUTY in the same cycle --
+write-data (to TPC) and next-address (via Return'c) -- so it cannot be
+overridden for the jump without corrupting the write. Separating them
+is exactly what the 6-cycle phase ring does on hardware. And iterating
+any fix is slow because the first WTPC is at ~108.9M cycles (task init
+runs once, late). **FASTER ITERATION for the next session: a focused
+bench that preloads IM and jumps straight to TASKINITLOOP (real 0o6105)
+with T seeded as the loop counter and the task-init PC in RM -- the
+exec-world9 +start= mechanism -- reproduces the WTPC-in-a-loop in
+thousands of cycles instead of 108.9M.** (The older note below --
+"the WTPC access itself is wrong ... a hold-only stand-in cannot land
+it" -- was measured in the broken state and is superseded by the
+taskrun-test proof that the access is sound.)
+
+Superseded: the WTPC access itself is wrong, not just the next-address: the
 TPCDUMP mid-spin shows every slot holding 0x0368, where the oracle
 writes 0o6141 (=0xc61) to tasks 1-15. So a hold-only stand-in cannot
 land the boot -- the 6-cycle access (RSTK-addressed TPC write of Link,
