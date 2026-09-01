@@ -167,7 +167,13 @@ suppression that should span 6 real cycles runs in one, so the op
 completes immediately and i24's Return'c -> Link is fetched. **This is
 the SAME phase-collapse root as the depth-mode campaign** (`dStartCycle`/
 `preStartCycle` are the exact nets that campaign fought), not a decode
-gap and not a jumper. The tractable next step is the depth/phase model
+gap and not a jumper. AND THE WTPC ACCESS ITSELF IS WRONG, not just the next-address: the
+TPCDUMP mid-spin shows every slot holding 0x0368, where the oracle
+writes 0o6141 (=0xc61) to tasks 1-15. So a hold-only stand-in cannot
+land the boot -- the 6-cycle access (RSTK-addressed TPC write of Link,
+h04/k06/k09 gated by Phase2/Phase3) needs the phase model to run
+correctly, not merely to be held. The tractable next step is the
+depth/phase model
 for the TPC/IM residency specifically -- make j05's StartCycle
 suppression hold the phase ring for the op's real duration -- which is a
 scoped instance of the general phase-ring problem rather than the whole
