@@ -115,6 +115,39 @@ checker (the im-parity-check method) so +stperroff retires; (3) check
 that a faulted/absent read still COMPLETES with error flags rather
 than wedging (the manual reports and finishes).
 
+**THE BOOT NOW REACHES TASK INIT, and the remaining defect is NAMED
+(2026-09-01, later).** Three stand-in fixes cleared the RESETFAULTINFO
+park -- the delayed map seed (entry reads VACANT -> the first miss
+FAULTS; ReportFault counts 32, the first fault ever), +stperroff (the
+ST-parity latch off the CAS reset), +blfix (the fault path's BL-flag
+cleanup) -- and one real fix, the JUNK-TASK WAKEUP JUMPER (IFU JunkTW ->
+TWReq.02, cpu.c's DORADO_JUNK_TASK=2; it was unwired, the slot-jumper
+class). longest-run-on-one-address fell 971,971 -> 7 and the machine
+runs Initial's TASKINITLOOP.
+
+**But task init SPINS, and the oracle names the exact divergence.** The
+C emulator (DORADO_PCDIS=6100,6160) runs the loop
+c45(TASKINITLOOP) -> c60(GETTASKINITPC) -> c46 -> c47 -> c45, T counting
+17,16,15..1 then exiting at T=0o20 having written TPC[1..15]=0o6141. Our
+RTL runs c45 -> c60 -> c46 -> **c61** -> c44 -> ... : at c46 it goes to
+0o6141 (=c61=TASKINIT, the VALUE being written) where the oracle goes to
+c47 (=CIA+1). **c46 (0o6106) is a WRITE-TPC** (JCN=0o157: return-class,
+JCN[2:4]=5). Write-TPC's next address is CIA+1; our RTL takes TNIA<-Link
+like a RETURN (JCN[2:4]=0), and Link there holds 0o6141.
+
+**THE GATE: ContA e21 (MC10210) decodes `Return'` from JCN[0], JCN[1],
+JCN[5:7] ONLY -- never JCN[2:4]** -- so it CANNOT tell Write-TPC from
+Return. On real hardware that distinction is the **6-cycle TPC/IM
+addressing flow** (HM §4.8, Figure 7, "these take 6 cycles and use the
+RSTK field as a sub-decode"), which overrides the next address; our
+control section does not run that flow in free execution (taskrun-test
+writes TPC correctly, but from JAMMED single instructions, not the
+flowing 6-cycle sequence). So the fix is to bring up the 6-cycle
+Read/Write TPC/IM choreography in ContA -- or, as a bench stand-in
+matching every other knob this session, force the Write-TPC successor
+to CIA+1. That is THE task-init blocker, isolated to one instruction
+and one gate. Everything below is how the park that preceded it fell.
+
 **FINAL STATE OF THE PARK DIAGNOSIS (2026-09-01, end of session).** Two
 more measurements overturned the stored-complement claim (retracted:
 the MAPCENSUS-vs-readback contradiction was the MosRam's dout HOLDING
