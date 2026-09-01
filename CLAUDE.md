@@ -1877,12 +1877,16 @@ one REAL fix -- the JUNK-TASK WAKEUP jumper (IFU JunkTW -> TWReq.02,
 cpu.c's DORADO_JUNK_TASK=2; unwired, the slot-jumper class). **Task
 init then SPINS, and the C emulator names the exact divergence**: the
 oracle runs c45->c60->c46->c47->c45 (writing TPC[1..15]=0o6141); our
-RTL runs c45->c60->c46->**c61** -- at c46, a WRITE-TPC (JCN=0o157,
-return-class JCN[2:4]=5), it takes TNIA<-Link like a RETURN. ContA e21
-decodes Return' from JCN[0]/[1]/[5:7] only, never JCN[2:4], so it
-cannot tell Write-TPC from Return; the distinction is the 6-cycle
-TPC/IM addressing flow (HM 4.8), not run in free execution. That flow
-is the task-init blocker. The method that cracked all of it: **the C
+RTL runs c45->c60->c46->**c61**->c47->c44 -- at c46, a WRITE-TPC
+(JCN=0o157, return-class JCN[2:4]=5), it fetches TNIA<-Link (=0o6141=
+c61, the TPC value being written) and EXECUTES it as a spurious
+instruction. The RTL DOES decode WTPC (ContA d20's WTPC' asserts), but
+**RepeatCur is 0 on every sample -- the 6-cycle TPC/IM RESIDENCY never
+happens** (HM 4.8, Fig 7), so the op completes in one cycle and f21's
+branch mux takes the Return'/Link source. On real hardware the hold
+prevents Link from being fetched. That 6-cycle flow -- the
+phase-collapse theme again -- is the task-init blocker, a real
+control-section feature sized for a dedicated session. The method that cracked all of it: **the C
 emulator is the oracle** -- DORADO_PCDIS/DORADO_TASK_TRACE dump the
 exact microcode behavior and the RTL diverges at a named instruction.
 The earlier RESETFAULTINFO bottom-out is below.
