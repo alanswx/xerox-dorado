@@ -2958,6 +2958,12 @@ module tb_exec;
     $display("tb_exec: IFU -- IfuMemRef %0d transitions, IfuMemAck %0d, opcode J changed %0d times",
              n_ifuref, n_ifuack, n_jchg);
 `endif
+`ifdef SCREEN
+    // Write the captures FIRST, before any gate can $fatal -- the clock-floor
+    // assert killed a 300M screen run with the frame unwritten.
+    if (pgm_on) write_pgm;
+    if (frame_on) write_frame;
+`endif
     $display("tb_exec: %0d distinct IM addresses executed; last TNIA=%h; longest run on one address=%0d at TNIA=%h; TASKINITLOOP entries %0d",
              nvisited, lastpc[11:0], maxrun, maxpc[11:0], n_tinit);
     // Name them. A short cycle is the normal shape of a microcode wait loop, and
@@ -3032,12 +3038,6 @@ module tb_exec;
         $fatal(1, "IM parity errors continue past the enable point -- the preloaded array's parity is wrong");
       $display("tb_exec: THE MACHINE RUNS WITH IM PARITY ON.");
     end
-`ifdef SCREEN
-    // Write the captures BEFORE any gate can $fatal: a park or a failed
-    // threshold is exactly when the picture is the evidence you want.
-    if (pgm_on) write_pgm;
-    if (frame_on) write_frame;
-`endif
     if ($test$plusargs("bootchain")) begin
       // PARC'S OWN BOOT CHAIN, first two stages. Initial.mb occupies real
       // 0xc00-0xfbf and Bootstrap.mb 0xfc0-0xfff -- adjacent and disjoint, so
