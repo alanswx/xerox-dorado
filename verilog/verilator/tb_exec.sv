@@ -1797,6 +1797,20 @@ module tb_exec;
   always @(posedge sys_clk) n_cyc2 = n_cyc2 + 1;
 `endif
 `ifdef WORLD
+  // `+stperroff` -- THE DECISIVE EXPERIMENT for the BLretry park: STPerr
+  // (stuck 1 on every sample) is the master reset of MemX i10, the register
+  // that carries the timing PROM's CAS column to the DRAMs. If the stuck
+  // parity error is the whole blocker, forcing it low must let CAS fire,
+  // the line load complete, the BL flag clear, and the boot sail past
+  // RESETFAULTINFO. The substance behind it is MemC's ST-store parity
+  // convention (write side vs checker) -- the IM-parity class of question;
+  // this knob decides whether that is the LAST link before fixing it
+  // properly.
+  initial if ($test$plusargs("stperroff")) begin
+    force m.b_MemX.STPerr = 1'b0;
+    $display("tb_exec: +stperroff -- STPerr forced LOW (the ST parity latch)");
+  end
+
   // ---- THE MAPBUF WEDGE ---------------------------------------------------
   //
   // At the BLretry park a reference retries forever and everything sharing

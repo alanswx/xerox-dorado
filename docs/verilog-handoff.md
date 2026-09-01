@@ -73,7 +73,30 @@ degrades to a top-fill when vertical timing is absent -- as now) and
 renders them. `+hram +hasram` stand in for INITHRAM, which the boot has
 not reached.
 
-**THE BOOT'S NEXT BLOCKER, measured:** after map init and the module
+**THE BOOT'S NEXT BLOCKER, measured (updated 2026-09-01 late):** the
+park chain is traced to its bottom and has TWO layers. Layer 1: the
+first cache miss's DRAM read runs RAS-ONLY -- the timing PROM's CAS
+column (j13 pl12) commands CAS through states 0-5, but MakeMemCAS is
+MemX i10, an F10016 whose MASTER RESET is **STPerr**, and STPerr (h08
+registering dSTPerr & EnableSTPerr, dSTPerr computed on MemC) reads 1
+on EVERY sample: MemC's ST-store parity check fails continuously --
+the THIRD instance of the stored-parity-convention question (IM, IFUM
+before it). `+stperroff` forces it low. Layer 2, found by that force:
+CAS then fires EXACTLY ONCE in 140M cycles (CASa 4 transitions, RASa
+257,114 -- the retry loop's RAS spam), the munch transport never
+completes (CacheLoad 0 always), and the boot parks at the same
+RESETFAULTINFO spot. So after the first CAS + LoadSinE something in
+the transport/error pipeline (Ec stages, or the PROM row family the
+RETRY cycles walk) wedges and every later cycle is CAS-less again.
+Next probes, in order: (1) fit MemC's ST-parity write side against its
+checker (the im-parity-check method) so layer 1 is fixed properly, not
+forced; (2) window the SECOND storage cycle after the first CAS under
++stperroff and read i10's D (pl12) there -- if 0, the retry walks a
+different PROM row family; if 1, the register is blocked by another
+input. The full probe kit is in tb_exec (MAPWEDGE, DRAMWIN, TRANSPORT,
+CFLAGS, VICWIN, W0STROBE).
+
+**The original blocker text (still true as far as it goes):** after map init and the module
 scan (155 addresses, 294k stack ops), the world run parks 1.28M
 microinstructions at RESETFAULTINFO's `B<-FaultInfo'` (FF=0o160, next
 address c01=DORETURN) under **BLretry 41M + HoldMapBuf 23M** -- a
