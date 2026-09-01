@@ -890,6 +890,16 @@ class Generator:
                     if vpart(ptype) not in CLOCK_BUFFER_CELLS:
                         continue
                     for out in pkg_out.get(pos, ()):  # all the package's outputs
+                        # PACKAGE-LEVEL PROPAGATION OVERCLAIMS: a buffer
+                        # entered via a clock pin claims every output, and on
+                        # ContA that swept up RunClk'a/b -- the TTL-side STEP
+                        # clock, which is not part of the ECL distribution
+                        # tree at all. Lagging it broke the single-step
+                        # handshake (i03 never raised dRun; the jam got zero
+                        # phase pulses). The step/CP-strobe families are
+                        # outside this model's scope by its own definition.
+                        if out.startswith(('RunClk', 'CPStrb', 'TCPBus')):
+                            continue
                         if depth.get(out, 99) > d + 1:
                             depth[out] = d + 1
                             nxt.append(out)
