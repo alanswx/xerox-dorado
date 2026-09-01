@@ -550,17 +550,26 @@ module tb_exec;
   //
   // `+nomapseed` leaves it empty, which is how the fault-task wakeup was
   // measured in the first place and is worth keeping as the control.
+  // ...AND THE SEED MUST MAP INTO MODULE 0. The all-ones seed (kept for map
+  // PARITY) put every real page at all-ones, whose module field -- e05 muxes
+  // Mod_0/Mod_1 from RP.00-07 per chip size -- is MODULE 3, and this machine
+  // has one module, in slot 0: the read selected an absent module, nothing
+  // drove Sin, and no cache load could ever complete (the RESETFAULTINFO
+  // park's deepest link). RP.00-07 are MosRam planes a04-a11 in order
+  // (measured through the b06/b09/b12 translators); zeroing EIGHT planes
+  // flips an even number of bits per entry, so e11's 9-bit parity check
+  // still passes. RP.08 (a12) stays 1.
   integer mi;
   initial if (!$test$plusargs("nomapseed"))
     for (mi = 0; mi < 4096; mi = mi + 1) begin
-      m.b_MemX.u_a04.mem[mi] = 1'b1;
-      m.b_MemX.u_a05.mem[mi] = 1'b1;
-      m.b_MemX.u_a06.mem[mi] = 1'b1;
-      m.b_MemX.u_a07.mem[mi] = 1'b1;
-      m.b_MemX.u_a08.mem[mi] = 1'b1;
-      m.b_MemX.u_a09.mem[mi] = 1'b1;
-      m.b_MemX.u_a10.mem[mi] = 1'b1;
-      m.b_MemX.u_a11.mem[mi] = 1'b1;
+      m.b_MemX.u_a04.mem[mi] = 1'b0;
+      m.b_MemX.u_a05.mem[mi] = 1'b0;
+      m.b_MemX.u_a06.mem[mi] = 1'b0;
+      m.b_MemX.u_a07.mem[mi] = 1'b0;
+      m.b_MemX.u_a08.mem[mi] = 1'b0;
+      m.b_MemX.u_a09.mem[mi] = 1'b0;
+      m.b_MemX.u_a10.mem[mi] = 1'b0;
+      m.b_MemX.u_a11.mem[mi] = 1'b0;
       m.b_MemX.u_a12.mem[mi] = 1'b1;
       m.b_MemX.u_a13.mem[mi] = 1'b1;
       m.b_MemX.u_a14.mem[mi] = 1'b1;
@@ -1877,15 +1886,18 @@ module tb_exec;
       if (cas_t0 == 0 && n_cyc2 > 1000) cas_t0 = n_cyc2 - 60;
     end
     if (n_cyc2 >= 82600 && n_cyc2 < 83800)
-      $display("tb_exec: DRAMWIN @%0d pc=%h MemState=%b%b%b%b RAS=%b CAS=%b pSM'=%b StartMap'=%b MemFree=%b MapFree=%b RfshInMem=%b MakeCAS=%b STPerr=%b STWait-Mem'=%b pl12=%b MemIdle=%b WantPR'=%b Dbusy=%b",
+      $display("tb_exec: DRAMWIN @%0d pc=%h MemState=%b%b%b%b RAS=%b CAS=%b pSM'=%b StartMap'=%b MemFree=%b MapFree=%b RfshInMem=%b MakeCAS=%b Mod=%b%b ModEn'a=%b%b%b%b SinEn'=%b RP07_00=%b%b%b%b%b%b%b%b",
                n_cyc2, tnia_now,
                m.b_MemX.MemState_0, m.b_MemX.MemState_1, m.b_MemX.MemState_2, m.b_MemX.MemState_3,
                m.MemRASa, m.MemCASa, m.b_MemX.preStartMem_p_, m.b_MemX.StartMap_p_,
                m.b_MemX.MemFree, m.b_MemX.MapFree,
                m.b_MemX.RfshInMem, m.b_MemX.MakeMemCAS,
-               m.b_MemX.STPerr, m.b_MemX.STWait_m_Mem_p_,
-               m.b_MemX.MemX07_sil_pl_12, m.b_MemX.MemIdle,
-               m.b_MemC.WantProcRef_p_, m.b_MemC.Dbusy);
+               m.b_MemX.Mod_0, m.b_MemX.Mod_1,
+               m.b_MemX.Mod0En_p_a, m.b_MemX.Mod1En_p_a,
+               m.b_MemX.Mod2En_p_a, m.b_MemX.Mod3En_p_a,
+               m.b_MemX.Mod0SinEn_p___drv,
+               m.b_MemX.RP_07, m.b_MemX.RP_06, m.b_MemX.RP_05, m.b_MemX.RP_04,
+               m.b_MemX.RP_03, m.b_MemX.RP_02, m.b_MemX.RP_01, m.b_MemX.RP_00);
     if (m.LoadSinE !== d_tr[2]) n_lsin = n_lsin + 1;
     if (m.ShiftSinE !== d_tr[3]) n_ssin = n_ssin + 1;
     if (m.LoadSoutE_p_ !== d_tr[4]) n_lsout = n_lsout + 1;
