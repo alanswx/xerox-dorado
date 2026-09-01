@@ -558,8 +558,15 @@ module tb_exec;
   // one-module machine) and WP = 0 (resident -- which is why no reference
   // ever map-faults on the seeded map). A brief 'fix' that zeroed the RP
   // planes to force module 0 did the opposite and is reverted here.
+  // ...AND THE SEED MUST BE APPLIED AFTER THE POWER-UP SETTLE. A spurious
+  // RTMapWE'b at cycle 0 (the settle out of X) writes one artifact entry --
+  // measured: WPdin=0/Dirtydin=1 at index 0 -- and whether it or the
+  // time-0 seed wins differs PER PLANE (initial-block ordering), leaving a
+  // mixed entry that reads resident-at-garbage-page and never faults. The
+  // 1000-cycle delay puts the seed after the settle, the +hasram pattern.
   integer mi;
-  initial if (!$test$plusargs("nomapseed"))
+  initial if (!$test$plusargs("nomapseed")) begin
+    repeat (1000) @(posedge sys_clk);
     for (mi = 0; mi < 4096; mi = mi + 1) begin
       m.b_MemX.u_a04.mem[mi] = 1'b1;
       m.b_MemX.u_a05.mem[mi] = 1'b1;
@@ -583,6 +590,7 @@ module tb_exec;
       m.b_MemX.u_d12.mem[mi] = 1'b1;
       m.b_MemX.u_d13.mem[mi] = 1'b1;
     end
+  end
 
   // ---- SEED MEMORY ---------------------------------------------------------
   //
@@ -1846,6 +1854,23 @@ module tb_exec;
                m.b_MemX.MemX12_sil_pl_4, m.b_MemX.u_a04.addr);
     d_mrw <= {m.b_MemX.RTMapRAS_p_a, m.b_MemX.RTMapCAS_p_a, m.b_MemX.RTMapWE_p_a,
               m.b_MemX.u_a04.dout, m.b_MemX.u_a04.dout_r, m.b_MemX.MemX12_sil_pl_4};
+  end
+
+  // THE MAP WRITE, CAUGHT IN THE ACT: at each RTMapWE'b assertion print the
+  // flag-plane DINs against the TIOA bits they should carry (Map<- stores
+  // WP = TIOA[0], Dirty = TIOA[1], RP = B -- memory.c's layout from HM p.46).
+  reg d_mwe = 1'b1; integer n_mwrite = 0;
+  always @(posedge sys_clk) begin
+    if (!m.b_MemX.RTMapWE_p_b && d_mwe && n_mwrite < 12) begin
+      n_mwrite = n_mwrite + 1;
+      $display("tb_exec: MAPWRITE #%0d @%0d pc=%h TIOA01=%b%b dMapbufHi01=%b%b WPdin=%b Dirtydin=%b RP00din=%b Mapbuf00=%b",
+               n_mwrite, n_cyc2, tnia_now,
+               m.b_MemX.TIOA_0, m.b_MemX.TIOA_1,
+               m.b_MemX.dMapbufHi_0, m.b_MemX.dMapbufHi_1,
+               m.b_MemX.MemX13_sil_pl_14, m.b_MemX.MemX13_sil_pl_2,
+               m.b_MemX.MemX12_sil_pl_5, m.b_MemX.Mapbuf_00);
+    end
+    d_mwe <= m.b_MemX.RTMapWE_p_b;
   end
 
   final begin : mapplane_census
