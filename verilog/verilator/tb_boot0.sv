@@ -626,12 +626,11 @@ module tb_boot0;
     if (jt_on && jt_n < 400) begin
       jt_n = jt_n + 1;
       if (jt_n % 4 == 1)
-        $display("tb_boot0: JT +%0d clk0'Ca=%b clk1'Ca=%b Stop=%b dRun=%b Link=%h MIRff=%b%b%b%b%b%b%b%b",
+        $display("tb_boot0: JT +%0d clk0'Ca=%b clk1'Ca=%b Stop=%b dRun=%b Ph0=%b Ph2=%b StartCyc=%b RunClkB=%b Link=%h",
                  jt_n, m.b_ContA.clk0_p_Ca, m.b_ContA.clk1_p_Ca,
-                 m.b_ContA.Stop, m.b_ContA.dRun, link_hi,
-                 ~m.b_ContA.FF_0_p_, ~m.b_ContA.FF_1_p_, ~m.b_ContA.FF_2_p_,
-                 ~m.b_ContA.FF_3_p_, ~m.b_ContA.FF_4_p_, ~m.b_ContA.FF_5_p_,
-                 ~m.b_ContA.FF_6_p_, ~m.b_ContA.FF_7_p_);
+                 m.b_ContA.Stop, m.b_ContA.dRun,
+                 m.b_ContA.Phase0, m.b_ContA.Phase2,
+                 m.b_ContA.StartCycle, m.b_ContA.RunClk_p_b, link_hi);
     end
 
   task parc_micro(input [7:0] b0, input [7:0] b1, input [7:0] b2,
