@@ -1882,14 +1882,25 @@ RTL runs c45->c60->c46->**c61**->c47->c44 -- at c46, a WRITE-TPC
 c61, the TPC value being written) and EXECUTES it as a spurious
 instruction. The RTL DOES decode WTPC (ContA d20's WTPC' asserts), but
 **RepeatCur is 0 on every sample -- the 6-cycle TPC/IM RESIDENCY never
-happens** (HM 4.8, Fig 7), so the op completes in one cycle and f21's
-branch mux takes the Return'/Link source. On real hardware the hold
-prevents Link from being fetched. That 6-cycle flow -- the
-phase-collapse theme again -- is the task-init blocker, a real
-control-section feature sized for a dedicated session. The method that cracked all of it: **the C
-emulator is the oracle** -- DORADO_PCDIS/DORADO_TASK_TRACE dump the
-exact microcode behavior and the RTL diverges at a named instruction.
-The earlier RESETFAULTINFO bottom-out is below.
+happens** (HM 4.8, Fig 7), so the op completes in one cycle and the
+TNIA mux (i24) takes the Return'/Link source, fetching Link (0o6141)
+as a spurious instruction. `+wtpcfix` (force TNIA=CIA+1 while a WTPC is
+in the MIR, from ContA's CIA register) KILLS that spin -- longest run
+on one address **96,721 -> 7**. **The task-init investigation then
+concluded (2026-09-01):** past the WTPC, the loop's continue/exit is a
+CONDITIONAL BRANCH at c47 (FFBrOnResLt0 -- NOT a BDispatch; PARC's b15
+makes FA=0/FB=6 the branch-on-condition group, correcting cpu.c's
+label and two of my own wrong turns), and it is PHASE-SAMPLING:
+ResLtZero' toggles 1<->0 within c47's residency and the branch captures
+the wrong phase, so it always exits. **Both halves -- the WTPC 6-cycle
+residency and the branch condition-sampling -- are the ONE
+phase-collapse root** (the depth-mode core); the task-init loop is
+phase-dependent throughout, so the boot needs the depth/phase model
+holistically, not per-mechanism knobs. Full chain (every retraction
+and probe): docs/verilog-handoff.md. The method that cracked all of it:
+**the C emulator is the oracle** -- DORADO_PCDIS/DORADO_TASK_TRACE dump
+the exact microcode behavior and the RTL diverges at a named
+instruction. The earlier RESETFAULTINFO bottom-out is below.
 
 Superseded detail: the park at RESETFAULTINFO's `B<-FaultInfo'` had
 bottomed out in two defects, each measured. **STPerr** -- MemC's tag-store parity check, failing on every
