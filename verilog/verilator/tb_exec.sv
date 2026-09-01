@@ -1903,6 +1903,62 @@ module tb_exec;
     end
   end
 
+  // THE TASK-SWITCH DISCRIMINATOR: during the task-init era, does the junk
+  // wakeup (TWReq.02, newly jumpered from the IFU's JunkTW) ever REQUEST,
+  // and if so does the switch chain (PEnc -> BNT -> CTask) respond? Counters
+  // plus a change-window on the chain.
+  integer n_twr02 = 0, n_penc_nz = 0, n_bnt_nz = 0;
+  wire [3:0] w_penc = {m.b_ContA.PEnc_0, m.b_ContA.PEnc_1,
+                       m.b_ContA.PEnc_2, m.b_ContA.PEnc_3};
+  wire [3:0] w_bnt  = {m.b_ContA.BNT_0, m.b_ContA.BNT_1,
+                       m.b_ContA.BNT_2, m.b_ContA.BNT_3};
+  reg [10:0] d_tsw = 11'd0; integer n_taskon = 0, n_stoptasks = 0, n_pencgt = 0, n_tow = 0;
+  always @(posedge sys_clk) begin
+    if (m.TWReq_02) n_twr02 = n_twr02 + 1;
+    if (w_penc != 4'd0) n_penc_nz = n_penc_nz + 1;
+    if (w_bnt != 4'd0) n_bnt_nz = n_bnt_nz + 1;
+    // Self-triggered: the FIRST time the decoded FF reads 0o143 (TaskingOn),
+    // dump the latch neighbourhood for 60 cycles -- it executes ONCE at the
+    // task-init loop's entry and the latch stays set.
+    if (ff_now == 8'h63 && n_tow == 0) n_tow = 60;
+    if (n_tow > 0) begin
+      n_tow = n_tow - 1;
+      $display("tb_exec: TOW @%0d pc=%h ff=%h FA1'=%b FB4'=%b FC3'=%b FFTaskOn=%b pl1=%b pl3=%b StopTasks=%b TaskingIsOff'=%b",
+               n_cyc2, tnia_now, ff_now,
+               m.b_ContA.FA_eq_1_p_, m.b_ContA.FB_eq_4_p_, m.b_ContA.FC_eq_3_p_,
+               m.b_ContA.FF_eq_TaskingOn, m.b_ContA.ContA04_sil_pl_1,
+               m.b_ContA.ContA04_sil_pl_3, m.b_ContA.StopTasks,
+               m.b_ContA.TaskingIsOff_p_);
+    end
+    if (tce != 0 && n_cyc2 >= tcs && n_cyc2 < tce)
+      $display("tb_exec: TSW @%0d pc=%h ff=%h T=%h%h%h%h FFBDisp=%b Disp=%b NoDisp=%b alub=%h%h%h%h StopT=%b",
+               n_cyc2, tnia_now, ff_now,
+               m.b_ProcH.u_l03.mem[4'hf], m.b_ProcH.u_l04.mem[4'hf],
+               m.b_ProcL.u_l03.mem[4'hf], m.b_ProcL.u_l04.mem[4'hf],
+               m.b_ContA.FF_eq_BDispatch, m.b_ContA.Dispatch, m.b_ContA.NoDispatch,
+               {m.b_ProcH.alub_00, m.b_ProcH.alub_01, m.b_ProcH.alub_02, m.b_ProcH.alub_03},
+               {m.b_ProcH.alub_04, m.b_ProcH.alub_05, m.b_ProcH.alub_06, m.b_ProcH.alub_07},
+               {m.b_ProcL.alub_08, m.b_ProcL.alub_09, m.b_ProcL.alub_10, m.b_ProcL.alub_11},
+               {m.b_ProcL.alub_12, m.b_ProcL.alub_13, m.b_ProcL.alub_14, m.b_ProcL.alub_15},
+               m.b_ContA.StopTasks);
+    if (!m.b_ContA.TaskingIsOff_p_) n_taskon = n_taskon + 1;
+    if (m.b_ContA.StopTasks) n_stoptasks = n_stoptasks + 1;
+    if (!m.b_ContA.PEncGtTrueNext_p_) n_pencgt = n_pencgt + 1;
+  end
+
+  // One-shot: the whole TPC file, mid-task-init-spin. Slots are PRIMED
+  // (a = ~task); TASKINIT = 0o6141 is what the oracle writes to tasks 1-15.
+  reg tpcdump_done = 1'b0;
+  always @(posedge sys_clk)
+    if (n_cyc2 == 108925000 && !tpcdump_done) begin : tpcdump
+      integer ti;
+      tpcdump_done = 1'b1;
+      for (ti = 0; ti < 16; ti = ti + 1)
+        $display("tb_exec: TPCDUMP task=%0d slot=%0d TPC=%h%h%h%h", ti, 15-ti,
+                 m.b_ContA.u_l13.mem[4'hf - ti[3:0]], m.b_ContA.u_i13.mem[4'hf - ti[3:0]],
+                 m.b_ContA.u_j13.mem[4'hf - ti[3:0]], m.b_ContA.u_k13.mem[4'hf - ti[3:0]]);
+    end
+
   final begin : mapplane_census
     integer zi, nwp0, ndirty0, nrp0;
     nwp0 = 0; ndirty0 = 0; nrp0 = 0;
@@ -1915,6 +1971,10 @@ module tb_exec;
              nwp0, ndirty0, nrp0);
     $display("tb_exec: MAPSTROBE -- window 82260-83000: MapRAS' %0d transitions, MapCAS' %0d",
              n_mras, n_mcas2);
+    $display("tb_exec: TSWSUM -- TWReq02 high %0d, PEnc nonzero %0d, BNT nonzero %0d, TaskingIsOff' LOW (tasking ON) %0d samples",
+             n_twr02, n_penc_nz, n_bnt_nz, n_taskon);
+    $display("tb_exec: TSWSUM2 -- StopTasks high %0d, PEncGtTrueNext' LOW (switch wanted) %0d samples",
+             n_stoptasks, n_pencgt);
   end
 
   // ---- THE MAPBUF WEDGE ---------------------------------------------------
@@ -2203,7 +2263,8 @@ module tb_exec;
   // at 32, which is fine for "is it sequencing at all" and useless for "how far
   // does it get". A bitmap over the whole address space answers the second.
   reg       visited [0:4095];
-  integer   n_tinit;
+  integer   n_tinit, fh_c44, fh_c45, fh_c60;
+  initial begin fh_c44 = -1; fh_c45 = -1; fh_c60 = -1; end
   integer   nvisited, lastpc, stuck, maxrun, prevpc, maxpc;  reg [3:0] ctnow;
 
 `ifdef WORLD
@@ -2647,6 +2708,10 @@ module tb_exec;
             n_ckt = n_ckt + 1;
           end
           if (lastpc[11:0] == 12'hc45) n_tinit = n_tinit + 1;
+          // First-hit cycles for the task-init era's landmarks.
+          if (lastpc[11:0] == 12'hc44 && fh_c44 < 0) begin fh_c44 = n_cyc2; $display("tb_exec: FIRSTHIT c44 @%0d", n_cyc2); end
+          if (lastpc[11:0] == 12'hc45 && fh_c45 < 0) begin fh_c45 = n_cyc2; $display("tb_exec: FIRSTHIT c45 @%0d", n_cyc2); end
+          if (lastpc[11:0] == 12'hc60 && fh_c60 < 0) begin fh_c60 = n_cyc2; $display("tb_exec: FIRSTHIT c60 @%0d", n_cyc2); end
           if (!visited[lastpc[11:0]]) begin
             visited[lastpc[11:0]] = 1'b1; nvisited = nvisited + 1;
           end
