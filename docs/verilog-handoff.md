@@ -317,9 +317,25 @@ setup-time capture**. The same change that made Initial pass its
 checksum broke the AEmu jump-start choreography (failure shape at 4c:
 held forever with tasking on; at ef12ce0e: fault task never runs). The
 capture is load-bearing for the boot, so the fix is re-diagnosing the
-jump-start scenario under it, not a revert. Separately: `SYSPER=2`
-breaks the ReadBB/checksum stage (RMINITL never reached); boot runs
-stay at 16x.
+jump-start scenario under it, not a revert. **memrun-test is ALSO
+stale-green** (`preStartMem' never asserted`): its inputs -- the memory
+boards, ContA/ContB, ProcH/ProcL, tb_memrun -- are byte-identical to
+pre-session (0 changed lines each), so it fails deterministically with
+pre-session RTL and is not a regression of any recent session; likely
+the same cbf5b94f/MC10176 class since it uses that part throughout.
+Separately: `SYSPER=2` breaks the ReadBB/checksum stage (RMINITL never
+reached); boot runs stay at 16x.
+
+**Regeneration is clean (2026-09-01 regression sweep).** After the
+JunkTW jumper regenerated every board, `make -C verilog lint` is 16
+boards + all 12 machine tops clean (the lint skip-list was missing
+world/screen/disk/display -- fixed, they lint with boards), and
+boot0/compute/task/refdecode/taskrun/exec/exec-parity/mir-diff/ifu/
+im-parity-check all PASS. Only the pre-existing stale-green gates above
+fail. NOTE: several gates leave a STALE binary when the repo path moves
+(they errored `No rule to make target .../obj_*/Vtb_*__pch.h`); `rm -rf`
+the obj dir and rebuild. And im-parity-check is a `make -C verilog`
+target, not a verilator-dir one.
 
 **Traps added today:** a bench force can destroy the very data under
 diagnosis (the clip ate three sessions of strobe-phase work); an ALL-ONES
