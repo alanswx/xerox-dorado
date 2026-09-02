@@ -90,9 +90,9 @@ module DispY_m_Rev_m_Cl #(parameter integer SYSPER = 16) (
     input  wire IOB_14,
     input  wire IOB_15,
     input  wire IOHold,
-    input  wire IOIn_p_,
-    input  wire IOOut_p_,
     input  wire IOReset,
+    input  wire IOin_p_,
+    input  wire IOout_p_,
     input  wire KeyboardData,
     input  wire MemClkEnable_p_a,
     input  wire MemSH_p_,
@@ -3235,8 +3235,8 @@ module DispY_m_Rev_m_Cl #(parameter integer SYSPER = 16) (
   ); // MB7071H
   cell_MC1660 u_g24 (
     .p2(RIOOut_p_),
-    .p7(IOOut_p_),
-    .p10(IOIn_p_),
+    .p7(IOout_p_),
+    .p10(IOin_p_),
     .p11(TIOADly_07),
     .p12(TIOADly_06),
     .p13(TIOADly_05),

@@ -92,9 +92,9 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     input  wire IOB_14,
     input  wire IOB_15,
     input  wire IOHold,
-    input  wire IOIn_p_,
-    input  wire IOOut_p_,
     input  wire IOReset,
+    input  wire IOin_p_,
+    input  wire IOout_p_,
     input  wire KeyboardData,
     input  wire MType_0_p_,
     input  wire MType_1_p_,
@@ -3051,10 +3051,10 @@ module DispM_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   ); // MC10318
   cell_MC1660 u_g24 (
     .p2(RIOOut_p_),
-    .p7(IOOut_p_),
+    .p7(IOout_p_),
     .p8(VEE_m_55),
     .p10(TIOASaysDDM_p_),
-    .p11(IOIn_p_),
+    .p11(IOin_p_),
     .p12(TIOADly_06),
     .p13(TIOADly_05),
     .p15(DoDDMInput_p_)

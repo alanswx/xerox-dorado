@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ProcH ProcL ContA ContB IFU MemC MemD MemX DskEth DispY BaseBd msa
-// 571 internal nets (83 with several contributors), 326 top-level ports.
+// 571 internal nets (83 with several contributors), 324 top-level ports.
 
 `default_nettype none
 
@@ -242,8 +242,6 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     output wire IMLHPE_p_                 ,  // to a backplane connector (cable)
     output wire IMLHPEDly                 ,  // to a backplane connector (cable)
     output wire IMRHPEDly                 ,  // to a backplane connector (cable)
-    input  wire IOIn_p_                   ,  // awaits DispM
-    input  wire IOOut_p_                  ,  // awaits DispM
     output wire IOut_m_                   ,  // to a backplane connector (cable)
     input  wire IfuAWantsDifHit_p_        ,  // to a backplane connector (cable)
     input  wire IfuStartMap_p_            ,  // to a backplane connector (cable)
@@ -4580,9 +4578,9 @@ module dorado_backplane #(parameter integer SYSPER = 16) (
     .IOB_14(IOB_14),
     .IOB_15(IOB_15),
     .IOHold(IOHold),
-    .IOIn_p_(IOIn_p_),
-    .IOOut_p_(IOOut_p_),
     .IOReset(IOReset),
+    .IOin_p_(IOin_p_),
+    .IOout_p_(IOout_p_),
     .KeyboardData(KeyboardData),
     .MemClkEnable_p_a(MemClkEnable_p_a),
     .MemSH_p_(MemSH_p_),
@@ -5549,8 +5547,6 @@ module dorado_machine #(parameter integer SYSPER = 16) (
     .IMLHPE_p_(IMLHPE_p_),
     .IMLHPEDly(IMLHPEDly),
     .IMRHPEDly(IMRHPEDly),
-    .IOIn_p_(1'b0),
-    .IOOut_p_(1'b0),
     .IOut_m_(IOut_m_),
     .IfuAWantsDifHit_p_(1'b0),
     .IfuStartMap_p_(1'b0),
