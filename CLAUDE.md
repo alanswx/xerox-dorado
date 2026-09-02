@@ -1971,8 +1971,9 @@ emits -- black, because Initial installs no display list. A FOURTH
 spelled-two-ways line was in the way: ProcL's `IOout'`/`IOin'` strobes
 reach DskEth by name but DispY/DispM spell them `IOOut'`/`IOIn'`, so the
 display boards saw permanently asserted strobes and re-latched the idle
-bus. Also found: cpu.c's ReadIM lane 0 is one low (the RTL and the source
-agree on 34, 10, 145, 35, 148). Pixels need a world with a display list,
+bus. (A same-day claim that cpu.c's ReadIM lane 0 reads one low was WRONG
+-- the oracle's values were read after a decrement; cpu.c, the RTL and the
+source all agree on 34, 10, 145, 35, 148.) Pixels need a world with a display list,
 i.e. a net boot: a machine with DskEth and a bench that plays the C
 emulator's EFTP server. Detail, probes and the polarity search:
 `docs/verilog-handoff.md`.
