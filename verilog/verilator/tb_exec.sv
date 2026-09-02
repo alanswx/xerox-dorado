@@ -1776,6 +1776,21 @@ module tb_exec;
                  jk_tw, jk_first_tw, jk_shut, jk_ior, jk_ack, jk_ttw_edges, jk_pend_edges, n_cyc2);
 
 `ifdef SCREEN
+  // ---- DSW: the DispY command strobe per sys_clk, in the RING window --------
+  // h15 FF a (DoradoHasHRam') is clocked by clk1'Dc OR HRamCommand', D =
+  // RIOB.00; RIOB (k01) clocks on preclk1'Bb OR RIOOut' OR TIOASaysDDC'.
+  // HM 10.7: the IOB data of an Output<-B remains in RIOB until the next
+  // output command. Watch what each edge captures.
+  wire [7:0] dsw_tioa = {m.TIOA_0, m.TIOA_1, m.TIOA_2, m.TIOA_3, m.TIOA_4, m.TIOA_5, m.TIOA_6, m.TIOA_7};
+  always @(posedge sys_clk)
+    if (ring_left > 0)
+      $display("tb_exec: DSW @%0d clk=%b c1Dc=%b c1Cc=%b pc1Bb=%b HRamCmd'=%b RIOBclk'=%b IOOut'=%b DDCsel'=%b IOB00=%b RIOB00=%b qa=%b qb=%b HasHRam=%b HRamWE'=%b WrHRam'=%b IOBout=%b TIOA=%h CIA=%h CT=%h",
+               n_cyc2, mclk, m.b_DispY.clk1_p_Dc, m.b_DispY.clk1_p_Cc, m.b_DispY.preclk1_p_Bb,
+               m.b_DispY.HRamCommand_p_, m.b_DispY.RIOBclk1_p_a, m.b_DispY.IOout_p_, m.b_DispY.TIOASaysDDC_p_,
+               m.b_DispY.IOB_00, m.b_DispY.RIOB_00, m.b_DispY.u_h15.qa, m.b_DispY.u_h15.qb,
+               m.b_DispY.DoradoHasHRam, m.b_DispY.HRamWE_p_, m.b_DispY.WriteHRam_p_, m.b_ProcL.IOBout,
+               dsw_tioa, ring_cia, pct_ctask);
+
   // ---- DISPY: what INITHRAM did to the display board, counted over the run --
   // InitHRam (DisplayAux.mc) writes LoadAddress twice (the first turns on
   // DoradoHasHRam), then the HRam words from a table it reads out of IM with
@@ -1801,6 +1816,28 @@ module tb_exec;
   end
   final $display("tb_exec: DISPY -- HRamCommand' low %0d, DoradoHasHRam high %0d (first fall @%0d), HRamWE' low %0d, ClkHRamAddr' edges %0d, LdHRamAddr' low %0d, preHSync high %0d, HSync' edges %0d, DispY selected (TIOASaysDDC' low) %0d, IOBout strobes to DispY %0d, ContA RIM' low %0d, of %0d",
                  dp_cmd, dp_has, dp_has_fall, dp_we, dp_clk, dp_ld, dp_phs, dp_hs, dp_sel, dp_out, dp_rim, n_cyc2);
+  // `+hramdump`: the three HRam planes (h14 HSync, i14 HBlank, j14 HalfLine,
+  // F10415A 1Kx1 each) as run lengths over the first 400 entries, plus the
+  // total set bits. InitialDisplay's table for an Alto monitor is 34 x 6,
+  // 10 x 2, 145 x 0, 35 x 1, 148 x 0, 7 x 2, 1 x 6 = 380 entries.
+  final if ($test$plusargs("hramdump")) begin : hramdump
+    integer a, run, n1, n2, n3; reg [2:0] cur, prev;
+    n1 = 0; n2 = 0; n3 = 0;
+    for (a = 0; a < 1024; a = a + 1) begin
+      if (m.b_DispY.u_h14.mem[a]) n1 = n1 + 1;
+      if (m.b_DispY.u_i14.mem[a]) n2 = n2 + 1;
+      if (m.b_DispY.u_j14.mem[a]) n3 = n3 + 1;
+    end
+    $display("tb_exec: HRAM -- set bits: HSync plane %0d, HBlank plane %0d, HalfLine plane %0d (of 1024)", n1, n2, n3);
+    $write("tb_exec: HRAM -- runs of {HSync,HBlank,HalfLine} over 0..399:");
+    prev = {m.b_DispY.u_h14.mem[0], m.b_DispY.u_i14.mem[0], m.b_DispY.u_j14.mem[0]}; run = 0;
+    for (a = 0; a < 400; a = a + 1) begin
+      cur = {m.b_DispY.u_h14.mem[a], m.b_DispY.u_i14.mem[a], m.b_DispY.u_j14.mem[a]};
+      if (cur !== prev) begin $write(" %0dx%0d", prev, run); prev = cur; run = 0; end
+      run = run + 1;
+    end
+    $write(" %0dx%0d\n", prev, run);
+  end
 `endif
   // `+pcpc=HEX` opens the PCT window at the first MIR load of that address
   // (an address is a better handle than a cycle number in a 150M-cycle boot).

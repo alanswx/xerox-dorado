@@ -1963,7 +1963,19 @@ in 20,000" counted both clk0' edges), so the MiSTer build at SYSPER=2 /
 display-test and disk-test start with TaskingOn and relied on the switch
 NOT redirecting the fetch; exec-tasking/exec-init wake tasks whose TPCs
 were never initialised (they failed at HEAD before this session too).
-Detail, probes and the polarity search: `docs/verilog-handoff.md`.
+**And the ten-board machine paints its own raster** (later the same day):
+`docs/images/rtl-initial-raster-2026-09-02.png`, a 656-pixel-wide,
+496-line visible field synced by the HRam Initial loaded (exactly
+DisplayDefs.mc's 380-entry table) and the vertical sync its display task
+emits -- black, because Initial installs no display list. A FOURTH
+spelled-two-ways line was in the way: ProcL's `IOout'`/`IOin'` strobes
+reach DskEth by name but DispY/DispM spell them `IOOut'`/`IOIn'`, so the
+display boards saw permanently asserted strobes and re-latched the idle
+bus. Also found: cpu.c's ReadIM lane 0 is one low (the RTL and the source
+agree on 34, 10, 145, 35, 148). Pixels need a world with a display list,
+i.e. a net boot: a machine with DskEth and a bench that plays the C
+emulator's EFTP server. Detail, probes and the polarity search:
+`docs/verilog-handoff.md`.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 

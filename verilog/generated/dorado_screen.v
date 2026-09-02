@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ContA ContB ProcH ProcL MemC MemD MemX msa IFU DispY
-// 528 internal nets (66 with several contributors), 216 top-level ports.
+// 530 internal nets (66 with several contributors), 212 top-level ports.
 
 `default_nettype none
 
@@ -164,11 +164,7 @@ module dorado_screen #(parameter integer SYSPER = 16) (
     output wire IMLHPE_p_                 ,  // to a backplane connector (cable)
     output wire IMLHPEDly                 ,  // to a backplane connector (cable)
     output wire IMRHPEDly                 ,  // to a backplane connector (cable)
-    input  wire IOIn_p_                   ,  // awaits DispM
-    input  wire IOOut_p_                  ,  // awaits DispM
     input  wire IOReset                   ,  // awaits BaseBd DispM DskEth IOTest Music
-    output wire IOin_p_                   ,  // awaits DskEth Music
-    output wire IOout_p_                  ,  // awaits DskEth IOTest Music
     output wire IOut_m_                   ,  // to a backplane connector (cable)
     input  wire IfuAWantsDifHit_p_        ,  // to a backplane connector (cable)
     input  wire IfuStartMap_p_            ,  // to a backplane connector (cable)
@@ -237,7 +233,7 @@ module dorado_screen #(parameter integer SYSPER = 16) (
     output wire XSyncEn_p_                   // to a backplane connector (cable)
 );
 
-  // 528 nets between boards, plus one contribution wire
+  // 530 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -398,6 +394,8 @@ module dorado_screen #(parameter integer SYSPER = 16) (
   wire IOHold;
   wire IOPE;
   wire IOatt;
+  wire IOin_p_;
+  wire IOout_p_;
   wire IfuAck;
   wire IfuAddr_04_p_;
   wire IfuAddr_05_p_;
@@ -4049,9 +4047,9 @@ module dorado_screen #(parameter integer SYSPER = 16) (
     .IOB_14(IOB_14),
     .IOB_15(IOB_15),
     .IOHold(IOHold),
-    .IOIn_p_(IOIn_p_),
-    .IOOut_p_(IOOut_p_),
     .IOReset(IOReset),
+    .IOin_p_(IOin_p_),
+    .IOout_p_(IOout_p_),
     .KeyboardData(KeyboardData),
     .MemClkEnable_p_a(MemClkEnable_p_a),
     .MemSH_p_(MemSH_p_),
@@ -4155,7 +4153,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 112 signals, 32 at a time;
+// probe_val exposes 110 signals, 32 at a time;
 // dorado_screen.probes lists which bit is which.
 module dorado_screen_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
@@ -4240,8 +4238,6 @@ module dorado_screen_machine #(parameter integer SYSPER = 16) (
   wire IMLHPE_p_;
   wire IMLHPEDly;
   wire IMRHPEDly;
-  wire IOin_p_;
-  wire IOout_p_;
   wire IOut_m_;
   wire JamVBlank;
   wire LScopeFH;
@@ -4278,7 +4274,7 @@ module dorado_screen_machine #(parameter integer SYSPER = 16) (
   wire XSyncEn_p_;
 
   wire [127:0] probe = {
-    16'd0,
+    18'd0,
     XSyncEn_p_,
     VSync,
     VBlank,
@@ -4313,8 +4309,6 @@ module dorado_screen_machine #(parameter integer SYSPER = 16) (
     LScopeFH,
     JamVBlank,
     IOut_m_,
-    IOout_p_,
-    IOin_p_,
     IMRHPEDly,
     IMLHPEDly,
     IMLHPE_p_,
@@ -4548,11 +4542,7 @@ module dorado_screen_machine #(parameter integer SYSPER = 16) (
     .IMLHPE_p_(IMLHPE_p_),
     .IMLHPEDly(IMLHPEDly),
     .IMRHPEDly(IMRHPEDly),
-    .IOIn_p_(1'b0),
-    .IOOut_p_(1'b0),
     .IOReset(1'b0),
-    .IOin_p_(IOin_p_),
-    .IOout_p_(IOout_p_),
     .IOut_m_(IOut_m_),
     .IfuAWantsDifHit_p_(1'b0),
     .IfuStartMap_p_(1'b0),

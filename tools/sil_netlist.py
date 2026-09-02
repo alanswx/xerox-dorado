@@ -264,6 +264,24 @@ BACKPLANE_WAKEUP_JUMPERS = {
 # pin reaches only the muffler mux e23, so it is left alone.)
 BACKPLANE_BOARD_ALIASES = {
     ('ContA', 'SWb'): 'SW',      # E166  ContA j19 -> ContB k21
+    # THE SLOW-I/O STROBES, spelled with capitals on the two display boards.
+    # ProcL drives `IOout'` (g22) and `IOin'` (g23); DskEth, IOTest and Music
+    # receive them under exactly that spelling on E74/E71, and DispY/DispM
+    # receive the same two pins as `IOOut'`/`IOIn'` (g24). Unjoined, both
+    # display boards saw their strobes at 0 -- ASSERTED, being active low --
+    # so every clock with TIOA at a DDC register was an output command:
+    # HRamCommand' stayed low across whole instructions, RIOB re-latched the
+    # idle bus instead of holding the Output word (HM 10.7 says it holds
+    # until the next command), the HRam address counter free-ran, Initial's
+    # table landed stretched, and ReleaseRam's Keep' bit was overwritten a
+    # clock later (measured 2026-09-02, DSW probe). Board-scoped rather than a
+    # case alias because ProcL's end of the wire is on E71/E70 -- the
+    # backplane is not straight-through -- which the case-variant check would
+    # rightly refuse.
+    ('DispY', "IOOut'"): "IOout'",
+    ('DispY', "IOIn'"):  "IOin'",
+    ('DispM', "IOOut'"): "IOout'",
+    ('DispM', "IOIn'"):  "IOin'",
 }
 
 

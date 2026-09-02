@@ -34,6 +34,20 @@ throughout (DORADO_PCDIS with a 6104,6141 window, and DORADO_TASK_TRACE).
   (`dorado/src/ethernet.c`, EFTP) over the modelled cable, and a stuck
   heuristic that recognises a counted loop.
 
+- **THE MACHINE PAINTS ITS OWN RASTER FROM ITS OWN HRAM** (later the same
+  day, ten boards): `docs/images/rtl-initial-raster-2026-09-02.png` -- a
+  656-pixel-wide, 496-line visible field, black because Initial installs no
+  display list, on the bench's no-data grey. INITHRAM's table landed in the
+  HRam EXACTLY (`+hramdump`: 34x6, 10x2, 145x0, 35x1, 148x0, 7x2, 1x6 = 380
+  entries, the DisplayDefs.mc Alto waveform), ReleaseRam handed the RAM to
+  the display's sync counter (DoradoHasHRam fell at 98,388,922 and stayed
+  down), 3,356 HSync edges, 58 fields, and the display task ran its
+  per-scan-line loop (task 3: 991,520 sys_clk, 6,733 task switches). That
+  took a FOURTH defect of the spelled-two-ways class (below).
+
+    make -C verilog/verilator exec-bootscreen CYCLES=112000000 \
+      SCREENARGS="+ioreset +stperroff +blfix +addrs +nostuck +hramdump"
+
 Deepest boot command (add `+ioreset` to last session's):
 
     make -C verilog/verilator exec-boot \
@@ -83,6 +97,27 @@ Deepest boot command (add `+ioreset` to last session's):
    the junk task re-executed Initial's BLOCK at c06 forever (679,732
    instructions on one address in the full boot). `+ioreset` holds the
    line through the startup jams and releases it when the machine starts.
+
+4. **The display boards never received the slow-I/O strobes.** ProcL
+   drives `IOout'`/`IOin'`; DskEth, IOTest and Music receive them under that
+   spelling on E74/E71, but DispY and DispM spell the same pins `IOOut'`/
+   `IOIn'`. Wired by name, both display boards saw their strobes at 0 --
+   asserted, being active low. Measured with the DSW probe: HRamCommand'
+   low across whole instructions, RIOB re-latching the idle bus every clock
+   instead of holding the Output word (HM 10.7: it holds until the next
+   command), the HRam address counter free-running (6 million edges), the
+   table landing stretched (14x0 34x6 16x0 10x2 177x0 ...), and ReleaseRam's
+   Keep' bit overwritten one clock later, so the sync counter stayed in
+   reset. Board-scoped aliases for DispY/DispM in `BACKPLANE_BOARD_ALIASES`
+   (not case aliases: ProcL's end is on E71/E70, the backplane is not
+   straight-through). display-test/strap-test/muffler-test still pass.
+
+**A C-emulator bug found by the RTL:** cpu.c's ReadIM lane 0 reads one LOW
+(33, 9, 144, 34, 147 where DisplayDefs.mc's table is 34, 10, 145, 35, 148:
+sync width 70 -> (70-2)/2 = 34). Nothing in the C emulator consumes the
+HRam counts, so it never mattered there; the RTL's ReadIM/B<-Link path is
+right, and the HRam sum (380 = HRamMaxAddr+1) proves it. Fix cpu.c
+`lane[0]`.
 
 ### Retractions of the 2026-09-01 diagnosis, each by measurement
 
