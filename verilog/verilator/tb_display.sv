@@ -2686,6 +2686,23 @@ module tb_display;
                  m.b_ProcL.Q_08, m.b_ProcL.Q_09, m.b_ProcL.Q_10, m.b_ProcL.Q_11,
                  m.b_ProcL.Q_12, m.b_ProcL.Q_13, m.b_ProcL.Q_14, m.b_ProcL.Q_15};
         $display("tb_display: +slowio -- T and Q loaded for the loop (Q = %h, want 5a5a)", q_pre);
+        // T IS PER-TASK, AND THE LOOP RUNS IN THE WOKEN TASK. This bench starts
+        // with TaskingOn and requires the display head task (3, WakeDHT) to
+        // take the machine -- and now that a task switch really fetches from
+        // the new task's TPC (ContA SWb -> ContB SW joined, 2026-09-02), task
+        // 3 executes IM[0..3] with ITS OWN T, which was 0, so TIOA<- addressed
+        // nobody and the strobes vanished. Before the join, CTask changed but
+        // the fetch did not, and task 0's T carried the loop by accident. A
+        // real display task loads its own TIOA (InitialDisplay.mc: `T_
+        // Statics ... TIOA_ T`); here its T-file slot is seeded directly.
+        // ProcH u_l03/u_l04 hold T.00-03/T.04-07, ProcL u_l03/u_l04 T.08-15;
+        // the slot is ~task (TPCAd/RM-style primed address) and each nibble
+        // is stored bit-reversed (the T counter "reads 8,4,12 for 1,2,3").
+        m.b_ProcH.u_l03.mem[4'hc] = 4'b1111;   // T.00-03 of F800
+        m.b_ProcH.u_l04.mem[4'hc] = 4'b0001;   // T.04-07 = 1000 -> reversed 0001
+        m.b_ProcL.u_l03.mem[4'hc] = 4'b0000;
+        m.b_ProcL.u_l04.mem[4'hc] = 4'b0000;
+        $display("tb_display: +slowio -- task 3's T-file slot seeded with F800 (its own TIOA value)");
 
     end
     // ARE THE FOUR COPIES ACTUALLY IDENTICAL? IM is four INTERLEAVED banks --

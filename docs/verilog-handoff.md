@@ -139,12 +139,21 @@ too; with the switch line joined the junk task 2 now wins the switch and
 runs AEmu from IM[0] -- these jump-start benches wake tasks whose TPCs
 were never initialised and their green states were artifacts),
 memrun-test, readback-test (identical assertion at HEAD).
-FAIL, caused by defect 2's fix: display-test (passes at HEAD and at
-HEAD+ALU fix). disk-test fails at HEAD too but at a different assertion
-now. Both `+slowio` benches start with TaskingOn and expect the woken
-task (WakeDHT is permanently high) to keep running their loop -- which
-it only did because the switch never redirected the fetch. They need
-the woken task's TPC pointed at the loop (or TaskingOff); not done.
+display-test: it regressed with defect 2's fix and is FIXED. The
+`+slowio` bench starts with TaskingOn and requires the woken display
+task (3, WakeDHT is permanently high) to take the machine; with the
+switch really redirecting the fetch, task 3 ran the loop with ITS OWN T
+(0), so `TIOA<-` addressed nobody. T is per-task; the bench now seeds
+task 3's T-file slot with the TIOA value, as a real display task loads
+its own TIOA (InitialDisplay.mc `T_ Statics ... TIOA_ T`), and it
+passes more faithfully than before (TIOA held on 3,846 samples, not
+128). tb_disk got the same seed for task 12, which moves disk-input-test
+past "the address never survives to the data" (its HEAD failure) to a
+later assertion; the whole tb_disk family (disk-test, -tag, -muff, -cmd,
+-ram: "bIOin' asserted 1953 times with no Pd<-Input"; disk-format:
+"format RAM[0] = 0000") FAILS AT HEAD too, self-consistently -- stale
+green, not touched by this session. tb_disk also gained an opt-in
+`+ioreset`; it changed no verdict there.
 
 ### Traps that cost time today
 
