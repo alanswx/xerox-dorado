@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: BaseBd ContA ContB ProcH ProcL
-// 231 internal nets (40 with several contributors), 239 top-level ports.
+// 232 internal nets (40 with several contributors), 237 top-level ports.
 
 `default_nettype none
 
@@ -184,8 +184,6 @@ module dorado_boot #(parameter integer SYSPER = 16) (
     output wire RScopeClk0_p_             ,  // to a backplane connector (cable)
     input  wire RcvData                   ,  // awaits DskEth
     output wire RfshPeriod                ,  // awaits MemX
-    input  wire SW                        ,  // awaits MemX
-    output wire SWb                       ,  // to a backplane connector (cable)
     output wire SWm                       ,  // to a backplane connector (cable)
     output wire Sequence0_p_              ,  // to a backplane connector (cable)
     input  wire Serial_1                  ,  // to a backplane connector (cable)
@@ -260,7 +258,7 @@ module dorado_boot #(parameter integer SYSPER = 16) (
     input  wire dStartClockPulse             // to a backplane connector (cable)
 );
 
-  // 231 nets between boards, plus one contribution wire
+  // 232 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -386,6 +384,7 @@ module dorado_boot #(parameter integer SYSPER = 16) (
   wire ResLtZero_p_;
   wire RmLtZero_p_;
   wire RmOdd_p_;
+  wire SW;
   wire SelectRm_p_a;
   wire SelectStk_p_a;
   wire SetRun;
@@ -754,7 +753,7 @@ module dorado_boot #(parameter integer SYSPER = 16) (
   wire RfshPeriod__BaseBd;
   wire RmLtZero_p___ProcH;
   wire RmOdd_p___ProcL;
-  wire SWb__ContA;
+  wire SW__ContA;
   wire SWm__ContA;
   wire SelectRm_p_a__ProcL;
   wire SelectStk_p_a__ProcL;
@@ -1112,7 +1111,7 @@ module dorado_boot #(parameter integer SYSPER = 16) (
   assign RfshPeriod = RfshPeriod__BaseBd;
   assign RmLtZero_p_ = RmLtZero_p___ProcH;
   assign RmOdd_p_ = RmOdd_p___ProcL;
-  assign SWb = SWb__ContA;
+  assign SW = SW__ContA;
   assign SWm = SWm__ContA;
   assign SelectRm_p_a = SelectRm_p_a__ProcL;
   assign SelectStk_p_a = SelectStk_p_a__ProcL;
@@ -1586,7 +1585,7 @@ module dorado_boot #(parameter integer SYSPER = 16) (
     .Next_3__drv(Next_3__ContA),
     .NextMacro__drv(NextMacro__ContA),
     .PrBlock_p___drv(PrBlock_p___ContA),
-    .SWb__drv(SWb__ContA),
+    .SW__drv(SW__ContA),
     .SWm__drv(SWm__ContA),
     .StartCycle_p_a__drv(StartCycle_p_a__ContA),
     .TNIA_02__drv(TNIA_02__ContA),
@@ -2295,7 +2294,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 126 signals, 32 at a time;
+// probe_val exposes 125 signals, 32 at a time;
 // dorado_boot.probes lists which bit is which.
 module dorado_boot_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
@@ -2401,7 +2400,6 @@ module dorado_boot_machine #(parameter integer SYSPER = 16) (
   wire PrHoldReq;
   wire RScopeClk0_p_;
   wire RfshPeriod;
-  wire SWb;
   wire SWm;
   wire Sequence0_p_;
   wire SkipWait_p_;
@@ -2455,7 +2453,7 @@ module dorado_boot_machine #(parameter integer SYSPER = 16) (
   // synthesis read_comments_as_HDL off
 
   wire [127:0] probe = {
-    2'd0,
+    3'd0,
     CLK_pl_p__probe,
     CLK_ph_p__probe,
     CLK_cb_p__probe,
@@ -2484,7 +2482,6 @@ module dorado_boot_machine #(parameter integer SYSPER = 16) (
     SkipWait_p_,
     Sequence0_p_,
     SWm,
-    SWb,
     RfshPeriod,
     RScopeClk0_p_,
     PrHoldReq,
@@ -2759,8 +2756,6 @@ module dorado_boot_machine #(parameter integer SYSPER = 16) (
     .RScopeClk0_p_(RScopeClk0_p_),
     .RcvData(1'b0),
     .RfshPeriod(RfshPeriod),
-    .SW(1'b0),
-    .SWb(SWb),
     .SWm(SWm),
     .Sequence0_p_(Sequence0_p_),
     .Serial_1(1'b0),

@@ -248,12 +248,35 @@ BACKPLANE_WAKEUP_JUMPERS = {
 }
 
 
-def canon_net(name: str) -> str:
+# ONE WIRE, TWO NAMES -- and not a case variant. ContA drives its task-switch
+# select onto backplane pin E166 as `SWb` (j19, a buffered copy of Switch'a);
+# ContB receives that pin as `SW` (k21, the fan-out to the e20/f20/g20/g21/h20
+# MC1662 muxes that pick BNPC over TNIA for the IM address). Both boards state
+# E166 in their .bp files, so by the backplane's own rule they are one wire --
+# but this backplane is wired by NAME, and unjoined, ContB's SW sat at 0: a
+# task switch loaded CIA and CTask with the new task while the IM went on
+# reading the OLD task's next address, so the first instruction of every
+# switched-in task was the old task's (measured 2026-09-02: CIA=c61 with
+# IM[c00]'s fields in the MIR, right after Initial's task init). The rename is
+# BOARD-SCOPED because ContB also has a LOCAL net spelled `SWb` (k21's fan-out
+# copy), which a global alias in either direction would collide with.
+# (E167 is the same shape -- ContA `SWm`, ContB `TNIA.03` -- but on ContB that
+# pin reaches only the muffler mux e23, so it is left alone.)
+BACKPLANE_BOARD_ALIASES = {
+    ('ContA', 'SWb'): 'SW',      # E166  ContA j19 -> ContB k21
+}
+
+
+def canon_net(name: str, board: str | None = None) -> str:
     """The canonical spelling of a backplane net.
 
-    Two corrections: a handful of lines PARC capitalised inconsistently
-    (BACKPLANE_CASE_ALIASES), and the task wakeups, which the backplane routes
-    by jumper rather than by name (BACKPLANE_WAKEUP_JUMPERS)."""
+    Three corrections: a handful of lines PARC capitalised inconsistently
+    (BACKPLANE_CASE_ALIASES), one line a board names differently from the
+    board at the other end of the pin (BACKPLANE_BOARD_ALIASES, applied only
+    on the board named), and the task wakeups, which the backplane routes by
+    jumper rather than by name (BACKPLANE_WAKEUP_JUMPERS)."""
+    if board is not None:
+        name = BACKPLANE_BOARD_ALIASES.get((board.split('-Rev')[0], name), name)
     name = BACKPLANE_CASE_ALIASES.get(name, name)
     return BACKPLANE_WAKEUP_JUMPERS.get(name, name)
 
@@ -305,7 +328,7 @@ class Board:
                     continue
                 m = NET_HEAD_RE.match(line.strip())
                 if m:
-                    net_name = canon_net(m.group(1))
+                    net_name = canon_net(m.group(1), self.name)
                     net = {'id': int(m.group(3)) if m.group(3) else None,
                            'length': int(m.group(2)), 'pins': []}
                     self.nets[net_name] = net
@@ -386,7 +409,7 @@ class Board:
             if ':' not in line:
                 continue
             name, pins = line.split(':', 1)
-            name = canon_net(name.strip())
+            name = canon_net(name.strip(), self.name)
             name = name.strip()
             if not name:
                 continue

@@ -1,5 +1,164 @@
 # Verilog from Sil: handoff
 
+## SESSION HANDOFF (2026-09-02) -- read this first; the 2026-09-01 block below is history
+
+Branch `verilog-backplane`, picked up cold from the 2026-09-01 handoff, whose
+"one remaining piece", the phase/depth model, turned out not to exist. Every
+symptom that block attributed to phase collapse was measured again with new
+per-sys_clk probes and each had an ordinary cause: one cell modelled two pins
+of the ALU wrong, one backplane line was spelled two ways, and one BaseBoard
+line the nine-board bench never drove. The C emulator stayed the oracle
+throughout (DORADO_PCDIS with a 6104,6141 window, and DORADO_TASK_TRACE).
+
+### What the RTL does now
+
+- **Initial's task-init loop terminates**, exactly as the oracle does: T
+  counts 1..15, c46's ALU forms RM[1]+T = T-15, c47 branches on its sign,
+  and at T=15 the loop exits to c44 (TaskingOn) and BLESSBASEBOARD.
+- **A task switch fetches the new task's instruction.** Tasks 15 down to 3
+  each run TASKINIT (c61 c23 c29 c05 c10 c0f c1b c00 c02 ...) for 832
+  sys_clk and block, the oracle's sequence address for address.
+- **The junk task is no longer woken from power-up**, and task 0 resumes at
+  SETMCR (c00) after the tasks block.
+- FULL-BOOT RESULT: **Initial runs to the end of its own initialisation.** All fifteen tasks
+  run TASKINIT once and block (occupancy t1..t15 = 832 sys_clk each), task 0
+  resumes at SETMCR, BOOTEMULATOR (c92) and INITHRAM (e20) are reached for
+  the first time, the display HRam init (e00-e7c) runs, the 64K storage-
+  init loop at c96 (0o6226, `T<-T+1, Store<-T`; the oracle runs it 65,536
+  times too, so the bench's "stuck: 65537 on one address" is a false alarm
+  for a counted loop) completes, and the Ethernet boot code (ec0-eff,
+  BOOTTRANSFER f00) runs and lands at BOOTTRANSFERTIMEOUT (f1e, 0o7436) --
+  correct, because the nine-board `dorado_world` has no DskEth board. 379
+  distinct IM addresses in 140M sys_clk (~24 min). NEXT: a world with
+  DskEth and a bench that plays the C emulator's boot server
+  (`dorado/src/ethernet.c`, EFTP) over the modelled cable, and a stuck
+  heuristic that recognises a counted loop.
+
+Deepest boot command (add `+ioreset` to last session's):
+
+    make -C verilog/verilator exec-boot \
+      EXECARGS="+fastwait +bbword=0000 +bbfeed +mb0 +ioreset +stperroff +blfix +addrs +cycles=140000000"
+
+### The three defects, each with its measurement
+
+1. **`cell_MC10181`'s look-ahead pins were the TTL '181's G and P; this
+   part's are the two carry-out conditions, with the names interchanged.**
+   ProcH forms the carries into its two slices with discrete OR-AND gates
+   from ProcL's GG/PG and ripple carry: d12 (MC10118) gives
+   `(PG1 + C0) . GG1` and e12 (MC10121) gives
+   `(PG1 + C0 + PG2) . GG2 . (PG2 + GG1)`. An exhaustive polarity search
+   over those two gate networks finds exactly ONE reading under which they
+   are a correct 16-bit adder: `GG` = carry out if Cn were 1
+   (X+Y >= 15), `PG` = carry out if Cn were 0 (X+Y >= 16), carries
+   active-high (8,112 vectors, 0 mismatches). The MC10179's own printed
+   equations ("Cn+2 = (Cn+P0+P1)(G0+P1)G1") are the same form and correct
+   under the same reading; the part's function table is the 74181
+   family's active-low-data table, in which G and P exchange roles.
+   Symptom: a carry GENERATED in the adjacent slice arrived, a carry
+   PROPAGATED through it was lost -- fff1+000f read ff00, fff1+0010 read
+   f001 -- so c46's T-15 never reached zero and the loop never exited.
+   `alu-diff` never saw it (it chains the slices by ripple carry) and
+   `compute-test` never saw it (a55a+1234 carries out of no nibble).
+   compute-test now sweeps fff1/000f too and FAILS on the old cell
+   (mutation-tested: ALUFM 14 gives ff00).
+2. **ContA's task-switch select never reached ContB.** ContA drives it on
+   backplane pin E166 as `SWb` (j19); ContB receives E166 as `SW` (k21, the
+   fan-out to the e20/f20/g20/g21/h20 MC1662 muxes that put BNPC on the IM
+   address). Same pin, different name: the backplane is wired by name, so
+   ContB's SW sat at 0 and a switch loaded CIA and CTask with the new task
+   while the IM went on reading the old task's next address -- CIA=c61
+   with IM[c00]'s fields in the MIR, measured with the SWP probe. Fixed by
+   `BACKPLANE_BOARD_ALIASES` in `tools/sil_netlist.py`, a BOARD-SCOPED
+   alias (`('ContA','SWb') -> 'SW'`), because ContB also has a LOCAL net
+   spelled SWb. (E167 is the same shape, ContA `SWm` / ContB `TNIA.03`,
+   but on ContB that pin reaches only the muffler mux e23; left alone.)
+   `make -C verilog backplane` now regenerates `dorado_world.v` and
+   `dorado_screen.v` too -- they were not in the target.
+3. **IOReset is a BaseBoard line the nine-board bench never drove.** The
+   firmware asserts it in `DoIOReset` (the first InitManifolds entry) and
+   `PrepareProcessor` re-asserts it before every load. On the IFU it is the
+   reset of a21 (ShutUp), which holds the junk-wakeup flip-flops j08/k08.
+   Undriven, their power-up states leaked: TWReq.02 high from cycle 5129
+   with ZERO pendulum ticks and ZERO acks (JUNK probe), so after task init
+   the junk task re-executed Initial's BLOCK at c06 forever (679,732
+   instructions on one address in the full boot). `+ioreset` holds the
+   line through the startup jams and releases it when the machine starts.
+
+### Retractions of the 2026-09-01 diagnosis, each by measurement
+
+- **The WTPC 6-cycle residency works and always did** (RING probe: Phase0
+  -> 1 -> 2 -> 3 -> 4 -> StartCycle, Link rewritten to CIA+1 at Phase4,
+  next instruction c47), in the focused bench AND in the full boot.
+  `RepeatCur` is the HOLD (f20: Hold & ~SwitchUp), not the residency; its
+  being 0 was correct. `+wtpcfix` is not needed; do not use it.
+- **"c61 fetched as a spurious instruction"** was TNIA showing Link during
+  the residency, which Figure 7 specifies (TPCI <- TNIA(Link) at t1c).
+- **"ResLtZero' sampled at the wrong phase"** was the wrong ALU result
+  (defect 1). The branch-condition path (ProcH e13 RAM, e14 muxes, f17
+  MC10173 latch on Clock1') samples correctly.
+- **The bench's "visited c44" is an artifact**: `tnia_now` is read before
+  the branch condition is ORed into bit 15, so a taken c47 shows c44 on
+  TNIA while CIA loads c45. `TASKINITLOOP entries` undercounts for the
+  same reason.
+- **The phase/depth model is not needed for any of this.** Nothing in this
+  session used `DORADO_CLOCK_DEPTH`.
+
+### One clock, two names -- the SYSPER correction
+
+HM 2.3: the atomic clock is 30 ns and a cycle is TWO clocks. The RTL's
+CLK line is that 30 ns clock (one pulse per SYSPER sys_clk), and the ContA
+phase ring (l07/k05/j01/k04) advances once per pulse: a normal
+instruction is Phase0 then StartCycle, 32 sys_clk at SYSPER=16, measured.
+The bench's "1,242 microinstructions in 20,000 cycles" counted both
+edges of clk0' (which is gated by StartCycle, so it pulses once per
+instruction): 621 instructions. Consequently `fpga/mister` at SYSPER=2 and
+33.33 MHz runs a 60 ns CLOCK, a 120 ns microinstruction: **0.5x a real
+Dorado, not 1.0x**. The README's speed claim is wrong by two.
+
+### Probes and knobs added to tb_exec.sv
+
+`+ringpc=HEX` / `+ringat=N` + `+ringlen=N` open a window printing three
+lines per sys_clk: RING (the phase ring, next-address and Link/TPC path),
+BRC (the branch-condition path and ALU operands/result), SWP (the
+task-switch fetch: Switch, BNT, TPCO/BNPC, ContB's dRA and MIR fields,
+the IM data bus). `+pcfrom=N +pclen=N` prints one PCT line per MIR load
+(CIA, JCN, task, Link, T, R, ALU, conditions). `+tseed=N` seeds task 0's
+T-file slot at the first TNIA=c45, so `+start=3141` reproduces the
+task-init loop in ~3,000 sys_clk instead of 96M. `+ioreset` as above. The
+JUNK summary (final block) counts the junk-wakeup flip-flops.
+
+### Gate status (all re-run this session, self-consistently)
+
+PASS: alu-diff, compute-test (now with fff1/000f), exec-test,
+exec-parity, task-test, taskrun-test, refdecode-test, mir-diff,
+boot0-test, im-parity-check, ifu-test, datapath-test, muffler-test,
+machine-test, strap-test, exec-boot; `make -C verilog lint` clean (16
+boards, 12 tops).
+FAIL, unchanged from HEAD: exec-tasking, exec-init (both fail at HEAD
+too; with the switch line joined the junk task 2 now wins the switch and
+runs AEmu from IM[0] -- these jump-start benches wake tasks whose TPCs
+were never initialised and their green states were artifacts),
+memrun-test, readback-test (identical assertion at HEAD).
+FAIL, caused by defect 2's fix: display-test (passes at HEAD and at
+HEAD+ALU fix). disk-test fails at HEAD too but at a different assertion
+now. Both `+slowio` benches start with TaskingOn and expect the woken
+task (WakeDHT is permanently high) to keep running their loop -- which
+it only did because the switch never redirected the fetch. They need
+the woken task's TPC pointed at the loop (or TaskingOff); not done.
+
+### Traps that cost time today
+
+- The gate rules' `make_rc` after `| tail` is tail's status. Read the
+  PASS/Fatal lines. Six gates "failed" because their obj_* directories
+  still carried the old repo path; `rm -rf` them.
+- `+ringpc=c44` opens at the FIRST c44, which is every c47's pre-branch
+  TNIA; use `+ringat` for the loop exit.
+- The datasheet's pin NAMES (GG/PG, "Cn is low") are a trap; the board's
+  own gate network is the authority, and a brute-force polarity search
+  over it takes a minute.
+
+---
+
 ## SESSION HANDOFF (2026-09-01, end) -- read this first, then "START HERE" below
 
 Branch `verilog-backplane`, HEAD `320d95d1`, **32 commits this session**

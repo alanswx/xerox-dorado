@@ -219,7 +219,7 @@ module ContA_m_Rev_m_Cd #(parameter integer SYSPER = 16) (
     output wire Next_3__drv,
     output wire NextMacro__drv,
     output wire PrBlock_p___drv,
-    output wire SWb__drv,
+    output wire SW__drv,
     output wire SWm__drv,
     output wire StartCycle_p_a__drv,
     output wire TNIA_02__drv,
@@ -4545,7 +4545,7 @@ module ContA_m_Rev_m_Cd #(parameter integer SYSPER = 16) (
     .p5(preclk1_p_Da),
     .p10(Switch_p_a),
     .p12(SWm__drv),
-    .p13(SWb__drv),
+    .p13(SW__drv),
     .p14(bSwitch_p_a),
     .p15(GND470)
   ); // SE10212

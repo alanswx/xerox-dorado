@@ -857,7 +857,8 @@ module tb_compute;
   end
   reg [15:0] q_after_load, q_after_hold;
   reg [15:0] t_first, t_second, t_before_op;
-  integer fi, ai; reg [5:0] afn; reg [15:0] aexp;
+  integer fi, ai;
+  integer pi; reg [15:0] av, bv; reg [5:0] afn; reg [15:0] aexp;
   reg [3:0] rstk_n; reg [15:0] rm_val; integer rm_seen;
   reg [3:0] rbase_seen;          // measured, not assumed
   reg seen_addr [0:255];
@@ -1127,31 +1128,46 @@ module tb_compute;
     end
     // The ARITHMETIC half of Table 9. The entry's high bit is the carry-in,
     // so `A+B' is 014 octal and `A-B' is 022 with that bit set = 062.
+    //
+    // TWO OPERAND PAIRS, because one is not enough. a55a + 1234 carries out
+    // of NO nibble (c 8 6 e), so it exercised the four MC10181s and never the
+    // discrete look-ahead gates between them (ProcH d12/e12 from ProcL's
+    // group generate/propagate). fff1 + 000f generates in the low nibble and
+    // PROPAGATES through the next two, which is exactly the case those gates
+    // exist for -- and the case the MC10181 cell got wrong for a fortnight
+    // (its GG/PG pins were the TTL '181's generate/propagate; this part's are
+    // the two carry-out conditions, with the names interchanged), during
+    // which Initial's task-init loop, whose exit test is T-15 < 0, never
+    // exited. fff1 + 000f read ff00 then; the sweep below fails on that.
+    for (pi = 0; pi < 2; pi = pi + 1) begin
+    av = (pi == 0) ? AV : 16'hFFF1;
+    bv = (pi == 0) ? BV : 16'h000F;
     for (fi = 0; fi < 8; fi = fi + 1) begin
       case (fi)
-        0: begin afn = 6'o000; aexp =  AV;              end  // A
-        1: begin afn = 6'o040; aexp =  AV + 16'd1;      end  // A + 1
-        2: begin afn = 6'o006; aexp =  AV + AV;         end  // 2A
-        3: begin afn = 6'o014; aexp =  AV + BV;         end  // A + B
-        4: begin afn = 6'o054; aexp =  AV + BV + 16'd1; end  // A + B + 1
-        5: begin afn = 6'o022; aexp =  AV - BV - 16'd1; end  // A - B - 1
-        6: begin afn = 6'o062; aexp =  AV - BV;         end  // A - B
-        7: begin afn = 6'o036; aexp =  AV - 16'd1;      end  // A - 1
+        0: begin afn = 6'o000; aexp =  av;              end  // A
+        1: begin afn = 6'o040; aexp =  av + 16'd1;      end  // A + 1
+        2: begin afn = 6'o006; aexp =  av + av;         end  // 2A
+        3: begin afn = 6'o014; aexp =  av + bv;         end  // A + B
+        4: begin afn = 6'o054; aexp =  av + bv + 16'd1; end  // A + B + 1
+        5: begin afn = 6'o022; aexp =  av - bv - 16'd1; end  // A - B - 1
+        6: begin afn = 6'o062; aexp =  av - bv;         end  // A - B
+        7: begin afn = 6'o036; aexp =  av - 16'd1;      end  // A - 1
       endcase
 
       alufm0_is(alufm_word(6'o25), 1'b0);
-      t_from_cpreg(AV);
+      t_from_cpreg(av);
       alufm0_is(alufm_word(afn), 1'b0);
       if (alufm0 !== afn)
         $fatal(1, "ALUFM[0] = %b, not %b (%0o octal)", alufm0, afn, afn);
-      t_from_a_op_b(BV);
+      t_from_a_op_b(bv);
       $display("tb_compute:   ALUFM[0]=%02o octal  %h op %h -> %h  (expect %h)%s",
-               afn, AV, BV, t_reg, aexp, (t_reg === aexp) ? "" : "   <-- WRONG");
+               afn, av, bv, t_reg, aexp, (t_reg === aexp) ? "" : "   <-- WRONG");
       if (t_reg !== aexp)
         $fatal(1, "ALU entry %0o octal: got %h, the C emulator's alu_op says %h",
                afn, t_reg, aexp);
     end
-    $display("tb_compute: and all 8 ARITHMETIC entries too, carry in and out.");
+    end
+    $display("tb_compute: and all 8 ARITHMETIC entries too, carry in and out -- for a55a/1234 AND for fff1/000f, which carries through two nibbles.");
 
     // ---- RM: the per-task register file -------------------------------
     // LC[6] is "RM/STK <- Pd" and RM's address is RBase<<4 | RSTK (HM p.88),

@@ -52,8 +52,7 @@
 50 RSTK.1 output
 51 RSTK.2 output
 52 RSTK.3 output
-53 SWb output
-54 SWm output
-55 _Dbuf output
-56 _Map output
-57 jcnt output
+53 SWm output
+54 _Dbuf output
+55 _Map output
+56 jcnt output
