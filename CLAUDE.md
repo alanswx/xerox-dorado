@@ -1921,6 +1921,50 @@ exec-tasking/exec-init** -- green at 07d57e4e, failing since, unnoticed
 because gate claims go stale silently. And `SYSPER=2` breaks the ReadBB
 stage; boot runs stay at 16x.
 
+**THE PHASE MODEL WAS NEVER THE BLOCKER (2026-09-02).** Picked up cold from
+the block above and re-measured with per-sys_clk probes, every "phase
+collapse" symptom had an ordinary cause, and the C emulator named each one
+(`DORADO_PCDIS=6104,6141`). Three defects, three fixes, all gated:
+
+- **`cell_MC10181`'s look-ahead pins were wrong.** PARC forms the carries
+  into ProcH's two ALU slices with discrete OR-AND gates (d12, e12) from
+  ProcL's GG/PG, and those gates are a correct adder under exactly one
+  reading: `GG` = carry out if Cn were 1, `PG` = carry out if Cn were 0
+  -- the two carry-out conditions, the TTL '181 names interchanged, which
+  is what the MC10179's own equations say too. With generate/propagate
+  as modelled, a carry PROPAGATED through a nibble was lost (fff1+000f
+  read ff00), so c46's `T-15` never reached zero and Initial's task-init
+  loop never exited. `alu-diff` chains the slices by ripple and could not
+  see it; `compute-test` now adds fff1/000f and fails on the old cell.
+- **ContA's task-switch select never reached ContB**: ContA drives pin
+  E166 as `SWb`, ContB reads it as `SW`, and this backplane is wired by
+  name. A switch loaded CIA and CTask with the new task while the IM kept
+  reading the old task's next address. `BACKPLANE_BOARD_ALIASES` (board-
+  scoped, because ContB has a local `SWb`) joins them; `make -C verilog
+  backplane` now regenerates `dorado_world`/`dorado_screen` too.
+- **IOReset is a BaseBoard line the nine-board bench never drove**, and it
+  is what holds the IFU's junk-wakeup flip-flops (a21 ShutUp -> j08/k08)
+  reset; undriven, task 2 was requested from power-up with no pendulum
+  tick and no ack, and re-executed Initial's BLOCK at c06 forever.
+  `+ioreset` asserts it through the startup jams, as `DoIOReset` and
+  `PrepareProcessor` do in the firmware.
+
+With them: the loop terminates at T=15 as the oracle does; tasks 15..3
+each run TASKINIT and block, address for address; task 0 resumes at
+SETMCR. Full-boot frontier: Initial now runs to the end of its own initialisation -- BOOTEMULATOR, INITHRAM, the 64K storage-init loop, the Ethernet boot code -- and lands at BOOTTRANSFERTIMEOUT (f1e), correctly, because the nine-board world has no DskEth board; next is a world with DskEth and a bench that plays the C emulator's EFTP boot server. Retracted: the WTPC
+residency works and always did (`RepeatCur` is the hold, not the
+residency; `+wtpcfix` is unneeded); "ResLtZero' sampled at the wrong
+phase" was the wrong ALU result; the bench's "visited c44" is TNIA read
+before the branch bit is ORed in. **And SYSPER counts sys_clk per 30 ns
+CLOCK, not per microinstruction**: a microinstruction is two CLK pulses
+(HM 2.3; measured 32 sys_clk at SYSPER=16 -- the "1,242 microinstructions
+in 20,000" counted both clk0' edges), so the MiSTer build at SYSPER=2 /
+33.33 MHz is **0.5x a real Dorado**, not 1.0x. Bench maintenance owed:
+display-test and disk-test start with TaskingOn and relied on the switch
+NOT redirecting the fetch; exec-tasking/exec-init wake tasks whose TPCs
+were never initialised (they failed at HEAD before this session too).
+Detail, probes and the polarity search: `docs/verilog-handoff.md`.
+
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold.
 
 Full plan, including what is missing and the suggested order:

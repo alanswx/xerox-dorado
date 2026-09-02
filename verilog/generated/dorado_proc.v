@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ContA ContB ProcH ProcL
-// 205 internal nets (38 with several contributors), 169 top-level ports.
+// 206 internal nets (38 with several contributors), 167 top-level ports.
 
 `default_nettype none
 
@@ -128,8 +128,6 @@ module dorado_proc #(parameter integer SYSPER = 16) (
     input  wire PRhold                    ,  // awaits MemC
     output wire PrHoldReq                 ,  // awaits MemC
     output wire RScopeClk0_p_             ,  // to a backplane connector (cable)
-    input  wire SW                        ,  // awaits MemX
-    output wire SWb                       ,  // to a backplane connector (cable)
     output wire SWm                       ,  // to a backplane connector (cable)
     input  wire SetRun                    ,  // awaits BaseBd
     input  wire SetRunRfsh                ,  // awaits BaseBd
@@ -190,7 +188,7 @@ module dorado_proc #(parameter integer SYSPER = 16) (
     input  wire dMD_17                       // awaits MemD
 );
 
-  // 205 nets between boards, plus one contribution wire
+  // 206 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -294,6 +292,7 @@ module dorado_proc #(parameter integer SYSPER = 16) (
   wire ResLtZero_p_;
   wire RmLtZero_p_;
   wire RmOdd_p_;
+  wire SW;
   wire SelectRm_p_a;
   wire SelectStk_p_a;
   wire ShA_00;
@@ -603,7 +602,7 @@ module dorado_proc #(parameter integer SYSPER = 16) (
   wire ResLtZero_p___ProcH;
   wire RmLtZero_p___ProcH;
   wire RmOdd_p___ProcL;
-  wire SWb__ContA;
+  wire SW__ContA;
   wire SWm__ContA;
   wire SelectRm_p_a__ProcL;
   wire SelectStk_p_a__ProcL;
@@ -895,7 +894,7 @@ module dorado_proc #(parameter integer SYSPER = 16) (
   assign ResLtZero_p_ = ResLtZero_p___ProcH;
   assign RmLtZero_p_ = RmLtZero_p___ProcH;
   assign RmOdd_p_ = RmOdd_p___ProcL;
-  assign SWb = SWb__ContA;
+  assign SW = SW__ContA;
   assign SWm = SWm__ContA;
   assign SelectRm_p_a = SelectRm_p_a__ProcL;
   assign SelectStk_p_a = SelectStk_p_a__ProcL;
@@ -1221,7 +1220,7 @@ module dorado_proc #(parameter integer SYSPER = 16) (
     .Next_3__drv(Next_3__ContA),
     .NextMacro__drv(NextMacro__ContA),
     .PrBlock_p___drv(PrBlock_p___ContA),
-    .SWb__drv(SWb__ContA),
+    .SW__drv(SW__ContA),
     .SWm__drv(SWm__ContA),
     .StartCycle_p_a__drv(StartCycle_p_a__ContA),
     .TNIA_02__drv(TNIA_02__ContA),
@@ -1930,7 +1929,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 83 signals, 32 at a time;
+// probe_val exposes 82 signals, 32 at a time;
 // dorado_proc.probes lists which bit is which.
 module dorado_proc_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
@@ -2005,7 +2004,6 @@ module dorado_proc_machine #(parameter integer SYSPER = 16) (
   wire NextData_p_;
   wire PrHoldReq;
   wire RScopeClk0_p_;
-  wire SWb;
   wire SWm;
   wire StkError;
   wire TIOA_0;
@@ -2024,7 +2022,7 @@ module dorado_proc_machine #(parameter integer SYSPER = 16) (
   wire _u_Map;
 
   wire [95:0] probe = {
-    13'd0,
+    14'd0,
     _u_Map,
     _u_MDI_p_,
     _u_MDI,
@@ -2041,7 +2039,6 @@ module dorado_proc_machine #(parameter integer SYSPER = 16) (
     TIOA_0,
     StkError,
     SWm,
-    SWb,
     RScopeClk0_p_,
     PrHoldReq,
     NextData_p_,
@@ -2229,8 +2226,6 @@ module dorado_proc_machine #(parameter integer SYSPER = 16) (
     .PRhold(1'b0),
     .PrHoldReq(PrHoldReq),
     .RScopeClk0_p_(RScopeClk0_p_),
-    .SW(1'b0),
-    .SWb(SWb),
     .SWm(SWm),
     .SetRun(1'b0),
     .SetRunRfsh(1'b0),

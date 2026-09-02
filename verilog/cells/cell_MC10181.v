@@ -95,12 +95,38 @@ module cell_MC10181 (
   wire [3:0] F = M ? lg : sum[3:0];
   assign {p6, p7, p3, p2} = F;                      // H0..H3 = F3..F0
 
-  // Carry out, and the look-ahead pair for chaining slices: GG is the group
-  // generate (a carry out with no carry in) and PG the group propagate (every
-  // bit would pass one along), so Cn+4 = GG + PG.Cn.
+  // Carry out, and the look-ahead pair for chaining slices.
+  //
+  // THE LOOK-AHEAD PINS ARE NOT THE TTL '181's G AND P, AND THE NAMES ARE
+  // INTERCHANGED (2026-09-02). This part's positive-logic function table is
+  // the 74181 family's ACTIVE-LOW-DATA table (S=0001 gives A'+B', S=0110
+  // gives A plus B), and in that convention the two look-ahead outputs
+  // exchange roles -- the same silicon, read the other way up. In positive
+  // logic they are the two carry-out conditions of the slice:
+  //
+  //     pin 4 "GG" = carry out IF Cn were 1   = (X plus Y) >= 15
+  //     pin 8 "PG" = carry out IF Cn were 0   = (X plus Y) >= 16
+  //
+  // Derived from the board, not from the datasheet's names. ProcH computes
+  // the carries into its two slices with discrete OR-AND gates (d12, an
+  // MC10118, and e12, an MC10121) from ProcL's GG/PG and ripple carry:
+  //
+  //     Cin(04-07) = (PG1 + C0) . GG1
+  //     Cin(00-03) = (PG1 + C0 + PG2) . GG2 . (PG2 + GG1)
+  //
+  // and those are a correct 16-bit adder ONLY under the reading above (an
+  // exhaustive polarity search found no other assignment; 8,112 vectors, 0
+  // mismatches). The MC10179's own printed equations, "Cn+2 = (Cn+P0+P1)
+  // (G0+P1) G1", are the same form and are correct under the same reading.
+  // With the previous definitions (GG = generate, PG = all-bits-propagate) a
+  // carry GENERATED in the adjacent slice arrived but one PROPAGATED through
+  // it was lost: fff1 + 000f read ff00, fff1 + 0010 read f001 -- which is what
+  // held Initial's task-init loop open (its exit test is RM[1]+T = T-15 < 0).
+  // `alu-diff` never saw it because it chains the slices by ripple carry.
+  wire [4:0] gsum1 = gsum + 5'd1;               // the group, carry-in 1
   assign p5 = M ? 1'b0 : sum[4];   // Cn+4; logic mode is don't-care per sheet
-  assign p4 = gsum[4];             // GG
-  assign p8 = &(X | Y);            // PG
+  assign p4 = gsum1[4];            // GG: carry out with Cn = 1
+  assign p8 = gsum[4];             // PG: carry out with Cn = 0
 endmodule
 
 `default_nettype wire

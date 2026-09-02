@@ -46,6 +46,14 @@ NOT yet wired, and deliberately absent rather than misleadingly stubbed:
 
 ## THE CLOCK, WHICH IS THE INTERESTING CONSTRAINT
 
+> **Correction (2026-09-02): SYSPER is sys_clk per 30 ns CLOCK, not per
+> microinstruction.** HM 2.3 makes a cycle two clocks, and the ContA phase
+> ring advances once per CLK pulse (Phase0 then StartCycle: a microinstruction
+> is 32 sys_clk at SYSPER=16, measured). So SYSPER=2 at 33.33 MHz is a 60 ns
+> clock and a 120 ns microinstruction, **0.5x a real Dorado**; the figures
+> below that say 1.0x/1.47x are twice too high. The earlier "1,242
+> microinstructions in 20,000 cycles" counted both edges of clk0'.
+
 The RTL recovers each distributed ECL clock net by OVERSAMPLING it SYSPER times
 per microinstruction, so real time needs `sys_clk = SYSPER x 16.67 MHz` (the
 60 ns cycle). Measured Fmax for the machine is 48.99 MHz:

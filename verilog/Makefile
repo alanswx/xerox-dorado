@@ -351,6 +351,12 @@ backplane: generated-boards
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_disk.v \
 		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,DskEth \
 		--module=dorado_disk >/dev/null
+	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_world.v \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,IFU \
+		--module=dorado_world >/dev/null
+	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_screen.v \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,IFU,DispY \
+		--module=dorado_screen >/dev/null
 
 cells:
 	@python3 $(TOOLS)/sil_emit_cells.py --sil $(SIL) \

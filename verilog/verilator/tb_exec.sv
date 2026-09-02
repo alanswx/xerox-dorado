@@ -531,10 +531,21 @@ module tb_exec;
       // choreography changes and exec-tasking/exec-init fail their
       // thresholds. The boot targets pass +mb0; recalibrating the AEmu
       // gates on the with-storage machine is a separate, worthwhile task.
-      .Mb0(mb0_tie)
+      .Mb0(mb0_tie),
+      // IOReset is a BASEBOARD line (BaseBd i24 -> backplane): the firmware's
+      // manifold table asserts it in DoIOReset, the first InitManifolds entry,
+      // and PrepareProcessor re-asserts it before every load. Without a
+      // BaseBoard in this machine the line idled low, so the IFU's junk-wakeup
+      // flip-flops (a21 ShutUp, j08/k08) kept their power-up states and task 2
+      // was requested from the first cycle with no pendulum tick and no ack.
+      // `+ioreset` holds the line asserted through the startup jams and
+      // releases it when the machine is started, the way the BaseBoard does.
+      .IOReset(ioreset_r)
   );
   reg mb0_tie = 1'b0;
   initial mb0_tie = $test$plusargs("mb0");
+  reg ioreset_r = 1'b0;
+  initial ioreset_r = $test$plusargs("ioreset");
 
   // ---- SEED THE MAP --------------------------------------------------------
   //
@@ -1597,6 +1608,180 @@ module tb_exec;
       release m.TNIA_08; release m.TNIA_09; release m.TNIA_10; release m.TNIA_11;
       release m.TNIA_12; release m.TNIA_13; release m.TNIA_14; release m.TNIA_15;
     end
+  end
+
+  // ---- +ringpc=HEX / +ringat=N, +ringlen=N: THE PHASE RING, per sys_clk ----
+  //
+  // HM Figure 7: a normal instruction is Phase0 then StartCycle, one CLOCK
+  // (30 ns) each; an IM/TPC read or write inserts Phase1..Phase4 between
+  // them (six clocks). The ring is ContA l07/k05/j01/k04 on the clk2' family,
+  // seeded by j05 (dStartCycle = Phase0&~RWTPCorRWIM | Phase4). This window
+  // prints every net of it, plus the next-address and Link/TPC path, on
+  // every sys_clk, from the first time TNIA reads +ringpc (or from cycle
+  // +ringat) for +ringlen sys_clk. Raw samples, no interpretation.
+  reg [11:0] ringpc = 12'hfff; integer ringat = -1, ringlen = 0, ring_left = 0;
+  initial begin
+    void'($value$plusargs("ringpc=%h", ringpc));
+    void'($value$plusargs("ringat=%d", ringat));
+    if (!$value$plusargs("ringlen=%d", ringlen)) ringlen = 0;
+  end
+  wire [11:0] ring_cia  = {m.b_ContA.CIA_04, m.b_ContA.CIA_05, m.b_ContA.CIA_06, m.b_ContA.CIA_07,
+                           m.b_ContA.CIA_08, m.b_ContA.CIA_09, m.b_ContA.CIA_10, m.b_ContA.CIA_11,
+                           m.b_ContA.CIA_12, m.b_ContA.CIA_13, m.b_ContA.CIA_14, m.b_ContA.CIA_15};
+  wire [11:0] ring_ciainc = {m.b_ContA.CIAInc_04, m.b_ContA.CIAInc_05, m.b_ContA.CIAInc_06, m.b_ContA.CIAInc_07,
+                           m.b_ContA.CIAInc_08, m.b_ContA.CIAInc_09, m.b_ContA.CIAInc_10, m.b_ContA.CIAInc_11,
+                           m.b_ContA.CIAInc_12, m.b_ContA.CIAInc_13, m.b_ContA.CIAInc_14, m.b_ContA.CIAInc_15};
+  wire [11:0] ring_link = ~{m.b_ContA.Link_04_p_, m.b_ContA.Link_05_p_, m.b_ContA.Link_06_p_, m.b_ContA.Link_07_p_,
+                           m.b_ContA.Link_08_p_, m.b_ContA.Link_09_p_, m.b_ContA.Link_10_p_, m.b_ContA.Link_11_p_,
+                           m.b_ContA.Link_12_p_, m.b_ContA.Link_13_p_, m.b_ContA.Link_14_p_, m.b_ContA.Link_15_p_};
+  wire [11:0] ring_tpci = {m.b_ContA.TPCI_04, m.b_ContA.TPCI_05, m.b_ContA.TPCI_06, m.b_ContA.TPCI_07,
+                           m.b_ContA.TPCI_08, m.b_ContA.TPCI_09, m.b_ContA.TPCI_10, m.b_ContA.TPCI_11,
+                           m.b_ContA.TPCI_12, m.b_ContA.TPCI_13, m.b_ContA.TPCI_14, m.b_ContA.TPCI_15};
+  wire [7:0] ring_jcn = {m.b_ContA.JCN_0, m.b_ContA.JCN_1, m.b_ContA.JCN_2, m.b_ContA.JCN_3,
+                         m.b_ContA.JCN_4, m.b_ContA.JCN_5, m.b_ContA.JCN_6, m.b_ContA.JCN_7};
+  wire [4:0] ring_ph = {m.b_ContA.Phase0, m.b_ContA.Phase1, m.b_ContA.Phase2, m.b_ContA.Phase3, m.b_ContA.Phase4};
+  wire [3:0] ring_ctd = {m.b_ContA.CTD_0, m.b_ContA.CTD_1, m.b_ContA.CTD_2, m.b_ContA.CTD_3};
+  always @(posedge sys_clk) begin
+    if (ringlen > 0 && ring_left == 0 && ringpc != 12'hfff && tnia_now == ringpc) begin
+      ring_left = ringlen; ringpc = 12'hfff;
+      $display("tb_exec: RING window opens @%0d (TNIA=%h)", n_cyc2, tnia_now);
+    end
+    if (ringlen > 0 && ring_left == 0 && ringat >= 0 && n_cyc2 == ringat) begin
+      ring_left = ringlen; ringat = -1;
+      $display("tb_exec: RING window opens @%0d (ringat)", n_cyc2);
+    end
+    if (ring_left > 0) begin
+      ring_left = ring_left - 1;
+      $display("tb_exec: RING @%0d clk=%b c2=%b mirclk=%b Ph01234=%b SC=%b pSC=%b dSC=%b RW=%b WTPC'=%b Rep=%b sPh0=%b StopT1=%b CLKen'=%b TNIA=%h CIA=%h CIAinc=%h Link=%h JCN=%h TPCI=%h CTD=%h WrTPC'=%b LdCTD'=%b LdLink'=%b TLinkEn=%b GetTL'=%b bpSC'=%b Ret'c=%b",
+               n_cyc2, mclk, m.b_ContA.clk2_p_Be, m.b_ContA.h_x2a_clk0_p_Ca,
+               ring_ph, m.b_ContA.StartCycle, m.b_ContA.preStartCyclea, m.b_ContA.dStartCycle,
+               m.b_ContA.RWTPCorRWIM, m.b_ContA.WTPC_p_, m.b_ContA.RepeatCur, m.b_ContA.sPhase0,
+               m.b_ContA.StopAtT1, m.b_ContA.bCLKEnable_p_e,
+               tnia_now, ring_cia, ring_ciainc, ring_link, ring_jcn, ring_tpci, ring_ctd,
+               m.b_ContA.WriteTPC_p_a, m.b_ContA.LoadCTD_p_, m.b_ContA.LoadLink_p_,
+               m.b_ContA.TLinkEn, m.b_ContA.GetTLink_p_, m.b_ContA.bpreStartC_p_b, m.b_ContA.Return_p_c);
+    end
+  end
+
+  // ---- BRC: the BRANCH-CONDITION path on ProcH, in the same window ----------
+  //
+  // HM p.30: ALU=0 / ALU<0 are "the results of the last ALU operation
+  // executed by the current task", saved in a RAM at t3. On ProcH that is
+  // e13 (F10145A, the per-task saved conditions), e14 (MC10158 mux) and f17
+  // (MC10173 latch on Clock1'Cb) whose Q1 IS ResLtZero'. The ALU operands
+  // are the R/T/Ain latches (MC10173 on PreSHCP') through the b03/b04
+  // MC10174 muxes. Raw samples; +tseed=N seeds the task-0 T-file slot
+  // (nibble-reversed, the same slot +fastwait clips) at the first TNIA=c45.
+  wire [15:0] brc_alua = {m.b_ProcH.alua_00, m.b_ProcH.alua_01, m.b_ProcH.alua_02, m.b_ProcH.alua_03,
+                          m.b_ProcH.alua_04, m.b_ProcH.alua_05, m.b_ProcH.alua_06, m.b_ProcH.alua_07,
+                          m.b_ProcL.alua_08, m.b_ProcL.alua_09, m.b_ProcL.alua_10, m.b_ProcL.alua_11,
+                          m.b_ProcL.alua_12, m.b_ProcL.alua_13, m.b_ProcL.alua_14, m.b_ProcL.alua_15};
+  wire [15:0] brc_alub = {m.b_ProcH.alub_00, m.b_ProcH.alub_01, m.b_ProcH.alub_02, m.b_ProcH.alub_03,
+                          m.b_ProcH.alub_04, m.b_ProcH.alub_05, m.b_ProcH.alub_06, m.b_ProcH.alub_07,
+                          m.b_ProcL.alub_08, m.b_ProcL.alub_09, m.b_ProcL.alub_10, m.b_ProcL.alub_11,
+                          m.b_ProcL.alub_12, m.b_ProcL.alub_13, m.b_ProcL.alub_14, m.b_ProcL.alub_15};
+  wire [15:0] brc_alu  = {m.b_ProcH.alu_00, m.b_ProcH.alu_01, m.b_ProcH.alu_02, m.b_ProcH.alu_03,
+                          m.b_ProcH.alu_04, m.b_ProcH.alu_05, m.b_ProcH.alu_06, m.b_ProcH.alu_07,
+                          m.b_ProcL.alu_08, m.b_ProcL.alu_09, m.b_ProcL.alu_10, m.b_ProcL.alu_11,
+                          m.b_ProcL.alu_12, m.b_ProcL.alu_13, m.b_ProcL.alu_14, m.b_ProcL.alu_15};
+  wire [7:0] brc_r = {m.b_ProcH.R_00, m.b_ProcH.R_01, m.b_ProcH.R_02, m.b_ProcH.R_03,
+                      m.b_ProcH.R_04, m.b_ProcH.R_05, m.b_ProcH.R_06, m.b_ProcH.R_07};
+  wire [15:0] brc_t = {m.b_ProcH.T_00, m.b_ProcH.T_01, m.b_ProcH.T_02, m.b_ProcH.T_03,
+                       m.b_ProcH.T_04, m.b_ProcH.T_05, m.b_ProcH.T_06, m.b_ProcH.T_07,
+                       m.b_ProcL.T_08, m.b_ProcL.T_09, m.b_ProcL.T_10, m.b_ProcL.T_11,
+                       m.b_ProcL.T_12, m.b_ProcL.T_13, m.b_ProcL.T_14, m.b_ProcL.T_15};
+  wire [15:0] brc_tfile = {m.b_ProcH.u_l03.mem[4'hf], m.b_ProcH.u_l04.mem[4'hf],
+                           m.b_ProcL.u_l03.mem[4'hf], m.b_ProcL.u_l04.mem[4'hf]};
+  integer tseed = -1; reg tseed_done = 1'b0;
+  initial void'($value$plusargs("tseed=%d", tseed));
+  always @(posedge sys_clk) begin
+    if (tseed >= 0 && !tseed_done && tnia_now == 12'hc45) begin : dotseed
+      reg [15:0] t;
+      t = tseed[15:0];
+      tseed_done = 1'b1;
+      m.b_ProcH.u_l03.mem[4'hf] = {t[12], t[13], t[14], t[15]};   // T.00-03
+      m.b_ProcH.u_l04.mem[4'hf] = {t[8],  t[9],  t[10], t[11]};   // T.04-07
+      m.b_ProcL.u_l03.mem[4'hf] = {t[4],  t[5],  t[6],  t[7]};    // T.08-11
+      m.b_ProcL.u_l04.mem[4'hf] = {t[0],  t[1],  t[2],  t[3]};    // T.12-15
+      $display("tb_exec: TSEED -- task-0 T-file slot set to %h @%0d", t, n_cyc2);
+    end
+    if (ring_left > 0)
+      $display("tb_exec: BRC @%0d C1'Cb=%b PreSHCP'B=%b SHCP'C=%b Ph0=%b SC=%b ResLt0'=%b ResEq0'=%b alu00=%b aluEq0'=%b SB=%b ramD1=%b liveB1=%b BCWr'=%b BCWrEn'=%b LastEqCurr'=%b HoldDly=%b Amux=%b%b Bmux=%b%b alua=%h alub=%h alu=%h R=%h T=%h Tfile=%h TNIA=%h JCN=%h",
+               n_cyc2, m.b_ProcH.Clock1_p_Cb, m.b_ProcH.PreSHCP_p_B, m.b_ProcH.SHCP_p_C,
+               m.b_ContA.Phase0, m.b_ContA.StartCycle,
+               m.b_ProcH.ResLtZero_p_, m.b_ProcH.ResEqZero_p_, m.b_ProcH.alu_00, m.b_ProcH.aluOut_eq_0_p_,
+               m.b_ProcH.ProcH11_sil_pl_9, m.b_ProcH.ProcH11_sil_pl_7, m.b_ProcH.ProcH11_sil_pl_4,
+               m.b_ProcH.BCWrite_p_, m.b_ProcH.BCWriteEn_p_, m.b_ProcH.Last_eq_Curr_p_, m.b_ProcH.HoldDly,
+               m.b_ProcH.Amux1, m.b_ProcH.Amux0, m.b_ProcH.Bmux1, m.b_ProcH.Bmux0,
+               brc_alua, brc_alub, brc_alu, brc_r, brc_t, brc_tfile, tnia_now, ring_jcn);
+  end
+
+  // ---- SWP: the TASK-SWITCH fetch, in the same window ------------------------
+  // HM 4.2: BNT is clocked at t2, CTASK <- BNT at t4, and on a switch "the
+  // program counter for the highest priority competing task (BNPC) addresses
+  // IM". BNPC = ContA i20 (TPCO or the TPCI bypass); ContB's dRA (e20/f20,
+  // MC1662) picks TNIA or BNPC under SW; the IM outputs land in ContB's own
+  // MIR registers (RSTK/ALUF/... on clk0'B/C/D) and, over the backplane
+  // (dJCN.x), in ContA's JCN copies on the RepeatCur-gated clk0.
+  wire [11:0] swp_tpco = {m.b_ContA.TPCO_04, m.b_ContA.TPCO_05, m.b_ContA.TPCO_06, m.b_ContA.TPCO_07,
+                          m.b_ContA.TPCO_08, m.b_ContA.TPCO_09, m.b_ContA.TPCO_10, m.b_ContA.TPCO_11,
+                          m.b_ContA.TPCO_12, m.b_ContA.TPCO_13, m.b_ContA.TPCO_14, m.b_ContA.TPCO_15};
+  wire [11:0] swp_bnpc = {m.b_ContA.BNPC_04, m.b_ContA.BNPC_05, m.b_ContA.BNPC_06, m.b_ContA.BNPC_07,
+                          m.b_ContA.BNPC_08, m.b_ContA.BNPC_09, m.b_ContA.BNPC_10, m.b_ContA.BNPC_11,
+                          m.b_ContA.BNPC_12, m.b_ContA.BNPC_13, m.b_ContA.BNPC_14, m.b_ContA.BNPC_15};
+  wire [11:0] swp_dra  = ~{m.b_ContB.dRA_00_p_, m.b_ContB.dRA_01_p_, m.b_ContB.dRA_02_p_, m.b_ContB.dRA_03_p_,
+                           m.b_ContB.dRA_04_p_, m.b_ContB.dRA_05_p_, m.b_ContB.dRA_06_p_, m.b_ContB.dRA_07_p_,
+                           m.b_ContB.dRA_08_p_, m.b_ContB.dRA_09_p_, m.b_ContB.dRA_10_p_, m.b_ContB.dRA_11_p_};
+  wire [7:0] swp_djcn = {m.b_ContA.dJCN_0, m.b_ContA.dJCN_1, m.b_ContA.dJCN_2, m.b_ContA.dJCN_3,
+                         m.b_ContA.dJCN_4, m.b_ContA.dJCN_5, m.b_ContA.dJCN_6, m.b_ContA.dJCN_7};
+  wire [3:0] swp_rstk = {m.RSTK_0, m.RSTK_1, m.RSTK_2, m.RSTK_3};
+  wire [3:0] swp_aluf = {m.ALUF_0, m.ALUF_1, m.ALUF_2, m.ALUF_3};
+  wire [3:0] swp_bnt  = {m.b_ContA.BNT_0, m.b_ContA.BNT_1, m.b_ContA.BNT_2, m.b_ContA.BNT_3};
+  always @(posedge sys_clk)
+    if (ring_left > 0)
+      $display("tb_exec: SWP @%0d clk=%b c0Da=%b mirclk=%b SC=%b Ph0=%b dSw=%b Swa=%b Sw'a=%b SW=%b SWb=%b StopT=%b CT=%h BNT=%h TPCO=%h BNPC=%h TNIA=%h dRA=%h CIA=%h dJCN=%h JCN=%h RSTK=%h ALUF=%h Rep=%b",
+               n_cyc2, mclk, m.b_ContA.clk0_p_Da, m.b_ContA.h_x2a_clk0_p_Ca, m.b_ContA.StartCycle, m.b_ContA.Phase0,
+               m.b_ContA.dSwitch, m.b_ContA.Switcha, m.b_ContA.Switch_p_a, m.b_ContB.SW, m.b_ContB.SWb, m.b_ContA.StopTasks,
+               pct_ctask, swp_bnt, swp_tpco, swp_bnpc, tnia_now, swp_dra, ring_cia, swp_djcn, ring_jcn, swp_rstk, swp_aluf,
+               m.b_ContA.RepeatCur);
+
+  // ---- PCT: one line per MIR load (CIA change) in [+pcfrom, +pcfrom+pclen) --
+  // The compact form of the two windows above: what executed, with T, R,
+  // Link, the saved branch conditions and the task, so a loop's arithmetic
+  // can be followed iteration by iteration against the C emulator's PCDIS.
+  integer pcfrom = -1, pclen = 0; reg [11:0] pct_cia_d = 12'hfff;
+  initial begin
+    void'($value$plusargs("pcfrom=%d", pcfrom));
+    void'($value$plusargs("pclen=%d", pclen));
+  end
+  wire [3:0] pct_ctask = {m.b_ContA.CTask_0, m.b_ContA.CTask_1, m.b_ContA.CTask_2, m.b_ContA.CTask_3};
+
+  // ---- JUNK: the junk-task wakeup on the IFU, counted over the run ----------
+  // HM 12.1: a 32 us pendulum wakes task 2; the wakeup is a LEVEL dismissed by
+  // AckJunkTW<-B (B[15]=1 enables, 0 disables) or any IFUTest<-B; IOReset
+  // leaves it disabled (IFU a21 R = IOReset -> ShutUp, which holds j08 reset).
+  integer jk_tw = 0, jk_shut = 0, jk_ior = 0, jk_ack = 0, jk_ttw_edges = 0, jk_first_tw = -1, jk_pend_edges = 0;
+  reg jk_ttw_d = 1'b0, jk_pend_d = 1'b0;
+  always @(posedge sys_clk) begin
+    if (m.TWReq_02) begin jk_tw = jk_tw + 1; if (jk_first_tw < 0) jk_first_tw = n_cyc2; end
+    if (m.b_IFU.ShutUp) jk_shut = jk_shut + 1;
+    if (m.b_IFU.IOReset) jk_ior = jk_ior + 1;
+    if (m.b_IFU.AckJunkTW) jk_ack = jk_ack + 1;
+    if (m.b_IFU.TimeToWake && !jk_ttw_d) jk_ttw_edges = jk_ttw_edges + 1;
+    jk_ttw_d <= m.b_IFU.TimeToWake;
+    if (m.b_IFU.Pendulum && !jk_pend_d) jk_pend_edges = jk_pend_edges + 1;
+    jk_pend_d <= m.b_IFU.Pendulum;
+  end
+  final $display("tb_exec: JUNK -- TWReq.02 high %0d (first @%0d), ShutUp high %0d, IOReset high %0d, AckJunkTW high %0d, TimeToWake edges %0d, Pendulum edges %0d, of %0d",
+                 jk_tw, jk_first_tw, jk_shut, jk_ior, jk_ack, jk_ttw_edges, jk_pend_edges, n_cyc2);
+  always @(posedge sys_clk) begin
+    if (pcfrom >= 0 && n_cyc2 >= pcfrom && n_cyc2 < pcfrom + pclen && ring_cia != pct_cia_d)
+      $display("tb_exec: PCT @%0d CIA=%h JCN=%h task=%h Link=%h T=%h R=%h alu=%h ResLt0'=%b ResEq0'=%b SB=%b TPCI=%h CTD=%h TaskOff'=%b Ph=%b SC=%b RW=%b Hold=%b",
+               n_cyc2, ring_cia, ring_jcn, pct_ctask, ring_link, brc_t, brc_r, brc_alu,
+               m.b_ProcH.ResLtZero_p_, m.b_ProcH.ResEqZero_p_, m.b_ProcH.ProcH11_sil_pl_9,
+               ring_tpci, ring_ctd, m.b_ContA.TaskingIsOff_p_, ring_ph, m.b_ContA.StartCycle,
+               m.b_ContA.RWTPCorRWIM, m.b_ContA.RepeatCur);
+    pct_cia_d <= ring_cia;
   end
 
   // ---- PRELOAD: a WHOLE WORLD in IM ---------------------------------------
@@ -2699,6 +2884,8 @@ module tb_exec;
     if (bootcp_period) $display("tb_exec: BOOTCP -- toggling the handshake every %0d cycles",
                                 bootcp_period);
 
+    if (ioreset_r) $display("tb_exec: +ioreset -- IOReset released at @%0d", n_cyc2);
+    ioreset_r = 1'b0;
     for (j2 = 0; j2 < runcycles; j2 = j2 + 1) begin
       @(posedge sys_clk);
       // THE CONTROL PROCESSOR'S HALF OF THE HANDSHAKE. Bit 15 says "a byte is
