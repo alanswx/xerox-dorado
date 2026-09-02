@@ -1881,6 +1881,34 @@ module tb_exec;
     end
     et_iobout_d <= m.b_ProcL.IOBout;
   end
+`ifdef FULL
+  // ETHLOG2: change-only log of DskEth's EOT wakeup chain, armed by the first
+  // Output strobe to EControl (Initial's ResetEther). Bounded.
+  reg [16:0] el2, el2_d = 17'bx; integer n_el2 = 0; reg el2_armed = 1'b0;
+  wire [15:0] el2_iob = {m.b_DskEth.bIOB_00, m.b_DskEth.bIOB_01, m.b_DskEth.bIOB_02, m.b_DskEth.bIOB_03,
+                         m.b_DskEth.bIOB_04, m.b_DskEth.bIOB_05, m.b_DskEth.bIOB_06, m.b_DskEth.bIOB_07,
+                         m.b_DskEth.bIOB_08, m.b_DskEth.bIOB_09, m.b_DskEth.bIOB_10, m.b_DskEth.bIOB_11,
+                         m.b_DskEth.bIOB_12, m.b_DskEth.bIOB_13, m.b_DskEth.bIOB_14, m.b_DskEth.bIOB_15};
+  always @(posedge sys_clk) begin
+    if (m.b_ProcL.IOBout && !et_iobout_d && et_tioa == 8'o16) begin
+      el2_armed = 1'b1;
+      if (n_el2 < 600) $display("ETHLOG2 %0d: EControl <- %04h (task %0d)", n_cyc2, el2_iob, pct_ctask);
+    end
+    if (m.b_ProcL.IOBout && !et_iobout_d && et_tioa == 8'o15 && n_el2 < 600)
+      $display("ETHLOG2 %0d: EData <- %04h (task %0d)", n_cyc2, el2_iob, pct_ctask);
+    el2 = {m.b_DskEth.TxOn, m.b_DskEth.RxOn, m.b_DskEth.Ether06_sil_pl_5, m.TWReq_06, m.TWReq_07,
+           m.b_DskEth.Curr_eq_EthTx, m.b_DskEth.Next_eq_EthTx_x3f_, m.b_DskEth.Prev_eq_EthTx,
+           m.b_DskEth.Blocked, m.b_DskEth.Ether06_sil_pl_2__h04_14, m.b_DskEth.Ether06_sil_pl_2__l06_14,
+           m.b_DskEth.Ether06_sil_pl_2__j04_15, m.b_DskEth.Ether06_sil_pl_2__l03_15, m.b_DskEth.NoWakeups,
+           pct_ctask == 4'd6, pct_ctask == 4'd7, m.b_DskEth.bIOReset};
+    if (el2_armed && el2 !== el2_d && n_el2 < 600) begin
+      $display("ETHLOG2 %0d: TxOn=%b RxOn=%b wakeD=%b TWReq06=%b TWReq07=%b Curr=EthTx %b Next=EthTx? %b Prev=EthTx %b Blocked=%b h04'=%b l06=%b j04=%b l03=%b NoWakeups=%b t6=%b t7=%b bIOReset=%b ctask=%0d",
+               n_cyc2, el2[16], el2[15], el2[14], el2[13], el2[12], el2[11], el2[10], el2[9], el2[8], el2[7], el2[6], el2[5], el2[4], el2[3], el2[2], el2[1], el2[0], pct_ctask);
+      n_el2 = n_el2 + 1;
+    end
+    el2_d <= el2;
+  end
+`endif
   final $display("tb_exec: ETH -- XmtData' transitions %0d, TWReq.06 (tx) high %0d, TWReq.07 (rx) high %0d, Output strobes to EData(015) %0d, to EControl(016) %0d, of %0d",
                  et_xmt, et_tw06, et_tw07, et_out15, et_out16, n_cyc2);
   // `+xmtrec=PATH`: every transition of XmtData' with its sys_clk time, so a

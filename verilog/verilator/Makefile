@@ -747,6 +747,14 @@ eth-ctl-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_ethctl/tb_ethctl +slowio +eth 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_disk|Assertion"; exit $$rc; }
 
+# cell_F9401 against a published CRC-16 check value (0xFEE8 for "123456789").
+crc-test:
+	@cd ../.. && $(V) --binary --top-module tb_crc $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_crc -o tb_crc \
+		verilog/verilator/tb_crc.sv verilog/cells/cell_F9401.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_crc/tb_crc 2>&1); \
+		  rc=$$?; echo "$$out" | grep -E "tb_crc|Assertion"; exit $$rc; }
+
 # THE FIRST WAKEUP THIS BENCH CAN MOVE: a DISKMUFF write carrying IOB.04
 # clears IndexTW, which is otherwise asserted for every sample of every run.
 disk-muff-test:
@@ -917,6 +925,7 @@ WD_V     = $(GEN)/dorado_world.v
 SC_V     = $(GEN)/dorado_screen.v
 DK_V     = $(GEN)/dorado_disk.v
 DP_V     = $(GEN)/dorado_display.v
+FL_V     = $(GEN)/dorado_full.v
 
 lint:
 	@ok=0; bad=0; \
@@ -926,7 +935,8 @@ lint:
 		   || [ "$$f" = "$(BT_V)" ] || [ "$$f" = "$(MM_V)" ] \
 		   || [ "$$f" = "$(SM_V)" ] || [ "$$f" = "$(IF_V)" ] \
 		   || [ "$$f" = "$(WD_V)" ] || [ "$$f" = "$(SC_V)" ] \
-		   || [ "$$f" = "$(DK_V)" ] || [ "$$f" = "$(DP_V)" ]; then continue; fi; \
+		   || [ "$$f" = "$(DK_V)" ] || [ "$$f" = "$(DP_V)" ] \
+		   || [ "$$f" = "$(FL_V)" ]; then continue; fi; \
 		if $(V) --lint-only $(V_WARN) -I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $$f >/dev/null 2>&1; then \
 			ok=$$((ok+1)); \
 		else \
