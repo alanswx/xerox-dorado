@@ -112,12 +112,12 @@ Deepest boot command (add `+ioreset` to last session's):
    (not case aliases: ProcL's end is on E71/E70, the backplane is not
    straight-through). display-test/strap-test/muffler-test still pass.
 
-**A C-emulator bug found by the RTL:** cpu.c's ReadIM lane 0 reads one LOW
-(33, 9, 144, 34, 147 where DisplayDefs.mc's table is 34, 10, 145, 35, 148:
-sync width 70 -> (70-2)/2 = 34). Nothing in the C emulator consumes the
-HRam counts, so it never mattered there; the RTL's ReadIM/B<-Link path is
-right, and the HRam sum (380 = HRamMaxAddr+1) proves it. Fix cpu.c
-`lane[0]`.
+**RETRACTED (same day): "cpu.c's ReadIM lane 0 reads one low".** The
+oracle's 33, 9, 144, 34, 147 are TTemp0 read at 7054, AFTER DoHRamDisp's
+`TTemp0-1`; before it they are 34, 10, 145, 35, 148, exactly the RTL's and
+the source's. cpu.c is right; the commit message of d8e5db4f is wrong on
+this point. The RTL's ReadIM/B<-Link path is right (the HRam sum is
+HRamMaxAddr+1 = 380).
 
 ### Retractions of the 2026-09-01 diagnosis, each by measurement
 
