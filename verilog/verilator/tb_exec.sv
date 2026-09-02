@@ -485,26 +485,9 @@ module tb_exec;
     d_vid<=vid; d_hs<=hsync; d_vs<=vsync_n; d_hb<=hblank; d_vb<=vblank; d_hl<=halfline;
   end
 `endif
-`ifdef SCREEN
-  // The TEN-board machine: the nine of `dorado_world` plus DispY, the
-  // monochrome display board. Everything else here is identical, so any
-  // difference in what the microcode does is the display board's doing.
-  dorado_screen m (
-      .CLK_display_p_(mclk),
-      // THE VIDEO TIMING CHAIN'S CLOCK, and it does not come from DispY.
-      // DispY's own 50 MHz crystal (a05) has exactly ONE consumer on the
-      // board -- a04, an MC10124 that sends it straight OFF-BOARD as
-      // `Crystal`. Nothing on DispY is clocked by it. What clocks the sync
-      // generators (l09, l10) is `PixelClk'Bd`, which descends from
-      // `RawPixelClk`/`PixelClkVCO` -- INPUT ports marked "awaits DispM",
-      // i.e. the pixel clock is made by the COLOUR board's VCO and a
-      // monochrome-only machine has to supply it from somewhere.
-      // Unconnected they default to 0 and the whole chain is frozen while
-      // the crystal turns, which is exactly what was measured.
-      .PixelClkVCO(pixel_clk), .RawPixelClk(pixel_clk),
-      .AltoTTLVideo(vid), .AltoHSync(hsync), .AltoVSync_p_(vsync_n),
-      .HBlank(hblank), .VBlank(vblank), .HalfLine(halfline),
-`elsif FULL
+`ifdef FULL   // FULL before SCREEN: the Makefile defines BOTH, and an `ifdef chain
+              // takes the first that is defined -- with SCREEN first, every
+              // "eleven-board" run built the ten-board screen machine (2026-09-02).
   // ELEVEN BOARDS: the screen machine plus DskEth. Its cable lines are tied
   // idle -- the active-low Trident status lines DEASSERTED (1), the
   // Ethernet receiver quiet (RcvData 0, Collision 0), host address 0 -- so
@@ -552,6 +535,25 @@ module tb_exec;
       .TtlReadOnly_p_(1'b1),
       .TtlReady_p_(1'b1),
       .TtlTerm_p_(1'b1),
+`elsif SCREEN
+  // The TEN-board machine: the nine of `dorado_world` plus DispY, the
+  // monochrome display board. Everything else here is identical, so any
+  // difference in what the microcode does is the display board's doing.
+  dorado_screen m (
+      .CLK_display_p_(mclk),
+      // THE VIDEO TIMING CHAIN'S CLOCK, and it does not come from DispY.
+      // DispY's own 50 MHz crystal (a05) has exactly ONE consumer on the
+      // board -- a04, an MC10124 that sends it straight OFF-BOARD as
+      // `Crystal`. Nothing on DispY is clocked by it. What clocks the sync
+      // generators (l09, l10) is `PixelClk'Bd`, which descends from
+      // `RawPixelClk`/`PixelClkVCO` -- INPUT ports marked "awaits DispM",
+      // i.e. the pixel clock is made by the COLOUR board's VCO and a
+      // monochrome-only machine has to supply it from somewhere.
+      // Unconnected they default to 0 and the whole chain is frozen while
+      // the crystal turns, which is exactly what was measured.
+      .PixelClkVCO(pixel_clk), .RawPixelClk(pixel_clk),
+      .AltoTTLVideo(vid), .AltoHSync(hsync), .AltoVSync_p_(vsync_n),
+      .HBlank(hblank), .VBlank(vblank), .HalfLine(halfline),
 `else
   dorado_world m (
 `endif

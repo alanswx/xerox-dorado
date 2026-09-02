@@ -60,9 +60,13 @@ Deepest boot command (add `+ioreset` to last session's):
   runs Initial on it with the Trident and Ethernet cables tied idle). It
   boots exactly as the ten-board machine and reaches Initial's Ethernet boot:
   four `Output<-` strobes to EControl (TurnOffRx/Tx, TurnOnRx/Tx), both
-  Ethernet tasks take their init PCs and run 20 addresses each. First run:
-  the transmitter never started and neither task was ever woken (TWReq.06/07
-  zero) -- the boot request was never sent.
+  Ethernet tasks take their init PCs and run 20 addresses each. **RETRACTED
+  the same evening: the first two "eleven-board" runs had NO DskEth.** The
+  Makefile defines SCREEN and FULL together and tb_exec's instantiation was
+  an `ifdef SCREEN ... elsif FULL` chain, so the ten-board screen machine
+  was built both times; "XmtData' one transition" was an undriven bench
+  wire and "TWReq.06/07 zero" had no driver. Byte-identical task occupancies
+  across a strap change were the tell. FULL now precedes SCREEN.
 - **The cause was a STRAP, the same class as the TIOA and task straps in
   `strap-test`.** Found with a ONE-MINUTE bench instead of the 35-minute
   boot: `tb_disk +slowio +eth` (rule `eth-ctl-test`) aims the existing
