@@ -101,6 +101,7 @@ module tb_exec;
     ckd <= (ckd == SYSPER - 1) ? 4'd0 : ckd + 4'd1;
   wire mclk = (ckd >= SYSPER / 2);
   wire eth_xmt;   // DskEth's XmtData' in the FULL configuration
+  reg  rcv_r = 1'b0;   // DskEth's RcvData in the FULL configuration (+rcvplay)
 
   reg [2:0] addr_n = 3'b111;
   reg [8:0] cpout  = 9'd0;
@@ -520,7 +521,7 @@ module tb_exec;
       .Host_5(1'b0),
       .Host_6(1'b0),
       .Host_7(1'b0),
-      .RcvData(1'b0),
+      .RcvData(rcv_r),      // +rcvplay=PATH replays a boot-reply stream here
       .SecIndx0_p_(1'b1),
       .SecIndx1_p_(1'b1),
       .SecIndx2_p_(1'b1),
@@ -1909,6 +1910,41 @@ module tb_exec;
       n_el2 = n_el2 + 1;
     end
     el2_d <= el2;
+  end
+`endif
+`ifdef FULL
+  // +rcvplay=PATH: replay a phase-encoded reply stream (tools/eb_replies.py)
+  // onto RcvData, starting +rcvdelay sys_clk (default 500,000 = 0.94 ms)
+  // after the machine's own transmitter has sent a packet and gone idle --
+  // the shape of a boot server answering the MicrocodeBootRequest.
+  integer rp_fd, rp_n = 0, rp_i = 0, rp_delay = 500000, rp_start = -1, rp_lastx = 0, rp_code;
+  integer rp_t [0:399999]; reg rp_v [0:399999];
+  reg rp_line [0:0]; string rp_path; reg [255:0] rp_buf; integer rp_tt, rp_vv;
+  initial begin
+    if ($value$plusargs("rcvplay=%s", rp_path)) begin
+      rp_fd = $fopen(rp_path, "r");
+      if (rp_fd == 0) $fatal(1, "rcvplay: cannot open %s", rp_path);
+      while (!$feof(rp_fd) && rp_n < 400000) begin
+        rp_code = $fgets(rp_buf, rp_fd);
+        if (rp_code == 0) break;
+        if (rp_buf[8*rp_code-8 +: 8] == "#") continue;   // comment line ($fgets stores the LAST char lowest)
+        if ($sscanf(rp_buf, "%d %d", rp_tt, rp_vv) == 2) begin rp_t[rp_n] = rp_tt; rp_v[rp_n] = rp_vv[0]; rp_n = rp_n + 1; end
+      end
+      $fclose(rp_fd);
+      void'($value$plusargs("rcvdelay=%d", rp_delay));
+      $display("tb_exec: +rcvplay -- %0d transitions loaded from %s, delay %0d after the request", rp_n, rp_path, rp_delay);
+    end
+  end
+  always @(posedge sys_clk) begin
+    if (eth_xmt != et_xmt_d) rp_lastx = n_cyc2;
+    if (rp_n > 0 && rp_start < 0 && et_xmt >= 100 && n_cyc2 - rp_lastx > 4000) begin
+      rp_start = n_cyc2 + rp_delay;
+      $display("tb_exec: +rcvplay -- request seen (%0d transitions), reply stream starts at cycle %0d", et_xmt, rp_start);
+    end
+    if (rp_start >= 0 && rp_i < rp_n && n_cyc2 - rp_start >= rp_t[rp_i]) begin
+      rcv_r <= rp_v[rp_i]; rp_i = rp_i + 1;
+      if (rp_i == rp_n) $display("tb_exec: +rcvplay -- stream finished at cycle %0d", n_cyc2);
+    end
   end
 `endif
   final $display("tb_exec: ETH -- XmtData' transitions %0d, TWReq.06 (tx) high %0d, TWReq.07 (rx) high %0d, Output strobes to EData(015) %0d, to EControl(016) %0d, of %0d",
