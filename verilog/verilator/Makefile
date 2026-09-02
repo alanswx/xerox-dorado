@@ -870,6 +870,15 @@ BT_V     = $(GEN)/dorado_boot.v
 IF_V     = $(GEN)/dorado_ifu.v
 SM_V     = $(GEN)/dorado_storage.v
 MM_V     = $(GEN)/dorado_mem.v
+# The multi-board machine tops the exec/screen/disk/display benches run. Like
+# the others they are tops, not boards, so they lint WITH their boards, not
+# alone -- these four were missing from the skip list, which reported them as
+# spurious standalone-lint failures ("4 failed") though they elaborate clean
+# with boards.
+WD_V     = $(GEN)/dorado_world.v
+SC_V     = $(GEN)/dorado_screen.v
+DK_V     = $(GEN)/dorado_disk.v
+DP_V     = $(GEN)/dorado_display.v
 
 lint:
 	@ok=0; bad=0; \
@@ -877,7 +886,9 @@ lint:
 		if [ "$$f" = "$(TOP_V)" ] || [ "$$f" = "$(BB_V)" ] \
 		   || [ "$$f" = "$(CT_V)" ] || [ "$$f" = "$(PR_V)" ] \
 		   || [ "$$f" = "$(BT_V)" ] || [ "$$f" = "$(MM_V)" ] \
-		   || [ "$$f" = "$(SM_V)" ] || [ "$$f" = "$(IF_V)" ]; then continue; fi; \
+		   || [ "$$f" = "$(SM_V)" ] || [ "$$f" = "$(IF_V)" ] \
+		   || [ "$$f" = "$(WD_V)" ] || [ "$$f" = "$(SC_V)" ] \
+		   || [ "$$f" = "$(DK_V)" ] || [ "$$f" = "$(DP_V)" ]; then continue; fi; \
 		if $(V) --lint-only $(V_WARN) -I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $$f >/dev/null 2>&1; then \
 			ok=$$((ok+1)); \
 		else \
@@ -960,6 +971,18 @@ lint:
 			bad=$$((bad+1)); echo "  FAIL dorado_proc.v"; \
 		fi; \
 	fi; \
+	for wt in dorado_world:$(WD_V) dorado_screen:$(SC_V) \
+	          dorado_disk:$(DK_V) dorado_display:$(DP_V); do \
+		top=$${wt%%:*}; wf=$${wt##*:}; \
+		if [ -f $$wf ]; then \
+			if $(V) --lint-only --top-module $$top $(V_WARN) \
+				-I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $(GEN)/*.v >/dev/null 2>&1; then \
+				echo "lint: $$top elaborates with its boards"; \
+			else \
+				bad=$$((bad+1)); echo "  FAIL $$top.v"; \
+			fi; \
+		fi; \
+	done; \
 	test $$bad -eq 0
 
 boards:
