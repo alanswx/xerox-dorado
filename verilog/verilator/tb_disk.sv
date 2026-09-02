@@ -1537,6 +1537,7 @@ module tb_disk;
           n_txclk = 0, n_tw6d = 0, n_nowake = 0;
   reg txclk_d = 1'b1; reg [15:0] iob_at_eth = 16'bx;
   reg [17:0] ethv, ethv_d = 18'bx; integer n_ethlog = 0;
+  integer ethwin_left = 0, n_ethwin_seen = 0;
   integer n_pl2 = 0, n_pl2_j04 = 0, n_pl2_l06 = 0, n_pl2_h04 = 0, n_pl2_l03 = 0, n_txoff = 0,
           n_curtx = 0, n_nxttx = 0, n_blocked = 0, n_busfull = 0, n_cntdwn = 0, n_txeop = 0;
   always @(posedge sys_clk) begin
@@ -1720,6 +1721,15 @@ module tb_disk;
     if (m.b_DskEth.Ether06_sil_pl_5)        n_tw6d    = n_tw6d + 1;
     if (m.b_DskEth.NoWakeups)               n_nowake  = n_nowake + 1;
     if (m.b_DskEth.Ether06_sil_pl_2)        n_pl2     = n_pl2 + 1;
+    if ($test$plusargs("ethwin")) begin
+      if (!m.b_DskEth.EthCtrl_u_IOB_p_ && ethwin_left == 0 && n_ethwin_seen < 2) begin ethwin_left = 72; n_ethwin_seen = n_ethwin_seen + 1; end
+      if (ethwin_left > 0) begin
+        $display("ETHWIN %0d: bIOout'=%b TIOA=EthCtrl'=%b EthCtrl_IOB'=%b PreClock1'Ba=%b bIOB.00=%b TxCtrlClk'=%b TxOn=%b | ContA Clock1'=%b PreClock1'=%b | IOBout(ProcL)=%b",
+                 n_tot, m.b_DskEth.bIOout_p_, m.b_DskEth.TIOA_eq_EthCtrl_p_, m.b_DskEth.EthCtrl_u_IOB_p_, m.b_DskEth.PreClock1_p_Ba,
+                 m.b_DskEth.bIOB_00, m.b_DskEth.TxCtrlClk_p_, m.b_DskEth.TxOn, m.b_DskEth.Clock1_p_Da, m.b_DskEth.PreClock1_p_D, m.b_ProcH.IOBout);
+        ethwin_left = ethwin_left - 1;
+      end
+    end
     if ($test$plusargs("ethlog") && n_ethlog < 160) begin
       ethv = {m.b_DskEth.TxOn, m.b_DskEth.TxCtrlClk_p_, m.b_DskEth.bIOB_00, m.b_DskEth.bIOB_01,
               m.b_DskEth.Ether06_sil_pl_5, m.b_DskEth.TWReq_06__drv, m.b_DskEth.Curr_eq_EthTx,

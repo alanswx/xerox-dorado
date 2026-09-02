@@ -96,6 +96,18 @@ Deepest boot command (add `+ioreset` to last session's):
   its five run paths; it releases it before every run now. A bench that
   never asserts IOReset sees the wakeup blocked forever -- the boot run
   (`+ioreset`) was never in that state, so this was not its blocker.
+- **The CRC generator was a SKELETON.** DskEth g17 (transmit) and j05
+  (receive) are Fairchild 9401s behind MC10125/MC10124 level translators,
+  and `cell_F9401` said "TODO: model this part" -- so the transmitter would
+  append sixteen zeros where the CRC belongs and the checker could never
+  flag an error. Modelled from `DoradoDocs/datasheets/F9401.pdf` Figure 1:
+  a 16-stage register clocked on CP's high-to-low edge, feedback = CWE AND
+  (D XOR Q15) into stages 0, 2 and 15 for select 000 = CRC-16
+  (x^16+x^15+x^2+1, both packages ground S0-S2), Q = stage 15, ER = any
+  stage set, MR clears, P' presets. Gate `crc-test`: 0xFEE8 for "123456789"
+  (the CRC-16/BUYPASS check value), ER low after message + check word, ER
+  high with one bit flipped. A bench responder must produce this CRC, MSB
+  first, zero initial register.
 - **EtherClk is 23.5 MHz** (HM 11, one eighth of the 340 ns bit cell); the
   K1115A at DskEth j20 ran at the cell's 20 MHz default. `CELL_PARAMS`.
 - `+xmtrec=PATH` in tb_exec records every `XmtData'` transition with its

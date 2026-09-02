@@ -3694,6 +3694,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p14(VCC_m_60)
   ); // SN74S01
   cell_F9401 u_g17 (
+    .sys_clk(sys_clk),
     .p1(Ether08_sil_pl_19),
     .p2(TTLTrueB),
     .p3(GND_m_17),
@@ -4494,6 +4495,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p16(GND_m_6)
   ); // MC10231
   cell_F9401 u_j05 (
+    .sys_clk(sys_clk),
     .p1(Ether04_sil_pl_16),
     .p2(TTLTrueB),
     .p3(GND_m_6),
