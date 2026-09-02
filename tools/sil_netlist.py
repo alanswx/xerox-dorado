@@ -193,6 +193,11 @@ BACKPLANE_CASE_ALIASES = {
 #
 #   DskEth WakeEthTx -> TWReq.06   the Ethernet OUTPUT task
 #   DskEth WakeEthRx -> TWReq.07   the Ethernet INPUT task
+#       Confirmed by the board's own strap (2026-09-02): DskEth.pdf p.35 "Cut
+#       SIP legs at j52 to set the Task numbers for the Ethernet. Standard
+#       tasks are 6 & 7 ... Input is higher priority", and j52 legs 7,8 cut
+#       (sil_to_verilog.py) make the board decode {~TskAd,0} = 6 for Tx and
+#       {~TskAd,1} = 7 for Rx. Strap and jumper agree; strap-test asserts it.
 #
 # THE ETHERNET PAIR IS WIRED NOW TOO, from include/ethernet.h:
 #
