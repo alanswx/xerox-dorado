@@ -614,6 +614,18 @@ class Generator:
         # with the low octal digit selecting the register. Uncut the board
         # would sit at 370B..377B.
         ('DskEth', 'e41'): frozenset({4, 5, 6, 7}),
+        # DskEth.pdf (Rev Ce) page 35: "Cut SIP legs at j52 to set the Task
+        # numbers for the Ethernet. Standard tasks are 6 & 7. Task numbers
+        # differ only in the low order bit. Input is higher priority." j52
+        # pins 6/7/8 are TskAd.0/1/2, j23 XORs them against the INVERTED
+        # Next.0-2 (a24) and h23 NORs that with Next.3, so the strap holds the
+        # COMPLEMENT of the task's top three bits and the transmit task is
+        # {~TskAd, 0}, the receive task {~TskAd, 1}. Tasks 6/7 = 011x ->
+        # TskAd = 100: leg 6 intact, legs 7 and 8 cut. Uncut, the board
+        # decoded its Ethernet tasks as 0 and 1 -- the EMULATOR task -- and
+        # suppressed the EOT wakeup whenever task 0 was current or next,
+        # which is nearly always (measured 2026-09-02, eth-ctl-test).
+        ('DskEth', 'j52'): frozenset({7, 8}),
     }
 
     # Where a pull-UP pack and a pull-DOWN pack hold the SAME net, the

@@ -734,6 +734,19 @@ disk-tag-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_disktag/tb_disktag +slowio +tag 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_disk|Assertion"; exit $$rc; }
 
+# The same TIOA/Output loop aimed at EControl (016B) with TurnOnTx: does TxOn
+# latch, and does the EOT wakeup reach TWReq.06?
+eth-ctl-test:
+	@cd ../.. && $(V) --binary --top-module tb_disk $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_ethctl -o tb_ethctl \
+		verilog/verilator/tb_disk.sv verilog/generated/dorado_disk.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v verilog/generated/DskEth-Rev-*.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_ethctl/tb_ethctl +slowio +eth 2>&1); \
+		  rc=$$?; echo "$$out" | grep -E "tb_disk|Assertion"; exit $$rc; }
+
 # THE FIRST WAKEUP THIS BENCH CAN MOVE: a DISKMUFF write carrying IOB.04
 # clears IndexTW, which is otherwise asserted for every sample of every run.
 disk-muff-test:
