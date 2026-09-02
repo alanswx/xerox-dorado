@@ -46,6 +46,14 @@ module tb_strap;
   // DskEth's IOA address, set the same way at e41 (dashes mangle to _m_).
   wire [4:0] tioa_ad   = {de.TIOA_m_Ad_0, de.TIOA_m_Ad_1, de.TIOA_m_Ad_2,
                           de.TIOA_m_Ad_3, de.TIOA_m_Ad_4};
+  // DskEth's Ethernet task pair, j52 legs 6/7/8 = TskAd.0/1/2. The board
+  // decodes the transmit task as {~TskAd, 0} and the receive task as
+  // {~TskAd, 1} (a24 inverts Next.0-3, j23 XORs the top three against the
+  // strap, h23 NORs with Next.3), so the strap holds the COMPLEMENT of the
+  // task's top three bits.
+  wire [2:0] tskad     = {de.TskAd_0, de.TskAd_1, de.TskAd_2};
+  wire [3:0] ethtx     = {~tskad, 1'b0};
+  wire [3:0] ethrx     = {~tskad, 1'b1};
   // DispY's, which its sheet sets by cutting nothing at g42.
   wire [4:0] ddctioa   = {dy.DDCTIOA_00, dy.DDCTIOA_01, dy.DDCTIOA_02,
                           dy.DDCTIOA_03, dy.DDCTIOA_04};
@@ -78,6 +86,13 @@ module tb_strap;
       bad = bad + 1;
     end
 
+    $display("tb_strap: DskEth TskAd    = %b -> Ethernet tasks %0d (output) & %0d (input)",
+             tskad, ethtx, ethrx);
+    if (tskad !== 3'b100) begin
+      $display("tb_strap: FAIL -- DskEth.pdf p.35: 'Cut SIP legs at j52 to set the Task numbers for the Ethernet. Standard tasks are 6 & 7' -- legs 7,8 cut = 100");
+      bad = bad + 1;
+    end
+
     // No stated result for these two, so they are recorded, not asserted --
     // g42 has no legs cut at all, and k52 has leg 3 cut.
     $display("tb_strap: DispY  DDCTIOA   = %b = %0o B  (IOA %0o B..%0oB)",
@@ -103,7 +118,7 @@ module tb_strap;
     end
 
     if (bad != 0) $fatal(1);
-    $display("tb_strap: PASS -- DDMTIOA 360B, task 11B, DskEth IOA 010-017, TTLHigh high, no phantom drive");
+    $display("tb_strap: PASS -- DDMTIOA 360B, task 11B, DskEth IOA 010-017 and Ethernet tasks 6 & 7, TTLHigh high, no phantom drive");
     $finish;
   end
 
