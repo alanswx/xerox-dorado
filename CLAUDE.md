@@ -1228,6 +1228,7 @@ transient.
   | DispM | b52 legs 3,4 cut | `AltoWTask` = 1001 = **9** | "for Task 9D = 11B" |
   | DskEth | e41 legs 4-7 cut | `TIOA-Ad` = 1 -> **010-017** | "* Standard addresses are 10-17" |
   | DispY | g42 no legs cut | `DDCTIOA` = 37B -> 0370-0377 | (no stated result) |
+  | DskEth | j52 legs 7,8 cut | `TskAd` = 100 -> Ethernet tasks **6 & 7** | "Standard tasks are 6 & 7" (p.35) |
 
   **And the C emulator agrees, independently**: `include/dispm.h` has
   `DISPM_TIOA_BOARD 0360`, `include/disk.h` has `DISK_TIOA_DISKCONTROL 010`
@@ -1520,8 +1521,10 @@ The second error was FG parity over the instruction
   `WakeAWT` -> `TWReq.09` (AltoWTask = 9, "Task 9D = 11B"), DispY `WakeDWT` ->
   `TWReq.11` (DWTTask = 1011), MemX `TWReq15` -> `TWReq.15` (the fault task is
   15, HM section 4.1 and `include/memory.h`). `BACKPLANE_WAKEUP_JUMPERS`. The
-  head tasks and DskEth's two ethernet lines are NOT wired: nothing yet says
-  which line they take.
+  head tasks are still NOT wired; DskEth's two ethernet lines are
+  (`WakeEthTx` -> `TWReq.06`, `WakeEthRx` -> `TWReq.07`), and the board's OWN
+  strap now agrees -- j52 legs 7,8 cut decode {~TskAd,0}/{~TskAd,1} = 6/7
+  (DskEth.pdf p.35, 2026-09-02).
 
 - **A PIN NUMBER IS NOT A WIRE ON THIS BACKPLANE.** Chasing the above, C132 is
   `TWReq.11` on ContA, `TIOA.3` on ProcH, `IfuData.3` on the IFU and `TWReq15`

@@ -53,6 +53,54 @@ Deepest boot command (add `+ioreset` to last session's):
     make -C verilog/verilator exec-boot \
       EXECARGS="+fastwait +bbword=0000 +bbfeed +mb0 +ioreset +stperroff +blfix +addrs +cycles=140000000"
 
+### Eleven boards, and the Ethernet output task wakes (later, 2026-09-02)
+
+- **`dorado_full` = the ten-board screen machine + DskEth** (`make -C
+  verilog backplane` emits it; `make -C verilog/verilator exec-bootfull`
+  runs Initial on it with the Trident and Ethernet cables tied idle). It
+  boots exactly as the ten-board machine and reaches Initial's Ethernet boot:
+  four `Output<-` strobes to EControl (TurnOffRx/Tx, TurnOnRx/Tx), both
+  Ethernet tasks take their init PCs and run 20 addresses each. First run:
+  the transmitter never started and neither task was ever woken (TWReq.06/07
+  zero) -- the boot request was never sent.
+- **The cause was a STRAP, the same class as the TIOA and task straps in
+  `strap-test`.** Found with a ONE-MINUTE bench instead of the 35-minute
+  boot: `tb_disk +slowio +eth` (rule `eth-ctl-test`) aims the existing
+  TIOA/Output loop at EControl 016B with EtherDefs.mc's `TurnOnTx` =
+  `TxCmdEnbl(007777B) + STxOn(040000B)` = 4FFF. The write lands
+  (`EthCtrl_IOB'` selects with 4FFF on IOB, j06 makes `TxCtrlClk'` from
+  PreClock1' + that select + bIOB.00 = TxCmdEnbl') and j04 latches TxOn --
+  but h05, the wakeup NOR (NoWakeups, TxOff, the Ether06 wired-OR of
+  TxCntDwn/TxBusRegFull/Blocked-FF/TxEOP, Curr=EthTx, Next=EthTx?), stayed
+  low on its task-identity terms: **the board decoded its Ethernet tasks as
+  0 and 1**. a24 inverts Next.0-3, j23 XORs the top three against SIP j52's
+  legs 6/7/8 (`TskAd.0-2`), h23 NORs that with Next.3, so Tx = `{~TskAd,0}`
+  and Rx = `{~TskAd,1}` and the strap holds the COMPLEMENT of the task's top
+  three bits. Uncut (111) that is tasks 0/1 -- the emulator task, so the
+  wakeup was suppressed whenever task 0 was current or next, i.e. nearly
+  always. `DskEth.pdf` p.35: "Cut SIP legs at j52 to set the Task numbers
+  for the Ethernet. Standard tasks are 6 & 7. Task numbers differ only in
+  the low order bit. Input is higher priority." 6/7 = 011x -> TskAd = 100 ->
+  legs 7,8 cut (`sil_to_verilog.py`). Agrees with `ethernet.h` (EOT 06, EIT
+  07) and the TWReq.06/07 jumpers; `strap-test` asserts it now.
+- **With it, the chain runs end to end** (`eth-ctl-test +ioreset +ethlog`,
+  sample numbers): TxOn latches at 136761 and the wakeup term rises the SAME
+  sample; j24 (MC10176, Clock0') registers it onto TWReq.06 at 136777; the
+  scheduler names task 6 as Next at 136809 (which drops the term, as
+  designed); **CTask = 6 at 136841** -- a task switch driven by the DskEth
+  board from a register write.
+- **h04 is a "has blocked" flip-flop, SET by IOReset.** Its D is `Blocked`,
+  its clock the transmit task's own Prev phase, and its Q' blocks the
+  wakeup: a task that ran and has not blocked since cannot be woken again,
+  and at power-up only IOReset arms it. The bench released IOReset on one of
+  its five run paths; it releases it before every run now. A bench that
+  never asserts IOReset sees the wakeup blocked forever -- the boot run
+  (`+ioreset`) was never in that state, so this was not its blocker.
+- **EtherClk is 23.5 MHz** (HM 11, one eighth of the 340 ns bit cell); the
+  K1115A at DskEth j20 ran at the cell's 20 MHz default. `CELL_PARAMS`.
+- `+xmtrec=PATH` in tb_exec records every `XmtData'` transition with its
+  sys_clk index, for decoding the sent packet offline.
+
 ### The three defects, each with its measurement
 
 1. **`cell_MC10181`'s look-ahead pins were the TTL '181's G and P; this
