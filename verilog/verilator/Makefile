@@ -368,6 +368,31 @@ exec-bootscreen:
 		    +cycles=$(or $(CYCLES),120000000) 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_exec; exit $$rc; }
 
+# ELEVEN BOARDS: the screen machine plus DskEth, so Initial's Ethernet boot
+# runs against the real controller (its cable idle).
+.PHONY: exec-bootfull
+exec-bootfull:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
+	@mkdir -p obj_exec obj_full
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
+	@cd ../.. && { ./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Initial.mb' 2>/dev/null; \
+		./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb' 2>/dev/null \
+		| grep -v '^\#'; } > verilog/verilator/obj_exec/boot.txt
+	@cd ../.. && $(V) --binary --top-module tb_exec $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_full \
+		-o tb_full +define+WORLD +define+SCREEN +define+FULL \
+		verilog/verilator/tb_exec.sv verilog/generated/dorado_full.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
+		verilog/generated/IFU-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v verilog/generated/DskEth-Rev-Cf.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_full/tb_full \
+		    $(SCREENARGS) +fastwait +bbword=0000 +bbfeed +frame +mb0 \
+		    +preload=verilog/verilator/obj_exec/boot.txt +bootchain +start=3904 \
+		    +cycles=$(or $(CYCLES),120000000) 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_exec; exit $$rc; }
+
 # THE FAULT TASK RUNS ITS OWN HANDLER: arm MemX's fault counter and preset
 # TPC[15] to AEmu's FAULTTASK, and task 15 executes the fault-handler region
 # instead of emulator code. See docs/verilog-handoff.md.
