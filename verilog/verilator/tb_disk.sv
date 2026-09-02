@@ -1389,8 +1389,15 @@ module tb_disk;
       // "change tomemx-16k-j13 from -j14. comment-out the memx-4k option.
       // September 26, 1979", i.e. from late 1979 the machines carry 16K
       // parts and only that PROM is blown.
-      .ChipsAre256_s_16K(chips16k), .ChipsAre64K(chips64k)
+      .ChipsAre256_s_16K(chips16k), .ChipsAre64K(chips64k),
+      // IOReset is a BASEBOARD line (HM 9.5: the disk statics "are forced
+      // true by IOReset"); the firmware asserts it in DoIOReset and again in
+      // PrepareProcessor before every load. Held through the startup jams and
+      // released when the machine is started; opt-in with `+ioreset`.
+      .IOReset(ioreset_r)
   );
+  reg ioreset_r = 1'b0;
+  initial if ($test$plusargs("ioreset")) ioreset_r = 1'b1;   // opt-in: it changed no verdict here
 
   // ---------------------------------------------------------------------
   // SEED THE ARRAY. Fill every cell of the eight DRAMs behind a13 with that
@@ -2062,6 +2069,7 @@ module tb_disk;
   integer i, hits, hits_a, hits_b;
   integer tk, tbad;
   reg [15:0] tpc15, tpc15b, tpc7;
+  reg [15:0] tioa_t;
   reg [19:0] link15, link15b, link7;
   integer nmemclk, kk, npipe, nras, ncas, nwe, nmx;
   reg prasa, pcasa, pwea, pmx, prp, pmr;
@@ -2956,6 +2964,7 @@ module tb_disk;
         set_cpreg_tilde(16'h0000);
         parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
         nop_micro;
+        ioreset_r = 1'b0;                                 // the BaseBoard releases IOReset before the run
         parc_run(8'h60, 8'h13, 8'hE1, 8'h4A, 8'h43);     // TaskingOn,Return
         repeat (runlen) @(posedge sys_clk);
       end
@@ -3344,12 +3353,25 @@ module tb_disk;
         // Resetting DisableRun IS setting EnableRun, so loading the LAST word
         // of the format RAM enables the controller: disk.c, "Loading the *last*
         // word of Format RAM (15) sets EnableRun (HM page 98)."
-        if      ($test$plusargs("tag"))  set_cpreg_plain(16'h0C00);
-        else if ($test$plusargs("muff")) set_cpreg_plain(16'h0900);
-        else if ($test$plusargs("ram"))  set_cpreg_plain(16'h0B00);
-        else                             set_cpreg_plain(16'h0800);
+        if      ($test$plusargs("tag"))  tioa_t = 16'h0C00;
+        else if ($test$plusargs("muff")) tioa_t = 16'h0900;
+        else if ($test$plusargs("ram"))  tioa_t = 16'h0B00;
+        else                             tioa_t = 16'h0800;
+        set_cpreg_plain(tioa_t);
         parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);   // TFromCPReg#
         nop_micro;
+        // T IS PER-TASK, AND THE LOOP RUNS IN THE WOKEN TASK. The machine is
+        // started with TaskingOn and the disk task (12, DiskTW -> TWReq.12)
+        // takes it; since a task switch really fetches from the new task's
+        // TPC (ContA SWb -> ContB SW joined, 2026-09-02) task 12 runs IM[0..3]
+        // with ITS OWN T, so its T-file slot gets the same TIOA value the jam
+        // above gave task 0 -- as the real disk task loads its own TIOA. Slot
+        // = ~task = 3; nibbles are stored bit-reversed (see tb_display).
+        m.b_ProcH.u_l03.mem[4'h3] = {tioa_t[12], tioa_t[13], tioa_t[14], tioa_t[15]};
+        m.b_ProcH.u_l04.mem[4'h3] = {tioa_t[8],  tioa_t[9],  tioa_t[10], tioa_t[11]};
+        m.b_ProcL.u_l03.mem[4'h3] = {tioa_t[4],  tioa_t[5],  tioa_t[6],  tioa_t[7]};
+        m.b_ProcL.u_l04.mem[4'h3] = {tioa_t[0],  tioa_t[1],  tioa_t[2],  tioa_t[3]};
+        $display("tb_disk: task 12's T-file slot seeded with %h (its own TIOA value)", tioa_t);
         // AND A SECOND VALUE, so the loop can write a WCB word rather than the
         // address twice. FF is consumed by the opcode, so B cannot carry a
         // literal -- it has to come from a register, and Q is the second one

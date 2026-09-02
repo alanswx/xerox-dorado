@@ -1774,6 +1774,43 @@ module tb_exec;
   end
   final $display("tb_exec: JUNK -- TWReq.02 high %0d (first @%0d), ShutUp high %0d, IOReset high %0d, AckJunkTW high %0d, TimeToWake edges %0d, Pendulum edges %0d, of %0d",
                  jk_tw, jk_first_tw, jk_shut, jk_ior, jk_ack, jk_ttw_edges, jk_pend_edges, n_cyc2);
+
+`ifdef SCREEN
+  // ---- DISPY: what INITHRAM did to the display board, counted over the run --
+  // InitHRam (DisplayAux.mc) writes LoadAddress twice (the first turns on
+  // DoradoHasHRam), then the HRam words from a table it reads out of IM with
+  // ReadIM/B<-Link, then ReleaseRam. Count the strobes and the two h15 bits.
+  integer dp_cmd = 0, dp_has = 0, dp_we = 0, dp_clk = 0, dp_ld = 0, dp_phs = 0, dp_hs = 0, dp_sel = 0, dp_rim = 0, dp_has_fall = -1, dp_out = 0;
+  reg dp_clk_d = 1'b1, dp_hs_d = 1'b1, dp_has_d = 1'b0, dp_iobout_d = 1'b0;
+  always @(posedge sys_clk) begin
+    if (!m.b_DispY.HRamCommand_p_) dp_cmd = dp_cmd + 1;
+    if (m.b_DispY.DoradoHasHRam) dp_has = dp_has + 1;
+    if (dp_has_d && !m.b_DispY.DoradoHasHRam && dp_has_fall < 0) dp_has_fall = n_cyc2;
+    dp_has_d <= m.b_DispY.DoradoHasHRam;
+    if (!m.b_DispY.HRamWE_p_) dp_we = dp_we + 1;
+    if (m.b_DispY.ClkHRamAddr_p_ && !dp_clk_d) dp_clk = dp_clk + 1;
+    dp_clk_d <= m.b_DispY.ClkHRamAddr_p_;
+    if (!m.b_DispY.LdHRamAddr_p_) dp_ld = dp_ld + 1;
+    if (m.b_DispY.preHSync) dp_phs = dp_phs + 1;
+    if (m.b_DispY.HSync_p_ && !dp_hs_d) dp_hs = dp_hs + 1;
+    dp_hs_d <= m.b_DispY.HSync_p_;
+    if (!m.b_DispY.TIOASaysDDC_p_) dp_sel = dp_sel + 1;
+    if (!m.b_ContA.RIM_p_) dp_rim = dp_rim + 1;
+    if (m.b_ProcL.IOBout && !dp_iobout_d && !m.b_DispY.TIOASaysDDC_p_) dp_out = dp_out + 1;
+    dp_iobout_d <= m.b_ProcL.IOBout;
+  end
+  final $display("tb_exec: DISPY -- HRamCommand' low %0d, DoradoHasHRam high %0d (first fall @%0d), HRamWE' low %0d, ClkHRamAddr' edges %0d, LdHRamAddr' low %0d, preHSync high %0d, HSync' edges %0d, DispY selected (TIOASaysDDC' low) %0d, IOBout strobes to DispY %0d, ContA RIM' low %0d, of %0d",
+                 dp_cmd, dp_has, dp_has_fall, dp_we, dp_clk, dp_ld, dp_phs, dp_hs, dp_sel, dp_out, dp_rim, n_cyc2);
+`endif
+  // `+pcpc=HEX` opens the PCT window at the first MIR load of that address
+  // (an address is a better handle than a cycle number in a 150M-cycle boot).
+  reg [11:0] pcpc = 12'hfff;
+  initial void'($value$plusargs("pcpc=%h", pcpc));
+  always @(posedge sys_clk)
+    if (pcpc != 12'hfff && ring_cia == pcpc && ring_cia != pct_cia_d) begin
+      pcfrom = n_cyc2; pcpc = 12'hfff;
+      $display("tb_exec: PCT window opens @%0d at CIA=%h", n_cyc2, ring_cia);
+    end
   always @(posedge sys_clk) begin
     if (pcfrom >= 0 && n_cyc2 >= pcfrom && n_cyc2 < pcfrom + pclen && ring_cia != pct_cia_d)
       $display("tb_exec: PCT @%0d CIA=%h JCN=%h task=%h Link=%h T=%h R=%h alu=%h ResLt0'=%b ResEq0'=%b SB=%b TPCI=%h CTD=%h TaskOff'=%b Ph=%b SC=%b RW=%b Hold=%b",
@@ -3365,7 +3402,11 @@ module tb_exec;
         $fatal(1, "Initial did not call Bootstrap's READBB");
       if (nboot_region < 3)
         $fatal(1, "Bootstrap is not running its read loop -- %0d addresses", nboot_region);
-      if (maxrun > 8)
+      // `+nostuck`: Initial's storage-init loop at c96 (0o6226, `T<-T+1,
+      // Store<-T`) runs 65,536 times on one address by design, so past task
+      // init this heuristic is a false alarm; the summaries below it and the
+      // final blocks are what a long run is for.
+      if (maxrun > 8 && !$test$plusargs("nostuck"))
         $fatal(1, "the boot chain is stuck: %0d microinstructions on one address", maxrun);
       $display("tb_exec: PARC'S BOOT CHAIN RUNS -- Initial calls Bootstrap, which waits for the control processor.");
     end
