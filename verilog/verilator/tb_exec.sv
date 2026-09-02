@@ -100,6 +100,7 @@ module tb_exec;
   always @(posedge sys_clk)
     ckd <= (ckd == SYSPER - 1) ? 4'd0 : ckd + 4'd1;
   wire mclk = (ckd >= SYSPER / 2);
+  wire eth_xmt;   // DskEth's XmtData' in the FULL configuration
 
   reg [2:0] addr_n = 3'b111;
   reg [8:0] cpout  = 9'd0;
@@ -503,6 +504,54 @@ module tb_exec;
       .PixelClkVCO(pixel_clk), .RawPixelClk(pixel_clk),
       .AltoTTLVideo(vid), .AltoHSync(hsync), .AltoVSync_p_(vsync_n),
       .HBlank(hblank), .VBlank(vblank), .HalfLine(halfline),
+`elsif FULL
+  // ELEVEN BOARDS: the screen machine plus DskEth. Its cable lines are tied
+  // idle -- the active-low Trident status lines DEASSERTED (1), the
+  // Ethernet receiver quiet (RcvData 0, Collision 0), host address 0 -- so
+  // Initial's Ethernet boot can be watched trying to start the controller.
+  dorado_full m (
+      .XmtData_p_(eth_xmt),
+      .CLK_disk_p_(mclk),
+      .ClockM0__in(1'b0),
+      .ClockM1__in(1'b0),
+      .ClockM2__in(1'b0),
+      .ClockM3__in(1'b0),
+      .ClockP0__in(1'b0),
+      .ClockP1__in(1'b0),
+      .ClockP2__in(1'b0),
+      .ClockP3__in(1'b0),
+      .Collision(1'b0),
+      .DataM0__in(1'b0),
+      .DataM1__in(1'b0),
+      .DataM2__in(1'b0),
+      .DataM3__in(1'b0),
+      .DataP0__in(1'b0),
+      .DataP1__in(1'b0),
+      .DataP2__in(1'b0),
+      .DataP3__in(1'b0),
+      .Host_0(1'b0),
+      .Host_1(1'b0),
+      .Host_2(1'b0),
+      .Host_3(1'b0),
+      .Host_4(1'b0),
+      .Host_5(1'b0),
+      .Host_6(1'b0),
+      .Host_7(1'b0),
+      .RcvData(1'b0),
+      .SecIndx0_p_(1'b1),
+      .SecIndx1_p_(1'b1),
+      .SecIndx2_p_(1'b1),
+      .SecIndx3_p_(1'b1),
+      .Selected0_p_(1'b1),
+      .Selected1_p_(1'b1),
+      .Selected2_p_(1'b1),
+      .Selected3_p_(1'b1),
+      .TtlEndOfCyl_p_(1'b1),
+      .TtlIndex_p_(1'b1),
+      .TtlOnLine_p_(1'b1),
+      .TtlReadOnly_p_(1'b1),
+      .TtlReady_p_(1'b1),
+      .TtlTerm_p_(1'b1),
 `else
   dorado_world m (
 `endif
@@ -1816,6 +1865,39 @@ module tb_exec;
   end
   final $display("tb_exec: DISPY -- HRamCommand' low %0d, DoradoHasHRam high %0d (first fall @%0d), HRamWE' low %0d, ClkHRamAddr' edges %0d, LdHRamAddr' low %0d, preHSync high %0d, HSync' edges %0d, DispY selected (TIOASaysDDC' low) %0d, IOBout strobes to DispY %0d, ContA RIM' low %0d, of %0d",
                  dp_cmd, dp_has, dp_has_fall, dp_we, dp_clk, dp_ld, dp_phs, dp_hs, dp_sel, dp_out, dp_rim, n_cyc2);
+`ifdef FULL
+  // ---- ETH: does Initial start the Ethernet controller? ----------------------
+  integer et_xmt = 0, et_tw06 = 0, et_tw07 = 0, et_out15 = 0, et_out16 = 0, et_in16 = 0;
+  reg et_xmt_d = 1'b1, et_iobout_d = 1'b0;
+  wire [7:0] et_tioa = {m.TIOA_0, m.TIOA_1, m.TIOA_2, m.TIOA_3, m.TIOA_4, m.TIOA_5, m.TIOA_6, m.TIOA_7};
+  always @(posedge sys_clk) begin
+    if (eth_xmt != et_xmt_d) et_xmt = et_xmt + 1;
+    et_xmt_d <= eth_xmt;
+    if (m.TWReq_06) et_tw06 = et_tw06 + 1;
+    if (m.TWReq_07) et_tw07 = et_tw07 + 1;
+    if (m.b_ProcL.IOBout && !et_iobout_d) begin
+      if (et_tioa == 8'o15) et_out15 = et_out15 + 1;
+      if (et_tioa == 8'o16) et_out16 = et_out16 + 1;
+    end
+    et_iobout_d <= m.b_ProcL.IOBout;
+  end
+  final $display("tb_exec: ETH -- XmtData' transitions %0d, TWReq.06 (tx) high %0d, TWReq.07 (rx) high %0d, Output strobes to EData(015) %0d, to EControl(016) %0d, of %0d",
+                 et_xmt, et_tw06, et_tw07, et_out15, et_out16, n_cyc2);
+  // `+xmtrec=PATH`: every transition of XmtData' with its sys_clk time, so a
+  // transmitted packet's bit stream can be decoded offline (the phase
+  // encoder's own format is the reference for a bench-side responder).
+  integer xmt_fd = 0, xmt_n = 0;
+  initial begin : xmtrec
+    reg [1023:0] xpath;
+    if ($value$plusargs("xmtrec=%s", xpath)) xmt_fd = $fopen(xpath, "w");
+  end
+  always @(posedge sys_clk)
+    if (xmt_fd != 0 && eth_xmt != et_xmt_d && xmt_n < 200000) begin
+      $fwrite(xmt_fd, "%0d %b\n", n_cyc2, eth_xmt);
+      xmt_n = xmt_n + 1;
+    end
+  final if (xmt_fd != 0) begin $fclose(xmt_fd); $display("tb_exec: XMTREC -- %0d transitions recorded", xmt_n); end
+`endif
   // `+hramdump`: the three HRam planes (h14 HSync, i14 HBlank, j14 HalfLine,
   // F10415A 1Kx1 each) as run lengths over the first 400 entries, plus the
   // total set bits. InitialDisplay's table for an Alto monitor is 34 x 6,

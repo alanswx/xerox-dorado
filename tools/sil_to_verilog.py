@@ -693,6 +693,12 @@ class Generator:
         ('DispY', 'a05'): {'FREQ_KHZ': 50000},
         ('DispM', 'c05'): {'FREQ_KHZ': 10000},
         ('DispM', 'd13'): {'FREQ_KHZ': 20000},
+        # HM 11.2: "The basic clock for transmitting and receiving data from
+        # the Ether, called EtherClk, originates from a 23.5 MHz crystal
+        # oscillator (i.e., the period is 42.5 ns or 1/8 of the 340 ns bit
+        # cell time)" -- and 11.5 names it 23.53 MHz. The sheet does not
+        # state it, so this position ran at the cell's 20 MHz default.
+        ('DskEth', 'j20'): {'FREQ_KHZ': 23530},
     }
 
     BROKEN_PACKAGE_PINS = {
