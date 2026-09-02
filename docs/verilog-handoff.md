@@ -1,5 +1,137 @@
 # Verilog from Sil: handoff
 
+## SESSION HANDOFF (2026-09-01, end) -- read this first, then "START HERE" below
+
+Branch `verilog-backplane`, HEAD `320d95d1`, **32 commits this session**
+(from pre-session `ef12ce0e`). Written to be picked up COLD by a fresh
+or upgraded model.
+
+### Where the boot stands, in one paragraph
+
+PARC's Initial microcode now boots -- on the nine-board `dorado_world`
+(`make -C verilog/verilator exec-boot`) -- through the ReadBB handshake,
+checksum, ALUFM/RM/STK/IFUM init, map init, the storage-module probe,
+the stack, the fault path, and INTO Initial's TASK-INITIALIZATION loop.
+Three successive "park" walls fell this session (each was a machine that
+sat forever on one address). The RTL also PAINTS A BOOT SCREEN:
+`docs/images/rtl-boot-raster-2026-09-01.png`, 891 scan lines of synced
+raster from the ten-board `dorado_screen` while Initial runs
+(`make -C verilog/verilator exec-bootscreen`). The one thing between here
+and a world coming up is THE PHASE/DEPTH MODEL (next section).
+
+### The exact command that boots deepest
+
+    make -C verilog/verilator exec-boot \
+      EXECARGS="+fastwait +bbword=0000 +bbfeed +mb0 +stperroff +blfix +wtpcfix +addrs +cycles=140000000"
+
+Those knobs are BENCH STAND-INS for real hardware behavior the collapsed
+SYSPER model does not reproduce, each documented at length below and in
+the commit messages. They are not cheats -- every value fed is one the
+bus demonstrably carried, or the state the microcode itself would leave:
+`+fastwait` (clip LongWait's DRAM-settle countdown), `+bbword=0000
++bbfeed` (be the BaseBoard feeding ReadBB's checksum), `+mb0` (drive the
+storage-module presence token the backplane ties at the PCMSA slot),
+`+stperroff` (force the continuously-failing ST-store parity latch off
+the CAS register's reset), `+blfix` (the fault path's Being-Loaded-flag
+cleanup), `+wtpcfix` (force a Write-TPC's next-fetch to CIA+1, the C
+emulator's own next=real_PC+1).
+
+### THE ONE REMAINING PIECE: the phase/depth model
+
+**Everything left converges on a single root: the SYSPER model collapses
+the microcycle's phases**, so signals the real hardware samples at
+specific phase edges are read at the wrong instant. Three things this
+session proved it:
+
+1. **Write-TPC (task-init loop, c46).** Its 6-cycle TPC/IM residency
+   (HM §4.8) never happens (`RepeatCur=0`), so it fetches its Link value
+   as a spurious instruction. `+wtpcfix` stands in (spin gone, longest
+   run on one address 96,721 -> 7). The write itself is SOUND
+   (taskrun-test writes TPC correctly from jammed instructions).
+2. **The loop's continue/exit conditional (c47).** It is a BRANCH-ON-
+   CONDITION `FFBrOnResLt0` (NOT a BDispatch -- cpu.c's label misled me;
+   PARC's b15 makes FA=0/FB=6 the branch-on-condition group; PARC's real
+   BDispatch is FA=0/FB=7). The RTL decodes it correctly, but `ResLtZero'`
+   (the ALU sign) TOGGLES 1<->0 within c47's residency and the branch
+   captures the wrong phase -> always exits (c44) where the oracle
+   continues (c45). The condition net is combinational (a14, MC1662), so
+   there is no clean targeted fix -- the datapath's other activity smears
+   the ALU inputs across the collapsed cycle.
+3. **The stale-green gates** exec-tasking, exec-init, memrun-test all
+   fail on pre-session RTL (byte-identical inputs), bisected to
+   **cbf5b94f, the MC10176 pre-edge setup-time capture** -- itself a
+   collapsed-timing workaround that helps the boot's checksum and breaks
+   these. Same root.
+
+**The fix is the depth/phase model** the 2026-08-29..31 depth campaign
+began: per-net BUFFER-DEPTH lag from each board's CLK input (opt-in
+`DORADO_CLOCK_DEPTH=1 make -C verilog generated-boards`; REGENERATE
+DEFAULT AFTERWARDS). It was left with "OPEN: the jam's Link load" (see
+the depth-mode block in the old START HERE). Bringing it up so the
+task-init phases separate is what lands the boot. FAST-ITERATION PATH
+(the first WTPC is at ~108.9M cycles, ~10 min/run): build a focused
+bench that preloads IM and jumps straight to TASKINITLOOP (real 0o6105)
+via exec-world9's `+start=`, seeding T as the loop counter and the
+task-init PC in RM -- reproduces the loop in thousands of cycles.
+
+### The method that carried the whole session
+
+**The C emulator is the oracle.** `DORADO_PCDIS=<lo>,<hi>` (per-
+instruction disassembly in an octal PC range) and `DORADO_TASK_TRACE`
+(TPC writes) dump the exact microcode behavior of the daily-booting C
+emulator; run them from the `dorado/` directory. Diff the RTL's
+execution against that and it diverges at a NAMED instruction. This
+found and settled every blocker.
+
+### Traps that cost real time (do not re-pay them)
+
+- **A bench force can destroy the very data under diagnosis:**
+  `+fastwait`'s T-file clip zapped the SetMCR value and sent three
+  sessions chasing a strobe-phase ghost. Measure the whole bus (all
+  bits), not two.
+- **A level is not an event; an idle level read through a 2-bit probe
+  looks like armed data** (the all-ones bus). Count events; bucket by
+  TIME before concluding a run has not settled.
+- **cpu.c LABELS can mislead** ("BDispatch" for what PARC decodes as a
+  branch-on-condition). PARC's raw `.wl` wire list is authoritative for
+  what a gate decodes.
+- **Stale binaries lie:** when the repo path moves, gate rules error
+  `No rule to make target .../obj_*/Vtb_*__pch.h` and the OLD binary
+  runs; and a build that fails on a bad net path leaves the prior
+  binary. `rm -rf verilog/verilator/obj_<name>` and grep `%Error`
+  before trusting any run.
+- **im-parity-check is a `make -C verilog` target, not a verilator-dir
+  one.**
+- **The T counter reads BIT-REVERSED** in the T-file slot (8,4,12 =
+  1,2,3) -- the same address reversal as RM/TPC/IM; don't mistake it for
+  a stuck counter.
+- **SYSPER=2 breaks the ReadBB/checksum stage** (RMINITL never reached);
+  boot runs stay at 16x. Depth mode's phase spread will set the true
+  minimum.
+
+### Regression state (verified clean)
+
+`make -C verilog lint` = 16 boards + all 12 machine tops elaborate, 0
+failed (the skip-list was missing world/screen/disk/display -- fixed).
+Passing gates: boot0, compute, task, taskrun, refdecode, exec,
+exec-parity, mir-diff, ifu, im-parity-check. The only failures are the
+pre-existing stale-green ones above (exec-tasking, exec-init, memrun).
+The board regeneration from the JunkTW jumper (IFU JunkTW -> TWReq.02)
+is confirmed clean.
+
+### The probe kit left in tb_exec.sv (all WORLD-gated)
+
+MCRWIN (the whole Mar bus on change, `+tcwin`/`+tclen`), MAPWEDGE
+(freeze-keyed memory-state dump + 64-instruction approach ring),
+DRAMWIN (a fixed window over the miss's DRAM cycle with MemState/Mod/RP),
+MAPWRITE/MAPRAM/MAPCENSUS (the map write path), CFLAGS/VICWIN/W0STROBE
+(cache-flag strobes), TRANSPORT/STARTCHAIN (storage transport), STKADJ/
+STKWIN (the stack adder), TSW (the tasking latch, dispatch, T, and the
+branch condition), TPCDUMP (the whole TPC file), FIRSTHIT (era-entry
+cycles), and `+wtpcfix`/`+mb0`/`+blfix`/`+stperroff`/`+addrs`/`+trwin`.
+
+---
+
 ## START HERE (2026-09-01) -- three parks fell in one sitting; the boot is deep in Initial
 
 The 2026-08-31 state below is history now. What changed today, in order,
