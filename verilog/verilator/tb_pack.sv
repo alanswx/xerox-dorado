@@ -18,7 +18,7 @@ module tb_pack;
   dorado_trident #(.SYSPER(2*SYSPER), .SECTORS_PER_REV(117), .WORDS_PER_SECTOR(80)) drv (
     .sys_clk(sys_clk), .reset(1'b0), .attached(1'b1), .selected(selected),
     .TtlReady_n(ready_n), .TtlOnLine_n(online_n), .TtlTerm_n(term_n), .Selected_n(sel_n),
-    .SecIndx_n(sec_n), .data_bit(bit_), .data_adv(adv), .DataP(dp), .DataM(dm), .ClockP(cp), .ClockM(cm));
+    .SecIndx_n(sec_n), .TtlIndex_n(), .data_bit(bit_), .data_adv(adv), .DataP(dp), .DataM(dm), .ClockP(cp), .ClockM(cm));
   dorado_pack pk (
     .sys_clk(sys_clk), .attached(1'b1), .tagbus_n(tagbus_n), .cyltag_n(cyltag_n), .headtag_n(headtag_n),
     .drivetag_n(drivetag_n), .conttag_n(conttag_n), .pulse(drv.sector), .data_adv(adv), .data_bit(bit_),
