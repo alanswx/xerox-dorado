@@ -339,6 +339,32 @@ word needs the bit-to-chip map, or the write has to go through the
 processor with a jammed `Store<-` after the world's map is up, which needs
 the mid-run jam machinery the bench does not have yet.
 
+**A cold world cannot be rescued by a knob, and two candidates were
+eliminated by measurement rather than argument.** `+setmcr=HEX` now loads
+the memory control register before the machine runs -- `T <- CPReg`, then a
+jammed `LoadMcr[T,T]` (FA=1 FB=2 FC=6 = FF 0o126) built with the same
+checked encoder tb_compute uses. It must go BEFORE the Link setup, because
+loading T needs a CPReg write and doing that after `CPRegToLink#` left the
+machine starting at address 0. With the MCR loaded the cold world still
+wedges identically. `+rfshdiv=N` then made the refresh interval adjustable,
+because `RfshPeriod` was a 9-bit free-running counter flipping every 512
+sys_clk -- every 16 microinstructions, about 1 us -- which asks the memory
+to refresh continuously. Sweeping it from 512 to 65,536 changes NOTHING:
+`RefHold` 5,905,959 and `BLretry` 5,994,694 in both. The dominant hold is
+the Being-Loaded retry, i.e. a cache line whose fill never completes, and
+what makes it complete is Initial's map and storage initialisation. So the
+authentic sequence is the only one: **a world needs Initial**, which is
+what a real Dorado does, and `boot-world` is the configuration to iterate
+on. `+setmcr` and `+rfshdiv` stay because both are honest instruments and
+the refresh rate was genuinely wrong.
+
+**And the display list really is absent, not mislocated.** Initial's
+storage init is `T_ (Store_ T)+1, DBuf_ 0C` -- it writes ZERO to every
+address, so after it the Alto's display-list head holds 0 and the display
+horizontal task correctly finds nothing. (An earlier guess here, that the
+loop writes each address's own value and would therefore leave a
+self-referential DCB behind, is wrong; the source says `DBuf_ 0C`.)
+
 **Two things this settled on the way.** A world CANNOT be started cold: at
 `START` (0x000) it parks in the IFU not-ready trap, which is correct for
 that entry, and at `STARTEMULATOR` without Initial it wedges with RefHold
