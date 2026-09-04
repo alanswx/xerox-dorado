@@ -486,6 +486,10 @@ module tb_exec;
     d_vid<=vid; d_hs<=hsync; d_vs<=vsync_n; d_hb<=hblank; d_vb<=vblank; d_hl<=halfline;
   end
 `endif
+  // Declared OUTSIDE the configuration chain: the release below is common to
+  // every machine, and only the WORLD-and-up tops have an IOReset port.
+  reg ioreset_r = 1'b0;
+  initial ioreset_r = $test$plusargs("ioreset");
 `ifdef FULL   // FULL before SCREEN: the Makefile defines BOTH, and an `ifdef chain
               // takes the first that is defined -- with SCREEN first, every
               // "eleven-board" run built the ten-board screen machine (2026-09-02).
@@ -616,8 +620,6 @@ module tb_exec;
   );
   reg mb0_tie = 1'b0;
   initial mb0_tie = $test$plusargs("mb0");
-  reg ioreset_r = 1'b0;
-  initial ioreset_r = $test$plusargs("ioreset");
 
   // ---- SEED THE MAP --------------------------------------------------------
   //
@@ -1828,6 +1830,7 @@ module tb_exec;
   end
   wire [3:0] pct_ctask = {m.b_ContA.CTask_0, m.b_ContA.CTask_1, m.b_ContA.CTask_2, m.b_ContA.CTask_3};
 
+`ifdef WORLD   // the IFU is only in the WORLD/SCREEN/FULL machines
   // ---- JUNK: the junk-task wakeup on the IFU, counted over the run ----------
   // HM 12.1: a 32 us pendulum wakes task 2; the wakeup is a LEVEL dismissed by
   // AckJunkTW<-B (B[15]=1 enables, 0 disables) or any IFUTest<-B; IOReset
@@ -1846,6 +1849,7 @@ module tb_exec;
   end
   final $display("tb_exec: JUNK -- TWReq.02 high %0d (first @%0d), ShutUp high %0d, IOReset high %0d, AckJunkTW high %0d, TimeToWake edges %0d, Pendulum edges %0d, of %0d",
                  jk_tw, jk_first_tw, jk_shut, jk_ior, jk_ack, jk_ttw_edges, jk_pend_edges, n_cyc2);
+`endif
 
 `ifdef SCREEN
   // ---- DSW: the DispY command strobe per sys_clk, in the RING window --------
@@ -3212,8 +3216,10 @@ module tb_exec;
     if (bootcp_period) $display("tb_exec: BOOTCP -- toggling the handshake every %0d cycles",
                                 bootcp_period);
 
+`ifdef WORLD   // only the WORLD-and-up machines have an IOReset port
     if (ioreset_r) $display("tb_exec: +ioreset -- IOReset released at @%0d", n_cyc2);
     ioreset_r = 1'b0;
+`endif
     for (j2 = 0; j2 < runcycles; j2 = j2 + 1) begin
       @(posedge sys_clk);
       // THE CONTROL PROCESSOR'S HALF OF THE HANDSHAKE. Bit 15 says "a byte is
