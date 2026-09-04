@@ -626,6 +626,14 @@ class Generator:
         # suppressed the EOT wakeup whenever task 0 was current or next,
         # which is nearly always (measured 2026-09-02, eth-ctl-test).
         ('DskEth', 'j52'): frozenset({7, 8}),
+        # DskEth.pdf sheet 5: "Cut SIP legs at k52 to set the Muffler addresses
+        # for the board. Standard addresses are 2000-2177." k52 pins 5-8 are
+        # MufAd.1-4 and k24 (an MC10166) compares them against DMadr.01-04.
+        # The standard row is the ninth of sixteen, so the top four bits of an
+        # 11-bit muffler address are 1000 -- and the net k24 drives is NAMED
+        # `MidasEn.01T.02F.03F.04F'`, i.e. bit 1 True and bits 2,3,4 False,
+        # which states the same value. Same encoding as e41: a cut leg is 0.
+        ('DskEth', 'k52'): frozenset({6, 7, 8}),
     }
 
     # Where a pull-UP pack and a pull-DOWN pack hold the SAME net, the
