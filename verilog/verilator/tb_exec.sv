@@ -120,11 +120,22 @@ module tb_exec;
   // more CLK ports. Leaving them undriven gives those boards zero local clock
   // edges with their enables already asserted, which looks exactly like a
   // gating bug and is not one.
-  reg [8:0] rfshdiv = 9'd0;
+  // REFRESH IS A REAL-TIME INTERVAL, and it was a 9-bit free-running counter:
+  // `RfshPeriod` flipped every 512 sys_clk, i.e. every 16 microinstructions
+  // (about 1 us), so the memory was asked to refresh continuously. Initial
+  // survives that because it makes few references; a world does not, and wedges
+  // with RefHold on 98% of samples. `+rfshdiv=N` sets the half-period in
+  // sys_clk so the interval can be measured rather than assumed; the default
+  // is the old 512 so nothing that passed changes.
+  integer rfshhalf; initial begin
+    rfshhalf = 512;
+    void'($value$plusargs("rfshdiv=%d", rfshhalf));
+  end
+  integer   rfshdiv = 0;
   reg       rfshper = 1'b0;
   always @(posedge sys_clk) begin
-    rfshdiv <= rfshdiv + 9'd1;
-    if (rfshdiv == 9'd0) rfshper <= ~rfshper;
+    rfshdiv <= rfshdiv + 1;
+    if (rfshdiv >= rfshhalf - 1) begin rfshdiv <= 0; rfshper <= ~rfshper; end
   end
   // THE MEMORY SIZE IS A BACKPLANE INPUT: MemX takes these from the MSA and
   // they are the CHIP ENABLES on the two DRAM timing PROMs, so with both
@@ -1335,6 +1346,42 @@ module tb_exec;
     end
   endtask
 
+  // The PLAIN form. B and T carry OPPOSITE senses of CPReg -- BMux is its
+  // complement and `alub` inverts that back -- so T ends up EQUAL to CPReg
+  // while IM write data ends up equal to its complement. PARC has both
+  // `SetCPReg` and `SetCPReg~` for exactly that reason: `SendViaMIR` sends IM
+  // data with the tilde form, `PrepareProcessor` loads T with this one.
+  task set_cpreg_plain(input [15:0] v);
+    begin
+      strobe(3'd2, v[15:8], 1'b0);
+      strobe(3'd3, v[7:0],  1'b0);
+    end
+  endtask
+
+  // A GENERAL MICROINSTRUCTION, the byte layout `doradoboot.masm` states and
+  // the same encoder tb_compute checks against all thirteen IRTable entries.
+  //   0: RSTK.0, P015, JCN.7, P1631, 0,0,0,0
+  //   1: RSTK.1, RSTK.2, RSTK.3, ALUF.0, BLOCK, FF.0, FF.1, FF.2
+  //   2: ALUF.1, ALUF.2, ALUF.3, BSEL.0, FF.3, FF.4, FF.5, FF.6
+  //   3: BSEL.1, BSEL.2, LC.0, LC.1, FF.7, JCN.0, JCN.1, JCN.2
+  //   4: LC.2, ASEL.0, ASEL.1, ASEL.2, JCN.3, JCN.4, JCN.5, JCN.6
+  // PARC numbers every field MSB-first; the parity bits are odd over the
+  // 17-bit halves (left = RSTK ALUF BSEL LC ASEL, right = BLOCK JCN FF).
+  function [39:0] mkmi(input [3:0] rstk, input [3:0] aluf, input [2:0] bsel,
+                     input [2:0] lc,   input [2:0] asel, input [7:0] ff,
+                     input [7:0] jcn,  input block);
+    reg [7:0] b0, b1, b2, b3, b4;
+    begin
+      b0 = {rstk[3], ~(^{rstk, aluf, bsel, lc, asel}), jcn[0],
+            ~(^{block, jcn, ff}), 4'b0000};
+      b1 = {rstk[2], rstk[1], rstk[0], aluf[3], block, ff[7], ff[6], ff[5]};
+      b2 = {aluf[2], aluf[1], aluf[0], bsel[2], ff[4], ff[3], ff[2], ff[1]};
+      b3 = {bsel[1], bsel[0], lc[2],   lc[1],   ff[0], jcn[7], jcn[6], jcn[5]};
+      b4 = {lc[0],   asel[2], asel[1], asel[0], jcn[4], jcn[3], jcn[2], jcn[1]};
+      mkmi = {b0, b1, b2, b3, b4};
+    end
+  endfunction
+
   // ---- BEING THE BASEBOARD: the ReadBB sync-bit handshake ------------------
   //
   // Bootstrap's ReadBB (BootstrapMain.mc at ReadBBLoc) is a one-byte-at-a-
@@ -2192,6 +2239,8 @@ module tb_exec;
   reg [31:0] ia, ib, ic, id, ie, ig, ih, ii, ij, ilh, irh;
   reg p_lh, p_rh, impar_odd, impar_nosec;
   integer imfd, imn, mapaddr, nloaded, nver, nverbad, runcycles, startaddr;
+  integer mcrval;
+  reg [7:0] mb0_, mb1_, mb2_, mb3_, mb4_;
   integer nalufm, nalufmbad, nifum, nifumbad;
   reg [5:0]  r_alu;
   reg [15:0] r_lo, r_hi, ifum_want;  reg ifum_raw;
@@ -3113,6 +3162,38 @@ module tb_exec;
     $display("tb_exec: JAMPAR   IMLH after each of the four data strobes: %b%b%b%b",
              jt[0], jt[1], jt[2], jt[3]);
     $display("tb_exec: JAMPAR   IMRH after each: %b%b%b%b", jt[4], jt[5], jt[6], jt[7]);
+
+    // +setmcr=HEX: LOAD THE MEMORY CONTROL REGISTER BEFORE THE MACHINE RUNS.
+    //
+    // A world cold-started has never had an MCR loaded, and wedges with
+    // RefHold asserted on 98% of samples, its first `RM/STK<-Md` held for
+    // ever. Initial does this for itself: `BlessBaseBoard` ends with
+    // `T_ mcr.noWake, Call[SetMCR]` -- "now allow holds, etc., but no fault
+    // task wakeups" -- and only then goes looking for a world. `mcr.noWake`
+    // is b15 in PARC's MSB-first numbering, i.e. 0x0001, and every other bit
+    // zero means holds on, references on, base registers and cache flags on.
+    //
+    // `LoadMcr[A,B]` is FA=1 FB=2 FC=6 = FF 0o126 (cpu.c's own dispatch), and
+    // takes Mcr[0:10] from A and Mcr[13:15] from B -- Initial passes T for
+    // both. So: T <- CPReg, then one jammed LoadMcr[T,T]. SetMCR's own
+    // `Cnt_ 6S` wait is not needed here because nothing has touched memory.
+    //
+    // IT GOES BEFORE THE LINK SETUP: loading T needs a CPReg write and a jam,
+    // and doing that after `CPRegToLink#` left the machine starting at 0 (the
+    // start address is carried in Link, and Link is what the startup Return
+    // fetches).
+    if ($value$plusargs("setmcr=%h", mcrval)) begin
+      set_cpreg_plain(mcrval[15:0]);
+      parc_micro(8'h70, 8'h03, 8'h0F, 8'h04, 8'hC0);   // TFromCPReg#
+      nop_micro;
+      {mb0_, mb1_, mb2_, mb3_, mb4_} =
+        mkmi(4'd0, 4'd0, 3'd2 /*BSEL=T*/, 3'd0 /*LC NoLoad*/,
+           3'd6 /*ASEL A<-T*/, 8'o126 /*LoadMcr[A,B]*/, 8'h00, 1'b0);
+      parc_micro(mb0_, mb1_, mb2_, mb3_, mb4_);
+      nop_micro;
+      $display("tb_exec: +setmcr -- MCR loaded with %h through a jammed LoadMcr[T,T] (%h %h %h %h %h)",
+               mcrval[15:0], mb0_, mb1_, mb2_, mb3_, mb4_);
+    end
 
     set_cpreg_tilde(startaddr[15:0]);
     parc_micro(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);   // CPRegToLink#
