@@ -991,6 +991,7 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **THE MEMORY SECTION RUNS DRAM CYCLES** (re-earned 2026-08-23) | `memrun-test` -- the earlier green was an artifact of a mis-shifted Map-Mem PROM; `preStartMem'` now PULSES |
 | **A WORD COMES OUT OF PARC'S STORAGE ARRAY** | `readback-test` -- eight boards, real microcode, the seeded word back through the SN74166s onto `Sin` |
 | **...AND THE RETURN PATH CARRIES A WORD TO THE PROCESSOR** | `readback-test` -- cache -> `dMD` -> `Md`, the register microcode reads and `cpu.c` models |
+| **A WORLD RUNS ON THE MACHINE** -- Initial boots, hands over at BootEmulator, and AEmu starts its own display tasks | `boot-world` -- 516 IM addresses, 26,464 task switches, the world's own HRam and raster (blank only because no display list is in memory) |
 | **ELEVEN BOARDS RUN INITIAL, PAINT ITS RASTER, AND REACH THE ETHERNET BOOT** | `exec-bootfull` -- 453 IM addresses, 107 display fields, and the Ethernet OUTPUT TASK woken (`TWReq.06`), which needed DskEth's j52 task strap |
 | the 9401 CRC generator/checker computes and checks CRC-16 | `crc-test` -- 0xFEE8 for "123456789", and it catches a flipped bit |
 | a register write on EControl wakes the Ethernet task and switches the machine to it | `eth-ctl-test` -- TurnOnTx latches TxOn, j24 registers TWReq.06, CTask becomes 6 |
