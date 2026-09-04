@@ -2005,17 +2005,17 @@ module tb_exec;
   always @(posedge sys_clk) begin
     if (m.b_ProcL.IOBout && !et_iobout_d && et_tioa == 8'o16) begin
       el2_armed = 1'b1;
-      if (n_el2 < 600) $display("ETHLOG2 %0d: EControl <- %04h (task %0d)", n_cyc2, el2_iob, pct_ctask);
+      if (n_el2 < 600) $display("tb_exec: ETHLOG2 %0d: EControl <- %04h (task %0d)", n_cyc2, el2_iob, pct_ctask);
     end
     if (m.b_ProcL.IOBout && !et_iobout_d && et_tioa == 8'o15 && n_el2 < 600)
-      $display("ETHLOG2 %0d: EData <- %04h (task %0d)", n_cyc2, el2_iob, pct_ctask);
+      $display("tb_exec: ETHLOG2 %0d: EData <- %04h (task %0d)", n_cyc2, el2_iob, pct_ctask);
     el2 = {m.b_DskEth.TxOn, m.b_DskEth.RxOn, m.b_DskEth.Ether06_sil_pl_5, m.TWReq_06, m.TWReq_07,
            m.b_DskEth.Curr_eq_EthTx, m.b_DskEth.Next_eq_EthTx_x3f_, m.b_DskEth.Prev_eq_EthTx,
            m.b_DskEth.Blocked, m.b_DskEth.Ether06_sil_pl_2__h04_14, m.b_DskEth.Ether06_sil_pl_2__l06_14,
            m.b_DskEth.Ether06_sil_pl_2__j04_15, m.b_DskEth.Ether06_sil_pl_2__l03_15, m.b_DskEth.NoWakeups,
            pct_ctask == 4'd6, pct_ctask == 4'd7, m.b_DskEth.bIOReset};
     if (el2_armed && el2 !== el2_d && n_el2 < 600) begin
-      $display("ETHLOG2 %0d: TxOn=%b RxOn=%b wakeD=%b TWReq06=%b TWReq07=%b Curr=EthTx %b Next=EthTx? %b Prev=EthTx %b Blocked=%b h04'=%b l06=%b j04=%b l03=%b NoWakeups=%b t6=%b t7=%b bIOReset=%b ctask=%0d",
+      $display("tb_exec: ETHLOG2 %0d: TxOn=%b RxOn=%b wakeD=%b TWReq06=%b TWReq07=%b Curr=EthTx %b Next=EthTx? %b Prev=EthTx %b Blocked=%b h04'=%b l06=%b j04=%b l03=%b NoWakeups=%b t6=%b t7=%b bIOReset=%b ctask=%0d",
                n_cyc2, el2[16], el2[15], el2[14], el2[13], el2[12], el2[11], el2[10], el2[9], el2[8], el2[7], el2[6], el2[5], el2[4], el2[3], el2[2], el2[1], el2[0], pct_ctask);
       n_el2 = n_el2 + 1;
     end
@@ -2034,11 +2034,14 @@ module tb_exec;
     if ($value$plusargs("rcvplay=%s", rp_path)) begin
       rp_fd = $fopen(rp_path, "r");
       if (rp_fd == 0) $fatal(1, "rcvplay: cannot open %s", rp_path);
-      while (!$feof(rp_fd) && rp_n < 400000) begin
-        rp_code = $fgets(rp_buf, rp_fd);
-        if (rp_code == 0) break;
-        if (rp_buf[8*rp_code-8 +: 8] == "#") continue;   // comment line ($fgets stores the LAST char lowest)
-        if ($sscanf(rp_buf, "%d %d", rp_tt, rp_vv) == 2) begin rp_t[rp_n] = rp_tt; rp_v[rp_n] = rp_vv[0]; rp_n = rp_n + 1; end
+      // $fscanf, not $fgets+$sscanf: the file is pure "<offset> <level>" pairs
+      // (tools/eb_replies.py puts its packet index in a sidecar), and the
+      // $fgets form silently loaded NOTHING -- 0 transitions -- in the first
+      // boot run that armed this.
+      while (rp_n < 400000) begin
+        rp_code = $fscanf(rp_fd, "%d %d", rp_tt, rp_vv);
+        if (rp_code != 2) break;
+        rp_t[rp_n] = rp_tt; rp_v[rp_n] = rp_vv[0]; rp_n = rp_n + 1;
       end
       $fclose(rp_fd);
       void'($value$plusargs("rcvdelay=%d", rp_delay));
