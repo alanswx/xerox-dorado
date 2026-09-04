@@ -365,6 +365,27 @@ horizontal task correctly finds nothing. (An earlier guess here, that the
 loop writes each address's own value and would therefore leave a
 self-referential DCB behind, is wrong; the source says `DBuf_ 0C`.)
 
+**THE NEXT STEP, scoped.** Pixels need a display list in guest memory, and
+with `boot-world` the machine is otherwise ready for one. The bench must
+therefore be able to place a word, and the storage layout is now mapped far
+enough to say what that takes:
+
+- `msa` holds **144 `MK4096P` chips**, each 4096x1, whose `mem[]` index is
+  the chip's own 12-bit {row, col}; the row and column come from
+  `cell_MK4096P_addr`, of which there are **16**, one per control group.
+- Their outputs feed **20 `SN74166` shift registers**, 8 parallel inputs
+  each, which serialise onto `Sin` -- so a bit's position in a word is a
+  (serialiser, input) pair, not a chip number.
+- The bench's existing seed writes ONE pattern into the eight chips of a
+  single serialiser group across all 4,096 addresses, which is why it can
+  fill memory but not place a word.
+
+So a targeted write needs two small derivations from the netlist: word
+address to (`addr` group, `mem[]` index), and bit position to (serialiser,
+parallel input). Both are static. The alternative is a mid-run jam of a
+`Store<-` through the processor, which needs machinery the bench does not
+have; the direct write needs none.
+
 **Two things this settled on the way.** A world CANNOT be started cold: at
 `START` (0x000) it parks in the IFU not-ready trap, which is correct for
 that entry, and at `STARTEMULATOR` without Initial it wedges with RefHold
