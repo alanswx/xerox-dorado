@@ -212,6 +212,34 @@ reader was `$fgets` + `$sscanf` with a hand-rolled comment test. It is an
 packet index in a `.idx` sidecar. Gate: `make -C verilog/verilator
 ebreplies-check`.
 
+### Gate status, re-run in full on 2026-09-03
+
+**PASS (28):** alu-diff, compute-test, exec-test, exec-parity, exec-boot,
+exec-world, exec-world9, task-test, taskrun-test, refdecode-test,
+im-parity-check, mir-diff, mirreg-diff, cpreg-diff, boot0-test,
+datapath-test, machine-test, converge-test, loop-check, lint, prom-test,
+osc-test, baseboard-test, firmware-probe, mem-test, operand-test,
+run-test, sendmir, startseq, step-test, writeim-test, strap-test,
+muffler-test, and the three new ones -- crc-test, eth-ctl-test,
+ebreplies-check.
+
+**FAIL, and also failing at 41f4aa1e (this session's starting commit,
+checked by checking that commit's file out and re-running):** exec-init
+and exec-tasking (the fault task does not run its handler -- bisected in
+the previous session to cbf5b94f, the MC10176 setup capture), memrun-test
+(`preStartMem'` never asserts), readback-test (the seeded cache word never
+reaches dMD), and the tb_disk family.
+
+**ELEVEN OBJECT DIRECTORIES WERE STALE**, each holding a generated
+`.mk` that names the repository's OLD path
+(`~/Documents/development/Dorado`), so eight gates -- baseboard-test,
+mirreg-diff, firmware-probe, mem-test, operand-test, run-test, sendmir,
+startseq, step-test, writeim-test -- failed with "No rule to make target
+.../Vtb_*__pch.h" and NOTHING to do with the RTL. `rm -rf` the
+`verilog/verilator/obj_*` directory and re-run before believing any
+failure. Find them all with
+`grep -rl Documents/development verilog/verilator/obj_*`.
+
 ### Two traps, both of which cost a run each
 
 - **The exec recipes filter their own output**: the rules end in
