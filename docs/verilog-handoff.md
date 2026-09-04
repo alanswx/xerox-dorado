@@ -190,6 +190,48 @@ task 6 executing 28 addresses, and one `Output<-` reaching EData (015B).
 That wakeup is the j52 strap fix arriving in a real boot: before it, task 6
 ran its 15 init addresses and blocked forever.
 
+**Where it stops, precisely -- and the trace names the sample.** With
+ETHLOG2 (a change-only log of the wakeup chain, armed by the first EControl
+write) the whole sequence is legible, and it is `InitialEther.mc` word for
+word:
+
+```
+98405082  EControl <- f0ff  (task 0)   ResetEther: TurnOffRx  (RxCmdEnbl)
+98405146  EControl <- 0fff  (task 0)               TurnOffTx  (TxCmdEnbl)
+   ...    tasks 7 and 6 run their init PCs and block  (EITInitPC/EOTInitPC)
+98406426  EControl <- f6ff  (task 0)   TurnOnRx  (RxCmdEnbl+SRxOn+SRxBOP')
+98406490  EControl <- 4fff  (task 0)   TurnOnTx  (TxCmdEnbl+STxOn)
+98406521  TxOn=1 RxOn=1 wakeD=1        the EOT wakeup term rises
+98406537  TWReq.06=1                   j24 registers it onto the backplane
+98406601  ctask=6                      the machine switches to the output task
+98406874  EData <- 0119     (task 6)   the FIRST word of the boot request
+98406906  l06=1                        the bus register takes it (TxBusRegFull)
+98406921  ctask=0                      the emulator task resumes
+98406937  TxOn=0 RxOn=0                *** both cleared, with NO control write
+```
+
+**Those are the only five `Output<-` strobes in the whole 120 M-cycle run**
+(four EControl, one EData), so the last line is not the microcode turning
+the transmitter off: something CLEARS the Ethernet control register one
+microinstruction after the first data word. Both flip-flops take
+`bIOReset` on their reset pins (j04 p4 for TxOn, l04 p13 for RxOn) and both
+take their data from bIOB through the j06 control-clock latches
+(`TxCtrlClk'`/`RxCtrlClk'`, gated by `EthCtrl_IOB'` = `bIOout'` AND
+`TIOA=EthCtrl'`), so the next probe is exactly those five signals plus the
+IOB value across sample 98406937: a reset pulse and a spurious clock are
+distinguishable in one run. `bIOReset` reads 0 in the logged vector at that
+sample, which argues for the clock, but the vector is change-triggered and
+that is the one thing worth re-measuring directly.
+
+**A second observation for whoever takes this on:** the word sent is
+`0119`, where the C emulator's request begins `000042` = dest host 0,
+source host 042. Ours is dest 01, source 031 octal, with `Host_0..7` tied
+to 0 at the bench -- so either the host-address readback (`LHost_ Input`,
+the left byte of EControl's status) or the packet buffer in VM is not what
+Initial thinks it is.
+
+**The old paragraph, kept because its measurements still hold.**
+
 **Where it stops, precisely.** The transmitter never drives the wire:
 `XmtData'` makes 2 transitions (its power-up pair) and exactly ONE data
 word is written. That is self-consistent with the microcode --
