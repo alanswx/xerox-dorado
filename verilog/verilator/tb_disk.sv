@@ -1538,6 +1538,8 @@ module tb_disk;
   reg txclk_d = 1'b1; reg [15:0] iob_at_eth = 16'bx;
   reg [17:0] ethv, ethv_d = 18'bx; integer n_ethlog = 0;
   integer ethwin_left = 0, n_ethwin_seen = 0;
+  integer n_e340 = 0, n_e170 = 0, n_txgo = 0, n_txgone = 0, n_tfe = 0, n_carr = 0, n_xmt = 0;
+  reg e340_d = 1'b0, e170_d = 1'b0, xmt_d = 1'b1;
   integer n_pl2 = 0, n_pl2_j04 = 0, n_pl2_l06 = 0, n_pl2_h04 = 0, n_pl2_l03 = 0, n_txoff = 0,
           n_curtx = 0, n_nxttx = 0, n_blocked = 0, n_busfull = 0, n_cntdwn = 0, n_txeop = 0;
   always @(posedge sys_clk) begin
@@ -1754,6 +1756,16 @@ module tb_disk;
     if (!m.b_DskEth.TxBusRegFull_p_)        n_busfull = n_busfull + 1;
     if (!m.b_DskEth.TxCntDwn_p_)            n_cntdwn  = n_cntdwn + 1;
     if (m.b_DskEth.TxEOP)                   n_txeop   = n_txeop + 1;
+    if (m.b_DskEth.EtherClk340 && !e340_d) n_e340 = n_e340 + 1;
+    e340_d <= m.b_DskEth.EtherClk340;
+    if (m.b_DskEth.EtherClk170 && !e170_d) n_e170 = n_e170 + 1;
+    e170_d <= m.b_DskEth.EtherClk170;
+    if (m.b_DskEth.TxGo)       n_txgo   = n_txgo + 1;
+    if (m.b_DskEth.TxGone)     n_txgone = n_txgone + 1;
+    if (m.b_DskEth.TxFifoEmpty) n_tfe   = n_tfe + 1;
+    if (m.b_DskEth.PDCarrier)  n_carr   = n_carr + 1;
+    if (m.XmtData_p_ != xmt_d) n_xmt = n_xmt + 1;
+    xmt_d <= m.XmtData_p_;
     // ACTIVE LOW, and reading it the other way makes a correct board look
     // broken. b11 is an MC10103 whose pin-2 role is `o`, the NON-inverting
     // OR, so DskEth03.sil+1 = bIOin' OR TIOA=Us' -- both active low, hence
@@ -4429,6 +4441,8 @@ module tb_disk;
     if ($test$plusargs("eth")) begin
       $display("tb_disk: ETH -- TIOA=EthCtrl' low %0d, EthCtrl_IOB' low %0d (IOB there %04h), TxCtrlClk' falls %0d | TxOn high %0d, RxOn high %0d | wakeup D (Ether06.sil+5) high %0d, TWReq.06 high %0d, TWReq.07 high %0d, NoWakeups high %0d | IOBout strobes at TIOA %o: %0d, of %0d samples",
                n_ethtioa, n_ethsel, iob_at_eth, n_txclk, n_txon, n_rxon, n_tw6d, n_tw6, n_tw7, n_nowake, want_tioa, n_tioa_out10, n_tot);
+      $display("tb_disk: ETH CLOCK -- EtherClk340 edges %0d, EtherClk170 %0d | TxGo high %0d, TxGone %0d, TxFifoEmpty %0d, PDCarrier %0d, XmtData' transitions %0d, of %0d",
+               n_e340, n_e170, n_txgo, n_txgone, n_tfe, n_carr, n_xmt, n_tot);
       $display("tb_disk: ETH TERMS -- Ether06.sil+2 high %0d: j04 (TxCntDwn) %0d, l06 (TxBusRegFull) %0d, h04 (Blocked FF) %0d, l03 (TxEOP) %0d | TxOff %0d, Curr=EthTx %0d, Next=EthTx? %0d | Blocked %0d, TxBusRegFull' low %0d, TxCntDwn' low %0d, TxEOP %0d",
                n_pl2, n_pl2_j04, n_pl2_l06, n_pl2_h04, n_pl2_l03, n_txoff, n_curtx, n_nxttx, n_blocked, n_busfull, n_cntdwn, n_txeop);
       $finish;

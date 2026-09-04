@@ -181,12 +181,50 @@ SILENT. Neither was in the RTL.
   `000042 001000 000026 000264 000001 000110 000000 000000 000004 000042
   000001 000001 177777` (`DORADO_ETH_TX_TRACE=1`).
 
+### THE ELEVEN-BOARD MACHINE REACHES ITS ETHERNET BOOT AND WAKES THE OUTPUT TASK
+
+The deepest the RTL has run: 453 distinct IM addresses in 120 M sys_clk,
+Initial's own raster painting throughout (107 fields, HRam loaded, HSync
+running), and **the Ethernet output task alive** -- `TWReq.06` asserted,
+task 6 executing 28 addresses, and one `Output<-` reaching EData (015B).
+That wakeup is the j52 strap fix arriving in a real boot: before it, task 6
+ran its 15 init addresses and blocked forever.
+
+**Where it stops, precisely.** The transmitter never drives the wire:
+`XmtData'` makes 2 transitions (its power-up pair) and exactly ONE data
+word is written. That is self-consistent with the microcode --
+`InitialEther.mc`'s EOT task writes a word and blocks, and HM 11 says the
+next EOT wakeup comes "when the bus register is empty", which only happens
+once the transmitter has shifted the word out. So the question is why the
+transmit sequencer does not start. Measured on the one-minute bench
+(`eth-ctl-test`): the Ethernet clocks RUN (`EtherClk340` 1,550 edges,
+`EtherClk170` 3,101 over 263 us), `PDCarrier` is 0 (the line is properly
+idle), `TxFifoEmpty` is high, and `TxGo` is 0 -- correct there, because that
+bench never writes EData. The next measurement is the same chain in the
+boot, where one word HAS been written: `TxGo`, `TxSRLoad`, `TxStart`,
+`TxFifoEmpty` and the `TxState` counter, which `tb_exec`'s ETHLOG2 block
+already logs.
+
+**The reply side is ready and waiting.** `+rcvplay` now loads (266,254
+transitions of `aemu.eb`); its first run silently loaded ZERO because the
+reader was `$fgets` + `$sscanf` with a hand-rolled comment test. It is an
+`$fscanf` loop now and `tools/eb_replies.py` writes pure data with its
+packet index in a `.idx` sidecar. Gate: `make -C verilog/verilator
+ebreplies-check`.
+
 ### Two traps, both of which cost a run each
 
 - **The exec recipes filter their own output**: the rules end in
   `echo "$$out" | grep tb_exec`, so any `$display` whose text does not
   contain `tb_exec` is DISCARDED. Two probes appeared to produce nothing at
   all. Prefix every new probe with `tb_exec:`.
+- **A THIRD instance of the filter trap**: `ETHLOG2`, the transmit-chain
+  log, was written without the prefix and produced nothing in a 35-minute
+  boot. Prefix EVERY probe with `tb_exec:`.
+- **Moving a probe can consume an enclosing `endif`.** Relocating the DYCLK
+  block took the wrong terminator with it; the junk-task block fell out of
+  its `ifdef WORLD` and `exec-test` stopped elaborating. Check the guard
+  stack after any edit that moves a conditional block.
 - **Where you insert a probe decides which builds run it.** A block placed
   "just before the FULL section" landed INSIDE an enclosing `ifdef FULL`,
   so the control half of an A/B silently produced no line. Check the

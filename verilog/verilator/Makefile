@@ -755,6 +755,14 @@ crc-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_crc/tb_crc 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_crc|Assertion"; exit $$rc; }
 
+# The RTL's boot server: build the MicrocodeBootReply stream for a .eb and
+# round-trip every packet through the Manchester decoder, checking that the
+# CRC-16 residue of data+check word is zero (the 9401's own criterion).
+.PHONY: ebreplies-check
+ebreplies-check:
+	@cd ../.. && python3 tools/decode_xmt.py --selftest && \
+	 python3 tools/eb_replies.py dorado/worlds/aemu.eb $${TMPDIR:-/tmp}/eb_replies.txt --selftest
+
 # THE FIRST WAKEUP THIS BENCH CAN MOVE: a DISKMUFF write carrying IOB.04
 # clears IndexTW, which is otherwise asserted for every sample of every run.
 disk-muff-test:

@@ -90,9 +90,12 @@ def main():
     cell = 340.0 / (30.0 / a.sysper); gap = a.gap_us * 1000.0 / (30.0 / a.sysper)
     wl = eb_words(a.eb)
     pkts, out = build(wl, a.lhost, a.rhost, cell, gap, a.pol)
-    with open(a.out, 'w') as f:
+    # The stream file is PURE DATA -- "<offset> <level>" and nothing else --
+    # because the Verilog reader is a $fscanf loop; the packet index goes in a
+    # sidecar for humans.
+    with open(a.out, 'w') as f, open(a.out + '.idx', 'w') as g:
         for i, t0, tr in out:
-            f.write(f"# packet {i} at {t0} ({len(pkts[i])} words)\n")
+            g.write(f"packet {i} at {t0} ({len(pkts[i])} words)\n")
             for t, lv in tr: f.write(f"{t} {lv}\n")
     total = out[-1][2][-1][0]
     print(f"{a.eb}: {len(wl)} words -> {len(pkts)} packets, {total} sys_clk ({total * (30.0 / a.sysper) / 1e6:.1f} ms), pol={a.pol}")
