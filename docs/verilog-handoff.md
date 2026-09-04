@@ -117,6 +117,81 @@ Deepest boot command (add `+ioreset` to last session's):
 - `+xmtrec=PATH` in tb_exec records every `XmtData'` transition with its
   sys_clk index, for decoding the sent packet offline.
 
+### The eleven-board machine, for real this time (2026-09-03)
+
+Two bench bugs stood between "eleven boards" and a machine, and both were
+SILENT. Neither was in the RTL.
+
+- **The instantiation is an `ifdef` CHAIN with a SHARED TAIL.** `tb_exec`
+  opens `dorado_full m (`, `dorado_screen m (` or `dorado_world m (` in the
+  three arms of one `ifdef`, and the ports common to all three come after
+  the `endif`. The Makefile defines SCREEN and FULL together, so with SCREEN
+  first every "eleven-board" run built the TEN-board machine (retracted
+  above); and once FULL was put first, the ports that live only in the
+  SCREEN arm -- `CLK_display'`, `PixelClkVCO`/`RawPixelClk`, and the video
+  the bench samples -- were no longer connected. **Verilator ties an
+  unconnected input to 0 and only warns**, so DispY sat at its power-up
+  levels and every display counter read as a plausible zero.
+- **How it was found, and three wrong answers eliminated first.** The
+  symptom looked like "adding DskEth breaks the display": on eleven boards
+  `HRamCommand'` was asserted for the whole run and `ClkHRamAddr'` had zero
+  edges, where ten boards gave 58 and 188,450. The processor was IDENTICAL
+  -- both machines executed the SAME 120 IM addresses from Initial's entry
+  -- so it had to be something DispY sees. A static diff of the two tops
+  says DispY's inputs differ in exactly two places, `DMuxData` and
+  `IOB.00-15`, and counting DskEth's contribution to each killed both:
+  **IOB 0 on every one of the 18 bits, DMuxData 1 sample of 3,015,252**.
+  IOAtten, the third candidate, is driven by ProcH (7,736,779 samples) and
+  by DskEth on 0. Only then did counting DispY's own clock -- 47,350
+  `clk1'Cc` edges on ten boards, **0** on eleven, with `CLK_display'`
+  94,703 and 0 while `mclk` toggled at the bench -- name the port. With it
+  connected the two configurations agree exactly, DISPY line for DISPY line.
+  A `final` block now says so out loud when the display board is in the
+  machine and its clock never toggles.
+- **DskEth's MUFFLER strap was missing too**, found while chasing DMuxData.
+  `DskEth.pdf` sheet 5: "Cut SIP legs at k52 to set the Muffler addresses
+  for the board. Standard addresses are 2000-2177." k52 pins 5-8 are
+  `MufAd.1-4`, k24 (an MC10166) compares them against `DMadr.01-04`, and
+  the net k24 drives is NAMED **`MidasEn.01T.02F.03F.04F'`** -- the strap
+  value written out, bit 1 true and bits 2-4 false. 2000B is the ninth of
+  sixteen ranges, i.e. the top four bits of an 11-bit muffler address are
+  1000, the same encoding as e41 (a cut leg is 0). Legs 6,7,8 cut. It was
+  NOT the display bug -- DMuxData is quiet either way -- but it is a real
+  strap and the sheet states its answer.
+- **With a disk controller present, Initial tries the DISK first**, which is
+  `InitialMain.mc` verbatim: "No key down. First attempt disk microcode
+  boot." The eleven-board run therefore visits `BOOTTRANSFER`,
+  `SETDRIVEANDSUBSECTOR`, `BOOTTRANSFERLP` and lands on
+  `BOOTTRANSFERTIMEOUT`, which `DiskBootTransfer.mc` sends to
+  `BootDiskError` -> `BootEOF` -> `BootTransferDone` with carry=1, i.e. the
+  fall-through to `DoEtherMicrocodeBoot`. PARC's own way to skip the disk
+  is the BOOT PARAMETER: STK[2] = `BootParameterSeal` (056623B) with
+  STK[1]+STK[2]+STK[3] = 0 makes STK[1] the boot file number and branches
+  straight to the Ethernet boot.
+- **A boot server for the RTL exists now.** `tools/eb_replies.py` builds the
+  MicrocodeBootReply stream for a `.eb` -- `append_reply`'s exact packet
+  layout from `dorado/src/ethernet.c`, which `InitialEther.mc`'s EIEnd
+  filters on -- phase-encodes it at the 340 ns bit cell and appends the
+  9401's CRC-16; `tb_exec +rcvplay=PATH` replays it onto DskEth's `RcvData`
+  once the machine's own transmitter has sent a packet and gone idle.
+  38 packets for `aemu.eb`, 61 ms of wire, and every packet round-trips
+  through `tools/decode_xmt.py` with a zero CRC residue.
+  `+xmtrec=PATH` records the machine's own transmit line for decoding.
+  For comparison, the C emulator's request is 13 words:
+  `000042 001000 000026 000264 000001 000110 000000 000000 000004 000042
+  000001 000001 177777` (`DORADO_ETH_TX_TRACE=1`).
+
+### Two traps, both of which cost a run each
+
+- **The exec recipes filter their own output**: the rules end in
+  `echo "$$out" | grep tb_exec`, so any `$display` whose text does not
+  contain `tb_exec` is DISCARDED. Two probes appeared to produce nothing at
+  all. Prefix every new probe with `tb_exec:`.
+- **Where you insert a probe decides which builds run it.** A block placed
+  "just before the FULL section" landed INSIDE an enclosing `ifdef FULL`,
+  so the control half of an A/B silently produced no line. Check the
+  enclosing conditionals, not the neighbouring text.
+
 ### The three defects, each with its measurement
 
 1. **`cell_MC10181`'s look-ahead pins were the TTL '181's G and P; this
