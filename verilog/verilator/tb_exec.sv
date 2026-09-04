@@ -508,7 +508,7 @@ module tb_exec;
   // 117 pulses per revolution is the drive's; the controller's subsector
   // counter divides them by four (disk.c, from TriconD's own test).
   // 80 words per pulse puts 9,360 words on a track, the T-80's own capacity.
-  wire drv_ready_n, drv_online_n, drv_term_n, drv_sel_n, drv_sec_n, drv_adv, drv_bit;
+  wire drv_ready_n, drv_online_n, drv_term_n, drv_sel_n, drv_sec_n, drv_index_n, drv_adv, drv_bit;
   wire drv_dp, drv_dm, drv_cp, drv_cm;
   wire [11:0] tag_n; wire cyltag_n, headtag_n, drivetag_n, conttag_n, sel0_n;
   wire [11:0] pk_cyl; wire [5:0] pk_head;
@@ -518,7 +518,7 @@ module tb_exec;
   dorado_trident #(.SYSPER(2 * SYSPER), .SECTORS_PER_REV(117), .WORDS_PER_SECTOR(80)) u_drv (
       .sys_clk(sys_clk), .reset(1'b0), .attached(pack_on), .selected(~sel0_n),
       .TtlReady_n(drv_ready_n), .TtlOnLine_n(drv_online_n), .TtlTerm_n(drv_term_n),
-      .Selected_n(drv_sel_n), .SecIndx_n(drv_sec_n),
+      .Selected_n(drv_sel_n), .SecIndx_n(drv_sec_n), .TtlIndex_n(drv_index_n),
       .data_bit(drv_bit), .data_adv(drv_adv),
       .DataP(drv_dp), .DataM(drv_dm), .ClockP(drv_cp), .ClockM(drv_cm));
   dorado_pack u_pack (
@@ -578,7 +578,7 @@ module tb_exec;
       .Selected2_p_(1'b1),
       .Selected3_p_(1'b1),
       .TtlEndOfCyl_p_(1'b1),
-      .TtlIndex_p_(1'b1),
+      .TtlIndex_p_(drv_index_n),
       .TtlOnLine_p_(drv_online_n),
       .TtlReadOnly_p_(1'b1),
       .TtlReady_p_(drv_ready_n),
@@ -2132,7 +2132,7 @@ module tb_exec;
   // DISK: what the world's disk boot did against the drive, and the Alto
   // boot's own milestones (AEmu.mb: DiskBoot 0x405, DiskBootRetry 0x412,
   // KWait 0x417, KBootTimeout 0x375, EBoot 0x406).
-  integer dk_sectw = 0, dk_idxtw = 0, dk_active = 0, dk_rderr = 0, dk_fifow = 0, dk_data = 0, dk_ecc = 0;
+  integer dk_sectw = 0, dk_idxtw = 0, dk_active = 0, dk_rderr = 0, dk_fifow = 0, dk_data = 0, dk_ecc = 0, dk_rdderr = 0, dk_fovf = 0, dk_funf = 0;
   reg dk_sectw_d = 1'b0, dk_idxtw_d = 1'b0; reg [3:0] dk_fw_d = 4'd0;
   integer dk_t_diskboot = -1, dk_t_kwait = -1, dk_t_timeout = -1, dk_t_retry = -1, dk_n_retry = 0;
   reg [11:0] dk_cia_d = 12'hfff;
@@ -2141,6 +2141,9 @@ module tb_exec;
     if (m.b_DskEth.IndexTW  && !dk_idxtw_d) dk_idxtw = dk_idxtw + 1; dk_idxtw_d <= m.b_DskEth.IndexTW;
     if (m.b_DskEth.Active)    dk_active = dk_active + 1;
     if (m.b_DskEth.ReadError) dk_rderr = dk_rderr + 1;
+    if (m.b_DskEth.ReadDataErr)   dk_rdderr = dk_rdderr + 1;
+    if (m.b_DskEth.FifoOverflow)  dk_fovf = dk_fovf + 1;
+    if (m.b_DskEth.FifoUnderflow) dk_funf = dk_funf + 1;
     if ({m.b_DskEth.FifoWaddr_0, m.b_DskEth.FifoWaddr_1, m.b_DskEth.FifoWaddr_2, m.b_DskEth.FifoWaddr_3} != dk_fw_d) dk_fifow = dk_fifow + 1;
     dk_fw_d <= {m.b_DskEth.FifoWaddr_0, m.b_DskEth.FifoWaddr_1, m.b_DskEth.FifoWaddr_2, m.b_DskEth.FifoWaddr_3};
     if (cia_now != dk_cia_d) begin
@@ -2155,8 +2158,8 @@ module tb_exec;
     if (pack_on)
       $display("tb_exec: PACK -- %s: tags cyl %0d head %0d drive %0d control %0d, drive at cyl %0d head %0d, tracks loaded %0d, sectors served %0d, blocks %0d, bits %0d",
                pack_path, pk_nct, pk_nht, pk_ndt, pk_nkt, pk_cyl, pk_head, pk_ntr, pk_nse, pk_nbl, pk_nbi);
-    $display("tb_exec: DISK -- SectorTW rises %0d, IndexTW rises %0d, Active high %0d, ReadError high %0d, FIFO write-address changes %0d | DiskBoot first @%0d, DiskBootRetry first @%0d (%0d entries), KWait first @%0d, KBootTimeout first @%0d, of %0d",
-             dk_sectw, dk_idxtw, dk_active, dk_rderr, dk_fifow, dk_t_diskboot, dk_t_retry, dk_n_retry, dk_t_kwait, dk_t_timeout, n_cyc2);
+    $display("tb_exec: DISK -- SectorTW rises %0d, IndexTW rises %0d, Active high %0d, ReadError high %0d (ReadDataErr %0d, FifoOverflow %0d, FifoUnderflow %0d), FIFO write-address changes %0d | DiskBoot first @%0d, DiskBootRetry first @%0d (%0d entries), KWait first @%0d, KBootTimeout first @%0d, of %0d",
+             dk_sectw, dk_idxtw, dk_active, dk_rderr, dk_rdderr, dk_fovf, dk_funf, dk_fifow, dk_t_diskboot, dk_t_retry, dk_n_retry, dk_t_kwait, dk_t_timeout, n_cyc2);
   end
 `endif
 `ifdef FULL

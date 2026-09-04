@@ -82,6 +82,11 @@ module dorado_trident #(
     output wire TtlTerm_n,
     output wire Selected_n,
     output wire SecIndx_n,
+    // THE INDEX HAS ITS OWN LINE. DskEth c03 (an MC10124) takes TtlIndex' and
+    // TtlSector' as two inputs and makes Index' and Sector from them; the
+    // longer pulse on SecIndx' above is kept, but it is this line the
+    // controller's sector counter resets on (2026-09-04).
+    output wire TtlIndex_n,
 
     // ---- the read data path ----
     // The next bit to send, and a pulse when the drive has taken it. The
@@ -172,6 +177,7 @@ module dorado_trident #(
   assign ClockM = live ? ~bitclk   : 1'b0;
 
   assign SecIndx_n   = attached ? ~(in_index | in_sector) : 1'b1;
+  assign TtlIndex_n  = attached ? ~in_index : 1'b1;
   assign TtlReady_n  = ~attached;
   assign TtlOnLine_n = ~attached;
   assign TtlTerm_n   = ~attached;    // terminated, and c24 needs it to be
