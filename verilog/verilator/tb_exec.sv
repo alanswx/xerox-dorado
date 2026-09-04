@@ -2154,6 +2154,24 @@ module tb_exec;
     end
     dk_cia_d <= cia_now;
   end
+  // THE WORDS THE CONTROLLER HANDS THE PROCESSOR. b11's OutRegWrite' loads
+  // DskData from the FIFO; each falling edge is one word delivered, and the
+  // first few tell whether the pack's header (0000 0000), label (007e ...)
+  // and data (8530 4126 ...) arrived intact, or what arrived instead.
+  reg dk_orw_d = 1'b1; integer dk_nwords = 0;
+  wire [15:0] dk_word = {m.b_DskEth.DskData_00, m.b_DskEth.DskData_01, m.b_DskEth.DskData_02, m.b_DskEth.DskData_03,
+                         m.b_DskEth.DskData_04, m.b_DskEth.DskData_05, m.b_DskEth.DskData_06, m.b_DskEth.DskData_07,
+                         m.b_DskEth.DskData_08, m.b_DskEth.DskData_09, m.b_DskEth.DskData_10, m.b_DskEth.DskData_11,
+                         m.b_DskEth.DskData_12, m.b_DskEth.DskData_13, m.b_DskEth.DskData_14, m.b_DskEth.DskData_15};
+  always @(posedge sys_clk) begin
+    if (dk_orw_d && !m.b_DskEth.OutRegWrite_p_) begin
+      dk_nwords = dk_nwords + 1;
+      if (dk_nwords <= 24 || (dk_nwords % 256) == 0)
+        $display("tb_exec: DSKDATA #%0d @%0d = %04h (drive at cyl %0d head %0d, pulse %0d)", dk_nwords, n_cyc2, dk_word, pk_cyl, pk_head, u_drv.sector);
+    end
+    dk_orw_d <= m.b_DskEth.OutRegWrite_p_;
+  end
+  final $display("tb_exec: DSKDATA -- %0d words delivered to the processor", dk_nwords);
   final begin
     if (pack_on)
       $display("tb_exec: PACK -- %s: tags cyl %0d head %0d drive %0d control %0d, drive at cyl %0d head %0d, tracks loaded %0d, sectors served %0d, blocks %0d, bits %0d",
