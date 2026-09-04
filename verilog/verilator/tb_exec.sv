@@ -1684,6 +1684,54 @@ module tb_exec;
     end
   end
 
+  // ---- +enterat=HEX / +enterworld=HEX: HAND INITIAL'S BOOT OVER TO A WORLD --
+  //
+  // Initial's job is to set the machine up and then fetch a world over a
+  // transport. Everything before the transport is what a world NEEDS and
+  // cannot do for itself: `BlessBaseBoard` ends with `T_ mcr.noWake,
+  // Call[SetMCR]` -- "now allow holds" -- and only then branches to
+  // BootEmulator. A world started cold instead wedges on RefHold with its
+  // first `RM/STK<-Md`, which is what happens if you jump straight to
+  // AEmu's StartEmulator (measured: RefHold on 5,905,947 of 6,000,000).
+  //
+  // So this hands over AT BootEmulator (0xc92): the machine is fully
+  // initialised, and the 100 ms keyboard wait that opens BootEmulator --
+  // 6000B ticks of 32 us, about 52 M sys_clk -- is skipped with it.
+  // The world must already be in IM; Initial (0xc00-0xfbf), Bootstrap
+  // (0xfc0-0xfff) and AEmu (0x000-0x879) are disjoint, so one preload
+  // carries all three.
+  //
+  // This REPLACES THE TRANSPORT and nothing else. It is not a boot: a real
+  // machine gets those same microinstructions off the Ethernet or the disk.
+  integer enterw; reg [11:0] ew_at, ew_tgt;
+  reg ew_active = 1'b0, ew_done = 1'b0;
+  initial begin
+    ew_at = 12'hc92; ew_tgt = 12'h25b;
+    enterw = $value$plusargs("enterat=%h", ew_at);
+    if ($value$plusargs("enterworld=%h", ew_tgt)) enterw = 1;
+    if (enterw)
+      $display("tb_exec: +enterworld -- at IM[%h] the boot transport is replaced by a branch to IM[%h]",
+               ew_at, ew_tgt);
+  end
+  always @(posedge sys_clk) if (enterw && !ew_done) begin
+    if (!ew_active && cia_now == ew_at) begin
+      ew_active <= 1'b1;
+      $display("tb_exec: +enterworld -- Initial reached %h at cycle %0d; entering the world at %h",
+               ew_at, n_cyc2, ew_tgt);
+      force m.TNIA_04 = ew_tgt[11]; force m.TNIA_05 = ew_tgt[10];
+      force m.TNIA_06 = ew_tgt[9];  force m.TNIA_07 = ew_tgt[8];
+      force m.TNIA_08 = ew_tgt[7];  force m.TNIA_09 = ew_tgt[6];
+      force m.TNIA_10 = ew_tgt[5];  force m.TNIA_11 = ew_tgt[4];
+      force m.TNIA_12 = ew_tgt[3];  force m.TNIA_13 = ew_tgt[2];
+      force m.TNIA_14 = ew_tgt[1];  force m.TNIA_15 = ew_tgt[0];
+    end else if (ew_active && cia_now != ew_at) begin
+      ew_active <= 1'b0; ew_done <= 1'b1;
+      release m.TNIA_04; release m.TNIA_05; release m.TNIA_06; release m.TNIA_07;
+      release m.TNIA_08; release m.TNIA_09; release m.TNIA_10; release m.TNIA_11;
+      release m.TNIA_12; release m.TNIA_13; release m.TNIA_14; release m.TNIA_15;
+    end
+  end
+
   // ---- +ringpc=HEX / +ringat=N, +ringlen=N: THE PHASE RING, per sys_clk ----
   //
   // HM Figure 7: a normal instruction is Phase0 then StartCycle, one CLOCK
@@ -3667,6 +3715,17 @@ module tb_exec;
       if (last_pe > 400)
         $fatal(1, "IM parity errors continue past the enable point -- the preloaded array's parity is wrong");
       $display("tb_exec: THE MACHINE RUNS WITH IM PARITY ON.");
+    end
+    // +worldms: the same kind of milestone report for a WORLD started at its
+    // own entry, rather than for Initial. Addresses are AEmu.mb's, read from
+    // `mbdis -y` (whose `addr=` is the IMAGE index) through im_image's
+    // image->real mapping -- equivalently the low twelve bits of the fourth
+    // word mbdis prints, which is where the real address lives.
+    if ($test$plusargs("worldms")) begin
+      $display("tb_exec: WORLD MILESTONES -- START(000)=%0d STARTEMULATOR(25b)=%0d INITHRAM(7d0)=%0d LOADHRAMLOOP(7ca)=%0d RESETDISPLAYCONFIG(78f)=%0d DWTINITPC(740)=%0d DWTSTART(74e)=%0d DHTINITPC(760)=%0d NEWDCB(3d5)=%0d",
+               visited[12'h000], visited[12'h25b], visited[12'h7d0], visited[12'h7ca],
+               visited[12'h78f], visited[12'h740], visited[12'h74e], visited[12'h760],
+               visited[12'h3d5]);
     end
     if ($test$plusargs("bootchain")) begin
       // PARC'S OWN BOOT CHAIN, first two stages. Initial.mb occupies real

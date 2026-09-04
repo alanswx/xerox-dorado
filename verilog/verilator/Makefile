@@ -263,6 +263,55 @@ exec-world9:
 		    +preload=verilog/verilator/obj_exec/im.txt $(EXECARGS) 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_exec; exit $$rc; }
 
+# THE ALTO WORLD ON TEN BOARDS: AEmu preloaded into IM (no transport), started
+# at its own START, with the display board present. The world loads its own
+# HRam (INITHRAM/LOADHRAMLOOP are its symbols, not Initial's).
+world-display:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
+	@mkdir -p obj_exec obj_wdisp
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
+	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 4 \
+		> verilog/verilator/obj_exec/exec.vec
+	@cd ../.. && ./dorado/build/im_image chm/dorado/AEmu.mb\!2 \
+		> verilog/verilator/obj_exec/im.txt 2>/dev/null
+	@cd ../.. && $(V) --binary --top-module tb_exec $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_wdisp -o tb_wdisp +define+WORLD +define+SCREEN \
+		verilog/verilator/tb_exec.sv verilog/generated/dorado_screen.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
+		verilog/generated/IFU-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_wdisp/tb_wdisp \
+		    +preload=verilog/verilator/obj_exec/im.txt +worldms +frame +mb0 +nostuck $(WORLDARGS) 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_exec; exit $$rc; }
+
+# INITIAL BOOTS, AND THE BENCH HANDS IT A WORLD instead of a transport: one
+# preload carries AEmu, Initial and Bootstrap (disjoint address ranges), Initial
+# runs its whole initialisation, and at BootEmulator the machine is redirected
+# into AEmu StartEmulator. See +enterworld in tb_exec.sv.
+boot-world:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
+	@mkdir -p obj_exec obj_bworld
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
+	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 4 \
+		> verilog/verilator/obj_exec/exec.vec
+	@cd ../.. && { ./dorado/build/im_image chm/dorado/AEmu.mb\!2 2>/dev/null; \
+		./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Initial.mb' 2>/dev/null | grep -v '^\#'; \
+		./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb' 2>/dev/null | grep -v '^\#'; } \
+		> verilog/verilator/obj_bworld/im.txt
+	@cd ../.. && $(V) --binary --top-module tb_exec $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_bworld -o tb_bworld +define+WORLD +define+SCREEN \
+		verilog/verilator/tb_exec.sv verilog/generated/dorado_screen.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
+		verilog/generated/IFU-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_bworld/tb_bworld \
+		    +preload=verilog/verilator/obj_bworld/im.txt +worldms +bootchain +start=3904 +enterat=c92 +enterworld=25b +frame +mb0 +nostuck $(WORLDARGS) 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_exec; exit $$rc; }
+
 # THE MACHINE RUNS WITH IM PARITY ENABLED. The preloaded array's parity is
 # correct; the enables just must not be on during the power-up transient,
 # because Stop gates the clock that would clear it.
