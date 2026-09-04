@@ -393,6 +393,15 @@ MICROINSTRUCTION, so the bench passes 2x its own; and 80 words per pulse
 puts 9,360 words on a track, the T-80's real capacity, for a bit period
 of about 111 ns.
 
+**And the index is a LINE, not a longer pulse.** DskEth c03 (an MC10124)
+takes `TtlIndex'` and `TtlSector'` as two separate inputs and makes
+`Index'` and `Sector` from them, so the controller does not separate index
+from sector by pulse length as the drive model's comment supposed; the
+bench had `TtlIndex'` tied deasserted, which would leave the controller's
+sector counter never synchronised to the pack's sector zero -- a boot
+would read the wrong sector and fail its header check. `dorado_trident`
+now outputs `TtlIndex_n` in the sector-0 window and the bench connects it.
+
 Gate `pack-test`: the drive turning, the pack serving c3/h4/s0, an
 independent receiver decoding it -- all 266 words match the file and every
 check word cancels its block. It found one bug: loading the track lazily
