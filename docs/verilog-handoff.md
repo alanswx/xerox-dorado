@@ -223,6 +223,29 @@ distinguishable in one run. `bIOReset` reads 0 in the logged vector at that
 sample, which argues for the clock, but the vector is change-triggered and
 that is the one thing worth re-measuring directly.
 
+**One candidate already eliminated, in one minute.** `eth-ctl-test
++ethdata` aims the same loop at EData (015B) with the word the boot sends:
+960 strobes give `TIOA=EthCtrl'` low on **0** samples and `TxCtrlClk'`
+falling **0** times, so the register decode is exclusive and an EData write
+does not clock the control register. The reset path is out too --
+DskEth j22 drives `bIOReset` through an MC10102 pin whose gate is the
+**OR** (`p9 = p12 | p13`, both `IOReset`), so `bIOReset` equals `IOReset`
+and reads 0 all run, leaving the MC10231 reset pins idle.
+
+**Which leaves a stale-bus clock, and the log cannot see it.** After the
+EData write `InitialEther.mc`'s EOT task does `TIOA[EControl]` with no
+`Output<-`; if `bIOout'` is still asserted from the previous strobe when
+TIOA changes, `EthCtrl_IOB'` asserts and the control register latches
+whatever bIOB still holds -- and `0119` has both command-enable bits clear
+with both ON bits clear, i.e. exactly "turn the transmitter and receiver
+off". ETHLOG2 would MISS that write, because it triggers on the RISING
+edge of IOBout and there is no new edge. **The measurement that settles
+it: count `TxCtrlClk'` falling edges over the boot and compare with the
+four EControl `Output<-` strobes.** In `eth-ctl-test` the two match
+exactly (30 and 30); a fifth fall in the boot names the mechanism. This is
+the same "the address must survive to the data" hazard the disk gates test
+in the other direction.
+
 **A second observation for whoever takes this on:** the word sent is
 `0119`, where the C emulator's request begins `000042` = dest host 0,
 source host 042. Ours is dest 01, source 031 octal, with `Host_0..7` tied

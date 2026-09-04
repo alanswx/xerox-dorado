@@ -1523,7 +1523,8 @@ module tb_disk;
     n_d00=0; n_mdd=0; n_dmd=0; n_md=0; n_merr=0; n_ecf=0; n_d00_e=0; n_dmd_e=0; n_md_e=0;
     d00_last=1'bx; dmd_last=1'bx; md_last=1'bx; n_coin_dmd=0; n_h05out=0; n_cwe=0; n_cce=0; n_d0in=0; n_dmd_ok=0; n_md_ok=0; n_dmd16=0; n_md16=0; n_we_fall=0; n_we_match=0; n_sind1=0; n_we_ones=0; we_d_rb=1'b1; n_dyclk=0; n_twr11=0; n_wdht=0; n_tot=0; n_igc_lo=0; n_sel=0; n_sel_free=0; n_r_cont=0; n_r_muff=0; n_r_data=0; n_r_ram=0; n_r_tag=0; tioa_now=8'bx; tioa_at_out=8'bx; n_tioa10=0; n_tioa_out10=0; miss_first=-1; miss_last=-1; n_miss=0; n_tw=0; n_byp=0; n_byp_out=0; n_cn=0; n_crc_edge=0; n_crc_free=0; crc_d=1'b0; crc_wait=0; n_tag_edge=0; n_tag_free=0; n_tagclk=0; tag_d=1'b0; tclk_d=1'b0; cont_first=-1; cont_first_sel=-1; n_clridx=0; n_idxtw_run=0; n_dat1=0; n_dat0=0; n_clk1=0; n_desel=0; n_bclk=0; n_scnt=0; n_shmove=0; n_bclkb=0; n_shld=0; bclkb_d=1'b0; n_rdata=0; n_cecc=0; n_shin=0; n_shiftin=0; n_rdblk=0; n_actv=0; n_wclk=0; n_co=0; n_cntdone=0; wclk_d=1'b0; n_ramcl=0; n_lastram=0; n_wecond=0; n_werise=0; g15we_d=1'b1; wdata_lo=4'bx; wdata_hi=4'bx; alub_hi=4'bx; alub_fall=4'bx; wdata_fall=4'bx; ff4_at_wr=1'bx; ff4_fall=1'bx; n_fall=0; n_alub_ok=0; n_alub_ok_wr=0; n_iob_lit=0; promseen=32'd0; promaddr_last=5'h1F; n_irf=0; n_fifow=0; irf_d=1'b0; n_orw=0; n_orf=0; n_dsknz=0; orw_d=1'b1; dskdata_nz=16'h0000; fwaddr_first=4'bx; fwaddr_last2=4'bx; promseen2=32'd0; promaddr2_last=5'h1F; dwin_d=-1; dwin_w=-1; dtrig_d=1'b0; dtrig_w=1'b0; alub_prev=4'bx; n_wrshow=0; ramcl_d=1'b0; ramaddr_last=4'bx; shreg_first=16'bx; shreg_last=16'bx;
     // The register the loop is aimed at: DISKCONTROL by default, DISKTAG with +tag.
-    want_tioa = $test$plusargs("eth")  ? 8'o016 :
+    want_tioa = $test$plusargs("ethdata") ? 8'o015 :
+                $test$plusargs("eth")  ? 8'o016 :
                 $test$plusargs("tag")  ? 8'o014 :
                 $test$plusargs("muff") ? 8'o011 :
                 ($test$plusargs("ram") ||
@@ -3421,7 +3422,8 @@ module tb_disk;
         // Resetting DisableRun IS setting EnableRun, so loading the LAST word
         // of the format RAM enables the controller: disk.c, "Loading the *last*
         // word of Format RAM (15) sets EnableRun (HM page 98)."
-        if      ($test$plusargs("eth"))  tioa_t = 16'h0E00;   // EControl, TIOA 016B
+        if      ($test$plusargs("ethdata")) tioa_t = 16'h0D00;  // EData, TIOA 015B
+        else if ($test$plusargs("eth"))  tioa_t = 16'h0E00;   // EControl, TIOA 016B
         else if ($test$plusargs("tag"))  tioa_t = 16'h0C00;
         else if ($test$plusargs("muff")) tioa_t = 16'h0900;
         else if ($test$plusargs("ram"))  tioa_t = 16'h0B00;
@@ -3470,6 +3472,7 @@ module tb_disk;
         // +eth: EtherDefs.mc TurnOnTx = TxCmdEnbl (007777B: bit 0 clear enables
         // the transmitter command, bits 4-15 set leave Rx/Test alone) + STxOn
         // (040000B) = 0x4FFF. Initial writes exactly this word at TurnOnTx.
+        else if ($test$plusargs("ethdata")) set_cpreg_plain(16'h0119);
         else if ($test$plusargs("eth"))  set_cpreg_plain(16'h4FFF);
         else                        set_cpreg_plain(16'h5A5A);
         parc_micro(8'h30, 8'h13, 8'hEF, 8'hC4, 8'h40);   // QFromCPReg#
@@ -4438,7 +4441,7 @@ module tb_disk;
 
     // +eth: report the Ethernet control register and its wakeup, then stop --
     // every gate below is a DISK gate.
-    if ($test$plusargs("eth")) begin
+    if ($test$plusargs("eth") || $test$plusargs("ethdata")) begin
       $display("tb_disk: ETH -- TIOA=EthCtrl' low %0d, EthCtrl_IOB' low %0d (IOB there %04h), TxCtrlClk' falls %0d | TxOn high %0d, RxOn high %0d | wakeup D (Ether06.sil+5) high %0d, TWReq.06 high %0d, TWReq.07 high %0d, NoWakeups high %0d | IOBout strobes at TIOA %o: %0d, of %0d samples",
                n_ethtioa, n_ethsel, iob_at_eth, n_txclk, n_txon, n_rxon, n_tw6d, n_tw6, n_tw7, n_nowake, want_tioa, n_tioa_out10, n_tot);
       $display("tb_disk: ETH CLOCK -- EtherClk340 edges %0d, EtherClk170 %0d | TxGo high %0d, TxGone %0d, TxFifoEmpty %0d, PDCarrier %0d, XmtData' transitions %0d, of %0d",
