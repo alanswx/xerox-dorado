@@ -312,6 +312,32 @@ boot-world:
 		    +preload=verilog/verilator/obj_bworld/im.txt +worldms +bootchain +start=3904 +enterat=c92 +enterworld=25b +frame +mb0 +nostuck $(WORLDARGS) 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_exec; exit $$rc; }
 
+# THE SAME, ON ELEVEN BOARDS WITH A PACK ON THE DISK CABLE: pass
+# WORLDARGS="+pack=chm/diskpacks/games-trident.pack ..." and the Alto world boots
+# from it (or tries to).
+boot-world-disk:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
+	@mkdir -p obj_exec obj_bwdisk
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
+	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 4 \
+		> verilog/verilator/obj_exec/exec.vec
+	@cd ../.. && { ./dorado/build/im_image chm/dorado/AEmu.mb\!2 2>/dev/null; \
+		./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Initial.mb' 2>/dev/null | grep -v '^\#'; \
+		./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb' 2>/dev/null | grep -v '^\#'; } \
+		> verilog/verilator/obj_bwdisk/im.txt
+	@cd ../.. && $(V) --binary --top-module tb_exec $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_bwdisk -o tb_bwdisk +define+WORLD +define+SCREEN +define+FULL \
+		verilog/verilator/tb_exec.sv verilog/generated/dorado_full.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
+		verilog/generated/IFU-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v verilog/generated/DskEth-Rev-Cf.v \
+		verilog/verilator/dorado_pack.sv verilog/cells/dorado_trident.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_bwdisk/tb_bwdisk \
+		    +preload=verilog/verilator/obj_bwdisk/im.txt +worldms +bootchain +start=3904 +enterat=c92 +enterworld=25b +frame +mb0 +nostuck $(WORLDARGS) 2>&1); rc=$$?; \
+		  echo "$$out" | grep tb_exec; exit $$rc; }
+
 # THE MACHINE RUNS WITH IM PARITY ENABLED. The preloaded array's parity is
 # correct; the enables just must not be on during the power-up transient,
 # because Stop gates the clock that would clear it.
@@ -803,6 +829,15 @@ crc-test:
 		verilog/verilator/tb_crc.sv verilog/cells/cell_F9401.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_crc/tb_crc 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_crc|Assertion"; exit $$rc; }
+
+# The pack at the end of the cable: dorado_trident turning, dorado_pack serving
+# one short sector of games-trident.pack, decoded and compared with the file.
+pack-test:
+	@cd ../.. && $(V) --binary --top-module tb_pack $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_pack -o tb_pack \
+		verilog/verilator/tb_pack.sv verilog/verilator/dorado_pack.sv verilog/cells/dorado_trident.v \
+		>/dev/null && { out=$$(./verilog/verilator/obj_pack/tb_pack +pack=chm/diskpacks/games-trident.pack 2>&1); \
+		  rc=$$?; echo "$$out" | grep -E "tb_pack|Assertion|%Error"; exit $$rc; }
 
 # The RTL's boot server: build the MicrocodeBootReply stream for a .eb and
 # round-trip every packet through the Manchester decoder, checking that the

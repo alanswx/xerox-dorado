@@ -497,6 +497,38 @@ module tb_exec;
     d_vid<=vid; d_hs<=hsync; d_vs<=vsync_n; d_hb<=hblank; d_vb<=vblank; d_hl<=halfline;
   end
 `endif
+`ifdef FULL
+  // ---- A TRIDENT WITH A PACK ON IT, unit 0 of the disk cable ---------------
+  // `dorado_trident` turns and clocks bits; `dorado_pack` decodes the tags off
+  // the cable, fetches the addressed track from `+pack=PATH` and serves each
+  // short sector as AEmu's format program reads it. With no +pack the drive
+  // is not attached and every cable line idles DEASSERTED, exactly as the
+  // ties did. SYSPER here is sys_clk per MICROINSTRUCTION, so it is 2x the
+  // bench's per-clock SYSPER (HM 2.3: two clocks per microinstruction).
+  // 117 pulses per revolution is the drive's; the controller's subsector
+  // counter divides them by four (disk.c, from TriconD's own test).
+  // 80 words per pulse puts 9,360 words on a track, the T-80's own capacity.
+  wire drv_ready_n, drv_online_n, drv_term_n, drv_sel_n, drv_sec_n, drv_adv, drv_bit;
+  wire drv_dp, drv_dm, drv_cp, drv_cm;
+  wire [11:0] tag_n; wire cyltag_n, headtag_n, drivetag_n, conttag_n, sel0_n;
+  wire [11:0] pk_cyl; wire [5:0] pk_head;
+  wire [31:0] pk_nct, pk_nht, pk_ndt, pk_nkt, pk_ntr, pk_nse, pk_nbi, pk_nbl;
+  reg  pack_on = 1'b0; string pack_path;
+  initial pack_on = $value$plusargs("pack=%s", pack_path);
+  dorado_trident #(.SYSPER(2 * SYSPER), .SECTORS_PER_REV(117), .WORDS_PER_SECTOR(80)) u_drv (
+      .sys_clk(sys_clk), .reset(1'b0), .attached(pack_on), .selected(~sel0_n),
+      .TtlReady_n(drv_ready_n), .TtlOnLine_n(drv_online_n), .TtlTerm_n(drv_term_n),
+      .Selected_n(drv_sel_n), .SecIndx_n(drv_sec_n),
+      .data_bit(drv_bit), .data_adv(drv_adv),
+      .DataP(drv_dp), .DataM(drv_dm), .ClockP(drv_cp), .ClockM(drv_cm));
+  dorado_pack u_pack (
+      .sys_clk(sys_clk), .attached(pack_on), .tagbus_n(tag_n),
+      .cyltag_n(cyltag_n), .headtag_n(headtag_n), .drivetag_n(drivetag_n), .conttag_n(conttag_n),
+      .pulse(u_drv.sector), .data_adv(drv_adv), .data_bit(drv_bit),
+      .cyl(pk_cyl), .head(pk_head), .n_cyltag(pk_nct), .n_headtag(pk_nht),
+      .n_drivetag(pk_ndt), .n_conttag(pk_nkt), .n_tracks(pk_ntr), .n_sectors(pk_nse),
+      .n_bits(pk_nbi), .n_blocks(pk_nbl));
+`endif
   // Declared OUTSIDE the configuration chain: the release below is common to
   // every machine, and only the WORLD-and-up tops have an IOReset port.
   reg ioreset_r = 1'b0;
@@ -511,20 +543,20 @@ module tb_exec;
   dorado_full m (
       .XmtData_p_(eth_xmt),
       .CLK_disk_p_(mclk),
-      .ClockM0__in(1'b0),
+      .ClockM0__in(drv_cm),
       .ClockM1__in(1'b0),
       .ClockM2__in(1'b0),
       .ClockM3__in(1'b0),
-      .ClockP0__in(1'b0),
+      .ClockP0__in(drv_cp),
       .ClockP1__in(1'b0),
       .ClockP2__in(1'b0),
       .ClockP3__in(1'b0),
       .Collision(1'b0),
-      .DataM0__in(1'b0),
+      .DataM0__in(drv_dm),
       .DataM1__in(1'b0),
       .DataM2__in(1'b0),
       .DataM3__in(1'b0),
-      .DataP0__in(1'b0),
+      .DataP0__in(drv_dp),
       .DataP1__in(1'b0),
       .DataP2__in(1'b0),
       .DataP3__in(1'b0),
@@ -537,20 +569,27 @@ module tb_exec;
       .Host_6(1'b0),
       .Host_7(1'b0),
       .RcvData(rcv_r),      // +rcvplay=PATH replays a boot-reply stream here
-      .SecIndx0_p_(1'b1),
+      .SecIndx0_p_(drv_sec_n),
       .SecIndx1_p_(1'b1),
       .SecIndx2_p_(1'b1),
       .SecIndx3_p_(1'b1),
-      .Selected0_p_(1'b1),
+      .Selected0_p_(drv_sel_n),
       .Selected1_p_(1'b1),
       .Selected2_p_(1'b1),
       .Selected3_p_(1'b1),
       .TtlEndOfCyl_p_(1'b1),
       .TtlIndex_p_(1'b1),
-      .TtlOnLine_p_(1'b1),
+      .TtlOnLine_p_(drv_online_n),
       .TtlReadOnly_p_(1'b1),
-      .TtlReady_p_(1'b1),
-      .TtlTerm_p_(1'b1),
+      .TtlReady_p_(drv_ready_n),
+      .TtlTerm_p_(drv_term_n),
+      // the tags the controller drives, read by the drive
+      .TagBus_000_p_(tag_n[11]), .TagBus_00_p_(tag_n[10]), .TagBus_0_p_(tag_n[9]),
+      .TagBus_1_p_(tag_n[8]), .TagBus_2_p_(tag_n[7]), .TagBus_3_p_(tag_n[6]),
+      .TagBus_4_p_(tag_n[5]), .TagBus_5_p_(tag_n[4]), .TagBus_6_p_(tag_n[3]),
+      .TagBus_7_p_(tag_n[2]), .TagBus_8_p_(tag_n[1]), .TagBus_9_p_(tag_n[0]),
+      .CylinderTag_p_(cyltag_n), .HeadTag_p_(headtag_n), .DriveTag_p_(drivetag_n),
+      .ContTag_p_(conttag_n), .Select0_p_(sel0_n),
       // DispY IS IN THIS MACHINE TOO, so it needs the display board's own
       // ports -- its clock and the video the bench samples. These used to
       // live only in the SCREEN branch, which was reached because SCREEN is
@@ -2088,6 +2127,37 @@ module tb_exec;
                  n_dmx, n_dmx_de, n_dmx_dy, n_men, n_cyc2);
   final $display("tb_exec: IOATT -- IOatt high %0d (DskEth's contribution %0d, ProcH's %0d), DskEth driving IOB %0d, DispY selected %0d, of %0d",
                  n_ioatt, n_ioatt_de, n_ioatt_ph, n_dskiob, n_ddc, n_cyc2);
+`endif
+`ifdef FULL
+  // DISK: what the world's disk boot did against the drive, and the Alto
+  // boot's own milestones (AEmu.mb: DiskBoot 0x405, DiskBootRetry 0x412,
+  // KWait 0x417, KBootTimeout 0x375, EBoot 0x406).
+  integer dk_sectw = 0, dk_idxtw = 0, dk_active = 0, dk_rderr = 0, dk_fifow = 0, dk_data = 0, dk_ecc = 0;
+  reg dk_sectw_d = 1'b0, dk_idxtw_d = 1'b0; reg [3:0] dk_fw_d = 4'd0;
+  integer dk_t_diskboot = -1, dk_t_kwait = -1, dk_t_timeout = -1, dk_t_retry = -1, dk_n_retry = 0;
+  reg [11:0] dk_cia_d = 12'hfff;
+  always @(posedge sys_clk) begin
+    if (m.b_DskEth.SectorTW && !dk_sectw_d) dk_sectw = dk_sectw + 1; dk_sectw_d <= m.b_DskEth.SectorTW;
+    if (m.b_DskEth.IndexTW  && !dk_idxtw_d) dk_idxtw = dk_idxtw + 1; dk_idxtw_d <= m.b_DskEth.IndexTW;
+    if (m.b_DskEth.Active)    dk_active = dk_active + 1;
+    if (m.b_DskEth.ReadError) dk_rderr = dk_rderr + 1;
+    if ({m.b_DskEth.FifoWaddr_0, m.b_DskEth.FifoWaddr_1, m.b_DskEth.FifoWaddr_2, m.b_DskEth.FifoWaddr_3} != dk_fw_d) dk_fifow = dk_fifow + 1;
+    dk_fw_d <= {m.b_DskEth.FifoWaddr_0, m.b_DskEth.FifoWaddr_1, m.b_DskEth.FifoWaddr_2, m.b_DskEth.FifoWaddr_3};
+    if (cia_now != dk_cia_d) begin
+      if (cia_now == 12'h405 && dk_t_diskboot < 0) dk_t_diskboot = n_cyc2;
+      if (cia_now == 12'h412) begin dk_n_retry = dk_n_retry + 1; if (dk_t_retry < 0) dk_t_retry = n_cyc2; end
+      if (cia_now == 12'h417 && dk_t_kwait < 0) dk_t_kwait = n_cyc2;
+      if (cia_now == 12'h375 && dk_t_timeout < 0) dk_t_timeout = n_cyc2;
+    end
+    dk_cia_d <= cia_now;
+  end
+  final begin
+    if (pack_on)
+      $display("tb_exec: PACK -- %s: tags cyl %0d head %0d drive %0d control %0d, drive at cyl %0d head %0d, tracks loaded %0d, sectors served %0d, blocks %0d, bits %0d",
+               pack_path, pk_nct, pk_nht, pk_ndt, pk_nkt, pk_cyl, pk_head, pk_ntr, pk_nse, pk_nbl, pk_nbi);
+    $display("tb_exec: DISK -- SectorTW rises %0d, IndexTW rises %0d, Active high %0d, ReadError high %0d, FIFO write-address changes %0d | DiskBoot first @%0d, DiskBootRetry first @%0d (%0d entries), KWait first @%0d, KBootTimeout first @%0d, of %0d",
+             dk_sectw, dk_idxtw, dk_active, dk_rderr, dk_fifow, dk_t_diskboot, dk_t_retry, dk_n_retry, dk_t_kwait, dk_t_timeout, n_cyc2);
+  end
 `endif
 `ifdef FULL
   // ETHLOG2: change-only log of DskEth's EOT wakeup chain, armed by the first
