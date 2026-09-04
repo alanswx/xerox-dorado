@@ -305,6 +305,51 @@ startseq, step-test, writeim-test -- failed with "No rule to make target
 failure. Find them all with
 `grep -rl Documents/development verilog/verilator/obj_*`.
 
+### A WORLD RUNS ON THE RTL, AND ITS DISPLAY TASKS DRIVE THE BOARD (2026-09-04)
+
+`make -C verilog/verilator boot-world` is the deepest the machine has run.
+One preload carries AEmu, Initial and Bootstrap -- their address ranges are
+disjoint (0x000-0x879, 0xc00-0xfbf, 0xfc0-0xfff) so all three coexist.
+Initial runs its whole initialisation and at `BootEmulator` the bench
+redirects TNIA once into AEmu's `StartEmulator`, which replaces the
+transport and nothing else.
+
+| | Initial alone | Initial then the world |
+|---|---|---|
+| distinct IM addresses | 453 | **516** |
+| task switches | 10,675 | **26,464** |
+| display task (t3) sys_clk | 1,564,928 | **4,039,520** |
+| visible field | rows 21..517 | **rows 18..895** |
+
+The world reaches STARTEMULATOR, INITHRAM, LOADHRAMLOOP,
+RESETDISPLAYCONFIG and both DWTINITPC and DHTINITPC: it loads its own HRam,
+configures its own display, and starts its own display tasks, which then
+run continuously and reprogram the raster to full height. Nothing is stuck
+-- the longest run on one address is 148.
+
+**Why the screen is still blank, and it is not the hardware.** `NEWDCB` and
+`DWTSTART` are never reached: the display horizontal task walks a display
+list that is not there, so the word task never starts and no bitmap is ever
+fetched. Pixels need memory CONTENT, and there are exactly two ways to get
+it. A transport (Ethernet or disk) so an operating system writes it, or the
+bench writing it. **The bench cannot currently write a word into guest
+memory**: the storage seed fills all 4,096 addresses of eight `MK4096P`
+slices with one pattern, and the array is 144 chips with ECC, so a targeted
+word needs the bit-to-chip map, or the write has to go through the
+processor with a jammed `Store<-` after the world's map is up, which needs
+the mid-run jam machinery the bench does not have yet.
+
+**Two things this settled on the way.** A world CANNOT be started cold: at
+`START` (0x000) it parks in the IFU not-ready trap, which is correct for
+that entry, and at `STARTEMULATOR` without Initial it wedges with RefHold
+on 5,905,947 of 6,000,000 samples, its display task held on an instruction
+that reads Md. Initial's `BlessBaseBoard` ends by loading the MCR with
+`mcr.noWake` -- "now allow holds" -- and a cold world has never had an MCR
+loaded at all. And `mbdis`'s columns are the ENTRY WORDS, not addresses:
+the symbol table's `addr=` is the IMAGE index, and the real IM address is
+the low twelve bits of the fourth word, which `im_image` prints directly as
+an image-to-real map.
+
 ### Two traps, both of which cost a run each
 
 - **The exec recipes filter their own output**: the rules end in
