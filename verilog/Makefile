@@ -45,6 +45,7 @@ TOOLS   = ../tools
         startseq \
         converge-test machine-test \
         baseboard-test firmware-probe mem-test \
+        crc-test eth-ctl-test ebreplies-check \
         clean-generated
 
 # PROM contents, sliced per package position from PARC's own BCPL.
@@ -210,6 +211,18 @@ muffler-test:
 
 strap-test:
 	@$(MAKE) -C verilator strap-test
+
+# The 9401 CRC generator/checker against a published check value.
+crc-test:
+	@$(MAKE) -C verilator crc-test
+
+# A register write on EControl wakes the Ethernet output task (DskEth j52).
+eth-ctl-test:
+	@$(MAKE) -C verilator eth-ctl-test
+
+# The RTL's boot server: a .eb's MicrocodeBootReply stream, round-tripped.
+ebreplies-check:
+	@$(MAKE) -C verilator ebreplies-check
 
 osc-test:
 	@$(MAKE) -C verilator osc-test
