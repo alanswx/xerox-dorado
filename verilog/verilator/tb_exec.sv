@@ -536,6 +536,26 @@ module tb_exec;
       .TtlReadOnly_p_(1'b1),
       .TtlReady_p_(1'b1),
       .TtlTerm_p_(1'b1),
+      // DispY IS IN THIS MACHINE TOO, so it needs the display board's own
+      // ports -- its clock and the video the bench samples. These used to
+      // live only in the SCREEN branch, which was reached because SCREEN is
+      // defined; with FULL first they were silently unconnected and DispY had
+      // NO CLOCK (2026-09-03). Verilator ties an unconnected input to 0 and
+      // only warns, so the board simply froze.
+      .CLK_display_p_(mclk),
+      // THE VIDEO TIMING CHAIN'S CLOCK, and it does not come from DispY.
+      // DispY's own 50 MHz crystal (a05) has exactly ONE consumer on the
+      // board -- a04, an MC10124 that sends it straight OFF-BOARD as
+      // `Crystal`. Nothing on DispY is clocked by it. What clocks the sync
+      // generators (l09, l10) is `PixelClk'Bd`, which descends from
+      // `RawPixelClk`/`PixelClkVCO` -- INPUT ports marked "awaits DispM",
+      // i.e. the pixel clock is made by the COLOUR board's VCO and a
+      // monochrome-only machine has to supply it from somewhere.
+      // Unconnected they default to 0 and the whole chain is frozen while
+      // the crystal turns, which is exactly what was measured.
+      .PixelClkVCO(pixel_clk), .RawPixelClk(pixel_clk),
+      .AltoTTLVideo(vid), .AltoHSync(hsync), .AltoVSync_p_(vsync_n),
+      .HBlank(hblank), .VBlank(vblank), .HalfLine(halfline),
 `elsif SCREEN
   // The TEN-board machine: the nine of `dorado_world` plus DispY, the
   // monochrome display board. Everything else here is identical, so any
@@ -1868,6 +1888,41 @@ module tb_exec;
   end
   final $display("tb_exec: DISPY -- HRamCommand' low %0d, DoradoHasHRam high %0d (first fall @%0d), HRamWE' low %0d, ClkHRamAddr' edges %0d, LdHRamAddr' low %0d, preHSync high %0d, HSync' edges %0d, DispY selected (TIOASaysDDC' low) %0d, IOBout strobes to DispY %0d, ContA RIM' low %0d, of %0d",
                  dp_cmd, dp_has, dp_has_fall, dp_we, dp_clk, dp_ld, dp_phs, dp_hs, dp_sel, dp_out, dp_rim, n_cyc2);
+`ifdef SCREEN
+  // Is DispY CLOCKED, and does its slow-I/O input register move? Everything
+  // else on the board hangs off these two.
+  integer n_dyc1 = 0, n_dyc2 = 0, n_riob = 0, n_dyrst = 0;
+  reg dyc1_d = 1'b1, dyc2_d = 1'b1, dycin_d = 1'b1, dymclk_d = 1'b1, dytop_d = 1'b1;
+  integer n_dycin = 0, n_dyen = 0, n_dymen = 0, n_dymclk = 0, n_dytop = 0;
+  always @(posedge sys_clk) begin
+    if (m.b_DispY.clk1_p_Cc  && !dyc1_d) n_dyc1 = n_dyc1 + 1;
+    if (m.b_DispY.preclk2_p_Da && !dyc2_d) n_dyc2 = n_dyc2 + 1;
+    dyc1_d <= m.b_DispY.clk1_p_Cc; dyc2_d <= m.b_DispY.preclk2_p_Da;
+    if (m.b_DispY.RIOB_00) n_riob = n_riob + 1;
+    if (m.b_DispY.IOReset)  n_dyrst = n_dyrst + 1;
+    if (m.b_DispY.CLK_display_p_ && !dycin_d) n_dycin = n_dycin + 1;
+    dycin_d <= m.b_DispY.CLK_display_p_;
+    if (n_cyc2 > 20000 && n_cyc2 < 20040)
+      $display("tb_exec: DYSAMP %0d: mclk=%b top=%b board=%b clk1Cc=%b preclk2Da=%b CLKEn'b=%b", n_cyc2, mclk, m.CLK_display_p_, m.b_DispY.CLK_display_p_, m.b_DispY.clk1_p_Cc, m.b_DispY.preclk2_p_Da, m.b_DispY.CLKEnable_p_b);
+    if (mclk && !dymclk_d) n_dymclk = n_dymclk + 1;
+    dymclk_d <= mclk;
+    if (m.CLK_display_p_ && !dytop_d) n_dytop = n_dytop + 1;
+    dytop_d <= m.CLK_display_p_;
+    if (m.b_DispY.CLKEnable_p_b) n_dyen = n_dyen + 1;
+    if (m.b_DispY.MemClkEnable_p_a) n_dymen = n_dymen + 1;
+  end
+  final begin
+    // A CONFIGURATION CAN LEAVE A BOARD UNCLOCKED AND SAY NOTHING. Verilator
+    // ties an unconnected input to 0 and only warns, and the FULL branch of
+    // the instantiation below once omitted `.CLK_display_p_(mclk)` -- so the
+    // eleven-board machine ran with DispY frozen at its power-up levels and
+    // every display counter read as a plausible zero (2026-09-03). Assert it.
+    if (n_dycin == 0)
+      $display("tb_exec: FAIL -- DispY is in this machine and its CLK_display' port never toggled: it is unconnected in this configuration");
+  end
+  final $display("tb_exec: DYCLK -- clk1'Cc rising edges %0d, preclk2'Da %0d, RIOB.00 high %0d, IOReset high %0d | CLK_display' edges %0d, CLKEnable'b high %0d, MemClkEnable'a high %0d | mclk edges %0d, top CLK_display' edges %0d, of %0d",
+                 n_dyc1, n_dyc2, n_riob, n_dyrst, n_dycin, n_dyen, n_dymen, n_dymclk, n_dytop, n_cyc2);
+`endif
 `ifdef FULL
   // ---- ETH: does Initial start the Ethernet controller? ----------------------
   integer et_xmt = 0, et_tw06 = 0, et_tw07 = 0, et_out15 = 0, et_out16 = 0, et_in16 = 0;
@@ -1884,6 +1939,57 @@ module tb_exec;
     end
     et_iobout_d <= m.b_ProcL.IOBout;
   end
+`ifdef FULL
+  // IOATT: DskEth is the only I/O board here that drives IOAtten, and Initial
+  // branches on it in several places. With no drive attached the board's own
+  // error summary (ReadError: FifoUnderflow, IOBParityErr, ...) is asserted,
+  // so this asks whether an idle, driveless controller is claiming attention.
+  integer n_ioatt = 0, n_ioatt_de = 0, n_ioatt_ph = 0, n_dskiob = 0, n_ddc = 0;
+  always @(posedge sys_clk) begin
+    if (m.IOatt)                    n_ioatt    = n_ioatt + 1;
+    if (m.b_DskEth.IOatt__drv)      n_ioatt_de = n_ioatt_de + 1;
+    if (m.b_ProcH.IOatt__drv)       n_ioatt_ph = n_ioatt_ph + 1;
+    if (!m.b_DskEth.DskEth03_sil_pl_1) n_dskiob = n_dskiob + 1;
+    if (!m.b_DispY.TIOASaysDDC_p_)  n_ddc      = n_ddc + 1;
+  end
+  // Each board's OR-tree contribution to IOB, counted per bit: a board that
+  // drives a bit it is not being read from corrupts every other board's
+  // decode of that bus.
+  integer n_iobd [0:17]; integer n_iobp [0:17]; integer n_iobdy [0:17]; integer bi;
+  initial for (bi = 0; bi < 18; bi = bi + 1) begin n_iobd[bi]=0; n_iobp[bi]=0; n_iobdy[bi]=0; end
+  wire [17:0] iob_dsk = {m.b_DskEth.IOB_00__drv, m.b_DskEth.IOB_01__drv, m.b_DskEth.IOB_02__drv, m.b_DskEth.IOB_03__drv,
+                         m.b_DskEth.IOB_04__drv, m.b_DskEth.IOB_05__drv, m.b_DskEth.IOB_06__drv, m.b_DskEth.IOB_07__drv,
+                         m.b_DskEth.IOB_08__drv, m.b_DskEth.IOB_09__drv, m.b_DskEth.IOB_10__drv, m.b_DskEth.IOB_11__drv,
+                         m.b_DskEth.IOB_12__drv, m.b_DskEth.IOB_13__drv, m.b_DskEth.IOB_14__drv, m.b_DskEth.IOB_15__drv,
+                         m.b_DskEth.IOB_16__drv, m.b_DskEth.IOB_17__drv};
+  wire [17:0] iob_dy  = {m.b_DispY.IOB_00__drv, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0,
+                         1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, m.b_DispY.IOB_15__drv,
+                         m.b_DispY.IOB_16__drv, m.b_DispY.IOB_17__drv};
+  always @(posedge sys_clk)
+    for (bi = 0; bi < 18; bi = bi + 1) begin
+      if (iob_dsk[17-bi]) n_iobd[bi]  = n_iobd[bi] + 1;
+      if (iob_dy[17-bi])  n_iobdy[bi] = n_iobdy[bi] + 1;
+    end
+  final begin
+    $write("tb_exec: IOBDRV DskEth --");
+    for (bi = 0; bi < 18; bi = bi + 1) $write(" %0d:%0d", bi, n_iobd[bi]);
+    $write("\n");
+    $write("tb_exec: IOBDRV DispY  --");
+    for (bi = 0; bi < 18; bi = bi + 1) if (n_iobdy[bi] != 0) $write(" %0d:%0d", bi, n_iobdy[bi]);
+    $write(" (of %0d)\n", n_cyc2);
+  end
+  integer n_dmx = 0, n_dmx_de = 0, n_dmx_dy = 0, n_men = 0;
+  always @(posedge sys_clk) begin
+    if (m.DMuxData)                 n_dmx    = n_dmx + 1;
+    if (m.b_DskEth.DMuxData__drv)   n_dmx_de = n_dmx_de + 1;
+    if (m.b_DispY.DMuxData__drv)    n_dmx_dy = n_dmx_dy + 1;
+    if (!m.b_DskEth.MidasEn_01T_02F_03F_04F_p_) n_men = n_men + 1;
+  end
+  final $display("tb_exec: DMUX -- DMuxData high %0d (DskEth's contribution %0d, DispY's %0d), DskEth MidasEn' asserted %0d, of %0d",
+                 n_dmx, n_dmx_de, n_dmx_dy, n_men, n_cyc2);
+  final $display("tb_exec: IOATT -- IOatt high %0d (DskEth's contribution %0d, ProcH's %0d), DskEth driving IOB %0d, DispY selected %0d, of %0d",
+                 n_ioatt, n_ioatt_de, n_ioatt_ph, n_dskiob, n_ddc, n_cyc2);
+`endif
 `ifdef FULL
   // ETHLOG2: change-only log of DskEth's EOT wakeup chain, armed by the first
   // Output strobe to EControl (Initial's ResetEther). Bounded.

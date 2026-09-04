@@ -1411,9 +1411,6 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
   assign ClockM0__drv = 1'b0;   // h41.5 ClockM0, tied to GND-15
   assign TskAd_0 = ECLTrueD;   // j52.6 TskAd.0, tied to ECLTrueD
   assign MufAd_1 = ECLTrueD;   // k52.5 MufAd.1, tied to ECLTrueD
-  assign MufAd_2 = ECLTrueD;   // k52.6 MufAd.2, tied to ECLTrueD
-  assign MufAd_3 = ECLTrueD;   // k52.7 MufAd.3, tied to ECLTrueD
-  assign MufAd_4 = ECLTrueD;   // k52.8 MufAd.4, tied to ECLTrueD
 
   // ---- 88 supply rails
   assign GND_m_0 = 1'b0;
