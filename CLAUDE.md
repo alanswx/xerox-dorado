@@ -991,6 +991,10 @@ one polarity is left. Rung by rung, each line a gate you can run:
 | **THE MEMORY SECTION RUNS DRAM CYCLES** (re-earned 2026-08-23) | `memrun-test` -- the earlier green was an artifact of a mis-shifted Map-Mem PROM; `preStartMem'` now PULSES |
 | **A WORD COMES OUT OF PARC'S STORAGE ARRAY** | `readback-test` -- eight boards, real microcode, the seeded word back through the SN74166s onto `Sin` |
 | **...AND THE RETURN PATH CARRIES A WORD TO THE PROCESSOR** | `readback-test` -- cache -> `dMD` -> `Md`, the register microcode reads and `cpu.c` models |
+| **ELEVEN BOARDS RUN INITIAL, PAINT ITS RASTER, AND REACH THE ETHERNET BOOT** | `exec-bootfull` -- 453 IM addresses, 107 display fields, and the Ethernet OUTPUT TASK woken (`TWReq.06`), which needed DskEth's j52 task strap |
+| the 9401 CRC generator/checker computes and checks CRC-16 | `crc-test` -- 0xFEE8 for "123456789", and it catches a flipped bit |
+| a register write on EControl wakes the Ethernet task and switches the machine to it | `eth-ctl-test` -- TurnOnTx latches TxOn, j24 registers TWReq.06, CTask becomes 6 |
+| the RTL's own boot server builds a `.eb`'s reply stream | `ebreplies-check` -- 38 packets, each round-tripping through the Manchester decoder with a zero CRC residue |
 | **THE PROCESSOR WRITES A WORD TO THE DISPLAY BOARD** | `display-test +slowio` -- nine boards, running microcode: `TIOA<-` puts 370B on the bus, `Output<-` strobes `IOBout` 960 times with `alub`=5a5a, and IOB carries it at the board on exactly 960 samples |
 | **...AND ADDRESSES A DISK REGISTER** | `disk-test` -- nine boards with DskEth; f07 decodes `DISKCONTROL` alone (Cont 1921, Muff/Data/Ram/Tag 0) |
 | **...WITH THE ADDRESS AND THE DATA TOGETHER** | `disk-test`/`display-test` -- the per-task TIOA holds across the `Output<-` that uses it |
