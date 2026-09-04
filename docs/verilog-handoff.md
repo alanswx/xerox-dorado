@@ -365,6 +365,42 @@ horizontal task correctly finds nothing. (An earlier guess here, that the
 loop writes each address's own value and would therefore leave a
 self-referential DCB behind, is wrong; the source says `DBuf_ 0C`.)
 
+**A TRIDENT PACK IS ON THE DISK CABLE (2026-09-04, evening).** The world's
+own disk boot is the transport: `AEm0.mc`'s DiskBoot reads Alto disk
+address 0 into location 1, waits a second for done status and retries
+seventeen times, and the run that started the world already showed its
+disk task alive, sending drive tags and waiting on sector pulses with
+nothing on the cable. `dsk2trident` maps Alto address 0 to Dorado cylinder
+3, head 4, sector 0 of a 29-short-sector track, and
+`chm/diskpacks/games-trident.pack` is exactly that layout, 63,105,450
+bytes = 815 x 5 x 29 x 534.
+
+`verilog/verilator/dorado_pack.sv` is the pack. It decodes the
+controller's tags off the cable -- a twelve-bit bus PARC names `.000 .00
+.0 .1 .. .9`, MSB first, strobed by CylinderTag'/HeadTag'/DriveTag'/
+ContTag' (HM p.100; `disk.c`: cylinder = all twelve bits, head = the low
+six) -- loads the addressed track from the file ON THE SEEK, and streams
+each short sector the way AEmu's `InitRamDiablo` format program reads it:
+a zero preamble (the read delay is 11B WORD clocks), one sync bit, the
+header/label/data words of 2/8/256 MSB first, each block followed by its
+32-bit Fire-code check word (HM 9.10, `dorado_disk_ecc_compute`'s LFSR,
+bit-serial). The drive (`dorado_trident`) gives **117 pulses per
+revolution** and the controller's subsector counter divides them by four,
+so short sector s starts at drive pulse 4s and the thirtieth slot is the
+fraction -- `disk.c`'s constant, from TriconD's own SectorCounters test.
+Two parameters worth knowing: `dorado_trident`'s SYSPER is per
+MICROINSTRUCTION, so the bench passes 2x its own; and 80 words per pulse
+puts 9,360 words on a track, the T-80's real capacity, for a bit period
+of about 111 ns.
+
+Gate `pack-test`: the drive turning, the pack serving c3/h4/s0, an
+independent receiver decoding it -- all 266 words match the file and every
+check word cancels its block. It found one bug: loading the track lazily
+at the sector start served cylinder 0 for a whole sector after the tags
+had named cylinder 3. `boot-world-disk` is `boot-world` on eleven boards
+with `+pack=PATH`; unattached, every cable line idles deasserted exactly
+as the old ties did.
+
 **THE NEXT STEP, scoped.** Pixels need a display list in guest memory, and
 with `boot-world` the machine is otherwise ready for one. The bench must
 therefore be able to place a word, and the storage layout is now mapped far

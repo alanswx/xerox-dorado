@@ -45,7 +45,7 @@ TOOLS   = ../tools
         startseq \
         converge-test machine-test \
         baseboard-test firmware-probe mem-test \
-        crc-test eth-ctl-test ebreplies-check \
+        crc-test eth-ctl-test ebreplies-check pack-test boot-world-disk \
         clean-generated
 
 # PROM contents, sliced per package position from PARC's own BCPL.
@@ -223,6 +223,16 @@ eth-ctl-test:
 # The RTL's boot server: a .eb's MicrocodeBootReply stream, round-tripped.
 ebreplies-check:
 	@$(MAKE) -C verilator ebreplies-check
+
+# A Trident pack on the disk cable: dorado_trident + dorado_pack serve one
+# short sector of games-trident.pack, decoded and compared with the file.
+pack-test:
+	@$(MAKE) -C verilator pack-test
+
+# Initial boots on eleven boards, hands over to the Alto world, and the world
+# boots from the pack. WORLDARGS="+pack=chm/diskpacks/games-trident.pack ...".
+boot-world-disk:
+	@$(MAKE) -C verilator boot-world-disk WORLDARGS="$(WORLDARGS)"
 
 osc-test:
 	@$(MAKE) -C verilator osc-test
