@@ -305,6 +305,55 @@ startseq, step-test, writeim-test -- failed with "No rule to make target
 failure. Find them all with
 `grep -rl Documents/development verilog/verilator/obj_*`.
 
+### WHAT IS BETWEEN THE RUNNING WORLD AND A BOOT (2026-09-04, measured)
+
+The world runs on eleven boards with a pack on the disk cable, and the C
+emulator boots that same pack to a painted screen, so the target is real.
+Two things stand between them, one a wall and one a defect.
+
+**The wall: a boot is billions of RTL cycles.** The C emulator
+(`DORADO_DISK_SEQ=1`, `--disk 0=games-trident.pack --boot-reason disk`)
+loads the world at microinstruction 32.0 M and issues its FIRST disk read
+at 76.6 M -- 44.6 M microinstructions of world execution before a single
+sector is read -- then reads the boot file (chs 35/4/0, 35/4/1, ...) and
+paints 2,104 display-list pixels by 108 M. In RTL sys_clk that is
+2.45 BILLION to the first read and ~3.5 billion to pixels. At the ten-board
+rate of ~206,000 sys_clk/s (4 M in 19.4 s, measured; `--threads 8 -O2` is
+FIVE TIMES SLOWER, `-O3` gains 9%, so no cheap lever) that is about two
+hours to the first read and four to five to a screen -- per attempt.
+
+**The defect: the memory READ PATH does not deliver a word, and it is
+pre-existing.** `readback-test`, `memrun-test` and the whole `tb_disk`
+family fail at 41f4aa1e (this session's start) as they do now -- verified
+by building that commit's cells and bench. This path is shared: a disk boot
+reads the boot file into storage and executes it, and the display task
+reads the framebuffer, both through it. So NOTHING paints from memory
+content until it is fixed, disk boot or seeded image alike.
+
+Localised, on MemD, as far as one mux:
+
+- The DRAM read is GOOD. `readback-test`: the SN74166 loads the seeded
+  word (`q at load = 10101100`, as seeded), and `Sin`/`SinD` carry it,
+  64 samples high. So DRAM array -> shift register -> `Sin` works.
+- The CACHE FILL takes the wrong source. `D0in` (the cache data input)
+  is high on 85,678 samples while `SinD` is high on 64, and of 28 cache
+  write-enable edges, ZERO have `D0in == SinD`. The cache latches the idle
+  bus, not the returning read word, so `dMD`/`Md` read all-ones.
+- The mux is MemD b04 (MC10158): `preDin = D_u_CD' ? Dbuf : CD`, where
+  `CD` is the corrected cache data (from `SinD` via e20) and `Dbuf` the
+  processor store buffer. During a fill `preDin` must take `CD`, and the
+  select `D_u_CD'` comes from c18 (MC10107) off the ECC check-phase
+  signals (`ChkP0A0`, `ChkP0B0`, `SinD_16`). So the break is in the
+  fill/ECC check-phase path that drives `D_u_CD'` and `CD` -- a
+  multi-cell state machine (the MC10180 syndrome parts, the ChkPh ring),
+  not a one-liner. This is the concrete next bring-up, and it is fast to
+  iterate: `readback-test` builds and runs in seconds.
+
+Everything downstream is proven: once `CD` reaches the cache, `readback-test`
+already checks `cache -> dMD -> Md`, and `memrun-test`/`disk-format-test`
+are the next rungs up. The disk read benches fail for the same family of
+reasons; re-greening `readback-test` is the root.
+
 ### A WORLD RUNS ON THE RTL, AND ITS DISPLAY TASKS DRIVE THE BOARD (2026-09-04)
 
 `make -C verilog/verilator boot-world` is the deepest the machine has run.
