@@ -1539,6 +1539,7 @@ module tb_disk;
   reg txclk_d = 1'b1; reg [15:0] iob_at_eth = 16'bx;
   reg [17:0] ethv, ethv_d = 18'bx; integer n_ethlog = 0;
   integer ethwin_left = 0, n_ethwin_seen = 0;
+  integer n_sectw_r = 0, n_rc_fall = 0, n_os0 = 0; reg sectw_d = 1'b0, rc_d = 1'b1;
   integer n_e340 = 0, n_e170 = 0, n_txgo = 0, n_txgone = 0, n_tfe = 0, n_carr = 0, n_xmt = 0;
   reg e340_d = 1'b0, e170_d = 1'b0, xmt_d = 1'b1;
   integer n_pl2 = 0, n_pl2_j04 = 0, n_pl2_l06 = 0, n_pl2_h04 = 0, n_pl2_l03 = 0, n_txoff = 0,
@@ -1705,6 +1706,9 @@ module tb_disk;
     if (m.b_DskEth.ReadBlock) n_rdblk = n_rdblk + 1;
     if (m.b_DskEth.Active)    n_actv  = n_actv + 1;
     if (m.b_DskEth.IndexTW)      n_idxtw_run = n_idxtw_run + 1;
+    if (m.b_DskEth.SectorTW && !sectw_d) n_sectw_r = n_sectw_r + 1; sectw_d <= m.b_DskEth.SectorTW;
+    if (!m.b_DskEth.Sector0_p_ && rc_d) n_rc_fall = n_rc_fall + 1; rc_d <= m.b_DskEth.Sector0_p_;
+    if (m.b_DskEth.OS0) n_os0 = n_os0 + 1;
     // THE READ PATH. b11 makes the IOB output enable from bIOin' + TIOA=Us',
     // so this is the board DRIVING the bus back at the processor -- the one
     // direction nothing here has exercised.
@@ -4675,6 +4679,8 @@ module tb_disk;
       // what separates a working path from a net stuck high.
       if (n_secpulse != 8)
         $fatal(1, "SecIndx0' pulsed 8 times but Sector followed only %0d", n_secpulse);
+      $display("tb_disk:   SUBSECTOR DIVIDER -- SectorTW rose %0d times, a01 RC' (Sector0') fell %0d, a01 LD' (OS0) high on %0d samples, over the 8 pulses",
+               n_sectw_r, n_rc_fall, n_os0);
       if (n_secgap != 0)
         $fatal(1, "Sector was high in %0d of 8 gaps -- it is stuck, not tracking", n_secgap);
       // ...and the WAKEUPS do not discriminate yet: SectorTW and IndexTW are
