@@ -323,16 +323,15 @@ the cache. Narrowed to two symptoms and one likely cause:
   one of them, so all sixteen land in one slot and word 0 reads back 0.
   b21 (an F10016) counts on `RamCl'C` with count-enable tied true, so the
   increment is a clock-edge that is not arriving between the jams.
-- **The likely cause is the clk1-family LAG.** The disk board and its
-  counter cells (F10016, F10145A) were last touched by 07d57e4e ("the
-  clk1-family LAG is IN ... one regression left") and 6024fa82. That change
-  gave every plain clk1-family net one sys_clk of delay to restore the
-  PreClock1'/Clock1' ordering; `RamCl'C` is a clk-family net, and the lag
-  shifted its edge relative to the write window the format-RAM counter and
-  the cache readback depend on. The disk/memory read benches
-  (`disk-format-test`, `disk-ram-test`, `disk-input-test`, `memrun-test`,
-  `readback-test`) were GREEN in the rung table before that work and are
-  red now -- a regression, not never-green.
+- **The clk1-family LAG is NOT the cause (tested, 2026-09-04).**
+  Regenerating DskEth with the lag disabled (`DORADO_NO_LAG`) leaves
+  `disk-format-test` failing identically -- `RamAddr` still reads 2 for all
+  sixteen writes. So the format-RAM address counter (b21, an F10016 clocked
+  by `RamCl'C`, count-enable tied true) is stuck for a reason independent of
+  the clock lag: the increment edge is not arriving, or the bench's per-word
+  `+ram16` jam re-zeroes the address each pass. This is a pre-existing
+  disk-bench defect, unrelated to my session's changes and to the lag; the
+  earlier note here blaming the lag is retracted.
 
 So the read path is a focused TIMING reconciliation between the disk/memory
 clock-family nets and the lag model, separable from the boot itself. The
