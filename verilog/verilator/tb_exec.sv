@@ -529,6 +529,20 @@ module tb_exec;
       .n_drivetag(pk_ndt), .n_conttag(pk_nkt), .n_tracks(pk_ntr), .n_sectors(pk_nse),
       .n_bits(pk_nbi), .n_blocks(pk_nbl));
 `endif
+  // +pendulum: THE 32 us TICK THAT WAKES THE JUNK TASK. HM 12.1: a pendulum
+  // wakes task 2 every 32 us, and the junk task's loop adds RTCDelta to
+  // RTClock on each wakeup and carries into VM 430, the Alto's real-time
+  // clock. `Pendulum` is an INPUT of the IFU board -- it comes from the
+  // BaseBoard's timer chain -- so a bench without a BaseBoard must supply it,
+  // and none did: every run's JUNK line has read "Pendulum edges 0", and AEmu's
+  // ABoot waits 3 x 39 ms on VM 430 before its disk boot, i.e. for ever.
+  // Opt-in, so the gates that predate it do not move.
+  reg pendulum_r = 1'b0; integer pend_cnt = 0, pend_half = 0;
+  initial if ($test$plusargs("pendulum")) pend_half = (32000 * SYSPER) / 30 / 2;   // sys_clk is 30 ns / SYSPER
+  always @(posedge sys_clk) if (pend_half > 0) begin
+    if (pend_cnt >= pend_half - 1) begin pend_cnt <= 0; pendulum_r <= ~pendulum_r; end
+    else pend_cnt <= pend_cnt + 1;
+  end
   // Declared OUTSIDE the configuration chain: the release below is common to
   // every machine, and only the WORLD-and-up tops have an IOReset port.
   reg ioreset_r = 1'b0;
@@ -666,7 +680,8 @@ module tb_exec;
       // was requested from the first cycle with no pendulum tick and no ack.
       // `+ioreset` holds the line asserted through the startup jams and
       // releases it when the machine is started, the way the BaseBoard does.
-      .IOReset(ioreset_r)
+      .IOReset(ioreset_r),
+      .Pendulum(pendulum_r)
   );
   reg mb0_tie = 1'b0;
   initial mb0_tie = $test$plusargs("mb0");
@@ -2183,7 +2198,7 @@ module tb_exec;
 `ifdef FULL
   // ETHLOG2: change-only log of DskEth's EOT wakeup chain, armed by the first
   // Output strobe to EControl (Initial's ResetEther). Bounded.
-  reg [16:0] el2, el2_d = 17'bx; integer n_el2 = 0; reg el2_armed = 1'b0;
+  reg [16:0] el2, el2_d = 17'bx; integer n_el2 = 0, n_dtag = 0; reg el2_armed = 1'b0;
   wire [15:0] el2_iob = {m.b_DskEth.bIOB_00, m.b_DskEth.bIOB_01, m.b_DskEth.bIOB_02, m.b_DskEth.bIOB_03,
                          m.b_DskEth.bIOB_04, m.b_DskEth.bIOB_05, m.b_DskEth.bIOB_06, m.b_DskEth.bIOB_07,
                          m.b_DskEth.bIOB_08, m.b_DskEth.bIOB_09, m.b_DskEth.bIOB_10, m.b_DskEth.bIOB_11,
@@ -2192,6 +2207,10 @@ module tb_exec;
     if (m.b_ProcL.IOBout && !et_iobout_d && et_tioa == 8'o16) begin
       el2_armed = 1'b1;
       if (n_el2 < 600) $display("tb_exec: ETHLOG2 %0d: EControl <- %04h (task %0d)", n_cyc2, el2_iob, pct_ctask);
+    end
+    if (m.b_ProcL.IOBout && !et_iobout_d && et_tioa == 8'o14 && n_dtag < 80) begin
+      n_dtag = n_dtag + 1;
+      $display("tb_exec: DISKTAG <- %04h (task %0d) @%0d", el2_iob, pct_ctask, n_cyc2);
     end
     if (m.b_ProcL.IOBout && !et_iobout_d && et_tioa == 8'o15 && n_el2 < 600)
       $display("tb_exec: ETHLOG2 %0d: EData <- %04h (task %0d)", n_cyc2, el2_iob, pct_ctask);
