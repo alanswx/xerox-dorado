@@ -49,11 +49,20 @@ module cell_SN74LS169 (
   always @(posedge sys_clk) ck_d <= p2;
   wire ck_en = p2 & ~ck_d;
 
-  reg [3:0] q;
+  // THE ENABLES AND THE LOAD ARE READ IN THEIR SETUP WINDOW, not at the edge.
+  // DskEth's subsector counters (a01/a02/a06/a07) take CK, EP' and ET' from
+  // ONE net -- the unit's sector pulse, active low -- so at the rising edge
+  // that clocks them the enables are rising too. The real part counts there
+  // because it sampled them low a setup time earlier; reading them at the
+  // edge, as this cell did, never counts (2026-09-04: one sector wakeup in
+  // seven revolutions). One sys_clk of history is that setup time.
+  reg p7_d = 1'b1, p9_d = 1'b1, p10_d = 1'b1;
+  always @(posedge sys_clk) begin p7_d <= p7; p9_d <= p9; p10_d <= p10; end
+  reg [3:0] q = 4'd0;
   always @(posedge sys_clk)
     if (ck_en) begin
-      if (!p9)                q <= d;               // LD', synchronous
-      else if (!p7 && !p10)   q <= p1 ? q + 4'd1    // UD high counts up
+      if (!p9_d)              q <= d;               // LD', synchronous
+      else if (!p7_d && !p10_d)   q <= p1 ? q + 4'd1    // UD high counts up
                                       : q - 4'd1;
     end
 
