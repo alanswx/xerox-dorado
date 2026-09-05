@@ -47,13 +47,23 @@ module cell_p_8T98 (
     input  wire p16// (no name in EclDict)
 );
 
-  assign p3  = ~p1  & ~p2;    // enable 1: buffers on outputs 3, 5, 7, 9
-  assign p5  = ~p1  & ~p4;
-  assign p7  = ~p1  & ~p6;
-  assign p9  = ~p1  & ~p10;
+// A DISABLED OUTPUT READS HIGH (2026-09-04). All three packages in the machine
+// are on DskEth driving the disk cable -- g22 the tag strobes, g23/g24 the
+// tag bus -- and g22's strobe bank is enabled by TagStrobe alone, so between
+// tags those lines are released. On the real cable the DRIVE's pull-ups hold
+// a released line high (deasserted); the generated top's wired-OR turned a
+// released driver into 0, which on an active-low line is ASSERTED, so every
+// strobe line sat asserted between tags and the drive model saw the OTHER
+// lines fall at the end of each tag window -- a head tag logged as a
+// cylinder tag. There is no second driver on any of these lines, so the
+// released value is simply the far end's pull-up.
+  assign p3  = p1  | ~p2;    // enable 1: buffers on outputs 3, 5, 7, 9
+  assign p5  = p1  | ~p4;
+  assign p7  = p1  | ~p6;
+  assign p9  = p1  | ~p10;
 
-  assign p11 = ~p15 & ~p12;   // enable 2: outputs 11 and 13
-  assign p13 = ~p15 & ~p14;
+  assign p11 = p15 | ~p12;   // enable 2: outputs 11 and 13
+  assign p13 = p15 | ~p14;
 
   wire _unused_pins = &{1'b0, p8, p16, 1'b0};
 endmodule
