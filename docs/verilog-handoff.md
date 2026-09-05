@@ -434,6 +434,36 @@ already decisive:
   "cylinder 8, head 8" the first run reported was what the world sent
   while it thought it had nineteen heads.
 
+**Two more, from the second and third pack boots, and neither is the
+pack's either.**
+
+- **The world's real-time clock has never ticked.** DiskBoot was not
+  reached at 230 M cycles because ABoot waits 3 x 39 ms on VM 430, the
+  Alto's real-time clock, which the junk task advances on the 32 us
+  pendulum wakeup -- and `Pendulum` is an INPUT of the IFU board, from the
+  BaseBoard's timer chain, that no bench ever drove. Every JUNK line this
+  campaign has read "Pendulum edges 0". `+pendulum` supplies it, a 32 us
+  square wave scaled by SYSPER, opt-in so the older gates do not move.
+- **The tag strobes idled ASSERTED between tags.** They leave DskEth
+  through 8T98 tri-state buffers (g22) whose enable is `TagStrobe` itself,
+  so between tags the lines are released; the generated wired-OR made a
+  released driver 0, which on an active-low line is asserted, and the drive
+  saw the OTHER lines fall at the end of each tag window -- the head-5
+  probe logged as a cylinder tag, the T-80 test missed. A real cable's
+  pull-ups are at the drive and hold a released line high. All three 8T98
+  packages in the machine drive this cable and nothing else drives those
+  lines, so `cell_p_8T98` now reads high when released. The tag DECODE was
+  right throughout: the microcode's constants (DiskDefs.mc: tagDrive
+  100000B, tagCylinder 40000B, tagHead 20000B, tagControl 10000B), the
+  MC10173 latch pairing, the MC10125 translators and the 8T98 buffers all
+  map straight through to the cable's `DriveTag'`, `CylinderTag'`,
+  `HeadTag'` and `ContTag'`.
+- **Simulation rate, measured so nobody guesses**: the ten-board machine
+  runs about 200,000 sys_clk per second (4 M in 19.4 s). `--threads 8
+  -CFLAGS -O2` is FIVE TIMES SLOWER (103.6 s); `-CFLAGS -O3` alone gains
+  9%. So a full Alto OS boot, one to two seconds of Dorado time, is a few
+  hours of background running; there is no cheap lever in the build.
+
 Gate `pack-test`: the drive turning, the pack serving c3/h4/s0, an
 independent receiver decoding it -- all 266 words match the file and every
 check word cancels its block. It found one bug: loading the track lazily
