@@ -305,6 +305,47 @@ startseq, step-test, writeim-test -- failed with "No rule to make target
 failure. Find them all with
 `grep -rl Documents/development verilog/verilator/obj_*`.
 
+### THE READ-PATH BLOCKER IS A CLOCK-LAG REGRESSION (2026-09-04, narrowed)
+
+Going "ahead" on the read path, it is NOT a functional-logic bug and NOT
+the cache. Narrowed to two symptoms and one likely cause:
+
+- **The cache write cell is correct.** `cell_F10470` writes `mem[a] <= p17`
+  when CE' and WE' are both low, and the array holds its filled values.
+  `readback-test`'s red is the muddled STIMULUS its own header documents:
+  the cache tags are never set, so every reference misses and fills from
+  DRAM (overwriting the CPAT cache-data seed with the DRAM word), and the
+  four-instruction loop's Store then clobbers the line before dMD is
+  sampled. That bench needs a redesign (set a tag and read a hit, or
+  sample dMD at the fill), not an RTL fix.
+- **The format-RAM address counter does not advance.** `disk-format-test`:
+  all sixteen words load with the right Q, but `RamAddr` reads 2 for every
+  one of them, so all sixteen land in one slot and word 0 reads back 0.
+  b21 (an F10016) counts on `RamCl'C` with count-enable tied true, so the
+  increment is a clock-edge that is not arriving between the jams.
+- **The likely cause is the clk1-family LAG.** The disk board and its
+  counter cells (F10016, F10145A) were last touched by 07d57e4e ("the
+  clk1-family LAG is IN ... one regression left") and 6024fa82. That change
+  gave every plain clk1-family net one sys_clk of delay to restore the
+  PreClock1'/Clock1' ordering; `RamCl'C` is a clk-family net, and the lag
+  shifted its edge relative to the write window the format-RAM counter and
+  the cache readback depend on. The disk/memory read benches
+  (`disk-format-test`, `disk-ram-test`, `disk-input-test`, `memrun-test`,
+  `readback-test`) were GREEN in the rung table before that work and are
+  red now -- a regression, not never-green.
+
+So the read path is a focused TIMING reconciliation between the disk/memory
+clock-family nets and the lag model, separable from the boot itself. The
+memory frontier's own note already flags depth/phase timing as the open
+area; this is the disk/memory-read corner of it.
+
+**Net for the boot:** the world runs and drives the disk cable correctly;
+the pack and drive are gated (`pack-test`, `trident-test`); the pendulum,
+tags, one-shot, counter and CRC are fixed. What remains is (1) the
+clk-lag read-timing regression above, and (2) the multi-hour run wall
+(C-emulator oracle: 44.6 M microinstructions from world-load to the first
+disk read, ~2 h of RTL sim; ~3.5 B cycles to a screen, ~5 h).
+
 ### WHAT IS BETWEEN THE RUNNING WORLD AND A BOOT (2026-09-04, measured)
 
 The world runs on eleven boards with a pack on the disk cable, and the C
