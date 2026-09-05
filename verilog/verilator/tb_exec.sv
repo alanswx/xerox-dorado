@@ -1727,7 +1727,8 @@ module tb_exec;
   endtask
 
   integer hcount;
-  integer n0a, n1a, j2, nff;
+  integer n0a, n1a, nff;
+  longint j2;      // 64-bit: a full boot is >2^31 sys_clk (2026-09-04)
   // How many DISTINCT addresses and decoded FF fields go by -- a machine
   // fetching from wiped IM would show one of each for ever.
   integer n_tnia, n_ff, q;
@@ -2348,7 +2349,8 @@ module tb_exec;
   reg [1023:0] impath;
   reg [31:0] ia, ib, ic, id, ie, ig, ih, ii, ij, ilh, irh;
   reg p_lh, p_rh, impar_odd, impar_nosec;
-  integer imfd, imn, mapaddr, nloaded, nver, nverbad, runcycles, startaddr;
+  integer imfd, imn, mapaddr, nloaded, nver, nverbad, startaddr;
+  longint runcycles;   // 64-bit: a full boot is >2^31 sys_clk
   integer mcrval;
   reg [7:0] mb0_, mb1_, mb2_, mb3_, mb4_;
   integer nalufm, nalufmbad, nifum, nifumbad;
@@ -2546,7 +2548,8 @@ module tb_exec;
   // reaching MemC's k08. Counts, not samples.
   integer c_ifur = -1, c_mcr = -1, c_mdh = -1, c_dish = -1;
   integer n_noref1 = 0;
-  integer n_ifur = 0, n_mcr = 0, n_cyc2 = 0;
+  integer n_ifur = 0, n_mcr = 0;
+  longint n_cyc2 = 0;   // 64-bit for long runs
   reg d_ifur = 1'b0, d_mcr = 1'b0;
 `ifdef WORLD
   // These probes reach into the IFU and MemC, which only the nine-board
