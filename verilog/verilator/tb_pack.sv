@@ -21,7 +21,7 @@ module tb_pack;
     .SecIndx_n(sec_n), .TtlIndex_n(), .data_bit(bit_), .data_adv(adv), .DataP(dp), .DataM(dm), .ClockP(cp), .ClockM(cm));
   dorado_pack pk (
     .sys_clk(sys_clk), .attached(1'b1), .tagbus_n(tagbus_n), .cyltag_n(cyltag_n), .headtag_n(headtag_n),
-    .drivetag_n(drivetag_n), .conttag_n(conttag_n), .pulse(drv.sector), .data_adv(adv), .data_bit(bit_),
+    .drivetag_n(drivetag_n), .conttag_n(conttag_n), .pulse(drv.sector), .data_adv(adv), .data_bit(bit_), .endofcyl_n(),
     .cyl(cyl), .head(head), .n_cyltag(n_ct), .n_headtag(n_ht), .n_drivetag(n_dt), .n_conttag(n_kt),
     .n_tracks(n_tr), .n_sectors(n_se), .n_bits(n_bi), .n_blocks(n_bl));
 

@@ -43,7 +43,8 @@ module dorado_pack #(
     parameter integer PRE_WORDS = 12,     // zero words before a block's sync
     parameter integer GAP_WORDS = 4,      // zero words between blocks
     parameter integer TRACK_WORDS = 29 * 267,
-    parameter integer TRACK_BYTES = 29 * 534
+    parameter integer TRACK_BYTES = 29 * 534,
+    parameter integer HEADS = 5           // a T-80; the world probes head 5 to tell it from a 19-head AMS-315
 ) (
     input  wire        sys_clk,
     input  wire        attached,
@@ -58,6 +59,12 @@ module dorado_pack #(
     input  wire        data_adv,
     output reg         data_bit,
     // what it did, for the run report
+    // THE DRIVE TYPE IS ON THE CABLE. DskEth b24 translates TtlEndOfCyl' into
+    // HeadOvfl, the muffler bit AltoDiabloDisk.mc reads after selecting head 5:
+    // asserted means a T-80 (MaxPartition 5, the Alto disk on head 4), clear
+    // means an AMS-315 with 19 heads (MaxPartition 23B, head 18). A drive
+    // that never asserts it is taken for the bigger machine.
+    output wire        endofcyl_n,
     output reg  [11:0] cyl,
     output reg  [5:0]  head,
     output reg  [31:0] n_cyltag, n_headtag, n_drivetag, n_conttag,
@@ -93,6 +100,8 @@ module dorado_pack #(
     track_word = {tbytes[2*wi+1], tbytes[2*wi]};
   endfunction
 
+  assign endofcyl_n = ~(attached && (head >= HEADS));
+
   // ---- the tags -----------------------------------------------------------
   reg cyltag_d = 1'b1, headtag_d = 1'b1, drivetag_d = 1'b1, conttag_d = 1'b1;
   always @(posedge sys_clk) begin
@@ -101,6 +110,10 @@ module dorado_pack #(
     // A SEEK MOVES THE HEADS AT ONCE: the track under them changes on the tag,
     // not at the next sector. (Loading lazily at the sector start served
     // cylinder 0 for a whole sector after the tags had named cylinder 3.)
+    if (dbg && ((cyltag_d && !cyltag_n) || (headtag_d && !headtag_n) || (drivetag_d && !drivetag_n) || (conttag_d && !conttag_n)))
+      $display("tb_exec: TAG %s bus=%03h (cyl %0d / head %0d / unit %0d)",
+               (cyltag_d && !cyltag_n) ? "CYLINDER" : (headtag_d && !headtag_n) ? "HEAD" : (drivetag_d && !drivetag_n) ? "DRIVE" : "CONTROL",
+               ~tagbus_n, ~tagbus_n, (~tagbus_n) & 12'h03f, (~tagbus_n) & 12'h00f);
     if (cyltag_d && !cyltag_n) begin
       cyl <= ~tagbus_n; n_cyltag <= n_cyltag + 1;
       if (fd != 0 && (~tagbus_n) != cur_cyl) load_track(~tagbus_n, head);
