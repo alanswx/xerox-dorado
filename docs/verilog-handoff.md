@@ -1,5 +1,110 @@
 # Verilog from Sil: handoff
 
+## COLD RESTART (2026-09-05) -- read this first
+
+Branch `verilog-backplane`, head `883f8c41`. Everything below in the older
+blocks is history; this section is the live state.
+
+### The goal and where it stands in one paragraph
+
+The generated RTL Dorado (eleven boards) runs PARC's Initial, hands over to
+the Alto emulator world (AEmu.mb), and the world sets up its own display and
+drives a Trident pack on the disk cable. It does NOT yet boot: the Alto's
+disk boot STALLS in initialization -- the disk controller never goes Active
+and never reaches its read command -- so the screen stays blank. The task
+is to get the disk boot past init so the boot file is read and the Alto
+screen paints. A C emulator boots this exact pack to a painted screen
+(2,104 display pixels), so the target and the pack are known-good.
+
+### How to run it (all commands from the repo root)
+
+- Focused disk gates (seconds each): `make -C verilog/verilator pack-test`
+  (drive+pack serve one sector, PASS), `trident-test` (drive turns, PASS),
+  `disk-ram-test` (format-RAM counter walks 0->15, the RTL is sound).
+- The world running with a pack, the real thing (LONG):
+  `make -C verilog/verilator boot-world-disk WORLDARGS="+cycles=N +pack=chm/diskpacks/games-trident.pack +pendulum +hasram +ioreset +stperroff +blfix +fastwait +bbword=0000 +bbfeed +frame"`.
+  It preloads AEmu+Initial+Bootstrap into IM, runs Initial, and at
+  BootEmulator redirects into the world (`+enterworld`, replacing the boot
+  transport). ~206,000 sys_clk/s; the world enters at ~96 M sys_clk.
+- The C-emulator ORACLE (fast, ~1x): from `dorado/`,
+  `DORADO_DISK_SEQ=1 ./build/dorado --eb worlds/aemu.eb --disk 0=../chm/diskpacks/games-trident.pack --boot-reason disk --cycles 400000000`.
+  It reaches the first disk read at microinstruction 76.6 M and paints by
+  108 M. Use its `[diskseq]` tag/sector trace as the target for what the
+  RTL controller should do.
+
+### THE BLOCKER, precisely (start here)
+
+The disk boot stalls in init. From the 230 M-cycle run
+(`$S/bwd5.log`-equivalent; regenerate by running boot-world-disk at
+`+cycles=230000000 +addrs`), the DISK summary reads:
+
+    Active high 0            <- the controller NEVER runs a transfer
+    ReadError high 230015252 <- asserted EVERY sample (of 230015252)
+    ReadDataErr 3155, FifoUnderflow 3154   <- rare, so NOT the cause
+    DiskBoot first @-1       <- the DiskBoot command (AEmu 0x405) never reached
+    PACK: drive at cyl 0 head 5   <- the drive is stuck at HEAD 5
+
+The chain: AEmu's `InitRamDiablo` (AltoDiabloDisk.mc) selects head 5 to
+tell a T-80 from a 19-head AMS-315 by reading `muffHeadOvfl`. `dorado_pack`
+asserts head-overflow for head >= 5 (via `TtlEndOfCyl'` -> DskEth b24 ->
+HeadOvfl), and HeadOvfl feeds `ReadError` (DskEth c23). The drive stays at
+head 5 after the probe, so HeadOvfl -- and thus ReadError -- is stuck high,
+the disk task loops in select forever (drive/head tags once per revolution,
+seen in the DISKTAG log), and Active never asserts.
+
+**The likely fix is one of:** (a) the world sends a head-4 tag for the boot
+(partition 5 -> head 4) but `dorado_pack`'s head latch does not update, so
+the pack stays at head 5 -- check the HeadTag decode in `dorado_pack.sv`
+against a DISKTAG trace; or (b) the head-overflow indication on a real
+T-80 is momentary (the drive reports it once, the world clears it and
+proceeds), whereas `dorado_pack` drives it permanently-combinationally
+from `head >= HEADS` -- it may need to be a cleared/latched status, not a
+live level. Compare against the C emulator's disk.c head/overflow handling
+(`DORADO_DISK_SEQ` trace shows the expected head sequence). This is fast to
+iterate: the stall is reached by ~110 M sys_clk (~9 min), and the DISKTAG /
+DISK probes in tb_exec.sv already report it.
+
+### TWO PROCESS FIXES NEEDED BEFORE THE NEXT LONG RUN
+
+1. **The Makefile captures stdout in `$(...)`, which overflowed shell memory
+   on a 3.6 B-cycle run (gigabytes of debug) and LOST the whole summary.**
+   For any long run, invoke the binary DIRECTLY with output to a file and
+   the flooding flags OFF: no `+packdbg`, no `+addrs`; e.g.
+   `./verilog/verilator/obj_bwdisk/tb_bwdisk +preload=... +cycles=N +pack=... +pendulum ... +frame > run.log 2>&1`.
+   The bench already prints a 10%-interval progress line; that streams to
+   the file so a killed run still shows how far it got.
+2. **Do not launch multi-hour blind runs to find a stall that shows by
+   110 M cycles.** Reach the stall in ~9 min, read the DISK/DISKTAG lines,
+   fix, repeat. Only run to a screen (~2.5-3.5 B sys_clk, ~4 h) once the
+   controller actually goes Active.
+
+### WHAT IS SOLID (do not re-litigate)
+
+- The RTL disk/memory READ logic is sound; the failing tb_disk-family and
+  readback gates are BENCH-STIMULUS rot (jam-per-word, unset cache tags),
+  proven by `disk-ram-test` (counter walks) and by reading the cells. Do
+  not chase them as RTL bugs.
+- `dorado_pack.sv` + `dorado_trident.v` serve games-trident.pack correctly
+  (pack-test/trident-test PASS): sector framing, Fire-code check words, the
+  index line, tag decode (DriveTag 0x8000 / CylinderTag 0x4000 / HeadTag
+  0x2000 / ControlTag 0x1000, bus = low 12 bits).
+- Real fixes already in on the disk path: `cell_SN74123` (subsector one-shot),
+  `cell_SN74LS169` (setup-window sampling), `cell_p_8T98` (released output
+  reads high), `cell_F9401` (CRC-16), the drive's `TtlIndex'` line, the
+  head-overflow report, and `+pendulum` (the 32 us tick that no bench drove;
+  without it the world's real-time clock never advances and ABoot waits
+  forever). The run counter is 64-bit now (a boot is > 2^31 sys_clk).
+- RETRACTED this session: the clk1-family lag is NOT the read-bench cause
+  (tested with DORADO_NO_LAG); and my earlier "cache-fill mux takes the
+  wrong source" was reading the bench's clobber write, not a fill defect.
+
+### The run-length wall (real, secondary to the stall)
+
+Even once the stall is fixed, a boot to a painted screen is ~2.5-3.5 B
+sys_clk = ~4-5 h at 206 K/s. `--threads 8 -O2` is 5x SLOWER; `-O3` gains 9%.
+No cheap lever. Budget overnight runs; fix the stall on short runs first.
+
+
 ## SESSION HANDOFF (2026-09-02) -- read this first; the 2026-09-01 block below is history
 
 Branch `verilog-backplane`, picked up cold from the 2026-09-01 handoff, whose
