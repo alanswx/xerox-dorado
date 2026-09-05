@@ -402,6 +402,38 @@ sector counter never synchronised to the pack's sector zero -- a boot
 would read the wrong sector and fail its header check. `dorado_trident`
 now outputs `TtlIndex_n` in the sector-0 window and the bench connects it.
 
+**The first pack boot found three defects, none in the pack.** The run was
+150 M sys_clk and the world reached its disk boot in none of them -- ABoot
+opens with a keyboard wait of 3 x 39 ms of Dorado time, about 62 M
+sys_clk, and the world started at 102 M -- but the drive-side counters were
+already decisive:
+
+- **The controller raised ONE sector wakeup in seven revolutions.** The
+  unit's sector pulse (cable `SecIndx0'`, buffered by LS08 d01) is one net
+  feeding the SN74123 one-shot a05's A input, the LS169 subsector counter
+  a01's clock AND both its enables; the one-shot's Q is the counter's LD'
+  and the counter's terminal count RC' (`Sector0'`) is the one-shot's clear
+  and the divided sector pulse the controller wakes on. Two cells broke
+  it. `cell_SN74123` was a SKELETON -- Q undriven read 0, LD' held
+  asserted, the counter never counted. It is a retriggerable monostable
+  now. And `cell_SN74LS169` read its enables AT the clock edge, where on
+  this board they are rising with it; the chip counts because it sampled
+  them low a setup time earlier. One sys_clk of history on EP', ET' and
+  LD' is that setup time (the MC10176 setup-capture idea again, and used
+  on DskEth alone).
+- **The world put the Alto disk on head 18.** `AltoDiabloDisk.mc` selects
+  head 5 and reads `muffHeadOvfl` to tell a T-80 (MaxPartition 5, the
+  Alto disk on head 4) from a 19-head AMS-315 (MaxPartition 23B, head 18),
+  and `HeadOvfl` is DskEth b24's translation of the cable's
+  **`TtlEndOfCyl'`** -- a line the drive never asserted, so the world took
+  the bigger machine. `dorado_pack` asserts it for heads >= 5 now, and
+  `+packdbg` prints every tag it receives with its decoded value.
+- **The tag order was right after all.** The MC10173 latches pair B0->Q0
+  = p6->p1, and under that pairing the register's IOB sources are
+  monotonic: `.000` = IOB.04, the bus MSB, down to `.9` = IOB.15. The
+  "cylinder 8, head 8" the first run reported was what the world sent
+  while it thought it had nineteen heads.
+
 Gate `pack-test`: the drive turning, the pack serving c3/h4/s0, an
 independent receiver decoding it -- all 266 words match the file and every
 check word cancels its block. It found one bug: loading the track lazily
