@@ -511,7 +511,7 @@ module tb_exec;
   wire drv_ready_n, drv_online_n, drv_term_n, drv_sel_n, drv_sec_n, drv_index_n, drv_adv, drv_bit;
   wire drv_dp, drv_dm, drv_cp, drv_cm;
   wire [11:0] tag_n; wire cyltag_n, headtag_n, drivetag_n, conttag_n, sel0_n;
-  wire [11:0] pk_cyl; wire [5:0] pk_head;
+  wire [11:0] pk_cyl; wire [5:0] pk_head; wire pk_eoc_n;
   wire [31:0] pk_nct, pk_nht, pk_ndt, pk_nkt, pk_ntr, pk_nse, pk_nbi, pk_nbl;
   reg  pack_on = 1'b0; string pack_path;
   initial pack_on = $value$plusargs("pack=%s", pack_path);
@@ -524,7 +524,7 @@ module tb_exec;
   dorado_pack u_pack (
       .sys_clk(sys_clk), .attached(pack_on), .tagbus_n(tag_n),
       .cyltag_n(cyltag_n), .headtag_n(headtag_n), .drivetag_n(drivetag_n), .conttag_n(conttag_n),
-      .pulse(u_drv.sector), .data_adv(drv_adv), .data_bit(drv_bit),
+      .pulse(u_drv.sector), .data_adv(drv_adv), .data_bit(drv_bit), .endofcyl_n(pk_eoc_n),
       .cyl(pk_cyl), .head(pk_head), .n_cyltag(pk_nct), .n_headtag(pk_nht),
       .n_drivetag(pk_ndt), .n_conttag(pk_nkt), .n_tracks(pk_ntr), .n_sectors(pk_nse),
       .n_bits(pk_nbi), .n_blocks(pk_nbl));
@@ -577,7 +577,7 @@ module tb_exec;
       .Selected1_p_(1'b1),
       .Selected2_p_(1'b1),
       .Selected3_p_(1'b1),
-      .TtlEndOfCyl_p_(1'b1),
+      .TtlEndOfCyl_p_(pk_eoc_n),      // HeadOvfl: the drive says head >= 5 is illegal
       .TtlIndex_p_(drv_index_n),
       .TtlOnLine_p_(drv_online_n),
       .TtlReadOnly_p_(1'b1),
