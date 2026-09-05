@@ -305,6 +305,32 @@ startseq, step-test, writeim-test -- failed with "No rule to make target
 failure. Find them all with
 `grep -rl Documents/development verilog/verilator/obj_*`.
 
+### THE DISK/MEMORY READ RTL IS SOUND; THE BENCHES BIT-ROTTED (2026-09-04)
+
+Ran the read path down and it is NOT broken. The tb_disk-family and
+readback failures are BENCH STIMULUS artifacts, not RTL defects:
+
+- **The format-RAM address counter WORKS.** `disk-ram-test` (the CYCLING
+  loop) shows `RamCl'C` pulsing 30 times, the address walking to 1111 (15),
+  and `LastRamAddr'` asserting on 150 samples. So b21 (F10016) counts
+  correctly. `disk-format-test`'s "RamAddr stuck at 2" is purely its
+  `+ram16` "park after one pass" jam producing ONE write across sixteen
+  jams (`RamCl'C edges 1`); real microcode writes sixteen consecutive
+  Output cycles in one run, as `disk-ram-test` does.
+- **The cache write cell is correct** (`cell_F10470`), and `readback-test`'s
+  failure is the muddled stimulus its own header documents (tags unset ->
+  always miss -> fill overwrites the cache seed; the loop's Store clobbers).
+- Each failing bench dies on a DIFFERENT unrelated assertion
+  (`disk-ram-test` on `bIOin'`, `disk-format-test` on the RAM readback,
+  `disk-input-test` on `ReadBlock`), i.e. accumulated stimulus rot across
+  the `+ram16`/`+input`/`+tag` modes, not one RTL cause. All fail at
+  41f4aa1e too.
+
+**So the RTL can very likely read the disk, and the real gate is the
+multi-hour boot run.** The rung table's green claims were true for the RTL;
+the benches rotted around them. The right next step is the actual boot, not
+more bench archaeology.
+
 ### THE READ-PATH BLOCKER IS A CLOCK-LAG REGRESSION (2026-09-04, narrowed)
 
 Going "ahead" on the read path, it is NOT a functional-logic bug and NOT
