@@ -1132,7 +1132,7 @@ run: all
 	./obj_dir/Vemu
 
 clean:
-	rm -rf obj_dir
+	rm -rf obj_*
 
 # THE TERMINAL MICROCOMPUTER: HM Table 24 framing, the manual's own priority
 # (a keyboard transition outranks a mouse move) and the excess-200B mouse
