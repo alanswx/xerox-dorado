@@ -412,7 +412,7 @@ module tb_exec;
   // edge detect (q updates at the first sys_clk where the modelled clock
   // already reads high) and sample PE' and D exactly there. If PE' reads
   // high at every detected edge while toggling overall, the load enable and
-  // the clock are in a same-edge phase collision -- the cbf5b94f class.
+  // the clock are in a same-edge phase collision -- the d3e337a2 class.
   reg d_l10ck = 1'b0;
   integer n_l10edge = 0, n_l10pe0 = 0, n_l10d1 = 0;
   always @(posedge sys_clk) begin
@@ -2508,7 +2508,7 @@ module tb_exec;
   // in that window, its MCR value in T (0x67 > 0x10), A<-T. Measured with the
   // full RMar vector: during the LoadMCR's enabled phase the Mar carries all
   // zeros -- T had already been clipped to 4 -- which is the whole of "LoadMCR
-  // #2 misses its data" (a9026abc): a bench artifact, not a strobe-timing
+  // #2 misses its data" (28ba542f): a bench artifact, not a strobe-timing
   // bug. The ResEqZero pulse below is what actually exits LongWait (the clip
   // "loses to the bypass" and never could); it stays, the clip goes. `+clip`
   // turns it back on to reproduce the artifact.
@@ -2946,7 +2946,7 @@ module tb_exec;
   //
   // All eleven MCR-relevant Mar bits, printed on CHANGE inside the +tcwin
   // window. This probe is what closed the LoadMCR saga (2026-09-01): with
-  // every bit visible, the "in-residency data" of 355e67bb (RMar09=RMar10=1)
+  // every bit visible, the "in-residency data" of 198b28f8 (RMar09=RMar10=1)
   // turned out to be the bus's ALL-ONES idle -- every bit was 1, two were
   // read -- and the true data phase is the MarMuxAEn'=0 window, where the
   // bus read ALL ZEROS because `+fastwait`'s T-file clip had already zapped

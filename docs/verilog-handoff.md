@@ -2,7 +2,7 @@
 
 ## COLD RESTART (2026-09-05) -- read this first
 
-Branch `verilog-backplane`, head `883f8c41`. Everything below in the older
+Branch `verilog-backplane`, head `a9169ea9`. Everything below in the older
 blocks is history; this section is the live state.
 
 ### The goal and where it stands in one paragraph
@@ -393,10 +393,10 @@ run-test, sendmir, startseq, step-test, writeim-test, strap-test,
 muffler-test, and the three new ones -- crc-test, eth-ctl-test,
 ebreplies-check.
 
-**FAIL, and also failing at 41f4aa1e (this session's starting commit,
+**FAIL, and also failing at 85fe8ed5 (this session's starting commit,
 checked by checking that commit's file out and re-running):** exec-init
 and exec-tasking (the fault task does not run its handler -- bisected in
-the previous session to cbf5b94f, the MC10176 setup capture), memrun-test
+the previous session to d3e337a2, the MC10176 setup capture), memrun-test
 (`preStartMem'` never asserts), readback-test (the seeded cache word never
 reaches dMD), and the tb_disk family.
 
@@ -429,7 +429,7 @@ readback failures are BENCH STIMULUS artifacts, not RTL defects:
   (`disk-ram-test` on `bIOin'`, `disk-format-test` on the RAM readback,
   `disk-input-test` on `ReadBlock`), i.e. accumulated stimulus rot across
   the `+ram16`/`+input`/`+tag` modes, not one RTL cause. All fail at
-  41f4aa1e too.
+  85fe8ed5 too.
 
 **So the RTL can very likely read the disk, and the real gate is the
 multi-hour boot run.** The rung table's green claims were true for the RTL;
@@ -495,7 +495,7 @@ hours to the first read and four to five to a screen -- per attempt.
 
 **The defect: the memory READ PATH does not deliver a word, and it is
 pre-existing.** `readback-test`, `memrun-test` and the whole `tb_disk`
-family fail at 41f4aa1e (this session's start) as they do now -- verified
+family fail at 85fe8ed5 (this session's start) as they do now -- verified
 by building that commit's cells and bench. This path is shared: a disk boot
 reads the boot file into storage and executes it, and the display task
 reads the framebuffer, both through it. So NOTHING paints from memory
@@ -804,7 +804,7 @@ an image-to-real map.
 **RETRACTED (same day): "cpu.c's ReadIM lane 0 reads one low".** The
 oracle's 33, 9, 144, 34, 147 are TTemp0 read at 7054, AFTER DoHRamDisp's
 `TTemp0-1`; before it they are 34, 10, 145, 35, 148, exactly the RTL's and
-the source's. cpu.c is right; the commit message of d8e5db4f is wrong on
+the source's. cpu.c is right; the commit message of fb7ecef3 is wrong on
 this point. The RTL's ReadIM/B<-Link path is right (the HRam sum is
 HRamMaxAddr+1 = 380).
 
@@ -894,8 +894,8 @@ green, not touched by this session. tb_disk also gained an opt-in
 
 ## SESSION HANDOFF (2026-09-01, end) -- read this first, then "START HERE" below
 
-Branch `verilog-backplane`, HEAD `320d95d1`, **32 commits this session**
-(from pre-session `ef12ce0e`). Written to be picked up COLD by a fresh
+Branch `verilog-backplane`, HEAD `7d542c14`, **32 commits this session**
+(from pre-session `fe0c1874`). Written to be picked up COLD by a fresh
 or upgraded model.
 
 ### Where the boot stands, in one paragraph
@@ -951,7 +951,7 @@ session proved it:
    the ALU inputs across the collapsed cycle.
 3. **The stale-green gates** exec-tasking, exec-init, memrun-test all
    fail on pre-session RTL (byte-identical inputs), bisected to
-   **cbf5b94f, the MC10176 pre-edge setup-time capture** -- itself a
+   **d3e337a2, the MC10176 pre-edge setup-time capture** -- itself a
    collapsed-timing workaround that helps the boot's checksum and breaks
    these. Same root.
 
@@ -1031,7 +1031,7 @@ each with the measurement that settled it:
 
 1. **THE LOADMCR SAGA IS CLOSED, AS A BENCH ARTIFACT.** The full 11-bit
    RMar probe (`+tcwin`/`+tclen`, change-only MCRWIN lines) showed the
-   "in-residency data" of 355e67bb was the bus's ALL-ONES IDLE (every bit
+   "in-residency data" of 198b28f8 was the bus's ALL-ONES IDLE (every bit
    1, two were read), and the true data phase (MarMuxAEn'=0) read all
    zeros because **`+fastwait`'s T-file clip had zapped the SetMCR value**:
    the clip fired while TNIA read c0a with T > 0x10, and the second
@@ -1333,20 +1333,20 @@ timing needs the display task's field program, downstream of
 TASKINITLOOP.
 
 **Known-stale gates (pre-existing, NOT this session), BISECTED:**
-exec-tasking (and exec-init) fail at the pre-session commit ef12ce0e.
-Worktree runs, each self-consistent: **GREEN at 07d57e4e** ("exec suite
-green" was real), FAILING at 4c323994 -- and the ONLY commit in that
-range touching cells/ or generated/ is **cbf5b94f, the MC10176 pre-edge
+exec-tasking (and exec-init) fail at the pre-session commit fe0c1874.
+Worktree runs, each self-consistent: **GREEN at 4f32aa1d** ("exec suite
+green" was real), FAILING at f1fa2e34 -- and the ONLY commit in that
+range touching cells/ or generated/ is **d3e337a2, the MC10176 pre-edge
 setup-time capture**. The same change that made Initial pass its
 checksum broke the AEmu jump-start choreography (failure shape at 4c:
-held forever with tasking on; at ef12ce0e: fault task never runs). The
+held forever with tasking on; at fe0c1874: fault task never runs). The
 capture is load-bearing for the boot, so the fix is re-diagnosing the
 jump-start scenario under it, not a revert. **memrun-test is ALSO
 stale-green** (`preStartMem' never asserted`): its inputs -- the memory
 boards, ContA/ContB, ProcH/ProcL, tb_memrun -- are byte-identical to
 pre-session (0 changed lines each), so it fails deterministically with
 pre-session RTL and is not a regression of any recent session; likely
-the same cbf5b94f/MC10176 class since it uses that part throughout.
+the same d3e337a2/MC10176 class since it uses that part throughout.
 Separately: `SYSPER=2` breaks the ReadBB/checksum stage (RMINITL never
 reached); boot runs stay at 16x.
 
@@ -1391,9 +1391,9 @@ ALU=0 condition at LWRETN c0a -- the T-file clip loses to the bypass),
 and parks at Initial's FIRST STORAGE REFERENCE (a Store at image 253,
 RefHold+BLretry) which should be SUPPRESSED by the MCR's noRef bit --
 the bit LoadMCR #2 misses because its strobe fires one window after its
-data (the LoadMCR saga; see the commits from cbf5b94f forward).
+data (the LoadMCR saga; see the commits from d3e337a2 forward).
 Key fixes that got here: the MC10176 pre-edge/setup-time capture
-(cbf5b94f), the clk1-family lag, the byte-order fix in the sender.
+(d3e337a2), the clk1-family lag, the byte-order fix in the sender.
 The DISPLAY is proven separately: `exec-screen` (dorado_screen = world
 + DispY) generates real HSync/video from PARC's own HRam table under
 three bench forces; Initial's own INITHRAM (real 0xe20) replaces them
@@ -1412,7 +1412,7 @@ MIR-WRITE ENABLE and hold; armed by the entropy poke -- IMRH forced 1
 across startup, since Verilator's zero IM has VALID parity)
 choreography ✓ exclusions ✓ (RunClk/CPStrb/TCPBus are TTL-side, out of
 the tree) idle-level init ✓ | OPEN: the jam's Link load. THE PREMISE
-REFUTATION (6a90f123): a WORKING default jam shows NO SetRun, NO phase
+REFUTATION (be7c5d3f): a WORKING default jam shows NO SetRun, NO phase
 pulses -- the jam was never stepped execution; Link loads via the
 frozen MIR's FF decode + an always-live clock on the Link register,
 and THAT clock is what depth broke. Next: find the Link regs' clock

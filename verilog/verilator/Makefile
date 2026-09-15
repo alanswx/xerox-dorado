@@ -418,7 +418,7 @@ exec-screen:
 # frame capture on. What Initial's INITHRAM loads into the HRam is what the
 # monitor gets; dorado_frame.pgm is what it painted. Tasking starts OFF (the
 # jam is TaskingOff,Return) so DispY's wakeup cannot preempt Initial before
-# TASKINITLOOP has set the task PCs -- the f12b9ae2 failure was the AEmu
+# TASKINITLOOP has set the task PCs -- the cc30e6c5 failure was the AEmu
 # world with +taskingon, not this path.
 .PHONY: exec-bootscreen
 exec-bootscreen:

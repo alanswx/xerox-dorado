@@ -1851,7 +1851,7 @@ list. Four blockers fell in one sitting, three of them retractions of
 standing diagnoses:
 
 - **The LoadMCR saga was a BENCH ARTIFACT.** The full 11-bit Mar probe
-  showed 355e67bb's "in-residency data" was the bus's all-ones idle, and
+  showed 198b28f8's "in-residency data" was the bus's all-ones idle, and
   the true data phase read zero because `+fastwait`'s T-file clip was
   zapping the SetMCR value in T on every sys_clk at TNIA=c0a -- where the
   LoadMCR executes. Clip off, every load captures true data at its own
@@ -1924,8 +1924,8 @@ line's Being-Loaded flag wedges forever. Next probes, in order, in
 fit (the im-parity-check method), and faulted-read completion
 semantics. One retraction on the way: "Mod0SinEn' never enables" was an
 idle-level misread -- it is active low and idles asserted. Also
-bisected: **cbf5b94f (the MC10176 setup capture) broke
-exec-tasking/exec-init** -- green at 07d57e4e, failing since, unnoticed
+bisected: **d3e337a2 (the MC10176 setup capture) broke
+exec-tasking/exec-init** -- green at 4f32aa1d, failing since, unnoticed
 because gate claims go stale silently. And `SYSPER=2` breaks the ReadBB
 stage; boot runs stay at 16x.
 
