@@ -11,3 +11,18 @@ set address_sink [get_registers -nowarn {*|checkpoint_m_b_ContA:b_ContA|checkpoi
 if {[get_collection_size $address_source] && [get_collection_size $address_sink]} {
     set_false_path -hold -from $address_source -to $address_sink
 }
+
+# The Invaders fit exposes the same cell_F10145A path in MemC d06 (base
+# register low word) and MemX e20 (per-task tag). Both instances use the
+# identical !p13 address-capture / p13 write-commit enables audited above.
+# The slow 100C model reports six -0.041 ns paths here; these cannot change
+# address on an enabled write edge. Keep each source paired with ONLY its
+# own RAM's write-address pins, and retain setup and read-address checks.
+foreach {board position} {MemC d06 MemX e20} {
+    set ram_scope [format {*|checkpoint_m_b_%s:b_%s|checkpoint_m_b_%s_u_%s:u_%s|} $board $board $board $position $position]
+    set address_source [get_registers -nowarn "${ram_scope}a_lat*"]
+    set address_sink [get_registers -nowarn "${ram_scope}altdpram:mem_rtl_0|*|*~OBSERVABLEPORTAADDRESSREGOUT*"]
+    if {[get_collection_size $address_source] && [get_collection_size $address_sink]} {
+        set_false_path -hold -from $address_source -to $address_sink
+    }
+}

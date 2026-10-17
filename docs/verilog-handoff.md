@@ -1,5 +1,69 @@
 # Verilog from Sil: handoff
 
+## Invaders starts on MiSTer14 (2026-10-17 UTC)
+
+The canonical file-backed RTL simulation reproduces the FPGA's stall at
+`>Invaders.RUN` (204 ink pixels), so the failure is not specific to the HPS
+disk implementation. At 510M fabric samples, the Ethernet completion cell
+at Alto address `0600B` contains `0776B`, rather than clean `0777B`.
+`EtherDefs.mc` identifies the differing bit as `TxFifoPE`; the output task's
+saved status is `0101B` (TxOn plus the parity error). The packet at the
+output pointer is a raw Ethernet `FileSystem` name lookup. The C reference
+also sends these lookups, receives no response, and nevertheless starts the
+game; a separate file server is not required for this startup sequence.
+
+Ether07's MC10170 packages k13/k17 check the FIFO's odd parity bytes. They
+still had the legacy extra B-output inversion, causing every valid word to
+report an error. The generator now selects the physical XOR truth table for
+these two instances. `ethernet-fifo-parity-test` fails on the previous RTL
+and passes after regeneration: all byte values are accepted, corrupt parity
+is rejected, and the error latch only sets when a word is consumed.
+`disk-fifo-parity-test` and the exhaustive `parity170-test` also pass.
+
+Both the saved stalled run and a fresh continuation from the Executive
+prompt now record clean transmitter status (`0100B`, TxOn only) and update
+EOTime. The guest advances to its normal network-discovery timeout loop.
+**Invaders reaches its first game screen at 190M fabric samples** from the
+Executive checkpoint (132,932 ink pixels): alien formation, shields, tank,
+title and high-score text. [RTL screenshot](images/rtl-invaders-first-screen-2026-10-17.png).
+**The new FPGA core also starts Invaders.** It passes `foo` + Return at
+Executive, then runs Invaders from the pack; a separate clean restart repeats
+the game boot. Shields change and the tank count decreases while it runs.
+[Hardware screenshot](images/rtl-mister14-invaders-2026-10-17.png).
+[New-core Executive input](images/rtl-mister14-executive-parity-2026-10-17.png).
+Gameplay controls are not yet qualified; mouse input remains disconnected.
+
+The narrow playfield and lower-screen noise also occur on the FPGA and in
+the C reference. Invaders requests low resolution (`DCB control=0xC112`),
+while Xerox's `AEmuSources/DisplayMain.mc`, GetScan, explicitly says
+"Ignore Alto resolution bit -- always use full resolution." This points
+to a period-microcode compatibility limitation, not the transmit-parity
+stall. No guest bitmap, completion flag or CPU state was patched to boot it.
+
+Run `/media/fat/Scripts/DoradoInvadersParity.sh`, wait for the Executive
+prompt, then type `invaders` + Return. The launcher returns before Main has
+finished reloading/mounting; typing immediately can lose leading characters.
+It uses a separate core and disposable working disk; the prior Executive
+launcher remains available. Installed RBF:
+`/media/fat/_Computer/DoradoRTL_Invaders_20261017/Dorado.rbf`, SHA256
+`a851720c3754911fa886fba4f030b32e01a5963281dc7db9b8d7ba1517884f1d`.
+The seed remains `c703e9df999a074d3c14abf941e706e9fa35a3520594075065a104bc48535332`.
+
+The matching original Verilated model is preserved. The corrected checkpoint
+simulation uses `fpga_invaders_parity` / `obj_invaders_parity`; it ran through
+300M samples without media faults and saved `invaders-parity-last.rtl`.
+The isolated Quartus project is
+`misterubuntu:/home/alans/mister/Dorado_Invaders_20261017/core`.
+Final fit: 23,713 ALMs, 21,960 registers, 445 RAM blocks, 35 DSPs. Core clock
+33.333 MHz, Fmax 45.45 MHz; setup slack +7.996 ns, hold +0.095 ns. The first
+fit's six -0.041 ns hold paths are MemC d06 / MemX e20 F10145A address latches
+to their own RAM write-address ports. Capture and write enables are mutually
+exclusive, just as in the already audited ContA a04. The added exceptions
+are scoped to those instances and hold only; setup/read checks remain.
+Original failing and final reports are in
+`fpga/mister/reports/2026-10-17-invaders/`. Framework I/O remains incompletely
+constrained. Neither the microinstruction sampling ratio nor speed changed.
+
 ## MiSTer14: interactive Executive (2026-10-16)
 
 **The actual FPGA accepts `foo` + Return, prints `There is no subsystem
@@ -96,10 +160,11 @@ saved RAM output latch of one would prevent Quartus from inferring RAM;
 and a true dual-port track buffer with `no_rw_check` because neither consumer
 uses read values while its port writes.
 
+**Historical pre-fix result (superseded by the Invaders section above):**
 An additional hardware test entered `invaders` at Executive. The OS found
 and printed `Invaders.RUN`, cleared the screen, and accessed another disk
 track (file position 10,376,192). No game screen appeared in the captures
-separated by about 25 seconds. This is unresolved, not an application gate.
+separated by about 25 seconds. This was the transmit-parity stall fixed above.
 Evidence: `build/rtl-executive/mister14-invaders.png` and remote captures
 `20261016_235643-invaders.png` / `20261016_235709-invaders-later.png`.
 The clean Executive was restored with the installed launcher afterward.

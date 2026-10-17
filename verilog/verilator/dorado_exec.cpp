@@ -113,7 +113,7 @@ static void load_state(const std::string&path,Vtb_exec__Syms*s,bool raw){
  std::printf("Restored RTL state %s at %llu\n",path.c_str(),(unsigned long long)s->TOP.tb_exec__DOT__n_cyc2);
 }
 int main(int argc,char**argv){try{
- bool headless=false,raw=false;std::string restore,save,out,dump,text,capture;uint64_t stop=0,saveat=0,saveevery=0,typeat=0,gap=4000000,every=2000000;
+ bool headless=false,raw=false;std::string restore,save,out,dump,text,capture;uint64_t stop=0,saveat=0,saveevery=0,typeat=0,gap=4000000,every=2000000,microtrace=0;
  std::vector<std::string>args{argv[0]};
  for(int i=1;i<argc;i++){
   std::string a=argv[i];auto val=[&](){if(++i>=argc)throw std::runtime_error("missing value for "+a);return std::string(argv[i]);};
@@ -132,6 +132,7 @@ int main(int argc,char**argv){try{
     "  --type TEXT          Queue text through the PS/2 keyboard\n"
     "  --type-at SAMPLES    Start queued text at this sample\n"
     "  --key-gap SAMPLES    Space key transitions (default 4000000)\n"
+    "  --trace-micro N      Trace N fabric samples after restore\n"
     "  +NAME[=VALUE]        Pass a testbench option to Verilator\n"
     "  --import-raw FILE    Diagnostic import of exact-layout POD state\n"
     "The display is rendered read-only from actual RTL memory.\n"
@@ -142,6 +143,7 @@ int main(int argc,char**argv){try{
   else if(a=="--save-every"){saveevery=std::stoull(val());if(!saveevery)throw std::runtime_error("--save-every must be positive");}
   else if(a=="--out")out=val();else if(a=="--dump-memory")dump=val();else if(a=="--type")text=val();else if(a=="--type-at")typeat=std::stoull(val());else if(a=="--key-gap")gap=std::stoull(val());
   else if(a=="--capture-prefix")capture=val();else if(a=="--capture-every")every=std::stoull(val());
+  else if(a=="--trace-micro")microtrace=std::stoull(val());
   else if(a.starts_with("+"))args.push_back(a);else throw std::runtime_error("unknown option "+a);
  }
  if(!gap)throw std::runtime_error("--key-gap must be positive");
@@ -159,7 +161,11 @@ int main(int argc,char**argv){try{
  auto stamp=SDL_GetTicks64();
  while(!ctx.gotFinish()&&!quit){
   top.eval();uint64_t n=r->tb_exec__DOT__n_cyc2;
-  if(!restored&&n==5000&&r->tb_exec__DOT__sys_clk){load_state(restore,s,raw);restored=true;n=r->tb_exec__DOT__n_cyc2;toggle=r->tb_exec__DOT__terminal_ps2_key&0x400;}
+  if(!restored&&n==5000&&r->tb_exec__DOT__sys_clk){load_state(restore,s,raw);restored=true;n=r->tb_exec__DOT__n_cyc2;toggle=r->tb_exec__DOT__terminal_ps2_key&0x400;
+   // Trace controls belong to the host. A restored snapshot otherwise
+   // replaces the values established by testbench command-line options.
+   if(microtrace){r->tb_exec__DOT__pcfrom=n;r->tb_exec__DOT__pclen=microtrace;r->tb_exec__DOT__pctask=-1;}
+  }
   if(restored&&r->tb_exec__DOT__sys_clk){
    if(!capture.empty()&&n>=nextcapture){pgm(capture+"-"+std::to_string(n)+".pgm",s);nextcapture=(n/every+1)*every;}
    if(!typed&&!text.empty()&&n>=typeat){text_keys(text,keys);typed=true;}

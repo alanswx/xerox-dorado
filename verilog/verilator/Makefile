@@ -457,6 +457,13 @@ disk-input-hold-test:
 		verilog/verilator/tb_disk_input_hold.sv verilog/generated/DskEth-Rev-Cf.v >/dev/null
 	@cd ../.. && ./verilog/verilator/obj_disk_input_hold/tb_disk_input_hold
 
+.PHONY: ethernet-fifo-parity-test
+ethernet-fifo-parity-test:
+	@cd ../.. && $(V) --binary --top-module tb_ethernet_fifo_parity $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_ethernet_fifo_parity -o tb_ethernet_fifo_parity \
+		verilog/verilator/tb_ethernet_fifo_parity.sv verilog/generated/DskEth-Rev-Cf.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_ethernet_fifo_parity/tb_ethernet_fifo_parity
+
 .PHONY: disk-fifo-parity-test
 disk-fifo-parity-test:
 	@cd ../.. && $(V) --binary --top-module tb_disk_fifo_parity $(V_WARN) \

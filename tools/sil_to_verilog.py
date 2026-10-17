@@ -755,6 +755,12 @@ class Generator:
         # inversion rejects every valid write word and inhibits the cable.
         ('DskEth', 'e09'): {'LEGACY_B_INVERT': 0},
         ('DskEth', 'e11'): {'LEGACY_B_INVERT': 0},
+        # Ether07: Tx FIFO carries odd parity for each byte. k13/k17
+        # include that saved parity among the nine data inputs and tie
+        # control13 high: physical B is zero for a valid byte. Their
+        # wired-OR result sets TxFifoPE when a FIFO word is consumed.
+        ('DskEth', 'k13'): {'LEGACY_B_INVERT': 0},
+        ('DskEth', 'k17'): {'LEGACY_B_INVERT': 0},
         # OutRegFull's JK and the underflow-check D flop share clk1. They
         # must both use setup inputs when memory releases IOHold on that
         # edge; post-edge JK capture consumes the word one clock too soon.

@@ -27,6 +27,11 @@ for obj, typ in objects.items():
     for line in h.splitlines():
         m = re.match(r'\s*(?:(?:[CSIQ]Data)(?:/\*.*?\*/)?|VlUnpacked<.*>|VlWide<.*>)\s+(\w+)\s*;', line)
         if not m:
+            # Clock/data ports are POD too. Verilator declares them with
+            # macros instead of CData/SData. Omitting them leaves stale
+            # handshake outputs and can lose the first clock after restore.
+            m = re.match(r'\s*VL_(?:IN|OUT|INOUT)(?:8|16|64|W)?\((\w+),', line)
+        if not m:
             continue
         name = m[1]
         # SV file descriptors belong to this process, not to the guest.

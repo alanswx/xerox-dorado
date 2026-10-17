@@ -1,5 +1,21 @@
 # Xerox Dorado for MiSTer
 
+**Invaders now starts from Executive on MiSTer14 (October 17 UTC).**
+The Ethernet FIFO parity checkers had rejected valid words, trapping the
+game in discovery retries. The corrected RTL reaches its game screen in
+simulation and on the FPGA, and the Executive keyboard regression passes.
+[Hardware screenshot](../../docs/images/rtl-mister14-invaders-2026-10-17.png).
+The game requests low resolution, which the period AEmu display microcode
+explicitly ignores; its narrow/noisy playfield remains a compatibility
+limitation. Gameplay controls are not yet qualified.
+
+The latest test launcher is `/media/fat/Scripts/DoradoInvadersParity.sh`.
+Wait for the Executive prompt after launching, then type `invaders` + Return.
+It keeps a separate disposable disk and preserves the older launcher below.
+Fit/timing and test evidence are in `reports/2026-10-17-invaders/`:
+23,713 ALMs, 445 RAM blocks, core setup +7.996 ns and hold +0.095 ns,
+with scoped hold-only RAM-write exceptions. Framework I/O is not fully constrained.
+
 The Dorado boards, generated from PARC's Sil wire lists, inside the MiSTer
 framework. **The Alto Executive accepts keyboard commands on MiSTer14**
 (October 16, 2026). The full Verilator simulation uses an assisted Initial/AEmu
@@ -181,7 +197,7 @@ checkpoint hardware configuration.
 7. Improve timing and reduce the chip models' sampling overhead, retaining
    boot/input/storage/display gates at each step. Full speed at the present
    eight fabric clocks per microinstruction requires 133.333 MHz, above the
-   recorded 48.06 MHz core Fmax. A faster PLL alone cannot achieve it.
+   latest 45.45 MHz core Fmax. A faster PLL alone cannot achieve it.
 
 RTL owns instructions, task scheduling, registers, microcode memories,
 cache/map/storage control, device controllers, video generation, terminal

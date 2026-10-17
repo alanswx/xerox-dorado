@@ -4921,7 +4921,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p11(RxSR_15),
     .p12(ECLTrueB)
   ); // MC10170
-  cell_MC10170 u_k13 (
+  cell_MC10170 #(.LEGACY_B_INVERT(0)) u_k13 (
     .p3(TxFifo_16),
     .p4(TxFifo_07),
     .p5(TxFifo_05),
@@ -4982,7 +4982,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p14(Ether07_sil_pl_8),
     .p15(Ether07_sil_pl_9)
   ); // MC10176
-  cell_MC10170 u_k17 (
+  cell_MC10170 #(.LEGACY_B_INVERT(0)) u_k17 (
     .p3(TxFifo_17),
     .p4(TxFifo_15),
     .p5(TxFifo_13),
