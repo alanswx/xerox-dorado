@@ -1,0 +1,38 @@
+{
+  "screenshot": "build/rtl-executive/cedar21-late-fpga.png",
+  "sha256": "96e8e20eb27a51abf67c9e6e757aafb3a9630c496307781b9b8d5aeb639a159a",
+  "black_bbox": [
+    441,
+    216,
+    452,
+    218
+  ],
+  "binary_rows": [
+    "# # # # #  #",
+    "# #   #  ## ",
+    " #  ### ####"
+  ],
+  "source_font_rows": [
+    1,
+    3,
+    5
+  ],
+  "inferred_source_columns": [
+    1,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    10,
+    11,
+    12,
+    13,
+    14
+  ],
+  "known_MPCodes_exact_matches": {
+    "812": "germInLoad"
+  },
+  "qualification": "Font-match inference from the downsampled screenshot. Raw DDR cursor still810, potentially stale dirty-cache data; do not equate raw DDR with the current display."
+}

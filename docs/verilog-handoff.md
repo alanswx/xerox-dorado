@@ -8,6 +8,43 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Post-germ fault narrowed,19:02 UTC.** The long original-storage diagnostic
+reproduces RequeueSearchSQ around168M. Its cache-aware cursor is812,
+`germInLoad`; saved FaultParam0/1 give VA0x3e056e inside the germ, and
+FltEmuPC013f is SDBM1. FaultVal=3, FaultMapVal=3, FaultInfo4080;
+WDC1, CurrentPSB=Process0400, IndexMask0ffc, RTemp0/1/2=0. Driver saved
+module-checkpoint/fixed200m.rtl at199999900, with no disk writes; inspector
+output fixed200m-inspect.txt. This is a POD diagnostic, not a cold full gate.
+Its reporting coroutine does not complete at the C++ host stop, so the
+standard checker has missing IFU/Initial summaries; do not call those zero
+actual execution. Keep the cold100M qualification separate.
+
+The actual FPGA screenshot's three downsampled pixel rows match812 among
+known MPCodes using Xerox's font. This is an inference from the screen;
+raw DDR still reads810 and can be stale because it omits dirty cache.
+The earlier assertion that810 bounds the current on-screen boot stage was
+too strong. See reports/2026-10-17-germ-queue/screen-match.json and cursor-cache.json.
+
+Active first-queue replay: session67810, cedar-first-queue.log, scratch
+module-checkpoint/watch / checkpoint_watch.cpp. Exact same RTL model as
+modulecheckpoint, j01 delay1, restores85M, traces from166M, rolls two
+checkpoints from160M and stops after10000 task0 samples in queue PCs.
+Do not overwrite the rolling checkpoints before inspecting the first fault.
+Cold DDR run session43707 was extended at98436143 to200M by changing ONLY
+host runcycles, validated exact compiled offsets/live values, then detached.
+No hardware state writes. Evidence native21-ddrcheck/extend-limit.log.
+It matched all70 progress points through70M against the cold original-storage run.
+
+Independent clock bug measured: BaseBd01.sil says Xtl=10Mhz; MC12061 uses
+fixed /8 fabric divider. SYSPER4 nominal probe measures80-sample MCPreClk,
+1280-sample Pendulum/Refresh; expected133.333 and2133.333 samples for1MHz
+and16us. Native timers1.667x fast relative to guest; this also confounds
+Native22's slower-clock control. Do not attribute a result to phase alone.
+No production oscillator fix yet. Report2026-10-17-baseboard-cadence.
+BasicCedar boot layout was parsed:1047 data pages, max virtual page06b8,
+full1060 pages; no evidence this payload needs a bigger map. FaultVA3e056e
+fits the current16K-entry map. Preserve this arithmetic against stale older notes.
+
 ## Current TODOs (2026-10-17, Native21)
 
 - [x] Reproduce the four-module source corruption in a cold RTL boot.
@@ -15,8 +52,10 @@ does not qualify as an RTL boot.
 - [x] Cold100M original-image/source-copy gate, four modules/native clocks.
 - [x] Quartus fit and all29 timing/clock checks; deploy matching Native21 RBF.
 - [x] Original FPGA BaseBoard boot, BFN113 download, correct source germ words.
-- [x] Decode the FPGA cursor: **810 / germStarting** (actual guest output).
-- [ ] Find the first bad state after germ entry. RequeueSearchSQ is a stuck
+- [x] Decode raw cursor810; match the screen to812 / germInLoad (inference),
+  and confirm812 in the cache-aware RTL snapshot.
+- [x] Reproduce the post-entry queue loop in the original-storage diagnostic.
+- [ ] Trace the first map fault/store at germ VA0x3e056e. RequeueSearchSQ is a stuck
   predecessor search, not a valid idle prompt; follow queue/link data to its
   first incorrect read/write rather than treating the final loop as the cause.
 - [ ] Finish actual DDR-adapter cold run and extended original-storage run;
@@ -25,11 +64,36 @@ does not qualify as an RTL boot.
 - [ ] Check remaining fixture differences: map/cache seeds versus native cold
   RAM, complete BaseBoard handoff, DDR pauses, HPS track-buffer timing.
   A passing source-copy gate does not qualify all of these.
-- [ ] Get beyond810 through the germ's disk boot using original IOCBs/controller.
+- [ ] Get beyond812 through the germ's disk boot using original IOCBs/controller.
+- [ ] Calibrate MC12061 to the10MHz crystal and recheck BaseBoard firmware/timers.
 - [ ] Boot the Cedar login, type Guest and two Returns, reach the desktop.
 - [ ] Type `Echo FPGA`, capture real OS text, and verify keyboard/mouse live.
 - [ ] Commit/push each confirmed fix and evidence; retain Executive/mouse/disk
   regressions. Space Invaders compatibility remains a separate open item.
+
+**Active control runs,18:45 UTC.** Native22 is a separate build copied
+from21: only MACHINE_SYSPER changes4->8; Native21's placement-specific e04
+hold exception is removed before refitting. Project misterubuntu:/home/alans/
+mister/Dorado_Native22_20261017/core, pipeline session56613, local
+native22-build.log. Do not deploy without functional/STA/clock gates.
+Cold8-sample simulation session99662, cedar-native22-slow8.log,220M limit,
+object obj_native_rom_cedar_native22slow8. Reply transition times and delay
+are doubled from the passing4-sample stream, preserving all packet data.
+Scratch native22-candidate. MiSTer14 remains Native21.
+
+C reference uses a DISPOSABLE copy cedar-reference.pdi, standard C IOCB
+bridge, and is only a software-control-flow reference: MP810 at BB68200551,
+MP812 at93400790. It is not an RTL or FPGA boot. Full log compressed as
+cedar-reference.log.gz; initial missing-disk attempt was rejected/stopped
+and preserved separately. Source hash comparison covers171 remote/local
+board/cell/wrapper files: only MC10170 comments, simulation-only storage
+assertion, and unused generic dorado_backplane differ. Native21 MemX hash
+matches exactly. No functional cell drift found.
+
+Diagnostic checkpoint inspector module-checkpoint/inspect reads exact-model
+POD snapshots without advancing the machine; validates the fingerprint,
+dumps RM and cache-visible physical cursor words. It succeeds on baseline85M.
+It inherits the snapshot's non-POD limitations; no FPGA/guest writes.
 
 **Maintenance-panel discovery,18:39 UTC.** The tiny mark in the actual FPGA
 screen is not just an empty cursor: the six decoded cursor words at0431B
