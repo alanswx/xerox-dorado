@@ -30,6 +30,10 @@ with tempfile.TemporaryDirectory(prefix="dorado-pup-", dir="/tmp") as tmp:
             s.bind(client)
             s.settimeout(3)
             s.sendto(b"", server)  # Main registers without fabricating a frame.
+            # A second live client cannot steal a registered session.
+            with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as contender:
+                contender.bind(str(pathlib.Path(tmp) / "contender.sock"))
+                contender.sendto(b"", server)
             def send(packet):
                 s.sendto(struct.pack(f">{len(packet)}H", *packet), server)
             def receive():
@@ -84,6 +88,16 @@ with tempfile.TemporaryDirectory(prefix="dorado-pup-", dir="/tmp") as tmp:
             assert len(routing)*2 == routing[2] + 4
             print(f"PUP-SERVER PASS: {len(microcode.read_bytes())-512} microcode bytes, "
                   f"{len(image)*2} EFTP bytes, retransmission, idle broadcasts, no controller trailers")
+        # Re-exec uses a new PID/path and may leave the old bound pathname.
+        # Register immediately after a broadcast, before the idle sender
+        # detects closure. With no guest TX, BOL must still reach new Main.
+        with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as replacement:
+            replacement.bind(str(pathlib.Path(tmp) / "replacement.sock"))
+            replacement.settimeout(3)
+            replacement.sendto(b"", server)
+            packet = words(replacement.recv(4096))
+            assert packet[1] == 0o602, "new Main did not receive idle breath-of-life"
+            print("PUP-SERVER REEXEC PASS: immediate new-path registration, stale old socket, idle BOL without guest TX")
     finally:
         proc.terminate()
         assert proc.wait(timeout=5) == 0

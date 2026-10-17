@@ -22,6 +22,15 @@ int dorado_trace_flag_lookup(const char *name) { return getenv(name) != NULL; }
 void dorado_trace_init(void) {}
 static volatile sig_atomic_t stopping;
 static void stop(int sig) { (void)sig; stopping = 1; }
+static int peer_is_gone(const struct sockaddr_un *peer,socklen_t length) {
+    // A core-load re-exec leaves the old pathname behind. Probe without
+    // sending data to a live client or changing the server's own socket.
+    int probe=socket(AF_UNIX,SOCK_DGRAM,0);
+    if(probe<0)return 0;
+    int rc=connect(probe,(const struct sockaddr *)peer,length),error=errno;
+    close(probe);
+    return rc<0 && (error==ENOENT || error==ECONNREFUSED);
+}
 static uint64_t monotonic_ns(void) {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t)) { perror("clock_gettime"); exit(1); }
@@ -136,7 +145,15 @@ int main(int argc, char **argv) {
             ssize_t n = recvfrom(fd, bytes, sizeof bytes, 0, (struct sockaddr *)&from, &len);
             if (n < 0) { if (errno == EINTR) continue; perror("recvfrom"); result = 1; break; }
             if ((n != 0 && n < 4) || n > 1024 || (n & 1) || !from.sun_path[0]) continue;
-            if (peer_len && (len != peer_len || memcmp(&from, &peer, len))) continue;
+            if (peer_len && (len != peer_len || memcmp(&from, &peer, len))) {
+                // Main can register its new PID before the next periodic
+                // broadcast discovers the old socket is dead. Retire that
+                // dead session now, otherwise this sole registration is
+                // lost and a guest waiting for BOL never sends a request.
+                if(n || !peer_is_gone(&peer,peer_len))continue;
+                dorado_ethernet_free(&eth);configure(&eth,argc,argv);peer_len=0;
+                fprintf(stderr,"Dorado Pup server: retired disconnected Main session\n");
+            }
             peer = from; peer_len = len;
             if (!n) continue; /* Main registers its return socket at startup. */
             uint16_t words[512];

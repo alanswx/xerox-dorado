@@ -87,8 +87,27 @@ or drops. This is not yet a supported Pup receive/network-boot gate.
 Host.0..7 to zero. DskEth's real status mux reads positive straps directly
 (test: 00/FF/2A); AltoEtherEmu.mc SIONop treats zero status as absent NIC.
 The generators now supply station 377, with an explicit exporter option
-to reproduce old zero-strapped builds. Isolated `Dorado_Network4_20261017`
-and export `fpga_network_host_20261017` are the corrected builds.
+to reproduce old zero-strapped builds. **This does not yet fix EtherBoot:**
+`Dorado_Network4_20261017` still prints "This Alto has no Ethernet!".
+Its native model reads `FF00` through the real processor InputNoPE mux;
+the SIONop result and the guest's presence test need tracing. The 40M-sample
+native screenshot only shows the command before its result and is not a
+passing network-boot gate. Host 377 is also a broadcast address; test a
+normal station such as 042B before choosing the production straps.
+
+Network4's fit has 24,151 ALMs, 22,606 registers, 447 RAM blocks and 35 DSPs;
+setup +7.707 ns, hold +0.091 ns with the same four scoped RAM write-address
+hold exceptions. Reports: `fpga/mister/reports/2026-10-17-host/`.
+RBF SHA256 `5a9f6bad21e5f11fe365707670452cd35c926ca49e31699d38b050de95cd85a8`.
+
+**ARM server re-exec registration race fixed.** Main can register its new
+PID socket before the idle sender discovers the previous process is gone.
+The service now probes the old Unix datagram address without sending data,
+retires only a disconnected peer, and accepts the new empty registration.
+A live second client cannot steal the session. The regression fails against
+the preceding server and passes natively and on MiSTer ARM, including idle
+breath-of-life without any guest TX. Current test binary:
+`/tmp/dorado-main/dorado-server-reexec`; stock MiSTer Main remains unchanged.
 
 
 `dorado_ethernet_wire.sv` is the next experimental link adapter. Its focused
