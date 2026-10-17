@@ -44,14 +44,17 @@ foreach board {msa msaOdd msa1 msa1Odd msa2 msa2Odd msa3 msa3Odd} {
 #   a_lat changes only while !p13;
 #   mem[a_lat] writes only while p13 && !we_d && ce_lat.
 # Address capture and write commit therefore cannot occur on the same edge.
-# Exclude ONLY the three reported instances' own write-address HOLD paths.
+# Exclude ONLY the reported instances' own write-address HOLD paths.
 # Their next-edge setup, asynchronous read addresses, data and enables stay
 # checked. Slow-corner failures before review: j11 -0.106 ns, j09 -0.094 ns,
-# k06 -0.015 ns. The RBF is unchanged by this constraint review.
+# k06 -0.015 ns. Native16 adds MemD h04, -0.055 ns slow / -0.001 ns fast,
+# with the identical cell and mutually exclusive enables. The RBF is
+# unchanged by these constraint reviews.
 foreach {board instance position} {
     DskEth_m_Rev_m_Cf b_DskEth j11
     DskEth_m_Rev_m_Cf b_DskEth j09
     MemC_m_Rev_m_Be b_MemC k06
+    MemD_m_Rev_m_Ca b_MemD h04
 } {
     set ram_scope [format {*|dorado_native_machine:u_native|dorado_native_backplane:m|%s:%s|cell_F10145A:u_%s|} $board $instance $position]
     set address_source [get_registers -nowarn "${ram_scope}a_lat*"]

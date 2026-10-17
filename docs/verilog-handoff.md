@@ -31,15 +31,24 @@ all13 request words and the controller-generated CRC are accepted.
 The test excludes only the capture's power-up settling at samples0/14.
 
 
-**Native16** is building at
-`misterubuntu:/home/alans/mister/Dorado_Native16_20261017/core`, frozen
-overlay SHA256 `a262b057698f63ee5e297faca236b8a11e659338c426c539efca774d88ccb9bf`.
-Build session10735; map/fit/asm/full STA/clock audit are sequential and
-mandatory. It includes the reviewed Native15 hold constraints from outset.
-No Native16 RBF loaded yet. Actual FPGA remains Native15, C still held by
-helper24118 until12:34UTC; stop/release that helper before a fresh hold after
-Native16 Main is ready. Main log: `Cedar15_20261017/main.log`.
-Native14 fitter and audit watcher were stopped as superseded.
+**Native16 timing-qualified and loaded, 2026-10-17 12:30 UTC.**
+RBF SHA256 `fba5c62e98aad5377ef47be34fd007ff41cf48497f7b01132b01e37d00f3a443`.
+All29 timing checks pass, minimum +0.128ns, zero illegal/unconstrained
+clocks. Initial -0.055ns slow/-0.001ns fast hold endpoints were MemD h04's
+own F10145A address-latch to write-address paths, with the same mutually
+exclusive capture/write enables audited for Native15. Only those exact
+HOLD transfers were excluded; RBF unchanged. Before/after reports and
+reviewed SDC: `fpga/mister/reports/2026-10-17-native16/`.
+Frozen overlay SHA256
+`a262b057698f63ee5e297faca236b8a11e659338c426c539efca774d88ccb9bf`;
+remote project `misterubuntu:/home/alans/mister/Dorado_Native16_20261017/core`.
+Actual MiSTer14 log: `Cedar16_20261017/main.log`. Prior C helper13431 was
+stopped/released before loading; fresh C helper session62200 and three
+physical boot pushes started after Main opened its input devices.
+Firmware currently waits at CPUfc7, with BaseBoard F4D5/F692 active.
+Native15's final pre-load tail had returned to CD2/Stop1, despite earlier
+Stop0/reply-loop samples. Its boot was not stable; preserve that distinction.
+Cedar is NOT yet booted on FPGA.
 
 The BaseBoard-manifold component run completed150M with exact3600IM+
 256IFUM readback, no errors, and task0 in Cedar map/cache initialization.

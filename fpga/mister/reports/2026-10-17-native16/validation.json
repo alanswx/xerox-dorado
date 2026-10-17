@@ -1,0 +1,21 @@
+{
+  "checks": 29,
+  "min_slack_ns": 0.128,
+  "clock_coverage": {
+    "illegal": [
+      0,
+      0
+    ],
+    "unconstrained": [
+      0,
+      0
+    ]
+  },
+  "rbf_sha256": "fba5c62e98aad5377ef47be34fd007ff41cf48497f7b01132b01e37d00f3a443",
+  "original_source_overlay_sha256": "a262b057698f63ee5e297faca236b8a11e659338c426c539efca774d88ccb9bf",
+  "reviewed_sdc_sha256": "3d3fe398cca29d4b3848ced60d90cb21a881df56e287d95ebbf09ef6dc9d10c9",
+  "initial_failed_hold_ns": -0.055,
+  "constraint_review": "Add exact MemD h04 own a_lat-to-write-address HOLD paths. !p13 address capture and p13&&!we_d&&ce_lat write commit are mutually exclusive. Setup, read, data, enables remain timed. RBF unchanged by review.",
+  "native_boot": "Loaded MiSTer14 at approximately 12:30 UTC; BaseBoard firmware delay active. Cedar not yet booted.",
+  "mode": "fixed720p60 video_mode0 vsync_adjust0; framework IO delay coverage separate"
+}
