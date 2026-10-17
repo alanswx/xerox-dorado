@@ -1,0 +1,18 @@
+{
+  "purpose": "diagnostic only: exact POD fields/offsets retained while d13 combinational function changes; fresh cold boot required",
+  "normalized_header_equality": {
+    "Vtb_exec__Syms.h": true,
+    "Vtb_exec___024root.h": true,
+    "Vtb_exec__Dpi.h": true,
+    "Vtb_exec_cell_F10145A.h": true,
+    "Vtb_exec__pch.h": true,
+    "Vtb_exec.h": true,
+    "Vtb_exec_msa.h": true
+  },
+  "normalization": "only generated __VdfgRegularize_h<hash> internal temporary names",
+  "all_offsets_sizes_equal": true,
+  "source_fingerprint": "e19fd845716d57c3d339c1f4678524fb205834713efa65cefa28c261054610d3",
+  "target_fingerprint": "af7613f782acde0275f0a411e8455c32c8693de8c864768585a4a6ede75abadd",
+  "payload_unchanged": true,
+  "payload_sha256": "3b23b0ec317a262358aabc9c0310c40c60254109a080fa651e2341e06318b665"
+}

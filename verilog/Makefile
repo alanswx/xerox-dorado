@@ -40,7 +40,7 @@ TOOLS   = ../tools
 .PHONY: boards backplane proms cells cells-force lint cell-check loop-check readback-test display-test \
         prom-test alu-test alu-diff cpreg-diff mir-diff mirreg-diff run-test \
         writeim-test operand-test step-test sendmir boot0-test exec-test \
-        parity-probe compute-test \
+        parity-probe compute-test signed-compare-test \
         datapath-test \
         startseq \
         converge-test machine-test \
@@ -121,6 +121,9 @@ step-test:
 # THE MACHINE COMPUTES: PARC's own ALU prologue, Q and ALUFM verified.
 compute-test:
 	@$(MAKE) -C verilator compute-test
+
+signed-compare-test:
+	@$(MAKE) -C verilator signed-compare-test
 
 # Do PARC's IRTable entries satisfy our IM parity generators? Diagnostic.
 parity-probe:

@@ -35,6 +35,8 @@
 // function, with regressions for their actual board connections. The IM read
 // checkers and write-parity generator now also select the physical function;
 // the legacy inversion stopped the original Bootstrap at its first address.
+// ProcH d13 also selects the physical function: its XOR detects signed
+// overflow, and the extra inversion reversed Cedar's signed-jump condition.
 module cell_MC10170 #(parameter LEGACY_B_INVERT = 1) (
     input  wire p3,
     input  wire p4,

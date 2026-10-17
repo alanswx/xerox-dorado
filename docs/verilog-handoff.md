@@ -8,6 +8,23 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Overflow root cause confirmed in captured path, 19:21 UTC.** Canonical generator
+and regenerated ProcH now select the physical d13 XOR; signed-compare-test
+PASS256, frozen old board fails the equal JLB case0-0-1. Compute, storage-module
+switch and map-buffer-hold pass. The167M->170M diagnostic replay preserves all
+four germ entries and avoids the old fault/queue loop. At169M FaultInfo0003,
+not4080; map1f20/1f21/1f40/1f41 remain01fbde/01fbee/01fb8e/01fbbe.
+Replayed state was explicitly layout-audited, with every payload byte retained;
+this is diagnostic only, not cold/FPGA qualification. Report2026-10-17-native23.
+Extended diagnostic169M->200M session71311, cedar-native23-extended-diagnostic.log.
+
+Corrected cold DDR run session67681, cedar-native23-ddrcheck.log, SYSPER4,
+220M limit. Earlier SYSPER16 invocation stopped/rejected and preserved; never
+use it as the Native23 gate. Checkpoint23 model also rebuilt at4, object
+obj_native_rom_cedar_modulecheckpoint23. Quartus Native23 fitting, session6695.
+MiSTer14 still runs21; fresh23 pack/profile prepared (baseline hash checked),
+no RBF staged/programmed. New physical fix is local pending full qualification.
+
 **Native23 overflow candidate running, 19:17 UTC.** ProcH d13 still selects
 MC10170's legacy B inversion. Isolated candidate selects LEGACY_B_INVERT=0,
 the documented physical XOR, only at this package. New signed-compare probe
@@ -98,8 +115,9 @@ fits the current16K-entry map. Preserve this arithmetic against stale older note
   first incorrect read/write rather than treating the final loop as the cause.
 - [x] Finish actual DDR-adapter cold200M run and extended original-storage run;
   both reproduce the post-entry loop. Keep POD restores diagnostic only.
-- [ ] Explain/fix the CompactVM comparison/jump that admits its own germ pages;
-  gate the fix with the captured equality path and a fresh cold boot.
+- [x] Isolate the CompactVM signed-jump polarity and pass the captured equality path.
+- [ ] Qualify Native23 d13 fix with fresh cold boot, Quartus timing/clock audit,
+  then program MiSTer14 and verify progress past the previous germ failure.
 - [ ] Check remaining fixture differences: map/cache seeds versus native cold
   RAM, complete BaseBoard handoff, DDR pauses, HPS track-buffer timing.
   A passing source-copy gate does not qualify all of these.

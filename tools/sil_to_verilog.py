@@ -749,6 +749,11 @@ class Generator:
         # parities plus the half's secondary bit. Use the documented XOR;
         # the legacy inversion stores the opposite parity in both halves.
         ('ContB', 'e01'): {'LEGACY_B_INVERT': 0},
+        # ProcH10: signed-overflow detector. Its five connected inputs form
+        # the physical XOR, just like the parity users above. The legacy
+        # inversion reverses ContA's Overflow' branch, so Cedar's JLB takes
+        # the less-than path even when the compared values are equal.
+        ('ProcH', 'd13'): {'LEGACY_B_INVERT': 0},
         # ProcH/L27: g16 samples the RM/STK and T parity RAM outputs at
         # Clock1'Da. The RAM address mux switches at that boundary too.
         # Preserve the bit present before the modeled edge; sampling a

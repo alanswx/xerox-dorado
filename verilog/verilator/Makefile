@@ -188,6 +188,15 @@ alu-diff:
 			+vectors=verilog/verilator/obj_alu/alu.vec 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_alu_vs_c; exit $$rc; }
 
+# ProcH's physical overflow detector and ContA's signed-jump condition.
+# Old d13 polarity fails even the equal-operands/no-overflow case.
+.PHONY: signed-compare-test
+signed-compare-test:
+	@cd ../.. && $(V) --binary --top-module tb_signed_compare $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_signed_compare -o tb_signed_compare \
+		verilog/verilator/tb_signed_compare.sv verilog/generated/ProcH-Rev-Ce.v \
+		>/dev/null && ./verilog/verilator/obj_signed_compare/tb_signed_compare
+
 # Does the assembled machine actually run? The gate is the CLOCK: the
 # BaseBoard generates it and fans it out to every slot, and if those nets stop
 # moving nothing downstream can compute. Deliberately NOT a toggle count --

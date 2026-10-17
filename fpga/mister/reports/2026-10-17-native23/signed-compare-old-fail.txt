@@ -1,0 +1,4 @@
+[8] %Fatal: tb_signed_compare.sv:66: Assertion failed in tb_signed_compare: overflow polarity: op=2 A=0000 B=0000 F=ffff detector=1 want=0 branch=0
+%Error: verilog/verilator/tb_signed_compare.sv:66: Verilog $stop
+Aborting...
+make: *** [signed-compare-old] Error 1

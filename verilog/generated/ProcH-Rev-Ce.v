@@ -2305,7 +2305,7 @@ module ProcH_m_Rev_m_Ce #(parameter integer SYSPER = 16) (
     .p13(aluG1),
     .p15(ProcH10_sil_pl_5)
   ); // MC10118
-  cell_MC10170 u_d13 (
+  cell_MC10170 #(.LEGACY_B_INVERT(0)) u_d13 (
     .p3(alub_00a),
     .p4(alua_00),
     .p9(aluF0),
