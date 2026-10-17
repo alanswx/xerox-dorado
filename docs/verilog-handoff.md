@@ -296,8 +296,17 @@ Native2's superseded fit was stopped after over twenty minutes in optional
 physical retiming. Native3 restarts with retiming disabled; reproduce that
 build setting with `DORADO_QUARTUS_RETIME=0 fpga/mister/build.sh ...`.
 A second fit of the same mapped RTL runs in `Dorado_Native4_20261017`
-with every optional physical-synthesis stage disabled; Native3 remains
-running. Reproduce this setting with `DORADO_QUARTUS_PHYSICAL=0`.
+with every optional physical-synthesis stage disabled.
+Reproduce this setting with `DORADO_QUARTUS_PHYSICAL=0`.
+Native5 tries the documented `quartus_fit --effort=fast` on that same
+mapped netlist. Native4 and Native5 both finish routing (18m34s and
+12m18s respectively) and remain in post-fit processing; final timing is
+not yet available. The successful
+Native1 baseline used **two** fitter processors, while the newer defaults
+used one; Native7 copies the mapped field-correct Native6 design and sets
+`NUM_PARALLEL_PROCESSORS=2` (reproduce with `DORADO_QUARTUS_JOBS=2`).
+The obsolete Native3 physical-optimization run was stopped. Native4/5/6
+remain available until a timing-clean candidate is selected.
 Setup/hold validation remains mandatory before deployment. No startup
 parity-state modification has been made; the serial faults explain why the
 firmware could not configure the processor's manifold in the first place.
