@@ -8,11 +8,13 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
-## Current state (Native23 candidate; MiSTer14 still runs Native21)
+## Current state (Native23 deployed; original firmware startup running)
 
 **Goal remains incomplete: no Cedar OS prompt on the FPGA yet.** Native21
-fixed the source-germ serial-module corruption and is deployed on 10.0.2.14.
-It reaches 812 / germInLoad, then faults and loops in RequeueSearchSQ.
+fixed the source-germ serial-module corruption. Native23 is now programmed on
+10.0.2.14 with the signed-overflow fix below. The original firmware startup is
+running; no Cedar OS screen has been observed yet. Native21 reached812 /
+germInLoad, then faulted and looped in RequeueSearchSQ.
 
 **Confirmed next fix, committed/pushed as fd52288d:** ProcH d13 selected
 MC10170's legacy output inversion. The physical XOR fixes Mesa's signed-jump
@@ -37,9 +39,10 @@ path is given.
 
 | Active job | Session / process | Location / next check |
 | --- | --- | --- |
-| Native23 Quartus | Build complete; detailed hold review session35941 | misterubuntu:/home/alans/mister/Dorado_Native23_20261017/core. Fit/assembly/STA complete. Setup passes; three hold paths at -0.023 ns need review. Zero illegal/unconstrained clocks. |
+| Native23 Quartus | Complete and reviewed | All29 timing checks pass, minimum +0.097 ns. Zero illegal/unconstrained clocks. Exact ContA e04 hold-only review is recorded in native23 reports. |
+| Native23 FPGA boot | C watcher51616 | MiSTer14, Cedar23_20261017/main.log. Image89726440... programmed; fresh packc0cd6784... verified. Three boot pulses sent once; allow original firmware startup. |
 | Native23 cold DDR220M |67681; local60378 | cedar-native23-ddrcheck.log; verilog/verilator/obj_native_rom_cedar_native23ddr; SYSPER4. Passive copy trace enabled at61252022, from85000000, before copy. No guest-state writes. |
-| Constrained software desktop control |28760 | cedar-2mb-desktop/; restores paired3B snapshot/PDI, Guest+two Returns at3.1B,36B limit, periodic PGMs and FTP trace. Capacity evidence only. |
+| Constrained software desktop control | Complete36B; stock comparison78534 active | 2MB accepted Guest, remains Loading DFPackage. final.snap/PDI saved; capacity unresolved. Stock8MB comparison cedar-8mb-desktop/. Software only. |
 
 Capacity-control evidence is committed as 5b7dc655. Native22's slow-clock
 control is rejected: one source-read mismatch among 8931 words; its fit has
@@ -62,15 +65,17 @@ those tests do not qualify the physical crystal. See timer10mhz-candidate/ and
 reports/2026-10-17-baseboard-cadence/.
 
 **Hardware handoff:** only MiSTer14 is allocated. Main currently logs to
-/media/fat/games/DoradoRTL/Cedar21_20261017/main.log. Fresh Cedar23 pack/profile
-are staged, baseline SHA c0cd6784... verified; no 23 RBF/MGL has been loaded.
+/media/fat/games/DoradoRTL/Cedar23_20261017/main.log. Native23 image/MGL loaded,
+RBF SHA89726440d5d599a5b01428e4f29b54d3969064508191016e100375746ff765e2.
+Fresh pack SHA c0cd6784... verified before load. Prior log preserved as
+Cedar21_20261017/main-before-native23.log.
 Keep the original immutable Main (System_20261017/MiSTer-1fb2e098e6f0dba6)
 and raw-Pup server (dorado-server-215276e0b3d780b4). Never overwrite a running
 Main executable. Server root already contains all 34 Basic.Loadees.
 
-After timing review, prepare the candidate RBF/MGL for hardware testing under
-_Computer/DoradoRTL_Cedar23_20261017. Preserve the previous Main log, then
-rename its open log to23/main.log and load through /dev/MiSTer_cmd. Helpers:
+Native23 RBF/MGL is staged for hardware testing under
+_Computer/DoradoRTL_Cedar23_20261017. The previous Main log is preserved; its open log was
+renamed to23/main.log and the core loaded through /dev/MiSTer_cmd. Helpers:
 cedar23-launch/c-until-request.py (hold C until a NEW BFN113, always release),
 cedar3-launch/cool-boot.py (three original boot pushes ONCE),
 cedar10-launch/type-keys.py, mister_mouse.py. Allow the original firmware's
@@ -93,9 +98,10 @@ the Executive/golden artifacts. Actual screenshots are required for OS claims.
   both reproduce the post-entry loop. Keep POD restores diagnostic only.
 - [x] Isolate the CompactVM signed-jump polarity and pass the captured equality path.
 - [x] Complete Native23 full Quartus fit/assembly (84% ALMs, 178 M10Ks).
-- [ ] Review Native23 Quartus setup/hold and clock coverage; test on MiSTer14
-  with the passing focused regression/replay and a fresh pack. Finish the
-  full cold DDR qualification in parallel before declaring the build qualified.
+- [x] Review Native23 Quartus setup/hold and clock coverage; program MiSTer14
+  with the passing focused regression/replay and a fresh pack.
+- [ ] Finish full cold DDR qualification before declaring the build qualified.
+- [ ] Observe Native23 original firmware boot and record the actual FPGA result.
 - [ ] Check remaining fixture differences: map/cache seeds versus native cold
   RAM, complete BaseBoard handoff, DDR pauses, HPS track-buffer timing.
   A passing source-copy gate does not qualify all of these.

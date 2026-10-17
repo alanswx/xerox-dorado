@@ -1,0 +1,12 @@
+{
+  "status": "36B; Guest accepted; screen remains Loading DFPackage; capacity unresolved",
+  "snapshot_header_bytes": 120,
+  "storage_words": 1048576,
+  "chip_type": 1,
+  "virtual_banks_rm48": "0x40",
+  "valid_entries": 4097,
+  "valid_above_16k": 1,
+  "referenced_above_16k": 0,
+  "first_high_references": [],
+  "max_valid_vp": "0xffff"
+}

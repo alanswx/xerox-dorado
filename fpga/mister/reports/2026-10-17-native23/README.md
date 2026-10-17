@@ -6,8 +6,8 @@ The old extra inversion reverses ContA's Overflow-prime condition used by
 Mesa JLB. CompactVM consequently takes the less-than path on equality,
 vacates its own VP3e02..3e05, and the next local-frame store faults.
 
-`make -C verilog/verilator signed-compare-test SYSPER=4` passes256 arithmetic
-and branch vectors; a frozen pre-fix ProcH fails0-0-1 (the JLB equal case).
+`make -C verilog/verilator signed-compare-test SYSPER=4` passes 256 arithmetic
+and branch vectors; a frozen pre-fix ProcH fails 0-0-1 (the JLB equal case).
 The test drives the physical detector's five inputs, with independently
 computed signed-wide arithmetic, then uses ContA c21's gate function.
 Processor compute, module-switch and map-buffer-hold regressions also pass.
@@ -24,6 +24,16 @@ Fresh cold DDR220M component run is in progress, with the actual adapters,
 clock pauses, original Initial/Cedar images and disk controller. An initial
 scratch invocation used default SYSPER16, was stopped and preserved as
 cedar-native23-sysper16-rejected.log; qualification restarted atSYSPER4.
-Quartus Native23 runs on misterubuntu, original Native21 clock ratio4;
-its old placement-specific e04 exception was removed before fitting.
-No deployment until functional/timing/clock checks complete. MiSTer14 runs21.
+Quartus Native23 completed on misterubuntu, original Native21 clock ratio4.
+The old placement-specific e04 exception was removed before fitting. Actual
+reported failures are again exactly ContA e04 a_lat[1] to its own three inferred
+write-address bit1 registers. The cell captures a_lat only !p13 and commits
+mem[a_lat] only p13 && !we_d && ce_lat. The exact1-source/3-sink hold-only
+exception is reapplied with cardinality assertions; setup/read/data/enables
+stay checked. All29 timing checks then pass, minimum +0.097ns. Clock audit:
+zero illegal/unconstrained clocks. External I/O coverage is reported separately.
+
+Native23 image SHA89726440d5d599a5b01428e4f29b54d3969064508191016e100375746ff765e2
+was programmed on MiSTer14 with a verified fresh pack. Original firmware boot
+is in progress. Focused regression and diagnostic replay pass; full cold220M
+qualification remains active. No FPGA Cedar OS claim yet.

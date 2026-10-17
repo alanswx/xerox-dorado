@@ -1,0 +1,12 @@
+{
+  "rbf_sha256": "89726440d5d599a5b01428e4f29b54d3969064508191016e100375746ff765e2",
+  "proch_sha256": "f1d46a0d77645fb1afb91dbe7612255233489ea4e05e74d33a11e8e3f9e90c9f",
+  "machine_sysper": 4,
+  "timing_checks": 29,
+  "min_slack_ns": 0.097,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "hold_review": "ContA e04 a_lat[1] captures only !p13; same-instance RAM write address commits only p13 && !we_d && ce_lat; exact 1 source/3 sinks, hold only. Setup/read/data/enables remain timed.",
+  "cold_qualification": "8931 sampled words, zero unexpected; full220M final summaries pending",
+  "hardware": "Native23 load requested on MiSTer14; fresh pack hash verified. No OS claim."
+}
