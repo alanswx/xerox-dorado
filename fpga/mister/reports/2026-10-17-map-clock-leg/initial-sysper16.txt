@@ -1,0 +1,5 @@
+tb_exec: PARITYSOURCES CIA=fc1 mask[LH,RH,IO,RM,MEM,MD]=110000 Error'=1 IO=0 RM=1 MEM=1 MD=0 LH'=1 RH'=1 Stop=0 dStop=0
+tb_exec: PARITYSOURCES CIA=c9e mask[LH,RH,IO,RM,MEM,MD]=111111 Error'=1 IO=0 RM=0 MEM=0 MD=0 LH'=1 RH'=1 Stop=0 dStop=0
+tb_exec: IFU -- IfuMemRef 0 transitions, IfuMemAck 0, opcode J changed 1025 times
+INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for 10422953 samples without error
+- Verilator: $finish at 128us; walltime 596.493 s; speed 215.153 ns/s

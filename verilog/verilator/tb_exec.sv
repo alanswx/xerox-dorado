@@ -3201,11 +3201,11 @@ module tb_exec;
       map_probe_started=1;
     if(map_probe_started && map_probe_n<2048)begin
       map_probe_n++;
-      $display("tb_exec: MAP-PROBE @%0d CIA=%h task=%h B=%h BMux=%h Mapbuf=%h expected=%h hold=%b rawhold=%b pair=%b pairclk=%b mapdec=%b c02clk=%b c02en=%b gate=%b lead=%b fh=%b c1=%b we=%b ras=%b cas=%b din=%b pending=%b addr=%h row=%h col=%h",
+      $display("tb_exec: MAP-PROBE @%0d CIA=%h task=%h B=%h BMux=%h Mapbuf=%h expected=%h hold=%b rawhold=%b pair=%b pairclk=%b mapdec=%b c02clk=%b c02en=%b gate=%b c07=%b fh=%b c1=%b we=%b ras=%b cas=%b din=%b pending=%b addr=%h row=%h col=%h",
         n_cyc2,ring_cia,pct_ctask,brc_alub,map_probe_b,map_probe_q,bootio_rm(8'h4d),
         m.b_MemX.MemX20_sil_pl_3,m.HoldMapBuf,m.Map_u_InPair_p_,
         m.b_MemC.LdPair_p_,m.b_MemC.Map_u__p_,m.b_MemX.Clk1_p_Aa,m.b_MemX.u_c02.ck_en,
-        m.b_MemX.MapbufLd_p_a,m.b_MemX.MapbufLd_p_a__lead,
+        m.b_MemX.MapbufLd_p_a,m.b_MemX.u_c07.p3,
         m.b_MemX.preFH_p_A,m.b_MemX.preClk1_p_A,m.b_MemX.RTMapWE_p_a,
         m.b_MemX.RTMapRAS_p_a,m.b_MemX.RTMapCAS_p_a,m.b_MemX.u_a04.p2,
         m.b_MemX.u_a04.write_pending,m.b_MemX.u_a04.addr,

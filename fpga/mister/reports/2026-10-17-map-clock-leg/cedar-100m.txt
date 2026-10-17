@@ -1,0 +1,8 @@
+CEDAR MAP WRITES PASS: first16 real page writes are one-to-one
+tb_exec: IFUTRACE @76410144 CIA=41e task=0 VA=03e06ee FG=165 byte=b2 parity=1 xor=1 err'=1 FGDv=0 FDv=0 GDv=0 ack=1 saw=0 opcode=b2 Fclk'=1 GLd'=0 SinDpar=11
+tb_exec: IFUPE -- RamPe high 2263, SawRamParityErr 0, FGParityErr 0, SawFGParityErr 64, of 100000000
+tb_exec: IFU -- IfuMemRef 600500 transitions, IfuMemAck 600870, opcode J changed 613950 times
+tb_exec: 1811 distinct IM addresses executed; last TNIA=26d; longest run on one address=161537 at TNIA=cd6; TASKINITLOOP entries 15
+INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for 86611683 samples without error
+LOADED EB PASS: 3600 original IM and 256 IFUM items match, protected loader page excluded, entry 238 executed
+- Verilator: $finish at 200us; walltime 959.572 s; speed 208.935 ns/s

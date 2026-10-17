@@ -1166,6 +1166,12 @@ class Generator:
     # not a default flip. Default = the measured clk1-only lag.
     _CLOCK_LAG_RE = re.compile(r"^(?:clk1|Clk1|Clock1)(?:$|B|')")
 
+    def memx_map_clock_leg(self):
+        # Explicit depth experiments retain their existing whole-net model.
+        return (self.b.name.split('-Rev')[0] == 'MemX'
+                and os.environ.get('DORADO_CLOCK_DEPTH') != '1'
+                and 'MemX' not in os.environ.get('DORADO_CLOCK_DEPTH_BOARDS', '').split(','))
+
     def clock_lag_stages(self, netname: str) -> int:
         if netname in self.ports or netname in self.exports:
             return 0
@@ -1187,28 +1193,20 @@ class Generator:
             if not hasattr(self, '_clkdepth'):
                 self._clkdepth = self._clock_depths()
             return self._clkdepth.get(netname, 0)
-        # c02 samples MemC's pair flags through HoldMapBuf. With Aa at
-        # depth three it samples two fabric ticks before the new pair flag
-        # arrives, then misses it for a whole instruction: Mapbuf follows
-        # the next instruction's Link instead of holding the requested RP.
-        # Preserve setup at this capture while keeping the latch gates and
-        # MCR's Ab clock at depth three below. Aa also clocks module strobes;
-        # the original-ROM and full Cedar map-write gates exercise both.
-        if self.b.name.split('-Rev')[0] == 'MemX' and netname == "Clk1'Aa":
-            return 5
-        # MemX20 c07 fans out Mapbuf's latch gate and the MCR clock.
-        # Collapsing its Mapbuf outputs to zero delay closes the sampled
-        # latch before BMux settles; the one-stage clk1 default then loads
-        # stale NoWakeups into the MCR. Preserve this package's depth-mode
-        # ordering for the latch gates and the MCR's Ab output. Original-ROM
-        # Initial otherwise accumulates STPerr and halts at BootEmulator
-        # as soon as it enables memory error reporting. Other MemX clocks
-        # retain their existing model; whole-board depth remains opt-in.
-        if self.b.name.split('-Rev')[0] == 'MemX' and netname in (
-                "MapbufLd'a", "MapbufLd'b", "MapbufLd'c", "Clk1'Ab"):
-            if not hasattr(self, '_clkdepth'):
-                self._clkdepth = self._clock_depths()
-            return self._clkdepth[netname]
+        # MemX20 c07 ORs HoldMapBuf with preFH'A to close Mapbuf.
+        # Delay the clock input before this gate, not the qualified output:
+        # an output pipeline also delays a new hold request and lets the
+        # following instruction's Link overwrite the requested page.
+        # Keep Aa on the same one-stage phase as Cb (c02/e23 are the A/B
+        # MemWE and MemCAS registers). Moving Aa independently corrupts
+        # storage; Ab alone retains the three-stage MCR setup ordering.
+        if self.b.name.split('-Rev')[0] == 'MemX':
+            if netname.startswith("MapbufLd'"):
+                return 0
+            if netname == "Clk1'Ab":
+                if not hasattr(self, '_clkdepth'):
+                    self._clkdepth = self._clock_depths()
+                return self._clkdepth[netname]
         # ProcH30 k10b explicitly buffers Clock0'Bc into PostClock0'Bc;
         # ProcH23 g10/h10 clock the TIOA output register from that POST tap.
         # Collapsing it onto Clock0 makes the incoming task's TIOA reach
@@ -1390,6 +1388,10 @@ class Generator:
             else:
                 A(f'  wire {vname(n)};')
         A('')
+        if self.memx_map_clock_leg():
+            A("  // MemX20 c07: preserve clock setup without delaying HoldMapBuf.")
+            A("  reg [2:0] mapbuf_fh_delay=3'b111;")
+            A("  always @(posedge sys_clk) mapbuf_fh_delay <= {mapbuf_fh_delay[1:0],preFH_p_A};")
         if lagged:
             A(f'  // ---- {len(lagged)} clk1-family nets, one sys_clk behind')
             A('  //      their pre siblings (see clock_lag above)')
@@ -1706,6 +1708,8 @@ class Generator:
                     # the rest of the chain reads its other pins -- but this
                     # output goes nowhere.
                     target = ''
+                elif not isout and self.memx_map_clock_leg() and pos == 'c07' and pin == 5:
+                    target = 'mapbuf_fh_delay[2]'
                 elif (not isout and self.b.name.split('-Rev')[0] == 'MemD'
                       and netname in self.STORAGE_INPUT_NETS):
                     target = self.read_name(netname)

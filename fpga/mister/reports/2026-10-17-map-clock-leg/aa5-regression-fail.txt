@@ -1,0 +1,3 @@
+[202] %Fatal: tb_map_buffer_hold-clockleg.sv:40: Assertion failed in tb_map_buffer_hold: MemWEa/CASa capture clock differs from MemWEb/CASb
+%Error: build/rtl-executive/tb_map_buffer_hold-clockleg.sv:40: Verilog $stop
+Aborting...

@@ -1,0 +1,27 @@
+{
+  "captured": 8930,
+  "expected": 8960,
+  "mismatches": 2,
+  "key_words": {
+    "0200": "06ec",
+    "02fe": "0101",
+    "0304": "09d0",
+    "0305": "09e0"
+  },
+  "first_mismatches": [
+    {
+      "va": "02f0",
+      "expected": "0000",
+      "actual": "0002",
+      "xor": "0002",
+      "cycle": 76398410
+    },
+    {
+      "va": "02f1",
+      "expected": "0000",
+      "actual": "0003",
+      "xor": "0003",
+      "cycle": 76398378
+    }
+  ]
+}

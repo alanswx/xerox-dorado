@@ -1,0 +1,181 @@
+{
+  "captured": 8930,
+  "expected": 8960,
+  "mismatches": 265,
+  "key_words": {
+    "0200": "660c",
+    "02fe": "0101",
+    "0304": "4900",
+    "0305": "0900"
+  },
+  "first_mismatches": [
+    {
+      "va": "0200",
+      "expected": "06ec",
+      "actual": "660c",
+      "xor": "60e0",
+      "cycle": 76409410
+    },
+    {
+      "va": "0201",
+      "expected": "04cc",
+      "actual": "840c",
+      "xor": "80c0",
+      "cycle": 76409378
+    },
+    {
+      "va": "0202",
+      "expected": "0518",
+      "actual": "0508",
+      "xor": "0010",
+      "cycle": 76409346
+    },
+    {
+      "va": "0203",
+      "expected": "0564",
+      "actual": "0504",
+      "xor": "0060",
+      "cycle": 76409314
+    },
+    {
+      "va": "0204",
+      "expected": "0590",
+      "actual": "0500",
+      "xor": "0090",
+      "cycle": 76409282
+    },
+    {
+      "va": "0205",
+      "expected": "05e0",
+      "actual": "0500",
+      "xor": "00e0",
+      "cycle": 76409250
+    },
+    {
+      "va": "0206",
+      "expected": "0644",
+      "actual": "0604",
+      "xor": "0040",
+      "cycle": 76409218
+    },
+    {
+      "va": "0207",
+      "expected": "0022",
+      "actual": "0002",
+      "xor": "0020",
+      "cycle": 76409186
+    },
+    {
+      "va": "0208",
+      "expected": "0026",
+      "actual": "0006",
+      "xor": "0020",
+      "cycle": 76409154
+    },
+    {
+      "va": "0209",
+      "expected": "069c",
+      "actual": "060c",
+      "xor": "0090",
+      "cycle": 76409122
+    },
+    {
+      "va": "020a",
+      "expected": "002e",
+      "actual": "000e",
+      "xor": "0020",
+      "cycle": 76409090
+    },
+    {
+      "va": "020c",
+      "expected": "0036",
+      "actual": "0086",
+      "xor": "00b0",
+      "cycle": 76409026
+    },
+    {
+      "va": "020d",
+      "expected": "003a",
+      "actual": "000a",
+      "xor": "0030",
+      "cycle": 76408994
+    },
+    {
+      "va": "020e",
+      "expected": "003e",
+      "actual": "000e",
+      "xor": "0030",
+      "cycle": 76408962
+    },
+    {
+      "va": "02f0",
+      "expected": "0000",
+      "actual": "0002",
+      "xor": "0002",
+      "cycle": 76398410
+    },
+    {
+      "va": "02f1",
+      "expected": "0000",
+      "actual": "0003",
+      "xor": "0003",
+      "cycle": 76398378
+    },
+    {
+      "va": "0300",
+      "expected": "0000",
+      "actual": "6000",
+      "xor": "6000",
+      "cycle": 76397546
+    },
+    {
+      "va": "0302",
+      "expected": "0954",
+      "actual": "0904",
+      "xor": "0050",
+      "cycle": 76397482
+    },
+    {
+      "va": "0303",
+      "expected": "099c",
+      "actual": "090c",
+      "xor": "0090",
+      "cycle": 76397450
+    },
+    {
+      "va": "0304",
+      "expected": "09d0",
+      "actual": "4900",
+      "xor": "40d0",
+      "cycle": 76397418
+    },
+    {
+      "va": "0305",
+      "expected": "09e0",
+      "actual": "0900",
+      "xor": "00e0",
+      "cycle": 76397386
+    },
+    {
+      "va": "0306",
+      "expected": "09f4",
+      "actual": "0904",
+      "xor": "00f0",
+      "cycle": 76397354
+    },
+    {
+      "va": "0307",
+      "expected": "09f8",
+      "actual": "0908",
+      "xor": "00f0",
+      "cycle": 76397322
+    },
+    {
+      "va": "0308",
+      "expected": "0b18",
+      "actual": "0b08",
+      "xor": "0010",
+      "cycle": 76397290
+    }
+  ]
+}

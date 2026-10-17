@@ -8,6 +8,36 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Map and storage clock correction, 2026-10-17 15:12 UTC.** The component
+machine now executes Mesa instructions from the original Cedar germ. MemX
+c02/e23 capture the same storage write/CAS control for the A/B strobe banks,
+but Native18's Aa5 timing separated their clock edges and corrupted germ
+data. Aa is restored to the ordinary one-stage clock shared with Cb.
+Three stages delay preFH'A before c07 pin5 instead of delaying the gate's
+qualified MapbufLd outputs; HoldMapBuf can then close the latch promptly.
+Ab alone retains the three-stage MCR setup. The expanded map replay checks
+the A/B capture clocks as well as map hold/release: new RTL passes, Aa5
+fails. Original-ROM startup passes at SYSPER4/16 with all six errors enabled.
+Actual first16 map RAM writes pass. Germ-copy trace comparison improves
+from265 differing sampled words to2, with the former broken roots now
+06ec/09d0/09e0. First IFU acknowledgement is76,410,144, CIA41e, VA03e06ee;
+Mesa execution continues. The two source differences at02f0/02f1 remain
+unexplained;30 of8960 words were not sampled, so this is not a full checksum.
+The completed100M run retains exact3600IM/256IFUM, records600,500 IFU
+reference/600,870 acknowledgement transitions and86,611,683 samples with
+all six errors enabled without error. SYSPER16 startup has10,422,953 clean
+all-error-enabled samples.
+Evidence: `fpga/mister/reports/2026-10-17-map-clock-leg/`.
+
+Native19 is building separately on misterubuntu, cloned from frozen Native16
+plus the committed memory-DMux fixes and corrected MemX. Canonical cleanup
+emits identical RTL tokens. Full STA and clock coverage are required before
+loading. MiSTer14 still runs Native18; its actual14:35 screenshot is white
+with a tiny cursor, no OS text. The C-key watcher completed and released C
+at the BFN113 request. Fresh Cedar19 medium has the same c0cd6784 baseline
+hash. Neither Main nor the server was replaced. Cedar is not yet booted on
+the FPGA.
+
 **Latest hardware state, 2026-10-17 14:30 UTC.** MiSTer14 now runs
 Native18, SHA256 `25e4f127a7490e7852ea0d7d91928297a7636abfa80de3d1bf349a713764a42f`.
 All29 timing checks pass, minimum +0.091ns, with zero illegal/unconstrained

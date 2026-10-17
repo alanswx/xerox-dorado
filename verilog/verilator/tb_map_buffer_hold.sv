@@ -30,6 +30,15 @@ module tb_map_buffer_hold;
     .BMux_16(b[1]),
     .BMux_17(b[0]));
   wire [17:0] captured={m.Mapbuf_00,m.Mapbuf_01,m.Mapbuf_02,m.Mapbuf_03,m.Mapbuf_04,m.Mapbuf_05,m.Mapbuf_06,m.Mapbuf_07,m.Mapbuf_08,m.Mapbuf_09,m.Mapbuf_10,m.Mapbuf_11,m.Mapbuf_12,m.Mapbuf_13,m.Mapbuf_14,m.Mapbuf_15,m.Mapbuf_16,m.Mapbuf_17};
+  // MemX20 c07 and c20 distribute the same preClk1 phase. c02 and e23
+  // take the same MemWE/MakeMemCAS inputs for the A/B DRAM bank strobes.
+  // Moving only Aa to fix Mapbuf must not split that common capture edge.
+  integer checked_clocks=0;
+  always @(negedge sys_clk) if($time>200)begin
+    checked_clocks++;
+    if(m.Clk1_p_Aa!==m.Clk1_p_Cb)
+      $fatal(1,"MemWEa/CASa capture clock differs from MemWEb/CASb");
+  end
   initial begin #10000; $fatal(1,"Replay phase timeout"); end
   task map_write(input [15:0] page,input [15:0] saved_link);
     begin
@@ -49,6 +58,7 @@ module tb_map_buffer_hold;
     repeat(100)@(negedge sys_clk);
     map_write(16'h0123,16'h0e35);
     map_write(16'hfedc,16'h0e54);
+    if(checked_clocks<50)$fatal(1,"No storage clock comparison window");
     $display("MAP HOLD PASS: both pages survive following saved Link, buffer reopens after release");
     $finish;
   end
