@@ -66,8 +66,9 @@ void dorado_net_poll(){
     if(magic==0xd074 && now>=next_trace && getenv("DORADO_NET_TRACE")){
         next_trace=now+1000;
         unsigned length=spi_w(0),good=spi_w(0),bad=spi_w(0),dropped=spi_w(0),rx_bad=spi_w(0),aborted=spi_w(0);
-        printf("Dorado net: flags=%x tx_words=%u good=%u crc_bad=%u dropped=%u rx_bad=%u aborted=%u\n",
-               flags,length,good,bad,dropped,rx_bad,aborted);fflush(stdout);
+        unsigned debug_lo=spi_w(0),debug_hi=spi_w(0),machine_status=spi_w(0);
+        printf("Dorado net: flags=%x tx_words=%u good=%u crc_bad=%u dropped=%u rx_bad=%u aborted=%u machine=%04x%04x state=%04x\n",
+               flags,length,good,bad,dropped,rx_bad,aborted,debug_hi,debug_lo,machine_status);fflush(stdout);
     }
     DisableIO();
     if(magic!=0xd074){disconnect();next_connect=now+500;return;}

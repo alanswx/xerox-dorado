@@ -1281,7 +1281,7 @@ class Generator:
         else:
             A(f'module {mod} #(parameter integer SYSPER = 16) (')
         decl = ['    input  wire sys_clk'] + \
-               (['    input wire baseboard_boot_n'] if nominal_environment else []) + \
+               (['    input wire baseboard_boot_n', '    output wire [31:0] baseboard_debug'] if nominal_environment else []) + \
                [f'    input  wire {vname(n)}' for n in inputs] + \
                [f'    output wire {vname(n)}__drv' for n in exports]
         A(',\n'.join(decl) if decl else '    // no backplane ports detected')
@@ -1501,6 +1501,9 @@ class Generator:
             A('')
 
         A('  // ---- packages')
+        if nominal_environment:
+            address = ', '.join(f'MCA_{i:02d}' for i in range(15, -1, -1))
+            A(f"  assign baseboard_debug = {{12'd0, MCReset_p_, MCClk, AHasCP, CVCC, {address}}};")
         # An FPGA has no supply/temperature analog chain. Supply comparator
         # levels at its actual output pins, driven by the REAL firmware DAC.
         # The 6502 still runs ADConvert, range checks, power sequencing and

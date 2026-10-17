@@ -7,6 +7,12 @@
 //  configuration below remains experimental. See README.md for both paths.
 //============================================================================
 
+`ifdef DORADO_NATIVE
+`define DORADO_CLOCKED_MACHINE
+`elsif DORADO_CHECKPOINT
+`define DORADO_CLOCKED_MACHINE
+`endif
+
 module emu
 (
 	`include "sys/emu_ports.vh"
@@ -20,8 +26,12 @@ assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
 assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML,
         SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
+`ifndef DORADO_NATIVE
 assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN,
         DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;
+`else
+assign DDRAM_CLK = clk_sys;
+`endif
 
 assign VGA_SL = 0;
 `ifndef DORADO_CHECKPOINT
@@ -75,11 +85,18 @@ localparam CONF_STR = {
 `endif
 	"-;",
 	"O[122:121],Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
+`ifdef DORADO_ETHERNET_HOST_PORT
+	"O[2:1],Ethernet station,042,001,377,000;",
+`endif
 	"-;",
-`ifdef DORADO_CHECKPOINT
+`ifdef DORADO_CLOCKED_MACHINE
 	"O[0],Pause,Off,On;",
 `else
 	"R[0],Reset;",
+`endif
+`ifdef DORADO_NATIVE
+	"O[3],Boot button,Released,Pressed;",
+	"O[4],Display,Large Format,Alto;",
 `endif
 	"J,;",
 	"V,v",`BUILD_DATE
@@ -170,7 +187,11 @@ pll pll
 	.locked   (pll_locked)
 );
 
+`ifdef DORADO_NATIVE
+wire reset = RESET | status[0] | ~pll_locked;
+`else
 wire reset = RESET | status[0] | buttons[1] | ~pll_locked;
+`endif
 
 // USB events arrive even while a disk transfer/pause stops the machine.
 // Retain those deltas here, then acknowledge only actual terminal reports.
@@ -193,7 +214,7 @@ dorado_mouse u_mouse (
 // the built Rev Cl sheet) sits outside the generated netlist, so the core
 // drives it -- right by construction rather than approximation.
 wire pixel_clk;
-`ifndef DORADO_CHECKPOINT
+`ifndef DORADO_CLOCKED_MACHINE
 cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(2 * MACHINE_SYSPER)) u_pixclk
 (
     .sys_clk(clk_sys), .p8(pixel_clk), .p7(1'b0), .p14(1'b1)
@@ -204,13 +225,23 @@ cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(2 * MACHINE_SYSPER)) u_pixclk
 // `hblank`, which the machine drives further down.
 wire alto_video, alto_hsync, alto_vsync_n, hblank, vblank;
 
-`ifdef DORADO_CHECKPOINT
+`ifdef DORADO_CLOCKED_MACHINE
 // Freeze every saved register until the PLL is locked. A dedicated global
 // clock-control block avoids a LUT-gated fabric clock and starts the whole
 // continuation together. Framework reset pauses this first hardware test;
 // reloading the RBF restores its saved power-up state.
 wire machine_clk;
-`ifdef DORADO_HPS_PACK
+`ifdef DORADO_NATIVE
+wire storage_ready,storage_initialized;
+wire [31:0] baseboard_debug;
+wire machine_enable = ~reset && pack_ready && storage_ready;
+reg [28:0] boot_samples=0;
+always @(posedge machine_clk)if(boot_samples<29'd240000000)boot_samples<=boot_samples+1'b1;
+wire baseboard_boot_n=!(status[3] || buttons[1] ||
+    (boot_samples>=29'd200000000 && boot_samples<29'd240000000));
+wire [15:0] machine_status={10'd0,baseboard_boot_n,pack_fault,storage_initialized,
+                           storage_ready,pack_ready,machine_enable};
+`elsif DORADO_HPS_PACK
 wire machine_enable = ~reset && pack_ready;
 `else
 wire machine_enable = ~reset;
@@ -230,6 +261,11 @@ dorado_ethernet_uio u_network_uio (
     .clk(clk_sys), .reset(~pll_locked), .bus(ethernet_ext_bus),
     .rx_ready(net_rx_ready), .tx_valid(net_tx_valid), .tx_words(net_tx_words), .tx_data(net_tx_data),
     .tx_good(net_tx_good), .tx_bad(net_tx_bad), .tx_dropped(net_tx_dropped), .rx_bad(net_rx_bad),
+`ifdef DORADO_NATIVE
+    .machine_debug(baseboard_debug), .machine_status(machine_status),
+`else
+    .machine_debug(32'd0), .machine_status(16'd0),
+`endif
     .tx_addr(net_tx_addr), .tx_ack(net_tx_ack), .rx_wr(net_rx_wr), .rx_commit(net_rx_commit),
     .rx_addr(net_rx_addr), .rx_data(net_rx_data), .rx_words(net_rx_words), .aborted()
 );
@@ -246,8 +282,22 @@ altclkctrl #(.clock_type("Global Clock"), .ena_register_mode("falling edge"),
              .intended_device_family("Cyclone V")) machine_clock
     (.inclk({3'b000, clk_sys}), .clkselect(2'b00), .ena(machine_enable),
      .outclk(machine_clk));
+`ifdef DORADO_NATIVE
+dorado_native_machine #(.SYSPER(MACHINE_SYSPER)) u_native (
+    .reset(~pll_locked), .baseboard_boot_n(baseboard_boot_n), .large_format(~status[4]),
+    .storage_ready(storage_ready), .storage_initialized(storage_initialized),
+    .baseboard_debug(baseboard_debug),
+    .ddram_busy(DDRAM_BUSY), .ddram_rvalid(DDRAM_DOUT_READY), .ddram_rdata(DDRAM_DOUT),
+    .ddram_burstcount(DDRAM_BURSTCNT), .ddram_be(DDRAM_BE), .ddram_addr(DDRAM_ADDR),
+    .ddram_read(DDRAM_RD), .ddram_write(DDRAM_WE), .ddram_wdata(DDRAM_DIN),
+`else
 dorado_checkpoint_machine u_checkpoint (
+`endif
     .sys_clk(machine_clk), .ps2_key(ps2_key), .pixel_clk(pixel_clk),
+`ifdef DORADO_ETHERNET_HOST_PORT
+    .ethernet_host(status[2:1]==0 ? 8'o042 : status[2:1]==1 ? 8'o001 :
+                   status[2:1]==2 ? 8'o377 : 8'o000),
+`endif
     .mouse_keys(mouse_keys), .mouse_dx(mouse_dx), .mouse_dy(mouse_dy),
     .mouse_pending(mouse_pending), .mouse_taken(mouse_taken),
     .mouse_sent_dx(mouse_sent_dx), .mouse_sent_dy(mouse_sent_dy),
@@ -255,7 +305,11 @@ dorado_checkpoint_machine u_checkpoint (
     .ethernet_rx(ethernet_rx), .ethernet_tx_n(ethernet_tx_n),
 `endif
 `ifdef DORADO_HPS_PACK
-    .clk_host(clk_sys), .pack_reset(~pll_locked), .pack_attached(pack_attached), .pack_readonly(img_readonly), .pack_mounted(img_mounted[0]),
+    .clk_host(clk_sys),
+`ifndef DORADO_NATIVE
+    .pack_reset(~pll_locked),
+`endif
+    .pack_attached(pack_attached), .pack_readonly(img_readonly), .pack_mounted(img_mounted[0]),
     .sd_lba(sd_lba[0]), .sd_blk_cnt(sd_blk_cnt[0]), .sd_rd(sd_rd[0]), .sd_wr(sd_wr[0]), .sd_ack(sd_ack[0]),
     .sd_buff_addr(sd_buff_addr), .sd_buff_dout(sd_buff_dout), .sd_buff_din(sd_buff_din[0]), .sd_buff_wr(sd_buff_wr),
     .pack_ready(pack_ready), .pack_fault(pack_fault), .pack_dirty(pack_dirty),

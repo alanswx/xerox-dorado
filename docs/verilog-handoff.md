@@ -154,7 +154,11 @@ cycles remain RTL. A missing word pauses the complete machine while the
 host clock services DDR; no ARM process reads guest RAM or completes I/O.
 The proposed window starts at byte `0x30000000`, outside MiSTer14 Linux RAM
 (`mem=511M`) and the template scaler's 8 MB at `0x20000000`.
-**These modules are not yet wired into an FPGA build.**
+`tools/sil_fpga_native.py` now assembles these with the real BaseBoard,
+terminal and HPS medium without checkpoint initializers. Four-module
+Quartus synthesis succeeds (41,394 registers, 1,275,472 RAM bits); fit/timing
+is running in `misterubuntu:/home/alans/mister/Dorado_Native1_20261017`.
+This is not yet a hardware boot gate.
 
 `tools/sil_storage_ddram.py` consumes canonical `msa.v`, verifies all 144
 chips and their common control signals, emits a separate `msa_ddram`, and
@@ -181,11 +185,60 @@ programs the clock/manifold chain and writes MIR0/1/2 475 times each.
 CVCC changes 3,210 times following the firmware's DAC, rather than being
 forced to a static value. This probe excludes memory/IFU and **does not
 qualify cold boot**. Its opcode histogram can count the following address
-while SYNC changes, so exact per-PC call counts are not reliable evidence.
+while SYNC changes, so exact per-PC call counts in that old run are not
+reliable evidence. The probe now samples once at MCClk falling; its 4M-sample
+regression correctly counts F3AC/F3AE/F3AF instructions rather than the
+following operand F3AD.
 An earlier probe with a one-time procedural force captured a static RHS
 and is explicitly invalid. The generator's optional nominal BaseBoard
 variant uses continuous comparator wiring and an external boot-button
 input; default board/backplane regeneration remains byte-identical.
+
+`dorado_storage_init.sv` clears the raw DDR window before CPU clocks start.
+A complete one-module cold-start simulation verifies every raw word was
+cleared exactly once (524,288 words), loads one HPS track, then executes the
+actual BaseBoard power-on code. Its 1B-sample run is still in progress.
+The FPGA wrapper holds a physical boot-button input during logical samples
+200M..240M, following the five-board probe; it does not jam CP or CPU state.
+The native UIO status extension exposes passive BaseBoard address/clock/
+reset signals and DDR readiness. Focused UIO and Main transport gates pass;
+temporary diagnostic Main SHA256:
+`766873a17ff55e51a9b17cc35b16e933b002261a9daa9113b892d0609f777211`.
+Stock `/media/fat/MiSTer` remains unchanged.
+
+`Dorado_Network5_20261017` is the separate checkpoint build with selectable
+physical station straps (default 042B, alternatives 001/377/000). It is
+still fitting. The matching normal-address RTL model receives real wire
+packets, requests NetExec by Mayday and acknowledges EFTP data. At 120M
+samples it has acknowledged through sequence 31/32 of the 21,820-word boot
+file; this is a partial transfer, **not a NetExec or Cedar boot gate**.
+Station 377 reproduces "This Alto has no Ethernet!" in the native model too.
+
+**The native Pilot medium requires a different format.**
+`PilotDiskDefs.mc!1` and `PilotDisk.mc!1` specify drive 0's emulated geometry:
+real cylinder = virtual cylinder MOD 815, real head = virtual cylinder / 815,
+and real sector = (virtual sector + 8*(REAL cylinder MOD 4)) MOD 28. Drive
+0 still supplies 117 physical pulses and has 29 complete slots; Pilot uses
+28. The header retains the original virtual DiskAddress. This differs from
+the simplified PDI path in the C reference.
+
+`tools/pdi_to_trident.py` preserves all ten label words and 256 data words,
+adds those address headers, and emits a raw/padded serial medium. Independent
+inverse traversal verified all 65,535 work-volume pages byte-exact, every
+header, all 4,075 spare slots and the 814-to-815 virtual-cylinder boundary.
+`pdi_boot_links_to_chs.py` converts the disposable work copy's root links to
+(3,20) and (4,27); no original artifact is changed. Its native pack SHA256 is
+`c0cd6784ea9df43d669dab2c445b3a1a7241048ac87f10afa747927d931bad5c`.
+The work volume's pages 104..138 already contain the exact matched
+`Dorado.germ-6.1.6` (SHA256
+`dbfa203f485dfbb53e8545ac995495758c11672aeeece81c2b3e5cbbc168a631`).
+The HPS medium's default Alto 2/8/256 format retains its 11,024-bit serial
+comparison/writeback gate. The optional native `--pilot-disk` selects
+2/10/256. `make -C verilog/verilator pilot-pack-test` reads the germ's
+physical (3,0,16) sector through the actual HPS track buffer and serial
+medium: header (3,20), all ten label words and 256 data words match the
+image, and all three Fire-code wire residues are zero. The real
+controller/germ boot is still unqualified.
 
 ## Invaders starts on MiSTer14 (2026-10-17 UTC)
 

@@ -118,6 +118,16 @@ hps-persistence-test:
 	@cd ../.. && verilog/verilator/obj_hps_persistence/hps-persistence-test \
 		chm/diskpacks/games-trident.pack build/rtl-executive/hps-persistence
 
+.PHONY: pilot-pack-test
+pilot-pack-test:
+	@cd ../.. && python3 tools/pdi_to_trident.py CedarDisk/CedarDorado-work.pdi.gz \
+		build/rtl-executive/pilot-pack-fixture.pack && \
+		$(V) --cc --exe --build -j 4 --top-module tb_pilot_pack $(V_WARN) \
+		--Mdir verilog/verilator/obj_pilot_pack -o pilot-pack-test -CFLAGS '-O2 -std=c++20' \
+		verilog/verilator/tb_pilot_pack.sv verilog/verilator/pilot_pack_test.cpp \
+		fpga/mister/dorado_pack_hps.sv >/dev/null && \
+		./verilog/verilator/obj_pilot_pack/pilot-pack-test build/rtl-executive/pilot-pack-fixture.pack
+
 .PHONY: hps-pack-test
 hps-pack-test:
 	@cd ../.. && $(V) --cc --exe --build --timing --top-module tb_hps_pack \

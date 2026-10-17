@@ -47,7 +47,10 @@ module dorado_storage_arb #(
     assign raw_req_addr=(RAW_ADDR_BITS'(owner)<<GROUP_ADDR_BITS) | address_latched;
     assign raw_req_data=data_latched;
     assign raw_rsp_ready=!reset && state==RESPONSE && rsp_ready[owner];
-    for(genvar i=0;i<GROUPS;i++)assign rsp_data[i*16+:16]=raw_rsp_data;
+    genvar reply_group;
+    generate for(reply_group=0;reply_group<GROUPS;reply_group=reply_group+1)begin:reply_data
+        assign rsp_data[reply_group*16+:16]=raw_rsp_data;
+    end endgenerate
     always @(posedge clk)begin
         if(reset)begin state<=IDLE;next_group<=0;end
         else case(state)

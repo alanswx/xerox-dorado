@@ -9,6 +9,8 @@ module dorado_ethernet_uio (
     input wire [9:0] tx_words,
     input wire [15:0] tx_data,
     input wire [31:0] tx_good,tx_bad,tx_dropped,rx_bad,
+    input wire [31:0] machine_debug,
+    input wire [15:0] machine_status,
     output reg [8:0] tx_addr=0,rx_addr=0,
     output reg tx_ack=0,rx_wr=0,rx_commit=0,
     output reg [15:0] rx_data=0,
@@ -56,6 +58,9 @@ module dorado_ethernet_uio (
           5:dout<=tx_dropped[15:0];
           6:dout<=rx_bad[15:0];
           7:dout<=aborted[15:0];
+          8:dout<=machine_debug[15:0];
+          9:dout<=machine_debug[31:16];
+          10:dout<=machine_status;
           default:dout<=0;
         endcase
         16'h71:begin

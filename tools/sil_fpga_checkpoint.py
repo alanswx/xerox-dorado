@@ -40,6 +40,8 @@ def main():
     p.add_argument('--ethernet-wire', action='store_true', help='expose the real Ethernet cable pins for packet-link validation')
     p.add_argument('--ethernet-host', type=lambda s: int(s, 0), default=0xff,
                    help='positive-logic station address straps (default 0xff / 377B; old exports used 0)')
+    p.add_argument('--ethernet-host-port', action='store_true',
+                   help='expose physical station straps as an eight-bit input')
     p.add_argument('--base-pack', type=Path, help='make a disposable disk with the checkpoint media overlay applied')
     a = p.parse_args()
     if not 0 <= a.ethernet_host <= 255:
@@ -523,7 +525,8 @@ endmodule''')
                        TtlReady_p_='drv_ready_n', TtlOnLine_p_='drv_online_n', TtlTerm_p_='drv_term_n',
                        TtlIndex_p_='drv_index_n', TtlReadOnly_p_="1'b1", TtlEndOfCyl_p_="1'b1", SecIndx0_p_='drv_sec_n', Selected0_p_='drv_sel_n')
     connections['Select0_p_'] = 'disk_sel_n'
-    connections.update({f'Host_{i}': f"1'b{(a.ethernet_host >> (7-i)) & 1}" for i in range(8)})
+    connections.update({f'Host_{i}': f'ethernet_host[{7-i}]' if a.ethernet_host_port
+                        else f"1'b{(a.ethernet_host >> (7-i)) & 1}" for i in range(8)})
     if a.ethernet_wire:
         connections.update(RcvData='ethernet_rx', XmtData_p_='ethernet_tx_n')
     if a.hps_pack:
@@ -624,6 +627,8 @@ PACK_INSTANCE
     else:
         wrapper = wrapper.replace('HPS_PORTS', '').replace('PACK_INSTANCE', '  wire drv_adv;').replace('PACK_ATTACHED', "1'b1").replace('PACK_BIT', "1'b0")
     wrapper = wrapper.replace('ETH_PORTS', '    input wire ethernet_rx, output wire ethernet_tx_n,' if a.ethernet_wire else '')
+    if a.ethernet_host_port:
+        wrapper = wrapper.replace('    input wire sys_clk,', '    input wire [7:0] ethernet_host,\n    input wire sys_clk,', 1)
     (a.output / 'dorado_checkpoint_machine.sv').write_text(wrapper)
     sources = [str(a.output / (n + '.sv')) for n in generated.values()]
     sources.append(str(a.output / 'dorado_checkpoint_machine.sv'))
@@ -633,6 +638,7 @@ PACK_INSTANCE
     manifest = {'checkpoint': str(a.checkpoint), 'checkpoint_sha256': hashlib.sha256(snapshot).hexdigest(), 'model_fingerprint': fingerprint, 'storage_words': a.storage_words, 'hps_pack': a.hps_pack, 'top': generated['tb_exec.m'], 'helpers': helper_state, 'optimized_dff_inputs': reconstructed, 'stale_combinational_bits': stale_wires, 'instances': report}
     manifest['ethernet_wire'] = a.ethernet_wire
     manifest['ethernet_host'] = a.ethernet_host
+    manifest['ethernet_host_port'] = a.ethernet_host_port
     if a.base_pack:
         manifest['paired_disk_sha256'] = hashlib.sha256(media).hexdigest()
     (a.output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')

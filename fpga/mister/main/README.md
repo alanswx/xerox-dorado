@@ -43,7 +43,7 @@ an older core lacking capability magic `D074` gets no packet commands.
 
 | Command | Command response | Subsequent words |
 | --- | --- | --- |
-| `70` | `D074` | flags, TX length, good TX, bad CRC, dropped TX, bad RX submit, aborted RX transaction |
+| `70` | `D074` | flags, TX length, good TX, bad CRC, dropped TX, bad RX submit, aborted RX transaction, optional machine debug low/high and status |
 | `71` | TX length | TX data words; reading leaves the packet pending |
 | `72` | `D074` | acknowledges the pending TX after local server acceptance |
 | `73` | RX ready | length then data; deselection commits a complete packet |

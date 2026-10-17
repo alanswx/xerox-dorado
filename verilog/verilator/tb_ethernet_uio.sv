@@ -23,6 +23,7 @@ module tb_ethernet_uio;
   end
   dorado_ethernet_uio dut(.clk(clk),.reset(reset),.bus(bus),
     .rx_ready(rx_ready),.tx_valid(tx_valid),.tx_words(10'd17),.tx_data(tx_data),
+    .machine_debug(32'h1357abcd),.machine_status(16'h2468),
     .tx_good(32'd111),.tx_bad(32'd222),.tx_dropped(32'd333),.rx_bad(32'd444),
     .tx_addr(tx_addr),.tx_ack(tx_ack),.rx_wr(rx_wr),.rx_commit(rx_commit),
     .rx_addr(rx_addr),.rx_data(rx_data),.rx_words(rx_words),.aborted(aborted));
@@ -40,7 +41,11 @@ module tb_ethernet_uio;
     word(0,r);if(r!==111)$fatal(1,"wrong good counter");
     word(0,r);if(r!==222)$fatal(1,"wrong CRC counter");
     word(0,r);if(r!==333)$fatal(1,"wrong dropped counter");
-    word(0,r);if(r!==444)$fatal(1,"wrong bad RX counter");deselect();
+    word(0,r);if(r!==444)$fatal(1,"wrong bad RX counter");
+    word(0,r);if(r!==0)$fatal(1,"wrong aborted count");
+    word(0,r);if(r!==16'habcd)$fatal(1,"wrong debug low word");
+    word(0,r);if(r!==16'h1357)$fatal(1,"wrong debug high word");
+    word(0,r);if(r!==16'h2468)$fatal(1,"wrong machine status");deselect();
     enable=1;word(16'h71,r);if(r!==17)$fatal(1,"wrong TX length");
     for(integer i=0;i<17;i++)begin
       word(0,r);if(r!==(16'ha500|i))$fatal(1,"TX data timing: word %d got %h",i,r);

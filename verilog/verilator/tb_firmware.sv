@@ -227,12 +227,31 @@ module tb_firmware;
   integer n_irq_lo = 0, n_irq_fall = 0, n_nmi_lo = 0;
   integer n_press = 0, n_pb6_in = 0, n_pb6_out = 0, n_pb6_dir = 0;
   integer runlen;
+  integer nominal_environment = 0;
+  wire [7:0] dac = {`BB.DAC_7,`BB.DAC_6,`BB.DAC_5,`BB.DAC_4,
+                    `BB.DAC_3,`BB.DAC_2,`BB.DAC_1,`BB.DAC_0};
+  wire nominal_voltage = dac > 8'hbf;
+  wire nominal_current_temperature = dac > 8'h7f;
+  // Refresh on every sample: a procedural force's RHS in Verilator is
+  // captured when the force executes, not continuously re-evaluated.
+  always @(posedge sys_clk) if (nominal_environment) begin
+    force `BB.CVCC___h_4i21_6 = nominal_voltage;
+    force `BB.CVDD__i19_6 = nominal_voltage;
+    force `BB.CVEE__i20_6 = nominal_voltage;
+    force `BB.CVTT___h_4i19_6 = nominal_voltage;
+    force `BB.CI___h_4j21_6 = nominal_current_temperature;
+    force `BB.TBaseTempSense__h08_4 = nominal_current_temperature;
+    force `BB.TCBTempSense__h08_5 = nominal_current_temperature;
+  end
   reg irq_d = 1'b1;
   integer n_cpstrb = 0, n_manclk = 0, n_dmuxclk = 0;
   reg     p_cpstrb = 1'b1, p_manclk = 1'b1, p_dmuxclk = 1'b0;
   reg [15:0] pc_lo = 16'hFFFF, pc_hi = 16'h0000, last_a = 16'h0;
   reg [15:0] last_rom = 16'h0, last_fetch = 16'h0;
   integer hotx [0:4095];
+  integer rankhot [0:4095], rankhotx [0:4095];
+  integer comparator_edges=0;
+  reg comparator_d=0;
   integer n_fetch = 0;
   integer n_rom = 0, n_ram = 0, n_io = 0;
 
@@ -276,6 +295,14 @@ module tb_firmware;
   integer mcclk_at_reset = 0;
 
   initial begin
+    // Only supply external analog comparator levels. The EPROM firmware
+    // still performs every DAC trial, conversion, range check and power
+    // sequence. These nominal thresholds match baseboard.c's environment;
+    // no firmware RAM, CPU state, CP handshake or completion is planted.
+    void'($value$plusargs("nominal_environment=%d", nominal_environment));
+    if (nominal_environment) begin
+      $display("tb_firmware: nominal external analog environment enabled");
+    end
     // EXPERIMENT: does g22's toggle flip-flop coming up with Q=1 (so Q'=0,
     // watchdog DISARMED until the first timer interval) let the firmware run?
     // The cell powers up Q=0, hence Q'=1, which lets a transient XOR spike
@@ -320,6 +347,10 @@ module tb_firmware;
     for (i = 0; i < 4_000_000; i = i + 1) begin
 `endif
       @(posedge sys_clk);
+      if (`BB.CVCC != comparator_d) comparator_edges++;
+      comparator_d = `BB.CVCC;
+      if (i % 50000000 == 49999999)
+        $display("tb_firmware: progress %0d samples fetch=%04h DAC=%02h CVCC=%b target=%b",i+1,last_fetch,dac,`BB.CVCC,nominal_voltage);
       // PRESS THE BOOT BUTTON. `+bootbtn=N` grounds the button's net after N
       // cycles. The chain, traced from the firmware back through the netlist:
       //
@@ -387,15 +418,18 @@ module tb_firmware;
       // reads too, and this histogram counted table lookups as if they were
       // execution -- which is how `FF00`/`FF80` came to look like a PC parked
       // in filler when FEF0..FF10 disassembles as data, not code.
+      // Sample once halfway through the 6502 cycle. Address changes can
+      // precede SYNC settling at the rising edge and mislabel an operand
+      // as an opcode; MCClk falling is stable and does not advance the CPU.
+      if (p_mcclk && !`BB.MCClk && `BB.u_f61.p7) begin
+        if (mca >= 16'hF000) begin
+          hotx[mca - 16'hF000] = hotx[mca - 16'hF000] + 1;
+          last_fetch = mca;
+        end
+        n_fetch = n_fetch + 1;
+      end
       if (mca !== last_a) begin
         last_a = mca;
-        if (`BB.u_f61.p7) begin
-          if (mca >= 16'hF000) begin
-            hotx[mca - 16'hF000] = hotx[mca - 16'hF000] + 1;
-            last_fetch = mca;
-          end
-          n_fetch = n_fetch + 1;
-        end
         bucket[mca[15:12]] = bucket[mca[15:12]] + 1;
         if (mca < 16'h1000)                        n_ram = n_ram + 1;
         else if (mca >= 16'hC000)                  n_rom = n_rom + 1;
@@ -499,6 +533,8 @@ module tb_firmware;
     end
 
     $display("tb_firmware: %0d sys_clk of the REAL firmware running.", i);
+    $display("tb_firmware: external CVCC comparator transitions %0d",comparator_edges);
+    for (j = 0; j < 4096; j++) begin rankhot[j]=hot[j]; rankhotx[j]=hotx[j]; end
     $display("tb_firmware: bus activity -- %0d ROM, %0d RAM/zero-page, %0d I/O addresses",
              n_rom, n_ram, n_io);
     $display("tb_firmware: ROM addresses touched span %04h..%04h", pc_lo, pc_hi);
@@ -510,24 +546,24 @@ module tb_firmware;
     for (i = 0; i < 10; i = i + 1) begin
       best = 0; besta = 0;
       for (j = 0; j < 4096; j = j + 1)
-        if (hotx[j] > best) begin best = hotx[j]; besta = j; end
+        if (rankhotx[j] > best) begin best = rankhotx[j]; besta = j; end
       if (best > 0) begin
         $display("tb_firmware:   %04h  %0d fetches", 16'hF000 + besta[15:0], best);
-        hotx[besta] = 0;
+        rankhotx[besta] = 0;
       end
     end
     $display("tb_firmware: the ten ROM addresses it ADDRESSES most (fetches AND data reads):");
     for (i = 0; i < 10; i = i + 1) begin
       best = 0; besta = 0;
       for (j = 0; j < 4096; j = j + 1)
-        if (hot[j] > best) begin best = hot[j]; besta = j; end
+        if (rankhot[j] > best) begin best = rankhot[j]; besta = j; end
       if (best > 0) begin
         $display("tb_firmware:   %04h  %0d visits", 16'hF000 + besta[15:0], best);
-        hot[besta] = 0;
+        rankhot[besta] = 0;
       end
     end
-    $display("tb_firmware: MCClk edges %0d in 4,000,000 sys_clk -> 1 MCClk cycle = %0d sys_clk",
-             n_mcclk, (n_mcclk > 1) ? (4000000*2)/n_mcclk : 0);
+    $display("tb_firmware: MCClk edges %0d in %0d sys_clk -> 1 MCClk cycle = %0d sys_clk",
+             n_mcclk, n_samp_ah, (n_mcclk > 1) ? (n_samp_ah*2)/n_mcclk : 0);
     $display("tb_firmware: MCPreClk edges %0d, divider Q21 edges %0d, toggle-FF edges %0d",
              n_pre, n_div, n_tog);
     $display("tb_firmware: WatchdogIn edges %0d, WatchdogOut edges %0d, XOR edges %0d, BootMC' edges %0d",
@@ -570,12 +606,12 @@ module tb_firmware;
     for (hi = 0; hi < 12; hi = hi + 1) begin
       hbest = 0; haddr = 0;
       for (hj = 0; hj < 4096; hj = hj + 1)
-        if (hotx[hj] > hbest) begin hbest = hotx[hj]; haddr = hj; end
+        if (rankhotx[hj] > hbest) begin hbest = rankhotx[hj]; haddr = hj; end
       if (hbest == 0) hi = 12;
       else begin
         $display("tb_firmware: HOT #%0d  PC %04h  %0d fetches", hi + 1,
                  16'hF000 + haddr[15:0], hbest);
-        hotx[haddr] = 0;
+        rankhotx[haddr] = 0;
       end
     end
     // DOES THE INTERRUPT HANDLER RUN? Its address is not guessed: the

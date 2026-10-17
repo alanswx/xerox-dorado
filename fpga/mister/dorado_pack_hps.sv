@@ -3,6 +3,8 @@
 // neighboring bytes needed to write an unaligned track back without damage.
 // The machine pauses during host transfers; HPS and HDMI clocks keep running.
 module dorado_pack_hps #(
+    parameter integer SECTORS_PER_TRACK = 29,
+    parameter integer LABEL_WORDS = 8,
     parameter [11:0] INITIAL_CYL = 0,
     parameter [5:0] INITIAL_HEAD = 0,
     parameter integer PRE_WORDS = 32,
@@ -28,7 +30,8 @@ module dorado_pack_hps #(
     output reg [15:0] sd_buff_din,
     output reg [31:0] reads = 0, writes = 0
 );
-  localparam integer TRACK_WORDS = 29*267;
+  localparam integer SECTOR_WORDS = 1+2+LABEL_WORDS+256;
+  localparam integer TRACK_WORDS = SECTORS_PER_TRACK*SECTOR_WORDS;
   localparam [31:0] TAPS = 32'h00a00805;
   reg serial_fault = 0, host_fault = 0;
   assign fault = serial_fault | host_fault;
@@ -147,10 +150,10 @@ module dorado_pack_hps #(
     end
   endfunction
   function automatic [8:0] block_words(input [1:0] b);
-    block_words = b==0 ? 2 : b==1 ? 8 : 256;
+    block_words = b==0 ? 2 : b==1 ? LABEL_WORDS : 256;
   endfunction
   function automatic [3:0] block_base(input [1:0] b);
-    block_base = b==0 ? 1 : b==1 ? 3 : 11;
+    block_base = b==0 ? 1 : b==1 ? 3 : 3+LABEL_WORDS;
   endfunction
 
   localparam IDLE=0, PRE=1, SYNC=2, WORDS=3, ECC=4, GAP=5;
@@ -164,11 +167,11 @@ module dorado_pack_hps #(
   reg [31:0] ecc = 0;
   reg [31:0] next_ecc;
   // Prefetch while the last bit of the current word is on the cable.
-  assign read_addr = first_word + sec*267 + wi + ((phase==WORDS && bi==0) ? 1'b1 : 1'b0);
+  assign read_addr = first_word + sec*SECTOR_WORDS + wi + ((phase==WORDS && bi==0) ? 1'b1 : 1'b0);
   always @(posedge machine_clk) begin
     pulse_d <= pulse;
-    if (attached && pulse != pulse_d && pulse[1:0]==0 && (pulse>>2)<=28) begin
-      sec <= (pulse>>2)==0 ? 28 : (pulse>>2)-1'b1;
+    if (attached && pulse != pulse_d && pulse[1:0]==0 && (pulse>>2)<SECTORS_PER_TRACK) begin
+      sec <= (pulse>>2)==0 ? SECTORS_PER_TRACK-1 : (pulse>>2)-1'b1;
       phase <= PRE; cnt <= PRE_WORDS*16; blk <= 0; data_bit <= 0;
     end else if (attached && data_adv) begin
       case (phase)
@@ -237,7 +240,7 @@ module dorado_pack_hps #(
             if (shift_next == 16'o201) begin
               wr_state <= 1; wr_count <= 0; wr_bits <= 0; wr_shift <= 0;
               wr_ecc <= sync_ecc(); wr_block <= blk;
-              wr_base <= first_word + sec*267 + block_base(blk);
+              wr_base <= first_word + sec*SECTOR_WORDS + block_base(blk);
               if (head>=5 || cyl>=815 || readonly) serial_fault <= 1;
             end
           end

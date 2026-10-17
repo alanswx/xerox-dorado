@@ -699,7 +699,7 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
     decl = ['    input  wire sys_clk,'
             '   // fabric clock; the Dorado clock is an ENABLE inside the cells']
     if nominal_environment:
-        decl.append('    input wire baseboard_boot_n,')
+        decl += ['    input wire baseboard_boot_n,', '    output wire [31:0] baseboard_debug,']
     if storage_boards:
         decl += storage_declarations()
     names_sorted = sorted(ports)
@@ -780,7 +780,7 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             A(f'  {d["module"]} b_{short} (')
         conns = ['    .sys_clk(sys_clk)']
         if nominal_environment and short == 'BaseBd':
-            conns.append('    .baseboard_boot_n(baseboard_boot_n)')
+            conns += ['    .baseboard_boot_n(baseboard_boot_n)', '    .baseboard_debug(baseboard_debug)']
         if short in storage_boards:
             index = storage_boards.index(short)
             conns += ['    .storage_clk(storage_clk)', '    .storage_reset(storage_reset)',
@@ -868,6 +868,7 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
     A('    input  wire        sys_clk,')
     if nominal_environment:
         A('    input wire baseboard_boot_n,')
+        A('    output wire [31:0] baseboard_debug,')
     if storage_boards:
         for declaration in storage_declarations():
             A(declaration)
@@ -920,7 +921,7 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
     A(f'  {module} #(.SYSPER(SYSPER)) u_machine (')
     conns = ['    .sys_clk(sys_clk)']
     if nominal_environment:
-        conns.append('    .baseboard_boot_n(baseboard_boot_n)')
+        conns += ['    .baseboard_boot_n(baseboard_boot_n)', '    .baseboard_debug(baseboard_debug)']
     if storage_boards:
         conns += [f'    .storage_{p}(storage_{p})' for p in
                   ('clk', 'reset', 'ready', 'req_valid', 'req_write', 'req_ready',

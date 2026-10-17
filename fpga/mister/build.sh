@@ -82,7 +82,15 @@ rm -f "$OUT/Dorado.qsf.bak"
   echo "set_global_assignment -name SYSTEMVERILOG_FILE $REPO/fpga/mister/dorado_mouse.sv"
   if [ -n "$CHECKPOINT" ]; then
     [ -f "$CHECKPOINT/sources.f" ] || { echo "missing checkpoint sources: $CHECKPOINT" >&2; exit 1; }
-    echo 'set_global_assignment -name VERILOG_MACRO DORADO_CHECKPOINT'
+    if python3 - "$CHECKPOINT/manifest.json" <<'NATIVE_JSON'
+import json, sys
+sys.exit(0 if json.load(open(sys.argv[1])).get('native') else 1)
+NATIVE_JSON
+    then
+      echo 'set_global_assignment -name VERILOG_MACRO DORADO_NATIVE'
+    else
+      echo 'set_global_assignment -name VERILOG_MACRO DORADO_CHECKPOINT'
+    fi
     echo 'set_global_assignment -name ALLOW_POWER_UP_DONT_CARE OFF'
     cp "$HERE/checkpoint_timing.sdc" "$OUT/checkpoint_timing.sdc"
     echo 'set_global_assignment -name SDC_FILE checkpoint_timing.sdc'
@@ -93,6 +101,13 @@ PY
     then
       echo 'set_global_assignment -name VERILOG_MACRO DORADO_HPS_PACK'
       echo "set_global_assignment -name SYSTEMVERILOG_FILE $REPO/fpga/mister/dorado_pack_mount.sv"
+    fi
+    if python3 - "$CHECKPOINT/manifest.json" <<'PY'
+import json, sys
+sys.exit(0 if json.load(open(sys.argv[1])).get('ethernet_host_port') else 1)
+PY
+    then
+      echo 'set_global_assignment -name VERILOG_MACRO DORADO_ETHERNET_HOST_PORT'
     fi
     if python3 - "$CHECKPOINT/manifest.json" <<'PY'
 import json, sys

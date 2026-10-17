@@ -184,6 +184,37 @@ cover the failing handoffs at four and sixteen fabric samples per clock;
 the complete fresh boot is qualified at four. The HPS bridge replaces the simulation's file-backed medium for the
 checkpoint hardware configuration.
 
+## Experimental cold-start configuration
+
+The native assembler uses the actual BaseBoard EPROMs, CP bus and processor
+clock tree. It imports no checkpoint, microcode register state or C CPU.
+Raw MSA storage lives in reserved MiSTer DDR at `0x30000000`; the original
+board logic still supplies serial memory, mapping, ECC and timing. DDR is
+cleared before any machine clock advances. Host clocks continue during
+memory and disk waits.
+
+```sh
+python3 tools/sil_fpga_native.py -o build/rtl-executive/native4 --storage-modules 4
+DORADO_QUARTUS_JOBS=2 sh fpga/mister/build.sh \
+  ~/mister/Template_MiSTer ~/mister/DoradoNative \
+  build/rtl-executive/native4
+```
+
+Four modules provide 1M logical 16-bit words. Synthesis passes; placement,
+timing, cold boot and Cedar remain unqualified. The nominal analog variant
+feeds the real firmware's DAC into voltage/current/temperature comparators;
+the firmware still performs its checks and bootstrap transfers. A physical
+boot-button pulse occurs at logical samples 200M..240M. The OSD also exposes
+the button and station straps. The passive UIO trace reports BaseBoard ROM
+address and clock/reset/readiness signals.
+
+Use `--pilot-disk` for the ten-word Pilot label. Convert a disposable PDI
+copy's boot links with `tools/pdi_boot_links_to_chs.py`, then use
+`tools/pdi_to_trident.py` for its raw medium. The converter implements the
+period microcode's surface mapping and real-cylinder sector stagger; it
+does not substitute the C emulator's polled IOCB bridge. This conversion is
+byte-verified, but a complete Pilot controller/germ boot remains required.
+
 ## Completion sequence
 
 1. Mouse motion, Executive keyboard input and calculator button input work
@@ -202,7 +233,7 @@ checkpoint hardware configuration.
    Remove the testbench checksum feeder, preloaded world/table handoff, and
    saved processor state. Acceptance: power-up to Executive with the
    external network disconnected.
-5. Add external SDRAM-backed physical storage. Keep the
+5. Qualify the DDR-backed physical storage on hardware. Keep the
    Dorado cache, address map and memory-controller behavior around it.
 6. Extend the local ARM service with the required file protocols, then
    qualify Mesa microcode, the matched germ, Pilot disk I/O and Cedar using
