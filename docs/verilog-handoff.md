@@ -339,8 +339,13 @@ comparison/writeback gate. The optional native `--pilot-disk` selects
 2/10/256. `make -C verilog/verilator pilot-pack-test` reads the germ's
 physical (3,0,16) sector through the actual HPS track buffer and serial
 medium: header (3,20), all ten label words and 256 data words match the
-image, and all three Fire-code wire residues are zero. The real
-controller/germ boot is still unqualified.
+image, and all three Fire-code wire residues are zero. The same test now
+changes the two extra label words and both ends of the data block, supplies
+fresh independently calculated Fire codes on the differential write input,
+and verifies the resulting HPS writeback against the whole expected image.
+It catches an ignored write and checks all neighboring bytes. Fixture
+changes stay in the test's in-memory disk copy. The real controller/germ
+boot is still unqualified.
 
 ## Invaders starts on MiSTer14 (2026-10-17 UTC)
 

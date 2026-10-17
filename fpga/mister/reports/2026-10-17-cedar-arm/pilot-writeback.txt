@@ -1,0 +1,2 @@
+65535 Pilot pages -> 63578624 raw/padded bytes: build/rtl-executive/pilot-pack-fixture.pack
+PILOT-PACK PASS: header 2, label 10, data 256 words; three Fire codes; changed labels/data persisted through HPS; neighboring bytes intact
