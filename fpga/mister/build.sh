@@ -74,6 +74,12 @@ rm -f "$OUT/Dorado.qsf.bak"
   echo ""
   echo "# ---- the Dorado, generated from PARC's Sil wire lists ----"
   echo "set_global_assignment -name NUM_PARALLEL_PROCESSORS ${DORADO_QUARTUS_JOBS:-1}"
+  # Optional for bring-up iterations: retiming took over twenty minutes on
+  # the diagnostic native core. This changes placement optimization only;
+  # setup/hold analysis is still required before deploying the result.
+  if [ "${DORADO_QUARTUS_RETIME:-1}" = 0 ]; then
+    echo 'set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF'
+  fi
   echo 'set_global_assignment -name VERILOG_MACRO "DORADO_STORAGE_INPUT_DELAY=2"'
   # SEARCH_PATH so the PROM cells' $readmemh (paths relative to the repo root)
   # resolve from the project directory. Without it every PROM package fails to

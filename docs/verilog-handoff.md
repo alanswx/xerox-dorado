@@ -212,7 +212,9 @@ input; default board/backplane regeneration remains byte-identical.
 `dorado_storage_init.sv` clears the raw DDR window before CPU clocks start.
 A complete one-module cold-start simulation verifies every raw word was
 cleared exactly once (524,288 words), loads one HPS track, then executes the
-actual BaseBoard power-on code. Its 1B-sample run is still in progress.
+actual BaseBoard power-on code. Its old 1B-sample target run was stopped
+past 450M samples after reproducing the serial-data fault below; it had
+not transmitted a network packet or written storage after initialization.
 The FPGA wrapper holds a physical boot-button input during logical samples
 200M..240M, following the five-board probe; it does not jam CP or CPU state.
 The native UIO status extension exposes passive BaseBoard address/clock/
@@ -269,7 +271,13 @@ board j17/l24 selector's eight input combinations and shifts a byte-asymmetric
 still fails with DMD=000; with both fixes it passes at A35. These tests
 replace only the serial selector's inputs, not its outputs or stored state.
 `Dorado_Native3_20261017` is compiling with both fixes and the Pilot medium.
-A five-board ROM-driven probe is also running with the fixes. No startup
+A five-board ROM-driven probe is also running with the fixes: at 84.6M
+samples the actual firmware shifts nonzero addresses through ContB's DMD
+(e.g. 001, 002, 004, 009, 012 ... 910), where the old run remained zero.
+Native2's superseded fit was stopped after over twenty minutes in optional
+physical retiming. Native3 restarts with retiming disabled; reproduce that
+build setting with `DORADO_QUARTUS_RETIME=0 fpga/mister/build.sh ...`.
+Setup/hold validation remains mandatory before deployment. No startup
 parity-state modification has been made; the serial faults explain why the
 firmware could not configure the processor's manifold in the first place.
 
