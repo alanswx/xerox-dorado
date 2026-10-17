@@ -1,0 +1,26 @@
+tb_exec: PARITYSOURCES CIA=fc1 mask[LH,RH,IO,RM,MEM,MD]=110000 Error'=1 IO=0 RM=1 MEM=1 MD=0 LH'=1 RH'=1 Stop=0 dStop=0
+      Error'=1 IMLHPE'=1 IMRHPE'=1 A31+5=1 dStop=0 Run'=1
+   t=    0  clk0'=0  FF=01100010 RSTK=0000 TNIA=f43 Stop=0
+      Error'=1 IMLHPE'=1 IMRHPE'=1 A31+5=1 dStop=0 Run'=0
+   t=1600000  clk0'=399928  FF=01000000 RSTK=0010 TNIA=d30 Stop=0
+      Error'=1 IMLHPE'=1 IMRHPE'=1 A31+5=1 dStop=0 Run'=0
+   t=3200000  clk0'=799928  FF=01100111 RSTK=1000 TNIA=c4b Stop=0
+      Error'=1 IMLHPE'=1 IMRHPE'=1 A31+5=1 dStop=0 Run'=0
+   t=4800000  clk0'=1199928  FF=01101010 RSTK=0001 TNIA=d30 Stop=0
+      Error'=1 IMLHPE'=1 IMRHPE'=1 A31+5=1 dStop=0 Run'=0
+   t=6400000  clk0'=1599928  FF=01101010 RSTK=0001 TNIA=d30 Stop=0
+      Error'=1 IMLHPE'=1 IMRHPE'=1 A31+5=1 dStop=0 Run'=0
+   t=8000000  clk0'=1999928  FF=11001110 RSTK=0000 TNIA=ce5 Stop=0
+      Error'=1 IMLHPE'=1 IMRHPE'=1 A31+5=1 dStop=0 Run'=0
+   t=9600000  clk0'=2399928  FF=00111111 RSTK=0000 TNIA=d33 Stop=0
+      Error'=1 IMLHPE'=1 IMRHPE'=1 A31+5=1 dStop=0 Run'=0
+   t=11200000  clk0'=2799928  FF=01110111 RSTK=0000 TNIA=ce4 Stop=0
+      Error'=1 IMLHPE'=1 IMRHPE'=1 A31+5=1 dStop=0 Run'=0
+   t=12800000  clk0'=3199928  FF=11000100 RSTK=0111 TNIA=c41 Stop=0
+tb_exec: PARITYSOURCES CIA=c9e mask[LH,RH,IO,RM,MEM,MD]=111111 Error'=1 IO=0 RM=0 MEM=0 MD=0 LH'=1 RH'=1 Stop=0 dStop=0
+      Error'=1 IMLHPE'=1 IMRHPE'=1 A31+5=1 dStop=0 Run'=0
+   t=14400000  clk0'=3599868  FF=00000000 RSTK=0000 TNIA=cd6 Stop=0
+tb_exec: 3999800 clk0' edges, 3999800 clk1' over 16000000 cycles, Stop=0
+tb_exec: 325 distinct IM addresses executed; last TNIA=cc4; longest run on one address=161537 at TNIA=cd6; TASKINITLOOP entries 15
+INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for 2611683 samples without error
+- verilog/verilator/tb_exec.sv:5244: Verilog $finish

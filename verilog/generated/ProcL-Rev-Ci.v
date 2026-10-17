@@ -3426,7 +3426,7 @@ module ProcL_m_Rev_m_Ci #(parameter integer SYSPER = 16) (
     .p14(ProcL23_sil_pl_9),
     .p15(ProcL23_sil_pl_7)
   ); // F10145A
-  cell_F10000 u_g16 (
+  cell_F10000 #(.PRECAP(1)) u_g16 (
     .sys_clk(sys_clk),
     .p2(ProcL24_sil_pl_13),
     .p3(FF_eq_030__drv),

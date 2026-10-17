@@ -1,0 +1,16 @@
+tb_exec: MCRCAP sample=76 CIA=f47 PE'=0 clk=1 en=1 D[13:15]=001 setup=110001 NW=0 RMar15=1 B15=1 MapLd'=1 preFH'=1 hold=0 holdD=0 Tlow=0000
+tb_exec: MCRCAP sample=77 CIA=f47 PE'=0 clk=1 en=0 D[13:15]=001 setup=100001 NW=1 RMar15=1 B15=1 MapLd'=1 preFH'=1 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=78 CIA=f47 PE'=0 clk=1 en=0 D[13:15]=001 setup=100001 NW=1 RMar15=1 B15=1 MapLd'=1 preFH'=1 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=79 CIA=f47 PE'=0 clk=1 en=0 D[13:15]=001 setup=100001 NW=1 RMar15=1 B15=1 MapLd'=1 preFH'=1 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=80 CIA=f4d PE'=0 clk=1 en=0 D[13:15]=001 setup=100001 NW=1 RMar15=1 B15=1 MapLd'=0 preFH'=0 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=81 CIA=f4d PE'=0 clk=1 en=0 D[13:15]=001 setup=100001 NW=1 RMar15=1 B15=1 MapLd'=0 preFH'=0 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=82 CIA=f4d PE'=0 clk=0 en=0 D[13:15]=001 setup=100001 NW=1 RMar15=1 B15=1 MapLd'=0 preFH'=0 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=83 CIA=f4d PE'=0 clk=0 en=0 D[13:15]=001 setup=100001 NW=1 RMar15=1 B15=1 MapLd'=0 preFH'=0 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=64812 CIA=c43 PE'=0 clk=1 en=1 D[13:15]=000 setup=110000 NW=1 RMar15=1 B15=0 MapLd'=1 preFH'=1 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=64813 CIA=c43 PE'=0 clk=1 en=0 D[13:15]=000 setup=100000 NW=0 RMar15=1 B15=1 MapLd'=1 preFH'=1 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=64814 CIA=c43 PE'=0 clk=1 en=0 D[13:15]=000 setup=100000 NW=0 RMar15=1 B15=1 MapLd'=1 preFH'=1 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=64815 CIA=c43 PE'=0 clk=1 en=0 D[13:15]=000 setup=100000 NW=0 RMar15=1 B15=1 MapLd'=1 preFH'=1 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=64816 CIA=c4a PE'=0 clk=1 en=0 D[13:15]=000 setup=100000 NW=0 RMar15=1 B15=1 MapLd'=0 preFH'=0 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=64817 CIA=c4a PE'=0 clk=1 en=0 D[13:15]=001 setup=100000 NW=0 RMar15=1 B15=1 MapLd'=0 preFH'=0 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=64818 CIA=c4a PE'=0 clk=0 en=0 D[13:15]=001 setup=100001 NW=0 RMar15=1 B15=1 MapLd'=0 preFH'=0 hold=0 holdD=0 Tlow=0001
+tb_exec: MCRCAP sample=64819 CIA=c4a PE'=0 clk=0 en=0 D[13:15]=001 setup=100001 NW=0 RMar15=1 B15=1 MapLd'=0 preFH'=0 hold=0 holdD=0 Tlow=0001

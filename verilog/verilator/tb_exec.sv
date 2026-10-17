@@ -1827,6 +1827,105 @@ module tb_exec;
   // NOT asserted, and no BasicStopDorado. The machine free-runs from there.
   bit paritytrace_arm=0;
   integer paritytrace_count=0;
+  integer paritysource_count=0;
+  bit paritysources_arm=0;
+  reg [5:0] paritysource_mask=0;
+`ifdef WORLD
+  reg [63:0] st_history[0:31];
+  integer st_history_pos=0,st_trace_count=0,st_sample=0;
+  bit st_seen_reset=0,st_previous=0;
+  reg [63:0] ram_history[0:31];
+  reg [63:0] ram_phase_history[0:31];
+  integer ram_history_pos=0,ram_trace_count=0;
+  wire [15:0] parity_r_word={m.b_ProcH.R_00,m.b_ProcH.R_01,m.b_ProcH.R_02,m.b_ProcH.R_03,
+    m.b_ProcH.R_04,m.b_ProcH.R_05,m.b_ProcH.R_06,m.b_ProcH.R_07,
+    m.b_ProcL.R_08,m.b_ProcL.R_09,m.b_ProcL.R_10,m.b_ProcL.R_11,
+    m.b_ProcL.R_12,m.b_ProcL.R_13,m.b_ProcL.R_14,m.b_ProcL.R_15};
+  wire [15:0] parity_t_word={m.b_ProcH.T_00,m.b_ProcH.T_01,m.b_ProcH.T_02,m.b_ProcH.T_03,
+    m.b_ProcH.T_04,m.b_ProcH.T_05,m.b_ProcH.T_06,m.b_ProcH.T_07,
+    m.b_ProcL.T_08,m.b_ProcL.T_09,m.b_ProcL.T_10,m.b_ProcL.T_11,
+    m.b_ProcL.T_12,m.b_ProcL.T_13,m.b_ProcL.T_14,m.b_ProcL.T_15};
+  always @(negedge sys_clk) if($test$plusargs("ramtrace") && paritysources_arm)begin
+    ram_phase_history[ram_history_pos]={st_sample[23:0],cia_now,
+      m.b_ProcH.Clock1_p_Da,m.b_ProcH.Clock1_p_Da__lead,m.b_ProcH.u_g16.ck_en,
+      m.b_ProcH.ProcH27_sil_pl_1,m.b_ProcL.ProcL27_sil_pl_1,
+      m.b_ProcH.ProcH27_sil_pl_7,m.b_ProcL.ProcL27_sil_pl_6,
+      m.b_ProcH.PreSHCP_p_B,m.b_ProcH.TbBypass,m.b_ProcL.RbBypassDly,
+      m.b_ProcH.Clock0_p_Dd,m.b_ProcH.u_k21.ck_en,
+      m.b_ProcH.u_i11.a,m.b_ProcL.u_j08.a,4'b0};
+    ram_history[ram_history_pos]={st_sample[23:0],parity_r_word,m.b_ProcH.Rparity,m.b_ProcL.Rparity,
+      parity_t_word,m.b_ProcH.Tparity,m.b_ProcL.Tparity,
+      m.b_ProcH.R_Perr_p_,m.b_ProcL.R_Perr_p_,m.b_ProcH.T_Perr_p_,m.b_ProcL.T_Perr_p_};
+    if(!m.b_ContA.Error_p_ && m.RamPE && ram_trace_count==0)begin
+      $display("tb_exec: RAM-FIRST sample=%0d CIA=%h RM-H/L=%b%b T-H/L=%b%b (sample24,R16,Rpar2,T16,Tpar2,good4)",
+        st_sample,cia_now,m.b_ProcH.RmPerr,m.b_ProcL.RmPerr,m.b_ProcH.TmPerr,m.b_ProcL.TmPerr);
+      for(integer j=1;j<=32;j++)$display("tb_exec: RAM-HISTORY %016h",ram_history[(ram_history_pos+j)%32]);
+      for(integer j=1;j<=32;j++)$display("tb_exec: RAM-PHASE %016h",ram_phase_history[(ram_history_pos+j)%32]);
+      ram_trace_count++;
+    end
+    ram_history_pos=(ram_history_pos+1)%32;
+  end
+  integer mcr_trace_count=0;
+  always @(negedge sys_clk)
+    if($test$plusargs("mcrtrace") && paritysources_arm &&
+       !m.b_MemX.Mcr_u__p_ && mcr_trace_count<128)begin
+      $display("tb_exec: MCRCAP sample=%0d CIA=%h PE'=%b clk=%b en=%b D[13:15]=%b%b%b setup=%b NW=%b RMar15=%b B15=%b MapLd'=%b preFH'=%b hold=%b holdD=%b Tlow=%b%b%b%b",
+        st_sample,cia_now,m.b_MemX.Mcr_u__p_,m.b_MemX.Clk1_p_Ab,m.b_MemX.u_f04.ck_en,
+        m.b_MemX.Mapbuf_13,m.b_MemX.Mapbuf_14,m.b_MemX.Mapbuf_15,m.b_MemX.u_f04.setup_pre,
+        m.b_MemX.NoWakeups,m.b_MemC.RMar_15,m.b_MemX.BMux_15,m.b_MemX.MapbufLd_p_c,
+        m.b_MemX.preFH_p_A,m.b_MemX.HoldMapBuf,m.b_MemX.MemX20_sil_pl_3,
+        m.b_ProcL.T_12,m.b_ProcL.T_13,m.b_ProcL.T_14,m.b_ProcL.T_15);
+      mcr_trace_count++;
+    end
+  wire [17:0] st_sout={~m.b_MemD.EcSout_00_p_,~m.b_MemD.EcSout_01_p_,
+    ~m.b_MemD.EcSout_02_p_,~m.b_MemD.EcSout_03_p_,~m.b_MemD.EcSout_04_p_,
+    ~m.b_MemD.EcSout_05_p_,~m.b_MemD.EcSout_06_p_,~m.b_MemD.EcSout_07_p_,
+    ~m.b_MemD.EcSout_08_p_,~m.b_MemD.EcSout_09_p_,~m.b_MemD.EcSout_10_p_,
+    ~m.b_MemD.EcSout_11_p_,~m.b_MemD.EcSout_12_p_,~m.b_MemD.EcSout_13_p_,
+    ~m.b_MemD.EcSout_14_p_,~m.b_MemD.EcSout_15_p_,m.b_MemD.EcSout_16,m.b_MemD.EcSout_17};
+  always @(negedge sys_clk) if($test$plusargs("sttrace") && paritysources_arm) begin
+    st_sample++;
+    st_history[st_history_pos]={st_sample[23:0],st_sout,
+      m.b_MemX.NoWakeups,m.b_MemX.STPerr,m.b_MemX.EnableSTPerr,m.b_MemX.dSTPerr,
+      m.b_MemD.HighAD,m.b_MemD.GenP0A0,m.b_MemD.GenP0B0,m.b_MemD.GenP0A1,m.b_MemD.GenP0B1,
+      m.b_MemD.GenPh1,m.b_MemD.GenPh2,m.b_MemD.GenPh3,m.b_MemD.clk2_p_Aa,
+      m.b_MemD.MemD04_sil_pl_11,m.b_MemD.MemD04_sil_pl_10,
+      m.b_MemX.STPerrNow_p_,6'd0};
+    if(m.b_MemX.NoWakeups)st_seen_reset=1;
+    if(st_seen_reset && !m.b_MemX.NoWakeups && m.b_MemX.STPerr && !st_previous && st_trace_count<3)begin
+      $display("tb_exec: ST-FIRST %0d sample=%0d CIA=%h (24-bit sample,18-bit data,16 control bits,6 pad)",st_trace_count,st_sample,cia_now);
+      for(integer j=1;j<=32;j++)$display("tb_exec: ST-HISTORY %016h",st_history[(st_history_pos+j)%32]);
+      st_trace_count++;
+      if($test$plusargs("stop-first-st"))$fatal(1,"First real serial transport parity latch after reset");
+    end
+    st_previous=m.b_MemX.STPerr;st_history_pos=(st_history_pos+1)%32;
+  end
+`endif
+  wire [5:0] parity_enables={m.b_ContB.IMLHPEenable,m.b_ContB.IMRHPEenable,
+    m.b_ContB.IOPEenable,m.b_ContB.RamPEenable,m.b_ContB.MemPEenable,m.b_ContB.MDPEenable};
+  integer all_enabled_samples=0,all_enabled_errors=0;
+  always @(negedge sys_clk) if(paritysources_arm && parity_enables==6'b111111)begin
+    all_enabled_samples++;
+    if(!m.b_ContA.Error_p_)all_enabled_errors++;
+  end
+  always @(negedge sys_clk)
+    if($test$plusargs("paritysources") && paritysources_arm && m.b_ContA.SetRun && paritysource_count<128 &&
+       (paritysource_mask!=parity_enables || !m.b_ContA.Error_p_)) begin
+      $display("tb_exec: PARITYSOURCES CIA=%h mask[LH,RH,IO,RM,MEM,MD]=%b Error'=%b IO=%b RM=%b MEM=%b MD=%b LH'=%b RH'=%b Stop=%b dStop=%b",
+        {m.b_ContA.CIA_04,m.b_ContA.CIA_05,m.b_ContA.CIA_06,m.b_ContA.CIA_07,
+         m.b_ContA.CIA_08,m.b_ContA.CIA_09,m.b_ContA.CIA_10,m.b_ContA.CIA_11,
+         m.b_ContA.CIA_12,m.b_ContA.CIA_13,m.b_ContA.CIA_14,m.b_ContA.CIA_15},
+        parity_enables,m.b_ContA.Error_p_,m.IOPE,m.RamPE,m.MemPE,m.MdPE,
+        m.b_ContB.IMLHPE_p_,m.b_ContB.IMRHPE_p_,m.b_ContA.Stop,m.b_ContA.dStop);
+`ifdef WORLD
+      if(!m.b_ContA.Error_p_)
+        $display("tb_exec: MEMORYPARITY STPerr=%b STPerrNow'=%b HitPerr=%b NoWakeups=%b dSTPerr=%b EnableSTPerr=%b dHitPerr=%b Hit'=%b PairHasA'=%b TagParity=%b",
+          m.b_MemX.STPerr,m.b_MemX.STPerrNow_p_,m.b_MemX.HitPerr,
+          m.b_MemX.NoWakeups,m.b_MemX.dSTPerr,m.b_MemX.EnableSTPerr,
+          m.b_MemC.dHitPerr__drv,m.b_MemC.Hit_p_b,m.b_MemC.PairHasA_p_a,m.b_MemC.MemC05_sil_pl_9);
+`endif
+      paritysource_mask=parity_enables;paritysource_count++;
+    end
   always @(negedge sys_clk)
     if(paritytrace_arm && m.b_ContA.SetRun && paritytrace_count<192) begin
       $display("tb_exec: PARITYSTART %0d run'=%b stop=%b dStop=%b rStop=%b ss'=%b Error'=%b LHPE'=%b RHPE'=%b MIRstop=%b preStart'=%b single=%b ck2=%b ck2pre=%b ck0=%b MIRck=%b ck1=%b dpre=%b en=%b FF=%02h CIA=%03h TNIA=%03h",
@@ -4465,6 +4564,14 @@ module tb_exec;
       parc_run(8'h70, 8'h13, 8'hE1, 8'h4A, 8'h43);    // Return# with TaskingOn
     else
       parc_run(8'h60, 8'h13, 8'hE1, 8'h42, 8'h43);    // Return#, free-running
+    // The CP fixture owns these nets while loading. Native startup then
+    // uses the CPU's MidasStrobe/UseDMD to change real manifold registers.
+    // Retaining the fixture forces suppresses Initial's enable-all-errors.
+    if($test$plusargs("cpu-manifold")) begin
+      release m.DMuxData; release m.DMuxClk; release m.UseDMD;
+      $display("tb_exec: CPU manifold drivers released from CP fixture");
+    end
+    paritysources_arm=1;
     if ($test$plusargs("jampar")) begin
       repeat (WT(40)) @(posedge sys_clk);
       release m.b_ContA.IMRH;
@@ -4924,6 +5031,13 @@ module tb_exec;
     end
     if (m.b_ContA.Stop !== 1'b0)
       $fatal(1, "the machine stopped -- with the parity enables on it stops after one instruction");
+    if($test$plusargs("initial-rom-check"))begin
+      if(!$test$plusargs("cpu-manifold") || all_enabled_samples<100000 ||
+         all_enabled_errors!=0 || n_tinit!=15)
+        $fatal(1,"Initial ROM: manifold=%b all-enabled samples=%0d errors=%0d task initializations=%0d",
+          $test$plusargs("cpu-manifold"),all_enabled_samples,all_enabled_errors,n_tinit);
+      $display("INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for %0d samples without error",all_enabled_samples);
+    end
     // ...and a LOWER floor once the machine is initialised enough to do real
     // work. The runcycles/20 figure assumes roughly one microinstruction per
     // SYSPER fabric cycles with nothing stalling; a machine actually issuing

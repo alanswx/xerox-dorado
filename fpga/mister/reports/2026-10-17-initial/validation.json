@@ -1,0 +1,23 @@
+{
+  "native_fpga_boot": false,
+  "original_rom": "chm/dorado/doradobaserom.mb!13",
+  "fixture": "BootBlocks C00B and C000 decoded from baseboard_rom_dump; standalone Initial supplies ALUFM only",
+  "component_entry": "F43 checksum-cleared debug entry with hasram/ioreset/fastwait fixture",
+  "before": "Authentic ROM Initial with CPU manifold ownership reproduces native CIA CD2 stop: MemPE from STPerr. MCR captures stale NoWakeups at C43. Restoring MemX ordering exposes register parity stop CE1; g16 samples following RAM address parity.",
+  "fix": "Use existing depth-ordering model only on MemX c07 five sibling outputs, preserve original F10016 and MC10175 cell behavior. ProcH/L g16 PRECAP1 samples parity setup value. All error sources remain enabled. No guest changes.",
+  "gate": "make -C verilog/verilator initial-rom-test SYSPER=4",
+  "result": {
+    "samples": 16000000,
+    "all_six_errors_enabled_samples": 2611683,
+    "post_enable_errors": 0,
+    "task_initializations": 15,
+    "Stop": 0
+  },
+  "longer_component_run": {
+    "samples": 40000000,
+    "Stop": 0,
+    "terminal_line_ticks": 12473,
+    "network_tx_packets": 0
+  },
+  "native13_build": "Frozen source overlay f0c8e9d921ddad3d050ec5a6b094d4de566cbca0a4d1e5a10778d429f1ace7ad; synthesis in progress, not yet loaded"
+}

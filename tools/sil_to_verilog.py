@@ -749,6 +749,14 @@ class Generator:
         # parities plus the half's secondary bit. Use the documented XOR;
         # the legacy inversion stores the opposite parity in both halves.
         ('ContB', 'e01'): {'LEGACY_B_INVERT': 0},
+        # ProcH/L27: g16 samples the RM/STK and T parity RAM outputs at
+        # Clock1'Da. The RAM address mux switches at that boundary too.
+        # Preserve the bit present before the modeled edge; sampling a
+        # fabric cycle later takes the write address's parity while the
+        # operand latch still holds the read address's data. Original-ROM
+        # Initial exposes this at BootEmulator (RM byte 01, parity of 00).
+        ('ProcH', 'g16'): {'PRECAP': 1},
+        ('ProcL', 'g16'): {'PRECAP': 1},
         # j17 selects serial write data while TDMuxClk is high, then
         # readback when it falls. l21/l22 clock on that falling edge;
         # preserve their setup value rather than the new readback bit.
@@ -1162,6 +1170,19 @@ class Generator:
             if not hasattr(self, '_clkdepth'):
                 self._clkdepth = self._clock_depths()
             return self._clkdepth.get(netname, 0)
+        # MemX20 c07 fans out Mapbuf's latch gate and the MCR clock.
+        # Collapsing its Mapbuf outputs to zero delay closes the sampled
+        # latch before BMux settles; the one-stage clk1 default then loads
+        # stale NoWakeups into the MCR. Preserve this package's depth-mode
+        # ordering, including both sibling clk1 outputs. Original-ROM
+        # Initial otherwise accumulates STPerr and halts at BootEmulator
+        # as soon as it enables memory error reporting. Other MemX clocks
+        # retain their existing model; whole-board depth remains opt-in.
+        if self.b.name.split('-Rev')[0] == 'MemX' and netname in (
+                "MapbufLd'a", "MapbufLd'b", "MapbufLd'c", "Clk1'Aa", "Clk1'Ab"):
+            if not hasattr(self, '_clkdepth'):
+                self._clkdepth = self._clock_depths()
+            return self._clkdepth[netname]
         # ProcH30 k10b explicitly buffers Clock0'Bc into PostClock0'Bc;
         # ProcH23 g10/h10 clock the TIOA output register from that POST tap.
         # Collapsing it onto Clock0 makes the incoming task's TIOA reach

@@ -8,6 +8,61 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Native boot frontier, 2026-10-17 09:45 UTC.** Native10 and Native11
+independent placements reproduce CIA `6322B` (`0xcd2`), Stop=1, dStop=0,
+with instruction parity good and no network transmission. The ROM's Initial
+payload is a different build from the standalone `Initial.mb`: 204 of its
+224 hunks differ. Decode BootBlock 1 at ROM `0xc016`, origin `0xc40`;
+`0xcd2` is BootEmulator, not the standalone image's keyboard table.
+
+A component simulation using that original ROM payload reproduces the exact
+stop when the testbench releases its manifold fixture (`+cpu-manifold`).
+Without that release, the fixture suppresses Initial's own manifold writes,
+including enabling all six error sources, and masks this failure. Actual
+memory-error attribution is STPerr (transport-byte parity), not IM parity,
+HitPerr or a storage ECC syndrome. MCR's NoWakeups bit samples stale MapBuf
+at `0xc43`; NoWakeups is needed to reset transport parity before boot.
+
+The existing opt-in `DORADO_CLOCK_DEPTH_BOARDS=MemX` restores ordering and
+clears this memory-parity stop in a 16M-sample original-ROM component run.
+DRAM startup (`memrun`) also passes with it. This is **scratch diagnosis**,
+not production RTL or a qualified native boot: the longer run next stops
+at `0xce1` after a brief R/T parity mismatch at `0xcdf`. The phase trace
+then isolated the cause: ProcL g16 samples the next RAM address's parity
+while the operand latch retains the preceding read value. ProcH/L g16 now
+use the existing F10000 PRECAP option to capture their setup value. With
+that change and scratch MemX depth, the full 16M run passes, all six error
+sources enabled, Stop=0 and no post-enable error events. Compute, operand,
+datapath and single-step gates pass at SYSPER=4. This is still an Initial
+component run, not network boot or a native FPGA qualification.
+`build/rtl-executive/native-rom-{memx-depth-ram-phase,register-setup}.log`
+preserve the failing phase trace and passing run.
+Do not mask the errors, alter the guest, or treat the direct-entry fixture
+as a BaseBoard boot qualification. The actual FPGA still runs Native11.
+Native12 adds passive control diagnostics only. Its first hold report finds
+exactly two more same-group own-address transfers (-0.025/-0.022 ns).
+The existing disabled-transfer proof applies identically to every storage
+group, so native_timing.sdc now enumerates all 128 exact same-group own-
+address and own-data HOLD pairs. Setup, request/enable and cross-group paths
+remain checked. Both storage equivalence gates and assertions pass. The
+unchanged Native12 RBF now passes all 29 reported checks: minimum +0.246 ns,
+core setup +2.431 ns, fixed-720p HDMI +4.862 ns. Evidence is in
+`reports/2026-10-17-native12/`. Native12 is loaded for passive diagnostics;
+it does not contain the two new functional fixes.
+
+**Native13 builds the functional fixes**, using both c07 clock siblings
+plus its three Mapbuf latch-gate siblings, and both g16 pre-edge captures.
+`memrun-test`, `bootstrap-parity-test`, `exec-parity`, compute/operand/
+datapath/step all pass at SYSPER=4. The reproducible
+`make -C verilog/verilator initial-rom-test SYSPER=4` passes 16M samples:
+15 task initializations and all six error sources enabled for 2,611,683
+samples with zero errors. A longer 40M run passes the terminal wait with Stop=0. No boot key is
+supplied in that fixture, and no network transmission occurs during it. This is still a component fixture, not the actual
+FPGA boot. Project `misterubuntu:/home/alans/mister/Dorado_Native13_20261017`
+uses frozen overlay SHA256
+`f0c8e9d921ddad3d050ec5a6b094d4de566cbca0a4d1e5a10778d429f1ace7ad`;
+Quartus synthesis is in progress. Actual FPGA Cedar remains unqualified.
+
 The requested sequence is mouse input, display/software compatibility,
 backing-disk persistence plus an ARM-local boot server, then unassisted
 BaseBoard boot. Do not assume arbitrary Alto games should work on Dorado:

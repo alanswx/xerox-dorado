@@ -542,9 +542,12 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   wire Mapbuf_17;
   wire MapbufHi_0;
   wire MapbufHi_1;
-  wire MapbufLd_p_a;
-  wire MapbufLd_p_b;
-  wire MapbufLd_p_c;
+  wire MapbufLd_p_a__lead;
+  reg  MapbufLd_p_a = 1'b1;
+  wire MapbufLd_p_b__lead;
+  reg  MapbufLd_p_b = 1'b1;
+  wire MapbufLd_p_c__lead;
+  reg  MapbufLd_p_c = 1'b1;
   wire MemCad_0;
   wire MemCad_1;
   wire MemCad_2;
@@ -1063,17 +1066,40 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   wire sHold;
   wire sHold_p_;
 
-  // ---- 8 clk1-family nets, one sys_clk behind
+  // ---- 11 clk1-family nets, one sys_clk behind
   //      their pre siblings (see clock_lag above)
+  reg  Clk1_p_Aa__lag1 = 1'b1;
+  reg  Clk1_p_Aa__lag2 = 1'b1;
+  reg  Clk1_p_Ab__lag1 = 1'b1;
+  reg  Clk1_p_Ab__lag2 = 1'b1;
+  reg  MapbufLd_p_a__lag1 = 1'b1;
+  reg  MapbufLd_p_a__lag2 = 1'b1;
+  reg  MapbufLd_p_b__lag1 = 1'b1;
+  reg  MapbufLd_p_b__lag2 = 1'b1;
+  reg  MapbufLd_p_c__lag1 = 1'b1;
+  reg  MapbufLd_p_c__lag2 = 1'b1;
   always @(posedge sys_clk) begin
-    Clk1_p_Aa <= Clk1_p_Aa__lead;
-    Clk1_p_Ab <= Clk1_p_Ab__lead;
+    Clk1_p_Aa__lag1 <= Clk1_p_Aa__lead;
+    Clk1_p_Aa__lag2 <= Clk1_p_Aa__lag1;
+    Clk1_p_Aa <= Clk1_p_Aa__lag2;
+    Clk1_p_Ab__lag1 <= Clk1_p_Ab__lead;
+    Clk1_p_Ab__lag2 <= Clk1_p_Ab__lag1;
+    Clk1_p_Ab <= Clk1_p_Ab__lag2;
     Clk1_p_Ba <= Clk1_p_Ba__lead;
     Clk1_p_Bb <= Clk1_p_Bb__lead;
     Clk1_p_Bc <= Clk1_p_Bc__lead;
     Clk1_p_Ca <= Clk1_p_Ca__lead;
     Clk1_p_Cb <= Clk1_p_Cb__lead;
     Clk1_p_Cc <= Clk1_p_Cc__lead;
+    MapbufLd_p_a__lag1 <= MapbufLd_p_a__lead;
+    MapbufLd_p_a__lag2 <= MapbufLd_p_a__lag1;
+    MapbufLd_p_a <= MapbufLd_p_a__lag2;
+    MapbufLd_p_b__lag1 <= MapbufLd_p_b__lead;
+    MapbufLd_p_b__lag2 <= MapbufLd_p_b__lag1;
+    MapbufLd_p_b <= MapbufLd_p_b__lag2;
+    MapbufLd_p_c__lag1 <= MapbufLd_p_c__lead;
+    MapbufLd_p_c__lag2 <= MapbufLd_p_c__lag1;
+    MapbufLd_p_c <= MapbufLd_p_c__lag2;
   end
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
@@ -2033,9 +2059,9 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p16(GND_m_36)
   ); // SE10212
   cell_SE10210 u_c07 (
-    .p2(MapbufLd_p_b),
-    .p3(MapbufLd_p_a),
-    .p4(MapbufLd_p_c),
+    .p2(MapbufLd_p_b__lead),
+    .p3(MapbufLd_p_a__lead),
+    .p4(MapbufLd_p_c__lead),
     .p5(preFH_p_A),
     .p7(MemX20_sil_pl_3),
     .p8(VEE_m_76),

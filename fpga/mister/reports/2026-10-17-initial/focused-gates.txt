@@ -1,0 +1,11 @@
+# register-parity-gates.log
+tb_compute: THE MACHINE COMPUTES -- four boards, PARC's own ALU prologue.
+tb_operand: the jam's operand comes from CPReg, its address from Link, and PARC's own two manifold words are what hold the MIR.
+tb_datapath: four boards running, and the microinstruction is on the datapath.
+tb_step: the machine single-steps a valid microinstruction and CPReg reaches Link.
+# c07-memrun-gate.log
+tb_memrun: PASS -- the memory runs DRAM cycles from PARC's own startup, and holds nothing
+# c07-parity-gates.log
+BOOTSTRAP PARITY PASS: CP load
+BOOTSTRAP PARITY PASS: Bootstrap execution
+BOOTSTRAP PARITY PASS: Corrupt parity rejected

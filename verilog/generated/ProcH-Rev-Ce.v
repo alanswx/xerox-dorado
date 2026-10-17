@@ -3269,7 +3269,7 @@ module ProcH_m_Rev_m_Ce #(parameter integer SYSPER = 16) (
     .p14(ProcH23_sil_pl_21),
     .p15(ProcH23_sil_pl_20)
   ); // F10145A
-  cell_F10000 u_g16 (
+  cell_F10000 #(.PRECAP(1)) u_g16 (
     .sys_clk(sys_clk),
     .p2(ShiftBitsEn_p_),
     .p9(ProcH11_sil_pl_14),
