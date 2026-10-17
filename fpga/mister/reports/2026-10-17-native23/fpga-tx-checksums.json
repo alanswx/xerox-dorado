@@ -1,0 +1,6 @@
+{
+  "valid": 38,
+  "bad": [],
+  "truncated_log_entries_excluded": 5,
+  "scope": "Only complete logged packets; TX log prints at most32 words. Longer frames cannot be checked from this log."
+}

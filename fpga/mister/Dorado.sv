@@ -236,6 +236,9 @@ wire machine_clk;
 `ifdef DORADO_NATIVE
 wire storage_ready,storage_initialized;
 wire [31:0] baseboard_debug,processor_debug;
+`ifdef DORADO_RX_MONITOR
+wire [31:0] receive_debug;
+`endif
 `ifdef DORADO_CONTROL_ERROR_MONITOR
 wire [9:0] control_debug;
 `else
@@ -269,7 +272,11 @@ dorado_ethernet_uio #(.MAX_WORDS(1024)) u_network_uio (
     .rx_ready(net_rx_ready), .tx_valid(net_tx_valid), .tx_words(net_tx_words), .tx_data(net_tx_data),
     .tx_good(net_tx_good), .tx_bad(net_tx_bad), .tx_dropped(net_tx_dropped), .rx_bad(net_rx_bad),
 `ifdef DORADO_NATIVE
+`ifdef DORADO_RX_MONITOR
+    .machine_debug(receive_debug), .machine_status(machine_status), .processor_debug(processor_debug),
+`else
     .machine_debug(baseboard_debug), .machine_status(machine_status), .processor_debug(processor_debug),
+`endif
 `else
     .machine_debug(32'd0), .machine_status(16'd0), .processor_debug(32'd0),
 `endif
@@ -291,6 +298,9 @@ altclkctrl #(.clock_type("Global Clock"), .ena_register_mode("falling edge"),
      .outclk(machine_clk));
 `ifdef DORADO_NATIVE
 dorado_native_machine #(.SYSPER(MACHINE_SYSPER)) u_native (
+`ifdef DORADO_RX_MONITOR
+    .receive_debug(receive_debug),
+`endif
 `ifdef DORADO_DISPLAY_FIELD
     // HM p.115: the real display VCW selects the interlaced field phase.
     .video_field(VGA_F1),

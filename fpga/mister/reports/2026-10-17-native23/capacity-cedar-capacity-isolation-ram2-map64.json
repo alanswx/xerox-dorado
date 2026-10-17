@@ -1,0 +1,12 @@
+{
+  "storage_words": 1048576,
+  "chip_type": 1,
+  "virtual_banks_rm48": "0x100",
+  "valid_entries": 4096,
+  "max_valid_vp": "0xfff1",
+  "valid_above_16k": 2,
+  "referenced_above_16k": 1,
+  "first_high_references": [
+    "0xfff0"
+  ]
+}

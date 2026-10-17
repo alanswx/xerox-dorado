@@ -119,6 +119,13 @@ DISPLAY_FIELD_JSON
     then
       echo 'set_global_assignment -name VERILOG_MACRO DORADO_DISPLAY_FIELD'
     fi
+    if python3 - "$CHECKPOINT/manifest.json" <<'RECEIVE_MONITOR_JSON'
+import json,sys
+sys.exit(0 if json.load(open(sys.argv[1])).get('receive_monitor') else 1)
+RECEIVE_MONITOR_JSON
+    then
+      echo 'set_global_assignment -name VERILOG_MACRO DORADO_RX_MONITOR'
+    fi
     echo 'set_global_assignment -name ALLOW_POWER_UP_DONT_CARE OFF'
     cp "$HERE/checkpoint_timing.sdc" "$OUT/checkpoint_timing.sdc"
     echo 'set_global_assignment -name SDC_FILE checkpoint_timing.sdc'

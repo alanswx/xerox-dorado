@@ -1303,7 +1303,7 @@ class Generator:
                 self.exports.add(name)
 
     def emit(self, nominal_environment: bool = False, processor_monitor: bool = False,
-             display_field: bool = False) -> str:
+             display_field: bool = False, receive_monitor: bool = False) -> str:
         self.classify()
         mod = vname(self.b.name)
         if nominal_environment:
@@ -1318,6 +1318,10 @@ class Generator:
             if self.b.name.split('-Rev')[0] != 'DispY':
                 raise ValueError('display field output applies only to DispY')
             mod += '_field'
+        if receive_monitor:
+            if self.b.name.split('-Rev')[0] != 'DskEth':
+                raise ValueError('receive monitor applies only to DskEth')
+            mod += '_rxmonitor'
         out: list[str] = []
         A = out.append
 
@@ -1365,6 +1369,7 @@ class Generator:
                (['    input wire baseboard_boot_n', '    output wire [31:0] baseboard_debug'] if nominal_environment else []) + \
                (['    output wire [31:0] processor_debug', '    output wire [14:0] processor_control'] if processor_monitor else []) + \
                (['    output wire video_field'] if display_field else []) + \
+               (['    output wire [31:0] receive_debug'] if receive_monitor else []) + \
                [f'    input  wire {vname(n)}' for n in inputs] + \
                [f'    output wire {vname(n)}__drv' for n in exports]
         A(',\n'.join(decl) if decl else '    // no backplane ports detected')
@@ -1842,6 +1847,17 @@ class Generator:
         A(f'endmodule')
         A('`default_nettype wire')
         self.placed = placed
+        if receive_monitor:
+            receive_word = ','.join(f'RxSR_{i:02d}' for i in range(16))
+            input_word = ','.join(f'EthData_{i:02d}' for i in range(16))
+            tioa = ','.join(f'TIOA_{i}' for i in range(8))
+            monitor = f'''  dorado_receive_monitor u_receive_monitor (
+    .clk(sys_clk), .fifo_write_n(RxFifoWE_p_),
+    .fifo_eop(RxSR_18), .fifo_word({{{receive_word}}}),
+    .input_n(bIOin_p_), .input_eop(EthData_17),
+    .tioa({{{tioa}}}), .input_word({{{input_word}}}),
+    .observation(receive_debug));'''
+            out.insert(out.index('endmodule'), monitor)
         return '\n'.join(out) + '\n'
 
     def report(self) -> str:
@@ -1945,6 +1961,8 @@ def main(argv: list[str]) -> int:
                     help='emit ContA passive task/PC/run/hold and Stop/clock observation ports')
     ap.add_argument('--display-field', action='store_true',
                     help='expose DispY actual OddField latch for video capture')
+    ap.add_argument('--receive-monitor', action='store_true',
+                    help='expose passive DskEth FIFO and CPU receive status')
     args = ap.parse_args(argv[1:])
 
     board = load_board(args.wl, args.lc)
@@ -1954,7 +1972,8 @@ def main(argv: list[str]) -> int:
                     cell_port_dirs(args.cells),
                     cells_wanting_clock(args.cells))
     text = gen.emit(nominal_environment=args.nominal_environment,
-                    processor_monitor=args.processor_monitor, display_field=args.display_field)
+                    processor_monitor=args.processor_monitor, display_field=args.display_field,
+                    receive_monitor=args.receive_monitor)
 
     if args.out:
         os.makedirs(os.path.dirname(args.out) or '.', exist_ok=True)

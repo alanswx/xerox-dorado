@@ -579,7 +579,7 @@ def _classify_boards(names: list[str]):
 def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
              external_storage: bool = False, nominal_environment: bool = False,
              processor_monitor: bool = False, display_field: bool = False,
-             export_nets: list[str] | None = None) -> int:
+             export_nets: list[str] | None = None, receive_monitor: bool = False) -> int:
     """Wire the boards together into one module, BY NAME.
 
     The backplane is not straight-through -- the BaseBoard drives each board's
@@ -608,6 +608,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
         raise SystemExit('--processor-monitor requires ContA')
     if display_field and 'DispY' not in info:
         raise SystemExit('--display-field requires DispY')
+    if receive_monitor and 'DskEth' not in info:
+        raise SystemExit('--receive-monitor requires DskEth')
     if nominal_environment and 'BaseBd' not in info:
         raise SystemExit('--nominal-environment requires BaseBd')
     storage_boards = [n for n in names if info[n]['base'] == 'msa'] if external_storage else []
@@ -725,6 +727,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             decl.append('    output wire [9:0] control_debug,')
     if display_field:
         decl.append('    output wire video_field,')
+    if receive_monitor:
+        decl.append('    output wire [31:0] receive_debug,')
     if storage_boards:
         decl += storage_declarations()
     names_sorted = sorted(ports)
@@ -812,6 +816,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             A(f'  {d["module"]}_monitor b_{short} (')
         elif display_field and short == 'DispY':
             A(f'  {d["module"]}_field b_{short} (')
+        elif receive_monitor and short == 'DskEth':
+            A(f'  {d["module"]}_rxmonitor #(.SYSPER(SYSPER)) b_{short} (')
         elif short in storage_boards:
             A(f'  msa_ddram #(.SYSPER(SYSPER)) b_{short} (')
         elif short in ('BaseBd', 'DskEth'):
@@ -828,6 +834,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
                 conns.append('    .processor_control(processor_control)')
         if display_field and short == 'DispY':
             conns.append('    .video_field(video_field)')
+        if receive_monitor and short == 'DskEth':
+            conns.append('    .receive_debug(receive_debug)')
         if short in storage_boards:
             index = storage_boards.index(short)
             conns += ['    .storage_clk(storage_clk)', '    .storage_reset(storage_reset)',
@@ -925,6 +933,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             A('    output wire [9:0] control_debug,')
     if display_field:
         A('    output wire video_field,')
+    if receive_monitor:
+        A('    output wire [31:0] receive_debug,')
     A('    input  wire [15:0] probe_sel,')
     A('    output wire [31:0] probe_val,')
     A('    output wire [15:0] probe_words')
@@ -981,6 +991,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             conns.append('    .control_debug(control_debug)')
     if display_field:
         conns.append('    .video_field(video_field)')
+    if receive_monitor:
+        conns.append('    .receive_debug(receive_debug)')
     if storage_boards:
         conns += [f'    .storage_{p}(storage_{p})' for p in
                   ('clk', 'reset', 'ready', 'req_valid', 'req_write', 'req_ready',
@@ -1160,6 +1172,8 @@ def main(argv: list[str]) -> int:
                     help='expose passive ContA task/PC/run/hold; with BaseBoard, also Stop/clock observations')
     ap.add_argument('--display-field', action='store_true',
                     help='expose DispY actual OddField latch for video capture')
+    ap.add_argument('--receive-monitor', action='store_true',
+                    help='expose passive DskEth FIFO and CPU receive status')
     ap.add_argument('--export-net', action='append', default=[],
                     help='also expose this driven resolved net, retaining its board consumers')
     args = ap.parse_args(argv[1:])
@@ -1168,7 +1182,7 @@ def main(argv: list[str]) -> int:
                  if args.boards else DEFAULT_MACHINE)
         return emit_top(args.emit, names, args.module, args.external_storage,
                         args.nominal_environment, args.processor_monitor, args.display_field,
-                        args.export_net)
+                        args.export_net, args.receive_monitor)
     if args.json:
         return to_json(args.json)
     if args.ports:

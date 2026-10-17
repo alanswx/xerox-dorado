@@ -1,0 +1,27 @@
+{
+  "storage_words": 4194304,
+  "chip_type": 3,
+  "virtual_banks_rm48": "0x40",
+  "valid_entries": 8859,
+  "max_valid_vp": "0xffff",
+  "valid_above_16k": 382,
+  "referenced_above_16k": 381,
+  "first_high_references": [
+    "0x4000",
+    "0x4001",
+    "0x4002",
+    "0x4003",
+    "0x4004",
+    "0x4005",
+    "0x4006",
+    "0x4007",
+    "0x4008",
+    "0x4009",
+    "0x400a",
+    "0x400b",
+    "0x400c",
+    "0x400d",
+    "0x400e",
+    "0x400f"
+  ]
+}

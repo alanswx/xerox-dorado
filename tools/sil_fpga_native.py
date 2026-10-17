@@ -19,6 +19,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-o', '--output', type=Path, required=True)
     parser.add_argument('--storage-modules', type=int, choices=range(1, 5), default=4)
+    parser.add_argument('--receive-monitor', action='store_true', help='passive DskEth receive-status observation')
     parser.add_argument('--pilot-disk', action='store_true',
                         help='Pilot format: 28 usable of 29 slots, 10 label words, 256 data words')
     args = parser.parse_args()
@@ -47,6 +48,12 @@ def main():
          '-o', str(out/'DispY_field.v')],
         ['tools/sil_storage_ddram.py', '-o', str(out/'msa_ddram.v')],
     ]
+    if args.receive_monitor:
+        commands[0].append('--receive-monitor')
+        commands.append(['tools/sil_to_verilog.py', 'chm/sil/DskEth-Rev-Cf.dm!1_/DskEth-Rev-Cf.wl',
+                         '--lc', 'chm/sil/DskEth-Rev-Cf.dm!1_/DskEth-Rev-Cf.lc',
+                         '--dict', 'chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze',
+                         '--receive-monitor', '-o', str(out/'DskEth_monitor.v')])
     for command in commands:
         subprocess.run([sys.executable, *command], check=True)
     source = (out/'dorado_native_backplane.v').read_text().split(');', 1)[0]
@@ -132,6 +139,9 @@ module dorado_native_machine #(parameter integer SYSPER=4) (
     output wire [63:0] ddram_wdata,
     output wire storage_ready,storage_initialized,
     output wire [31:0] baseboard_debug,processor_debug,
+`ifdef DORADO_RX_MONITOR
+    output wire [31:0] receive_debug,
+`endif
     output wire [9:0] control_debug,
     output wire video,hsync,vsync_n,hblank,vblank,halfline,pixel_clk,video_field
 );
@@ -206,18 +216,26 @@ module dorado_native_machine #(parameter integer SYSPER=4) (
   dorado_native_backplane #(.SYSPER(SYSPER)) m (
 CONNECTIONS
   );
+RECEIVE_MONITOR
 endmodule
 `default_nettype wire
 '''.replace('GROUP_COUNT', str(groups)).replace('ADDRESS_BITS', str(address_bits))
     wrapper = wrapper.replace('DISK_SECTORS', '29')
     wrapper = wrapper.replace('DISK_LABEL_WORDS', '10' if args.pilot_disk else '8')
     wrapper = wrapper.replace('DISK_PULSES', '117')
+    if args.receive_monitor:
+        connections.append('    .receive_debug(receive_debug)')
     wrapper = wrapper.replace('CONNECTIONS', ',\n'.join(connections))
+    wrapper = wrapper.replace('RECEIVE_MONITOR', '')
     (out/'dorado_native_machine.sv').write_text(wrapper)
     sources = [str(out/n) for n in ['dorado_native_backplane.v', 'BaseBd_nominal.v',
                                    'msa_ddram.v', 'ContA_monitor.v', 'DispY_field.v',
                                    'dorado_native_machine.sv']]
+    if args.receive_monitor:
+        sources.append(str(out/'DskEth_monitor.v'))
     for name in boards:
+        if args.receive_monitor and name == 'DskEth':
+            continue
         if name.startswith('msa') or name in ('BaseBd','ContA','DispY'):
             continue
         candidates = list(Path('verilog/generated').glob(name+'-Rev-*.v'))
@@ -228,9 +246,9 @@ endmodule
     sources += [str(Path('verilog/cells')/n) for n in ['dorado_keyboard.v', 'dorado_terminal.v', 'dorado_trident.v']]
     sources += [str(p) for p in sorted(Path('verilog/vendor/6502').glob('*.v'))]
     sources += [str(p) for p in sorted(Path('verilog/vendor/riot').glob('*.sv'))]
-    sources += ['fpga/mister/'+n+'.sv' for n in ['dorado_pack_hps','dorado_storage_group',
+    sources += ['fpga/mister/'+n+'.sv' for n in ['dorado_receive_monitor','dorado_pack_hps','dorado_storage_group',
                 'dorado_storage_arb','dorado_storage_ddram','dorado_storage_init']]
-    (out/'manifest.json').write_text(json.dumps({'native': True, 'storage_modules': args.storage_modules, 'pilot_disk': args.pilot_disk,
+    (out/'manifest.json').write_text(json.dumps({'native': True, 'storage_modules': args.storage_modules, 'pilot_disk': args.pilot_disk, 'receive_monitor': args.receive_monitor,
                                                'control_error_monitor': True,
         'display_field': True, 'control_clock_monitor': True,
         'hps_pack': True, 'ethernet_wire': True, 'ethernet_host_port': True}, indent=2)+'\n')

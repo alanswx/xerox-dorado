@@ -1,0 +1,134 @@
+{
+  "scope": "Live FPGA read-only 4MB raw DDR observation, decoded to1M physical16bit words. No cache or map dump; physical matches do not prove current virtual mappings or OS prompt.",
+  "boot_file": "chm/cedar/cedar6.1/BasicCedarDorado.boot!22",
+  "boot_file_sha256": "c17786509669f29297161730ec7a801a68ee6a891b3b998f92168b6207b0e435",
+  "raw_ddr_sha256": "37e7c06e50943ad3c99e0d4556aa36aad77861212257e75dfd6c463c8213ddfd",
+  "nonzero_matching_file_pages_including_headers": 964,
+  "nonzero_matching_data_file_pages": 963,
+  "distinct_nonzero_data_page_contents": 958,
+  "data_pages_at_rp_equal_expected_vp": 957,
+  "first_matches": [
+    {
+      "filepage": 20,
+      "physical_pages": [
+        515
+      ]
+    },
+    {
+      "filepage": 28,
+      "physical_pages": [
+        523
+      ]
+    },
+    {
+      "filepage": 30,
+      "physical_pages": [
+        525
+      ]
+    },
+    {
+      "filepage": 39,
+      "physical_pages": [
+        534
+      ]
+    },
+    {
+      "filepage": 41,
+      "physical_pages": [
+        536
+      ]
+    },
+    {
+      "filepage": 42,
+      "physical_pages": [
+        537
+      ]
+    },
+    {
+      "filepage": 43,
+      "physical_pages": [
+        538
+      ]
+    },
+    {
+      "filepage": 44,
+      "physical_pages": [
+        539
+      ]
+    },
+    {
+      "filepage": 45,
+      "physical_pages": [
+        540
+      ]
+    },
+    {
+      "filepage": 46,
+      "physical_pages": [
+        541
+      ]
+    },
+    {
+      "filepage": 47,
+      "physical_pages": [
+        542
+      ]
+    },
+    {
+      "filepage": 48,
+      "physical_pages": [
+        543
+      ]
+    }
+  ],
+  "last_matches": [
+    {
+      "filepage": 1052,
+      "physical_pages": [
+        1713
+      ]
+    },
+    {
+      "filepage": 1053,
+      "physical_pages": [
+        1714
+      ]
+    },
+    {
+      "filepage": 1054,
+      "physical_pages": [
+        1715
+      ]
+    },
+    {
+      "filepage": 1055,
+      "physical_pages": [
+        1716
+      ]
+    },
+    {
+      "filepage": 1056,
+      "physical_pages": [
+        1717
+      ]
+    },
+    {
+      "filepage": 1057,
+      "physical_pages": [
+        1718
+      ]
+    },
+    {
+      "filepage": 1058,
+      "physical_pages": [
+        1719
+      ]
+    },
+    {
+      "filepage": 1059,
+      "physical_pages": [
+        1720
+      ]
+    }
+  ]
+}

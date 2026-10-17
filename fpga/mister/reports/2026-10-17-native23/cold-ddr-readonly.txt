@@ -1,0 +1,6 @@
+ /Users/alans/dev2/Dorado/build/rtl-executive/native23-candidate/readonly_snapshot_lldb.py
+READ ONLY snapshot /Users/alans/dev2/Dorado/build/rtl-executive/native23-candidate/cold-ddr-readonly.rtl sample 211584441 bytes 11220463 ranges 210
+No process memory writes or execution calls
+(lldb) process detach
+Process 60378 detached
+(lldb) quit
