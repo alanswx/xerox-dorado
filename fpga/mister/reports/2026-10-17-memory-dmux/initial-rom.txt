@@ -1,0 +1,2 @@
+make -C verilog/verilator initial-rom-test SYSPER=4
+INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for 2611683 samples without error

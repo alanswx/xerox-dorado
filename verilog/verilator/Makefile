@@ -369,6 +369,17 @@ reset-tags-test:
 memory-config-test:
 	@$(MAKE) -s boot-world-disk WORLDARGS='+cycles=300000 +pendulum +hasram +ioreset +fastwait +bbword=0000 +bbfeed +enterat=c64 +enterworld=200 +check-memconfig'
 
+# Memory muffler shift registers must retain write data at bus turnaround.
+.PHONY: memory-dmux-test
+memory-dmux-test:
+	@cd ../.. && $(V) --binary --top-module tb_memory_dmux $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated \
+		--Mdir verilog/verilator/obj_memory_dmux -o tb_memory_dmux \
+		verilog/verilator/tb_memory_dmux.sv \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_memory_dmux/tb_memory_dmux
+
 # Real AltoDiabloDisk.mc initialization, not the old per-word jam bench.
 .PHONY: disk-init-format-test
 disk-init-format-test:

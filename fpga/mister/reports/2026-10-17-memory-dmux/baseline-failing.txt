@@ -1,0 +1,3 @@
+[400] %Fatal: tb_memory_dmux_all.sv:36: Assertion failed in tb_memory_dmux.shift.unnamedblk1: DMux strobe24 expected=001 MemC=000 MemD=000 MemX=000
+%Error: build/rtl-executive/tb_memory_dmux_all.sv:36: Verilog $stop
+Aborting...

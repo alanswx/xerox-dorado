@@ -5531,7 +5531,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16,
     .p14(MemD13_sil_pl_11),
     .p15(MemD13_sil_pl_13)
   ); // MC10176
-  cell_MC10176 #(.PRECAP(0)) u_l21 (
+  cell_MC10176 #(.PRECAP(1)) u_l21 (
     .sys_clk(sys_clk),
     .p2(DMadr_06),
     .p3(DMadr_07),

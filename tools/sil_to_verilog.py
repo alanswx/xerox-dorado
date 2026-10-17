@@ -762,6 +762,14 @@ class Generator:
         # preserve their setup value rather than the new readback bit.
         ('BaseBd', 'l21'): {'PRECAP': 1},
         ('BaseBd', 'l22'): {'PRECAP': 1},
+        # The memory boards' serial-input stages clock on DMuxClk's
+        # falling edge too. The BaseBoard releases write data for readback
+        # on that edge; retain the preceding serial bit. Their internal
+        # address-shift stages keep the memory-board default capture mode.
+        # memory-dmux-test checks every intermediate bit of all addresses.
+        ('MemC', 'l24'): {'PRECAP': 1},
+        ('MemD', 'l21'): {'PRECAP': 1},
+        ('MemX', 'l23'): {'PRECAP': 1},
         ('DispY', 'a05'): {'FREQ_KHZ': 50000},
         ('DispM', 'c05'): {'FREQ_KHZ': 10000},
         ('DispM', 'd13'): {'FREQ_KHZ': 20000},

@@ -5358,7 +5358,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(MD7),
     .p15(DMuxData__drv)
   ); // MU10164
-  cell_MC10176 #(.PRECAP(0)) u_l24 (
+  cell_MC10176 #(.PRECAP(1)) u_l24 (
     .sys_clk(sys_clk),
     .p2(DMadr_06),
     .p3(DMadr_07),

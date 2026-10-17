@@ -1,0 +1,18 @@
+{
+  "scope": "Component regression only; no FPGA build or Cedar OS boot qualification.",
+  "change": "Pre-edge capture only at memory diagnostic serial-input stages: MemC l24, MemD l21, MemX l23.",
+  "baseline": "Old board outputs fail strobe24, expected001, all three read000.",
+  "passing": "All2048addresses, 24576strobes, every intermediate bit, high/low pulse lengths3..5.",
+  "commands": [
+    "make -C verilog/verilator memory-dmux-test",
+    "make -C verilog/verilator initial-rom-test SYSPER=4"
+  ],
+  "initial_rom": "INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for 2611683 samples without error",
+  "sha256": {
+    "tools/sil_to_verilog.py": "29f7d722e55e4cc7db57754d528efddee42ecd5363d26ad7adbe8ab09302f177",
+    "verilog/generated/MemC-Rev-Be.v": "ed1b7f6cf85f6f7382024ba9bb3337a0a78cff5fea6ee7bcfc86b248b3cab54b",
+    "verilog/generated/MemD-Rev-Ca.v": "679660eb90be88232d01f6f9626c1260330090a7882a8765f0a371f2d78acf9e",
+    "verilog/generated/MemX-Rev-Ch.v": "af5febe392d906887ae73de1e8148857c4c108eaea8c181df4c61ee2ce2d67a7",
+    "verilog/verilator/tb_memory_dmux.sv": "b5595f1fb510be09bf758d322b8ca23a43165868828b53b49f313d08c002c9e8"
+  }
+}
