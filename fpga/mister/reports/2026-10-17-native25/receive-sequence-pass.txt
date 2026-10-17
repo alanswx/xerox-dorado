@@ -1,0 +1,18 @@
+CONTROL RxOn=1 BOP=0 curr=1 prev=1
+WARMUP end BOP=1 full=1 data=0000
+PRE SECOND BOP=1 full=0
+INPUT n=0 data=2201 EOP=0 BOP=1 full=1
+INPUT n=1 data=0200 EOP=0 BOP=1 full=1
+INPUT n=2 data=001a EOP=0 BOP=1 full=1
+INPUT n=3 data=0081 EOP=0 BOP=1 full=1
+INPUT n=4 data=0000 EOP=0 BOP=1 full=1
+INPUT n=5 data=0000 EOP=0 BOP=1 full=1
+INPUT n=6 data=0122 EOP=0 BOP=1 full=1
+INPUT n=7 data=0000 EOP=0 BOP=1 full=1
+INPUT n=8 data=0002 EOP=0 BOP=1 full=1
+INPUT n=9 data=0101 EOP=0 BOP=1 full=1
+INPUT n=10 data=0000 EOP=0 BOP=1 full=1
+INPUT n=11 data=0002 EOP=0 BOP=1 full=1
+INPUT n=12 data=3b50 EOP=0 BOP=1 full=1
+INPUT n=13 data=0000 EOP=1 BOP=1 full=1
+ETHERNET RECEIVE SEQUENCE PASS

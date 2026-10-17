@@ -49,8 +49,9 @@ Scratch names below are relative to `build/rtl-executive/`.
 | --- | --- | --- |
 | Native24 hardware | Boot COMPLETE | MiSTer14, `Cedar24_20261017/main.log`; fresh BFN113 requested and C released. Routing retries, maintenance cursor only. RBF1cdc35a2...; FIFO status00 on directed replies. |
 | Native24 passive monitor | Fit/review COMPLETE | 29 timing checks pass, min+0.122ns; zero illegal/unconstrained clocks. RBF1cdc35a2... deployed on MiSTer14. Exact MemX c21 hold-only review in native24 reports. |
-| Server diagnostics | Quiet-after-Cedar ACTIVE | server1d5e05e9..., PID9764, same logserver-cedar23-route.log. Suppresses idle broadcasts after BFN113; requested replies unchanged. ARM routing/BFN113/STP and quiet/reconnect tests pass. Delay/nil variants did not resolve retries. |
-| Corrected CPU monitor | Build72275 | `misterubuntu:/home/alans/mister/Dorado_Native24b_20261017/`, `native24b-build.log`. ONLY EOP tap17->18; timing review/deployment pending. Native24 CPU bytes invalid. |
+| Server diagnostics | Quiet-after-Cedar RESTORED | server1d5e05e9..., PID10523, logserver-cedar23-route.log. Link-broadcast service replies did not clear time retries; binary8ecf6cf9... and separate log preserved. Restart config stays on the boot-capable quiet server. |
+| Corrected CPU monitor | Fit67581 | `misterubuntu:/home/alans/mister/Dorado_Native24b_20261017/`, `native24b-fit-restart.log`. First fit stopped on carried placement-specific c21 assertion (not a capacity failure); new fit removes that exception and times all paths. ONLY RTL change is EOP tap17->18; fit/assembly COMPLETE; STA has -0.055ns hold paths under full-path review. RBF2cffe643... is NOT deployed. Native24 CPU bytes invalid. |
+| Native25 receive-full correction | Fit69484; cold93934 | `native25-build.log`, `cedar-native25-ddrcheck.log` (120M limit). DskEth k04 B now captures setup; focused old-fail/new-pass, held sequence and8 CRC phases pass. Not yet on FPGA or a proved Cedar blocker fix. |
 | Four64K-module software control | COMPLETE24B | `cedar-64k-map64-control/`: fresh8MB RAM/64K map reaches Viewers (166685px), type2, VirtualBanks0100; valid geometry reference, software only. |
 | Larger-memory cold RTL | 32916; PID86868 | `cedar-density64-ddrcheck.log`,500M limit,SYSPER4, four64K-chip modules/64K map,actualDDR. `storage64-candidate/`; component prototype, not production. Bounded caffeinate session36354. |
 
@@ -64,6 +65,30 @@ The generator is corrected; Native24b changes only this passive tap and is
 building separately. Its timing must pass before programming. CPU task/PC
 and machine-status fields remain available. RAM/clocks/functional packages
 match Native23. The hardware screenshot still has no Cedar OS text.
+
+Fresh read-only physical DDR capture (`native24/raw-ddr-broadcast-observe.bin`)
+shows a candidate receive buffer at physical0x8604 with IOCB pointer0350.
+Its first wire word at+14 is duplicated:0001,0001,0200,0020,0087 for the
+broadcast time reply; multiple routing buffers similarly have2201,2201,0200.
+A working C control buffer has2201,0200 immediately. Candidate IOCB at30e50
+points to virtual091712 (matching this buffer's+14 offset). This is a strong
+first-word Input/Store lead, **not yet a proved cause**: raw DDR is not coherent
+with the cache and the precise microcode phase needs tracing. The initial isolated
+sequence was invalid for the CPU handoff: missing MemSH kept the address
+latch on EControl while the first packet auto-drained. The corrected bench
+drives both clock phases and a warmup packet, then checks each held word,
+CRC and EOP through addressed Input. It passes; it still does not execute
+Cedar CPU instructions. The tracked receive-sequence test preserves it. Evidence: native24/receive-header-observation.json.
+
+A focused Ether05 k04 B regression confirms a receive-full handshake defect:
+Input retiring on clk1 is missed by post-edge JK capture, leaving the word
+unread; a newly enabled Input can also consume too early. PRECAP_B=1 fixes
+both setup cases, with A/RxBOP unchanged. Exact generated-board diff is one
+parameter. Full held-word receive and8 good/damaged-CRC phases pass. This is
+**not yet proved to cause Cedar's duplicated header**. Native25 fit and a
+fresh120M cold DDR run are underway; qualify timing and hardware before
+claiming the boot wait is fixed. Tests: ethernet-input-hold-test and
+ethernet-receive-sequence-test. Evidence: native25/component-review.json.
 
 ## Capacity findings — corrected at 20:43 UTC
 
@@ -92,11 +117,13 @@ Main log: `/media/fat/games/DoradoRTL/Cedar24_20261017/main.log`.
 Previous23 log: `Cedar23_20261017/main-before-native24.log`.
 
 Keep immutable Main `System_20261017/MiSTer-1fb2e098e6f0dba6`; never overwrite a
-running executable. Active diagnostic server: `System_20261017/dorado-server-1d5e05e9d293b095`,
-log `server-cedar23-route.log`. It disables only idle broadcasts after BFN113.
+running executable. Active boot-capable quiet server:
+`System_20261017/dorado-server-1d5e05e9d293b095`, PID10523,
+log `server-cedar23-route.log`. Link-broadcast diagnostic8ecf6cf9... did not
+clear time retries; its separate log `server-cedar24-broadcast.log` is preserved.
 Default bdfd09ce..., Delay500 and nil500 binaries/logs are preserved; neither
 delay nor nil checksum resolved retries. Restart config points to the quiet
-server and Native24 core/MGL, cwd `System_20261017/dorado`, socket
+server1d5e05e9... and Native24 core/MGL, cwd `System_20261017/dorado`, socket
 `/tmp/dorado-net.sock`. Full STP root/all 34 Basic.Loadees are staged. Restart
 configuration: `Cedar24_20261017/reboot-resume.json`.
 
@@ -128,10 +155,11 @@ and has unreviewed hold violations; never deploy it.
 - [x] Observe real disk-loaded Cedar pages and new OS network traffic on FPGA.
 - [x] Fix server routing/file-lookup dispatch; pass native/ARM transport tests.
 - [x] Test delayed/nil-checksum replies; neither resolves live service retries.
-- [ ] Locate the remaining directed-service wait; clean FIFO status alone does not prove CPU receipt.
+- [ ] Trace the apparent duplicated first receive word in Input/Store; clean FIFO status alone does not prove correct buffer contents.
 - [x] Fit/review/deploy Native24 passive monitor (29 checks,min+0.122ns).
 - [x] Complete Native24 original firmware boot and inspect FIFO status.
-- [ ] Fit/review/deploy Native24b corrected EthData_18 EOP tap; qualify CPU status.
+- [ ] Review/deploy Native24b corrected EthData_18 EOP tap; qualify CPU status.
+- [ ] Qualify Native25 k04 setup-capture correction in cold DDR, timing and FPGA; inspect first receive header again.
 - [ ] Qualify scratch `storage64-candidate/`:64K cells pass high-row/column
   nonalias test (old map cell fails); complete MSA/DDR equivalence passes12,012
   cycles /9,437,184 bits. MemX full-board high row/column test passes (old16K fails). Full Map protocol and cold boot remain unqualified.

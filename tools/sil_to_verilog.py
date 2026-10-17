@@ -822,6 +822,11 @@ class Generator:
         # Only B is the transmit-full flag. A's receive-data-late path
         # retains its existing capture; the good/damaged CRC gate checks it.
         ('DskEth', 'l06'): {'PRECAP_B': 1},
+        # Ether05 k04 B: RxBusRegFull clears for the Input present BEFORE
+        # clk1. Post-edge capture misses an Input retiring on that edge
+        # (word remains unread), or consumes a just-enabled Input early.
+        # Keep A's RxBOP timing unchanged. See ethernet-input-hold-test.
+        ('DskEth', 'k04'): {'PRECAP_B': 1},
         # OutRegFull's JK and the underflow-check D flop share clk1. They
         # must both use setup inputs when memory releases IOHold on that
         # edge; post-edge JK capture consumes the word one clock too soon.

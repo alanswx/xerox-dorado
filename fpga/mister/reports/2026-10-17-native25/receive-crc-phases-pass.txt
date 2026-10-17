@@ -1,0 +1,8 @@
+ETHERNET-RECEIVE PASS: phase=          0 actual data, good status, damaged CRC rejected
+ETHERNET-RECEIVE PASS: phase=          1 actual data, good status, damaged CRC rejected
+ETHERNET-RECEIVE PASS: phase=          2 actual data, good status, damaged CRC rejected
+ETHERNET-RECEIVE PASS: phase=          3 actual data, good status, damaged CRC rejected
+ETHERNET-RECEIVE PASS: phase=          4 actual data, good status, damaged CRC rejected
+ETHERNET-RECEIVE PASS: phase=          5 actual data, good status, damaged CRC rejected
+ETHERNET-RECEIVE PASS: phase=          6 actual data, good status, damaged CRC rejected
+ETHERNET-RECEIVE PASS: phase=          7 actual data, good status, damaged CRC rejected

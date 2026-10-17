@@ -46,7 +46,11 @@ TOOLS   = ../tools
         converge-test machine-test \
         baseboard-test firmware-probe mem-test \
         crc-test eth-ctl-test ebreplies-check pack-test boot-world-disk \
+        ethernet-input-hold-test ethernet-receive-sequence-test \
         clean-generated
+
+ethernet-input-hold-test ethernet-receive-sequence-test:
+	@$(MAKE) -C verilator $@
 
 # PROM contents, sliced per package position from PARC's own BCPL.
 proms:

@@ -4795,7 +4795,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p14(DskEth03_sil_pl_1),
     .p15(IOB_03__drv)
   ); // MC10174
-  cell_MC10135 u_k04 (
+  cell_MC10135 #(.PRECAP_B(1)) u_k04 (
     .sys_clk(sys_clk),
     .p2(RxBOP),
     .p3(Ether05_sil_pl_1__k04_3),

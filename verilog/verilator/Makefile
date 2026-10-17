@@ -514,6 +514,19 @@ disk-input-hold-test:
 		verilog/verilator/tb_disk_input_hold.sv verilog/generated/DskEth-Rev-Cf.v >/dev/null
 	@cd ../.. && ./verilog/verilator/obj_disk_input_hold/tb_disk_input_hold
 
+.PHONY: ethernet-input-hold-test ethernet-receive-sequence-test
+ethernet-input-hold-test:
+	@cd ../.. && $(V) --binary --top-module tb_ethernet_input_hold $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_ethernet_input_hold -o input-hold \
+		verilog/verilator/tb_ethernet_input_hold.sv verilog/generated/DskEth-Rev-Cf.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_ethernet_input_hold/input-hold
+
+ethernet-receive-sequence-test:
+	@cd ../.. && $(V) --binary --top-module tb_ethernet_receive_sequence $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_ethernet_receive_sequence -o receive-sequence \
+		verilog/verilator/tb_ethernet_receive_sequence.sv verilog/generated/DskEth-Rev-Cf.v fpga/mister/dorado_ethernet_wire.sv >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_ethernet_receive_sequence/receive-sequence
+
 .PHONY: ethernet-fifo-parity-test
 ethernet-fifo-parity-test:
 	@cd ../.. && $(V) --binary --top-module tb_ethernet_fifo_parity $(V_WARN) \

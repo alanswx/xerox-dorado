@@ -1,0 +1,3 @@
+[24000] %Fatal: tb.sv:20: Assertion failed in tb_receive_input_hold: completed Input missed receive full clear at clk1
+%Error: build/rtl-executive/receive-input-hold-candidate/tb.sv:20: Verilog $stop
+Aborting...

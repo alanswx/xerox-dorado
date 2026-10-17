@@ -1,0 +1,14 @@
+{
+  "change": "DskEth k04 PRECAP_B=1; receive-full JK observes setup Input. RxBOP half unchanged.",
+  "old_canonical_commit": "a69e52ec",
+  "old_canonical_sha256": "9d08d846b300eaf47bb17a73cc917e026fcf087d990c9a18cf000b1a9b2ab65e",
+  "candidate_canonical_sha256": "c55ca88315aa0ebf3e2703a9b14dbe89d939e81c6c186cf194ff975203db9de4",
+  "exact_source_difference": "one parameter on u_k04",
+  "original_retiring_input_case": "fails; register incorrectly remains full",
+  "candidate_retiring_and_entering_input_cases": "pass",
+  "complete_held_receive_sequence": "pass:12 payload words, CRC3b50, EOP/status00",
+  "good_and_damaged_crc": "pass at8 phases",
+  "Cedar_wait_cause": "plausible, not yet established on FPGA",
+  "cold_ddr": "120M fresh run active; not qualified yet",
+  "fpga": "fit active; no image programmed"
+}

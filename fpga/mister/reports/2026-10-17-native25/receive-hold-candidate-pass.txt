@@ -1,0 +1,5 @@
+RECEIVE INPUT HOLD PASS: retiring Input clears exactly one setup word
+- build/rtl-executive/receive-input-hold-candidate/tb.sv:31: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 81ns; walltime 0.001 s; speed 149.723 us/s
+- Verilator: cpu 0.001 s on 1 threads; alloced 2 MB
