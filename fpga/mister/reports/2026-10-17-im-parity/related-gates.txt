@@ -1,0 +1,13 @@
+im-parity-boot0-unforced.log: tb_boot0: REAL MICROCODE -- 20 hunks, 160 half-words, 0 wrong
+im-parity-boot0-unforced.log: tb_boot0: FIELD MAP -- 65 addresses read back through sil_im_map, 0 wrong
+im-parity-datapath-gate.log: tb_datapath: four boards running, and the microinstruction is on the datapath.
+im-parity-updated-gates.log: tb_operand: the jam's operand comes from CPReg, its address from Link, and PARC's own two manifold words are what hold the MIR.
+im-parity-updated-gates.log: tb_step: the machine single-steps a valid microinstruction and CPReg reaches Link.
+im-parity-updated-gates.log: tb_sendmir: PARC's SendViaMIR loads IM -- two words, two addresses, right data.
+im-parity-step-independent.log: tb_step: the machine single-steps a valid microinstruction and CPReg reaches Link.
+im-parity-remaining-gates.log: tb_compute: THE MACHINE COMPUTES -- four boards, PARC's own ALU prologue.
+im-parity-remaining-gates.log: tb_exec: the machine executes microcode out of IM.
+im-parity-final-gates.log: BOOTSTRAP PARITY PASS: CP load
+im-parity-final-gates.log: BOOTSTRAP PARITY PASS: Bootstrap execution
+im-parity-final-gates.log: BOOTSTRAP PARITY PASS: Corrupt parity rejected
+im-parity-final-gates.log: tb_exec: the machine executes microcode out of IM.

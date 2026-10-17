@@ -620,8 +620,25 @@ exec-parity:
 		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
 		verilog/generated/IFU-Rev-Ch.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_exec9/tb_exec9 \
-		    +preload=verilog/verilator/obj_exec/im.txt +imparitylate +cycles=400000 2>&1); rc=$$?; \
+		    +preload=verilog/verilator/obj_exec/im.txt +imparityon +keepmirdebug +cycles=400000 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_exec; exit $$rc; }
+
+# The native core uses SYSPER=4. Verify original Bootstrap words loaded
+# through CP, then execute with IM parity enabled from the first instruction.
+.PHONY: bootstrap-parity-test
+bootstrap-parity-test:
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
+	@mkdir -p obj_bootstrap_parity
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
+	@cd ../.. && ./dorado/build/boot0_hunks 'chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb' 0xfc0 16 > verilog/verilator/obj_bootstrap_parity/boot.vec
+	@cd ../.. && ./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb' > verilog/verilator/obj_bootstrap_parity/im.txt 2>/dev/null
+	@cd ../.. && $(V) --binary --top-module tb_exec \
+		$(filter-out +define+SYSPER_OVERRIDE=%,$(V_WARN)) +define+SYSPER_OVERRIDE=4 \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_bootstrap_parity -o bootstrap-parity \
+		verilog/verilator/tb_exec.sv verilog/generated/dorado_proc.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v >/dev/null
+	@cd ../.. && python3 verilog/verilator/test_bootstrap_parity.py verilog/verilator/obj_bootstrap_parity/bootstrap-parity verilog/verilator/obj_bootstrap_parity
 
 # WITH TASKING ON, the fault task services the stack underflow and the machine
 # stops being held. See docs/verilog-handoff.md, "the world's loop".
@@ -821,7 +838,7 @@ sendmir:
 .PHONY: step-test
 step-test:
 	@cd ../.. && $(V) --binary --top-module tb_step $(V_WARN) \
-		-Iverilog/cells --Mdir verilog/verilator/obj_step -o tb_step \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_step -o tb_step \
 		verilog/verilator/tb_step.sv verilog/generated/dorado_proc.v \
 		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
 		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \

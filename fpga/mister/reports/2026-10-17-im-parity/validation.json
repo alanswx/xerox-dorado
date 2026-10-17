@@ -1,0 +1,16 @@
+{
+  "hardware_status": "Native10 build running; parity fix not yet tested on FPGA. Native4 remains stalled at7740B.",
+  "source": "chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb",
+  "source_sha256": "1924c0fc8e7acb52c2461e3e89a80a3ed8a81aa931218e55f29bbc6339fb6c81",
+  "changes": {
+    "ContA_e18": "physical MC10170 B output, LEGACY_B_INVERT=0",
+    "ContB_j20": "physical MC10170 B output, LEGACY_B_INVERT=0",
+    "ContB_e01": "physical IM write-parity function, LEGACY_B_INVERT=0"
+  },
+  "positive_gate": "make -C verilog/verilator bootstrap-parity-test",
+  "cp_load": "50 original instructions, every field and both odd-parity bits read back exactly; 21 addresses executed in350samples with both checks enabled from startup",
+  "preload_execution": "original Bootstrap, checks enabled from startup, 100000 samples",
+  "negative_gate": "even-parity fixture stops; original-word data unchanged",
+  "write_mutation": "ContB e01 alone restored to legacy1: CP-loaded IM[fc0] parity1/0 instead of expected0/1",
+  "single_step_mutation": "SetSS disabled: clock counts4/2/9 and Stop0; gate correctly fails instead of relying on a parity error"
+}

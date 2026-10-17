@@ -32,7 +32,9 @@
 // boards whose dependent parity paths have not yet been reconciled (see
 // docs/verilog-handoff.md). It is NOT a physical chip option. DskEth's
 // checkers and MemD's storage byte-parity generator select 0, the datasheet
-// function, with regressions for their actual board connections.
+// function, with regressions for their actual board connections. The IM read
+// checkers and write-parity generator now also select the physical function;
+// the legacy inversion stopped the original Bootstrap at its first address.
 module cell_MC10170 #(parameter LEGACY_B_INVERT = 1) (
     input  wire p3,
     input  wire p4,

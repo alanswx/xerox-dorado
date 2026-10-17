@@ -2345,7 +2345,7 @@ module ContB_m_Rev_m_Cd #(parameter integer SYSPER = 16) (
     .p2(CBHold_p_),
     .p4(CBHold)
   ); // MC1662
-  cell_MC10170 u_e01 (
+  cell_MC10170 #(.LEGACY_B_INVERT(0)) u_e01 (
     .p11(bRSTK_1),
     .p12(MidasOrRSTK_2),
     .p13(BMux_17),
@@ -4371,7 +4371,7 @@ module ContB_m_Rev_m_Cd #(parameter integer SYSPER = 16) (
     .p14(CS3_p_BDc),
     .p15(RBMux_10)
   ); // F10415A
-  cell_MC10170 u_j20 (
+  cell_MC10170 #(.LEGACY_B_INVERT(0)) u_j20 (
     .p3(bRSTK_0),
     .p4(bRSTK_2),
     .p5(ALUF_0_p_),

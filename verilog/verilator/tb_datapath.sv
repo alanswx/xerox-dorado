@@ -144,7 +144,10 @@ module tb_datapath;
     //   MIR0 bits 0..2 -> RSTK.1,2,3   MIR1 bits 0..2 -> ALUF.1,2,3
     //   MIR2 bits 0,1  -> BSEL.1,2     MIR3 bits 1..3 -> ASEL.0,1,2
     strobe(3'd4, 8'hE0, 1'b1);   // RSTK.1,2,3 set; extra bit -> RSTK.0
-    strobe(3'd5, 8'hE0, 1'b1);   // ALUF.1,2,3 set
+    // ContB09's MidasStopMIRClk freezes only a parity error. This test
+    // deliberately keeps one instruction on the datapath while clocks run,
+    // so corrupt P015; its field bits remain the distinctive pattern below.
+    strobe(3'd5, 8'hE0, 1'b0);   // ALUF.1,2,3 set, deliberately bad P015
     strobe(3'd6, 8'hC0, 1'b0);   // BSEL.1,2 set
     strobe(3'd7, 8'h70, 1'b1);   // ASEL.0,1,2 set
 

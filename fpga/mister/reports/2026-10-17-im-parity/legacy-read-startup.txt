@@ -1,0 +1,44 @@
+tb_exec: PROGRESS @0 CIA=fff
+      micro 01: clk0' 2 clk1' 0 clk2' 4 | Stop=1 Link=fff FF=00111111
+      micro 01: clk0' 2 clk1' 2 clk2' 4 | Stop=1 Link=fff FF=00111111
+tb_exec: PRELOAD -- 50 microinstructions written, 50 read back, 0 wrong
+tb_exec: PRELOAD -- 16 ALUFM entries written, 0 wrong
+tb_exec: parity enables IMLH=1 IMRH=1, StopMIRClkEn=1 StopMIRClk=1
+tb_exec: starting at IM[0xfe0]
+      micro 13: clk0' 2 clk1' 2 clk2' 4 | Stop=1 Link=fff FF=01111110
+tb_exec: JAMPAR CPRegToLink# P015=0 P1631=1 -> MIR IMLH=0 IMRH=0
+      micro 01: clk0' 2 clk1' 2 clk2' 4 | Stop=1 Link=fff FF=00111111
+tb_exec: JAMPAR Nop#         P015=1 P1631=1 -> MIR IMLH=0 IMRH=0
+tb_exec: JAMPAR   IMLH after each of the four data strobes: 0000
+tb_exec: JAMPAR   IMRH after each: 0000
+      micro 13: clk0' 2 clk1' 2 clk2' 4 | Stop=1 Link=fe0 FF=01111110
+      micro 01: clk0' 2 clk1' 2 clk2' 4 | Stop=1 Link=fe0 FF=00111111
+tb_exec: Link[4:15]=fe0
+      Error'=0 IMLHPE'=0 IMRHPE'=0 A31+5=1 dStop=0 Run'=1
+   t=    0  clk0'=0  FF=01100010 RSTK=0000 TNIA=fe0 Stop=0
+      Error'=0 IMLHPE'=0 IMRHPE'=0 A31+5=1 dStop=0 Run'=0
+   t=10000  clk0'=2  FF=01100010 RSTK=0000 TNIA=fc2 Stop=1
+      Error'=0 IMLHPE'=0 IMRHPE'=0 A31+5=1 dStop=0 Run'=0
+   t=20000  clk0'=2  FF=01100010 RSTK=0000 TNIA=fc2 Stop=1
+      Error'=0 IMLHPE'=0 IMRHPE'=0 A31+5=1 dStop=0 Run'=0
+   t=30000  clk0'=2  FF=01100010 RSTK=0000 TNIA=fc2 Stop=1
+      Error'=0 IMLHPE'=0 IMRHPE'=0 A31+5=1 dStop=0 Run'=0
+   t=40000  clk0'=2  FF=01100010 RSTK=0000 TNIA=fc2 Stop=1
+      Error'=0 IMLHPE'=0 IMRHPE'=0 A31+5=1 dStop=0 Run'=0
+   t=50000  clk0'=2  FF=01100010 RSTK=0000 TNIA=fc2 Stop=1
+      Error'=0 IMLHPE'=0 IMRHPE'=0 A31+5=1 dStop=0 Run'=0
+   t=60000  clk0'=2  FF=01100010 RSTK=0000 TNIA=fc2 Stop=1
+      Error'=0 IMLHPE'=0 IMRHPE'=0 A31+5=1 dStop=0 Run'=0
+   t=70000  clk0'=2  FF=01100010 RSTK=0000 TNIA=fc2 Stop=1
+      Error'=0 IMLHPE'=0 IMRHPE'=0 A31+5=1 dStop=0 Run'=0
+   t=80000  clk0'=2  FF=01100010 RSTK=0000 TNIA=fc2 Stop=1
+      Error'=0 IMLHPE'=0 IMRHPE'=0 A31+5=1 dStop=0 Run'=0
+   t=90000  clk0'=2  FF=01100010 RSTK=0000 TNIA=fc2 Stop=1
+tb_exec: 2 clk0' edges, 2 clk1' over 100000 cycles, Stop=1
+tb_exec: 2 distinct TNIA values, 1 distinct FF values seen
+tb_exec: 1 distinct IM addresses executed; last TNIA=fe0; longest run on one address=0 at TNIA=fff; TASKINITLOOP entries 0
+tb_exec: PER TASK -- t0:1 addresses
+tb_exec: addresses executed: fe0
+[207527] %Fatal: tb_exec.sv:4879: Assertion failed in tb_exec: the machine stopped -- with the parity enables on it stops after one instruction
+%Error: verilog/verilator/tb_exec.sv:4879: Verilog $stop
+Aborting...

@@ -738,6 +738,17 @@ class Generator:
     # and rounding them gives a 1 : 1.86 : 4.33 ratio where the parts are
     # 1 : 2 : 5. cell_K1115A carries the remainder in a phase accumulator.
     CELL_PARAMS = {
+        # IM parity checkers: the MC10170 data-book B output has no extra
+        # inversion. PARC's BaseBoard IRTable carries odd parity; retaining
+        # the legacy inversion stops authentic Bootstrap startup at 7740B.
+        # Their cascade partners use only output A, whose truth table is
+        # independent of LEGACY_B_INVERT.
+        ('ContA', 'e18'): {'LEGACY_B_INVERT': 0},
+        ('ContB', 'j20'): {'LEGACY_B_INVERT': 0},
+        # ContB03: IM write parity, cascaded from the B bus's two byte
+        # parities plus the half's secondary bit. Use the documented XOR;
+        # the legacy inversion stores the opposite parity in both halves.
+        ('ContB', 'e01'): {'LEGACY_B_INVERT': 0},
         # j17 selects serial write data while TDMuxClk is high, then
         # readback when it falls. l21/l22 clock on that falling edge;
         # preserve their setup value rather than the new readback bit.

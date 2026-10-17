@@ -185,7 +185,7 @@ module tb_operand;
                       m.b_ContB.dRA_08_p_, m.b_ContB.dRA_09_p_,
                       m.b_ContB.dRA_10_p_, m.b_ContB.dRA_11_p_};
 
-  // Jam CPRegToLink# -- PARC's IRTable, `30 13 EF 04 40`.
+  // CPRegToLink# fields, with deliberately bad parity for the MIR-hold probe.
   task jam_link(input [15:0] v);
     begin
       setrun = 0; setss_n = 1;
@@ -194,7 +194,9 @@ module tb_operand;
       strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0);
       strobe(3'd0, 8'h4E, 1'b0);
       strobe(3'd0, 8'h00, 1'b1);
-      strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b0);
+      // This probe repeats one MIR instruction while inspecting its buses.
+      // MidasStopMIRClk holds only an error, so deliberately corrupt P015.
+      strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b1);
       strobe(3'd6, 8'h04, 1'b0); strobe(3'd7, 8'h40, 1'b0);
       strobe(3'd0, 8'h41, 1'b1);
       repeat (WT(600)) @(posedge sys_clk);
@@ -441,7 +443,8 @@ module tb_operand;
       strobe(3'd2, v[15:8], 1'b0); strobe(3'd3, v[7:0], 1'b0);
       strobe(3'd0, 8'h4E, 1'b0);
       strobe(3'd0, 8'h00, 1'b1);
-      strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b0);
+      // Keep the write instruction in MIR for this repeated bus probe.
+      strobe(3'd4, 8'h13, 1'b0); strobe(3'd5, 8'hEF, 1'b1);
       strobe(3'd6, 8'h03, 1'b1); strobe(3'd7, 8'h4F, 1'b0);
       strobe(3'd0, 8'h41, 1'b1);
       repeat (WT(600)) @(posedge sys_clk);

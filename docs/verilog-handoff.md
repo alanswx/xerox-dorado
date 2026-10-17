@@ -371,9 +371,48 @@ uses the same fitting settings. Its BaseBoard debug word's high bits are
 unchanged. No processor state or clock is driven by these aliases.
 Full native lint passes; default ContA regenerates byte-identically and
 default backplane matches after normalizing its output-basename comment.
-The firmware-only probe is also extending its previous bound to 2.1B
-samples with the same ROM and physical boot pulse, to inspect the handoff;
-it is not attempting an OS boot in simulation.
+The firmware-only probe was extended toward 2.1B samples, then stopped
+after its 650M progress report once the short parity test isolated the
+same startup failure. That partial repeat is not a qualification result.
+
+**The IM parity blocker is now reproduced and corrected (FPGA pending).**
+The MC10170 model retains a legacy B-output inversion for unreconciled
+users. The three IM instances still selected it: ContA e18 and ContB j20
+(read checkers), and ContB e01 (write-parity generator). Motorola's 1978
+MECL data-book logic diagram gives the physical XOR function; the nominal
+control-pin levels supply the inversion in its truth table. All three now
+select `LEGACY_B_INVERT=0`. ProcH SignedCarry and other independent users
+retain their existing settings.
+
+With the old checkers, original Bootstrap at 7740B stops after one address
+with parity enabled from startup, reproducing the FPGA symptom. Previously
+`exec-parity` enabled the checks late and missed this. The new
+`make -C verilog/verilator bootstrap-parity-test` passes three cases:
+all 50 original Bootstrap instructions written through CP match every
+field and both odd-parity bits; Bootstrap executes with checks enabled
+from startup; a deliberately even-parity image is rejected. Restoring only
+ContB e01's old inversion fails readback at IM[fc0], parity 1/0 instead of
+0/1. The execution fixture is original microcode, not a C CPU snapshot;
+native FPGA export still imports no CPU or memory saved state.
+
+The harness preload now supplies odd parity by default; `+impareven` is a
+negative-test fixture. `exec-parity` now also enables checks from startup.
+Older datapath/operand probes deliberately repeat an instruction using the
+Midas error freeze, so their fixtures now explicitly corrupt a parity bit.
+The step test instead fills IM with a valid CPRegToLink instruction and
+asserts no error occurs while running: disabling SetSS makes it fail, so
+it tests stepping independently of the parity-error stop. SendViaMIR's
+stored-bit counts include both complemented BLOCK and the correct odd
+parity bit. The original Executive object/checkpoint remain preserved.
+Evidence: `reports/2026-10-17-im-parity/`.
+
+Native8/9's pre-fix fits were stopped. The corrected four-module native
+design, including actual display field and the passive Stop/clock monitor,
+is compiling with standard effort and two processors in
+`misterubuntu:/home/alans/mister/Dorado_Native10_20261017/core`.
+`DoradoRTL_Cedar10_20261017/Cedar10.mgl`, its INI section, and a separate
+fresh Pilot pack (SHA256 `c0cd6784...`) are staged on MiSTer14. No RBF has
+been loaded there yet; Native4 is still the running stalled core.
 
 **The native Pilot medium requires a different format.**
 `PilotDiskDefs.mc!1` and `PilotDisk.mc!1` specify drive 0's emulated geometry:

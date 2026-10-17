@@ -20,7 +20,11 @@
 // 003, 010, 001, 00b, 00a ... The machine is sequencing through the microcode
 // it was given.
 //
-// THE PARITY ENABLES MUST BE OFF TO RUN, and finding out why is the useful
+// Historical diagnosis (fixed by physical MC10170 parameters on ContA e18,
+// ContB j20 and ContB e01): THE PARITY ENABLES HAD TO BE OFF TO RUN.
+// bootstrap-parity-test now checks original CP-loaded words, execution with
+// both checks enabled from startup, and rejection of incorrect parity.
+// The old observation below explains the first-address stall:
 // part. With them on the machine executes exactly ONE instruction and stops
 // dead with `dStop` = 0, `Run'` = 0 and `Stop` = 1 -- a state that looks
 // impossible until you notice `bCLKEnable' = Stop | Run'` gates `clk2'`, which
@@ -1821,9 +1825,25 @@ module tb_exec;
   // RunDoradoInstructionStream: DoDoradoMicroInst with ShouldSingleStep = 0 --
   // DoClock(0), the clears, the four MIR bytes, then Control(SetRun) with SS
   // NOT asserted, and no BasicStopDorado. The machine free-runs from there.
+  bit paritytrace_arm=0;
+  integer paritytrace_count=0;
+  always @(negedge sys_clk)
+    if(paritytrace_arm && m.b_ContA.SetRun && paritytrace_count<192) begin
+      $display("tb_exec: PARITYSTART %0d run'=%b stop=%b dStop=%b rStop=%b ss'=%b Error'=%b LHPE'=%b RHPE'=%b MIRstop=%b preStart'=%b single=%b ck2=%b ck2pre=%b ck0=%b MIRck=%b ck1=%b dpre=%b en=%b FF=%02h CIA=%03h TNIA=%03h",
+        paritytrace_count,m.b_ContA.Run_p_,m.b_ContA.Stop,m.b_ContA.dStop,m.b_ContA.rStop,
+        m.b_ContA.SetSS_p_,m.b_ContA.Error_p_,m.b_ContB.IMLHPE_p_,m.b_ContB.IMRHPE_p_,m.StopMIRClk,
+        m.b_ContA.bpreStartC_p_b,m.b_ContA.ContA31_sil_pl_5,m.b_ContA.clk2_p_Bc,
+        m.b_ContA.preclk2_p_Bb,m.b_ContA.clk0_p_Ca,m.b_ContA.h_x2a_clk0_p_Ca,m.b_ContA.clk1_p_Ca,
+        m.b_ContA.u_j04.d_pre_a,m.b_ContA.u_j04.cka_en,ff_now,
+        {m.b_ContA.CIA_04,m.b_ContA.CIA_05,m.b_ContA.CIA_06,m.b_ContA.CIA_07,
+         m.b_ContA.CIA_08,m.b_ContA.CIA_09,m.b_ContA.CIA_10,m.b_ContA.CIA_11,
+         m.b_ContA.CIA_12,m.b_ContA.CIA_13,m.b_ContA.CIA_14,m.b_ContA.CIA_15},tnia_now);
+      paritytrace_count++;
+    end
   task parc_run(input [7:0] b0, input [7:0] b1, input [7:0] b2,
                 input [7:0] b3, input [7:0] b4);
     begin
+      paritytrace_arm=$test$plusargs("paritytrace");
       strobe(3'd1, 8'h00, 1'b0); repeat (GAP) @(posedge sys_clk);
       strobe(3'd0, 8'h4E, 1'b0);
       repeat (GAP) @(posedge sys_clk);
@@ -1839,7 +1859,7 @@ module tb_exec;
     end
   endtask
 
-  integer hcount;
+  integer hcount, hunklimit;
   integer n0a, n1a, nff;
   longint j2;      // 64-bit: a full boot is >2^31 sys_clk (2026-09-04)
   // How many DISTINCT addresses and decoded FF fields go by -- a machine
@@ -3190,6 +3210,7 @@ module tb_exec;
   reg [3:0] r_rstk, r_aluf;  reg [2:0] r_bsel, r_lc, r_asel;
   reg [7:0] r_ff, r_jcn;     reg r_blk;
   reg [1023:0] impath;
+  string expect_im_path;
   reg [31:0] ia, ib, ic, id, ie, ig, ih, ii, ij, ilh, irh;
   reg p_lh, p_rh, impar_odd, impar_nosec;
   integer imfd, imn, mapaddr, nloaded, nver, nverbad, startaddr;
@@ -4056,7 +4077,9 @@ module tb_exec;
 `endif
       nalufm = 0; nalufmbad = 0; nifum = 0; nifumbad = 0;
       ifum_raw = $test$plusargs("ifumraw");
-      impar_odd   = $test$plusargs("imparodd");
+      // PARC's IRTable and the MC10170 physical checkers use odd parity.
+      // +impareven is a deliberate corrupt-parity fixture, never a boot mode.
+      impar_odd   = !$test$plusargs("impareven");
       impar_nosec = $test$plusargs("imparnosec");
       // $fgets RETURNS 0 AT END OF FILE and leaves `line` alone, so the
       // `while (!$feof(...))` idiom processes the LAST line TWICE -- which
@@ -4128,13 +4151,12 @@ module tb_exec;
         // dBlock' -- the array stores the COMPLEMENT (tb_boot0 measured all 64
         // right-half secondary bits inverted; BLOCK is the one field bit the
         // MIR wires through Q' rather than Q).
-        // IM PARITY MUST BE SUPPLIED BY THE PRELOAD. A real Write-IM generates
+      // IM PARITY MUST BE SUPPLIED BY THE PRELOAD. A real Write-IM generates
         // it in hardware; a direct array write does not, and IMLHPE/IMRHPE
         // then sit asserted for the entire run (measured: 399,808 of 400,000).
-        // The convention is not stated anywhere we have read and the C
-        // emulator does not model it at all, so it is computed here with the
-        // sense and the secondary-bit inclusion as SWITCHES and the
-        // measurement decides -- exactly as the IFUM parity was settled.
+      // PARC's IRTable specifies odd parity across each 17-bit half. The C
+      // emulator does not model it; +impareven deliberately supplies corrupt
+      // parity to qualify detection by the actual board checkers.
         p_lh = impar_nosec ? (^ilh[16:1]) : (^ilh[16:0]);
         p_rh = impar_nosec ? (^irh[16:1]) : (^irh[16:0]);
         if (impar_odd) begin p_lh = ~p_lh; p_rh = ~p_rh; end
@@ -4176,7 +4198,8 @@ module tb_exec;
     fd = $fopen(path, "r");
     if (fd == 0) $fatal(1, "cannot open %s", path);
     hcount = 0;
-    while (!$feof(fd) && hcount < 4) begin
+    if (!$value$plusargs("hunklimit=%d", hunklimit)) hunklimit=4;
+    while (!$feof(fd) && hcount < hunklimit) begin
       void'($fgets(line, fd));
       nf = $sscanf(line,
         "%s %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h %h",
@@ -4192,9 +4215,36 @@ module tb_exec;
     $display("tb_exec: loaded %0d hunks (%0d microinstructions)", hcount, hcount*4);
     end
 
+    // Compare a CP-bus load against the original MB decoder's field image.
+    // This checks the real IM write parity, rather than preloading it.
+    if ($value$plusargs("expectim=%s", expect_im_path)) begin
+      imfd=$fopen(expect_im_path,"r");
+      if(!imfd)$fatal(1,"cannot open expected IM image %s",expect_im_path);
+      nver=0;
+      while($fgets(line,imfd)!=0) begin
+        imn=$sscanf(line,"%s %h %h %h %h %h %h %h %h %h %h %h",
+          tag,ia,ib,ic,id,ie,ig,ij,ih,ii,ilh,irh);
+        if(imn!=12 || tag!="IM")continue;
+        im_readback_word(ia,r_rstk,r_aluf,r_bsel,r_lc,r_asel,r_ff,r_jcn,r_blk,r_lh_p,r_rh_p);
+        if({r_rstk,r_aluf,r_bsel,r_lc,r_asel,r_ff,r_jcn,r_blk} !==
+           {ib[3:0],ic[3:0],id[2:0],ie[2:0],ig[2:0],ih[7:0],ii[7:0],~ij[0]})
+          $fatal(1,"CP-loaded IM[%03h] fields differ from original microcode",ia);
+        if(r_lh_p!==(~^ilh[16:0]) || r_rh_p!==(~^irh[16:0]))
+          $fatal(1,"CP-loaded IM[%03h] has incorrect odd parity: %b/%b expected %b/%b",
+            ia,r_lh_p,r_rh_p,~^ilh[16:0],~^irh[16:0]);
+        nver++;
+      end
+      $fclose(imfd);
+      if(nver==0)$fatal(1,"expected IM image contained no microinstructions");
+      $display("tb_exec: CP-LOAD PASS: %0d original microinstructions and both odd-parity bits match",nver);
+    end
+
     // RELEASE the MIR clock -- register 7, data bit 0 -- so the MIR can reload
     // from IM. Without this the jam is held and nothing is ever fetched.
-    manifold(12'h1C0);
+    // The BaseBoard ROM leaves MidasStopMIRClk enabled during Bootstrap.
+    // Retain that configuration when comparing an authentic startup stall;
+    // the default keeps the historical isolated execution test unchanged.
+    if (!$test$plusargs("keepmirdebug")) manifold(12'h1C0);
     // IM PARITY OFF -- but only because a preload could not supply it. Now
     // that it can (even parity over the 17-bit half, measured), `+imparityon`
     // leaves the enables as InitManifolds does, which is how PARC's own

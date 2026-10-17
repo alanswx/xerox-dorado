@@ -1,0 +1,4 @@
+tb_step: jam step -- clk0' 4 clk1' 2 clk2' 9, Stop=0
+[1547] %Fatal: tb_step_no_single_step.sv:518: Assertion failed in tb_step: the jam step did not run one clk0 window
+%Error: build/rtl-executive/tb_step_no_single_step.sv:518: Verilog $stop
+Aborting...

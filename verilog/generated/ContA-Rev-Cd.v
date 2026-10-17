@@ -3032,7 +3032,7 @@ module ContA_m_Rev_m_Cd #(parameter integer SYSPER = 16) (
     .p14(bFF_6),
     .p15(MMux_06__e17_15)
   ); // MU10164
-  cell_MC10170 u_e18 (
+  cell_MC10170 #(.LEGACY_B_INVERT(0)) u_e18 (
     .p3(bFF_7a),
     .p4(bFF_6a),
     .p5(bFF_4a),

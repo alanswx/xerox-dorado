@@ -694,15 +694,16 @@ module tb_sendmir;
     $display("tb_sendmir: 0x5678 -> IM[0x123], 0x000F -> IM[0x124]");
     scan_all;
 
-    // The right half stores 18 bits: RBMux.00-15 plus the parity bit and the
-    // secondary bit. So the count at an address is popcount(data) + 1.
+    // The right half stores 18 bits: data, complemented BLOCK, odd parity.
+    // BLOCK=0 contributes one stored bit. Both chosen data words have even
+    // popcount, so their odd-parity bit contributes a second stored bit.
     count_at(145, hits_a);
     count_at(146, hits_b);
-    $display("tb_sendmir: IM[145]=%0d bits (want 9 = 8 in 0x5678 + 1), IM[146]=%0d (want 5 = 4 in 0x000f + 1)",
+    $display("tb_sendmir: IM[145]=%0d bits (want 10 = 8 data + BLOCK + parity), IM[146]=%0d (want 6 = 4 data + BLOCK + parity)",
              hits_a, hits_b);
-    if (hits_a !== 9) $fatal(1, "the first word did not land at its address with its data");
-    if (hits_b !== 5) $fatal(1, "the second word did not land at its address with its data");
-    if (total_written !== 14)
+    if (hits_a !== 10) $fatal(1, "the first word did not land at its address with its data");
+    if (hits_b !== 6) $fatal(1, "the second word did not land at its address with its data");
+    if (total_written !== 16)
       $fatal(1, "IM took bits at addresses these two words did not name");
     $display("tb_sendmir: PARC's SendViaMIR loads IM -- two words, two addresses, right data.");
     $finish;

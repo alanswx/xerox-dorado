@@ -1,3 +1,8 @@
+// Historical diagnostic notes below. As of 2026-10-17 the three IM B-output
+// users select the physical XOR function per instance; ProcH SignedCarry
+// retains its independent compatibility setting. bootstrap-parity-test is
+// the startup/write/read regression, with IM checks enabled throughout.
+//
 // tb_parity -- do PARC's thirteen IRTable microinstructions satisfy our IM
 // parity generators? A DIAGNOSTIC: they do NOT, all thirteen, both halves.
 // What follows is everything established about why, so the next attempt starts

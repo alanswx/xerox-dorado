@@ -1,0 +1,3 @@
+BOOTSTRAP PARITY PASS: CP load
+BOOTSTRAP PARITY PASS: Bootstrap execution
+BOOTSTRAP PARITY PASS: Corrupt parity rejected

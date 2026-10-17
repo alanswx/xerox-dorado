@@ -484,6 +484,13 @@ module tb_step;
     end
   endtask
 
+`include "im_preload.vh"
+
+  // A valid-instruction fixture must stop on SetSS, not an IM parity error.
+  always @(posedge sys_clk)
+    if (!m.b_ContA.Run_p_ && !m.b_ContA.Error_p_)
+      $fatal(1,"single-step test encountered an error instead of testing SetSS");
+
   initial begin
     force m.DMuxData = dmd;
     force m.DMuxClk  = dmc;
@@ -495,6 +502,13 @@ module tb_step;
 
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca; p2 = m.b_ContA.clk2_p_Bc;
     zero;
+
+    // Test SetSS independently of the Midas parity-error freeze. Repeating
+    // a correctly paritied CPRegToLink instruction throughout IM means each
+    // fetch preserves the operation, while only SetSS can stop its clocks.
+    // Fields/parity are from doradoboot.masm's `30 13 EF 04 40` IRTable entry.
+    for(integer a=0;a<4096;a++)
+      im_preload_word(a,4'h0,4'hf,3'h0,3'h0,3'h4,8'h7e,8'h81,1'b1,1'b0,1'b1);
 
     strobe(3'd2, 8'h00, 1'b0); strobe(3'd3, 8'h2A, 1'b0);   // CPReg = 002A
     jam_step(8'h30, 8'h13, 8'hEF, 8'h04, 8'h40);            // CPRegToLink#
@@ -522,7 +536,7 @@ module tb_step;
         $fatal(1, "the jammed CPRegToLink# did not put CPReg into Link");
     end
 
-    $display("tb_step: the machine single-steps microinstructions, and the jam executes.");
+    $display("tb_step: the machine single-steps a valid microinstruction and CPReg reaches Link.");
     $finish;
   end
 
