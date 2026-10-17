@@ -21,13 +21,13 @@ int main(int argc,char**argv){
  unsigned record=0,bits=0,word=0,crc=0,shift=0,steps=0,words=0;
  const unsigned lengths[]={2,10,256},bases[]={1,3,13};
  bool syncing=true;
- unsigned host=0;
+ unsigned host=0;bool expect_fault=false;
  auto tick=[&](){
   top.clk_host=top.sys_clk=0;top.eval();top.reset=host<4;top.attached=host>=5;
   top.data_adv=steps%8==6;disk.before(top);top.eval();bool run=top.pack_ready&&!top.reset;
   bool advance=run&&top.data_adv;
   top.clk_host=1;top.sys_clk=run;top.eval();disk.after(top);ctx.timeInc(1);
-  if(top.pack_fault)throw std::runtime_error("Pilot medium fault");
+  if(top.pack_fault&&!expect_fault)throw std::runtime_error("Pilot medium fault");
   host++;if(run)steps++;
   return advance;
  };
@@ -98,5 +98,20 @@ int main(int argc,char**argv){
  if(disk.writes!=1 || disk.active || !top.pack_ready)throw std::runtime_error("Pilot HPS writeback did not finish");
  if(disk.media!=expected)throw std::runtime_error("Pilot writeback lost changed words or damaged neighboring bytes");
  printf("PILOT-PACK PASS: header 2, label 10, data 256 words; three Fire codes; changed labels/data persisted through HPS; neighboring bytes intact\n");
+ // A damaged controller Fire code must stop the medium and retain its
+ // first-fault reason/residue; observation must not invent a successful write.
+ expect_fault=true;top.pulse=64;tick();top.pulse=68;tick();top.writing=1;
+ cable[payload_offsets[0]+lengths[0]*16]^=1;
+ sent=0;
+ while(!top.pack_fault && sent<cable.size()){
+  top.write_bit=cable[sent];if(tick())sent++;
+ }
+ if(!top.pack_fault || (top.fault_debug>>28)!=4 || !top.fault_extra)
+  throw std::runtime_error("missing first bad-CRC diagnostic");
+ auto debug=top.fault_debug,extra=top.fault_extra;
+ top.writing=0;for(unsigned i=0;i<100;i++)tick();
+ if(top.fault_debug!=debug || top.fault_extra!=extra || disk.media!=expected)
+  throw std::runtime_error("first-fault evidence changed or bad block persisted");
+ printf("PACK-FAULT PASS: damaged Fire code stops, reason4/residue retained, no host write invented\n");
  top.final();
 }

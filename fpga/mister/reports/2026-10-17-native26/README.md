@@ -10,12 +10,16 @@ MemX/MSA boards. Independent cell, full MemX geometry and full MSA-vs-DDR
 comparisons pass, including all9,437,184 stored bits. Default2,359,296-bit
 MSA comparison passes too. Full generated wrapper elaborates.
 
-Cold500M prototype remains active. Partial source-copy observation has8880
-words with no mismatch and germ entry, below the existing8900 minimum; it
-is not qualified. Review missing coverage, final IFU/image/error summaries,
-routed timing and actual firmware startup before claiming FPGA behavior.
-No Native26 image has been deployed and no desktop claim is made.
+Cold500M prototype finished: original Initial/Cedar image checks pass,
+IFU8540094/8543534, all six errors enabled/clean486611635 samples. Source
+sampling has8880 words with zero mismatch, below existing8900 minimum;
+this gate fails coverage and must not be called a pass. See final reports.
+The prototype predates Native25 receive-full correction and uses fixture
+Pendulum/Refresh, so it does not qualify full BaseBoard startup.
 
-Fit/review now complete:29 timing checks pass, minimum+0.074ns, zero
-illegal/unconstrained clocks. Exact own-address hold-only reviews and full
-fast/slow violating paths are included. No FPGA deployment yet.
+Fit/review complete:29 checks,min+0.074ns, no illegal/unconstrained clocks;
+exact same-cell write-address hold review included. RBF586dc7f8... is now
+on MiSTer14 as the separate memory-geometry hardware control with a fresh
+corrected-label packf3bce2a8.... Original BaseBoard/Initial firmware emitted
+BFN113 at22:46 UTC and C released; actual OS routing requests follow.
+Login/loader/disk-fault reproduction/desktop remain under observation.

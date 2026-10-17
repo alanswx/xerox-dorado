@@ -2,14 +2,15 @@
 
 **Active work (2026-10-17): Cedar on MiSTer14.** Use the
 [current handoff and TODO checklist](verilog-handoff.md#current-todos-2026-10-17-fpga-boot).
-Native25 now displays the real Cedar login and accepted `Guest` plus two
-Returns on MiSTer14. The receive-full setup-capture fix clears the earlier
-service-reply wait. Cold DDR120M and all29 timing checks pass (+0.071ns
-minimum). Post-login Basic.Loadees fails real label checks because synthetic media
-labels omit File.FP address hints; an offline media correction is in test. Viewers,
-CommandTool `%`, `Echo FPGA` and mouse interaction remain open. Native26
-adds8MB RAM/64K Map; component gates and reviewed timing pass (+0.074ns),
-but cold coverage/hardware qualification remain incomplete.
+Native25's receiver fix boots real Cedar login and accepts Guest on MiSTer14.
+Correcting45 offline file-label hints clears Basic.Loadees' File.FP error:
+actual FPGA writes Basic.Loadees and RPCRuntime byte-exact. Native25h then
+hits a disk-medium fault while UserProfile is incomplete. Native26's8MB/
+64K image now completes original firmware and shows login; its loader is
+under observation. Timing passes29 checks (+0.074ns). The500M density
+prototype passes images/IFU/all6 error checks but fails source-sampling
+coverage8880/8900. Native27's passive fault/BaseBoard monitor is fitting.
+Viewers, CommandTool `%`, `Echo FPGA` and mouse interaction remain open.
 The roadmap below is historical.
 
 **2026-08-08.** Written while cross-checking the C emulator against the board

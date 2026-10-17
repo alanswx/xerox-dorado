@@ -1,0 +1,5 @@
+CEDAR MAP WRITES PASS: first16 real page writes are one-to-one
+tb_exec: IFU -- IfuMemRef 8540094 transitions, IfuMemAck 8543534, opcode J changed 8662712 times
+INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for 486611635 samples without error
+LOADED EB PASS: 3600 original IM and 256 IFUM items match, protected loader page excluded, entry 238 executed
+- Verilator: $finish at 2ms; walltime 6333.521 s; speed 309.387 ns/s

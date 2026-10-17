@@ -6,7 +6,7 @@ module tb_pilot_pack(
  input wire [12:0] sd_buff_addr,
  input wire [15:0] sd_buff_dout,
  output wire [15:0] sd_buff_din,
- output wire [31:0] sd_lba,
+ output wire [31:0] sd_lba, fault_debug, fault_extra,
  output wire [5:0] sd_blk_cnt,
  output wire sd_rd,sd_wr,pack_ready,pack_fault,media_bit
 );
@@ -16,7 +16,7 @@ module tb_pilot_pack(
   .cyltag_n(1'b1),.headtag_n(1'b1),.drivetag_n(1'b1),.conttag_n(~writing),
   .selected(1'b1),.data_adv(data_adv),.pulse(pulse),
   .write_data_p(~write_bit),.write_data_m(write_bit),.data_bit(media_bit),
-  .ready(pack_ready),.fault(pack_fault),
+  .ready(pack_ready),.fault(pack_fault),.fault_debug(fault_debug),.fault_extra(fault_extra),
   .sd_lba(sd_lba),.sd_blk_cnt(sd_blk_cnt),.sd_rd(sd_rd),.sd_wr(sd_wr),.sd_ack(sd_ack),
   .sd_buff_addr(sd_buff_addr),.sd_buff_dout(sd_buff_dout),.sd_buff_wr(sd_buff_wr),.sd_buff_din(sd_buff_din));
 endmodule

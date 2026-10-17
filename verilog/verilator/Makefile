@@ -1739,3 +1739,10 @@ trident-test:
 		verilog/verilator/tb_trident.sv verilog/cells/dorado_trident.v verilog/cells/cell_MC1650.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_trident/tb_trident 2>&1); \
 		  rc=$$?; echo "$$out" | grep tb_trident; exit $$rc; }
+
+.PHONY: pack-fault-test
+pack-fault-test: pilot-pack-test
+	@cd ../.. && $(V) --binary --top-module tb_pack_timeout_debug $(V_WARN) \
+		--Mdir verilog/verilator/obj_pack_timeout_debug -o pack-timeout-test \
+		verilog/verilator/tb_pack_timeout_debug.sv fpga/mister/dorado_pack_hps.sv \
+		>/dev/null && ./verilog/verilator/obj_pack_timeout_debug/pack-timeout-test

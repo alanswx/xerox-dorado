@@ -47,10 +47,10 @@ TOOLS   = ../tools
         baseboard-test firmware-probe mem-test \
         crc-test eth-ctl-test ebreplies-check pack-test boot-world-disk \
         ethernet-input-hold-test ethernet-receive-sequence-test \
-        memory-density64-test map-density64-test storage-board64-test \
+        memory-density64-test map-density64-test storage-board64-test pack-fault-test \
         clean-generated
 
-ethernet-input-hold-test ethernet-receive-sequence-test memory-density64-test map-density64-test storage-board64-test:
+ethernet-input-hold-test ethernet-receive-sequence-test memory-density64-test map-density64-test storage-board64-test pack-fault-test:
 	@$(MAKE) -C verilator $@
 
 # PROM contents, sliced per package position from PARC's own BCPL.

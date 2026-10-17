@@ -13,6 +13,6 @@
   "MSA_DDR_equivalence": "12012 full cycles /9437184 bits pass",
   "MSA_default_equivalence": "12012 full cycles /2359296 bits pass",
   "native64_elaboration": "pass",
-  "cold500M": "running; partial8880 words/no mismatches/germ entry, below existing8900 minimum, not qualified",
-  "FPGA": "Fit/review pass29 checks,min+0.074ns, no illegal/unconstrained clocks; cold/hardware qualification pending"
+  "cold500M": "Final: original Initial/Cedar images, IFU8540094/8543534, all6 errors clean486611635 samples. Source8880 words/no mismatch below8900 minimum: coverage gate fails.",
+  "FPGA": "Timing29pass,min+.074; deployed experimental geometry with fresh corrected pack; original firmware/BFN113/OS routing succeeds22:46; later startup under observation."
 }

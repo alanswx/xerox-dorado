@@ -122,6 +122,9 @@ wire [12:0] sd_buff_addr;
 wire [15:0] sd_buff_dout, sd_buff_din [1];
 wire sd_buff_wr, pack_ready, pack_fault, pack_dirty;
 wire pack_attached;
+`ifdef DORADO_PACK_FAULT_MONITOR
+wire [31:0] pack_fault_debug,pack_fault_extra;
+`endif
 dorado_pack_mount u_pack_mount (.clk(clk_sys),.reset(~pll_locked),
     .size_nonzero(|img_size),.mounted(img_mounted[0]),.attached(pack_attached));
 `endif
@@ -273,9 +276,19 @@ dorado_ethernet_uio #(.MAX_WORDS(1024)) u_network_uio (
     .tx_good(net_tx_good), .tx_bad(net_tx_bad), .tx_dropped(net_tx_dropped), .rx_bad(net_rx_bad),
 `ifdef DORADO_NATIVE
 `ifdef DORADO_RX_MONITOR
+`ifdef DORADO_PACK_FAULT_MONITOR
+    .machine_debug(pack_fault ? pack_fault_debug : (processor_debug[31] ? baseboard_debug : receive_debug)), .machine_status(machine_status),
+    .processor_debug(pack_fault ? pack_fault_extra : processor_debug),
+`else
     .machine_debug(receive_debug), .machine_status(machine_status), .processor_debug(processor_debug),
+`endif
+`else
+`ifdef DORADO_PACK_FAULT_MONITOR
+    .machine_debug(pack_fault ? pack_fault_debug : baseboard_debug), .machine_status(machine_status),
+    .processor_debug(pack_fault ? pack_fault_extra : processor_debug),
 `else
     .machine_debug(baseboard_debug), .machine_status(machine_status), .processor_debug(processor_debug),
+`endif
 `endif
 `else
     .machine_debug(32'd0), .machine_status(16'd0), .processor_debug(32'd0),
@@ -337,6 +350,9 @@ dorado_checkpoint_machine u_checkpoint (
     .sd_lba(sd_lba[0]), .sd_blk_cnt(sd_blk_cnt[0]), .sd_rd(sd_rd[0]), .sd_wr(sd_wr[0]), .sd_ack(sd_ack[0]),
     .sd_buff_addr(sd_buff_addr), .sd_buff_dout(sd_buff_dout), .sd_buff_din(sd_buff_din[0]), .sd_buff_wr(sd_buff_wr),
     .pack_ready(pack_ready), .pack_fault(pack_fault), .pack_dirty(pack_dirty),
+`ifdef DORADO_PACK_FAULT_MONITOR
+    .pack_fault_debug(pack_fault_debug), .pack_fault_extra(pack_fault_extra),
+`endif
 `endif
     .video(alto_video), .hsync(alto_hsync), .vsync_n(alto_vsync_n),
     .hblank(hblank), .vblank(vblank), .halfline()

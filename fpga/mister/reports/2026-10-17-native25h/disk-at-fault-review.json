@@ -1,0 +1,72 @@
+{
+  "baseline_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "fault_pack_sha256": "a27190522bbd21b1e9304e30bd774abc4b592e0759521df2de04aafe6c86fa37",
+  "changed_sectors": 91,
+  "tracks": [
+    [
+      0,
+      0
+    ],
+    [
+      3,
+      0
+    ],
+    [
+      43,
+      0
+    ],
+    [
+      44,
+      0
+    ],
+    [
+      45,
+      0
+    ],
+    [
+      46,
+      0
+    ],
+    [
+      47,
+      0
+    ]
+  ],
+  "files": [
+    {
+      "file_id": 5,
+      "path": "Top/Basic.Loadees",
+      "allocated_data_pages": 5,
+      "bytes": 2361,
+      "byte_exact": true,
+      "differing_bytes": 0,
+      "first_difference": null,
+      "last_difference": null,
+      "source_sha256": "fe924e601ca4945b2d81f60ca3f278532d5769e33a0df88388b3f5ed8b8a56c4"
+    },
+    {
+      "file_id": 6,
+      "path": "RPCRuntime/RPCRuntime.bcd",
+      "allocated_data_pages": 36,
+      "bytes": 18432,
+      "byte_exact": true,
+      "differing_bytes": 0,
+      "first_difference": null,
+      "last_difference": null,
+      "source_sha256": "12ec8ecf610d9f4665413e4ec731f33046adf55dc37e8c2b9d56f3d6d43c24b0"
+    },
+    {
+      "file_id": 7,
+      "path": "UserProfile/UserProfileImpl.bcd",
+      "allocated_data_pages": 39,
+      "bytes": 19520,
+      "byte_exact": false,
+      "differing_bytes": 14922,
+      "first_difference": 1024,
+      "last_difference": 19519,
+      "source_sha256": "f8dfa16a41813331133bacf8a6cad1d503e93948bae3ed4c1a442e665ed46cde"
+    }
+  ],
+  "fault_status": "47fc: pack_fault=1, pack_ready=0, machine_enable=0; CPU frozen233. Serial versus host fault not yet distinguished.",
+  "interpretation": "Basic.Loadees and RPCRuntime persist byte-exact. UserProfile allocation exists but its payload is incomplete; do not claim its completed download."
+}

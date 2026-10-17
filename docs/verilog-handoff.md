@@ -7,9 +7,9 @@ keyboard/mouse interaction. Native25 now displays Cedar login and accepted
 `Guest` plus two Returns through the FPGA keyboard path. Viewers and an
 interactive CommandTool prompt remain incomplete.** C snapshots and host IOCB completion do not qualify.
 
-## Current state (Native25 displays Cedar login; Native26 timing passes)
+## Current state (media fix proved; disk fault under investigation; Native26 booting)
 
-**Native25 login is proved; Native25h is now booting on MiSTer14.** The original BaseBoard firmware requested
+**Native25h cleared the media blocker; Native26 is now booting on MiSTer14.** The original BaseBoard firmware requested
 BFN113, disk-loaded Cedar started, and the actual FPGA raster displays
 `Please login` / `Name:`. Keyboard injection of `Guest\n\n` reached Cedar:
 the server received the real Guest.pa authentication request and the display
@@ -61,8 +61,32 @@ No live guest-memory repair. Viewers/%/Echo/mouse remain open.
 Native26 expands to8MB RAM/64K Map and retains the receive fix. Fit and
 reviewed timing pass29 checks (minimum+0.074ns), no illegal/unconstrained
 clocks. Exact DskEth d08/e16 and MemC g02 same-cell address holds are
-reviewed. It is staged separately with a fresh corrected pack, not deployed. The larger-memory cold prototype is
+reviewed. It is now deployed as the separate hardware control with a fresh corrected pack. The larger-memory cold prototype is
 still below the source-sampling coverage gate; it is not qualified.
+
+**New blocker at22:31–22:33:** Native25h paused with state47fc:
+pack_fault=1, pack_ready=0, machine_enable=0; CPU233 frozen. This is a
+medium fault, not an observed RAM-capacity limit. Stopped pack has91 changed
+sectors on tracks0/3/43..47. Basic.Loadees (2361B) and RPCRuntime (18432B)
+are byte-exact against served sources. UserProfile's39 data pages were
+allocated, but only its first1024 bytes match; its transfer is incomplete.
+Do not call two completed modules. Source/label/header writes have worked;
+serial versus host fault is not yet distinguished. Preserved files:
+`cedar25h-launch/pack-diff-at-fault.json`, `raw-ddr-at-pack-fault.bin`, remote
+`Cedar25h_20261017/{main.log.at-pack-fault,server.at-pack-fault.log}`.
+
+Native26 (same media/controller,8MB/64K geometry) is now a separate hardware
+control; original firmware/BFN113 completed at22:46 UTC; C watcher64124 released.
+OS routing request/reply and actual Cedar login observed22:47; Guest
+is now being typed through real keyboard. Loader/fault behavior remains open. Its cold
+copy-sampling gate remains open (8880 words,0 mismatch, below8900 threshold).
+Native27 adds only passive first-fault observation to26: reason, cylinder,
+head, block/state/bit and CRC residue or LBA. Component bad-CRC and host-timeout
+probes pass without inventing completion. Initial fit22467 rejected carried post-fit SDC cardinalities before placement.
+Post-fit SDC was removed for fitting. Fit71756 was then stopped before
+RBF to add BaseBoard debug when Run' is set. Final map/fit restarted via
+`native27-candidate/remap.py`, lognative27-remap.log. No
+Native27 deployment before fit/timing review.
 
 ## Active work
 
@@ -70,13 +94,14 @@ Scratch names below are relative to `build/rtl-executive/`.
 
 | Work | Session | Location / next action |
 | --- | --- | --- |
-| Native25 hardware | Boot/login COMPLETE;25h booting | MiSTer14, `Cedar25h_20261017/main.log`; RBF3a8eee40..., corrected fresh pack, server12085. Original firmware/BFN113 complete; actual Cedar login and Guest keyboard accepted. 25h fixes offline label hints; original firmware/BFN113 completed22:27, C released. |
+| Native25h hardware | PRESERVED; medium fault | Original firmware/login/Guest/Basic.Loadees and RPCRuntime byte-exact; UserProfile incomplete. state47fc/pack_fault halts CPU233. Logs/rawDDR/disk changes preserved before26 load. |
 | Corrected CPU monitor | Fit/review COMPLETE | Native24b passes29 checks,min+0.080ns, no illegal/unconstrained clocks. Exact MemC f06/j07/d06 same-cell hold review in native24b reports. CPU EOP tap corrected to18; clean CPU status observed on directed replies. |
-| Server diagnostics | Quiet-after-Cedar RESTORED | server1d5e05e9..., PID12085, logserver-cedar23-route.log. Delay/nil/link-broadcast diagnostics did not clear retries. Restart this server before another core load to restore initial BOL, since quiet sessions can reuse Main's same PID/socket path. |
+| Server diagnostics | Quiet-after-Cedar RESTORED | server1d5e05e9..., PID12696, logserver-cedar23-route.log. Delay/nil/link-broadcast diagnostics did not clear retries. Restart this server before another core load to restore initial BOL, since quiet sessions can reuse Main's same PID/socket path. |
 | Native25 receive-full correction | Cold120M/fit/review COMPLETE | 8931 sampled germ words/no mismatch, original Initial/Cedar gates, IFU670280/670434, all6 errors enabled/clean106611683 samples. Timing29 checks,min+0.071ns; exact MemX c21 own4 hold paths reviewed. Hardware now passes routing/time/name and displays Cedar login; Guest accepted. |
-| Native26 capacity build | Fit/review COMPLETE | `misterubuntu:/home/alans/mister/Dorado_Native26_20261017/`, `native26-build.log`; four64K-chip modules/8MB physical RAM,64K map, Native25 k04 correction retained. Experimental; timing29 checks,min+0.074ns, no illegal/unconstrained clocks. Cold/hardware qualification pending. |
+| Native26 capacity build | Fit/review COMPLETE | `misterubuntu:/home/alans/mister/Dorado_Native26_20261017/`, `native26-build.log`; four64K-chip modules/8MB physical RAM,64K map, Native25 k04 correction retained. Experimental; timing29 checks,min+0.074ns, no illegal/unconstrained clocks. Cold final500M reviewed; sample coverage fails8880/8900. Actual firmware/BFN113/OS routing succeeded; login under observation. |
 | Four64K-module software control | COMPLETE24B | `cedar-64k-map64-control/`: fresh8MB RAM/64K map reaches Viewers (166685px), type2, VirtualBanks0100; valid geometry reference, software only. |
-| Larger-memory cold RTL | 32916; PID86868 | `cedar-density64-ddrcheck.log`,500M limit,SYSPER4, four64K-chip modules/64K map,actualDDR. `storage64-candidate/`; component prototype, not production. Bounded caffeinate session36354. |
+| Native27 passive fault/BB monitor | Remap/fit active | `native27-remap.log`; reason/context on pack fault, BB debug while CPU stopped; no RBF deployed. Prior fit-cardinality rejection fixed by proper pre-fit SDC. |
+| Larger-memory cold RTL | COMPLETE500M | `cedar-density64-ddrcheck.log`,500M limit,SYSPER4, four64K-chip modules/64K map,actualDDR. `storage64-candidate/`; component prototype, not production. Final IFU8540094/8543534, original Initial/Cedar pass, all6 errors clean486611635 samples; source gate fails8880/8900 coverage, not a pass. |
 
 Native24 changes only passive observation. **Its CPU EOP tap is wrong:**
 EthData_17 is parity from k11. FIFO bit18 passes through l07 to EthData_18,
@@ -153,29 +178,32 @@ checks2,359,296 bits. The64K board comparison checks9,437,184 bits over12,012
 complete board cycles. Native wrapper lint passes. Default wrapper differs
 from fitted24 only in passive-port connection order/whitespace. Density straps
 and DDR widths are explicitly checked. Manifest marks larger geometry experimental.
-Cold scratch64 run has reached germ entry with8,880 sampled source words,
+Cold scratch64 completed500M with germ entry and8,880 sampled source words,
 zero mismatches; this is below the existing8,900 gate threshold (old16K run
-sampled8,931), so it is **not a pass**. Final IFU/image/error summaries and the
-missing sample coverage remain to review. Do not weaken the gate to claim success.
+sampled8,931), so it is **not a pass**. Final IFU8540094/8543534, original Initial/Cedar image and all6 errors
+clean486611635 samples pass. Missing source-sample coverage remains open.
+Do not weaken the gate to claim success.
 
 Density prototype trace budget: at244,622,225 samples a validated exact-build
 LLDB write set only testbench n_tow=-1 to stop a repeatedly rearmed printf.
 No CPU/RAM/controller/clock/run-limit state changed. Script/log in
 storage64-candidate/stop_repeated_tow_lldb.py and trace-budget-lldb.log.
-The500M cold run continues normally. Do not confuse trace control with guest repair.
+The500M cold run has completed normally. Do not confuse trace control with guest repair.
 
 ## Hardware and reproducibility
 
-Only **MiSTer14** is allocated. Other MiSTers are busy. Current Native25h image (same RTL as25):
+Only **MiSTer14** is allocated. Other MiSTers are busy. Current Native26 image (experimental8MB/64K):
+`586dc7f898709491813bd13deff59cec160be1ac620998cb757dd15e4f3bf4db`.
+Previous Native25h/25 image:
 `3a8eee4094b9d652bad276a139cf76f1a0abd627d92a21d8df92354bbf31b3c7`.
 Previous Native24b image:2cffe643... (same functional RTL as23, corrected monitor).
 Previous Native24 image:1cdc35a2... (CPU monitor tap invalid).
 Previous Native23 image:
 `89726440d5d599a5b01428e4f29b54d3969064508191016e100375746ff765e2`.
 Fresh pack baseline: `c0cd6784ea9df43d669dab2c445b3a1a7241048ac87f10afa747927d931bad5c`.
-RBF/MGL: `/media/fat/_Computer/DoradoRTL_Cedar25h_20261017/`.
+RBF/MGL: `/media/fat/_Computer/DoradoRTL_Cedar26_20261017/`.
 Current corrected pack SHA256: `f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51`.
-Main log: `/media/fat/games/DoradoRTL/Cedar25h_20261017/main.log`.
+Main log: `/media/fat/games/DoradoRTL/Cedar26_20261017/main.log`.
 Prior25 evidence: `Cedar25_20261017/main-before-native25h.log` and
 `server-before-native25h.log`.
 Previous24b log: `Cedar24b_20261017/main-before-native25.log`.
@@ -184,14 +212,14 @@ Previous23 log: `Cedar23_20261017/main-before-native24.log`.
 
 Keep immutable Main `System_20261017/MiSTer-1fb2e098e6f0dba6`; never overwrite a
 running executable. Active boot-capable quiet server:
-`System_20261017/dorado-server-1d5e05e9d293b095`, PID12085,
+`System_20261017/dorado-server-1d5e05e9d293b095`, PID12696,
 log `server-cedar23-route.log`. Link-broadcast diagnostic8ecf6cf9... did not
 clear time retries; its separate log `server-cedar24-broadcast.log` is preserved.
 Default bdfd09ce..., Delay500 and nil500 binaries/logs are preserved; neither
 delay nor nil checksum resolved retries. Restart config points to the quiet
-server1d5e05e9... and Native25h core/MGL, cwd `System_20261017/dorado`, socket
+server1d5e05e9... and Native26 core/MGL, cwd `System_20261017/dorado`, socket
 `/tmp/dorado-net.sock`. Full STP root/all 34 Basic.Loadees are staged. Restart
-configuration: `Cedar25h_20261017/reboot-resume.json`.
+configuration: `Cedar26_20261017/reboot-resume.json`.
 
 Helpers: `cedar23-launch/c-until-request.py`, `cedar3-launch/cool-boot.py` (three
 boot pushes ONCE), `cedar10-launch/type-keys.py`, `mister_mouse.py`. Loading a
@@ -235,13 +263,18 @@ and has unreviewed hold violations; never deploy it.
 - [x] Validate hint repair with paired DA-enforcing C controls (17 served files versus0).
 - [x] Boot Native25h original firmware, accept Guest, reach real STP lookup past old FP failure.
 - [x] Observe real FPGA Basic.Loadees transfer, then RPCRuntime/UserProfile downloads.
-- [ ] Complete all34 loadees and reach Viewers (Native25h/26 capacity test).
+- [ ] Diagnose Native25h pack_fault after RPCRuntime; UserProfile incomplete.
+- [x] Native26 original firmware/BFN113 handoff and real OS routing observed22:46.
+- [x] Native26 displays real Cedar login (screenshot22:47).
+- [ ] Observe Native26 Guest/loader and whether medium fault repeats.
+- [ ] Qualify Native27 passive fault-monitor fit/timing and reproduce the fault if needed.
+- [ ] Complete all34 loadees and reach Viewers.
 - [ ] Improve cable TX queue: one pending packet caused1 dropped short packet; BSP recovered, but a burst-capacity regression and deeper queue remain useful.
 - [ ] Recapture the receive buffer coherently if byte-level header proof is needed.
 - [x] Add experimental64K geometry generator; pass cell, full MemX geometry,
   full MSA/DDR9,437,184-bit comparison and unchanged default-board gates.
-- [ ] Review Native26 cold source coverage8,880 versus old8,931 samples,
-  final IFU/image/error summaries and complete Map protocol.
+- [x] Review density500M final IFU/images/all6 errors: pass.
+- [ ] Resolve source sampling8880/8900 coverage and complete high Map protocol.
 - [x] Qualify Native26 fit/timing:29 checks,min+0.074ns, zero illegal/unconstrained clocks.
 - [ ] Qualify Native26 original firmware/hardware startup after reviewing cold coverage.
 - [ ] Resolve physical RAM and map capacity with enforced limits; the 16K

@@ -1,0 +1,11 @@
+Scratch focused DskEth/HPS diagnostics, not full OS qualification.
+
+run.log: WRITEBACK PASS -- serial writes, Fire-code validation, seek persistence and controller readback
+pilot-writeback-0.log: WRITEBACK PASS -- serial writes, Fire-code validation, seek persistence and controller readback
+pilot-writeback-1.log: WRITEBACK PASS -- serial writes, Fire-code validation, seek persistence and controller readback
+pilot-writeback-27.log: WRITEBACK PASS -- serial writes, Fire-code validation, seek persistence and controller readback
+pilot-writeback-28.log: WRITEBACK PASS -- serial writes, Fire-code validation, seek persistence and controller readback
+pilot-checkedwrite-fixed-0.log: WRITEBACK PASS -- serial writes, Fire-code validation, seek persistence and controller readback
+pilot-checkedwrite-fixed-1.log: WRITEBACK PASS -- serial writes, Fire-code validation, seek persistence and controller readback
+pilot-checkedwrite-fixed-27.log: WRITEBACK PASS -- serial writes, Fire-code validation, seek persistence and controller readback
+pilot-checkedwrite-fixed-28.log: WRITEBACK PASS -- serial writes, Fire-code validation, seek persistence and controller readback

@@ -146,6 +146,7 @@ module dorado_native_machine #(parameter integer SYSPER=4) (
     output wire [31:0] sd_lba,
     output wire [5:0] sd_blk_cnt,
     output wire sd_rd,sd_wr,pack_ready,pack_fault,pack_dirty,
+    output wire [31:0] pack_fault_debug,pack_fault_extra,
     input wire ddram_busy,ddram_rvalid,
     input wire [63:0] ddram_rdata,
     output wire [7:0] ddram_burstcount,ddram_be,
@@ -187,6 +188,7 @@ module dorado_native_machine #(parameter integer SYSPER=4) (
     .write_data_p(write_data_p),.write_data_m(write_data_m),
     .data_bit(media_bit),.write_gate(pack_writing),.endofcyl_n(pack_eoc_n),
     .ready(pack_ready),.fault(pack_fault),.dirty(pack_dirty),
+    .fault_debug(pack_fault_debug),.fault_extra(pack_fault_extra),
     .sd_lba(sd_lba),.sd_blk_cnt(sd_blk_cnt),.sd_rd(sd_rd),.sd_wr(sd_wr),.sd_ack(sd_ack),
     .sd_buff_addr(sd_buff_addr),.sd_buff_dout(sd_buff_dout),.sd_buff_wr(sd_buff_wr),.sd_buff_din(sd_buff_din));
   dorado_trident #(.SYSPER(2*SYSPER),.SECTORS_PER_REV(DISK_PULSES),.WORDS_PER_TRACK(10080)) u_drive(
@@ -271,7 +273,7 @@ endmodule
     sources += ['fpga/mister/'+n+'.sv' for n in ['dorado_receive_monitor','dorado_pack_hps','dorado_storage_group',
                 'dorado_storage_arb','dorado_storage_ddram','dorado_storage_init']]
     manifest = {'native': True, 'storage_modules': args.storage_modules, 'pilot_disk': args.pilot_disk, 'receive_monitor': args.receive_monitor,
-                                               'control_error_monitor': True,
+                                               'control_error_monitor': True, 'pack_fault_monitor': True,
         'display_field': True, 'control_clock_monitor': True,
         'hps_pack': True, 'ethernet_wire': True, 'ethernet_host_port': True}
     if args.storage_chip_kbits != 16 or args.map_kwords != 16:

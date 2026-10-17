@@ -1,0 +1,9 @@
+{
+  "change": "Passive first disk-medium fault reason/context only; Native26 CPU/boards/memory/medium control unchanged",
+  "bad_CRC": "PASS: reason4/nonzero residue retained; no host write invented",
+  "host_timeout": "PASS: reason8/original LBA457 retained; no completion invented",
+  "normal_Pilot_HPS_writeback": "PASS: changed ten-word labels and256-word data persist; neighboring bytes intact",
+  "native64_wrapper_lint": "PASS",
+  "DskEth_HPS_write": "Scratch actual DskEth+HPS: Alto8 normal write/readback pass; Pilot10 full-sector and checked-prefix/data write+seek/readback pass at sectors0/1/27/28. Pilot fixture drains14 label+ECC words and clears CompareErr after label word9.",
+  "FPGA": "Initial fit rejected post-fit SDC assertions; pre-fit SDC restored. Next fit stopped before RBF to add BaseBoard observation when CPU stopped; final map/fit29843 active, native27-remap.log. No RBF/deployment or final timing qualification."
+}

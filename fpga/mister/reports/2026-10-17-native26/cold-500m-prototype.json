@@ -1,0 +1,14 @@
+{
+  "sampled_words": 8880,
+  "germ_words": 8960,
+  "unexpected_words": 0,
+  "first_mismatches": [],
+  "germ_handoff": true,
+  "ifu_fetches": 8540094,
+  "ifu_acknowledgements": 8543534,
+  "original_initial_pass": true,
+  "original_cedar_image_pass": true,
+  "pass": false,
+  "scope": "Prototype memory geometry, SYSPER4, actual DDR and correctly paced fixture Pendulum/Refresh. Built before Native25 receive-full correction; generic Native26 geometry independently compared in components. Not full BaseBoard firmware or native FPGA proof.",
+  "qualification": "FAIL: source-sample coverage8880 below8900 minimum; zero unexpected sampled words. Do not weaken threshold."
+}
