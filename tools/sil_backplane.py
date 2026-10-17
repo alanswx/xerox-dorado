@@ -728,6 +728,16 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
     A('\n'.join(decl) if decl else '    // no external ports')
     A(');')
     A("")
+    if nominal_environment and processor_monitor:
+        # Observe the actual resolved backplane clocks/control without
+        # changing their drivers or any stored processor state.
+        A('  wire [31:0] baseboard_observe;')
+        A('  wire [4:0] processor_control;')
+        A('  // bits31..25: StopMIRClk, Freeze, CRamClock, CLK.ca\', CLK.cb\',')
+        A('  // CLK.OutBase\', CLK.InBase; bits24..20: Stop, dStop, RunClk\'a,')
+        A('  // FreezeAC, FreezeBD; low20 unchanged.')
+        A("  assign baseboard_debug = {StopMIRClk, Freeze, CRamClock, CLK_ca_p_, CLK_cb_p_, CLK_OutBase_p_, CLK_InBase, processor_control, baseboard_observe[19:0]};")
+        A("")
     if storage_boards:
         A(f'  wire [{len(storage_boards)-1}:0] storage_board_ready;')
         A('  assign storage_ready = &storage_board_ready;')
@@ -794,9 +804,12 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             A(f'  {d["module"]} b_{short} (')
         conns = ['    .sys_clk(sys_clk)']
         if nominal_environment and short == 'BaseBd':
-            conns += ['    .baseboard_boot_n(baseboard_boot_n)', '    .baseboard_debug(baseboard_debug)']
+            observation = 'baseboard_observe' if processor_monitor else 'baseboard_debug'
+            conns += ['    .baseboard_boot_n(baseboard_boot_n)', f'    .baseboard_debug({observation})']
         if processor_monitor and short == 'ContA':
             conns.append('    .processor_debug(processor_debug)')
+            if nominal_environment:
+                conns.append('    .processor_control(processor_control)')
         if display_field and short == 'DispY':
             conns.append('    .video_field(video_field)')
         if short in storage_boards:
@@ -1124,7 +1137,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument('--case-variants', action='store_true',
                     help="re-derive BACKPLANE_CASE_ALIASES from the .bp files")
     ap.add_argument('--processor-monitor', action='store_true',
-                    help='expose passive ContA task/PC/run/hold observation port')
+                    help='expose passive ContA task/PC/run/hold; with BaseBoard, also Stop/clock observations')
     ap.add_argument('--display-field', action='store_true',
                     help='expose DispY actual OddField latch for video capture')
     args = ap.parse_args(argv[1:])

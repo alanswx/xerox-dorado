@@ -1302,7 +1302,7 @@ class Generator:
             A(f'module {mod} #(parameter integer SYSPER = 16) (')
         decl = ['    input  wire sys_clk'] + \
                (['    input wire baseboard_boot_n', '    output wire [31:0] baseboard_debug'] if nominal_environment else []) + \
-               (['    output wire [31:0] processor_debug'] if processor_monitor else []) + \
+               (['    output wire [31:0] processor_debug', '    output wire [4:0] processor_control'] if processor_monitor else []) + \
                (['    output wire video_field'] if display_field else []) + \
                [f'    input  wire {vname(n)}' for n in inputs] + \
                [f'    output wire {vname(n)}__drv' for n in exports]
@@ -1532,6 +1532,7 @@ class Generator:
             fields += [f'CIA_{i:02d}' for i in range(4, 16)]
             fields += [f'TPC_{i:02d}' for i in range(4, 16)]
             A('  assign processor_debug = {' + ', '.join(fields) + '};')
+            A('  assign processor_control = {Stop, dStop, RunClk_p_a, FreezeAC, FreezeBD};')
         if display_field:
             # HM p.115: OddField selects half-line VSync phasing. Export
             # the real VCW latch for the scaler, without changing the board.
@@ -1869,7 +1870,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument('--nominal-environment', action='store_true',
                     help='emit BaseBd nominal voltage/current/temperature comparators and physical boot input')
     ap.add_argument('--processor-monitor', action='store_true',
-                    help='emit ContA passive task/PC/run/hold observation port')
+                    help='emit ContA passive task/PC/run/hold and Stop/clock observation ports')
     ap.add_argument('--display-field', action='store_true',
                     help='expose DispY actual OddField latch for video capture')
     args = ap.parse_args(argv[1:])

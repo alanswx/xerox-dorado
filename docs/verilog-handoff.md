@@ -348,6 +348,33 @@ has reached the firmware's spin-up delay; no network boot request yet.
 Native5's different placement has clean core hold but an HDMI setup failure
 of -0.030 ns, and has not been loaded.
 
+**Cold-start frontier: the Bootstrap entry handoff.** Native4 releases
+`Run'` after the disk waits, but its passive processor word then remains
+`30fe0f81`: Run'=0, Hold=0, SetRun=1, SetSS'=1, task 0, CIA=7740B,
+TPC=7601B. `BootDefs.mc` identifies 7740B as Bootstrap's entry. This is
+not proof that Bootstrap executed; no packet has reached the ARM service.
+The BaseBoard continues its ROM's normal analog/status polling. A real
+three-push boot sequence produces intermediate jam states, then returns
+to the same entry stall. The period `doradocontinuous.masm CheckBootButton`
+distinguishes one push (Dorado handles it), two (InitMap), and three through
+six (CoolBoot, reload microcode). MiSTer `reset_combo=0` drives the native
+boot input using left Ctrl + left Alt + right Alt; no Shift is used.
+Hardware excerpt: `reports/2026-10-17-native4/bootstrap-entry-stall.txt`.
+
+Native6 and Native7 both fail HDMI setup (-0.093 and -0.354 ns), so neither
+was loaded. Native8 repeats the field-correct mapped RTL with standard
+fitter effort and two processors. Native9 adds passive observations and
+uses the same fitting settings. Its BaseBoard debug word's high bits are
+31 StopMIRClk, 30 Freeze, 29 CRamClock, 28 CLK.ca', 27 CLK.cb',
+26 CLK.OutBase', 25 CLK.InBase, 24 Stop, 23 dStop, 22 RunClk'a,
+21 FreezeAC, 20 FreezeBD. The existing low 20 bits and processor word are
+unchanged. No processor state or clock is driven by these aliases.
+Full native lint passes; default ContA regenerates byte-identically and
+default backplane matches after normalizing its output-basename comment.
+The firmware-only probe is also extending its previous bound to 2.1B
+samples with the same ROM and physical boot pulse, to inspect the handoff;
+it is not attempting an OS boot in simulation.
+
 **The native Pilot medium requires a different format.**
 `PilotDiskDefs.mc!1` and `PilotDisk.mc!1` specify drive 0's emulated geometry:
 real cylinder = virtual cylinder MOD 815, real head = virtual cylinder / 815,

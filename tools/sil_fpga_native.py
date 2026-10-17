@@ -218,7 +218,7 @@ endmodule
     sources += ['fpga/mister/'+n+'.sv' for n in ['dorado_pack_hps','dorado_storage_group',
                 'dorado_storage_arb','dorado_storage_ddram','dorado_storage_init']]
     (out/'manifest.json').write_text(json.dumps({'native': True, 'storage_modules': args.storage_modules, 'pilot_disk': args.pilot_disk,
-        'display_field': True,
+        'display_field': True, 'control_clock_monitor': True,
         'hps_pack': True, 'ethernet_wire': True, 'ethernet_host_port': True}, indent=2)+'\n')
     (out/'sources.f').write_text('\n'.join(sources)+'\n')
     print(f'Generated cold-start machine: {args.storage_modules} storage modules, {groups} raw groups')
