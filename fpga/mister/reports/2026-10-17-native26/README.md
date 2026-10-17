@@ -30,8 +30,9 @@ pack_fault0. See fpga-all-loadees-1080p.png and fpga-installer-1080p.png.
 Video investigation:720p downscales source1072x862 interlace to900x431,
 retaining only one field; HDMI video alternates missing text rows. Native
 1080p internal capture retains both fields and renders clear text. External
-HDMI stream went black during live mode change; not yet recovered. The
-1080p30 diagnostic used the qualified74.25MHz HDMI clock. Main video_init
+HDMI stream went black during live mode change, then recovered after a
+host Linux framebuffer enable/disable (same guest boot). The
+1080p30 diagnostic requested74.25MHz; see measured-clock correction below. Main video_init
 restored original720p preset/VIC4 without FPGA reload; HDMI still black
 after transmitter power cycle and capture14 reconnect/format test. Full
 capture configuration restored; other streams never restarted.1080p60 was an
@@ -48,8 +49,32 @@ See current handoff for the exact intervention and remaining video TODOs.
 
 Later BootEssentials progress: `fpga-bootessentials-1080p.png` is an
 unmodified full-field internal screenshot showing Tioga styles/Viewers TIP
-and icons. Current diagnostic1080p30 keeps HDMI at qualified74.25MHz.
+and icons. Current diagnostic modeline requests1080p30/74.25MHz.
 Main parser-only patch/regression and separate ARM build pass; candidate
-6358f310... not deployed. External HDMI/labelled Main OSD remain black.
+6358f310... not deployed. External HDMI has subsequently recovered.
 Installer warned about PrintTV.df despite its presence on ARM and two
 successful FileLookup replies; no retrieve observed, cause open.
+
+Recovery/current boot: BootEssentials completed, Tioga and Press font names
+attached, now FontMetrics.df attachments. `fpga-hdmi-recovered.png` and
+`fpga-hdmi-recovered.mp4` are actual HDMI captures, complete text rows.
+Original Main1fb2/PID12701 and native guest boot retained. Host framework
+reset was tested while core Pause asserted and storage quiescent: CPU
+3081c81c and all16MB raw DDR SHA256
+0f4bd71a03cb3a8c1553085c091796a22c1040a812874131956fa7980201a9a1
+unchanged before/after actual reset release; then resumed. A separate Linux
+host framebuffer at0x22001000 was backed up/tested/restored; Linux redrew
+the console, and switching back to native video restored HDMI. No guest
+memory was written/imported. See handoff for exact interventions/limits.
+
+CLOCK CORRECTION: requested Fpix is not a physical clock measurement.
+Main OSD/cached hardware frame counter reports60.000024Hz (vtimeh1666666),
+despite requested1920x1080/74.25MHz. Actual148.5MHz output or a stale
+measurement remains to distinguish. Original STA qualifies74.25MHz only.
+Additional hdmi148 audit replaces just the HDMI output divider6 with3,
+148.536MHz conservatively above148.5, and retains all original path checks.
+Slow100C scaler setup FAILS -2.382ns (o_h_lum_pix.g[7] -> o_poly_lum[0]);
+fast setup and both models' hold/recovery/removal pass. Zero illegal and
+unconstrained clocks. This is not qualification of1080p60. No SDC/RBF or
+live board mode was changed by this audit. Script and representative full
+reports retained here; all reports also in frozen build's core/hdmi148-*.

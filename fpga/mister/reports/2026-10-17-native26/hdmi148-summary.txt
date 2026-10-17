@@ -1,0 +1,8 @@
+hdmi148-fast-hold.rpt: Report Timing: Found 10 hold paths (0 violated).  Worst case slack is 0.032 
+hdmi148-fast-recovery.rpt: Report Timing: Found 10 recovery paths (0 violated).  Worst case slack is 5.215 
+hdmi148-fast-removal.rpt: Report Timing: Found 10 removal paths (0 violated).  Worst case slack is 0.408 
+hdmi148-fast-setup.rpt: Report Timing: Found 10 setup paths (0 violated).  Worst case slack is 2.614 
+hdmi148-slow-hold.rpt: Report Timing: Found 10 hold paths (0 violated).  Worst case slack is 0.074 
+hdmi148-slow-recovery.rpt: Report Timing: Found 10 recovery paths (0 violated).  Worst case slack is 3.655 
+hdmi148-slow-removal.rpt: Report Timing: Found 10 removal paths (0 violated).  Worst case slack is 0.949 
+hdmi148-slow-setup.rpt: Report Timing: Found 10 setup paths (10 violated).  Worst case slack is -2.382 

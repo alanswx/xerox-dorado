@@ -4,10 +4,11 @@
 
 **Boot Cedar on the FPGA, log in, reach Viewers, type `Echo FPGA`, and verify
 keyboard/mouse interaction. Native26 has loaded all33 Basic.Loadees BCDs,
-accepted Guest and the installer keyboard response, and is fetching the
-BootEssentials closure. Viewers and an interactive CommandTool remain incomplete.** C snapshots and host IOCB completion do not qualify.
+accepted Guest and the installer keyboard response, completed BootEssentials,
+attached Tioga/Press font names, and is attaching font metrics. HDMI has
+recovered. Viewers and an interactive CommandTool remain incomplete.** C snapshots and host IOCB completion do not qualify.
 
-## Current state (Native26 installer running; external video recovery open)
+## Current state (Native26 installer running; HDMI recovered)
 
 **Native25h cleared the media blocker; Native26 is now booting on MiSTer14.** The original BaseBoard firmware requested
 BFN113, disk-loaded Cedar started, and the actual FPGA raster displays
@@ -121,8 +122,8 @@ But HDMI capture goes black on the live mode change. Returning720p timing
 and host HDMI transmitter reinit have not restored external capture as of23:16.
 Do not claim video fixed or call the black capture guest failure. The1080p60
 clock was a diagnostic outside the fixed74.25MHz qualification, subsequently
-restored. The1080p30 diagnostic used **74.25MHz**, the qualified clock,
-with progressive1080 output. Main video_init subsequently restored original
+restored. The1080p30 diagnostic **requested**74.25MHz; later measured-refresh
+evidence does not confirm that clock (see correction below). Main video_init subsequently restored original
 720p preset/VIC4 after invalidating only its host HDMI cache. INI unchanged;
 no core reload. Source still gets720p field reduction. Explicit core-framebuffer selection
 and a labelled Main OSD diagnostic also remain black externally. External HDMI remains
@@ -150,7 +151,7 @@ server log has two successful FileLookup replies for it but no retrieve.
 Do not call it absent; the failed guest lookup/open remains unexplained.
 No new CPU or disk fault observed.
 
-**Current23:31 update:** internal captures again use1080p30/74.25MHz through
+**Historical23:31 update:** internal captures again request1080p30/74.25MHz through
 short11-item mode, retaining both fields; HDMI still black. Explicit Main
 OSD text also black externally. Installer now fetching Tioga styles, icons,
 TIP, Watch etc. Parser fix is prepared in `fpga/mister/main/main-video-mode-260912.patch`:
@@ -169,6 +170,59 @@ service or touch126/192. Native27 fit/asm/review complete:29 checks,min+.115ns, 
 unconstrained clocks. ProcH l03 own addressbit1/4sinks and MemX e20
 ownbit2/2sinks hold-only review, unchanged capture/commit exclusion.
 RBF ac94263d... not deployed. Reports in native27 directory.
+
+### HDMI recovery and font installation (23:49 UTC)
+
+Same original Native26 boot remains active, Main PID12701 and server12696.
+BootEssentials has completed;188 Tioga font names and the Press fonts have
+been attached. FontMetrics.df is now attaching its .tfm names, visibly
+advancing through the CM fonts. pack_fault remains0 and CPU task/PC advance.
+Flat packet counts during these local name attachments are not a hang.
+
+External HDMI recovered after Main's Linux framebuffer was enabled then
+disabled at an input_poll boundary. `fpga-hdmi-recovered.png` is an actual
+MiSTerKVMS HDMI capture of Cedar, with complete text rows. User confirms
+capture working. No core reload, new guest boot, guest-memory write or C
+state import. Do not repeat mode changes while startup remains healthy.
+
+Host interventions preceding recovery, retained for reproducibility:
+
+- Pause used the real Main/core Pause input. At storage_ready/pack_ready,
+  CPU debug held3081c81c and all16MB raw guest DDR at0x30000000 were hashed.
+  Main framework reset was pulsed; its release additionally needed the
+  normal core-ID probe's GPIO00->10 handshake. Same CPU debug and raw DDR
+  SHA256 `0f4bd71a03cb3a8c1553085c091796a22c1040a812874131956fa7980201a9a1`
+  were verified after actual release, before resuming. Remote evidence:
+  `Cedar26_20261017/video-reset-observation/{before,after-release}.json`.
+  Framework reset alone did not restore HDMI. Native CPU reset is tied to
+  its own PLL, while framework RESET gates machine_enable; this preservation
+  is observed for this quiescent test, not a general reset guarantee.
+- A host-only framebuffer test backed up8294400 bytes at0x22001000, wrote
+  bars, enabled Linux FB, then disabled it and restored every original byte.
+  `/dev/mem` flush returned EINVAL after the write; Linux redrew its console,
+  so the diagnostic image shows Linux login/OSD, not the bars or Cedar.
+  This buffer is separate from guest DDR and the core screenshot buffer.
+  Backup is `Cedar26_20261017/host-framebuffer-test/host-buffer-before.bin`.
+  Cedar became visible on HDMI after returning to core video.
+
+Likely recovery mechanism: framebuffer change makes normal video polling
+refresh scaling bounds, whereas live video_mode_cmd does not directly call
+video_scaling_adjust. This is a source-grounded hypothesis, not a proved
+root cause. The parser patch fixes the separate zero-clock hang only.
+
+**Clock correction:** previous "1080p30 at qualified74.25MHz" statements
+described the requested modeline, not a verified physical clock. Main's OSD
+reports1920x1080,74.25MHz,60.0Hz: Fpix is requested metadata, refresh comes
+from the100MHz hardware counter. Read-only `/proc/12701/mem` inspection of
+current_video_info at23:47 finds vtimeh1666666 (60.000024Hz), source
+vtime18189197 (~5.50 fields/s),1072x862,interlaced=true. This may be a stale
+cached measurement or actual148.5MHz output; do not claim live74.25MHz
+qualification. Separate post-fit148.536MHz audit completed: slow100C scaler setup fails
+-2.382ns (o_h_lum_pix.g[7] -> o_poly_lum[0]); hold/recovery/removal pass
+at both examined models, with zero illegal/unconstrained clocks. This mode
+is NOT timing-qualified. Reports are hdmi148-* in the Native26 report directory.
+The original29 passing checks qualify only74.25MHz. INI remains original
+720p and running Main remains immutable1fb2; parser candidate is not deployed.
 
 ## Active work
 
@@ -351,8 +405,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Native26 Guest accepted and loader passes UserProfile fault point, through WorldVM22:52 with pack_fault0.
 - [x] Complete all33 Native26 BCD downloads; actual screen reports every load ok.
 - [x] Answer installer personal-profile prompt through real keyboard; observe BootEssentials BringOver.
-- [ ] Complete Native26 BootEssentials closure and remaining STARTs; monitor pack_fault.
-- [ ] Restore external HDMI after live mode test; internal1072x862 raster readable.
+- [x] Complete Native26 BootEssentials closure; now attaching font metrics.
+- [ ] Complete font attachments and remaining STARTs; monitor pack_fault.
+- [x] Restore external HDMI after live mode test; actual Cedar HDMI capture readable.
+- [ ] Resolve requested74.25MHz versus measured60Hz discrepancy; audit148.5MHz fit separately.
 - [ ] Use qualified-clock progressive output and verify stable deinterlacing, including video.
 - [x] Fix Main extended-modeline zero-clock parser in separate patch; mutation regression and pinned GCC10.2.1 ARM build pass.
 - [ ] Deploy immutable parser-fixed Main at a planned restart; preserve current run until then.
