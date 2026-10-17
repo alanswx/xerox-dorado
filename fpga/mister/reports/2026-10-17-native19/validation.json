@@ -1,0 +1,21 @@
+{
+  "rbf_sha256": "57bb42028e3441d0d82c972e7e864e4280cf513e15b44c40928c2abba1185de8",
+  "source_overlay_sha256": "8b0cc16f49c839836c879c9ab95f7031719ee31a4b96eceb558af768c74fb470",
+  "source_commit": "bc63bd36; canonical MemX RTL tokens match frozen prototype used in Native19",
+  "build": "misterubuntu:/home/alans/mister/Dorado_Native19_20261017/core",
+  "quartus": "17.0.2 Lite, /home/alans/intelFPGA_lite/17.0/quartus/bin",
+  "fit": "PASS, 25m20s; 35161/41910 ALMs (84%), 1293638 block-memory bits",
+  "timing": "PASS 29 checks, minimum +0.128 ns; zero illegal and unconstrained internal clocks. Framework I/O delay coverage is separate.",
+  "before_review": "Two -0.050 ns slow-corner MemX e20 a_lat[1] to its own two RAM write-address bit1 endpoints; fast minimum +0.007 ns.",
+  "hold_review": "Exact1 source/2 sinks. cell_F10145A captures a_lat only !p13; commits only p13&&!we_d&&ce_lat, so same-edge transfer is impossible. Exclude only HOLD; setup/read/data/enables remain checked. RBF unchanged.",
+  "functional": "Map hold/shared A-B clock replay passes; Aa5 mutation fails. Original-ROM startup at SYSPER4/16 passes. Full100M Cedar retains3600IM/256IFUM, first16 actual map writes one-to-one, 600500 IFU reference transitions, 86611683 clean all-six-error-enabled samples. All8930 sampled germ words match file or original PilotBoot request writes.",
+  "device": "MiSTer14: Native19 downloads original Cedar, then repeats RequeueSearchSQ239/23a/6c1/6c2 with white raster and tiny cursor. Reproduced after Linux reboot at user suggestion; no Cedar OS text.",
+  "disk_baseline_sha256": "c0cd6784ea9df43d669dab2c445b3a1a7241048ac87f10afa747927d931bad5c",
+  "launcher": "/media/fat/_Computer/DoradoRTL_Cedar19_20261017/Cedar19.mgl",
+  "main_log": "/media/fat/games/DoradoRTL/Cedar19_20261017/main-after-linux-reboot.log",
+  "previous_log": "/media/fat/games/DoradoRTL/Cedar18_20261017/main-before-native19.log",
+  "main": "/media/fat/games/DoradoRTL/System_20261017/MiSTer-1fb2e098e6f0dba6 (unchanged)",
+  "server": "/media/fat/games/DoradoRTL/System_20261017/dorado-server-215276e0b3d780b4 (unchanged)",
+  "reboot": "MiSTer14 rebooted15:38 UTC; same immutable Main/server restored. Native19 programmed via Main load_core, then boot selection and three pushes at15:42. Original BFN113 received and C released; TXgood2 CRCbad0.",
+  "read_only_memory": "Pre-reboot DDR snapshot decodes original germ source roots0200/0304/0305 as06ec/09d0/09e0. Decoder remains partially calibrated; other addresses/cache visibility unqualified."
+}

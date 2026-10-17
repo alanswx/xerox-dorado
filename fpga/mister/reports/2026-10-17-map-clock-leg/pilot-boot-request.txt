@@ -1,0 +1,35 @@
+chm/doradomicrocode/doradomicrocodesources/PilotBoot.mc!1
+15: * Germ conventions:
+16: MC[baseGerm, 1000];		* = BootSwap.countSkip * wordsPerPage
+17: 
+18: * pRequest: POINTER TO Request = LOOPHOLE[1360B];
+19: MC[pRequest, 1360];
+20: 
+21: * Request: TYPE = MACHINE DEPENDENT RECORD [
+22: MC[Req.action, 0];		* action: Action,
+23: MC[Req.deviceType, 1];		* deviceType: Device.type,
+24: MC[Req.deviceOrdinal, 2];	* deviceOrdinal: CARDINAL,
+25: MC[Req.vp, 3];			* vp: SELECT OVERLAID * FROM
+26: 				*   disk => [diskFileID: DiskFileID],
+27: 				*   ethernet => [bfn, net, host: CARDINAL];
+28: 
+29: * Device.Type: TYPE = {diablo31, sa800, sa1000, sa4000, cdc9730, ethernet};
+30: MC[DType.sa4000, 3];		* Actually, Dorado Trident disk
+31: MC[DType.ethernet, 5];
+32: 
+33: * Action: TYPE = {inLoad, outLoad, bootPhysicalVolume, teleDebug, noOp};
+34: MC[Act.bootPhysicalVolume, 2];
+35: 
+36: * pSwitches: POINTER TO ARRAY [0..2] OF CARDINAL = LOOPHOLE[1242B];
+37: MC[pSwitches, 1242];
+58: * Store into the Germ the magic values that tell it what to do.
+59: 	T_ And[pRequest!, 177400]C;	* Set up the Request
+60: 	T_ T OR (And[pRequest!, 377]C);
+61: 	T_ (Store_ T)+1, DBuf_ Act.bootPhysicalVolume;
+62: 	T_ (Store_ T)+1, DBuf_ DType.sa4000;
+63: 	Store_ T, DBuf_ 0C;
+64: 
+65: 	T_ And[pSwitches!, 177400]C;	* Set up the Switches -- all zeroes
+66: 	T_ T OR (And[pSwitches!, 377]C);
+67: 	Cnt_ 2S;
+68: 	T_ (Store_ T)+1, DBuf_ 0C, Branch[., Cnt#0&-1];

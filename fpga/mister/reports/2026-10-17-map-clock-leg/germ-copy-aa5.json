@@ -177,5 +177,11 @@
       "xor": "0010",
       "cycle": 76397290
     }
-  ]
+  ],
+  "specified_boot_request_writes": {
+    "02f0": "0002 (bootPhysicalVolume)",
+    "02f1": "0003 (sa4000/Trident)"
+  },
+  "unexplained_differences": 263,
+  "source": "PilotBoot.mc!1 definitions18-34, stores58-63"
 }

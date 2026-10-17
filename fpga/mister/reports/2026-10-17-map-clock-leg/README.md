@@ -25,7 +25,7 @@ the last non-held read for each source VA before the first CIA 7e0 handoff.
 It compares those words with the untouched big-endian
 `chm/cedar/germ-alt/Dorado.germ-6.1.6`. There are 8,930 distinct sampled words
 of 8,960; this is not a whole-image checksum. Native18 has 265 differing
-sampled words. The correction has two (02f0/02f1, still unexplained), and
+sampled words. The correction has two (02f0/02f1), and
 the former broken roots 0200/0304/0305 now read 06ec/09d0/09e0. Its first
 IFU acknowledgement is at fabric cycle 76,410,144, CIA 41e, VA 03e06ee.
 Mesa execution continues past that point. No guest image, PC, parity enable,
@@ -35,6 +35,14 @@ At 100 million cycles, the original 3,600 IM and 256 IFUM entries still
 match; the IFU has 600,500 reference and 600,870 acknowledgement transitions.
 All six error sources were enabled for 86,611,683 samples without error.
 The slower-ratio startup gate has 10,422,953 such clean samples.
+
+The two differences are intentional writes by the original microcode:
+`PilotBoot.mc!1` lines 18–34 define pRequest=1360B, action
+bootPhysicalVolume=2 and deviceType sa4000=3; lines 58–63 store those values
+into the loaded germ before relocation. 1360B is VA02f0. Thus all sampled
+words match the original file or those specified boot-request writes.
+`pilot-boot-request.txt` preserves the bounded source excerpt. No loader or
+guest modification was introduced by this correction.
 
 The isolated Native19 Quartus build uses the frozen prototype generator.
 The canonical cleanup emits identical RTL tokens; their different hashes

@@ -3,5 +3,5 @@
   "canonical_memx_sha256": "a2a255c5480d20b1c12c78c6b5ceae2ad5a644505467599cebdee5251f0c23e6",
   "rtl_tokens_identical": true,
   "overlay_sha256": "8b0cc16f49c839836c879c9ab95f7031719ee31a4b96eceb558af768c74fb470",
-  "hardware_status": "Native19 building; Native18 remains on MiSTer14 with blank raster. No Cedar OS boot claimed."
+  "hardware_status": "Native19 timing-qualified and loaded; corrected germ roots appear in read-only DDR snapshot, but FPGA still repeats RequeueSearchSQ without OS text. Same after Linux reboot. No Cedar FPGA boot claimed."
 }

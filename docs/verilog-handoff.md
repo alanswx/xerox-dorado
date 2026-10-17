@@ -8,6 +8,53 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Native19 actual outcome and clean reboot, 2026-10-17 15:50 UTC.** The FPGA
+still reaches RequeueSearchSQ239/23a/6c1/6c2 with a white raster/tiny cursor,
+not Cedar OS text. Original BFN113 transfer succeeds, C releases. A read-only
+DDR snapshot now decodes source0200/0304/0305 as06ec/09d0/09e0, confirming
+the A-bank clock fix affects real hardware. The decoder remains partially
+calibrated and excludes cache; do not infer other physical contents from it.
+
+At the user's suggestion, Linux on MiSTer14 was rebooted15:38. Exact immutable
+Main/server arguments, cwd and Dorado-only environment were saved and
+restored; Main log is now Cedar19_20261017/main-after-linux-reboot.log. Main
+startup arguments alone do not program the FPGA: load the MGL through Main's
+load_core interface, wait for input initialization, then start C selection
+and the three-push boot once. That proper clean run started15:42; BFN113
+again succeeded (TXgood2/CRCbad0), C released, and the same queue loop remains.
+
+Two isolated component runs are active locally. `cedar-fourmodules.log`
+uses four original storage modules, matching the FPGA capacity; scratch
+fixture supplies all six extra storage clocks and Mb1..3. Its observer is
+limited to germ-copy reads/handoff, then the first million instruction
+samples, to avoid losing the copy to a fixed trace limit during longer init.
+`cedar-nativepulse.log` keeps one module but drives every board clock from
+bb_manifold.CLK_ca_p___drv, the actual BaseBoard clock output. A short board
+measurement proves Native SYSPER4 is low one tick/high three, while the old
+component fixture's square clock is low two/high two. Captured waveform:
+`fpga/mister/reports/2026-10-17-native19/baseboard-clock-shape.txt`. Do not
+change the real clock generator merely to match the synthetic bench; first
+determine which boundary fails with authentic pulses. Both runs use original
+Cedar/germ/media and the committed MemX correction, with no guest writes or
+forced execution state beyond the pre-existing direct-entry fixture.
+
+**Native19 qualified and loaded, 2026-10-17 15:29 UTC.** MiSTer14 now runs
+RBF SHA256 `57bb42028e3441d0d82c972e7e864e4280cf513e15b44c40928c2abba1185de8`.
+All29 timing checks pass, minimum+0.128ns, with zero illegal/unconstrained
+internal clocks. The original slow hold failures were two MemX e20 a_lat[1]
+to its own F10145A RAM write-address bit1 endpoints, -0.050ns. The exact
+one-source/two-sink hold review proves !p13 address capture excludes the
+p13&&!we_d&&ce_lat write commit; all setup/read/data/enables remain timed.
+The bitstream is unchanged by the review. Reports:
+`fpga/mister/reports/2026-10-17-native19/`.
+
+Fresh Cedar19 medium matches baseline c0cd6784..., and immutable Main/server
+are unchanged. Native18's log is preserved at main-before-native19.log;
+Main's open log moved to Cedar19_20261017/main.log before the MGL load.
+Three real boot pushes completed once. The original firmware is running;
+the C-key watcher releases at the new BFN113 request. Allow firmware waits
+to complete. No Cedar OS screen yet.
+
 **Map and storage clock correction, 2026-10-17 15:12 UTC.** The component
 machine now executes Mesa instructions from the original Cedar germ. MemX
 c02/e23 capture the same storage write/CAS control for the A/B strobe banks,
@@ -21,8 +68,11 @@ fails. Original-ROM startup passes at SYSPER4/16 with all six errors enabled.
 Actual first16 map RAM writes pass. Germ-copy trace comparison improves
 from265 differing sampled words to2, with the former broken roots now
 06ec/09d0/09e0. First IFU acknowledgement is76,410,144, CIA41e, VA03e06ee;
-Mesa execution continues. The two source differences at02f0/02f1 remain
-unexplained;30 of8960 words were not sampled, so this is not a full checksum.
+Mesa execution continues. The two source differences at02f0/02f1 are the
+original PilotBoot.mc boot-request writes: pRequest=1360B,
+bootPhysicalVolume=2, sa4000=3 (definitions18–34, stores58–63). Thus all
+sampled words match the file or those specified writes. Thirty of8960 words
+were not sampled, so this is not a full checksum.
 The completed100M run retains exact3600IM/256IFUM, records600,500 IFU
 reference/600,870 acknowledgement transitions and86,611,683 samples with
 all six errors enabled without error. SYSPER16 startup has10,422,953 clean
