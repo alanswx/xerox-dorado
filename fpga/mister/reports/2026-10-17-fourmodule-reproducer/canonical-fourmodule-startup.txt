@@ -1,0 +1,3 @@
+make -C verilog/verilator initial-rom-fourmodule-test SYSPER=4 INITIAL_FOUR_ARGS="+bootio +bootio-germ-copy +bootiofrom=15000000"
+INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for 2611683 samples without error
+- Verilator: $finish at 32us; walltime 197.533 s; speed 162.048 ns/s

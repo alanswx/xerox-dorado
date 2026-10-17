@@ -1,0 +1,109 @@
+{
+  "sampled_words": 8931,
+  "germ_words": 8960,
+  "unexpected_words": 45,
+  "first_mismatches": [
+    {
+      "address": "0200",
+      "expected": "06ec",
+      "actual": "387f",
+      "cycle": 95331258
+    },
+    {
+      "address": "0201",
+      "expected": "04cc",
+      "actual": "ffd1",
+      "cycle": 95331226
+    },
+    {
+      "address": "0202",
+      "expected": "0518",
+      "actual": "0510",
+      "cycle": 95331194
+    },
+    {
+      "address": "0300",
+      "expected": "0000",
+      "actual": "042f",
+      "cycle": 95319290
+    },
+    {
+      "address": "0301",
+      "expected": "0700",
+      "actual": "2eb6",
+      "cycle": 95319258
+    },
+    {
+      "address": "0400",
+      "expected": "0000",
+      "actual": "802f",
+      "cycle": 95307282
+    },
+    {
+      "address": "0401",
+      "expected": "0300",
+      "actual": "a50f",
+      "cycle": 95307250
+    },
+    {
+      "address": "0f50",
+      "expected": "0614",
+      "actual": "0000",
+      "cycle": 95174994
+    },
+    {
+      "address": "0f51",
+      "expected": "e80c",
+      "actual": "0000",
+      "cycle": 95174962
+    },
+    {
+      "address": "10f0",
+      "expected": "0c3b",
+      "actual": "0000",
+      "cycle": 95155426
+    },
+    {
+      "address": "10f1",
+      "expected": "ff45",
+      "actual": "0000",
+      "cycle": 95155394
+    },
+    {
+      "address": "10f2",
+      "expected": "181a",
+      "actual": "183a",
+      "cycle": 95155362
+    },
+    {
+      "address": "1110",
+      "expected": "76ac",
+      "actual": "0000",
+      "cycle": 95153818
+    },
+    {
+      "address": "1111",
+      "expected": "7476",
+      "actual": "0000",
+      "cycle": 95153786
+    },
+    {
+      "address": "1112",
+      "expected": "7528",
+      "actual": "f528",
+      "cycle": 95153754
+    },
+    {
+      "address": "1140",
+      "expected": "c828",
+      "actual": "0000",
+      "cycle": 95151066
+    }
+  ],
+  "germ_handoff": true,
+  "ifu_fetches": 0,
+  "ifu_acknowledgements": 0,
+  "original_initial_pass": true,
+  "original_cedar_image_pass": true,
+  "pass": false
+}

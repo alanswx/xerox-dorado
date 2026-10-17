@@ -1031,6 +1031,39 @@ initial-rom-test:
 		+cpu-manifold +paritysources +initial-rom-check $(INITIAL_ROM_ARGS)
 
 .PHONY: initial-network-test
+# Match the FPGA's four storage slots and the BaseBoard clock waveform.
+# Keep this fixture separate from obj_initial_rom and the Executive model.
+.PHONY: initial-rom-fourmodule-test
+INITIAL_FOUR_CYCLES ?= 16000000
+INITIAL_FOUR_ARGS ?=
+initial-rom-fourmodule-test:
+	@$(MAKE) -s -C ../../dorado build/baseboard_rom_dump build/im_image build/boot0_hunks
+	@mkdir -p obj_initial_four obj_exec
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
+	@cd ../.. && python3 tools/sil_backplane.py --emit verilog/verilator/obj_initial_four/dorado_full.v --module=dorado_full \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,msaOdd,msa1,msa1Odd,msa2,msa2Odd,msa3,msa3Odd,IFU,DispY,DskEth >/dev/null
+	@cd ../.. && ./dorado/build/baseboard_rom_dump 'chm/dorado/doradobaserom.mb!13' > verilog/verilator/obj_initial_four/rom.txt
+	@cd ../.. && ./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Initial.mb' > verilog/verilator/obj_initial_four/alu.txt 2>/dev/null
+	@cd ../.. && python3 tools/baseboard_rom_im.py verilog/verilator/obj_initial_four/rom.txt --alu-fixture verilog/verilator/obj_initial_four/alu.txt > verilog/verilator/obj_initial_four/im.txt
+	@cd ../.. && ./dorado/build/boot0_hunks 'chm/dorado/AEmu.mb!2' -1 4 > verilog/verilator/obj_exec/exec.vec
+	@cd ../.. && $(V) --binary --top-module tb_exec $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated -Iverilog/vendor/6502 -Iverilog/vendor/riot \
+		--Mdir verilog/verilator/obj_initial_four -o tb_initial \
+		+define+WORLD +define+SCREEN +define+FULL +define+PILOT_PACK \
+		+define+BASEBOARD_MANIFOLD +define+FOUR_STORAGE_MODULES +define+DORADO_STORAGE_INPUT_DELAY=2 \
+		verilog/verilator/tb_exec.sv verilog/verilator/obj_initial_four/dorado_full.v \
+		verilog/generated/BaseBd-Rev-Am.v verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
+		verilog/generated/IFU-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v verilog/generated/DskEth-Rev-Cf.v \
+		verilog/verilator/dorado_pack.sv verilog/cells/dorado_trident.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_initial_four/tb_initial \
+		+preload=verilog/verilator/obj_initial_four/im.txt +start=3907 \
+		+cycles=$$(($(INITIAL_FOUR_CYCLES) * $(SYSPER) / 4)) +mb0 +nostuck +terminal \
+		+pendulum +hasram +ioreset +fastwait +imparityon +keepmirdebug \
+		+cpu-manifold +paritysources +initial-rom-check +native-clock $(INITIAL_FOUR_ARGS)
+
 initial-network-test:
 	@$(MAKE) initial-rom-test INITIAL_ROM_CYCLES=31000000 \
 		INITIAL_ROM_ARGS='+terminal-key=21 +etherhost=34 +largeformat +xmtrec=verilog/verilator/obj_initial_rom/request.txt'

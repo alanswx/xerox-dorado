@@ -1,0 +1,5 @@
+tb_exec: IFU -- IfuMemRef 776496 transitions, IfuMemAck 776866, opcode J changed 789667 times
+INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for 92611684 samples without error
+LOADED EB PASS: 3600 original IM and 256 IFUM items match, protected loader page excluded, entry 238 executed
+- Verilator: $finish at 212us; walltime 978.138 s; speed 216.865 ns/s
+- Verilator: cpu 977.600 s on 1 threads; alloced 16 MB

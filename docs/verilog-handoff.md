@@ -8,6 +8,118 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Native21 pre-build, 16:55 UTC.** Isolated project
+misterubuntu:/home/alans/mister/Dorado_Native21_20261017/core, session44044,
+builds fixed one-stage local j01 clock pin delay on otherwise Native19.
+Generator/RTL scratch: native21-candidate. Overlay SHA256
+548dceff5288404d494874319ce5ccb41aeedfc100e8fe514f682262ad3372c0,
+MemX77635850117d27461cd0d7c33d8c784c6bd750e7e3fa847d7d879e1062782b38.
+It has no Ab/f04 Native20 changes. Do not adopt or deploy until full germ
+copy/IFU gate, STA and clock audit pass. Actual hardware remains Native19.
+The MSA c5 leg experiment is rejected: after58M it is still in Initial's
+network loader and the Cedar map-write gate is0/16. Its log is preserved;
+there is no production MSA change.
+
+**Reproducible four-slot fixture and ongoing experiments, 16:50 UTC.**
+`make -C verilog/verilator initial-rom-fourmodule-test SYSPER=4` passes
+16M with15 task initializations and2,611,683 clean samples with all six
+errors enabled. It uses separate obj_initial_four, all8 storage clocks,
+Mb0..3 and +native-clock. Optional +bootio-germ-copy preserves the source
+copy in a bounded trace. `tools/check_cedar_rtl_germ.py LOG` passes the
+one-module actual-clock run and rejects the four-module control with45
+unexpected words / no IFU fetches. Evidence is committed under
+fpga/mister/reports/2026-10-17-fourmodule-reproducer and native20-rejected.
+
+Active cold runs (SYSPER4, four modules, actual BaseBoard clock):
+- `cedar-module-handoff.log`, session36180: diagnostic MemX j01 local clock
+  delayed1 sample, ordinary Native19 elsewhere.
+- `cedar-msa-clock.log`, session70185: diagnostic c5 leg delayed2 samples
+  before the SO-qualified MSA Sin capture clocks, Native19 MemX.
+Both are isolated under module-handoff-candidate / msa-clock-candidate,
+not canonical and not qualified. The first attempts used default SYSPER16;
+only our two processes were stopped and those logs retained as
+*-sysper16-aborted.log. Current restarted runs explicitly use SYSPER4.
+MGATE observer covers95330300–95330600; MPATH covers95315000–95333500.
+
+Combined model/checkpoint driver built under module-checkpoint. Cold baseline
+session66916 (`cedar-module-checkpoint.log`) will save at85M before disk
+input. It uses the existing POD-state descriptor, refuses disk writes and
+checks an exact-model fingerprint. Short15k->20k restore comparison has no
+core processor/memory differences, but differs in unused BaseBoard6502
+internals and trace-history bytes: the transistor CPU has non-POD state.
+Therefore require a baseline replay to reproduce the original copy stream
+and handoff before trusting it for diagnosis. Clock knobs change only timing
+adapters, not guest words. Every proposed fix needs a fresh full cold run
+and actual FPGA qualification; these checkpoints never go to the FPGA.
+
+**Native20 rejected by the full functional gate, 2026-10-17 16:38 UTC.**
+The Ab/f04 candidate did not change the boot result: source-copy comparison
+still finds the identical47 mismatches (45 unexpected plus2 legitimate
+PilotBoot request stores), source0200=387f, IFU reference/ack0, queue loop.
+It completed98M with original3600IM/256IFUM intact. Do not promote the
+scratch generator/RTL or deploy Native20. Its isolated Quartus fit completed
+successfully19m01 and STA ran, but functional qualification fails.
+
+The bounded serial trace narrows the fault beyond the earlier f03 guess.
+At95330471 the first word of the module0 source0200 fill comes from
+**module3** (s3e=387f);95330475's second word is also from module3
+(s3o=ffd1). At95330479, module0 supplies the correct third word0518,
+then the rest of the line. ModSinEn changes0111->1110 at95330467.
+The original MSA h02 contains two module-enable stages (Q4 pin14, then
+Q3 pin13 through h01's OR with SO) before the registered Sin outputs.
+MemX j01 is the final Sin selector; it loads through inverted LoadSinO
+on Clk0'Bc. The f03 Ab change is upstream and does not repair this boundary.
+Use original schematics MemX09 (PDF page11) and msa01 (PDF page3), whose
+wiring agrees with the generated netlist. A tiny scratch replay lives in
+`build/rtl-executive/module-switch-probe/`; it is diagnostic, not a gate.
+Canonical remains Native19; FPGA remains Native19 after clean Linux reboot.
+
+**Four-module reproducer and Native20 candidate, 2026-10-17 16:18 UTC.**
+The old RTL fails in the component model as soon as it has four original
+storage modules: at100M it retains3600IM/256IFUM and86,611,683 clean
+all-error-enabled samples, but IFU reference/ack counts are both0 and task0
+repeats239/23a/6c1/6c2, like the FPGA. Germ source0200 reads387f instead of
+06ec;0304/0305 remain09d0/09e0. There are45 unexpected differing sampled
+words, all at offsets0/1/2 of sixteen-word lines (plus the two intentional
+PilotBoot request writes). Several wrong words match other germ lines.
+Log: `build/rtl-executive/cedar-fourmodules.log`, MGo95,331,274.
+
+Pulse width alone is ruled out: the one-module run driven by the actual
+BaseBoard clock finishes106M with776,496 IFU reference/776,866 ack
+transitions, exact original IM/IFUM and92,611,684 clean all-error-enabled
+samples. Log: `cedar-nativepulse.log`.
+
+The next shared-clock problem is MemX f03: it selects the storage module
+for incoming serial data and shares Clk1'Ab with the f04 MCR flags. The
+three-stage MCR setup adapter therefore delayed module selection too.
+An isolated candidate restores Ab to the ordinary one-stage phase shared
+with Aa, then adds two stages only at f04 pin13. f04 sees the identical
+three-stage baseline waveform; f03 and the a03 storage-strobe selector
+again share a capture edge. No clock generator, data or write-strobe timing
+is changed. Fast map/clock regression passes, while Native19 fails the new
+f03/a03 clock comparison. Original-ROM16M with four modules and authentic
+BaseBoard pulses passes15 task initializations and2,611,683 clean samples.
+
+Candidate files are under `build/rtl-executive/module-select-candidate/`;
+**canonical generator/RTL remain Native19 until the full boot passes.**
+Full110M four-module/authentic-clock run: `cedar-module-select.log`
+(session1791), bounded source-copy trace starts94M. Old four-module probe:
+`cedar-fourprobe.log` (session23384,96M), MPATH window95,315,000–95,333,500
+records all eight MSA serial outputs, resolved input, receiver/cache words
+and module enables; real RM/map inspection follows that window.
+
+Native20 builds separately at
+`misterubuntu:/home/alans/mister/Dorado_Native20_20261017/core`
+(session79983; synthesis passes2m17, fitting active). It is frozen Native16
+plus the committed memory-DMux fixes and this candidate. Overlay SHA256
+`8aa84ae27b783e1256cf15789e05e31b59ff7e774772f79c90192f1394a33aff`,
+MemX SHA256 `5920b3f7bfa81ecb05aba2d65abaa3a32b0b404f09fb81720c52c2c1720e4ca4`.
+Require complete functional gate, STA and clock audit before loading. Fresh
+Cedar20 medium matches c0cd6784... and its MGL/profile are staged; no RBF
+is on the SD card yet. Live FPGA remains Native19, no OS text. When loading
+Native20, preserve/move the CURRENT open log
+`Cedar19_20261017/main-after-linux-reboot.log`, not the older main.log.
+
 **Native19 actual outcome and clean reboot, 2026-10-17 15:50 UTC.** The FPGA
 still reaches RequeueSearchSQ239/23a/6c1/6c2 with a white raster/tiny cursor,
 not Cedar OS text. Original BFN113 transfer succeeds, C releases. A read-only

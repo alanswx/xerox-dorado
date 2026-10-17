@@ -103,7 +103,15 @@ module tb_exec;
   reg [3:0] ckd = 4'd0;
   always @(posedge sys_clk)
     ckd <= (ckd == SYSPER - 1) ? 4'd0 : ckd + 4'd1;
+`ifdef BASEBOARD_MANIFOLD
+  // Exercise the BaseBoard's actual pulse shape as well as the older
+  // square-wave fixture. Both clocks have the same nominal period.
+  bit native_clock = $test$plusargs("native-clock");
+  wire mclk = native_clock ? bb_manifold.CLK_ca_p___drv
+                          : (ckd >= SYSPER / 2);
+`else
   wire mclk = (ckd >= SYSPER / 2);
+`endif
   wire eth_xmt;   // DskEth's XmtData' in the FULL configuration
   reg  rcv_r = 1'b0;   // DskEth's RcvData in the FULL configuration (+rcvplay)
 
@@ -796,6 +804,11 @@ module tb_exec;
       .CLK_ca_p_(mclk), .CLK_cb_p_(mclk), .CLK_ph_p_(mclk), .CLK_pl_p_(mclk),
       .CLK_mc_p_(mclk), .CLK_md_p_(mclk), .CLK_mx_p_(mclk),
       .CLK_ms0Even_p_(mclk), .CLK_ms0Odd_p_(mclk), .CLK_ifu_p_(mclk),
+`ifdef FOUR_STORAGE_MODULES
+      .CLK_ms1Even_p_(mclk), .CLK_ms1Odd_p_(mclk),
+      .CLK_ms2Even_p_(mclk), .CLK_ms2Odd_p_(mclk),
+      .CLK_ms3Even_p_(mclk), .CLK_ms3Odd_p_(mclk),
+`endif
       .CPAddr_0_p_(addr_n[2]), .CPAddr_1_p_(addr_n[1]), .CPAddr_2_p_(addr_n[0]),
       .CPOut_0(cpout[8]), .CPOut_1(cpout[7]), .CPOut_2(cpout[6]),
       .CPOut_3(cpout[5]), .CPOut_4(cpout[4]), .CPOut_5(cpout[3]),
@@ -818,6 +831,9 @@ module tb_exec;
       // thresholds. The boot targets pass +mb0; recalibrating the AEmu
       // gates on the with-storage machine is a separate, worthwhile task.
       .Mb0(mb0_tie),
+`ifdef FOUR_STORAGE_MODULES
+      .Mb1(mb0_tie), .Mb2(mb0_tie), .Mb3(mb0_tie),
+`endif
       // IOReset is a BASEBOARD line (BaseBd i24 -> backplane): the firmware's
       // manifold table asserts it in DoIOReset, the first InitManifolds entry,
       // and PrepareProcessor re-asserts it before every load. Without a
@@ -3095,10 +3111,12 @@ module tb_exec;
   // +bootio: observe the CPU's reads separately from FIFO refills. HM 9.4:
   // reading DISKDATA consumes OutReg, which may refill immediately afterwards.
   reg bootio = 0, bootio_clk_d = 0, bootio_in_d = 1, bootio_unf_d = 0;
+  bit bootio_germ_copy = 0, bootio_germ_entered = 0;
   longint bootio_from = 249000000;
   integer bootio_n = 0, bootio_reads = 0;
   initial begin
     bootio = $test$plusargs("bootio");
+    bootio_germ_copy = $test$plusargs("bootio-germ-copy");
     void'($value$plusargs("bootiofrom=%d", bootio_from));
   end
   wire [15:0] bootio_md = {m.b_ProcH.Md_00, m.b_ProcH.Md_01, m.b_ProcH.Md_02, m.b_ProcH.Md_03,
@@ -3252,7 +3270,12 @@ module tb_exec;
   always @(posedge sys_clk) begin
     if (bootio && n_cyc2 >= bootio_from) begin
       if (!bootio_clk_d && m.b_ContA.clk0_p_Ca && bootio_n < 1000000 &&
-          (pct_ctask == 0 || pct_ctask == 12)) begin
+          (pct_ctask == 0 || pct_ctask == 12) &&
+          (!bootio_germ_copy || bootio_germ_entered ||
+           (pct_ctask == 0 && (ring_cia == 12'h5f1 || ring_cia == 12'h7e0)))) begin
+        // The original Cedar EB's copy loop and MGo entry. Suppress the
+        // preceding memory clear so it cannot exhaust a bounded trace.
+        if(pct_ctask == 0 && ring_cia == 12'h7e0) bootio_germ_entered = 1;
         bootio_n = bootio_n + 1;
         $display("tb_exec: BOOTIO @%0d CIA=%h task=%h T=%h A=%h B=%h ALU=%h MD=%h VA=%h FF=%h Hold=%b lt'=%b eq'=%b IOB=%h TIOA=%o full=%b empty=%b ETemp0=%h ETemp1=%h KStatus=%h",
           n_cyc2, ring_cia, pct_ctask, brc_t, brc_alua, brc_alub, brc_alu,
