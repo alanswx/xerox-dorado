@@ -91,6 +91,7 @@ wire [127:0] status;
 wire   [1:0] buttons;
 wire         forced_scandoubler;
 wire [10:0] ps2_key;
+wire [24:0] ps2_mouse;
 `ifdef DORADO_HPS_PACK
 wire [31:0] sd_lba [1];
 wire [5:0] sd_blk_cnt [1];
@@ -117,6 +118,7 @@ hps_io #(.CONF_STR(CONF_STR), .WIDE(1)) hps_io
 	// code is a distinct event, which matters here because the Dorado's
 	// terminal reports TRANSITIONS.
 	.ps2_key(ps2_key),
+	.ps2_mouse(ps2_mouse),
 `ifdef DORADO_HPS_PACK
 	.sd_lba(sd_lba), .sd_blk_cnt(sd_blk_cnt), .sd_rd(sd_rd), .sd_wr(sd_wr), .sd_ack(sd_ack),
 	.sd_buff_addr(sd_buff_addr), .sd_buff_dout(sd_buff_dout), .sd_buff_din(sd_buff_din), .sd_buff_wr(sd_buff_wr),
@@ -160,6 +162,23 @@ pll pll
 
 wire reset = RESET | status[0] | buttons[1] | ~pll_locked;
 
+// USB events arrive even while a disk transfer/pause stops the machine.
+// Retain those deltas here, then acknowledge only actual terminal reports.
+wire [15:0] mouse_keys;
+wire signed [8:0] mouse_dx, mouse_dy, mouse_sent_dx, mouse_sent_dy;
+wire mouse_pending, mouse_taken;
+`ifdef DORADO_CHECKPOINT
+wire mouse_reset = ~pll_locked;
+`else
+wire mouse_reset = reset;
+`endif
+dorado_mouse u_mouse (
+    .clk(clk_sys), .reset(mouse_reset), .ps2_mouse(ps2_mouse),
+    .key_word4(mouse_keys), .mouse_dx(mouse_dx), .mouse_dy(mouse_dy),
+    .mouse_pending(mouse_pending), .mouse_taken(mouse_taken),
+    .mouse_sent_dx(mouse_sent_dx), .mouse_sent_dy(mouse_sent_dy), .motion_overflow()
+);
+
 // DispY's pixel clock is an INPUT to the machine: its crystal (a05, 50 MHz on
 // the built Rev Cl sheet) sits outside the generated netlist, so the core
 // drives it -- right by construction rather than approximation.
@@ -192,6 +211,9 @@ altclkctrl #(.clock_type("Global Clock"), .ena_register_mode("falling edge"),
      .outclk(machine_clk));
 dorado_checkpoint_machine u_checkpoint (
     .sys_clk(machine_clk), .ps2_key(ps2_key), .pixel_clk(pixel_clk),
+    .mouse_keys(mouse_keys), .mouse_dx(mouse_dx), .mouse_dy(mouse_dy),
+    .mouse_pending(mouse_pending), .mouse_taken(mouse_taken),
+    .mouse_sent_dx(mouse_sent_dx), .mouse_sent_dy(mouse_sent_dy),
 `ifdef DORADO_HPS_PACK
     .clk_host(clk_sys), .pack_reset(~pll_locked), .pack_attached(|img_size), .pack_readonly(img_readonly),
     .sd_lba(sd_lba[0]), .sd_blk_cnt(sd_blk_cnt[0]), .sd_rd(sd_rd[0]), .sd_wr(sd_wr[0]), .sd_ack(sd_ack[0]),
@@ -247,17 +269,13 @@ dorado_terminal u_term
 	.key_word1     (kw1),
 	.key_word2     (kw2),
 	.key_word3     (kw3),
-	// Word 4 is mouse buttons and the keyset (Alto 177033B). No mouse is
-	// wired yet, and the cell is ACTIVE LOW -- an unseeded one reads as every
-	// button and keyset key HELD, which is what once stopped Smalltalk with
-	// "the keyset is stuck". So it idles all-ones deliberately.
-	.key_word4     (16'hFFFF),
-	.mouse_dx      (9'sd0),
-	.mouse_dy      (9'sd0),
-	.mouse_pending (1'b0),
-	.mouse_taken   (),
-	.mouse_sent_dx (),
-	.mouse_sent_dy (),
+	.key_word4     (mouse_keys),
+	.mouse_dx      (mouse_dx),
+	.mouse_dy      (mouse_dy),
+	.mouse_pending (mouse_pending),
+	.mouse_taken   (mouse_taken),
+	.mouse_sent_dx (mouse_sent_dx),
+	.mouse_sent_dy (mouse_sent_dy),
 	.OISData       (ois_data),
 	.OISData_n     (ois_data_n)
 );

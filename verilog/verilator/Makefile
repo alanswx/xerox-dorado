@@ -1387,6 +1387,19 @@ term-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_term/tb_term 2>&1); \
 		  rc=$$?; echo "$$out" | grep tb_term; exit $$rc; }
 
+.PHONY: mouse-test mouse-terminal-test
+mouse-test:
+	@cd ../.. && $(V) --binary --top-module tb_mouse $(V_WARN) \
+		--Mdir verilog/verilator/obj_mouse -o tb_mouse \
+		verilog/verilator/tb_mouse.sv fpga/mister/dorado_mouse.sv >/dev/null
+	@./obj_mouse/tb_mouse
+mouse-terminal-test:
+	@cd ../.. && $(V) --binary --top-module tb_mouse_terminal $(V_WARN) \
+		--Mdir verilog/verilator/obj_mouse_terminal -o tb_mouse_terminal \
+		verilog/verilator/tb_mouse_terminal.sv fpga/mister/dorado_mouse.sv \
+		verilog/cells/dorado_terminal.v >/dev/null
+	@./obj_mouse_terminal/tb_mouse_terminal
+
 .PHONY: keyboard-terminal-test
 keyboard-terminal-test:
 	@cd ../.. && $(V) --binary --top-module tb_keyboard_terminal $(V_WARN) \

@@ -1,5 +1,33 @@
 # Verilog from Sil: handoff
 
+## Active mouse and cold-boot work (2026-10-17 UTC)
+
+The requested sequence is mouse input, display/software compatibility,
+backing-disk persistence plus an ARM-local boot server, then unassisted
+BaseBoard boot. Do not assume arbitrary Alto games should work on Dorado:
+some install custom Alto RAM microcode that AEmu cannot execute. Use the
+Executive cursor and actual guest input cells as the first mouse gate;
+Invaders remains a compatibility probe, not a claim of perfect emulation.
+
+Mouse bridge implementation: `fpga/mister/dorado_mouse.sv` consumes MiSTer's
+25-bit PS/2 packets on the ungated host clock, accumulates relative movement
+through machine pauses, reverses PS/2 Y, and maps left/right/middle to active-
+low terminal word-4 bits 2/1/0. Reports drain only once even if the terminal
+clock stops with its acknowledgement high. The checkpoint exporter exposes
+the terminal's existing motion/button ports; CPU/memory state is untouched.
+
+`mouse-test`, `mouse-terminal-test` and `keyboard-terminal-test` pass. A
+14M-sample complete checkpoint/HPS simulation delivers `(40,+24)` to Alto
+`0424B/0425B`, then `(-10,-12)` to reach `(30,12)`. Left press and release
+reach UTILIN as `FFFB` and `FFFF` through DisplayAux.mc's ReadTerminal.
+The inspected state is in `build/rtl-executive/mouse-full*.{bin,pgm}`;
+`mouse-last.rtl` retains the exact model and medium state.
+
+Hardware validation is pending. Isolated Quartus project:
+`misterubuntu:/home/alans/mister/Dorado_Mouse_20261017/core`. Its copied
+sources preserve the previous HPS medium while subsequent disk work proceeds
+in the local checkout. The previous Executive/Invaders launchers remain intact.
+
 ## Invaders starts on MiSTer14 (2026-10-17 UTC)
 
 The canonical file-backed RTL simulation reproduces the FPGA's stall at

@@ -541,6 +541,11 @@ endmodule''')
     wrapper = f'''// GENERATED continuation of a verified RTL checkpoint, not a cold boot.
 module dorado_checkpoint_machine (
     input wire sys_clk, input wire [10:0] ps2_key,
+    input wire [15:0] mouse_keys,
+    input wire signed [8:0] mouse_dx, mouse_dy,
+    input wire mouse_pending,
+    output wire mouse_taken,
+    output wire signed [8:0] mouse_sent_dx, mouse_sent_dy,
 HPS_PORTS
     output wire video, hsync, vsync_n, hblank, vblank, halfline,
     output wire pixel_clk
@@ -571,7 +576,8 @@ HPS_PORTS
   wire term_ois;
   checkpoint_u_term u_term (.sys_clk(sys_clk), .reset(1'b0), .line_tick(term_tick),
     .key_word0(kw0), .key_word1(kw1), .key_word2(kw2), .key_word3(kw3),
-    .key_word4(16'hffff), .mouse_dx(9'sd0), .mouse_dy(9'sd0), .mouse_pending(1'b0),
+    .key_word4(mouse_keys), .mouse_dx(mouse_dx), .mouse_dy(mouse_dy), .mouse_pending(mouse_pending),
+    .mouse_taken(mouse_taken), .mouse_sent_dx(mouse_sent_dx), .mouse_sent_dy(mouse_sent_dy),
     .OISData(term_ois));
   wire drv_cp, drv_cm, drv_dp, drv_dm, drv_ready_n, drv_online_n, drv_term_n, drv_index_n, drv_sec_n, drv_sel_n, disk_sel_n;
 PACK_INSTANCE

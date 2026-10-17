@@ -79,6 +79,7 @@ rm -f "$OUT/Dorado.qsf.bak"
   # resolve from the project directory. Without it every PROM package fails to
   # elaborate; this is the same fix fpga/quartus needed.
   echo "set_global_assignment -name SEARCH_PATH \"$REPO\""
+  echo "set_global_assignment -name SYSTEMVERILOG_FILE $REPO/fpga/mister/dorado_mouse.sv"
   if [ -n "$CHECKPOINT" ]; then
     [ -f "$CHECKPOINT/sources.f" ] || { echo "missing checkpoint sources: $CHECKPOINT" >&2; exit 1; }
     echo 'set_global_assignment -name VERILOG_MACRO DORADO_CHECKPOINT'
