@@ -12,10 +12,12 @@ endif
 LDFLAGS ?= $(GC)
 CFLAGS ?= -O2 -Wall -Wextra -ffunction-sections -fdata-sections
 
-.PHONY: all test
+.PHONY: all test cedar-test
 all:
 	mkdir -p $(dir $(OUT))
 	$(CC) $(CFLAGS) -I$(ROOT)/dorado/include dorado_server.c \
 		$(ROOT)/dorado/src/ethernet.c $(ROOT)/dorado/src/io.c $(LDFLAGS) -o $(OUT)
 test: all
 	python3 test_server.py $(OUT) $(ROOT)
+cedar-test: all
+	python3 test_cedar_server.py $(OUT) $(ROOT)

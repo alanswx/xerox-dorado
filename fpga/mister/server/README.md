@@ -24,8 +24,13 @@ dorado-server /tmp/dorado-net.sock /path/aemu.eb /path/NETEXEC.BOOT /path/stp
 The final STP-root argument is optional. Explicitly configured microcode
 BFN `0110B` and the default EFTP file are currently exposed; the other
 microcode BFNs still have the C project's relative defaults. Only the two
-configured files are checked at startup. STP itself reuses the C project's
-server but has not yet been qualified through this process boundary.
+configured files are checked at startup. For Cedar, launch with cwd at the
+staged `dorado` directory so BFN113 resolves to `../chm/dorado/CedarDorado.eb!6`.
+`make cedar-test` qualifies that mapping and an actual BSP/STP retrieve:
+31,376 microcode bytes in 62 frames and the 66,296-byte CedarSource.VersionMap
+in 45 data frames, including 1,504-byte frames. Payloads match their files
+byte-for-byte on both Mac and the MiSTer ARM. These are server/transport
+tests; they do not qualify a Cedar FPGA boot.
 
 Transport is local `AF_UNIX/SOCK_DGRAM`, with one Main client binding its
 own pathname and sending a zero-length registration datagram. Each later

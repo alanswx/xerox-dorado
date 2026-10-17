@@ -1,0 +1,4 @@
+[360] %Fatal: tb_baseboard_manifold.sv:41: Assertion failed in tb_baseboard_manifold: BaseBoard manifold shift got 000 expected a35
+%Error: verilog/verilator/tb_baseboard_manifold.sv:41: Verilog $stop
+Aborting...
+make: *** [baseboard-manifold-test] Error 1

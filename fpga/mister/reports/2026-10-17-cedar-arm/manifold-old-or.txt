@@ -1,0 +1,3 @@
+[16] %Fatal: tb_baseboard_manifold.sv:22: Assertion failed in tb_baseboard_manifold.unnamedblk1.unnamedblk2.unnamedblk3: BaseBoard j17 wired selector failed clock=0 write=0 read=1 got=1
+%Error: verilog/verilator/tb_baseboard_manifold.sv:22: Verilog $stop
+Aborting...

@@ -1,0 +1,8 @@
+mkdir -p ../../../build/
+cc -O2 -Wall -Wextra -ffunction-sections -fdata-sections -I../../../dorado/include dorado_server.c \
+		../../../dorado/src/ethernet.c ../../../dorado/src/io.c -Wl,-dead_strip -o ../../../build/dorado-server
+python3 test_cedar_server.py ../../../build/dorado-server ../../..
+Dorado Pup server listening on /tmp/dorado-cedar-bfn-emqrn2ir/server.sock (raw frames, no CRC/status)
+Dorado Pup server listening on /tmp/dorado-cedar-stp-pcw1rzl8/server.sock (raw frames, no CRC/status)
+CEDAR-BFN113 PASS: 31376 payload bytes, 62 frames, SHA256 83c81946859858da2ebfd8802ea592343bf7622b8822763d73578e0696b65d4e
+CEDAR-STP PASS: 66296 file bytes, 45 data frames, largest frame 1504 bytes, SHA256 bebd06081862eb402433432e28d911454c0726828672469e51f5435b092f2055

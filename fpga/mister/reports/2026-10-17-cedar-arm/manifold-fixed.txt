@@ -1,0 +1,5 @@
+BASEBOARD-MANIFOLD PASS: all 8 shift/read data combinations through j17/l24; 12-bit address a35 captured by l21/l22
+- verilog/verilator/tb_baseboard_manifold.sv:43: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 360ps; walltime 0.001 s; speed 337.711 ns/s
+- Verilator: cpu 0.001 s on 1 threads; alloced 2 MB

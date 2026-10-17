@@ -250,6 +250,15 @@ static ARM server SHA256 is
 Stock `/media/fat/MiSTer` is unchanged.
 
 
+Cedar-specific server qualification now passes on Mac and MiSTer14 ARM:
+BFN113 returns all 31,376 microcode payload bytes (62 frames) byte-exact;
+an actual BSP/STP retrieve returns all 66,296 bytes of CedarSource.VersionMap
+in 45 data packets, including 1,504-byte frames. The client advertises a
+1478-byte Pup allocation and acknowledges each byte ID. This also validates
+the staged STP root and versioned-file resolution. Run
+`make -C fpga/mister/server cedar-test`; ARM evidence is in
+`fpga/mister/reports/2026-10-17-cedar-arm/`.
+
 **Two actual BaseBoard manifold defects found during native bring-up.**
 `CPDMuxData'` is driven by BaseBd j17's two SN74LS01 open-collector NAND
 outputs, with complementary clock inputs. The generator resolved these as
