@@ -25,6 +25,11 @@ the external output and BaseBd observer for sixteen samples. The frozen
 Native15 fails drive=1/external=0/BaseBd=1; corrected Native16 passes.
 This gate is boundary connectivity, not a CPU or protocol boot test.
 Evidence: `reports/2026-10-17-native-cable/`.
+`initial-wire-test` additionally replays the actual Initial request waveform
+through the native1024-word MiSTer packet bridge with605 clock pauses:
+all13 request words and the controller-generated CRC are accepted.
+The test excludes only the capture's power-up settling at samples0/14.
+
 
 **Native16** is building at
 `misterubuntu:/home/alans/mister/Dorado_Native16_20261017/core`, frozen

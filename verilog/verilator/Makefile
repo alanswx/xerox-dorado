@@ -1018,6 +1018,15 @@ initial-network-test:
 	@cd ../.. && python3 tools/check_initial_request.py \
 		verilog/verilator/obj_initial_rom/request.txt --sysper $(SYSPER)
 
+.PHONY: initial-wire-test
+initial-wire-test:
+	@$(MAKE) initial-network-test SYSPER=4
+	@cd ../.. && $(V) --binary --top-module tb_initial_wire $(V_WARN) \
+		--Mdir verilog/verilator/obj_initial_wire -o initial-wire-test \
+		verilog/verilator/tb_initial_wire.sv fpga/mister/dorado_ethernet_wire.sv >/dev/null && \
+		./verilog/verilator/obj_initial_wire/initial-wire-test \
+		+recording=verilog/verilator/obj_initial_rom/request.txt
+
 # The native machine includes BaseBd, which also observes the TX cable.
 # Exercise the complete generated wrapper rather than the smaller full top.
 .PHONY: native-cable-test

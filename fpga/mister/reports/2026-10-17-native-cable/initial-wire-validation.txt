@@ -1,0 +1,2 @@
+INITIAL WIRE PASS: all13 original request words and real CRC accepted through 605 clock pauses
+Recording: actual original-ROM Initial controller output from the passing31M SYSPER4 initial-network-test. All request transitions retained; power-up settling at samples0/14 excluded. No CRC regeneration. Native1024-word bridge;605 machine-clock pauses.
