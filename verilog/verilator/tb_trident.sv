@@ -35,7 +35,7 @@ module tb_trident;
   always #1 sys_clk = ~sys_clk;
 
   reg reset = 1'b1, attached = 1'b0, selected = 1'b0;
-  wire rdy_n, onl_n, term_n, sel_n, si_n;
+  wire rdy_n, onl_n, term_n, sel_n, si_n, index_n;
   // The read data path. The bench IS the pack, and it sends a pattern that
   // is NOT 50/50 alternating on purpose.
   //
@@ -49,6 +49,13 @@ module tb_trident;
   reg  [3:0] pack_ptr = 4'd0;
   wire       pack_bit = PATTERN[4'd15 - pack_ptr];
   wire data_adv, dp, dm, cp, cm;
+  // Use DskEth f02's actual differential input polarity, not a receiver
+  // which repeats the transmitter's assumption about the cable names.
+  wire received_data;
+  cell_MC1650 receiver (
+    .sys_clk(sys_clk), .p4(1'b1), .p5(dp), .p6(dm), .p2(received_data),
+    .p13(1'b0), .p11(1'b0), .p12(1'b0), .p14(),
+    .p1(1'b0), .p7(1'b0), .p8(1'b0), .p10(1'b0), .p16(1'b0));
   always @(posedge sys_clk) if (data_adv) pack_ptr <= pack_ptr + 4'd1;
 
   // The receiver: sample on the clock's rising edge, MSB first.
@@ -59,7 +66,7 @@ module tb_trident;
   reg [15:0] rot;
   always @(posedge sys_clk) begin
     cp_d <= cp;
-    if (cp && !cp_d) begin rx <= {rx[14:0], dp}; rx_bits <= rx_bits + 1; end
+    if (cp && !cp_d) begin rx <= {rx[14:0], received_data}; rx_bits <= rx_bits + 1; end
   end
 
   // SECTORS_PER_REV=8 with the module's real 277,778-microcycle revolution
@@ -71,7 +78,7 @@ module tb_trident;
   dorado_trident #(.SYSPER(1), .SECTORS_PER_REV(SECTORS)) u (
       .sys_clk(sys_clk), .reset(reset), .attached(attached), .selected(selected),
       .TtlReady_n(rdy_n), .TtlOnLine_n(onl_n), .TtlTerm_n(term_n),
-      .Selected_n(sel_n), .SecIndx_n(si_n),
+      .Selected_n(sel_n), .SecIndx_n(si_n), .TtlIndex_n(index_n),
       .data_bit(pack_bit), .data_adv(data_adv),
       .DataP(dp), .DataM(dm), .ClockP(cp), .ClockM(cm));
 
@@ -115,11 +122,12 @@ module tb_trident;
     // ---- 3. ROTATION: rate, and the gaps ------------------------------
     // Watch one whole revolution. Count falling edges of SecIndx' (one per
     // sector), and the longest low run (the index pulse, which is longer).
-    n_fall = 0; n_low = 0; n_high = 0; longest = 0; run = 0;
+    n_fall = 0; n_low = 0; n_high = 0; longest = 0; run = 0; n_index = 0;
     si_d = si_n;
     for (i = 0; i < REV; i = i + 1) begin
       @(posedge sys_clk);
       if (!si_n && si_d) n_fall = n_fall + 1;
+      if (!index_n) n_index = n_index + 1;
       if (!si_n) begin
         n_low = n_low + 1; run = run + 1;
         if (run > longest) longest = run;
@@ -141,11 +149,13 @@ module tb_trident;
         "SecIndx' is DEASSERTED for most of a revolution (not stuck low)");
     chk(n_low > 0, "...and asserted some of it (not stuck high either)");
 
-    // THE INDEX PULSE IS THE LONG ONE. Sector pulses are REV/SECTORS/64
-    // samples; the index is four times that, and the controller tells them
-    // apart by exactly this.
-    chk(longest > (REV / SECTORS / 64) * 2,
-        "one pulse per revolution is markedly LONGER -- that is index");
+    // TriconD06.sil: fixed 1.2 us sector and 4.5 us index widths straddle
+    // the controller's 3.0 us one-shot; not fractions of sector spacing.
+    chk(longest == 4500 / 60, // drive below uses SYSPER=1
+        "index pulse is the schematic's 4.5 us");
+    chk(n_index == longest, "selected: the separate Index status spans the index pulse");
+    chk(n_low == (SECTORS-1) * (1200 / 60) + longest,
+        "ordinary sector pulses are the schematic's 1.2 us");
 
     // ---- and a second revolution repeats ------------------------------
     n_fall = 0; si_d = si_n;
@@ -159,7 +169,7 @@ module tb_trident;
     // ---- 4. THE DATA PATH ----------------------------------------------
     // The pairs must be DIFFERENTIAL (a stuck pair fails), the clock must
     // run, and the data must FOLLOW the pack rather than sit at a level.
-    n_low = 0; n_high = 0; n_fall = 0; run = 0;
+    n_low = 0; n_high = 0; n_fall = 0; run = 0; n_index = 0;
     for (i = 0; i < REV / SECTORS; i = i + 1) begin
       @(posedge sys_clk);
       if (cp !== ~cm) run = run + 1;          // clock pair not differential
@@ -200,13 +210,32 @@ module tb_trident;
     end
     chk(rot_ok, "the DATA the pack sent comes back (up to the starting phase)");
 
+    // The fractional divider must deliver the physical track's exact bit
+    // count per revolution, rather than rounding each half-bit period.
+    n_fall = 0;
+    for (i = 0; i < REV; i = i + 1) begin
+      @(posedge sys_clk);
+      if (data_adv) n_fall = n_fall + 1;
+    end
+    chk(n_fall == SECTORS * 256 * 16,
+        "one revolution delivers exactly the configured track bit count");
+
     // DESELECTED, the pairs go quiet -- the controller's own receiver is
     // gated by NotSelected, but the drive must not be shouting either.
     selected = 1'b0;
     repeat (200) @(posedge sys_clk);
     n_high = 0;
-    for (i = 0; i < 2000; i = i + 1) begin @(posedge sys_clk); if (dp || cp) n_high = n_high + 1; end
+    for (i = 0; i < 2000; i = i + 1) begin @(posedge sys_clk); if (dp || dm || cp || cm) n_high = n_high + 1; end
     chk(n_high == 0, "deselected: the drive stops driving data and clock");
+    n_fall = 0; n_index = 0;
+    for (i = 0; i < REV; i = i + 1) begin
+      @(posedge sys_clk);
+      if (data_adv) n_fall = n_fall + 1;
+      if (!index_n) n_index = n_index + 1;
+    end
+    chk(n_fall == SECTORS * 256 * 16,
+        "deselected: media still advances exactly one track per revolution");
+    chk(n_index == 0, "deselected: the separate Index status is not driven");
     selected = 1'b1;
 
     // ---- unmounting stops it -------------------------------------------

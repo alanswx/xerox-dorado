@@ -1,6 +1,3042 @@
 # Verilog from Sil: handoff
 
-## COLD RESTART (2026-09-05) -- read this first
+## MiSTer14: interactive Executive (2026-10-16)
+
+**The actual FPGA accepts `foo` + Return, prints `There is no subsystem
+named foo.`, and returns to `>`.** MiSTer14 (`10.0.2.14`) is allocated for
+this test. Keyboard events came through its existing remote virtual USB
+keyboard, not a planted guest input queue. HPS serviced the real disk lookup
+(the mounted file advanced to the cylinder-104 track window).
+
+The hardware starts from the ready checkpoint of the verified assisted RTL
+boot. Processor, memory, display controller, terminal and disk logic then
+continue running on the FPGA. This is **a checkpoint start, not BaseBoard
+cold boot**. The simulation evidence below remains the fresh-boot gate.
+
+**Final hardware screenshot:**
+[`rtl-mister14-executive-input-2026-10-16.png`](images/rtl-mister14-executive-input-2026-10-16.png).
+The field-corrected RBF passes two clean restart/input tests. All 2,330
+pixels of the herald/command-response text match the RTL bitmap reference
+exactly. The final remote capture is
+`/media/fat/screenshots/Dorado/20261017_001012-final-repeat-input.png`
+(the filename uses UTC; the local bring-up date is October 16).
+
+Two video integration issues were fixed. At 1024x768 the MiSTer scaler
+keeps only one interlaced field; the per-core 1080p override retains both.
+The initial `VGA_F1` value must be one for this saved continuation; zero
+swapped adjacent rows. The uncorrected capture had 2,472 differing text
+pixels; the corrected capture has zero. Native captures are 656x840,
+including controller borders around the guest's 608x808 bitmap.
+
+Final RBF: `build/rtl-executive/DoradoExecutive_20261016.rbf`, SHA256
+`3b86d7136d576c7c7a2b9c0b83082e2ed1646aa30b4e95d69ebdc5632dcc32cf`,
+verified identical on MiSTer14. The prior field-swapped RBF is retained as
+`DoradoExecutive_20261016-field-swapped.rbf` in the same local directory.
+
+### Run on the allocated MiSTer
+
+Run `/media/fat/Scripts/DoradoExecutive.sh` from Scripts or SSH. It atomically
+creates `executive-work.pack` from the unmounted seed, then loads
+`/media/fat/_Computer/DoradoRTL_20261016/Executive.mgl` and its paired RBF.
+Reload only with the matching fresh disk; the launcher handles that. OSD
+reset/pause does not restore saved memory.
+
+The disk directory is `/media/fat/games/DoradoRTL/20261016/`. Seed SHA256:
+`c703e9df999a074d3c14abf941e706e9fa35a3520594075065a104bc48535332`.
+The original INI is `/media/fat/MiSTer.ini.before-dorado-20261016`.
+The appended `[DoradoExecutive_20261016]` section sets `video_mode=8` and
+`vsync_adjust=0`; other cores keep their settings. The remote service is
+`http://10.0.2.14:8182/`. Native captures use
+`echo "screenshot name" > /dev/MiSTer_cmd` and appear in
+`/media/fat/screenshots/Dorado/`.
+
+### Build and validation
+
+Build machine: `misterubuntu`, project
+`/home/alans/mister/Dorado_RTL_20261016/executive-hps-core`, logs in sibling
+`logs/`. Quartus 17.0.2 is under
+`/home/alans/intelFPGA_lite/17.0/quartus/bin/`. The final HPS fit succeeds:
+23,733 ALMs (57%), 21,936 registers, 445 RAM blocks (80%), 2,336,070 memory
+bits (41%), 35 DSPs. Core Fmax is 48.06 MHz against a 33.333 MHz clock;
+reported setup/hold slack is positive after the scoped hold-only exception
+in `fpga/mister/checkpoint_timing.sdc`. The original fit reported -0.065 ns
+hold from ContA a04 `a_lat[1]` to its RAM write-address port. In
+`cell_F10145A`, address capture requires `!p13`, while a write requires
+`p13 && !we_d && ce_lat`; that source cannot change on an enabled write edge.
+The exception covers only this instance's address-to-write-port hold paths;
+setup and all read paths remain checked. Remaining core hold slack is
++0.086 ns, setup +9.192 ns. Both original and final reports are in
+`fpga/mister/reports/2026-10-16-executive/`. Framework I/O is not fully
+constrained. Build logs are `executive-field-*.log`; final timing rerun is
+`executive-final-sta.log`.
+
+`make -C verilog/verilator executive-mister-export` exports the existing
+matching model/checkpoint without rebuilding it. `tools/sil_fpga_checkpoint.py`
+derives native offsets and current RTL XML, preserves actual per-instance
+register/RAM values, and applies the saved disk overlay to `executive.pack`.
+It uses no C-emulator state. The 64K-word Alto configuration rejects other
+physical addresses; clocked state matches the original at checked samples
+3 through 1,000. All 65,536 initial visible words match exactly.
+
+The full HPS-backed continuation simulation accepts the same command and
+its final bitmap is byte-identical to `fresh-input-bitmap-440000000.pgm`.
+This 50M-sample run makes three HPS track reads without out-of-range storage
+accesses. Its log is `build/rtl-executive/fpga-hps-input.log`.
+
+`dorado_pack_hps.sv` implements track-window HPS reads and checked serial
+writes. Its 16KB buffer includes neighboring bytes at unaligned boundaries;
+writeback precedes a seek, and the machine pauses during host transfers.
+`make -C verilog/verilator hps-pack-test` passes: 11,024 serial bits match
+the file-backed reference, two reads and one write occur, and the full image
+is unchanged after loopback.
+
+FPGA-specific fixes: support `mycore.*` templates and embedded `emu` ports;
+MLAB hints for asynchronous SRAM; an external first-cycle valid mux when a
+saved RAM output latch of one would prevent Quartus from inferring RAM;
+and a true dual-port track buffer with `no_rw_check` because neither consumer
+uses read values while its port writes.
+
+An additional hardware test entered `invaders` at Executive. The OS found
+and printed `Invaders.RUN`, cleared the screen, and accessed another disk
+track (file position 10,376,192). No game screen appeared in the captures
+separated by about 25 seconds. This is unresolved, not an application gate.
+Evidence: `build/rtl-executive/mister14-invaders.png` and remote captures
+`20261016_235643-invaders.png` / `20261016_235709-invaders-later.png`.
+The clean Executive was restored with the installed launcher afterward.
+
+Next boot work must include a local ARM boot server and buffered FPGA/HPS
+Ethernet transport before removing the assisted world load. Initial needs
+that transport. Reuse the C emulator's server logic in a separate Linux
+service on the MiSTer ARM, without its CPU emulator; Main should provide
+packet transport/configuration where needed. External network access should
+not be required. Gate unassisted boot with the network cable disconnected.
+The completion sequence and RTL/Main split are in `fpga/mister/README.md`.
+
+Other remaining work: BaseBoard integration, larger storage/SDRAM, mouse
+input, and durable handling of the last dirty disk track without a subsequent
+seek. The present launcher uses a disposable working disk. The core runs at
+one quarter of Dorado speed, with additional pauses for HPS transfers.
+
+The sections below preserve earlier simulation bring-up notes. Their
+"currently running" process IDs and earlier pending-status statements are
+historical; the hardware status above supersedes them.
+
+## Verified: interactive Alto Executive in RTL (2026-10-16)
+
+**Fresh boot, character echo, command execution and return to the prompt all
+work in Verilator.** The OS printed its Executive/12 and OS20/16 herald,
+echoed `foo`, accepted Return, printed `There is no subsystem named foo.`,
+and displayed another `>` prompt. Screenshot:
+[`rtl-alto-executive-input-2026-10-16.png`](images/rtl-alto-executive-input-2026-10-16.png).
+The input travelled through PS/2 events, `dorado_keyboard`, the terminal
+serial return channel, DispY, the period microcode, and the OS keyboard ISR.
+No guest text, input queue, interrupt mask or completion flag was planted.
+
+Run from the repository root:
+
+```sh
+make -C verilog/verilator run-executive-ready
+```
+
+The local ready state is `build/rtl-executive/alto-executive.rtl`, captured
+at390M fabric samples from the corrected fresh boot, before any typing.
+To recreate it, run `make -C verilog/verilator executive-checkpoint` (slow).
+The default model uses four fabric samples per clock. Scripted and physical
+key transitions are spaced4M samples apart so the OS can scan each state;
+typing is correspondingly slow in Verilator. The shortcut was rebuilt and
+tested, restoring a byte-identical bitmap.
+
+The complete command proof is `alto-executive-input-proof.rtl` in the same
+build directory. Its restored bitmap matches the440M capture byte for byte;
+all keys are released and keyboard interrupts remain enabled. Hashes and
+model fingerprint are recorded in `alto-executive.json`. Checkpoints contain
+actual RTL state and serial disk-write overlays and require the exact model
+build. The unmodified base pack remains required.
+
+The SDL window is left running from the clean ready state, session54876,
+log `build/rtl-executive/interactive.log`, with periodic saves to
+`interactive-last.rtl` (PID17676). The scripted test window and obsolete
+diagnostic processes were terminated after preserving their artifacts.
+**Important limit:** the boot uses the existing
+assisted Initial/AEmu handoff and the screen is a read-only rendering of the
+actual guest DCB bitmap. Video pins and physical MiSTer boot are not qualified;
+MiSTer still needs the storage, video-clock and reset work listed in its README.
+
+The older diagnostic prefix's missing input was an artifact of continuing
+execution that predates the address fix: it left `M[421B]=E000`. The fully
+corrected fresh boot naturally produces `1100`, enters the keyboard ISR,
+and accepts input. Do not patch that mask or use the older prefix as a gate.
+
+## Fresh RTL boot reaches the Executive prompt (2026-10-16)
+
+**Fresh boot is now proven through the Executive herald and `>` prompt.**
+The current model boots from zero, through assisted Initial/AEmu and the
+serial Trident medium. At354M fabric samples it has printed the herald;
+by362M it shows `>// eventBooted` and `>`. Screenshot:
+[`rtl-alto-executive-fresh-2026-10-16.png`](images/rtl-alto-executive-fresh-2026-10-16.png).
+This is the guest's actual DCB bitmap, rendered read-only from RTL memory;
+it is not video-pin validation or a physical MiSTer result.
+
+`build/rtl-executive/cold-prompt-latest.rtl` is an exact-model fresh-boot
+checkpoint at390M. **Use the fresh path for input tests.** The older
+`wordaddr165679.rtl` diagnostic prefix boots to text too, but leaves
+`M[421B]=E000` and never enters the keyboard ISR during the input test.
+Fresh boot has `M[421B]=1100`, `M[453B]=1101`, and the saved keyboard ISR
+registers show that it executes. No interrupt mask was patched. The older
+prefix carried execution from before the odd-address fix and is not a
+fresh-boot qualification.
+
+An SDL input test is currently running from the fresh390M checkpoint:
+`fresh-input.log`, session12850. It queues `foo` + Return at400M with4M
+samples per transition, captures `fresh-input-bitmap-SAMPLE.pgm`, and
+saves actual state every2M to `fresh-input-latest.rtl`. **OS character echo
+is still being tested; do not claim it yet.** The earlier input tests
+against the old prefix are paused, as is fresh headless PID901.
+
+Host-only improvements: `--save-every N` atomically replaces a checkpoint
+periodically and saves at exit; it cannot be combined with `--save-at`.
+New captures use the real Alto polarity (one=black), with an `ink=` count.
+The actual SDL window requires access to the Mac display server, which the
+filesystem sandbox blocks; the current window was launched with escalation.
+
+## Current Executive attempt: display installed, Executive.Run opening
+
+The corrected continuation at **330,000,000 samples** has installed the
+actual DCB chain at `0420B -> BFFC` (hex addresses). It is still blank, but
+the saved call stack has advanced beyond `LookupEntries`: `8D30` is the
+return from `FinishInitOs`, and `CAD4` returns from opening the literal
+`Executive.Run.`. That file has 105 disk pages on this pack. There is **no
+Executive text or OS character echo yet**.
+
+Current continuation PID95274 / session34150 reads
+`wordaddr-capture240.rtl`, saves `wordaddr-capture330.rtl`, and targets500M.
+Its log is `build/rtl-executive/wordaddr-capture-next.log`; guest bitmap
+captures use `wordaddr-bitmap-SAMPLE.pgm`. PID92710 is paused and superseded.
+The actual330M checkpoint can be inspected without advancing it:
+
+```sh
+verilog/verilator/obj_executive/dorado-executive --headless \
+  --restore build/rtl-executive/wordaddr-capture330.rtl --stop-at 330000000 \
+  --out build/rtl-executive/inspect330.pgm
+```
+
+Fresh corrected boot PID88854 / session46687 is still active, saving at240M
+to `wordaddr-cold240.rtl`. It follows a different path after the first
+BootInit delay from the older diagnostic prefix: at160M it has read78,108
+words, versus134,420 in that prefix. Do not claim that the continuation's
+timing qualifies fresh boot. The old16-sample comparison PID80891 is paused.
+
+The host renderer now follows the Alto convention, bit1=black and
+bit0=white; new captures report `ink=`, while the still-running binaries
+report the former inverted `white=` count. This host-only correction does
+not change RTL state or checkpoint compatibility. The observer remains a
+read-only DCB renderer, not a capture of video output pins.
+
+## Live run/capture correction
+
+Current continuation is PID92710, session30266, `wordaddr-capture.log`, from
+actual166.5M state. It writes **guest DCB bitmap** P5 files with
+`--capture-prefix build/rtl-executive/wordaddr-bitmap --capture-every 2000000`.
+These are read-only renders of RTL memory, not pixel-pin captures. The
+canonical frontend does not include the ignored raw `liveframes` probe, so
+those older +args do not produce periodic frames there. The new host options
+make capture explicit and print `BITMAP @sample white=... DCB=...`.
+PID88847 (`wordaddr-boot.log`) was paused at~186M in favor of this observer.
+The corrected **fresh** run PID88854, session46687, is still active from0.
+Both corrected runs target340M and save actual exact-build state at240M.
+
+The corrected short continuation at166.5M preserves new queueB552 and
+previous completionFC90=0F00. Subsequent disk reads resume (141,848 words
+at168M, 142,392 by170M). At170M onward the guest re-enters BootInit's30K
+iteration display-off loop; follow it rather than interpreting the lack of
+pixels during that loop as a stopped computer. No Executive/input result
+yet. All new checks are now complete: unit regression, readback/memrun,
+16-distinct-word cache fill at4/16, and cell/key-matrix/loop structural checks.
+
+## 2026-10-16: odd-bank address setup fix preserves the actual backward jump
+
+A concrete address-capture bug is fixed in the generator: MemD F10016
+positions **b09/h07/k09** now select PRECAP=1. On the actual held IFU fetch
+at165,679,831, the even bank already loads word-pair2 for FD25; the odd bank
+samples the following dDad=0 as MemC releases the hold and advances its mux.
+It therefore selects **FD21=FFF4** instead of **FD25=01FD**. The wrong opcode
+is parity-correct and falls through the disk completion wait. In this window
+cache RAM itself still contains the correct sixteen words.
+
+`tb_cache_word_address_capture.sv` tests all three copies with changing
+address at the capture edge and then counts a full line. Old model fails
+0/0/0 expected2; new passes (compiled4 and16). Readback and memrun pass4/16.
+The actual165,679,300 checkpoint maps by field identity into the corrected
+canonical model, with new setup registers allowed to settle hundreds of
+fabric samples before the failing handoff. All65,536 visible words match
+before execution. New `wordaddr-ifupoll.log` shows D=007F4 (01FD plus parity),
+FG opcode01, and CIA188 executing the correct backward JMP after NSK1C.
+At166.5M the queue remains **B552** until the new command completes, instead
+of being overwritten withzero; previousFC90 status is0F00. No queue or
+completion state was planted. Still no Executive or character echo yet.
+
+Current source: g22 PRECAP=0 (stale FastD pulse rejected) plus these three
+odd-bank setup counters. Current exact-build state is
+`wordaddr165679.rtl`; `wordaddr1665.rtl` also saved. Long continuation
+`wordaddr-boot.log` (session79608) and fresh boot `wordaddr-cold.log`
+(session46687) both target340M and save at240M. They have live raw video
+frames every2M; final frontend bitmap is read-only from actual guest DCBs.
+The old16-sample run `post16-cold.log` predates this address fix and is only
+a comparison, not a current-source gate. New readback/memrun4/16 pass;
+structural and actual16-distinct-word cache fill checks are being completed.
+
+## 2026-10-16 refinement: queue store succeeds; completion poll exits early
+
+The short replay disproves a lost queue-post store. M[0151] changes from
+FC8F toB552 at165,697,978 with correct cache write enables. At165,733,338
+task12 overwrites it withzero while completing the precedingFC8F command.
+Actual FC90 status is stillzero at165,697,000, so the guest has advanced
+before the previous command completed. This is a premature completion wait
+exit, not an actual missing posting write. `queuewatch.log` records both
+writes; `tasktrace.log` resolves their microinstructions.
+
+The last software wait iterations read FC90=0, then at165,679,882 dispatch
+`MOV#0,0,SNR` (FD24) with AC0 stillzero. The next dispatch165,679,962 enters
+the AND atFD27 instead of looping throughFD25. `tb_polltrace` replays from
+post140.bin, saves post165679.bin at165,679,300, and traces the failed skip
+window through165,680,100. Need distinguish an IFU reschedule/fetch error
+from an arithmetic/condition error; no fix is established yet.
+
+The disassembler's left column is a logical .mb slot; the FOURTH word is
+its real IM address (mask to12 bits). Example: STAX's logical0137 maps real
+0053 (hex02B). CIA4F5 is ACmmdEnd's tail, not AWasntIdle. Map symbols before
+interpreting an actual instruction trace.
+
+## 2026-10-16: corrected fresh-prefix boot reaches a later queue-post stall
+
+With g22 PRECAP=0, replay of the **fresh**104M state reaches the normal
+BootInit delay at8C4B. Disk NotSelected/ReadError during that idle interval
+is not a demonstrated blocking error: microcode deliberately deselects
+between commands, and the next transfers run with error flags clear.
+The canonical frontend's migrated104M state matches independent decoding
+across all65,536 words and all24 checked shared CPU/disk progress records.
+
+The corrected path then completes255 actual serial writes (C34/H4/S11
+throughC44/H4/S11); no Sys.Errors trap is observed. It stalls later at
+A3D0 polling command block **B552**, whose status remainszero. Actual live
+RTL memory has M[0151]=0000 (empty disk queue), M[B552+1]=0000, command4840.
+At165,697,650 the guest dispatches `STA0 @A416` (A416 contains0151), with
+AC0=B552. At165,697,970 the store's final microinstruction has T=0151,
+A=0151, B=B552. The pointer nevertheless never reaches the queue.
+`tb_laststore` replays from actual post140.bin to165,699,000, saves at
+165,697,000 and observes cache write enables/data and all four candidate
+queue words across the failing instruction. The failing cell is not yet
+identified; do not patch the queue or seed completion.
+
+Useful logs/checkpoints: `post-boot.log`, `post-altoops.txt`,
+`postlive.{bin,json}` (read-only debugger capture), `post140.bin` + `.media`,
+`laststore.log`, `post165697.bin` + `.media`. The native PID69062 and
+keyboard-enabled frontend PID71396 are SIGSTOP-paused at their stalled
+states. Older PULSE_CAPTURE runs are also paused and superseded.
+
+The finer-clock simulation is separately built into
+`verilog/verilator/obj_executive16/dorado-executive`, preserving the4-sample
+binary and fingerprints. Fresh run `post16-cold.log` uses16 samples per
+clock half, target1.2B samples, save at700M. It is a diagnostic of clock
+quantization, not yet a boot gate. Corrected stale-pulse regression passes
+at both4 and16. Frontend now has `--help`, rejects unknown flags, and spaces
+keys by2M samples by default to allow OS keyboard polling.
+
+## 2026-10-16 correction: early FastD was a stale hit, not a store to preserve
+
+The PULSE_CAPTURE interpretation below was wrong. Re-decoding the existing
+77.5M snapshots shows **both** PRECAP=0 and PRECAP=1 successfully write all
+132 intended disk-store words, including48FF/48EF/etc. PRECAP=1 additionally
+corrupts unrelated resident18FF/18EF/etc with those new words. Comparing
+against baseline alone mistakenly treated removal of this corruption as a
+regression. Current generator is restored to **g22 PRECAP=0**; the pulse-OR
+adapter is removed. The regression now rejects a stale old-hit pulse that
+clears when the new cache address misses.
+
+Actual cache-cell observations pin it down: at102,367,802, the F20F miss
+writes48A8 into way0's still-resident **D20F**, previously0106. At102,368,002
+the held-store retry correctly writes48A8 into newly allocated way2/F20F.
+This is an extra wrong-column write, not a lost intended write. At104M,
+PRECAP=0 differs from the C resident C000..F9FF image at only9 words,
+versus253 for the baseline (241 at line endings). Remaining differences
+include live mutable data; do not assume they are all bugs.
+
+Fresh PRECAP=0 still encounters a separate disk error around105.8M;
+`tb_post_optrace` replays from its **fresh104M** state to investigate that
+without retaining the stale-hit corruption. Logs and checkpoints are in
+`build/rtl-executive/post-optrace.log` and `post-altoops.txt`.
+
+## 2026-10-16: current boot trap and cache-line boundary evidence
+
+Executive and character echo are **still unverified**. The keyboard hardware
+path works, but the fresh boot takes `SysErr(..., 1203)` (ecNotKs, "not a
+disk stream") at fabric sample 105,743,xxx, calling the resident
+`Sys.Errors` trap at F6D3. The instruction trace is
+`build/rtl-executive/pulse-altoops.txt`; it comes from actual 77,466,644 RTL
+state replay with the current PULSE_CAPTURE and keyboard model. This is a
+guest fault, not simply a boot that needs a longer budget.
+
+The guest's own OutLd wrote all 255 pages to the volatile disk overlay.
+`recover_outload.py` recovers that data from **the fresh run's actual serial
+writes**, reversing the Alto transfer word order. `fresh-pre-swat.bin` has
+221 differences at cache-line word 15 in D000..DFFF against the working C
+reference; 202 equal the C word at address +2000 (hex). E200..F9FF matches
+exactly. The same discrepancies already exist in the actual 104M cache
+snapshot, so they are not solely artifacts of later OutLd. This points to
+cache replacement/store timing; the exact failing operation is still being
+traced. Passing the earlier store pulse checks is insufficient evidence of
+correct boot memory. The new `tb_linewatch` observes actual cache cells
+without modifying the guest and saves state at 100M for short replays.
+
+The timing estimate below must not be used as a deadline: C and assisted
+RTL have different startup overheads. C's first Alto instruction is at
+CPU=20,919,473, versus RTL sample ~65.67M / 8. Account for that offset before
+comparing milestones. Native C's Executive at BB145M / CPU39.4M does **not**
+imply the assisted RTL should need 300M+ samples.
+
+Readback and memrun pass sequentially at ratios 4 and 16. Fresh long run
+PID51306 (budget extended to440M) and standalone frontend PID60877 were
+paused with SIGSTOP after actual checkpoints at185M and320M respectively;
+resume explicitly if useful. Late replay completed420M with no Executive.
+The canonical frontend's checkpoint migration copies only actual RTL state
+by generated field name; the first shared CPU progress event matches the
+fresh run, and all65,536 visible words match independent decoding.
+
+## 2026-10-16 morning: preserve short and late write requests; live keyboard path
+
+Active goal: fresh RTL boot to a working Alto Executive, with characters typed
+through the real terminal interface. Still no Executive prompt as of this entry.
+
+The word-15 discrepancy is **lost short disk-task stores**, not yet evidence
+of a bad DRAM refill. A 33,356-sample replay from the actual 77,466,644 state
+finds the first case at 77,471,367: FastD is high for one fabric sample and
+clears as the modeled SpecialClk2 rises. Setup capture retains it; post-only
+capture loses it. The previously captured held store arrives on the other
+side of that edge and needs the later sample. The regression now exercises
+late, steady, and early-pulse requests. The previous PRECAP=0 candidate fails
+the early-pulse check with only two of three requested writes.
+
+The current generator scopes `PULSE_CAPTURE=1` to MemD03 g22. The SE10231
+model explicitly retains an asserted write request in either sample of the
+edge-detection aperture, without moving WE into a new address/data phase.
+This is a named oversampling adapter for pulse requests; general D flops
+retain their previous setup semantics. Both clock ratios 4 and 16 pass the
+expanded regression. The actual 77M -> 77.5M visible-memory comparison is
+**byte-identical across all 65,536 words**, where PRECAP=0 differed. The
+145M held-store replay also reads FC8F correctly and advances the queue.
+
+`tb_exec.sv` now uses the existing MiSTer PS/2 keyboard decoder ahead of
+`dorado_terminal`. Host input changes `terminal_ps2_key`, not guest RAM.
+End-to-end tests on the executing machine deliver `e` as guest keyboard
+word0=EFFF, then restore FFFF on release. Files:
+`build/rtl-executive/keyboard-{down,up}.{log,rtl}` and the memory dumps.
+The SDL frontend is `verilog/verilator/dorado_exec.cpp`, build target
+`make -C verilog/verilator executive-sim`. It renders the guest's actual
+DCB bitmap from RTL DRAM/cache using `tools/sil_rtl_memory_view.py`; the C++
+view matches the independent Python decoder across all 65,536 words. It is
+not yet the raw video-pin renderer. Keys use the real PS/2 -> serializer ->
+DispY -> microcode -> guest-memory path. `tools/sil_verilator_state.py`
+provides exact-build snapshots, excluding host pointers/handles/schedulers.
+Snapshots include actual serial-written media overlay and reject a different
+model fingerprint. The `--import-raw` option is diagnostic only.
+
+Current runs (nohup, Mac):
+
+- `interactive4-cold.log`, session 54515: fresh assisted boot, 260M limit,
+  saves native state at 185M. Live frames every 2M. It has passed 105.8M
+  without the old read failure. This is the decisive fresh-prefix test.
+- `interactive4-long.log`, session 46923: real 145M checkpoint, 420M limit,
+  native state save at 300M. The first twenty CPU-progress records match the
+  non-keyboard PULSE_CAPTURE build exactly.
+- `writepulse4-long.log`, session 28382: real 145M checkpoint, 220M limit,
+  native save at195M. Past the old 190M Swat trap screen with no traps and
+  continuing disk transfers. No text by 218M.
+
+The C reference was measured rather than guessed: Executive text appears
+around BB=145M, CPU=39.4M microinstructions, and settles at 2092px by BB=180M.
+Those are **different counters**. The corresponding RTL budget must allow
+roughly 300M+ fabric samples, not treat 190M as a boot deadline. Oracle log
+`c-milestones.log`; it uses a disposable pack copy.
+
+Short replay tools remain ignored in `build/rtl-executive`. `prepare_replay.py`
+generates an exact-layout driver for a supplied object directory. Dynamic
+keyboard inputs inhibit some optimizations, so old/native snapshots from
+other builds must be mapped by field name; never assume raw layouts match.
+Readback/memrun gates at 4 and 16 are being rerun sequentially because their
+Make targets share object directories. Structural checks pass.
+
+## 2026-10-16: actual RTL Swat text; cache-store timing still experimental
+
+**A real pixel-stream capture now contains Alto text**, at 190M samples:
+[`rtl-alto-swat-trap-2026-10-16.png`](images/rtl-alto-swat-trap-2026-10-16.png).
+It identifies **Swat.30 - March 29, 1980**, with `Trap instruction 77400`
+and register output. This is **not an Executive prompt**. The video image
+has incomplete-field artifacts. A separate
+[readable guest-bitmap rendering](images/rtl-alto-swat-bitmap-2026-10-16.png)
+is decoded read-only from actual RTL DRAM/cache at 190M, then rasterized
+using the guest's Alto DCB chain. That supplemental image is a software
+rendering of RTL memory, not a capture of the video pins and not the C
+emulator's framebuffer. `render_rtl190.py` records the decoding procedure.
+
+The raw frame comes from assisted Verilator Initial -> AEmu boot, continued
+from actual RTL state at 145M. Both clock candidates reproduce it
+**byte-for-byte**. No text or queue completion was planted. No Quartus or
+physical MiSTer was used. The canonical-candidate raw pixels and provenance
+are `build/rtl-executive/writecapture145-live-190000000.pgm` and
+`os-text-capture.json`; source log `writecapture145-long.log`.
+
+The captured queue-swap failure is a **lost cache write-enable pulse**.
+At sample 146,495,496, FastD reaches MemD03 g22 on the same fabric sample
+as its unbuffered SpecialClk2 edge. The setup-capture model sees the old
+input, so neither WriteD0 nor WriteD1 pulses; the next ordinary store does
+write. The sheet explicitly labels the clock **SpecialClk2 NOT clk2'**:
+it is j18b's buffered, non-inverted preClk2 output.
+
+The first candidate added one fabric tick to SpecialClk2. It fixes the
+late queue store, advances disk transfers to 212,182 words, and produces
+the text capture, **but a fresh boot also exposes an earlier disk-read
+failure at 105.8M**. Matching the new clock's level at checkpoint restore
+does not remove that failure. The global clock-lag candidate is rejected;
+its board survives only in ignored `MemD-specialclock-lag1.v` and binaries.
+
+The narrower **experimental** candidate now in the source keeps the write
+pulse in its original address/data phase: MemD g22 selects `PRECAP=0`, capturing at edge
+detection to represent j18b's sub-fabric buffer ordering. SE10231's default
+remains setup capture for every other socket. This candidate:
+
+- Passes `memory-write-clock-test` at SYSPER 4 and 16. The old board fails
+  the same test with zero write-enable pulses on both banks.
+- Passes the actual 16-distinct-word cache RAM refill gate at both ratios.
+- Passes the 104M -> 107M replay with the earlier disk read error-free.
+- Writes FC8F/FC7D in the 145M replay, reads FC8F back, and advances beyond
+  the former queue stall. The actual cache-cell trace is
+  `writecapture-store-analysis.txt` (all 4,300 samples available).
+- Passes readback/memrun at both ratios and cell/key-matrix/loop structural
+  checks. Longer boot checks are still running; consult their logs below.
+
+**Long-prefix qualification remains open.** The 77M -> 110M test also
+changes behavior at 105.8M with PRECAP=0; the shorter 104M -> 107M replay
+passes because the changed memory was created before that checkpoint.
+At 104M, the actual visible-memory comparison has 1,008 changed words:
+**1,001 are word 15 of a cache line**. Logs/decoded dumps are
+`writecapture104-memory-diff.txt`, `baseline104-visible-memory.bin`, and
+`writecapture104-visible-memory.bin`. This strongly narrows the remaining
+refill-boundary problem; passing the isolated fill gate does not validate
+all refill endings. Do not report the boot or cache timing as fully fixed.
+
+Runs, all launched with `nohup`:
+
+- `writecapture145-long.log`, session 84362: actual 145M checkpoint through
+  192M, completed; actual 190M state and matching Swat pixel capture saved.
+- `writecapture77-validation.log`, session 30208: actual 77,466,644 checkpoint
+  through 110M, completed; confirms the earlier full-prefix divergence.
+- `writecapture-cold.log`, session 1705: fresh assisted boot through 230M,
+  live frames every 2M; saves actual state at 104M.
+
+All retain normal ECC, the legacy a21 compatibility setting, the fitted
+16K cache, storage-input delay 2, and real serial disk writes into a volatile
+overlay. The source pack is opened read-only. The older lag1 runs
+`writeclock-resume.log` and `writeclock-cold.log` were stopped after the
+failure was captured. There is still no demonstrated physical MiSTer boot.
+
+Checkpoint validation is complete for the old failing window: all 4,300
+STORELOSS records from the unmodified 145M replay match the original long
+run byte-for-byte. The snapshot includes a `.media` sidecar carrying actual
+serial-written words. The 77M baseline replay also matches all 1,776 recorded
+CPU/disk/frame events through 100M. Drivers map POD fields by generated
+name, retain fresh host pointers/schedulers/strings, and restore the media
+overlay. These are ignored, exact-build diagnostic tools, not a portable
+snapshot format. Verilator 5.044 rejects `--savable` with `--timing`.
+
+## Earlier October 16 diagnosis: the final queue swap loses a store at a memory hold
+
+The Alto-dispatch trace (`altoops4.txt`) and two read-only snapshots narrow
+the permanent stall to the resident buffer swap atFCB1–FCB5. At
+146,495,482 the CPU has the correct distinct values, AC0=FC7D,
+AC1=FC8F, AC2=FC7B, and is executing the two stores that should leave
+M[FC7B]=FC8F and M[FC7C]=FC7D. A repeated microinstruction and a disk-task
+access toF000 intervene. The following LDA3 at146,495,634 readsFC7D
+back fromFC7B, the old value. A later append consequently links the
+buffer to itself and clears the status that the guest then waits on.
+This is evidence of a lost/misrouted store around the hold; the cell or
+strobe responsible is **not yet identified**. Do not fix the software queue
+or force its completion word. The short excerpt is
+`build/rtl-executive/final-swap-opcodes.log`.
+
+`queueboot4` finished150M. Its BOOTIO window began at146.5M, just after
+the lost store, so it only confirms the stable wait. `altoops4` finished
+150M and does include the swap. Its initial400,000-record trace limit was
+extended to8M via LLDB by changing **only the diagnostic monitor limit**;
+no emulated-machine state was changed. This leaves a trace gap between
+the original cap and the extension, before the final-swap window.
+
+The next run is `storeloss4.log` (session36586, limit-storeloss4.txt,
+149M limit). A new ignored `store_loss_probe.sv` observes the actual
+cache RAM cells atFC7B/FC7C in all four columns, Dbuf, cache-write data,
+write enables, chip selects, addresses and the memory hold. Existing
+BOOTIO/MEMWIN/CA/PIPE probes cover146,494,000–146,498,300. Its purpose
+is to distinguish failure to issue/write from a later overwrite. It uses
+the same machine configuration and source pack as the reproductions.
+
+**Run recovery:** the debugger/session interaction interrupted that process
+at105M. Do not poll its old unified-exec session after attaching LLDB.
+The cycle-counter watchpoint was also removed: an8-byte counter write
+triggers even a2-byte watch on its upper half, making conditional watches
+on that counter prohibitively slow. A read-only snapshot at77,466,644
+samples was retained (`checkpoint77-syms.bin`), before any serial writes.
+The resumed run is now `storeloss4-resume.log`, session69119, launched
+with `nohup` and the ignored `tb_storeloss4_checkpoint` native driver.
+Across the overlap through100M, **all1,776 recorded CPU-progress/disk/
+live-frame events are byte-identical** to the original full run.
+
+This diagnostic driver restores scalar/register/RAM ranges from the exact
+build's symbol dump, leaving host pointers, strings and schedulers fresh.
+`checkpoint-layout.json`/`checkpoint_ranges.h` describe those ranges.
+The original77M snapshot has no media overlay to restore. The driver now
+also saves the associative serial-write overlay in a`.media` sidecar, and
+will save `checkpoint145-native.bin` at145M without any debugger attach.
+**Validate the full failing-window trace before trusting a short replay.**
+These are local, build-specific diagnostic artifacts, not a portable
+snapshot format. Native Verilator `--savable` cannot be combined with
+`--timing` in the installed5.044 (checked with a minimal standalone model).
+
+The native C reference still boots with either or both cold-Alto shims
+removed. Its full180M-BB-cycle compact trace is
+`build/rtl-executive/c-ifudisp180.compact`. The first~7,700 Alto dispatches
+match the RTL apart from BLT rescheduling; subsequent disk-poll trip counts
+differ, and should not be treated as opcode failures. RTL J has already
+advanced by the clk0 observation point: compare the captured TNIA with
+the C IFUM vector, not J directly. Collapse held repeats when normalizing.
+
+## 2026-10-15 late follow-up: inspect the running guest, then trace the lost request
+
+`writeboot4` completed its 320M-sample limit. It delivered140,192 disk
+words and committed251 actual256-word serial data writes (all Fire-code
+remainders zero), from cylinder24 through34, head4. Transfers stop after
+the last write at146.8M; subsequent frames still have only15–16 lit pixels.
+**There is still no RTL OS-text screenshot.** No Quartus or MiSTer used.
+
+A read-only LLDB attachment captured the running model at222,399,056
+samples, at entry to `Vtb_exec::eval_step`, then detached and resumed it.
+The complete inline symbol object is `build/rtl-executive/live-syms.bin`;
+`all-layout.json` describes offsets from that exact build. The ignored
+`decode_live_storage.py` and `decode_live_cache.py` recover the actual DRAM
+and cache contents, without planting memory or changing guest state.
+Use storage decoder **mode1**: normalized column bits are the complemented
+RP bits8,1,0, then word-address bits7,6,5,4 (LSB first). The serial stage
+is `7 - ((wordAddress & 15)/2)`. MemC columns1/3 use complemented tag-RAM
+row addresses; columns0/2 use the direct row. Omitting that inversion
+produces false duplicate tags. With both corrections, **all16,160 clean
+cache words match DRAM exactly**. The remaining224 cache words are dirty.
+
+The guest executes the resident Alto disk-completion poll atFD22.
+AC2=FC7B; M[FC7B]=M[FC7C]=FC7D, M[FC7D]=FC7D, M[FC7E]=0.
+The command atFC7F is4858 (check header/label, write data); the data buffer
+isFB00 and its disk address is00FC. KBLK's current chain pointer at0151
+is0, status0152=2F00, last address0153=00FC. Thus the controller has no
+queued work while the guest is waiting on a zero completion word. The
+healthy C reference keeps the two resident buffer pointers distinct
+(FC7D/FC8F). The cause of their merger is **not yet established**.
+
+Native-C diagnostic copies with the cold-Alto accumulator clear removed,
+the I/O-page initialization removed, or both removed still render the
+2092-pixel Executive. Those shims do not explain this RTL divergence.
+All diagnostic C runs use disposable copies of the pack.
+
+Next runs: `queueboot4.log` (session9947) records BOOTIO from146.5M to
+150M, covering the final write/completion. `altoops4.log` (session49296,
+limit-altoops4.txt) adds an observational IFUJump/STK trace to
+`altoops4.txt`, for comparison with `c-ifudisp84.log`. Both retain normal
+ECC, the legacy a21 compatibility setting, delay2 and the16K cache fitting;
+neither forces data or error status. The new probe is ignored build output.
+
+## 2026-10-15 follow-up: disk writes are required before the OS screen
+
+The MemC16K fitting removed the 103.5M continuous hold. The full
+`cachecfg4` run was stopped at156M, after73,236 delivered disk words;
+frames still have only15–16 lit pixels, no OS text. From106M onward it
+repeats checked-write control00a4 on the same sector, then tries recovery.
+The C reference trace (`c-disk-reference.log`) proves boot performs real
+writes: control0244B checks header/label then writes the data block.
+The Verilator `dorado_pack` was read-only, with no outgoing data connection.
+
+Work in progress: actual serial write capture into a volatile word overlay
+in `dorado_pack.sv`; the source pack stays opened `rb`. The parser checks
+SYNC201B, all payload bits and both Fire-code words before committing a
+block, and `load_track` reapplies modified words after seeking. `tb_exec`
+connects actual DskEth DataP/M output wires and suppresses the drive's read
+data pair while write mode is active; the timing track remains running.
+A new `+writeback` mode in `tb_disk_stream` writes through the controller
+FIFO, seeks away and back, then reads through the controller. This mode
+is **not yet passing**. It originally waited for WriteFifoTW with TIOA
+still selecting DiskControl; the period microcode selects DiskData first,
+and the corrected bench now delivers all outgoing words without underflow.
+
+The test also exposed the still-legacy FIFO parity checkers e09/e11.
+`disk-fifo-parity-test` fails on the old board's first valid00ff/11 word,
+and passes all256 byte values plus deliberately corrupted parity after
+both positions select the physical MC10170B function. DskEth is regenerated.
+IOB f04/g04 corrections stay enabled; the other MC10170 placements remain
+as before. The remaining isolated-test parity flag was traced to startup
+(sample2722, before any test transfer), not an established transfer timing
+fault. Clearing startup status through the documented Muffler operation
+after selection/timing settle makes the round trip pass. The test now
+fails immediately on any new controller error during the write; no error
+flag is forced or masked. **`disk-writeback-test` passes at SYSPER4 and16:**
+three captured blocks, every physical Fire-code remainder zero, changes
+survive a seek, all266 words read back through the actual controller.
+All four read-stream cases pass at4, as does the original pack framing gate.
+The added checked-write command00a4 also passes at4: compare header/label,
+then write only the data block, seek and read it back. Two fixture details
+come straight from AltoDiabloDisk.mc: clear CompareErr before the ECC tail,
+and output SYNC plus the first data word before blocking for WriteFifoTW.
+Waiting for that wakeup first deadlocks on the old OutReg's read/check type.
+The normal all-write case still passes. **All four read cases and both
+write forms also pass at SYSPER16** (`disk-read-write16-final.log`).
+The source pack checksum remains unchanged across the serial-write tests;
+its only writes are to in-memory overlay state.
+
+The drive's Write and HeadSelect signals are control-tag cable levels:
+the format PROM changes RAM[6] head-select to RAM[5] write+head-select
+without necessarily dropping ControlTag. `write_gate` follows those levels.
+A strict outgoing CRC/truncation failure remains fatal in the pack model.
+The `+badwritecrc` link-corruption test flips one outgoing check bit and
+fails with a nonzero Fire-code remainder, as required.
+
+New full `writeboot4.log` is running (session21925, limit-writeboot4.txt,
+320M sample limit), with delay2, fitted16K MemC, normal ECC, legacy a21,
+and the FIFO checker corrections. No data forces; the only media changes
+are genuine captured serial writes in the volatile overlay. Live frames
+are `writeboot4-live-<sample>.pgm` when the raster exceeds100 lit pixels.
+The OS-text screenshot is still outstanding. No Quartus or MiSTer used.
+
+**Full boot milestone:** by120M, `writeboot4.log` has87,117 delivered
+words and many complete256-word serial writes with Fire-code remainder0.
+The firmware cleared startup FIFO status naturally; FifoParity, IOBParity,
+underflow, ReadDataErr and ReadError are all0 in the120M progress sample.
+No flag or data force was added. This passes the old checked-write retry
+loop. Frames still have only16 lit pixels, so OS text is not established.
+
+
+Reference-work caution: the native C emulator automatically flushes guest
+writes to its pack on exit. The C comparison runs in this turn therefore
+updated the derived `chm/diskpacks/games-trident.pack` (the compressed
+source is untouched). Preserve this state rather than blindly restoring
+an unknown earlier working pack. Future C comparisons must use the ignored
+`build/rtl-executive/reference-pack.pack` copy. The serial overlay itself
+never writes its source file; its checksum is unchanged across the tests.
+
+
+## 2026-10-15 follow-up: fit MemC for the installed 16K cache
+
+The storage-input adapter (`DORADO_STORAGE_INPUT_DELAY=2`) passes the
+sixteen-distinct-word actual-cache-RAM check at SYSPER4 and SYSPER16.
+Full runs `stable4`, `stable-noec4`, and `adapter-noec4` all read about
+70,073 disk words, then hit the identical continuous hold at sample
+103,496,374 (task C, CIA6c8, VA00000ae, DbufBusy=1, RefHold'=0,
+EcHasA'=1). The latter uses the synthesizable adapter without any data
+force. Disabling correction through the hardware diagnostic bit does not
+remove this hold. No OS text appeared.
+
+A separate a21 MC10170 physical-polarity experiment passes all 256
+syndrome classifications (`memory-ecc-classify-test`), while the legacy
+board fails even syndrome zero. However, full boots with that correction
+fault much earlier, into task F CIA86e at VAfe1f, T6003. Zeroing both RAM
+data seeds does **not** remove that fault (`zero4.log`). The a21 default
+change has therefore been backed out pending reconciliation of its
+upstream parity/check streams. The classifier test remains a diagnostic
+that exposes this known compatibility debt; it is not a passing boot gate.
+The established c14 byte-parity correction remains enabled.
+
+MemC23.sil's loading table (PDF page 25) also specifies configuration
+straps absent from the imported wire list. MemD uses F10470 cache RAMs
+(16K words), but MemC had both the 4K and 16K address contributions
+connected and reported CacheConfig3. The generator now applies the
+**16K with parity** column: a03 socket straps 3-6 and 4-7; a07 outputs
+2/4 disconnected; d03 outputs 2/15 disconnected; l11 input12 open.
+The a03 straps explicitly bypass its logic, since HiB is a live register
+output rather than a constant. Existing parity cuts and PageConfig3
+remain in place.
+
+`cache-config-test` fails on the old board with tag00/row00/HiB0 yielding
+11. The configured board passes all tag/row combinations at both HiB
+values, independent ProcVA row contributions, CacheConfig2, and
+PageConfig3. The row check isolates the ProcVA contributions from the
+address ALU that shares their output bus. `memory-address-bus-test` and
+`memrun-test` and `readback-test` still pass, as do structural checks.
+The actual-cache-RAM refill gate also passes with the new wiring. Its
+initial 52d3-versus-5201 failure was a checker defect: it ORed the selected
+and inactive column's raw arrays. The corrected ignored gate records each
+chip's physical row and chip select at that bank's first write, then checks
+the selected storage column. All sixteen input values and stored words
+pass. No data path was altered for that repair.
+
+Full `cachecfg4.log` is running with the new
+configuration, delay2, normal ECC, legacy a21, and the existing diagnostic
+data seed. The independent `cachecfg-ecc4.log` variant still faults into
+task F CIA86e, VAfe1f, T6003 by 42M; the cache configuration does not resolve
+the upstream ECC mismatch. That variant is stopped through its run-limit
+file. The selected-column actual-RAM refill gate passes at SYSPER4 and16.
+This remains an assisted Initial-to-AEmu simulation; no Quartus
+or MiSTer hardware has been used. The required OS-text screenshot is
+still outstanding.
+
+**Full-run progress:** `cachecfg4.log` passes the former 103,496,374
+continuous hold. At 104M it has read 70,614 words (past the former 70,073),
+returns to task0 Alto execution, and continues reading later sectors. Live
+frames have 16 white pixels, still no OS text. The 16K fitting therefore
+removes that reproducible hold; a complete Executive boot remains unproved.
+A transient FIFO parity flag appears at108M and clears by109M; this needs
+follow-up if the loader stops making progress.
+
+## 2026-10-15 follow-up: MemC's 256-word-page modification was missing
+
+`rowtrace4.log` shows RP=0004 and RP13=1 stable well before RAS asserts
+at 65,158,655. Nevertheless MemAd=ff, and the array captures row 7f instead
+of the row containing that page bit. This is not late map data.
+
+`MemC01.sil` Rev Be (PDF page 3 of
+`DoradoDocs/doradodrawings/MemC-Rev-Be.press!1.pdf`) gives the missing
+configuration beside i24: **"For 256 wd pages, 20-23 <- Hi"**; the 1K-page
+alternative ties only 20-21 high. These are i24's B inputs (pins 4, 6, 11,
+13), not the VA nets themselves, which the map/pipe still need. Left on
+VA20..23, the inverting mux drives ones onto the row-address bus and
+overrides MemX's real-page bits. With the specified high inputs, it
+contributes zero while MemX supplies the row address.
+
+`tools/sil_to_verilog.py` now applies this fitted configuration through
+`FITTED_INPUT_JUMPERS`, and MemC is regenerated. The loading diagram on
+PDF page 25 (`MemC23.sil`, PageConfig3) specifies cutting i24 pins
+4/6/11/13 and wiring them to pin 9 (SB). The generated board implements
+those exact connections: the B inputs are high whenever selected. The
+running `pages4` binary used constant-high B inputs, which produce the
+same mux outputs for both binary select values; the exact SB wiring also
+passes the address-bus test. The new
+`memory-address-bus-test` fails on the old board (VA=0, MemC contribution=f)
+and passes with the modification: all 16 virtual-address patterns release
+the row bus, while all 16 column patterns still drive the expected address.
+`memrun-test`, `readback-test` and structural checks pass.
+
+Full assisted boot `build/rtl-executive/pages4.log` completed at 77,003,849
+samples. The intended repair is visible: RP0004 now addresses 1fc7/2038,
+separate from boot page 0 at 3fc7/0038. At 65,670,981 the boot words are
+still intact in DRAM (6205/5c49 at stage D). However the IFU still gets the
+wrong word: at 65,671,154 the branch uses 0003 rather than 6205. The array
+is no longer being erased, but its refill/readout ordering needs tracing.
+Live frames at 66M through 76M remain empty; no OS text is established.
+
+`readpipe4.log` completed at 68,003,848 with the exact SB wiring. The
+external bound monitor confirms both storage buses and SinD deliver the
+original 16 boot words in order, including 6205 at Sin at 65,671,049 and
+5c49 four samples later. The cache refill instead writes the third word
+at its first position, and D1 duplicates the following even word. Thus
+there are separate control/data alignment and D1 setup errors.
+
+`build/rtl-executive/readback_pattern_probe.sv` seeds a distinct 16-bit
+value into each of the sixteen storage positions, at every physical
+address, and observes the existing `tb_readback` sequencer. It is an
+ignored diagnostic, not a passing gate: the old bench's original seed
+assertions deliberately fail with this different seed. At both SYSPER4
+and SYSPER16 the first refill starts with 5302 rather than 5100, while
+D1 gets 5504 rather than the adjacent 5403. Sin and SinD themselves carry
+all sixteen values in order. A full SYSPER16 boot (`pages16.log`) was
+stopped at 17M after this short diagnostic established the same error at
+both ratios; it had not reached disk boot.
+
+MemD's D1 input registers b10/c10/d12 now preserve setup data
+(`PRECAP=1`). Their clk1 fanout rises on the fabric sample where CD
+changes; sampling afterward loses every odd word. The new
+`cache-input-capture-test` checks all eighteen bits across that transition:
+it fails with the old board and passes with the fix. The distinct-word
+probe now gets adjacent 5302/5403, 5504/5605, etc. The initial two-word
+skip remains. No full boot with this D1 change has run yet.
+
+Clock-depth diagnostics generated into ignored files did not fix the
+skip: MSA depth skips four words instead of two, MemD depth misaligns
+addresses, and MemX depth does not complete a refill. Canonical clock
+depth settings remain unchanged. Current investigation compares the
+EC1 transport control's first enable with CD/preDin/D0in timing. No
+OS-text screenshot has been established yet.
+
+An experimental bound probe (`sin_retime_probe.sv` / `sin_retime_exec.sv`
+in `build/rtl-executive`) delays the incoming data and check-bit stream.
+With D1 setup corrected, `pattern-retime4.log` shows all sixteen distinct
+words in order at the cache input writes, 5100/5201 through 5f0e/600f.
+This is a diagnostic force, not a canonical RTL fix; force scheduling also
+changes the setup relationship at a12. `retime4.log` is a full assisted
+boot testing that causal adjustment with live frames completed at
+89,003,849 samples. It passes the former failure: BLT resumes correctly
+at 65,671,154 and completes through VA fdff at 66,686,010. But the next
+instruction 5c49 becomes dc49 in the refill (IFU G=37124), and execution
+falls into JMPZ 0 at 66,686,146. No OS text appeared. This may be an ECC
+phase error introduced or exposed by the timing experiment; it is not yet
+an independently established ECC defect.
+
+`stable4.log` and `stable-noec4.log` repeat the experiment with the driven
+stream changing between fabric sampling edges. The latter also holds the
+documented hardware DisableEc bit active (HM Error Correction diagnostics).
+They are a causal comparison, not canonical boot gates. Both have live
+frame capture. The normal-ECC run additionally traces the 5c49/dc49 path.
+
+The generator now emits an **off-by-default** synthesizable alternative
+for that timing experiment: MemD parameter `STORAGE_INPUT_DELAY`, with
+compile-time default `DORADO_STORAGE_INPUT_DELAY=0`. Zero is direct Sil
+wiring; 2 inserts two word-clock stages on all 16 Sin and two EcIn inputs,
+before the board's existing input latches. This is an FPGA timing adapter,
+not a claim that the Sil board has extra registers. The ignored diagnostic
+`cache_fill_gate.sv` seeds sixteen distinct words and checks both their
+cache-write sequence AND the actual cache RAM contents. With delay 2 it
+passes at SYSPER4 and SYSPER16 without any data force. Cache chips use
+different complemented address fanouts, so its RAM check records each
+chip's own physical row base; using a03's address for every chip gives a
+false failure (4000 versus 5100). Default memory/capture gates still pass.
+
+The archived compiled `chm/io-doradologic/DoradoProms.run!3` contains the
+same complete EC-1 table at byte offset 4632 as `MemProms.bcpl`; the
+two-word offset is not explained by choosing an old source table.
+
+## 2026-10-15 follow-up: storage address jumpers were missing
+
+The completed `dramedge4.log` still loses the opcode at 65,671,154, so the
+DRAM cell repairs below did not resolve the boot. Its storage snapshots do
+show the boot words in real DRAM, then show those same cells overwritten
+as the BLT advances. Decoding the snapshots back through the SN74166
+parallel inputs finds 6205 and 5c49 at 65,158,669 and zeros later.
+
+The storage board's `msa03.sil+7/+8` nets were undriven. They are the two
+differential inputs that translate MemAd.2 into TtlA0/TtlA0', so two DRAM
+address bits (row and column) disappeared. The schematic, `msa03.sil`,
+explicitly specifies **e26 5-to-12 and 6-to-11 for 16K chips**; the
+generator left both alternatives open because its generic jumper inference
+correctly cannot choose a fitted configuration. The 16K DRAM model now has
+these two jumpers explicitly configured in `tools/sil_to_verilog.py`.
+No other ambiguous jumper fields were changed.
+
+`msa-test` now writes zero at neighbors differing in this extra row/column
+bit and verifies the original ones survive. ShiftSout loads all eight
+word positions and checks all 128 data bits, instead of testing only one
+bit of the first position. The old board fails the isolation check; removing
+either configured jumper independently also fails. With both fitted the
+test passes, along with readback and cell/key-matrix/loop checks.
+
+Full assisted boot `build/rtl-executive/jumpers4.log` completed at 71,003,849
+samples with the same zero-code failure at 65,671,154. The jumper repair
+therefore did not explain the remaining boot failure. Live-frame checks
+at 66M/68M see six white pixels and 70M sees zero; no OS text appears.
+
+The next completed probe, `maptrace4.log` (68,003,848 samples), dumps all
+map RP planes at 42M: **1,024 distinct real page numbers**, with RP0 present
+15,361 times and RP1..1023 once each, as expected for the initialized
+module plus vacant VM. The map is not uniformly mapping everything to zero.
+The earlier `MAPCENSUS` WP/Dirty labels were reversed (d13 feeds MapWP,
+d11 feeds MapDirty); the probe labels are now corrected in source.
+
+At 65,158,605 the new read's RP is 0044 and DRAM group0 address is 3dc7.
+At 65,158,669 the victim write's RP is 0004 but group0 address is 3fc7,
+the same location later read for boot page 0. The actual write commits at
+65,158,676, with zeros in the boot-word positions. RP bit 13 (page bit 2)
+should distinguish the DRAM row but does not. This narrows the fault to
+row-address/data arrival timing, upstream of the array's contents.
+The prepared `rowtrace4` probe records every sample around that RAS/CAS
+interval, including RP, MemAd, mux select and the Map RP13 chip's data path.
+No OS-text screenshot has been established yet.
+
+## 2026-10-15 follow-up: DRAM writes also hit the previous column
+
+The new `make -C verilog/verilator dram-write-test` writes different bits
+to consecutive columns and reads all of them back. It fails on the old
+`cell_MK4096P_6` and independently on the old `cell_MosRam`: writing zero
+to column 16 clears the one previously stored at column 15. Both cells
+write on the fabric sample that detects CAS' falling, while the column
+latch updates only after that sample. The array therefore writes the old
+column once before writing the intended column.
+
+The initial repair required CAS' to have been low on the preceding sample.
+Its full assisted boot is `build/rtl-executive/dram4.log`. The expanded test
+then exposed a second defect: these level writes follow data changes after
+the write strobe. Mostek's [1979 data book](https://www.bitsavers.org/components/mostek/_dataBooks/1979_Mostek_Memory_Data_Book_and_Designers_Guide.pdf),
+DATA INPUT/OUTPUT, says the later falling edge of CAS' and WRITE' strobes
+the data-in register. Both cells now latch data on that event and commit
+one fabric clock later, after the column latch settles. The test checks
+both early and delayed writes, including data changes after the hold time.
+It fails the intermediate level-write model and passes the final model.
+
+That change also exposed reversed strobe polarities in `tb_msa`: backplane
+MemRAS/CAS/WE are active high and the board translates them to active-low
+TTL. The old fixture drove the opposite polarity, effectively writing
+during its read cycles; level writes concealed this. The fixture now
+drives the correct levels and retains all its round-trip assertions.
+Both msa and readback gates pass with the final model.
+
+The final-model full run is `build/rtl-executive/dramedge4.log`, with a
+bounded, external `storage_probe.sv` monitor covering all sixteen DRAM
+address groups on both storage boards. Neither full run has established
+a screen result yet. The isolated `dirty-roundtrip.im` experiment is an
+incomplete cold-start fixture (held at its first Store), not a writeback
+regression gate and not evidence for a new RTL defect.
+
+## 2026-10-15: boot sector loads; Alto starts; later code reload still fails
+
+**No Executive screen yet.** The latest completed RTL run loads the first
+sector without timeout or FIFO underflow, correctly starts the Alto boot
+program, then loses its instruction stream on a later reload. The same
+pack boots the C emulator's Executive at 2,092 pixels. The completed RTL
+baselines still produce an effectively black raster. Their assisted
+`c92 -> 23e` Initial-to-AEmu handoff replaces world transport; these are
+not unassisted BaseBoard cold boots.
+
+The new `+bootio` probe distinguishes CPU Input reads from FIFO holding-register
+refills and records the actual KWait arithmetic. It resolves the September
+question: **the deadline is correct and the RTC result is corrupted.** In the
+16-sample reference (`build/rtl-executive/boot-trace2.log`):
+
+- Active starts at 258081889, pulse 4. CPU reads the expected header
+  `0000 0000`, then `af80 047e 0000 0000`, and label beginning `007e`.
+- First underflow is at 258115002, immediately after the final held header
+  Input resumes (CPU Input #3 at 258114969).
+- Task 0 issues its clock Fetch at CIA 417, then the disk task preempts it.
+  At 258167016, CIA 43d compares **001f - 007e - 1 = ffa0**. The saved
+  deadline is still 001f; the previous clock result was 0004. The emulator
+  actually executes KBootTimeout at 258167080. This is not just an address
+  transient or an insufficient simulation budget.
+- A 4-sample run (`boot4.log`) reproduces the same sequence: first Input
+  64528520, underflow 64528752, bad comparison 64541754, timeout 64541770.
+  Its disk timer is scaled correctly. Both baselines predate the pixel-clock
+  correction below; their final pictures are not canonical video timing.
+
+### Md capture: cache-bank change crossed the latch edge
+
+`boot4-md.log` captures the memory data path over the failure. The task-0 Md
+slot changes from 0000 to 007e at 64541715; this is a real write to the slot,
+not the processor selecting a different task's slot. **D contains 0004 from
+64541705 through 64541710. At clk1's edge (64541711), the cache bank/address
+advances and exposes its previous output, 007e.** MemD's post-edge MC10176
+capture takes that next-bank word, and the task-0 completion writes it.
+
+MemD **f06/f10/f14/f18** now use pre-edge capture, preserving D's setup value.
+The per-board post-edge default remains for other packages. These four
+registers also feed the Md parity bits; `md-capture-test` checks all 18 bits
+at the generated board's actual Md RAM inputs. Restoring only these four
+packages to post-edge capture makes the test return 007e instead of 0004.
+`readback-test`, `memrun-test`, `reset-tags-test`, `memory-config-test` and
+`disk-tioa-phase-test` pass with the change.
+
+### FIFO underflow: the two consuming/checking flops disagreed about setup
+
+DskEth c16 (MC10135, OutRegFull) sampled **post-edge** J/K while c15
+(MC10231, underflow) sampled **pre-edge** D. A memory hold can release Input
+on clk1: c16 consumed the word on that edge, while c15 did not recognize the
+read until the following clock and then found OutReg empty. The payload
+words still arrived in order, but the error latch was set.
+
+MC10135 now supports a scoped PRECAP option, enabled only on **DskEth c16**.
+`disk-input-hold-test` reproduces the failure without a long boot: the old
+board consumes the word before the read's setup window; the fixed board
+consumes exactly once with no underflow. All four `disk-stream-test` cases
+pass at SYSPER=16 after the fix. Before this c16 change, all four cases also
+passed at 8 and 16 after the timer correction; those stream tests alone do
+not exercise the held-Input boundary.
+
+The CPU's minimal `Input; Block` loop passes with three or four available
+words. A separate two-task test preserves RM[1a] and RM[5a] across a write
+combined with RBase change. Artificial hold tests must drive all MemC hold
+copies and respect the manual's t1 boundary; arbitrary release-phase failures
+are not evidence for another hardware change.
+
+### Clock parameters and MiSTer status
+
+`SYSPER` on the machine is samples per **30 ns clock**, whereas Trident and
+K1115A oscillator helpers take samples per **60 ns instruction**. Fixes:
+
+- Propagate the machine ratio through generated DskEth instances into the
+  SN74123's 3 us index discriminator. The former fixed-16 timer made an
+  8-sample full run start at physical pulse 3 with garbage framing. That run
+  (`boot8.log`) is not evidence about the valid 16-sample read failure.
+- Pass `2 * SYSPER` to the pixel oscillator, including in generated machine
+  wrappers. tb_exec previously hard-coded 16, so its 16-sample run used a
+  100 MHz pixel clock. `clock-domains-test` measures the 50 MHz edge count
+  against the 30 ns processor clock, and checks disk timer and drive ratios.
+  It passes at 4, 8 and 16; restoring the old oscillator setting fails with
+  37,499 transitions instead of 18,750 over 100,000 samples.
+- The MiSTer wrapper now passes `2 * MACHINE_SYSPER` to Trident. Its README
+  records the actual August 28 fit (83% ALMs, 45% RAM blocks, 47.56 MHz Fmax)
+  and current blockers. Mounted file contents are still not read, reset does
+  not press the BaseBoard boot button, and pixel clock/CE integration still
+  needs work. No Quartus build or hardware deployment was performed.
+
+Structural cell, pin-matrix and combinational-loop checks pass. Wrapper
+Verilator elaboration also passes using a local MiSTer framework and a PLL
+stub (with that framework's existing PROCASSWIRE warning suppressed); this
+is not a Quartus timing/fit result.
+
+**Full-run confirmation:** `fix4.log` removes the bad RTC timeout but still
+underflows, retries, then starts Alto execution after its second transfer.
+`fix-all4.log` adds c16 setup capture: **the first transfer succeeds, with no
+KBootTimeout and no FIFO underflow** (final count 0). It reaches
+**AEMUIFUFGPARITY, real CIA 0c4, at 64594330**. CIA 0c4 is an IFU parity
+error park, not Ethernet boot. Executive has not displayed yet.
+
+Another defect was MemD c14's low-byte parity regeneration during
+storage refill. With control 13 high, MC10170 B must complement A; its
+legacy B inversion instead made both outputs equal. `memory-byte-parity-test`
+fails on the old board for byte 30 (needs odd-parity bit 1, gets 0). A scoped
+`LEGACY_B_INVERT=0` on c14 fixes the test; readback and memrun still pass.
+`parity4.log` still enters CIA 0c4, so this correction alone does not explain
+the IFU stop.
+
+### IFU fetch buffer: clocks split a word, then capture the next word
+
+MemD's F buffer has four slices: e06/e10 MC10176s clocked by Fclk'a/b,
+and e14/e18 F10016 parallel-load registers clocked by clk1'Ca/b. All four
+clocks come from b07's preClk1'A fanout. The generator delayed clocks named
+clk1 but not their gated Fclk siblings, splitting byte/parity captures by
+one fabric sample. The generator now delays those two Fclk nets equally.
+`ifu-f-clock-test` drives the board's actual external clock and checks eight
+non-vacuous transitions; removing just the Fclk delays fails the test.
+
+With the clocks aligned, `fclk4.log` no longer latches SawFGParityErr, but
+executes repeated Start/StartIFU. The new `+ifutrace` shows why: D contains
+**00e5 with parity 10 at 64594053**, before the F clock rises. D then advances
+to the following word, 0000/parity 11, and the post-edge F buffer captures
+that following word. The C oracle confirms the first Alto instruction is
+00e5 (jump to 00e5), followed by 8400. The first physical sector word 8530
+is not the first instruction: the disk loop stores words in reverse order.
+
+All four F slices now use setup capture. F10016 gains PRECAP=0 by default;
+only MemD e14/e18 enable it, along with PRECAP on e06/e10. The new
+`ifu-f-capture-test` checks all 18 bits across four cache-word changes. The
+previous board fails immediately, capturing 0000/parity 11 instead of
+00e5/parity 10; the corrected board passes. F-clock, Md-capture, readback,
+memrun, cell, pin-matrix and combinational-loop checks also pass.
+
+The older `ifu-test` wiring gate passes. `ifufetch-test` fails its assertion
+that the pipe pointer never changes (two changes during startup). The same
+failure, at the same simulation time, reproduces with both saved MemD boards
+from before the Md-capture fixes and before the F-capture fixes; it is not
+introduced by these MemD corrections. Logs: `fcapture-ifu-gates.log`,
+`ifufetch-baseline.log` and `ifufetch-oldfc.log` under `build/rtl-executive/`.
+The test has not been weakened or marked passing.
+
+**Full-run result:** `fcap4.log` confirms F/G contain 00e5/parity 10, with
+SawFGParityErr remaining clear. The IFU nevertheless dispatches to **ffc**
+instead of JMPZ at 064. It does not boot the Executive; the run was ended
+at 84,003,850 samples. The 16-sample run was ended during initialization at
+81,015,254 because the next harness omission applies at every ratio.
+
+### Assisted transport must restore opcode tables AFTER Initial
+
+`InitialMain.mc:IFUMInitL` explicitly clears all four IFUM instruction sets.
+The harness preloaded the world tables before starting Initial, then only
+redirected its BootEmulator branch into AEmu. That does not replace the real
+LoadRam transport: it leaves cleared opcode tables. Zero InstrAddrK' decodes
+to 3ff, hence the observed microaddress ffc. AEmu's opcode-0 entry is 03e6,
+which decodes to JMPZ at 064, as the C oracle expects.
+
+The harness now saves the preload's IFUM/ALUFM values and restores/readbacks
+them at the assisted world handoff, after Initial's initialization. This is
+a test-harness correction, not an RTL or guest-microcode patch. All three
+preload images have identical ALUFM tables. New runs: `tables4.log` and
+`tables16.log`, runtime limits `limit-tables4.txt` and `limit-tables16.txt`.
+`WORLD-TABLES` records the old IFUM[0] and verifies all restored entries.
+
+**Confirmed:** `tables4.log` restores IFUM[0] from 0000/0000 to 03e6/35df,
+and verifies all 256 IFUM and 16 ALUFM entries. Dispatch changes, but the
+first fetch is now VA **005a**, not 0001. It executes the wrong program and
+eventually trips the diagnostic hold limit at 64696766. The Executive is
+still absent.
+
+### PCF counter also needs setup data across the IFU bus handoff
+
+VA 005a is BR31=1 plus word offset 59, the stale H byte b2 divided by two.
+A short reproduction starts real AEmu Start/StartIFU with H held at b2.
+`PCF<-0` has IfuBMux=0000 before clk1, but on that edge NewPc1 drops,
+disabling the B input and exposing the IFU ALU's b2. The four post-edge
+F10016 PCF counters capture that value instead. At sample 3944 the low
+word-offset byte is 59; the same run without stale H has zero, hiding it.
+
+IFU **a04/c04/d04/f03** now select F10016 PRECAP=1. Other counters retain
+their defaults. `ifu-pcf-capture-test` executes the real StartIFU microcode,
+seeds stale H, and checks the completed PCF load before its next increment.
+It fails on the previous board with 59 and passes on the corrected board
+with zero at SYSPER=4 and 16. The initial assertion sampled before the counter's
+modeled update; delaying the check exposed that and made the mutation fail.
+
+`pcf4.log` is the full follow-up with this correction. `start4.log` is the
+pre-fix full run with a 256-sample `+startupfrom=64593970` probe. The latter
+exists to compare the full failure with the short reproduction, not to test
+the corrected source. `tables16.log` also predates the PCF fix and remains a
+reference for the earlier Md/F/disk corrections and assisted table restore.
+
+`start4.log` confirms the bus handoff in the full boot: IfuBMux=0000 at
+64594037-38 before clk1, then 00b2 at 64594039 on the edge. PCF stays at
+59; RMar becomes 0059 at 64594040 and the first VA is 005a at 64594047.
+No hardware state was forced in this full trace. The run then reproduces
+the same hold-limit failure as `tables4.log`.
+
+Reproduce the latest source (the assisted world transport is still required):
+
+```sh
+make -C verilog/verilator ifu-pcf-capture-test V='verilator -j 4' SYSPER=4
+make -C verilog/verilator boot-world-disk V='verilator -j 4' SYSPER=4 \
+  WORLDARGS='+cycles=150000000 +pack=chm/diskpacks/games-trident.pack +pendulum +hasram +ioreset +fastwait +bbword=0000 +bbfeed +diskcmdtrace +memprogress +hold-limit=100000 +check-clock-domains'
+```
+
+For the PCF startup window add `+startupfrom=64593970 +startuplen=256`;
+for the first byte stream add `+ifutrace +ifufrom=64593000`. At SYSPER=16
+the first disk transfer is around 258M rather than 64.5M fabric samples, so
+the run and diagnostic windows must be scaled. The PCF regression is bounded
+and takes only about 4,000 samples at ratio 4 (not a full boot).
+
+**PCF fix confirmed in the full machine:** `pcf4.log` fetches VA 0001,
+dispatches JMPZ at 064 with T=00e5, then fetches opcode 84 at VA 00e5.
+The ADC0, LDA, COM1 and BLT sequences agree with the C oracle. The initial
+BLT copy loop also agrees: source words 0, 00e5, 00ec, 0103, 2222, 5410,
+090d, f200 are delivered in order. CIA 0cc is AEmuReschedule, not MapFault;
+an interrupt restarts the BLT, as in the C emulator. Later, around 65.67M,
+code reloaded from storage becomes zeros and the guest loops through JMPZ 0.
+The run ended at 108,003,848 samples. `pcf4-frame.png` is black, with zero
+white pixels; it is not an Executive screen.
+
+The completed 16-sample pre-PCF-fix run (`tables16.log`) confirms the earlier
+fixes at the reference ratio: no KBootTimeout/FIFO underflow and no latched
+FG parity failure, but the same bad first PCF offset (VA 005a at 258376241).
+It reaches the diagnostic hold limit at 258487096.
+
+### The odd storage board existed but its harness clock was unconnected
+
+`tb_exec` connected CLK.ms0Even' but omitted CLK.ms0Odd'. The generated
+machine includes both msa and msaOdd, but the latter therefore ran with a
+constant-zero slot clock. Both boards' memory arrays were seeded, masking
+the omission in the readback smoke tests. BaseBoard supplies both clocks
+in the hardware backplane; this is another test-harness omission.
+
+The exec, readback, storage, disk and display benches now connect both slot
+clocks. The standalone single-board tb_msa correctly keeps only its own
+clock. `clock-domains-test` now measures both storage boards' actual input
+edges. Removing only the odd-clock connection fails at 100k samples with
+**even=25000, odd=0** at SYSPER=4; the fixed harness passes at 4 and 16,
+and readback passes at both ratios.
+
+`storage-test` and `display-test` pass after the hookup. `disk-test +slowio`
+fails its negative bIOin assertion with one asserted sample and zero actual
+IOB output-enable samples. The exact same failure at the same simulation
+time reproduces after removing only the odd-clock connection; the assertion
+was not relaxed. Logs: `odd-clock-peripheral-gates.log` and
+`disk-oldodd-slowio.log` (the latter is the comparable +slowio case).
+
+**Completed follow-up:** `odd4.log`, including all prior fixes, ended at
+90,003,849 samples. Both storage clocks run, the first transfer still succeeds
+with zero underflow and no KBootTimeout, and the guest starts Alto execution.
+It nevertheless reproduces the later zero-instruction stream at the same
+point. The missing clock therefore did not explain that remaining failure.
+`odd4-frame.png` records the final raster; no Executive text is visible.
+
+Next probe: retain a known boot-code word (e.g. VA 00e8 = 6205) through a
+dirty cache eviction and storage refill. The initial BLT fetches 6205 at
+64600402 and 5c49 at 64600418; the first reschedule refetches them correctly
+around 64782365, but a later restart around 65670922 fetches zeros. This
+suggests the cache/storage round trip, but its exact cause is not proved.
+The readback smoke test checks a seeded storage read, not preservation of
+an arbitrary dirty line through writeback; its PASS does not rule this out.
+
+The bounded C trace
+is `c-first-page.log`, obtained with DORADO_UCODE_TRACE=1 and
+DORADO_TRACE_GATE=76617600,76630000 on the same pack. C trace PCs and data
+are octal; BOOTIO prints hexadecimal, and C's T is post-instruction while
+BOOTIO's T is the setup operand. Compare A/B/ALU and successive T values.
+The C reference still has zero display-list pixels at 100M and 130M BB
+cycles and reaches 2,092 by the original 180M-cycle gate. Those are C-only
+reference results, not evidence of RTL rendering.
+
+The existing PHT diagnostic also armed itself indefinitely: its remaining
+40-sample window was incorrectly used as the total pulse count. It now prints
+only two 40-sample windows, as its comment intended; this only bounds logging.
+
+Runs are on the Mac. Linux alias `misterubuntu` is available but the user
+reports slower Verilator there. `build/rtl-executive/run-state.json` tracks
+processes and runtime limit files. The three MiSTers are in use; request
+allocation only when hardware testing is useful. No Quartus or hardware
+access was needed for these fixes.
+
+
+## 2026-09-09: cross-task slow-I/O address overlap isolated
+
+**Full assisted boot attempt completed: still no OS boot.**
+`/private/tmp/dorado-sep09-postclock-boot.log`, limit file
+`/private/tmp/dorado-sep09-postclock-boot-limit.txt` (shortened from 350M to
+280M after fallback), executable
+`/private/tmp/dorado-sep09-history-obj/tb_history`. It includes the selected
+Index, continuous media, corrected pack phase, and TIOA timing changes below.
+The software transport is still replaced by the `c92 -> 23e` handoff.
+
+The preceding tag-latch run completed at 173M. It identifies the actual
+corruption BEFORE the previously measured reload loss:
+
+```
+172235921  disk task lowers its last DriveTag: 8800 -> 0800
+172536465  entry to AltoLoop, CIA 58a: tag latch takes 90ff, TIOA=014
+172537329  ordinary next selection: 90ff -> 0810
+172537330  subsector reload register: 3 -> 0
+```
+
+AltoLoop's first instruction is `T_ clearSeekTagTW, Call[DoMuffOutput]`,
+NOT an Output. The old task's still-active output crosses into the new
+task's disk address. The stray `90ff` asserts DriveTag and load-subsector;
+the next normal tag removes them while changing the data to zero, clocking
+that zero into the subsector register. The LS174 itself is not the fix.
+All preceding initialization and selection tags latched correctly.
+
+The short clock trace (`/private/tmp/dorado-sep09-disk-clock.log`) showed
+ProcH's TIOA changing one fabric sample BEFORE DskEth02 e02's FHCP latch
+closes. ProcH30 k10b explicitly adds a buffer from Clock0'Bc to
+**PostClock0'Bc**, and ProcH23 g10/h10 use that post tap for TIOA. The
+generator modeled it with zero delay. `clock_lag_stages` now preserves that
+extra stage. Those two F10000 registers also need pre-edge parallel data
+capture, as the other register models already support: adding only the
+post-clock delay samples the next bypass/mux value and FAILS InitRamDiablo
+(`/private/tmp/dorado-sep09-postclock-short.log`). The scoped PRECAP option
+on g10/h10 preserves their setup data; all other F10000 instances retain
+their prior timing and serial shifting is unchanged.
+
+`disk-tioa-phase-test` executes real disk initialization and asserts that
+TIOA changes after the disk address latch closes. The fixed model checks
+13 changes and passes the full sixteen-word format check. Rebuilding with
+the old ProcH board fails at 278601, TIOA `000 -> 010` with the latch still
+transparent (`/private/tmp/dorado-sep09-phase-baseline-test.log`). Compute
+and cell checks pass. `disk-tioa-phase-test`, `memory-config-test`,
+`reset-tags-test`, `exec-test`, `boot0-test`, `eth-ctl-test`, and
+`memrun-test` also pass (logs `/private/tmp/dorado-sep09-postclock-startup-gates.log`,
+`postclock-io-gates.log`, `postclock-memrun.log` under the same temp prefix).
+The full-run result below confirms progress but is not a boot-success claim.
+
+**Full-run confirmation through 177M:** initialization is unchanged and
+passes. The stray tag write at 172536465 is GONE. At 172537329 the next
+selection now correctly changes `0800 -> 0810`, not `90ff -> 0810`; the
+subsector reload stays 3. This verifies the diagnosed cross-task failure is
+fixed in the original long-run context. The run is continuing through
+ABoot's legitimate real-time wait to its first disk command.
+
+**Completed full-run result (280,015,252 samples):**
+
+- DiskBoot enters at 249635913, as before. Read command `00fc` occurs at
+  257781050. Active now starts at **258081889, physical pulse 4, angle 13,
+  media phase 1**, rather than the old pulse 1/data-phase start.
+- The stream is recognizable and correctly framed: header `0000 0000`,
+  header checks `af80 047e`, label starts `007e 0000 0001 0001 0200`,
+  boot code starts `8530 4126 8240`. This is the cylinder-3/head-4 boot
+  sector used by the focused controller test, not an empty spare slot.
+- Output-register events total 280: two startup events plus the full 278
+  sector words (266 payload and 12 checksum/remainder words). These events
+  are logged BEFORE register refill, so each printed value describes the
+  previous holding-register value; do not treat them as CPU Input samples.
+- ReadDataErr remains **3155**, exactly the startup baseline: no new ECC
+  error. FIFO overflow is zero. **FIFO underflow is latched**, totaling
+  261913 high samples. Those are durations, not independent error counts.
+- **KBootTimeout is entered at 258167049 while the first transfer is still
+  active**, and the guest falls back to Ethernet. The disk task finishes and
+  clears its command at 258374682. Only one DiskBootRetry entry occurred.
+  The final raster is still effectively black, not an Executive screen.
+
+The next diagnosis is now at the CPU/memory/IO-consumption boundary, not
+the disk's angular phase. `AEm0.mc` initializes ETemp0 to VM[0430] + 033B
+and KWait branches to KBootTimeout if that deadline minus the current clock
+minus one is negative. It promises roughly one second, yet this timeout is
+only 8,530,400 fabric samples (~16 ms) after KWait first entered and ~160 us
+after Active started. Capture the FIRST FIFO-underflow edge and the KWait
+ALU/MD inputs and deadline before/through the read. Useful RM symbols:
+ETemp0=001a, ETemp1=001b, ETemp2=001c, ETemp3=001d, R400=0010, KStatus=005a.
+Do not guess that the disk is simply too slow, or repair this by enlarging
+the guest timeout. No new hardware patch for this remaining issue was made.
+
+## 2026-09-09 continuation: selected Index status
+
+A full run with the continuous-media correction was started, then stopped
+at about 49M samples before the world handoff after finding a second
+selection defect. That partial run (`/private/tmp/dorado-sep09-media-boot.log`)
+is not another disk-read failure.
+
+Trident 76205-902 section 4.2 (printed pages 4-2 through 4-4) describes
+Index among nine bussed status outputs gated with Select. In contrast,
+Composite Sector/Index is explicitly NOT gated with Select. DiskSubrs.mc
+UpdateSector calls out the resulting missing IndexTW when deselected.
+`dorado_trident.TtlIndex_n` now obeys that gating. The independently
+rotating SecIndx stream and subsector-counter reload are unchanged.
+`trident-test` checks both the selected Index pulse width and its absence
+over a full deselected revolution; the strict controller stream and actual
+microcode format tests pass. The data-pair counter in the test is reset
+before its separate measurement (it had shared the Index accumulator).
+An otherwise identical temporary drive with the old ungated Index fails
+the new deselected-Index assertion.
+
+`disk-stream-test` now also exercises `+streamsector=1`: the command is
+issued after Index and starts on the ordinary divided pulse 4. It reads
+the corresponding file slot with all payload/ECC checks passing. A separate
+`+streamsector=28` run likewise passes at pulse 112, the last complete slot.
+These check the current pack angular mapping, not its still-to-be-confirmed
+match to the boot microcode's command-sector convention.
+
+The replacement full run is `/private/tmp/dorado-sep09-selected-index-boot.log`,
+with `+diskcmdtrace` and all preceding fixes. It finished normally at
+269M samples after shortening the limit. **Still no boot.** The first
+command is correctly `00fc` at 257781146 (pulse 0, angle 3162), but Active
+starts at 257853990 on **pulse 1**, divider count 0, with the media already
+in its data phase. The first stream is still wrong. This is a concrete
+difference from the isolated normal-sector test, which starts on pulse 4.
+The count printed at Active is the running counter, NOT its reload latch;
+do not conflate them or claim the reload latch became zero without a trace.
+
+The next run, `/private/tmp/dorado-sep09-reload-watch.log`, finished normally
+at 179M samples. It caught the actual reload latch changing **3 -> 0 at
+172537330**, CIA `712`, IOB `0810`, physical pulse 48. That ordinary drive
+selection does not request a subsector load. The unwanted clock into the
+reload register, rather than the rotational counter itself, is now the
+specific target. Its limit file was
+`/private/tmp/dorado-sep09-reload-watch-limit.txt`.
+`+diskcmdtrace` now additionally logs reload-latch changes (`DISK-RELOAD`)
+and the first five pulse positions of each revolution (`DISK-PULSE`), with
+the one-shot value and count. A short actual-microcode format probe with
+a rotating pack (`/private/tmp/dorado-sep09-pulse-probe.log`) keeps reload
+3 and correctly counts 3,2,1,0 across pulses 1..4 after Index. Therefore
+the isolated AND short full-board probes do not yet reproduce the long
+boot's phase difference.
+An additional isolated `+pollsectors +fastio` controller probe spaces
+selection/deselection polls at pulses 0,4,...48 and still retains reload 3,
+then reads a complete sector with zero ECC remainders and no error latches
+(`/private/tmp/dorado-sep09-timed-poll-test.log`). Thus neither pulse 48
+alone nor repeated selection reproduces the full-machine corruption.
+`/private/tmp/dorado-sep09-reload-history.log` completed at 173M samples.
+The preceding 256-sample capture shows the tag register ALREADY holding
+subsector data 3 with DriveTag asserted and load-subsector enabled; its
+derived load clock is low. At 172537328 TagClock' opens for the ordinary
+`0810` Output; at 172537329 the tag data becomes zero, DriveTag deasserts,
+load-subsector disables, and the derived load clock rises. The LS174 then
+captures zero. Do not paper over this by forcing the reload to 3: find when
+the stale/incorrect tag register value was introduced.
+`/private/tmp/dorado-sep09-tag-latch.log` is the next full reproduction,
+logging every actual tag-register change (`DISK-TAG-LATCH`) with IOB,
+TIOA, task, CIA and strobe state. The short actual-microcode initialization
+probe `/private/tmp/dorado-sep09-tag-short.log` latches every tag correctly,
+including the final `88f0 -> 08f0` transition; that probe does not reproduce
+later full-machine activity.
+The disk diagnostic flags are now read once at startup rather than scanning
+argv on every fabric sample; this does not change any simulated signal.
+
+The controller probe now has `+pollselect` and `+fastio` variations to
+exercise repeated selection and 64-sample Output spacing. It uses timed
+head/cylinder tags as SendTag does, rather than withdrawing them early.
+Adding the proper wakeup-clear sequence exposed a sampling error in the
+probe: it was inspecting OutReg AFTER Input's subsequent refill, not the
+current word Input consumes. With FIFO/output-register state properly
+cleared, this skipped the first header word. The consumer now samples the
+current OutReg before consuming it, and permits a final full OutReg even
+when the FIFO behind it is empty. Both sector 0/1 gates and the fast-I/O /
+selection-poll variant pass, including error-latch assertions. This is a
+probe correction, not a hardware fix or a full-processor I/O validation.
+
+Remaining drive-model fidelity debt: Ready/OnLine and pack EndOfCylinder
+still use the earlier presence/status convention, not the complete selected
+bussed-status behavior. The Index change does not claim to resolve these.
+
+### Pack phase correction, added after the reload watch launched
+
+The C disk model is not authoritative for angular phase: `disk.c`
+`disk_start_pending_transfer` deliberately starts reads immediately in the
+CURRENT command sector, whereas HM 9.5 and DiskSubrs.mc UpdateSector say
+the real controller executes the command in the NEXT sector. The converter
+stores Alto logical sector 0 in file slot 0. Thus that slot must begin at
+physical pulse 4, not at Index. Alto sectors 0..27 now occupy pulses
+4..112. The spare file slot 28 occupies the otherwise unused complete
+slot after Index, and pulse 116 remains the unusable fraction. This codec
+is explicitly specific to the existing Alto pack, not a general Trident
+format implementation.
+
+The serial `pack-test` passes, and `disk-stream-test` now checks file slots
+0, 1, and 28 at pulses 4, 8, and 0 respectively, plus the fast-I/O /
+selection-poll variant. All four strict controller cases pass. A temporary
+pack restoring only the old angular mapping fails the sector-0 controller
+test immediately: header 1000 instead of 0000. Logs:
+`/private/tmp/dorado-sep09-sector-phase-gates.log` and
+`/private/tmp/dorado-sep09-old-sector-phase-test.log`.
+The completed reload-watch, reload-history and tag-latch processes
+have the OLD pack phase (the latter two use a temporary old-phase copy);
+they diagnose the separate wrong-divider-phase issue, not validate
+this last mapping correction or claiming an OS boot.
+
+## 2026-09-09: ABoot wait works; disk framing and parity defects found
+
+**Latest completed full run: still no OS boot.** Log
+`/private/tmp/dorado-sep09-ecc-boot.log`, ended normally at 350M samples
+using `/private/tmp/dorado-sep09-boot-limit.txt`. It includes the additional
+counter/index/ECC fixes below, but NOT the subsequent continuous-media fix.
+It reaches DiskBoot at 249635913, makes eight attempts, delivers 259 words,
+and reaches KBootTimeout at 275665641. The first read is still wrong
+(`0040,0000,0001,3f09,e185,...`). Final error sample counts: ReadDataErr
+7795, FIFO overflow 53849, FIFO underflow 104562. These are accumulated
+high-signal samples, not numbers of independent errors.
+
+The focused controller gate now reads all
+266 payload words correctly and returns six zero ECC remainder words.
+This is not yet an OS boot claim. Mutation gates are confirmed: the old
+50 us one-shot fails index reload (count 1 instead of 3), the old MC10136
+sampling fails block boundaries (ECC slot receives label word 007e), and
+payload-only ECC fails on remainder 3fe0. `memrun-test` still passes.
+
+**Previous full run: still no OS boot.** The cable/head-fixes run finished normally
+at 300M samples (the optional run-limit file shortened the original 350M
+limit once repeated bad reads were established). Log
+`/private/tmp/dorado-sep09-cable-boot.log`. Both memory-configuration and
+disk-format checks PASS. DiskBoot still starts at 249635913; six attempts
+deliver 114 words. Legal head 4 now gives HeadOvfl=0 and selected idle
+ReadError=0, confirming the cable/head fixes independently of boot success.
+But the first read at 257862266 still produces a short wrong stream
+(`0000,1258,816e,fb3e,...`, not the file's zero header). Final counters:
+ReadDataErr high 3155 samples, FifoUnderflow 36413, FIFO overflow zero.
+The saved frame is mostly black, inspected as
+`/private/tmp/dorado-sep09-cable-frame.png`. That run has finished; the
+newer run named above follows the focused controller/cable fixes below.
+
+### Last correction: deselection must not stop media position
+
+The drive reset its bit-rate divider while deselected, so `data_adv`
+stopped and the pack's stream state froze while sector/index rotation
+continued. Selecting a drive partway through a sector resumed the old
+preamble at the wrong angular position. The always-selected controller
+probe did not exercise this difference; the real microcode repeatedly
+selects/deselects the drive. The Trident specification's section 4 clock
+description ties the clock to servo/data on the rotating pack, not a
+selection-relative stream.
+
+`dorado_trident` now advances media whenever attached, gating only the
+external cable pairs with selection. `trident-test` checks exactly one
+track's worth of internal bit advances over a deselected revolution while
+the cable remains quiet. `pack-test` now waits for a complete sector
+boundary after selection rather than demanding the whole preamble from a
+sector already in progress. Both pass, as does the strict controller
+`disk-stream-test` and real-microcode `disk-init-format-test`.
+Restoring only the old selection-frozen divider in a temporary model makes
+the new deselected-revolution assertion fail; no repository model was
+reverted for that mutation. Final reruns of `sector-counter-test`,
+`parity170-test`, `reset-tags-test`, `memory-config-test`, `memrun-test`,
+and `baseboard-test` also pass.
+
+**This last fix has NOT had a full boot rerun.** Do not claim it boots.
+The next full run should add `+diskcmdtrace`: this logs disk-control writes
+and the first forty Active rising edges with physical pulse, within-pulse
+angle, divider count, and pack phase. Do not infer Active's start solely
+from the later DSKDATA output-register trace. The short actual-microcode
+format probe now also prints the programmed subsector value: **3**, as
+expected for divide by four. The hypothesis that initialization loaded 0
+is ruled out; the short probe has no attached rotating pack, so its live
+counter value of 0 is not evidence of a rotating-divider fault.
+
+### The controller-level reproduction found three more real defects
+
+`make -C verilog/verilator disk-stream-test` uses the actual DskEth board,
+slow-I/O ports, drive cable, format RAM, and FIFO. It independently checks
+the file's 266 header/label/data words and the six hardware ECC remainder
+words. The initial setup word is distinguished from disk data. It does NOT
+patch any controller storage, replace microcode in the full boot, or force
+errors clear. `+streamtrace` adds per-word/sequencer diagnostics.
+
+The setup itself needed accurate I/O timing: a strobe changing while the
+board's Clock1 window is open can cause two RAM writes, so the test aligns
+each strobe to that window and verifies all sixteen stored words. Board
+feedback signals (OKToSelect, OS0..3, TtlSector') must also be connected,
+not silently tied low or replaced by a raw drive pulse.
+
+The final gate also checks IOB parity, FIFO overflow/underflow, and
+ReadDataErr latches, all clear. To make that check meaningful, the isolated
+probe follows ClearDisk's two reset writes/tag reset and InitRamDiablo's
+clearAll, waits for a nonempty FIFO, and spans only ONE Clock1'Ca edge
+with each Input pulse. Using the format-write preclock for Input had
+spanned two Ca edges and fabricated an underflow; checking the returned
+word before the following output-register clock included stale data.
+These were probe errors, not additional hardware fixes.
+
+1. **MC10136 missed every counter load.** TriconD03 a19/c12 derive
+   `LoadCnt'` from `WordClock'` itself. At the rising edge it has already
+   deasserted; sampling its post-edge value left c19/c20/c21 at zero, so
+   every data length and preamble delay was treated as zero. The cell now
+   samples data/control/carry in the pre-edge setup window, like the other
+   synchronous cells; its carry OUTPUT remains combinational. The probe
+   now shows the real counts loading (1, 9, 255, etc.) and decrementing.
+
+2. **The index discriminator was an invented 50 us.** TriconD06.sil,
+   DskEth schematic PDF page 13 / printed page 12, explicitly draws a
+   **3.0 us SN74123 pulse**, **1.2 us sector**, and **4.5 us index**. It
+   also shows the actual 27K / 330pF network, contrary to the old model's
+   claim that the values were absent. Ordinary pulses count; index outlasts
+   the one-shot and reloads the LS169. The drive now generates the fixed
+   widths (within the T-80 spec's 1.24+/-0.24 and 4+/-1 us), not a fraction
+   of sector spacing. `sector-counter-test` checks the actual one-shot /
+   LS169 feedback circuit, including index reload when NOT at terminal
+   count. A separate integer-rounding bug generated a phantom pulse 117
+   just before index; the division remainder now extends the last slot.
+
+3. **Fire-code ECC must include SYNC.** With data now correct, the zero
+   header still returned remainder `3fe0 0102`. The real divider is already
+   enabled while hunting for sync; its input includes 201B. The pack had
+   copied the C emulator's payload-only CRC, but `disk.c` explicitly calls
+   that self-consistent rather than matched to physical hardware. Including
+   sync gives header check words `af80 047e` and remainder `0000 0000`.
+   Header, label, and all 256 boot-program words now pass through the real
+   controller with zero remainders. The pack's independent serial checker
+   likewise includes sync.
+
+The requested 300M run proved that the previous 190M run was simply too
+short. ABoot reads RTC values 0, 1, 2, 3, then leaves its wait and reaches
+DiskBoot at **249635913**, DiskBootRetry at 249635945, and KWait at
+249636649. Its comparison is `3 - RTC`, looping while nonnegative, so
+RTC must reach 4. This is the actual `AEm0.mc` sequence, not a timing fix.
+The run made six disk attempts, delivered only 56 words, and did not boot.
+Log `/private/tmp/dorado-sep09-boot300.log`. The drive correctly sought
+cylinder 3/head 4, but delivered words such as `bcf4` where the file has
+zero header words. No KBootTimeout occurred.
+
+### Disk media framing
+
+`dorado_pack.sv` emitted ONE sync bit. HM 9.3 and
+`AltoDiabloDisk.mc` ACmmdTable explicitly specify **201B**, a full sync
+word; 001B is the different Alto Trident format. The hardware detector
+requires ShiftReg.08 AND ShiftReg.15 unless the alternate format is
+selected. The old single bit therefore missed zero headers and could
+lock onto an incidental pattern inside later data.
+
+The zero spacing was also shorter than the read-start sequence. It now
+follows HM 9.6's WRITE sequence: 32 words before first sync
+(head select 1 + settle 2 + write tag 1 + preamble 28), and 11 words
+between blocks (postamble 2 + advance 1 + write tag 1 + preamble 7).
+The sync word itself occupies another complete word. The old 12/4
+spacing had been inferred from READ delays, which is not how a disk is
+formatted.
+
+T-80 capacity is **20,160 bytes = 10,080 words per track**, not the former
+9,360 inferred from 80 words times 117 pulses. Source: Trident
+`76205-902_Performance_Specification_Models_T25_T50_T80_T200_and_T300_198011.pdf`,
+Table 2-1. `dorado_trident` now accepts `WORDS_PER_TRACK` separately from
+the electronic-sector pulse count and uses a fractional divider, avoiding
+per-half-bit truncation. The full bench and pack test select 10080 words.
+
+`pack-test` now decodes the documented 201B pattern, checks preamble
+lengths and completion within the four-pulse short-sector slot, and has
+a real watchdog (the former timeout compared a wrapping revolution
+counter to a value larger than one revolution). PASS: all 266 words,
+three blocks, zero mismatches and cancelling Fire-code check words.
+A temporary 001B-sync mutation fails. `trident-test` also checks the exact
+number of bit cells per revolution and passes.
+
+### Disk IOB parity: an old chip-model inversion is a real blocker here
+
+A bounded microcode probe enters disk task initialization at real 3001B
+(`601`) from Initial's BootMem (`c64`), after processor setup. It executes
+`InitRamDiablo` and checks all sixteen format words at real 3007B (`607`).
+This **passes**, unlike the old per-word jam `disk-format-test`. The three
+old disk-input/command/format tests still fail their previously documented
+stimulus-related assertions; they were not repaired or counted as passes.
+
+The same probe showed every valid IOB word (`XOR(byte, parity)=1` on both
+bytes) producing `dIOBParityErr=1`. The MC10170 datasheet's logic diagram
+(ON MECL DL122 rev7 p.370 / PDF page 372) has **plain XOR**, not XNOR, at
+pin 15. Its truth table's even-parity behavior assumes control 13 HIGH,
+14 LOW; the old model inserted a second inversion. DskEth f04/g04 use
+exactly those control levels, so every valid output latched an error once
+ClearErrors was released.
+
+**Compatibility debt is explicit, not a physical chip option:**
+`cell_MC10170.LEGACY_B_INVERT` defaults to 1 to preserve the existing
+unreconciled parity paths on other boards (see the older handoff's global
+MC10170 experiment). The generator selects 0 only for DskEth f04/g04,
+giving those checkers the datasheet function. This is NOT forcing errors
+off: bad parity still asserts the checker. The new `parity170-test`
+exhaustively checks all 2048 data/control combinations with legacy mode
+off. The microcode format gate also asserts no IOB parity error was
+latched. Both pass after the correction; the detailed probe shows valid
+outputs giving `dErr=0` and `IOBParityErr=0` throughout.
+The gate also checks the combinational checker on valid parity samples,
+even while ClearErrors masks the latch. A temporary DskEth generated
+without the two parameter overrides fails at sample 278681 on valid
+word `0400`, proving this regression is detected.
+
+New targets: `disk-init-format-test`, `parity170-test`. New optional
+`+diskerrtrace` records bounded parity samples during the short probe.
+`+memprogress` now includes ALU operands and disk error sources. An earlier
+framing-only long run was deliberately stopped because it lacked this
+verified parity correction; it is not another failed boot result.
+
+### Drive cable polarity and head-range comparison
+
+The framing/parity run passed the full microcode format check and, unlike
+the baseline, showed `ReadError=0` when selected. It still read wrong data
+and showed `HeadOvfl=1` even while the pack reported head 4. It was stopped
+around 322M after these next two defects were isolated (log
+`/private/tmp/dorado-sep09-fixed-boot.log`).
+
+1. `(~tagbus_n[5:0]) >= HEADS` is NOT a six-bit complement: the integer
+   comparison context extends its operand before complementing, making
+   every head appear out of range. A six-bit `tag_head` wire now fixes the
+   comparison and the immediate track-load predicate. `pack-test` checks
+   legal 4, illegal 5, then legal 4 again. The pre-existing control-reset
+   treatment of the overflow latch was not changed in this fix.
+2. Data and clock have different differential polarity. TriconD07.sil's
+   f01 compares ClockP against ClockM, but f02 compares **DataM against
+   DataP**. The output path agrees: b02/g02 drive complemented WriteData
+   on DataP and true data on DataM. The drive had copied the clock's
+   convention onto data. The drive now emits the correct pair, and
+   `trident-test` samples through an actual `cell_MC1650` wired as f02
+   rather than copying the transmitter's assumption. The patterned-data
+   round-trip and the pack framing test both pass. `pack-test` also now
+   decodes through the actual MC1650 data AND clock cable receivers, with
+   all 266 words and three checksums passing. Temporary mutations restoring
+   the old head comparison or cable polarity each fail their focused test.
+
+`+cycle-limit-file=PATH` optionally rereads a decimal run limit once per
+million samples, allowing a progressing run to be extended (or finished)
+without repeating initialization. It only changes the testbench duration,
+not any machine state. Short test: `+cycles=350000` with a file containing
+400000 reports `RUN-LIMIT -- now 400000 samples` and still passes the
+microcode format/parity gate.
+
+## 2026-09-08 follow-up: three configuration defects found
+
+**Current verification: Initial AND AEmu memory initialization complete;
+OS boot not yet demonstrated.** The 190M-sys_clk run with all three fixes,
+without `+stperroff`, finished normally. Initial enters AEmu at 96896585;
+GetMemConfig reports the correct 1024 pages/module; physical storage
+clearing finishes around 166M. Task 0 then executes ABoot's clock wait
+at `1de/1ed` (VM `430B` = `118` hex), while disk/display/junk tasks run.
+The framebuffer is a mostly black raster, not an OS screen.
+
+Do NOT call the clock wait a stall from this run. `AEm0.mc` explicitly
+waits at least 100 ms for keyboard updates (`ETemp0 <- 3 + MD`, then poll
+the RTC). With 32 fabric samples per 60 ns microinstruction, the 24M
+samples after initialization allow only about 45 ms. A next run needs
+at least 250M total samples; 300M gives useful margin. Inspect RTC/Md
+values if the wait persists beyond that, rather than assuming the earlier
+Md-collision diagnosis still applies.
+
+The final report distinguishes controller setup from software boot:
+693 distinct IM addresses, longest same-address run 663 at `800`,
+`DiskBoot first @-1`, `KWait first @-1`, only 2 DSKDATA words. The pack
+observed 25 blocks / 46502 bits during controller initialization, but
+these are NOT evidence that the Alto boot command was issued. Junk-task
+acknowledgments continue; no 100K-sample sustained-hold watchdog fired.
+Log: `/private/tmp/dorado-codex-correct-size-boot.log`; inspected frame:
+`/private/tmp/dorado-codex-correct-size-frame.png`. No simulation is left
+running. Earlier long-run results below predate the storage-size correction.
+
+Next full run (still an assisted world-transport handoff, NOT an unassisted
+BaseBoard cold boot):
+
+```sh
+make -C verilog/verilator boot-world-disk WORLDARGS='+cycles=300000000 +pack=chm/diskpacks/games-trident.pack +pendulum +hasram +ioreset +fastwait +bbword=0000 +bbfeed +hold-limit=100000 +memprogress +check-memconfig +mdpc=1e2 +mdwinlen=2000 +memwinlen=2000'
+```
+
+The evening diagnosis below missed an earlier failure. During Initial.mb's
+`ResetTags`, Store at real `6034B` (`c1c`) and Fetch at `6250B` (`ca8`)
+both lost their Md completion writes. DisHold concealed this until the
+later SetTestSyn store at `c6e` needed the tag to be valid.
+
+**Confirmed cause, not a clock adjustment:** MemC generated an inconsistent
+mixture of the two physical cache-tag configurations. MemC05.sil's b22 XOR
+was connected, storing parity in `PrVA.4/Par`, but MemC11.sil's comparators
+also compared that parity against VA[4]. On ResetTags' negative base address,
+the eight high comparator bits were `ff` against tag `7f`: VA[4] alone
+manufactured the miss. The apparent idle hit was the comparator enable
+being off, not a successful cache reference.
+
+The original schematic explicitly requires **five output pin cuts** for
+parity mode: e20.3, e21.3, f20.3, f21.3 and g20.2. See
+`DoradoDocs/doradodrawings/MemC-Rev-Be.press!1.pdf`, PDF page 13 / sheet
+MemC11: "Cut 4 113 legs and 1 174 leg for parity rather than 16 bit CVA".
+PDF page 7 / MemC05 describes the alternative VA[4] blue-wire conversion;
+that is NOT the configuration implemented here. HM section 5.11 describes
+the parity/VA[4] choice. The generator now applies the five documented cuts,
+retaining the XOR/parity configuration. No generic cell function changed.
+
+Checks so far:
+
+- `make -C verilog/verilator reset-tags-test`: bounded 800,000-sys_clk
+  Initial run, asserting both Md-tag completions; also passes without
+  `+stperroff`. Completion writes occur at 751040 and 751264.
+- Mutation test: generate a temporary MemC with `CUT_OUTPUT_PINS = {}`;
+  the same test fails at the Fetch with "ResetTags reference never wrote
+  its Md completion tag". Repository RTL was not reverted for this test.
+- `make -C verilog/verilator memrun-test`: PASS.
+- `make -C verilog cell-check`: PASS (connectivity and polarity).
+- A 110M-sys_clk run with the existing `+stperroff` configuration passes
+  the old c6e hold: TASKINITLOOP at 96875368, BootEmulator at 96896585,
+  then AEmu's InitMap runs through the limit (last TNIA 6af, 250 distinct
+  addresses, longest same-address run 9). MDhold and RefHold each total 0;
+  no disk boot reached yet. `+enterworld=23e` still substitutes the boot
+  transport, so this is NOT a clean cold OS boot.
+- The unmasked run also passes c6e and reaches TASKINITLOOP and
+  BootEmulator at EXACTLY the same cycles as the masked run. Initial does
+  not need `+stperroff` with the cache parity cuts. It completes a 115M
+  run in AEmu's map routines (255 distinct addresses, last TNIA 850,
+  longest same-address run 44 at 734; MDhold 0, RefHold 828416). No disk
+  boot yet.
+- The extended 220M run (before the storage-size correction, with
+  `+stperroff`) reached the page-zeroing loop at 143879145 and passed the
+  old late-stage stall. It still had not reached DiskBoot at the limit:
+  268 distinct addresses, longest same-address run 663 at 800, no sustained
+  hold caught by the 100K watchdog. This was not evidence of a completed
+  memory pass: GetMemConfig was reporting the wrong module size, below.
+
+**The Makefile entry override was also broken.** Both boot-world targets
+prepended `+enterworld=25b` to WORLDARGS. Verilator's `argPlusMatch` returns
+the FIRST match, so the documented `WORLDARGS="... +enterworld=23e"`
+still entered StartEmulator and skipped InitMap. Confirmed in the baseline
+log's startup banner. Both targets now default to `23e` and omit that
+default if WORLDARGS already supplies an entry. `mbdis -d AEmu.mb!2`
+identifies INITMAP at real `1076B` = `23e`. The long follow-up runs above
+invoked the binary directly with a single `+enterworld=23e`; they are not
+affected by the former Makefile mistake.
+
+### Storage size: a second missing assembly pin cut
+
+The simulator's 14-address-bit storage chips implement 16K bits each:
+one module is 256K words = 1024 pages. But actual AEmu `GetMemConfig`
+reported **16384 pages/module**, corresponding to 256K-bit chips. A
+bounded probe enters GetMemConfig at `200` from Initial's BootMem (`c64`),
+after processor initialization; it needs only 300K fabric samples, not a
+full boot. At real `4136B` (`85e`), T was `4000` hex rather than `0400`.
+
+MemX23.sil specifies the distinction explicitly: if 256K chips are NOT
+installed, break **g10.6 (MC10104)** before stuffing. See
+`DoradoDocs/doradodrawings/MemX-Rev-Ch.press!1.pdf`, PDF page 25,
+instruction 1; HM section 5.10 explains the shared 256K/16K size wire.
+The generator had deliberately omitted this conditional cut because the
+chip-size wires are external. That reasoning was insufficient: the SAME
+external wire denotes 16K or 256K chips, and this physical cut tells them
+apart. The storage cells now concretely model 16K chips, so the cut is
+required. Without it the guest clears sixteen times the installed storage.
+
+`BROKEN_PACKAGE_PINS` now includes MemX g10.6. A future 256K-chip storage
+build must restore this pin AND enlarge the storage models. Map size is a
+separate choice; GetMemConfig's VirtualBanks computation was 64 (16K map),
+so it was the storage size, not the virtual-map-size probe, that was wrong.
+
+`make -C verilog/verilator memory-config-test` asserts the actual microcode's
+result is 1024 pages/module. It also verifies the Makefile honors both
+`+enterat=c64` and `+enterworld=200` without prepending conflicting defaults.
+The test also fails with a temporary MemX generated without the g10.6 cut
+(16384 pages/module), confirming that it detects this specific regression.
+After both board changes, `reset-tags-test`, `memory-config-test`,
+`memrun-test`, and `make -C verilog cell-check` all pass.
+
+**Another correction to the evening diagnosis:** `dSTPerr` is NOT a
+"syndrome-nonzero flag". MemD04.sil (MemD-Rev-Ca PDF page 6, Hamming code
+generator) shows k15 checking the parity bits EcSout.16/17 against the two
+outgoing data bytes; h16b/k13g/d01f accumulate and register that transport
+parity error. Storage-read syndrome checking is a different path. Idle
+`dSTPerr=1` percentages do not establish corrupt storage or missing check
+bits; examine valid transfer/EnableSTPerr timing. Both masked and unmasked
+runs now complete Initial identically.
+
+New optional `+cachewin=N +cachewinlen=M` prints bounded per-fabric-cycle
+address, hit, pipe and comparator inputs. `+hold-limit=N` optionally stops
+a boot after N consecutive held fabric samples, printing the hold sources;
+it is a diagnostic watchdog, not a hardware timeout (default disabled).
+The loaded Initial.mb and the available InitialSubrs.mc differ:
+ResetTags' actual MCR is `0341B`, without
+DisBR, despite the source listing including DisBR. The C emulator executes
+the same `0341B` and negative BR; do not change RTL to match that stale source.
+
+## Previous handoff (2026-09-08, evening) -- retained history
+
+Branch `verilog-backplane`, head `dc2f03ca`, everything uncommitted. This
+block is the state at the end of a full day of autonomous boot-driving; the
+"later" block below it is the same morning's state and its blocker (the map
+walk rewriting 64 entries) is fixed here.
+
+### What was fixed today, each from a data sheet or the wire list
+
+1. **`cell_MC10179` was a SKELETON** (MemC g05, the BR+Mar adder's look-ahead
+   carry block). CO20'/CO12' undriven: no carry ever left VA.20-23, so a base
+   register walked by 256-word pages wrapped after 64 pages and InitMem.mc's
+   Map1to1Loop rewrote the same 64 entries for 290 M sys_clk. Modelled from
+   MC10179.pdf; the data sheet's equations are on the PIN LEVELS (the part
+   takes the F100181's active-low G'/P'/Cn' and returns active-low carries).
+   EclDict numbers the groups MSB-first (its GI0 = the sheet's G3); the cell
+   header has the pin table.
+2. **`cell_MC1672` was a SKELETON** (triple XOR): MemC h17/h18 make "hit column
+   differs from victim column" and `HitOrEc`; IFU d07.
+3. **`cell_MC10163` was a SKELETON**: MemD a14/b14/j12/l12, the storage ECC
+   check-bit generators (Motorola "IBM code", MC10163.pdf). Assumed odd-parity
+   outputs (the MC10160 convention).
+4. **`cell_MosRam` (the MAP) was 4K deep with seven address pins wired.** A
+   4K x 1 DRAM has six pins; HM p.126 says "21 16k, 64k, or 256k x 1". The
+   cell dropped two row bits and folded the 16K-entry map 4:1. Now 16K.
+5. **`cell_MK4096P_addr` / `cell_MK4096P_6` (the STORAGE): the same defect**,
+   HM p.10 "256k x 16-bit memory modules (using 16k-bit storage chips)". Both
+   14-bit now; the generator's shared-latch wire is `[13:0]`; tb_readback,
+   tb_exec's seeds and tb_msa's census loop to 16384.
+6. **The bench's `RfshPeriod` was 8.3x too fast** (1.9 us; HM p.129 says
+   "refresh references once every 16 us"): the map did a refresh between
+   EVERY pair of InitMap's map writes. Default is 16 us now, `+rfshdiv=N`
+   overrides. Initial reaches BootEmulator ~10 M sys_clk sooner.
+7. **A BACKPLANE ALIAS HAD MERGED TWO MemX NETS, and the <-Md hold lost its
+   input.** MemX has `EcDcomingForCt'` (f23.2o -> f22.11i, out on E39) AND a
+   board-local `DcomingForCt'` (f22.15o -> f23.13i, g24.11i, e50). The
+   2026-09-05 entry ('MemX', "EcDcomingForCt'") -> "DcomingForCt'" renamed the
+   first onto the second inside MemX; a net cannot have two drivers, so the
+   generator silently dropped f22.15o, f23.13i and g24.11i -- and g24 is the
+   OR (CacheRef | SW | DcomingForCt') behind e19's DdataGood', the
+   data-not-good input of MemC b23's Md-hold request. HOLDSRC read "MDhold 0"
+   in every boot. The join is now on the MemC side (('MemC', "DcomingForCt'")
+   -> "EcDcomingForCt'"; MemC has no local net of that name) and
+   `sil_netlist.py` REFUSES any alias whose target already names a net on the
+   board (mutation-tested against the old entry). Bench probes read
+   `m.b_MemC.EcDcomingForCt_p_`.
+
+8. **THE MACHINE HAD HALF A STORAGE MODULE.** The msa is 144 chips = 4 banks
+   x 36 bits = two words + four check bits, HALF of a 72-bit quadword (HM
+   p.129: 64 data + 8 check); HM p.10's "256k x 16-bit module (16k-bit
+   chips)" is 288 chips = two boards. The BaseBoard fans out CLK.ms0Even'
+   AND CLK.ms0Odd'; MemX drives LoadSinE/ShiftSinE/LoadSoutE'/ShiftSoutE
+   AND their O twins; MemD exports EcOut.0-7 where the even board's .bp
+   claims EcOut.0/1/4/5. Only the even board was instantiated: every odd
+   word of every quadword had NO STORAGE and half the check bits went to
+   unconnected top-level ports -- which is exactly what a syndrome-nonzero
+   flag reading 1 on 99.7% of samples looks like. `SLOT_INSTANCES['msaOdd']`
+   in sil_backplane.py instantiates the same module a second time with the
+   nine slot-specific nets renamed (E->O strobes, CLK.ms0Odd', EcOut.0/1/4/5
+   -> EcOut.2/3/6/7'); every configuration that carried `msa` now carries
+   `msaOdd`, and tb_exec/tb_readback seed both boards. There is no .bp for
+   the odd slot -- PARC states a board's pins once, for the slot it was drawn
+   in -- so the rename table is the symmetry of the even one; the EcOut
+   pairing (0/1/4/5 even, 2/3/6/7 odd) is the one assumption in it, and
+   dSTPerr going quiet on the first boot with both boards is its test.
+
+### What the missing Md hold did, measured (run21/22/24 in the scratchpad)
+
+InitMap's page-zeroing loop (real 0o4000, `ITemp0_ (Store_ ITemp0)+1, DBuf_ T,
+Branch[., Cnt#0&-1]`) wedged after ~5 pages with DbufBusy stuck at 1 and every
+automaton idle: the page's LAST Store<- missed (144,132,955: Hit'b=1, dirty
+victim), left A at 144,132,970, and NextMapEntry's `DummyRef_ T, T_ MD` ran
+UNHELD at 144,133,033 (DdataGood'=0 "good", b23.3=1, b22.3=0 -- the tag half
+did ask). The DummyRef displaced the store's flags; its line reached Ec2 at
+144,133,450 with Store<-InEc2=0, so MakeD<-Dbuf (MemX j17 = VicSTPerr' &
+Ec2State4 & Store<-InEc2) never fired and the DBuf was never handed over.
+That is HM p.60 verbatim: "issuing Map<- without holding for a previous
+Store<- to finish will result in infinite DBufBusy ... do not fail to issue
+<-Md before or concurrent with Map<-" -- the microcode does issue it; the RTL
+did not hold. Gate chain, for the next reader:
+
+    DbufBusy     = MemC c17 FF b (clk0'): Store<- | (DbufBusy & ~NoRef & ~MakeD<-Dbuf & ~FastD<-Dbuf)
+    FastD<-Dbuf  = MemC i22: Hit_a & SH_Bb & ~Dbusy & Store'InA & ~BLretry
+    MakeD<-Dbuf  = MemX j17: VicSTPerr' & (Ec2State4 & Store<-InEc2)
+    Dbusy        = ~AcanHaveD;  AcanHaveD = MemX g23 FF <- j23 f(MakeTransport0/1/2)
+    MDhold'      = MemC e22 FF (PrClk1') <- dMDhold' = b23.3 | b22.3   (wired-OR, both low = hold)
+    b22.3        = MDMtag' ^ ProcTag   (0 = the Md file's tag is stale; MemX f21 tag RAM vs e20 Ptag RAM)
+    b23 (MC10121)= ~[DdataGood' & (At=Curt' | MemC16.sil+6 | <-MDI) & (<-MDI | DcomingForCt') & (<-MD | WantCR | <-MDI)]
+    DdataGood'   = MemX e19 FF (Clk0'Cf) <- g24 = CacheRef | SW | DcomingForCt'
+    HM glossary "tag": the extra bit in Md readout which complements for successive
+    Fetch<-'es and Store<-'s by the same task; agreement with the current value = reference finished.
+    MemX i19 writes the tag RAM on every MakeMDM<-D; MemD i12 blocks only the DATA write (DontWriteMDM).
+
+### Where the boot stands
+
+With the alias fixed the Md hold fires -- and the first thing it does is hold
+Initial's TestSyndrome setup for ever: at real c6e (`Store<-T`, FF=300) the
+store is held with MDhold'=0, STPerr=1, VicSTPerr'=0 (run25/26). STPerr is
+the storage ECC error latch (MemX h08 <- i01 = dSTPerr & EnableSTPerr);
+`dSTPerr` -- MemD's syndrome-nonzero flag -- has read 1 on 99.7% of samples
+in EVERY run (run22: 28,214 of 28,310), but the latch only arms now that
+STPerrNow' (j03 <- MemX05.sil+15) is live. With STPerr set, VicSTPerr' blocks
+MakeD<-Dbuf AND MakeD<-CD, so a missed reference's data never enters the
+cache, the reference never "finishes", the Md tag is never written, and the
+hold is permanent. `+stperroff` (STPerr forced 0; in the recipe since
+2026-09-01) is back in force for the boot runs; the ECC path itself is the
+OPEN DEFECT: MemD sheets 3-5 (MC10163 byte parities -> MC10180 trees -> the
+GenPh/ChkPh phases -> Syn0..7 -> dSTPerr), the msa's EcOut/EcIn check-bit
+planes (shifted, `ShiftEcOut`/`LoadEcOut'`), and whether the corrector also
+FLIPS data bits on a bad syndrome (it should not be able to, if the check
+bits it stored are the ones it recomputes). Start with a probe that compares
+GenP* on the write side with ChkP* on the read side of one zeroing store.
+
+run29 (`+stperroff`, 2 G sys_clk, obj_bwdisk3) is the boot in flight at the
+end of the session; its PROGRESS lines are in the scratchpad log. `+blfix`
+is no longer used (run17: identical with and without it).
+
+### The park moved EARLIER once the hold was alive, and both boards did not clear it
+
+With the alias fixed the Md hold fires, and the boot now parks at Initial real
+`0o6156` (CIA c6e, a `Store<-T`, in InitialSubrs before InitMap) rather than in
+the zeroing loop -- the hold does its job, and the first store it holds never
+releases. Measured (run25..run44):
+
+- At c6e the Md hold is asserted (`MDhold'`=0) through `b22` = `MDMtag' ^
+  ProcTag` = 0: the Md file's tag disagrees with the current tag, i.e. HM's
+  "reference not finished." The reference does not finish because the store's
+  data is never handed to the cache: `MakeD<-Dbuf` (miss path, MemX j17 =
+  `VicSTPerr' & Ec2State4 & Store<-InEc2`) and `FastD<-Dbuf` (hit path) both
+  stay 0 for it, so `DbufBusy` never clears and the tag RAM (MemX f21, written
+  on `WriteMDM'` = `MakeMDM<-D`) is never updated.
+- **Both storage boards do NOT clear it** (run30, no `+stperroff`): the park is
+  identical. So it is not only the ECC syndrome. `+stperroff` (run29) does not
+  clear it either.
+- The tag chain is sound in isolation: PresetMap's kick-start (real d2c/d2e,
+  `+tagbrief`/`+tagfrom`) shows references HIT, `ProcTag`/`Ptag`/`ProcTagInA`
+  track, and the cache-address memory (MB7071H, `+cafrom`) stores and reads
+  back VA correctly per column under FDMiss/UseMcrV. The one `WriteMDM'` in the
+  whole 87 M-cycle boot is the power-up write at cycle 0.
+
+So the open question is: **why does a store in the SETMCR region never
+"finish" -- neither `MakeD<-Dbuf` (its miss reaches Ec2 without
+`Store<-InEc2`) nor `FastD<-Dbuf` (a hit whose FastD path is gated off) fires,
+so the Md tag never flips and the hold is permanent.** The corrector pipeline
+(MemX l03: `Store<-InEc1'`/`CacheRefInEc1` <- MemC l03's pipe-flag F10016 <-
+the pipe RAM MemC l04, written on `WrPipe02'c`) and the storage ECC (MemD
+sheets 3-5, `dSTPerr` = syndrome nonzero, still 1 on 99.7% of samples even
+with both boards) are the two suspects. `+tagfrom`/`+pipefrom`/`+cafrom`/
+`+mdfrom` windows are in tb_exec for exactly this; the C emulator's
+`DM_REF_STORE` (memory.c:1645) and its `last_ref_latency` (16/24 on a miss,
+memory.c:1556) are the oracle for what "finished" should take.
+
+### Oracle facts
+
+C emulator (`dorado --eb worlds/aemu.eb --disk 0=../chm/diskpacks/games-trident.pack --boot-reason disk`,
+run from `dorado/`): InitMap = Map1to1Loop 65,536 + CacheFlushLoop 65,536 +
+MapInitLoop 16,384 (RealPages), 31.0 M -> 66.8 M BB cycles; display-list
+pixels first appear between 130 M and 170 M BB (2104 at 170 M, 2092 at 450 M+).
+170 M BB = 46 M microinstructions = 1.47 G sys_clk at 16x = ~2.5 h of
+Verilator at 160 k sys_clk/s. The RTL (16K map, one module): Map1to1Loop
+16,384 x ~1,030 sys_clk, CacheFlushLoop 16,384 x ~1,950, MapInitLoop 16,384
+pages (ChipsAre256/16K=1 -> 256K chips -> 16,384 pages claimed; the msa
+physically holds 4 banks x 16K x 36 bits -- how many pages that is remains
+to be measured).
+
+### How to run
+
+    make -C verilog/verilator boot-world-disk WORLDARGS="+cycles=N +pack=chm/diskpacks/games-trident.pack +pendulum +hasram +ioreset +stperroff +fastwait +bbword=0000 +bbfeed +enterworld=23e"
+
+or the binary directly (the Makefile captures stdout; the bench now prints
+`PROGRESS @cycle CIA=xxx` every 1 M sys_clk and flushes). Windows:
+`+seqfrom=CYC +seqlen=N` (map/storage automata + DbufBusy/hold/transport
+signals on change), `+vafrom/+valen` (VA and map address per map op),
+`+mdfrom=CYC +mdmax=N` (every <-Md with the hold terms), `+mdwin/+mdwinlen`
+(HOLDWIN, per sys_clk). `scratchpad/seqdiff.py seq.txt lo hi [fields]`
+prints a SEQ trace as field transitions; `prog.py log labels` maps PROGRESS
+CIAs to InitMem labels. Verilator `--threads 4` was 2.3x SLOWER; `-O2` gave
+nothing measurable; stay single-threaded.
+
+### Gates
+
+cell-check, loop-check, machine-test, memrun-test, readback-test,
+refdecode-test, exec-test, exec-parity pass on the regenerated RTL.
+**cell-check now PASSES and was RED at HEAD** (on MC10182): the complex-block
+waiver (COMPLEX_PARTS in sil_check_cells.py -- MC10182, MC10179, MC10163,
+MC1674, each output a data-sheet function of a SUBSET of the flat [G] input
+union the dictionary states) clears the false positive while still catching a
+cell that reads an input the union does not list. exec-tasking and exec-init
+fail as they did at HEAD (red since commit d3e337a2, per CLAUDE.md -- they
+wake tasks whose TPCs the bench never initialised). `make -C verilog
+backplane` regenerates everything (now including the msaOdd storage board) and
+exercises the net-merging alias guard.
+
+## COLD RESTART (2026-09-08, later) -- history; superseded by the evening block above
+
+### The Md-file blocker was never a timing defect: the RTL had NO ADDRESS ADDERS
+
+Branch `verilog-backplane`, head `dc2f03ca` plus the uncommitted work listed in
+the block below, plus this session's changes to `tools/sil_netlist.py`,
+`tools/sil_to_verilog.py`, `tools/sil_gen_all.py`, `verilog/cells/cell_F100181.v`,
+`verilog/cells/cell_F10470.v`, `verilog/verilator/tb_exec.sv` and the
+regenerated `verilog/generated/*`.
+
+**The measurement that reframed everything.** A per-sys_clk probe of the D bus
+end to end (`MEMWIN5`, `+mdpc=1e2 +memwinlen=150`) at ABoot's clock wait showed
+the cache data-array ADDRESS was `000` for BOTH the fetch of VM 430 and the
+store to VM 420, and MemC's `dDad.02-13` was zero for the whole window. The
+fetch and the store read and wrote the SAME array cell; the "store's word"
+the Md file took was VM 420's old content read at the fetch's (wrong) address.
+The Md file, its hold, `DontWriteMDM`, f06's capture and the clock-depth model
+were all innocent: the machine had no virtual address.
+
+**Root cause: a parser regex.** PARC's wire lists name some package positions
+with a `#n` prefix -- `#1c42.5o`, `#5b42.4o`, `#-1c3.1o`, `#4i19.6o` -- and the
+`.lc` part lists carry exactly those names. `sil_netlist.PIN_RE`
+(`\b([a-z]+\d+)\.(\d+)([io])`) rejected every one of those pin references, so
+the generator instantiated the packages (from the `.lc`) with NO PINS AT ALL:
+
+| board | packages | what they are |
+|---|---|---|
+| MemC | `#1c42 #1c43 #1f42 #1i42 #5b42 #5b43 #5e42 #5h42` (8 x F100181) | the BR + Mar adders that make VA[4:31] -- and the carry-select pair for the cache row |
+| MemD | `#-1c3 ... #-1l19` (36 x F10470) | the B halves of the cache data array (Dad.09 = 1) |
+| BaseBd | `#4i19 #4i20 #4i21 #4j21` (4 x CA3140) | op-amps on the supply-margin DACs (analog) |
+
+With the adders unwired, `dVA`/`dDad` never left zero: every reference in the
+machine's life aliased to one cache line (which is why the hit compare read
+97% and why "the Md file takes the store's word"), and half the cache did not
+exist. Fixed by allowing the prefix in `PIN_RE` (and `PKG_RE`); `sil_netlist.py
+--net 'MemC10.sil+4'` now lists `#1c42.5 out F100181`, and the regenerated
+MemC wires all eight. `make -C verilog backplane` regenerates every board and
+machine (24 generated files change).
+
+**The guard.** `sil_to_verilog.py` now records every package emitted with no
+pins, prints them in its report, and exits 3; `sil_gen_all.py` fails the
+build on it. Mutation-tested: reverting the regex makes MemC report its eight
+adders and the build fail. All sixteen boards report zero.
+
+**The adder cell was wrong too, and had never been exercised.** With the
+F100181s live, `cell_F100181` needed the data sheet: "A minus B plus Cn" is
+A + ~B + Cn (the part inverts B internally; a two's-complement difference
+needs Cn' LOW), not A - B + Cn -- one too many. MemC runs its slices in "B
+minus A" with Mar' on A, so BR + ~(Mar') + 0 = BR + Mar, and the old cell gave
+BR + Mar + 1. The group P'/G' outputs were not the data sheet's either, and
+MemC chains slices through them: `#1c42`'s G' IS the carry into `#5b42`
+(its own Cn is 0, so C4 = G), and the `#1c43`/`#5b43` pair is a CARRY-SELECT
+adder for the cache row bits 20-23 -- `#1c43` with Cn' open (LOW, carry 1) and
+`#5b43` with Cn' = Hib (carry 0), selected by `CO24&Add` through b07/c07's
+NOR pairs. Cell rewritten from the data sheet's Function Table and lookahead
+equations. `cell_F10470` gained pin 18 (VEE, wired on the bank-B positions).
+
+### Where the boot stands now
+
+With real addresses the machine no longer reaches ABoot: the disk task's first
+`Store` (AWasntIdle, `Store_ KTemp3, DBuf_ T`, VM 522) map-faults, the fault
+task takes `NotEmuFault` ("Fault in non-emulator task") and halts in its
+`Branch[.], Breakpoint`. That is the microcode doing exactly what it says for
+a map that was never initialised: the bench enters the world at
+STARTEMULATOR (`+enterworld=25b`), which skips **InitMap** (`InitMapLoc`
+0o1076 = IM 0x23e, `InitMem.mc`), the world's own map and storage
+initialisation -- Map1to1, a full cache flush, GetMemConfig, the storage
+zeroing, EmuBRHiReg. The bench's all-ones map seed stood in for it, and was
+only ever exercised at entry 0 because every VA was 0. The C emulator enters
+the world at 0o1076 (PCDIS: first executed at BB cycle 31,023,768) and its
+world never runs the fault task at all.
+
+### And with InitMap running, the second defect: the MCR's B side never loaded
+
+Entering at 0x23e, InitMap runs `Call[TasksOff]`, `B_ FaultInfo'`,
+`T_ mcr.noWake; LoadMCR[T, T]`, the TestSyndrome setup and its
+`WaitForMapBuf`, then `TaskingOn` -- and the fault task immediately switches
+in at Initial's leftover Block (IM 0xc06, "hist pc=c06" x34) and re-wakes for
+ever, because its wakeup was never disabled: `WAKESRC ... WakeEnable
+200000000 of 200000000`. HM Figure 10 / Table 4: Mcr[13:15] load from MapBuf,
+bit 15 is NoWake; on MemX, f04 (F10016 on Clk1'Ab, PE' = Mcr<-' from MemC
+l09) captures Mapbuf.15 as NoWakeups and g23 registers ~NoWakeups as
+WakeEnable. `MCRWIN` (`+mcrpc=213`) showed the race at one sys_clk: MapBuf
+(MemX g01/f01, MC10175 on MapbufLd') and f04's load edge are the SAME sys_clk,
+and the MC10175 cell was a positive-edge flip-flop, so f04 read the OLD
+MapBuf (0). memrun-test's SetMcr# jam holds the strobe for many clocks and
+loads on a later edge, which is why the jam gates never saw it. The MECL data
+book: "Any change on the data input will be reflected at the outputs while
+the clock is low. The outputs are latched on the positive transition"; MemD01
+says "175 follows input when clock is low". `cell_MC10175` is that latch now
+(18 packages: MapBuf, DBuf, MemC's BR latches on SH', ProcH/ProcL i01/i02 on
+Clock1'Ba, two on DskEth).
+
+### And the third: the map arbitration gate that had been parked
+
+With InitMap running (`+enterworld=23e`, latch fixed) the boot enters
+Map1to1Loop and walks the map (6,679 entries by 102 M cycles, ~900 sys_clk
+each). memrun-test, though, now FAILED where it used to pass: "preStartMem'
+never asserted -- no storage cycle was started". A per-change trace of the
+map and storage automata (`+seqwin`, printed by both the current tree and a
+copy with the three RTL changes reverted) showed why the OLD machine passed:
+with every VA zero, a Store HIT latched map function 01 and started a map
+walk that happened to reach the storage-start state just as the flush's
+dirty victim arrived. With real addresses the store latches 11 (no
+function, correctly), the victim's own walk starts at MapState 000 and is
+RESTARTED at 001 by the next reference's StartMap' -- because nothing denies
+the address section the map while the map is busy. That is exactly gate c
+of MemX f24 (`cell_MC1674`), `AcanhaveMap' = MapFree'`, parked at 0 on
+2026-09-06 because "Initial deadlocks in its map initialisation" -- measured
+on the machine with no adders. Live, memrun-test passes and its dirty-victim
+write reaches DRAM for the first time (`MemRASa 12, MemCASa 6, MemWEa 2`,
+`WriteInMem' asserted 256`). `+lenient` turns memrun's storage-cycle fatals
+into reports so the diagnostic dump prints; `+seqwin` is the trace.
+
+### Where the boot stands at the end of the session
+
+With all three fixes the 400 M-cycle boot (`+enterworld=23e`) gets through
+InitMap's preamble -- TasksOff, `B_ FaultInfo'`, LoadMCR (NoWake now takes:
+`WakeEnable` high 106.05 M of 400 M, i.e. until that instruction),
+TestSyndrome, `TaskingOn` (no spurious fault-task switch), GetMemConfig --
+and into Map1to1Loop, where it writes 64 map entries (`MAPCENSUS` 64 zeros
+in the WP, Dirty and RP00 planes) and then spins in WaitForMapBuf for the
+rest of the run: `HoldMapBuf` 139 M samples, last TNIA 0x866, longest run
+on one address 22. A refresh becomes due about every 45 k sys_clk and 64
+iterations at ~900 sys_clk is 58 k, so the first refresh to arrive while a
+`Map<-` is in flight is the suspect: with gate c live the map is now
+genuinely arbitrated between the address section and refresh (MemX h20
+`MapRfsh' = MapFree' | NeedRfsh'`, g24 adds the refresh-priority term to
+`AcanhaveMap'`, j22 holds `MapFree'`), and one of them appears never to
+release. `+seqfrom=CYC +seqlen=N` in tb_exec prints the map and storage
+automata on every change (the run to look at opens at 106.33 M); run11 in
+the scratchpad is the same boot WITHOUT `+stperroff +blfix`, to learn
+whether those two no-adder-era workarounds still matter.
+
+### Gate status (2026-09-08, evening)
+
+Quick set, all PASS with the three fixes and gate c live: memrun-test,
+compute-test, exec-test, exec-boot, boot0-test, sendmir, step-test,
+display-test, taskrun-test, strap-test, readback-test, storage-test,
+mem-test, exec-world, exec-parity, refdecode-test, task-test. Full suite:
+see the line below this block for the final tally. Known pre-existing
+failures, unchanged by this session: alu-test (cell_MC10181's data-sheet
+check, 16 of 4880 vectors), exec-tasking, exec-init (fail at HEAD, see the
+2026-09-03 block), the eight disk-* benches (bench-stimulus rot, commit
+86b5be32), cell-check (MC10182 and MC1674 gate lists). storage-test fails
+only from a stale obj dir -- `rm -rf verilog/verilator/obj_storage` first.
+
+### How to run now
+
+    make -C verilog/verilator boot-world-disk WORLDARGS="+cycles=N \
+      +pack=chm/diskpacks/games-trident.pack +pendulum +hasram +ioreset \
+      +stperroff +blfix +fastwait +bbword=0000 +bbfeed +enterworld=23e"
+
+`+enterworld=23e` (InitMap) replaces the old `25b`. With gate c live Initial
+itself takes 10 M cycles longer (its map loops now wait for the map, which
+is what the note calling that a "deadlock" saw on the no-adder machine):
+Initial reaches BootEmulator at 106.32 M, not 96.34 M, and the world enters
+there. InitMap's Map1to1Loop then runs ~900 sys_clk per map entry. New probes
+in tb_exec: `+mcrpc=HEX` (the MCR B-side chain at an address), `MEMWIN5`
+under `+mdpc` (the D bus end to end). In tb_memrun: `+lenient` (storage
+assertions report instead of stopping), `+seqwin` (map/storage automata on
+every change). `+stperroff` and `+blfix` are bench workarounds diagnosed on
+the machine with no adders; both are candidates for removal now, untested.
+
+### Method notes worth keeping
+
+- **A machine that "works" can have no address path.** Hit compare 97%,
+  Initial booting, a raster painting, PARC's diagnostics passing -- none of
+  it needed a correct VA, because every reference hit the one line. The
+  first place memory CONTENT mattered for control flow (ABoot's clock wait)
+  was where it showed. The guard in the generator is the lesson.
+- **Re-measure every timing conclusion that predates the adders.** The Md
+  hold, DontWriteMDM, f06's capture, PRECAP on the memory boards, the
+  clock-depth pass, the parked MC1674 gate: all were tuned against a
+  machine whose references aliased. Two of them (the gate, and the reason
+  memrun "passed") were wrong in ways that looked like RTL timing.
+- **The C emulator is still the oracle**, and cheap: `DORADO_PCDIS=lo,hi`
+  (octal IM addresses) with `DORADO_PCDIS_LIMIT`, `DORADO_FAULT_TRACE=1`,
+  `DORADO_MCR_TRACE=1` on `dorado --eb worlds/aemu.eb --disk 0=...
+  --boot-reason disk --cycles N` (N in BaseBoard 6502 cycles, 3.71 per
+  microinstruction). It settled that the world's entry is 0o1076, that its
+  fault task never runs on a disk boot, and when ABoot/DiskBoot happen.
+- **The reverted-tree A/B** (a lean copy under the scratchpad with the
+  three files reverted, regenerated, memrun rebuilt by hand) took twenty
+  minutes and answered a question no amount of reading would have.
+
+## COLD RESTART (2026-09-08, morning) -- history; its blocker was a phantom (see above)
+
+Branch `verilog-backplane`, head `dc2f03ca` plus UNCOMMITTED work in
+`verilog/cells/{cell_MC10141,cell_MC10176,cell_MC10231,cell_SE10231,cell_F10145A,cell_MC1674}.v`,
+`verilog/verilator/{tb_exec.sv,tb_memrun.sv,dorado_pack.sv,Makefile}`,
+`tools/{sil_netlist.py,sil_to_verilog.py}`, and the regenerated
+`verilog/generated/*`. Baseline (no clock depth) is what is checked in.
+
+### State in one paragraph
+
+The eleven-board RTL Dorado runs Initial, enters the AEmu world, drives a
+Trident pack, paints its raster -- and does NOT boot. It reaches ABoot and
+hangs there. ONE defect blocks it, and it has two faces that must be fixed
+together: (a) at baseline, a `Store<-` between a `Fetch<-` and its `<-Md`
+overwrites the fetching task's Md slot, so ABoot's clock wait reads the
+store's word instead of the clock; (b) the derived-clock-depth pass, which is
+the principled fix for (a)'s timing, makes the memory control register's load
+strobe fire TWICE as often as the board's, and each spurious load sets the MCR
+bit that forces every cache reference to miss -- so with depth on, the cache
+never hits at all. Neither state boots. **ALL TEN GATES PASS at baseline**
+(memrun-test included).
+
+### The blocker, at the finest resolution reached
+
+    baseline   the Md file takes the STORE's word (see "THE BLOCKER NOW" below)
+    depth on   MCR load strobe: 1029 rising edges -> 2070 in the same 90 M boot
+               ForceDirtyMiss (MCR bit, MemC k08 Q1, clocked by LdMcr')
+                              0 -> stuck high 99.98% of samples
+               cache hit compare        97% -> 0.02%
+               => no dirty, no visible stores, every <-Md reads 0, ABoot hangs
+
+The unanswered question, and THE PLACE TO START: are those extra edges
+manufactured by the lag pipeline (which samples a combinational net at sys_clk
+and can quantise a decode GLITCH into a full-width pulse), or do they already
+exist upstream because that decode's inputs now move at inconsistent depths?
+**Those need different fixes.** Answer it with `memrun-test` (a minute a run),
+NOT a boot run (twenty). Two attempts to measure it failed on scaffolding, not
+on the machine: excluding `LdMcr` from the depth tree removes the very
+`__lead` net a probe needs, and an `ifdef` guard around that probe did not
+take.
+
+### What landed this session, all gated
+
+- **The terminal.** `dorado_terminal` is wired into the bench (`+terminal`,
+  default in the boot recipes). Without it the Alto keyboard words stay at
+  Initial's zero, which is every key HELD, and ABoot took the BS key as down
+  and chose the ETHERNET boot. This alone is why the disk was never tried.
+- **The task-switch register file.** ProcH a21 (MC10141 on SHCP'C) sampled
+  `Next` on the sys_clk it moved, so every T-file write-back at a switch was
+  addressed to the INCOMING task's slot. The pre-edge capture `cell_MC10176`
+  already had is now in `cell_MC10141`/`MC10231`/`SE10231`. The junk task went
+  from dying after 7 wakeups to running continuously.
+- **`cell_MC1674` was a SKELETON** -- one package, MemX f24, making
+  `CacheRef`. Unmodelled it left `DdataGood'` permanently "not good", so the
+  Md HOLD had never once fired in this project. Modelled from the datasheet
+  (triple exclusive-NOR), it fires. Its gate c is parked at the skeleton value
+  with its true expression beside it: enabling it deadlocks Initial's map init.
+- **Smaller, each measured:** the pendulum is 16 us (IFU k08 halves it); the
+  pack's head overflow is a latched status as `disk.c` has it; backplane E39
+  (`DcomingForCt'`) joined by name; DskEth's SN74123 one-shots had no clock in
+  the committed generated file.
+
+### Mechanisms left in the generator (inert unless asked for)
+
+- `DORADO_CLOCK_DEPTH_BOARDS=<list>` -- take the depth pass board by board.
+- `DORADO_CLOCK_DEPTH_CAP=N` -- the BFS's stage cap (default 6).
+- `PRECAP` parameters on `cell_MC10176`/`MC10141`/`MC10231`, so pre- vs
+  post-edge capture can be chosen per package via `CELL_PARAMS`.
+- `LdMcr` is in the depth skip-list beside `RunClk`/`CPStrb`/`TCPBus`, because
+  a decoded strobe does not belong in a clock-distribution model. **It does
+  not fix depth mode** -- its combinational sources are still lagged.
+
+### Dead ends -- roughly twenty, do not repeat them
+
+On the Md collision: delaying `FastD_u_Dbuf` (breaks the world before ABoot);
+pre-edge on `MD_u_D`'s register, on the Md file's four data registers, and
+removing the board capture rule entirely (all BYTE-IDENTICAL, so the bug is
+independent of MC10176 capture mode). On depth: the cap at 1/2/3; every subset
+of memory boards (MemD alone stalls the world at 25c; MemX alone breaks
+stores; MemC+MemD leaves Md wrong); post-edge on MemC g17 (the hit FF) and
+pre-edge on k08 (the MCR register) -- both verified as really emitted.
+
+### Retractions from this session, all caught by measurement
+
+1. **"The depth config FIXED ABoot's `<-Md`" -- FALSE.** With depth the cache
+   never hits, so every `<-Md` returns 0, and ABoot's correct answer at the
+   sampled instant IS 0 (VM 430 starts at zero). Right by coincidence.
+2. **"The RTC never carries" -- FALSE.** `RTCCARRY` runs at exactly the rate
+   `Junk.mc` predicts (1 carry per ~1237 wakeups). The claim came from
+   grepping an `addresses executed:` line that was ABSENT from that log; zero
+   matches on a missing line is not evidence of absence.
+3. **"The per-task Md file address is stuck at 0" -- FALSE.** Probed during
+   the junk task it tracks the task correctly (0/8/4/c for tasks 0/1/2/3, the
+   familiar bit-reversed print).
+4. **"The zero-delay cache path makes this structurally unfixable" -- too
+   strong.** The cache address never moved in the window; the defect is a
+   specific one-phase relationship, not an architectural impossibility.
+
+### Gate status (2026-09-08, baseline)
+
+**PASS (10/10):** memrun-test, compute-test, exec-test, exec-boot,
+boot0-test, sendmir, step-test, display-test, taskrun-test, strap-test.
+`memrun-test` passes again -- the 2026-09-05 block below saying it fails is
+SUPERSEDED. Stale `obj_*` directories (holding the old repository path) still
+masquerade as failures: `rm -rf` the directory before believing one.
+
+### How to run
+
+    make -C verilog/verilator boot-world-disk WORLDARGS="+cycles=N \
+      +pack=chm/diskpacks/games-trident.pack +pendulum +hasram +ioreset \
+      +stperroff +blfix +fastwait +bbword=0000 +bbfeed +frame"
+
+For a long run invoke the binary directly with output to a file. World entry
+is at ~96.3 M; ABoot's fetch (CIA 1e2) at ~96.44 M. Probes: `+pctask=N`,
+`+pcpc=HEX`, `+mdpc=HEX` (opens MDWIN/MEMWIN/HOLDWIN at an address),
+`+junklog`, `+ramwe`. `memrun-test` now carries DIRTYCHAIN / HITCHAIN /
+MCRLOAD summaries -- use those, they are a minute a run.
+
+## COLD RESTART (2026-09-05, evening) -- history
+
+Branch `verilog-backplane`, head `dc2f03ca` plus UNCOMMITTED work in
+`verilog/cells/{cell_MC10141,cell_MC10231,cell_SE10231,cell_F10145A}.v`,
+`verilog/verilator/{tb_exec.sv,dorado_pack.sv,Makefile}`,
+`tools/sil_netlist.py`, and the regenerated `verilog/generated/*` (MemX, DskEth,
+the tops). Everything measured below is reproducible from those files.
+
+### Where it stands in one paragraph
+
+The morning block's diagnosis was wrong in its centre and right at its edges.
+The disk boot never stalled in the disk controller: the world never ISSUED a
+disk command, because AEm0.mc's ABoot chose the Ethernet boot -- and it did
+that for two reasons that were fixed and measured today, and one that is
+characterised to the gate and the manual's rule but not yet fixed. (1) The
+bench had no terminal, so the Alto keyboard words stayed at Initial's zero,
+which is every key HELD, and `ETemp0, Branch[EBoot, R even]` took the BS key
+as down. (2) The junk task, which advances the real-time clock ABoot waits on,
+died after seven wakeups because every T-file write-back at a task switch was
+addressed to the INCOMING task's slot; a one-instruction slice left its T
+clobbered and its `AckJunkTW<-T` carried a 0 into ShutUp. (3) Remaining: the
+per-task Md file on MemD stores the word of a STORE that follows a fetch, so
+ABoot's clock wait -- `Fetch; Store; <-Md; <-Md` -- reads 0 then 7401B and
+exits on its first pass. The C emulator boots this pack to 2,104 pixels, so
+the target is known-good.
+
+### What was fixed, each with its measurement
+
+- **The terminal.** `dorado_terminal` (the processor in the keyboard) now
+  drives DispY's `KeyboardData` port in the bench (`+terminal`, passed by
+  default by `boot-world` and `boot-world-disk`), one bit per horizontal
+  blanking, all five words all-ones. KeyboardData EQUALS the terminal's
+  OISData: BaseBd c06 straps OISData to the MC10125's true input and the
+  MC10124 channel p11->p14 is non-inverting. Before: `DiskBoot first @-1`,
+  16,272 EControl writes, EBOOT (0x406) in the address set and DISKBOOT
+  (0x405) never; DispY's `OISRcvdData` never toggled. After: 1,898 line ticks
+  delivered, `OISRcvdData` high 4.66 M of 104 M samples.
+- **The task-switch chain (the junk-task death).** ProcH a21 (MC10141, D =
+  `Next`, clock = `SHCP'C`) loaded the incoming task ONE CYCLE EARLY because
+  `Next` (ContA h14, `Switcha ? BNT : CTask`) moves on the very sys_clk the
+  SHCP'C edge is detected, and the cell sampled D one sys_clk after the edge.
+  a20 (Last <- Curr, Clock1'Ca, 16 sys_clk later) then copied the NEW Curr, so
+  during the write-back pulse (+23 of the following cycle, PreClock0) the
+  T-file's CurrLast named the incoming task. Measured with the TFWIN window
+  (task nets are MSB-first: `4` is task 2, `c` is task 3): task 0's final T
+  written into task 2's slot at 96568096, task 2's `T_ RTCDeltaLo` (0xC2)
+  written into task 3's slot at 96568128. Fix: the pre-edge capture
+  `cell_MC10176` already had, in `cell_MC10141` (and, for uniformity,
+  `cell_SE10231` and `cell_MC10231`). After: AckJunkTW strobes 7 -> 215 in the
+  same 100 M, ShutUp never relapses, and the T ABoot computes reads 430B where
+  it read 30B (task 0's own RM reads were being corrupted too).
+- **The pendulum.** IFU k08 halves `Pendulum` (a toggle FF makes
+  `TimeToWake`, and the wakeup FF clocks on THAT), so the bench's 32 us wave
+  woke the junk task every 64 us (TWReq.02 rose every 34,144 sys_clk). It is
+  16 us now, with `+pendulum_us=N` to reproduce older runs.
+- **The pack's head overflow** is a LATCHED status: set by a head tag with
+  head >= 5, cleared by a legal head tag or a Control tag carrying
+  DeviceCheckReset (bit 3) or ReZero (bit 1), which is `disk.c`'s model and
+  what `AltoDiabloDisk.mc` does after its head-5 probe ("Reset error
+  status"). As a level it held ReadError up for every sample of every run.
+  ReZero and HeadAdvance now move the pack's cylinder and head.
+- **Backplane pin E39.** MemC receives `DcomingForCt'` there and MemX drives
+  `EcDcomingForCt'` there; the generated machine left MemC's input as a cable
+  port tied to 0. It is one of the seven inputs of MemC b23, the Md-hold
+  gate. `BACKPLANE_BOARD_ALIASES` joins them (the ContA `SWb`/`SW` class;
+  MemX's plain `DcomingForCt'` is board-local). It reads driven and
+  deasserted now; it did not by itself produce the hold (below).
+- **DskEth's subsector one-shots had no clock.** The committed
+  `DskEth-Rev-Cf.v` predated `cell_SN74123` becoming clocked (2026-09-04), so
+  a03 and a05 were instantiated without `.sys_clk` and Verilator tied it to
+  0. Every boot run's DISK line read `SectorTW rises 1`. Regenerating with
+  `make -C verilog backplane` added the two connections (FifoUnderflow 3154
+  -> 0 in the next run). Regenerate before trusting any disk-side count.
+
+### THE BLOCKER NOW: the per-task Md file after an intervening Store
+
+Measured at ABoot's clock wait (run9/run11, `+mdpc=1e2` opens the windows;
+cycle numbers are with all three cell captures in):
+
+    96436297  1e2  ETemp0_ (Fetch_ T)-(10C)        fetch VM 430
+    96436329  1e3  Store_ ETemp0, DBuf_ 0C         store VM 420
+    96436361  1e9  ETemp0_ (3S)+MD                 MD_u_D=1 for +0..+15: the DIRECT
+                                                   path delivers 0000 (correct)
+    96436377       f06 (MemD MC10176 on clk1'Aa) re-registers the D bus: 0F01,
+                   the store's word -- Dad (MemC e14, clk1'Da) moved at +16
+    96436384       WriteMDM'a pulses (+23..+30, preClk0'BD, MDMad = task 0)
+                   and stores 0F01 into task 0's slot (trailing-edge capture)
+    96436393  1de  PD_ (ETemp0)-MD                 MD_u_D=0: from the file, 7401B
+    96436425  1ed  Fetch_ T, Branch[.-1, ALU>=0]   3 - 7401B < 0: the loop exits
+
+No other task runs between 1d7 and 1df (PCT window); the intruding word is
+the STORE's. HM p.39: "Md remains valid until and during the next fetch by the
+task. If a Store<- intervenes between the Fetch<- and its associated <-Md,
+then <-Md will be held until the Store<- completes but will then deliver data
+for the fetch exactly as though no Store<- had intervened." HM p.42: "An
+immediate <-Md is held in the cycle after a fetch or store." The RTL holds
+NEITHER: every run's HOLDSRC line has `MDhold 0`.
+
+The hold request is `dMDhold' = b22 | b23` on MemC (both must be low). Measured
+term by term at 1e9 (HOLDWIN): `<-MDI`=1 (the immediate decode reaches MemC
+from ProcL), b22 = `MDMtag' XOR ProcTag` = 0, but b23 = 1 because
+`DdataGood'` = 0 (asserted: "data good") -- b23 = ~[(DdataGood'|..) &
+(At=Curt'|sil6|<-MDI) & (<-MDI|..|DcomingForCt') & (<-MD|WantCR|<-MDI)]. So
+the hold hinges on `DdataGood'` staying asserted while the store occupies the
+data section. `DdataGood'` is MemX e19 (MC10176, Clk0'Cf) <- g24 (MC10105:
+CacheRef, SW, VictimInA', STfree'...); `MakeMDM_u_D'` (the file's write
+enable, delivery-driven) is MemX g23 (MC10176, Clk0'Cb) <- i23 (MC10105:
+AWordRefToD, EcWordRefToD, bHit', CacheRefInPair'...). Next probes, in
+order: (a) a MEMWIN over MemX sheet 01 -- g24/i23's inputs, `Dbusy`,
+`CacheRef`, `VictimInA'`, `STfree'`, `AWordRefToD` -- across 1e2..1de, to see
+what the store does to `DdataGood'` and why the fetch's D window ends at t2
+of the cycle after next instead of after the file write; (b) the store's data
+phase: MemC e14's `Dad` moved at +16 of F+2, half a cycle after the fetch's
+delivery began -- decide from the pipeline registers whether the store is
+early or the file write late; (c) the F10145A captures its DATA at the
+trailing edge of WE' (`+ramwe` now flags data moves too) -- a real 10145 needs
+data held to the trailing edge, so this is only a fix if the board's own
+timing says so. The C emulator is no oracle here (its Md is atomic,
+per-task, latched at issue).
+
+### Later the same night: the hold's root, and a skeleton on the map path
+
+Three more things, in the order they were found, each measured.
+
+- **The MC10176's pre-edge capture is right on the processor boards and wrong
+  on the memory boards.** Reverting it globally makes memrun-test PASS
+  (`preStartMem'` asserts; it had failed since d3e337a2) and stops Initial
+  reaching BootEmulator (the ProcL d17 half-write that capture fixed). So
+  `cell_MC10176` has a `PRECAP` parameter and the generator's new
+  `BOARD_CELL_PARAMS` sets `PRECAP=0` for every MC10176 on MemC, MemD, MemX
+  and msa (100 packages). With that: memrun-test green, Initial and the quick
+  gates unchanged, `MakeMDM_u_D'` NOT moved -- so the Md file's write time is
+  the netlist's own, and the store collision must be resolved the way HM
+  p.39 says, by holding the <-Md.
+- **The hold's root: `cell_MC1674` was a SKELETON, used in ONE package, MemX
+  f24, whose gate a makes `CacheRef` from `CacheRef'`.** With it unmodelled
+  `CacheRef` sat at 0 for ever; MemX g24 ORs it into e19's `DdataGood'`, so
+  the memory never said "not good", MemC's `dMDhold'` never fired, and every
+  run's HOLDSRC read `MDhold 0`. The part is a triple exclusive-NOR
+  (DoradoDocs/datasheets/MC1674.pdf; EclDict `[G (3 5)>2, (6 13)>14,
+  (7 11)>15]`, pin 5 unwired on f24 = an inverter). Modelled gate by gate
+  against memrun-test: gates a and b pass; **gate c deadlocks Initial** --
+  `AcanhaveMap'` = `~(MapFree' ^ TrueAC)` = `MapFree'` (TrueAC is g04.14's
+  constant 1) makes the address section wait for a busy map, which is
+  correct arbitration, and the map then never frees (145 addresses,
+  TASKINITLOOP never reached, MiscHold 6.3 M -> 12.7 M; memrun's Store never
+  dirties its line). MapFree' is j22 (F10016 as a register, PE' = MapWait)
+  loaded from the i14 PROM: the map SEQUENCER not freeing under honoured
+  arbitration is a latent defect the skeleton masked. Gate c is parked at the
+  skeleton's 0 in the cell, with its true expression beside it, until that is
+  run down; gates a and b are live.
+- **`TrueAC` is fine** -- a first grep, cut short by `head -5`, said it had no
+  driver; g04 pin 14 (MC10195, open inputs) makes it and the generated
+  instance carries it. Retracted the same hour.
+
+Also this half: pin E39 joined (`DcomingForCt'`) reads driven and deasserted
+and by itself produced no hold; DskEth's a03/a05 one-shots have their clock
+after regeneration (FifoUnderflow 3154 -> 0). `+mdpc=HEX` opens
+MDWIN/MEMWIN/MEMWIN2/HOLDWIN at an address; memrun-test has a MAPFREE line.
+
+**run16 (gates a+b live, gate c parked, memory boards PRECAP=0): THE HOLD
+FIRES.** `DdataGood'` deasserts during the store, b23 goes low at the <-Md,
+`dMDhold'` and `MDhold'` assert, `Hold` rises, and the <-Md at 1e9 repeats
+one cycle -- HOLDSRC `MDhold 23707` where every run before read 0. The two
+reads of the clock word now AGREE, and ABoot's wait loop ITERATES (71 passes
+of 1de in the window; every earlier run made one). What both reads return
+is still the STORE's line word (7401B), because the file was written at the
+store's data phase: `DontWriteMDM` -- MemD h03, registered on clk0'B from
+`bFastD_u_Dbuf | D_u_Dbufdly`, the "D comes from DBuf" flag that exists to
+block exactly that write -- asserts one cycle AFTER the pulse. The wait
+therefore runs from a wrong start value (7404B instead of 3).
+
+**run17 (MEMWIN3): the flag is one clock edge late for this pulse.** MemC's
+`FastD_u_Dbuf` (i22, an MC1660, combinational from the store's A-stage hit,
+the `SH'Bb` phase and `MemC18.sil+4`) rises at 96436377 -- t2 of the store's
+A stage, SEVEN sys_clk before the pulse at 384 -- but MemD h03 registers it
+into `DontWriteMDM` on the clk0'B edge at 392, EIGHT sys_clk after the pulse
+has gone. `D_u_Dbufdly` (c21, a clk2 delay of `D_u_Dbuf`) is later still.
+
+**The shape this leaves, and the first probe for the next session.** The
+RTL admits a reference into MemC's A stage at the END of its issue cycle
+(`CacheRefInA'` falls at t0 of the next cycle; it is combinational at MemC
+l20 from `MemC17.sil+11` and `EcHasAa`, so the admitting register is one
+step back on sheet 17), where HM's own table has the CAM lookup at t1 and the
+hit at t3 of the ISSUE cycle. The cache-data path (F10470s, then the
+correction mux) is modelled with zero delay, so D still arrives at t2 of the
+cycle after the fetch, as the manual has it -- but every control flag the A
+stage produces (`MakeMDM_u_D'`, `MD_u_D`, `DontWriteMDM`, the store's Dad)
+runs a cycle behind that data. That is exactly why the fetch's file write
+lands after the store has taken D and why DontWriteMDM misses it. Probe
+first: the sheet-17 register that makes `MemC17.sil+11`, its clock, and
+whether it is a same-edge capture of the MIR-derived `WantProcRef'`
+(the MC10231/MC10176 capture question, third instance). If the A stage moves
+to the issue cycle, MakeMDM_u_D' asserts at t0 of the cycle after the fetch,
+the file write lands at t3 of that cycle with D still the fetch's word, and
+the store's FastD flag has a full edge to reach DontWriteMDM.
+
+Second probe, if the first is not it: HM p.39's "will then deliver data for
+the fetch exactly as though no Store<- had intervened" -- the held <-Md may
+be REDELIVERED from the fetch's pipe entry rather than read from the file.
+The MDMtag'/ProcTag compare (b22) and MemX's `AcanHaveD` are where that
+would live.
+
+### RETRACTED AND ROOT-CAUSED: THE DEPTH MODEL FORCES EVERY CACHE MISS (2026-09-07, evening)
+
+**RETRACTION FIRST.** Earlier today this document said the three-board depth
+config "FIXED" ABoot's `<-Md` (`alu=007404` -> `000003`). **That was an
+ARTIFACT and the claim is withdrawn.** Under derived depth the cache never
+hits, so every `<-Md` returns 0 -- and at the instant sampled, ABoot's
+correct answer happens to BE 0 (VM 430 starts at zero, so `3 - 0 = 3`). A
+read that is right by coincidence looked like a fix. The Md-file collision
+described further down is still real and still unfixed.
+
+**THE ROOT CAUSE, measured with a one-minute test instead of twenty-minute
+boots.** Diffing `memrun-test` signal by signal between baseline and depth:
+
+    signal          baseline   depth
+    Store              707       707     (unchanged -- the store still runs)
+    ForceDirtyMiss       0      3000     STUCK HIGH, every sample
+    ForceMiss          832      3000
+    hit compare       2168         0     the cache NEVER hits
+    Hit'b              832      3000     (deasserted all run)
+    Col0'/Col1'    480/480       0/0
+    Dirty3             928         0
+    HitColDirty        111         0
+
+Every symptom is one signal. `ForceDirtyMiss` feeds `ForceMiss`, and
+`ForceMiss` is an input to ALL FOUR column-hit terms (MemC f16/f17, two
+MC1660s: each column's hit is
+`NOR(ForceMiss, dMissN_16-19, dMissN_12-15, dMissN_04-11)`). Stuck high, no
+column can ever report a hit -- so nothing is dirtied, no store is visible,
+and every `<-Md` reads nothing.
+
+**And `ForceDirtyMiss` is not a per-cycle signal at all -- it is a BIT OF THE
+MEMORY CONTROL REGISTER.** It is Q1 of MemC k08, an MC10176 whose clock pin
+is **`LdMcr'`**, the MCR load strobe, with D = `RMar_01`. So the machine is
+running with a mis-loaded MCR, and the bit that says "force a dirty miss" is
+set.
+
+**Why depth does it.** `LdMcr'` becomes a LAGGED net under the depth pass, and
+the generator initialises lagged clock nets to their idle level
+(`reg LdMcr_p___lag1 = 1'b1;` -- "primed clock nets idle HIGH"). At baseline
+`LdMcr'` is a plain combinational net that starts low and rises, so k08
+captures once at startup and gets a benign value. Initialised high, that
+startup capture moves or never happens, and the register keeps the wrong bit.
+
+**It is NOT a bench artifact.** `memrun-test` never does a real `LoadMcr`, so
+the first suspicion was that only the bench suffers. Measured in the REAL
+boot under depth (`tb_exec`, 100 M cycles, where Initial genuinely loads the
+MCR): `ForceDirtyMiss` high on **99,994,965 of 100,015,252** samples and the
+hit compare essentially never asserting. The boot is broken the same way.
+
+**Also negative, so nobody retries them:** post-edge capture on MemC g17 (the
+hit flip-flop) and pre-edge on k08 itself both leave `ForceDirtyMiss` at
+3000/3000 -- verified the parameters really were emitted. `cell_MC10231` and
+`cell_MC10141` now carry `PRECAP` parameters from those attempts; both
+default to today's behaviour and are harmless.
+
+**THE MECHANISM, measured in the REAL BOOT (90 M cycles, both configs).**
+`LdMcr'` rising edges -- k08 clocks on the trailing edge of the active-low
+strobe -- and the data bit each load captures:
+
+    baseline   1029 rising edges, RMar_01 set at 1025;  hit-compare 97%
+    depth      2070 rising edges, RMar_01 set at 2070;  hit-compare 0.02%
+
+**The strobe count DOUBLES.** The lag pipeline manufactures load edges the
+board does not have, and every spurious load writes the force-miss bit. That
+is a different and more serious fault than a phase being off: it is edges
+being created.
+
+**Excluding `LdMcr` from the depth tree is NOT sufficient, and that is
+measured too.** It is now in the skip list beside `RunClk`/`CPStrb`/`TCPBus`
+(a decoded strobe does not belong in a clock-distribution model), and
+`memrun-test` STILL fails under depth -- because `LdMcr'` is produced by
+combinational logic whose own inputs remain lagged, so its timing moves even
+when the net itself does not. The next attempt must deal with the strobe's
+SOURCE logic, not just the net.
+
+**So the depth pass cannot be enabled until its lagged-net INITIALISATION is
+right for strobes.** `LdMcr'` is a load strobe, not a free-running clock, and
+idle-high init is wrong for it. That -- not the cap, not per-board subsets,
+not any register's capture mode -- is the next thing to fix. All three were
+swept and are dead.
+
+### Superseded first reading of the same experiments
+### PER-BOARD CLOCK DEPTH: THE FULL MATRIX, AND THE CONFLICT IT EXPOSES (2026-09-07)
+
+`DORADO_CLOCK_DEPTH_BOARDS=<list>` was added to `sil_to_verilog.py` so the
+depth pass can be taken board by board instead of wholesale. Every
+combination was measured. **No configuration boots**, and the reason is a
+genuine conflict, stated at the end.
+
+| depth on | memrun | ABoot's <-Md | the world |
+|---|---|---|---|
+| none (baseline) | PASS | WRONG (alu=007404) | reaches ABoot, waits for ever |
+| MemD | PASS | -- | STALLS at 25c, 425 addresses |
+| MemX | FAIL | -- | -- |
+| MemC,MemD | FAIL | still wrong; stores dead | reaches ABoot (582 addrs) |
+| MemC,MemD,MemX | FAIL | **FIXED (alu=000003)** | reaches ABoot (583), stores dead |
+
+**THE CONFLICT: MemX's derived phases are REQUIRED for the Md fix and BREAK
+the store path.** MemC,MemD leaves the Md read wrong; adding MemX fixes it
+(007404 -> 000003, the correct value, and MDhold drops to 0 because there is
+no longer a collision to hold for). But every configuration including MemX --
+or MemC -- fails `memrun-test` on
+`HitColDirty never true -- the Store did not dirty the flushed line`.
+
+**And that store breakage is what actually blocks the boot, which took a
+while to see.** ABoot waits for VM 430 to advance by 3. The junk task DOES
+run and DOES carry: `RTCCARRY` (real 7ee) executes at the correct rate (1531
+junk-loop passes, 1 carry, i.e. one per ~1237 wakeups, exactly as Junk.mc's
+RTCDeltaHi=65B predicts). But its `Store<-` to VM 430 never becomes visible:
+sampling `Md` 4,000 times late in a 150 M run gives **0000 every time**, and
+task 0's Md slot stays 0. The wait therefore computes 3-0 for ever. The same
+store breakage memrun reports as one clean line is what silently stops the
+boot.
+
+So the two halves are, as implemented, mutually exclusive: MemX's depth is
+needed to stop a Store corrupting a deferred fetch's Md, and it
+simultaneously stops Stores dirtying their cache line. Both cannot be right;
+MemX's depth values are partly correct and partly not. That is the
+refinement the next session needs -- NOT merely enabling the pass, which is
+what the older comment implied.
+
+**FURTHER NEGATIVES, so nobody repeats them.** Two more knobs were swept
+against the store breakage and BOTH are dead:
+
+- **The depth CAP is not the problem.** `CLOCK_DEPTH_CAP` is now overridable
+  (`DORADO_CLOCK_DEPTH_CAP=N`). At N=1 MemX gets 0 lagged nets and memrun
+  fails differently (`preStartMem' never asserted`); at N=2 (51 nets) and N=3
+  (222 nets) it fails on `HitColDirty` exactly as at the default 6. So the
+  derived depths being "too large" does not explain it.
+- **It is not the Dirty register's capture mode.** MemC i10, the MC10141
+  holding the cache Dirty flags, is the register memrun names. `cell_MC10141`
+  now takes a `PRECAP` parameter so the choice can be per package (the
+  pre-edge default still fixes ProcH a21's task switch). Setting i10 to
+  post-edge under depth does NOT fix it -- verified the parameter really was
+  emitted (`cell_MC10141 #(.PRECAP(0)) u_i10`).
+
+**So the store failure under derived depth is robust**: not the cap, not any
+single register's capture mode, not which subset of memory boards. The
+productive next step is a signal-by-signal diff of the store/dirty path
+between baseline and depth on `memrun-test` ALONE -- it runs in about a
+minute, where a boot run is twenty -- rather than any further configuration
+sweep. Sixteen experiments across this blocker are recorded here; the space
+of cheap knobs is exhausted.
+
+**Two retractions from today's own work, both caught by measurement.**
+"The RTC never carries" was WRONG: it came from grepping an
+`addresses executed:` line that was ABSENT from that log (the run ended
+before printing it), and a zero match on a missing line is not evidence of
+absence -- the "a level is not an event" trap in a new dress. And "the
+per-task Md file address is stuck at 0" was WRONG: probed during the junk
+task it tracks the task correctly (0/8/4/c for tasks 0/1/2/3, the familiar
+bit-reversed print), so Md addressing is sound.
+
+**Reverted to the baseline (clk1-only); all gates pass.** The
+`DORADO_CLOCK_DEPTH_BOARDS` hook is left in the generator: it costs nothing
+unset and is how the next attempt should be driven.
+
+### Superseded first reading of the same experiment
+
+
+`DORADO_CLOCK_DEPTH_BOARDS=MemC,MemD,MemX` -- the depth pass applied to the
+MEMORY boards only. ABoot's `<-Md` after an intervening Store now returns the
+FETCH's word:
+
+    at 1de   alu=007404 (the store's word)  ->  alu=000003, the correct value
+    MDhold   23,707 samples                 ->  0 (no collision left to hold)
+    AckJunkTW  160                          ->  23,872 (the RTC is advancing)
+    IM addrs   541                          ->  571
+
+and ABoot now sits in its real timing loop (1de/1ed) waiting for VM 430 to
+advance by 3, i.e. ~119 ms of Dorado time, which is what the microcode says.
+
+**Why per-board is the right granularity, and this is the whole trick.**
+Enabling depth EVERYWHERE breaks the startup jam -- ContA goes from 0 lagged
+nets to 77, its clk0/clk1/clk2 distribution moves under the phase ring that
+drives the step chain, and `sendmir`/`step-test`/`boot0-test`/`compute-test`/
+`exec-test` all fail ("CPRegToLink# did not put the address in Link", "the jam
+step did not run one clk0 window"). But NO jam gate exercises the memory
+boards' internal phases, and it is exactly those that the memory pipeline
+needs right. Taking the boards separately gets both: ContA lagged 0, MemD
+lagged 171, and **every one of those five gates passes** while the memory
+timing is derived from PARC's own buffer chains instead of a flat zero.
+
+This is the re-derivation the old comment called "a session of work", done
+board by board rather than wholesale.
+
+**Open, and now isolated: `memrun-test`.** It fails under memory-board depth
+with `HitColDirty never true -- the Store did not dirty the flushed line`.
+That is one specific assertion in a bench whose stimulus this document has
+already flagged as rotted in places, and it is the only gate that regressed.
+It must be run down before this is called finished -- either the bench's
+store/flush stimulus needs re-deriving against the corrected phases, or the
+dirty path has a real defect the flat phasing was masking.
+
+### The DiskBoot attempt: two hypotheses eliminated, the chain traced (2026-09-06)
+
+The Md-file-after-Store blocker was attacked directly. Both hypotheses are
+DEAD, and the measurements narrow the next search sharply.
+
+**The precise defect, at full resolution** (run17, `+memwinlen`, MEMWIN3, the
+window 96436355-96436400 around the deferred fetch's Md write):
+
+    361-376   MD_u_D=1   the FETCH's data is selected on the D bus
+                          ...but WriteMDM'a=1 the whole time: NO write pulse
+    377       MD_u_D=0   deselected; the store's bFastD_u_Dbuf rises the same
+                          sys_clk
+    384-391   WriteMDM'a=0   THE WRITE PULSE -- and it captures the STORE's
+                          word, because MD_u_D fell seven sys_clk earlier
+    392       clk0'B rises
+    393       DontWriteMDM=1  the flag built to block that write, one clk0'B
+                          edge too late; there is NO clk0'B edge between 377
+                          and 384, so no capture mode on h03 can help
+
+So the write strobe (preClk0'BD, t3) and the data selection (MD_u_D, falling
+at t2) are half a clock phase apart, and the only write pulse in the
+instruction lands in the store's data phase.
+
+**Hypothesis 1, DEAD and HARMFUL: delay the store's D-usage.** Delaying
+`FastD_u_Dbuf` one CLK phase (a 16-stage shift at the backplane assign in
+both `dorado_full.v` and `dorado_mem.v`) keeps **memrun-test PASSING** but
+stalls the world long before ABoot -- 386 distinct addresses against 541,
+parked 5,091 cycles at TNIA=592, LOADHRAMLOOP never reached, the junk task
+dead (TWReq.02 0, AckJunkTW 0). That net is load-bearing in the display/HRam
+path. Reverted.
+
+**Hypothesis 2, DEAD and INERT: pre-edge capture on MD_u_D's register.**
+`MD_u_D` is MemD f24 (MC10176, clk2'Cf, Q5). Forcing `PRECAP=1` on that one
+package through the generator's `CELL_PARAMS` hook produced a waveform
+**byte-identical** to the run before it -- MD_u_D still falls at 377,
+`alu=007404` unchanged at 1de. memrun stayed green and the boot was
+unaffected. Reverted (an inert change whose comment claimed a fix would be
+worse than none).
+
+**Hypothesis 3, DEAD and INERT: pre-edge capture on the Md file's DATA
+registers.** The file's data pins were traced pin by pin to exactly four
+MC10176s -- MemD f06, f10, f14, f18, twenty bits. `PRECAP=1` on all four
+(via `CELL_PARAMS`) left the boot window byte-identical again: the data pins
+still turn over at 378, `alu=007404` unchanged, memrun still green. Reverted.
+
+**Hypothesis 4, DEAD: the capture mode is irrelevant ENTIRELY.** Removing the
+board rule so every memory-board MC10176 goes back to pre-edge (the state
+before this session) leaves the boot window **byte-identical yet again** --
+`alu=007404`, the same waveform, the same wrong Md -- while memrun fails as
+it did this morning. So the Md-file corruption is INDEPENDENT of MC10176
+capture mode. Two useful consequences: the whole capture-mode family of
+hypotheses is dead, and `BOARD_CELL_PARAMS` (PRECAP=0 on the memory boards)
+is SAFE -- it fixes memrun and provably does not touch the boot path.
+
+**THE DEFECT, STATED PRECISELY.** From the same window, watching the Md
+file's own data pins rather than any register:
+
+    378-408   the file's data pins carry the STORE's word (din h15 = 1111)
+    ~391-395  the write strobe COMMITS -- capturing that word
+    410       the FETCH's word finally appears on those pins (din h15 = 0000)
+
+**The Md-file write strobe fires roughly one clock phase BEFORE the fetch's
+data arrives at the file.** Equivalently, the returning cache data is one
+phase late relative to `preClk0'BD`. This is consistent with
+`DdataGood'` being deasserted ("data NOT good") across the whole pulse and
+only falling at 393. It is a single, quantified, one-phase relationship
+between the write strobe and the cache-data arrival -- NOT a per-cell bug
+(four experiments) and not the vaguer "zero-delay path" framing below.
+
+**AND THE MEASUREMENT LANDS IT (MEMWIN4, run22).** Probing the cache array's
+own address and write enable across the strobe:
+
+    384-391   WriteMDM'a  asserted -- the Md-file write strobe
+    385-391   WriteD0'a   asserted -- THE CACHE ARRAY'S OWN WRITE ENABLE,
+                          i.e. the STORE writing the array
+    355-401   Dad_a       UNCHANGED the whole time (the store's location)
+    410       Dad_a       finally switches to the fetch's location
+
+**The store's cache-array write and the fetch's Md-file write are
+SIMULTANEOUS, at the SAME array address.** The Md file samples the F10470
+outputs in the very window the store is writing them, so it captures the
+store's word; the fetch's location is not presented until 410, long after
+the strobe. Two operations the hardware must sequence are sharing one phase,
+both gated off preClk0.
+
+That is the whole bug, stated in one line, and it explains every earlier
+null: no register capture mode matters when the array beneath them is being
+overwritten at the sampling instant.
+
+**THE TWO STROBES COME FROM DIFFERENT CLOCKS, which is the design's own
+separation -- and the RTL loses it.** Traced to the source:
+
+    WriteD0'a  (cache array write) = ~MemD03.sil+15, from e08 (SE10211),
+               and MemD03.sil+15 is the Q of g22, an SE10231 flip-flop
+               clocked by **SpecialClk2**
+    WriteMDM'a (Md file write)     = ~(DontWriteMDM | preClk0'BD | MakeMDM')
+               from i12 (SE10210) -- gated by **preClk0'BD**
+
+Different clock nets, i.e. different phases on the real board. The
+generator's `clock_lag` gives a relative delay to the **clk1 family ONLY**
+(`_CLOCK_LAG_RE`); `SpecialClk2` and `preClk0'BD` both get zero, so their
+separation collapses and the two windows overlap (385-391 against 384-391).
+
+**And the deeper reading, which matters more than the overlap.** HM p.24 and
+p.39 put these in DIFFERENT CYCLES, not merely different phases: a store's
+"DBuf is passed to the cache data section during the next cycle" (store at
+1e3 -> array write during 1e9, which is what the RTL does and is CORRECT),
+while the fetch's Md is ready "at t3 of the instruction following the fetch"
+(fetch at 1e2 -> Md delivery during 1e3). In the RTL `MakeMDM_u_D'` does not
+assert until 361, the start of 1e9 -- **the fetch's Md-file delivery is one
+CYCLE late**, which is what puts it in the same cycle as the store's
+correctly-timed array write. `AWordRefToD` is already high from 355 (during
+1e3), so the lateness enters at MemX g23, the MC10176 on Clk0'Cb that
+registers i23's decode.
+
+So the cache data section is servicing two operations in one cycle that it
+must serialise, and the root is the late Md delivery, not the store.
+
+**THE CHAIN, END TO END (measured from the fetch itself, run20 MEMWIN2).**
+
+    1e2 297-328  the fetch.  AWordRefToD=0, CacheRefInA'=1 -- nothing in the
+                 A stage yet
+    1e3 329-360  AWordRefToD RISES AT 329 (one sys_clk after the clk0 edge at
+                 328), CacheRefInA' falls the same sys_clk.  MakeMDM' still 1
+    1e9 361-392  MakeMDM' asserts at 361 -- ONE FULL CYCLE after AWordRefToD,
+                 because g23 (MemX, MC10176 on Clk0'Cb) missed the 328 edge
+                 and caught the 360 one
+       377-391   the store's bFastD_u_Dbuf: its cache-data-section slot
+       384-391   the Md-file write strobe -- COLLIDING with it
+       393       DontWriteMDM finally asserts, one cycle too late to block
+       410       Dad switches to the FETCH's location; its data appears --
+                 but DontWriteMDM (393-424) now BLOCKS the correct write
+
+Note the two-register delay from AWordRefToD to MakeMDM' is CORRECT
+flip-flop behaviour (two registers in series on one clock each cost a
+cycle), so that is not the defect. Nor is the store's slot: HM p.40 says "on
+a hit, DBuf is passed to the cache data section during the next cycle",
+i.e. store at 1e3 -> D usage during 1e9, exactly what happens.
+
+**THE DEFECT IS `DontWriteMDM`'s WINDOW, AND IT IS A HALF-CYCLE PHASE
+ERROR.** `DontWriteMDM` is h03's Q4/Q5 (MemD, MC10176 on clk0'B) registering
+`bFastD_u_Dbuf` -- the schematic labels it in words, "Don't write MDM". To
+block the store from clobbering the fetch's Md slot it must be HIGH across
+the store's D usage (377-391) and LOW again by the re-delivery (410). But
+clk0'B's edges are at 360 and 392, so a clk0-registered flip-flop can only
+produce the window 361-392 or 393-424 -- never 377-391. It currently
+produces 393-424: too late to block the store, and then wrongly blocking the
+fetch's re-delivery.
+
+For the correct window (361-392) `bFastD_u_Dbuf` must be high AT the 360
+edge. It rises at 377 instead, and it is
+`NOR(Hit'a, SH'Bb, MemC18.sil+4, BLretry)` with Hit'a and BLretry both 0
+here -- so its rise is set entirely by **`SH'Bb` falling at 377, the
+MIDDLE of the cycle rather than its boundary.** `SH'Bb` descends from the
+backplane's `MemSH`. A signal that gates a clk0-registered flag must settle
+before the clk0 edge; this one moves half a cycle after it.
+
+**So the fix is the phase of the SH family on MemC/MemD, not any cell's
+logic.** That is a single, named, testable quantity: `MemSH`/`SH'Bb` should
+resolve at the cycle boundary (360) rather than mid-cycle (377). It was NOT
+hand-tuned here, deliberately: advancing a clock net by a constant is
+exactly the hand-patching this generator's `clock_lag` comment warns
+against, and a periodic net cannot be advanced by delaying it (every
+candidate delay -- 14, 15, 16, 30 -- lands on 391, 392, 393 or 407, none of
+them at or before 360). It needs the buffer-depth derivation applied to the
+SH family, or the MemD/MemC sheets read for what sets MemSH's phase.
+
+**THE DEPTH MODEL WAS TRIED, AND IT BREAKS EARLIER THAN THIS BUG.** The
+generator already contains the principled fix -- a buffer-depth BFS behind
+`DORADO_CLOCK_DEPTH=1`, whose own comment says the foundation is right.
+Enabling it regenerates cleanly (MemC goes from 8 lagged nets to 225) and
+then fails BEFORE the memory even matters:
+
+    memrun-test   Fatal: send_via_mir: CPRegToLink# did not put the address
+                  in Link          -- the control-processor bus load
+    boot smoke    Fatal: Initial's entry never executed
+
+i.e. it breaks the STARTUP JAM sequence, exactly as the comment predicted
+("boot0/compute/exec-test fail ... landing it green is a session of
+re-derivation"). Reverted. Anyone attempting that re-derivation should start
+from those two assertions, which are the earliest failures and therefore the
+cheapest to iterate on -- both reproduce in seconds, no boot run required.
+
+**AND A CAUTION ABOUT THE PHASE ORDERING, which looks CORRECT as built.**
+Measured: `prepreclk'd` edges at 377, `preClk0'BD` strobes at 384, `clk0'B`
+edges at 392. That ordering -- prepre before pre before plain -- is exactly
+what the names promise, so the phase ring is NOT obviously wrong, and the
+one-cycle lateness cannot be blamed on it without more evidence. Given that
+ordering, a flag registered on clk0 (392) can NEVER be high at the preClk0
+strobe (384) of the same cycle; it is always a cycle behind. So for the
+hardware to work, `bFastD_u_Dbuf` must be a PREDICTION -- high during the
+store's OWN instruction (1e3), the memory knowing at store-issue time that
+DBuf goes to the cache next cycle -- rather than the report of the current
+cycle it currently is (rising at 377, inside 1e9). THAT is the sharpest
+open question: should `FastD_u_Dbuf` assert in the store's own cycle? It is
+`NOR(Hit'a, SH'Bb, MemC18.sil+4, BLretry)`, and the store's hit is known in
+1e3, so the term holding it off is `SH'Bb`. Read MemC's sheet for whether
+SH is meant to qualify the prediction or the report.
+
+**Why no fix was applied.** The honest candidates all require inventing
+logic the netlist does not have (gating `WriteMDM'` with `WriteD0'`, or with
+`DdataGood'` -- neither term is in those gates) or changing the relative
+phase of two clock nets, which is the depth model and must not be done by
+one hand-tuned constant. The next session should decide between: (a) giving
+`clock_lag` a real per-family depth so `SpecialClk2` and `preClk0'BD` sit
+where the buffer chains put them, and (b) finding why `MakeMDM_u_D'` is a
+cycle later than HM's t3-of-the-following-instruction. (b) is the smaller
+question and is where I would start.
+
+**Superseded candidate, NOT justified.** Gating `WriteMDM'` with `WriteD0'`
+(never write the Md file while the cache array is being written) would do
+it, but that gating is not in the netlist and this document's own rule is
+that such a term must come from the sheets, not be invented. Find instead
+why the two share a phase: both derive from preClk0 on MemD, and the sheets
+must separate the cache-data-section write from the Md-file write. Read
+MemD's sheets 01/07/08 (the Md file and its strobe) against the cache
+write-enable generation before adding any gate.
+
+**Superseded next probe:** what sets the arrival time of the
+corrected cache data at MemD's f06/f10/f14/f18 inputs -- the ECC/correction
+chain (`D_u_CD`, `preDin`, MemD b04's MC10158, the ChkPh ring) -- and
+whether `preClk0'BD` or that chain carries the wrong phase. Compare the two
+against `DdataGood'`, which is the memory's own statement of when the data
+is valid and currently disagrees with the strobe by one phase.
+
+**A superseded framing, kept because its structural observation is true.** Each failed
+attempt has the same signature -- the value was already wrong BEFORE the
+register's clock edge, so no capture mode matters. The reason is structural,
+and needs no further measurement: the D bus is
+`assign D_04 = D_04__a13_1 | D_04__d13_1;` -- a wired-OR taken straight off
+two F10470 cache arrays, with NO register anywhere between the cache array
+and the Md file's data registers. The moment the store's cache write
+commits, D turns over with zero delay, and every downstream register
+faithfully samples the new value. **The Md-file corruption is therefore not
+a cell bug and cannot be fixed by any per-package capture mode or per-net
+lag; it is the zero-delay cache-data path meeting clocked control.** The fix
+is the depth/phase model this document has named as the open area from the
+start, applied to the cache data path -- or an explicit hold on the Md
+file's data across the store, which would have to be justified from the
+sheets rather than invented.
+
+**What hypothesis 2's null result PROVES, and it is the useful part.** If
+pre-edge capture changes nothing, f24's D input was ALREADY 0 before the
+clk2 edge -- so the deselect is NOT caused by the store's `bFastD_u_Dbuf`
+rising at 377, even though the two coincide. f24's D5 is `MemD03_sil_pl_13`
+from **MemD g23**, an MC10106 whose EclDict grouping is
+`[G (4 5 6 7)>3, (9 10 11)>2, (12 13 14)>15]`, i.e. pin 3 =
+NOR(`MakeMD_u_D'`, `D_u_Dbufdly`, `bFastD_u_Dbuf`, `FHD`). Three of those
+four are quiet in the window (`D_u_Dbufdly` 0 throughout, `bFastD` rises only
+at 377, `FHD` unmeasured), which leaves **`MakeMD_u_D'`** -- a MemX signal,
+the twin of `MakeMDM_u_D'` -- as the thing that deselects the fetch's data
+early. THAT is the next probe, not the store side.
+
+Note `MakeMD_u_D'` (MD) and `MakeMDM_u_D'` (MDM, the file write enable) are
+DIFFERENT nets from different MemX packages; earlier notes that conflate
+them are wrong. Both come from MemX MC10176s now running PRECAP=0.
+
+### Retractions, each by measurement
+
+- "RTClock carries on every wakeup" (from an instruction count): wrong.
+  RTClock climbs by 65B per tick and RTCCarry is never taken -- the
+  81-instruction total was JunkTaskStart + the first wakeup's UpdateCounters.
+- "The F10145A's address moves during WE' low": measured on all 405
+  packages, never. The address was STABLE and WRONG (Last = incoming task).
+- "l02 passes StartCycle through, shifting pClock1En'": the NBA ordering
+  already gave the old value; the SE10231 capture alone changed nothing
+  (run5 = run1 to the cycle). Kept for uniformity.
+- The MC10231 capture (152 packages) moves BootEmulator 66,272 cycles later
+  and adds one instruction to each task's TASKINIT (26 -> 27; the oracle runs
+  34 in-window, its c02/c0a wait loops iterating 7 and 9 times where the RTL
+  passes once). Not judged either way; all gates pass with it.
+
+### How to run
+
+    make -C verilog/verilator boot-world-disk WORLDARGS="+cycles=N +pack=chm/diskpacks/games-trident.pack +pendulum +hasram +ioreset +stperroff +blfix +fastwait +bbword=0000 +bbfeed +frame"
+
+`+terminal` is in the recipe now. For any long run invoke the binary directly
+with output to a file. World entry is at 96,336,265 (with the MC10231
+capture; 96,269,993 without); ABoot's fetch (1e2) is at 96,436,297. The
+probes: `+junklog` (every ShutUp/AckJunkTW/TWReq.02 event), `+pctask=N` (a
+PCT line per MIR load of task N), `+pcpc=HEX` (open the PCT window at an
+address), `+mdpc=HEX` (open MDWIN/MEMWIN/HOLDWIN at an address, lengths
+`+mdwinlen`/`+memwinlen`), `+tfwin/+clkwin` (cycle-numbered), `+ramwe`
+(F10145A address/data moves during WE', per package). Hierarchical per-sys_clk
+probes cost about half the simulation rate (96 M in 8-9 min with them). Three
+things the trace columns mean: PCT's `T` at instruction N is T after N-2 (an
+instruction's T load and T-file write land at +17/+23 of the NEXT cycle);
+task-number nets print MSB-first; an F10145A file's slot index is `~task`
+bitwise (task 0 = mem[15], task 2 = mem[13], task 3 = mem[12]).
+
+### Gate status (2026-09-05) -- SUPERSEDED, see the 2026-09-08 block at the top
+
+PASS (20): taskrun-test, task-test, compute-test, exec-test, boot0-test,
+step-test, exec-parity, exec-boot, mir-diff, operand-test, writeim-test,
+sendmir, exec-world, exec-world9, refdecode-test, display-test, strap-test,
+eth-ctl-test, crc-test, im-parity-check. FAIL (1): memrun-test
+(`preStartMem' never asserted`, failing since before this session).
+Stale `obj_*` directories (the old repository path) still masquerade as
+failures -- `rm -rf` the directory first.
+
+## COLD RESTART (2026-09-05, morning) -- history; its "blocker" was misread
 
 Branch `verilog-backplane`, head `a9169ea9`. Everything below in the older
 blocks is history; this section is the live state.

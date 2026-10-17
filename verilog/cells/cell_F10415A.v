@@ -46,7 +46,8 @@ module cell_F10415A (
 );
 
   // A0-A9 = 2,3,4,5,6,7,9,10,11,12; DI=15, DO=1, CE'=14, WE'=13.
-  reg mem [0:1023];
+  // A narrow IM slice uses MLABs; reserve the M10Ks for main storage.
+  (* ramstyle = "MLAB, no_rw_check" *) reg mem [0:1023];
   //
   // ADDRESS BIT ORDER: A0 IS THE MOST SIGNIFICANT. PARC numbers every field
   // MSB-first -- `RSTK.0` is the top RSTK bit, `TNIA.04` the top address bit --

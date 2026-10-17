@@ -61,7 +61,9 @@ module cell_MB7071H (
   wire       sel = ~(p3 | p4 | p5 | p6);                    // BS0'-BS3'
   wire       we  = ~p2;                                     // WE'
 
-  reg [3:0] mem [0:255];
+  // Cyclone V MLAB supports this asynchronous read. Without the hint,
+  // Quartus 17 expands these register files into individual flip-flops.
+  (* ramstyle = "MLAB, no_rw_check" *) reg [3:0] mem [0:255];
   always @(posedge sys_clk)
     if (sel & we) mem[a] <= {p16, p17, p18, p19};   // e, d, c, b
 

@@ -1543,7 +1543,8 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p15(Sector1_p_),
     .p16(VCC_m_83)
   ); // SN74LS169
-  cell_SN74123 u_a03 (
+  cell_SN74123 #(.SYSPER(SYSPER)) u_a03 (
+    .sys_clk(sys_clk),
     .p1(TriconD06_sil_pl_3),
     .p2(TTLTrueA),
     .p3(Sector2_p_),
@@ -1559,7 +1560,8 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p15(R2),
     .p16(VCC_m_83)
   ); // SN74123
-  cell_SN74123 u_a05 (
+  cell_SN74123 #(.SYSPER(SYSPER)) u_a05 (
+    .sys_clk(sys_clk),
     .p1(TriconD06_sil_pl_1),
     .p2(TTLTrueA),
     .p3(Sector0_p_),
@@ -2357,7 +2359,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p13(ClearErrors),
     .p15(FifoUnderflow)
   ); // MC10231
-  cell_MC10135 u_c16 (
+  cell_MC10135 #(.PRECAP(1)) u_c16 (
     .sys_clk(sys_clk),
     .p3(EnWriteTW_p___c16_3),
     .p5(NextBlockCl),
@@ -2924,7 +2926,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p14(DskData_16),
     .p15(DskData_17)
   ); // MC10176
-  cell_MC10170 u_e09 (
+  cell_MC10170 #(.LEGACY_B_INVERT(0)) u_e09 (
     .p2(ShiftReg_17),
     .p3(ShiftReg_08),
     .p4(ShiftReg_09),
@@ -2954,7 +2956,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p14(DskData_10),
     .p15(DskData_11)
   ); // MC10176
-  cell_MC10170 u_e11 (
+  cell_MC10170 #(.LEGACY_B_INVERT(0)) u_e11 (
     .p2(ShiftReg_16),
     .p3(ShiftReg_00),
     .p4(ShiftReg_01),
@@ -3176,7 +3178,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p13(ECLTrueA),
     .p14(TriconD07_sil_pl_6)
   ); // MC1650
-  cell_MC10170 u_f04 (
+  cell_MC10170 #(.LEGACY_B_INVERT(0)) u_f04 (
     .p3(bIOB_08),
     .p4(bIOB_09),
     .p5(bIOB_10),
@@ -3504,7 +3506,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p13(OKToSelect__g03_13),
     .p14(OKToSelect__g03_14)
   ); // LM339
-  cell_MC10170 u_g04 (
+  cell_MC10170 #(.LEGACY_B_INVERT(0)) u_g04 (
     .p1(GND_m_21),
     .p3(bIOB_00),
     .p4(bIOB_01),

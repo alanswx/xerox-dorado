@@ -457,9 +457,45 @@ def ports() -> int:
 # module is 144 MK4096P (4K x 1 DRAM) = 576 Kbit, which is small enough to
 # infer as block RAM, and `readback-test` already gates a real word going
 # into PARC's array and coming back out to the processor.
+# A STORAGE MODULE IS TWO BOARDS, and until 2026-09-08 the machine had one.
+# The msa is 144 chips = 4 banks x 36 bits: two data words and four check
+# bits, HALF of a 72-bit quadword (64 data + 8 check, HM p.129). HM p.10
+# sizes a module at "256k x 16-bit ... using 16k-bit storage chips" = 64K
+# quadwords x 72 bits = 288 chips = two msa boards. The BaseBoard fans out
+# CLK.ms0Even' AND CLK.ms0Odd'; MemX drives LoadSinE/ShiftSinE/LoadSoutE'/
+# ShiftSoutE AND their O twins; MemD exports EcOut.0-7 while the even board's
+# .bp claims only EcOut.0/1/4/5 and EcIn.0/1. The same PCB in the odd slot
+# meets the O nets and the other four check bits -- there is no .bp for the
+# odd slot because PARC states a board's pins once, for the slot it was
+# drawn in. With only the even board, every odd word of every quadword had
+# no storage and half the check bits went nowhere: MemD's syndrome-nonzero
+# flag dSTPerr read 1 on 99.7% of samples in every run.
+#
+# `msaOdd` is the same module instantiated a second time with these nine
+# nets renamed to what the odd slot carries. Everything else -- Sin/Sout
+# (the module's two boards share the data bus, time-multiplexed by the E/O
+# strobes), MemAd/RAS/CAS/WE, Mod0SinEn'/Mod0StrEn'/Mb0, LoadEcOut'/
+# ShiftEcOut, EcIn.0/1 (shared, likewise time-multiplexed), ChipsAre* -- is
+# the same net on both boards. EcOut.5 -> EcOut.7' keeps MemD's prime: the
+# eighth check bit is exported inverted, and the odd board stores what the
+# pin carries.
+SLOT_INSTANCES = {
+    'msaOdd': ('msa', {
+        "CLK.ms0Even'": "CLK.ms0Odd'",
+        'LoadSinE': 'LoadSinO',
+        'ShiftSinE': 'ShiftSinO',
+        "LoadSoutE'": "LoadSoutO'",
+        'ShiftSoutE': 'ShiftSoutO',
+        'EcOut.0': 'EcOut.2',
+        'EcOut.1': 'EcOut.3',
+        'EcOut.4': 'EcOut.6',
+        'EcOut.5': "EcOut.7'",
+    }),
+}
+
 DEFAULT_MACHINE = ['ProcH', 'ProcL', 'ContA', 'ContB', 'IFU',
                    'MemC', 'MemD', 'MemX', 'DskEth', 'DispY', 'BaseBd',
-                   'msa']
+                   'msa', 'msaOdd']
 
 
 def _board_dirs() -> dict[str, str]:
@@ -489,16 +525,26 @@ def _classify_boards(names: list[str]):
     clocked = cells_wanting_clock(cells_dir)
     out = {}
     for short in names:
-        if short not in dirs:
-            raise SystemExit(f'no board {short!r} under {SIL}; '
+        base, renames = SLOT_INSTANCES.get(short, (short, {}))
+        if base not in dirs:
+            raise SystemExit(f'no board {base!r} under {SIL}; '
                              f'have {", ".join(sorted(dirs))}')
-        d = os.path.join(SIL, dirs[short])
+        d = os.path.join(SIL, dirs[base])
         wl = [f for f in os.listdir(d) if f.endswith('.wl')][0]
         b = load_board(os.path.join(d, wl))
         g = Generator(b, ecl, cells, cdirs, clocked)
         g.classify()
-        out[short] = {'module': vname(b.name), 'ports': dict(g.ports),
-                      'exports': set(g.exports)}
+        for n in renames:
+            if n not in g.ports and n not in g.exports:
+                raise SystemExit(f'{short}: SLOT_INSTANCES renames {n!r}, '
+                                 f'which is not a port of {base}')
+        # The instance's ports and exports carry the SLOT's net names; `orig`
+        # maps each back to the module's own port name for the connection.
+        out[short] = {'module': vname(b.name), 'base': base,
+                      'ports': {renames.get(n, n): v for n, v in g.ports.items()},
+                      'exports': {renames.get(n, n) for n in g.exports},
+                      'orig': {renames.get(n, n): n
+                               for n in set(g.ports) | set(g.exports)}}
     return out, vname
 
 
@@ -537,14 +583,14 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
         gen = next((os.path.join(GENERATED, f)
                     for f in sorted(os.listdir(GENERATED))
                     if f.endswith('.v') and
-                    f.split('-Rev')[0].split('.v')[0] == short), None)
+                    f.split('-Rev')[0].split('.v')[0] == d['base']), None)
         if not gen:
             raise SystemExit(f'{short}: no generated module; run `make -C '
                              f'verilog boards` first')
         head = open(gen).read().split(');', 1)[0]
         on_disk = set(re.findall(r'(?:input|output|inout)\s+wire\s+(\w+)', head))
-        want = ({vname(n) for n in d['ports']} |
-                {vname(n) + '__drv' for n in d['exports']} | {'sys_clk'})
+        want = ({vname(d['orig'][n]) for n in d['ports']} |
+                {vname(d['orig'][n]) + '__drv' for n in d['exports']} | {'sys_clk'})
         if on_disk != want:
             raise SystemExit(
                 f'{short}: {os.path.basename(gen)} is STALE -- it declares '
@@ -668,10 +714,9 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     for short in names:
         d = info[short]
         A(f'  // ---- {short}')
-        # SYSPER -- sys_clk per microinstruction -- reaches the board that
-        # carries the substituted clock generator, so the whole machine can be
-        # built at a different oversampling ratio without editing a cell.
-        if short == 'BaseBd':
+        # Clock generator and disk index discriminator both count fabric
+        # samples. SYSPER is samples per 30 ns clock (two per instruction).
+        if short in ('BaseBd', 'DskEth'):
             A(f'  {d["module"]} #(.SYSPER(SYSPER)) b_{short} (')
         else:
             A(f'  {d["module"]} b_{short} (')
@@ -682,11 +727,13 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
             if n in CABLE_BIDIR and n in ports and contribs.get(n):
                 return f'{vname(n)}__bus'      # includes the drive's end
             return vname(n)
-        conns += [f'    .{vname(n)}({_read(n)})' for n in sorted(d['ports'])]
+        # `orig` is the module's own port name; for a SLOT_INSTANCES board
+        # (msaOdd) it differs from the net the slot puts on that pin.
+        conns += [f'    .{vname(d["orig"][n])}({_read(n)})' for n in sorted(d['ports'])]
         # A cable line that is now an INPUT has no contribution wire -- the
         # board's pull-up output is left unconnected, so the port is the only
         # source. See CABLE_DRIVE_INPUTS.
-        conns += [f'    .{vname(n)}__drv({vname(n)}__{short})'
+        conns += [f'    .{vname(d["orig"][n])}__drv({vname(n)}__{short})'
                   for n in sorted(d['exports'])
                   if n not in CABLE_DRIVE_INPUTS]
         A(',\n'.join(conns))
@@ -793,7 +840,7 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     A('  // the built Rev Cl sheet; the accumulator is told what a sys_clk is')
     A('  // worth so it holds at any oversampling ratio.')
     A('  wire pixel_clk;')
-    A('  cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(SYSPER)) u_pixclk (')
+    A('  cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(2 * SYSPER)) u_pixclk (')
     A('    .sys_clk(sys_clk), .p8(pixel_clk), .p7(1\'b0), .p14(1\'b1)')
     A('  );')
     A("")

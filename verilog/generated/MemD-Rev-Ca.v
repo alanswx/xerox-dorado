@@ -20,7 +20,13 @@
 // machine ORs the contributions. That is what MECL open emitters
 // wired together compute, and unlike an `inout` on a multiply-
 // driven net it maps to one level of LUT on an FPGA.
-module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
+// Optional FPGA storage-input timing experiment. Zero preserves
+// the Sil wiring; positive values add 30 ns word-clock stages.
+`ifndef DORADO_STORAGE_INPUT_DELAY
+`define DORADO_STORAGE_INPUT_DELAY 0
+`endif
+module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16,
+    parameter integer STORAGE_INPUT_DELAY = `DORADO_STORAGE_INPUT_DELAY) (
     input  wire sys_clk,
     input  wire BMux_00,
     input  wire BMux_01,
@@ -510,8 +516,10 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
   wire F_u_D;
   wire F_u_D_p_;
   wire FastD_u_CD;
-  wire Fclk_p_a;
-  wire Fclk_p_b;
+  wire Fclk_p_a__lead;
+  reg  Fclk_p_a = 1'b1;
+  wire Fclk_p_b__lead;
+  reg  Fclk_p_b = 1'b1;
   wire Flip_00;
   wire Flip_01;
   wire Flip_02;
@@ -1083,9 +1091,11 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
   wire tSyn6;
   wire tSyn7x;
 
-  // ---- 8 clk1-family nets, one sys_clk behind
+  // ---- 10 clk1-family nets, one sys_clk behind
   //      their pre siblings (see clock_lag above)
   always @(posedge sys_clk) begin
+    Fclk_p_a <= Fclk_p_a__lead;
+    Fclk_p_b <= Fclk_p_b__lead;
     clk1_p_Aa <= clk1_p_Aa__lead;
     clk1_p_Ab <= clk1_p_Ab__lead;
     clk1_p_Ac <= clk1_p_Ac__lead;
@@ -1095,6 +1105,25 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     clk1_p_Cb <= clk1_p_Cb__lead;
     clk1_p_Cc <= clk1_p_Cc__lead;
   end
+
+  wire [17:0] storage_rx_raw = {Sin_00, Sin_01, Sin_02, Sin_03, Sin_04, Sin_05, Sin_06, Sin_07, Sin_08, Sin_09, Sin_10, Sin_11, Sin_12, Sin_13, Sin_14, Sin_15, EcIn_0, EcIn_1};
+  wire [17:0] storage_rx_data;
+  generate if (STORAGE_INPUT_DELAY == 0) begin : storage_rx_direct
+    assign storage_rx_data = storage_rx_raw;
+  end else begin : storage_rx_pipeline
+    reg [17:0] words [0:STORAGE_INPUT_DELAY-1];
+    reg clock_d = 0;
+    integer j;
+    initial for (integer k=0; k<STORAGE_INPUT_DELAY; k=k+1) words[k]=0;
+    always @(posedge sys_clk) begin
+      clock_d <= clk2_p_Aa;
+      if (clk2_p_Aa && !clock_d) begin
+        words[0] <= storage_rx_raw;
+        for (j=1; j<STORAGE_INPUT_DELAY; j=j+1) words[j] <= words[j-1];
+      end
+    end
+    assign storage_rx_data = words[STORAGE_INPUT_DELAY-1];
+  end endgenerate
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
   // An explicit OR of the drivers: what the open emitters
@@ -1111,59 +1140,95 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
   wire ChkPh4_p___e17_14;
   assign ChkPh4_p_ = ChkPh4_p___d20_4 | ChkPh4_p___e17_14;
   wire D_00__a03_1;
+  wire D_00___h__m_1c3_1;
   wire D_00__d03_1;
-  assign D_00 = D_00__a03_1 | D_00__d03_1;
+  wire D_00___h__m_1f3_1;
+  assign D_00 = D_00__a03_1 | D_00___h__m_1c3_1 | D_00__d03_1 | D_00___h__m_1f3_1;
   wire D_01__a05_1;
+  wire D_01___h__m_1c5_1;
   wire D_01__d05_1;
-  assign D_01 = D_01__a05_1 | D_01__d05_1;
+  wire D_01___h__m_1f5_1;
+  assign D_01 = D_01__a05_1 | D_01___h__m_1c5_1 | D_01__d05_1 | D_01___h__m_1f5_1;
+  wire D_02___h__m_1l3_1;
   wire D_02__j03_1;
+  wire D_02___h__m_1i3_1;
   wire D_02__g03_1;
-  assign D_02 = D_02__j03_1 | D_02__g03_1;
+  assign D_02 = D_02___h__m_1l3_1 | D_02__j03_1 | D_02___h__m_1i3_1 | D_02__g03_1;
+  wire D_03___h__m_1l5_1;
   wire D_03__j05_1;
+  wire D_03___h__m_1i5_1;
   wire D_03__g05_1;
-  assign D_03 = D_03__j05_1 | D_03__g05_1;
+  assign D_03 = D_03___h__m_1l5_1 | D_03__j05_1 | D_03___h__m_1i5_1 | D_03__g05_1;
   wire D_04__a13_1;
+  wire D_04___h__m_1c13_1;
   wire D_04__d13_1;
-  assign D_04 = D_04__a13_1 | D_04__d13_1;
+  wire D_04___h__m_1f13_1;
+  assign D_04 = D_04__a13_1 | D_04___h__m_1c13_1 | D_04__d13_1 | D_04___h__m_1f13_1;
   wire D_05__a15_1;
+  wire D_05___h__m_1c15_1;
   wire D_05__d15_1;
-  assign D_05 = D_05__a15_1 | D_05__d15_1;
+  wire D_05___h__m_1f15_1;
+  assign D_05 = D_05__a15_1 | D_05___h__m_1c15_1 | D_05__d15_1 | D_05___h__m_1f15_1;
+  wire D_06___h__m_1l13_1;
   wire D_06__j13_1;
+  wire D_06___h__m_1i13_1;
   wire D_06__g13_1;
-  assign D_06 = D_06__j13_1 | D_06__g13_1;
+  assign D_06 = D_06___h__m_1l13_1 | D_06__j13_1 | D_06___h__m_1i13_1 | D_06__g13_1;
+  wire D_07___h__m_1l15_1;
   wire D_07__j15_1;
+  wire D_07___h__m_1i15_1;
   wire D_07__g15_1;
-  assign D_07 = D_07__j15_1 | D_07__g15_1;
+  assign D_07 = D_07___h__m_1l15_1 | D_07__j15_1 | D_07___h__m_1i15_1 | D_07__g15_1;
   wire D_08__a09_1;
+  wire D_08___h__m_1c9_1;
   wire D_08__d09_1;
-  assign D_08 = D_08__a09_1 | D_08__d09_1;
+  wire D_08___h__m_1f9_1;
+  assign D_08 = D_08__a09_1 | D_08___h__m_1c9_1 | D_08__d09_1 | D_08___h__m_1f9_1;
   wire D_09__a11_1;
+  wire D_09___h__m_1c11_1;
   wire D_09__d11_1;
-  assign D_09 = D_09__a11_1 | D_09__d11_1;
+  wire D_09___h__m_1f11_1;
+  assign D_09 = D_09__a11_1 | D_09___h__m_1c11_1 | D_09__d11_1 | D_09___h__m_1f11_1;
+  wire D_10___h__m_1l9_1;
   wire D_10__j09_1;
+  wire D_10___h__m_1i9_1;
   wire D_10__g09_1;
-  assign D_10 = D_10__j09_1 | D_10__g09_1;
+  assign D_10 = D_10___h__m_1l9_1 | D_10__j09_1 | D_10___h__m_1i9_1 | D_10__g09_1;
+  wire D_11___h__m_1l11_1;
   wire D_11__j11_1;
+  wire D_11___h__m_1i11_1;
   wire D_11__g11_1;
-  assign D_11 = D_11__j11_1 | D_11__g11_1;
+  assign D_11 = D_11___h__m_1l11_1 | D_11__j11_1 | D_11___h__m_1i11_1 | D_11__g11_1;
   wire D_12__a17_1;
+  wire D_12___h__m_1c17_1;
   wire D_12__d17_1;
-  assign D_12 = D_12__a17_1 | D_12__d17_1;
+  wire D_12___h__m_1f17_1;
+  assign D_12 = D_12__a17_1 | D_12___h__m_1c17_1 | D_12__d17_1 | D_12___h__m_1f17_1;
   wire D_13__a19_1;
+  wire D_13___h__m_1c19_1;
   wire D_13__d19_1;
-  assign D_13 = D_13__a19_1 | D_13__d19_1;
+  wire D_13___h__m_1f19_1;
+  assign D_13 = D_13__a19_1 | D_13___h__m_1c19_1 | D_13__d19_1 | D_13___h__m_1f19_1;
+  wire D_14___h__m_1l17_1;
   wire D_14__j17_1;
+  wire D_14___h__m_1i17_1;
   wire D_14__g17_1;
-  assign D_14 = D_14__j17_1 | D_14__g17_1;
+  assign D_14 = D_14___h__m_1l17_1 | D_14__j17_1 | D_14___h__m_1i17_1 | D_14__g17_1;
+  wire D_15___h__m_1l19_1;
   wire D_15__j19_1;
+  wire D_15___h__m_1i19_1;
   wire D_15__g19_1;
-  assign D_15 = D_15__j19_1 | D_15__g19_1;
+  assign D_15 = D_15___h__m_1l19_1 | D_15__j19_1 | D_15___h__m_1i19_1 | D_15__g19_1;
   wire D_16__a07_1;
+  wire D_16___h__m_1c7_1;
   wire D_16__d07_1;
-  assign D_16 = D_16__a07_1 | D_16__d07_1;
+  wire D_16___h__m_1f7_1;
+  assign D_16 = D_16__a07_1 | D_16___h__m_1c7_1 | D_16__d07_1 | D_16___h__m_1f7_1;
+  wire D_17___h__m_1l7_1;
   wire D_17__j07_1;
+  wire D_17___h__m_1i7_1;
   wire D_17__g07_1;
-  assign D_17 = D_17__j07_1 | D_17__g07_1;
+  assign D_17 = D_17___h__m_1l7_1 | D_17__j07_1 | D_17___h__m_1i7_1 | D_17__g07_1;
   wire dMD_00__h05_2;
   wire dMD_00__h04_2;
   assign dMD_00__drv = dMD_00__h05_2 | dMD_00__h04_2;
@@ -1357,112 +1422,724 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
 
   // ---- packages
   cell_F10470 u__h__m_1c11 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_09___h__m_1c11_1),
+    .p2(Dad_00b),
+    .p3(Dad_01b),
+    .p4(Dad_02_p_a),
+    .p5(Dad_03_p_a),
+    .p6(Dad_04_p_a),
+    .p7(Dad_05_p_a),
+    .p8(Dad_06_p_a),
+    .p10(Dad_07_p_a),
+    .p11(Dad_08_p_a),
+    .p12(Dad1_10a),
+    .p13(Dad1_11a),
+    .p14(Dad1_12a),
+    .p15(WriteD1_p_a),
+    .p16(D1ACE_p_b),
+    .p17(D1in_09),
+    .p18(GND119)
   ); // F10470
   cell_F10470 u__h__m_1c13 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_04___h__m_1c13_1),
+    .p2(Dad_00b),
+    .p3(Dad_01b),
+    .p4(Dad_02_p_a),
+    .p5(Dad_03_p_a),
+    .p6(Dad_04_p_a),
+    .p7(Dad_05_p_a),
+    .p8(Dad_06_p_a),
+    .p10(Dad_07_p_a),
+    .p11(Dad_08_p_a),
+    .p12(Dad1_10a),
+    .p13(Dad1_11a),
+    .p14(Dad1_12a),
+    .p15(WriteD1_p_a),
+    .p16(D1ACE_p_b),
+    .p17(D1in_04),
+    .p18(GND123)
   ); // F10470
   cell_F10470 u__h__m_1c15 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_05___h__m_1c15_1),
+    .p2(Dad_00b),
+    .p3(Dad_01b),
+    .p4(Dad_02_p_a),
+    .p5(Dad_03_p_a),
+    .p6(Dad_04_p_a),
+    .p7(Dad_05_p_a),
+    .p8(Dad_06_p_a),
+    .p10(Dad_07_p_a),
+    .p11(Dad_08_p_a),
+    .p12(Dad1_10a),
+    .p13(Dad1_11a),
+    .p14(Dad1_12a),
+    .p15(WriteD1_p_a),
+    .p16(D1ACE_p_b),
+    .p17(D1in_05),
+    .p18(GND589)
   ); // F10470
   cell_F10470 u__h__m_1c17 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_12___h__m_1c17_1),
+    .p2(Dad_00b),
+    .p3(Dad_01b),
+    .p4(Dad_02_p_a),
+    .p5(Dad_03_p_a),
+    .p6(Dad_04_p_a),
+    .p7(Dad_05_p_a),
+    .p8(Dad_06_p_a),
+    .p10(Dad_07_p_a),
+    .p11(Dad_08_p_a),
+    .p12(Dad1_10a),
+    .p13(Dad1_11a),
+    .p14(Dad1_12a),
+    .p15(WriteD1_p_a),
+    .p16(D1ACE_p_b),
+    .p17(D1in_12),
+    .p18(GND131)
   ); // F10470
   cell_F10470 u__h__m_1c19 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_13___h__m_1c19_1),
+    .p2(Dad_00b),
+    .p3(Dad_01b),
+    .p4(Dad_02_p_a),
+    .p5(Dad_03_p_a),
+    .p6(Dad_04_p_a),
+    .p7(Dad_05_p_a),
+    .p8(Dad_06_p_a),
+    .p10(Dad_07_p_a),
+    .p11(Dad_08_p_a),
+    .p12(Dad1_10a),
+    .p13(Dad1_11a),
+    .p14(Dad1_12a),
+    .p15(WriteD1_p_a),
+    .p16(D1ACE_p_b),
+    .p17(D1in_13),
+    .p18(GND135)
   ); // F10470
   cell_F10470 u__h__m_1c3 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_00___h__m_1c3_1),
+    .p2(Dad_00a),
+    .p3(Dad_01a),
+    .p4(Dad_02a),
+    .p5(Dad_03a),
+    .p6(Dad_04a),
+    .p7(Dad_05a),
+    .p8(Dad_06a),
+    .p10(Dad_07a),
+    .p11(Dad_08a),
+    .p12(Dad0_10a),
+    .p13(Dad0_11a),
+    .p14(Dad0_12a),
+    .p15(WriteD0_p_a),
+    .p16(D0BCE_p_a),
+    .p17(D0in_00),
+    .p18(GND585)
   ); // F10470
   cell_F10470 u__h__m_1c5 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_01___h__m_1c5_1),
+    .p2(Dad_00a),
+    .p3(Dad_01a),
+    .p4(Dad_02a),
+    .p5(Dad_03a),
+    .p6(Dad_04a),
+    .p7(Dad_05a),
+    .p8(Dad_06a),
+    .p10(Dad_07a),
+    .p11(Dad_08a),
+    .p12(Dad0_10a),
+    .p13(Dad0_11a),
+    .p14(Dad0_12a),
+    .p15(WriteD0_p_a),
+    .p16(D0BCE_p_a),
+    .p17(D0in_01),
+    .p18(GND107)
   ); // F10470
   cell_F10470 u__h__m_1c7 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_16___h__m_1c7_1),
+    .p2(Dad_00a),
+    .p3(Dad_01a),
+    .p4(Dad_02a),
+    .p5(Dad_03a),
+    .p6(Dad_04a),
+    .p7(Dad_05a),
+    .p8(Dad_06a),
+    .p10(Dad_07a),
+    .p11(Dad_08a),
+    .p12(Dad0_10a),
+    .p13(Dad0_11a),
+    .p14(Dad0_12a),
+    .p15(WriteD0_p_a),
+    .p16(D0BCE_p_a),
+    .p17(D0in_16),
+    .p18(GND111)
   ); // F10470
   cell_F10470 u__h__m_1c9 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_08___h__m_1c9_1),
+    .p2(Dad_00b),
+    .p3(Dad_01b),
+    .p4(Dad_02_p_a),
+    .p5(Dad_03_p_a),
+    .p6(Dad_04_p_a),
+    .p7(Dad_05_p_a),
+    .p8(Dad_06_p_a),
+    .p10(Dad_07_p_a),
+    .p11(Dad_08_p_a),
+    .p12(Dad1_10a),
+    .p13(Dad1_11a),
+    .p14(Dad1_12a),
+    .p15(WriteD1_p_a),
+    .p16(D1ACE_p_a),
+    .p17(D1in_08),
+    .p18(GND115)
   ); // F10470
   cell_F10470 u__h__m_1f11 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_09___h__m_1f11_1),
+    .p2(Dad_00c),
+    .p3(Dad_01c),
+    .p4(Dad_02_p_b),
+    .p5(Dad_03_p_b),
+    .p6(Dad_04_p_b),
+    .p7(Dad_05_p_b),
+    .p8(Dad_06_p_b),
+    .p10(Dad_07_p_b),
+    .p11(Dad_08_p_b),
+    .p12(Dad0_10b),
+    .p13(Dad0_11b),
+    .p14(Dad0_12b),
+    .p15(WriteD0_p_c),
+    .p16(D0BCE_p_b),
+    .p17(D0in_09),
+    .p18(GND263)
   ); // F10470
   cell_F10470 u__h__m_1f13 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_04___h__m_1f13_1),
+    .p2(Dad_00c),
+    .p3(Dad_01c),
+    .p4(Dad_02_p_b),
+    .p5(Dad_03_p_b),
+    .p6(Dad_04_p_b),
+    .p7(Dad_05_p_b),
+    .p8(Dad_06_p_b),
+    .p10(Dad_07_p_b),
+    .p11(Dad_08_p_b),
+    .p12(Dad0_10b),
+    .p13(Dad0_11b),
+    .p14(Dad0_12b),
+    .p15(WriteD0_p_c),
+    .p16(D0BCE_p_b),
+    .p17(D0in_04),
+    .p18(GND267)
   ); // F10470
   cell_F10470 u__h__m_1f15 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_05___h__m_1f15_1),
+    .p2(Dad_00c),
+    .p3(Dad_01c),
+    .p4(Dad_02_p_b),
+    .p5(Dad_03_p_b),
+    .p6(Dad_04_p_b),
+    .p7(Dad_05_p_b),
+    .p8(Dad_06_p_b),
+    .p10(Dad_07_p_b),
+    .p11(Dad_08_p_b),
+    .p12(Dad0_10b),
+    .p13(Dad0_11b),
+    .p14(Dad0_12b),
+    .p15(WriteD0_p_c),
+    .p16(D0BCE_p_b),
+    .p17(D0in_05),
+    .p18(GND271)
   ); // F10470
   cell_F10470 u__h__m_1f17 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_12___h__m_1f17_1),
+    .p2(Dad_00c),
+    .p3(Dad_01c),
+    .p4(Dad_02_p_b),
+    .p5(Dad_03_p_b),
+    .p6(Dad_04_p_b),
+    .p7(Dad_05_p_b),
+    .p8(Dad_06_p_b),
+    .p10(Dad_07_p_b),
+    .p11(Dad_08_p_b),
+    .p12(Dad0_10b),
+    .p13(Dad0_11b),
+    .p14(Dad0_12b),
+    .p15(WriteD0_p_c),
+    .p16(D0BCE_p_b),
+    .p17(D0in_12),
+    .p18(GND275)
   ); // F10470
   cell_F10470 u__h__m_1f19 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_13___h__m_1f19_1),
+    .p2(Dad_00c),
+    .p3(Dad_01c),
+    .p4(Dad_02_p_b),
+    .p5(Dad_03_p_b),
+    .p6(Dad_04_p_b),
+    .p7(Dad_05_p_b),
+    .p8(Dad_06_p_b),
+    .p10(Dad_07_p_b),
+    .p11(Dad_08_p_b),
+    .p12(Dad0_10b),
+    .p13(Dad0_11b),
+    .p14(Dad0_12b),
+    .p15(WriteD0_p_c),
+    .p16(D0BCE_p_b),
+    .p17(D0in_13),
+    .p18(GND279)
   ); // F10470
   cell_F10470 u__h__m_1f3 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_00___h__m_1f3_1),
+    .p2(Dad_00c),
+    .p3(Dad_01c),
+    .p4(Dad_02b),
+    .p5(Dad_03b),
+    .p6(Dad_04b),
+    .p7(Dad_05b),
+    .p8(Dad_06b),
+    .p10(Dad_07b),
+    .p11(Dad_08b),
+    .p12(Dad1_10b),
+    .p13(Dad1_11b),
+    .p14(Dad1_12b),
+    .p15(WriteD1_p_c),
+    .p16(D1BCE_p_a),
+    .p17(D1in_00),
+    .p18(GND601)
   ); // F10470
   cell_F10470 u__h__m_1f5 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_01___h__m_1f5_1),
+    .p2(Dad_00c),
+    .p3(Dad_01c),
+    .p4(Dad_02b),
+    .p5(Dad_03b),
+    .p6(Dad_04b),
+    .p7(Dad_05b),
+    .p8(Dad_06b),
+    .p10(Dad_07b),
+    .p11(Dad_08b),
+    .p12(Dad1_10b),
+    .p13(Dad1_11b),
+    .p14(Dad1_12b),
+    .p15(WriteD1_p_c),
+    .p16(D1BCE_p_a),
+    .p17(D1in_01),
+    .p18(GND251)
   ); // F10470
   cell_F10470 u__h__m_1f7 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_16___h__m_1f7_1),
+    .p2(Dad_00c),
+    .p3(Dad_01c),
+    .p4(Dad_02b),
+    .p5(Dad_03b),
+    .p6(Dad_04b),
+    .p7(Dad_05b),
+    .p8(Dad_06b),
+    .p10(Dad_07b),
+    .p11(Dad_08b),
+    .p12(Dad1_10b),
+    .p13(Dad1_11b),
+    .p14(Dad1_12b),
+    .p15(WriteD1_p_c),
+    .p16(D1BCE_p_a),
+    .p17(D1in_16),
+    .p18(GND255)
   ); // F10470
   cell_F10470 u__h__m_1f9 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_08___h__m_1f9_1),
+    .p2(Dad_00c),
+    .p3(Dad_01c),
+    .p4(Dad_02_p_b),
+    .p5(Dad_03_p_b),
+    .p6(Dad_04_p_b),
+    .p7(Dad_05_p_b),
+    .p8(Dad_06_p_b),
+    .p10(Dad_07_p_b),
+    .p11(Dad_08_p_b),
+    .p12(Dad0_10b),
+    .p13(Dad0_11b),
+    .p14(Dad0_12b),
+    .p15(WriteD0_p_c),
+    .p16(D0BCE_p_a),
+    .p17(D0in_08),
+    .p18(GND259)
   ); // F10470
   cell_F10470 u__h__m_1i11 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_11___h__m_1i11_1),
+    .p2(Dad_00e),
+    .p3(Dad_01e),
+    .p4(Dad_02c),
+    .p5(Dad_03c),
+    .p6(Dad_04c),
+    .p7(Dad_05c),
+    .p8(Dad_06c),
+    .p10(Dad_07c),
+    .p11(Dad_08c),
+    .p12(Dad1_10c),
+    .p13(Dad1_11c),
+    .p14(Dad1_12c),
+    .p15(WriteD1_p_e),
+    .p16(D1ACE_p_c),
+    .p17(D1in_11),
+    .p18(GND407)
   ); // F10470
   cell_F10470 u__h__m_1i13 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_06___h__m_1i13_1),
+    .p2(Dad_00e),
+    .p3(Dad_01e),
+    .p4(Dad_02c),
+    .p5(Dad_03c),
+    .p6(Dad_04c),
+    .p7(Dad_05c),
+    .p8(Dad_06c),
+    .p10(Dad_07c),
+    .p11(Dad_08c),
+    .p12(Dad1_10c),
+    .p13(Dad1_11c),
+    .p14(Dad1_12c),
+    .p15(WriteD1_p_e),
+    .p16(D1ACE_p_c),
+    .p17(D1in_06),
+    .p18(GND411)
   ); // F10470
   cell_F10470 u__h__m_1i15 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_07___h__m_1i15_1),
+    .p2(Dad_00e),
+    .p3(Dad_01e),
+    .p4(Dad_02c),
+    .p5(Dad_03c),
+    .p6(Dad_04c),
+    .p7(Dad_05c),
+    .p8(Dad_06c),
+    .p10(Dad_07c),
+    .p11(Dad_08c),
+    .p12(Dad1_10c),
+    .p13(Dad1_11c),
+    .p14(Dad1_12c),
+    .p15(WriteD1_p_e),
+    .p16(D1ACE_p_c),
+    .p17(D1in_07),
+    .p18(GND415)
   ); // F10470
   cell_F10470 u__h__m_1i17 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_14___h__m_1i17_1),
+    .p2(Dad_00e),
+    .p3(Dad_01e),
+    .p4(Dad_02c),
+    .p5(Dad_03c),
+    .p6(Dad_04c),
+    .p7(Dad_05c),
+    .p8(Dad_06c),
+    .p10(Dad_07c),
+    .p11(Dad_08c),
+    .p12(Dad1_10c),
+    .p13(Dad1_11c),
+    .p14(Dad1_12c),
+    .p15(WriteD1_p_e),
+    .p16(D1ACE_p_c),
+    .p17(D1in_14),
+    .p18(GND419)
   ); // F10470
   cell_F10470 u__h__m_1i19 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_15___h__m_1i19_1),
+    .p2(Dad_00e),
+    .p3(Dad_01e),
+    .p4(Dad_02c),
+    .p5(Dad_03c),
+    .p6(Dad_04c),
+    .p7(Dad_05c),
+    .p8(Dad_06c),
+    .p10(Dad_07c),
+    .p11(Dad_08c),
+    .p12(Dad1_10c),
+    .p13(Dad1_11c),
+    .p14(Dad1_12c),
+    .p15(WriteD1_p_e),
+    .p16(D1ACE_p_c),
+    .p17(D1in_15),
+    .p18(GND423)
   ); // F10470
   cell_F10470 u__h__m_1i3 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_02___h__m_1i3_1),
+    .p2(Dad_00d),
+    .p3(Dad_01d),
+    .p4(Dad_02b),
+    .p5(Dad_03b),
+    .p6(Dad_04b),
+    .p7(Dad_05b),
+    .p8(Dad_06b),
+    .p10(Dad_07b),
+    .p11(Dad_08b),
+    .p12(Dad1_10b),
+    .p13(Dad1_11b),
+    .p14(Dad1_12b),
+    .p15(WriteD1_p_d),
+    .p16(D1BCE_p_c),
+    .p17(D1in_02),
+    .p18(GND617)
   ); // F10470
   cell_F10470 u__h__m_1i5 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_03___h__m_1i5_1),
+    .p2(Dad_00d),
+    .p3(Dad_01d),
+    .p4(Dad_02b),
+    .p5(Dad_03b),
+    .p6(Dad_04b),
+    .p7(Dad_05b),
+    .p8(Dad_06b),
+    .p10(Dad_07b),
+    .p11(Dad_08b),
+    .p12(Dad1_10b),
+    .p13(Dad1_11b),
+    .p14(Dad1_12b),
+    .p15(WriteD1_p_d),
+    .p16(D1BCE_p_c),
+    .p17(D1in_03),
+    .p18(GND395)
   ); // F10470
   cell_F10470 u__h__m_1i7 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_17___h__m_1i7_1),
+    .p2(Dad_00d),
+    .p3(Dad_01d),
+    .p4(Dad_02b),
+    .p5(Dad_03b),
+    .p6(Dad_04b),
+    .p7(Dad_05b),
+    .p8(Dad_06b),
+    .p10(Dad_07b),
+    .p11(Dad_08b),
+    .p12(Dad1_10b),
+    .p13(Dad1_11b),
+    .p14(Dad1_12b),
+    .p15(WriteD1_p_d),
+    .p16(D1BCE_p_c),
+    .p17(D1in_17),
+    .p18(GND399)
   ); // F10470
   cell_F10470 u__h__m_1i9 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_10___h__m_1i9_1),
+    .p2(Dad_00e),
+    .p3(Dad_01e),
+    .p4(Dad_02c),
+    .p5(Dad_03c),
+    .p6(Dad_04c),
+    .p7(Dad_05c),
+    .p8(Dad_06c),
+    .p10(Dad_07c),
+    .p11(Dad_08c),
+    .p12(Dad1_10c),
+    .p13(Dad1_11c),
+    .p14(Dad1_12c),
+    .p15(WriteD1_p_e),
+    .p16(D1ACE_p_c),
+    .p17(D1in_10),
+    .p18(GND403)
   ); // F10470
   cell_F10470 u__h__m_1l11 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_11___h__m_1l11_1),
+    .p2(Dad_00f),
+    .p3(Dad_01f),
+    .p4(Dad_02_p_c),
+    .p5(Dad_03_p_c),
+    .p6(Dad_04_p_c),
+    .p7(Dad_05_p_c),
+    .p8(Dad_06_p_c),
+    .p10(Dad_07_p_c),
+    .p11(Dad_08_p_c),
+    .p12(Dad0_10c),
+    .p13(Dad0_11c),
+    .p14(Dad0_12c),
+    .p15(WriteD0_p_f),
+    .p16(D0BCE_p_c),
+    .p17(D0in_11),
+    .p18(GND551)
   ); // F10470
   cell_F10470 u__h__m_1l13 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_06___h__m_1l13_1),
+    .p2(Dad_00f),
+    .p3(Dad_01f),
+    .p4(Dad_02_p_c),
+    .p5(Dad_03_p_c),
+    .p6(Dad_04_p_c),
+    .p7(Dad_05_p_c),
+    .p8(Dad_06_p_c),
+    .p10(Dad_07_p_c),
+    .p11(Dad_08_p_c),
+    .p12(Dad0_10c),
+    .p13(Dad0_11c),
+    .p14(Dad0_12c),
+    .p15(WriteD0_p_f),
+    .p16(D0BCE_p_c),
+    .p17(D0in_06),
+    .p18(GND552)
   ); // F10470
   cell_F10470 u__h__m_1l15 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_07___h__m_1l15_1),
+    .p2(Dad_00f),
+    .p3(Dad_01f),
+    .p4(Dad_02_p_c),
+    .p5(Dad_03_p_c),
+    .p6(Dad_04_p_c),
+    .p7(Dad_05_p_c),
+    .p8(Dad_06_p_c),
+    .p10(Dad_07_p_c),
+    .p11(Dad_08_p_c),
+    .p12(Dad0_10c),
+    .p13(Dad0_11c),
+    .p14(Dad0_12c),
+    .p15(WriteD0_p_f),
+    .p16(D0BCE_p_c),
+    .p17(D0in_07),
+    .p18(GND559)
   ); // F10470
   cell_F10470 u__h__m_1l17 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_14___h__m_1l17_1),
+    .p2(Dad_00f),
+    .p3(Dad_01f),
+    .p4(Dad_02_p_c),
+    .p5(Dad_03_p_c),
+    .p6(Dad_04_p_c),
+    .p7(Dad_05_p_c),
+    .p8(Dad_06_p_c),
+    .p10(Dad_07_p_c),
+    .p11(Dad_08_p_c),
+    .p12(Dad0_10c),
+    .p13(Dad0_11c),
+    .p14(Dad0_12c),
+    .p15(WriteD0_p_f),
+    .p16(D0BCE_p_c),
+    .p17(D0in_14),
+    .p18(GND563)
   ); // F10470
   cell_F10470 u__h__m_1l19 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_15___h__m_1l19_1),
+    .p2(Dad_00f),
+    .p3(Dad_01f),
+    .p4(Dad_02_p_c),
+    .p5(Dad_03_p_c),
+    .p6(Dad_04_p_c),
+    .p7(Dad_05_p_c),
+    .p8(Dad_06_p_c),
+    .p10(Dad_07_p_c),
+    .p11(Dad_08_p_c),
+    .p12(Dad0_10c),
+    .p13(Dad0_11c),
+    .p14(Dad0_12c),
+    .p15(WriteD0_p_f),
+    .p16(D0BCE_p_c),
+    .p17(D0in_15),
+    .p18(GND567)
   ); // F10470
   cell_F10470 u__h__m_1l3 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_02___h__m_1l3_1),
+    .p2(Dad_00f),
+    .p3(Dad_01f),
+    .p4(Dad_02_p_c),
+    .p5(Dad_03_p_c),
+    .p6(Dad_04_p_c),
+    .p7(Dad_05_p_c),
+    .p8(Dad_06_p_c),
+    .p10(Dad_07_p_c),
+    .p11(Dad_08_p_c),
+    .p12(Dad0_10c),
+    .p13(Dad0_11c),
+    .p14(Dad0_12c),
+    .p15(WriteD0_p_e),
+    .p16(D0BCE_p_c),
+    .p17(D0in_02),
+    .p18(GND633)
   ); // F10470
   cell_F10470 u__h__m_1l5 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_03___h__m_1l5_1),
+    .p2(Dad_00f),
+    .p3(Dad_01f),
+    .p4(Dad_02_p_c),
+    .p5(Dad_03_p_c),
+    .p6(Dad_04_p_c),
+    .p7(Dad_05_p_c),
+    .p8(Dad_06_p_c),
+    .p10(Dad_07_p_c),
+    .p11(Dad_08_p_c),
+    .p12(Dad0_10c),
+    .p13(Dad0_11c),
+    .p14(Dad0_12c),
+    .p15(WriteD0_p_e),
+    .p16(D0BCE_p_c),
+    .p17(D0in_03),
+    .p18(GND539)
   ); // F10470
   cell_F10470 u__h__m_1l7 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_17___h__m_1l7_1),
+    .p2(Dad_00f),
+    .p3(Dad_01f),
+    .p4(Dad_02_p_c),
+    .p5(Dad_03_p_c),
+    .p6(Dad_04_p_c),
+    .p7(Dad_05_p_c),
+    .p8(Dad_06_p_c),
+    .p10(Dad_07_p_c),
+    .p11(Dad_08_p_c),
+    .p12(Dad0_10c),
+    .p13(Dad0_11c),
+    .p14(Dad0_12c),
+    .p15(WriteD0_p_e),
+    .p16(D0BCE_p_c),
+    .p17(D0in_17),
+    .p18(GND543)
   ); // F10470
   cell_F10470 u__h__m_1l9 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(D_10___h__m_1l9_1),
+    .p2(Dad_00f),
+    .p3(Dad_01f),
+    .p4(Dad_02_p_c),
+    .p5(Dad_03_p_c),
+    .p6(Dad_04_p_c),
+    .p7(Dad_05_p_c),
+    .p8(Dad_06_p_c),
+    .p10(Dad_07_p_c),
+    .p11(Dad_08_p_c),
+    .p12(Dad0_10c),
+    .p13(Dad0_11c),
+    .p14(Dad0_12c),
+    .p15(WriteD0_p_f),
+    .p16(D0BCE_p_c),
+    .p17(D0in_10),
+    .p18(GND547)
   ); // F10470
   cell_MC10231 u_a01 (
     .sys_clk(sys_clk),
@@ -1601,7 +2278,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p16(D0ACE_p_a),
     .p17(D0in_08)
   ); // F10470
-  cell_MC10176 u_a10 (
+  cell_MC10176 #(.PRECAP(0)) u_a10 (
     .sys_clk(sys_clk),
     .p2(D0in_00),
     .p3(D0in_01),
@@ -1637,7 +2314,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p16(D0ACE_p_b),
     .p17(D0in_09)
   ); // F10470
-  cell_MC10176 u_a12 (
+  cell_MC10176 #(.PRECAP(0)) u_a12 (
     .sys_clk(sys_clk),
     .p2(MemD01_sil_pl_1),
     .p3(MemD07_sil_pl_1),
@@ -1928,8 +2605,8 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p7(preClk1_p_A),
     .p10(F_u_D_p_),
     .p11(preClk1_p_A),
-    .p12(Fclk_p_b),
-    .p13(Fclk_p_a),
+    .p12(Fclk_p_b__lead),
+    .p13(Fclk_p_a__lead),
     .p15(GND62)
   ); // SE10210
   cell_MC10101 u_b08 (
@@ -1946,7 +2623,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(Dad_04a),
     .p15(Dad_05a)
   ); // MC10101
-  cell_F10016 u_b09 (
+  cell_F10016 #(.PRECAP(1)) u_b09 (
     .sys_clk(sys_clk),
     .p2(Dad1_11a),
     .p3(Dad1_12a),
@@ -1958,7 +2635,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p13(clk1_p_Ab),
     .p15(Dad1_10a)
   ); // F10016
-  cell_MC10176 u_b10 (
+  cell_MC10176 #(.PRECAP(1)) u_b10 (
     .sys_clk(sys_clk),
     .p2(D1in_00),
     .p3(D1in_01),
@@ -1974,7 +2651,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(D1in_09),
     .p15(D1in_16)
   ); // MC10176
-  cell_MC10176 u_b12 (
+  cell_MC10176 #(.PRECAP(0)) u_b12 (
     .sys_clk(sys_clk),
     .p2(MemD09_sil_pl_8),
     .p3(MemD09_sil_pl_9),
@@ -2150,17 +2827,17 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(Dbuf_02),
     .p15(Dbuf_03)
   ); // MC10175
-  cell_MC10176 u_c02 (
+  cell_MC10176 #(.PRECAP(0)) u_c02 (
     .sys_clk(sys_clk),
     .p2(SinD_00),
     .p3(SinD_01),
     .p4(SinD_02),
-    .p5(Sin_00),
-    .p6(Sin_01),
-    .p7(Sin_02),
+    .p5(storage_rx_data[17]),
+    .p6(storage_rx_data[16]),
+    .p7(storage_rx_data[15]),
     .p9(clk2_p_Aa),
-    .p10(Sin_03),
-    .p11(EcIn_0),
+    .p10(storage_rx_data[14]),
+    .p11(storage_rx_data[1]),
     .p13(SinD_03),
     .p14(EcInD_0)
   ); // MC10176
@@ -2203,7 +2880,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(Dad_08_p_a),
     .p15(F_u_D_p_)
   ); // MC10101
-  cell_MC10176 u_c10 (
+  cell_MC10176 #(.PRECAP(1)) u_c10 (
     .sys_clk(sys_clk),
     .p2(D1in_02),
     .p3(D1in_03),
@@ -2219,7 +2896,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(D1in_11),
     .p15(D1in_17)
   ); // MC10176
-  cell_MC10176 u_c12 (
+  cell_MC10176 #(.PRECAP(0)) u_c12 (
     .sys_clk(sys_clk),
     .p2(MemD12_sil_pl_8),
     .p3(MemD12_sil_pl_9),
@@ -2235,7 +2912,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD14_sil_pl_8),
     .p15(MemD14_sil_pl_9)
   ); // MC10176
-  cell_MC10170 u_c14 (
+  cell_MC10170 #(.LEGACY_B_INVERT(0)) u_c14 (
     .p2(SinD_17_p_),
     .p4(SinD_15),
     .p5(SinD_13),
@@ -2321,23 +2998,23 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD06_sil_pl_8),
     .p15(MemD06_sil_pl_7)
   ); // F10016
-  cell_MC10176 u_c24 (
+  cell_MC10176 #(.PRECAP(0)) u_c24 (
     .sys_clk(sys_clk),
     .p2(SinD_04),
     .p3(SinD_05),
     .p4(SinD_06),
-    .p5(Sin_04),
-    .p6(Sin_05),
-    .p7(Sin_06),
+    .p5(storage_rx_data[13]),
+    .p6(storage_rx_data[12]),
+    .p7(storage_rx_data[11]),
     .p9(clk2_p_Cd),
-    .p10(Sin_07),
-    .p11(EcIn_1),
+    .p10(storage_rx_data[10]),
+    .p11(storage_rx_data[0]),
     .p12(ChkPh4_p_),
     .p13(SinD_07),
     .p14(EcInD_1),
     .p15(ChkErrEn_p___c24_15)
   ); // MC10176
-  cell_MC10176 u_d01 (
+  cell_MC10176 #(.PRECAP(0)) u_d01 (
     .sys_clk(sys_clk),
     .p2(EcOut_0__drv),
     .p3(EcOut_2__drv),
@@ -2481,7 +3158,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p16(D1BCE_p_b),
     .p17(D1in_08)
   ); // F10470
-  cell_MC10176 u_d10 (
+  cell_MC10176 #(.PRECAP(0)) u_d10 (
     .sys_clk(sys_clk),
     .p2(D0in_02),
     .p3(D0in_03),
@@ -2517,7 +3194,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p16(D1BCE_p_b),
     .p17(D1in_09)
   ); // F10470
-  cell_MC10176 u_d12 (
+  cell_MC10176 #(.PRECAP(1)) u_d12 (
     .sys_clk(sys_clk),
     .p2(D1in_05),
     .p3(D1in_07),
@@ -2793,7 +3470,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD01_sil_pl_7),
     .p15(MemD07_sil_pl_7)
   ); // MC10158
-  cell_MC10176 u_e06 (
+  cell_MC10176 #(.PRECAP(1)) u_e06 (
     .sys_clk(sys_clk),
     .p2(F_00),
     .p3(F_01),
@@ -2842,7 +3519,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p13(clk2_p_Ab),
     .p15(Dad0_10b)
   ); // F10016
-  cell_MC10176 u_e10 (
+  cell_MC10176 #(.PRECAP(1)) u_e10 (
     .sys_clk(sys_clk),
     .p2(F_08),
     .p3(F_09),
@@ -2863,7 +3540,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(preClk2_p_A),
     .p15(GND214)
   ); // SE10212
-  cell_MC10176 u_e12 (
+  cell_MC10176 #(.PRECAP(0)) u_e12 (
     .sys_clk(sys_clk),
     .p2(D0in_05),
     .p3(D0in_07),
@@ -2890,7 +3567,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD05_sil_pl_1),
     .p15(ChkPh3)
   ); // F10000
-  cell_F10016 u_e14 (
+  cell_F10016 #(.PRECAP(1)) u_e14 (
     .sys_clk(sys_clk),
     .p2(F_06),
     .p3(F_07),
@@ -2928,7 +3605,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD05_sil_pl_8),
     .p15(MemD05_sil_pl_9)
   ); // MC10158
-  cell_MC10176 u_e17 (
+  cell_MC10176 #(.PRECAP(0)) u_e17 (
     .sys_clk(sys_clk),
     .p2(ChkPh2_p_),
     .p3(ChkPh5_p_),
@@ -2944,7 +3621,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(ChkPh4_p___e17_14),
     .p15(MemD15_sil_pl_7)
   ); // MC10176
-  cell_F10016 u_e18 (
+  cell_F10016 #(.PRECAP(1)) u_e18 (
     .sys_clk(sys_clk),
     .p2(F_14),
     .p3(F_15),
@@ -2965,7 +3642,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p7(preClk1_p_C),
     .p15(GND230)
   ); // SE10210
-  cell_MC10176 u_e20 (
+  cell_MC10176 #(.PRECAP(0)) u_e20 (
     .sys_clk(sys_clk),
     .p2(CD_00),
     .p3(CD_01),
@@ -2981,7 +3658,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(CD_04),
     .p15(CD_05)
   ); // MC10176
-  cell_MC10176 u_e21 (
+  cell_MC10176 #(.PRECAP(0)) u_e21 (
     .sys_clk(sys_clk),
     .p2(CD_06),
     .p3(CD_07),
@@ -2997,7 +3674,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(CD_10),
     .p15(CD_11)
   ); // MC10176
-  cell_MC10176 u_e22 (
+  cell_MC10176 #(.PRECAP(0)) u_e22 (
     .sys_clk(sys_clk),
     .p2(CD_12),
     .p3(CD_13),
@@ -3080,7 +3757,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(preDin_13),
     .p15(preDin_14)
   ); // MC10158
-  cell_MC10176 u_f06 (
+  cell_MC10176 #(.PRECAP(1)) u_f06 (
     .sys_clk(sys_clk),
     .p2(MemD01_sil_pl_8),
     .p3(MemD07_sil_pl_8),
@@ -3110,7 +3787,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(Dad_04b),
     .p15(Dad_05b)
   ); // MC10101
-  cell_MC10176 u_f10 (
+  cell_MC10176 #(.PRECAP(1)) u_f10 (
     .sys_clk(sys_clk),
     .p2(MemD11_sil_pl_1),
     .p3(MemD11_sil_pl_16),
@@ -3134,7 +3811,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(preClk2_p_D),
     .p15(GND264)
   ); // SE10210
-  cell_MC10176 u_f14 (
+  cell_MC10176 #(.PRECAP(1)) u_f14 (
     .sys_clk(sys_clk),
     .p2(MemD09_sil_pl_1),
     .p3(MemD09_sil_pl_16),
@@ -3165,7 +3842,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(tSyn7x),
     .p15(MD0__f16_15)
   ); // MU10164
-  cell_MC10176 u_f18 (
+  cell_MC10176 #(.PRECAP(1)) u_f18 (
     .sys_clk(sys_clk),
     .p2(MemD13_sil_pl_1),
     .p3(MemD13_sil_pl_16),
@@ -3239,7 +3916,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(EnableFG_p_),
     .p15(FG_1__drv)
   ); // MC10174
-  cell_MC10176 u_f24 (
+  cell_MC10176 #(.PRECAP(0)) u_f24 (
     .sys_clk(sys_clk),
     .p2(EcOut_1__drv),
     .p3(EcOut_3__drv),
@@ -3493,7 +4170,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p16(D0ACE_p_c),
     .p17(D0in_07)
   ); // F10470
-  cell_MC10176 u_g16 (
+  cell_MC10176 #(.PRECAP(0)) u_g16 (
     .sys_clk(sys_clk),
     .p2(MemD01_sil_pl_2),
     .p3(MemD01_sil_pl_3),
@@ -3593,7 +4270,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(EnableFG_p_),
     .p15(FG_5__drv)
   ); // MC10174
-  cell_SE10231 u_g22 (
+  cell_SE10231 #(.PRECAP(0)) u_g22 (
     .sys_clk(sys_clk),
     .p2(MemD03_sil_pl_4),
     .p3(MemD03_sil_pl_9),
@@ -3616,7 +4293,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(Transport_p_),
     .p15(DontLoad1)
   ); // MC10106
-  cell_MC10176 u_g24 (
+  cell_MC10176 #(.PRECAP(0)) u_g24 (
     .sys_clk(sys_clk),
     .p2(F_u_D),
     .p3(D_u_Dbuf),
@@ -3652,7 +4329,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD02_sil_pl_8),
     .p15(MemD02_sil_pl_7)
   ); // MC10231
-  cell_MC10176 u_h03 (
+  cell_MC10176 #(.PRECAP(0)) u_h03 (
     .sys_clk(sys_clk),
     .p2(Pipe34Ad_0),
     .p3(Pipe34Ad_1),
@@ -3713,7 +4390,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p10(MDMad_0_p_),
     .p13(WriteMDM_p_a)
   ); // F10145A
-  cell_F10016 u_h07 (
+  cell_F10016 #(.PRECAP(1)) u_h07 (
     .sys_clk(sys_clk),
     .p2(Dad1_11b),
     .p3(Dad1_12b),
@@ -3958,23 +4635,23 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p11(MemD03_sil_pl_1),
     .p14(MemD03_sil_pl_10)
   ); // MC1664
-  cell_MC10176 u_i01 (
+  cell_MC10176 #(.PRECAP(0)) u_i01 (
     .sys_clk(sys_clk),
     .p2(SinD_08),
     .p3(SinD_09),
     .p4(SinD_10),
-    .p5(Sin_08),
-    .p6(Sin_09),
-    .p7(Sin_10),
+    .p5(storage_rx_data[9]),
+    .p6(storage_rx_data[8]),
+    .p7(storage_rx_data[7]),
     .p9(clk2_p_Ba),
-    .p10(Sin_11),
+    .p10(storage_rx_data[6]),
     .p11(MemD15_sil_pl_15),
     .p12(MemD15_sil_pl_16),
     .p13(SinD_11),
     .p14(EcSout_16),
     .p15(EcSout_17)
   ); // MC10176
-  cell_MC10176 u_i02 (
+  cell_MC10176 #(.PRECAP(0)) u_i02 (
     .sys_clk(sys_clk),
     .p2(MemD04_sil_pl_28),
     .p3(MemD04_sil_pl_29),
@@ -4051,7 +4728,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p13(clk0_p_B),
     .p15(GND408)
   ); // SE10210
-  cell_MC10176 u_i16 (
+  cell_MC10176 #(.PRECAP(0)) u_i16 (
     .sys_clk(sys_clk),
     .p2(MemD08_sil_pl_7),
     .p3(MemD08_sil_pl_6),
@@ -4078,7 +4755,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(clk2_p_Df),
     .p15(GND420)
   ); // SE10210
-  cell_MC10176 u_i20 (
+  cell_MC10176 #(.PRECAP(0)) u_i20 (
     .sys_clk(sys_clk),
     .p2(MemD09_sil_pl_7),
     .p3(MemD09_sil_pl_6),
@@ -4121,7 +4798,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p6(clk0_p_D),
     .p7(bTransport)
   ); // MC10231
-  cell_MC10176 u_i24 (
+  cell_MC10176 #(.PRECAP(0)) u_i24 (
     .sys_clk(sys_clk),
     .p2(Fout_11__drv),
     .p3(Fout_12__drv),
@@ -4147,7 +4824,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(EcSout_10_p_),
     .p15(Sout_10__drv)
   ); // MC10231
-  cell_MC10176 u_j02 (
+  cell_MC10176 #(.PRECAP(0)) u_j02 (
     .sys_clk(sys_clk),
     .p2(MemD04_sil_pl_33),
     .p3(MemD04_sil_pl_34),
@@ -4431,7 +5108,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p16(D1BCE_p_c),
     .p17(D1in_15)
   ); // F10470
-  cell_MC10176 u_j20 (
+  cell_MC10176 #(.PRECAP(0)) u_j20 (
     .sys_clk(sys_clk),
     .p2(MemD10_sil_pl_7),
     .p3(MemD10_sil_pl_6),
@@ -4447,7 +5124,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD10_sil_pl_11),
     .p15(MemD10_sil_pl_13)
   ); // MC10176
-  cell_MC10176 u_j21 (
+  cell_MC10176 #(.PRECAP(0)) u_j21 (
     .sys_clk(sys_clk),
     .p2(MemD14_sil_pl_7),
     .p3(MemD14_sil_pl_6),
@@ -4463,7 +5140,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD14_sil_pl_11),
     .p15(MemD14_sil_pl_13)
   ); // MC10176
-  cell_MC10176 u_j22 (
+  cell_MC10176 #(.PRECAP(0)) u_j22 (
     .sys_clk(sys_clk),
     .p2(MemD15_sil_pl_6),
     .p3(MemD15_sil_pl_5),
@@ -4490,7 +5167,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p10(DMadr_09),
     .p15(MD5)
   ); // MU10164
-  cell_MC10176 u_j24 (
+  cell_MC10176 #(.PRECAP(0)) u_j24 (
     .sys_clk(sys_clk),
     .p2(Fout_05__drv),
     .p3(Fout_06__drv),
@@ -4529,7 +5206,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(Dad_08c),
     .p15(Dad_13_p_)
   ); // MC10101
-  cell_F10016 u_k09 (
+  cell_F10016 #(.PRECAP(1)) u_k09 (
     .sys_clk(sys_clk),
     .p2(Dad1_11c),
     .p3(Dad1_12c),
@@ -4567,7 +5244,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD04_sil_pl_12),
     .p15(MemD04_sil_pl_15)
   ); // MC10180
-  cell_MC10176 u_k13 (
+  cell_MC10176 #(.PRECAP(0)) u_k13 (
     .sys_clk(sys_clk),
     .p2(MemD04_sil_pl_2),
     .p3(MemD04_sil_pl_3),
@@ -4644,7 +5321,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD04_sil_pl_1),
     .p15(GenPh3)
   ); // F10000
-  cell_MC10176 u_k19 (
+  cell_MC10176 #(.PRECAP(0)) u_k19 (
     .sys_clk(sys_clk),
     .p2(MemD11_sil_pl_7),
     .p3(MemD11_sil_pl_6),
@@ -4660,7 +5337,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD11_sil_pl_11),
     .p15(MemD11_sil_pl_13)
   ); // MC10176
-  cell_MC10176 u_k20 (
+  cell_MC10176 #(.PRECAP(0)) u_k20 (
     .sys_clk(sys_clk),
     .p2(MemD12_sil_pl_7),
     .p3(MemD12_sil_pl_6),
@@ -4676,7 +5353,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD12_sil_pl_11),
     .p15(MemD12_sil_pl_13)
   ); // MC10176
-  cell_MC10176 u_k21 (
+  cell_MC10176 #(.PRECAP(0)) u_k21 (
     .sys_clk(sys_clk),
     .p3(DMadr_01),
     .p4(DMadr_02),
@@ -4705,21 +5382,21 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MD7),
     .p15(DMuxData__drv)
   ); // MU10164
-  cell_MC10176 u_k23 (
+  cell_MC10176 #(.PRECAP(0)) u_k23 (
     .sys_clk(sys_clk),
     .p2(SinD_12),
     .p3(SinD_13),
     .p4(SinD_14),
-    .p5(Sin_12),
-    .p6(Sin_13),
-    .p7(Sin_14),
+    .p5(storage_rx_data[5]),
+    .p6(storage_rx_data[4]),
+    .p7(storage_rx_data[3]),
     .p9(clk2_p_Df),
-    .p10(Sin_15),
+    .p10(storage_rx_data[2]),
     .p11(D_u_CDdly),
     .p13(SinD_15),
     .p14(D_u_CDdlydly)
   ); // MC10176
-  cell_MC10176 u_k24 (
+  cell_MC10176 #(.PRECAP(0)) u_k24 (
     .sys_clk(sys_clk),
     .p2(Fout_00__drv),
     .p3(Fout_01__drv),
@@ -4838,7 +5515,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(FHD),
     .p15(GND564)
   ); // MC10212
-  cell_MC10176 u_l20 (
+  cell_MC10176 #(.PRECAP(0)) u_l20 (
     .sys_clk(sys_clk),
     .p2(MemD13_sil_pl_7),
     .p3(MemD13_sil_pl_6),
@@ -4854,7 +5531,7 @@ module MemD_m_Rev_m_Ca #(parameter integer SYSPER = 16) (
     .p14(MemD13_sil_pl_11),
     .p15(MemD13_sil_pl_13)
   ); // MC10176
-  cell_MC10176 u_l21 (
+  cell_MC10176 #(.PRECAP(0)) u_l21 (
     .sys_clk(sys_clk),
     .p2(DMadr_06),
     .p3(DMadr_07),

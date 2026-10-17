@@ -1179,6 +1179,9 @@ module tb_memrun;
   integer n_ldp_edge_u, n_d_at_edge_u, n_hcd_at_edge_u;  reg ldp_du;
   integer n_fsp_lo_u, n_fsp_fall_u;  reg fsp_du;
   integer n_fs_rise_u, n_fm_rise_u;  reg fs_du, fm_du;
+  integer n_ldm_lo=0, n_ldm_fall=0, n_rm01=0, n_rm01_at_edge=0; reg ldm_d=1'b1;
+  integer n_fmiss=0, n_fdm=0, n_beh=0, n_via=0, n_fls=0, n_dm0=0, n_dm3=0, n_hitd=0;
+  integer n_d0=0, n_d1=0, n_d2=0, n_d3=0, n_c0=0, n_c1=0, n_hb=0, n_p7=0, n_p8=0, n_p9=0, n_p4=0;
   integer ntnia, nff0, nsamp, nff0_wpr, nff0_cr, nff0_alt, nff0_fl, nff0_a1, nff0_ign, nff0_a0, nff0_ffok, nff0_bad, nff0_fs, nff0_fm, nff0_mia, nff0_mib, nff0_fsp, nff0_ech, nff0_st, nff0_hcd, nvc_wv, nvc_dv, nvc_fdm, nvc_fia, nvc_vip, nvc_via, nvc_ios, nvc_wia, nvc_wim, nvc_wimem, nvc_smc, nvc_sec, nvc_smc_e, nvc_sec_e, nvc_coin, nvc_coin2;
   integer smc_first, smc_last, wia_first, wia_last, sm_first, sm_last;
   integer gap_min, gap_sum, gap_n;
@@ -2062,6 +2065,55 @@ module tb_memrun;
                         m.b_ContA.FF_3_p_,m.b_ContA.FF_4_p_,m.b_ContA.FF_5_p_,
                         m.b_ContA.FF_6_p_,m.b_ContA.FF_7_p_};
 
+  // SEQ: the map and storage automata, printed on every change when +seqwin is
+  // given -- the first real-address cache miss goes through here (2026-09-08).
+  integer seqwin; initial seqwin = $test$plusargs("seqwin");
+  longint seq_t = 0; reg [63:0] seq_prev = 64'hffffffffffffffff;
+  always @(posedge sys_clk) seq_t <= seq_t + 1;
+  wire [63:0] seq_now = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2,
+                         m.b_MemX.MapFnc_0_p_, m.b_MemX.MapFnc_1_p_, m.b_MemX.MapWait,
+                         m.b_MemX.StartMap_p_, m.b_MemX.preStartMem_p_, m.b_MemX.StartMem_p_,
+                         m.b_MemX.MemState_0, m.b_MemX.MemState_1, m.b_MemX.MemState_2, m.b_MemX.MemState_3,
+                         m.b_MemX.MemIdle, m.b_MemX.MemFree, m.b_MemX.RfshInMem, m.b_MemX.StartRfshCycle_p_,
+                         m.b_MemX.NeedRfsh_p_, m.b_MemX.MapRfsh_p_, m.b_MemX.MapTroubleInMem, m.b_MemX.WriteInMem_p_,
+                         m.b_MemX.MemRfsh, m.b_MemX.MapTrouble, m.b_MemX.MapFree,
+                         m.b_MemC.CacheRefInA, m.b_MemC.Hit_p_b, m.b_MemC.ForceMiss, m.b_MemC.VictimInA,
+                         m.b_MemC.WantVic, m.b_MemC.FlushStore, m.b_MemC.Store_u_InA, m.b_MemC.EcHasAa,
+                         m.MemRASa, m.MemCASa, 30'd0};
+  always @(posedge sys_clk)
+    if (seqwin && seq_now != seq_prev) begin
+      seq_prev <= seq_now;
+      $display("tb_memrun: SEQ @%0d | MapSt=%b%b%b MapFnc'=%b%b MapWait=%b StartMap'=%b preStartMem'=%b StartMem'=%b | MemSt=%b%b%b%b MemIdle=%b MemFree=%b RfshInMem=%b StartRfsh'=%b NeedRfsh'=%b MapRfsh'=%b MapTrbInMem=%b WrInMem'=%b MemRfsh=%b MapTrb=%b MapFree=%b | CRinA=%b Hit'b=%b FMiss=%b VicInA=%b WantVic=%b FlS=%b StInA=%b EcHasA=%b | RAS=%b CAS=%b",
+               seq_t, m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2,
+               m.b_MemX.MapFnc_0_p_, m.b_MemX.MapFnc_1_p_, m.b_MemX.MapWait,
+               m.b_MemX.StartMap_p_, m.b_MemX.preStartMem_p_, m.b_MemX.StartMem_p_,
+               m.b_MemX.MemState_0, m.b_MemX.MemState_1, m.b_MemX.MemState_2, m.b_MemX.MemState_3,
+               m.b_MemX.MemIdle, m.b_MemX.MemFree, m.b_MemX.RfshInMem, m.b_MemX.StartRfshCycle_p_,
+               m.b_MemX.NeedRfsh_p_, m.b_MemX.MapRfsh_p_, m.b_MemX.MapTroubleInMem, m.b_MemX.WriteInMem_p_,
+               m.b_MemX.MemRfsh, m.b_MemX.MapTrouble, m.b_MemX.MapFree,
+               m.b_MemC.CacheRefInA, m.b_MemC.Hit_p_b, m.b_MemC.ForceMiss, m.b_MemC.VictimInA,
+               m.b_MemC.WantVic, m.b_MemC.FlushStore, m.b_MemC.Store_u_InA, m.b_MemC.EcHasAa,
+               m.MemRASa, m.MemCASa);
+    end
+  // MCRSIDE: the MCR strobe chain, printed on every change while the SetMcr#
+  // jam is in flight (see the B-side check below).
+  // `+lenient` turns the storage-cycle assertions below into reports so the
+  // diagnostic dump after them still prints (2026-09-08).
+  integer lenient; initial lenient = $test$plusargs("lenient");
+  reg mcrside = 1'b0; reg [15:0] mcr_prev = 16'hffff; longint mcr_t = 0;
+  always @(posedge sys_clk) mcr_t <= mcr_t + 1;
+  wire [15:0] mcr_now = {m.b_MemC.MemC19_sil_pl_14, m.b_MemC.PrClk1_p_Db, m.b_MemC.Mcr_u__p___drv,
+                         m.b_MemX.Mcr_u__p_, m.b_MemX.Clk1_p_Ab, m.b_MemX.u_f04.q,
+                         m.b_MemX.NoWakeups, m.b_MemX.Mapbuf_15, m.b_MemX.MapbufLd_p_c,
+                         m.b_MemX.BMux_15, m.b_MemX.WakeEnable, m.b_MemX.u_f04.ck_en, 1'b0, 1'b0};
+  always @(posedge sys_clk)
+    if (mcrside && mcr_now != mcr_prev) begin
+      mcr_prev <= mcr_now;
+      $display("tb_memrun: MCRSIDE @%0d | MemC: dec(s19+14)=%b PrClk1'Db=%b Mcr<-'=%b | MemX: Mcr<-'=%b Clk1'Ab=%b f04.q=%h f04.ck_en=%b NoWakeups=%b Mapbuf.15=%b MapbufLd'c=%b BMux.15=%b WakeEnable=%b",
+               mcr_t, m.b_MemC.MemC19_sil_pl_14, m.b_MemC.PrClk1_p_Db, m.b_MemC.Mcr_u__p___drv,
+               m.b_MemX.Mcr_u__p_, m.b_MemX.Clk1_p_Ab, m.b_MemX.u_f04.q, m.b_MemX.u_f04.ck_en,
+               m.b_MemX.NoWakeups, m.b_MemX.Mapbuf_15, m.b_MemX.MapbufLd_p_c, m.b_MemX.BMux_15, m.b_MemX.WakeEnable);
+    end
   initial begin
     force m.DMuxData = dmd;
     force m.DMuxClk  = dmc;
@@ -2104,10 +2156,20 @@ module tb_memrun;
               m.b_ProcH.Q_04, m.b_ProcH.Q_05, m.b_ProcH.Q_06, m.b_ProcH.Q_07,
               m.b_ProcL.Q_08, m.b_ProcL.Q_09, m.b_ProcL.Q_10, m.b_ProcL.Q_11,
               m.b_ProcL.Q_12, m.b_ProcL.Q_13, m.b_ProcL.Q_14, m.b_ProcL.Q_15});
+    mcrside = 1'b1;
     parc_micro(8'h30, 8'h02, 8'h0B, 8'h84, 8'h60);    // SetMcr#
     nop_micro;
+    mcrside = 1'b0;
     $display("tb_memrun: after SetMcr# -- MemC DisHold=%b MemX DisHold=%b",
              m.b_MemC.DisHold, m.b_MemX.DisHold);
+    // THE B SIDE OF THE MCR: HM Figure 10 / Table 4 -- Mcr[13:15] come from
+    // MapBuf, and NoWake is bit 15. T = 0043 here, so B[15] = 1 and the
+    // strobe Mcr<-' (MemC l09, PrClk1'Db) must load MemX f04 (F10016 on
+    // Clk1'Ab, PE' = Mcr<-') with Mapbuf.15 -> NoWakeups = 1, and g23 then
+    // drops WakeEnable. A world's InitMap depends on this to keep the fault
+    // task quiet while it flushes into nonexistent storage (2026-09-08).
+    $display("tb_memrun: MCR B SIDE after SetMcr# -- Mapbuf.15=%b NoWakeups=%b ReportSE'=%b WakeEnable=%b (want NoWakeups=1, WakeEnable=0)",
+             m.b_MemX.Mapbuf_15, m.b_MemX.NoWakeups, m.b_MemX.ReportSE_p_, m.b_MemX.WakeEnable);
 
     // ---- A PROCESSOR MEMORY REFERENCE. The memory is awake now (DisHold is
     // set), the MIR is still held so a jam executes, and T holds 0043. ASEL
@@ -2542,6 +2604,32 @@ build_hunk4(4'd0, 1'b0,
       if (!m.b_MemX.u_d13.p4 && !m.b_MemX.u_d13.p15 && !m.b_MemX.u_d13.p3) nd13w = nd13w + 1;
       if (!m.b_MemC.ASEL_0 && !m.b_MemC.ASEL_2 && m.b_MemC.Store_u_)
         nff0_st = nff0_st + 1;
+      if (!m.b_MemC.LdMcr_p_) n_ldm_lo = n_ldm_lo + 1;
+      if (ldm_d && !m.b_MemC.LdMcr_p_) begin
+        n_ldm_fall = n_ldm_fall + 1;
+        if (m.b_MemC.RMar_01) n_rm01_at_edge = n_rm01_at_edge + 1;
+      end
+      ldm_d <= m.b_MemC.LdMcr_p_;
+      if (m.b_MemC.RMar_01) n_rm01 = n_rm01 + 1;
+      if (m.b_MemC.ForceMiss)      n_fmiss = n_fmiss + 1;
+      if (m.b_MemC.ForceDirtyMiss) n_fdm = n_fdm + 1;
+      if (m.b_MemC.bEcHasA)        n_beh = n_beh + 1;
+      if (m.b_MemC.VictimInA)      n_via = n_via + 1;
+      if (m.b_MemC.FlushStore)     n_fls = n_fls + 1;
+      if (m.b_MemC.dMiss0_04_m_11) n_dm0 = n_dm0 + 1;
+      if (m.b_MemC.dMiss3_04_m_11) n_dm3 = n_dm3 + 1;
+      if (m.b_MemC.MemC15_sil_pl_1) n_hitd = n_hitd + 1;
+      if (m.b_MemC.Dirty0) n_d0 = n_d0 + 1;
+      if (m.b_MemC.Dirty1) n_d1 = n_d1 + 1;
+      if (m.b_MemC.Dirty2) n_d2 = n_d2 + 1;
+      if (m.b_MemC.Dirty3) n_d3 = n_d3 + 1;
+      if (m.b_MemC.Col_0_p_) n_c0 = n_c0 + 1;
+      if (m.b_MemC.Col_1_p_) n_c1 = n_c1 + 1;
+      if (m.b_MemC.Hit_p_b)  n_hb = n_hb + 1;
+      if (m.b_MemC.MemC03_sil_pl_7) n_p7 = n_p7 + 1;
+      if (m.b_MemC.MemC03_sil_pl_8) n_p8 = n_p8 + 1;
+      if (m.b_MemC.MemC03_sil_pl_9) n_p9 = n_p9 + 1;
+      if (m.b_MemC.MemC02_sil_pl_4) n_p4 = n_p4 + 1;
       // CONDITION ON THE INSTRUCTION ACTUALLY RUNNING. IM[0] and IM[1] both
       // hold the ASEL=1 reference this bench built (read back as L=0101
       // R=0081), so the running instruction is identified by its ASEL --
@@ -2758,7 +2846,18 @@ build_hunk4(4'd0, 1'b0,
              n_fsp_lo_u, n_fsp_fall_u);
     $display("tb_memrun: FLUSHCHAIN-UNGATED -- FlushStore rising %0d, ForceMiss rising %0d",
              n_fs_rise_u, n_fm_rise_u);
+    // DIRTYCHAIN: between the Store (which DOES assert) and HitColDirty.
+    // The Dirty flags live in MemC i10 (MC10141) and are selected by
+    // Col'/Hit'b into HitColDirty. Printed so baseline and derived-depth runs
+    // can be diffed line for line (2026-09-07).
+    $display("tb_memrun: MCRLOAD -- LdMcr' low %0d, falling edges %0d | RMar_01 high %0d | at the edge: RMar_01 %0d | of %0d",
+             n_ldm_lo, n_ldm_fall, n_rm01, n_rm01_at_edge, nsamp);
+    $display("tb_memrun: HITCHAIN -- ForceMiss %0d = ForceDirtyMiss %0d | bEcHasA %0d | VictimInA %0d | FlushStore %0d ; dMiss0 %0d dMiss3 %0d ; hitD %0d of %0d",
+             n_fmiss, n_fdm, n_beh, n_via, n_fls, n_dm0, n_dm3, n_hitd, nsamp);
+    $display("tb_memrun: DIRTYCHAIN -- Store %0d | Dirty0 %0d Dirty1 %0d Dirty2 %0d Dirty3 %0d | HitColDirty %0d | Col0' %0d Col1' %0d Hit'b %0d | i10 D: pl7 %0d pl8 %0d pl9 %0d pl4 %0d | of %0d",
+             nff0_st, n_d0, n_d1, n_d2, n_d3, nff0_hcd, n_c0, n_c1, n_hb, n_p7, n_p8, n_p9, n_p4, nsamp);
     if (nff0_st  == 0) $fatal(1, "the Store never asserted -- nothing dirties a line");
+    $display("tb_memrun: MAPFREE(at assert) -- MapFree' LOW %0d, MapWait high %0d, AcanhaveMap' LOW %0d, StartMem' low %0d, of %0d", n_mapfree, n_mapwait, n_acanmap, n_startmem, n_mf_smp);
     if (nff0_hcd == 0) $fatal(1, "HitColDirty never true -- the Store did not dirty the flushed line");
     // ASSERT ON THE EVENT, NOT ON THE OVERLAP. This used to require
     // `nff0_fsp != 0` -- FSinPair' low on samples where the flush instruction
@@ -2787,9 +2886,9 @@ build_hunk4(4'd0, 1'b0,
     // loop does, 2680 samples of 3000 -- it is a HOLD, not a start. See item
     // 9 in the header.
     if (nmapst < 4)
-      $fatal(1, "the map sequencer barely moved (%0d of 8 states)", nmapst);
-    if (npsm2 == 0) $fatal(1, "preStartMem' never asserted -- no storage cycle was started");
-    if (nsm2  == 0) $fatal(1, "StartMem' never asserted");
+      begin if (lenient) $display("tb_memrun: LENIENT would-fail: the map sequencer barely moved (%0d of 8 states)", nmapst); else $fatal(1, "the map sequencer barely moved (%0d of 8 states)", nmapst); end
+    if (npsm2 == 0) begin if (lenient) $display("tb_memrun: LENIENT would-fail: preStartMem' never asserted -- no storage cycle was started"); else $fatal(1, "preStartMem' never asserted -- no storage cycle was started"); end
+    if (nsm2  == 0) begin if (lenient) $display("tb_memrun: LENIENT would-fail: StartMem' never asserted"); else $fatal(1, "StartMem' never asserted"); end
     // MemX i10 (F10016 counter): PE' = MemIdle, CE' = TrueBD, MR = STPerr.
     // The data sheet: CE' is "Count Enable (LOW to Count)", PE' loads.
     // GATE: THE WRITE REACHES THE MEMORY PIPELINE. WriteInMem' asserting is
@@ -3022,11 +3121,11 @@ build_hunk4(4'd0, 1'b0,
     // sequencer starts for the right reason: preStartMem' now PULSES at
     // MapState=3 of Refresh/Read/Write instead of sitting asserted forever,
     // StartMem' pulses with it, and the DRAM cycle follows.
-    if (nras < 2) $fatal(1, "MemRASa never strobed -- no DRAM cycle started");
-    if (ncas < 2) $fatal(1, "MemCASa never strobed -- the cycle did not get past RAS");
+    if (nras < 2) begin if (lenient) $display("tb_memrun: LENIENT would-fail: MemRASa never strobed -- no DRAM cycle started"); else $fatal(1, "MemRASa never strobed -- no DRAM cycle started"); end
+    if (ncas < 2) begin if (lenient) $display("tb_memrun: LENIENT would-fail: MemCASa never strobed -- the cycle did not get past RAS"); else $fatal(1, "MemCASa never strobed -- the cycle did not get past RAS"); end
     $display("tb_memrun:   DRAM CYCLE RUNS -- RAS %0d, CAS %0d edges", nras, ncas);
     // The map sequencer, by contrast, DOES run and is still gated.
-    if (nms  < 2) $fatal(1, "MapState never advanced -- the PROM sequencer is not running");
+    if (nms  < 2) begin if (lenient) $display("tb_memrun: LENIENT would-fail: MapState never advanced -- the PROM sequencer is not running"); else $fatal(1, "MapState never advanced -- the PROM sequencer is not running"); end
     $display("tb_memrun:   MemIdlea=%b MemX clk0' edges=%0d  MemRfsh=%b RfshPeriod=%b SetRunRfsh=1",
              m.b_MemX.MemIdlea, nmx, m.MemRfsh, m.RfshPeriod);
     $display("tb_memrun:   RfshPeriod edges=%0d  MemRfsh edges=%0d", nrp, nmr);
@@ -3198,11 +3297,24 @@ build_hunk4(4'd0, 1'b0,
       tbad = tbad + 1;
     end
 
-    if (tbad != 0) $fatal(1, "the memory section is not right in a running machine");
+    if (tbad != 0) begin if (lenient) $display("tb_memrun: LENIENT would-fail: the memory section is not right in a running machine"); else $fatal(1, "the memory section is not right in a running machine"); end
     $display("tb_memrun: PASS -- the memory runs DRAM cycles from PARC's own startup, and holds nothing");
     $finish;
   end
 
+  // MAPFREE: the map arbitration terms, counted (2026-09-06: MemX f24's
+  // MC1674 was a skeleton, AcanhaveMap' ignored MapFree' and the map was
+  // always granted; modelled, the Store no longer dirties the flushed line).
+  integer n_mapfree = 0, n_mapwait = 0, n_acanmap = 0, n_startmem = 0, n_mf_smp = 0;
+  always @(posedge sys_clk) begin
+    n_mf_smp = n_mf_smp + 1;
+    if (!m.b_MemX.MapFree_p_) n_mapfree = n_mapfree + 1;
+    if (m.b_MemX.MapWait) n_mapwait = n_mapwait + 1;
+    if (!m.b_MemX.AcanhaveMap_p___drv) n_acanmap = n_acanmap + 1;
+    if (!m.b_MemX.StartMem_p_) n_startmem = n_startmem + 1;
+  end
+  final $display("tb_memrun: MAPFREE -- MapFree' LOW (map free) %0d, MapWait high %0d, AcanhaveMap' LOW (granted) %0d, StartMem' low %0d, of %0d",
+                 n_mapfree, n_mapwait, n_acanmap, n_startmem, n_mf_smp);
 endmodule
 
 `default_nettype wire

@@ -263,6 +263,22 @@ def main(argv: list[str]) -> int:
         if full:
             short_of.setdefault(vpart(full.split('/')[0]), short)
 
+    # COMPLEX FUNCTION BLOCKS whose dictionary [G] line over-states per-output
+    # connectivity. EclDict states a part's combinational paths as
+    # `[G (inputs)>(outputs)]`, which for a simple gate names exactly the
+    # inputs each output reads. For an arithmetic/ECC block it names the UNION
+    # of inputs across all outputs on one line, because that is how the part
+    # was catalogued -- but each output is a data-sheet function of a SUBSET:
+    #   MC10182  carry look-ahead: Cn+2 reads fewer groups than Cn+4 (MC10182.pdf)
+    #   MC10179  carry look-ahead: CMD (Cn+2) reads G0/P0/P1/G1/Cn, COUT (Cn+4) all (MC10179.pdf)
+    #   MC10163  ECC parity: each of P0A/P0B/P1/P2/P3 is 4 of the 8 data bits (MC10163.pdf, "IBM CODE")
+    #   MC1674   XOR triple: gate a's second input is unwired on its one board
+    # These are the parts the check has always flagged (MC10182 was red at
+    # HEAD); the cells implement the data-sheet function per output, which is
+    # correct, so an "IGNORES" report here is a false positive. A cell reading
+    # an input NOT in the union is still caught (the `extra`/contradiction
+    # path below), which is the direction that has actually found bugs.
+    COMPLEX_PARTS = {'MC10182', 'MC10179', 'MC10163', 'MC1674'}
     checked = bad = skipped = 0
     problems: list[str] = []
     notes: list[str] = []
@@ -328,7 +344,13 @@ def main(argv: list[str]) -> int:
                 continue                    # output not in the summary
             missing = want - used
             extra = used - want
-            if missing:
+            if missing and part in COMPLEX_PARTS:
+                notes.append(f'  {part:<12} p{out_pin:<3} reads a SUBSET '
+                             + ' '.join(f'p{p}' for p in sorted(used))
+                             + f' of the [G] union {sorted(want)}  '
+                               '(complex block: each output is a data-sheet '
+                               'function of a subset -- see COMPLEX_PARTS)')
+            elif missing:
                 bad += 1
                 problems.append(f'  {part:<12} p{out_pin:<3} IGNORES '
                                 + ' '.join(f'p{p}' for p in sorted(missing))

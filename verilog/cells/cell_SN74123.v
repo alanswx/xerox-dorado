@@ -10,10 +10,11 @@
 // (a01/a02), whose LD' is this Q, and whose terminal count RC' -- the divided
 // "sector" pulse the controller wakes on -- is this CLR'. So at terminal
 // count the clear drops Q, the next pulse LOADS the subsector count, the
-// clear is released, and the following pulses count. The width only has to
-// outlast the sector pulse itself (each pulse re-triggers before its own
-// clocking edge); the real R and C are not on the sheets we have, so it is a
-// parameter, 50 us, scaled by SYSPER like cell_K1115A.
+// clear is released, and the following pulses count. TriconD06.sil explicitly
+// draws a 3.0 us one-shot against a 1.2 us sector pulse and a 4.5 us index
+// pulse: a sector COUNTS, while index lasts past the one-shot and LOADS.
+// The old invented 50 us duration treated index as an ordinary sector and
+// prevented the divider from realigning at each revolution.
 //
 // This was a SKELETON until 2026-09-04: Q undriven read 0, LD' was held
 // asserted, and the controller raised ONE sector wakeup in seven revolutions
@@ -24,7 +25,7 @@
 // (re)starts the timing; CLR' low forces Q low and blocks triggering.
 `default_nettype none
 module cell_SN74123 #(
-    parameter integer TW_NS  = 50000,
+    parameter integer TW_NS  = 3000,
     parameter integer SYSPER = 16
 ) (
     input  wire sys_clk,

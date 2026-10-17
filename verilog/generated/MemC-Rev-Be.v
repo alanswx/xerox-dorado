@@ -48,9 +48,9 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     input  wire CacheRef_p_,
     input  wire DMuxClk,
     input  wire DMuxData,
-    input  wire DcomingForCt_p_,
     input  wire DdataGood_p_,
     input  wire DisHold,
+    input  wire EcDcomingForCt_p_,
     input  wire EcKeepsAbusy,
     input  wire EcWantsA,
     input  wire EmuOrFT_p_,
@@ -1045,6 +1045,18 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
   wire dAad_3_p___c07_14;
   wire dAad_3_p___c07_15;
   assign dAad_3_p_ = dAad_3_p___c07_14 | dAad_3_p___c07_15;
+  wire dAad_4___h_5b42_5;
+  wire dAad_4__a05_15;
+  assign dAad_4 = dAad_4___h_5b42_5 | dAad_4__a05_15;
+  wire dAad_5___h_5b42_4;
+  wire dAad_5__a05_2;
+  assign dAad_5 = dAad_5___h_5b42_4 | dAad_5__a05_2;
+  wire dAad_6__b02_3;
+  wire dAad_6___h_5b42_3;
+  assign dAad_6 = dAad_6__b02_3 | dAad_6___h_5b42_3;
+  wire dAad_7__b02_4;
+  wire dAad_7___h_5b42_2;
+  assign dAad_7 = dAad_7__b02_4 | dAad_7___h_5b42_2;
   wire DirtyVicOrAB__i12_2;
   wire DirtyVicOrAB__j13_4;
   wire DirtyVicOrAB__j13_14;
@@ -1142,48 +1154,68 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
   wire dMiss3_16_m_19__f11_15;
   wire dMiss3_16_m_19__f11_14;
   assign dMiss3_16_m_19 = dMiss3_16_m_19__f09_14 | dMiss3_16_m_19__f09_15 | dMiss3_16_m_19__f11_3 | dMiss3_16_m_19__f11_2 | dMiss3_16_m_19__f11_15 | dMiss3_16_m_19__f11_14;
+  wire dVA_04___h_5e42_5;
   wire dVA_04__d03_3;
   wire dVA_04__g20_2;
-  assign dVA_04 = dVA_04__d03_3 | dVA_04__g20_2;
+  assign dVA_04 = dVA_04___h_5e42_5 | dVA_04__d03_3 | dVA_04__g20_2;
+  wire dVA_05___h_5e42_4;
+  wire dVA_05__d03_4;
+  assign dVA_05 = dVA_05___h_5e42_4 | dVA_05__d03_4;
+  wire dVA_06__d03_13;
+  wire dVA_06___h_5e42_3;
+  assign dVA_06 = dVA_06__d03_13 | dVA_06___h_5e42_3;
   wire dVA_07__g21_15;
+  wire dVA_07___h_5e42_2;
   wire dVA_07__d03_14;
-  assign dVA_07 = dVA_07__g21_15 | dVA_07__d03_14;
+  assign dVA_07 = dVA_07__g21_15 | dVA_07___h_5e42_2 | dVA_07__d03_14;
+  wire dVA_08___h_5h42_5;
   wire dVA_08__f03_3;
   wire dVA_08__g18_2;
-  assign dVA_08 = dVA_08__f03_3 | dVA_08__g18_2;
+  assign dVA_08 = dVA_08___h_5h42_5 | dVA_08__f03_3 | dVA_08__g18_2;
+  wire dVA_09___h_5h42_4;
   wire dVA_09__f03_4;
   wire dVA_09__g18_15;
-  assign dVA_09 = dVA_09__f03_4 | dVA_09__g18_15;
+  assign dVA_09 = dVA_09___h_5h42_4 | dVA_09__f03_4 | dVA_09__g18_15;
   wire dVA_10__g19_2;
+  wire dVA_10___h_5h42_3;
   wire dVA_10__f03_13;
-  assign dVA_10 = dVA_10__g19_2 | dVA_10__f03_13;
+  assign dVA_10 = dVA_10__g19_2 | dVA_10___h_5h42_3 | dVA_10__f03_13;
   wire dVA_11__g19_15;
   wire dVA_11__f03_14;
-  assign dVA_11 = dVA_11__g19_15 | dVA_11__f03_14;
+  wire dVA_11___h_5h42_2;
+  assign dVA_11 = dVA_11__g19_15 | dVA_11__f03_14 | dVA_11___h_5h42_2;
   wire dVA_12__f03_15;
+  wire dVA_12___h_1f42_5;
   wire dVA_12__g12_2;
-  assign dVA_12 = dVA_12__f03_15 | dVA_12__g12_2;
+  assign dVA_12 = dVA_12__f03_15 | dVA_12___h_1f42_5 | dVA_12__g12_2;
   wire dVA_13__f03_2;
+  wire dVA_13___h_1f42_4;
   wire dVA_13__g12_15;
-  assign dVA_13 = dVA_13__f03_2 | dVA_13__g12_15;
+  assign dVA_13 = dVA_13__f03_2 | dVA_13___h_1f42_4 | dVA_13__g12_15;
   wire dVA_14__j04_3;
+  wire dVA_14___h_1f42_3;
   wire dVA_14__g13_2;
-  assign dVA_14 = dVA_14__j04_3 | dVA_14__g13_2;
+  assign dVA_14 = dVA_14__j04_3 | dVA_14___h_1f42_3 | dVA_14__g13_2;
   wire dVA_15__j04_4;
+  wire dVA_15___h_1f42_2;
   wire dVA_15__g13_15;
-  assign dVA_15 = dVA_15__j04_4 | dVA_15__g13_15;
+  assign dVA_15 = dVA_15__j04_4 | dVA_15___h_1f42_2 | dVA_15__g13_15;
   wire dVA_16__j04_13;
+  wire dVA_16___h_1i42_5;
   wire dVA_16__g10_2;
-  assign dVA_16 = dVA_16__j04_13 | dVA_16__g10_2;
+  assign dVA_16 = dVA_16__j04_13 | dVA_16___h_1i42_5 | dVA_16__g10_2;
   wire dVA_17__j04_14;
+  wire dVA_17___h_1i42_4;
   wire dVA_17__g10_15;
-  assign dVA_17 = dVA_17__j04_14 | dVA_17__g10_15;
+  assign dVA_17 = dVA_17__j04_14 | dVA_17___h_1i42_4 | dVA_17__g10_15;
   wire dVA_18__g11_2;
+  wire dVA_18___h_1i42_3;
   wire dVA_18__j04_15;
-  assign dVA_18 = dVA_18__g11_2 | dVA_18__j04_15;
+  assign dVA_18 = dVA_18__g11_2 | dVA_18___h_1i42_3 | dVA_18__j04_15;
   wire dVA_19__g11_15;
+  wire dVA_19___h_1i42_2;
   wire dVA_19__j04_2;
-  assign dVA_19 = dVA_19__g11_15 | dVA_19__j04_2;
+  assign dVA_19 = dVA_19__g11_15 | dVA_19___h_1i42_2 | dVA_19__j04_2;
   wire dVA_5_s_20__g20_15;
   wire dVA_5_s_20__a03_3;
   wire dVA_5_s_20__a07_4;
@@ -1238,15 +1270,19 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
   wire MemC01_sil_pl_1__f06_1;
   wire MemC01_sil_pl_1__f07_1;
   assign MemC01_sil_pl_1 = MemC01_sil_pl_1__f06_1 | MemC01_sil_pl_1__f07_1;
+  wire MemC01_sil_pl_12___h_5b43_4;
   wire MemC01_sil_pl_12__a05_4;
   wire MemC01_sil_pl_12__d03_2;
-  assign MemC01_sil_pl_12 = MemC01_sil_pl_12__a05_4 | MemC01_sil_pl_12__d03_2;
+  assign MemC01_sil_pl_12 = MemC01_sil_pl_12___h_5b43_4 | MemC01_sil_pl_12__a05_4 | MemC01_sil_pl_12__d03_2;
   wire MemC01_sil_pl_13__e06_14;
   wire MemC01_sil_pl_13__e07_14;
   assign MemC01_sil_pl_13 = MemC01_sil_pl_13__e06_14 | MemC01_sil_pl_13__e07_14;
   wire MemC01_sil_pl_6__d06_14;
   wire MemC01_sil_pl_6__d07_14;
   assign MemC01_sil_pl_6 = MemC01_sil_pl_6__d06_14 | MemC01_sil_pl_6__d07_14;
+  wire MemC01_sil_pl_8___h_1c42_2;
+  wire MemC01_sil_pl_8__b02_2;
+  assign MemC01_sil_pl_8 = MemC01_sil_pl_8___h_1c42_2 | MemC01_sil_pl_8__b02_2;
   wire MemC04_sil_pl_5__h17_14;
   wire MemC04_sil_pl_5__h17_15;
   assign MemC04_sil_pl_5 = MemC04_sil_pl_5__h17_14 | MemC04_sil_pl_5__h17_15;
@@ -1308,15 +1344,22 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
   wire MemC09_sil_pl_1__f06_2;
   wire MemC09_sil_pl_1__f07_2;
   assign MemC09_sil_pl_1 = MemC09_sil_pl_1__f06_2 | MemC09_sil_pl_1__f07_2;
+  wire MemC09_sil_pl_10___h_5b43_2;
+  wire MemC09_sil_pl_10__a05_14;
+  assign MemC09_sil_pl_10 = MemC09_sil_pl_10___h_5b43_2 | MemC09_sil_pl_10__a05_14;
   wire MemC09_sil_pl_12__d06_2;
   wire MemC09_sil_pl_12__d07_2;
   assign MemC09_sil_pl_12 = MemC09_sil_pl_12__d06_2 | MemC09_sil_pl_12__d07_2;
+  wire MemC09_sil_pl_17___h_5b43_5;
   wire MemC09_sil_pl_17__a05_3;
   wire MemC09_sil_pl_17__d03_15;
-  assign MemC09_sil_pl_17 = MemC09_sil_pl_17__a05_3 | MemC09_sil_pl_17__d03_15;
+  assign MemC09_sil_pl_17 = MemC09_sil_pl_17___h_5b43_5 | MemC09_sil_pl_17__a05_3 | MemC09_sil_pl_17__d03_15;
   wire MemC09_sil_pl_18__d06_1;
   wire MemC09_sil_pl_18__d07_1;
   assign MemC09_sil_pl_18 = MemC09_sil_pl_18__d06_1 | MemC09_sil_pl_18__d07_1;
+  wire MemC09_sil_pl_4___h_5b43_3;
+  wire MemC09_sil_pl_4__a05_13;
+  assign MemC09_sil_pl_4 = MemC09_sil_pl_4___h_5b43_3 | MemC09_sil_pl_4__a05_13;
   wire MemC09_sil_pl_6__f06_15;
   wire MemC09_sil_pl_6__f07_15;
   assign MemC09_sil_pl_6 = MemC09_sil_pl_6__f06_15 | MemC09_sil_pl_6__f07_15;
@@ -1335,6 +1378,15 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
   wire MemC10_sil_pl_3__d06_15;
   wire MemC10_sil_pl_3__d07_15;
   assign MemC10_sil_pl_3 = MemC10_sil_pl_3__d06_15 | MemC10_sil_pl_3__d07_15;
+  wire MemC10_sil_pl_4___h_1c42_5;
+  wire MemC10_sil_pl_4__b02_13;
+  assign MemC10_sil_pl_4 = MemC10_sil_pl_4___h_1c42_5 | MemC10_sil_pl_4__b02_13;
+  wire MemC10_sil_pl_6__b02_14;
+  wire MemC10_sil_pl_6___h_1c42_4;
+  assign MemC10_sil_pl_6 = MemC10_sil_pl_6__b02_14 | MemC10_sil_pl_6___h_1c42_4;
+  wire MemC10_sil_pl_8___h_1c42_3;
+  wire MemC10_sil_pl_8__b02_15;
+  assign MemC10_sil_pl_8 = MemC10_sil_pl_8___h_1c42_3 | MemC10_sil_pl_8__b02_15;
   wire MemC15_sil_pl_1__f16_3;
   wire MemC15_sil_pl_1__f16_14;
   wire MemC15_sil_pl_1__f17_3;
@@ -1496,28 +1548,196 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
 
   // ---- packages
   cell_F100181 u__h_1c42 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(MAR_15_p_),
+    .p2(MemC01_sil_pl_8___h_1c42_2),
+    .p3(MemC10_sil_pl_8___h_1c42_3),
+    .p4(MemC10_sil_pl_6___h_1c42_4),
+    .p5(MemC10_sil_pl_4___h_1c42_5),
+    .p6(GND55),
+    .p7(GND55),
+    .p10(G28_m_31_p_),
+    .p11(Hib),
+    .p12(MemC01_sil_pl_15),
+    .p13(MemC10_sil_pl_17),
+    .p14(MemC10_sil_pl_16),
+    .p15(MemC10_sil_pl_15),
+    .p16(FastAdd_p_),
+    .p17(Hib),
+    .p18(VEE53),
+    .p20(Hib),
+    .p21(FastAdd_p_),
+    .p22(MAR_12_p_),
+    .p23(MAR_13_p_),
+    .p24(MAR_14_p_)
   ); // F100181
   cell_F100181 u__h_1c43 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(MAR_07_p_),
+    .p2(MemC09_sil_pl_21),
+    .p3(MemC09_sil_pl_20),
+    .p4(MemC01_sil_pl_19),
+    .p5(MemC09_sil_pl_19),
+    .p6(GND58),
+    .p7(GND58),
+    .p12(MemC09_sil_pl_9),
+    .p13(MemC09_sil_pl_5),
+    .p14(MemC01_sil_pl_11),
+    .p15(MemC09_sil_pl_16),
+    .p17(Hib),
+    .p18(VEE55),
+    .p20(Hib),
+    .p22(MAR_04_p_),
+    .p23(MAR_05_p_),
+    .p24(MAR_06_p_)
   ); // F100181
   cell_F100181 u__h_1f42 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(RBMux_15),
+    .p2(dVA_15___h_1f42_2),
+    .p3(dVA_14___h_1f42_3),
+    .p4(dVA_13___h_1f42_4),
+    .p5(dVA_12___h_1f42_5),
+    .p6(GND199),
+    .p7(GND199),
+    .p9(P12_m_15_p_),
+    .p10(G12_m_15_p_),
+    .p11(CO16_p_),
+    .p12(MemC08_sil_pl_15),
+    .p13(MemC08_sil_pl_14),
+    .p14(MemC08_sil_pl_13),
+    .p15(MemC08_sil_pl_12),
+    .p16(Add_p_a),
+    .p17(Add_p_a),
+    .p18(VEE125),
+    .p20(Hib),
+    .p21(Add_p_a),
+    .p22(RBMux_12),
+    .p23(RBMux_13),
+    .p24(RBMux_14)
   ); // F100181
   cell_F100181 u__h_1i42 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(MAR_03_p_),
+    .p2(dVA_19___h_1i42_2),
+    .p3(dVA_18___h_1i42_3),
+    .p4(dVA_17___h_1i42_4),
+    .p5(dVA_16___h_1i42_5),
+    .p6(GND343),
+    .p7(GND343),
+    .p8(CO16_p_),
+    .p9(P16_m_19_p_),
+    .p10(G16_m_19_p_),
+    .p11(CO20_p_),
+    .p12(MemC08_sil_pl_19),
+    .p13(MemC08_sil_pl_18),
+    .p14(MemC08_sil_pl_17),
+    .p15(MemC08_sil_pl_16),
+    .p16(Add_p_a),
+    .p17(Hib),
+    .p18(VEE197),
+    .p20(Hib),
+    .p21(Add_p_a),
+    .p22(MAR_00_p_),
+    .p23(MAR_01_p_),
+    .p24(MAR_02_p_)
   ); // F100181
   cell_F100181 u__h_5b42 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(MAR_11_p_),
+    .p2(dAad_7___h_5b42_2),
+    .p3(dAad_6___h_5b42_3),
+    .p4(dAad_5___h_5b42_4),
+    .p5(dAad_4___h_5b42_5),
+    .p6(GND7),
+    .p7(GND7),
+    .p9(P24_m_27_p_),
+    .p10(G24_m_27_p_),
+    .p11(G28_m_31_p_),
+    .p12(MemC01_sil_pl_14),
+    .p13(MemC10_sil_pl_13),
+    .p14(MemC09_sil_pl_24),
+    .p15(MemC09_sil_pl_23),
+    .p16(FastAdd_p_),
+    .p17(Hib),
+    .p18(VEE29),
+    .p20(Hib),
+    .p21(FastAdd_p_),
+    .p22(MAR_08_p_),
+    .p23(MAR_09_p_),
+    .p24(MAR_10_p_)
   ); // F100181
   cell_F100181 u__h_5b43 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(MAR_07_p_),
+    .p2(MemC09_sil_pl_10___h_5b43_2),
+    .p3(MemC09_sil_pl_4___h_5b43_3),
+    .p4(MemC01_sil_pl_12___h_5b43_4),
+    .p5(MemC09_sil_pl_17___h_5b43_5),
+    .p6(GND10),
+    .p7(GND10),
+    .p9(P20_m_23_p_),
+    .p10(G20_m_23_p_),
+    .p11(Hib),
+    .p12(MemC09_sil_pl_9),
+    .p13(MemC09_sil_pl_5),
+    .p14(MemC01_sil_pl_11),
+    .p15(MemC09_sil_pl_16),
+    .p16(Add_p_b),
+    .p17(Hib),
+    .p18(VEE31),
+    .p20(Hib),
+    .p21(Add_p_b),
+    .p22(MAR_04_p_),
+    .p23(MAR_05_p_),
+    .p24(MAR_06_p_)
   ); // F100181
   cell_F100181 u__h_5e42 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(RBMux_07),
+    .p2(dVA_07___h_5e42_2),
+    .p3(dVA_06___h_5e42_3),
+    .p4(dVA_05___h_5e42_4),
+    .p5(dVA_04___h_5e42_5),
+    .p6(GND151),
+    .p7(GND151),
+    .p11(CO8_p_),
+    .p12(MemC07_sil_pl_16),
+    .p13(MemC07_sil_pl_15),
+    .p14(MemC07_sil_pl_14),
+    .p15(MemC07_sil_pl_13),
+    .p16(Add_p_b),
+    .p17(Add_p_b),
+    .p18(VEE101),
+    .p20(Hib),
+    .p21(Add_p_b),
+    .p22(RBMux_04),
+    .p23(RBMux_05),
+    .p24(RBMux_06)
   ); // F100181
   cell_F100181 u__h_5h42 (
-    .sys_clk(sys_clk)
+    .sys_clk(sys_clk),
+    .p1(RBMux_11),
+    .p2(dVA_11___h_5h42_2),
+    .p3(dVA_10___h_5h42_3),
+    .p4(dVA_09___h_5h42_4),
+    .p5(dVA_08___h_5h42_5),
+    .p6(GND295),
+    .p7(GND295),
+    .p8(CO8_p_),
+    .p11(CO12_p_),
+    .p12(MemC07_sil_pl_20),
+    .p13(MemC07_sil_pl_19),
+    .p14(MemC07_sil_pl_18),
+    .p15(MemC07_sil_pl_17),
+    .p16(Add_p_b),
+    .p17(Add_p_b),
+    .p18(VEE173),
+    .p20(Hib),
+    .p21(Add_p_b),
+    .p22(RBMux_08),
+    .p23(RBMux_09),
+    .p24(RBMux_10)
   ); // F100181
   cell_MC10195 u_a01 (
     .p2(DMadr_01__a01_2),
@@ -1548,10 +1768,12 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(ProcVA_31),
     .p15(MD3__a02_15)
   ); // MU10164
+  assign dVA_5_s_20__a03_3 = dVA_05; // fitted socket jumper
+  assign dVA_6_s_21__a03_4 = dVA_06; // fitted socket jumper
   cell_MC10195 u_a03 (
     .p2(MemC01_sil_pl_7),
-    .p3(dVA_5_s_20__a03_3),
-    .p4(dVA_6_s_21__a03_4),
+    .p3(),
+    .p4(),
     .p5(dAad_7),
     .p6(dVA_05),
     .p7(dVA_06),
@@ -1564,7 +1786,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p15(MemC10_sil_pl_1)
   ); // MC10195
   cell_MC10197 u_a05 (
-    .p2(dAad_5),
+    .p2(dAad_5__a05_2),
     .p3(MemC09_sil_pl_17__a05_3),
     .p4(MemC01_sil_pl_12__a05_4),
     .p5(ProcVA_25),
@@ -1574,14 +1796,16 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p10(ProcVA_22),
     .p11(ProcVA_23),
     .p12(ProcVA_24),
-    .p13(MemC09_sil_pl_4),
-    .p14(MemC09_sil_pl_10),
-    .p15(dAad_4)
+    .p13(MemC09_sil_pl_4__a05_13),
+    .p14(MemC09_sil_pl_10__a05_14),
+    .p15(dAad_4__a05_15)
   ); // MC10197
+  assign dVA_6_s_21__a07_2 = 1'b0; // fitted configuration pin cut
+  assign dVA_5_s_20__a07_4 = 1'b0; // fitted configuration pin cut
   cell_MC10195 u_a07 (
-    .p2(dVA_6_s_21__a07_2),
+    .p2(),
     .p3(MemC09_sil_pl_2),
-    .p4(dVA_5_s_20__a07_4),
+    .p4(),
     .p5(dAad_1_p_),
     .p6(dAad_0_p_),
     .p7(dAad_0_p_),
@@ -1803,9 +2027,9 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p15(BMux_01__drv)
   ); // MC10159
   cell_MC10197 u_b02 (
-    .p2(MemC01_sil_pl_8),
-    .p3(dAad_6),
-    .p4(dAad_7),
+    .p2(MemC01_sil_pl_8__b02_2),
+    .p3(dAad_6__b02_3),
+    .p4(dAad_7__b02_4),
     .p5(ProcVA_31),
     .p6(ProcVA_26),
     .p7(ProcVA_27),
@@ -1813,11 +2037,11 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p10(ProcVA_28),
     .p11(ProcVA_29),
     .p12(ProcVA_30),
-    .p13(MemC10_sil_pl_4),
-    .p14(MemC10_sil_pl_6),
-    .p15(MemC10_sil_pl_8)
+    .p13(MemC10_sil_pl_4__b02_13),
+    .p14(MemC10_sil_pl_6__b02_14),
+    .p15(MemC10_sil_pl_8__b02_15)
   ); // MC10197
-  cell_MC10176 u_b03 (
+  cell_MC10176 #(.PRECAP(0)) u_b03 (
     .sys_clk(sys_clk),
     .p2(ProcVA_26),
     .p3(ProcVA_27),
@@ -1833,7 +2057,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(ProcVA_30),
     .p15(ProcVA_31)
   ); // MC10176
-  cell_MC10176 u_b05 (
+  cell_MC10176 #(.PRECAP(0)) u_b05 (
     .sys_clk(sys_clk),
     .p2(ProcVA_20),
     .p3(ProcVA_21),
@@ -2042,7 +2266,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p7(At_eq_Curt_p_),
     .p9(MemC16_sil_pl_6),
     .p10(_u_MDI),
-    .p12(DcomingForCt_p_),
+    .p12(EcDcomingForCt_p_),
     .p13(_u_MD),
     .p14(WantCR),
     .p15(_u_MDI)
@@ -2338,7 +2562,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(BMux_02__drv),
     .p15(BMux_03__drv)
   ); // MC10159
-  cell_MC10176 u_d02 (
+  cell_MC10176 #(.PRECAP(0)) u_d02 (
     .sys_clk(sys_clk),
     .p2(ProcVA_04),
     .p3(ProcVA_05),
@@ -2354,10 +2578,12 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(PrVA_6_s_21),
     .p15(ProcVA_07)
   ); // MC10176
+  assign MemC01_sil_pl_12__d03_2 = 1'b0; // fitted configuration pin cut
+  assign MemC09_sil_pl_17__d03_15 = 1'b0; // fitted configuration pin cut
   cell_MC10197 u_d03 (
-    .p2(MemC01_sil_pl_12__d03_2),
+    .p2(),
     .p3(dVA_04__d03_3),
-    .p4(dVA_05),
+    .p4(dVA_05__d03_4),
     .p5(ProcVA_21),
     .p6(ProcVA_04),
     .p7(ProcVA_05),
@@ -2365,9 +2591,9 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p10(ProcVA_06),
     .p11(ProcVA_07),
     .p12(ProcVA_20),
-    .p13(dVA_06),
+    .p13(dVA_06__d03_13),
     .p14(dVA_07__d03_14),
-    .p15(MemC09_sil_pl_17__d03_15)
+    .p15()
   ); // MC10197
   cell_MC10173 u_d05 (
     .sys_clk(sys_clk),
@@ -2646,7 +2872,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(RBMux_10),
     .p15(RBMux_11)
   ); // MC10197
-  cell_MC10176 u_e03 (
+  cell_MC10176 #(.PRECAP(0)) u_e03 (
     .sys_clk(sys_clk),
     .p2(ProcVA_08),
     .p3(ProcVA_09),
@@ -2871,9 +3097,10 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(dMiss1_04_m_11__e19_14),
     .p15(dMiss1_04_m_11__e19_15)
   ); // MC10113
+  assign dMiss0_04_m_11__e20_3 = 1'b0; // fitted configuration pin cut
   cell_MC10113 u_e20 (
     .p2(dMiss0_04_m_11__e20_2),
-    .p3(dMiss0_04_m_11__e20_3),
+    .p3(),
     .p4(MemC11_sil_pl_5),
     .p5(dVA_07),
     .p6(dVA_04),
@@ -2886,9 +3113,10 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(dMiss0_04_m_11__e20_14),
     .p15(dMiss0_04_m_11__e20_15)
   ); // MC10113
+  assign dMiss1_04_m_11__e21_3 = 1'b0; // fitted configuration pin cut
   cell_MC10113 u_e21 (
     .p2(dMiss1_04_m_11__e21_2),
-    .p3(dMiss1_04_m_11__e21_3),
+    .p3(),
     .p4(MemC11_sil_pl_6),
     .p5(dVA_07),
     .p6(dVA_04),
@@ -3027,7 +3255,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(MemC09_sil_pl_7__f07_14),
     .p15(MemC09_sil_pl_6__f07_15)
   ); // F10145A
-  cell_MC10176 u_f08 (
+  cell_MC10176 #(.PRECAP(0)) u_f08 (
     .sys_clk(sys_clk),
     .p2(MemC02_sil_pl_10),
     .p3(Vacant1),
@@ -3195,9 +3423,10 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(dMiss3_04_m_11__f19_14),
     .p15(dMiss3_04_m_11__f19_15)
   ); // MC10113
+  assign dMiss2_04_m_11__f20_3 = 1'b0; // fitted configuration pin cut
   cell_MC10113 u_f20 (
     .p2(dMiss2_04_m_11__f20_2),
-    .p3(dMiss2_04_m_11__f20_3),
+    .p3(),
     .p4(MemC11_sil_pl_7),
     .p5(dVA_07),
     .p6(dVA_04),
@@ -3210,9 +3439,10 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(dMiss2_04_m_11__f20_14),
     .p15(dMiss2_04_m_11__f20_15)
   ); // MC10113
+  assign dMiss3_04_m_11__f21_3 = 1'b0; // fitted configuration pin cut
   cell_MC10113 u_f21 (
     .p2(dMiss3_04_m_11__f21_2),
-    .p3(dMiss3_04_m_11__f21_3),
+    .p3(),
     .p4(MemC11_sil_pl_8),
     .p5(dVA_07),
     .p6(dVA_04),
@@ -3351,7 +3581,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(NewWP__g08_14),
     .p15(NewBL__g08_15)
   ); // MC10100
-  cell_MC10176 u_g09 (
+  cell_MC10176 #(.PRECAP(0)) u_g09 (
     .sys_clk(sys_clk),
     .p2(MemC02_sil_pl_6),
     .p3(BL1),
@@ -3505,8 +3735,9 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(_u_VictAd_p_),
     .p15(dVA_11__g19_15)
   ); // MC10174
+  assign dVA_04__g20_2 = 1'b0; // fitted configuration pin cut
   cell_MC10174 u_g20 (
-    .p2(dVA_04__g20_2),
+    .p2(),
     .p3(CVA0_4_s_par),
     .p4(CVA2_4_s_par),
     .p5(CVA1_4_s_par),
@@ -3855,7 +4086,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(Victim_1_p_),
     .p15(IoFetchInA)
   ); // MC10102
-  cell_MC10176 u_h22 (
+  cell_MC10176 #(.PRECAP(0)) u_h22 (
     .sys_clk(sys_clk),
     .p2(VA_04),
     .p3(MemC07_sil_pl_9),
@@ -4083,7 +4314,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p13(WrPipeCol_p_),
     .p15(PipeFlushStore)
   ); // F10145A
-  cell_MC10176 u_i15 (
+  cell_MC10176 #(.PRECAP(0)) u_i15 (
     .sys_clk(sys_clk),
     .p2(Lfetch_u_),
     .p3(EcWantsAdly),
@@ -4143,7 +4374,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p11(dVA_6_s_21),
     .p12(dVA_04)
   ); // MC10170
-  cell_MC10176 u_i20 (
+  cell_MC10176 #(.PRECAP(0)) u_i20 (
     .sys_clk(sys_clk),
     .p2(MemC05_sil_pl_7),
     .p3(MemC05_sil_pl_1),
@@ -4159,7 +4390,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(MemC05_sil_pl_3),
     .p15(MemC05_sil_pl_4)
   ); // MC10176
-  cell_MC10176 u_i21 (
+  cell_MC10176 #(.PRECAP(0)) u_i21 (
     .sys_clk(sys_clk),
     .p3(MiscPCHP_p___i21_3),
     .p4(MiscPCHP_p___i21_4),
@@ -4203,15 +4434,15 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p1(MemAd_8__drv),
     .p2(MemAd_7__drv),
     .p3(MemC10_sil_pl_2),
-    .p4(VA_22),
+    .p4(MemC01_sil_pl_17),
     .p5(MemC01_sil_pl_9),
-    .p6(VA_23),
+    .p6(MemC01_sil_pl_17),
     .p7(MemRfsh),
     .p9(MemC01_sil_pl_17),
     .p10(MemC09_sil_pl_13),
-    .p11(VA_20),
+    .p11(MemC01_sil_pl_17),
     .p12(MemC09_sil_pl_14),
-    .p13(VA_21),
+    .p13(MemC01_sil_pl_17),
     .p14(MemAd_5__drv),
     .p15(MemAd_6__drv)
   ); // MC10159
@@ -4229,7 +4460,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(MemC19_sil_pl_1__j01_14),
     .p15(_u_Pipe015_p_)
   ); // MC1662
-  cell_MC10176 u_j02 (
+  cell_MC10176 #(.PRECAP(0)) u_j02 (
     .sys_clk(sys_clk),
     .p2(VA_23),
     .p3(MemC09_sil_pl_22),
@@ -4245,7 +4476,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(MemC01_sil_pl_16),
     .p15(Hib)
   ); // MC10176
-  cell_MC10176 u_j03 (
+  cell_MC10176 #(.PRECAP(0)) u_j03 (
     .sys_clk(sys_clk),
     .p2(MemC08_sil_pl_6),
     .p3(MemC08_sil_pl_9),
@@ -4479,7 +4710,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(IoStoreInA__drv),
     .p15(FlushInA)
   ); // MC10101
-  cell_MC10176 u_j21 (
+  cell_MC10176 #(.PRECAP(0)) u_j21 (
     .sys_clk(sys_clk),
     .p2(MemC17_sil_pl_6),
     .p3(MemC17_sil_pl_7),
@@ -4575,7 +4806,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(PipeVA_19),
     .p15(PipeVA_18)
   ); // F10145A
-  cell_MC10176 u_k04 (
+  cell_MC10176 #(.PRECAP(0)) u_k04 (
     .sys_clk(sys_clk),
     .p2(ProcVA_14),
     .p3(ProcVA_15),
@@ -4640,7 +4871,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(MemC07_sil_pl_4__k07_14),
     .p15(MemC07_sil_pl_3__k07_15)
   ); // F10145A
-  cell_MC10176 u_k08 (
+  cell_MC10176 #(.PRECAP(0)) u_k08 (
     .sys_clk(sys_clk),
     .p2(dVA_u_Vic),
     .p3(ForceDirtyMiss),
@@ -4656,7 +4887,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(NoRef),
     .p15(DisHold__drv)
   ); // MC10176
-  cell_MC10176 u_k09 (
+  cell_MC10176 #(.PRECAP(0)) u_k09 (
     .sys_clk(sys_clk),
     .p2(MemC04_sil_pl_2),
     .p3(MemC04_sil_pl_1),
@@ -4800,7 +5031,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p13(PairFull_p_),
     .p14(AwantsMapFS__k20_14)
   ); // MC10101
-  cell_MC10176 u_k21 (
+  cell_MC10176 #(.PRECAP(0)) u_k21 (
     .sys_clk(sys_clk),
     .p2(MemC17_sil_pl_12),
     .p3(MemC17_sil_pl_11),
@@ -4836,7 +5067,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p13(_u_MDdly_p_),
     .p14(MemC17_sil_pl_1__k23_14)
   ); // MC10101
-  cell_MC10176 u_k24 (
+  cell_MC10176 #(.PRECAP(0)) u_k24 (
     .sys_clk(sys_clk),
     .p3(DMadr_01__k24_3),
     .p4(DMadr_02),
@@ -4928,7 +5159,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(preSH_p_x),
     .p15(preFH_p_x)
   ); // MC10105
-  cell_MC10176 u_l07 (
+  cell_MC10176 #(.PRECAP(0)) u_l07 (
     .sys_clk(sys_clk),
     .p2(_u_Pipe5),
     .p3(_u_Config__drv),
@@ -4959,7 +5190,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(FF_5_p_),
     .p15(FA_eq_1_p_)
   ); // MC10162
-  cell_MC10176 u_l09 (
+  cell_MC10176 #(.PRECAP(0)) u_l09 (
     .sys_clk(sys_clk),
     .p2(_u_Pipe0),
     .p3(_u_FaultInfo__drv),
@@ -4996,12 +5227,12 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p9(DMadr_10),
     .p10(DMadr_09),
     .p11(Hia),
-    .p12(Hia),
+    .p12(1'b0),
     .p13(Hia),
     .p14(Hia),
     .p15(MD4__l11_15)
   ); // MU10164
-  cell_MC10176 u_l13 (
+  cell_MC10176 #(.PRECAP(0)) u_l13 (
     .sys_clk(sys_clk),
     .p2(AwasFree_p_),
     .p3(AcanhaveD),
@@ -5127,7 +5358,7 @@ module MemC_m_Rev_m_Be #(parameter integer SYSPER = 16) (
     .p14(MD7),
     .p15(DMuxData__drv)
   ); // MU10164
-  cell_MC10176 u_l24 (
+  cell_MC10176 #(.PRECAP(0)) u_l24 (
     .sys_clk(sys_clk),
     .p2(DMadr_06),
     .p3(DMadr_07),

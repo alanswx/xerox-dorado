@@ -28,7 +28,12 @@
 
 `default_nettype none
 
-module cell_MC10170 (
+// Compatibility debt: the old B-output inversion remains the default for
+// boards whose dependent parity paths have not yet been reconciled (see
+// docs/verilog-handoff.md). It is NOT a physical chip option. DskEth's
+// checkers and MemD's storage byte-parity generator select 0, the datasheet
+// function, with regressions for their actual board connections.
+module cell_MC10170 #(parameter LEGACY_B_INVERT = 1) (
     input  wire p3,
     input  wire p4,
     input  wire p5,
@@ -50,7 +55,9 @@ module cell_MC10170 (
   // Nine data inputs (3-7, 9-12); the two control inputs are 13 and 14.
   wire par9 = p3 ^ p4 ^ p5 ^ p6 ^ p7 ^ p9 ^ p10 ^ p11 ^ p12;
   assign p2  = par9;                       // A: ODD parity, the nine data bits
-  assign p15 = ~(par9 ^ p13 ^ p14);        // B: EVEN parity, with the controls
+  // Datasheet logic diagram: no output bubble. The table's EVEN function
+  // assumes control 13 HIGH and 14 LOW, which supply the inversion already.
+  assign p15 = par9 ^ p13 ^ p14 ^ (LEGACY_B_INVERT != 0);
 
 
   // Board-wired pins not named above (power and the like)

@@ -64,9 +64,9 @@ V_SRC    = sim.v $(TOP_GEN) $(BOARD_V)
 # LATCH is the F10145A 16x4 ECL register file doing what the part does: its
 # write is ASYNCHRONOUS (level-sensitive on CE'/WE'), so a latch is correct
 # and 405 instances of it would drown a real warning.
-# THE OVERSAMPLING RATIO. Real time on the FPGA needs sys_clk = SYSPER x 16.67
-# MHz and measured Fmax is 48.99 MHz, so SYSPER=2 is the target and the default
-# 16 runs at 0.18x. Lowering it stresses cell fidelity -- one bug "survived at
+# Fabric samples per 30 ns clock; two clocks execute one microinstruction.
+# Instructions/second = sys_clk / (2*SYSPER). Lowering SYSPER stresses cell
+# fidelity -- one bug "survived at
 # 16x only because the pulse happened to sit inside one stable address" -- so
 # these gates are exactly the tool for finding what breaks:
 #     make -C verilog/verilator taskrun-test SYSPER=8
@@ -104,6 +104,21 @@ IMGUI = $(SIM)/imgui/imgui.cpp $(SIM)/imgui/imgui_demo.cpp \
 SIM_SRC = sim_main.cpp $(IMGUI)
 
 .PHONY: all lint boards run clean
+
+# The hardware HPS medium must serialize the same header, label, data and
+# Fire code as the qualified file-backed medium, and preserve neighboring
+# disk bytes when flushing an unaligned track. The host image is read-only;
+# the test writes an in-memory copy only.
+.PHONY: hps-pack-test
+hps-pack-test:
+	@cd ../.. && $(V) --cc --exe --build --timing --top-module tb_hps_pack \
+		$(V_WARN) --Mdir verilog/verilator/obj_hps_pack -CFLAGS '-O2 -std=c++20' -o hps-pack-test \
+		verilog/verilator/tb_hps_pack.sv verilog/verilator/hps_pack_test.cpp \
+		fpga/mister/dorado_pack_hps.sv verilog/verilator/dorado_pack.sv >/dev/null && \
+		{ out=$$(verilog/verilator/obj_hps_pack/hps-pack-test chm/diskpacks/games-trident.pack \
+			+pack=chm/diskpacks/games-trident.pack 2>&1); rc=$$?; \
+		  echo "$$out" | grep HPS-PACK; exit $$rc; }
+
 all:
 	$(V) $(TOP) $(V_WARN) $(V_DEFINE) --cc $(V_SRC) \
 		--exe $(SIM_SRC) \
@@ -289,7 +304,10 @@ world-display:
 # INITIAL BOOTS, AND THE BENCH HANDS IT A WORLD instead of a transport: one
 # preload carries AEmu, Initial and Bootstrap (disjoint address ranges), Initial
 # runs its whole initialisation, and at BootEmulator the machine is redirected
-# into AEmu StartEmulator. See +enterworld in tb_exec.sv.
+# into AEmu InitMap (real 1076B = 23e), not StartEmulator (25b), which
+# skips the world's required initialization. Verilator takes the FIRST
+# matching plusarg, so do not prepend a default when WORLDARGS supplies it.
+WORLD_HANDOFF_ARGS = $(if $(filter +enterat=%,$(WORLDARGS)),,+enterat=c92) $(if $(filter +enterworld=%,$(WORLDARGS)),,+enterworld=23e)
 boot-world:
 	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
 	@mkdir -p obj_exec obj_bworld
@@ -309,12 +327,166 @@ boot-world:
 		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
 		verilog/generated/IFU-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_bworld/tb_bworld \
-		    +preload=verilog/verilator/obj_bworld/im.txt +worldms +bootchain +start=3904 +enterat=c92 +enterworld=25b +frame +mb0 +nostuck $(WORLDARGS) 2>&1); rc=$$?; \
+		    +preload=verilog/verilator/obj_bworld/im.txt +worldms +bootchain +start=3904 $(WORLD_HANDOFF_ARGS) +frame +mb0 +nostuck +terminal $(WORLDARGS) 2>&1); rc=$$?; \
 		  echo "$$out" | grep tb_exec; exit $$rc; }
 
 # THE SAME, ON ELEVEN BOARDS WITH A PACK ON THE DISK CABLE: pass
 # WORLDARGS="+pack=chm/diskpacks/games-trident.pack ..." and the Alto world boots
 # from it (or tries to).
+# Bounded Initial.mb regression: ResetTags used to lose both completion
+# writes because MemC stored parity but compared it as VA[4]. No disk I/O
+# is reached here; the full map walk and OS boot are deliberately separate.
+.PHONY: clock-domains-test
+clock-domains-test:
+	@$(MAKE) -s boot-world-disk WORLDARGS='+cycles=100000 +hasram +ioreset +fastwait +bbword=0000 +bbfeed +check-clock-domains'
+
+.PHONY: reset-tags-test
+reset-tags-test:
+	@$(MAKE) -s boot-world-disk WORLDARGS='+cycles=800000 +pendulum +hasram +ioreset +fastwait +bbword=0000 +bbfeed +check-reset-tags'
+
+# Read the storage configuration through AEmu's actual GetMemConfig code,
+# after Initial has initialized the processor, without the long map walk.
+.PHONY: memory-config-test
+memory-config-test:
+	@$(MAKE) -s boot-world-disk WORLDARGS='+cycles=300000 +pendulum +hasram +ioreset +fastwait +bbword=0000 +bbfeed +enterat=c64 +enterworld=200 +check-memconfig'
+
+# Real AltoDiabloDisk.mc initialization, not the old per-word jam bench.
+.PHONY: disk-init-format-test
+disk-init-format-test:
+	@$(MAKE) -s boot-world-disk WORLDARGS='+cycles=350000 +pendulum +hasram +ioreset +fastwait +bbword=0000 +bbfeed +enterat=c64 +enterworld=601 +check-disk-format'
+
+# PostClock0 must keep a new task's TIOA out of the old Output window.
+.PHONY: disk-tioa-phase-test
+disk-tioa-phase-test:
+	@$(MAKE) -s boot-world-disk WORLDARGS='+cycles=350000 +pendulum +hasram +ioreset +fastwait +bbword=0000 +bbfeed +enterat=c64 +enterworld=601 +check-disk-format +check-tioa-phase'
+
+.PHONY: parity170-test
+parity170-test:
+	@cd ../.. && $(V) --binary --top-module tb_parity170 $(V_WARN) \
+		--Mdir verilog/verilator/obj_parity170 -o tb_parity170 \
+		verilog/verilator/tb_parity170.sv verilog/cells/cell_MC10170.v >/dev/null
+	@./obj_parity170/tb_parity170
+
+.PHONY: cache-config-test
+cache-config-test:
+	@cd ../.. && $(V) --binary --top-module tb_cache_config $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_cache_config -o tb_cache_config \
+		verilog/verilator/tb_cache_config.sv verilog/generated/MemC-Rev-Be.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_cache_config/tb_cache_config
+
+.PHONY: cache-word-address-capture-test
+cache-word-address-capture-test:
+	@cd ../.. && $(V) --binary --top-module tb_cache_word_address_capture $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated \
+		--Mdir verilog/verilator/obj_cache_word_address -o tb_cache_word_address_capture \
+		verilog/verilator/tb_cache_word_address_capture.sv verilog/generated/MemD-Rev-Ca.v \
+		>/dev/null && ./verilog/verilator/obj_cache_word_address/tb_cache_word_address_capture
+
+.PHONY: memory-write-clock-test
+memory-write-clock-test:
+	@cd ../.. && $(V) --binary --top-module tb_memory_write_clock $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_memory_write_clock -o tb_memory_write_clock \
+		verilog/verilator/tb_memory_write_clock.sv verilog/generated/MemD-Rev-Ca.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_memory_write_clock/tb_memory_write_clock
+
+.PHONY: memory-address-bus-test
+memory-address-bus-test:
+	@cd ../.. && $(V) --binary --top-module tb_memory_address_bus $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_memory_address_bus -o tb_memory_address_bus \
+		verilog/verilator/tb_memory_address_bus.sv verilog/generated/MemC-Rev-Be.v \
+		>/dev/null && ./verilog/verilator/obj_memory_address_bus/tb_memory_address_bus
+
+.PHONY: dram-write-test
+dram-write-test:
+	@cd ../.. && $(V) --binary --top-module tb_dram_write $(V_WARN) \
+		--Mdir verilog/verilator/obj_dram_write -o tb_dram_write \
+		verilog/verilator/tb_dram_write.sv verilog/cells/cell_MK4096P_6.v \
+		verilog/cells/cell_MK4096P_addr.v verilog/cells/cell_MosRam.v >/dev/null && \
+		./verilog/verilator/obj_dram_write/tb_dram_write
+
+.PHONY: cache-input-capture-test
+cache-input-capture-test:
+	@cd ../.. && $(V) --binary --top-module tb_cache_input_capture $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_cache_input_capture -o tb_cache_input_capture \
+		verilog/verilator/tb_cache_input_capture.sv verilog/generated/MemD-Rev-Ca.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_cache_input_capture/tb_cache_input_capture
+
+.PHONY: md-capture-test
+md-capture-test:
+	@cd ../.. && $(V) --binary --top-module tb_md_capture $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_md_capture -o tb_md_capture \
+		verilog/verilator/tb_md_capture.sv verilog/generated/MemD-Rev-Ca.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_md_capture/tb_md_capture
+
+.PHONY: memory-ecc-classify-test
+memory-ecc-classify-test:
+	@cd ../.. && $(V) --binary --top-module tb_memory_ecc_classify $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_memory_ecc_classify -o tb_memory_ecc_classify \
+		verilog/verilator/tb_memory_ecc_classify.sv verilog/generated/MemD-Rev-Ca.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_memory_ecc_classify/tb_memory_ecc_classify
+
+.PHONY: memory-byte-parity-test
+memory-byte-parity-test:
+	@cd ../.. && $(V) --binary --top-module tb_memory_byte_parity $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_memory_byte_parity -o tb_memory_byte_parity \
+		verilog/verilator/tb_memory_byte_parity.sv verilog/generated/MemD-Rev-Ca.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_memory_byte_parity/tb_memory_byte_parity
+
+.PHONY: ifu-f-clock-test
+ifu-f-clock-test:
+	@cd ../.. && $(V) --binary --top-module tb_ifu_f_clock $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_ifu_f_clock -o tb_ifu_f_clock \
+		verilog/verilator/tb_ifu_f_clock.sv verilog/generated/MemD-Rev-Ca.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_ifu_f_clock/tb_ifu_f_clock
+
+.PHONY: ifu-f-capture-test
+ifu-f-capture-test:
+	@cd ../.. && $(V) --binary --top-module tb_ifu_f_capture $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_ifu_f_capture -o tb_ifu_f_capture \
+		verilog/verilator/tb_ifu_f_capture.sv verilog/generated/MemD-Rev-Ca.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_ifu_f_capture/tb_ifu_f_capture
+
+.PHONY: ifu-pcf-capture-test
+ifu-pcf-capture-test:
+	@$(MAKE) exec-world9 EXECARGS='+start=0 +cycles=5000 +nostuck +check-pcf-setup'
+
+.PHONY: disk-input-hold-test
+disk-input-hold-test:
+	@cd ../.. && $(V) --binary --top-module tb_disk_input_hold $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_disk_input_hold -o tb_disk_input_hold \
+		verilog/verilator/tb_disk_input_hold.sv verilog/generated/DskEth-Rev-Cf.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_disk_input_hold/tb_disk_input_hold
+
+.PHONY: disk-fifo-parity-test
+disk-fifo-parity-test:
+	@cd ../.. && $(V) --binary --top-module tb_disk_fifo_parity $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_disk_fifo_parity -o tb_disk_fifo_parity \
+		verilog/verilator/tb_disk_fifo_parity.sv verilog/generated/DskEth-Rev-Cf.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_disk_fifo_parity/tb_disk_fifo_parity
+
+.PHONY: disk-stream-build disk-stream-test disk-writeback-test sector-counter-test
+disk-stream-build:
+	@cd ../.. && $(V) --binary --top-module tb_disk_stream $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_disk_stream -o tb_disk_stream \
+		verilog/verilator/tb_disk_stream.sv verilog/generated/DskEth-Rev-Cf.v \
+		verilog/verilator/dorado_pack.sv verilog/cells/dorado_trident.v >/dev/null
+disk-stream-test: disk-stream-build
+	@cd ../.. && ./verilog/verilator/obj_disk_stream/tb_disk_stream +pack=chm/diskpacks/games-trident.pack
+	@cd ../.. && ./verilog/verilator/obj_disk_stream/tb_disk_stream +pack=chm/diskpacks/games-trident.pack +streamsector=1
+	@cd ../.. && ./verilog/verilator/obj_disk_stream/tb_disk_stream +pack=chm/diskpacks/games-trident.pack +streamsector=28
+	@cd ../.. && ./verilog/verilator/obj_disk_stream/tb_disk_stream +pack=chm/diskpacks/games-trident.pack +pollselect +fastio
+
+disk-writeback-test: disk-stream-build
+	@cd ../.. && ./verilog/verilator/obj_disk_stream/tb_disk_stream +pack=chm/diskpacks/games-trident.pack +writeback
+	@cd ../.. && ./verilog/verilator/obj_disk_stream/tb_disk_stream +pack=chm/diskpacks/games-trident.pack +checkedwrite
+
+sector-counter-test:
+	@cd ../.. && $(V) --binary --top-module tb_sector_counter $(V_WARN) \
+		--Mdir verilog/verilator/obj_sector_counter -o tb_sector_counter \
+		verilog/verilator/tb_sector_counter.sv verilog/cells/cell_SN74123.v \
+		verilog/cells/cell_SN74LS169.v >/dev/null
+	@./obj_sector_counter/tb_sector_counter
+
 boot-world-disk:
 	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
 	@mkdir -p obj_exec obj_bwdisk
@@ -334,9 +506,72 @@ boot-world-disk:
 		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
 		verilog/generated/IFU-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v verilog/generated/DskEth-Rev-Cf.v \
 		verilog/verilator/dorado_pack.sv verilog/cells/dorado_trident.v \
-		>/dev/null && { out=$$(./verilog/verilator/obj_bwdisk/tb_bwdisk \
-		    +preload=verilog/verilator/obj_bwdisk/im.txt +worldms +bootchain +start=3904 +enterat=c92 +enterworld=25b +frame +mb0 +nostuck $(WORLDARGS) 2>&1); rc=$$?; \
-		  echo "$$out" | grep tb_exec; exit $$rc; }
+		>/dev/null && ./verilog/verilator/obj_bwdisk/tb_bwdisk \
+		    +preload=verilog/verilator/obj_bwdisk/im.txt +worldms +bootchain +start=3904 $(WORLD_HANDOFF_ARGS) +frame +mb0 +nostuck +terminal $(WORLDARGS)
+
+# A standalone SDL front end to the full RTL machine. Its keyboard follows
+# the same PS/2 -> terminal wire path as MiSTer; its screen reads actual
+# DRAM/cache through the guest's Alto display list. No C CPU is linked.
+EXECUTIVE_SYSPER ?= 4
+EXECUTIVE_ARGS ?=
+EXECUTIVE_SNAPSHOT ?= build/rtl-executive/alto-executive.rtl
+EXECUTIVE_BOOT_SAMPLES ?= 390000000
+EXECUTIVE_FPGA_DIR ?= build/rtl-executive/fpga_checkpoint_hps
+EXECUTIVE_SDL_CFLAGS = $(shell sdl2-config --cflags 2>/dev/null)
+EXECUTIVE_SDL_LIBS = $(shell sdl2-config --libs 2>/dev/null)
+.PHONY: executive-sim run-executive executive-checkpoint run-executive-ready
+executive-sim:
+	@test -n "$(EXECUTIVE_SDL_LIBS)" || { echo "SDL2 is required (sdl2-config missing)"; exit 1; }
+	@$(MAKE) -s -C ../../dorado build/boot0_hunks build/im_image
+	@mkdir -p obj_exec obj_bwdisk obj_executive
+	@cd ../.. && python3 tools/sil_im_map.py --verilog >/dev/null
+	@cd ../.. && ./dorado/build/boot0_hunks chm/dorado/AEmu.mb\!2 -1 4 > verilog/verilator/obj_exec/exec.vec
+	@cd ../.. && { ./dorado/build/im_image chm/dorado/AEmu.mb\!2 2>/dev/null; \
+		./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Initial.mb' 2>/dev/null | grep -v '^\#'; \
+		./dorado/build/im_image 'chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb' 2>/dev/null | grep -v '^\#'; } > verilog/verilator/obj_bwdisk/im.txt
+	@cd ../.. && $(V) --cc --timing --exe --top-module tb_exec \
+		$(filter-out +define+SYSPER_OVERRIDE=%,$(V_WARN)) +define+SYSPER_OVERRIDE=$(EXECUTIVE_SYSPER) \
+		+define+DORADO_STORAGE_INPUT_DELAY=2 +define+WORLD +define+SCREEN +define+FULL \
+		-Iverilog/cells -Iverilog/generated --Mdir verilog/verilator/obj_executive -o dorado-executive \
+		-CFLAGS '-O3 -std=c++20 -DVL_TIME_CONTEXT -I$(abspath obj_executive) $(EXECUTIVE_SDL_CFLAGS)' \
+		-LDFLAGS '$(EXECUTIVE_SDL_LIBS)' \
+		verilog/verilator/tb_exec.sv verilog/verilator/dorado_exec.cpp verilog/generated/dorado_full.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v \
+		verilog/generated/IFU-Rev-Ch.v verilog/generated/DispY-Rev-Cl.v verilog/generated/DskEth-Rev-Cf.v \
+		verilog/verilator/dorado_pack.sv verilog/cells/dorado_trident.v
+	@cd ../.. && python3 tools/sil_rtl_memory_view.py --obj-dir verilog/verilator/obj_executive -o verilog/verilator/obj_executive/rtl_memory_view.h
+	@cd ../.. && python3 tools/sil_verilator_state.py --obj-dir verilog/verilator/obj_executive -o verilog/verilator/obj_executive/rtl_state.h
+	@$(MAKE) -s -C obj_executive -f Vtb_exec.mk -j4
+
+run-executive: executive-sim
+	@cd ../.. && verilog/verilator/obj_executive/dorado-executive $(EXECUTIVE_ARGS)
+
+# A real RTL cold boot is slow in Verilator. Preserve it for subsequent
+# interactive runs; this is an exact-model snapshot, including disk writes.
+executive-checkpoint: executive-sim
+	@$(MAKE) -s -C ../../dorado ../chm/diskpacks/games-trident.pack
+	@cd ../.. && mkdir -p "$$(dirname '$(EXECUTIVE_SNAPSHOT)')"
+	@cd ../.. && verilog/verilator/obj_executive/dorado-executive --headless \
+		--stop-at $(EXECUTIVE_BOOT_SAMPLES) --save-state '$(EXECUTIVE_SNAPSHOT)' $(EXECUTIVE_ARGS)
+
+run-executive-ready:
+	@test -x obj_executive/dorado-executive || $(MAKE) executive-sim
+	@cd ../.. && test -f '$(EXECUTIVE_SNAPSHOT)' || { \
+		echo 'Create the RTL checkpoint with make -C verilog/verilator executive-checkpoint'; exit 1; }
+	@cd ../.. && verilog/verilator/obj_executive/dorado-executive \
+		--restore '$(EXECUTIVE_SNAPSHOT)' $(EXECUTIVE_ARGS)
+
+# Export the EXISTING matching model/checkpoint. Deliberately do not rebuild
+# executive-sim here: regenerating its C++ changes the checkpoint fingerprint.
+.PHONY: executive-mister-export
+executive-mister-export:
+	@cd ../.. && python3 tools/sil_fpga_checkpoint.py \
+		--checkpoint '$(EXECUTIVE_SNAPSHOT)' --obj-dir verilog/verilator/obj_executive \
+		--storage-words 65536 --hps-pack --base-pack chm/diskpacks/games-trident.pack \
+		--output '$(EXECUTIVE_FPGA_DIR)'
 
 # THE MACHINE RUNS WITH IM PARITY ENABLED. The preloaded array's parity is
 # correct; the enables just must not be on during the power-up transient,
@@ -835,7 +1070,7 @@ crc-test:
 pack-test:
 	@cd ../.. && $(V) --binary --top-module tb_pack $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_pack -o tb_pack \
-		verilog/verilator/tb_pack.sv verilog/verilator/dorado_pack.sv verilog/cells/dorado_trident.v \
+		verilog/verilator/tb_pack.sv verilog/verilator/dorado_pack.sv verilog/cells/dorado_trident.v verilog/cells/cell_MC1650.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_pack/tb_pack +pack=chm/diskpacks/games-trident.pack 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_pack|Assertion|%Error"; exit $$rc; }
 
@@ -1145,6 +1380,14 @@ term-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_term/tb_term 2>&1); \
 		  rc=$$?; echo "$$out" | grep tb_term; exit $$rc; }
 
+.PHONY: keyboard-terminal-test
+keyboard-terminal-test:
+	@cd ../.. && $(V) --binary --top-module tb_keyboard_terminal $(V_WARN) \
+		--Mdir verilog/verilator/obj_keyboard_terminal -o tb_keyboard_terminal \
+		verilog/verilator/tb_keyboard_terminal.sv verilog/cells/dorado_keyboard.v \
+		verilog/cells/dorado_terminal.v >/dev/null
+	@./obj_keyboard_terminal/tb_keyboard_terminal
+
 # A TRIDENT AT THE END OF THE CABLE: presence (Ready+OnLine+TERM together) and
 # rotation at 3600 RPM. The gaps are counted as well as the pulses -- a line
 # stuck low gives a healthy pulse count and only the duty cycle tells them
@@ -1153,6 +1396,6 @@ term-test:
 trident-test:
 	@cd ../.. && $(V) --binary --top-module tb_trident $(V_WARN) \
 		--Mdir verilog/verilator/obj_trident -o tb_trident \
-		verilog/verilator/tb_trident.sv verilog/cells/dorado_trident.v \
+		verilog/verilator/tb_trident.sv verilog/cells/dorado_trident.v verilog/cells/cell_MC1650.v \
 		>/dev/null && { out=$$(./verilog/verilator/obj_trident/tb_trident 2>&1); \
 		  rc=$$?; echo "$$out" | grep tb_trident; exit $$rc; }

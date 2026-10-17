@@ -41,7 +41,9 @@ module tb_msa;
 
   reg [15:0] sout   = 16'h0000;
   reg [7:0]  memad  = 8'h00;
-  reg        ras    = 1'b1, cas = 1'b1, we = 1'b1;
+  // Backplane MemRAS/CAS/WE are active high. The board's ECL-to-TTL
+  // translators invert them into the DRAM socket's active-low strobes.
+  reg        ras    = 1'b0, cas = 1'b0, we = 1'b0;
   reg        loadso = 1'b1, shiftso = 1'b0;
   reg        loadsi = 1'b0, shiftsi = 1'b0;
   reg        strEn  = 1'b1, sinEn   = 1'b1;
@@ -68,6 +70,7 @@ module tb_msa;
   integer i, n_ones, n_zeros;
   reg dinb, dinq, dout_seen, sla_seen, sin_one, sin_zero;
   reg [7:0] q_one, q_zero, q_cap;
+  reg [127:0] all_cap, all_one, all_zero;
   reg doutA_cap, doutH_cap, qh_cap;
   reg doutA_one, doutH_one, qh_one;
   integer n_outck, n_sla_lo, n_load_edge; reg outck_d, load_pend;
@@ -86,6 +89,10 @@ module tb_msa;
     end else if (load_pend) begin
       load_pend <= 1'b0;
       q_cap     <= m.u_a13.q;
+      all_cap   <= {m.u_a13.q,m.u_b13.q,m.u_c13.q,m.u_d13.q,
+                    m.u_a14.q,m.u_b14.q,m.u_c14.q,m.u_d14.q,
+                    m.u_j13.q,m.u_i13.q,m.u_h13.q,m.u_g13.q,
+                    m.u_j14.q,m.u_i14.q,m.u_h14.q,m.u_g14.q};
       doutA_cap <= m.u_b05.p14;
       doutH_cap <= m.u_b06.p14;
       qh_cap    <= m.u_a13.p13;
@@ -105,12 +112,17 @@ module tb_msa;
     begin
       sout = w; strEn = 1'b0;
       loadso = 1'b0; step(64); loadso = 1'b1; step(64);
-      we = 1'b0;  step(8);
-      memad = row; ras = 1'b0; step(8);
-      memad = col; cas = 1'b0; step(32);
-      cas = 1'b1; step(8);
-      ras = 1'b1; step(8);
-      we = 1'b1;  step(64);
+      // Fill the eight word positions. A constant Sout without ShiftSout
+      // only reaches the first position, masking faults in the other seven.
+      repeat (8) begin
+        shiftso = 1'b1; step(32); shiftso = 1'b0; step(32);
+      end
+      we = 1'b1;  step(8);
+      memad = row; ras = 1'b1; step(8);
+      memad = col; cas = 1'b1; step(32);
+      cas = 1'b0; step(8);
+      ras = 1'b0; step(8);
+      we = 1'b0;  step(64);
     end
   endtask
 
@@ -125,17 +137,16 @@ module tb_msa;
   //     A b05   B c05   C d05   D e05   E e06   F d06   G c06   H b06
   //
   // b05 and b06 take their DIN from different places (b02, an MC10125
-  // translator, versus b03, an SN74S174), so the write cannot simply be
-  // retargeted at the H stage. Instead this now gates the STAGE ORDER
-  // directly, at the moment of the parallel load, which is strictly stronger
-  // than the old round trip: q[0] must be A's DRAM, q[7] must be H's, and QH
-  // must equal q[7].
+  // translator, versus b03, an SN74S174). ShiftSout above fills the whole
+  // pipeline so all eight positions participate in the round trip. Also
+  // gate the STAGE ORDER at the parallel load: q[0] must be A's DRAM,
+  // q[7] must be H's, and QH must equal q[7].
   task read_word(input [7:0] row, input [7:0] col);
     begin
       sinEn = 1'b0;
-      we = 1'b1;  step(8);
-      memad = row; ras = 1'b0; step(8);
-      memad = col; cas = 1'b0; step(32);
+      we = 1'b0;  step(8);
+      memad = row; ras = 1'b1; step(8);
+      memad = col; cas = 1'b1; step(32);
       // LoadSinE LOW then HIGH. The other way round leaves SLa high and the
       // '166 stays in SHIFT mode, so it never takes the DRAM outputs: the
       // read then returns 0 while b05's DOUT is plainly 1, which reads as a
@@ -152,8 +163,8 @@ module tb_msa;
       // by the instrument above, not here.
       loadsi = 1'b1; step(32);
       shiftsi = 1'b1; step(64); shiftsi = 1'b0;
-      cas = 1'b1; step(8);
-      ras = 1'b1; step(64);
+      cas = 1'b0; step(8);
+      ras = 1'b0; step(64);
     end
   endtask
 
@@ -161,7 +172,7 @@ module tb_msa;
     integer k, c;
     begin
       c = 0;
-      for (k = 0; k < 4096; k = k + 1) if (m.u_b05.mem[k] !== 1'b0) c = c + 1;
+      for (k = 0; k < 16384; k = k + 1) if (m.u_b05.mem[k] !== 1'b0) c = c + 1;
       nonzero_cells = c;
     end
   endfunction
@@ -179,9 +190,16 @@ module tb_msa;
     dinb   = m.u_b05.p2;
     n_ones = nonzero_cells();
 
+    // MemAd.2 supplies the 16K chips' extra address bit through e26's
+    // 5-12/6-11 jumpers (msa03). Different rows and columns must not erase
+    // this location; test the extra bit in both address phases.
+    write_word(16'h0000, 8'h2B, 8'h17);
+    write_word(16'h0000, 8'h29, 8'h15);
+
     // read the location back -- it holds a 1
     read_word(8'h2B, 8'h15);
     sin_one = m.Sin_00__drv; q_one = q_cap; doutA_one = doutA_cap;
+    all_one = all_cap;
     doutH_one = doutH_cap; qh_one = qh_cap;
 
     // now write a 0 to the same place and read THAT back, so the gate cannot
@@ -189,6 +207,7 @@ module tb_msa;
     write_word(16'h0000, 8'h2B, 8'h15);
     read_word(8'h2B, 8'h15);
     sin_zero = m.Sin_00__drv; q_zero = q_cap;
+    all_zero = all_cap;
 
     $display("tb_msa: during the read -- b05 DOUT=%b, SLa=%b (low = load), RAS'=%b CAS'=%b WE'=%b",
              dout_seen, sla_seen, m.u_b05.p4, m.u_b05.p15, m.u_b05.p3);
@@ -228,11 +247,15 @@ module tb_msa;
     if (qh_one !== q_one[7])
       $fatal(1, "QH (pin 13) is not the H stage (QH=%b, q[7]=%b)", qh_one, q_one[7]);
 
-    $display("tb_msa: ROUND TRIP through the A stage -- wrote 1, q[0]=%b; wrote 0, q[0]=%b",
-             q_one[0], q_zero[0]);
-    if (q_one[0] !== 1'b1 || q_zero[0] !== 1'b0)
+    $display("tb_msa: ROUND TRIP through all eight stages -- wrote ones, q=%b; wrote zeros, q=%b",
+             q_one, q_zero);
+    if (q_one !== 8'hff || q_zero !== 8'h00)
       $fatal(1, "the storage array did not read back what was written (1 gave %b, 0 gave %b)",
-             q_one[0], q_zero[0]);
+             q_one, q_zero);
+    if (all_one !== {128{1'b1}} || all_zero !== 128'd0)
+      $fatal(1, "16 data bits x 8 words did not round trip with address isolation: ones=%h zeros=%h",
+             all_one, all_zero);
+    $display("tb_msa: all 128 data bits round trip and survive distinct row/column writes");
 
     $display("tb_msa: PASS -- A WORD GOES INTO PARC'S STORAGE ARRAY AND COMES BACK:");
     $display("tb_msa:   Sout registered, translated to TTL, written into the MK4096s,");

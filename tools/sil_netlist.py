@@ -50,14 +50,27 @@ import sys
 from collections import Counter
 
 # `c41.6i {89,34}` -- package, pin number, direction, and board position.
-PIN_RE = re.compile(r'\b([a-z]+\d+)\.(\d+)([io])\b(?:\s*\{(-?\d+),(-?\d+)\})?')
+#
+# A POSITION MAY CARRY A `#n` PREFIX: `#1c42.5o`, `#5b42.4o`, `#-1c3.1o`,
+# `#4i19.6o`. The `.lc` lists those packages under exactly those names --
+# MemC's eight F100181s (`#1c42 #1c43 #1f42 #1i42 #5b42 #5b43 #5e42 #5h42`),
+# the BR+Mar adders that make every VA; MemD's thirty-six bank-B F10470s
+# (`#-1c3 ... #-1l19`), half the cache data array; BaseBd's four CA3140s --
+# so the prefix is part of the position name, not a marker of absence
+# (the sheets draw them stuffed, e.g. MemC01.sil "# 1c43e F181K"). A plain
+# `[a-z]+\d+` with a `\b` in front rejected every one of their pin
+# references, and the generator then instantiated 48 packages with NO PINS
+# AT ALL: the RTL machine computed no virtual address (dDad/dVA held at
+# zero, every reference aliased to one cache word) and had half a cache.
+# Found 2026-09-08 at ABoot, whose clock wait read the display-list word.
+PIN_RE = re.compile(r'(?<![A-Za-z0-9#-])((?:#-?\d+)?[a-z]+\d+)\.(\d+)([io])\b(?:\s*\{(-?\d+),(-?\d+)\})?')
 # A backplane connector pin on a net line: `E179`, `C96`. Package positions are
 # lowercase (PKG_RE) and coordinates carry no letters, so this cannot collide.
 CONN_RE = re.compile(r'\b[CE]\d+\b')
 # `Ain.00: <406> (93)` -- net name, total wire length, net id.
 NET_HEAD_RE = re.compile(r'^(\S+):\s*<(\d+)>\s*(?:\((\d+)\))?\s*$')
-# `a01: (MC10102/16/E) ; 5,7,9,10`
-PKG_RE = re.compile(r'^([a-z]+\d+):\s*\(([^)]*)\)\s*;\s*(.*)$')
+# `a01: (MC10102/16/E) ; 5,7,9,10` -- and `#1c42: (...)` for a prefixed one.
+PKG_RE = re.compile(r'^((?:#-?\d+)?[a-z]+\d+):\s*\(([^)]*)\)\s*;\s*(.*)$')
 # `MC10173/16/E1G:` heading in the .lc file
 LC_HEAD_RE = re.compile(r'^(\S+/\S+/\S+):\s*$')
 
@@ -269,6 +282,37 @@ BACKPLANE_WAKEUP_JUMPERS = {
 # pin reaches only the muffler mux e23, so it is left alone.)
 BACKPLANE_BOARD_ALIASES = {
     ('ContA', 'SWb'): 'SW',      # E166  ContA j19 -> ContB k21
+    # THE Md-HOLD'S MISSING INPUT. MemC b23 -- one of the two gates whose
+    # wired-OR is dMDhold', the request that holds a <-Md (HM p.42: an
+    # immediate <-Md is held in the cycle after a fetch or store, and a <-Md
+    # after an intervening Store is held until the store completes) -- takes
+    # `DcomingForCt'` from backplane pin E39. MemX drives E39, but under the
+    # name `EcDcomingForCt'` (its plain `DcomingForCt'` is board-local), so the
+    # generated machine left MemC's input as a cable port and Verilator tied
+    # it to 0; every run's HOLDSRC line read MDhold 0, and AEm0.mc's ABoot
+    # (Fetch, Store, <-Md, <-Md) read its clock word once correctly from the
+    # direct path and once as the store's word out of the Md file (measured
+    # 2026-09-05).
+    #
+    # THE JOIN IS MADE ON THE MemC SIDE, NOT MemX's. From 2026-09-05 to
+    # 2026-09-08 this entry was ('MemX', "EcDcomingForCt'"): "DcomingForCt'",
+    # on the belief that MemX's plain `DcomingForCt'` was "the net behind the
+    # buffer that drives the pin". It is not: MemX has TWO distinct nets.
+    # `EcDcomingForCt'` is f23.2o -> f22.11i and out on E39; `DcomingForCt'`
+    # is f22.15o -> f23.13i, g24.11i, e50 (a terminator) -- the term that g24
+    # ORs into MemX01.sil+10, the D input of e19's DdataGood', which is the
+    # data-not-good input of MemC b23's Md-hold request. Renaming the first
+    # onto the second inside MemX merged them: the generator dropped f22.15o,
+    # f23.13i and g24.11i (a merged net cannot have two drivers), so
+    # DdataGood' lost its DcomingForCt' term and the <-Md hold never fired --
+    # HOLDSRC "MDhold 0" in every boot -- and InitMem.mc's `DummyRef_ T, T_ MD`
+    # went unheld while the page's last Store<- was still missing, which is
+    # HM p.60's "infinite DBufBusy" (measured 2026-09-08, run22/run24: the
+    # last store of a MapInit page misses, the DummyRef enters unheld, the
+    # store's Ec2 stage arrives without Store<-InEc2, MakeD<-Dbuf never fires).
+    # MemC has no local `EcDcomingForCt'` (its wire list carries the pin as
+    # `DcomingForCt'`: b23.12i, b52.5i, E39 only), so the rename is safe there.
+    ('MemC', "DcomingForCt'"): "EcDcomingForCt'",   # E39  MemX f23 -> MemC b23
     # THE SLOW-I/O STROBES, spelled with capitals on the two display boards.
     # ProcL drives `IOout'` (g22) and `IOin'` (g23); DskEth, IOTest and Music
     # receive them under exactly that spelling on E74/E71, and DispY/DispM
@@ -316,6 +360,9 @@ class Board:
         self.backplane: dict[str, set[str]] = {}
         self.bp_source = 'wl'
         self.bp_mismatch: list[tuple[str, set, set]] = []
+        # Canonical names that an alias produced on this board; a raw net of
+        # the same name parsed later is a merge, see load_wl.
+        self.alias_hits: set[str] = set()
 
     # ---- .wl -----------------------------------------------------------
 
@@ -351,7 +398,31 @@ class Board:
                     continue
                 m = NET_HEAD_RE.match(line.strip())
                 if m:
-                    net_name = canon_net(m.group(1), self.name)
+                    raw_name = m.group(1)
+                    net_name = canon_net(raw_name, self.name)
+                    # AN ALIAS MUST NOT MERGE TWO NETS. A second header
+                    # canonicalising to a name this board already carries,
+                    # where either header was RENAMED by an alias, means a
+                    # backplane alias has merged two distinct nets -- two
+                    # drivers on one net, and the generator then silently
+                    # drops pins. That happened on MemX from 2026-09-05 to
+                    # 2026-09-08: `EcDcomingForCt'` (f23.2o, out on E39) was
+                    # renamed onto the board-local `DcomingForCt'` (f22.15o ->
+                    # f23.13i, g24.11i), and the <-Md hold lost its
+                    # DcomingForCt' term. Refuse it here. (Un-aliased repeats
+                    # -- the wire list's DISCONNECT sections match this regex
+                    # too -- keep the old overwrite behaviour.)
+                    if net_name in self.nets and (net_name != raw_name or
+                                                  net_name in self.alias_hits):
+                        raise SystemExit(
+                            f"{self.name}: wire-list net {m.group(1)!r} "
+                            f"canonicalises to {net_name!r}, a name this board "
+                            f"already carries as a DIFFERENT net -- an alias "
+                            f"(BACKPLANE_BOARD_ALIASES / BACKPLANE_CASE_ALIASES) "
+                            f"is merging two nets. Alias the OTHER board's "
+                            f"spelling instead.")
+                    if net_name != raw_name:
+                        self.alias_hits.add(net_name)
                     net = {'id': int(m.group(3)) if m.group(3) else None,
                            'length': int(m.group(2)), 'pins': []}
                     self.nets[net_name] = net

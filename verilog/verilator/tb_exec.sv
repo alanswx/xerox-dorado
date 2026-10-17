@@ -60,9 +60,9 @@
 
 module tb_exec;
 
-  // THE OVERSAMPLING RATIO -- sys_clk per microinstruction. Real time on the
-  // FPGA needs sys_clk = SYSPER x 16.67 MHz and measured Fmax is 48.99 MHz, so
-  // SYSPER=2 is the target and 16 is 0.18x.
+  // Fabric samples per 30 ns clock, with two clocks per microinstruction.
+  // Instructions/second = sys_clk / (2*SYSPER), per HM 2.3. Passing short
+  // tests at a ratio does not establish full boot at that ratio.
   //
   //     make -C verilog/verilator exec-test SYSPER=2
 `ifndef SYSPER_OVERRIDE
@@ -120,15 +120,18 @@ module tb_exec;
   // more CLK ports. Leaving them undriven gives those boards zero local clock
   // edges with their enables already asserted, which looks exactly like a
   // gating bug and is not one.
-  // REFRESH IS A REAL-TIME INTERVAL, and it was a 9-bit free-running counter:
-  // `RfshPeriod` flipped every 512 sys_clk, i.e. every 16 microinstructions
-  // (about 1 us), so the memory was asked to refresh continuously. Initial
-  // survives that because it makes few references; a world does not, and wedges
-  // with RefHold on 98% of samples. `+rfshdiv=N` sets the half-period in
-  // sys_clk so the interval can be measured rather than assumed; the default
-  // is the old 512 so nothing that passed changes.
+  // REFRESH IS A REAL-TIME INTERVAL. `RfshPeriod` is a BaseBoard line, and no
+  // bench configuration carries the BaseBoard, so the bench makes it. HM
+  // p.129 (Refresh): "refresh references once every 16 us ... During the
+  // first 8 us of a 16 us period, refresh defers to ..." -- so the line is a
+  // 16 us square wave, 8 us per half. At SYSPER sys_clk per 30 ns CLOCK that
+  // is 8000 / 30 x SYSPER = 4267 sys_clk per half at 16x. It used to be 512
+  // (a 9-bit free-running counter, "every 16 microinstructions"), 8.3x too
+  // fast: the map did a refresh cycle between EVERY pair of InitMap's map
+  // writes (VAWIN, 2026-09-08), a third of the map's bandwidth, and the
+  // storage the same. `+rfshdiv=N` overrides the half-period in sys_clk.
   integer rfshhalf; initial begin
-    rfshhalf = 512;
+    rfshhalf = (8000 * `SYSPER_OVERRIDE) / 30;
     void'($value$plusargs("rfshdiv=%d", rfshhalf));
   end
   integer   rfshdiv = 0;
@@ -152,13 +155,41 @@ module tb_exec;
   // the superseded Rev Ci). The accumulator is told what a sys_clk is worth
   // so it holds at any oversampling ratio.
   wire pixel_clk;
-  cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(16)) u_pixclk (
+  // This oscillator's SYSPER counts samples per instruction, like Trident;
+  // the bench's ratio counts samples per clock. HM 2.3: two clocks/cycle.
+  cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(2 * SYSPER)) u_pixclk (
       .sys_clk(sys_clk), .p8(pixel_clk), .p7(1'b0), .p14(1'b1));
   integer n_pix = 0; reg d_pix;
   always @(posedge sys_clk) begin
     if (pixel_clk !== d_pix) n_pix = n_pix + 1;
     d_pix <= pixel_clk;
   end
+`ifdef FULL
+  // Independent units check: 50 MHz has a 20 ns period; a fabric sample
+  // represents 30/SYSPER ns. Count transitions, including both pixel edges.
+  reg check_clock_domains = 0;
+  integer storage_even_edges=0, storage_odd_edges=0;
+  reg storage_even_d=0, storage_odd_d=0;
+  always @(posedge sys_clk) begin
+    if(m.b_msa.CLK_ms0Even_p_ && !storage_even_d) storage_even_edges=storage_even_edges+1;
+    if(m.b_msaOdd.CLK_ms0Even_p_ && !storage_odd_d) storage_odd_edges=storage_odd_edges+1;
+    storage_even_d<=m.b_msa.CLK_ms0Even_p_;
+    storage_odd_d<=m.b_msaOdd.CLK_ms0Even_p_;
+  end
+  initial check_clock_domains = $test$plusargs("check-clock-domains");
+  always @(posedge sys_clk)
+    if (check_clock_domains && n_cyc2 == 100000) begin
+      if (n_pix < 300000/SYSPER-3 || n_pix > 300000/SYSPER+3)
+        $fatal(1,"50 MHz pixel oscillator: %0d transitions, expected %0d",n_pix,300000/SYSPER);
+      if (u_drv.SYSPER != 2*SYSPER)
+        $fatal(1,"Trident ratio must count both clocks per instruction");
+      if (m.b_DskEth.u_a05.TW != 100*SYSPER)
+        $fatal(1,"disk index discriminator must last 3 us");
+      if(storage_even_edges==0 || storage_even_edges!=storage_odd_edges)
+        $fatal(1,"both storage slots must be clocked: even=%0d odd=%0d",storage_even_edges,storage_odd_edges);
+      $display("tb_exec: CLOCK-DOMAINS PASS -- pixel=50 MHz, disk index=3 us, two clocks/instruction, both storage slots clocked (SYSPER=%0d)",SYSPER);
+    end
+`endif
   integer n_vid = 0, n_hs = 0, n_vs = 0, n_hb = 0, n_vb = 0, n_hl = 0;
   reg d_vid, d_hs, d_vs, d_hb, d_vb, d_hl;
   integer n_xtal = 0, n_wdwt = 0, n_wdht = 0;
@@ -446,10 +477,12 @@ module tb_exec;
 
   // One pulse, cycle by cycle: on preHSync's rising edge print the next 40
   // sys_clk of the whole neighbourhood (twice per run).
-  integer n_pht = 0; reg d_phs2 = 1'b0;
+  integer n_pht = 0, n_pht_pulses = 0; reg d_phs2 = 1'b0;
   always @(posedge sys_clk) begin
-    if (m.b_DispY.preHSync && !d_phs2 && n_pht < 80) n_pht = n_pht + 40;
-    if (n_pht > 0 && n_pht % 40 != 0) begin end
+    if (m.b_DispY.preHSync && !d_phs2 && n_pht_pulses < 2) begin
+      n_pht = 40;
+      n_pht_pulses = n_pht_pulses + 1;
+    end
     if (n_pht > 0) begin
       $display("tb_exec: PHT pclk=%b clkhra'=%b pce'=%b preHS=%b RamHS=%b",
                m.b_DispY.PixelClk_p_Bd, m.b_DispY.ClkHRamAddr_p_,
@@ -496,6 +529,57 @@ module tb_exec;
     if (halfline !== d_hl ) n_hl  = n_hl  + 1;
     d_vid<=vid; d_hs<=hsync; d_vs<=vsync_n; d_hb<=hblank; d_vb<=vblank; d_hl<=halfline;
   end
+  // ---- THE TERMINAL, or the keyboard words never arrive -------------------
+  // `+terminal`: `dorado_terminal` -- the processor in the keyboard -- on the
+  // return channel. Without it DispY's `KeyboardData` port is tied 0 (it
+  // "awaits BaseBd"), the guest's ReadTerminal never sees a start bit, and the
+  // Alto keyboard words at 177034B-177037B keep the ZERO Initial's storage
+  // init left there. Keys are ACTIVE LOW, so zero is EVERY KEY HELD, and
+  // AEm0.mc's ABoot chooses the boot by the BS key: `ETemp0, Branch[EBoot, R
+  // even]`. The 230 M-cycle disk-boot run therefore went to EBOOT (0x406) and
+  // never to DISKBOOT (0x405) -- 16,272 EControl writes, "DiskBoot first
+  // @-1" -- while the disk task idled correctly in AltoLoop. Wired as
+  // fpga/mister/Dorado.sv wires it: one bit per horizontal blanking (DispY
+  // c22 is clocked by RamdHBlank), all five words all-ones = nothing pressed.
+  // KeyboardData EQUALS OISData: BaseBd c06 straps OISData to the MC10125's
+  // true input (pin 11) and the MC10124's p11 -> p14 channel is the
+  // non-inverting one, so the bench connects the terminal's output straight
+  // to the port that the BaseBoard would drive. Opt-in, so the gates that
+  // predate it do not move.
+  reg  term_on = 1'b0; initial term_on = $test$plusargs("terminal");
+  reg  term_reset = 1'b1; integer term_rst_cnt = 0;
+  always @(posedge sys_clk) if (term_reset) begin
+    if (term_rst_cnt >= 63) term_reset <= 1'b0; else term_rst_cnt <= term_rst_cnt + 1;
+  end
+  reg  term_hb_d = 1'b0; always @(posedge sys_clk) term_hb_d <= hblank;
+  wire term_tick = hblank & ~term_hb_d;
+  // Host keyboard events use the same PS/2 decoder and terminal serializer
+  // as the MiSTer wrapper. The simulation driver supplies physical key
+  // transitions here; guest keyboard memory is only written by microcode.
+  reg [10:0] terminal_ps2_key /* verilator public_flat_rw */ = 11'd0;
+  wire [15:0] terminal_kw0, terminal_kw1, terminal_kw2, terminal_kw3;
+  dorado_keyboard u_keyboard (
+      .sys_clk(sys_clk), .reset(term_reset), .ps2_key(terminal_ps2_key),
+      .key_word0(terminal_kw0), .key_word1(terminal_kw1),
+      .key_word2(terminal_kw2), .key_word3(terminal_kw3));
+  wire term_ois, term_ois_n;
+  dorado_terminal u_term (
+      .sys_clk(sys_clk), .reset(term_reset), .line_tick(term_tick),
+      .key_word0(terminal_kw0), .key_word1(terminal_kw1),
+      .key_word2(terminal_kw2), .key_word3(terminal_kw3),
+      .key_word4(16'hFFFF),
+      .mouse_dx(9'sd0), .mouse_dy(9'sd0), .mouse_pending(1'b0),
+      .mouse_taken(), .mouse_sent_dx(), .mouse_sent_dy(),
+      .OISData(term_ois), .OISData_n(term_ois_n));
+  wire term_kbd = term_on & term_ois;
+  integer n_term_ticks = 0, n_term_ones = 0, n_ois_hi = 0, n_term_smp = 0;
+  always @(posedge sys_clk) begin
+    n_term_smp = n_term_smp + 1;
+    if (term_tick) begin n_term_ticks = n_term_ticks + 1; if (term_kbd) n_term_ones = n_term_ones + 1; end
+    if (m.b_DispY.OISRcvdData) n_ois_hi = n_ois_hi + 1;
+  end
+  final $display("tb_exec: TERMINAL -- %s: %0d line ticks, %0d one-bits sent on KeyboardData, DispY OISRcvdData high %0d of %0d",
+                 term_on ? "on" : "off", n_term_ticks, n_term_ones, n_ois_hi, n_term_smp);
 `endif
 `ifdef FULL
   // ---- A TRIDENT WITH A PACK ON IT, unit 0 of the disk cable ---------------
@@ -507,15 +591,17 @@ module tb_exec;
   // bench's per-clock SYSPER (HM 2.3: two clocks per microinstruction).
   // 117 pulses per revolution is the drive's; the controller's subsector
   // counter divides them by four (disk.c, from TriconD's own test).
-  // 80 words per pulse puts 9,360 words on a track, the T-80's own capacity.
+  // T-80 capacity is 20,160 bytes = 10,080 words per track (Trident
+  // 76205-902, Table 2-1), independently of the 117 electronic pulses.
   wire drv_ready_n, drv_online_n, drv_term_n, drv_sel_n, drv_sec_n, drv_index_n, drv_adv, drv_bit;
   wire drv_dp, drv_dm, drv_cp, drv_cm;
+  wire pk_writing;
   wire [11:0] tag_n; wire cyltag_n, headtag_n, drivetag_n, conttag_n, sel0_n;
   wire [11:0] pk_cyl; wire [5:0] pk_head; wire pk_eoc_n;
   wire [31:0] pk_nct, pk_nht, pk_ndt, pk_nkt, pk_ntr, pk_nse, pk_nbi, pk_nbl;
   reg  pack_on = 1'b0; string pack_path;
   initial pack_on = $value$plusargs("pack=%s", pack_path);
-  dorado_trident #(.SYSPER(2 * SYSPER), .SECTORS_PER_REV(117), .WORDS_PER_SECTOR(80)) u_drv (
+  dorado_trident #(.SYSPER(2 * SYSPER), .SECTORS_PER_REV(117), .WORDS_PER_TRACK(10080)) u_drv (
       .sys_clk(sys_clk), .reset(1'b0), .attached(pack_on), .selected(~sel0_n),
       .TtlReady_n(drv_ready_n), .TtlOnLine_n(drv_online_n), .TtlTerm_n(drv_term_n),
       .Selected_n(drv_sel_n), .SecIndx_n(drv_sec_n), .TtlIndex_n(drv_index_n),
@@ -525,6 +611,8 @@ module tb_exec;
       .sys_clk(sys_clk), .attached(pack_on), .tagbus_n(tag_n),
       .cyltag_n(cyltag_n), .headtag_n(headtag_n), .drivetag_n(drivetag_n), .conttag_n(conttag_n),
       .pulse(u_drv.sector), .data_adv(drv_adv), .data_bit(drv_bit), .endofcyl_n(pk_eoc_n),
+      .selected(~sel0_n), .write_data_p(m.DataP0), .write_data_m(m.DataM0),
+      .write_gate(pk_writing), .n_write_blocks(),
       .cyl(pk_cyl), .head(pk_head), .n_cyltag(pk_nct), .n_headtag(pk_nht),
       .n_drivetag(pk_ndt), .n_conttag(pk_nkt), .n_tracks(pk_ntr), .n_sectors(pk_nse),
       .n_bits(pk_nbi), .n_blocks(pk_nbl));
@@ -537,8 +625,23 @@ module tb_exec;
   // and none did: every run's JUNK line has read "Pendulum edges 0", and AEmu's
   // ABoot waits 3 x 39 ms on VM 430 before its disk boot, i.e. for ever.
   // Opt-in, so the gates that predate it do not move.
-  reg pendulum_r = 1'b0; integer pend_cnt = 0, pend_half = 0;
-  initial if ($test$plusargs("pendulum")) pend_half = (32000 * SYSPER) / 30 / 2;   // sys_clk is 30 ns / SYSPER
+  //
+  // THE LINE IS HALVED BEFORE IT BECOMES A WAKEUP. IFU k08 (MC10231) FF A has
+  // D tied to its own Q' and is clocked by Pendulum, so TimeToWake toggles
+  // once per Pendulum rising edge, and FF B -- the wakeup itself -- clocks on
+  // TimeToWake's rising edge: one junk wakeup per TWO Pendulum periods. A
+  // 32 us square wave here therefore woke the junk task every 64 us (measured
+  // 2026-09-05: TWReq.02 rose every 34,144 sys_clk = 2 x 17,067), and the
+  // world's clock ran at half speed. Junk.mc derives RTCDelta from a 32 us
+  // wakeup ("Delta = 32 / 38.09524") and cpu.c's DORADO_JUNK_TICK_CYCLES is
+  // 533 x 60 ns = 32 us, so the line the BaseBoard sends is a 16 us wave.
+  // `+pendulum_us=N` overrides the period (32 reproduces the runs before
+  // 2026-09-05, which is what the T-file/MDM windows were measured on).
+  reg pendulum_r = 1'b0; integer pend_cnt = 0, pend_half = 0, pend_us = 16;
+  initial if ($test$plusargs("pendulum")) begin
+    void'($value$plusargs("pendulum_us=%d", pend_us));
+    pend_half = (pend_us * 1000 * SYSPER) / 30 / 2;   // sys_clk is 30 ns / SYSPER
+  end
   always @(posedge sys_clk) if (pend_half > 0) begin
     if (pend_cnt >= pend_half - 1) begin pend_cnt <= 0; pendulum_r <= ~pendulum_r; end
     else pend_cnt <= pend_cnt + 1;
@@ -554,7 +657,7 @@ module tb_exec;
   // idle -- the active-low Trident status lines DEASSERTED (1), the
   // Ethernet receiver quiet (RcvData 0, Collision 0), host address 0 -- so
   // Initial's Ethernet boot can be watched trying to start the controller.
-  dorado_full m (
+  dorado_full #(.SYSPER(SYSPER)) m (
       .XmtData_p_(eth_xmt),
       .CLK_disk_p_(mclk),
       .ClockM0__in(drv_cm),
@@ -566,11 +669,11 @@ module tb_exec;
       .ClockP2__in(1'b0),
       .ClockP3__in(1'b0),
       .Collision(1'b0),
-      .DataM0__in(drv_dm),
+      .DataM0__in(pk_writing ? 1'b0 : drv_dm),
       .DataM1__in(1'b0),
       .DataM2__in(1'b0),
       .DataM3__in(1'b0),
-      .DataP0__in(drv_dp),
+      .DataP0__in(pk_writing ? 1'b0 : drv_dp),
       .DataP1__in(1'b0),
       .DataP2__in(1'b0),
       .DataP3__in(1'b0),
@@ -624,6 +727,7 @@ module tb_exec;
       .PixelClkVCO(pixel_clk), .RawPixelClk(pixel_clk),
       .AltoTTLVideo(vid), .AltoHSync(hsync), .AltoVSync_p_(vsync_n),
       .HBlank(hblank), .VBlank(vblank), .HalfLine(halfline),
+      .KeyboardData(term_kbd),        // the terminal's return channel (+terminal), else 0 as before
 `elsif SCREEN
   // The TEN-board machine: the nine of `dorado_world` plus DispY, the
   // monochrome display board. Everything else here is identical, so any
@@ -643,13 +747,14 @@ module tb_exec;
       .PixelClkVCO(pixel_clk), .RawPixelClk(pixel_clk),
       .AltoTTLVideo(vid), .AltoHSync(hsync), .AltoVSync_p_(vsync_n),
       .HBlank(hblank), .VBlank(vblank), .HalfLine(halfline),
+      .KeyboardData(term_kbd),        // the terminal's return channel (+terminal), else 0 as before
 `else
   dorado_world m (
 `endif
       .sys_clk(sys_clk),
       .CLK_ca_p_(mclk), .CLK_cb_p_(mclk), .CLK_ph_p_(mclk), .CLK_pl_p_(mclk),
       .CLK_mc_p_(mclk), .CLK_md_p_(mclk), .CLK_mx_p_(mclk),
-      .CLK_ms0Even_p_(mclk), .CLK_ifu_p_(mclk),
+      .CLK_ms0Even_p_(mclk), .CLK_ms0Odd_p_(mclk), .CLK_ifu_p_(mclk),
       .CPAddr_0_p_(addr_n[2]), .CPAddr_1_p_(addr_n[1]), .CPAddr_2_p_(addr_n[0]),
       .CPOut_0(cpout[8]), .CPOut_1(cpout[7]), .CPOut_2(cpout[6]),
       .CPOut_3(cpout[5]), .CPOut_4(cpout[4]), .CPOut_5(cpout[3]),
@@ -717,7 +822,7 @@ module tb_exec;
   integer mi;
   initial if (!$test$plusargs("nomapseed")) begin
     repeat (1000) @(posedge sys_clk);
-    for (mi = 0; mi < 4096; mi = mi + 1) begin
+    for (mi = 0; mi < 16384; mi = mi + 1) begin   // the map is 16K deep (cell_MosRam)
       m.b_MemX.u_a04.mem[mi] = 1'b1;
       m.b_MemX.u_a05.mem[mi] = 1'b1;
       m.b_MemX.u_a06.mem[mi] = 1'b1;
@@ -802,15 +907,23 @@ module tb_exec;
       lo_par = ~(^cpat[7:0]);      // D.00-07
       cpat[17:16] = {hi_par, lo_par};
     end
-    for (si = 0; si < 4096; si = si + 1) begin
+    for (si = 0; si < 16384; si = si + 1) begin   // 16K x 1 storage chips (cell_MK4096P_6)
       m.b_msa.u_b05.mem[si] = dpat[0];   // A
+      m.b_msaOdd.u_b05.mem[si] = dpat[0];   // the odd storage board, same word
       m.b_msa.u_c05.mem[si] = dpat[1];   // B
+      m.b_msaOdd.u_c05.mem[si] = dpat[1];   // the odd storage board, same word
       m.b_msa.u_d05.mem[si] = dpat[2];   // C
+      m.b_msaOdd.u_d05.mem[si] = dpat[2];   // the odd storage board, same word
       m.b_msa.u_e05.mem[si] = dpat[3];   // D
+      m.b_msaOdd.u_e05.mem[si] = dpat[3];   // the odd storage board, same word
       m.b_msa.u_e06.mem[si] = dpat[4];   // E
+      m.b_msaOdd.u_e06.mem[si] = dpat[4];   // the odd storage board, same word
       m.b_msa.u_d06.mem[si] = dpat[5];   // F
+      m.b_msaOdd.u_d06.mem[si] = dpat[5];   // the odd storage board, same word
       m.b_msa.u_c06.mem[si] = dpat[6];   // G
+      m.b_msaOdd.u_c06.mem[si] = dpat[6];   // the odd storage board, same word
       m.b_msa.u_b06.mem[si] = dpat[7];   // H
+      m.b_msaOdd.u_b06.mem[si] = dpat[7];   // the odd storage board, same word
     end
     for (ci = 0; ci < 4096; ci = ci + 1) begin
       // EVERY ADDRESS ANSWERING THE SAME WORD is a machine that fetches ONE
@@ -1818,6 +1931,12 @@ module tb_exec;
   always @(posedge sys_clk) if (enterw && !ew_done) begin
     if (!ew_active && cia_now == ew_at) begin
       ew_active <= 1'b1;
+`ifdef WORLD
+      // InitialMain.mc IFUMInitL clears all four opcode tables. The real
+      // world transport reloads them AFTER Initial, so an early IM preload
+      // alone cannot stand in for that transport.
+      restore_world_tables;
+`endif
       $display("tb_exec: +enterworld -- Initial reached %h at cycle %0d; entering the world at %h",
                ew_at, n_cyc2, ew_tgt);
       force m.TNIA_04 = ew_tgt[11]; force m.TNIA_05 = ew_tgt[10];
@@ -1974,9 +2093,15 @@ module tb_exec;
   // Link, the saved branch conditions and the task, so a loop's arithmetic
   // can be followed iteration by iteration against the C emulator's PCDIS.
   integer pcfrom = -1, pclen = 0; reg [11:0] pct_cia_d = 12'hfff;
+  // `+pctask=N` prints the PCT line for EVERY MIR load executed by task N,
+  // window or not -- a task that runs 81 instructions in a 230 M-cycle run
+  // (the junk task, 2026-09-05) is cheap to log in full and its arithmetic
+  // is what needs following.
+  integer pctask = -1;
   initial begin
     void'($value$plusargs("pcfrom=%d", pcfrom));
     void'($value$plusargs("pclen=%d", pclen));
+    void'($value$plusargs("pctask=%d", pctask));
   end
   wire [3:0] pct_ctask = {m.b_ContA.CTask_0, m.b_ContA.CTask_1, m.b_ContA.CTask_2, m.b_ContA.CTask_3};
 
@@ -1999,6 +2124,22 @@ module tb_exec;
   end
   final $display("tb_exec: JUNK -- TWReq.02 high %0d (first @%0d), ShutUp high %0d, IOReset high %0d, AckJunkTW high %0d, TimeToWake edges %0d, Pendulum edges %0d, of %0d",
                  jk_tw, jk_first_tw, jk_shut, jk_ior, jk_ack, jk_ttw_edges, jk_pend_edges, n_cyc2);
+  // `+junklog`: every event in the junk-wakeup chain, with the task and
+  // address that caused it. ShutUp is IFU a21's Q' (D = B[15] at AckJunkTW'),
+  // so an ack with B[15]=0 shuts the pendulum off; the 230 M-cycle disk-boot
+  // run saw exactly seven acks and then ShutUp high for the rest of the run.
+  reg jl_on = 1'b0; initial jl_on = $test$plusargs("junklog");
+  reg jl_shut_d = 1'b1, jl_ack_d = 1'b0, jl_tw_d = 1'b0;
+  always @(posedge sys_clk) if (jl_on) begin
+    if (m.b_IFU.ShutUp !== jl_shut_d)
+      $display("tb_exec: JUNKLOG @%0d ShutUp %b->%b task=%h CIA=%h B15=%b AckJunkTW=%b IOReset=%b",
+               n_cyc2, jl_shut_d, m.b_IFU.ShutUp, pct_ctask, ring_cia, m.b_IFU.RcvdBMux_15, m.b_IFU.AckJunkTW, m.b_IFU.IOReset);
+    if (m.b_IFU.AckJunkTW && !jl_ack_d)
+      $display("tb_exec: JUNKLOG @%0d AckJunkTW task=%h CIA=%h B15=%b ShutUp=%b", n_cyc2, pct_ctask, ring_cia, m.b_IFU.RcvdBMux_15, m.b_IFU.ShutUp);
+    if (m.TWReq_02 && !jl_tw_d)
+      $display("tb_exec: JUNKLOG @%0d TWReq.02 rises task=%h CIA=%h", n_cyc2, pct_ctask, ring_cia);
+    jl_shut_d <= m.b_IFU.ShutUp; jl_ack_d <= m.b_IFU.AckJunkTW; jl_tw_d <= m.TWReq_02;
+  end
 `endif
 
 `ifdef SCREEN
@@ -2145,14 +2286,711 @@ module tb_exec;
                  n_ioatt, n_ioatt_de, n_ioatt_ph, n_dskiob, n_ddc, n_cyc2);
 `endif
 `ifdef FULL
+  // ---- TFWIN / MDWIN: two per-task register files, watched slot by slot ----
+  // `+tfwin=N +tfwinlen=L` prints, every sys_clk in [N, N+L), the T-file's
+  // write pulse (ProcH j05 TbWrite'a), its address (CurrLast', from i12 on
+  // DblClock, selected by a18 between LastNext and Curr), the data (dTm), the
+  // task-number nets it is built from, and slots 2 and 3 of l03/l04 (T bits
+  // 00-07). `+mdwin=N +mdwinlen=L` does the same for MemD's MDM file (h04,
+  // dMD bits 00-03): WriteMDM'a, MDMad', the data pins, and slots 0 and 3.
+  // Both exist because a task's T and a task's Md were each read back as
+  // ANOTHER task's word (2026-09-05), and the F10145A address-move check
+  // found the address stable across every pulse -- so the question is which
+  // slot each pulse addresses, and what the machine's Last/Curr/Next say.
+  longint tfwin = -1, tfwinlen = 0, mdwin = -1, mdwinlen = 0, clkwin = -1, clkwinlen = 0, memwin = -1, memwinlen = 0;
+  // `+mdpc=HEX` opens the MDWIN and MEMWIN windows at the first MIR load of
+  // that address (a cycle number moves with every cell change; an address
+  // does not).
+  reg [11:0] mdpc = 12'hfff; initial void'($value$plusargs("mdpc=%h", mdpc));
+  always @(posedge sys_clk)
+    if (mdpc != 12'hfff && ring_cia == mdpc && ring_cia != pct_cia_d) begin
+      mdwin = n_cyc2; memwin = n_cyc2; mdpc = 12'hfff;
+      $display("tb_exec: MDWIN/MEMWIN open @%0d at CIA=%h", n_cyc2, ring_cia);
+    end
+  initial begin
+    void'($value$plusargs("clkwin=%d", clkwin)); void'($value$plusargs("clkwinlen=%d", clkwinlen));
+    void'($value$plusargs("tfwin=%d", tfwin)); void'($value$plusargs("tfwinlen=%d", tfwinlen));
+    void'($value$plusargs("mdwin=%d", mdwin)); void'($value$plusargs("mdwinlen=%d", mdwinlen));
+  end
+  wire [3:0] tf_curr = ~{m.b_ProcH.Curr_3_p_, m.b_ProcH.Curr_2_p_, m.b_ProcH.Curr_1_p_, m.b_ProcH.Curr_0_p_};
+  wire [3:0] tf_last = ~{m.b_ProcH.Last_3_p_, m.b_ProcH.Last_2_p_, m.b_ProcH.Last_1_p_, m.b_ProcH.Last_0_p_};
+  wire [3:0] tf_next = ~{m.b_ProcH.Next_3_p_, m.b_ProcH.Next_2_p_, m.b_ProcH.Next_1_p_, m.b_ProcH.Next_0_p_};
+  wire [3:0] tf_ln   = ~{m.b_ProcH.LastNext_3_p_, m.b_ProcH.LastNext_2_p_, m.b_ProcH.LastNext_1_p_, m.b_ProcH.LastNext_0_p_};
+  wire [3:0] tf_cl   = ~{m.b_ProcH.CurrLast_3_p_, m.b_ProcH.CurrLast_2_p_, m.b_ProcH.CurrLast_1_p_, m.b_ProcH.CurrLast_0_p_};
+  wire [7:0] tf_dtm  = {m.b_ProcH.dTm_00, m.b_ProcH.dTm_01, m.b_ProcH.dTm_02, m.b_ProcH.dTm_03, m.b_ProcH.dTm_04, m.b_ProcH.dTm_05, m.b_ProcH.dTm_06, m.b_ProcH.dTm_07};
+  wire [7:0] tf_t    = {m.b_ProcH.T_00, m.b_ProcH.T_01, m.b_ProcH.T_02, m.b_ProcH.T_03, m.b_ProcH.T_04, m.b_ProcH.T_05, m.b_ProcH.T_06, m.b_ProcH.T_07};
+  always @(posedge sys_clk) begin
+    if (tfwin >= 0 && n_cyc2 >= tfwin && n_cyc2 < tfwin + tfwinlen)
+      $display("tb_exec: TFWIN @%0d task=%h CIA=%h | curr=%h last=%h next=%h LastNext=%h CurrLast=%h RepeatCurrC=%b DblClk'=%b PreClk0'=%b | TbWrite'a=%b TbWriteEn'=%b HoldDly=%b dTm=%02h T=%02h | l03[t2]=%h l03[t3]=%h l04[t2]=%h l04[t3]=%h Switcha=%b",
+               n_cyc2, pct_ctask, ring_cia, tf_curr, tf_last, tf_next, tf_ln, tf_cl, m.b_ProcH.RepeatCurrC, m.b_ProcH.DblClock_p_Da, m.b_ProcH.PreClock0_p_B,
+               m.b_ProcH.TbWrite_p_a, m.b_ProcH.TbWriteEn_p_, m.b_ProcH.HoldDly, tf_dtm, tf_t,
+               m.b_ProcH.u_l03.mem[13], m.b_ProcH.u_l03.mem[12], m.b_ProcH.u_l04.mem[13], m.b_ProcH.u_l04.mem[12], m.b_ContA.Switcha);
+    // +clkwin: the clock-family nets behind Curr/Last, per sys_clk
+    if (clkwin >= 0 && n_cyc2 >= clkwin && n_cyc2 < clkwin + clkwinlen)
+      $display("tb_exec: CLKWIN @%0d task=%h CIA=%h | PreClock1B=%b ppClk'a=%b pClock1En'=%b PreSHCP'C=%b SHCP'C=%b Clock1'Ca=%b (lead %b) PreClock1'C=%b DblClk'Da=%b PreClk0'B=%b | BNTGtCT=%b Hold'=%b RepeatCurrC=%b Switcha=%b | next=%h curr=%h last=%h LastNext=%h CurrLast=%h",
+               n_cyc2, pct_ctask, ring_cia, m.b_ProcH.PreClock1B, m.b_ProcH.ppClk_p_a, m.b_ProcH.pClock1En_p_, m.b_ProcH.PreSHCP_p_C, m.b_ProcH.SHCP_p_C,
+               m.b_ProcH.Clock1_p_Ca, m.b_ProcH.Clock1_p_Ca__lead, m.b_ProcH.PreClock1_p_C, m.b_ProcH.DblClock_p_Da, m.b_ProcH.PreClock0_p_B,
+               m.b_ProcH.BNTGtCT, m.b_ProcH.Hold_p_, m.b_ProcH.RepeatCurrC, m.b_ContA.Switcha, tf_next, tf_curr, tf_last, tf_ln, tf_cl);
+    if (mdwin >= 0 && n_cyc2 >= mdwin && n_cyc2 < mdwin + mdwinlen)
+      $display("tb_exec: MDWIN @%0d task=%h CIA=%h | WriteMDM'a=%b MDMad=%h dMDMad=%h MD_u_D=%b clk2'Bc=%b | din h04=%b%b%b%b h15=%b%b%b%b h11=%b%b%b%b h17=%b%b%b%b h06=%b%b | t0 slot h04=%h h15=%h h11=%h h17=%h | t3 slot h04=%h h15=%h h11=%h h17=%h | Md=%04h",
+               n_cyc2, pct_ctask, ring_cia, m.b_MemD.WriteMDM_p_a,
+               ~{m.b_MemD.MDMad_3_p_, m.b_MemD.MDMad_2_p_, m.b_MemD.MDMad_1_p_, m.b_MemD.MDMad_0_p_},
+               ~{m.b_MemD.dMDMad_3_p_, m.b_MemD.dMDMad_2_p_, m.b_MemD.dMDMad_1_p_, m.b_MemD.dMDMad_0_p_},
+               m.b_MemD.MD_u_D, m.b_MemD.clk2_p_Bc,
+               m.b_MemD.MemD08_sil_pl_16, m.b_MemD.MemD08_sil_pl_1, m.b_MemD.MemD07_sil_pl_8, m.b_MemD.MemD01_sil_pl_8,
+               m.b_MemD.MemD10_sil_pl_16, m.b_MemD.MemD10_sil_pl_1, m.b_MemD.MemD09_sil_pl_16, m.b_MemD.MemD09_sil_pl_1,
+               m.b_MemD.MemD12_sil_pl_16, m.b_MemD.MemD12_sil_pl_1, m.b_MemD.MemD11_sil_pl_16, m.b_MemD.MemD11_sil_pl_1,
+               m.b_MemD.MemD14_sil_pl_16, m.b_MemD.MemD14_sil_pl_1, m.b_MemD.MemD13_sil_pl_16, m.b_MemD.MemD13_sil_pl_1,
+               m.b_MemD.MemD15_sil_pl_14, m.b_MemD.MemD15_sil_pl_1,
+               m.b_MemD.u_h04.mem[15], m.b_MemD.u_h15.mem[15], m.b_MemD.u_h11.mem[15], m.b_MemD.u_h17.mem[15],
+               m.b_MemD.u_h04.mem[12], m.b_MemD.u_h15.mem[12], m.b_MemD.u_h11.mem[12], m.b_MemD.u_h17.mem[12],
+               {m.b_ProcH.Md_00, m.b_ProcH.Md_01, m.b_ProcH.Md_02, m.b_ProcH.Md_03, m.b_ProcH.Md_04, m.b_ProcH.Md_05, m.b_ProcH.Md_06, m.b_ProcH.Md_07,
+                m.b_ProcL.Md_08, m.b_ProcL.Md_09, m.b_ProcL.Md_10, m.b_ProcL.Md_11, m.b_ProcL.Md_12, m.b_ProcL.Md_13, m.b_ProcL.Md_14, m.b_ProcL.Md_15});
+  end
+  // +memwin: the Md-file WRITE SIDE on MemD, per sys_clk. MDWIN (run7,
+  // 2026-09-05) showed WriteMDM'a pulsing for task 0's slot at +23 of the
+  // read instruction, SIX sys_clk after f06 (the MC10176 that registers the D
+  // bus for the file) had taken the NEXT reference's word. This prints the
+  // pulse's three inputs (i12: DontWriteMDM, preClk0'BD, MakeMDM_u_D'), the
+  // raw D bus, f06's clock and the select that goes with it.
+  initial begin void'($value$plusargs("memwin=%d", memwin)); void'($value$plusargs("memwinlen=%d", memwinlen)); end
+  always @(posedge sys_clk)
+    if (memwin >= 0 && n_cyc2 >= memwin && n_cyc2 < memwin + memwinlen)
+      $display("tb_exec: MEMWIN @%0d task=%h CIA=%h | WriteMDM'a=%b DontWriteMDM=%b preClk0'BD=%b MakeMDM_u_D'=%b MD_u_D=%b D_u_Dly'=%b clk1'Aa=%b clk2'Bc=%b | D00-03=%b%b%b%b f06=%b%b%b%b | MDMad=%h",
+               n_cyc2, pct_ctask, ring_cia, m.b_MemD.WriteMDM_p_a, m.b_MemD.DontWriteMDM, m.b_MemD.preClk0_p_BD, m.b_MemD.MakeMDM_u_D_p_,
+               m.b_MemD.MD_u_D, m.b_MemD.D_u_Dly_p_, m.b_MemD.clk1_p_Aa, m.b_MemD.clk2_p_Bc,
+               m.b_MemD.D_00, m.b_MemD.D_01, m.b_MemD.D_02, m.b_MemD.D_03,
+               m.b_MemD.MemD01_sil_pl_8, m.b_MemD.MemD07_sil_pl_8, m.b_MemD.MemD08_sil_pl_1, m.b_MemD.MemD08_sil_pl_16,
+               ~{m.b_MemD.MDMad_3_p_, m.b_MemD.MDMad_2_p_, m.b_MemD.MDMad_1_p_, m.b_MemD.MDMad_0_p_});
+  // +holdwin (opened by +mdpc with the Md windows): the Md-HOLD request on
+  // MemC, term by term. HM p.42: an immediate <-Md is held in the cycle after
+  // a fetch or store, and a <-Md after an intervening Store is held until the
+  // store completes; every run's HOLDSRC line has read MDhold 0. dMDhold' is
+  // the wired-OR of b22 (MDMtag' XOR ProcTag) and b23 (a 4-wide OR-AND over
+  // DdataGood', At=Curt', <-MDI, DcomingForCt', <-MD, WantCR, MemC16.sil+6).
+  always @(posedge sys_clk)
+    if (mdwin >= 0 && n_cyc2 >= mdwin && n_cyc2 < mdwin + mdwinlen)
+      $display("tb_exec: HOLDWIN @%0d task=%h CIA=%h | <-MD=%b <-MDI=%b | MDMtag'=%b ProcTag=%b b22=%b | DdataGood'=%b At=Curt'=%b DcomingForCt'=%b WantCR=%b sil6=%b b23=%b | dMDhold'=%b MDhold'=%b RefHold'=%b DisHold=%b Hold=%b",
+               n_cyc2, pct_ctask, ring_cia, m.b_MemC._u_MD, m.b_MemC._u_MDI,
+               m.b_MemC.MDMtag_p_, m.b_MemC.ProcTag, m.b_MemC.dMDhold_p___b22_3,
+               m.b_MemC.DdataGood_p_, m.b_MemC.At_eq_Curt_p_, m.b_MemC.EcDcomingForCt_p_, m.b_MemC.WantCR, m.b_MemC.MemC16_sil_pl_6, m.b_MemC.dMDhold_p___b23_3,
+               m.b_MemC.dMDhold_p_, m.b_MemC.MDhold_p_, m.b_MemC.RefHold_p_, m.b_MemC.DisHold, m.b_ContA.Hold);
+  // +memwin also prints the memory pipeline's stage flags (MemX sheet 01 and
+  // MemC's front door), per sys_clk: what the fetch and the store each do to
+  // the flags that gate the Md file's write (i23 -> g23 MakeMDM_u_D') and the
+  // Md hold (g24 -> e19 DdataGood').
+  always @(posedge sys_clk)
+    if (memwin >= 0 && n_cyc2 >= memwin && n_cyc2 < memwin + memwinlen)
+      $display("tb_exec: MEMWIN2 @%0d task=%h CIA=%h | MemX: AWordRefToD=%b EcWordRefToD=%b bHit'=%b CacheRefInPair'=%b AfreeOrEc'b=%b EcKeepsAbusy=%b CacheRef=%b VictimInA'=%b STfree'=%b WantRfsh'=%b SW=%b AcanHaveD=%b Transporta=%b MakeMDM'=%b DdataGood'=%b | MemC: Dbusy=%b WantCR=%b CacheRefInA'=%b StartMap'=%b Store_IfCR'=%b Hit'b=%b Dad00=%b Dad01=%b",
+               n_cyc2, pct_ctask, ring_cia,
+               m.b_MemX.AWordRefToD, m.b_MemX.EcWordRefToD, m.b_MemX.bHit_p_, m.b_MemX.CacheRefInPair_p_, m.b_MemX.AfreeOrEc_p_b, m.b_MemX.EcKeepsAbusy,
+               m.b_MemX.CacheRef, m.b_MemX.VictimInA_p_, m.b_MemX.STfree_p_, m.b_MemX.WantRfsh_p_, m.b_MemX.SW, m.b_MemX.AcanHaveD, m.b_MemX.Transporta,
+               m.b_MemX.MakeMDM_u_D_p_, m.b_MemX.DdataGood_p_,
+               m.b_MemC.Dbusy, m.b_MemC.WantCR, m.b_MemC.CacheRefInA_p_, m.b_MemC.StartMap_p_, m.b_MemC.Store_u_IfCR_p_, m.b_MemC.Hit_p_b, m.b_MemC.Dad_00__drv, m.b_MemC.Dad_01__drv);
+  // +memwin also prints DontWriteMDM's two sources against the pulse: h03
+  // (MC10176, clk0'B) registers bFastD_u_Dbuf | D_u_Dbufdly -- "the data
+  // section is taking D from DBuf", i.e. a STORE's data phase -- and that is
+  // the flag designed to keep a store's word out of the Md file. In run16 it
+  // asserted one cycle after the pulse that stored the store's word.
+  always @(posedge sys_clk)
+    if (memwin >= 0 && n_cyc2 >= memwin && n_cyc2 < memwin + memwinlen)
+      $display("tb_exec: MEMWIN3 @%0d task=%h CIA=%h | MemC FastD_Dbuf=%b | MemD bFastD_u_Dbuf=%b D_u_Dbufdly=%b D_u_Dbuf=%b D_u_CD'=%b DontWriteMDM=%b WriteMDM'a=%b MakeMDM'=%b MD_u_D=%b clk0'B=%b",
+               n_cyc2, pct_ctask, ring_cia, m.b_MemC.FastD_u_Dbuf__drv,
+               m.b_MemD.bFastD_u_Dbuf, m.b_MemD.D_u_Dbufdly, m.b_MemD.D_u_Dbuf, m.b_MemD.D_u_CD_p_, m.b_MemD.DontWriteMDM,
+               m.b_MemD.WriteMDM_p_a, m.b_MemD.MakeMDM_u_D_p_, m.b_MemD.MD_u_D, m.b_MemD.clk0_p_B);
+  // +memwin also prints the CACHE DATA ADDRESS the F10470 arrays are being
+  // read at, plus the array write-enable. The Md file's data pins come
+  // straight off these arrays (D = wired-OR of a03/d03 etc.), so which
+  // LOCATION is presented decides whether the fetch's or the store's word is
+  // on the bus. Measured 2026-09-06: the file's pins carry the store's word
+  // 378-408 and the fetch's only at 410, while the write strobe commits at
+  // ~391-395 -- so the array is being read at the STORE's address across the
+  // strobe. This prints the address so that is confirmed rather than inferred.
+  always @(posedge sys_clk)
+    if (memwin >= 0 && n_cyc2 >= memwin && n_cyc2 < memwin + memwinlen)
+      $display("tb_exec: MEMWIN4 @%0d CIA=%h | Dad_a=%b%b%b%b%b%b%b%b%b%b%b%b | WriteD0'a=%b | D00-03=%b%b%b%b | MD_u_D=%b WriteMDM'a=%b",
+               n_cyc2, ring_cia,
+               m.b_MemD.Dad_00a, m.b_MemD.Dad_01a, m.b_MemD.Dad_02a, m.b_MemD.Dad_03a,
+               m.b_MemD.Dad_04a, m.b_MemD.Dad_05a, m.b_MemD.Dad_06a, m.b_MemD.Dad_07a,
+               m.b_MemD.Dad_08a, m.b_MemD.Dad0_10a, m.b_MemD.Dad0_11a, m.b_MemD.Dad0_12a,
+               m.b_MemD.WriteD0_p_a,
+               m.b_MemD.D_00, m.b_MemD.D_01, m.b_MemD.D_02, m.b_MemD.D_03,
+               m.b_MemD.MD_u_D, m.b_MemD.WriteMDM_p_a);
+  // MEMWIN5 (2026-09-08): the D bus END TO END, per sys_clk -- MemC's data
+  // address register (e14, clk1'Da) and the hit, MemD's own address register
+  // (h01/h02/g01/g02 on DadHclk' = preClk1'B gated by DadH_u_'), the array
+  // chip enables and write strobes, the full 18-bit D, f06's registered copy
+  // (the Md file's data pins), and the D-source select flags from g24 (clk2'Dd).
+  // Written to settle WHEN the array's output turns from the fetch's word into
+  // the store's, against WHEN f06 samples it -- the F10470 read is registered
+  // one sys_clk and the D bus is the OR of the column pairs' outputs.
+  always @(posedge sys_clk)
+    if (memwin >= 0 && n_cyc2 >= memwin && n_cyc2 < memwin + memwinlen)
+      $display("tb_exec: MEMWIN5 @%0d CIA=%h | MemC clk1'Da=%b Dad01=%b%b dDad=%b%b%b%b%b%b%b%b%b%b%b%b Hit'a=%b Hit'b=%b Dbusy=%b s6=%b s3=%b FastD=%b | MemD preClk1'B=%b DadH'=%b DadHclk'b=%b clk1'Aa=%b Dad_a=%b%b%b%b%b%b%b%b%b.%b%b%b Dad09=%b D0ACE'a=%b D1ACE'a=%b WrD0'a=%b WrD1'c=%b | D=%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b%b f06=%b%b%b%b%b%b MD_u_D=%b MakeMDM'=%b DontWr=%b WrMDM'a=%b preClk0'BD=%b | MakeD_Dbuf=%b D_Dbuf=%b MakeD_CD=%b D_CD=%b FastD_CD=%b bFastD=%b clk2'Dd=%b",
+               n_cyc2, ring_cia,
+               m.b_MemC.clk1_p_Da, m.b_MemC.Dad_00__drv, m.b_MemC.Dad_01__drv,
+               m.b_MemC.dDad_02__drv, m.b_MemC.dDad_03__drv, m.b_MemC.dDad_04__drv, m.b_MemC.dDad_05__drv,
+               m.b_MemC.dDad_06__drv, m.b_MemC.dDad_07__drv, m.b_MemC.dDad_08__drv, m.b_MemC.dDad_09__drv,
+               m.b_MemC.dDad_10__drv, m.b_MemC.dDad_11__drv, m.b_MemC.dDad_12__drv, m.b_MemC.dDad_13__drv,
+               m.b_MemC.Hit_p_a, m.b_MemC.Hit_p_b, m.b_MemC.Dbusy, m.b_MemC.MemC15_sil_pl_6, m.b_MemC.MemC15_sil_pl_3, m.b_MemC.FastD_u_Dbuf__drv,
+               m.b_MemD.preClk1_p_B, m.b_MemD.DadH_u__p_, m.b_MemD.DadHclk_p_b, m.b_MemD.clk1_p_Aa,
+               m.b_MemD.Dad_00a, m.b_MemD.Dad_01a, m.b_MemD.Dad_02a, m.b_MemD.Dad_03a,
+               m.b_MemD.Dad_04a, m.b_MemD.Dad_05a, m.b_MemD.Dad_06a, m.b_MemD.Dad_07a,
+               m.b_MemD.Dad_08a, m.b_MemD.Dad0_10a, m.b_MemD.Dad0_11a, m.b_MemD.Dad0_12a,
+               m.b_MemD.Dad_09, m.b_MemD.D0ACE_p_a, m.b_MemD.D1ACE_p_a, m.b_MemD.WriteD0_p_a, m.b_MemD.WriteD1_p_c,
+               m.b_MemD.D_00, m.b_MemD.D_01, m.b_MemD.D_02, m.b_MemD.D_03, m.b_MemD.D_04, m.b_MemD.D_05, m.b_MemD.D_06, m.b_MemD.D_07,
+               m.b_MemD.D_08, m.b_MemD.D_09, m.b_MemD.D_10, m.b_MemD.D_11, m.b_MemD.D_12, m.b_MemD.D_13, m.b_MemD.D_14, m.b_MemD.D_15,
+               m.b_MemD.MemD01_sil_pl_8, m.b_MemD.MemD07_sil_pl_8, m.b_MemD.MemD08_sil_pl_1, m.b_MemD.MemD08_sil_pl_16, m.b_MemD.MemD15_sil_pl_1, m.b_MemD.MemD15_sil_pl_14,
+               m.b_MemD.MD_u_D, m.b_MemD.MakeMDM_u_D_p_, m.b_MemD.DontWriteMDM, m.b_MemD.WriteMDM_p_a, m.b_MemD.preClk0_p_BD,
+               m.b_MemD.MakeD_u_Dbuf, m.b_MemD.D_u_Dbuf, m.b_MemD.MakeD_u_CD, m.b_MemD.D_u_CD, m.b_MemD.FastD_u_CD, m.b_MemD.bFastD_u_Dbuf, m.b_MemD.clk2_p_Dd);
+  // MCRWIN (2026-09-08): the MCR's B SIDE. HM Figure 10 / Table 4: Mcr[13:15]
+  // load from MapBuf, and bit 15 is NoWake; MemX f04 (F10016 on Clk1'Ab,
+  // PE' = Mcr<-' from MemC l09) captures Mapbuf.15 as NoWakeups, and g23
+  // registers ~NoWakeups as WakeEnable. `+mcrpc=HEX` opens a 200-sys_clk
+  // window at the first MIR load of that address (0x213 is InitMap's
+  // LoadMCR[T,T] with T = mcr.noWake; 0xc03 is Initial's SetMCR) and prints
+  // the chain on every change. Written because a 200 M-cycle boot read
+  // WakeEnable high on EVERY sample while memrun-test's SetMcr# jam drops it.
+  reg [11:0] mcrpc = 12'hfff; initial void'($value$plusargs("mcrpc=%h", mcrpc));
+  longint mcrwin = -1; reg [15:0] mcr_prev = 16'hffff;
+  wire [15:0] mcr_now = {m.b_MemC.MemC19_sil_pl_14, m.b_MemC.PrClk1_p_Db, m.b_MemC.Mcr_u__p___drv,
+                         m.b_MemX.Mcr_u__p_, m.b_MemX.Clk1_p_Ab, m.b_MemX.u_f04.q,
+                         m.b_MemX.NoWakeups, m.b_MemX.Mapbuf_15, m.b_MemX.MapbufLd_p_c,
+                         m.b_MemX.BMux_15, m.b_MemX.WakeEnable, m.b_MemX.u_f04.ck_en, 1'b0, 1'b0};
+  always @(posedge sys_clk) begin
+    if (mcrpc != 12'hfff && ring_cia == mcrpc && ring_cia != pct_cia_d) begin
+      mcrwin = n_cyc2; mcrpc = 12'hfff;
+      $display("tb_exec: MCRWIN open @%0d at CIA=%h", n_cyc2, ring_cia);
+    end
+    if (mcrwin >= 0 && n_cyc2 >= mcrwin - 40 && n_cyc2 < mcrwin + 200 && mcr_now != mcr_prev) begin
+      mcr_prev <= mcr_now;
+      $display("tb_exec: MCRWIN @%0d CIA=%h | MemC: dec(s19+14)=%b PrClk1'Db=%b Mcr<-'=%b | MemX: Mcr<-'=%b Clk1'Ab=%b f04.q=%h ck_en=%b NoWakeups=%b Mapbuf.15=%b MapbufLd'c=%b BMux.15=%b WakeEnable=%b | T=%04h",
+               n_cyc2, ring_cia, m.b_MemC.MemC19_sil_pl_14, m.b_MemC.PrClk1_p_Db, m.b_MemC.Mcr_u__p___drv,
+               m.b_MemX.Mcr_u__p_, m.b_MemX.Clk1_p_Ab, m.b_MemX.u_f04.q, m.b_MemX.u_f04.ck_en,
+               m.b_MemX.NoWakeups, m.b_MemX.Mapbuf_15, m.b_MemX.MapbufLd_p_c, m.b_MemX.BMux_15, m.b_MemX.WakeEnable,
+               {m.b_ProcH.T_00, m.b_ProcH.T_01, m.b_ProcH.T_02, m.b_ProcH.T_03, m.b_ProcH.T_04, m.b_ProcH.T_05, m.b_ProcH.T_06, m.b_ProcH.T_07,
+                m.b_ProcL.T_08, m.b_ProcL.T_09, m.b_ProcL.T_10, m.b_ProcL.T_11, m.b_ProcL.T_12, m.b_ProcL.T_13, m.b_ProcL.T_14, m.b_ProcL.T_15});
+    end
+  end
+  // SEQWIN (2026-09-08): the map and storage automata on every change in
+  // [+seqfrom, +seqfrom+seqlen) -- tb_memrun's +seqwin, in the boot. Written
+  // for the wedge in InitMap's Map1to1Loop: 64 map entries written, then
+  // WaitForMapBuf spins for ever (HoldMapBuf 139 M samples of 400 M).
+  longint seqfrom = -1, seqlen = 0; reg [63:0] seq_prev = 64'hffffffffffffffff;
+  initial begin void'($value$plusargs("seqfrom=%d", seqfrom)); void'($value$plusargs("seqlen=%d", seqlen)); end
+  wire [63:0] seq_now = {m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2,
+                         m.b_MemX.MapFnc_0_p_, m.b_MemX.MapFnc_1_p_, m.b_MemX.MapWait,
+                         m.b_MemX.StartMap_p_, m.b_MemX.preStartMem_p_, m.b_MemX.StartMem_p_,
+                         m.b_MemX.MemState_0, m.b_MemX.MemState_1, m.b_MemX.MemState_2, m.b_MemX.MemState_3,
+                         m.b_MemX.MemIdle, m.b_MemX.MemFree, m.b_MemX.RfshInMem, m.b_MemX.StartRfshCycle_p_,
+                         m.b_MemX.NeedRfsh_p_, m.b_MemX.MapRfsh_p_, m.b_MemX.MapTroubleInMem, m.b_MemX.WriteInMem_p_,
+                         m.b_MemX.MemRfsh, m.b_MemX.MapTrouble, m.b_MemX.MapFree, m.b_MemX.MapFree_p_,
+                         m.b_MemX.HoldMapBuf__drv, m.b_MemX.AcanhaveMap_p___drv, m.b_MemX.Map_u_InPair_p_, m.b_MemX.Map_u_InMap,
+                         m.b_MemC.CacheRefInA, m.b_MemC.Hit_p_b, m.b_MemC.ForceMiss, m.b_MemC.VictimInA,
+                         m.b_MemC.WantVic, m.b_MemC.FlushStore, m.b_MemC.Store_u_InA, m.b_MemC.EcHasAa,
+                         m.b_MemC.AcanhaveMap, m.b_MemC.AwantsMapFS, m.b_MemX.WantRfsh_p_,
+                         m.MemRASa, m.MemCASa,
+                         m.b_MemC.DbufBusy, m.b_MemC.Store_u_, m.MakeD_u_Dbuf, m.b_MemC.FastD_u_Dbuf,
+                         m.b_MemX.VicSTPerr_p_, m.b_MemX.STPerr, m.b_MemX.dSTPerr, m.b_MemX.MemX10_sil_pl_8,
+                         m.b_MemC.NoRef,
+                         m.b_MemC.MDhold_p_, m.b_MemC.Dbusy, m.b_MemX.AcanHaveD, m.b_MemX.MakeTransport0,
+                         m.b_MemX.MakeTransport1, m.b_MemX.MakeTransport2, m.b_MemX.Transporta, m.b_MemC.Hit_p_a,
+                         m.b_MemC.Store_u_InA, 4'd0};
+  always @(posedge sys_clk)
+    if (seqfrom >= 0 && n_cyc2 >= seqfrom && n_cyc2 < seqfrom + seqlen && seq_now != seq_prev) begin
+      seq_prev <= seq_now;
+      $display("tb_exec: SEQ @%0d CIA=%h | MapSt=%b%b%b MapFnc'=%b%b MapWait=%b StartMap'=%b preStartMem'=%b StartMem'=%b | MemSt=%b%b%b%b MemIdle=%b MemFree=%b RfshInMem=%b StartRfsh'=%b NeedRfsh'=%b MapRfsh'=%b MapTrbInMem=%b WrInMem'=%b MemRfsh=%b MapTrb=%b MapFree=%b MapFree'=%b HoldMapBuf=%b AcanhaveMap'=%b Map'InPair'=%b Map'InMap=%b | CRinA=%b Hit'b=%b FMiss=%b VicInA=%b WantVic=%b FlS=%b StInA=%b EcHasA=%b AcanhaveMap=%b AwantsMapFS=%b WantRfsh'=%b | RAS=%b CAS=%b | DbufBusy=%b Store<-=%b MakeD<-Dbuf=%b FastD<-Dbuf=%b VicSTPerr'=%b STPerr=%b dSTPerr=%b MX10+8=%b NoRef=%b | MDhold'=%b Dbusy=%b AcanHaveD=%b MkTr0=%b MkTr1=%b MkTr2=%b Transporta=%b Hit'a=%b StoreInA=%b",
+               n_cyc2, ring_cia, m.b_MemX.MapState_0, m.b_MemX.MapState_1, m.b_MemX.MapState_2,
+               m.b_MemX.MapFnc_0_p_, m.b_MemX.MapFnc_1_p_, m.b_MemX.MapWait,
+               m.b_MemX.StartMap_p_, m.b_MemX.preStartMem_p_, m.b_MemX.StartMem_p_,
+               m.b_MemX.MemState_0, m.b_MemX.MemState_1, m.b_MemX.MemState_2, m.b_MemX.MemState_3,
+               m.b_MemX.MemIdle, m.b_MemX.MemFree, m.b_MemX.RfshInMem, m.b_MemX.StartRfshCycle_p_,
+               m.b_MemX.NeedRfsh_p_, m.b_MemX.MapRfsh_p_, m.b_MemX.MapTroubleInMem, m.b_MemX.WriteInMem_p_,
+               m.b_MemX.MemRfsh, m.b_MemX.MapTrouble, m.b_MemX.MapFree, m.b_MemX.MapFree_p_,
+               m.b_MemX.HoldMapBuf__drv, m.b_MemX.AcanhaveMap_p___drv, m.b_MemX.Map_u_InPair_p_, m.b_MemX.Map_u_InMap,
+               m.b_MemC.CacheRefInA, m.b_MemC.Hit_p_b, m.b_MemC.ForceMiss, m.b_MemC.VictimInA,
+               m.b_MemC.WantVic, m.b_MemC.FlushStore, m.b_MemC.Store_u_InA, m.b_MemC.EcHasAa,
+               m.b_MemC.AcanhaveMap, m.b_MemC.AwantsMapFS, m.b_MemX.WantRfsh_p_,
+               m.MemRASa, m.MemCASa,
+               m.b_MemC.DbufBusy, m.b_MemC.Store_u_, m.MakeD_u_Dbuf, m.b_MemC.FastD_u_Dbuf,
+               m.b_MemX.VicSTPerr_p_, m.b_MemX.STPerr, m.b_MemX.dSTPerr, m.b_MemX.MemX10_sil_pl_8,
+               m.b_MemC.NoRef,
+               m.b_MemC.MDhold_p_, m.b_MemC.Dbusy, m.b_MemX.AcanHaveD, m.b_MemX.MakeTransport0,
+               m.b_MemX.MakeTransport1, m.b_MemX.MakeTransport2, m.b_MemX.Transporta, m.b_MemC.Hit_p_a,
+               m.b_MemC.Store_u_InA);
+    end
+  // VAWIN (2026-09-08): the virtual address and the map's row/column
+  // address at every map operation, in [+vafrom, +vafrom+valen). Written for
+  // InitMap's map walk, which wrote 64 entries and then re-wrote them for
+  // 290 M sys_clk: is the VA advancing (the BR+Mar adder, whose look-ahead
+  // carry block MC10179 was a skeleton), and does what advances reach the
+  // map RAM's address pins? Prints on StartMap' falling (a map cycle starts,
+  // VA in force), and on MapRAS'/MapCAS' falling (the address the map RAM
+  // latched, as the cell latched it).
+  longint vafrom = -1, valen = 0;
+  initial begin void'($value$plusargs("vafrom=%d", vafrom)); void'($value$plusargs("valen=%d", valen)); end
+  wire [19:0] w_dva = {m.b_MemC.dVA_04, m.b_MemC.dVA_05, m.b_MemC.dVA_06, m.b_MemC.dVA_07,
+                       m.b_MemC.dVA_08, m.b_MemC.dVA_09, m.b_MemC.dVA_10, m.b_MemC.dVA_11,
+                       m.b_MemC.dVA_12, m.b_MemC.dVA_13, m.b_MemC.dVA_14, m.b_MemC.dVA_15,
+                       m.b_MemC.dVA_16, m.b_MemC.dVA_17, m.b_MemC.dVA_18, m.b_MemC.dVA_19,
+                       m.b_MemC.VA_20, m.b_MemC.VA_21, m.b_MemC.VA_22, m.b_MemC.VA_23};
+  wire [8:0] w_mapad = {m.b_MemX.RTMapAd_0b, m.b_MemX.RTMapAd_1b, m.b_MemX.RTMapAd_2b, m.b_MemX.RTMapAd_3b,
+                        m.b_MemX.RTMapAd_4b, m.b_MemX.RTMapAd_5b, m.b_MemX.RTMapAd_6b, m.b_MemX.RTMapAd_7b,
+                        m.b_MemX.RTMapAd_8b};
+  reg va_sm_d = 1'b1, va_ras_d = 1'b1, va_cas_d = 1'b1;
+  always @(posedge sys_clk) begin
+    if (vafrom >= 0 && n_cyc2 >= vafrom && n_cyc2 < vafrom + valen) begin
+      if (!m.b_MemX.StartMap_p_ && va_sm_d)
+        $display("tb_exec: VA @%0d CIA=%h StartMap' fall: ProcVA=%07h dVA(04-23)=%05h MapFnc'=%b%b CO8'=%b CO12'=%b CO16'=%b CO20'=%b Add'a=%b Add'b=%b",
+                 n_cyc2, ring_cia, w_procva, w_dva, m.b_MemX.MapFnc_0_p_, m.b_MemX.MapFnc_1_p_,
+                 m.b_MemC.CO8_p_, m.b_MemC.CO12_p_, m.b_MemC.CO16_p_, m.b_MemC.CO20_p_, m.b_MemC.Add_p_a, m.b_MemC.Add_p_b);
+      if (!m.b_MemX.RTMapRAS_p_b && va_ras_d)
+        $display("tb_exec: VA @%0d MapRAS' fall: MapAd(0-8)=%03h ProcVA=%07h", n_cyc2, w_mapad, w_procva);
+      if (!m.b_MemX.RTMapCAS_p_b && va_cas_d)
+        $display("tb_exec: VA @%0d MapCAS' fall: MapAd(0-8)=%03h -> d11 row=%02h col=%02h (WE'=%b)",
+                 n_cyc2, w_mapad, m.b_MemX.u_d11.row, m.b_MemX.u_d11.col, m.b_MemX.TDirtyWE_p_);
+    end
+    va_sm_d <= m.b_MemX.StartMap_p_; va_ras_d <= m.b_MemX.RTMapRAS_p_b; va_cas_d <= m.b_MemX.RTMapCAS_p_b;
+  end
+  // MDHOLD (2026-09-08): every <-Md the processor issues, with the terms of
+  // MemC's Md-hold request beside it. HOLDSRC has read "MDhold 0" in every
+  // 400 M boot since the address adders went live -- HM p.42 says a <-Md
+  // after a fetch or store by the same task that MISSED must hold until the
+  // line is loaded, and p.60 makes that hold the microcode's only protection
+  // against issuing Map<- during a store (infinite DBufBusy, which is what
+  // InitMap's zeroing loop measures). `+mdfrom=CYC` starts it, `+mdmax=N`
+  // caps the lines (default 300). Prints on the sys_clk where <-MD (MemC
+  // _u_MD) first rises, i.e. once per instruction.
+  longint mdfrom = -1; integer mdmax = 300, n_mdp = 0; reg d_umd = 1'b0;
+  initial begin void'($value$plusargs("mdfrom=%d", mdfrom)); void'($value$plusargs("mdmax=%d", mdmax)); end
+  always @(posedge sys_clk) begin
+    if (mdfrom >= 0 && n_cyc2 >= mdfrom && m.b_MemC._u_MD && !d_umd && n_mdp < mdmax) begin
+      n_mdp = n_mdp + 1;
+      $display("tb_exec: MDHOLD @%0d CIA=%h <-MD: DdataGood'=%b At=Curt'=%b MC16+6=%b <-MDI=%b DcomingForCt'=%b WantCR=%b | b23.3=%b b22.3=%b dMDhold'=%b MDhold'=%b | Hit'a=%b CRinA=%b StInA=%b DbufBusy=%b EcHasA=%b MDMtag'=%b ProcTag=%b",
+               n_cyc2, ring_cia, m.b_MemC.DdataGood_p_, m.b_MemC.At_eq_Curt_p_, m.b_MemC.MemC16_sil_pl_6,
+               m.b_MemC._u_MDI, m.b_MemC.EcDcomingForCt_p_, m.b_MemC.WantCR,
+               m.b_MemC.dMDhold_p___b23_3, m.b_MemC.dMDhold_p___b22_3, m.b_MemC.dMDhold_p_, m.b_MemC.MDhold_p_,
+               m.b_MemC.Hit_p_a, m.b_MemC.CacheRefInA, m.b_MemC.Store_u_InA, m.b_MemC.DbufBusy, m.b_MemC.EcHasAa,
+               m.b_MemC.MDMtag_p_, m.b_MemC.ProcTag);
+    end
+    d_umd <= m.b_MemC._u_MD;
+  end
+  // TAGWIN (2026-09-08): the Md "tag" (HM glossary: the extra bit in Md
+  // readout which complements for successive Fetch<-'es and Store<-'s by the
+  // same task; agreement with the current value = reference finished). From
+  // `+tagfrom=CYC`, every accepted cache reference (MemX CacheRef' falling)
+  // opens a 48-sys_clk window in which every sys_clk prints the tag chain:
+  // e20 (the per-task Ptag RAM, written every Clk0'Ce with XNOR(CacheRef',
+  // e23's registered Ptag)), a23 (ProcTagInA, loaded into the pair), f21
+  // (the Md tag RAM, MDMtag'). `+tagmax=N` caps the windows (default 12).
+  // Written for Initial's first Store<- after SETMCR, which the RTL holds for
+  // ever with MDMtag'=0 and ProcTag=0 while the pair carries tag 1.
+  // `+tagbrief`: one line per CacheRef' fall and one per WriteMDM' fall
+  // instead of the 48-line window -- the whole boot's tag history in a few
+  // thousand lines.
+  longint tagfrom = -1; integer tagmax = 12, n_tagw = 0, tag_left = 0, taglen = 48; reg d_cref = 1'b1, d_wmdm = 1'b1, tagbrief = 1'b0;
+  // Initial.mb ResetTags: its Store (6034B) and Fetch (6250B) must each
+  // write the completion tag. Inconsistent CVA parity/VA4 stuffing loses
+  // both writes, but DisHold hides the fault until SetTestSyn much later.
+  reg check_reset_tags = 0;
+  reg [1:0] reset_tag_pending = 0, reset_tag_done = 0;
+  initial check_reset_tags = $test$plusargs("check-reset-tags");
+  // The bounded GetMemConfig probe enters at real 1000B after Initial's
+  // ALU/RM/IFUM setup. At 4136B its computed pages/module is still in T.
+  reg check_memconfig = 0, memconfig_checked = 0;
+  initial check_memconfig = $test$plusargs("check-memconfig");
+  // AltoDiabloDisk.mc: real 3007B follows the call to InitRamDiablo.
+  // Check the actual microcode's writes, not the old per-word jam stimulus.
+  reg check_disk_format = 0, disk_format_checked = 0;
+  initial check_disk_format = $test$plusargs("check-disk-format");
+  integer disk_err_lines = 0;
+  reg disk_err_prev = 0;
+  always @(posedge sys_clk) begin
+    if (check_disk_format && m.b_DskEth.u_b12.cka_en &&
+        !m.b_DskEth.SampleIOBparity_p_ &&
+        (^{el2_iob[15:8], m.b_DskEth.bIOB_16}) &&
+        (^{el2_iob[7:0], m.b_DskEth.bIOB_17}) && m.b_DskEth.dIOBParityErr)
+      $fatal(1, "disk IOB checker rejects a valid odd-parity word %h", el2_iob);
+    if (disk_err_trace && n_cyc2 > 270000 && disk_err_lines < 200 &&
+        (m.b_DskEth.IOBParityErr != disk_err_prev ||
+         (m.b_DskEth.u_b12.cka_en && !m.b_DskEth.SampleIOBparity_p_))) begin
+      disk_err_lines = disk_err_lines + 1;
+      $display("tb_exec: DISKERR @%0d CIA=%h IOB=%h par=%b%b xor=%b%b sample'=%b clk1'=%b err=%b dErr=%b pre=%b set=%b clear=%b",
+        n_cyc2, ring_cia, el2_iob, m.b_DskEth.bIOB_16, m.b_DskEth.bIOB_17,
+        ^{el2_iob[15:8], m.b_DskEth.bIOB_16}, ^{el2_iob[7:0], m.b_DskEth.bIOB_17},
+        m.b_DskEth.SampleIOBparity_p_, m.b_DskEth.Clock1_p_Cb,
+        m.b_DskEth.IOBParityErr, m.b_DskEth.dIOBParityErr,
+        m.b_DskEth.u_b12.d_pre_a, m.b_DskEth.TriconD11_sil_pl_1, m.b_DskEth.ClearErrors);
+    end
+    disk_err_prev <= m.b_DskEth.IOBParityErr;
+  end
+  localparam [11:0] disk_format_expected [16] = '{
+    12'o0001, 12'o0007, 12'o0377, 12'o0000,
+    12'o0104, 12'o0204, 12'o0004, 12'o0000,
+    12'o0033, 12'o0006, 12'o0011, 12'o0002,
+    12'o0002, 12'o0001, 12'o0000, 12'o0000};
+  function automatic [3:0] disk_format_rev(input [3:0] v);
+    disk_format_rev = {v[0], v[1], v[2], v[3]};
+  endfunction
+  always @(posedge sys_clk)
+    if (check_disk_format && !disk_format_checked && ring_cia == 12'h607) begin
+      for (integer k = 0; k < 16; k = k + 1) begin
+        if ({disk_format_rev(m.b_DskEth.u_e16.mem[k]),
+             disk_format_rev(m.b_DskEth.u_f16.mem[k]),
+             disk_format_rev(m.b_DskEth.u_f17.mem[k])} !== disk_format_expected[k])
+          $fatal(1, "InitRamDiablo format[%0d]=%04o, expected %04o", k,
+            {disk_format_rev(m.b_DskEth.u_e16.mem[k]),
+             disk_format_rev(m.b_DskEth.u_f16.mem[k]),
+             disk_format_rev(m.b_DskEth.u_f17.mem[k])}, disk_format_expected[k]);
+      end
+      if (m.b_DskEth.IOBParityErr)
+        $fatal(1, "InitRamDiablo latched an IOB parity error on processor-generated odd parity");
+      $display("tb_exec: DISK-SUBSECTOR -- loaded %h, counter %h",
+        {m.b_DskEth.TriconD06_sil_pl_5,m.b_DskEth.TriconD06_sil_pl_6,
+         m.b_DskEth.TriconD06_sil_pl_7,m.b_DskEth.TriconD06_sil_pl_8},m.b_DskEth.u_a01.q);
+      disk_format_checked = 1;
+      $display("tb_exec: DISK-FORMAT PASS -- InitRamDiablo wrote all sixteen words (HM 9.6)");
+    end
+  always @(posedge sys_clk)
+    if (check_memconfig && !memconfig_checked && ring_cia == 12'h85e) begin
+      if (brc_t != 16'h0400)
+        $fatal(1, "GetMemConfig reports %0d pages/module; 16K storage chips require 1024", brc_t);
+      memconfig_checked = 1;
+      $display("tb_exec: MEMCONFIG PASS -- GetMemConfig reports 1024 pages/module (16K chips)");
+    end
+  initial begin void'($value$plusargs("tagfrom=%d", tagfrom)); void'($value$plusargs("tagmax=%d", tagmax)); void'($value$plusargs("taglen=%d", taglen)); tagbrief = $test$plusargs("tagbrief"); end
+  always @(posedge sys_clk) begin
+    if (check_reset_tags) begin
+      if (!m.b_MemX.CacheRef_p_ && d_cref) begin
+        if (reset_tag_pending != 0)
+          $fatal(1, "ResetTags reference never wrote its Md completion tag");
+        if (ring_cia == 12'hc1c) reset_tag_pending = 2'b01;
+        if (ring_cia == 12'hca8) reset_tag_pending = 2'b10;
+      end
+      if (!m.b_MemX.WriteMDM_p_ && d_wmdm) begin
+        reset_tag_done = reset_tag_done | reset_tag_pending;
+        reset_tag_pending = 0;
+      end
+    end
+    if (tagbrief && tagfrom >= 0 && n_cyc2 >= tagfrom && n_tagw < tagmax) begin
+      if (!m.b_MemX.CacheRef_p_ && d_cref) begin
+        n_tagw = n_tagw + 1;
+        $display("tb_exec: TAGB @%0d CIA=%h REF  task=%b%b%b%b Ptag=%b ProcTag=%b MDMtag'=%b ProcTagInA=%b Hold=%b MDhold'=%b",
+                 n_cyc2, ring_cia, m.b_MemX.CurTask_0, m.b_MemX.CurTask_1, m.b_MemX.CurTask_2, m.b_MemX.CurTask_3,
+                 m.b_MemX.Ptag, m.b_MemX.ProcTag, m.b_MemX.MDMtag_p_, m.b_MemX.ProcTagInA, m.Hold, m.b_MemC.MDhold_p_);
+      end
+      if (!m.b_MemX.WriteMDM_p_ && d_wmdm) begin
+        n_tagw = n_tagw + 1;
+        $display("tb_exec: TAGB @%0d CIA=%h WMDM task=%b%b%b%b MDMtagAd=%b%b%b%b Dtag'=%b Ptag=%b ProcTag=%b ProcTagInA=%b AcanHaveD=%b TagInEc2=%b -> MDMtag'(before)=%b",
+                 n_cyc2, ring_cia, m.b_MemX.CurTask_0, m.b_MemX.CurTask_1, m.b_MemX.CurTask_2, m.b_MemX.CurTask_3,
+                 m.b_MemX.MDMtagAd_0, m.b_MemX.MDMtagAd_1, m.b_MemX.MDMtagAd_2, m.b_MemX.MDMtagAd_3,
+                 m.b_MemX.Dtag_p_, m.b_MemX.Ptag, m.b_MemX.ProcTag, m.b_MemX.ProcTagInA, m.b_MemX.AcanHaveD, m.b_MemX.TagInEc2, m.b_MemX.MDMtag_p_);
+      end
+    end
+    d_wmdm <= m.b_MemX.WriteMDM_p_;
+    if (!tagbrief && tagfrom >= 0 && n_cyc2 >= tagfrom && !m.b_MemX.CacheRef_p_ && d_cref && n_tagw < tagmax) begin
+      n_tagw = n_tagw + 1; tag_left = taglen;
+      $display("tb_exec: TAG ---- window %0d: CacheRef' fall @%0d CIA=%h CurTask=%b%b%b%b", n_tagw, n_cyc2, ring_cia,
+               m.b_MemX.CurTask_0, m.b_MemX.CurTask_1, m.b_MemX.CurTask_2, m.b_MemX.CurTask_3);
+    end
+    if (tag_left > 0) begin
+      tag_left = tag_left - 1;
+      $display("tb_exec: TAG @%0d CIA=%h CacheRef'=%b Clk0'Ce=%b Clk1'Cb=%b pre0'Dc=%b | Ptag=%b e23=%b new=%b ProcTag=%b | PLE'=%b PTA=%b CRP'=%b Hita=%b AfOE'b=%b AWRD=%b EcWRD=%b MkMDM'=%b | WMDM'=%b Dtag'=%b Ad=%b%b%b%b MDM'=%b | Hold=%b MDh'=%b",
+               n_cyc2, ring_cia, m.b_MemX.CacheRef_p_, m.b_MemX.Clk0_p_Ce, m.b_MemX.Clk1_p_Cb, m.b_MemX.preClk0_p_Dc,
+               m.b_MemX.Ptag, m.b_MemX.MemX01_sil_pl_11, m.b_MemX.MemX01_sil_pl_4, m.b_MemX.ProcTag,
+               m.b_MemX.PairLdEnable_p_, m.b_MemX.ProcTagInA, m.b_MemX.CacheRefInPair_p_,
+               m.b_MemX.Hita, m.b_MemX.AfreeOrEc_p_b, m.b_MemX.AWordRefToD, m.b_MemX.EcWordRefToD, m.b_MemX.MakeMDM_u_D_p_,
+               m.b_MemX.WriteMDM_p_, m.b_MemX.Dtag_p_, m.b_MemX.MDMtagAd_0, m.b_MemX.MDMtagAd_1, m.b_MemX.MDMtagAd_2, m.b_MemX.MDMtagAd_3,
+               m.b_MemX.MDMtag_p_, m.Hold, m.b_MemC.MDhold_p_);
+    end
+    d_cref <= m.b_MemX.CacheRef_p_;
+  end
+  // Observe the address-to-data handoff at every fabric sample. In particular,
+  // distinguish a hit that survives to the handoff clock from an idle hit.
+  longint cachewin = -1;
+  integer cachewinlen = 160;
+  initial begin
+    void'($value$plusargs("cachewin=%d", cachewin));
+    void'($value$plusargs("cachewinlen=%d", cachewinlen));
+  end
+  // Optional diagnostic watchdog, not a hardware timeout. End long boot
+  // experiments promptly on a continuous hold, retaining its source pins.
+  integer hold_limit = 0, held_samples = 0;
+  initial void'($value$plusargs("hold-limit=%d", hold_limit));
+  always @(posedge sys_clk) if (hold_limit > 0 && n_cyc2 > 100000) begin
+    if (m.Hold) held_samples = held_samples + 1;
+    else held_samples = 0;
+    if (held_samples >= hold_limit) begin
+      $display("tb_exec: HOLD-WATCH @%0d CIA=%h VA=%h MDhold'=%b RefHold'=%b MiscHold'=%b DbufBusy=%b STPerr=%b dSTPerr=%b MakeMDM'=%b CacheRefInA=%b EcHasA'=%b",
+        n_cyc2, ring_cia, w_procva, m.b_MemC.MDhold_p_,
+        m.b_MemC.RefHold_p_, m.b_MemC.MiscHold_p_, m.b_MemC.DbufBusy,
+        m.b_MemX.STPerr, m.b_MemX.dSTPerr, m.b_MemX.MakeMDM_u_D_p_,
+        m.b_MemC.CacheRefInA, m.b_MemC.EcHasA_p_);
+      $fatal(1, "diagnostic hold-limit reached (%0d fabric samples)", held_samples);
+    end
+  end
+  always @(negedge sys_clk)
+    if (cachewin >= 0 && n_cyc2 >= cachewin && n_cyc2 < cachewin + cachewinlen) begin
+      $display("tb_exec: CWIN @%0d CIA=%h clk0=%b clk1=%b SH=%b LdVA=%b dVA=%05h VA=%07h compare=%b hit=%b CRP'=%b Afree'=%b AWRD=%b MkMDM'=%b pipeWE'=%b pipeAd=%h pipeD=%b%b%b%b pipeQ=%b%b%b%b EcHasA'=%b Ec1=%b%b",
+        n_cyc2, ring_cia, m.b_MemX.Clk0_p_Cb, m.b_MemC.clk1_p_Dc,
+        m.b_MemC.MemSH, m.b_MemC.LdProcVA_p_Ab, w_dva, w_procva,
+        m.b_MemC.MemC15_sil_pl_1, m.b_MemC.Hita,
+        m.b_MemX.CacheRefInPair_p_, m.b_MemX.AfreeOrEc_p_b,
+        m.b_MemX.AWordRefToD, m.b_MemX.MakeMDM_u_D_p_,
+        m.b_MemC.WrPipe02_p_c,
+        {m.b_MemC.PipeAd_0, m.b_MemC.PipeAd_1, m.b_MemC.PipeAd_2, m.b_MemC.PipeAd_3},
+        m.b_MemC.ProcTagInA, m.b_MemC.CacheRefInA, m.b_MemC.Store_u_InA_p_, m.b_MemC.IfuRefInA,
+        m.b_MemC.PipeTag, m.b_MemC.PipeCacheRef, m.b_MemC.PipeStore_u__p_, m.b_MemC.PipeIfuRef,
+        m.b_MemC.EcHasA_p_, m.b_MemC.CacheRefInEc1__drv, m.b_MemC.Store_u_InEc1_p___drv);
+      $display("tb_exec: CWIN2 @%0d NewRef=%b want'=%b latwant'=%b Add'=%b DisBR=%b MAR'=%h hiA=%h hiB=%h hiSum=%h heldVA=%h muxEn=%b rawMiss=%b%b%b%b",
+        n_cyc2, m.b_MemC.NewRef, m.b_MemC.WantProcRef_p_, m.b_MemC.MemC16_sil_pl_4,
+        m.b_MemC.Add_p_b, m.b_MemC.DisBR,
+        {m.b_MemC.MAR_00_p_,m.b_MemC.MAR_01_p_,m.b_MemC.MAR_02_p_,m.b_MemC.MAR_03_p_,m.b_MemC.MAR_04_p_,m.b_MemC.MAR_05_p_,m.b_MemC.MAR_06_p_,m.b_MemC.MAR_07_p_,m.b_MemC.MAR_08_p_,m.b_MemC.MAR_09_p_,m.b_MemC.MAR_10_p_,m.b_MemC.MAR_11_p_,m.b_MemC.MAR_12_p_,m.b_MemC.MAR_13_p_,m.b_MemC.MAR_14_p_,m.b_MemC.MAR_15_p_},
+        m.b_MemC.u__h_5e42.a, m.b_MemC.u__h_5e42.b, m.b_MemC.u__h_5e42.f,
+        m.b_MemC.u_d02.q, m.b_MemC._u_PrVACVA,
+        m.b_MemC.dMiss0_04_m_11, m.b_MemC.dMiss0_12_m_15, m.b_MemC.dMiss0_16_m_19, m.b_MemC.ForceMiss);
+      $display("tb_exec: CWIN3 @%0d en'=%b compareVA=%h tagVA=%h xor=%h row=%h",
+        n_cyc2, m.b_MemC.PairHasA_p_b,
+        {m.b_MemC.u_e20.p6,m.b_MemC.u_e20.p10,m.b_MemC.u_e20.p12,m.b_MemC.u_e20.p5,m.b_MemC.u_e18.p6,m.b_MemC.u_e18.p10,m.b_MemC.u_e18.p12,m.b_MemC.u_e18.p5},
+        {m.b_MemC.u_e20.p7,m.b_MemC.u_e20.p11,m.b_MemC.u_e20.p13,m.b_MemC.u_e20.p4,m.b_MemC.u_e18.p7,m.b_MemC.u_e18.p11,m.b_MemC.u_e18.p13,m.b_MemC.u_e18.p4},
+        {m.b_MemC.u_e20.p3,m.b_MemC.u_e20.p14,m.b_MemC.u_e20.p15,m.b_MemC.u_e20.p2,m.b_MemC.u_e18.p3,m.b_MemC.u_e18.p14,m.b_MemC.u_e18.p15,m.b_MemC.u_e18.p2},
+        m.b_MemC.u_a08.a);
+    end
+
+  // PIPEWIN (2026-09-08): the pipe's flag word (MemC l04, an F10145A at
+  // PipeAd: Tag, CacheRef, Store', IfuRef) at every write (WrPipe02'c
+  // falling) and every corrector takeover (EcHasA' falling, when MemC l03
+  // loads the Ec1 flags from it). From `+pipefrom=CYC`, at most `+pipemax=N`
+  // lines. Written because MakeMDM<-D (the Md tag/file write) never fires on
+  // a miss: EcWordRefToD = Ec2State5 & CacheRefInEc2 needs the pipe's
+  // CacheRef bit to come back 1.
+  longint pipefrom = -1; integer pipemax = 200, n_pipe = 0; reg d_wp02 = 1'b1, d_echasa = 1'b1;
+  initial begin void'($value$plusargs("pipefrom=%d", pipefrom)); void'($value$plusargs("pipemax=%d", pipemax)); end
+  wire [3:0] w_pipead = {m.b_MemC.PipeAd_3, m.b_MemC.PipeAd_2, m.b_MemC.PipeAd_1, m.b_MemC.PipeAd_0};
+  always @(posedge sys_clk) begin
+    if (pipefrom >= 0 && n_cyc2 >= pipefrom && n_pipe < pipemax) begin
+      if (!m.b_MemC.WrPipe02_p_c && d_wp02) begin
+        n_pipe = n_pipe + 1;
+        $display("tb_exec: PIPE @%0d CIA=%h WrPipe02' fall: PipeAd=%h din: ProcTagInA=%b CacheRefInA=%b Store'InA'=%b IfuRefInA=%b | CRinA(now)=%b StInA=%b Hit'b=%b",
+                 n_cyc2, ring_cia, w_pipead, m.b_MemC.ProcTagInA, m.b_MemC.CacheRefInA, m.b_MemC.Store_u_InA_p_, m.b_MemC.IfuRefInA,
+                 m.b_MemC.CacheRefInA, m.b_MemC.Store_u_InA, m.b_MemC.Hit_p_b);
+      end
+      if (!m.b_MemC.EcHasA_p_ && d_echasa) begin
+        n_pipe = n_pipe + 1;
+        $display("tb_exec: PIPE @%0d CIA=%h EcHasA' fall: PipeAd=%h dout: PipeTag=%b PipeCacheRef=%b PipeStore''=%b PipeIfuRef=%b -> Ec1: TagInEc1=%b CacheRefInEc1=%b Store<-InEc1'=%b IfuRefInEc1=%b",
+                 n_cyc2, ring_cia, w_pipead, m.b_MemC.PipeTag, m.b_MemC.PipeCacheRef, m.b_MemC.PipeStore_u__p_, m.b_MemC.PipeIfuRef,
+                 m.b_MemC.TagInEc1__drv, m.b_MemC.CacheRefInEc1__drv, m.b_MemC.Store_u_InEc1_p___drv, m.b_MemC.IfuRefInEc1__drv);
+      end
+    end
+    d_wp02 <= m.b_MemC.WrPipe02_p_c; d_echasa <= m.b_MemC.EcHasA_p_;
+  end
+  // CAWIN (2026-09-08): every write of the cache address memory (MemC
+  // WrCVA0-3', one per column) and of the cache flags (WrCflags0-3'), with
+  // the VA in force, from `+cafrom=CYC`, at most `+camax=N` lines. Written
+  // for Initial's PresetMap: "Kick-start the automata by performing two
+  // fetches. Cope with 'tag' bit by performing a reference that hits" -- the
+  // hit needs CacheA to hold VA 0 after the two forced-miss fetches.
+  longint cafrom = -1; integer camax = 200, n_caw = 0;
+  reg [3:0] ca_d_cva = 4'b1111, ca_d_cf = 4'b1111; reg ca_d_crina = 1'b0;
+  initial begin void'($value$plusargs("cafrom=%d", cafrom)); void'($value$plusargs("camax=%d", camax)); end
+  wire [3:0] w_wrcva = {m.b_MemC.WrCVA3_p_a, m.b_MemC.WrCVA2_p_a, m.b_MemC.WrCVA1_p_a, m.b_MemC.WrCVA0_p_a};
+  wire [3:0] w_wrcf  = {m.b_MemC.WrCflags3_p_, m.b_MemC.WrCflags2_p_, m.b_MemC.WrCflags1_p_, m.b_MemC.WrCflags0_p_};
+  always @(posedge sys_clk) begin
+    if (cafrom >= 0 && n_cyc2 >= cafrom && n_caw < camax) begin
+      if ((~w_wrcva & ca_d_cva) != 4'b0000) begin
+        n_caw = n_caw + 1;
+        $display("tb_exec: CA @%0d CIA=%h WrCVA' fall col=%b ProcVA=%07h Aad=%b%b%b%b%b%b%b%b a10.q(VA16-19 col0 at Aad)=%b%b%b%b Hit'b=%b CRinA=%b VicInA=%b MapTrb=%b FDMiss=%b", n_cyc2, ring_cia,
+                 ~w_wrcva & ca_d_cva, w_procva, m.b_MemC.Aad_0a, m.b_MemC.Aad_1a, m.b_MemC.Aad_2a, m.b_MemC.Aad_3a, m.b_MemC.Aad_4a, m.b_MemC.Aad_5a, m.b_MemC.Aad_6a, m.b_MemC.Aad_7a,
+                 m.b_MemC.MemC12_sil_pl_19, m.b_MemC.MemC12_sil_pl_20, m.b_MemC.MemC12_sil_pl_31, m.b_MemC.MemC12_sil_pl_25,
+                 m.b_MemC.Hit_p_b, m.b_MemC.CacheRefInA, m.b_MemC.VictimInA, m.b_MemX.MapTrouble, m.b_MemC.ForceDirtyMiss);
+      end
+      if (m.b_MemC.CacheRefInA && !ca_d_crina) begin
+        n_caw = n_caw + 1;
+        $display("tb_exec: CA @%0d CIA=%h CRinA rise: ProcVA=%07h dVA(04-23)=%05h Aad=%b%b%b%b%b%b%b%b col0 stored VA16-19=%b%b%b%b dMiss0(04-11,12-15,16-19)=%b%b%b dMiss1=%b%b%b dMiss2=%b%b%b dMiss3=%b%b%b ForceMiss=%b DisCF=%b", n_cyc2, ring_cia,
+                 w_procva, w_dva, m.b_MemC.Aad_0a, m.b_MemC.Aad_1a, m.b_MemC.Aad_2a, m.b_MemC.Aad_3a, m.b_MemC.Aad_4a, m.b_MemC.Aad_5a, m.b_MemC.Aad_6a, m.b_MemC.Aad_7a,
+                 m.b_MemC.MemC12_sil_pl_19, m.b_MemC.MemC12_sil_pl_20, m.b_MemC.MemC12_sil_pl_31, m.b_MemC.MemC12_sil_pl_25,
+                 m.b_MemC.dMiss0_04_m_11, m.b_MemC.dMiss0_12_m_15, m.b_MemC.dMiss0_16_m_19, m.b_MemC.dMiss1_04_m_11, m.b_MemC.dMiss1_12_m_15, m.b_MemC.dMiss1_16_m_19,
+                 m.b_MemC.dMiss2_04_m_11, m.b_MemC.dMiss2_12_m_15, m.b_MemC.dMiss2_16_m_19, m.b_MemC.dMiss3_04_m_11, m.b_MemC.dMiss3_12_m_15, m.b_MemC.dMiss3_16_m_19,
+                 m.b_MemC.ForceMiss, m.b_MemC.DisCflags);
+      end
+      if ((~w_wrcf & ca_d_cf) != 4'b0000) begin
+        n_caw = n_caw + 1;
+        $display("tb_exec: CA @%0d CIA=%h WrCflags' fall col=%b ProcVA=%07h Hit'b=%b CRinA=%b VicInA=%b", n_cyc2, ring_cia,
+                 ~w_wrcf & ca_d_cf, w_procva, m.b_MemC.Hit_p_b, m.b_MemC.CacheRefInA, m.b_MemC.VictimInA);
+      end
+    end
+    ca_d_cva <= w_wrcva; ca_d_cf <= w_wrcf; ca_d_crina <= m.b_MemC.CacheRefInA;
+  end
+  // FORCEMISS: does the real boot load the MCR correctly? memrun-test never
+  // does a LoadMcr at all, so MemC k08 (the MCR bit ForceDirtyMiss, clocked
+  // by LdMcr') holds a STARTUP value there -- benign at baseline, stuck HIGH
+  // under derived clock depth, which forces every cache reference to miss.
+  // Initial DOES load the MCR, so the boot may be unaffected. Counted here to
+  // decide whether memrun's depth failure is a bench artifact (2026-09-07).
+  integer n_fdm = 0, n_fm = 0, n_hitd = 0, n_fdm_smp = 0;
+  always @(posedge sys_clk) begin
+    n_fdm_smp = n_fdm_smp + 1;
+    if (m.b_MemC.ForceDirtyMiss)  n_fdm = n_fdm + 1;
+    if (m.b_MemC.ForceMiss)       n_fm  = n_fm  + 1;
+    if (m.b_MemC.MemC15_sil_pl_1) n_hitd = n_hitd + 1;
+  end
+  final $display("tb_exec: FORCEMISS -- ForceDirtyMiss %0d, ForceMiss %0d, hit-compare %0d, of %0d",
+                 n_fdm, n_fm, n_hitd, n_fdm_smp);
+  // THE MCR LOAD ITSELF. k08 (MC10176) clocks on the RISING edge of LdMcr'
+  // -- the trailing edge of the active-low strobe -- and takes RMar_01 as
+  // the ForceDirtyMiss bit. Printed per load so baseline and depth can be
+  // compared: does the strobe fire, and what data does it see (2026-09-07)?
+  integer n_ldm_rise = 0, n_ldm_r1 = 0; reg ldmx_d = 1'b1;
+  always @(posedge sys_clk) begin
+    if (!ldmx_d && m.b_MemC.LdMcr_p_) begin
+      n_ldm_rise = n_ldm_rise + 1;
+      if (m.b_MemC.RMar_01) n_ldm_r1 = n_ldm_r1 + 1;
+      if (n_ldm_rise <= 8)
+        $display("tb_exec: MCRLD #%0d @%0d RMar_01=%b -> ForceDirtyMiss=%b",
+                 n_ldm_rise, n_cyc2, m.b_MemC.RMar_01, m.b_MemC.ForceDirtyMiss);
+    end
+    ldmx_d <= m.b_MemC.LdMcr_p_;
+  end
+  final $display("tb_exec: MCRLD -- LdMcr' rising edges %0d, RMar_01 set at %0d of them",
+                 n_ldm_rise, n_ldm_r1);
   // DISK: what the world's disk boot did against the drive, and the Alto
   // boot's own milestones (AEmu.mb: DiskBoot 0x405, DiskBootRetry 0x412,
   // KWait 0x417, KBootTimeout 0x375, EBoot 0x406).
   integer dk_sectw = 0, dk_idxtw = 0, dk_active = 0, dk_rderr = 0, dk_fifow = 0, dk_data = 0, dk_ecc = 0, dk_rdderr = 0, dk_fovf = 0, dk_funf = 0;
   reg dk_sectw_d = 1'b0, dk_idxtw_d = 1'b0; reg [3:0] dk_fw_d = 4'd0;
+  reg dk_active_d = 0;
+  integer dk_nactive = 0;
+  // Run options are immutable; don't scan argv on every fabric sample.
+  reg disk_cmd_trace, disk_err_trace;
+  initial begin
+    disk_cmd_trace = $test$plusargs("diskcmdtrace");
+    disk_err_trace = $test$plusargs("diskerrtrace");
+  end
+  wire [3:0] disk_subsector_reload = {m.b_DskEth.TriconD06_sil_pl_5,
+    m.b_DskEth.TriconD06_sil_pl_6,m.b_DskEth.TriconD06_sil_pl_7,m.b_DskEth.TriconD06_sil_pl_8};
+  reg [3:0] disk_subsector_prev=0;
+  wire [15:0] disk_tag_value={m.b_DskEth.DriveTag,m.b_DskEth.CylinderTag,
+    m.b_DskEth.HeadTag,m.b_DskEth.ControlTag,m.b_DskEth.Tag_000,m.b_DskEth.Tag_00,
+    m.b_DskEth.Tag_0,m.b_DskEth.Tag_1,m.b_DskEth.Tag_2,m.b_DskEth.Tag_3,
+    m.b_DskEth.Tag_4,m.b_DskEth.Tag_5,m.b_DskEth.Tag_6,m.b_DskEth.Tag_7,
+    m.b_DskEth.Tag_8,m.b_DskEth.Tag_9};
+  reg [15:0] disk_tag_prev=0;
+  reg disk_clock_trace=0;
+  initial disk_clock_trace=$test$plusargs("diskclocktrace");
+  reg check_tioa_phase=0;
+  reg [7:0] disk_tioa_prev=0;
+  integer disk_tioa_changes=0;
+  initial check_tioa_phase=$test$plusargs("check-tioa-phase");
+  always @(posedge sys_clk) begin
+    if(check_tioa_phase && ew_done && et_tioa!=disk_tioa_prev) begin
+      disk_tioa_changes <= disk_tioa_changes+1;
+      if(!m.b_DskEth.FHCP)
+        $fatal(1,"TIOA changed %o -> %o while DskEth address latch was transparent @%0d",
+          disk_tioa_prev,et_tioa,n_cyc2);
+    end
+    disk_tioa_prev <= et_tioa;
+  end
+  final if(check_tioa_phase) begin
+    if(disk_tioa_changes==0) $error("TIOA phase probe observed no address changes");
+    $display("tb_exec: TIOA-PHASE checked %0d address changes after world entry",disk_tioa_changes);
+  end
+  always @(posedge sys_clk) if(disk_clock_trace && n_cyc2>=300000 && n_cyc2<300064)
+    $display("tb_exec: DISK-CLOCK @%0d mclk=%b MemSH'=%b ProcH-pre0'=%b post0'=%b ProcL-clk1'=%b Dsk-clk0=%b FHCP=%b pre1'=%b",
+      n_cyc2,mclk,m.MemSH_p_,m.b_ProcH.PreClock0_p_B,m.b_ProcH.PostClock0_p_Bc,
+      m.b_ProcL.Clock1_p_Ac,m.b_DskEth.Clk0,m.b_DskEth.FHCP,m.b_DskEth.PreClock1_p_Ca);
+  reg disk_sec_prev=1;
+  reg [35:0] disk_io_history[0:255];
+  integer disk_io_pos=0;
+  wire [35:0] disk_io_sample={el2_iob,et_tioa,
+    m.b_DskEth.TtlTag_0,m.b_DskEth.TtlTag_1,m.b_DskEth.TtlTag_2,m.b_DskEth.TtlTag_3,
+    m.b_DskEth.TagClock_p_,m.b_DskEth.Idle,m.b_DskEth.TtlDriveTag_p_,m.b_DskEth.TtlTag_4,
+    m.b_DskEth.LdSubSector0_p_,m.b_DskEth.TIOA_eq_Us_p_,m.b_DskEth.IOout_p_,m.b_DskEth.IOin_p_};
+  always @(posedge sys_clk) begin
+    if(disk_cmd_trace && disk_tag_value!=disk_tag_prev)
+      $display("tb_exec: DISK-TAG-LATCH @%0d CIA=%h task=%h %h -> %h IOB=%h TIOA=%o clock'=%b idle=%b out'=%b in'=%b",
+        n_cyc2,cia_now,pct_ctask,disk_tag_prev,disk_tag_value,el2_iob,et_tioa,
+        m.b_DskEth.TagClock_p_,m.b_DskEth.Idle,m.b_DskEth.IOout_p_,m.b_DskEth.IOin_p_);
+    disk_tag_prev <= disk_tag_value;
+    if(disk_cmd_trace) begin
+      if(disk_subsector_prev==3 && disk_subsector_reload!=3) begin
+        $display("tb_exec: RELOAD-HISTORY fields: IOB[35:20] TIOA[19:12] TagData[11:8] TagClock'/Idle/DriveTag'/Tag4/LoadSub'/EqUs'/IOout'/IOin'[7:0]");
+        for(integer j=0;j<256;j=j+1)
+          $display("tb_exec: RELOAD-HISTORY @%0d %09h",n_cyc2-256+j,disk_io_history[(disk_io_pos+j)%256]);
+      end
+      disk_io_history[disk_io_pos] <= disk_io_sample;
+      disk_io_pos <= (disk_io_pos+1)%256;
+    end
+    if(disk_cmd_trace && drv_sec_n!=disk_sec_prev && u_drv.sector<5)
+      $display("tb_exec: DISK-PULSE @%0d pulse=%0d line'=%b count=%h reload=%h OS=%b timer=%0d selected=%b",
+        n_cyc2,u_drv.sector,drv_sec_n,m.b_DskEth.u_a01.q,disk_subsector_reload,
+        m.b_DskEth.OS0,m.b_DskEth.u_a05.t1,!sel0_n);
+    disk_sec_prev <= drv_sec_n;
+    if(disk_cmd_trace && disk_subsector_reload != disk_subsector_prev)
+      $display("tb_exec: DISK-RELOAD @%0d CIA=%h %h -> %h IOB=%h load'=%b drive'=%b tag4=%b",
+        n_cyc2,cia_now,disk_subsector_prev,disk_subsector_reload,el2_iob,
+        m.b_DskEth.LdSubSector0_p_,m.b_DskEth.TtlDriveTag_p_,m.b_DskEth.TtlTag_4);
+    disk_subsector_prev <= disk_subsector_reload;
+  end
   integer dk_t_diskboot = -1, dk_t_kwait = -1, dk_t_timeout = -1, dk_t_retry = -1, dk_n_retry = 0;
+  // +bootio: observe the CPU's reads separately from FIFO refills. HM 9.4:
+  // reading DISKDATA consumes OutReg, which may refill immediately afterwards.
+  reg bootio = 0, bootio_clk_d = 0, bootio_in_d = 1, bootio_unf_d = 0;
+  longint bootio_from = 249000000;
+  integer bootio_n = 0, bootio_reads = 0;
+  initial begin
+    bootio = $test$plusargs("bootio");
+    void'($value$plusargs("bootiofrom=%d", bootio_from));
+  end
+  wire [15:0] bootio_md = {m.b_ProcH.Md_00, m.b_ProcH.Md_01, m.b_ProcH.Md_02, m.b_ProcH.Md_03,
+    m.b_ProcH.Md_04, m.b_ProcH.Md_05, m.b_ProcH.Md_06, m.b_ProcH.Md_07,
+    m.b_ProcL.Md_08, m.b_ProcL.Md_09, m.b_ProcL.Md_10, m.b_ProcL.Md_11,
+    m.b_ProcL.Md_12, m.b_ProcL.Md_13, m.b_ProcL.Md_14, m.b_ProcL.Md_15};
+  function automatic [3:0] bootio_rev4(input [3:0] v);
+    bootio_rev4 = {v[0],v[1],v[2],v[3]};
+  endfunction
+  function automatic [15:0] bootio_rm(input [7:0] a);
+    // Both bank and RSTK address bits reach RM complemented. Checked with
+    // RBase<-1; RM[0x1a]<-0x001b: physical write address is 8'he5.
+    bootio_rm = {bootio_rev4(m.b_ProcH.u_h06.mem[a ^ 8'hff]),
+      bootio_rev4(m.b_ProcH.u_j06.mem[a ^ 8'hff]),
+      bootio_rev4(m.b_ProcL.u_h06.mem[a ^ 8'hff]),
+      bootio_rev4(m.b_ProcL.u_j06.mem[a ^ 8'hff])};
+  endfunction
+  always @(posedge sys_clk) begin
+    if (bootio && n_cyc2 >= bootio_from) begin
+      if (!bootio_clk_d && m.b_ContA.clk0_p_Ca && bootio_n < 1000000 &&
+          (pct_ctask == 0 || pct_ctask == 12)) begin
+        bootio_n = bootio_n + 1;
+        $display("tb_exec: BOOTIO @%0d CIA=%h task=%h T=%h A=%h B=%h ALU=%h MD=%h VA=%h FF=%h Hold=%b lt'=%b eq'=%b IOB=%h TIOA=%o full=%b empty=%b ETemp0=%h ETemp1=%h KStatus=%h",
+          n_cyc2, ring_cia, pct_ctask, brc_t, brc_alua, brc_alub, brc_alu,
+          bootio_md, w_procva, ff_now, m.b_ContA.RepeatCur,
+          m.b_ProcH.ResLtZero_p_, m.b_ProcH.ResEqZero_p_, el2_iob, et_tioa,
+          m.b_DskEth.OutRegFull, m.b_DskEth.FifoEmpty,
+          bootio_rm(8'h1a),bootio_rm(8'h1b),bootio_rm(8'h5a));
+      end
+      if (bootio_in_d && !m.b_DskEth.bIOin_p_ && et_tioa == 8'o12) begin
+        bootio_reads = bootio_reads + 1;
+        $display("tb_exec: DISK-INPUT #%0d @%0d CIA=%h task=%h data=%h IOB=%h full=%b empty=%b Active=%b",
+          bootio_reads,n_cyc2,ring_cia,pct_ctask,dk_word,el2_iob,
+          m.b_DskEth.OutRegFull,m.b_DskEth.FifoEmpty,m.b_DskEth.Active);
+      end
+      if (!bootio_unf_d && m.b_DskEth.FifoUnderflow)
+        $display("tb_exec: FIRST-UNDERFLOW @%0d CIA=%h task=%h data=%h TIOA=%o full=%b empty=%b Active=%b",
+          n_cyc2,ring_cia,pct_ctask,dk_word,et_tioa,
+          m.b_DskEth.OutRegFull,m.b_DskEth.FifoEmpty,m.b_DskEth.Active);
+    end
+    bootio_clk_d <= m.b_ContA.clk0_p_Ca;
+    bootio_in_d <= m.b_DskEth.bIOin_p_;
+    bootio_unf_d <= m.b_DskEth.FifoUnderflow;
+  end
   reg [11:0] dk_cia_d = 12'hfff;
   always @(posedge sys_clk) begin
+    if (disk_cmd_trace && m.b_DskEth.Active && !dk_active_d && dk_nactive < 40) begin
+      dk_nactive = dk_nactive + 1;
+      $display("tb_exec: DISK-ACTIVE @%0d pulse=%0d angle=%0d divider=%h media-phase=%0d", n_cyc2,
+        u_drv.sector, u_drv.sec_count, m.b_DskEth.u_a01.q, u_pack.phase);
+    end
+    dk_active_d <= m.b_DskEth.Active;
     if (m.b_DskEth.SectorTW && !dk_sectw_d) dk_sectw = dk_sectw + 1; dk_sectw_d <= m.b_DskEth.SectorTW;
     if (m.b_DskEth.IndexTW  && !dk_idxtw_d) dk_idxtw = dk_idxtw + 1; dk_idxtw_d <= m.b_DskEth.IndexTW;
     if (m.b_DskEth.Active)    dk_active = dk_active + 1;
@@ -2213,6 +3051,9 @@ module tb_exec;
       n_dtag = n_dtag + 1;
       $display("tb_exec: DISKTAG <- %04h (task %0d) @%0d", el2_iob, pct_ctask, n_cyc2);
     end
+    if (disk_cmd_trace && m.b_ProcL.IOBout && !et_iobout_d && et_tioa == 8'o10)
+      $display("tb_exec: DISK-CONTROL <- %04h (task %0d) @%0d pulse=%0d angle=%0d",
+        el2_iob, pct_ctask, n_cyc2, u_drv.sector, u_drv.sec_count);
     if (m.b_ProcL.IOBout && !et_iobout_d && et_tioa == 8'o15 && n_el2 < 600)
       $display("tb_exec: ETHLOG2 %0d: EData <- %04h (task %0d)", n_cyc2, el2_iob, pct_ctask);
     el2 = {m.b_DskEth.TxOn, m.b_DskEth.RxOn, m.b_DskEth.Ether06_sil_pl_5, m.TWReq_06, m.TWReq_07,
@@ -2316,10 +3157,12 @@ module tb_exec;
       $display("tb_exec: PCT window opens @%0d at CIA=%h", n_cyc2, ring_cia);
     end
   always @(posedge sys_clk) begin
-    if (pcfrom >= 0 && n_cyc2 >= pcfrom && n_cyc2 < pcfrom + pclen && ring_cia != pct_cia_d)
-      $display("tb_exec: PCT @%0d CIA=%h JCN=%h task=%h Link=%h T=%h R=%h alu=%h ResLt0'=%b ResEq0'=%b SB=%b TPCI=%h CTD=%h TaskOff'=%b Ph=%b SC=%b RW=%b Hold=%b",
+    if (((pcfrom >= 0 && n_cyc2 >= pcfrom && n_cyc2 < pcfrom + pclen) ||
+         (pctask >= 0 && pct_ctask == pctask[3:0])) && ring_cia != pct_cia_d)
+      $display("tb_exec: PCT @%0d CIA=%h JCN=%h task=%h Link=%h T=%h R=%h alu=%h ResLt0'=%b ResEq0'=%b SB=%b Cout=%b ALUCarry=%b TPCI=%h CTD=%h TaskOff'=%b Ph=%b SC=%b RW=%b Hold=%b",
                n_cyc2, ring_cia, ring_jcn, pct_ctask, ring_link, brc_t, brc_r, brc_alu,
                m.b_ProcH.ResLtZero_p_, m.b_ProcH.ResEqZero_p_, m.b_ProcH.ProcH11_sil_pl_9,
+               m.b_ProcH.aluCout, m.b_ProcH.ALUCarry,
                ring_tpci, ring_ctd, m.b_ContA.TaskingIsOff_p_, ring_ph, m.b_ContA.StartCycle,
                m.b_ContA.RWTPCorRWIM, m.b_ContA.RepeatCur);
     pct_cia_d <= ring_cia;
@@ -2351,11 +3194,45 @@ module tb_exec;
   reg p_lh, p_rh, impar_odd, impar_nosec;
   integer imfd, imn, mapaddr, nloaded, nver, nverbad, startaddr;
   longint runcycles;   // 64-bit: a full boot is >2^31 sys_clk
+  string cycle_limit_file;
+  bit has_cycle_limit_file = 0;
+  integer cycle_limit_fd, cycle_limit_rc;
+  longint requested_cycle_limit;
   integer mcrval;
   reg [7:0] mb0_, mb1_, mb2_, mb3_, mb4_;
   integer nalufm, nalufmbad, nifum, nifumbad;
   reg [5:0]  r_alu;
   reg [15:0] r_lo, r_hi, ifum_want;  reg ifum_raw;
+`ifdef WORLD
+  reg world_ifum_have [0:1023];
+  reg [15:0] world_ifum_lo [0:1023], world_ifum_hi [0:1023];
+  reg world_alufm_have [0:15];
+  reg [5:0] world_alufm [0:15];
+  task automatic restore_world_tables;
+    integer a, ni, na;
+    reg [15:0] lo, hi, old_lo, old_hi;
+    reg [5:0] alu;
+    begin
+      ni=0; na=0;
+      ifum_readback_word(0,old_lo,old_hi);
+      for(a=0;a<1024;a=a+1) if(world_ifum_have[a]) begin
+        ifum_preload_word(a,world_ifum_lo[a],world_ifum_hi[a]);
+        ifum_readback_word(a,lo,hi);
+        if(lo[10:0]!==world_ifum_lo[a][10:0] || hi!==world_ifum_hi[a])
+          $fatal(1,"world handoff IFUM[%h] readback mismatch",a);
+        ni=ni+1;
+      end
+      for(a=0;a<16;a=a+1) if(world_alufm_have[a]) begin
+        alufm_preload_word(a,world_alufm[a]);
+        alufm_readback_word(a,alu);
+        if(alu!==world_alufm[a]) $fatal(1,"world handoff ALUFM[%h] mismatch",a);
+        na=na+1;
+      end
+      $display("tb_exec: WORLD-TABLES @%0d restored/read back %0d IFUM and %0d ALUFM entries; IFUM[0] before=%h/%h after=%h/%h",
+        n_cyc2,ni,na,old_lo,old_hi,world_ifum_lo[0],world_ifum_hi[0]);
+    end
+  endtask
+`endif
   reg r_lh_p, r_rh_p;
   integer n_ifuref, n_ifuack, n_jchg;
   reg ifu_prev_ref, ifu_prev_ack; reg [7:0] j_prev;
@@ -2483,7 +3360,11 @@ module tb_exec;
   integer trwin = 0;
   initial void'($value$plusargs("trwin=%d", trwin));
   integer fastwait, n_clip = 0;
-  initial fastwait = $test$plusargs("fastwait");
+  reg clip_wait;
+  initial begin
+    fastwait = $test$plusargs("fastwait");
+    clip_wait = $test$plusargs("clip");
+  end
   // ---- FAST-FORWARD THE WAITS ---------------------------------------------
   //
   // Initial's LongWait ("wait T+2 cycles") is real time on real hardware --
@@ -2513,7 +3394,7 @@ module tb_exec;
   // "loses to the bypass" and never could); it stays, the clip goes. `+clip`
   // turns it back on to reproduce the artifact.
   always @(posedge sys_clk)
-    if (fastwait && $test$plusargs("clip")
+    if (fastwait && clip_wait
         && (tnia_now == 12'hc40 || tnia_now == 12'hc0a)
         && {m.b_ProcL.u_l03.mem[4'hf], m.b_ProcL.u_l04.mem[4'hf]} > 8'h10) begin
       m.b_ProcH.u_l03.mem[4'hf] = 4'h0;  // T.00-03
@@ -2587,6 +3468,26 @@ module tb_exec;
 `else
   always @(posedge sys_clk) n_cyc2 = n_cyc2 + 1;
 `endif
+  // Long runs are watched through a redirected stdout, which the C library
+  // buffers in blocks, so a quiet stretch of the boot looks like a stall.
+  // Flush once a million sys_clk so the log tracks the machine.
+  always @(posedge sys_clk) if (n_cyc2 % 1000000 == 0) begin
+    $display("tb_exec: PROGRESS @%0d CIA=%h", n_cyc2, ring_cia);
+`ifdef FULL
+    if ($test$plusargs("memprogress")) begin
+      $display("tb_exec: PROGRESS-MEM @%0d task=%h VA=%h T=%h Hold=%b MDhold'=%b RefHold'=%b ALUa=%h ALUb=%h ALU=%h",
+        n_cyc2, pct_ctask, w_procva, brc_t, m.Hold,
+        m.b_MemC.MDhold_p_, m.b_MemC.RefHold_p_, brc_alua, brc_alub, brc_alu);
+      $display("tb_exec: PROGRESS-DISK @%0d Active=%b ReadError=%b IOBParity=%b FifoParity=%b Underflow=%b ReadDataErr=%b NotReady=%b NotOnLine=%b NotSelected=%b HeadOvfl=%b ClearErrors=%b words=%0d",
+        n_cyc2, m.b_DskEth.Active, m.b_DskEth.ReadError,
+        m.b_DskEth.IOBParityErr, m.b_DskEth.FifoParityErr,
+        m.b_DskEth.FifoUnderflow, m.b_DskEth.ReadDataErr,
+        m.b_DskEth.NotReady, m.b_DskEth.NotOnLine, m.b_DskEth.NotSelected,
+        m.b_DskEth.HeadOvfl, m.b_DskEth.ClearErrors, dk_nwords);
+    end
+`endif
+    $fflush();
+  end
 `ifdef WORLD
   // `+stperroff` -- THE DECISIVE EXPERIMENT for the BLretry park: STPerr
   // (stuck 1 on every sample) is the master reset of MemX i10, the register
@@ -2733,12 +3634,13 @@ module tb_exec;
   final begin : mapplane_census
     integer zi, nwp0, ndirty0, nrp0;
     nwp0 = 0; ndirty0 = 0; nrp0 = 0;
-    for (zi = 0; zi < 4096; zi = zi + 1) begin
-      if (m.b_MemX.u_d11.mem[zi] === 1'b0) nwp0 = nwp0 + 1;
-      if (m.b_MemX.u_d13.mem[zi] === 1'b0) ndirty0 = ndirty0 + 1;
+    for (zi = 0; zi < 16384; zi = zi + 1) begin
+      // d13 feeds e17's MapWP; d11 feeds e10's MapDirty copy.
+      if (m.b_MemX.u_d13.mem[zi] === 1'b0) nwp0 = nwp0 + 1;
+      if (m.b_MemX.u_d11.mem[zi] === 1'b0) ndirty0 = ndirty0 + 1;
       if (m.b_MemX.u_a04.mem[zi] === 1'b0) nrp0 = nrp0 + 1;
     end
-    $display("tb_exec: MAPCENSUS -- WP-plane zeros %0d, Dirty-plane zeros %0d, RP00-plane zeros %0d (of 4096)",
+    $display("tb_exec: MAPCENSUS -- WP-plane zeros %0d, Dirty-plane zeros %0d, RP00-plane zeros %0d (of 16384)",
              nwp0, ndirty0, nrp0);
     $display("tb_exec: MAPSTROBE -- window 82260-83000: MapRAS' %0d transitions, MapCAS' %0d",
              n_mras, n_mcas2);
@@ -3039,10 +3941,97 @@ module tb_exec;
   integer   nvisited, lastpc, stuck, maxrun, prevpc, maxpc;  reg [3:0] ctnow;
 
 `ifdef WORLD
+  wire [27:0] w_procva = {m.b_MemC.ProcVA_04, m.b_MemC.ProcVA_05, m.b_MemC.ProcVA_06, m.b_MemC.ProcVA_07,
+                          m.b_MemC.ProcVA_08, m.b_MemC.ProcVA_09, m.b_MemC.ProcVA_10, m.b_MemC.ProcVA_11,
+                          m.b_MemC.ProcVA_12, m.b_MemC.ProcVA_13, m.b_MemC.ProcVA_14, m.b_MemC.ProcVA_15,
+                          m.b_MemC.ProcVA_16, m.b_MemC.ProcVA_17, m.b_MemC.ProcVA_18, m.b_MemC.ProcVA_19,
+                          m.b_MemC.ProcVA_20, m.b_MemC.ProcVA_21, m.b_MemC.ProcVA_22, m.b_MemC.ProcVA_23,
+                          m.b_MemC.ProcVA_24, m.b_MemC.ProcVA_25, m.b_MemC.ProcVA_26, m.b_MemC.ProcVA_27,
+                          m.b_MemC.ProcVA_28, m.b_MemC.ProcVA_29, m.b_MemC.ProcVA_30, m.b_MemC.ProcVA_31};
   wire [8:0] fg_now = {m.FG_0, m.FG_1, m.FG_2, m.FG_3, m.FG_4,
                        m.FG_5, m.FG_6, m.FG_7, m.FG_8};
   wire [7:0] j_now = {m.b_IFU.J_0a, m.b_IFU.J_1a, m.b_IFU.J_2a, m.b_IFU.J_3a,
                       m.b_IFU.J_4a, m.b_IFU.J_5a, m.b_IFU.J_6a, m.b_IFU.J_7a};
+  wire [17:0] ifu_trace_d={m.b_MemD.D_00,m.b_MemD.D_01,m.b_MemD.D_02,m.b_MemD.D_03,m.b_MemD.D_04,m.b_MemD.D_05,
+    m.b_MemD.D_06,m.b_MemD.D_07,m.b_MemD.D_08,m.b_MemD.D_09,m.b_MemD.D_10,m.b_MemD.D_11,
+    m.b_MemD.D_12,m.b_MemD.D_13,m.b_MemD.D_14,m.b_MemD.D_15,m.b_MemD.D_16,m.b_MemD.D_17};
+  wire [17:0] ifu_trace_f={m.b_MemD.F_00,m.b_MemD.F_01,m.b_MemD.F_02,m.b_MemD.F_03,m.b_MemD.F_04,m.b_MemD.F_05,
+    m.b_MemD.F_06,m.b_MemD.F_07,m.b_MemD.F_08,m.b_MemD.F_09,m.b_MemD.F_10,m.b_MemD.F_11,
+    m.b_MemD.F_12,m.b_MemD.F_13,m.b_MemD.F_14,m.b_MemD.F_15,m.b_MemD.F_16,m.b_MemD.F_17};
+  wire [17:0] ifu_trace_g={m.b_MemD.G_00,m.b_MemD.G_01,m.b_MemD.G_02,m.b_MemD.G_03,m.b_MemD.G_04,m.b_MemD.G_05,
+    m.b_MemD.G_06,m.b_MemD.G_07,m.b_MemD.G_08,m.b_MemD.G_09,m.b_MemD.G_10,m.b_MemD.G_11,
+    m.b_MemD.G_12,m.b_MemD.G_13,m.b_MemD.G_14,m.b_MemD.G_15,m.b_MemD.G_16,m.b_MemD.G_17};
+  reg ifu_trace=0, ifu_ack_d=0, ifu_saw_d=0, ifu_fc_d=1;
+  integer ifu_trace_n=0;
+  longint ifu_trace_from=0;
+  initial begin
+    ifu_trace=$test$plusargs("ifutrace");
+    void'($value$plusargs("ifufrom=%d",ifu_trace_from));
+  end
+  always @(posedge sys_clk) begin
+    if(ifu_trace && n_cyc2>=ifu_trace_from && ifu_trace_n<128 &&
+       (!m.b_IFU.FGParityErr_p_ || ifu_ack_d!=m.b_IFU.IfuMemAck ||
+        ifu_saw_d!=m.b_IFU.SawFGParityErr || ifu_fc_d!=m.b_MemD.Fclk_p_a)) begin
+      ifu_trace_n=ifu_trace_n+1;
+      $display("tb_exec: IFUTRACE @%0d CIA=%h task=%h VA=%h FG=%h byte=%h parity=%b xor=%b err'=%b FGDv=%b FDv=%b GDv=%b ack=%b saw=%b opcode=%h Fclk'=%b GLd'=%b SinDpar=%b%b",
+        n_cyc2,ring_cia,pct_ctask,w_procva,fg_now,fg_now[8:1],fg_now[0],^fg_now,
+        m.b_IFU.FGParityErr_p_,m.b_IFU.FGDv,m.b_IFU.FDv,m.b_IFU.GDv,
+        m.b_IFU.IfuMemAck,m.b_IFU.SawFGParityErr,j_now,
+        m.b_MemD.Fclk_p_a,m.b_MemD.GLd_p_,m.b_MemD.SinD_16,m.b_MemD.SinD_17);
+      $display("tb_exec: IFUWORDS @%0d D=%05h F=%05h G=%05h pre1=%b clk1=%b Fclk=%b F_D=%b PcFG15=%b",
+        n_cyc2,ifu_trace_d,ifu_trace_f,ifu_trace_g,m.b_MemD.preClk1_p_A,
+        m.b_MemD.clk1_p_Aa,m.b_MemD.Fclk_p_a,m.b_MemD.F_u_D,m.PcFG_15);
+    end
+    ifu_ack_d<=m.b_IFU.IfuMemAck;
+    ifu_saw_d<=m.b_IFU.SawFGParityErr;
+    ifu_fc_d<=m.b_MemD.Fclk_p_a;
+  end
+  longint startup_from=-1, startup_len=256;
+  wire [15:0] startup_ifub={m.b_IFU.IfuBMux_00,m.b_IFU.IfuBMux_01,m.b_IFU.IfuBMux_02,m.b_IFU.IfuBMux_03,
+    m.b_IFU.IfuBMux_04,m.b_IFU.IfuBMux_05,m.b_IFU.IfuBMux_06,m.b_IFU.IfuBMux_07,
+    m.b_IFU.IfuBMux_08,m.b_IFU.IfuBMux_09,m.b_IFU.IfuBMux_10,m.b_IFU.IfuBMux_11,
+    m.b_IFU.IfuBMux_12,m.b_IFU.IfuBMux_13,m.b_IFU.IfuBMux_14,m.b_IFU.IfuBMux_15};
+  wire [7:0] startup_pcf={m.b_IFU.PcF_08,m.b_IFU.PcF_09,m.b_IFU.PcF_10,m.b_IFU.PcF_11,
+    m.b_IFU.PcF_12,m.b_IFU.PcF_13,m.b_IFU.PcF_14,m.b_IFU.PcF_15};
+  // AEmu Start/StartIFU executes PCF<-0. Stale H must not replace that
+  // setup word when NewPc1 drops and the shared IFU ALU bus takes over.
+  bit check_pcf_setup=0, pcf_setup_arm=0, pcf_setup_seen=0, pcf_setup_pass=0;
+  integer pcf_setup_delay=-1;
+  initial begin
+    check_pcf_setup=$test$plusargs("check-pcf-setup");
+    if(check_pcf_setup) begin
+      force m.b_IFU.H_0=1; force m.b_IFU.H_1=0;
+      force m.b_IFU.H_2=1; force m.b_IFU.H_3=1;
+      force m.b_IFU.H_4=0; force m.b_IFU.H_5=0;
+      force m.b_IFU.H_6=1; force m.b_IFU.H_7=0;
+    end
+  end
+  always @(posedge sys_clk) if(check_pcf_setup && pcf_setup_arm && !pcf_setup_pass) begin
+    if(m.b_IFU.NewPc1) pcf_setup_seen=1;
+    if(pcf_setup_seen && !m.b_IFU.NewPc1 && pcf_setup_delay<0)
+      pcf_setup_delay=2;
+    else if(pcf_setup_delay>0) pcf_setup_delay=pcf_setup_delay-1;
+    else if(pcf_setup_delay==0) begin
+      if(startup_pcf!==0)
+        $fatal(1,"PCF<-0 captured %h instead (stale H=b2, expected first word offset0)",startup_pcf);
+      pcf_setup_pass=1;
+      $display("tb_exec: PCF-SETUP PASS -- real StartIFU loads zero before stale H=b2 takes over the bus");
+      $finish;
+    end
+  end
+  wire [15:0] startup_rmar={m.b_MemC.RMar_00,m.b_MemC.RMar_01,m.b_MemC.RMar_02,m.b_MemC.RMar_03,
+    m.b_MemC.RMar_04,m.b_MemC.RMar_05,m.b_MemC.RMar_06,m.b_MemC.RMar_07,
+    m.b_MemC.RMar_08,m.b_MemC.RMar_09,m.b_MemC.RMar_10,m.b_MemC.RMar_11,
+    m.b_MemC.RMar_12,m.b_MemC.RMar_13,m.b_MemC.RMar_14,m.b_MemC.RMar_15};
+  initial begin
+    void'($value$plusargs("startupfrom=%d",startup_from));
+    void'($value$plusargs("startuplen=%d",startup_len));
+  end
+  always @(posedge sys_clk) if(startup_from>=0 && n_cyc2>=startup_from && n_cyc2<startup_from+startup_len)
+    $display("tb_exec: STARTUP @%0d CIA=%h FF=%h BMux=%h IfuBMux=%h PcF=%h ZapFGH'=%b clk1=%b inc'=%b reset=%b jump=%b MarPcF'=%b RMar=%h BrLoWE'=%b MemB=%b%b%b%b%b VA=%h",
+      n_cyc2,ring_cia,ff_now,bmux,startup_ifub,startup_pcf,m.b_IFU.ZapFGH_p_,m.b_IFU.clk1_p_Aa,
+      m.b_IFU.IncPcF_p_,m.b_IFU.IfuReset,m.b_IFU.DoJump,m.b_IFU.Mar_u_PcF_p_,startup_rmar,
+      m.b_MemC.WrBrLo_p_a,m.b_MemC.MemB_0,m.b_MemC.MemB_1,m.b_MemC.MemB_2,m.b_MemC.MemB_3,m.b_MemC.MemB_4,w_procva);
 `endif
   initial begin
     force m.DMuxData = dmd;
@@ -3061,6 +4050,10 @@ module tb_exec;
       imfd = $fopen(impath, "r");
       if (imfd == 0) $fatal(1, "cannot open %s", impath);
       for (i = 0; i < 4096; i = i + 1) f_have[i] = 1'b0;
+`ifdef WORLD
+      for (i = 0; i < 1024; i = i + 1) world_ifum_have[i] = 0;
+      for (i = 0; i < 16; i = i + 1) world_alufm_have[i] = 0;
+`endif
       nalufm = 0; nalufmbad = 0; nifum = 0; nifumbad = 0;
       ifum_raw = $test$plusargs("ifumraw");
       impar_odd   = $test$plusargs("imparodd");
@@ -3095,6 +4088,9 @@ module tb_exec;
           // recomputed; `+ifumraw` takes the stored ones instead, so the two
           // can be compared.
           ifum_want = ifum_raw ? ic[15:0] : id[15:0];
+          world_ifum_have[ia[9:0]]=1;
+          world_ifum_lo[ia[9:0]]=ib[15:0];
+          world_ifum_hi[ia[9:0]]=ifum_want;
           ifum_preload_word(ia[9:0], ib[15:0], ifum_want);
           ifum_readback_word(ia[9:0], r_lo, r_hi);
           nifum = nifum + 1;
@@ -3109,6 +4105,10 @@ module tb_exec;
         end
 `endif
         if (tag == "ALUFM") begin
+`ifdef WORLD
+          world_alufm_have[ia[3:0]]=1;
+          world_alufm[ia[3:0]]=ib[5:0];
+`endif
           alufm_preload_word(ia[3:0], ib[5:0]);
           alufm_readback_word(ia[3:0], r_alu);
           nalufm = nalufm + 1;
@@ -3455,6 +4455,7 @@ module tb_exec;
     nvisited = 0; stuck = 0; maxrun = 0; prevpc = -1; maxpc = -1; n_tinit = 0;
     p0 = m.b_ContA.clk0_p_Ca; p1 = m.b_ContA.clk1_p_Ca;
     if (!$value$plusargs("cycles=%d", runcycles)) runcycles = 20000;
+    has_cycle_limit_file = $value$plusargs("cycle-limit-file=%s", cycle_limit_file);
     bootcp_n = 0; bootcp_phase = 1'b0; bootcp_byte = 0;
     if (!$value$plusargs("bootcp=%d", bootcp_period)) bootcp_period = 0;
     cktrace = $test$plusargs("cktrace");
@@ -3465,8 +4466,30 @@ module tb_exec;
     if (ioreset_r) $display("tb_exec: +ioreset -- IOReset released at @%0d", n_cyc2);
     ioreset_r = 1'b0;
 `endif
+`ifdef WORLD
+    pcf_setup_arm=1;
+`endif
     for (j2 = 0; j2 < runcycles; j2 = j2 + 1) begin
       @(posedge sys_clk);
+`ifdef WORLD
+      if(check_pcf_setup && j2==runcycles-1 && !pcf_setup_pass)
+        $fatal(1,"PCF setup test never observed a completed PCF load");
+`endif
+      // Optional host-side run limit, sampled once per million clocks.
+      // Allows extending a progressing boot without repeating initialization.
+      // This controls only when the bench reports/finishes, never hardware.
+      if (has_cycle_limit_file && j2 % 1000000 == 0) begin
+        cycle_limit_fd = $fopen(cycle_limit_file, "r");
+        if (cycle_limit_fd != 0) begin
+          cycle_limit_rc = $fscanf(cycle_limit_fd, "%d", requested_cycle_limit);
+          $fclose(cycle_limit_fd);
+          if (cycle_limit_rc == 1 && requested_cycle_limit >= 10 &&
+              requested_cycle_limit != runcycles) begin
+            runcycles = (requested_cycle_limit > j2) ? requested_cycle_limit : j2 + 1;
+            $display("tb_exec: RUN-LIMIT -- now %0d samples", runcycles);
+          end
+        end
+      end
       // THE CONTROL PROCESSOR'S HALF OF THE HANDSHAKE. Bit 15 says "a byte is
       // ready"; Bootstrap reads it, and the sender must then take it away
       // before offering the next. Driving CPReg from here is exactly what the
@@ -3962,6 +4985,17 @@ module tb_exec;
       if (maxrun > 8 && !$test$plusargs("nostuck"))
         $fatal(1, "the boot chain is stuck: %0d microinstructions on one address", maxrun);
       $display("tb_exec: PARC'S BOOT CHAIN RUNS -- Initial calls Bootstrap, which waits for the control processor.");
+`ifdef FULL
+      if (check_memconfig && !memconfig_checked)
+        $fatal(1, "GetMemConfig probe never reached its result check");
+      if (check_disk_format && !disk_format_checked)
+        $fatal(1, "InitRamDiablo probe never reached its result check");
+      if (check_reset_tags) begin
+        if (reset_tag_done != 2'b11 || reset_tag_pending != 0)
+          $fatal(1, "ResetTags did not complete both references (done=%b pending=%b)", reset_tag_done, reset_tag_pending);
+        $display("tb_exec: RESET-TAGS PASS -- Store and Fetch each wrote their Md completion tag");
+      end
+`endif
     end
     if ($test$plusargs("tpcinit")) begin
       // THE FAULT TASK RUNS ITS OWN HANDLER. With TPC[15] preset to AEmu's

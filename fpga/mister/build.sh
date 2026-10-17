@@ -7,35 +7,47 @@
 # stale copy. What lives in this repo is only what is ours: Dorado.sv and this
 # script.
 #
-#   ./build.sh [TEMPLATE_DIR] [OUT_DIR]
+#   ./build.sh [TEMPLATE_DIR] [OUT_DIR] [GENERATED_CHECKPOINT_DIR]
 # defaults suit the build machine:
 #   ./build.sh ~/mister/Template_MiSTer ~/mister/Dorado_MiSTer
 set -e
 TEMPLATE=${1:-$HOME/mister/Template_MiSTer}
 OUT=${2:-$HOME/mister/Dorado_MiSTer}
+CHECKPOINT=${3:-}
 HERE=$(cd "$(dirname "$0")" && pwd)
 REPO=$(cd "$HERE/../.." && pwd)
 
 [ -d "$TEMPLATE/sys" ] || { echo "no framework at $TEMPLATE/sys"; exit 1; }
+BASE=Template
+[ -f "$TEMPLATE/$BASE.qsf" ] || BASE=mycore
+[ -f "$TEMPLATE/$BASE.qsf" ] || { echo "no Template.qsf or mycore.qsf in $TEMPLATE"; exit 1; }
 [ -f "$REPO/verilog/generated/dorado_backplane.v" ] || {
     echo "no generated RTL -- run 'make -C verilog backplane' first"; exit 1; }
 
 mkdir -p "$OUT"
 cp -r "$TEMPLATE/sys" "$OUT/"
 cp "$TEMPLATE/files.qip" "$OUT/" 2>/dev/null || true
-cp "$TEMPLATE/Template.qsf" "$OUT/Dorado.qsf"
-cp "$TEMPLATE/Template.sdc" "$OUT/Dorado.sdc"
+cp "$TEMPLATE/$BASE.qsf" "$OUT/Dorado.qsf"
+cp "$TEMPLATE/$BASE.sdc" "$OUT/Dorado.sdc"
 cp -r "$TEMPLATE/rtl" "$OUT/" 2>/dev/null || true
-sed 's/Template/Dorado/g' "$TEMPLATE/Template.qpf" > "$OUT/Dorado.qpf"
+sed "s/$BASE/Dorado/g" "$TEMPLATE/$BASE.qpf" > "$OUT/Dorado.qpf"
 cp "$HERE/Dorado.sv" "$OUT/"
 rm -f "$OUT/Template.sv" "$OUT/rtl/mycore.v"
+# Some framework releases keep the emu port declaration in the example core.
+if [ ! -f "$OUT/sys/emu_ports.vh" ]; then
+  python3 - "$TEMPLATE/$BASE.sv" "$OUT/sys/emu_ports.vh" <<'PY'
+import pathlib, re, sys
+source = pathlib.Path(sys.argv[1]).read_text()
+match = re.search(r'\bmodule\s+emu\s*\((.*?)^\s*\);', source, re.M | re.S)
+if not match:
+    raise SystemExit('cannot locate framework emu ports')
+pathlib.Path(sys.argv[2]).write_text(match[1] + '\n')
+PY
+fi
 
-# THE PLL, RETUNED FOR REAL TIME. The template's PLL emits 20 MHz, which at the
-# old SYSPER=16 was 1.25 MHz of microinstructions -- 0.075x a real Dorado. The
-# RTL is now gated ratio-invariant down to SYSPER=2 (memory, IFU, disk,
-# display, storage and the full nine-board world, plus PARC's boot chain), and
-# a 60 ns microinstruction at SYSPER=2 needs sys_clk = 2 x 16.67 = 33.33 MHz.
-# That is REAL TIME, and it sits 32% under the 48.99 MHz measured Fmax.
+# The PLL runs at 33.333 MHz. SYSPER counts samples per 30 ns clock, and
+# each instruction takes two clocks: SYSPER=4 therefore gives 4.167 M
+# microinstructions/s (0.25x hardware speed), the validated simulation ratio.
 #
 # Patched here rather than in the template so the retune belongs to this repo
 # and survives a template refresh.
@@ -49,23 +61,42 @@ grep -q '33.333333 MHz' "$OUT/rtl/pll/pll_0002.v" || {
 # the qsf -- the qsf only does `source files.qip` -- so renaming Template.sv in
 # the qsf alone leaves the project with no `emu` at all, which is exactly how
 # this failed the first time. Fix both.
-sed -i.bak -e 's|Template\.sv|Dorado.sv|g' -e 's|Template\.sdc|Dorado.sdc|g' \
+sed -i.bak -e "s|$BASE\\.sv|Dorado.sv|g" -e "s|$BASE\\.sdc|Dorado.sdc|g" \
     -e '/mycore\.v/d' "$OUT/files.qip"
 rm -f "$OUT/files.qip.bak"
 
 sed -i.bak \
-    -e 's|Template\.sv|Dorado.sv|g' \
-    -e 's|Template|Dorado|g' \
+    -e "s|$BASE|Dorado|g" \
     "$OUT/Dorado.qsf"
 rm -f "$OUT/Dorado.qsf.bak"
 
 {
   echo ""
   echo "# ---- the Dorado, generated from PARC's Sil wire lists ----"
+  echo "set_global_assignment -name NUM_PARALLEL_PROCESSORS ${DORADO_QUARTUS_JOBS:-1}"
+  echo 'set_global_assignment -name VERILOG_MACRO "DORADO_STORAGE_INPUT_DELAY=2"'
   # SEARCH_PATH so the PROM cells' $readmemh (paths relative to the repo root)
   # resolve from the project directory. Without it every PROM package fails to
   # elaborate; this is the same fix fpga/quartus needed.
   echo "set_global_assignment -name SEARCH_PATH \"$REPO\""
+  if [ -n "$CHECKPOINT" ]; then
+    [ -f "$CHECKPOINT/sources.f" ] || { echo "missing checkpoint sources: $CHECKPOINT" >&2; exit 1; }
+    echo 'set_global_assignment -name VERILOG_MACRO DORADO_CHECKPOINT'
+    echo 'set_global_assignment -name ALLOW_POWER_UP_DONT_CARE OFF'
+    cp "$HERE/checkpoint_timing.sdc" "$OUT/checkpoint_timing.sdc"
+    echo 'set_global_assignment -name SDC_FILE checkpoint_timing.sdc'
+    if python3 - "$CHECKPOINT/manifest.json" <<'PY'
+import json, sys
+sys.exit(0 if json.load(open(sys.argv[1])).get('hps_pack') else 1)
+PY
+    then
+      echo 'set_global_assignment -name VERILOG_MACRO DORADO_HPS_PACK'
+    fi
+    while IFS= read -r f; do
+      case "$f" in /*) ;; *) f="$REPO/$f" ;; esac
+      echo "set_global_assignment -name SYSTEMVERILOG_FILE $f"
+    done < "$CHECKPOINT/sources.f"
+  else
   for f in "$REPO"/verilog/generated/dorado_backplane.v \
            "$REPO"/verilog/generated/*-Rev-*.v \
            "$REPO"/verilog/generated/msa.v \
@@ -77,7 +108,12 @@ rm -f "$OUT/Dorado.qsf.bak"
            "$REPO"/verilog/vendor/riot/*.sv; do
     [ -f "$f" ] && echo "set_global_assignment -name SYSTEMVERILOG_FILE $f"
   done
+  fi
 } >> "$OUT/Dorado.qsf"
+
+# Calling quartus_map directly does not execute the framework's pre-flow hook.
+# Supply its required include for both staged and --flow builds.
+printf '`define BUILD_DATE "%s"\n' "$(date +%Y%m%d)" > "$OUT/build_id.v"
 
 echo "assembled $OUT"
 echo "  framework: $TEMPLATE"

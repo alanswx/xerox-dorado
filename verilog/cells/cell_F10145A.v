@@ -48,7 +48,7 @@ module cell_F10145A (
 
   // A0-A3 = 10,9,7,6 address; D0-D3 = 5,4,11,12 data in;
   // Q0-Q3 = 2,1,15,14 data out; CE'=3 chip enable, WE'=13 write enable.
-  reg [3:0] mem [0:15];
+  (* ramstyle = "MLAB, no_rw_check" *) reg [3:0] mem [0:15];
   //
   // ADDRESS BIT ORDER: A0 IS THE MOST SIGNIFICANT. PARC numbers every field
   // MSB-first -- `RSTK.0` is the top RSTK bit, `TNIA.04` the top address bit --
@@ -92,6 +92,46 @@ module cell_F10145A (
     end
     if (p13 && !we_d && ce_lat) mem[a_lat] <= d_lat;   // WE' rising: commit
   end
+  // `+ramwe`: the WRITE-PULSE ADDRESS CHECK. A real 10145 needs its address
+  // stable for the whole of WE' low (setup before the leading edge, hold past
+  // the trailing one); the board's timing guarantees that and the RTL's
+  // clock-family skews may not. This commits at the trailing edge with the
+  // LAST address seen, so an address that moves one sys_clk before WE' rises
+  // sends the word to the NEW address -- for a per-task file (ProcH's T-file,
+  // MemD's MDM) that is the previous task's word landing in the next task's
+  // slot. Found 2026-09-05: the junk task's T read another task's value after
+  // a one-instruction slice, and task 0's Md changed between two reads with
+  // no fetch between them. Counted per package; the first few are printed.
+  // ...and the same for the DATA. The word is taken at the trailing edge, so
+  // a data bus that moves on to the next reference's word before WE' rises
+  // stores that word instead (MemD's MDM file: task 0's Md read back as
+  // another word with no fetch between, 2026-09-05).
+  // Diagnostic counters are simulator state, not part of the register file.
+  // Quartus 17 does not implement SystemVerilog's final block.
+  // synthesis translate_off
+  reg  [3:0] a_first = 4'd0, d_first = 4'd0; reg in_we = 1'b0;
+  integer n_amoved = 0, n_dmoved = 0, n_writes = 0;
+  reg  ramwe_dbg = 1'b0; initial ramwe_dbg = $test$plusargs("ramwe");
+  always @(posedge sys_clk) begin
+    if (!p13) begin
+      if (!in_we) begin a_first <= a; d_first <= {p12, p11, p4, p5}; in_we <= 1'b1; end
+    end else if (in_we) begin
+      in_we <= 1'b0; n_writes = n_writes + 1;
+      if (a_first != a_lat) begin
+        n_amoved = n_amoved + 1;
+        if (ramwe_dbg && n_amoved <= 12)
+          $display("tb_exec: RAMWE %m: address moved during WE' low, first %h last %h, data %h (write #%0d)", a_first, a_lat, d_lat, n_writes);
+      end
+      if (d_first != d_lat) begin
+        n_dmoved = n_dmoved + 1;
+        if (ramwe_dbg && n_dmoved <= 12)
+          $display("tb_exec: RAMWE %m: DATA moved during WE' low, first %h last %h, at address %h (write #%0d)", d_first, d_lat, a_lat, n_writes);
+      end
+    end
+  end
+  final if (ramwe_dbg && (n_amoved > 0 || n_dmoved > 0))
+    $display("tb_exec: RAMWE %m: of %0d writes, %0d had the address move and %0d the data move during WE' low", n_writes, n_amoved, n_dmoved);
+  // synthesis translate_on
   wire [3:0] q = mem[a];
   assign {p14, p15, p1, p2} = (!p3) ? q : 4'b0000;          // CE' gates the read
 

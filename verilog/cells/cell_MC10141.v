@@ -27,7 +27,7 @@
 
 `default_nettype none
 
-module cell_MC10141 (
+module cell_MC10141 #(parameter PRECAP = 1) (
     input  wire sys_clk,
     input  wire p4,
     input  wire p12,
@@ -62,11 +62,39 @@ module cell_MC10141 (
   always @(posedge sys_clk) ck_d <= p4;
   wire ck_en = p4 & ~ck_d;
 
+  // PRE-EDGE CAPTURE -- the real part's SETUP TIME, as cell_MC10176 has it.
+  // The edge is detected one sys_clk after the modelled clock rises, and by
+  // then a D that moved ON that edge has settled to its new value. ProcH a21
+  // is this part with D = Next and clock = SHCP'C, and Next (ContA h14,
+  // Switcha ? BNT : CTask) moves on the same sys_clk SHCP'C rises, so a21
+  // loaded the INCOMING task a whole cycle early; a20 (Last <- Curr, on
+  // Clock1'Ca, +16 later) then copied it, and every T-file write-back at a
+  // task switch was addressed to the incoming task's slot (measured
+  // 2026-09-05: task 0's T into the junk task's slot, the junk task's T into
+  // the display task's). With the pre-edge copy Curr takes Next at the NEXT
+  // SHCP'C edge, Last holds the outgoing task through the write-back pulse,
+  // and both slots receive their own task's T. The selects and shift inputs
+  // get the same treatment: a coincidence is a coincidence on any pin.
+  reg [3:0] d_pre; reg [1:0] s_pre; reg dr_pre, dl_pre;
+  always @(posedge sys_clk) begin
+    d_pre <= {p6, p9, p11, p12}; s_pre <= {p10, p7}; dr_pre <= p5; dl_pre <= p13;
+  end
+  // PRECAP=1 (default) is the pre-edge capture that fixes ProcH a21, the
+  // task-switch Curr<-Next register (2026-09-05). The parameter exists so the
+  // choice CAN be made per package via CELL_PARAMS. TESTED AND NEGATIVE
+  // (2026-09-07): setting MemC i10 -- this same part, holding the cache's
+  // DIRTY flags -- to PRECAP=0 under derived clock depth does NOT fix
+  // `memrun-test`'s "the Store did not dirty the flushed line". That failure
+  // is not this register's capture mode; see docs/verilog-handoff.md.
+  wire [3:0] d_use  = PRECAP ? d_pre  : {p6, p9, p11, p12};
+  wire [1:0] s_use  = PRECAP ? s_pre  : {p10, p7};
+  wire       dr_use = PRECAP ? dr_pre : p5;
+  wire       dl_use = PRECAP ? dl_pre : p13;
   always @(posedge sys_clk) if (ck_en) begin
-    case ({p10, p7})                       // S1, S2
-      2'b00: q <= {p6, p9, p11, p12};      // Parallel:    Q3<-D3 Q2<-D2 Q1<-D1 Q0<-D0
-      2'b01: q <= {p5, q[3:1]};            // Shift Right: Q3<-DR, each Q takes the next
-      2'b10: q <= {q[2:0], p13};           // Shift Left:  Q0<-DL, each Q takes the previous
+    case (s_use)                           // S1, S2
+      2'b00: q <= d_use;                   // Parallel:    Q3<-D3 Q2<-D2 Q1<-D1 Q0<-D0
+      2'b01: q <= {dr_use, q[3:1]};        // Shift Right: Q3<-DR, each Q takes the next
+      2'b10: q <= {q[2:0], dl_use};        // Shift Left:  Q0<-DL, each Q takes the previous
       default: q <= q;                     // Stop shift
     endcase
   end

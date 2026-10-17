@@ -1,6 +1,6 @@
 // cell_MK4096P_addr -- the row/column address latch, hoisted out of the DRAM.
 //
-// NOT A PART. This is the multiplexed-address front end that a 4K x 1 dynamic
+// NOT A PART. This is the multiplexed-address front end that a 16K x 1 dynamic
 // RAM has inside it -- row latched on RAS' falling, column on CAS' falling --
 // factored out so that chips DRIVEN BY THE SAME STROBES AND THE SAME ADDRESS
 // PINS share one copy of it.
@@ -33,7 +33,7 @@ module cell_MK4096P_addr (
     input  wire        p4,          // RAS'
     input  wire        p15,         // CAS'
     input  wire  [6:0] a,           // A6..A0, as the DRAM cell assembles them
-    output wire [11:0] addr
+    output wire [13:0] addr
 );
 
   reg [6:0] row, col;
@@ -48,10 +48,15 @@ module cell_MK4096P_addr (
     if (~p15 & cas_d) col <= a;                      // CAS' falling
   end
 
-  // {row, col} is fourteen bits and the array is 4K, so the low twelve are
-  // the ones that address it. Kept exactly as the cell computed it.
-  wire [13:0] full = {row, col};
-  assign addr = full[11:0];
+  // {row, col} is fourteen bits, and ALL FOURTEEN address the array. This
+  // used to keep the low twelve ("the array is 4K"), dropping the two top
+  // ROW bits -- but a 4K x 1 DRAM has six address pins and the board wires
+  // seven (A0'..A6'), and HM p.10 sizes a module as "256k x 16-bit ...
+  // (using 16k-bit storage chips)". Seven pins latched twice is a 16K part.
+  // With two bits dropped, storage folded 4:1 and a word written to page p
+  // was read back from page p+4096's cell. Fixed 2026-09-08 with the same
+  // defect in cell_MosRam (the map).
+  assign addr = {row, col};
 
 endmodule
 

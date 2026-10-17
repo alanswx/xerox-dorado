@@ -43,11 +43,10 @@
 // board (h41.4, a bias network at the receiver), which contributes 0 for the
 // same reason.
 //
-// THE BIT RATE COMES FROM THE GEOMETRY, not from a constant. A sector holds
-// WORDS_PER_SECTOR 16-bit words, and a sector passes under the head in
-// CYCLES_PER_REV / SECTORS_PER_REV, so the bit period follows. That keeps the
-// data rate consistent with the rotation rather than needing to be kept in
-// step with it by hand.
+// The bit rate follows WORDS_PER_TRACK and the revolution period. Electronic
+// sector pulses need not divide the physical track capacity evenly: the
+// Dorado uses 117 pulses on a 10,080-word T-80 track. The fractional divider
+// preserves that rate without rounding every bit to a shorter period.
 //
 // WHAT IT SERVES. `data_bit` is supplied by the caller, which advances it on
 // each `data_adv` pulse -- so the pack's actual contents live outside this
@@ -64,7 +63,10 @@ module dorado_trident #(
     // not to the drive -- hence a parameter with the common value as default.
     parameter integer SECTORS_PER_REV = 28,
     // 16-bit words in a sector, which with the rotation sets the bit rate.
-    parameter integer WORDS_PER_SECTOR = 256
+    parameter integer WORDS_PER_SECTOR = 256,
+    // Physical track capacity is independent of electronic sector pulses.
+    // T-80: 20,160 bytes/track, Trident 76205-902 (1980), Table 2-1.
+    parameter integer WORDS_PER_TRACK = SECTORS_PER_REV * WORDS_PER_SECTOR
 ) (
     input  wire sys_clk,
     input  wire reset,
@@ -97,25 +99,24 @@ module dorado_trident #(
     output wire DataP,
     output wire DataM,
     output wire ClockP,
-    output wire ClockM
+    output wire ClockM,
+    output wire [15:0] sector_out
 );
 
   // 277,778 microcycles per revolution, x SYSPER sys_clk each.
   localparam integer CYCLES_PER_REV = 277778 * SYSPER;
   localparam integer CYCLES_PER_SEC = CYCLES_PER_REV / SECTORS_PER_REV;
-  // A sector pulse is short; the index pulse is the one the controller can
-  // tell apart by being LONGER. Four times is comfortably distinguishable and
-  // still far shorter than a sector.
-  localparam integer SECTOR_PULSE   = CYCLES_PER_SEC / 64;
-  localparam integer INDEX_PULSE    = SECTOR_PULSE * 4;
+  // TriconD06.sil timing diagram: 1.2 us sector, 4.5 us index, with a
+  // 3.0 us controller one-shot between them. The T-80 specification allows
+  // 1.24 +/- .24 us and 4 +/- 1 us respectively. These are fixed pulse
+  // widths, not fractions of the selected sector spacing. SYSPER here
+  // counts fabric samples per 60 ns microinstruction.
+  localparam integer SECTOR_PULSE   = 1200 * SYSPER / 60;
+  localparam integer INDEX_PULSE    = 4500 * SYSPER / 60;
 
-  // Bits per sector, and therefore the bit period. A Trident sector on the
-  // Dorado carries 256 data words plus header and label; the exact count is a
-  // property of the FORMAT, which the controller's format RAM defines, so it
-  // is a parameter rather than a constant here.
-  localparam integer BITS_PER_SEC   = WORDS_PER_SECTOR * 16;
-  localparam integer CYCLES_PER_BIT = (CYCLES_PER_REV / SECTORS_PER_REV)
-                                      / BITS_PER_SEC;
+  // Physical bit cells include the format's preambles, sync and ECC, not
+  // only the payload words. Two clock transitions consume one bit cell.
+  localparam integer HALF_BITS_PER_REV = WORDS_PER_TRACK * 16 * 2;
 
   reg [31:0] bit_count;     // position within the bit cell
   reg        bitclk;
@@ -136,7 +137,10 @@ module dorado_trident #(
         sector    <= 16'd0;              // index: back to sector 0
       end else begin
         rev_count <= rev_count + 32'd1;
-        if (sec_count >= CYCLES_PER_SEC - 1) begin
+        // Integer division may leave a few samples at the end of a turn.
+        // They extend the last slot; they must not invent pulse 117 just
+        // before index (which can start a controller transfer prematurely).
+        if (sec_count >= CYCLES_PER_SEC - 1 && sector < SECTORS_PER_REV - 1) begin
           sec_count <= 32'd0;
           sector    <= sector + 16'd1;
         end else begin
@@ -151,38 +155,50 @@ module dorado_trident #(
   wire in_index  = (sector == 16'd0) && (sec_count < INDEX_PULSE);
   wire in_sector = (sector != 16'd0) && (sec_count < SECTOR_PULSE);
 
-  // The read clock runs whenever a pack is turning and this unit is selected;
-  // the controller gates it further with its own sequencer.
+  // Media position advances whenever the platter turns, INCLUDING while
+  // deselected. Selection gates the cable below, not the physical bit cells.
+  // Otherwise a selection partway through a sector resumes its preamble at
+  // an arbitrary angle even though the sector/index pulses kept running.
   always @(posedge sys_clk) begin
-    if (reset || !attached || !selected) begin
+    if (reset || !attached) begin
       bit_count <= 32'd0; bitclk <= 1'b0; data_adv <= 1'b0;
     end else begin
       data_adv <= 1'b0;
-      if (bit_count >= (CYCLES_PER_BIT / 2) - 1) begin
-        bit_count <= 32'd0;
+      // Fractional divider: rounding each half-bit down changes the data
+      // rate and can make a formatted sector overrun its angular slot.
+      if (bit_count + HALF_BITS_PER_REV >= CYCLES_PER_REV) begin
+        bit_count <= bit_count + HALF_BITS_PER_REV - CYCLES_PER_REV;
         bitclk    <= ~bitclk;
         // One bit is consumed per FULL clock period, on the same edge the
         // controller's shift register uses.
         if (bitclk) data_adv <= 1'b1;
       end else begin
-        bit_count <= bit_count + 32'd1;
+        bit_count <= bit_count + HALF_BITS_PER_REV;
       end
     end
   end
 
   wire live = attached & selected;
-  assign DataP  = live ?  data_bit : 1'b0;
-  assign DataM  = live ? ~data_bit : 1'b0;
+  // TriconD07.sil: f02 compares DataM (V1) against DataP (V2), whereas
+  // f01 compares ClockP against ClockM. The write path agrees: b02/g02
+  // drive DataP with the complemented data and DataM with true data.
+  assign DataP  = live ? ~data_bit : 1'b0;
+  assign DataM  = live ?  data_bit : 1'b0;
   assign ClockP = live ?  bitclk   : 1'b0;
   assign ClockM = live ? ~bitclk   : 1'b0;
 
   assign SecIndx_n   = attached ? ~(in_index | in_sector) : 1'b1;
-  assign TtlIndex_n  = attached ? ~in_index : 1'b1;
+  // Trident 76205-902 section 4.2: the nine bussed status outputs,
+  // including Index, are gated with Select; composite SecIndx is not.
+  // DiskSubrs.mc UpdateSector explicitly relies on missing IndexTW while
+  // deselected when the subsector count does not divide a revolution.
+  assign TtlIndex_n  = live ? ~in_index : 1'b1;
   assign TtlReady_n  = ~attached;
   assign TtlOnLine_n = ~attached;
   assign TtlTerm_n   = ~attached;    // terminated, and c24 needs it to be
   assign Selected_n  = ~(attached & selected);
 
+  assign sector_out = sector;
 endmodule
 
 `default_nettype wire

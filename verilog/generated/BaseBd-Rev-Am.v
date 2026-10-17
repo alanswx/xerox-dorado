@@ -738,6 +738,10 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
   wire BootNO__c01_1;
   // BootNO: a 6532 port pin here is an INPUT (its pull-up loses)
   assign BootNO__drv = BootNO__c01_1;
+  wire CI__l62_12;
+  wire CI___h_4j21_6;
+  // CI: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign CI = CI___h_4j21_6;
   wire CLK_ifu_p___k01_3;
   wire CLK_ifu_p___k01_2;
   assign CLK_ifu_p___drv = CLK_ifu_p___k01_3 | CLK_ifu_p___k01_2;
@@ -753,6 +757,10 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
   wire CPDMuxData_p___j17_4;
   wire CPDMuxData_p___j17_1;
   assign CPDMuxData_p_ = CPDMuxData_p___j17_4 | CPDMuxData_p___j17_1;
+  wire CVCC__l62_10;
+  wire CVCC___h_4i21_6;
+  // CVCC: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign CVCC = CVCC___h_4i21_6;
   wire CVDD__l62_11;
   wire CVDD__i19_6;
   // CVDD: a 6532 port pin here is an INPUT (its pull-up loses)
@@ -761,6 +769,10 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
   wire CVEE__i20_6;
   // CVEE: a 6532 port pin here is an INPUT (its pull-up loses)
   assign CVEE = CVEE__i20_6;
+  wire CVTT__l62_9;
+  wire CVTT___h_4i19_6;
+  // CVTT: a 6532 port pin here is an INPUT (its pull-up loses)
+  assign CVTT = CVTT___h_4i19_6;
   wire DMD_00__f62_18;
   wire DMD_00__l22_2;
   // DMD.00: a 6532 port pin here is an INPUT (its pull-up loses)
@@ -1312,22 +1324,37 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
   assign FiltVDD = VDD135;   // i04.10: FiltVDD strapped to VDD135
   assign BaseBd11_sil_pl_12 = GND399;   // i07.3: BaseBd11.sil+12 strapped to GND399
   assign BaseBd11_sil_pl_11 = VCC111;   // i07.16: BaseBd11.sil+11 strapped to VCC111
-  assign BaseBd13_sil_pl_9 = GND576;   // j22.9: BaseBd13.sil+9 strapped to GND576
   assign BaseBd13_sil_pl_7 = VCC131;   // j23.1: BaseBd13.sil+7 strapped to VCC131
   assign BaseBd13_sil_pl_8 = GND430;   // j23.5: BaseBd13.sil+8 strapped to GND430
 
   // ---- packages
   cell_CA3140 u__h_4i19 (
-    // no connections
+    .p2(GND372),
+    .p3(BaseBd13_sil_pl_12),
+    .p4(GND372),
+    .p6(CVTT___h_4i19_6),
+    .p7(VCC117)
   ); // CA3140
   cell_CA3140 u__h_4i20 (
-    // no connections
+    .p2(VrefBuf),
+    .p3(Vref),
+    .p4(GND372),
+    .p6(VrefBuf),
+    .p7(VCC118)
   ); // CA3140
   cell_CA3140 u__h_4i21 (
-    // no connections
+    .p2(BaseBd13_sil_pl_10),
+    .p3(DACOut),
+    .p4(GND623),
+    .p6(CVCC___h_4i21_6),
+    .p7(VCC118)
   ); // CA3140
   cell_CA3140 u__h_4j21 (
-    // no connections
+    .p2(BaseBd13_sil_pl_3),
+    .p3(DACOut),
+    .p4(GND623),
+    .p6(CI___h_4j21_6),
+    .p7(VCC130)
   ); // CA3140
   cell_MC10176 u_a01 (
     .sys_clk(sys_clk),
@@ -3747,10 +3774,10 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
     .p6(MCA_01),
     .p7(MCA_00),
     .p8(CVEE__l62_8),
-    .p9(CVTT),
-    .p10(CVCC),
+    .p9(CVTT__l62_9),
+    .p10(CVCC__l62_10),
     .p11(CVDD__l62_11),
-    .p12(CI),
+    .p12(CI__l62_12),
     .p13(ISel_0),
     .p14(ISel_1),
     .p15(ISel_2),

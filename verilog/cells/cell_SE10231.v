@@ -17,7 +17,7 @@
 
 `default_nettype none
 
-module cell_SE10231 (
+module cell_SE10231 #(parameter PRECAP = 1) (
     input  wire sys_clk,
     output wire p2,  // Q
     output wire p3,  // Q'
@@ -52,12 +52,34 @@ module cell_SE10231 (
   wire cka_en = clka & ~cka_d;
   wire ckb_en = clkb & ~ckb_d;
 
+  // PRE-EDGE CAPTURE -- the real flip-flop's SETUP TIME, as cell_MC10176 has
+  // it. The oversampling transform detects the modelled clock's edge one
+  // sys_clk after it happens, and by then a D that changed ON that same edge
+  // has settled to its NEW value, so a same-edge register-to-register
+  // transfer became a pass-through. This package is every board's
+  // clock-phase enable flip-flop (ProcH/ProcL l02 sample Clk0En' =
+  // StartCycle', ContA l06 samples preStartCycle, the memory and display
+  // boards' l02 sample MemSH), and on ProcH the consequence was measured
+  // (2026-09-05): pClock1En' took StartCycle's new phase at once, so SHCP'C
+  // -- its complement, the clock of a21 (Curr <- Next) -- rose at the START
+  // of the Clock1 window (+1) while Clock1'Ca, the clock of a20 (Last <-
+  // Curr), rose at its END (+17). Last therefore copied the NEW Curr, and
+  // every task's T-file write-back at a switch was addressed to the
+  // INCOMING task's slot: the junk task's T read another task's word after a
+  // one-instruction slice, and its AckJunkTW<-T then carried a 0 into
+  // ShutUp. With the pre-edge copy the two registers shift on the same edge
+  // and Last holds the outgoing task through the write-back pulse.
+  reg d_pre_a, d_pre_b;
+  always @(posedge sys_clk) begin d_pre_a <= p7; d_pre_b <= p10; end
+
+  wire d_a = PRECAP ? d_pre_a : p7;
+  wire d_b = PRECAP ? d_pre_b : p10;
   reg qa, qb;
   always @(posedge sys_clk)
-    if (cka_en) qa <= p7;                        // D, no async on this half
+    if (cka_en) qa <= d_a;                       // D, no async on this half
   always @(posedge sys_clk) begin
     if (p13)         qb <= 1'b0;                 // R
-    else if (ckb_en) qb <= p10;                  // D
+    else if (ckb_en) qb <= d_b;                  // D
   end
 
   assign p2  =  qa;  assign p3  = ~qa;

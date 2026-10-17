@@ -5,7 +5,7 @@
 
 `default_nettype none
 
-module cell_F10016 (
+module cell_F10016 #(parameter PRECAP = 0) (
     input  wire sys_clk,
     input  wire p13,
     input  wire p6,
@@ -70,11 +70,20 @@ module cell_F10016 (
   always @(posedge sys_clk) ck_d <= p13;
   wire ck_en = p13 & ~ck_d;
 
+  // Selected loads must keep setup data/control when the same modeled edge
+  // advances the cache address (MemD F) or switches the input mux (IFU PCF).
+  // Other instances retain their established timing.
+  reg [5:0] setup_pre;
+  always @(posedge sys_clk) setup_pre <= {p6,p5,p11,p10,p9,p7};
+  wire pe_n = PRECAP ? setup_pre[4] : p5;
+  wire ce_n = PRECAP ? setup_pre[5] : p6;
+  wire [3:0] load_data = PRECAP ? setup_pre[3:0] : {p11,p10,p9,p7};
+
   always @(posedge sys_clk) begin
     if (p12)            q <= 4'd0;                 // MR
     else if (ck_en) begin
-      if (!p5)          q <= {p11, p10, p9, p7};   // PE' load: P3,P2,P1,P0
-      else if (!p6)     q <= q + 4'd1;             // CE' count
+      if (!pe_n)        q <= load_data;           // PE' load: P3,P2,P1,P0
+      else if (!ce_n)   q <= q + 4'd1;             // CE' count
     end
   end
   assign {p14, p15, p2, p3} = q;               // Q3,Q2,Q1,Q0 per the data sheet

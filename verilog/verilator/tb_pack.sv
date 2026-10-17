@@ -2,7 +2,7 @@
 //
 // Strobes a cylinder and head onto the tag bus the way the controller does,
 // lets the drive turn, and decodes the bit stream of one short sector: the
-// first 1 after the zero preamble is the sync, then 16-bit words MSB first,
+// 201B sync word (HM 9.3), then 16-bit words MSB first,
 // then a 32-bit check word. Every decoded word is compared with the file
 // read independently here, and the Fire-code register over data+check must
 // come out zero. It checks the plumbing and the framing; whether the DskEth
@@ -13,41 +13,67 @@ module tb_pack;
   reg sys_clk = 0; always #1 sys_clk = ~sys_clk;
   reg [11:0] tagbus_n = 12'hFFF; reg cyltag_n = 1, headtag_n = 1, drivetag_n = 1, conttag_n = 1;
   reg selected = 0;
-  wire ready_n, online_n, term_n, sel_n, sec_n, adv, bit_, dp, dm, cp, cm;
+  wire ready_n, online_n, term_n, sel_n, sec_n, adv, bit_, dp, dm, cp, cm, eoc_n;
   wire [11:0] cyl; wire [5:0] head; wire [31:0] n_ct, n_ht, n_dt, n_kt, n_tr, n_se, n_bi, n_bl;
-  dorado_trident #(.SYSPER(2*SYSPER), .SECTORS_PER_REV(117), .WORDS_PER_SECTOR(80)) drv (
+  dorado_trident #(.SYSPER(2*SYSPER), .SECTORS_PER_REV(117), .WORDS_PER_TRACK(10080)) drv (
     .sys_clk(sys_clk), .reset(1'b0), .attached(1'b1), .selected(selected),
     .TtlReady_n(ready_n), .TtlOnLine_n(online_n), .TtlTerm_n(term_n), .Selected_n(sel_n),
     .SecIndx_n(sec_n), .TtlIndex_n(), .data_bit(bit_), .data_adv(adv), .DataP(dp), .DataM(dm), .ClockP(cp), .ClockM(cm));
   dorado_pack pk (
+    .selected(selected), .write_data_p(1'b0), .write_data_m(1'b0), .write_gate(), .n_write_blocks(),
     .sys_clk(sys_clk), .attached(1'b1), .tagbus_n(tagbus_n), .cyltag_n(cyltag_n), .headtag_n(headtag_n),
-    .drivetag_n(drivetag_n), .conttag_n(conttag_n), .pulse(drv.sector), .data_adv(adv), .data_bit(bit_), .endofcyl_n(),
+    .drivetag_n(drivetag_n), .conttag_n(conttag_n), .pulse(drv.sector), .data_adv(adv), .data_bit(bit_), .endofcyl_n(eoc_n),
     .cyl(cyl), .head(head), .n_cyltag(n_ct), .n_headtag(n_ht), .n_drivetag(n_dt), .n_conttag(n_kt),
     .n_tracks(n_tr), .n_sectors(n_se), .n_bits(n_bi), .n_blocks(n_bl));
+
+  // Decode at the actual cable receiver, not the pack's internal data_bit.
+  // TriconD07: data V1=DataM/V2=DataP; clock V1=ClockP/V2=ClockM.
+  wire rx_data, rx_clock;
+  reg rx_clock_d = 0;
+  cell_MC1650 receiver (
+    .sys_clk(sys_clk), .p4(1'b1), .p5(dp), .p6(dm), .p2(rx_data),
+    .p13(1'b1), .p11(cm), .p12(cp), .p14(rx_clock),
+    .p1(1'b0), .p7(1'b0), .p8(1'b0), .p10(1'b0), .p16(1'b0));
 
   // the file, read independently
   string path; integer fd, i, rc; reg [7:0] fb [0:533];
   localparam integer CYL = 3, HEAD = 4, SECTOR = 0;
   // decoder
   integer zeros = 0, state = 0, nb = 0, wcount = 0, blk = 0, want = 2, errs = 0, ecc_bad = 0;
-  reg [15:0] sh; reg [31:0] eccr; integer wordn = 0;
+  reg [15:0] sh = 0; reg [31:0] eccr; integer wordn = 0;
   localparam integer TAPS = (1 << 0) | (1 << 2) | (1 << 11) | (1 << 21) | (1 << 23);
   function [15:0] fw(input integer wi); fw = {fb[2*wi+1], fb[2*wi]}; endfunction
   integer base [0:2]; integer nblk_done = 0; integer served_sector = -1;
   reg [15:0] pulse_d = 16'hFFFF;
   always @(posedge sys_clk) begin
+    rx_clock_d <= rx_clock;
     pulse_d <= drv.sector;
-    if (drv.sector != pulse_d && (drv.sector & 16'd3) == 16'd0) served_sector = drv.sector >> 2;
-    if (adv && served_sector == SECTOR) begin
+    if (drv.sector != pulse_d && (drv.sector & 16'd3) == 16'd0) begin
+      if (served_sector == SECTOR && nblk_done != 3)
+        $fatal(1, "formatted sector overran its four-pulse slot (%0d blocks)", nblk_done);
+      // Selection does not rewind the platter. Ignore the partial sector
+      // during seek/setup; decode only a boundary observed while selected.
+      served_sector = selected && (drv.sector >> 2) <= 28
+        ? (((drv.sector >> 2) + 28) % 29) : -1;
+    end
+    if (rx_clock && !rx_clock_d && served_sector == SECTOR) begin
       case (state)
         0: begin // hunting for sync after zeros
-          if (bit_ == 1'b0) zeros = zeros + 1;
-          else if (zeros >= 16) begin state = 1; nb = 0; sh = 0; wcount = 0; eccr = 0; end
-          else zeros = 0;
+          zeros = zeros + 1;
+          sh = {sh[14:0], rx_data};
+          if (sh == 16'o201) begin
+            if (zeros < ((blk == 0) ? 32 : 11) * 16 + 16)
+              $fatal(1, "block %0d sync precedes HM 9.6 write preamble", blk);
+            // Feed the sync word into the independent checker as well.
+            eccr=0;
+            for(integer k=15;k>=0;k=k-1)
+              eccr={eccr[30:0],1'b0} ^ ((sh[k]^eccr[31]) ? TAPS[31:0] : 32'd0);
+            state = 1; nb = 0; sh = 0; wcount = 0;
+          end
         end
         1: begin // words
-          sh = {sh[14:0], bit_}; nb = nb + 1;
-          eccr = {eccr[30:0], 1'b0} ^ ((bit_ ^ eccr[31]) ? TAPS[31:0] : 32'd0);
+          sh = {sh[14:0], rx_data}; nb = nb + 1;
+          eccr = {eccr[30:0], 1'b0} ^ ((rx_data ^ eccr[31]) ? TAPS[31:0] : 32'd0);
           if (nb == 16) begin
             if (sh !== fw(base[blk] + wcount)) begin
               errs = errs + 1;
@@ -58,12 +84,12 @@ module tb_pack;
           end
         end
         2: begin // check word: 32 bits through the same register must leave it zero
-          eccr = {eccr[30:0], 1'b0} ^ ((bit_ ^ eccr[31]) ? TAPS[31:0] : 32'd0);
+          eccr = {eccr[30:0], 1'b0} ^ ((rx_data ^ eccr[31]) ? TAPS[31:0] : 32'd0);
           nb = nb + 1;
           if (nb == 32) begin
             if (eccr != 32'd0) ecc_bad = ecc_bad + 1;
             nblk_done = nblk_done + 1;
-            blk = blk + 1; want = (blk == 1) ? 8 : 256; zeros = 0; state = (blk == 3) ? 3 : 0;
+            blk = blk + 1; want = (blk == 1) ? 8 : 256; zeros = 0; sh = 0; state = (blk == 3) ? 3 : 0;
           end
         end
         default: ;
@@ -84,9 +110,16 @@ module tb_pack;
     tagbus_n = ~CYL[11:0]; @(posedge sys_clk); cyltag_n = 0; repeat (6) @(posedge sys_clk); cyltag_n = 1;
     repeat (6) @(posedge sys_clk);
     tagbus_n = ~{6'd0, HEAD[5:0]}; @(posedge sys_clk); headtag_n = 0; repeat (6) @(posedge sys_clk); headtag_n = 1;
+    if (!eoc_n) $fatal(1, "legal T-80 head 4 reported head overflow");
+    repeat (6) @(posedge sys_clk);
+    tagbus_n = ~12'd5; @(posedge sys_clk); headtag_n = 0; repeat (6) @(posedge sys_clk); headtag_n = 1;
+    if (eoc_n) $fatal(1, "illegal T-80 head 5 did not report overflow");
+    repeat (6) @(posedge sys_clk);
+    tagbus_n = ~12'd4; @(posedge sys_clk); headtag_n = 0; repeat (6) @(posedge sys_clk); headtag_n = 1;
+    if (!eoc_n) $fatal(1, "legal head did not clear head overflow");
     tagbus_n = 12'hFFF; selected = 1;
     // wait for the drive to serve the sector and the decoder to finish it
-    wait (nblk_done == 3 || drv.rev_count > 277778 * 2 * SYSPER * 3 / 2);
+    wait (nblk_done == 3);
     repeat (100) @(posedge sys_clk);
     $display("tb_pack: drive latched cyl %0d head %0d (tag strobes cyl %0d head %0d); tracks loaded %0d, sectors started %0d, bits %0d, blocks %0d",
              cyl, head, n_ct, n_ht, n_tr, n_se, n_bi, n_bl);
@@ -97,5 +130,9 @@ module tb_pack;
     if (cyl != CYL || head != HEAD) $fatal(1, "tb_pack: FAIL -- the tags decoded as cyl %0d head %0d", cyl, head);
     $display("tb_pack: PASS -- header, label and data of c%0d h%0d s%0d served with cancelling Fire-code check words, tags decoded", CYL, HEAD, SECTOR);
     $finish;
+  end
+  initial begin
+    repeat (277778 * 2 * SYSPER * 2) @(posedge sys_clk);
+    $fatal(1, "pack decoder timed out");
   end
 endmodule

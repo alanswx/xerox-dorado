@@ -1278,7 +1278,7 @@ module IFU_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(EnBMuxOut_p_),
     .p15(ifu09_sil_pl_24)
   ); // MC10174
-  cell_F10016 u_a04 (
+  cell_F10016 #(.PRECAP(1)) u_a04 (
     .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_37),
     .p3(Ifu08_sil_pl_34),
@@ -1869,7 +1869,7 @@ module IFU_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(MAR_03_p___drv),
     .p15(MAR_11_p___drv)
   ); // MC10101
-  cell_F10016 u_c04 (
+  cell_F10016 #(.PRECAP(1)) u_c04 (
     .sys_clk(sys_clk),
     .p2(Ifu08_sil_pl_29),
     .p3(Ifu08_sil_pl_26),
@@ -2176,7 +2176,7 @@ module IFU_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(EnBMuxOut_p_),
     .p15(ifu09_sil_pl_25)
   ); // MC10174
-  cell_F10016 u_d04 (
+  cell_F10016 #(.PRECAP(1)) u_d04 (
     .sys_clk(sys_clk),
     .p2(PcF_10),
     .p3(PcF_11),
@@ -2763,7 +2763,7 @@ module IFU_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(MAR_07_p___drv),
     .p15(MAR_15_p___drv)
   ); // MC10101
-  cell_F10016 u_f03 (
+  cell_F10016 #(.PRECAP(1)) u_f03 (
     .sys_clk(sys_clk),
     .p2(PcF_14),
     .p3(PcF_15),

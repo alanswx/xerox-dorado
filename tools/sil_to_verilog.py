@@ -124,10 +124,16 @@ CLOCK_BUFFER_CELLS = frozenset({
     'SE10210', 'SE10211', 'MC10210', 'MC10211',
     'MC10101', 'MC1660', 'MC1662', 'MC1664', 'SE10212',
 })
-CLOCK_DEPTH_CAP = 6
+# Overridable: the BFS counts BUFFER STAGES, and a stage is not necessarily a
+# whole sys_clk of delay. When the derived depths are too large the memory
+# boards' store path breaks while the Md timing is corrected, so the cap is
+# the natural knob to sweep. `DORADO_CLOCK_DEPTH_CAP=N`.
+CLOCK_DEPTH_CAP = int(os.environ.get('DORADO_CLOCK_DEPTH_CAP', '6'))
 
 
 class Generator:
+    STORAGE_INPUT_NETS = tuple(f'Sin.{i:02d}' for i in range(16)) + ('EcIn.0', 'EcIn.1')
+
     def __init__(self, board, ecl: EclDict, cells: set[str],
                  cell_dirs: dict | None = None,
                  clocked: set[str] | None = None):
@@ -137,6 +143,7 @@ class Generator:
         self.cell_dirs = cell_dirs or {}
         self.clocked = clocked or set()
         self.clocked_placed = 0
+        self.unwired: list[str] = []
         self.missing: Counter = Counter()
         self.wired_or: list[tuple[str, int]] = []
         self.ports: dict[str, str] = {}      # net -> input|output|inout
@@ -316,6 +323,10 @@ class Generator:
         anything on this board that wants to read it (a jumper strapping it
         somewhere, a part taking its own output back on a companion input)
         has to name the contribution."""
+        if self.b.name.split('-Rev')[0] == 'MemD':
+            serial = self.STORAGE_INPUT_NETS
+            if netname in serial:
+                return f'storage_rx_data[{17 - serial.index(netname)}]'
         if netname in self.exports and netname not in self.ports:
             return f'{vname(netname)}__drv'
         return vname(netname)
@@ -372,8 +383,8 @@ class Generator:
 
         A column of three pins is a CHOICE and is left alone: MemX's b14
         offers `RTMapAd.1a` or `VCC-47` on `RamA1orVCCa`, and msa's e26 picks
-        `ChipsAre4k` against `ChipsAre16k`. Guessing there would be inventing
-        a machine configuration. They are counted in the report instead.
+        `ChipsAre4k` against `ChipsAre16k`. Choices are counted in the report
+        unless an explicit fitted configuration below resolves them.
 
         This is what makes the BaseBoard's ROM decode work. `RSA.0/1/2` --
         the three select inputs of the '138 that produces `Rom0'`..`Rom7'` --
@@ -428,6 +439,16 @@ class Generator:
         for k in [k for k in out if target[pinnet_of[k]] > 1]:
             out.pop(k)
             self.jumper_choices += 1
+
+        # The storage model fits 16K-bit DRAMs. msa03.sil explicitly says
+        # "Jumper 5 to 12 and 6 to 11 for 16k chips" on e26. These bring
+        # MemAd.2 to BOTH differential address-translator inputs; leaving
+        # them open drops a row and a column bit and aliases storage 4:1.
+        # This is a fitted board configuration, not a general inference
+        # about ambiguous jumper fields. The other choices remain open.
+        if self.b.name.split('-Rev')[0] == 'msa':
+            for src, dst in ((5, 12), (6, 11)):
+                out[('e26', dst)] = pinnet_of[('e26', src)]
         return out
 
     def _driven_by_digital(self, netname: str) -> bool:
@@ -678,13 +699,14 @@ class Generator:
     # to VEE, which is why the ECL symbol sheet's rule for a genuinely unused
     # input is "ALL UNUSED INPUTS MUST BE TIED TO VEE". So the pin reads 0.
     #
-    # NOT here, deliberately: the same sheet's instruction 1, "If 256 chips are
-    # NOT installed in the Memory Storage Arrays (MSA), then break g10.6". That
-    # one is CONDITIONAL on how much memory the machine was built with, and
-    # `ChipsAre256/16K` and `ChipsAre64K` are backplane INPUTS to MemX rather
-    # than straps on it, so the configuration arrives from outside the board
-    # and is not ours to pick from the documents. Its blue wire (k4.6/k4.5/k4.4
-    # to k4.16) and the b14/c12 jumper sockets are the same choice.
+    # Instruction 1 also applies to the modelled 16K-chip storage module:
+    # "If 256 chips are NOT installed ... break g10.6". The external
+    # ChipsAre256/16K signal CANNOT distinguish these two sizes; this physical
+    # cut supplies that distinction. Leaving it intact reported ChipSize=3
+    # (256K chips) and InitMem.GetMemConfig computed 16384 pages/module,
+    # sixteen times the 1024 pages backed by our 14-address-bit DRAM cells.
+    # A future 256K storage configuration must restore this pin as well as
+    # enlarge those cells. Map-chip blue wires/jumpers are a separate choice.
     # Per-position cell parameters, for parts whose VALUE is a property of the
     # component fitted rather than of the part type. So far that is the
     # crystal oscillators: four K1115A positions across three boards, and the
@@ -719,10 +741,131 @@ class Generator:
         # cell time)" -- and 11.5 names it 23.53 MHz. The sheet does not
         # state it, so this position ran at the cell's 20 MHz default.
         ('DskEth', 'j20'): {'FREQ_KHZ': 23530},
+        # MC10170 datasheet p.370: B is XOR(data, controls), not XNOR.
+        # These odd-byte IOB checkers tie control 13 HIGH. The legacy extra
+        # inversion reports every valid output as a parity error. Other
+        # boards retain the explicitly named compatibility mode pending
+        # reconciliation of their dependent parity paths; this is not a
+        # board-stuffing option. HM 9.9 / 13.1, TriconD11.sil.
+        ('DskEth', 'f04'): {'LEGACY_B_INVERT': 0},
+        ('DskEth', 'g04'): {'LEGACY_B_INVERT': 0},
+        # TriconD09/10: the FIFO's outgoing byte checkers have the ninth
+        # data input high and the saved parity on control13. The physical
+        # XOR therefore reports 0 for good odd parity; the legacy extra
+        # inversion rejects every valid write word and inhibits the cable.
+        ('DskEth', 'e09'): {'LEGACY_B_INVERT': 0},
+        ('DskEth', 'e11'): {'LEGACY_B_INVERT': 0},
+        # OutRegFull's JK and the underflow-check D flop share clk1. They
+        # must both use setup inputs when memory releases IOHold on that
+        # edge; post-edge JK capture consumes the word one clock too soon.
+        ('DskEth', 'c16'): {'PRECAP': 1},
+        # ProcH23 TIOA output registers: preserve setup data when restoring
+        # the PostClock0 buffer ordering (ProcH30 k10b, clock_lag_stages).
+        ('ProcH', 'g10'): {'PRECAP': 1},
+        ('ProcH', 'h10'): {'PRECAP': 1},
+        # MemD's D-delay registers feed the Md file. clk1 also advances the
+        # cache address/chip selects: capture D's setup value, before that
+        # edge, rather than the next bank's old output one sample later.
+        # Full disk boot: RTC D=0004 before clk1; next bank exposes 007e on
+        # the edge. Post-capture wrote that label word into task 0's Md.
+        ('MemD', 'f06'): {'PRECAP': 1},
+        ('MemD', 'f10'): {'PRECAP': 1},
+        ('MemD', 'f14'): {'PRECAP': 1},
+        ('MemD', 'f18'): {'PRECAP': 1},
+        # F's four slices likewise capture D before clk1 advances it. Two
+        # slices are MC10176s, two F10016s used as parallel-load registers.
+        ('MemD', 'e06'): {'PRECAP': 1},
+        ('MemD', 'e10'): {'PRECAP': 1},
+        ('MemD', 'e14'): {'PRECAP': 1},
+        ('MemD', 'e18'): {'PRECAP': 1},
+        # PCF loads while NewPc1 enables the B-bus input. On that same clk1
+        # edge NewPc1 clears and the IFU ALU takes over IfuBMux. Keep the
+        # setup B value, not the stale H/PCJ arithmetic exposed afterward.
+        ('IFU', 'a04'): {'PRECAP': 1},
+        ('IFU', 'c04'): {'PRECAP': 1},
+        ('IFU', 'd04'): {'PRECAP': 1},
+        ('IFU', 'f03'): {'PRECAP': 1},
+        # Storage refills regenerate odd low-byte parity. c14 ties control
+        # 13 high, so B is the complement of A (MC10170 data sheet), not
+        # the legacy model's second copy of A. IFU checks the resulting byte.
+        ('MemD', 'c14'): {'LEGACY_B_INVERT': 0},
+        # D1 input registers share the modeled edge with CD advancing.
+        # Preserve the setup word rather than sampling the next CD value.
+        ('MemD', 'b10'): {'PRECAP': 1},
+        ('MemD', 'c10'): {'PRECAP': 1},
+        ('MemD', 'd12'): {'PRECAP': 1},
+        # Odd-bank word-address counters load on clk1, which can also
+        # release a memory hold and advance MemC's dDad mux. Retain the
+        # setup address/control, as the even bank loaded earlier on clk2.
+        # Actual held IFU fetch FD25 otherwise selects pair0 (FD21), not
+        # pair2 (FD25), and substitutes FFF4 for the 01FD backward jump.
+        ('MemD', 'b09'): {'PRECAP': 1},
+        ('MemD', 'h07'): {'PRECAP': 1},
+        ('MemD', 'k09'): {'PRECAP': 1},
+        # SpecialClk2 is j18b's buffered clock. Use the input at the
+        # detected edge: setup capture retains the previous hit's transient
+        # FastD request when a new address misses, corrupting an unrelated
+        # cache line before the held store correctly writes its new column.
+        # Actual 77.47M replay: early 48ff store overwrites resident 18ff;
+        # post capture preserves 18ff and still completes 48ff correctly.
+        ('MemD', 'g22'): {'PRECAP': 0},
+    }
+
+    # Per-BOARD defaults for a part type, used when CELL_PARAMS has no entry
+    # for the position. The MC10176's pre-edge capture (d3e337a2) is right on
+    # the processor boards (ProcL d17: Initial half-writes T without it) and
+    # wrong on the memory boards (memrun-test fails with it and passes without
+    # it; the Md file's write flag MakeMDM_u_D' comes a cycle late with it) --
+    # the two sides of one sixteen-sys_clk clock that the integer lag model
+    # cannot split. Measured 2026-09-05.
+    BOARD_CELL_PARAMS = {
+        ('MemC', 'MC10176'): {'PRECAP': 0},
+        ('MemD', 'MC10176'): {'PRECAP': 0},
+        ('MemX', 'MC10176'): {'PRECAP': 0},
+        ('msa', 'MC10176'): {'PRECAP': 0},
     }
 
     BROKEN_PACKAGE_PINS = {
         ('MemX', 'h20'): frozenset({10}),
+        ('MemX', 'g10'): frozenset({6}),  # Memx23.sil instruction 1: 16K storage
+        ('MemC', 'l11'): frozenset({12}),  # MemC23.sil: CacheConfig=2, 16K + parity
+    }
+
+    # MemC23.sil: the fitted 16K cache connects VA5/6 directly to the tag
+    # bus (a03 socket straps 3-6, 4-7), independent of the removed buffer's
+    # HiB input. Values are source pins on the same package. Disconnect the
+    # chip output and drive its former contribution from that socket pin.
+    FITTED_OUTPUT_JUMPERS = {
+        ('MemC', 'a03', 3): 6,
+        ('MemC', 'a03', 4): 7,
+    }
+
+    # MemC01.sil: "For 256 wd pages, 20-23 <- Hi", "Hi from SB".
+    # MemC23.sil gives the exact modification: cut i24 pins 4/6/11/13,
+    # then wire 4-6-11-13-9. This machine uses 256-word pages. The B inputs
+    # follow SB (pin 9), so whenever selected they are high and the
+    # inverting mux releases the shared row-address bus. Keep the VA nets
+    # themselves connected to the map/pipe. Values here are source pins
+    # on the same package, read from the original wire list.
+    FITTED_INPUT_JUMPERS = {
+        ('MemC', 'i24', pin): 9 for pin in (4, 6, 11, 13)
+    }
+
+    # MemC05.sil leaves b22's XOR connected, so this is the PARITY build,
+    # not the optional blue-wire conversion of PrVA.4/Par to ProcVA.04.
+    # MemC11.sil (Rev Be, PDF page 13) specifies the matching five cuts:
+    # "Cut 4 113 legs and 1 174 leg for parity rather than 16 bit CVA".
+    # Otherwise parity is compared as VA[4], manufacturing cache misses.
+    # These are OUTPUT cuts: keep the package, disconnect its output and
+    # drive its former wired-OR contribution low (an absent ECL emitter).
+    CUT_OUTPUT_PINS = {
+        ('MemC', 'a07'): frozenset({2, 4}),  # 16K: keep VA20/21 off the tag bus
+        ('MemC', 'd03'): frozenset({2, 15}), # 16K: ProcVA20/21 only drive row
+        ('MemC', 'e20'): frozenset({3}),
+        ('MemC', 'e21'): frozenset({3}),
+        ('MemC', 'f20'): frozenset({3}),
+        ('MemC', 'f21'): frozenset({3}),
+        ('MemC', 'g20'): frozenset({2}),
     }
 
     def sip_pull(self, pos: str) -> tuple[str | None, str]:
@@ -924,7 +1067,26 @@ class Generator:
                         # handshake (i03 never raised dRun; the jam got zero
                         # phase pulses). The step/CP-strobe families are
                         # outside this model's scope by its own definition.
-                        if out.startswith(('RunClk', 'CPStrb', 'TCPBus')):
+                        # LdMcr' is a DECODED LOAD STROBE, not part of the
+                        # clock distribution tree, and lagging it does not
+                        # merely delay it -- it DOUBLES the strobe count
+                        # (measured 2026-09-07: 1029 rising edges at baseline,
+                        # 2070 under depth, in the same 90 M-cycle boot). Each
+                        # spurious load writes RMar_01 into the MCR's
+                        # ForceDirtyMiss bit, which is an input to all four
+                        # column-hit terms, so the cache stops hitting
+                        # altogether (hit-compare 97% -> 0.02%) and with it
+                        # every store, every <-Md and the boot.
+                        #
+                        # NOT SUFFICIENT ON ITS OWN, measured: excluding it
+                        # leaves `memrun-test` still failing under depth,
+                        # because LdMcr' is generated by combinational logic
+                        # whose OWN inputs are still lagged -- so its timing
+                        # moves even when the net itself is not lagged. This
+                        # exclusion is kept because a decoded strobe does not
+                        # belong in a clock-distribution model, not because it
+                        # fixes depth mode. It is inert while depth is off.
+                        if out.startswith(('RunClk', 'CPStrb', 'TCPBus', 'LdMcr')):
                             continue
                         if depth.get(out, 99) > d + 1:
                             depth[out] = d + 1
@@ -945,10 +1107,39 @@ class Generator:
     def clock_lag_stages(self, netname: str) -> int:
         if netname in self.ports or netname in self.exports:
             return 0
+        # PER-BOARD DEPTH. The depth pass is right in principle but enabling it
+        # everywhere breaks the startup JAM (sendmir/step/boot0/compute/exec
+        # fail on "CPRegToLink# did not put the address in Link" and "the jam
+        # step did not run one clk0 window"), because it lags ContA's whole
+        # clk0/clk1/clk2 distribution -- 0 lagged nets becomes 77 -- and the
+        # phase ring drives the step chain. The boards whose INTERNAL phase
+        # relationships are wrong for the memory pipeline are the memory ones,
+        # and no jam gate exercises their internals. So depth can be taken
+        # board by board: `DORADO_CLOCK_DEPTH_BOARDS=MemC,MemD,MemX`.
+        _boards = os.environ.get('DORADO_CLOCK_DEPTH_BOARDS')
+        if _boards and self.b.name.split('-Rev')[0] in _boards.split(','):
+            if not hasattr(self, '_clkdepth'):
+                self._clkdepth = self._clock_depths()
+            return self._clkdepth.get(netname, 0)
         if os.environ.get('DORADO_CLOCK_DEPTH') == '1':
             if not hasattr(self, '_clkdepth'):
                 self._clkdepth = self._clock_depths()
             return self._clkdepth.get(netname, 0)
+        # ProcH30 k10b explicitly buffers Clock0'Bc into PostClock0'Bc;
+        # ProcH23 g10/h10 clock the TIOA output register from that POST tap.
+        # Collapsing it onto Clock0 makes the incoming task's TIOA reach
+        # DskEth02 e02 while its FHCP latch is still transparent. A previous
+        # task's Output then addresses the new task's device (full trace:
+        # Ethernet 90ff becomes a DiskTag at entry to AltoLoop). Preserve
+        # this extra buffer's ordering, as for the plain Clock1 taps above.
+        if netname.startswith("PostClock0'"):
+            return 1
+        # MemD b07's Fclk taps are gated siblings of its clk1 taps, from
+        # the same preClk1'A input. Delaying only the names matching clk1
+        # splits the F word: MC10176 byte/parity slices sample a different
+        # cache word from the F10016 nibble slices clocked by ordinary clk1.
+        if self.b.name.split('-Rev')[0] == 'MemD' and netname in ("Fclk'a", "Fclk'b"):
+            return 1
         return 1 if self._CLOCK_LAG_RE.match(netname) else 0
 
     def clock_lag(self, netname: str) -> bool:
@@ -1057,10 +1248,19 @@ class Generator:
         A('// machine ORs the contributions. That is what MECL open emitters')
         A('// wired together compute, and unlike an `inout` on a multiply-')
         A('// driven net it maps to one level of LUT on an FPGA.')
-        # SYSPER -- sys_clk per microinstruction -- reaches the substituted
-        # clock generator, so a machine can be built at a different
+        # SYSPER -- sys_clk per 30 ns clock -- reaches the substituted
+        # clock generator and physical timers, so a machine can use another
         # oversampling ratio without editing any cell.
-        A(f'module {mod} #(parameter integer SYSPER = 16) (')
+        if self.b.name.split('-Rev')[0] == 'MemD':
+            A('// Optional FPGA storage-input timing experiment. Zero preserves')
+            A('// the Sil wiring; positive values add 30 ns word-clock stages.')
+            A('`ifndef DORADO_STORAGE_INPUT_DELAY')
+            A('`define DORADO_STORAGE_INPUT_DELAY 0')
+            A('`endif')
+            A(f'module {mod} #(parameter integer SYSPER = 16,')
+            A('    parameter integer STORAGE_INPUT_DELAY = `DORADO_STORAGE_INPUT_DELAY) (')
+        else:
+            A(f'module {mod} #(parameter integer SYSPER = 16) (')
         decl = ['    input  wire sys_clk'] + \
                [f'    input  wire {vname(n)}' for n in inputs] + \
                [f'    output wire {vname(n)}__drv' for n in exports]
@@ -1109,6 +1309,31 @@ class Generator:
                         A(f'    {vname(n)}__lag{k} <= {vname(n)}__lag{k-1};')
                     A(f'    {vname(n)} <= {vname(n)}__lag{st-1};')
             A('  end')
+            A('')
+
+        if self.b.name.split('-Rev')[0] == 'MemD':
+            # Keep this opt-in while tracing the two-word refill offset.
+            # This is an FPGA timing adapter, not a claim that the Sil board
+            # contains extra registers. Test with +define+DORADO_STORAGE_INPUT_DELAY=2.
+            serial = self.STORAGE_INPUT_NETS
+            A('  wire [17:0] storage_rx_raw = {' + ', '.join(vname(n) for n in serial) + '};')
+            A('  wire [17:0] storage_rx_data;')
+            A('  generate if (STORAGE_INPUT_DELAY == 0) begin : storage_rx_direct')
+            A('    assign storage_rx_data = storage_rx_raw;')
+            A('  end else begin : storage_rx_pipeline')
+            A('    reg [17:0] words [0:STORAGE_INPUT_DELAY-1];')
+            A('    reg clock_d = 0;')
+            A('    integer j;')
+            A('    initial for (integer k=0; k<STORAGE_INPUT_DELAY; k=k+1) words[k]=0;')
+            A('    always @(posedge sys_clk) begin')
+            A("      clock_d <= clk2_p_Aa;")
+            A("      if (clk2_p_Aa && !clock_d) begin")
+            A('        words[0] <= storage_rx_raw;')
+            A('        for (j=1; j<STORAGE_INPUT_DELAY; j=j+1) words[j] <= words[j-1];')
+            A('      end')
+            A('    end')
+            A('    assign storage_rx_data = words[STORAGE_INPUT_DELAY-1];')
+            A('  end endgenerate')
             A('')
 
         # Which net does each (package,pin) belong to?
@@ -1288,7 +1513,7 @@ class Generator:
             for key, name in sorted(dram_emit.items(), key=lambda kv: kv[1]):
                 ras, cas = key[0], key[1]
                 abits = ', '.join(self.read_name(n) for n in key[2:])
-                A('  wire [11:0] %s;' % name)
+                A('  wire [13:0] %s;' % name)
                 A('  cell_MK4096P_addr u_%s (' % name)
                 A('    .sys_clk(sys_clk),')
                 A('    .p4(%s),' % self.read_name(ras))
@@ -1331,11 +1556,24 @@ class Generator:
                     target = f'{vname(netname)}__lead'
                 else:
                     target = vname(netname)
-                if (self.b.name.split('-Rev')[0], pos, str(pin)) in self.CLOCKGEN_PINS:
+                if isout and (self.b.name.split('-Rev')[0], pos, pin) in self.FITTED_OUTPUT_JUMPERS:
+                    source_pin = self.FITTED_OUTPUT_JUMPERS[
+                        (self.b.name.split('-Rev')[0], pos, pin)]
+                    A(f'  assign {target} = {self.read_name(pinnet[(pos, source_pin)])};'
+                      ' // fitted socket jumper')
+                    target = ''
+                elif isout and pin in self.CUT_OUTPUT_PINS.get(
+                        (self.b.name.split('-Rev')[0], pos), frozenset()):
+                    A(f"  assign {target} = 1'b0; // fitted configuration pin cut")
+                    target = ''
+                elif (self.b.name.split('-Rev')[0], pos, str(pin)) in self.CLOCKGEN_PINS:
                     # cell_CLOCKGEN drives this net now. The package stays --
                     # the rest of the chain reads its other pins -- but this
                     # output goes nowhere.
                     target = ''
+                elif (not isout and self.b.name.split('-Rev')[0] == 'MemD'
+                      and netname in self.STORAGE_INPUT_NETS):
+                    target = self.read_name(netname)
                 elif (not isout and netname.upper().startswith('VBB')
                         and role in ('in', 'common')):
                     # VBB IS THE ECL SWITCHING THRESHOLD, not a logic signal,
@@ -1364,6 +1602,10 @@ class Generator:
                     # leg broken off before stuffing: an open MECL input
                     # sits at VEE, so it reads 0 and the net is not connected
                     target = "1'b0"
+                elif (self.b.name.split('-Rev')[0], pos, pin) in self.FITTED_INPUT_JUMPERS:
+                    source_pin = self.FITTED_INPUT_JUMPERS[
+                        (self.b.name.split('-Rev')[0], pos, pin)]
+                    target = self.read_name(pinnet[(pos, source_pin)])
                 conns.append(f'    .p{pin}({target})')
             cell = f'cell_{vpart(ptype)}'
             # COMPARE THE SANITISED NAME. `known_cells` reads the names off
@@ -1385,7 +1627,13 @@ class Generator:
                 self.proms_wired += 1
             elif ptype in (*PROM_PARTS, 'i2716'):
                 A(f'  // PROM with no contents in the archive -- reads X')
-            extra = self.CELL_PARAMS.get((self.b.name.split('-Rev')[0], pos))
+            elif ptype == 'SN74123':
+                # The Trident's 3 us index discriminator is a physical timer,
+                # not a fixed number of fabric samples. Scale it with the
+                # machine clock, just like the external drive's pulses.
+                params = '#(.SYSPER(SYSPER)) '
+            extra = (self.CELL_PARAMS.get((self.b.name.split('-Rev')[0], pos))
+                     or self.BOARD_CELL_PARAMS.get((self.b.name.split('-Rev')[0], vpart(ptype))))
             if extra:
                 # A value that belongs to the fitted component, not the part
                 # type -- see CELL_PARAMS.
@@ -1406,6 +1654,16 @@ class Generator:
                 self.clocked_placed += 1
             if pos in dram_group:
                 conns = conns + ['    .addr_i(%s)' % dram_group[pos]]
+            if not conns or conns == ['    .sys_clk(sys_clk)']:
+                # A PACKAGE WITH NO PINS IS A PARSER FAILURE, not a spare.
+                # Forty-eight of these sat in the machine for weeks -- MemC's
+                # eight F100181 address adders, MemD's thirty-six bank-B cache
+                # RAMs, BaseBd's four CA3140s -- because their `#1c42`-style
+                # position names failed sil_netlist's pin regex, and nothing
+                # said so: the RTL computed no virtual address and every
+                # memory reference aliased to one word. Reported here, and
+                # sil_gen_all fails the build on it.
+                self.unwired.append(f'{pos} ({ptype})')
             A(',\n'.join(conns) if conns else '    // no connections')
             A(f'  ); // {ptype}')
             placed += 1
@@ -1445,6 +1703,8 @@ class Generator:
              f'  on-board wired-OR   {len(self.wired_or)}',
              f'  undriven internal   {len(self.undriven_internal)} '
              f'(a cell skeleton owes these a driver)',
+             f'  packages with NO PINS {len(self.unwired)}'
+             + (' -- ' + ', '.join(self.unwired) if self.unwired else ''),
              f'  parts without model {len(self.missing)} '
              f'({sum(self.missing.values())} packages)']
         if self.missing:
@@ -1547,6 +1807,12 @@ def main(argv: list[str]) -> int:
 
     if args.report:
         print(gen.report(), file=sys.stderr)
+    if gen.unwired:
+        # The file is written either way -- a reader wants to SEE the empty
+        # instances -- but the build must not pass with them in it.
+        print(f'{board.name}: {len(gen.unwired)} package(s) emitted with NO '
+              f'PINS: {", ".join(gen.unwired)}', file=sys.stderr)
+        return 3
     return 0
 
 

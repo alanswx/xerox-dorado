@@ -1158,7 +1158,7 @@ module tb_readback;
       // more than dorado_proc. Leaving them undriven is why MemC's local clock
       // showed zero edges with both its enables already asserted.
       .CLK_mc_p_(mclk), .CLK_md_p_(mclk), .CLK_mx_p_(mclk),
-      .CLK_ms0Even_p_(mclk),   // the MSA's own slot clock
+      .CLK_ms0Even_p_(mclk), .CLK_ms0Odd_p_(mclk),   // both storage slot clocks
       .CPAddr_0_p_(addr_n[2]), .CPAddr_1_p_(addr_n[1]), .CPAddr_2_p_(addr_n[0]),
       .CPOut_0(cpout[8]), .CPOut_1(cpout[7]), .CPOut_2(cpout[6]),
       .CPOut_3(cpout[5]), .CPOut_4(cpout[4]), .CPOut_5(cpout[3]),
@@ -1189,15 +1189,24 @@ module tb_readback;
   initial begin
     ones_dram = $test$plusargs("onesdram");
     want_pat  = ones_dram ? 8'hFF : PATTERN;
-    for (si = 0; si < 4096; si = si + 1) begin
+    // 16384: the DRAM cell is 16K deep (seven address pins), see cell_MK4096P_6.
+    for (si = 0; si < 16384; si = si + 1) begin
       m.b_msa.u_b05.mem[si] = ones_dram ? 1'b1 : PATTERN[0];   // A
+      m.b_msaOdd.u_b05.mem[si] = ones_dram ? 1'b1 : PATTERN[0];   // the odd storage board, same word
       m.b_msa.u_c05.mem[si] = ones_dram ? 1'b1 : PATTERN[1];   // B
+      m.b_msaOdd.u_c05.mem[si] = ones_dram ? 1'b1 : PATTERN[1];   // the odd storage board, same word
       m.b_msa.u_d05.mem[si] = ones_dram ? 1'b1 : PATTERN[2];   // C
+      m.b_msaOdd.u_d05.mem[si] = ones_dram ? 1'b1 : PATTERN[2];   // the odd storage board, same word
       m.b_msa.u_e05.mem[si] = ones_dram ? 1'b1 : PATTERN[3];   // D
+      m.b_msaOdd.u_e05.mem[si] = ones_dram ? 1'b1 : PATTERN[3];   // the odd storage board, same word
       m.b_msa.u_e06.mem[si] = ones_dram ? 1'b1 : PATTERN[4];   // E
+      m.b_msaOdd.u_e06.mem[si] = ones_dram ? 1'b1 : PATTERN[4];   // the odd storage board, same word
       m.b_msa.u_d06.mem[si] = ones_dram ? 1'b1 : PATTERN[5];   // F
+      m.b_msaOdd.u_d06.mem[si] = ones_dram ? 1'b1 : PATTERN[5];   // the odd storage board, same word
       m.b_msa.u_c06.mem[si] = ones_dram ? 1'b1 : PATTERN[6];   // G
+      m.b_msaOdd.u_c06.mem[si] = ones_dram ? 1'b1 : PATTERN[6];   // the odd storage board, same word
       m.b_msa.u_b06.mem[si] = ones_dram ? 1'b1 : PATTERN[7];   // H
+      m.b_msaOdd.u_b06.mem[si] = ones_dram ? 1'b1 : PATTERN[7];   // the odd storage board, same word
     end
   end
 

@@ -9,7 +9,7 @@
 
 `default_nettype none
 
-module cell_F10000 (
+module cell_F10000 #(parameter PRECAP = 0) (
     input  wire sys_clk,
     input  wire p4,
     input  wire p13,
@@ -52,6 +52,14 @@ module cell_F10000 (
   reg ck_d;
   always @(posedge sys_clk) ck_d <= clk;
   wire ck_en = clk & ~ck_d;
+  // Optional pre-edge parallel data, like MC10176/MC10231. ProcH g10/h10
+  // need this with the modeled PostClock0 buffer: their TIOA bypass/data
+  // mux changes at the same boundary. Capture its pre-edge value rather
+  // than the next value that settles during oversampled edge detection.
+  // Other F10000 placements retain their existing timing; serial shifting
+  // is unaffected by this option.
+  reg [3:0] d_pre;
+  always @(posedge sys_clk) d_pre <= {p11,p10,p9,p7};
 
   // BIT ORDER: EclDict's H0 is the DATA SHEET's Q3, exactly as for the F10016.
   // The two parts share a pinout -- EclDict gives both `D0,11 D1,10 D2,9 D3,7`
@@ -75,7 +83,7 @@ module cell_F10000 (
   always @(posedge sys_clk) begin
     if (p12)            q <= 4'd0;              // MR
     else if (ck_en) begin
-      if (!p5)          q <= {p11, p10, p9, p7};// PE' load: P3,P2,P1,P0
+      if (!p5)          q <= PRECAP ? d_pre : {p11, p10, p9, p7};// PE' load
       else              q <= {q[2:0], p6};      // shift, DS into Q0 (pin 3)
     end
   end

@@ -4,7 +4,7 @@
 
 `default_nettype none
 
-module cell_MC10135 (
+module cell_MC10135 #(parameter PRECAP = 0) (
     input  wire sys_clk,
     input  wire p9,
     input  wire p7,
@@ -24,8 +24,16 @@ module cell_MC10135 (
   // CC=9 common clock; J'/K' are ACTIVE LOW (the dictionary names them with
   // primes); R/S asynchronous, active high.
   reg qa, qb;
-  wire ja = ~p7,  ka = ~p6;
-  wire jb = ~p10, kb = ~p11;
+  // Preserve setup J/K when a control changes on the same modeled edge.
+  // DskEth c16 uses this: releasing IOHold at clk1 must not clear OutReg
+  // before c15's pre-edge underflow checker observes that read. The default
+  // retains existing timing for other packages pending their own audit.
+  reg [3:0] jk_pre;
+  always @(posedge sys_clk) jk_pre <= {p11,p10,p6,p7};
+  wire ja = ~(PRECAP ? jk_pre[0] : p7);
+  wire ka = ~(PRECAP ? jk_pre[1] : p6);
+  wire jb = ~(PRECAP ? jk_pre[2] : p10);
+  wire kb = ~(PRECAP ? jk_pre[3] : p11);
 
   // FPGA: ONE CLOCK, and the ECL clock net becomes an ENABLE.
   //

@@ -1977,7 +1977,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p7(MemX07_sil_pl_4),
     .p9(MemIdlea)
   ); // MC10231
-  cell_MC10176 u_c02 (
+  cell_MC10176 #(.PRECAP(0)) u_c02 (
     .sys_clk(sys_clk),
     .p2(MemWEa__drv),
     .p3(MemCASa__drv),
@@ -2445,7 +2445,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p15(RTMapCAS_p_b),
     .p16(GND_m_23)
   ); // MosRam
-  cell_MC10176 u_d18 (
+  cell_MC10176 #(.PRECAP(0)) u_d18 (
     .sys_clk(sys_clk),
     .p2(MapRAS_p___d18_2),
     .p3(MemColSela),
@@ -2753,7 +2753,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(MapRAS_p___e18_14),
     .p15(MemX14_sil_pl_8)
   ); // F10016
-  cell_MC10176 u_e19 (
+  cell_MC10176 #(.PRECAP(0)) u_e19 (
     .sys_clk(sys_clk),
     .p2(MapCAS_p___e19_2),
     .p3(DdataGood_p___drv),
@@ -2807,7 +2807,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(Dtask_0),
     .p15(Dtask_1)
   ); // F10016
-  cell_MC10176 u_e23 (
+  cell_MC10176 #(.PRECAP(0)) u_e23 (
     .sys_clk(sys_clk),
     .p2(MemX01_sil_pl_11),
     .p3(MemWEb__drv),
@@ -3184,7 +3184,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   ); // MU10164
   cell_MC10104 u_g10 (
     .p3(ModSel_0__g10_3),
-    .p6(ChipsAre256_s_16K),
+    .p6(1'b0),
     .p7(ChipsAre256_s_16K),
     .p10(ChipsAre64K),
     .p11(ChipsAre64K),
@@ -3335,7 +3335,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(dMDMad_2_p___g22_14),
     .p15(dMDMad_3_p___g22_15)
   ); // MC10100
-  cell_MC10176 u_g23 (
+  cell_MC10176 #(.PRECAP(0)) u_g23 (
     .sys_clk(sys_clk),
     .p2(MakeMDM_u_D_p___drv),
     .p3(StkWake),
@@ -3536,7 +3536,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p13(WantMapWait_p_),
     .p14(HoldMapbufFromMap_p_)
   ); // MC10103
-  cell_MC10176 u_h14 (
+  cell_MC10176 #(.PRECAP(0)) u_h14 (
     .sys_clk(sys_clk),
     .p2(Store_u_InMap_p_),
     .p3(WriteInMap_p_),
@@ -3705,7 +3705,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p13(FH_p_Ba),
     .p14(StartEcGen_p___drv)
   ); // MC10103
-  cell_MC10176 u_i03 (
+  cell_MC10176 #(.PRECAP(0)) u_i03 (
     .sys_clk(sys_clk),
     .p2(LoadSinE__drv),
     .p3(MemX04_sil_pl_4),
@@ -3733,7 +3733,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p13(Ec2Srn_3),
     .p15(dPipe34Ad_3__drv)
   ); // MC10174
-  cell_MC10176 u_i05 (
+  cell_MC10176 #(.PRECAP(0)) u_i05 (
     .sys_clk(sys_clk),
     .p2(MemX05_sil_pl_1),
     .p3(MemX05_sil_pl_12),
@@ -3863,7 +3863,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p13(MapFnc_1_p_),
     .p14(MapFnc_0_p_)
   ); // SG10139
-  cell_MC10176 u_i15 (
+  cell_MC10176 #(.PRECAP(0)) u_i15 (
     .sys_clk(sys_clk),
     .p2(RefUsesD10InMap_p_),
     .p3(IOFetchInMap_p_),
@@ -3943,7 +3943,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(MemSrn_3),
     .p15(MD5__i21_15)
   ); // MU10164
-  cell_MC10176 u_i22 (
+  cell_MC10176 #(.PRECAP(0)) u_i22 (
     .sys_clk(sys_clk),
     .p2(STfree_p___drv),
     .p3(StopFinTaskLoad),
@@ -4016,7 +4016,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(Fout_flt__j02_14),
     .p15(Fout_flt__j02_15)
   ); // MC10102
-  cell_MC10176 u_j03 (
+  cell_MC10176 #(.PRECAP(0)) u_j03 (
     .sys_clk(sys_clk),
     .p2(LoadSinO__drv),
     .p3(StartEc1),
@@ -4119,7 +4119,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(VicSTPerr),
     .p15(MD3__j10_15)
   ); // MU10164
-  cell_MC10176 u_j11 (
+  cell_MC10176 #(.PRECAP(0)) u_j11 (
     .sys_clk(sys_clk),
     .p2(RefUsesD10InMem_p_),
     .p3(IOFetchInMem_p_),
@@ -4241,7 +4241,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p15(GND_m_6),
     .p16(GND_m_6)
   ); // SE10210
-  cell_MC10176 u_j20 (
+  cell_MC10176 #(.PRECAP(0)) u_j20 (
     .sys_clk(sys_clk),
     .p2(MakeTransport2__j20_2),
     .p3(MakeFout_u_D__j20_3),
@@ -4296,7 +4296,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p15(GND_m_5),
     .p16(GND_m_5)
   ); // MC10212
-  cell_MC10176 u_j24 (
+  cell_MC10176 #(.PRECAP(0)) u_j24 (
     .sys_clk(sys_clk),
     .p2(FoutTask_0__drv),
     .p3(FoutTask_1__drv),
@@ -4463,7 +4463,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(DirtyIOFetchInMem),
     .p15(MD3__k12_15)
   ); // MU10164
-  cell_MC10176 u_k13 (
+  cell_MC10176 #(.PRECAP(0)) u_k13 (
     .sys_clk(sys_clk),
     .p2(RefUsesDInMem_p___k13_2),
     .p3(MapPEInMem),
@@ -4473,7 +4473,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p7(preRfshInMem),
     .p9(StartMemClk0_p_)
   ); // MC10176
-  cell_MC10176 u_k14 (
+  cell_MC10176 #(.PRECAP(0)) u_k14 (
     .sys_clk(sys_clk),
     .p2(MemState7_p_),
     .p3(RefUsesDInMem_p___k14_3),
@@ -4544,7 +4544,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(MemX10_sil_pl_8),
     .p15(ChkLastPh6)
   ); // MC10104
-  cell_MC10176 u_k20 (
+  cell_MC10176 #(.PRECAP(0)) u_k20 (
     .sys_clk(sys_clk),
     .p2(EcWantsAa),
     .p3(Ec1Free_p_),
@@ -4626,7 +4626,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p7(MemSH),
     .p9(CLK_mx_p_)
   ); // SE10231
-  cell_MC10176 u_l03 (
+  cell_MC10176 #(.PRECAP(0)) u_l03 (
     .sys_clk(sys_clk),
     .p2(TagInEc2),
     .p3(CacheRefInEc2),
@@ -4680,7 +4680,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p13(MapTroubleInEc2),
     .p15(ErrorsFromEc2__l06_15)
   ); // MC10105
-  cell_MC10176 u_l07 (
+  cell_MC10176 #(.PRECAP(0)) u_l07 (
     .sys_clk(sys_clk),
     .p2(MemX09_sil_pl_10),
     .p3(MapPEInEc1),
@@ -4814,7 +4814,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(RefUsesDInEc1),
     .p15(StartMem_p_a)
   ); // MC10104
-  cell_MC10176 u_l19 (
+  cell_MC10176 #(.PRECAP(0)) u_l19 (
     .sys_clk(sys_clk),
     .p2(Ec2State2),
     .p3(Ec2State3),
@@ -4844,7 +4844,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(EcHasA_p_),
     .p15(MapFree)
   ); // MC10195
-  cell_MC10176 u_l21 (
+  cell_MC10176 #(.PRECAP(0)) u_l21 (
     .sys_clk(sys_clk),
     .p3(DMadr_01__l21_3),
     .p4(DMadr_02),
@@ -4873,7 +4873,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p14(MD7),
     .p15(DMuxData__drv)
   ); // MU10164
-  cell_MC10176 u_l23 (
+  cell_MC10176 #(.PRECAP(0)) u_l23 (
     .sys_clk(sys_clk),
     .p2(DMadr_06),
     .p3(DMadr_07),

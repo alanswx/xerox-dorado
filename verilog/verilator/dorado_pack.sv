@@ -13,21 +13,28 @@
 // between blocks (AltoDiabloDisk.mc). The drive gives 117 pulses per
 // revolution and the controller's subsector counter (count 3, divisor 4)
 // makes 30 sector wakeups of them -- "29 + a fraction, though we use only
-// 28" -- so short sector s begins at drive pulse 4s, and the 30th slot is
-// the fraction and holds nothing. dsk2trident lays the pack out in exactly
-// those terms: 815 cylinders x 5 heads x 29 short sectors of 534 bytes each,
+// 28". DiskSubrs.mc UpdateSector numbers COMMAND sectors: a command issued
+// after Index executes at the NEXT divided pulse (HM 9.5). Thus Alto file
+// sector s (0..27) begins at pulse 4*(s+1), not 4*s. The spare file slot 28
+// occupies the otherwise unused complete slot after Index; pulse 116 starts
+// the unusable fractional slot. This mapping is specific to this Alto pack
+// format, not a general Trident image codec. dsk2trident lays files out as
+// 815 cylinders x 5 heads x 29 short sectors of 534 bytes each,
 // dummy(1w) + header(2w) + label(8w) + data(256w), little-endian words,
 // 63,105,450 bytes for games-trident.pack.
 //
-// On the wire each block is: a run of zero bits (the controller's read delay
-// is measured in WORD clocks, so PRE_WORDS of them), ONE sync bit of 1 --
-// the controller starts its bit counter on the first 1 it sees
-// (`sCountBits = (ShiftReg.08 | Tag.000) & ShiftReg.15`) -- the words MSB
+// HM 9.3 and AltoDiabloDisk.mc ACmmdTable require a 201B sync WORD for
+// Diablo emulation (001B is the different Alto Trident format). The detector
+// needs both ShiftReg.08 and .15; a single 1 misses the header entirely.
+// Preamble/gap lengths follow HM 9.6's WRITE sequence, not merely the shorter
+// READ delays: 1+2+1+28 words before sync, and 2 postamble + 1 advance +
+// 1 write tag + 7 preamble words between blocks. Then the words MSB
 // first, then the 32-bit Fire-code check word MSB first. The polynomial is
 // HM 9.10's, X^32+X^23+X^21+X^11+X^2+1 with feedback taps {0,2,11,21,23},
-// register zero at each block, exactly dorado_disk_ecc_compute in
-// dorado/src/disk.c, bit-serial here because that is how the hardware
-// makes it.
+// register zero before each SYNC WORD. The divider covers sync + payload;
+// DskEth's read divider is already enabled while hunting for sync. The C
+// emulator explicitly uses self-consistent, not physical, ECC over payload
+// only; copying that omission here gives a nonzero hardware remainder.
 //
 // TAGS. The controller presents a twelve-bit bus and strobes one of four
 // tag lines (HM p.100, disk.c: DriveTag 0x8000, CylinderTag 0x4000, HeadTag
@@ -40,8 +47,8 @@
 `default_nettype none
 
 module dorado_pack #(
-    parameter integer PRE_WORDS = 12,     // zero words before a block's sync
-    parameter integer GAP_WORDS = 4,      // zero words between blocks
+    parameter integer PRE_WORDS = 32,     // HM 9.6 write steps 0..3
+    parameter integer GAP_WORDS = 11,     // postamble + steps 8..10
     parameter integer TRACK_WORDS = 29 * 267,
     parameter integer TRACK_BYTES = 29 * 534,
     parameter integer HEADS = 5           // a T-80; the world probes head 5 to tell it from a 19-head AMS-315
@@ -58,6 +65,12 @@ module dorado_pack #(
     input  wire [15:0] pulse,             // dorado_trident's `sector`: 0..116
     input  wire        data_adv,
     output reg         data_bit,
+    // Returned data cable during writes: TriconD07 b02/g02 drives M=true,
+    // P=complement. The drive samples one bit per timing-track bit cell.
+    input  wire        selected,
+    input  wire        write_data_p, write_data_m,
+    output wire        write_gate,
+    output reg [31:0]  n_write_blocks = 0,
     // what it did, for the run report
     // THE DRIVE TYPE IS ON THE CABLE. DskEth b24 translates TtlEndOfCyl' into
     // HeadOvfl, the muffler bit AltoDiabloDisk.mc reads after selecting head 5:
@@ -76,6 +89,8 @@ module dorado_pack #(
   reg [7:0]  tbytes [0:TRACK_BYTES-1];
   reg [11:0] cur_cyl  = 12'hFFF;         // the track in tbytes[], none yet
   reg [5:0]  cur_head = 6'h3F;
+  // Volatile media changes survive track switches, never modify +pack.
+  reg [15:0] written_words [longint unsigned];
   initial begin
     cyl = 12'd0; head = 6'd0;
     n_cyltag = 0; n_headtag = 0; n_drivetag = 0; n_conttag = 0;
@@ -90,9 +105,14 @@ module dorado_pack #(
   task load_track(input [11:0] c, input [5:0] h);
     integer off, i;
     begin
-      off = ((c * 5) + h) * TRACK_BYTES;
+      off = ((c * HEADS) + h) * TRACK_BYTES;
       rc = $fseek(fd, off, 0);
       for (i = 0; i < TRACK_BYTES; i = i + 1) tbytes[i] = $fgetc(fd);
+      for (i = 0; i < TRACK_WORDS; i = i + 1)
+        if (written_words.exists((longint'(c) * HEADS + h) * TRACK_WORDS + i)) begin
+          tbytes[2*i] = written_words[(longint'(c) * HEADS + h) * TRACK_WORDS + i][7:0];
+          tbytes[2*i+1] = written_words[(longint'(c) * HEADS + h) * TRACK_WORDS + i][15:8];
+        end
       cur_cyl = c; cur_head = h; n_tracks = n_tracks + 1;
     end
   endtask
@@ -100,10 +120,27 @@ module dorado_pack #(
     track_word = {tbytes[2*wi+1], tbytes[2*wi]};
   endfunction
 
-  assign endofcyl_n = ~(attached && (head >= HEADS));
+  // Compatibility behavior inherited from disk.c: illegal/legal head tags
+  // set/clear this status; DeviceCheckReset or ReZero also clears it.
+  // This is NOT yet reconciled with Trident 76205-902 section 4.2, which
+  // describes End of Cylinder as a level indicating an out-of-range head.
+  // The former boot-failure rationale did not establish latch semantics:
+  // the context-sized complement below made EVERY head appear illegal.
+  // Keep the reset behavior separate from that proven width defect.
+  reg eoc = 1'b0;
+  assign endofcyl_n = ~(attached && eoc);
+  // Keep the complement six bits BEFORE comparing with integer HEADS.
+  // Context-sizing ~tagbus_n[5:0] inside that comparison otherwise extends
+  // it to 32 bits first, making every legal head look larger than HEADS.
+  wire [5:0] tag_head = ~tagbus_n[5:0];
 
   // ---- the tags -----------------------------------------------------------
   reg cyltag_d = 1'b1, headtag_d = 1'b1, drivetag_d = 1'b1, conttag_d = 1'b1;
+  // HM 9.6 keeps ControlTag asserted while RAM[6] (head select) changes to
+  // RAM[5] (write + head select). These drive functions are cable LEVELS,
+  // not a command latched only on ControlTag's first falling edge.
+  assign write_gate = attached && selected && !conttag_n &&
+                      !tagbus_n[7] && !tagbus_n[2];
   always @(posedge sys_clk) begin
     cyltag_d <= cyltag_n; headtag_d <= headtag_n;
     drivetag_d <= drivetag_n; conttag_d <= conttag_n;
@@ -119,15 +156,42 @@ module dorado_pack #(
       if (fd != 0 && (~tagbus_n) != cur_cyl) load_track(~tagbus_n, head);
     end
     if (headtag_d && !headtag_n) begin
-      head <= ~tagbus_n[5:0]; n_headtag <= n_headtag + 1;
-      if (fd != 0 && (~tagbus_n[5:0]) != cur_head) load_track(cyl, ~tagbus_n[5:0]);
+      head <= tag_head; n_headtag <= n_headtag + 1;
+      eoc  <= (tag_head >= HEADS);
+      if (fd != 0 && tag_head < HEADS && tag_head != cur_head) load_track(cyl, tag_head);
     end
     if (drivetag_d && !drivetag_n) n_drivetag <= n_drivetag + 1;
-    if (conttag_d && !conttag_n)   n_conttag  <= n_conttag + 1;
+    if (conttag_d && !conttag_n) begin
+      n_conttag <= n_conttag + 1;
+      // Control tag (HM p.101, disk.c's table): bit 0 HeadAdvance, bit 1
+      // ReZero, bit 3 DeviceCheckReset. Read, Write, the strobes and
+      // AltoLeader are the controller's own business and are not the drive's.
+      // Bus value = ~tagbus_n, LSB-numbered from .9.
+      if (~tagbus_n[3] || ~tagbus_n[1]) eoc <= 1'b0;
+      if (~tagbus_n[1]) begin
+        cyl <= 12'd0; head <= 6'd0;
+        if (fd != 0 && (cur_cyl != 12'd0 || cur_head != 6'd0)) load_track(12'd0, 6'd0);
+      end else if (~tagbus_n[0]) begin
+        head <= head + 6'd1;
+        eoc  <= ((head + 6'd1) >= HEADS);
+        if (fd != 0 && (head + 6'd1) < HEADS) load_track(cyl, head + 6'd1);
+      end
+    end
   end
 
   // ---- the bit stream -----------------------------------------------------
   localparam integer TAPS = (1 << 0) | (1 << 2) | (1 << 11) | (1 << 21) | (1 << 23);
+  function automatic [31:0] sync_ecc;
+    reg [31:0] r;
+    reg [15:0] s;
+    integer k;
+    begin
+      r=0; s=16'o201;
+      for(k=15;k>=0;k=k-1)
+        r={r[30:0],1'b0} ^ ((s[k]^r[31]) ? TAPS[31:0] : 32'd0);
+      sync_ecc=r;
+    end
+  endfunction
   // phases within a short sector
   localparam PH_IDLE = 0, PH_PRE = 1, PH_SYNC = 2, PH_WORDS = 3, PH_ECC = 4, PH_GAP = 5;
   integer phase = PH_IDLE, blk = 0;          // blk 0 = header, 1 = label, 2 = data
@@ -135,6 +199,7 @@ module dorado_pack #(
   integer wi = 0;                            // word index within the sector (0..266)
   integer bi = 15;                           // bit within the word, MSB first
   reg [31:0] ecc = 32'd0;
+  reg [15:0] sync_word;
   reg [15:0] pulse_d = 16'hFFFF;
   integer sec = 0;
   function integer blk_words(input integer b);
@@ -146,12 +211,89 @@ module dorado_pack #(
   wire [15:0] cur_word = track_word(sec * 267 + wi);
   wire        cur_data_bit = cur_word[bi];
 
+  // Capture actual serial writes, including SYNC and both Fire-code words.
+  // Commit a complete checked block only; an invalid outgoing stream is a
+  // diagnostic failure, never silently replaced with regenerated good ECC.
+  integer wr_state=0, wr_bits=0, wr_count=0, wr_block=0, wr_sector=0;
+  reg [11:0] wr_cyl;
+  reg [5:0] wr_head;
+  reg [15:0] wr_shift=0, wr_payload [0:255];
+  reg [31:0] wr_ecc=0;
+  reg wr_gate_d=0;
+  longint unsigned wr_address;
+  always @(posedge sys_clk) begin
+    wr_gate_d <= write_gate;
+    if(dbg && write_gate != wr_gate_d) begin
+      $display("PACKWRITE gate=%b selected=%b control'=%b bus=%h block=%0d phase=%0d",
+        write_gate,selected,conttag_n,~tagbus_n,blk,phase);
+      $fflush();
+    end
+    if (!write_gate) begin
+      if (wr_gate_d && wr_state != 0)
+        $fatal(1,"dorado_pack: truncated write c%0d h%0d s%0d block%0d words%0d bits%0d",
+          wr_cyl,wr_head,wr_sector,wr_block,wr_count,wr_bits);
+      wr_state=0; wr_shift=0; wr_bits=0;
+    end else if (data_adv) begin
+      if (write_data_p == write_data_m) begin
+        if (wr_state != 0) $fatal(1,"dorado_pack: invalid differential write data");
+        wr_shift=0;
+      end else begin
+        case (wr_state)
+          0: begin
+            wr_shift={wr_shift[14:0],write_data_m};
+            if (wr_shift == 16'o201) begin
+              wr_state=1; wr_count=0; wr_bits=0; wr_shift=0;
+              wr_ecc=sync_ecc(); wr_block=blk; wr_sector=sec;
+              wr_cyl=cyl; wr_head=head;
+              if(dbg) $display("PACKWRITE sync c%0d h%0d s%0d block%0d",wr_cyl,wr_head,wr_sector,wr_block);
+              if (wr_block>2 || wr_head>=HEADS || wr_cyl>=815)
+                $fatal(1,"dorado_pack: write outside supported pack geometry");
+            end
+          end
+          1: begin
+            wr_shift={wr_shift[14:0],write_data_m};
+            wr_ecc={wr_ecc[30:0],1'b0} ^ ((write_data_m ^ wr_ecc[31]) ? TAPS[31:0] : 32'd0);
+            wr_bits=wr_bits+1;
+            if(wr_bits==16) begin
+              wr_payload[wr_count]=wr_shift; wr_count=wr_count+1; wr_bits=0;
+              if(wr_count==blk_words(wr_block)) wr_state=2;
+            end
+          end
+          2: begin
+            wr_ecc={wr_ecc[30:0],1'b0} ^ ((write_data_m ^ wr_ecc[31]) ? TAPS[31:0] : 32'd0);
+            wr_bits=wr_bits+1;
+            if(wr_bits==32) begin
+              if(wr_ecc!=0)
+                $fatal(1,"dorado_pack: write Fire-code remainder %h c%0d h%0d s%0d block%0d",
+                  wr_ecc,wr_cyl,wr_head,wr_sector,wr_block);
+              for(integer k=0;k<wr_count;k=k+1) begin
+                wr_address=(longint'(wr_cyl)*HEADS+wr_head)*TRACK_WORDS+
+                  wr_sector*267+blk_base(wr_block)+k;
+                written_words[wr_address]=wr_payload[k];
+                if(cur_cyl==wr_cyl && cur_head==wr_head) begin
+                  tbytes[2*(wr_sector*267+blk_base(wr_block)+k)]=wr_payload[k][7:0];
+                  tbytes[2*(wr_sector*267+blk_base(wr_block)+k)+1]=wr_payload[k][15:8];
+                end
+              end
+              n_write_blocks=n_write_blocks+1;
+              $display("PACKWRITE c%0d h%0d s%0d block%0d words=%0d ECC=0 (volatile overlay)",
+                wr_cyl,wr_head,wr_sector,wr_block,wr_count);
+              wr_state=0; wr_bits=0; wr_shift=0;
+            end
+          end
+        endcase
+      end
+    end
+  end
+
   always @(posedge sys_clk) begin
     pulse_d <= pulse;
-    // a new short sector begins at drive pulse 4s
+    // Translate physical angular slots into the converter's Alto file slots.
+    // The C controller starts a read immediately in the command sector;
+    // this real sequencer starts on its successor pulse (HM 9.5).
     if (attached && pulse != pulse_d && (pulse & 16'd3) == 16'd0) begin
-      sec = pulse >> 2;
-      if (sec <= 28) begin
+      if ((pulse >> 2) <= 28) begin
+        sec = ((pulse >> 2) + 28) % 29;
         if (fd != 0 && (cyl != cur_cyl || head != cur_head)) load_track(cyl, head);
         phase = PH_PRE; cnt = PRE_WORDS * 16; blk = 0; n_sectors <= n_sectors + 1;
         data_bit <= 1'b0;
@@ -163,17 +305,28 @@ module dorado_pack #(
       case (phase)
         PH_PRE, PH_GAP: begin
           data_bit <= 1'b0;
-          if (cnt <= 1) begin phase = PH_SYNC; data_bit <= 1'b1; end
+          if (cnt <= 1) begin
+            phase = PH_SYNC; cnt = 16; sync_word = 16'o201;
+            data_bit <= sync_word[15];
+          end
           else cnt = cnt - 1;
         end
         PH_SYNC: begin
-          // the sync bit has been taken; first word bit next
-          wi = blk_base(blk); bi = 15; ecc = 32'd0;
+          cnt = cnt - 1;
+          if (cnt != 0) begin
+            sync_word = {sync_word[14:0], 1'b0};
+            data_bit <= sync_word[15];
+          end else begin
+          // The complete sync word has been taken; first data bit next.
+          // The Fire-code divider runs while hunting for sync, too.
+          // The outgoing stream is sync + data, not just the pack payload.
+          wi = blk_base(blk); bi = 15; ecc = sync_ecc();
           phase = PH_WORDS; cnt = blk_words(blk) * 16;
           data_bit <= track_word(sec * 267 + blk_base(blk))[15];
           if (dbg) $display("dorado_pack: sector %0d block %0d starts at image word %0d: %04h %04h (tbytes[%0d..]=%02h %02h %02h %02h)",
                             sec, blk, wi, track_word(sec*267+wi), track_word(sec*267+wi+1),
                             2*(sec*267+wi), tbytes[2*(sec*267+wi)], tbytes[2*(sec*267+wi)+1], tbytes[2*(sec*267+wi)+2], tbytes[2*(sec*267+wi)+3]);
+          end
         end
         PH_WORDS: begin
           // the bit just taken was cur_word[bi]: fold it into the ECC

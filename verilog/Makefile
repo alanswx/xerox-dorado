@@ -363,25 +363,25 @@ backplane: generated-boards
 		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX \
 		--module=dorado_mem >/dev/null
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_storage.v \
-		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,msaOdd \
 		--module=dorado_storage >/dev/null
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_ifu.v \
 		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,IFU \
 		--module=dorado_ifu >/dev/null
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_display.v \
-		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,DispY \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,msaOdd,DispY \
 		--module=dorado_display >/dev/null
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_disk.v \
-		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,DskEth \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,msaOdd,DskEth \
 		--module=dorado_disk >/dev/null
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_world.v \
-		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,IFU \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,msaOdd,IFU \
 		--module=dorado_world >/dev/null
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_screen.v \
-		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,IFU,DispY \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,msaOdd,IFU,DispY \
 		--module=dorado_screen >/dev/null
 	@python3 $(TOOLS)/sil_backplane.py --emit generated/dorado_full.v \
-		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,IFU,DispY,DskEth \
+		--boards=ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,msaOdd,IFU,DispY,DskEth \
 		--module=dorado_full >/dev/null
 
 cells:

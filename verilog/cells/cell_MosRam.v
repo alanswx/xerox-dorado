@@ -42,12 +42,21 @@ module cell_MosRam (
   // Address order is read off the BOARD's own net names, not assumed:
   // A0'=13 A1'=5 A2'=7 A3'=6 A4'=12 A5'=11 A6'=10.
   reg [6:0] row, col;
-  // ONE BIT WIDE, because the part is 4K x 1. This was `reg [11:0]` while
-  // storing a single bit -- functionally right (the write zero-extends, the
-  // read takes bit 0) and TWELVE TIMES the memory, across 309 packages.
-  // Quartus is the one that notices: it could not fit the un-inferred ones
-  // into registers and stopped Analysis & Synthesis outright.
-  reg mem [0:4095];
+  // ONE BIT WIDE (the part is N x 1). This was `reg [11:0]` while storing a
+  // single bit -- functionally right (the write zero-extends, the read takes
+  // bit 0) and TWELVE TIMES the memory, across 309 packages. Quartus is the
+  // one that notices: it could not fit the un-inferred ones into registers
+  // and stopped Analysis & Synthesis outright.
+  //
+  // 16K DEEP, BECAUSE SEVEN ADDRESS PINS ARE WIRED. This was `mem [0:4095]`
+  // with `addr[11:0]` -- a 4K x 1 part -- while the boards name A0'..A6' on
+  // the socket, and a 4K x 1 DRAM (MK4096) has six address pins; the cell
+  // was silently dropping the top two ROW bits. On MemX that is the map: a
+  // 16K-entry map (MapIs16K, VirtualBanks = 100B in InitMem.mc) folded 4:1,
+  // so page p and page p+4096 shared an entry and the later map write won.
+  // Found 2026-09-08 while chasing InitMap's map walk. The two strap pins
+  // (1 and 9, below) would make it 64K; they are unjumpered on MemX.
+  reg mem [0:16383];
   reg        dout;
 
   wire [6:0] a = {p10, p11, p12, p6, p7, p5, p13};   // A6..A0
@@ -92,9 +101,18 @@ module cell_MosRam (
   // clean, and `dout` only takes it during a read, as a real DRAM's output is
   // only valid then.
   reg dout_r;
+  // Data-in strobes on the later falling edge of CAS' and WRITE'. Defer
+  // the array update until the column latch above contains this cycle's
+  // address, retaining the data sampled at the strobe.
+  reg we_d, write_pending, write_data;
   always @(posedge sys_clk) begin
-    dout_r <= mem[addr[11:0]];
-    if (!p4 && !p15 && !p3) mem[addr[11:0]] <= p2;
+    we_d <= p3;
+    write_pending <= !p4 && !p15 && !p3 && (cas_d || we_d);
+    if (!p4 && !p15 && !p3 && (cas_d || we_d)) write_data <= p2;
+  end
+  always @(posedge sys_clk) begin
+    dout_r <= mem[addr];
+    if (write_pending) mem[addr] <= write_data;
   end
   always @(posedge sys_clk)
     if (!p4 && !p15 && p3) dout <= dout_r;
@@ -110,7 +128,7 @@ module cell_MosRam (
   // that either supply extra address bits or tie to a rail, so one socket
   // takes several DRAM densities.
   //
-  // MODELLED AT 4K, AND THAT IS PROBABLY WRONG FOR A LATE MACHINE.
+  // MODELLED AT 16K x 1, the size the seven wired address pins give.
   // MemProms.bcpl carries two DRAM TIMING proms, `4k-Mem` (MX4k-j14) and
   // `16k-Mem` (MX16k-j13), and its header records the switch:
   //
@@ -119,9 +137,9 @@ module cell_MosRam (
   //
   // The 4k call site is commented out in the source, so from late 1979 the
   // memory boards were built with 16K parts and only the 16K timing PROM was
-  // blown. The two strap pins here are exactly how one socket takes both.
-  // Raising this to 16K x 1 needs the extra address bits routed from those
-  // straps, which is a board-level question -- flagged rather than guessed.
+  // blown. The two strap pins here are how one socket also takes a 64K
+  // part; raising this to 64K x 1 needs those bits routed from the straps,
+  // which is a board-level question -- flagged rather than guessed.
 
 
   // Board-wired pins not named above (power, density straps)

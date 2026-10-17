@@ -45,7 +45,11 @@ module cell_F10470 (
     input  wire p16,
     input  wire p15,
     output wire p1,
-    input  wire p9
+    input  wire p9,
+    // Pin 18 (VEE/GND on the 18-pin package) is wired on the thirty-six
+    // bank-B positions of MemD (`#-1c3` ...), which the boards list with a
+    // `#-1` prefix; declared so those connections land somewhere.
+    input  wire p18
 );
 
   // A0-A11 = 2..8,10..14; DI=17, DO=1, CE'=16, WE'=15.
@@ -85,7 +89,7 @@ module cell_F10470 (
 
 
   // Board-wired pins the dictionary does not name (power and the like)
-  wire _unused_pins = &{1'b0, p9, 1'b0};
+  wire _unused_pins = &{1'b0, p9, p18, 1'b0};
 
 endmodule
 

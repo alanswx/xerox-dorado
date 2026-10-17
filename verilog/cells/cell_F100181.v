@@ -36,8 +36,8 @@
 // project has been bitten by exactly this twice:
 //
 //   * `Cn` (pin 11) is "Carry Input (Active LOW)", so the carry is taken as
-//     ~p11. The data sheet's own lookahead equations are printed with
-//     inconsistent overbars and do not settle it.
+//     ~p11. SETTLED 2026-09-08 by the Functional Description: "set Cn' = LOW"
+//     forces the initial carry that makes a subtraction two's complement.
 //   * `E` (pin 19) is "Latch Enable Input (Active LOW)", and the description
 //     says "leaving the Enable (E) input LOW makes the latches transparent".
 //     Transparent-while-low is modelled; the latching edge is not exercised.
@@ -78,49 +78,65 @@ module cell_F100181 (
   wire [3:0] a   = {p22, p23, p24, p1};
   wire [3:0] b   = {p15, p14, p13, p12};
   wire [3:0] s   = {p21, p20, p17, p16};   // S3 S2 S1 S0
-  wire       cin = ~p11;                   // active low
+  wire       cin = ~p11;                   // Cn' active low: LOW = carry in
 
-  reg [4:0] sum;        // 5 bits: carry out in bit 4
-  reg [3:0] lg;
+  // ARITHMETIC IS A + D + Cn WITH D THE (POSSIBLY INVERTED) OPERAND, exactly
+  // as the data sheet's Functional Description has it: "A minus B plus Cn.
+  // Arguments A and B are directly applied to the inputs. The circuit
+  // automatically takes the ones complement of B (by inverting B internally)
+  // ... to perform a subtraction with results in the twos complement form, an
+  // initial carry should be forced into the lowest order bit, i.e. set Cn' =
+  // LOW". So "A minus B plus Cn" is A + ~B + Cn -- NOT A - B + Cn, which is
+  // one more. This cell used to compute the latter (2026-09-08), and MemC's
+  // address adders run in "B minus A" with Mar' on A: BR + ~(Mar') + 0 =
+  // BR + Mar. Off by one there is every virtual address one word high.
+  //
+  // The per-bit generate/propagate terms are the data sheet's Function Table
+  // (Gn, Pn columns), the group outputs its lookahead equations:
+  //   P' = P0' + P1' + P2' + P3'
+  //   G' = ~(G3 + P3 G2 + P3 P2 G1 + P3 P2 P1 G0)
+  //   Cn+4' = G' (P' + Cn')
+  // MemC chains its slices through THESE, not only through Cn+4': the low
+  // nibble's G' is the carry into the next slice (its own Cn is 0, so
+  // C4 = G), and the P'/G' pairs feed an external lookahead.
+  reg [3:0] gn, pn, lg;
+  reg [3:0] sum;
   reg       arith;
-
   always @* begin
     arith = ~s[3];
-    sum = 5'd0; lg = 4'd0;
+    gn = 4'd0; pn = 4'd0; lg = 4'd0; sum = 4'd0;
     case (s)
-      // Arithmetic. BCD (S2 low) uses the same add/subtract with the part's
-      // internal +6/-6 correction; the correction is NOT modelled -- MemC's
-      // use is address arithmetic, which is binary.
-      4'b0000, 4'b0100: sum = {1'b0, a} + {1'b0, b} + {4'b0, cin};
-      4'b0001, 4'b0101: sum = {1'b0, a} - {1'b0, b} + {4'b0, cin};
-      4'b0010, 4'b0110: sum = {1'b0, b} - {1'b0, a} + {4'b0, cin};
-      4'b0011, 4'b0111: sum = 5'd0    - {1'b0, b} + {4'b0, cin};
-      // Logic
-      4'b1000: lg =  a &  b;
-      4'b1001: lg =  a ^  b;
-      4'b1010: lg =  a |  b;
-      4'b1011: lg =  a;
-      4'b1100: lg = ~b;
-      4'b1101: lg =  b;
-      4'b1110: lg = ~a &  b;
-      4'b1111: lg = 4'b0000;
+      // Arithmetic. BCD (S2 low) is the same add/subtract with the part's
+      // +6/-6 correction, NOT modelled -- MemC's use is binary address
+      // arithmetic (S2 is tied high on all eight).
+      4'b0000, 4'b0100: begin gn = a & b;   pn = a | b;   sum = a + b  + {3'b0, cin}; end
+      4'b0001, 4'b0101: begin gn = a & ~b;  pn = a | ~b;  sum = a + ~b + {3'b0, cin}; end
+      4'b0010, 4'b0110: begin gn = ~a & b;  pn = ~a | b;  sum = b + ~a + {3'b0, cin}; end
+      4'b0011, 4'b0111: begin gn = 4'd0;    pn = ~b;      sum = ~b     + {3'b0, cin}; end
+      // Logic, with the table's Gn/Pn for the lookahead outputs.
+      4'b1000: begin lg =  a &  b; gn = a & b;  pn = a | b;  end
+      4'b1001: begin lg =  a ^  b; gn = a & b;  pn = a | b;  end
+      4'b1010: begin lg =  a |  b; gn = a & b;  pn = a | b;  end
+      4'b1011: begin lg =  a;      gn = a;      pn = a;      end
+      4'b1100: begin lg = ~b;      gn = 4'd0;   pn = ~b;     end
+      4'b1101: begin lg =  b;      gn = 4'd0;   pn = b;      end
+      4'b1110: begin lg = ~a & b;  gn = ~a & b; pn = ~a | b; end
+      4'b1111: begin lg = 4'd0;    gn = 4'd0;   pn = 4'hf;   end
       default: ;
     endcase
   end
-
-  wire [3:0] f = arith ? sum[3:0] : lg;
-
+  wire [3:0] f = arith ? sum : lg;
+  wire grp_p = &pn;
+  wire grp_g = gn[3] | (pn[3] & gn[2]) | (pn[3] & pn[2] & gn[1]) | (pn[3] & pn[2] & pn[1] & gn[0]);
   // The output latch: transparent while E is LOW. Modelled on sys_clk with the
   // level as an enable, the convention every clocked cell here uses.
   reg [3:0] q;
   always @(posedge sys_clk) if (!p19) q <= f;
   assign {p5, p4, p3, p2} = q;
-
-  // Carry out is active low, as are the lookahead terms.
-  assign p8  = ~(arith ? sum[4] : 1'b0);
-  assign p9  = ~(|(a | b));            // P': group propagate
-  assign p10 = ~(&(a & b));            // G': group generate
-
+  // Carry out and the lookahead terms, all active low.
+  assign p8  = ~(grp_g | (grp_p & cin));
+  assign p9  = ~grp_p;
+  assign p10 = ~grp_g;
   wire _unused = &{1'b0, p6, p7, p18, 1'b0};
 endmodule
 

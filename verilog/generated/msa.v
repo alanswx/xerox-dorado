@@ -899,11 +899,15 @@ module msa #(parameter integer SYSPER = 16) (
   assign VTT14 = 1'b0;
   assign VTT8 = 1'b0;
 
+  // ---- wire-wrap jumpers (Augat headers): the strap the netlist forces
+  assign msa03_sil_pl_8 = MemAd_2;   // e26.11: msa03.sil+8 strapped to MemAd.2
+  assign msa03_sil_pl_7 = MemAd_2;   // e26.12: msa03.sil+7 strapped to MemAd.2
+
   // ---- packages
 
   // ---- DRAM row/column latches, one per control group -----
   // 144 chips share 16 latches; see cell_MK4096P_addr.
-  wire [11:0] dram_addr_0;
+  wire [13:0] dram_addr_0;
   cell_MK4096P_addr u_dram_addr_0 (
     .sys_clk(sys_clk),
     .p4(RAS_p_a0),
@@ -911,7 +915,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6a0, A5a0, A4a0, A3a0, A2a0, A1a0, A0a0}),
     .addr(dram_addr_0)
   );
-  wire [11:0] dram_addr_1;
+  wire [13:0] dram_addr_1;
   cell_MK4096P_addr u_dram_addr_1 (
     .sys_clk(sys_clk),
     .p4(RAS_p_c0),
@@ -919,7 +923,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6c0, A5c0, A4c0, A3c0, A2c0, A1c0, A0c0}),
     .addr(dram_addr_1)
   );
-  wire [11:0] dram_addr_10;
+  wire [13:0] dram_addr_10;
   cell_MK4096P_addr u_dram_addr_10 (
     .sys_clk(sys_clk),
     .p4(RAS_p_d2),
@@ -927,7 +931,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6_p_d2, A5_p_d2, A4_p_d2, A3_p_d2, A2_p_d2, A1_p_d2, A0_p_d2}),
     .addr(dram_addr_10)
   );
-  wire [11:0] dram_addr_11;
+  wire [13:0] dram_addr_11;
   cell_MK4096P_addr u_dram_addr_11 (
     .sys_clk(sys_clk),
     .p4(RAS_p_b2),
@@ -935,7 +939,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6_p_b2, A5_p_b2, A4_p_b2, A3_p_b2, A2_p_b2, A1_p_b2, A0_p_b2}),
     .addr(dram_addr_11)
   );
-  wire [11:0] dram_addr_12;
+  wire [13:0] dram_addr_12;
   cell_MK4096P_addr u_dram_addr_12 (
     .sys_clk(sys_clk),
     .p4(RAS_p_d1),
@@ -943,7 +947,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6d1, A5d1, A4d1, A3d1, A2d1, A1d1, A0d1}),
     .addr(dram_addr_12)
   );
-  wire [11:0] dram_addr_13;
+  wire [13:0] dram_addr_13;
   cell_MK4096P_addr u_dram_addr_13 (
     .sys_clk(sys_clk),
     .p4(RAS_p_b1),
@@ -951,7 +955,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6b1, A5b1, A4b1, A3b1, A2b1, A1b1, A0b1}),
     .addr(dram_addr_13)
   );
-  wire [11:0] dram_addr_14;
+  wire [13:0] dram_addr_14;
   cell_MK4096P_addr u_dram_addr_14 (
     .sys_clk(sys_clk),
     .p4(RAS_p_d0),
@@ -959,7 +963,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6_p_d0, A5_p_d0, A4_p_d0, A3_p_d0, A2_p_d0, A1_p_d0, A0_p_d0}),
     .addr(dram_addr_14)
   );
-  wire [11:0] dram_addr_15;
+  wire [13:0] dram_addr_15;
   cell_MK4096P_addr u_dram_addr_15 (
     .sys_clk(sys_clk),
     .p4(RAS_p_b0),
@@ -967,7 +971,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6_p_b0, A5_p_b0, A4_p_b0, A3_p_b0, A2_p_b0, A1_p_b0, A0_p_b0}),
     .addr(dram_addr_15)
   );
-  wire [11:0] dram_addr_2;
+  wire [13:0] dram_addr_2;
   cell_MK4096P_addr u_dram_addr_2 (
     .sys_clk(sys_clk),
     .p4(RAS_p_a1),
@@ -975,7 +979,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6_p_a1, A5_p_a1, A4_p_a1, A3_p_a1, A2_p_a1, A1_p_a1, A0_p_a1}),
     .addr(dram_addr_2)
   );
-  wire [11:0] dram_addr_3;
+  wire [13:0] dram_addr_3;
   cell_MK4096P_addr u_dram_addr_3 (
     .sys_clk(sys_clk),
     .p4(RAS_p_c1),
@@ -983,7 +987,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6_p_c1, A5_p_c1, A4_p_c1, A3_p_c1, A2_p_c1, A1_p_c1, A0_p_c1}),
     .addr(dram_addr_3)
   );
-  wire [11:0] dram_addr_4;
+  wire [13:0] dram_addr_4;
   cell_MK4096P_addr u_dram_addr_4 (
     .sys_clk(sys_clk),
     .p4(RAS_p_a2),
@@ -991,7 +995,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6a2, A5a2, A4a2, A3a2, A2a2, A1a2, A0a2}),
     .addr(dram_addr_4)
   );
-  wire [11:0] dram_addr_5;
+  wire [13:0] dram_addr_5;
   cell_MK4096P_addr u_dram_addr_5 (
     .sys_clk(sys_clk),
     .p4(RAS_p_c2),
@@ -999,7 +1003,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6c2, A5c2, A4c2, A3c2, A2c2, A1c2, A0c2}),
     .addr(dram_addr_5)
   );
-  wire [11:0] dram_addr_6;
+  wire [13:0] dram_addr_6;
   cell_MK4096P_addr u_dram_addr_6 (
     .sys_clk(sys_clk),
     .p4(RAS_p_a3),
@@ -1007,7 +1011,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6_p_a3, A5_p_a3, A4_p_a3, A3_p_a3, A2_p_a3, A1_p_a3, A0_p_a3}),
     .addr(dram_addr_6)
   );
-  wire [11:0] dram_addr_7;
+  wire [13:0] dram_addr_7;
   cell_MK4096P_addr u_dram_addr_7 (
     .sys_clk(sys_clk),
     .p4(RAS_p_c3),
@@ -1015,7 +1019,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6_p_c3, A5_p_c3, A4_p_c3, A3_p_c3, A2_p_c3, A1_p_c3, A0_p_c3}),
     .addr(dram_addr_7)
   );
-  wire [11:0] dram_addr_8;
+  wire [13:0] dram_addr_8;
   cell_MK4096P_addr u_dram_addr_8 (
     .sys_clk(sys_clk),
     .p4(RAS_p_d3),
@@ -1023,7 +1027,7 @@ module msa #(parameter integer SYSPER = 16) (
     .a({A6d3, A5d3, A4d3, A3d3, A2d3, A1d3, A0d3}),
     .addr(dram_addr_8)
   );
-  wire [11:0] dram_addr_9;
+  wire [13:0] dram_addr_9;
   cell_MK4096P_addr u_dram_addr_9 (
     .sys_clk(sys_clk),
     .p4(RAS_p_b3),
@@ -1424,7 +1428,7 @@ module msa #(parameter integer SYSPER = 16) (
     .p14(msa02_sil_pl_15),
     .p15(msa02_sil_pl_10)
   ); // MC10141
-  cell_MC10176 u_b01 (
+  cell_MC10176 #(.PRECAP(0)) u_b01 (
     .sys_clk(sys_clk),
     .p2(msa04_sil_pl_32),
     .p3(msa04_sil_pl_33),
@@ -1822,7 +1826,7 @@ module msa #(parameter integer SYSPER = 16) (
     .p14(1'b0),
     .p15(msa07_sil_pl_31)
   ); // MC10125
-  cell_MC10176 u_b26 (
+  cell_MC10176 #(.PRECAP(0)) u_b26 (
     .sys_clk(sys_clk),
     .p2(msa06_sil_pl_35),
     .p3(msa06_sil_pl_34),
@@ -1834,7 +1838,7 @@ module msa #(parameter integer SYSPER = 16) (
     .p10(Sout_07),
     .p13(msa07_sil_pl_31)
   ); // MC10176
-  cell_MC10176 u_c01 (
+  cell_MC10176 #(.PRECAP(0)) u_c01 (
     .sys_clk(sys_clk),
     .p2(Sin_00__drv),
     .p3(Sin_01__drv),
@@ -2218,7 +2222,7 @@ module msa #(parameter integer SYSPER = 16) (
     .p14(msa07_sil_pl_32),
     .p15(msa07_sil_pl_38)
   ); // MC10124
-  cell_MC10176 u_c26 (
+  cell_MC10176 #(.PRECAP(0)) u_c26 (
     .sys_clk(sys_clk),
     .p2(Sin_04__drv),
     .p3(Sin_05__drv),
@@ -2621,7 +2625,7 @@ module msa #(parameter integer SYSPER = 16) (
     .p4(msa01_sil_pl_23),
     .p7(msa01_sil_pl_26)
   ); // MC10103
-  cell_MC10176 u_e02 (
+  cell_MC10176 #(.PRECAP(0)) u_e02 (
     .sys_clk(sys_clk),
     .p2(c1),
     .p3(c3),
@@ -2991,7 +2995,7 @@ module msa #(parameter integer SYSPER = 16) (
     .p14(MemAd_5),
     .p15(1'b1)
   ); // MC10125
-  cell_MC10176 u_f01 (
+  cell_MC10176 #(.PRECAP(0)) u_f01 (
     .sys_clk(sys_clk),
     .p2(msa12_sil_pl_33),
     .p3(msa12_sil_pl_34),
@@ -3365,7 +3369,7 @@ module msa #(parameter integer SYSPER = 16) (
     .p14(ShiftLoad_p_),
     .p15(1'b1)
   ); // MC10125
-  cell_MC10176 u_f26 (
+  cell_MC10176 #(.PRECAP(0)) u_f26 (
     .sys_clk(sys_clk),
     .p2(msa12_sil_pl_40),
     .p3(msa12_sil_pl_39),
@@ -3766,7 +3770,7 @@ module msa #(parameter integer SYSPER = 16) (
     .p12(msa01_sil_pl_24),
     .p15(GND29)
   ); // MC10210
-  cell_MC10176 u_h02 (
+  cell_MC10176 #(.PRECAP(0)) u_h02 (
     .sys_clk(sys_clk),
     .p2(SI),
     .p3(ECI),
@@ -4554,7 +4558,7 @@ module msa #(parameter integer SYSPER = 16) (
     .p11(msa03_sil_pl_6),
     .p12(WEd)
   ); // MC10125
-  cell_MC10176 u_j01 (
+  cell_MC10176 #(.PRECAP(0)) u_j01 (
     .sys_clk(sys_clk),
     .p2(Sin_08__drv),
     .p3(Sin_09__drv),
@@ -4930,7 +4934,7 @@ module msa #(parameter integer SYSPER = 16) (
     .p14(msa11_sil_pl_32),
     .p15(msa11_sil_pl_37)
   ); // MC10124
-  cell_MC10176 u_j26 (
+  cell_MC10176 #(.PRECAP(0)) u_j26 (
     .sys_clk(sys_clk),
     .p2(Sin_12__drv),
     .p3(Sin_13__drv),
@@ -4942,7 +4946,7 @@ module msa #(parameter integer SYSPER = 16) (
     .p10(msa11_sil_pl_32),
     .p13(Sin_15__drv)
   ); // MC10176
-  cell_MC10176 u_k01 (
+  cell_MC10176 #(.PRECAP(0)) u_k01 (
     .sys_clk(sys_clk),
     .p2(msa08_sil_pl_35),
     .p3(msa08_sil_pl_34),
@@ -4984,7 +4988,7 @@ module msa #(parameter integer SYSPER = 16) (
     .p14(1'b0),
     .p15(msa11_sil_pl_31)
   ); // MC10125
-  cell_MC10176 u_k26 (
+  cell_MC10176 #(.PRECAP(0)) u_k26 (
     .sys_clk(sys_clk),
     .p2(msa10_sil_pl_35),
     .p3(msa10_sil_pl_34),

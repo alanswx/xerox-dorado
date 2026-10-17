@@ -13,7 +13,7 @@
 // synthesises. No `inout`, no multiply-driven net.
 //
 // Configuration: ContA ContB ProcH ProcL MemC MemD MemX
-// 372 internal nets (44 with several contributors), 266 top-level ports.
+// 373 internal nets (44 with several contributors), 264 top-level ports.
 
 `default_nettype none
 
@@ -50,8 +50,6 @@ module dorado_mem #(parameter integer SYSPER = 16) (
     input  wire ChipsAre64K               ,  // awaits msa
     input  wire ClkEnable_p_a             ,  // to a backplane connector (cable)
     output wire CountMiss                 ,  // awaits IFU
-    input  wire DcomingForCt_p_           ,  // to a backplane connector (cable)
-    output wire EcDcomingForCt_p_         ,  // to a backplane connector (cable)
     input  wire EcIn_0                    ,  // awaits PCMSA msa
     input  wire EcIn_1                    ,  // awaits PCMSA msa
     output wire EcOut_0                   ,  // awaits PCMSA msa
@@ -287,7 +285,7 @@ module dorado_mem #(parameter integer SYSPER = 16) (
     input  wire WantIfuRef_p_                // awaits IFU
 );
 
-  // 372 nets between boards, plus one contribution wire
+  // 373 nets between boards, plus one contribution wire
   // per driving board.
   wire ALUCarry;
   wire ALUF_0;
@@ -360,6 +358,7 @@ module dorado_mem #(parameter integer SYSPER = 16) (
   wire DisHold;
   wire DoCBr;
   wire ECFault;
+  wire EcDcomingForCt_p_;
   wire EcKeepsAbusy;
   wire EcWantsA;
   wire EmuOrFT_p_;
@@ -2724,9 +2723,9 @@ module dorado_mem #(parameter integer SYSPER = 16) (
     .CacheRef_p_(CacheRef_p_),
     .DMuxClk(DMuxClk),
     .DMuxData(DMuxData),
-    .DcomingForCt_p_(DcomingForCt_p_),
     .DdataGood_p_(DdataGood_p_),
     .DisHold(DisHold),
+    .EcDcomingForCt_p_(EcDcomingForCt_p_),
     .EcKeepsAbusy(EcKeepsAbusy),
     .EcWantsA(EcWantsA),
     .EmuOrFT_p_(EmuOrFT_p_),
@@ -3374,7 +3373,7 @@ endmodule
 // therefore ASSERTED in this state -- a disk or ethernet model has to
 // drive them properly before anything using them means much.
 //
-// probe_val exposes 148 signals, 32 at a time;
+// probe_val exposes 147 signals, 32 at a time;
 // dorado_mem.probes lists which bit is which.
 module dorado_mem_machine #(parameter integer SYSPER = 16) (
     input  wire        sys_clk,
@@ -3391,7 +3390,6 @@ module dorado_mem_machine #(parameter integer SYSPER = 16) (
   wire CPIn_2;
   wire CPIn_3;
   wire CountMiss;
-  wire EcDcomingForCt_p_;
   wire EcOut_0;
   wire EcOut_1;
   wire EcOut_2;
@@ -3533,7 +3531,7 @@ module dorado_mem_machine #(parameter integer SYSPER = 16) (
   wire TestTW;
 
   wire [159:0] probe = {
-    12'd0,
+    13'd0,
     TestTW,
     TIOA_7,
     TIOA_6,
@@ -3673,7 +3671,6 @@ module dorado_mem_machine #(parameter integer SYSPER = 16) (
     EcOut_2,
     EcOut_1,
     EcOut_0,
-    EcDcomingForCt_p_,
     CountMiss,
     CPIn_3,
     CPIn_2,
@@ -3688,7 +3685,7 @@ module dorado_mem_machine #(parameter integer SYSPER = 16) (
   // the built Rev Cl sheet; the accumulator is told what a sys_clk is
   // worth so it holds at any oversampling ratio.
   wire pixel_clk;
-  cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(SYSPER)) u_pixclk (
+  cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(2 * SYSPER)) u_pixclk (
     .sys_clk(sys_clk), .p8(pixel_clk), .p7(1'b0), .p14(1'b1)
   );
 
@@ -3725,8 +3722,6 @@ module dorado_mem_machine #(parameter integer SYSPER = 16) (
     .ChipsAre64K(1'b0),
     .ClkEnable_p_a(1'b0),
     .CountMiss(CountMiss),
-    .DcomingForCt_p_(1'b0),
-    .EcDcomingForCt_p_(EcDcomingForCt_p_),
     .EcIn_0(1'b0),
     .EcIn_1(1'b0),
     .EcOut_0(EcOut_0),

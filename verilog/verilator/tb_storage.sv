@@ -120,7 +120,7 @@ module tb_storage;
       // correct gating. `CLK.ms0Even'` feeds the MSA's whole on-board
       // sequencer -- c1, c2, SO, SLa, OutCKa and ShiftLoad' all trace back
       // to it, and so do the two data-path register clocks.
-      .CLK_ms0Even_p_(mclk),
+      .CLK_ms0Even_p_(mclk), .CLK_ms0Odd_p_(mclk),
       .CPAddr_0_p_(addr_n[2]), .CPAddr_1_p_(addr_n[1]), .CPAddr_2_p_(addr_n[0]),
       .CPOut_0(cpout[8]), .CPOut_1(cpout[7]), .CPOut_2(cpout[6]),
       .CPOut_3(cpout[5]), .CPOut_4(cpout[4]), .CPOut_5(cpout[3]),

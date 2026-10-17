@@ -1,26 +1,10 @@
 //============================================================================
-//  Xerox Dorado for MiSTer -- the eleven-board machine, generated from PARC's
-//  own Sil wire lists, wrapped in the MiSTer framework.
+//  Xerox Dorado for MiSTer -- processor and controllers generated from
+//  PARC's Sil wire lists, wrapped in the MiSTer framework.
 //
-//  This is the FIRST core: it instantiates the machine, drives its clocks, and
-//  brings the monochrome video out. Disk, keyboard and main storage are the
-//  next pieces and are deliberately absent rather than stubbed misleadingly --
-//  see fpga/mister/README.md for what each one needs.
-//
-//  WHY THE MACHINE'S UNUSED PORTS ARE LEFT UNCONNECTED. dorado_backplane has
-//  386 ports because every cable leaving the backplane is one, and they are
-//  GENERATED from the wire lists -- they are the machine's real interface, not
-//  a convenience. Trimming them would fork the netlist. Leaving them dangling
-//  lets Quartus strip the logic behind them, which is what makes an unwired
-//  DskEth cable cost nothing. Simulation loses nothing by it: the Verilator
-//  benches reach into the hierarchy directly (m.b_ContA.RepeatCur and the
-//  like) and need no ports at all.
-//
-//  CAUTION when reading a fit after this: the standalone virtual-pin project
-//  (fpga/quartus) measured 25,644 ALMs with NOTHING stripped, which is the
-//  upper bound. A large drop here is ambiguous -- it could be peripherals
-//  correctly removed, or something load-bearing silently removed. Compare
-//  against that baseline.
+//  DORADO_CHECKPOINT continues actual saved RTL state; DORADO_HPS_PACK adds
+//  the mounted serial Trident medium. The separate BaseBoard cold-boot
+//  configuration below remains experimental. See README.md for both paths.
 //============================================================================
 
 module emu
@@ -40,7 +24,9 @@ assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN,
         DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;
 
 assign VGA_SL = 0;
+`ifndef DORADO_CHECKPOINT
 assign VGA_F1 = 0;
+`endif
 assign VGA_SCALER  = 0;
 assign VGA_DISABLE = 0;
 assign HDMI_FREEZE = 0;
@@ -54,15 +40,24 @@ assign AUDIO_L = 0;
 assign AUDIO_R = 0;
 assign AUDIO_MIX = 0;
 
+`ifdef DORADO_HPS_PACK
+assign LED_DISK  = {1'b0, sd_rd[0] | sd_wr[0]};
+`else
 assign LED_DISK  = 0;
+`endif
 assign LED_POWER = 0;
 assign BUTTONS   = 0;
 
 //////////////////  Aspect ratio  //////////////////
-// The DispY monochrome display is 1024x808 -- very nearly 5:4, not 4:3.
+// DispY supports the 1024x808 large format and the Alto portrait display.
+// This checkpoint is the Alto, approximately 3:4.
 
 wire [1:0] ar = status[122:121];
+`ifdef DORADO_CHECKPOINT
+assign VIDEO_ARX = (!ar) ? 12'd3 : (ar - 1'd1);
+`else
 assign VIDEO_ARX = (!ar) ? 12'd5 : (ar - 1'd1);
+`endif
 assign VIDEO_ARY = (!ar) ? 12'd4 : 12'd0;
 
 `include "build_id.v"
@@ -71,11 +66,21 @@ localparam CONF_STR = {
 	"-;",
 	// A Trident pack. The framework mounts the file and reports its size;
 	// `img_size` being non-zero is what tells the drive it exists at all.
+`ifdef DORADO_HPS_PACK
 	"S0,PACKDSK,Mount Trident;",
+`elsif DORADO_CHECKPOINT
+	"-Executive checkpoint;",
+`else
+	"S0,PACKDSK,Mount Trident;",
+`endif
 	"-;",
 	"O[122:121],Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"-;",
+`ifdef DORADO_CHECKPOINT
+	"O[0],Pause,Off,On;",
+`else
 	"R[0],Reset;",
+`endif
 	"J,;",
 	"V,v",`BUILD_DATE
 };
@@ -85,8 +90,17 @@ localparam CONF_STR = {
 wire [127:0] status;
 wire   [1:0] buttons;
 wire         forced_scandoubler;
+wire [10:0] ps2_key;
+`ifdef DORADO_HPS_PACK
+wire [31:0] sd_lba [1];
+wire [5:0] sd_blk_cnt [1];
+wire [0:0] sd_rd, sd_wr, sd_ack;
+wire [12:0] sd_buff_addr;
+wire [15:0] sd_buff_dout, sd_buff_din [1];
+wire sd_buff_wr, pack_ready, pack_fault;
+`endif
 
-hps_io #(.CONF_STR(CONF_STR)) hps_io
+hps_io #(.CONF_STR(CONF_STR), .WIDE(1)) hps_io
 (
 	.clk_sys(clk_sys),
 	.HPS_BUS(HPS_BUS),
@@ -103,6 +117,10 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	// code is a distinct event, which matters here because the Dorado's
 	// terminal reports TRANSITIONS.
 	.ps2_key(ps2_key),
+`ifdef DORADO_HPS_PACK
+	.sd_lba(sd_lba), .sd_blk_cnt(sd_blk_cnt), .sd_rd(sd_rd), .sd_wr(sd_wr), .sd_ack(sd_ack),
+	.sd_buff_addr(sd_buff_addr), .sd_buff_dout(sd_buff_dout), .sd_buff_din(sd_buff_din), .sd_buff_wr(sd_buff_wr),
+`endif
 
 	// The virtual drive. `img_size` is non-zero once the user mounts a pack,
 	// which is what tells the Trident a drive is there at all.
@@ -117,35 +135,20 @@ wire [63:0] img_size;
 
 //////////////////  Clocks  //////////////////
 //
-// THE MACHINE'S CLOCK IS NOT ITS MICROINSTRUCTION RATE. The RTL recovers each
-// distributed ECL clock net by OVERSAMPLING it SYSPER times per
-// microinstruction, so a real 60 ns cycle needs sys_clk = SYSPER x 16.67 MHz:
+// SYSPER counts fabric samples per 30 ns CLOCK. Two clocks execute one
+// 60 ns microinstruction (HM 2.3), so the instruction rate is
+// clk_sys / (2 * MACHINE_SYSPER). At 33.333 MHz and SYSPER=4 this is
+// 4.167 M microinstructions/s, one quarter of a real Dorado's rate.
 //
-//     SYSPER=16 -> 266.7 MHz     SYSPER=4 -> 66.7 MHz
-//     SYSPER=8  -> 133.3 MHz     SYSPER=2 -> 33.3 MHz
-//
-// Measured Fmax for the eleven-board machine on this device is 48.99 MHz
-// (fpga/quartus/reports), so SYSPER=2 at 33.3 MHz is the real-time target --
-// and SYSPER=2 IS NOW GATED. Every whole-machine bench passes at 16x, 8x, 4x
-// and 2x alike: the memory section, the IFU, the disk, the display, the
-// storage array, and the full nine-board world running PARC's own microcode,
-// boot chain included. It is a real ratio change, not a relabelled one -- over
-// an unchanged 20,000-cycle budget tb_exec executes 1,242 microinstructions at
-// 16x and 9,994 at 2x, a clean doubling per halving, with identical decoded
-// results. cell_CLOCKGEN's header says the oversampled detector cascade "is
-// what forces 16 sys_clk per microinstruction"; for every section gated so
-// far, it does not.
+// The checkpoint/HPS fit (2026-10-16) reported 48.06 MHz core Fmax.
+// The current fresh-boot and interactive reference uses SYSPER=4.
+localparam integer MACHINE_SYSPER = 4;
 
 // CLK_VIDEO MUST COME FROM A PLL, not a clock pin -- the framework's clock
 // select blocks reject a pin driver outright ("inclk[3] ... must be driven by
 // a PLL's output clock"). So the PLL is not optional dressing here.
 //
-// build.sh retunes the template PLL from 20 MHz to 33.333333 MHz, which at
-// SYSPER=2 is 16.67 MHz of microinstructions -- a 60 ns cycle, REAL DORADO
-// TIME -- and still 32% below the 48.99 MHz Fmax. (The old 20 MHz at SYSPER=16
-// was 1.25 MHz, 0.075x.) Going faster than real time is possible up to Fmax,
-// but authentic speed is the right default for a machine whose software was
-// written against a 60 ns cycle.
+// build.sh retunes the template PLL from 20 MHz to 33.333333 MHz.
 wire clk_sys, pll_locked;
 pll pll
 (
@@ -160,12 +163,45 @@ wire reset = RESET | status[0] | buttons[1] | ~pll_locked;
 // DispY's pixel clock is an INPUT to the machine: its crystal (a05, 50 MHz on
 // the built Rev Cl sheet) sits outside the generated netlist, so the core
 // drives it -- right by construction rather than approximation.
-wire pixel_clk = clk_sys;
+wire pixel_clk;
+`ifndef DORADO_CHECKPOINT
+cell_K1115A #(.FREQ_KHZ(50000), .SYSPER(2 * MACHINE_SYSPER)) u_pixclk
+(
+    .sys_clk(clk_sys), .p8(pixel_clk), .p7(1'b0), .p14(1'b1)
+);
+`endif
 
 // Declared here because the terminal's bit clock below is derived from
 // `hblank`, which the machine drives further down.
 wire alto_video, alto_hsync, alto_vsync_n, hblank, vblank;
 
+`ifdef DORADO_CHECKPOINT
+// Freeze every saved register until the PLL is locked. A dedicated global
+// clock-control block avoids a LUT-gated fabric clock and starts the whole
+// continuation together. Framework reset pauses this first hardware test;
+// reloading the RBF restores its saved power-up state.
+wire machine_clk;
+`ifdef DORADO_HPS_PACK
+wire machine_enable = ~reset && pack_ready;
+`else
+wire machine_enable = ~reset;
+`endif
+altclkctrl #(.clock_type("Global Clock"), .ena_register_mode("falling edge"),
+             .intended_device_family("Cyclone V")) machine_clock
+    (.inclk({3'b000, clk_sys}), .clkselect(2'b00), .ena(machine_enable),
+     .outclk(machine_clk));
+dorado_checkpoint_machine u_checkpoint (
+    .sys_clk(machine_clk), .ps2_key(ps2_key), .pixel_clk(pixel_clk),
+`ifdef DORADO_HPS_PACK
+    .clk_host(clk_sys), .pack_reset(~pll_locked), .pack_attached(|img_size), .pack_readonly(img_readonly),
+    .sd_lba(sd_lba[0]), .sd_blk_cnt(sd_blk_cnt[0]), .sd_rd(sd_rd[0]), .sd_wr(sd_wr[0]), .sd_ack(sd_ack[0]),
+    .sd_buff_addr(sd_buff_addr), .sd_buff_dout(sd_buff_dout), .sd_buff_din(sd_buff_din[0]), .sd_buff_wr(sd_buff_wr),
+    .pack_ready(pack_ready), .pack_fault(pack_fault),
+`endif
+    .video(alto_video), .hsync(alto_hsync), .vsync_n(alto_vsync_n),
+    .hblank(hblank), .vblank(vblank), .halfline()
+);
+`else
 //////////////////  Keyboard, and the terminal that carries it  //////////////
 //
 // The Dorado's keyboard does not reach the machine as parallel bits. A
@@ -182,7 +218,6 @@ wire alto_video, alto_hsync, alto_vsync_n, hblank, vblank;
 // reply off that -- which is exactly what `hblank` is doing here. The rate is
 // right by construction rather than by a constant to keep in step.
 
-wire [10:0] ps2_key;
 wire [15:0] kw0, kw1, kw2, kw3;
 
 dorado_keyboard u_kbd
@@ -252,7 +287,7 @@ wire dsk_dp, dsk_dm, dsk_cp, dsk_cm, dsk_adv;
 // would be advanced.
 wire dsk_bit = 1'b0;
 
-dorado_trident #(.SYSPER(2)) u_disk0
+dorado_trident #(.SYSPER(2 * MACHINE_SYSPER)) u_disk0
 (
 	.sys_clk    (clk_sys),
 	.reset      (reset),
@@ -273,11 +308,9 @@ dorado_trident #(.SYSPER(2)) u_disk0
 
 //////////////////  The machine  //////////////////
 
-// SYSPER=2 -- one microinstruction per two sys_clk. The parameter defaults to
-// 16 and MUST be passed: leaving it default with the retuned PLL would give
-// 33.3/16 = 2.08 MHz of microinstructions, i.e. an eighth of real time, and
-// nothing would look wrong.
-dorado_backplane #(.SYSPER(2)) u_dorado
+// The processor counts samples per clock; the drive above counts samples
+// per microinstruction, hence its factor of two.
+dorado_backplane #(.SYSPER(MACHINE_SYSPER)) u_dorado
 (
 	.sys_clk      (clk_sys),
 	.RawPixelClk  (pixel_clk),
@@ -321,6 +354,7 @@ dorado_backplane #(.SYSPER(2)) u_dorado
 
 	// Every other port is left unconnected on purpose -- see the header.
 );
+`endif
 
 //////////////////  Video  //////////////////
 //
@@ -329,7 +363,9 @@ dorado_backplane #(.SYSPER(2)) u_dorado
 // configuration). So the pixel expands to white or black.
 
 assign CLK_VIDEO = clk_sys;
-assign CE_PIXEL  = 1'b1;
+reg pixel_d = 1'b0;
+always @(posedge clk_sys) pixel_d <= pixel_clk;
+assign CE_PIXEL  = pixel_clk & ~pixel_d;
 
 assign VGA_R  = {8{alto_video}};
 assign VGA_G  = {8{alto_video}};
@@ -337,11 +373,27 @@ assign VGA_B  = {8{alto_video}};
 assign VGA_HS = alto_hsync;
 assign VGA_VS = ~alto_vsync_n;      // the machine's VSync is active low
 assign VGA_DE = ~(hblank | vblank);
+`ifdef DORADO_CHECKPOINT
+// Alto video is two interlaced fields; the HPS scaler needs the field ID to
+// weave the fields back into the portrait raster. This saved continuation
+// starts in the odd field. Starting F1 at zero swaps every adjacent pair of
+// rows; hardware captures matched the reference exactly after that swap.
+reg field_id = 1, field_vs_d = 1;
+always @(posedge clk_sys) begin
+    field_vs_d <= alto_vsync_n;
+    if (field_vs_d && !alto_vsync_n) field_id <= ~field_id;
+end
+assign VGA_F1 = field_id;
+`endif
 
 // THE MACHINE HAS NO RESET PORT and that is correct: the BaseBoard generates
 // its own, through the g21/g22/g23 watchdog chain that firmware-probe
 // measures. So `reset` here is the FRAMEWORK's reset, and until it is wired
 // into the BaseBoard's boot button it is only shown, not applied.
+`ifdef DORADO_HPS_PACK
+assign LED_USER = reset | pack_fault;
+`else
 assign LED_USER = reset;
+`endif
 
 endmodule

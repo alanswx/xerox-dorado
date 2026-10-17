@@ -44,7 +44,17 @@ module cell_MC10136 (
     output wire p15// H2
 );
 
-  wire [3:0] d = {p5, p6, p11, p12};      // D3..D0
+  // Capture the setup window, as for MC10176/SE10231. DskEth a19/c12
+  // derive LoadCnt' from WordClock' itself, so it is already HIGH by the
+  // fabric edge at which we recognize WordClock's rising edge. Sampling
+  // that new value prevents c19/c20/c21 from ever loading a word count.
+  // Carry and data also belong to the pre-edge state of a cascaded counter.
+  reg [3:0] d_pre;
+  reg su_pre, sd_pre, cin_pre;
+  always @(posedge sys_clk) begin
+    d_pre <= {p5, p6, p11, p12};         // D3..D0
+    su_pre <= p9; sd_pre <= p7; cin_pre <= p10;
+  end
   wire su_n = p9, sd_n = p7, cin_n = p10;
 
   wire preset = ~su_n & ~sd_n;
@@ -58,9 +68,9 @@ module cell_MC10136 (
   reg [3:0] q;
   always @(posedge sys_clk)
     if (ck_en) begin
-      if (preset)             q <= d;
-      else if (up   & ~cin_n) q <= q + 4'd1;
-      else if (down & ~cin_n) q <= q - 4'd1;
+      if (!su_pre && !sd_pre)             q <= d_pre;
+      else if (!su_pre && sd_pre && !cin_pre) q <= q + 4'd1;
+      else if (su_pre && !sd_pre && !cin_pre) q <= q - 4'd1;
     end
 
   assign {p3, p2, p15, p14} = q;          // Q3..Q0

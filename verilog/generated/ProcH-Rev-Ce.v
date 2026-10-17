@@ -525,7 +525,8 @@ module ProcH_m_Rev_m_Ce #(parameter integer SYSPER = 16) (
   wire Pmux0;
   wire Pmux1;
   wire Pmux2;
-  wire PostClock0_p_Bc;
+  wire PostClock0_p_Bc__lead;
+  reg  PostClock0_p_Bc = 1'b1;
   wire PreClock0_p_A;
   wire PreClock0_p_B;
   wire PreClock0_p_C;
@@ -931,7 +932,7 @@ module ProcH_m_Rev_m_Ce #(parameter integer SYSPER = 16) (
   wire shmv_06;
   wire shmv_07;
 
-  // ---- 9 clk1-family nets, one sys_clk behind
+  // ---- 10 clk1-family nets, one sys_clk behind
   //      their pre siblings (see clock_lag above)
   always @(posedge sys_clk) begin
     Clock1_p_Ac <= Clock1_p_Ac__lead;
@@ -943,6 +944,7 @@ module ProcH_m_Rev_m_Ce #(parameter integer SYSPER = 16) (
     Clock1_p_Da <= Clock1_p_Da__lead;
     Clock1_p_Dc <= Clock1_p_Dc__lead;
     Clock1Bd <= Clock1Bd__lead;
+    PostClock0_p_Bc <= PostClock0_p_Bc__lead;
   end
 
   // ---- wired-OR nets (MECL 10K open emitters tied together)
@@ -3187,7 +3189,7 @@ module ProcH_m_Rev_m_Ce #(parameter integer SYSPER = 16) (
     .p10(FFdly_5),
     .p15(Pdata_00__g09_15)
   ); // MC10164
-  cell_F10000 u_g10 (
+  cell_F10000 #(.PRECAP(1)) u_g10 (
     .sys_clk(sys_clk),
     .p2(TIOA_2__drv),
     .p3(TIOA_3__drv),
@@ -3477,7 +3479,7 @@ module ProcH_m_Rev_m_Ce #(parameter integer SYSPER = 16) (
     .p22(ProcH03_sil_pl_1__h06_22),
     .p23(ddR_00__h06_23)
   ); // MB7071H
-  cell_F10000 u_h10 (
+  cell_F10000 #(.PRECAP(1)) u_h10 (
     .sys_clk(sys_clk),
     .p2(TIOA_6__drv),
     .p3(TIOA_7__drv),
@@ -4365,7 +4367,7 @@ module ProcH_m_Rev_m_Ce #(parameter integer SYSPER = 16) (
     .p4(Clock0_p_Bb),
     .p5(PreClock0_p_B),
     .p9(Clock0_p_Bc),
-    .p12(PostClock0_p_Bc),
+    .p12(PostClock0_p_Bc__lead),
     .p15(GND500)
   ); // SE10210
   cell_MU10164 u_k11 (

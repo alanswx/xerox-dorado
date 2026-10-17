@@ -10,7 +10,7 @@
 
 `default_nettype none
 
-module cell_MC10176 (
+module cell_MC10176 #(parameter PRECAP = 1) (
     input  wire sys_clk,
     input  wire p9,   // C   clock, common to all six,
     input  wire p5,  // D0,
@@ -68,7 +68,17 @@ module cell_MC10176 (
   always @(posedge sys_clk) d_pre <= {p12, p11, p10, p7, p6, p5};
 
   reg [5:0] q;
-  always @(posedge sys_clk) if (ck_en) q <= d_pre;
+  // PRECAP selects the pre-edge copy (1, the default) or the value present
+  // one sys_clk after the modelled edge (0). Both are needed, per BOARD:
+  // ProcL d17 (the T enable) needs the pre-edge copy or Initial's startup
+  // half-writes T; the memory boards need the post-edge value or PARC's own
+  // startup never starts a storage cycle (memrun-test, `preStartMem' never
+  // asserted`, failing since the capture went in and passing the moment it
+  // is lifted there -- measured 2026-09-05). At sixteen sys_clk per clock the
+  // integer lag model cannot place a D that changes one ECL gate delay
+  // before its clock on the right side of the edge; the generator's
+  // BOARD_CELL_PARAMS says which side each board's parts are on.
+  always @(posedge sys_clk) if (ck_en) q <= PRECAP ? d_pre : {p12, p11, p10, p7, p6, p5};
   assign {p15, p14, p13, p4, p3, p2} = q;
 
   wire _unused_pins = &{1'b0, p1, p8, p16, 1'b0};

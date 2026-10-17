@@ -1242,7 +1242,7 @@ module tb_display;
       // more than dorado_proc. Leaving them undriven is why MemC's local clock
       // showed zero edges with both its enables already asserted.
       .CLK_mc_p_(mclk), .CLK_md_p_(mclk), .CLK_mx_p_(mclk),
-      .CLK_ms0Even_p_(mclk),   // the MSA's own slot clock
+      .CLK_ms0Even_p_(mclk), .CLK_ms0Odd_p_(mclk),   // both storage slot clocks
       .CLK_display_p_(mclk),   // DispY's own slot clock -- FIFTH board on which
                                // leaving a slot clock undriven has looked like a
                                // gating bug and was not one

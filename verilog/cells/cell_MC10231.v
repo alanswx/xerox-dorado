@@ -15,7 +15,7 @@
 
 `default_nettype none
 
-module cell_MC10231 (
+module cell_MC10231 #(parameter PRECAP = 1) (
     input  wire sys_clk,
     input  wire p6,   // C  clock A,
     input  wire p7,   // D  data A,
@@ -76,15 +76,31 @@ module cell_MC10231 (
   wire ckb_en = clkb & ~ckb_d;
 
   reg qa, qb;
+  // PRE-EDGE CAPTURE -- the real flip-flop's SETUP TIME, as cell_MC10176,
+  // cell_MC10141 and cell_SE10231 have it: the edge is detected one sys_clk
+  // after the modelled clock rises, and a D that moved ON that edge has by
+  // then settled to its new value, so a same-edge register-to-register
+  // transfer became a pass-through. Applied to this family (152 packages)
+  // on 2026-09-05 after the MC10141 instance (ProcH a21, Curr <- Next on
+  // SHCP'C) was measured loading the incoming task a cycle early.
+  reg d_pre_a, d_pre_b;
+  always @(posedge sys_clk) begin d_pre_a <= p7; d_pre_b <= p10; end
+  // PRECAP=0 selects same-edge (post) capture for a package whose clock has
+  // been moved by the derived depth model, where pre-edge sampling would miss
+  // data that arrives with the edge. MemC g17 -- the cache HIT flip-flop --
+  // is the case this was added for (2026-09-07).
+  wire d_a = PRECAP ? d_pre_a : p7;
+  wire d_b = PRECAP ? d_pre_b : p10;
+
   always @(posedge sys_clk) begin
     if (p5)          qa <= 1'b1;      // S
     else if (p4)     qa <= 1'b0;      // R
-    else if (cka_en) qa <= p7;        // D
+    else if (cka_en) qa <= d_a;       // D
   end
   always @(posedge sys_clk) begin
     if (p12)         qb <= 1'b1;
     else if (p13)    qb <= 1'b0;
-    else if (ckb_en) qb <= p10;
+    else if (ckb_en) qb <= d_b;
   end
   assign p2 = qa, p3 = ~qa;
   assign p15 = qb, p14 = ~qb;

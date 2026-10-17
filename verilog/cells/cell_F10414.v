@@ -44,7 +44,7 @@ module cell_F10414 (
   wire [7:0] a  = {p1, p2, p3, p4, p9, p10, p11, p12};   // A0..A7, MSB first
   wire       sel = ~p7;                                  // CS2'
 
-  reg mem [0:255];
+  (* ramstyle = "MLAB, no_rw_check" *) reg mem [0:255];
   always @(posedge sys_clk)
     if (sel && !p14) mem[a] <= p13;                      // WE'
 
