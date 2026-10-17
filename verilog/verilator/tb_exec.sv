@@ -3109,13 +3109,146 @@ module tb_exec;
     bootio_rev4 = {v[0],v[1],v[2],v[3]};
   endfunction
   function automatic [15:0] bootio_rm(input [7:0] a);
-    // Both bank and RSTK address bits reach RM complemented. Checked with
-    // RBase<-1; RM[0x1a]<-0x001b: physical write address is 8'he5.
-    bootio_rm = {bootio_rev4(m.b_ProcH.u_h06.mem[a ^ 8'hff]),
-      bootio_rev4(m.b_ProcH.u_j06.mem[a ^ 8'hff]),
+    // Both processor boards complement the RSTK nibble. ProcH receives
+    // the true RBase nibble; ProcL uses RbAdr.0-3' (see h06/j06 pins7..10).
+    // The halves therefore have different physical indices.
+    bootio_rm = {bootio_rev4(m.b_ProcH.u_h06.mem[a ^ 8'h0f]),
+      bootio_rev4(m.b_ProcH.u_j06.mem[a ^ 8'h0f]),
       bootio_rev4(m.b_ProcL.u_h06.mem[a ^ 8'hff]),
       bootio_rev4(m.b_ProcL.u_j06.mem[a ^ 8'hff])};
   endfunction
+  // Optional read-only inspection of the actual register and map arrays.
+  // Map indices are RAW DRAM row/column addresses, not guest page numbers.
+  string inspect_path;
+  longint inspect_at=-1;
+  bit inspect_on=0,inspect_done=0;
+  initial begin
+    inspect_on=$value$plusargs("inspect-state=%s",inspect_path);
+    void'($value$plusargs("inspect-at=%d",inspect_at));
+  end
+  task inspect_state;
+    integer f;
+    begin
+      f=$fopen(inspect_path,"w");
+      if(!f)$fatal(1,"Cannot open inspection file %s",inspect_path);
+      $fwrite(f,"SAMPLE %0d CIA %h TASK %h\n",n_cyc2,ring_cia,pct_ctask);
+      for(integer a=0;a<256;a++)$fwrite(f,"RM %02h %04h\n",a[7:0],bootio_rm(a[7:0]));
+      $fwrite(f,"MAP-PLANES a04 a05 a06 a07 a08 a09 a10 a11 a12 a13 a14 d04 d05 d06 d07 d08 d09 d10 d11 d12 d13\n");
+      for(integer a=0;a<16384;a++)$fwrite(f,"MAP %04h %021b\n",a[13:0],
+        {m.b_MemX.u_a04.mem[a],m.b_MemX.u_a05.mem[a],m.b_MemX.u_a06.mem[a],
+         m.b_MemX.u_a07.mem[a],m.b_MemX.u_a08.mem[a],m.b_MemX.u_a09.mem[a],
+         m.b_MemX.u_a10.mem[a],m.b_MemX.u_a11.mem[a],m.b_MemX.u_a12.mem[a],
+         m.b_MemX.u_a13.mem[a],m.b_MemX.u_a14.mem[a],m.b_MemX.u_d04.mem[a],
+         m.b_MemX.u_d05.mem[a],m.b_MemX.u_d06.mem[a],m.b_MemX.u_d07.mem[a],
+         m.b_MemX.u_d08.mem[a],m.b_MemX.u_d09.mem[a],m.b_MemX.u_d10.mem[a],
+         m.b_MemX.u_d11.mem[a],m.b_MemX.u_d12.mem[a],m.b_MemX.u_d13.mem[a]});
+      $fclose(f);
+      inspect_done=1;
+      $display("tb_exec: inspected real RM/map arrays at %0d to %s",n_cyc2,inspect_path);
+    end
+  endtask
+  always @(negedge sys_clk)
+    if(inspect_on && !inspect_done && inspect_at>=0 && n_cyc2>=inspect_at)inspect_state;
+  final if(inspect_on && !inspect_done)inspect_state;
+  // Bounded, passive fabric-cycle trace of Cedar's first map writes. Arm
+  // after the loaded-world handoff: Initial uses these same IM addresses.
+  bit map_probe=0,map_probe_loaded=0,map_probe_started=0;
+  bit check_cedar_mapwrites=0;
+  integer map_probe_n=0;
+  integer cedar_mapwrites=0;
+  longint map_probe_from=16000000;
+  wire [17:0] map_probe_b={m.b_MemX.BMux_00,m.b_MemX.BMux_01,m.b_MemX.BMux_02,
+    m.b_MemX.BMux_03,m.b_MemX.BMux_04,m.b_MemX.BMux_05,m.b_MemX.BMux_06,
+    m.b_MemX.BMux_07,m.b_MemX.BMux_08,m.b_MemX.BMux_09,m.b_MemX.BMux_10,
+    m.b_MemX.BMux_11,m.b_MemX.BMux_12,m.b_MemX.BMux_13,m.b_MemX.BMux_14,
+    m.b_MemX.BMux_15,m.b_MemX.BMux_16,m.b_MemX.BMux_17};
+  wire [17:0] map_probe_q={m.b_MemX.Mapbuf_00,m.b_MemX.Mapbuf_01,m.b_MemX.Mapbuf_02,
+    m.b_MemX.Mapbuf_03,m.b_MemX.Mapbuf_04,m.b_MemX.Mapbuf_05,m.b_MemX.Mapbuf_06,
+    m.b_MemX.Mapbuf_07,m.b_MemX.Mapbuf_08,m.b_MemX.Mapbuf_09,m.b_MemX.Mapbuf_10,
+    m.b_MemX.Mapbuf_11,m.b_MemX.Mapbuf_12,m.b_MemX.Mapbuf_13,m.b_MemX.Mapbuf_14,
+    m.b_MemX.Mapbuf_15,m.b_MemX.Mapbuf_16,m.b_MemX.Mapbuf_17};
+  initial begin
+    map_probe=$test$plusargs("mapprobe");
+    check_cedar_mapwrites=$test$plusargs("check-cedar-mapwrites");
+    if(check_cedar_mapwrites)map_probe=1;
+    void'($value$plusargs("mapprobefrom=%d",map_probe_from));
+  end
+  // These sixteen RAM input planes are contiguous Mapbuf.00..15 in
+  // MemX12/13. Check the DRAMs' actual sampled write data, independent of
+  // the software register reader and the diagnostic display above.
+  wire [15:0] cedar_map_written={m.b_MemX.u_a04.write_data,m.b_MemX.u_a05.write_data,
+    m.b_MemX.u_a06.write_data,m.b_MemX.u_a07.write_data,m.b_MemX.u_a08.write_data,
+    m.b_MemX.u_a09.write_data,m.b_MemX.u_a10.write_data,m.b_MemX.u_a11.write_data,
+    m.b_MemX.u_a12.write_data,m.b_MemX.u_a13.write_data,m.b_MemX.u_a14.write_data,
+    m.b_MemX.u_d04.write_data,m.b_MemX.u_d05.write_data,m.b_MemX.u_d06.write_data,
+    m.b_MemX.u_d07.write_data,m.b_MemX.u_d08.write_data};
+  always @(negedge sys_clk)
+    if(check_cedar_mapwrites && map_probe_started && cedar_mapwrites<16 &&
+       m.b_MemX.u_a04.write_pending)begin
+      // Original InitMem's first loop installs page p at virtual page p.
+      if(cedar_map_written!==cedar_mapwrites[15:0])
+        $fatal(1,"Cedar map write%0d stored RP=%h, expected one-to-one page=%h",
+          cedar_mapwrites,cedar_map_written,cedar_mapwrites[15:0]);
+      cedar_mapwrites++;
+      if(cedar_mapwrites==16)$display("CEDAR MAP WRITES PASS: first16 real page writes are one-to-one");
+    end
+  final if(check_cedar_mapwrites && cedar_mapwrites!=16)
+    $error("Cedar map write gate incomplete: %0d/16 writes",cedar_mapwrites);
+  always @(negedge sys_clk)begin
+    if(map_probe && n_cyc2>=map_probe_from && pct_ctask==0 && ring_cia==12'h238)
+      map_probe_loaded=1;
+    if(map_probe_loaded && pct_ctask==0 && ring_cia==12'he70)
+      map_probe_started=1;
+    if(map_probe_started && map_probe_n<2048)begin
+      map_probe_n++;
+      $display("tb_exec: MAP-PROBE @%0d CIA=%h task=%h B=%h BMux=%h Mapbuf=%h expected=%h hold=%b rawhold=%b pair=%b pairclk=%b mapdec=%b c02clk=%b c02en=%b gate=%b lead=%b fh=%b c1=%b we=%b ras=%b cas=%b din=%b pending=%b addr=%h row=%h col=%h",
+        n_cyc2,ring_cia,pct_ctask,brc_alub,map_probe_b,map_probe_q,bootio_rm(8'h4d),
+        m.b_MemX.MemX20_sil_pl_3,m.HoldMapBuf,m.Map_u_InPair_p_,
+        m.b_MemC.LdPair_p_,m.b_MemC.Map_u__p_,m.b_MemX.Clk1_p_Aa,m.b_MemX.u_c02.ck_en,
+        m.b_MemX.MapbufLd_p_a,m.b_MemX.MapbufLd_p_a__lead,
+        m.b_MemX.preFH_p_A,m.b_MemX.preClk1_p_A,m.b_MemX.RTMapWE_p_a,
+        m.b_MemX.RTMapRAS_p_a,m.b_MemX.RTMapCAS_p_a,m.b_MemX.u_a04.p2,
+        m.b_MemX.u_a04.write_pending,m.b_MemX.u_a04.addr,
+        m.b_MemX.u_a04.row,m.b_MemX.u_a04.col);
+    end
+  end
+  integer dmux_probe_n=0;
+  bit dmux_probe_clk=0;
+  always @(negedge sys_clk)begin
+    if(map_probe_loaded && !map_probe_started && dmux_probe_n<256 &&
+       (m.DMuxClk!=dmux_probe_clk || ring_cia==12'he5f || ring_cia==12'he57))begin
+      dmux_probe_n++;
+      $display("tb_exec: DMUX-PROBE @%0d CIA=%h clk=%b serial=%b data=%b input=%b dmdata=%b memx=%b addr=%b%b%b%b%b%b%b%b%b%b%b T=%h",
+        n_cyc2,ring_cia,m.DMuxClk,m.b_ContA.DMuxData__l24_2,m.DMuxData,
+        m.b_ProcH.DMuxData,m.b_ProcH.DMData,m.b_MemX.DMuxData__drv,
+        m.b_MemX.DMadr_01__l21_3,m.b_MemX.DMadr_02,m.b_MemX.DMadr_03,
+        m.b_MemX.DMadr_04,m.b_MemX.DMadr_05,m.b_MemX.DMadr_06,
+        m.b_MemX.DMadr_07,m.b_MemX.DMadr_08,m.b_MemX.DMadr_09,
+        m.b_MemX.DMadr_10,m.b_MemX.DMadr_11,brc_t);
+    end
+    dmux_probe_clk=m.DMuxClk;
+  end
+  // Observe pipe reads after the modeled clk1 edge, rather than at a MIR
+  // change where operand muxes may still contain the preceding instruction.
+  reg pipe_probe=0,pipe_probe_clk=0;
+  integer pipe_probe_n=0;
+  longint pipe_probe_from=49570000;
+  initial begin
+    pipe_probe=$test$plusargs("pipeprobe");
+    void'($value$plusargs("pipeprobefrom=%d",pipe_probe_from));
+  end
+  always @(negedge sys_clk)begin
+    if(pipe_probe && n_cyc2>=pipe_probe_from && pipe_probe_n<1024 &&
+       !pipe_probe_clk && m.b_ContA.clk1_p_Ca &&
+       pct_ctask==0 && (ring_cia>=12'hb00 && ring_cia<=12'hb3c))begin
+      pipe_probe_n++;
+      $display("tb_exec: PIPE-PROBE @%0d CIA=%h FF=%h T=%h A=%h B=%h ALU=%h MD=%h VA=%h pipeAddr=%b%b%b%b virtualBanks=%h ITemp17=%h Hold=%b",
+        n_cyc2,ring_cia,ff_now,brc_t,brc_alua,brc_alub,brc_alu,bootio_md,w_procva,
+        m.b_MemC.PipeAd_0,m.b_MemC.PipeAd_1,m.b_MemC.PipeAd_2,m.b_MemC.PipeAd_3,
+        bootio_rm(8'h48),bootio_rm(8'h4f),m.Hold);
+    end
+    pipe_probe_clk=m.b_ContA.clk1_p_Ca;
+  end
   always @(posedge sys_clk) begin
     if (bootio && n_cyc2 >= bootio_from) begin
       if (!bootio_clk_d && m.b_ContA.clk0_p_Ca && bootio_n < 1000000 &&

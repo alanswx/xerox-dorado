@@ -380,6 +380,14 @@ memory-dmux-test:
 		verilog/generated/MemX-Rev-Ch.v >/dev/null
 	@cd ../.. && ./verilog/verilator/obj_memory_dmux/tb_memory_dmux
 
+.PHONY: map-buffer-hold-test
+map-buffer-hold-test:
+	@cd ../.. && $(V) --binary --top-module tb_map_buffer_hold $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated \
+		--Mdir verilog/verilator/obj_map_buffer_hold -o tb_map_buffer_hold \
+		verilog/verilator/tb_map_buffer_hold.sv verilog/generated/MemX-Rev-Ch.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_map_buffer_hold/tb_map_buffer_hold
+
 # Real AltoDiabloDisk.mc initialization, not the old per-word jam bench.
 .PHONY: disk-init-format-test
 disk-init-format-test:

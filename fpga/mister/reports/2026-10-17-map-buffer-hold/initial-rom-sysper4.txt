@@ -1,0 +1,2 @@
+tb_exec: IFU -- IfuMemRef 0 transitions, IfuMemAck 0, opcode J changed 1025 times
+INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for 2611683 samples without error

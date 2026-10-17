@@ -1,0 +1,18 @@
+{
+  "scope": "Map-buffer capture regression; not a successful Cedar OS boot. Native18 build is pending timing/clock qualification.",
+  "change": "Clk1Aa five stages lets c02 receive MemC pair flags; Mapbuf latch gates and MCR Clk1Ab remain three stages. Aa also clocks module strobes.",
+  "unit": "Measured native-ratio boundary replay; old captures following Link; fixed retains two pages and releases hold.",
+  "original_rom": "SYSPER4 16M and SYSPER16 64M pass all15 task initializations and all6 enabled error checks.",
+  "cedar": "90M component run: first16 map RAM write-data words are correct, all3600IM/256IFUMmatch, parity clean. VirtualBanks0040 correct. Germ still reads corrupted pointers before copy, no IFU fetch.",
+  "commands": [
+    "make -C verilog/verilator map-buffer-hold-test",
+    "initial-rom component candidate at SYSPER4 and16; see checked-in pass summaries and docs/verilog-handoff.md"
+  ],
+  "generated_native18_memx_sha256": "19e63dd7dec3c753d933b85dabcc736464c259137b812bf2385c29b1b5c7fb23",
+  "sha256": {
+    "tools/sil_to_verilog.py": "ca57ab6ff2647545075c64387cb0eae0889dfd350672231a60c5d60ee8ae0fc6",
+    "verilog/generated/MemX-Rev-Ch.v": "19e63dd7dec3c753d933b85dabcc736464c259137b812bf2385c29b1b5c7fb23",
+    "verilog/verilator/tb_map_buffer_hold.sv": "9aee13995bbd155ec6b7f4106ffeb233ab4832c1e3f551370498d0f01887536f",
+    "verilog/verilator/tb_exec.sv": "2add7e72d4b7a040d32f5b5eca61f38ebc53316a06da193dc55a07265ae0916c"
+  }
+}

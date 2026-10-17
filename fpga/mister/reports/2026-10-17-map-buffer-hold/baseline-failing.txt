@@ -1,0 +1,4 @@
+MAP HOLD captured=038d5 expected=0048f
+[272] %Fatal: tb_map_buffer_hold.sv:43: Assertion failed in tb_map_buffer_hold.map_write: Saved Link overwrote the map page after hold request
+%Error: build/rtl-executive/tb_map_buffer_hold.sv:43: Verilog $stop
+Aborting...

@@ -8,6 +8,72 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Latest investigation, 2026-10-17 13:51 UTC.** MiSTer14 still runs the
+timing-qualified Native16 RBF. The original Cedar microcode downloads and
+the component trace reaches the germ handoff, but its first Mesa pointer
+reads fail; there is no Cedar OS screen or IFU instruction fetch yet.
+The first map-write trace proves that the requested page reaches Mapbuf,
+then the next instruction's saved Link overwrites it before the RAM write.
+An expanded passive trace includes the unregistered hold input and
+the MemC pair-load clock: the hold request becomes valid two fabric ticks
+after c02 samples it. The following instruction overwrites Mapbuf before
+the next c02 clock. The native
+read-only DDR dump corroborates the alias: decoded physical pagee54,
+offsete0 contains32 original germ bytes from file offset8640 (convert the
+decoder's little-endian word bytes to the germ's big-endian order). The
+original microcode's MapModuleCont is ate53, so its IWriteMap return Link
+is exactlye54. The DDR decoder remains partially calibrated, not a general
+memory-test qualification.
+
+A separate memory diagnostic-bus bug is fixed in the canonical generator:
+MemC l24, MemD l21, and MemX l23 now retain pre-edge serial data when the
+BaseBoard switches the shared muffler bus to readback. Only those three
+serial-input packages change. `make -C verilog/verilator memory-dmux-test`
+checks every intermediate bit across all 2,048 addresses and 24,576 strobes
+on all three original boards, with three pulse lengths; it passes. The
+old RTL fails at strobe24 (expected001, all three boards read000).
+Original-ROM regression passes at16M: all15 task initializations and
+2,611,683 samples with all six error sources enabled, no errors. No new
+FPGA RBF is built or deployed.
+Committed/pushed as `d55d7e4c`. The55M Cedar component run also confirms
+VirtualBanks=0040 (16K map), replacing the incorrect0400. Original IM3600
+and IFUM256 still match; the map-data overwrite remains a separate bug.
+
+**Map hold fix, 2026-10-17 14:10 UTC.** The generator now changes
+only MemX Clk1'Aa from three to five fabric delay stages. Clk1'Ab and the
+three Mapbuf latch gates retain three stages. This moves c02's capture past
+the measured MemC pair/hold setup boundary; the same net also clocks a03's
+module-strobe register, so full memory/boot validation is still required.
+The replay test drives the measured MemX boundary waveform: old RTL stores
+the following Link, while the candidate retains the requested page. It
+also checks that releasing hold permits another page to load. Original-ROM
+16M startup passes with all15 tasks initialized and2,611,683 clean samples
+with all six errors enabled. The SYSPER16 startup gate also passes at64M with10,422,953 clean
+all-error-enabled samples.
+
+The90M Cedar component run checks the first16 actual DRAM
+write-data values against the original one-to-one map loop, then continues
+through disk/germ boot. Its observation window arms after task0 actually
+executes Cedar entry238, rather than assuming a fixed download duration.
+The full Cedar run passes the first16 actual RAM writes (pages0..15),
+so the clock change is now adopted in the canonical generator. Its output
+is byte-identical to the frozen Native18 MemX candidate. Isolated Native18 Quartus
+build is running on misterubuntu from frozen Native16 plus the three
+committed muffler fixes and this candidate. Source overlay SHA256
+`0e577794e71bdb75b2f695ba3860e1f46aebc334b89c01c25761fe39fb5d6b17`.
+Full90M readback passes3600IM/256IFUM, all15 task initializations, and
+76,611,683 clean samples with all six errors enabled. At55M the raw map
+contains13,145 distinct RP values while cache-flush vacating is in progress;
+the old map held only the caller's Link. The germ reaches MGo at76,409,426
+but still fails before the first IFU fetch: source0304/0305 already read
+4900/0900 before the copy, versus original09d0/09e0. Disk FIFO data at those
+positions was09d0/09e0. Most other copied words match, with corruption
+concentrated in several pages. The remaining/new memory-store/refill problem
+is not yet localized. Native18 may help compare its DDR-backed storage with
+the component DRAM path, but it is not a demonstrated Cedar boot. Require
+full STA and clock-coverage qualification before loading any RBF.
+Evidence: `fpga/mister/reports/2026-10-17-map-buffer-hold/`.
+
 **Actual hardware frontier, 2026-10-17 11:46 UTC.** Native15 passes
 CD2 with Stop=0 and reaches ROM Initial's Ethernet reply loop C66/C6F/C75.
 Main's TX good/bad counters remain zero; server receives no request.
@@ -50,13 +116,66 @@ Native15's final pre-load tail had returned to CD2/Stop1, despite earlier
 Stop0/reply-loop samples. Its boot was not stable; preserve that distinction.
 Cedar is NOT yet booted on FPGA.
 
-The BaseBoard-manifold component run completed150M with exact3600IM+
-256IFUM readback, no errors, and task0 in Cedar map/cache initialization.
-The cycle-limit extension arrived after completion; it did NOT extend that
-run. A fresh400M run is session59398,
-`build/rtl-executive/cedar113-bbman-long.log`, bound file
-`cedar113-bbman-long-limit.txt`. Direct Initial entry and forced BaseBoard
-interface ownership remain explicit component setup, not native boot.
+**Real Cedar-network handoff, 2026-10-17 12:34 UTC.** Native16's cable
+export works on MiSTer14: TXgood=1, CRCbad=0, and the ARM server records the
+original13-word station042/BFN113 request. CPU advances into Cedar microcode
+with task2 atd86 and display task3 active. The boot-selection C key was
+released after this request. Actual FPGA screenshot
+`build/rtl-executive/cedar16-first-fpga.png` is a blank raster, not an OS
+screen. Task0 repeatedly executes239/23a with6c1/6c2: these decode to
+RequeueSearchSQ, not the BootTransfer wait (that is e0a/e03). No IFU fetch
+has begun in the corresponding component run. The newer trace below reaches
+the germ handoff but fails before executing its first Mesa instruction.
+A read-only mmap of reserved DDR0x30000000..0x303fffff captured the actual
+raw storage. Some decoded chunks match the original matched germ byte for
+byte. The mapping decoder remains a diagnostic, not a qualified memory test.
+No guest state was written. Main/server remain the immutable versions above.
+
+The component run was deliberately ended at320M (2993s) after repeating
+this same loop. Loaded IM3600/IFUM256 still match, all parity sources clean,
+IFU reference/ack transitions both0. Disk served4177 sectors and12528 blocks;
+only3 tracks were loaded, ending cylinder4. Exact newer focused run is
+session3177, `cedar113-disk-frontier.log`,265M bound with BOOTIO from249M.
+The first55M inspection used defaultSYSPER16 and completed before Cedar;
+its loaded-image check correctly failed. The replacement session61952 used
+SYSPER4 and the Pilot pack and passed3600IM/256IFUM at55M. Its new dump
+exposed an existing diagnostic-reader bug: ProcH h06/j06 use the true RBase
+nibble while ProcL uses its complement. The correct physical RM indices are
+ProcH `a^0x0f`, ProcL `a^0xff`; both nibble data fields reverse. The helper
+is corrected. Baseline raw dump `cedar55-rm-map.txt` predates that correction;
+`cedar55-rm-map-corrected.txt` recombines the two raw halves without rerunning
+or changing guest state. R400=0100, VirtualBanks=0400, PgsPerMod=0400,
+RealPages=0400, ModMask=8000. VirtualBanks indicates a256K-entry map while
+MosRam models16K. More seriously, all16384 raw map entries hold RP0e35
+while the one-to-one loop's page counter is5e86. The first16 raw planes
+are contiguous Mapbuf.00..15 (do not move a11 to bit15; that was a
+diagnostic decoding error that reported0e6a instead of0e35). A scratch-only MemX c02
+PRECAP0->1 candidate reproduced that exact bad map at55M; it is rejected.
+Original Initial parity and loaded IM/IFUM checks passed. Its owned Native17
+Quartus pipeline and long simulation were stopped; no candidate was deployed
+and production RTL remains unchanged. A new passive `+mapprobe` records
+BMux, Mapbuf, the expected page number, latch gate and RAM strobes around
+Cedar's first IWriteMap. Initial uses the same IM addresses, so its default
+arming time is49,570,000 rather than an address alone.
+
+The265M focused trace reaches `GermRemapDone` (5d5) and `MGo` (7e0)
+at251,964,474. BootDataPtr=2500 and copy length2300 are correct: all35
+germ pages, starting at0200. The first control link at MDS+02fe reads0101,
+matching the original6.1.6 germ. The subsequent MDS+0304/+0305 reads return
+zero where the original germ contains09d0/09e0. Fault/interrupt handling
+then enters RequeueSearchSQ at251,966,482. Thus the immediate frontier is
+corrupted or incorrectly addressed germ data before the first IFU fetch,
+not a truncated boot file or a successful Cedar OS start.
+`build/rtl-executive/cedar-first-queue-transition.txt` preserves the transition.
+The old BOOTIO full RM fields used the incorrect high-half reader described
+above; CPU, ALU, MD and VA samples are independent of that helper.
+
+Native16 was retried with automated C release at the first real BFN113.
+The first watcher lost partial stderr lines; that run is not an early-release
+experiment. The corrected watcher session86209 confirmed the new request
+and released C immediately, but the same queue loop remains. This rules out
+held C as a sufficient cause. No key helper remains active after86209.
+
 
 **Actual Native15 loaded, 2026-10-17 11:34 UTC.** MiSTer14 now runs
 `DoradoRTL_Cedar15_20261017/Cedar15.mgl`, RBF SHA256

@@ -1070,6 +1070,8 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   //      their pre siblings (see clock_lag above)
   reg  Clk1_p_Aa__lag1 = 1'b1;
   reg  Clk1_p_Aa__lag2 = 1'b1;
+  reg  Clk1_p_Aa__lag3 = 1'b1;
+  reg  Clk1_p_Aa__lag4 = 1'b1;
   reg  Clk1_p_Ab__lag1 = 1'b1;
   reg  Clk1_p_Ab__lag2 = 1'b1;
   reg  MapbufLd_p_a__lag1 = 1'b1;
@@ -1081,7 +1083,9 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   always @(posedge sys_clk) begin
     Clk1_p_Aa__lag1 <= Clk1_p_Aa__lead;
     Clk1_p_Aa__lag2 <= Clk1_p_Aa__lag1;
-    Clk1_p_Aa <= Clk1_p_Aa__lag2;
+    Clk1_p_Aa__lag3 <= Clk1_p_Aa__lag2;
+    Clk1_p_Aa__lag4 <= Clk1_p_Aa__lag3;
+    Clk1_p_Aa <= Clk1_p_Aa__lag4;
     Clk1_p_Ab__lag1 <= Clk1_p_Ab__lead;
     Clk1_p_Ab__lag2 <= Clk1_p_Ab__lag1;
     Clk1_p_Ab <= Clk1_p_Ab__lag2;

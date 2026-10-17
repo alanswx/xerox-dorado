@@ -1,0 +1,7 @@
+Cedar does NOT yet boot: first IFU fetch remains absent.
+Original germ at MDS+0304/+0305 should be09d0/09e0. Source reads before copy are already4900/0900.
+tb_exec: BOOTIO @76397386 CIA=5f1 task=0 T=0105 A=0105 B=0900 ALU=0900 MD=0900 VA=0000305 FF=f0 Hold=0 lt'=1 eq'=1 IOB=0000 TIOA=000 full=0 empty=1 ETemp0=0000 ETemp1=ffff KStatus=0040
+tb_exec: BOOTIO @76397418 CIA=5f1 task=0 T=0104 A=0104 B=4900 ALU=4900 MD=4900 VA=0000304 FF=f0 Hold=0 lt'=1 eq'=1 IOB=0000 TIOA=000 full=0 empty=1 ETemp0=0000 ETemp1=ffff KStatus=0040
+tb_exec: BOOTIO @76409426 CIA=7e0 task=0 T=0000 A=0000 B=8100 ALU=8100 MD=660c VA=03e0200 FF=81 Hold=0 lt'=1 eq'=0 IOB=0000 TIOA=000 full=0 empty=1 ETemp0=0000 ETemp1=ffff KStatus=0040
+tb_exec: BOOTIO @76409906 CIA=789 task=0 T=4900 A=fffc B=4900 ALU=4900 MD=4900 VA=03e0305 FF=a9 Hold=0 lt'=0 eq'=1 IOB=0000 TIOA=000 full=0 empty=1 ETemp0=0000 ETemp1=ffff KStatus=0040
+tb_exec: BOOTIO @76409914 CIA=78a task=0 T=4900 A=4900 B=4900 ALU=0000 MD=0900 VA=03e0305 FF=53 Hold=0 lt'=1 eq'=1 IOB=0000 TIOA=000 full=0 empty=1 ETemp0=0000 ETemp1=ffff KStatus=0040

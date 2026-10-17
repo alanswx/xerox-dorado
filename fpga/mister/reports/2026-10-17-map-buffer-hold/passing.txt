@@ -1,0 +1,7 @@
+MAP HOLD captured=0048f expected=0048f
+MAP HOLD captured=3fb73 expected=3fb73
+MAP HOLD PASS: both pages survive following saved Link, buffer reopens after release
+- verilog/verilator/tb_map_buffer_hold.sv:53: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 449ps; walltime 0.001 s; speed 941.300 ns/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 2 MB

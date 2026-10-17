@@ -1187,16 +1187,25 @@ class Generator:
             if not hasattr(self, '_clkdepth'):
                 self._clkdepth = self._clock_depths()
             return self._clkdepth.get(netname, 0)
+        # c02 samples MemC's pair flags through HoldMapBuf. With Aa at
+        # depth three it samples two fabric ticks before the new pair flag
+        # arrives, then misses it for a whole instruction: Mapbuf follows
+        # the next instruction's Link instead of holding the requested RP.
+        # Preserve setup at this capture while keeping the latch gates and
+        # MCR's Ab clock at depth three below. Aa also clocks module strobes;
+        # the original-ROM and full Cedar map-write gates exercise both.
+        if self.b.name.split('-Rev')[0] == 'MemX' and netname == "Clk1'Aa":
+            return 5
         # MemX20 c07 fans out Mapbuf's latch gate and the MCR clock.
         # Collapsing its Mapbuf outputs to zero delay closes the sampled
         # latch before BMux settles; the one-stage clk1 default then loads
         # stale NoWakeups into the MCR. Preserve this package's depth-mode
-        # ordering, including both sibling clk1 outputs. Original-ROM
+        # ordering for the latch gates and the MCR's Ab output. Original-ROM
         # Initial otherwise accumulates STPerr and halts at BootEmulator
         # as soon as it enables memory error reporting. Other MemX clocks
         # retain their existing model; whole-board depth remains opt-in.
         if self.b.name.split('-Rev')[0] == 'MemX' and netname in (
-                "MapbufLd'a", "MapbufLd'b", "MapbufLd'c", "Clk1'Aa", "Clk1'Ab"):
+                "MapbufLd'a", "MapbufLd'b", "MapbufLd'c", "Clk1'Ab"):
             if not hasattr(self, '_clkdepth'):
                 self._clkdepth = self._clock_depths()
             return self._clkdepth[netname]
