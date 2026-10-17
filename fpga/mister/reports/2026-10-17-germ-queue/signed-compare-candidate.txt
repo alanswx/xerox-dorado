@@ -1,0 +1,5 @@
+SIGNED COMPARE PASS: 256 overflow/branch vectors, including equal germ bounds
+- verilog/verilator/tb_signed_compare.sv:78: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 2ns; walltime 0.000 s; speed 5.198 us/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 2 MB

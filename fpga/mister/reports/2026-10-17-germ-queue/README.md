@@ -28,3 +28,10 @@ First-queue watcher now replays85M, retains two rolling checkpoints from
 160M, traces from166M and stops after10000 task0 samples within the four
 queue PCs. It observes only; no guest repair or forced execution is used.
 Read the first bad map operation/store, rather than repairing the queue.
+
+Cold DDR-adapter run subsequently completed at200003764 samples. The standard
+checker passes all source-copy, Initial and Cedar image gates, with1812418
+IFU fetches and1813208 acknowledgements. Same post-entry queue loop around168M.
+See cold-ddr-gate.json. First-germ-map-fault.txt records the software map writes
+vacating VP3e02..3e05 before FaultInfo changes. Correct lower/upper bounds
+were read from GF09d0 globals; comparison/jump diagnosis remains open.

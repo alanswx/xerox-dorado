@@ -8,6 +8,44 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Native23 overflow candidate running, 19:17 UTC.** ProcH d13 still selects
+MC10170's legacy B inversion. Isolated candidate selects LEGACY_B_INVERT=0,
+the documented physical XOR, only at this package. New signed-compare probe
+exercises the generated board's actual d13 plus the ContA c21 gate: candidate
+PASS256 arithmetic/branch vectors including equal germ bounds; old board fails
+first0+0 no-overflow vector. Test stimuli drive the detector's five operand/
+result/carry pins; no guest state is imported. The first probe incorrectly
+chained a force RHS to a combinational ALU result; result/carry are now explicitly
+settled stimulus registers. No such forcing exists in the cold boot.
+Scratch native23-candidate, tb_signed_compare.sv (not committed until production
+fix qualifies). Fresh cold DDR220M run session48272, cedar-native23-ddrcheck.log,
+obj_native_rom_cedar_native23ddr. Separate Quartus pipeline session6695,
+misterubuntu:/home/alans/mister/Dorado_Native23_20261017/core. Only functional
+change from Native21 is d13; old placement-specific hold exception removed
+before refit. No production change or deployment yet. Native22 remains a
+secondary slow-clock control. Next: verify the equality path, cold boot and STA.
+
+**First bad map operations identified, 19:12 UTC.** CompactVM's bounds in
+cache-visible germ globals are correct: GF09d0, pageGerm09da=3e02,
+pageAfterGerm09d4=3e27. Yet the lower-bound equality path proceeds to vacate
+VP3e02 at167079245,3e03 at167085893,3e04 at167092101,3e05 at167099229.
+The following SDBM1 store faults at VA3e056e and enters the queue loop.
+Evidence reports/2026-10-17-germ-queue/first-germ-map-fault.txt.
+DCOMP's equal path produces zero and writes it into stack slot1; LI0 writes
+slot2 correctly. The subsequent JLB/Overflow condition path is under active
+edge-by-edge investigation; stale-stack suspicion is NOT established.
+Scratch cedar-compare-flags.log / module-checkpoint/watch_compare. No production
+comparison/flag change yet. Replay167M..167.12M from roll1 takes seconds;
+keep the immutable160M snapshot and both rolling checkpoints.
+
+Cold200M DDR-adapter run COMPLETED: original Initial and Cedar images PASS,
+8931 sampled source germ words correct, IFU1812418 fetches/1813208 acks,
+186611683 all-six-enabled clean samples. Same queue loop after~168M.
+This is a full cold component run with actual DDR adapters and storage pauses;
+it does not qualify OS boot. cold-ddr-gate.json preserves the checker result.
+Native22 Quartus pipeline completed; slower-clock cold simulation still running.
+No Native22 deployment; MiSTer14 remains Native21.
+
 **Post-germ fault narrowed,19:02 UTC.** The long original-storage diagnostic
 reproduces RequeueSearchSQ around168M. Its cache-aware cursor is812,
 `germInLoad`; saved FaultParam0/1 give VA0x3e056e inside the germ, and
@@ -55,12 +93,13 @@ fits the current16K-entry map. Preserve this arithmetic against stale older note
 - [x] Decode raw cursor810; match the screen to812 / germInLoad (inference),
   and confirm812 in the cache-aware RTL snapshot.
 - [x] Reproduce the post-entry queue loop in the original-storage diagnostic.
-- [ ] Trace the first map fault/store at germ VA0x3e056e. RequeueSearchSQ is a stuck
+- [x] Trace the first map fault/store at germ VA0x3e056e. RequeueSearchSQ is a stuck
   predecessor search, not a valid idle prompt; follow queue/link data to its
   first incorrect read/write rather than treating the final loop as the cause.
-- [ ] Finish actual DDR-adapter cold run and extended original-storage run;
-  verify post-100M behavior, first maintenance-panel changes, and source/target
-  map data. Active paths/sessions below. Keep POD restores diagnostic only.
+- [x] Finish actual DDR-adapter cold200M run and extended original-storage run;
+  both reproduce the post-entry loop. Keep POD restores diagnostic only.
+- [ ] Explain/fix the CompactVM comparison/jump that admits its own germ pages;
+  gate the fix with the captured equality path and a fresh cold boot.
 - [ ] Check remaining fixture differences: map/cache seeds versus native cold
   RAM, complete BaseBoard handoff, DDR pauses, HPS track-buffer timing.
   A passing source-copy gate does not qualify all of these.
