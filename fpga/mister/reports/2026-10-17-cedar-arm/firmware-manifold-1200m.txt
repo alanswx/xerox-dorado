@@ -1,0 +1,177 @@
+tb_firmware: nominal external analog environment enabled
+tb_firmware: bootbtn_lvl = 1
+tb_firmware:   MCReset' ASSERTED #1 at 0 (+0)
+tb_firmware:   strobe 1 at 0 (fetch 0000) dir_b=00 out_b=00: fn=7 data=111111111
+tb_firmware:   WatchdogOut -> 1 at 0 (In=1 XOR=0 q22Q'=1 BootMC'=1)
+tb_firmware:   ContB ManClk.0' pulse 1 at 1, DMD=000
+tb_firmware:   WatchdogOut -> 0 at 215518 (In=1 XOR=1 q22Q'=1 BootMC'=0)
+tb_firmware:   BootMC' -> 0 at 215518 (XOR=1 g22FF1Q'=1 WdIn=1 WdOut=0)
+tb_firmware:   MCReset' ASSERTED #2 at 215519 (+215519)
+tb_firmware:   strobe 2 at 215598 (fetch f3eb) dir_b=00 out_b=00: fn=7 data=111111111
+tb_firmware:   WatchdogOut -> 1 at 215598 (In=1 XOR=0 q22Q'=1 BootMC'=1)
+tb_firmware:   BootMC' -> 1 at 215598 (XOR=0 g22FF1Q'=1 WdIn=1 WdOut=1)
+tb_firmware:   RESET #2 at 216119 (+211440): WatchdogIn=1 WatchdogOut=1 XOR=0 g22Q'=1 BootMC'=1
+tb_firmware:            PwrGood=1 MCReset'=1 g22FF1Q=0
+tb_firmware:   WatchdogOut -> 0 at 426958 (In=1 XOR=1 q22Q'=1 BootMC'=0)
+tb_firmware:   BootMC' -> 0 at 426958 (XOR=1 g22FF1Q'=1 WdIn=1 WdOut=0)
+tb_firmware:   MCReset' ASSERTED #3 at 426959 (+211440)
+tb_firmware:   strobe 3 at 427038 (fetch f3eb) dir_b=00 out_b=00: fn=7 data=111111111
+tb_firmware:   WatchdogOut -> 1 at 427038 (In=1 XOR=0 q22Q'=1 BootMC'=1)
+tb_firmware:   BootMC' -> 1 at 427038 (XOR=0 g22FF1Q'=1 WdIn=1 WdOut=1)
+tb_firmware:   RESET #3 at 427559 (+211440): WatchdogIn=1 WatchdogOut=1 XOR=0 g22Q'=1 BootMC'=1
+tb_firmware:            PwrGood=1 MCReset'=1 g22FF1Q=0
+tb_firmware:   WatchdogOut -> 0 at 638398 (In=1 XOR=1 q22Q'=1 BootMC'=0)
+tb_firmware:   BootMC' -> 0 at 638398 (XOR=1 g22FF1Q'=1 WdIn=1 WdOut=0)
+tb_firmware:   MCReset' ASSERTED #4 at 638399 (+211440)
+tb_firmware:   strobe 4 at 638478 (fetch f3eb) dir_b=00 out_b=00: fn=7 data=111111111
+tb_firmware:   WatchdogOut -> 1 at 638478 (In=1 XOR=0 q22Q'=1 BootMC'=1)
+tb_firmware:   BootMC' -> 1 at 638478 (XOR=0 g22FF1Q'=1 WdIn=1 WdOut=1)
+tb_firmware:   RESET #4 at 638999 (+211440): WatchdogIn=1 WatchdogOut=1 XOR=0 g22Q'=1 BootMC'=1
+tb_firmware:            PwrGood=1 MCReset'=1 g22FF1Q=0
+tb_firmware:   BootMC' -> 0 at 849838 (XOR=1 g22FF1Q'=1 WdIn=1 WdOut=0)
+tb_firmware:   MCReset' ASSERTED #5 at 849839 (+211440)
+tb_firmware:   strobe 5 at 849918 (fetch f3eb) dir_b=00 out_b=00: fn=7 data=111111111
+tb_firmware:   BootMC' -> 1 at 849918 (XOR=0 g22FF1Q'=1 WdIn=1 WdOut=1)
+tb_firmware:   RESET #5 at 850439 (+211440): WatchdogIn=1 WatchdogOut=1 XOR=0 g22Q'=1 BootMC'=1
+tb_firmware:            PwrGood=1 MCReset'=1 g22FF1Q=0
+tb_firmware:   BootMC' -> 0 at 1061278 (XOR=1 g22FF1Q'=1 WdIn=1 WdOut=0)
+tb_firmware:   strobe 6 at 1061358 (fetch f3eb) dir_b=00 out_b=00: fn=7 data=111111111
+tb_firmware:   RESET #6 at 1061879 (+211440): WatchdogIn=1 WatchdogOut=1 XOR=0 g22Q'=1 BootMC'=1
+tb_firmware:            PwrGood=1 MCReset'=1 g22FF1Q=0
+tb_firmware:   strobe 7 at 1272798 (fetch f3eb) dir_b=00 out_b=00: fn=7 data=111111111
+tb_firmware:   RESET #7 at 1273319 (+211440): WatchdogIn=1 WatchdogOut=1 XOR=0 g22Q'=1 BootMC'=1
+tb_firmware:            PwrGood=1 MCReset'=1 g22FF1Q=0
+tb_firmware:   strobe 8 at 1484238 (fetch f3eb) dir_b=00 out_b=00: fn=7 data=111111111
+tb_firmware:   RESET #8 at 1484759 (+211440): WatchdogIn=1 WatchdogOut=1 XOR=0 g22Q'=1 BootMC'=1
+tb_firmware:            PwrGood=1 MCReset'=1 g22FF1Q=0
+tb_firmware: progress 50000000 samples fetch=f3ae DAC=ff CVCC=1 target=1 DMD=000 changes=0 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware:   ContB DMD 000 -> 001 at 84661199
+tb_firmware:   ContB DMD 001 -> 002 at 84665999
+tb_firmware:   ContB DMD 002 -> 004 at 84670799
+tb_firmware:   ContB DMD 004 -> 009 at 84675599
+tb_firmware:   ContB DMD 009 -> 012 at 84680399
+tb_firmware:   ContB DMD 012 -> 024 at 84685199
+tb_firmware:   ContB DMD 024 -> 048 at 84689999
+tb_firmware:   ContB DMD 048 -> 091 at 84694879
+tb_firmware:   ContB DMD 091 -> 122 at 84699679
+tb_firmware:   ContB DMD 122 -> 244 at 84704479
+tb_firmware:   ContB DMD 244 -> 488 at 84709279
+tb_firmware:   ContB DMD 488 -> 910 at 84735039
+tb_firmware:   ContB DMD 910 -> 221 at 84739839
+tb_firmware:   ContB DMD 221 -> 442 at 84744639
+tb_firmware: progress 100000000 samples fetch=fa0d DAC=00 CVCC=0 target=0 DMD=424 changes=1158 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 150000000 samples fetch=f263 DAC=00 CVCC=0 target=0 DMD=488 changes=4787 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 200000000 samples fetch=f855 DAC=78 CVCC=0 target=0 DMD=488 changes=8435 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: BOOT BUTTON DOWN at cycle 200000000
+tb_firmware: BOOT BUTTON RELEASED at cycle 240000000
+tb_firmware: progress 250000000 samples fetch=f27f DAC=00 CVCC=0 target=0 DMD=488 changes=12107 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 300000000 samples fetch=f9eb DAC=00 CVCC=0 target=0 DMD=091 changes=15764 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 350000000 samples fetch=f266 DAC=00 CVCC=0 target=0 DMD=488 changes=19391 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 400000000 samples fetch=f4de DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 450000000 samples fetch=f4e2 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 500000000 samples fetch=f4e4 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 550000000 samples fetch=f6a8 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 600000000 samples fetch=f6a8 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 650000000 samples fetch=f6a1 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 700000000 samples fetch=f4d5 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 750000000 samples fetch=f4d5 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 800000000 samples fetch=f6a7 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 850000000 samples fetch=f4d5 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 900000000 samples fetch=f4d5 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 950000000 samples fetch=f6a1 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 1000000000 samples fetch=f69f DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 1050000000 samples fetch=f69f DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 1100000000 samples fetch=f4e0 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 1150000000 samples fetch=f697 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: progress 1200000000 samples fetch=f6a8 DAC=00 CVCC=0 target=0 DMD=4c4 changes=20567 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: 1200000000 sys_clk of the REAL firmware running.
+tb_firmware: external CVCC comparator transitions 2314
+tb_firmware: bus activity -- 11768453 ROM, 4485191 RAM/zero-page, 408 I/O addresses
+tb_firmware: ROM addresses touched span f248..ffff
+tb_firmware: page histogram (16 buckets of 4K):
+tb_firmware:   0xxx : 4485191
+tb_firmware:   9xxx : 12
+tb_firmware:   axxx : 396
+tb_firmware:   fxxx : 11768453
+tb_firmware: 4547523 opcode FETCHES (SYNC high). The ten most-EXECUTED ROM addresses:
+tb_firmware:   f4d8  161993 fetches
+tb_firmware:   f692  157522 fetches
+tb_firmware:   f695  157521 fetches
+tb_firmware:   f697  157521 fetches
+tb_firmware:   f698  157521 fetches
+tb_firmware:   f69b  157521 fetches
+tb_firmware:   f69c  157521 fetches
+tb_firmware:   f69f  157521 fetches
+tb_firmware:   f6a1  157521 fetches
+tb_firmware:   f6a4  157521 fetches
+tb_firmware: the ten ROM addresses it ADDRESSES most (fetches AND data reads):
+tb_firmware:   ff00  515509 visits
+tb_firmware:   ffc7  315042 visits
+tb_firmware:   f4d7  314661 visits
+tb_firmware:   f4d8  161993 visits
+tb_firmware:   ff92  159234 visits
+tb_firmware:   ffd7  159041 visits
+tb_firmware:   f692  157522 visits
+tb_firmware:   f6a9  157522 visits
+tb_firmware:   f693  157521 visits
+tb_firmware:   f694  157521 visits
+tb_firmware: MCClk edges 29999999 in 1200000000 sys_clk -> 1 MCClk cycle = -63 sys_clk
+tb_firmware: MCPreClk edges 29999999, divider Q21 edges 14, toggle-FF edges 8
+tb_firmware: WatchdogIn edges 5, WatchdogOut edges 797, XOR edges 800, BootMC' edges 792
+tb_firmware: RESETS PER WATCHDOG WINDOW (a window is one Q21 edge to the next):
+tb_firmware:   window 0  from 0  g22FF1Q'=1 (   ARMED)  resets 397
+tb_firmware:   window 1  from 83886119  g22FF1Q'=1 (   ARMED)  resets 0
+tb_firmware:   window 2  from 167772199  g22FF1Q'=0 (disarmed)  resets 0
+tb_firmware:   window 3  from 251658279  g22FF1Q'=0 (disarmed)  resets 0
+tb_firmware:   window 4  from 335544359  g22FF1Q'=1 (   ARMED)  resets 0
+tb_firmware:   window 5  from 419430439  g22FF1Q'=1 (   ARMED)  resets 0
+tb_firmware:   window 6  from 503316519  g22FF1Q'=0 (disarmed)  resets 0
+tb_firmware:   window 7  from 587202599  g22FF1Q'=0 (disarmed)  resets 0
+tb_firmware:   window 8  from 671088679  g22FF1Q'=1 (   ARMED)  resets 0
+tb_firmware:   window 9  from 754974759  g22FF1Q'=1 (   ARMED)  resets 0
+tb_firmware:   window 10  from 838860839  g22FF1Q'=0 (disarmed)  resets 0
+tb_firmware:   window 11  from 922746919  g22FF1Q'=0 (disarmed)  resets 0
+tb_firmware:   window 12  from 1006632999  g22FF1Q'=1 (   ARMED)  resets 0
+tb_firmware:   window 13  from 1090519079  g22FF1Q'=1 (   ARMED)  resets 0
+tb_firmware:   window 14  from 1174405159  g22FF1Q'=0 (disarmed)  resets 0
+tb_firmware: SkipWait'(the PacifyWatchdogIfJumper gate)=1  -- 1 means the firmware SKIPS pacifying
+tb_firmware: PACIFYWATCHDOG(F692) visits 157522, PACIFYWATCHDOGIFJUMPER(F68B) visits 188
+tb_firmware: SETMANIFOLD(F95A) 2  DATUMTOMANIFOLD(F977) 0  READMUFFLER(F986) 1715  SETMUFFLERADDRESS(F9D0) 1718
+tb_firmware: TDMuxClk edges 41136, TDMuxData edges 10298 (the TTL side of the manifold chain)
+tb_firmware: MCPStrb rising edges 41539; CP-BUS FUNCTION CODES seen:
+tb_firmware:   fn 0 (Control) : 2
+tb_firmware:   fn 1 (  Clock) : 41140
+tb_firmware:   fn 7 (   MIR3) : 397
+tb_firmware: CPDMuxClk edges 41136, CPDMuxData edges 2 (BaseBoard's own DMux decode)
+tb_firmware: ContB DMD changes 20567, ManClk.0' pulses 1, final DMD=4c4
+tb_firmware: HOT #1  PC f6a7  157521 fetches
+tb_firmware: HOT #2  PC f6a8  157521 fetches
+tb_firmware: HOT #3  PC f4da  157475 fetches
+tb_firmware: HOT #4  PC f4dc  157399 fetches
+tb_firmware: HOT #5  PC f4e0  157357 fetches
+tb_firmware: HOT #6  PC f4de  157349 fetches
+tb_firmware: HOT #7  PC f4d5  157331 fetches
+tb_firmware: HOT #8  PC f4e2  157330 fetches
+tb_firmware: HOT #9  PC f4e4  157330 fetches
+tb_firmware: HOT #10  PC f3ac  101632 fetches
+tb_firmware: HOT #11  PC f3ae  101632 fetches
+tb_firmware: HOT #12  PC f3af  101632 fetches
+tb_firmware: BOOT ROUTINE -- LoadDoradoCode(FAAE) 0, StopDorado(F948) 1, ReadMufflerField(F99B) 0
+tb_firmware: StopDorado CALLERS -- F42D 1, F56B 0, F629 0, FB67 0 (FAB1 is LoadDoradoCode's, 0)
+tb_firmware: PB6 DURING THE PRESS -- of 40000000 samples: PB_in high 1, PB_out high 40000000, DDR-out 0
+tb_firmware: IRQ VECTOR -- $0098/$0099 = b4 f2  -> $f2b4
+tb_firmware: IRQ HANDLER (F2A2) entered 6585 times
+tb_firmware: INTERRUPTS -- MCIRQ' low on 34635360 samples, 6585 falling edges; MCNMI' low on 0 (of 1200000000)
+tb_firmware: BOOT CHAIN -- BaseBd15.sil+1 high 40000001, BootNO high 1160000000, of 1200000000
+tb_firmware: AHasCP high on 0 of 1200000000 samples (SET = an Alto holds the CP bus)
+tb_firmware: TSetRun(= MCPBusL bit SetRunIn, the TryGettingMufManControl gate)=0
+tb_firmware: TRYGETTINGMUFMANCONTROL(FA0E) visits 22286, WAITFORCPCONTROL(FA1F) 1
+tb_firmware: MCReset' ASSERTIONS: 397   (0xFFFC seen on the bus 661 times -- not the same thing)
+tb_firmware: I/O addresses touched: 408 distinct
+tb_firmware: CPStrb' edges 83078, DMuxClk edges 41136
+tb_firmware: CP-bus strobes seen -- but read the function codes and the
+tb_firmware:   PC above before calling that 'driving the Dorado'.
+- verilog/verilator/tb_firmware.sv:687: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 2ms; walltime 1847.081 s; speed 1.300 us/s
+- Verilator: cpu 1846.348 s on 1 threads; alloced 176 MB

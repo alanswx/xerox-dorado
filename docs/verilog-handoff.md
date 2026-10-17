@@ -280,9 +280,18 @@ board j17/l24 selector's eight input combinations and shifts a byte-asymmetric
 still fails with DMD=000; with both fixes it passes at A35. These tests
 replace only the serial selector's inputs, not its outputs or stored state.
 `Dorado_Native3_20261017` is compiling with both fixes and the Pilot medium.
-A five-board ROM-driven probe is also running with the fixes: at 84.6M
+A five-board ROM-driven probe completed 1.2B samples with the fixes: at 84.6M
 samples the actual firmware shifts nonzero addresses through ContB's DMD
 (e.g. 001, 002, 004, 009, 012 ... 910), where the old run remained zero.
+It records 20,567 DMD transitions and enters the actual first 20-second
+disk spin-up wait at DMD=4C4; the bound ends before Bootstrap loading, so
+it is a serial-control qualification, not a cold-boot gate. The old zero
+readback bypassed that branch. No simulated CPU state was modified;
+one debugger call only flushed the simulator host's buffered stdio log.
+The final clock-period print overflows a 32-bit intermediate at this bound;
+the intact raw counts imply 80 samples per MCClk cycle. Future prints use
+64-bit arithmetic. Raw log and qualification limits are preserved in
+`reports/2026-10-17-cedar-arm/firmware-*`.
 Native2's superseded fit was stopped after over twenty minutes in optional
 physical retiming. Native3 restarts with retiming disabled; reproduce that
 build setting with `DORADO_QUARTUS_RETIME=0 fpga/mister/build.sh ...`.

@@ -1,0 +1,15 @@
+{
+  "logical_samples": 1200000000,
+  "mcclk_edges": 29999999,
+  "mcclk_period_samples_from_raw_counts": 80.00000266666676,
+  "dmd_transitions": 20567,
+  "final_dmd_hex": "4c4",
+  "load_dorado_code_calls": 0,
+  "mir0_writes": 0,
+  "mir1_writes": 0,
+  "mir2_writes": 0,
+  "mir3_initial_reset_writes": 397,
+  "result": "ROM-driven serial-control validation; still in genuine first 20-second disk spin-up delay, not a Bootstrap or Cedar boot gate.",
+  "known_diagnostic_error": "Printed MCClk period -63 overflows a signed 32-bit intermediate. Raw edge/sample counts above are intact; widened arithmetic in tb_firmware.sv fixes future reports.",
+  "host_observation": "One LLDB fflush(NULL) flushed host stdio; no simulated CPU/device state changed."
+}

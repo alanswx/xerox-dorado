@@ -567,7 +567,7 @@ module tb_firmware;
       end
     end
     $display("tb_firmware: MCClk edges %0d in %0d sys_clk -> 1 MCClk cycle = %0d sys_clk",
-             n_mcclk, n_samp_ah, (n_mcclk > 1) ? (n_samp_ah*2)/n_mcclk : 0);
+             n_mcclk, n_samp_ah, (n_mcclk > 1) ? (longint'(n_samp_ah)*2)/n_mcclk : 0);
     $display("tb_firmware: MCPreClk edges %0d, divider Q21 edges %0d, toggle-FF edges %0d",
              n_pre, n_div, n_tog);
     $display("tb_firmware: WatchdogIn edges %0d, WatchdogOut edges %0d, XOR edges %0d, BootMC' edges %0d",
