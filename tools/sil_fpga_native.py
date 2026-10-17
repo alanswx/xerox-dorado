@@ -31,7 +31,7 @@ def main():
     commands = [
         ['tools/sil_backplane.py', '--emit', str(out/'dorado_native_backplane.v'),
          '--module', 'dorado_native_backplane', '--boards', ','.join(boards),
-         '--external-storage', '--nominal-environment', '--processor-monitor'],
+         '--external-storage', '--nominal-environment', '--processor-monitor', '--display-field'],
         ['tools/sil_to_verilog.py', 'chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.wl',
          '--lc', 'chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.lc',
          '--dict', 'chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze', '--nominal-environment',
@@ -40,6 +40,10 @@ def main():
          '--lc', 'chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.lc',
          '--dict', 'chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze', '--processor-monitor',
          '-o', str(out/'ContA_monitor.v')],
+        ['tools/sil_to_verilog.py', 'chm/sil/DispY-Rev-Cl.dm!1_/DispY-Rev-Cl.wl',
+         '--lc', 'chm/sil/DispY-Rev-Cl.dm!1_/DispY-Rev-Cl.lc',
+         '--dict', 'chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze', '--display-field',
+         '-o', str(out/'DispY_field.v')],
         ['tools/sil_storage_ddram.py', '-o', str(out/'msa_ddram.v')],
     ]
     for command in commands:
@@ -80,7 +84,8 @@ def main():
             connections.append(f'    .{name}({value})')
     groups = args.storage_modules*32
     address_bits = 14 + (groups-1).bit_length()
-    connections += ['    .baseboard_debug(baseboard_debug)', '    .processor_debug(processor_debug)']
+    connections += ['    .baseboard_debug(baseboard_debug)', '    .processor_debug(processor_debug)',
+                    '    .video_field(video_field)']
     connections += [f'    .storage_{n}({v})' for n, v in [
         ('reset', 'reset || !storage_initialized'), ('ready', 'board_ready'),
         ('req_valid', 'valid'), ('req_write', 'wr'), ('req_ready', 'accept'),
@@ -115,7 +120,7 @@ module dorado_native_machine #(parameter integer SYSPER=4) (
     output wire [63:0] ddram_wdata,
     output wire storage_ready,storage_initialized,
     output wire [31:0] baseboard_debug,processor_debug,
-    output wire video,hsync,vsync_n,hblank,vblank,halfline,pixel_clk
+    output wire video,hsync,vsync_n,hblank,vblank,halfline,pixel_clk,video_field
 );
   localparam integer GROUPS=GROUP_COUNT,RAW_BITS=ADDRESS_BITS;
   wire base_clock_out,term_ois;
@@ -197,9 +202,10 @@ endmodule
     wrapper = wrapper.replace('CONNECTIONS', ',\n'.join(connections))
     (out/'dorado_native_machine.sv').write_text(wrapper)
     sources = [str(out/n) for n in ['dorado_native_backplane.v', 'BaseBd_nominal.v',
-                                   'msa_ddram.v', 'ContA_monitor.v', 'dorado_native_machine.sv']]
+                                   'msa_ddram.v', 'ContA_monitor.v', 'DispY_field.v',
+                                   'dorado_native_machine.sv']]
     for name in boards:
-        if name.startswith('msa') or name in ('BaseBd','ContA'):
+        if name.startswith('msa') or name in ('BaseBd','ContA','DispY'):
             continue
         candidates = list(Path('verilog/generated').glob(name+'-Rev-*.v'))
         if len(candidates)!=1:
@@ -212,6 +218,7 @@ endmodule
     sources += ['fpga/mister/'+n+'.sv' for n in ['dorado_pack_hps','dorado_storage_group',
                 'dorado_storage_arb','dorado_storage_ddram','dorado_storage_init']]
     (out/'manifest.json').write_text(json.dumps({'native': True, 'storage_modules': args.storage_modules, 'pilot_disk': args.pilot_disk,
+        'display_field': True,
         'hps_pack': True, 'ethernet_wire': True, 'ethernet_host_port': True}, indent=2)+'\n')
     (out/'sources.f').write_text('\n'.join(sources)+'\n')
     print(f'Generated cold-start machine: {args.storage_modules} storage modules, {groups} raw groups')

@@ -103,6 +103,13 @@ NATIVE_JSON
     else
       echo 'set_global_assignment -name VERILOG_MACRO DORADO_CHECKPOINT'
     fi
+    if python3 - "$CHECKPOINT/manifest.json" <<'DISPLAY_FIELD_JSON'
+import json, sys
+sys.exit(0 if json.load(open(sys.argv[1])).get('display_field') else 1)
+DISPLAY_FIELD_JSON
+    then
+      echo 'set_global_assignment -name VERILOG_MACRO DORADO_DISPLAY_FIELD'
+    fi
     echo 'set_global_assignment -name ALLOW_POWER_UP_DONT_CARE OFF'
     cp "$HERE/checkpoint_timing.sdc" "$OUT/checkpoint_timing.sdc"
     echo 'set_global_assignment -name SDC_FILE checkpoint_timing.sdc'

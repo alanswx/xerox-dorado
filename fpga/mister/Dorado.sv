@@ -35,7 +35,9 @@ assign DDRAM_CLK = clk_sys;
 
 assign VGA_SL = 0;
 `ifndef DORADO_CHECKPOINT
+`ifndef DORADO_DISPLAY_FIELD
 assign VGA_F1 = 0;
+`endif
 `endif
 assign VGA_SCALER  = 0;
 assign VGA_DISABLE = 0;
@@ -284,6 +286,10 @@ altclkctrl #(.clock_type("Global Clock"), .ena_register_mode("falling edge"),
      .outclk(machine_clk));
 `ifdef DORADO_NATIVE
 dorado_native_machine #(.SYSPER(MACHINE_SYSPER)) u_native (
+`ifdef DORADO_DISPLAY_FIELD
+    // HM p.115: the real display VCW selects the interlaced field phase.
+    .video_field(VGA_F1),
+`endif
     .reset(~pll_locked), .baseboard_boot_n(baseboard_boot_n), .large_format(~status[4]),
     .storage_ready(storage_ready), .storage_initialized(storage_initialized),
     .baseboard_debug(baseboard_debug), .processor_debug(processor_debug),

@@ -1241,7 +1241,8 @@ class Generator:
             if drives:
                 self.exports.add(name)
 
-    def emit(self, nominal_environment: bool = False, processor_monitor: bool = False) -> str:
+    def emit(self, nominal_environment: bool = False, processor_monitor: bool = False,
+             display_field: bool = False) -> str:
         self.classify()
         mod = vname(self.b.name)
         if nominal_environment:
@@ -1252,6 +1253,10 @@ class Generator:
             if self.b.name.split('-Rev')[0] != 'ContA':
                 raise ValueError('processor monitor applies only to ContA')
             mod += '_monitor'
+        if display_field:
+            if self.b.name.split('-Rev')[0] != 'DispY':
+                raise ValueError('display field output applies only to DispY')
+            mod += '_field'
         out: list[str] = []
         A = out.append
 
@@ -1298,6 +1303,7 @@ class Generator:
         decl = ['    input  wire sys_clk'] + \
                (['    input wire baseboard_boot_n', '    output wire [31:0] baseboard_debug'] if nominal_environment else []) + \
                (['    output wire [31:0] processor_debug'] if processor_monitor else []) + \
+               (['    output wire video_field'] if display_field else []) + \
                [f'    input  wire {vname(n)}' for n in inputs] + \
                [f'    output wire {vname(n)}__drv' for n in exports]
         A(',\n'.join(decl) if decl else '    // no backplane ports detected')
@@ -1526,6 +1532,10 @@ class Generator:
             fields += [f'CIA_{i:02d}' for i in range(4, 16)]
             fields += [f'TPC_{i:02d}' for i in range(4, 16)]
             A('  assign processor_debug = {' + ', '.join(fields) + '};')
+        if display_field:
+            # HM p.115: OddField selects half-line VSync phasing. Export
+            # the real VCW latch for the scaler, without changing the board.
+            A('  assign video_field = OddField;')
         # An FPGA has no supply/temperature analog chain. Supply comparator
         # levels at its actual output pins, driven by the REAL firmware DAC.
         # The 6502 still runs ADConvert, range checks, power sequencing and
@@ -1860,6 +1870,8 @@ def main(argv: list[str]) -> int:
                     help='emit BaseBd nominal voltage/current/temperature comparators and physical boot input')
     ap.add_argument('--processor-monitor', action='store_true',
                     help='emit ContA passive task/PC/run/hold observation port')
+    ap.add_argument('--display-field', action='store_true',
+                    help='expose DispY actual OddField latch for video capture')
     args = ap.parse_args(argv[1:])
 
     board = load_board(args.wl, args.lc)
@@ -1868,7 +1880,8 @@ def main(argv: list[str]) -> int:
     gen = Generator(board, ecl, known_cells(args.cells),
                     cell_port_dirs(args.cells),
                     cells_wanting_clock(args.cells))
-    text = gen.emit(nominal_environment=args.nominal_environment, processor_monitor=args.processor_monitor)
+    text = gen.emit(nominal_environment=args.nominal_environment,
+                    processor_monitor=args.processor_monitor, display_field=args.display_field)
 
     if args.out:
         os.makedirs(os.path.dirname(args.out) or '.', exist_ok=True)

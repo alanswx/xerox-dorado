@@ -578,7 +578,7 @@ def _classify_boards(names: list[str]):
 
 def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
              external_storage: bool = False, nominal_environment: bool = False,
-             processor_monitor: bool = False) -> int:
+             processor_monitor: bool = False, display_field: bool = False) -> int:
     """Wire the boards together into one module, BY NAME.
 
     The backplane is not straight-through -- the BaseBoard drives each board's
@@ -605,6 +605,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
     info, vname = _classify_boards(names)
     if processor_monitor and 'ContA' not in info:
         raise SystemExit('--processor-monitor requires ContA')
+    if display_field and 'DispY' not in info:
+        raise SystemExit('--display-field requires DispY')
     if nominal_environment and 'BaseBd' not in info:
         raise SystemExit('--nominal-environment requires BaseBd')
     storage_boards = [n for n in names if info[n]['base'] == 'msa'] if external_storage else []
@@ -706,6 +708,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
         decl += ['    input wire baseboard_boot_n,', '    output wire [31:0] baseboard_debug,']
     if processor_monitor:
         decl.append('    output wire [31:0] processor_debug,')
+    if display_field:
+        decl.append('    output wire video_field,')
     if storage_boards:
         decl += storage_declarations()
     names_sorted = sorted(ports)
@@ -780,6 +784,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             A(f'  {d["module"]}_nominal #(.SYSPER(SYSPER)) b_{short} (')
         elif processor_monitor and short == 'ContA':
             A(f'  {d["module"]}_monitor b_{short} (')
+        elif display_field and short == 'DispY':
+            A(f'  {d["module"]}_field b_{short} (')
         elif short in storage_boards:
             A(f'  msa_ddram #(.SYSPER(SYSPER)) b_{short} (')
         elif short in ('BaseBd', 'DskEth'):
@@ -791,6 +797,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             conns += ['    .baseboard_boot_n(baseboard_boot_n)', '    .baseboard_debug(baseboard_debug)']
         if processor_monitor and short == 'ContA':
             conns.append('    .processor_debug(processor_debug)')
+        if display_field and short == 'DispY':
+            conns.append('    .video_field(video_field)')
         if short in storage_boards:
             index = storage_boards.index(short)
             conns += ['    .storage_clk(storage_clk)', '    .storage_reset(storage_reset)',
@@ -884,6 +892,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             A(declaration)
     if processor_monitor:
         A('    output wire [31:0] processor_debug,')
+    if display_field:
+        A('    output wire video_field,')
     A('    input  wire [15:0] probe_sel,')
     A('    output wire [31:0] probe_val,')
     A('    output wire [15:0] probe_words')
@@ -936,6 +946,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
         conns += ['    .baseboard_boot_n(baseboard_boot_n)', '    .baseboard_debug(baseboard_debug)']
     if processor_monitor:
         conns.append('    .processor_debug(processor_debug)')
+    if display_field:
+        conns.append('    .video_field(video_field)')
     if storage_boards:
         conns += [f'    .storage_{p}(storage_{p})' for p in
                   ('clk', 'reset', 'ready', 'req_valid', 'req_write', 'req_ready',
@@ -1113,11 +1125,14 @@ def main(argv: list[str]) -> int:
                     help="re-derive BACKPLANE_CASE_ALIASES from the .bp files")
     ap.add_argument('--processor-monitor', action='store_true',
                     help='expose passive ContA task/PC/run/hold observation port')
+    ap.add_argument('--display-field', action='store_true',
+                    help='expose DispY actual OddField latch for video capture')
     args = ap.parse_args(argv[1:])
     if args.emit:
         names = ([b.strip() for b in args.boards.split(',') if b.strip()]
                  if args.boards else DEFAULT_MACHINE)
-        return emit_top(args.emit, names, args.module, args.external_storage, args.nominal_environment, args.processor_monitor)
+        return emit_top(args.emit, names, args.module, args.external_storage,
+                        args.nominal_environment, args.processor_monitor, args.display_field)
     if args.json:
         return to_json(args.json)
     if args.ports:

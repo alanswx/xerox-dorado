@@ -302,6 +302,20 @@ Setup/hold validation remains mandatory before deployment. No startup
 parity-state modification has been made; the serial faults explain why the
 firmware could not configure the processor's manifold in the first place.
 
+**Native field identification is now wired for the scaler (hardware pending).**
+HM p.115 supports only 2:1 interlaced displays; DispY's VCW `OddField`
+latch selects the half-line VSync phase. The native wrapper previously tied
+MiSTer VGA_F1 to zero (only the Executive checkpoint supplied a field ID).
+The optional generated DispY `_field` variant exports that actual latch,
+which the native wrapper forwards to VGA_F1. It adds no state or display
+logic. Default DispY regeneration is byte-identical; removing the variant's
+module suffix, port and direct alias reproduces the canonical board exactly.
+The complete four-module native machine lints cleanly. `display_field` in
+the manifest enables `DORADO_DISPLAY_FIELD`, keeping old native exports
+buildable. `Dorado_Native6_20261017` is compiling this change separately;
+Native3/4/5 remain first cold-start candidates and have the older field tie.
+No claim of a Cedar display on hardware is made yet.
+
 **The native Pilot medium requires a different format.**
 `PilotDiskDefs.mc!1` and `PilotDisk.mc!1` specify drive 0's emulated geometry:
 real cylinder = virtual cylinder MOD 815, real head = virtual cylinder / 815,
