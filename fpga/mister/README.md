@@ -1,5 +1,16 @@
 # Xerox Dorado for MiSTer
 
+**The Executive cursor moves on MiSTer14 (October 17 UTC).**
+Run `/media/fat/Scripts/DoradoMouse.sh` and wait for the prompt. USB mouse
+packets reach the real terminal input, and screenshots show the cursor
+translated exactly by the requested deltas. Keyboard commands still work.
+[Hardware screenshot](../../docs/images/rtl-mister14-mouse-moved-2026-10-17.png).
+The disk's `calculator` utility accepts mouse clicks: `7 + 3 =` displays
+`10.`. [Application screenshot](../../docs/images/rtl-mister14-calculator-mouse-2026-10-17.png).
+This launcher preserves the
+older ones and uses its own disposable disk. Mouse fit/timing evidence:
+`reports/2026-10-17-mouse/` (core setup +8.170 ns, hold +0.064 ns).
+
 **Invaders now starts from Executive on MiSTer14 (October 17 UTC).**
 The Ethernet FIFO parity checkers had rejected valid words, trapping the
 game in discovery retries. The corrected RTL reaches its game screen in
@@ -175,8 +186,9 @@ checkpoint hardware configuration.
 
 ## Completion sequence
 
-1. Qualify video, physical keyboard input, an Alto application launched from
-   the pack, and sustained disk I/O on hardware.
+1. Mouse motion, Executive keyboard input and calculator button input work
+   on hardware. Qualify additional software compatible with Dorado AEmu;
+   do not make arbitrary Alto games a CPU correctness gate.
 2. Finish disk persistence: flush a final dirty track without requiring a
    seek, handle errors/remounts, and verify a guest-created file after restart.
 3. Supply a local boot server on the MiSTer ARM and a buffered Ethernet
@@ -188,7 +200,7 @@ checkpoint hardware configuration.
    Remove the testbench checksum feeder, preloaded world/table handoff, and
    saved processor state. Acceptance: power-up to Executive with the
    external network disconnected.
-5. Add mouse input and external SDRAM-backed physical storage. Keep the
+5. Add external SDRAM-backed physical storage. Keep the
    Dorado cache, address map and memory-controller behavior around it.
 6. Extend the local ARM service with the required file protocols, then
    qualify Mesa microcode, the matched germ, Pilot disk I/O and Cedar using
