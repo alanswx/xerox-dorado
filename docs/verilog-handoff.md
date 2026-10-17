@@ -8,6 +8,103 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+## Current state (Native23 candidate; MiSTer14 still runs Native21)
+
+**Goal remains incomplete: no Cedar OS prompt on the FPGA yet.** Native21
+fixed the source-germ serial-module corruption and is deployed on 10.0.2.14.
+It reaches 812 / germInLoad, then faults and loops in RequeueSearchSQ.
+
+**Confirmed next fix, committed/pushed as fd52288d:** ProcH d13 selected
+MC10170's legacy output inversion. The physical XOR fixes Mesa's signed-jump
+condition. CompactVM previously treated equal bounds as less-than, vacated
+VP 3e02..3e05 and faulted on its local frame at 3e056e. Canonical generator and
+regenerated ProcH now select LEGACY_B_INVERT=0 at this package only.
+Signed-compare regression passes 256 vectors; frozen old RTL fails0-0-1.
+Compute, module-switch and map-buffer-hold regressions pass.
+
+**Diagnostic progress:** a layout-audited RTL replay preserves all four germ
+mappings through 199M, FaultInfo stays 0003 rather than 4080, and 51 nonzero pages
+of BasicCedarDorado.boot!22 match byte-for-byte in low mapped VM. This is a
+POD diagnostic, not a fresh cold/FPGA qualification. No C state is imported.
+Report: fpga/mister/reports/2026-10-17-native23/. Saved states and inspectors:
+build/rtl-executive/native23-candidate/diagnostic{169,199}m.rtl.
+
+Scratch/log names below are relative to build/rtl-executive/ unless a full
+path is given.
+
+| Active job | Session / process | Location / next check |
+| --- | --- | --- |
+| Native23 Quartus |6695; remote fitter2159605 | misterubuntu:/home/alans/mister/Dorado_Native23_20261017/core; routing. Local native23-build.log. Inspect STA/clock reports before hardware test. |
+| Native23 cold DDR220M |67681; local60378 | cedar-native23-ddrcheck.log; verilog/verilator/obj_native_rom_cedar_native23ddr; SYSPER4. Passive copy trace enabled at61252022, from85000000, before copy. No guest-state writes. |
+| Constrained software desktop control |28760 | cedar-2mb-desktop/; restores paired3B snapshot/PDI, Guest+two Returns at3.1B,36B limit, periodic PGMs and FTP trace. Capacity evidence only. |
+
+Capacity-control evidence is committed as 5b7dc655. Native22's slow-clock
+control is rejected: one source-read mismatch among 8931 words; its fit has
+three unreviewed hold violations. It is not on the SD card. Native23 retains
+Native21's clock ratio 4; the only functional RTL change is d13.
+
+**Capacity:** a fresh software control with the FPGA's 2 MB RAM / 16K-entry map
+visually reaches Cedar 6.1.0's `Please login / Name:` prompt at 3B. Stock 8 MB / 64K
+also does. No capacity increase is needed for login; desktop capacity is still
+under test. The 1B stop was too short for all configurations. The current recipe
+types at 2.5B; old 650M notes are stale. Software control uses the normal C IOCB
+bridge on a disposable PDI; never present it as FPGA evidence.
+
+**Independent timer debt:** BaseBoard crystal is 10 MHz, but MC12061 uses fabric/8,
+making its timers 1.667x fast relative to guest time at SYSPER4. A scratch exact
+3/(5*SYSPER) edge accumulator passes the nominal board cadence at 4, 8, 16.
+It is not in Native23 or production; firmware startup needs qualification.
+Cold component tests use correctly paced Pendulum/Refresh substitutions, so
+those tests do not qualify the physical crystal. See timer10mhz-candidate/ and
+reports/2026-10-17-baseboard-cadence/.
+
+**Hardware handoff:** only MiSTer14 is allocated. Main currently logs to
+/media/fat/games/DoradoRTL/Cedar21_20261017/main.log. Fresh Cedar23 pack/profile
+are staged, baseline SHA c0cd6784... verified; no 23 RBF/MGL has been loaded.
+Keep the original immutable Main (System_20261017/MiSTer-1fb2e098e6f0dba6)
+and raw-Pup server (dorado-server-215276e0b3d780b4). Never overwrite a running
+Main executable. Server root already contains all 34 Basic.Loadees.
+
+After timing review, prepare the candidate RBF/MGL for hardware testing under
+_Computer/DoradoRTL_Cedar23_20261017. Preserve the previous Main log, then
+rename its open log to23/main.log and load through /dev/MiSTer_cmd. Helpers:
+cedar23-launch/c-until-request.py (hold C until a NEW BFN113, always release),
+cedar3-launch/cool-boot.py (three original boot pushes ONCE),
+cedar10-launch/type-keys.py, mister_mouse.py. Allow the original firmware's
+~4.5 min startup before concluding it is stuck. Never use +frame or overwrite
+the Executive/golden artifacts. Actual screenshots are required for OS claims.
+
+## Current TODOs (2026-10-17, Native21)
+
+- [x] Reproduce the four-module source corruption in a cold RTL boot.
+- [x] Fix MemX j01 selection timing; old RTL fails the captured module switch.
+- [x] Cold100M original-image/source-copy gate, four modules/native clocks.
+- [x] Quartus fit and all29 timing/clock checks; deploy matching Native21 RBF.
+- [x] Original FPGA BaseBoard boot, BFN113 download, correct source germ words.
+- [x] Decode raw cursor810; match the screen to812 / germInLoad (inference),
+  and confirm812 in the cache-aware RTL snapshot.
+- [x] Reproduce the post-entry queue loop in the original-storage diagnostic.
+- [x] Trace the first fault at germ VA0x3e056e: a reversed signed jump lets
+  CompactVM vacate its own pages. The queue loop is a consequence.
+- [x] Finish actual DDR-adapter cold200M run and extended original-storage run;
+  both reproduce the post-entry loop. Keep POD restores diagnostic only.
+- [x] Isolate the CompactVM signed-jump polarity and pass the captured equality path.
+- [ ] Review Native23 Quartus setup/hold and clock coverage; test on MiSTer14
+  with the passing focused regression/replay and a fresh pack. Finish the
+  full cold DDR qualification in parallel before declaring the build qualified.
+- [ ] Check remaining fixture differences: map/cache seeds versus native cold
+  RAM, complete BaseBoard handoff, DDR pauses, HPS track-buffer timing.
+  A passing source-copy gate does not qualify all of these.
+- [ ] Verify the FPGA gets beyond812 through the original disk controller.
+  The diagnostic now loads 51 verified nonzero OS-file pages; hardware is pending.
+- [ ] Calibrate MC12061 to the10MHz crystal and recheck BaseBoard firmware/timers.
+- [ ] Boot the Cedar login, type Guest and two Returns, reach the desktop.
+- [ ] Type `Echo FPGA`, capture real OS text, and verify keyboard/mouse live.
+- [ ] Commit/push each confirmed fix and evidence; retain Executive/mouse/disk
+  regressions. Space Invaders compatibility remains a separate open item.
+
+## Investigation diary (historical; current state above takes precedence)
+
 **Current FPGA RAM/map geometry reaches Cedar login in software, 19:47 UTC.**
 Fresh3B controls complete:2MB/map16K28604 px, stock8MB/map64K28601 px.
 Visually verified the constrained screen: Cedar6.1.0 / Please login / Name:.
@@ -162,34 +259,6 @@ No production oscillator fix yet. Report2026-10-17-baseboard-cadence.
 BasicCedar boot layout was parsed:1047 data pages, max virtual page06b8,
 full1060 pages; no evidence this payload needs a bigger map. FaultVA3e056e
 fits the current16K-entry map. Preserve this arithmetic against stale older notes.
-
-## Current TODOs (2026-10-17, Native21)
-
-- [x] Reproduce the four-module source corruption in a cold RTL boot.
-- [x] Fix MemX j01 selection timing; old RTL fails the captured module switch.
-- [x] Cold100M original-image/source-copy gate, four modules/native clocks.
-- [x] Quartus fit and all29 timing/clock checks; deploy matching Native21 RBF.
-- [x] Original FPGA BaseBoard boot, BFN113 download, correct source germ words.
-- [x] Decode raw cursor810; match the screen to812 / germInLoad (inference),
-  and confirm812 in the cache-aware RTL snapshot.
-- [x] Reproduce the post-entry queue loop in the original-storage diagnostic.
-- [x] Trace the first map fault/store at germ VA0x3e056e. RequeueSearchSQ is a stuck
-  predecessor search, not a valid idle prompt; follow queue/link data to its
-  first incorrect read/write rather than treating the final loop as the cause.
-- [x] Finish actual DDR-adapter cold200M run and extended original-storage run;
-  both reproduce the post-entry loop. Keep POD restores diagnostic only.
-- [x] Isolate the CompactVM signed-jump polarity and pass the captured equality path.
-- [ ] Qualify Native23 d13 fix with fresh cold boot, Quartus timing/clock audit,
-  then program MiSTer14 and verify progress past the previous germ failure.
-- [ ] Check remaining fixture differences: map/cache seeds versus native cold
-  RAM, complete BaseBoard handoff, DDR pauses, HPS track-buffer timing.
-  A passing source-copy gate does not qualify all of these.
-- [ ] Get beyond812 through the germ's disk boot using original IOCBs/controller.
-- [ ] Calibrate MC12061 to the10MHz crystal and recheck BaseBoard firmware/timers.
-- [ ] Boot the Cedar login, type Guest and two Returns, reach the desktop.
-- [ ] Type `Echo FPGA`, capture real OS text, and verify keyboard/mouse live.
-- [ ] Commit/push each confirmed fix and evidence; retain Executive/mouse/disk
-  regressions. Space Invaders compatibility remains a separate open item.
 
 **Active control runs,18:45 UTC.** Native22 is a separate build copied
 from21: only MACHINE_SYSPER changes4->8; Native21's placement-specific e04
