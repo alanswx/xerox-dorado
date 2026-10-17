@@ -1,0 +1,216 @@
+{
+  "scope": "diagnostic only; exact low-VM/cache view after layout-audited RTL replay, not cold or FPGA qualification",
+  "snapshot_samples": 199000000,
+  "boot_file": "chm/cedar/cedar6.1/BasicCedarDorado.boot!22",
+  "boot_file_sha256": "c17786509669f29297161730ec7a801a68ee6a891b3b998f92168b6207b0e435",
+  "exact_nonzero_pages": 51,
+  "matches": [
+    {
+      "filepage": 18,
+      "vp": 513
+    },
+    {
+      "filepage": 19,
+      "vp": 514
+    },
+    {
+      "filepage": 20,
+      "vp": 515
+    },
+    {
+      "filepage": 24,
+      "vp": 519
+    },
+    {
+      "filepage": 25,
+      "vp": 520
+    },
+    {
+      "filepage": 26,
+      "vp": 521
+    },
+    {
+      "filepage": 27,
+      "vp": 522
+    },
+    {
+      "filepage": 28,
+      "vp": 523
+    },
+    {
+      "filepage": 29,
+      "vp": 524
+    },
+    {
+      "filepage": 30,
+      "vp": 525
+    },
+    {
+      "filepage": 31,
+      "vp": 526
+    },
+    {
+      "filepage": 32,
+      "vp": 527
+    },
+    {
+      "filepage": 33,
+      "vp": 528
+    },
+    {
+      "filepage": 34,
+      "vp": 529
+    },
+    {
+      "filepage": 35,
+      "vp": 530
+    },
+    {
+      "filepage": 36,
+      "vp": 531
+    },
+    {
+      "filepage": 37,
+      "vp": 532
+    },
+    {
+      "filepage": 38,
+      "vp": 533
+    },
+    {
+      "filepage": 39,
+      "vp": 534
+    },
+    {
+      "filepage": 40,
+      "vp": 535
+    },
+    {
+      "filepage": 41,
+      "vp": 536
+    },
+    {
+      "filepage": 42,
+      "vp": 537
+    },
+    {
+      "filepage": 43,
+      "vp": 538
+    },
+    {
+      "filepage": 44,
+      "vp": 539
+    },
+    {
+      "filepage": 45,
+      "vp": 540
+    },
+    {
+      "filepage": 46,
+      "vp": 541
+    },
+    {
+      "filepage": 47,
+      "vp": 542
+    },
+    {
+      "filepage": 48,
+      "vp": 543
+    },
+    {
+      "filepage": 49,
+      "vp": 544
+    },
+    {
+      "filepage": 50,
+      "vp": 545
+    },
+    {
+      "filepage": 51,
+      "vp": 546
+    },
+    {
+      "filepage": 52,
+      "vp": 547
+    },
+    {
+      "filepage": 53,
+      "vp": 548
+    },
+    {
+      "filepage": 54,
+      "vp": 549
+    },
+    {
+      "filepage": 55,
+      "vp": 550
+    },
+    {
+      "filepage": 56,
+      "vp": 551
+    },
+    {
+      "filepage": 57,
+      "vp": 552
+    },
+    {
+      "filepage": 58,
+      "vp": 553
+    },
+    {
+      "filepage": 59,
+      "vp": 554
+    },
+    {
+      "filepage": 60,
+      "vp": 555
+    },
+    {
+      "filepage": 61,
+      "vp": 556
+    },
+    {
+      "filepage": 63,
+      "vp": 558
+    },
+    {
+      "filepage": 64,
+      "vp": 559
+    },
+    {
+      "filepage": 68,
+      "vp": 563
+    },
+    {
+      "filepage": 69,
+      "vp": 564
+    },
+    {
+      "filepage": 70,
+      "vp": 565
+    },
+    {
+      "filepage": 71,
+      "vp": 566
+    },
+    {
+      "filepage": 72,
+      "vp": 567
+    },
+    {
+      "filepage": 73,
+      "vp": 568
+    },
+    {
+      "filepage": 74,
+      "vp": 569
+    },
+    {
+      "filepage": 75,
+      "vp": 570
+    }
+  ],
+  "germ_map_entries_unchanged": true,
+  "fault_info": "0003 (same as before fault, old failure was4080)",
+  "note": "Zero pages excluded; other pages are not asserted delivered. Current disk transfer is in progress."
+}

@@ -1,0 +1,26 @@
+BB-CADENCE MCPreClk period=533 fabric samples
+BB-CADENCE MCPreClk period=534 fabric samples
+BB-CADENCE MCPreClk period=533 fabric samples
+BB-CADENCE MCPreClk period=533 fabric samples
+BB-CADENCE MCPreClk period=534 fabric samples
+BB-CADENCE MCPreClk period=533 fabric samples
+BB-CADENCE MCPreClk period=533 fabric samples
+BB-CADENCE Pendulum period=8528 fabric samples
+BB-CADENCE Refresh period=8528 fabric samples
+BB-CADENCE Pendulum period=8528 fabric samples
+BB-CADENCE Refresh period=8528 fabric samples
+BB-CADENCE Pendulum period=8544 fabric samples
+BB-CADENCE Refresh period=8544 fabric samples
+BB-CADENCE Pendulum period=8528 fabric samples
+BB-CADENCE Refresh period=8528 fabric samples
+BB-CADENCE Pendulum period=8528 fabric samples
+BB-CADENCE Refresh period=8528 fabric samples
+BB-CADENCE Pendulum period=8544 fabric samples
+BB-CADENCE Refresh period=8544 fabric samples
+BB-CADENCE Pendulum period=8528 fabric samples
+BB-CADENCE Refresh period=8528 fabric samples
+TIMER10MHZ PASS SYSPER=16 MCPreClk=1MHz Pendulum/Refresh=16us
+- build/rtl-executive/timer10mhz-candidate/tb_bb_cadence.sv:21: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 640ns; walltime 0.861 s; speed 2.133 us/s
+- Verilator: cpu 0.300 s on 1 threads; alloced 2 MB

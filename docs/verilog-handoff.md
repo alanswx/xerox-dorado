@@ -8,6 +8,34 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Independent timer candidate prepared, 19:30 UTC.** Scratch timer10mhz-candidate
+uses exact3/(5*SYSPER) oscillator edge cadence for the10MHz crystal. Nominal
+BaseBoard probe PASS at4,8,16:1MHz MCPreClk and16us Pendulum/Refresh relative
+to guest time. Reports/baseboard-cadence/candidate10mhz-sysper*.txt. Downstream
+Pendulum is quantized to the board clock phase; average period is checked.
+Not in production/Native23; full firmware startup qualification remains open.
+When promoting, use bounded accumulator width and generator-provided SYSPER.
+The full component boot's Pendulum/Refresh are correctly paced substitutions,
+so that run does not qualify the physical BaseBoard crystal/timers.
+
+**Cedar OS-file data now transfers in the diagnostic, 19:27 UTC.** Native23
+replay through200M completes;199M snapshot still has FaultInfo0003 and all four
+germ entries intact. Cache/map-aware low-VM export matches51 NONZERO pages of
+BasicCedarDorado.boot!22 byte-for-byte (zero pages excluded). This is evidence
+of real boot-file data arriving through the RTL disk path, not an OS prompt.
+Report2026-10-17-native23/diagnostic-os-pages.json. A small parse first treated
+Entry.value as upper page bits; corrected against BootFile.mesa Entry: one page
+word plus two PageValue words. Full1060-page layout parses exactly.
+
+The clock-reading loops correspond to BootChannelDisk.cyan61 Pause[100] in
+transferWait; RTClock advances6448@160M ->6c86@169M ->8802@199M, high000b,
+consistent with one pulse/~32us. Further disk input follows. Don't call these
+loops stuck without checking elapsed guest time and transfer progress.
+MPROWS in watch_map uses the old physical low-memory view; after CompactVM/
+boot-file page loads, blank rows are not proof of any OS stage. The Cedar-aware
+inspector also reads blank199M; the boot file explicitly carries the I/O page.
+Use actual FPGA screenshots for display claims. No Native23 deployment yet.
+
 **Overflow root cause confirmed in captured path, 19:21 UTC.** Canonical generator
 and regenerated ProcH now select the physical d13 XOR; signed-compare-test
 PASS256, frozen old board fails the equal JLB case0-0-1. Compute, storage-module
