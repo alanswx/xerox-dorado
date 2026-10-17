@@ -1,0 +1,13 @@
+tb_alu_vs_c: SignedCarry (ProcH d13) vs the emulator's ovf over 2560 arithmetic vectors -- agrees 1936, disagrees 624
+tb_alu_vs_c:   entry 00 : agrees 160 of 256
+tb_alu_vs_c:   entry 06 : agrees 136 of 256
+tb_alu_vs_c:   entry 14 : agrees 256 of 256
+tb_alu_vs_c:   entry 22 : agrees 256 of 256
+tb_alu_vs_c:   entry 36 : agrees 160 of 256
+tb_alu_vs_c:   entry 40 : agrees 160 of 256
+tb_alu_vs_c:   entry 46 : agrees 136 of 256
+tb_alu_vs_c:   entry 54 : agrees 256 of 256
+tb_alu_vs_c:   entry 62 : agrees 256 of 256
+tb_alu_vs_c:   entry 76 : agrees 160 of 256
+tb_alu_vs_c: 10752 vectors from the C emulator, 0 mismatches
+- verilog/verilator/tb_alu_vs_c.sv:154: Verilog $finish

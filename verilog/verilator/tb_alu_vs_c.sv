@@ -46,12 +46,11 @@ module tb_alu_vs_c;
   //     pin 15  SignedCarry
   //
   // Its other six data pins are unconnected on the board, so they are 0 here.
-  // THE POINT: cell_MC10170's p15 polarity is the open question behind IM
-  // parity, and d13 is the one use of it that is not a parity check at all --
-  // so cpu.c's own `ovf` is an oracle for it that owes nothing to the parity
-  // argument.
+  // Use the physical XOR selected by the generated ProcH d13 instance.
+  // signed-compare-test also checks that board parameter and ContA's gate;
+  // this bench checks the detector against the C arithmetic vectors.
   wire signed_carry;
-  cell_MC10170 u_d13 (
+  cell_MC10170 #(.LEGACY_B_INVERT(0)) u_d13 (
       .p3(B[15]), .p4(A[15]), .p5(1'b0), .p6(1'b0), .p7(1'b0),
       .p9(S[3]),  .p10(1'b0), .p11(1'b0), .p12(1'b0),
       .p13(F[15]), .p14(carry[4]),
@@ -119,11 +118,9 @@ module tb_alu_vs_c;
                    entry, va, vb, carry[4], vc[0]);
         end
       end
-      // SIGNED OVERFLOW: tally BOTH polarities rather than assume one. The
-      // cell's p15 is written inverted today and the IM-parity work argues it
-      // should not be; cpu.c's `ovf` owes nothing to that argument, so
-      // whichever column agrees decides it. Only ARITHMETIC entries (M = 0)
-      // are counted -- overflow is meaningless for a logic op.
+      // Overflow is defined for the signed add/subtract operations below.
+      // These used to be informational tallies, allowing the legacy polarity
+      // to pass the gate even though Cedar's signed jumps depend on it.
       if (M == 1'b0) begin
         arith_n = arith_n + 1;
         per_tot[entry[5:0]]  = per_tot[entry[5:0]] + 1;
@@ -136,25 +133,16 @@ module tb_alu_vs_c;
     $fclose(fd);
     $display("tb_alu_vs_c: SignedCarry (ProcH d13) vs the emulator's ovf over %0d arithmetic vectors -- agrees %0d, disagrees %0d",
              arith_n, sc_same, sc_inv);
-    // THE DISCRIMINATOR IS ENTRIES 14, 22 AND 54. Under cell_MC10170's
-    // UN-INVERTED p15 they agree with cpu.c on 256 of 256 vectors each; under
-    // the inverted p15 shipped today, 0 of 256. Nothing else in the table
-    // splits cleanly, because alu_op() uses a different overflow formula per
-    // operation while d13 computes one fixed function -- those three are the
-    // entries where the C's formula IS the hardware's.
-    //
-    // This is the THIRD independent confirmation that p15 should not be
-    // inverted, after the data sheet's logic diagram and PARC's thirteen
-    // IRTable entries reading PE' = 1 with parity enabled. It is a DISPLAY
-    // and not a $fatal only because the cell is not fixed yet: doing so
-    // regresses datapath/operand/step/sendmir/compute-test, which appear to
-    // be calibrated against the current polarity. Turn these three into
-    // assertions the moment the cell is corrected.
-    //
-    // PER ENTRY. alu_op() computes overflow with a DIFFERENT formula per
-    // operation (HM section 3.7) while d13 computes one fixed function of the
-    // sign bits, the carry and S3 -- so a blanket total cannot settle
-    // anything. An entry that agrees 100% or 0% is the one that can.
+    // HM3.7 specifies overflow for A+B, A+B+1, A-B-1 and A-B.
+    // Keep per-entry tallies for the other arithmetic functions, whose flag
+    // meaning is less general, and gate the four signed operations.
+    for (ei = 0; ei < 64; ei = ei + 1)
+      if (ei == 6'o14 || ei == 6'o54 || ei == 6'o22 || ei == 6'o62)
+        if (per_tot[ei] == 0 || per_same[ei] != per_tot[ei]) begin
+          errors = errors + 1;
+          $display("tb_alu_vs_c: FAIL signed overflow entry %02o: %0d/%0d", ei, per_same[ei], per_tot[ei]);
+        end
+
     for (ei = 0; ei < 64; ei = ei + 1)
       if (per_tot[ei] != 0)
         $display("tb_alu_vs_c:   entry %02o : agrees %0d of %0d", ei, per_same[ei], per_tot[ei]);

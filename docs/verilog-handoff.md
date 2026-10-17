@@ -20,7 +20,10 @@ condition. CompactVM previously treated equal bounds as less-than, vacated
 VP 3e02..3e05 and faulted on its local frame at 3e056e. Canonical generator and
 regenerated ProcH now select LEGACY_B_INVERT=0 at this package only.
 Signed-compare regression passes 256 vectors; frozen old RTL fails0-0-1.
-Compute, module-switch and map-buffer-hold regressions pass.
+Compute, module-switch and map-buffer-hold regressions pass. The older
+alu-diff probe now asserts overflow on all four documented signed add/subtract
+operations (previously informational only):10752 vectors pass, including1024
+signed-overflow cases. signed-compare-test also protects the board override.
 
 **Diagnostic progress:** a layout-audited RTL replay preserves all four germ
 mappings through 199M, FaultInfo stays 0003 rather than 4080, and 51 nonzero pages
