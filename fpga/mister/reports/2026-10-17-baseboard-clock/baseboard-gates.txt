@@ -1,0 +1,13 @@
+tb_baseboard: CLOCKGEN over 4000 sys_clk -- StartClockPulse' 500 edges, EndClockPulse 500 edges, StartClockPulse' period 16 sys_clk
+tb_baseboard: SCP' 11111000000001111111100000000111
+tb_baseboard: ECP  11100000000111111110000000011111
+tb_baseboard: address bus changed 5939 times, 4452 into ROM (0xC000+)
+tb_baseboard: reset vector read off the bus as f3a7
+tb_baseboard: the 6502 then fetched from it and ran
+tb_baseboard: 8 of 8 reset-routine bytes match the disassembly
+- verilog/verilator/tb_baseboard.sv:172: Verilog $finish
+BASEBOARD-MANIFOLD PASS: all 8 shift/read data combinations through j17/l24; 12-bit address a35 captured by l21/l22
+- verilog/verilator/tb_baseboard_manifold.sv:43: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 360ps; walltime 0.001 s; speed 347.155 ns/s
+- Verilator: cpu 0.001 s on 1 threads; alloced 2 MB

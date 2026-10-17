@@ -1786,6 +1786,7 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
     .p24(VCC65)
   ); // i2716
   cell_MCS6532 u_c62 (
+    .sys_clk(sys_clk),
     .p2(MCA_05),
     .p3(MCA_04),
     .p4(MCA_03),
@@ -2375,6 +2376,7 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
     .dbi({(MCD_7__f60_9 | MCD_7__e60_9 | MCD_7__c60_9 | MCD_7__b60_9 | MCD_7__b61_9 | MCD_7__c61_9 | MCD_7__h61_9 | MCD_7__i61_9 | MCD_7__h11_7 | MCD_7__i62_26 | MCD_7__l62_26 | MCD_7__h13_7 | MCD_7__b11_7 | MCD_7__c62_26 | MCD_7__f62_26 | MCD_7__f63_26 | MCD_7__b13_7), (MCD_6__f60_10 | MCD_6__e60_10 | MCD_6__c60_10 | MCD_6__b60_10 | MCD_6__b61_10 | MCD_6__c61_10 | MCD_6__c11_7 | MCD_6__h61_10 | MCD_6__i61_10 | MCD_6__i11_7 | MCD_6__i13_7 | MCD_6__i62_27 | MCD_6__l62_27 | MCD_6__c13_7 | MCD_6__c62_27 | MCD_6__f62_27 | MCD_6__f63_27), (MCD_5__c62_28 | MCD_5__f62_28 | MCD_5__f63_28 | MCD_5__d13_7 | MCD_5__f60_11 | MCD_5__e60_11 | MCD_5__c60_11 | MCD_5__b60_11 | MCD_5__b61_11 | MCD_5__c61_11 | MCD_5__d11_7 | MCD_5__h61_11 | MCD_5__i61_11 | MCD_5__j11_7 | MCD_5__l62_28 | MCD_5__i62_28 | MCD_5__j13_7), (MCD_4__f60_13 | MCD_4__e60_13 | MCD_4__c60_13 | MCD_4__b60_13 | MCD_4__b61_13 | MCD_4__c61_13 | MCD_4__e11_7 | MCD_4__h61_13 | MCD_4__i61_13 | MCD_4__k11_7 | MCD_4__k13_7 | MCD_4__l62_29 | MCD_4__i62_29 | MCD_4__e13_7 | MCD_4__f62_29 | MCD_4__c62_29 | MCD_4__f63_29), (MCD_3__b12_7 | MCD_3__b14_7 | MCD_3__c62_30 | MCD_3__f62_30 | MCD_3__f63_30 | MCD_3__f60_14 | MCD_3__e60_14 | MCD_3__c60_14 | MCD_3__b60_14 | MCD_3__b61_14 | MCD_3__c61_14 | MCD_3__h61_14 | MCD_3__i61_14 | MCD_3__h12_7 | MCD_3__h14_7 | MCD_3__i62_30 | MCD_3__l62_30), (MCD_2__f60_15 | MCD_2__e60_15 | MCD_2__c60_15 | MCD_2__b60_15 | MCD_2__b61_15 | MCD_2__c61_15 | MCD_2__c12_7 | MCD_2__h61_15 | MCD_2__i61_15 | MCD_2__i12_7 | MCD_2__l62_31 | MCD_2__i14_7 | MCD_2__i62_31 | MCD_2__f62_31 | MCD_2__f63_31 | MCD_2__c14_7 | MCD_2__c62_31), (MCD_1__f60_16 | MCD_1__e60_16 | MCD_1__c60_16 | MCD_1__b60_16 | MCD_1__b61_16 | MCD_1__c61_16 | MCD_1__d12_7 | MCD_1__h61_16 | MCD_1__i61_16 | MCD_1__j12_7 | MCD_1__j14_7 | MCD_1__l62_32 | MCD_1__i62_32 | MCD_1__d14_7 | MCD_1__f62_32 | MCD_1__f63_32 | MCD_1__c62_32), (MCD_0__f60_17 | MCD_0__e60_17 | MCD_0__c60_17 | MCD_0__b60_17 | MCD_0__b61_17 | MCD_0__c61_17 | MCD_0__e12_7 | MCD_0__h61_17 | MCD_0__i61_17 | MCD_0__k12_7 | MCD_0__k14_7 | MCD_0__l62_33 | MCD_0__i62_33 | MCD_0__e14_7 | MCD_0__f62_33 | MCD_0__f63_33 | MCD_0__c62_33)})
   ); // MCS6502
   cell_MCS6532 u_f62 (
+    .sys_clk(sys_clk),
     .p2(MCA_05),
     .p3(MCA_04),
     .p4(MCA_03),
@@ -2419,6 +2421,7 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
     .pb_in({MASync, Trap_p_, DMD_00, TCPI_0, TCPI_1, TCPI_2, TCPI_3, TDMuxData})
   ); // MCS6532
   cell_MCS6532 u_f63 (
+    .sys_clk(sys_clk),
     .p2(MCA_05),
     .p3(MCA_04),
     .p4(MCA_03),
@@ -3074,6 +3077,7 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
     .p24(VCC113)
   ); // i2716
   cell_MCS6532 u_i62 (
+    .sys_clk(sys_clk),
     .p2(MCA_05),
     .p3(MCA_04),
     .p4(MCA_03),
@@ -3767,6 +3771,7 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
     .p15(UseDMD__drv)
   ); // MC10124
   cell_MCS6532 u_l62 (
+    .sys_clk(sys_clk),
     .p2(MCA_05),
     .p3(MCA_04),
     .p4(MCA_03),

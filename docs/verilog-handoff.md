@@ -63,6 +63,42 @@ uses frozen overlay SHA256
 `f0c8e9d921ddad3d050ec5a6b094d4de566cbca0a4d1e5a10778d429f1ace7ad`;
 Quartus synthesis is in progress. Actual FPGA Cedar remains unqualified.
 
+**Clock coverage correction, 2026-10-17 10:20 UTC.** Native12's
+29 nonnegative slack checks did not cover the BaseBoard RIOT clock.
+`report_ucp` identifies g08.qa as an unconstrained internal clock; adding
+its actual /80 relationship exposes hold down to -8.116 ns. This is a
+real qualification gap, separate from framework I/O delays. Earlier
+"all checks pass" statements below refer only to the clocks then analyzed.
+The RIOT wrapper now uses sys_clk with a PHI2 rising-edge enable, and its
+registered read output obeys that enable along with writes and timers.
+`riot-clock-test` compares 27,074 PHI2 cycles with the original clocked
+model: all RAM, ports, four prescalers and IRQ behavior agree. BaseBoard
+ROM and serial manifold gates pass; a 100M-sample real-ROM five-board probe
+reaches nonzero manifold programming (1,148 DMD transitions, 2,298 clocks).
+That bound does not qualify native boot. Evidence:
+`reports/2026-10-17-baseboard-clock/`.
+
+Native13's owned fitter was stopped rather than finish a build with this
+clock gap. **Native14** includes the clock correction and both Initial
+fixes, frozen overlay SHA256
+`7a71cfbfbda1eda78207d603a0a6ec7c342e5df28910ce1fe0fb5d8e9ff854a5`,
+project `misterubuntu:/home/alans/mister/Dorado_Native14_20261017/core`.
+Synthesis is running. Require zero illegal/unconstrained clocks using
+`audit_native_clocks.tcl` and `check_native_timing.py` before deployment.
+The actual FPGA is back on Native11; after the long firmware waits it
+reproduces CD2. The intermediate FC7/SetRun=0 state is not a new failure.
+The Main log retains its fd at `Cedar12_20261017/main.log`.
+
+The component bench can now supply a physical C key, station 042 and an LF
+terminal. It sends BFN113B, but the 80M run does not load Cedar: the request
+begins with stale FFFF and the reply stream never completes at the guest
+protocol level. This run used default storage timing; a comparison with
+the FPGA's STORAGE_INPUT_DELAY=2 is running before attributing the fault.
+The replay buffer now holds the complete 444,292-transition original Cedar
+reply stream and rejects truncation. No guest code/state or completion
+flags are patched. Cedar on FPGA remains the objective, not a milestone
+already achieved.
+
 The requested sequence is mouse input, display/software compatibility,
 backing-disk persistence plus an ARM-local boot server, then unassisted
 BaseBoard boot. Do not assume arbitrary Alto games should work on Dorado:

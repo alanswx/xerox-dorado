@@ -1,0 +1,25 @@
+tb_firmware: progress 50000000 samples fetch=f3ac DAC=ff CVCC=1 target=1 DMD=000 changes=0 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware:   ContB DMD 000 -> 001 at 84697680
+tb_firmware:   ContB DMD 001 -> 002 at 84702480
+tb_firmware:   ContB DMD 002 -> 004 at 84707280
+tb_firmware:   ContB DMD 004 -> 009 at 84712080
+tb_firmware:   ContB DMD 009 -> 012 at 84716880
+tb_firmware:   ContB DMD 012 -> 024 at 84721680
+tb_firmware:   ContB DMD 024 -> 048 at 84726480
+tb_firmware:   ContB DMD 048 -> 091 at 84731360
+tb_firmware:   ContB DMD 091 -> 122 at 84736160
+tb_firmware:   ContB DMD 122 -> 244 at 84740960
+tb_firmware:   ContB DMD 244 -> 488 at 84745760
+tb_firmware:   ContB DMD 488 -> 910 at 84771520
+tb_firmware:   ContB DMD 910 -> 221 at 84776320
+tb_firmware:   ContB DMD 221 -> 442 at 84781120
+tb_firmware: progress 100000000 samples fetch=fa07 DAC=00 CVCC=0 target=0 DMD=091 changes=1148 Run'=1 StopMIRClk=0 Hold=0
+tb_firmware: WatchdogIn edges 2, WatchdogOut edges 794, XOR edges 794, BootMC' edges 792
+tb_firmware: TDMuxClk edges 2298, TDMuxData edges 578 (the TTL side of the manifold chain)
+tb_firmware: CPDMuxClk edges 2298, CPDMuxData edges 0 (BaseBoard's own DMux decode)
+tb_firmware: ContB DMD changes 1148, ManClk.0' pulses 1, final DMD=091
+tb_firmware: AHasCP high on 0 of 100000000 samples (SET = an Alto holds the CP bus)
+tb_firmware: TRYGETTINGMUFMANCONTROL(FA0E) visits 1244, WAITFORCPCONTROL(FA1F) 0
+tb_firmware: MCReset' ASSERTIONS: 397   (0xFFFC seen on the bus 410 times -- not the same thing)
+tb_firmware: CPStrb' edges 5388, DMuxClk edges 2298
+- verilog/verilator/tb_firmware.sv:689: Verilog $finish

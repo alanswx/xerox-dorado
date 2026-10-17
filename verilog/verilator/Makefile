@@ -976,6 +976,14 @@ baseboard-manifold-test:
 # debug entry, not a native BaseBoard boot. No world handoff or guest patch.
 # CPU manifold ownership is essential: retaining the loading fixture masks
 # Initial's enable-all-errors and the real native BootEmulator failures.
+.PHONY: riot-clock-test
+riot-clock-test:
+	@cd ../.. && $(V) --binary --top-module tb_riot_clock $(V_WARN) \
+		--Mdir verilog/verilator/obj_riot_clock -o riot-clock-test \
+		verilog/verilator/tb_riot_clock.sv verilog/cells/cell_MCS6532.v \
+		verilog/vendor/riot/M6532.sv >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_riot_clock/riot-clock-test
+
 .PHONY: initial-rom-test
 initial-rom-test:
 	@$(MAKE) -s -C ../../dorado build/baseboard_rom_dump build/im_image build/boot0_hunks

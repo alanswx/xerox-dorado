@@ -28,5 +28,6 @@
     "board_backing_bits": 2359296,
     "result": "All stored bits and outputs identical; disabled-transfer assertions pass."
   },
-  "deployment": "Loaded on MiSTer14 as Cedar12.mgl, immutable existing Main and fresh Pilot pack; native diagnostic only, not Cedar qualification."
+  "deployment": "Loaded on MiSTer14 as Cedar12.mgl, immutable existing Main and fresh Pilot pack; native diagnostic only, not Cedar qualification.",
+  "later_clock_audit": "An internal BaseBoard RIOT clock was unconstrained. Adding its /80 clock exposes hold -8.116 ns. The 29-positive-check result covers only the previously constrained domains and is not complete internal timing qualification. See ../2026-10-17-baseboard-clock/."
 }

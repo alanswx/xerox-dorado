@@ -1,0 +1,29 @@
+{
+  "finding": "Native12 report_ucp lists BaseBoard g08.qa as an unconstrained clock. Earlier 29-positive-slack summaries do not qualify RIOT timing.",
+  "clock_derivation": "MC12061 /8; LS163 reload11 counts five crystal edges; g08 toggles => 80 fabric samples per PHI2 period, confirmed by firmware probe counts.",
+  "constrained_original_result": {
+    "unconstrained_clocks": 0,
+    "worst_hold_ns": -8.116,
+    "examples": "g22.qb -> f63 RIOT PA7 IRQ; j08.qa reset -> RIOT state"
+  },
+  "fix": "MCS6532 wrapper uses sys_clk plus one CE per modeled PHI2 rising edge. Vendored registered read honors CE, matching its existing writes/timers. No clock masking or hold exception added.",
+  "focused_equivalence": {
+    "PHI2_cycles": 27074,
+    "RAM_bytes": 128,
+    "IRQ_active_cycles": 17621,
+    "timer_prescalers": "1,8,64,1024",
+    "result": "All package outputs and timer/interrupt states match original PHI2-clocked core; final RAM matches."
+  },
+  "board_tests": "Original reset vector F3A7 and all eight instruction bytes pass; real serial manifold path a35 passes.",
+  "firmware_probe": {
+    "samples": 100000000,
+    "DMD_transitions": 1148,
+    "DMuxClk_edges": 2298,
+    "limit": "Five-board component probe, before full Bootstrap/native boot; phase shift changes exact cycle timestamps."
+  },
+  "builds": {
+    "Native13": "Stopped owned fitter after clock coverage gap found; no RBF loaded.",
+    "Native14": "Build running at misterubuntu:/home/alans/mister/Dorado_Native14_20261017/core. Frozen overlay SHA256 7a71cfbfbda1eda78207d603a0a6ec7c342e5df28910ce1fe0fb5d8e9ff854a5. Not yet timing qualified or loaded."
+  },
+  "new_gate": "After quartus_sta, run audit_native_clocks.tcl and tools/check_native_timing.py; reject negative slack or any illegal/unconstrained clock."
+}

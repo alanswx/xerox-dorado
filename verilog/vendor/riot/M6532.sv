@@ -11,7 +11,10 @@
 // PATCH: the output ports assigned inside always blocks are declared
 // `output logic` rather than `output wire`. Quartus infers that; Verilator
 // follows IEEE 1800 strictly and rejects a procedural assignment to a wire
-// (PROCASSWIRE). No behavioural change.
+// (PROCASSWIRE).
+// PATCH: the registered read data honors ce, just as writes and timers do.
+// ce=1 retains the original PHI2-clocked behavior; a fabric-clock wrapper
+// can now preserve that behavior with one enable per PHI2 rising edge.
 
 // k7800 (c) by Jamie Blanks
 
@@ -64,7 +67,10 @@ assign PB_out = out_b | ~dir_b;
 
 assign oe = (CS1 & ~CS2_n) && RW_n;
 always_ff @(posedge clk) begin
-	if ((CS1 & ~CS2_n) && RW_n) begin
+	// The BaseBoard wrapper oversamples PHI2 on its fabric clock. Reads
+	// must obey the same enable as writes/timers, preserving the original
+	// PHI2-edge output register rather than updating on every fabric edge.
+	if (ce && (CS1 & ~CS2_n) && RW_n) begin
 		if (~RS_n) begin // RAM selected
 			d_out <= riot_ram[addr];
 		end else if (~addr[2]) begin // Address registers

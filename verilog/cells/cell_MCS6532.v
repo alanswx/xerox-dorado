@@ -18,6 +18,7 @@
 `default_nettype none
 
 module cell_MCS6532 (
+    input  wire sys_clk,
     input  wire p39,  // CK2   phase-2 clock
     input  wire p34,  // RESET'
     input  wire p38,  // CS    chip select 1 (active high)
@@ -73,9 +74,16 @@ module cell_MCS6532 (
   wire [7:0] d_out, pa_out, pb_out;
   wire       irq_n, oe;
 
+  // Keep the modeled 6502 phase as an enable, like the other board cells.
+  // Clocking fabric registers directly from p39 left an unconstrained
+  // BaseBoard clock (g08.qa) and large real cross-clock hold violations.
+  reg phase_d=0;
+  always @(posedge sys_clk)phase_d<=p39;
+  wire phase_rise=p39 && !phase_d;
+
   M6532 u_riot (
-      .clk   (p39),
-      .ce    (1'b1),
+      .clk   (sys_clk),
+      .ce    (phase_rise),
       .res_n (p34),
       .addr  ({p40, p2, p3, p4, p5, p6, p7}),   // A06..A00
       .RW_n  (p35),
