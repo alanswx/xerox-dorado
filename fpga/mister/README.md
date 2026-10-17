@@ -189,8 +189,10 @@ checkpoint hardware configuration.
 1. Mouse motion, Executive keyboard input and calculator button input work
    on hardware. Qualify additional software compatible with Dorado AEmu;
    do not make arbitrary Alto games a CPU correctness gate.
-2. Finish disk persistence: flush a final dirty track without requiring a
-   seek, handle errors/remounts, and verify a guest-created file after restart.
+2. Disk persistence works on hardware: a guest-created file survives an
+   FPGA reload and subsequent `Bootfrom sys.boot`. Final dirty tracks flush
+   without a seek; CRC, readonly, remount and timeout failures have focused
+   regressions. Evidence: `reports/2026-10-17-mount/validation.json`.
 3. Supply a local boot server on the MiSTer ARM and a buffered Ethernet
    interface to the RTL. Reuse the C emulator's Pup/EFTP server code without
    running its CPU emulator. A separate Linux service owns the server and

@@ -1,0 +1,28 @@
+{
+  "status": "guest-created file persisted on MiSTer14 across guest disk reboot and FPGA reload plus guest disk reboot",
+  "project": "misterubuntu:/home/alans/mister/Dorado_Network2_20261017/core",
+  "rbf_sha256": "564a547dca47369690e01759b5d731c6aae5f1af5c61c5e41cbb55546dbbd5be",
+  "launcher_clean": "/media/fat/Scripts/DoradoMountClean.sh",
+  "launcher_retained": "/media/fat/Scripts/DoradoMountRetained.sh",
+  "seed_sha256": "c703e9df999a074d3c14abf941e706e9fa35a3520594075065a104bc48535332",
+  "retained_sha256_after_test": "fd5fdc91d81de6d24a814486e3ad631d312de46f1c858488b1c50209e2a97921",
+  "test": [
+    "Copy mouse.cm com.cm; confirm missing-left-arrow prompt with Return",
+    "WriteDirectory",
+    "Type mouse.cm",
+    "Bootfrom sys.boot; wait for fresh Executive; Type mouse.cm",
+    "Reload retained FPGA/disk; immediately Bootfrom sys.boot; wait; Type mouse.cm"
+  ],
+  "file_bytes": 24,
+  "file_sha256": "dfc220071f11cab111912a931eb0f0dd299adfbad0dbadab169aa9caf72535a2",
+  "file_contents": "Copy.~ mouse.cm  com.cm\r",
+  "host_readback": "Copy padded pack from MiSTer; trim to 63105450 bytes; dsk2trident --extract; altofs read-only --extract mouse.cm. reproduces guest bytes. Mirrored second drive fails global altofs link check; extraction forced on disposable copy only.",
+  "setup_slack_ns": 7.189,
+  "hold_slack_ns": 0.103,
+  "timing_review": "Four slow-corner -0.054 ns ContA c04 F10145A address-latch to own RAM write-address paths have mutually exclusive capture/write enables. Scoped hold-only exception, setup/read checks retained. Framework I/O is not fully constrained.",
+  "limitations": [
+    "Entry remains an RTL checkpoint, not unassisted BaseBoard cold boot",
+    "Network2 lacks final j05 receiver CRC fix; no network acceptance claimed for this core",
+    "This test uses a disposable image; clean launcher deliberately discards test changes"
+  ]
+}

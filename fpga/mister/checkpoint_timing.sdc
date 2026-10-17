@@ -18,7 +18,12 @@ if {[get_collection_size $address_source] && [get_collection_size $address_sink]
 # The slow 100C model reports six -0.041 ns paths here; these cannot change
 # address on an enabled write edge. Keep each source paired with ONLY its
 # own RAM's write-address pins, and retain setup and read-address checks.
-foreach {board position} {MemC d06 MemX e20} {
+# The mount/network fit additionally exposes ContA c04 (TLink RAM): four
+# slow-corner paths from a_lat[1] to its own write-address register, -0.054
+# ns each. Its generated F10145A uses the identical mutually exclusive
+# capture/commit enables. The same hold-only exclusion applies; setup and
+# the asynchronous read address remain timed.
+foreach {board position} {MemC d06 MemX e20 ContA c04} {
     set ram_scope [format {*|checkpoint_m_b_%s:b_%s|checkpoint_m_b_%s_u_%s:u_%s|} $board $board $board $position $position]
     set address_source [get_registers -nowarn "${ram_scope}a_lat*"]
     set address_sink [get_registers -nowarn "${ram_scope}altdpram:mem_rtl_0|*|*~OBSERVABLEPORTAADDRESSREGOUT*"]
