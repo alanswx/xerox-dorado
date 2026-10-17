@@ -45,3 +45,11 @@ cancelling queued host display commands. No guest-state write or reload;
 normal network/disk transport resumed with pack_fault0. Host-only HDMI
 transmitter reinit at input_poll boundary did not restore external capture.
 See current handoff for the exact intervention and remaining video TODOs.
+
+Later BootEssentials progress: `fpga-bootessentials-1080p.png` is an
+unmodified full-field internal screenshot showing Tioga styles/Viewers TIP
+and icons. Current diagnostic1080p30 keeps HDMI at qualified74.25MHz.
+Main parser-only patch/regression and separate ARM build pass; candidate
+6358f310... not deployed. External HDMI/labelled Main OSD remain black.
+Installer warned about PrintTV.df despite its presence on ARM and two
+successful FileLookup replies; no retrieve observed, cause open.

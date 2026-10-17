@@ -144,8 +144,22 @@ A later GDB call at host input_poll boundary reinitialized only Main's HDMI
 transmitter; external stream still black. These host interventions must be
 included with boot evidence. Native26 guest continues BootEssentials BringOver; later screenshots show
 AMTypes/Viewers/Interpreter/ViewerIO/terminal and debugger closure progress.
-PrintTV.df is absent in the served Top tree; installer warns and proceeds
-with its default continuation. No new CPU or disk fault observed.
+Installer warned it could not find PrintTV.df, then proceeded with default
+continuation. The file IS present locally and on the ARM (2204B), and current
+server log has two successful FileLookup replies for it but no retrieve.
+Do not call it absent; the failed guest lookup/open remains unexplained.
+No new CPU or disk fault observed.
+
+**Current23:31 update:** internal captures again use1080p30/74.25MHz through
+short11-item mode, retaining both fields; HDMI still black. Explicit Main
+OSD text also black externally. Installer now fetching Tioga styles, icons,
+TIP, Watch etc. Parser fix is prepared in `fpga/mister/main/main-video-mode-260912.patch`:
+raw PLL form returns without recomputation; short forms reject zero/nonfinite
+clock. Exact-parser regression has an original-source failure control and
+passes raw preservation/zero rejection/9/11 forms. Isolated
+`misterubuntu:/home/alans/mister/Main_DoradoVideo_20261017` builds with pinned
+GCC10.2.1 (compiler in `/usr/local/gcc-arm-10.2-2020.11-x86_64-arm-none-linux-gnueabihf/bin`).
+Main SHA6358f310... candidate is **not deployed**. Running1fb2 unchanged.
 
 MiSTerKVMS CLI is `/Applications/MiSTerKVMS.app/Contents/MacOS/misterkvms-cli`.
 14 stream: `mkvm://10.0.2.128/Mister%2014`; always pass `--mister 10.0.2.14`.
@@ -340,7 +354,8 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Complete Native26 BootEssentials closure and remaining STARTs; monitor pack_fault.
 - [ ] Restore external HDMI after live mode test; internal1072x862 raster readable.
 - [ ] Use qualified-clock progressive output and verify stable deinterlacing, including video.
-- [ ] Fix Main extended-modeline zero-clock parser before using that form again.
+- [x] Fix Main extended-modeline zero-clock parser in separate patch; mutation regression and pinned GCC10.2.1 ARM build pass.
+- [ ] Deploy immutable parser-fixed Main at a planned restart; preserve current run until then.
 - [x] Qualify Native27 passive fault-monitor fit/timing:29 checks,min+.115ns.
 - [ ] Reproduce medium fault with Native27 observation if needed; not deployed.
 - [ ] Complete the33 listed BCDs (34 files including Basic.Loadees) and reach Viewers.

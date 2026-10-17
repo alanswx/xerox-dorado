@@ -1,0 +1,4 @@
+PASS mutation control: original parser reaches zero-clock PLL call
+Set predefined video_mode to 8
+Invalid video_mode pixel clock: 0.000000 MHz
+PASS raw PLL preservation, zero-clock rejection, 9/11-item modes

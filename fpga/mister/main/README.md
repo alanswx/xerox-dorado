@@ -90,3 +90,27 @@ reads `/proc/<pid>/exe` when it re-executes during a core load; replacing the
 inode leaves that pathname ending in ` (deleted)` and its restart falls back
 to a board reboot. Stage each binary at a fresh versioned path, then change
 only the corresponding core's `main=` setting. Stock Main remains intact.
+
+### Live video modeline parser correction
+
+Apply `main-video-mode-260912.patch` to the same pinned checkout before
+using extended raw-PLL modelines. The original parser passes a zero pixel
+clock to `setPLL` for that form and spins, stopping Main's disk/network
+service. The patch preserves the supplied PLL registers and rejects an
+explicit zero clock in the short forms. It does not fix or qualify HDMI
+mode switching on a running FPGA.
+
+The regression compiles the exact parser from Main, with only its PLL
+programming boundary stubbed. It checks raw-register preservation, zero
+clock rejection, normal 9/11-item forms, and an unpatched failure control:
+
+```sh
+python3 tests/test_video_modeline.py /path/to/pinned/Main/video.cpp
+```
+
+Run it on the unpatched source; the test applies the patch to a temporary
+copy. GCC 10.2.1 cross-build also passes in the isolated build-machine copy
+`Main_DoradoVideo_20261017`; binary SHA256
+`6358f31033c4dfc6fab209c67e2a1d3d65f9ea374fae210e1e230012b9ccee63`.
+This candidate is not deployed. The running immutable Main remains
+`1fb2e098...`, preserving the current Cedar FPGA boot.
