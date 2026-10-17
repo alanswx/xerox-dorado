@@ -1,0 +1,9 @@
+{
+  "purpose": "passive logging only, before source copy",
+  "live_sample": 61252022,
+  "bootio": 1,
+  "bootio_from": 85000000,
+  "root_match": "unique, exact compiled offsets and live limit/counter/debug defaults",
+  "readback_verified": true,
+  "guest_state_modified": false
+}

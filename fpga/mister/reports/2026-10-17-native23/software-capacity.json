@@ -1,0 +1,15 @@
+{
+  "scope": "software capacity control, not an FPGA boot or input test",
+  "real_words": 1048576,
+  "storage_chip_type": 1,
+  "storage_modules": 4,
+  "map_ic_k": 16,
+  "bb_cycle_limit": 3000000000,
+  "fake_time": 1783285880,
+  "display_pixels": 28604,
+  "visually_verified": "Cedar6.1.0 login, Please login / Name prompt",
+  "normal_control": "8MB/map64K also reaches login (28601 pixels)",
+  "conclusion": "2MB RAM and16K map can reach login; desktop capacity still under test",
+  "constructor_change": "storage size/type only; unmodified C CPU and normal software IOCB bridge; disposable PDI",
+  "rtl_state_imported": false
+}

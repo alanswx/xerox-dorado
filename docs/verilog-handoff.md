@@ -8,6 +8,41 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Current FPGA RAM/map geometry reaches Cedar login in software, 19:47 UTC.**
+Fresh3B controls complete:2MB/map16K28604 px, stock8MB/map64K28601 px.
+Visually verified the constrained screen: Cedar6.1.0 / Please login / Name:.
+Report native23/software-control-2mb-login.png and software-capacity.json.
+This proves capacity for LOGIN, not RTL/FPGA behavior or desktop capacity.
+Do not enlarge RAM/map just to get beyond the diagnosed germ fault.
+
+Constrained control now restores its paired3B snapshot/PDI, types Guest+two
+Returns at3.1B and advances toward36B with periodic images and FTP trace.
+Scratch cedar-2mb-desktop, session28760. It is already fetching STP data;
+no desktop conclusion yet. Main emulator sources/binary unchanged; constructor
+size/type override exists only in ignored cedar-2mb-reference scratch.
+Native23 FPGA fit remains active (routing,172%CPU at27.5min), not stuck/failed.
+
+**Control updates, 19:41 UTC.** Native22 slow8 control COMPLETED220M and is
+REJECTED:8931 sampled germ words, one mismatch at VA11cf expected110a/actual7309
+@190282853. IFU271842/271996, original Initial/Cedar image gates pass; this does
+not make its source-read gate pass. Report native23/native22-control-rejected.json.
+Its fit also has three unreviewed -0.023ns holds. Never deploy22.
+
+Native23 cold DDR launch omitted the passive copy trace switches. Enabled ONLY
+bootio=1/from85000000 at live sample61252022 using exact compiled offsets,
+validated root/counter/current flags and readback; no CPU/RAM/controller changes.
+Evidence native23-candidate/enable-trace.log and trace-layout.json. For reproduction
+include +bootio +bootiofrom=85000000. Cold run remains session67681 / PID60378.
+
+C capacity check prepared in cedar-2mb-reference: constructor's storage size/type
+only changed to1M words/type1 (four256K-word modules), unmodified C CPU and normal
+IOCB bridge, disposable PDI. Not FPGA evidence; never import its state into RTL.
+The1B stop was too short: all four RAM/map controls were blank, including stock
+8MB/map64K. Do not infer insufficient RAM/map from this. Current Makefile recipe
+says2B before typing, uses2.5B; old650M comments are stale. Fresh pinned3B controls
+are running at cedar-capacity-3b (ram2-map16 and stock ram8-map64), session41103,
+with DORADO_PDI_SAVE and snapshots paired to their disposable PDIs.
+
 **Independent timer candidate prepared, 19:30 UTC.** Scratch timer10mhz-candidate
 uses exact3/(5*SYSPER) oscillator edge cadence for the10MHz crystal. Nominal
 BaseBoard probe PASS at4,8,16:1MHz MCPreClk and16us Pendulum/Refresh relative

@@ -1,0 +1,19 @@
+{
+  "sampled_words": 8931,
+  "germ_words": 8960,
+  "unexpected_words": 1,
+  "first_mismatches": [
+    {
+      "address": "11cf",
+      "expected": "110a",
+      "actual": "7309",
+      "cycle": 190282853
+    }
+  ],
+  "germ_handoff": true,
+  "ifu_fetches": 271842,
+  "ifu_acknowledgements": 271996,
+  "original_initial_pass": true,
+  "original_cedar_image_pass": true,
+  "pass": false
+}

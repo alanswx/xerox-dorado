@@ -1,0 +1,8 @@
+CAPACITY CONTROL:1M words/four small modules, config=02f4
+[machine] germ pass1 (descriptor) @cyc=40310307: seal=0o121212 version=6 at page 0 (readback[0]=0o121212 [1]=0o6)
+[machine] germ pass2 (label) @cyc=40310445: completed
+[machine] germ pass3 (data) @cyc=40310634: 8960/8960 words at VM 0o1000+ (word0=0o3354), dataPtr 0o1000->0o22400
+dorado: booting (target 3000000000 cycles)...
+dorado: Alto/Mesa world loaded at cycle 32000029
+dorado: 28604 display-list pixels; wrote /Users/alans/dev2/Dorado/build/rtl-executive/cedar-capacity-3b/ram2-map16/screen.pgm
+dorado: 811016254 microinstructions = 48.66 s of Dorado time in 64.20 s CPU = 0.76x real hardware (12.6 M uinstr/s; 3000000002 BB-6502 cycles, 3.70 per uinstr)
