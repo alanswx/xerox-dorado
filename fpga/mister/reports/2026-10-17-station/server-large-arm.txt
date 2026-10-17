@@ -1,0 +1,4 @@
+Dorado Pup server listening on /tmp/dorado-pup-1dtf8zlf/server.sock (raw frames, no CRC/status)
+Dorado Pup server: retired disconnected Main session
+PUP-SERVER PASS: 18728 microcode bytes, 7080 EFTP bytes, retransmission, idle broadcasts, no controller trailers
+PUP-SERVER REEXEC PASS: immediate new-path registration, stale old socket, idle BOL without guest TX
