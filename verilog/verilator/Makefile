@@ -109,6 +109,15 @@ SIM_SRC = sim_main.cpp $(IMGUI)
 # Fire code as the qualified file-backed medium, and preserve neighboring
 # disk bytes when flushing an unaligned track. The host image is read-only;
 # the test writes an in-memory copy only.
+.PHONY: hps-persistence-test
+hps-persistence-test:
+	@cd ../.. && $(V) --cc --exe --build --top-module tb_hps_persistence \
+		$(V_WARN) --Mdir verilog/verilator/obj_hps_persistence -CFLAGS '-O2 -std=c++20' -o hps-persistence-test \
+		verilog/verilator/tb_hps_persistence.sv verilog/verilator/hps_persistence_test.cpp \
+		fpga/mister/dorado_pack_hps.sv verilog/verilator/dorado_pack.sv >/dev/null
+	@cd ../.. && verilog/verilator/obj_hps_persistence/hps-persistence-test \
+		chm/diskpacks/games-trident.pack build/rtl-executive/hps-persistence
+
 .PHONY: hps-pack-test
 hps-pack-test:
 	@cd ../.. && $(V) --cc --exe --build --timing --top-module tb_hps_pack \

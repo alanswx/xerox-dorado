@@ -41,7 +41,7 @@ assign AUDIO_R = 0;
 assign AUDIO_MIX = 0;
 
 `ifdef DORADO_HPS_PACK
-assign LED_DISK  = {1'b0, sd_rd[0] | sd_wr[0]};
+assign LED_DISK  = {1'b0, sd_rd[0] | sd_wr[0] | pack_dirty};
 `else
 assign LED_DISK  = 0;
 `endif
@@ -98,7 +98,7 @@ wire [5:0] sd_blk_cnt [1];
 wire [0:0] sd_rd, sd_wr, sd_ack;
 wire [12:0] sd_buff_addr;
 wire [15:0] sd_buff_dout, sd_buff_din [1];
-wire sd_buff_wr, pack_ready, pack_fault;
+wire sd_buff_wr, pack_ready, pack_fault, pack_dirty;
 `endif
 
 hps_io #(.CONF_STR(CONF_STR), .WIDE(1)) hps_io
@@ -215,10 +215,10 @@ dorado_checkpoint_machine u_checkpoint (
     .mouse_pending(mouse_pending), .mouse_taken(mouse_taken),
     .mouse_sent_dx(mouse_sent_dx), .mouse_sent_dy(mouse_sent_dy),
 `ifdef DORADO_HPS_PACK
-    .clk_host(clk_sys), .pack_reset(~pll_locked), .pack_attached(|img_size), .pack_readonly(img_readonly),
+    .clk_host(clk_sys), .pack_reset(~pll_locked), .pack_attached(|img_size), .pack_readonly(img_readonly), .pack_mounted(img_mounted[0]),
     .sd_lba(sd_lba[0]), .sd_blk_cnt(sd_blk_cnt[0]), .sd_rd(sd_rd[0]), .sd_wr(sd_wr[0]), .sd_ack(sd_ack[0]),
     .sd_buff_addr(sd_buff_addr), .sd_buff_dout(sd_buff_dout), .sd_buff_din(sd_buff_din[0]), .sd_buff_wr(sd_buff_wr),
-    .pack_ready(pack_ready), .pack_fault(pack_fault),
+    .pack_ready(pack_ready), .pack_fault(pack_fault), .pack_dirty(pack_dirty),
 `endif
     .video(alto_video), .hsync(alto_hsync), .vsync_n(alto_vsync_n),
     .hblank(hblank), .vblank(vblank), .halfline()

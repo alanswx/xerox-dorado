@@ -6,17 +6,18 @@ module dorado_pack_hps #(
     parameter [11:0] INITIAL_CYL = 0,
     parameter [5:0] INITIAL_HEAD = 0,
     parameter integer PRE_WORDS = 32,
-    parameter integer GAP_WORDS = 11
+    parameter integer GAP_WORDS = 11,
+    parameter integer HOST_TIMEOUT_CLOCKS = 133333332
 ) (
-    input wire clk_sys, machine_clk, reset, attached, readonly,
+    input wire clk_sys, machine_clk, reset, attached, readonly, remounted,
     input wire [11:0] tagbus_n,
     input wire cyltag_n, headtag_n, drivetag_n, conttag_n,
     input wire selected, data_adv,
     input wire [15:0] pulse,
     input wire write_data_p, write_data_m,
     output reg data_bit = 0,
-    output wire write_gate, endofcyl_n, ready,
-    output reg fault = 0,
+    output wire write_gate, endofcyl_n, ready, dirty,
+    output wire fault,
     output reg [31:0] sd_lba = 0,
     output reg [5:0] sd_blk_cnt = 0,
     output reg sd_rd = 0, sd_wr = 0,
@@ -29,6 +30,8 @@ module dorado_pack_hps #(
 );
   localparam integer TRACK_WORDS = 29*267;
   localparam [31:0] TAPS = 32'h00a00805;
+  reg serial_fault = 0, host_fault = 0;
+  assign fault = serial_fault | host_fault;
   reg [11:0] cyl = INITIAL_CYL;
   reg [5:0] head = INITIAL_HEAD;
   reg eoc = 0;
@@ -74,27 +77,40 @@ module dorado_pack_hps #(
   reg [7:0] first_word = 0;
   reg [5:0] cached_count = 0;
   reg [31:0] generation = 0, flushed_generation = 0;
-  wire dirty = generation != flushed_generation;
+  assign dirty = generation != flushed_generation;
   wire need_track = !valid || cyl != cached_cyl || head != cached_head;
   reg [2:0] host_state = 0;
+  reg [31:0] host_wait = 0;
   // Illegal-head probes only need EndOfCyl; keep the CPU running for them.
-  assign ready = attached && !fault && host_state == 0 && (!need_track || head >= 5);
+  assign ready = attached && !remounted && !fault && host_state == 0 && (!need_track || head >= 5);
   wire [31:0] target_word = (cyl*5 + head)*TRACK_WORDS;
   always @(posedge clk_sys) begin
-    if (reset || !attached) begin
+    if (reset) begin
       valid <= 0; host_state <= 0; sd_rd <= 0; sd_wr <= 0;
-      flushed_generation <= generation;
-    end else case (host_state)
-      0: if (!fault && need_track && head < 5) begin
-        if (valid && dirty) begin
+      flushed_generation <= generation; host_fault <= 0; host_wait <= 0;
+    end else if (!attached || remounted) begin
+      // Main has already switched/closed the image. Never write an old
+      // dirty buffer into the replacement image or silently mark it clean.
+      if ((valid && dirty) || host_state != 0) host_fault <= 1;
+      valid <= 0; host_state <= 0; sd_rd <= 0; sd_wr <= 0; host_wait <= 0;
+    end else begin
+      if (host_state == 0) host_wait <= 0;
+      else host_wait <= host_wait+1'b1;
+      case (host_state)
+      0: if (!fault) begin
+        if (valid && dirty &&
+            ((need_track && head < 5) || (!write_gate && wr_state == 0 && !store))) begin
           if (readonly) begin
-            // A readonly mount must not silently discard guest writes.
-            host_state <= 5;
+            host_fault <= 1;
+          end else if (wr_state != 0 || store) begin
+            // A seek that interrupts a serial block cannot make partial
+            // buffer data eligible for writeback.
+            host_fault <= 1;
           end else begin
             sd_lba <= cached_lba; sd_blk_cnt <= cached_count;
             sd_wr <= 1; host_state <= 1;
           end
-        end else begin
+        end else if (need_track && head < 5) begin
           cached_lba <= target_word >> 8;
           cached_cyl <= cyl; cached_head <= head;
           first_word <= target_word[7:0];
@@ -112,7 +128,12 @@ module dorado_pack_hps #(
       3: if (sd_ack) begin sd_rd <= 0; host_state <= 4; end
       4: if (!sd_ack) begin valid <= 1; reads <= reads+1'b1; host_state <= 0; end
       default: ;
-    endcase
+      endcase
+      // No completion is invented when the host disappears or stalls.
+      if (host_state != 0 && host_wait >= HOST_TIMEOUT_CLOCKS-1) begin
+        host_fault <= 1; sd_rd <= 0; sd_wr <= 0; host_state <= 0;
+      end
+    end
   end
 
   function automatic [31:0] sync_ecc;
@@ -202,11 +223,11 @@ module dorado_pack_hps #(
   always @(posedge machine_clk) begin
     store <= 0; wr_gate_d <= write_gate;
     if (!write_gate) begin
-      if (wr_gate_d && wr_state != 0) fault <= 1;
+      if (wr_gate_d && wr_state != 0) serial_fault <= 1;
       wr_state <= 0; wr_shift <= 0; wr_bits <= 0;
     end else if (data_adv) begin
       if (write_data_p == write_data_m) begin
-        if (wr_state != 0) fault <= 1;
+        if (wr_state != 0) serial_fault <= 1;
         wr_shift <= 0;
       end else begin
         shift_next = {wr_shift[14:0],write_data_m};
@@ -217,7 +238,7 @@ module dorado_pack_hps #(
               wr_state <= 1; wr_count <= 0; wr_bits <= 0; wr_shift <= 0;
               wr_ecc <= sync_ecc(); wr_block <= blk;
               wr_base <= first_word + sec*267 + block_base(blk);
-              if (head>=5 || cyl>=815 || readonly) fault <= 1;
+              if (head>=5 || cyl>=815 || readonly) serial_fault <= 1;
             end
           end
           1: begin
@@ -234,7 +255,7 @@ module dorado_pack_hps #(
             ecc_next = {wr_ecc[30:0],1'b0} ^ ((write_data_m ^ wr_ecc[31]) ? TAPS : 32'd0);
             wr_ecc <= ecc_next; wr_bits <= wr_bits+1'b1;
             if (wr_bits == 31) begin
-              if (ecc_next != 0) fault <= 1;
+              if (ecc_next != 0) serial_fault <= 1;
               else generation <= generation+1'b1;
               wr_state <= 0; wr_bits <= 0; wr_shift <= 0;
             end

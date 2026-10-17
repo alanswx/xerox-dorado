@@ -37,7 +37,7 @@ module tb_hps_pack (
   .pulse(pulse),.data_adv(data_adv),.data_bit(reference_bit),
   .selected(1'b0),.write_data_p(1'b0),.write_data_m(1'b0));
  dorado_pack_hps #(.INITIAL_CYL(4),.INITIAL_HEAD(4)) u_medium (
-  .clk_sys(clk_host),.machine_clk(sys_clk),.reset(1'b0),.attached(1'b1),.readonly(1'b0),
+  .clk_sys(clk_host),.machine_clk(sys_clk),.reset(1'b0),.attached(1'b1),.readonly(1'b0),.remounted(1'b0),
   .tagbus_n(tag_n),.cyltag_n(cyltag_n),.headtag_n(headtag_n),.drivetag_n(1'b1),.conttag_n(conttag_n),
   .selected(1'b1),.data_adv(data_adv),.pulse(pulse),.write_data_p(~reference_bit),.write_data_m(reference_bit),
   .data_bit(media_bit),.ready(pack_ready),.fault(pack_fault),

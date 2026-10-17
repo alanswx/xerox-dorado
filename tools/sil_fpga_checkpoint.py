@@ -589,25 +589,25 @@ PACK_INSTANCE
   checkpoint_m #(.SYSPER(4)) m (
 ''' + ',\n'.join(bindings) + '\n  );\nendmodule\n'
     if a.hps_pack:
-        ports = '''    input wire clk_host, pack_reset, pack_attached, pack_readonly,
+        ports = '''    input wire clk_host, pack_reset, pack_attached, pack_readonly, pack_mounted,
     input wire sd_ack, sd_buff_wr,
     input wire [12:0] sd_buff_addr,
     input wire [15:0] sd_buff_dout,
     output wire [15:0] sd_buff_din,
     output wire [31:0] sd_lba,
     output wire [5:0] sd_blk_cnt,
-    output wire sd_rd, sd_wr, pack_ready, pack_fault,'''
+    output wire sd_rd, sd_wr, pack_ready, pack_fault, pack_dirty,'''
         pack = f'''  wire [11:0] tag_n;
   wire cyltag_n, headtag_n, drivetag_n, conttag_n, pack_eoc_n, pack_writing;
   wire write_data_p, write_data_m, drv_adv, media_bit;
   dorado_pack_hps #(.INITIAL_CYL(12'd{helper_state['tb_exec.u_pack.cur_cyl']}),
                     .INITIAL_HEAD(6'd{helper_state['tb_exec.u_pack.cur_head']})) u_media (
     .clk_sys(clk_host), .machine_clk(sys_clk), .reset(pack_reset),
-    .attached(pack_attached), .readonly(pack_readonly),
+    .attached(pack_attached), .readonly(pack_readonly), .remounted(pack_mounted),
     .tagbus_n(tag_n), .cyltag_n(cyltag_n), .headtag_n(headtag_n), .drivetag_n(drivetag_n), .conttag_n(conttag_n),
     .selected(~disk_sel_n), .data_adv(drv_adv), .pulse(drv_sector),
     .write_data_p(write_data_p), .write_data_m(write_data_m),
-    .data_bit(media_bit), .write_gate(pack_writing), .endofcyl_n(pack_eoc_n), .ready(pack_ready), .fault(pack_fault),
+    .data_bit(media_bit), .write_gate(pack_writing), .endofcyl_n(pack_eoc_n), .ready(pack_ready), .fault(pack_fault), .dirty(pack_dirty),
     .sd_lba(sd_lba), .sd_blk_cnt(sd_blk_cnt), .sd_rd(sd_rd), .sd_wr(sd_wr), .sd_ack(sd_ack),
     .sd_buff_addr(sd_buff_addr), .sd_buff_dout(sd_buff_dout), .sd_buff_wr(sd_buff_wr), .sd_buff_din(sd_buff_din));'''
         wrapper = wrapper.replace('HPS_PORTS', ports).replace('PACK_INSTANCE', '  wire [15:0] drv_sector;\n' + pack).replace('PACK_ATTACHED', 'pack_attached').replace('PACK_BIT', 'media_bit')
