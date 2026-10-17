@@ -66,6 +66,9 @@ module dorado_storage_group #(
     initial if(WIDTH<1 || WIDTH>16)$fatal(1,"storage group does not fit one raw word");
     always @(posedge machine_clk) begin
         if(!ready)$fatal(1,"Dorado clock advanced while storage group was stalled");
+        // The native own-address hold exception relies on saved_addr being
+        // disabled whenever the machine-clocked row/column latches advance.
+        if(req_valid)$fatal(1,"Storage address advanced while saved_addr was enabled");
         // native_timing.sdc's data-only hold exception relies on these:
         // a pending write leaves both delayed DRAM controls low, and a new
         // write cannot also capture a host request on this same edge.

@@ -102,6 +102,13 @@ NATIVE_JSON
       echo 'set_global_assignment -name VERILOG_MACRO DORADO_NATIVE'
       cp "$HERE/native_timing.sdc" "$OUT/native_timing.sdc"
       echo 'set_global_assignment -name SDC_FILE native_timing.sdc'
+      if python3 - "$CHECKPOINT/manifest.json" <<'CONTROL_MONITOR_JSON'
+import json, sys
+sys.exit(0 if json.load(open(sys.argv[1])).get('control_error_monitor') else 1)
+CONTROL_MONITOR_JSON
+      then
+        echo 'set_global_assignment -name VERILOG_MACRO DORADO_CONTROL_ERROR_MONITOR'
+      fi
     else
       echo 'set_global_assignment -name VERILOG_MACRO DORADO_CHECKPOINT'
     fi

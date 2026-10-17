@@ -29,5 +29,6 @@
     "additional_false_paths": false
   },
   "deployment": "MiSTer14 Cedar10.mgl; fresh Pilot pack c0cd6784...; immutable Main PID6859, real C held by session30434",
-  "boot_status": "BaseBoard startup under observation; no microcode boot request yet. Cedar NOT qualified."
+  "boot_status": "Bootstrap entry passed, then reproducible native stop CPU30cd2c9e (CIA6322B/TPC6236B), Stop1/dStop0/RunClock1, no MIR parity freeze. No network TX. Three-push real CoolBoot repeats same stop. Cedar NOT booted.",
+  "important_image_distinction": "ROM Boot0 hunks match Bootstrap.mb exactly. ROM Boot1 differs from standalone Initial.mb in204/224hunks; decode stopped address using exact ROM image, not standalone symbols. ROMcd2 opcode matches standalone BootEmulator c92. New focused probe uses extracted original ROM bytes."
 }

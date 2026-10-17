@@ -708,6 +708,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
         decl += ['    input wire baseboard_boot_n,', '    output wire [31:0] baseboard_debug,']
     if processor_monitor:
         decl.append('    output wire [31:0] processor_debug,')
+        if nominal_environment:
+            decl.append('    output wire [9:0] control_debug,')
     if display_field:
         decl.append('    output wire video_field,')
     if storage_boards:
@@ -732,11 +734,12 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
         # Observe the actual resolved backplane clocks/control without
         # changing their drivers or any stored processor state.
         A('  wire [31:0] baseboard_observe;')
-        A('  wire [4:0] processor_control;')
+        A('  wire [14:0] processor_control;')
+        A('  assign control_debug = processor_control[14:5];')
         A('  // bits31..25: StopMIRClk, Freeze, CRamClock, CLK.ca\', CLK.cb\',')
         A('  // CLK.OutBase\', CLK.InBase; bits24..20: Stop, dStop, RunClk\'a,')
         A('  // FreezeAC, FreezeBD; low20 unchanged.')
-        A("  assign baseboard_debug = {StopMIRClk, Freeze, CRamClock, CLK_ca_p_, CLK_cb_p_, CLK_OutBase_p_, CLK_InBase, processor_control, baseboard_observe[19:0]};")
+        A("  assign baseboard_debug = {StopMIRClk, Freeze, CRamClock, CLK_ca_p_, CLK_cb_p_, CLK_OutBase_p_, CLK_InBase, processor_control[4:0], baseboard_observe[19:0]};")
         A("")
     if storage_boards:
         A(f'  wire [{len(storage_boards)-1}:0] storage_board_ready;')
@@ -905,6 +908,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             A(declaration)
     if processor_monitor:
         A('    output wire [31:0] processor_debug,')
+        if nominal_environment:
+            A('    output wire [9:0] control_debug,')
     if display_field:
         A('    output wire video_field,')
     A('    input  wire [15:0] probe_sel,')
@@ -959,6 +964,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
         conns += ['    .baseboard_boot_n(baseboard_boot_n)', '    .baseboard_debug(baseboard_debug)']
     if processor_monitor:
         conns.append('    .processor_debug(processor_debug)')
+        if nominal_environment:
+            conns.append('    .control_debug(control_debug)')
     if display_field:
         conns.append('    .video_field(video_field)')
     if storage_boards:

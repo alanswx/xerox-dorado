@@ -427,11 +427,50 @@ is loaded on MiSTer14 through `DoradoRTL_Cedar10_20261017/Cedar10.mgl`,
 with a separate fresh Pilot pack (SHA256 `c0cd6784...`). Main PID 6859
 uses the same immutable binary; its log is now
 `games/DoradoRTL/Cedar10_20261017/main.log`. The server keeps PID 4406,
-with log `System_20261017/server-cedar10.log`. Real C is held for Initial's
-BFN113 selection. Startup is under observation: this is not yet a Cedar
-boot qualification. Native11 is a second fit of the same RTL with optional
-physical optimization enabled except retiming; no storage experiment is
-included in either candidate.
+with log `System_20261017/server-cedar10.log`. Real C was held for Initial's BFN113 selection. Bootstrap now passes its
+old entry stall. Native10 then stops reproducibly at CPU `30cd2c9e`:
+CIA 6322B, TPC 6236B, Run'=0, Hold=0, task 0; Stop=1, dStop=0,
+RunClk'a=1, while StopMIRClk and Freeze are both zero. Three physical
+boot-button pushes make the firmware repeat this stop. No network packet
+has been transmitted; Cedar has not booted.
+
+**Decode the ROM payload, not standalone Initial symbols.** The ROM's
+Boot0 at FE00 matches all 16 Bootstrap.mb hunks exactly. Its Boot1 at
+C016 starts at IM C40 and contains 224 hunks; 204 differ from standalone
+Initial.mb. ROM CD2 has the same opcode as the standalone BootEmulator
+entry C92, whereas the standalone address CD2 belongs to a keyboard table.
+The first focused tests used the wrong Initial version and cannot explain
+this hardware stop. An independent extraction now produces the exact ROM
+IM fields for focused diagnostics. Direct entry at F40 still requires the
+original checksum protocol; zero-checksum/debug fixtures must be stated
+explicitly and do not qualify the native firmware chain.
+
+Native11 finishes fitting with HDMI setup +0.384 ns and core setup
++1.735 ns. Its two hold failures are msa2/group9 col[0] to saved_addr[0]
+(-0.017 ns) and msa3Odd/group0 row[5] to saved_addr[12] (-0.002 ns).
+These captures are disabled on source-changing machine edges: ready must
+be high and algebraically excludes req_valid. Only those two instances'
+own row/column-to-saved-address hold checks are excluded; setup and
+request/enable checks remain active. A new simulation assertion enforces
+that disabled capture. The group and complete-board equivalence gates pass,
+including all 2,359,296 stored board bits and 7,872 writes. All 29 reviewed
+timing checks are nonnegative, minimum +0.111 ns. Reports and proof:
+`reports/2026-10-17-native11/`.
+
+Native11 RBF SHA256 `6045b40988fc5439a05e735c6f59f0353e9fc4103c814454211f20725691a8a3`
+is now loaded as the separate Cedar11.mgl, retaining fixed 720p60 for
+comparison and another fresh Pilot pack. Main PID 8212 uses the immutable
+binary; log is `games/DoradoRTL/Cedar11_20261017/main.log`. The server
+keeps its `server-cedar10.log` file. Its cold boot is under observation;
+no independent boot success is claimed.
+Native12 is compiling the same functional RTL with ten additional passive
+ContA control outputs in the unused status-word bits. It exposes rStop,
+Error', StopAtT1, Jam, NoDispatch, dRun, SetRunRfsh, ClearMemStop,
+SCorFreezea and preStartCyclea, in that order from status bit 15 to 6.
+The existing six status bits and 32-bit CPU/BB words are unchanged.
+The new export lints; its manifest enables the optional top-level binding,
+so older native exports retain their interface. No storage performance
+experiment is included in any of these candidates.
 
 **The native Pilot medium requires a different format.**
 `PilotDiskDefs.mc!1` and `PilotDisk.mc!1` specify drive 0's emulated geometry:

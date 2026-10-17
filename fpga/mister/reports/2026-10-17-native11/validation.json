@@ -1,0 +1,29 @@
+{
+  "candidate": "Native11",
+  "rbf_sha256": "6045b40988fc5439a05e735c6f59f0353e9fc4103c814454211f20725691a8a3",
+  "functional_rtl": "Same as Native10; physical optimizations enabled except retiming",
+  "native_state_import": false,
+  "timing_before": {
+    "HDMI_setup_ns": 0.384,
+    "core_setup_ns": 1.735,
+    "core_hold_ns": -0.017
+  },
+  "review": "Only msa2/group9 and msa3Odd/group0 own row/column -> saved_addr HOLD checks excluded. Address sources change only on machine edges; ready must hold at every advancing machine edge; ready implies req_valid=0, disabling saved_addr. Setup, other instances and enable/request timing remain checked. New assertion guards disabled capture.",
+  "storage_gates": {
+    "group_cycles": 4009,
+    "group_backing_bits": 262144,
+    "board_cycles": 12012,
+    "board_backing_bits": 2359296,
+    "board_writes": 7872,
+    "result": "All stored bits and outputs identical to original cells"
+  },
+  "timing_reviewed": {
+    "reported_checks": 29,
+    "minimum_slack_ns": 0.111,
+    "qualified_for_framework_1080p_clock": true,
+    "runtime_test_mode": 0,
+    "vsync_adjust": 0,
+    "framework_IO_fully_constrained": false
+  },
+  "deployment": "MiSTer14 independent Cedar11.mgl, new MainPID8212 immutable original Main, fresh disposable Pilot pack c0cd6784...; actual firmware boot under observation, not Cedar qualification."
+}

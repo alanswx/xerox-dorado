@@ -1,0 +1,79 @@
+Fvco=445.500000, C=6, M=8, K=0.910000(3908420239) -> Fpix=74.250000
+Set predefined video_mode to 0
+Calculate PLL for 74.2500 MHz:
+Fvco=445.500000, C=6, M=8, K=0.910000(3908420239) -> Fpix=74.250000
+Calculate PLL for 74.2500 MHz:
+Fvco=445.500000, C=6, M=8, K=0.910000(3908420239) -> Fpix=74.250000
+Calculate PLL for 74.2500 MHz:
+Fvco=445.500000, C=6, M=8, K=0.910000(3908420239) -> Fpix=74.250000
+PLL: 0x4, 0x404, 0x3, 0x10000, 0x5, 0x303, 0x9, 0x2, 0x8, 0x7, 0x7, 0xE8F5C28F, Fpix=74.250000
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f480400 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f480002 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4cf857 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f480582 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4800a9 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f26f state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f850 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4cf851 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f846 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f858 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f855 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f26b state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48004c state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f480400 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4801f2 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4800aa state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f9d1 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f853 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f86c state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f857 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f84d state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f857 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f7c6 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48002d state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4800aa state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4cf26e state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=014c00a9 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=014cfa1c state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f773 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f85f state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4cf855 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4800a7 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f83b state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f856 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f2d5 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=010801f8 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f480582 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f84e state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f9d3 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4cfffe state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4cf85b state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48007c state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4cf276 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f480400 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4800a2 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f5b5 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f85f state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f7fa state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4c007c state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f825 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f85d state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4cf861 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=014cf84a state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f861 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f84c state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f285 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4800aa state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f856 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=010cfa13 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f301 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f98c state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4cf84e state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f7ec state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f855 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f862 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4cf759 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4cf265 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4800a8 state=002a cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f4cf856 state=002f cpu=30cd2c9e
+Dorado net: flags=5 tx_words=0 good=0 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1f48f73f state=002a cpu=30cd2c9e

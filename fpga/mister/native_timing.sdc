@@ -19,3 +19,19 @@ foreach {board group} {msa2Odd 9 msa3 12 msa1Odd 2} {
         set_false_path -hold -from $data_source -to $data_sink
     }
 }
+
+# Native11: two own-address hold checks have the same disabled-transfer
+# property. MK4096P_addr row/col change only on a machine-clock edge.
+# Advancing that edge requires ready=1. The group equations make ready and
+# req_valid mutually exclusive, so saved_addr cannot capture on that edge.
+# Keep address setup, request/enable checks, and all other instances checked.
+foreach {board group} {msa2 9 msa3Odd 0} {
+    set scope [format {*|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_%s|} $board]
+    set address_source [get_registers -nowarn [list \
+        "${scope}cell_MK4096P_addr:u_dram_addr_${group}|row*" \
+        "${scope}cell_MK4096P_addr:u_dram_addr_${group}|col*"]]
+    set address_sink [get_registers -nowarn "${scope}dorado_storage_group:u_storage_${group}|saved_addr*"]
+    if {[get_collection_size $address_source] && [get_collection_size $address_sink]} {
+        set_false_path -hold -from $address_source -to $address_sink
+    }
+}

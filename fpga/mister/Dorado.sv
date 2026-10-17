@@ -236,12 +236,17 @@ wire machine_clk;
 `ifdef DORADO_NATIVE
 wire storage_ready,storage_initialized;
 wire [31:0] baseboard_debug,processor_debug;
+`ifdef DORADO_CONTROL_ERROR_MONITOR
+wire [9:0] control_debug;
+`else
+wire [9:0] control_debug=10'd0;
+`endif
 wire machine_enable = ~reset && pack_ready && storage_ready;
 reg [28:0] boot_samples=0;
 always @(posedge machine_clk)if(boot_samples<29'd240000000)boot_samples<=boot_samples+1'b1;
 wire baseboard_boot_n=!(status[3] || buttons[1] ||
     (boot_samples>=29'd200000000 && boot_samples<29'd240000000));
-wire [15:0] machine_status={10'd0,baseboard_boot_n,pack_fault,storage_initialized,
+wire [15:0] machine_status={control_debug,baseboard_boot_n,pack_fault,storage_initialized,
                            storage_ready,pack_ready,machine_enable};
 `elsif DORADO_HPS_PACK
 wire machine_enable = ~reset && pack_ready;
@@ -293,6 +298,9 @@ dorado_native_machine #(.SYSPER(MACHINE_SYSPER)) u_native (
     .reset(~pll_locked), .baseboard_boot_n(baseboard_boot_n), .large_format(~status[4]),
     .storage_ready(storage_ready), .storage_initialized(storage_initialized),
     .baseboard_debug(baseboard_debug), .processor_debug(processor_debug),
+`ifdef DORADO_CONTROL_ERROR_MONITOR
+    .control_debug(control_debug),
+`endif
     .ddram_busy(DDRAM_BUSY), .ddram_rvalid(DDRAM_DOUT_READY), .ddram_rdata(DDRAM_DOUT),
     .ddram_burstcount(DDRAM_BURSTCNT), .ddram_be(DDRAM_BE), .ddram_addr(DDRAM_ADDR),
     .ddram_read(DDRAM_RD), .ddram_write(DDRAM_WE), .ddram_wdata(DDRAM_DIN),

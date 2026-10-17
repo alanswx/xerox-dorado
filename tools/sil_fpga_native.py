@@ -85,6 +85,7 @@ def main():
     groups = args.storage_modules*32
     address_bits = 14 + (groups-1).bit_length()
     connections += ['    .baseboard_debug(baseboard_debug)', '    .processor_debug(processor_debug)',
+                    '    .control_debug(control_debug)',
                     '    .video_field(video_field)']
     connections += [f'    .storage_{n}({v})' for n, v in [
         ('reset', 'reset || !storage_initialized'), ('ready', 'board_ready'),
@@ -120,6 +121,7 @@ module dorado_native_machine #(parameter integer SYSPER=4) (
     output wire [63:0] ddram_wdata,
     output wire storage_ready,storage_initialized,
     output wire [31:0] baseboard_debug,processor_debug,
+    output wire [9:0] control_debug,
     output wire video,hsync,vsync_n,hblank,vblank,halfline,pixel_clk,video_field
 );
   localparam integer GROUPS=GROUP_COUNT,RAW_BITS=ADDRESS_BITS;
@@ -218,6 +220,7 @@ endmodule
     sources += ['fpga/mister/'+n+'.sv' for n in ['dorado_pack_hps','dorado_storage_group',
                 'dorado_storage_arb','dorado_storage_ddram','dorado_storage_init']]
     (out/'manifest.json').write_text(json.dumps({'native': True, 'storage_modules': args.storage_modules, 'pilot_disk': args.pilot_disk,
+                                               'control_error_monitor': True,
         'display_field': True, 'control_clock_monitor': True,
         'hps_pack': True, 'ethernet_wire': True, 'ethernet_host_port': True}, indent=2)+'\n')
     (out/'sources.f').write_text('\n'.join(sources)+'\n')
