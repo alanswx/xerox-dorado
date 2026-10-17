@@ -92,6 +92,16 @@ sys.exit(0 if json.load(open(sys.argv[1])).get('hps_pack') else 1)
 PY
     then
       echo 'set_global_assignment -name VERILOG_MACRO DORADO_HPS_PACK'
+      echo "set_global_assignment -name SYSTEMVERILOG_FILE $REPO/fpga/mister/dorado_pack_mount.sv"
+    fi
+    if python3 - "$CHECKPOINT/manifest.json" <<'PY'
+import json, sys
+sys.exit(0 if json.load(open(sys.argv[1])).get('ethernet_wire') else 1)
+PY
+    then
+      echo 'set_global_assignment -name VERILOG_MACRO DORADO_ETHERNET'
+      echo "set_global_assignment -name SYSTEMVERILOG_FILE $REPO/fpga/mister/dorado_ethernet_wire.sv"
+      echo "set_global_assignment -name SYSTEMVERILOG_FILE $REPO/fpga/mister/dorado_ethernet_uio.sv"
     fi
     while IFS= read -r f; do
       case "$f" in /*) ;; *) f="$REPO/$f" ;; esac

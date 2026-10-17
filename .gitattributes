@@ -1,0 +1,2 @@
+# A unified diff's context keeps upstream whitespace verbatim.
+fpga/mister/main/main-260912.patch -whitespace

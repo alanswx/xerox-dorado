@@ -4493,7 +4493,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p15(Ether06_sil_pl_2__j04_15),
     .p16(GND_m_6)
   ); // MC10231
-  cell_F9401 u_j05 (
+  cell_F9401 #(.PRECAP(1)) u_j05 (
     .sys_clk(sys_clk),
     .p1(Ether04_sil_pl_16),
     .p2(TTLTrueB),
@@ -4704,7 +4704,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p14(Ether08_sil_pl_10),
     .p15(sPendulum)
   ); // MC10135
-  cell_K1115A #(.FREQ_KHZ(23530)) u_j20 (
+  cell_K1115A #(.FREQ_KHZ(23530), .SYSPER(2*SYSPER)) u_j20 (
     .sys_clk(sys_clk),
     .p7(GND_m_8),
     .p8(EClk0),

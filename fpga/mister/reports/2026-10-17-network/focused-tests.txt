@@ -1,0 +1,11 @@
+tb_mouse: PASS -- signed packets, Y direction, buttons, paused/overlapping reports and saturation
+tb_mouse_terminal: PASS -- real serial framing, buttons before motion, exact excess-200B chunks and release
+tb_keyboard_terminal: PASS -- key down/up and chord delivered on serial wire
+HPS-PERSISTENCE PASS: checked final-track write, reopened serial readback, clean remount, corrupt/readonly/interrupted writes and host timeout
+HPS-PACK PASS: 11024 serial bits identical, 2 reads, 1 writes, full image unchanged after loopback
+PACK-MOUNT PASS: Main size/notify ordering, no early read, real interrupted transfer still faults, clean reattach
+ETHERNET-CLOCK PASS: 23.530 MHz at all three CPU sample ratios
+ETHERNET-UIO PASS: capability, synchronous reads, explicit TX ack, complete RX commit, aborted/busy isolation
+ETHERNET-WIRE PASS: serial framing, fractional clock, CRC rejection, full-size packets, host backpressure, paused machine
+ETHERNET-RECEIVE PASS: actual phase decoder, data words, good receiver status, damaged CRC rejected
+tb_crc: PASS -- cell_F9401 generates and checks CRC-16 as the data sheet describes

@@ -92,6 +92,9 @@ wire   [1:0] buttons;
 wire         forced_scandoubler;
 wire [10:0] ps2_key;
 wire [24:0] ps2_mouse;
+`ifdef DORADO_ETHERNET
+wire [35:0] ethernet_ext_bus;
+`endif
 `ifdef DORADO_HPS_PACK
 wire [31:0] sd_lba [1];
 wire [5:0] sd_blk_cnt [1];
@@ -99,13 +102,20 @@ wire [0:0] sd_rd, sd_wr, sd_ack;
 wire [12:0] sd_buff_addr;
 wire [15:0] sd_buff_dout, sd_buff_din [1];
 wire sd_buff_wr, pack_ready, pack_fault, pack_dirty;
+wire pack_attached;
+dorado_pack_mount u_pack_mount (.clk(clk_sys),.reset(~pll_locked),
+    .size_nonzero(|img_size),.mounted(img_mounted[0]),.attached(pack_attached));
 `endif
 
 hps_io #(.CONF_STR(CONF_STR), .WIDE(1)) hps_io
 (
 	.clk_sys(clk_sys),
 	.HPS_BUS(HPS_BUS),
+`ifdef DORADO_ETHERNET
+	.EXT_BUS(ethernet_ext_bus),
+`else
 	.EXT_BUS(),
+`endif
 	.gamma_bus(),
 	.forced_scandoubler(forced_scandoubler),
 	.buttons(buttons),
@@ -205,6 +215,33 @@ wire machine_enable = ~reset && pack_ready;
 `else
 wire machine_enable = ~reset;
 `endif
+`ifdef DORADO_ETHERNET
+wire ethernet_rx, ethernet_tx_n, net_rx_ready, net_tx_valid;
+wire net_tx_ack, net_rx_wr, net_rx_commit;
+wire [8:0] net_tx_addr, net_rx_addr;
+wire [15:0] net_tx_data, net_rx_data;
+wire [9:0] net_tx_words, net_rx_words;
+wire [31:0] net_tx_good,net_tx_bad,net_tx_dropped,net_rx_bad;
+// Match the global clock gate's falling-edge enable latch. Host transfers
+// continue while the cable's emulated time pauses with the rest of DskEth.
+reg network_step = 0;
+always @(negedge clk_sys) network_step <= machine_enable;
+dorado_ethernet_uio u_network_uio (
+    .clk(clk_sys), .reset(~pll_locked), .bus(ethernet_ext_bus),
+    .rx_ready(net_rx_ready), .tx_valid(net_tx_valid), .tx_words(net_tx_words), .tx_data(net_tx_data),
+    .tx_good(net_tx_good), .tx_bad(net_tx_bad), .tx_dropped(net_tx_dropped), .rx_bad(net_rx_bad),
+    .tx_addr(net_tx_addr), .tx_ack(net_tx_ack), .rx_wr(net_rx_wr), .rx_commit(net_rx_commit),
+    .rx_addr(net_rx_addr), .rx_data(net_rx_data), .rx_words(net_rx_words), .aborted()
+);
+dorado_ethernet_wire #(.SYSPER(MACHINE_SYSPER)) u_network_wire (
+    .clk(clk_sys), .reset(~pll_locked), .step(network_step),
+    .tx_line(~ethernet_tx_n), .rx_line(ethernet_rx),
+    .rx_wr(net_rx_wr), .rx_commit(net_rx_commit), .rx_addr(net_rx_addr),
+    .rx_data(net_rx_data), .rx_words(net_rx_words), .rx_ready(net_rx_ready),
+    .tx_addr(net_tx_addr), .tx_data(net_tx_data), .tx_ack(net_tx_ack), .tx_valid(net_tx_valid), .tx_words(net_tx_words),
+    .tx_good(net_tx_good), .tx_bad(net_tx_bad), .tx_dropped(net_tx_dropped), .rx_bad(net_rx_bad)
+);
+`endif
 altclkctrl #(.clock_type("Global Clock"), .ena_register_mode("falling edge"),
              .intended_device_family("Cyclone V")) machine_clock
     (.inclk({3'b000, clk_sys}), .clkselect(2'b00), .ena(machine_enable),
@@ -214,8 +251,11 @@ dorado_checkpoint_machine u_checkpoint (
     .mouse_keys(mouse_keys), .mouse_dx(mouse_dx), .mouse_dy(mouse_dy),
     .mouse_pending(mouse_pending), .mouse_taken(mouse_taken),
     .mouse_sent_dx(mouse_sent_dx), .mouse_sent_dy(mouse_sent_dy),
+`ifdef DORADO_ETHERNET
+    .ethernet_rx(ethernet_rx), .ethernet_tx_n(ethernet_tx_n),
+`endif
 `ifdef DORADO_HPS_PACK
-    .clk_host(clk_sys), .pack_reset(~pll_locked), .pack_attached(|img_size), .pack_readonly(img_readonly), .pack_mounted(img_mounted[0]),
+    .clk_host(clk_sys), .pack_reset(~pll_locked), .pack_attached(pack_attached), .pack_readonly(img_readonly), .pack_mounted(img_mounted[0]),
     .sd_lba(sd_lba[0]), .sd_blk_cnt(sd_blk_cnt[0]), .sd_rd(sd_rd[0]), .sd_wr(sd_wr[0]), .sd_ack(sd_ack[0]),
     .sd_buff_addr(sd_buff_addr), .sd_buff_dout(sd_buff_dout), .sd_buff_din(sd_buff_din[0]), .sd_buff_wr(sd_buff_wr),
     .pack_ready(pack_ready), .pack_fault(pack_fault), .pack_dirty(pack_dirty),

@@ -1,0 +1,4 @@
+Dorado: ARM-local packet server connected
+Dorado Pup server listening on /tmp/dorado-main-ts6x8qro/server.sock (raw frames, no CRC/status)
+Dorado: ARM-local packet server connected
+MAIN-TRANSPORT PASS: 18728 microcode bytes, 38 frames, held RX backpressure, explicit TX ack, core-change reconnect

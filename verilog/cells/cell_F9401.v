@@ -26,7 +26,7 @@
 // Modelled on sys_clk with the clock edge detected by sampling, like every
 // other clocked cell here; MR and P' are level-tested every sys_clk.
 `default_nettype none
-module cell_F9401 (
+module cell_F9401 #(parameter PRECAP = 0) (
     input  wire sys_clk,
     input  wire p1,   // CP (CK'): shifts on the HIGH-to-LOW transition
     input  wire p2,   // P'  preset, active low
@@ -52,7 +52,16 @@ module cell_F9401 (
                      (sel == 3'b110) ? 16'h1020 :   // X16+X12+X5+1      CRC-CCITT
                      (sel == 3'b111) ? 16'h0810 :   // X16+X11+X4+1      CRC-CCITT reverse
                                        16'h8004;
-  wire fb = p10 & (p11 ^ r[15]);
+  // At DskEth j05 the receiver FSM changes D on the same modeled edge
+  // that lowers CP. Edge detection runs one fabric sample later, when D
+  // has already become the next value (zero between receive events).
+  // Preserve the setup value, as the real falling-edge part does. Tx g17
+  // retains its qualified timing mode while its separate path is audited.
+  reg d_pre=0,cwe_pre=1;
+  always @(posedge sys_clk)begin d_pre<=p11;cwe_pre<=p10;end
+  wire data_use=PRECAP ? d_pre : p11;
+  wire cwe_use=PRECAP ? cwe_pre : p10;
+  wire fb = cwe_use & (data_use ^ r[15]);
   wire [15:0] shifted = {r[14:0], 1'b0} ^ (fb ? (taps | 16'h0001) : 16'h0000);
   always @(posedge sys_clk) begin
     cp_d <= p1;

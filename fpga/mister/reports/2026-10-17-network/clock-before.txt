@@ -1,0 +1,4 @@
+ETHERNET-CLOCK edges: SYSPER4=       3530 SYSPER8=       3530 SYSPER16=       3530
+[44000000] %Fatal: tb_ethernet_clock.sv:14: Assertion failed in tb_ethernet_clock.check_rate: Ethernet crystal wrong at SYSPER=          4: edges=       3530 expected=7059.000000
+%Error: verilog/verilator/tb_ethernet_clock.sv:14: Verilog $stop
+Aborting...

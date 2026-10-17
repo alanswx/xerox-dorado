@@ -740,7 +740,16 @@ class Generator:
         # oscillator (i.e., the period is 42.5 ns or 1/8 of the 340 ns bit
         # cell time)" -- and 11.5 names it 23.53 MHz. The sheet does not
         # state it, so this position ran at the cell's 20 MHz default.
-        ('DskEth', 'j20'): {'FREQ_KHZ': 23530},
+        # Board SYSPER counts samples per 30 ns clock; K1115A counts
+        # samples per 60 ns microinstruction. Carry both the fitted
+        # frequency and the actual timebase into this oscillator. A fixed
+        # default of 16 made Ethernet half-speed at the current SYSPER=4.
+        ('DskEth', 'j20'): {'FREQ_KHZ': 23530, 'SYSPER': '2*SYSPER'},
+        # Rx FSM changes CRC D concurrently with the falling CP edge.
+        # Sampling current D one fabric cycle later read zeros throughout
+        # the packet and silently accepted a damaged CRC. Retain its setup
+        # value; real receive FIFO status must distinguish clean/bad CRC.
+        ('DskEth', 'j05'): {'PRECAP': 1},
         # MC10170 datasheet p.370: B is XOR(data, controls), not XNOR.
         # These odd-byte IOB checkers tie control 13 HIGH. The legacy extra
         # inversion reports every valid output as a parity error. Other

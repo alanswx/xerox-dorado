@@ -1,0 +1,78 @@
+{
+  "status": "software components and serial controller paths qualified; combined hardware integration pending",
+  "full_machine_tx": {
+    "samples": 100000000,
+    "checked_frames": 4,
+    "payloads": [
+      [
+        "00ff",
+        "8002",
+        "0000",
+        "0001",
+        "0003",
+        "0080",
+        "0a46",
+        "696c",
+        "6553",
+        "7973",
+        "7465",
+        "6d00"
+      ],
+      [
+        "00ff",
+        "8002",
+        "0000",
+        "0001",
+        "0003",
+        "0080",
+        "0a46",
+        "696c",
+        "6553",
+        "7973",
+        "7465",
+        "6d00"
+      ],
+      [
+        "00ff",
+        "8002",
+        "0000",
+        "0001",
+        "0003",
+        "0080",
+        "0a46",
+        "696c",
+        "6553",
+        "7973",
+        "7465",
+        "6d00"
+      ],
+      [
+        "00ff",
+        "8002",
+        "0000",
+        "0001",
+        "0003",
+        "0080",
+        "0a46",
+        "696c",
+        "6553",
+        "7973",
+        "7465",
+        "6d00"
+      ]
+    ],
+    "bad_crc_count": 0,
+    "source": "network-link-controller.log and its length-prefixed packet dump",
+    "wire_crc": "7C50 for the captured FileSystem lookup, stripped before delivering 12 data words to Main",
+    "crc_includes_sync": true
+  },
+  "receiver_fix": "j05 F9401 samples pre-edge D/CWE; clean actual FIFO status 0000, damaged CRC status 0008",
+  "main_base_commit": "47221c18987e101f50caafeb3b615f53b62722ca",
+  "server_and_transport": "byte-exact microcode, EFTP, retransmission; local socket and core-change reconnect tested on Mac and MiSTer ARM",
+  "fpga_builds": {
+    "Network2": "mount guard and link; excludes j05 CRC-error sampling fix; useful for persistence test",
+    "Network3": "adds real receiver CRC-error sampling fix; final network qualification build"
+  },
+  "rtl_checkpoint_sha256": "fad0afaf422a17b4222546fb1d1213a2b17a74811a332e7aeddde8ea35794a22",
+  "constraints": "Saved RTL continuation only; no CPU emulator, injected guest text or synthetic successful receive status; BaseBoard cold boot still incomplete"
+}

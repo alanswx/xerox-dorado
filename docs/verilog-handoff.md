@@ -23,10 +23,100 @@ reach UTILIN as `FFFB` and `FFFF` through DisplayAux.mc's ReadTerminal.
 The inspected state is in `build/rtl-executive/mouse-full*.{bin,pgm}`;
 `mouse-last.rtl` retains the exact model and medium state.
 
-Hardware validation is pending. Isolated Quartus project:
-`misterubuntu:/home/alans/mister/Dorado_Mouse_20261017/core`. Its copied
-sources preserve the previous HPS medium while subsequent disk work proceeds
-in the local checkout. The previous Executive/Invaders launchers remain intact.
+**The cursor moves on MiSTer14.** Run `/media/fat/Scripts/DoradoMouse.sh`
+and wait for Executive. Main's remote virtual USB mouse delivers `(120,100)`,
+then `(-60,40)`, then `(120,100)` through the actual PS/2/terminal path.
+The final pair of hardware screenshots differs only by the same 51-pixel
+arrow translated exactly 120 pixels right and 100 down. `foo` + Return
+still prints its expected error and another prompt. **Calculator works with
+the mouse:** launch `calculator`, then click `7`, `+`, `3`, `=`; its display
+shows `10.`. This qualifies left-button application input on hardware.
+Right/middle mapping is still covered only by the focused terminal tests.
+[Cursor and keyboard](images/rtl-mister14-mouse-moved-2026-10-17.png),
+[Calculator result](images/rtl-mister14-calculator-mouse-2026-10-17.png).
+
+Isolated Quartus project:
+`misterubuntu:/home/alans/mister/Dorado_Mouse_20261017/core`, RBF SHA256
+`7d85f5e881f164dd4f180f70853e0f7dcf69998ce4f4c08069cb9fa88ed167b3`.
+23,981 ALMs, 22,026 registers, 445 RAM blocks, 35 DSPs; core setup
++8.170 ns, hold +0.064 ns with the previous three scoped hold-only RAM
+write-address exceptions. Framework I/O is not fully constrained. Evidence:
+`fpga/mister/reports/2026-10-17-mouse/`. This build retains the previous HPS
+medium while subsequent disk work proceeds separately. The previous
+Executive/Invaders launchers remain intact.
+
+**Disk persistence passes the medium tests; first-mount integration is being fixed.** Complete
+CRC-checked blocks flush when the controller drops write gate, without a
+later seek. The dirty LED remains asserted until the HPS acknowledgement.
+Remount/unmount with dirty data or a transfer in progress faults rather
+than writing an old cache into a replacement image. A stalled host times
+out. `hps-persistence-test` changes a data word via the actual serial stream,
+persists it, reopens the backing file with a fresh controller, compares
+over 5,000 serial bits and checks neighboring bytes. Corrupt CRC, readonly,
+dirty remount/unmount and missing-host cases leave the backing image intact.
+The original 11,024-bit HPS loopback test and a 14M-sample complete Executive/
+mouse regression also pass. Project:
+`misterubuntu:/home/alans/mister/Dorado_Persist_20261017/core`.
+The first hardware build has positive timing (+8.686 ns setup, +0.114 ns
+hold), but stops before executing guest code: Main sends `img_size` in
+several SPI words BEFORE `img_mounted`, which started a read that the new
+remount protection then correctly rejected as interrupted. The test copy
+command did not execute; seed and working image remain byte-identical.
+`dorado_pack_mount.sv` now gates attachment until the complete notification.
+`pack-mount-test` reproduces Main's ordering, fails with the old direct-size
+wiring and passes with the gate while retaining genuine interrupted-transfer
+faults. The corrected combined build is
+`misterubuntu:/home/alans/mister/Dorado_Network2_20261017/core`.
+Guest-created-file survival on hardware and power-loss durability remain
+unproven; Main's block acknowledgement alone does not prove fsync.
+
+**The ARM-local server runs on MiSTer14.**
+`fpga/mister/server/` builds a standalone process from the existing Pup/
+EFTP/STP source without the CPU emulator. Its socket test on both Mac and
+actual ARM serves 18,728 AEmu microcode bytes and 7,080 Alto boot-file bytes
+exactly, retransmits a deliberately dropped EFTP packet and emits idle
+breath-of-life/routing broadcasts. It strips the C controller's dummy
+CRC/status trailers; the old microcode-reply queue also needs its missing
+nil Pup checksum supplied at this boundary. Main transport is implemented
+against installed release 20260912 (`47221c18987e101f50caafeb3b615f53b62722ca`),
+with 38 microcode frames tested byte-exact under RX backpressure on both
+Mac and MiSTer ARM. The new Main is not yet loaded; this is not an RTL
+network boot.
+
+`dorado_ethernet_wire.sv` is the next experimental link adapter. Its focused
+test covers fractional 340 ns Manchester timing, CRC rejection, 512-word
+packets, host backpressure and machine pauses. The checkpoint exporter can
+optionally expose `RcvData` and `XmtData'` using `--ethernet-wire`; a complete
+controller test is running before connecting the MiSTer transport. It is
+not included in the deployed mouse or first persistence builds. That test
+found the Ethernet crystal's fixed sampling ratio: at board SYSPER=4 it ran
+half-speed. The generator now passes the crystal cell `2*SYSPER` (the cell
+counts per 60 ns instruction, the board per 30 ns clock). The actual-board
+gate passes at ratios 4/8/16. A captured real FileSystem lookup also proves
+the CRC includes the sync bit: check word `7C50`, zero residue with sync,
+`3FFE` without it. The link adapter and `eb_replies.py` now include sync;
+the fixture tests that exact transmitted packet independently of the encoder.
+The complete 100M-sample run now delivers four checked real transmitter
+packets to the host buffer with zero bad CRCs. No server response is
+injected in that run; the application is still in its discovery timeout.
+
+The real receive test initially exposed another bug: j05's F9401 sampled
+the new D value after the Rx FSM changed it on the falling clock edge, so
+it saw zeros throughout the packet and accepted damaged CRCs. Its per-
+instance pre-edge capture now follows the chip's setup value. The actual
+Rx FIFO contains status `0000` for the correct `7C50` check word and
+`0008` for a one-bit-damaged `7D50`, with identical payload and no framing/
+overflow error. Eight relative input-clock phases pass. The published
+F9401 check-vector gate is unchanged. This fix is in the separate final
+`Dorado_Network3_20261017` build, not Network2. Both builds include the
+mount-order guard; Network2 can qualify disk persistence while Network3
+finishes. Main transport now resets on same-name core reloads, and the
+local server accepts a fresh connection after the old socket disappears.
+
+BaseBoard's isolated ROM boot gate passes (reset vector F3A7 and all eight
+startup bytes match). Integration with the working full machine, medium,
+boot server and boot button remains required. The current hardware still
+continues saved RTL state from the assisted Initial/AEmu boot.
 
 ## Invaders starts on MiSTer14 (2026-10-17 UTC)
 

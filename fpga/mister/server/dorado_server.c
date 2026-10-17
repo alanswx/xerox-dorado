@@ -43,6 +43,13 @@ static void pump(dorado_ethernet *eth, uint64_t ticks) {
     dorado_trace_cycle++;
     (void)dorado_ethernet_wakeup_mask(eth);
 }
+static void configure(dorado_ethernet *eth,int argc,char **argv) {
+    dorado_ethernet_init(eth);
+    dorado_ethernet_set_boot_file(eth,0110,argv[2]);
+    dorado_ethernet_set_eftp_boot_file(eth,argv[3]);
+    if(argc==5)dorado_ethernet_set_ftp_root(eth,argv[4]);
+    eth->rx_on=1;
+}
 int main(int argc, char **argv) {
     if (argc < 4 || argc > 5) {
         fprintf(stderr, "usage: %s SOCKET AEMU.eb ALTO.boot [STP_ROOT]\n", argv[0]);
@@ -66,11 +73,7 @@ int main(int argc, char **argv) {
     }
     signal(SIGINT, stop); signal(SIGTERM, stop);
     dorado_ethernet eth;
-    dorado_ethernet_init(&eth);
-    dorado_ethernet_set_boot_file(&eth, 0110, argv[2]);
-    dorado_ethernet_set_eftp_boot_file(&eth, argv[3]);
-    if (argc == 5) dorado_ethernet_set_ftp_root(&eth, argv[4]);
-    eth.rx_on = 1;
+    configure(&eth,argc,argv);
     socklen_t peer_len = 0;
     uint64_t previous = monotonic_ns(), broadcast_at = previous + 1000000000ull;
     unsigned broadcast_kind = 0;
@@ -112,7 +115,11 @@ int main(int argc, char **argv) {
             ssize_t n = sendto(fd, bytes, count*2, MSG_DONTWAIT,
                               (struct sockaddr *)&peer, peer_len);
             if (n == (ssize_t)(count*2)) eth.rx_pos = end + 1;
-            else if (n < 0 && errno != EAGAIN && errno != ENOBUFS && errno != EINTR) {
+            else if(n<0 && (errno==ENOENT || errno==ECONNREFUSED)) {
+                // Main changed/reloaded a core. Drop the disconnected
+                // session and wait for its next explicit registration.
+                dorado_ethernet_free(&eth);configure(&eth,argc,argv);peer_len=0;
+            } else if (n < 0 && errno != EAGAIN && errno != ENOBUFS && errno != EINTR) {
                 perror("sendto"); result = 1; break;
             }
         }

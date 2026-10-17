@@ -14,7 +14,7 @@ byte 512, sent in 255-word pieces, ended by an empty reply.
 
 On the wire (HM 11): 340 ns bit cells, phase encoded, one sync bit (1) then
 the words MSB first, then the 9401's CRC-16 (x16+x15+x2+1, register zero,
-data bits MSB first, sync excluded) as the last 16 bits. `pol` is the
+data bits MSB first, sync included) as the last 16 bits. `pol` is the
 encoding polarity, settled against the recorded request (decode_xmt.py).
 
 Output lines are `<offset sys_clk> <level>` relative to the start of the
@@ -53,7 +53,7 @@ def reply_words(lhost, rhost, seq, payload):
 
 def packet_bits(wl):
     bits = [int(c) for w in wl for c in format(w & 0xffff, '016b')]
-    return [1] + bits + crc16_bits(bits)                 # sync, data, CRC
+    return [1] + bits + crc16_bits([1] + bits)           # sync, data, CRC
 
 def encode_bits(bits, cell, t0, pol):
     """Phase-encode a bit list from time t0 (float cell); returns transitions and the end time."""
@@ -108,7 +108,7 @@ def main():
                     pk = decode(tr, cell, pol, sk)
                     if pk and pk[0][0] == 1:
                         ws, rem = dec_words(pk[0])
-                        if rem == 0 and ws[:-1] == pkts[i] and crc16(pk[0][1:]) == 0: break
+                        if rem == 0 and ws[:-1] == pkts[i] and crc16(pk[0]) == 0: break
                 else: continue
                 break
             else: bad += 1

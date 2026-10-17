@@ -1,0 +1,3 @@
+[48000] %Fatal: tb_pack_mount.sv:19: Assertion failed in tb_pack_mount: partial size started an early transfer
+%Error: verilog/verilator/tb_pack_mount.sv:19: Verilog $stop
+Aborting...

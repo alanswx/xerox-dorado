@@ -1,0 +1,392 @@
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74LS169.v:30:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   30 | module cell_SN74LS169 (
+      |        ^~~~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1518:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.044
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74123.v:27:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   27 | module cell_SN74123 #(
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1548:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74LS174.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_SN74LS174 (
+      |        ^~~~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1612:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MU10164.v:14:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   14 | module cell_MU10164 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1680:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10158.v:23:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   23 | module cell_MC10158 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1711:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_F10016.v:8:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    8 | module cell_F10016 #(parameter PRECAP = 0) (
+      |        ^~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1726:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10100.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_MC10100 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1764:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SG10139.v:10:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   10 | module cell_SG10139 #(
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1778:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_LM3911_20K.v:13:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   13 | module cell_LM3911_20K (
+      |        ^~~~~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1821:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10195.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_MC10195 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1829:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10102.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_MC10102 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1843:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10125.v:8:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    8 | module cell_MC10125 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1853:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10176.v:13:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   13 | module cell_MC10176 #(parameter PRECAP = 1) (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1866:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10231.v:18:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   18 | module cell_MC10231 #(parameter PRECAP = 1) (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1954:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10103.v:28:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | module cell_MC10103 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:1970:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MCM10149.v:10:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   10 | module cell_MCM10149 #(
+      |        ^~~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2012:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SE10212.v:28:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | module cell_SE10212 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2036:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SE10211.v:17:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   17 | module cell_SE10211 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2047:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SE10210.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_SE10210 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2060:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10109.v:23:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   23 | module cell_MC10109 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2126:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10124.v:8:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    8 | module cell_MC10124 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2142:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC1650.v:14:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   14 | module cell_MC1650 (
+      |        ^~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2154:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10113.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_MC10113 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2197:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10104.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_MC10104 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2280:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10197.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_MC10197 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2321:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10135.v:7:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    7 | module cell_MC10135 #(parameter PRECAP = 0) (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2364:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10136.v:30:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   30 | module cell_MC10136 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2401:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74LS08.v:15:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   15 | module cell_SN74LS08 (
+      |        ^~~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2484:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74125.v:21:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   21 | module cell_SN74125 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2500:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74LS153.v:17:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   17 | module cell_SN74LS153 (
+      |        ^~~~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2516:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74S288.v:10:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   10 | module cell_SN74S288 #(
+      |        ^~~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2551:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74LS155.v:19:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   19 | module cell_SN74LS155 (
+      |        ^~~~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2567:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_F10145A.v:30:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   30 | module cell_F10145A (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2597:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10171.v:30:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   30 | module cell_MC10171 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2691:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10173.v:43:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   43 | module cell_MC10173 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2736:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10166.v:30:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   30 | module cell_MC10166 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2826:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10175.v:8:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    8 | module cell_MC10175 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2840:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10170.v:36:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   36 | module cell_MC10170 #(parameter LEGACY_B_INVERT = 1) (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:2931:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10174.v:13:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   13 | module cell_MC10174 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:3196:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10161.v:19:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   19 | module cell_MC10161 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:3211:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_F10000.v:12:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   12 | module cell_F10000 #(parameter PRECAP = 0) (
+      |        ^~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:3240:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN7438.v:26:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   26 | module cell_SN7438 (
+      |        ^~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:3463:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_LM339.v:13:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   13 | module cell_LM339 (
+      |        ^~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:3495:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74S01.v:16:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   16 | module cell_SN74S01 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:3684:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_F9401.v:29:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   29 | module cell_F9401 #(parameter PRECAP = 0) (
+      |        ^~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:3697:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_p_8T98.v:31:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | module cell_p_8T98 (
+      |        ^~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:3768:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10106.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_MC10106 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:4102:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10105.v:15:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   15 | module cell_MC10105 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:4128:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10141.v:30:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   30 | module cell_MC10141 #(parameter PRECAP = 1) (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:4235:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10210.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_MC10210 (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:4396:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_K1115A.v:44:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   44 | module cell_K1115A #(
+      |        ^~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:4709:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC1664.v:24:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   24 | module cell_MC1664 (
+      |        ^~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:5087:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SE10231.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_SE10231 #(parameter PRECAP = 1) (
+      |        ^~~~~~~~~~~~
+                       verilog/generated/DskEth-Rev-Cf.v:5096:1: ... note: In file included from 'DskEth-Rev-Cf.v'
+                       verilog/verilator/tb_ethernet_receive.sv:4:8: ... Location of module with timescale
+    4 | module tb_ethernet_receive;
+      |        ^~~~~~~~~~~~~~~~~~~
+DskEth RX word           0=00ff EOP=0 crc=1
+DskEth RX word           1=8002 EOP=0 crc=1
+DskEth RX word           2=0000 EOP=0 crc=1
+DskEth RX word           3=0001 EOP=0 crc=1
+DskEth RX word           4=0003 EOP=0 crc=1
+DskEth RX word           5=0080 EOP=0 crc=1
+DskEth RX word           6=0a46 EOP=0 crc=1
+DskEth RX word           7=696c EOP=0 crc=1
+DskEth RX word           8=6553 EOP=0 crc=1
+DskEth RX word           9=7973 EOP=0 crc=1
+DskEth RX word          10=7465 EOP=0 crc=1
+DskEth RX word          11=6d00 EOP=0 crc=1
+DskEth RX word          12=7c50 EOP=0 crc=0
+DskEth RX word          13=0000 EOP=1 crc=0
+ETHERNET-RECEIVE PASS: actual phase decoder, data words, good receiver status, damaged CRC rejected
+- verilog/verilator/tb_ethernet_receive.sv:69: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 78us; walltime 0.020 s; speed 3.845 ms/s
+- Verilator: cpu 0.020 s on 1 threads; alloced 2 MB

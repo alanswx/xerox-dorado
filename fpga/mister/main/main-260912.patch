@@ -1,0 +1,28 @@
+diff --git a/user_io.cpp b/user_io.cpp
+index ca94d8b..3ca03bf 100644
+--- a/user_io.cpp
++++ b/user_io.cpp
+@@ -42,6 +42,7 @@
+ #include "frame_timer.h"
+ #include "scaler.h"
+ #include "support.h"
++#include "dorado_net.h"
+ 
+ static char core_path[1024] = {};
+ static char rbf_path[1024] = {};
+@@ -1409,6 +1410,7 @@ int user_io_get_width()
+ 
+ void user_io_init(const char *path, const char *xml)
+ {
++	dorado_net_reset();
+ 	char *name;
+ 	static char mainpath[512];
+ 	core_name[0] = 0;
+@@ -3167,6 +3169,7 @@ static uint32_t res_timer = 0;
+ 
+ void user_io_poll()
+ {
++	dorado_net_poll();
+ 	#ifdef PROFILING
+ 		PROFILE_FUNCTION();
+ 	#endif

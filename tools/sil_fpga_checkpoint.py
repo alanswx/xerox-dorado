@@ -37,6 +37,7 @@ def main():
     p.add_argument('--storage-words', type=int, choices=[65536, 131072, 262144], default=262144,
                    help='physical storage retained for this continuation; smaller configurations reject other addresses')
     p.add_argument('--hps-pack', action='store_true', help='connect a real HPS-backed serial Trident medium')
+    p.add_argument('--ethernet-wire', action='store_true', help='expose the real Ethernet cable pins for packet-link validation')
     p.add_argument('--base-pack', type=Path, help='make a disposable disk with the checkpoint media overlay applied')
     a = p.parse_args()
     a.output.mkdir(parents=True, exist_ok=True)
@@ -518,6 +519,8 @@ endmodule''')
                        TtlReady_p_='drv_ready_n', TtlOnLine_p_='drv_online_n', TtlTerm_p_='drv_term_n',
                        TtlIndex_p_='drv_index_n', TtlReadOnly_p_="1'b1", TtlEndOfCyl_p_="1'b1", SecIndx0_p_='drv_sec_n', Selected0_p_='drv_sel_n')
     connections['Select0_p_'] = 'disk_sel_n'
+    if a.ethernet_wire:
+        connections.update(RcvData='ethernet_rx', XmtData_p_='ethernet_tx_n')
     if a.hps_pack:
         connections.update(TtlEndOfCyl_p_='pack_eoc_n', TtlReadOnly_p_='~pack_readonly',
                            DataP0__in="pack_writing ? 1'b0 : drv_dp", DataM0__in="pack_writing ? 1'b0 : drv_dm",
@@ -547,6 +550,7 @@ module dorado_checkpoint_machine (
     output wire mouse_taken,
     output wire signed [8:0] mouse_sent_dx, mouse_sent_dy,
 HPS_PORTS
+ETH_PORTS
     output wire video, hsync, vsync_n, hblank, vblank, halfline,
     output wire pixel_clk
 );
@@ -614,6 +618,7 @@ PACK_INSTANCE
         wrapper = wrapper.replace('.ClockP(drv_cp),', '.sector_out(drv_sector), .ClockP(drv_cp),')
     else:
         wrapper = wrapper.replace('HPS_PORTS', '').replace('PACK_INSTANCE', '  wire drv_adv;').replace('PACK_ATTACHED', "1'b1").replace('PACK_BIT', "1'b0")
+    wrapper = wrapper.replace('ETH_PORTS', '    input wire ethernet_rx, output wire ethernet_tx_n,' if a.ethernet_wire else '')
     (a.output / 'dorado_checkpoint_machine.sv').write_text(wrapper)
     sources = [str(a.output / (n + '.sv')) for n in generated.values()]
     sources.append(str(a.output / 'dorado_checkpoint_machine.sv'))
@@ -621,6 +626,7 @@ PACK_INSTANCE
         sources.append('fpga/mister/dorado_pack_hps.sv')
     (a.output / 'sources.f').write_text('\n'.join(sources)+'\n')
     manifest = {'checkpoint': str(a.checkpoint), 'checkpoint_sha256': hashlib.sha256(snapshot).hexdigest(), 'model_fingerprint': fingerprint, 'storage_words': a.storage_words, 'hps_pack': a.hps_pack, 'top': generated['tb_exec.m'], 'helpers': helper_state, 'optimized_dff_inputs': reconstructed, 'stale_combinational_bits': stale_wires, 'instances': report}
+    manifest['ethernet_wire'] = a.ethernet_wire
     if a.base_pack:
         manifest['paired_disk_sha256'] = hashlib.sha256(media).hexdigest()
     (a.output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')

@@ -1421,6 +1421,38 @@ keyboard-terminal-test:
 # rotation at 3600 RPM. The gaps are counted as well as the pulses -- a line
 # stuck low gives a healthy pulse count and only the duty cycle tells them
 # apart, which is the lesson disk-input-test paid for.
+.PHONY: pack-mount-test ethernet-clock-test ethernet-uio-test ethernet-wire-test ethernet-receive-test
+ethernet-receive-test:
+	@cd ../.. && $(V) --binary --top-module tb_ethernet_receive $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_ethernet_receive -o ethernet-receive-test \
+		verilog/verilator/tb_ethernet_receive.sv verilog/generated/DskEth-Rev-Cf.v fpga/mister/dorado_ethernet_wire.sv >/dev/null
+	@cd ../.. && for phase in 0 1 2 3 4 5 6 7; do \
+		verilog/verilator/obj_ethernet_receive/ethernet-receive-test +phase=$$phase || exit $$?; done
+
+pack-mount-test:
+	@cd ../.. && $(V) --binary --top-module tb_pack_mount $(V_WARN) \
+		--Mdir verilog/verilator/obj_pack_mount -o pack-mount-test \
+		verilog/verilator/tb_pack_mount.sv fpga/mister/dorado_pack_mount.sv fpga/mister/dorado_pack_hps.sv >/dev/null
+	@./obj_pack_mount/pack-mount-test
+
+ethernet-clock-test:
+	@cd ../.. && $(V) --binary --top-module tb_ethernet_clock $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_ethernet_clock -o ethernet-clock-test \
+		verilog/verilator/tb_ethernet_clock.sv verilog/generated/DskEth-Rev-Cf.v >/dev/null
+	@cd ../.. && verilog/verilator/obj_ethernet_clock/ethernet-clock-test
+
+ethernet-uio-test:
+	@cd ../.. && $(V) --binary --top-module tb_ethernet_uio $(V_WARN) \
+		--Mdir verilog/verilator/obj_ethernet_uio -o ethernet-uio-test \
+		verilog/verilator/tb_ethernet_uio.sv fpga/mister/dorado_ethernet_uio.sv >/dev/null
+	@./obj_ethernet_uio/ethernet-uio-test
+
+ethernet-wire-test:
+	@cd ../.. && $(V) --binary --top-module tb_ethernet_wire $(V_WARN) \
+		--Mdir verilog/verilator/obj_ethernet_wire -o ethernet-wire-test \
+		verilog/verilator/tb_ethernet_wire.sv fpga/mister/dorado_ethernet_wire.sv >/dev/null
+	@./obj_ethernet_wire/ethernet-wire-test
+
 .PHONY: trident-test
 trident-test:
 	@cd ../.. && $(V) --binary --top-module tb_trident $(V_WARN) \

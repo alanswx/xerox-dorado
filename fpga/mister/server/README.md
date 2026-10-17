@@ -35,6 +35,9 @@ CRC, or receiver status**. Incoming frames are limited to the controller
 server's 512-word transmit buffer. Both socket paths must be unique; the
 server refuses to replace an existing pathname. Its socket is owner-only.
 After the first client registers, other peers are ignored until restart.
+If that client's socket disappears or refuses delivery, the server cancels
+its old transfers and accepts a fresh registration. Main also disconnects
+on core initialization, including same-name Dorado reloads.
 
 The adapter strips the C controller queue's dummy CRC and attention/status
 entries. It adds the missing nil Pup checksum to that code's old microcode-
