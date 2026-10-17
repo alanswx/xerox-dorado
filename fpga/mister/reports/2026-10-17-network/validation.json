@@ -71,8 +71,27 @@
   "server_and_transport": "byte-exact microcode, EFTP, retransmission; local socket and core-change reconnect tested on Mac and MiSTer ARM",
   "fpga_builds": {
     "Network2": "mount guard and link; excludes j05 CRC-error sampling fix; useful for persistence test",
-    "Network3": "adds real receiver CRC-error sampling fix; final network qualification build"
+    "Network3": "adds real receiver CRC-error sampling fix; final network qualification build",
+    "Network4": "Adds positive-logic station-377 backplane straps. Build in isolated project; no RTL guest completion injection."
   },
   "rtl_checkpoint_sha256": "fad0afaf422a17b4222546fb1d1213a2b17a74811a332e7aeddde8ea35794a22",
-  "constraints": "Saved RTL continuation only; no CPU emulator, injected guest text or synthetic successful receive status; BaseBoard cold boot still incomplete"
+  "constraints": "Saved RTL continuation only; no CPU emulator, injected guest text or synthetic successful receive status; BaseBoard cold boot still incomplete",
+  "hardware_integration": {
+    "core": "Network3",
+    "rbf_sha256": "0685ff725894dd616e29b0a60867e0ea1ff3f1118afc462d5a2f902cea43b8c0",
+    "setup_slack_ns": 6.549,
+    "hold_slack_ns": 0.076,
+    "alms": 24121,
+    "ram_blocks": 447,
+    "main_sha256": "4509d24b631150e145d59f5c59bb8f0d534b0a55fe59d9a490a2e57745ace540",
+    "stock_main_sha256_unchanged": "adeae62b09e63537fc33fbebbee5145e66fbecdd950ed6b9f856a441147556ff",
+    "result": "12 CRC-checked actual guest TX packets received by the local ARM server, no CRC failures/drops/submission errors. Full supported Pup receive/boot remains pending.",
+    "guest_etherboot": "Executive reports This Alto has no Ethernet! before transmitting",
+    "hardware_correction": "Host.0..7 tied zero in both wrapper generators. Actual DskEth positive-logic status-mux test reads 00, FF, 2A for corresponding straps. AEmu SIONop treats entirely zero status as absent NIC. Network4 supplies physical station-377 straps; build/test pending.",
+    "main_corrections": [
+      "Gate on user_io_get_core_name(1); MGL setname overrides display/config name",
+      "Existing per-core main INI setting prevents user_io_init from restarting temporary Main as installed stock binary"
+    ],
+    "temporary_main": "/tmp/dorado-main/MiSTer; only DoradoNetwork_20261017 INI section selects it"
+  }
 }

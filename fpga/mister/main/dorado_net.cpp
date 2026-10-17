@@ -56,7 +56,9 @@ bool connect_server(){
 void dorado_net_reset(){disconnect();next_poll=next_connect=next_trace=0;}
 
 void dorado_net_poll(){
-    if(strcmp(CoreName,"Dorado")){disconnect();next_connect=0;return;}
+    // MGL setname overrides CoreName for configuration/display. Capability
+    // belongs to the FPGA's original config-string name, not the launcher.
+    if(strcmp(user_io_get_core_name(1),"Dorado")){disconnect();next_connect=0;return;}
     uint64_t now=milliseconds();if(now<next_poll)return;next_poll=now+1;
     if(fd<0 && now<next_connect)return;
     uint16_t magic=spi_uio_cmd_cont(0x70);

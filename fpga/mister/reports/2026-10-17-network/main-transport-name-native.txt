@@ -1,0 +1,11 @@
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -C ../server
+mkdir -p ../../../build/
+cc -O2 -Wall -Wextra -ffunction-sections -fdata-sections -I../../../dorado/include dorado_server.c \
+		../../../dorado/src/ethernet.c ../../../dorado/src/io.c -Wl,-dead_strip -o ../../../build/dorado-server
+mkdir -p ../../../build/
+c++ -O2 -Wall -Wextra -std=c++14 -Itests dorado_net.cpp tests/test_main_transport.cpp -o ../../../build/dorado-main-transport-test
+python3 tests/run.py ../../../build/dorado-server ../../../build/dorado-main-transport-test ../../..
+Dorado Pup server listening on /tmp/dorado-main-j13a9jzb/server.sock (raw frames, no CRC/status)
+Dorado: ARM-local packet server connected
+Dorado: ARM-local packet server connected
+MAIN-TRANSPORT PASS: 18728 microcode bytes, 38 frames, held RX backpressure, explicit TX ack, core-change reconnect

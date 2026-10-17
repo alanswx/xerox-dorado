@@ -7,13 +7,15 @@
 #include <stdexcept>
 #include <vector>
 #include <unistd.h>
-const char *test_core_name="Dorado";
+const char *test_core_name="DoradoNetwork_20261017";
+const char *test_original_core_name="Dorado";
 static std::vector<uint16_t> request={042,01000,026,0264,1,0110,0,0,4,042,1,1,0177777};
 static std::vector<uint16_t> incoming,received;
-static unsigned command,word_index,acks,reads,frames,length;
+static unsigned command,word_index,acks,reads,frames,length,transactions;
 static bool pending=true,ready=false,ended=false;
 static void check(bool ok,const char*what){if(!ok)throw std::runtime_error(what);}
 uint16_t spi_uio_cmd_cont(uint16_t c){
+ transactions++;
  command=c;word_index=0;incoming.clear();
  switch(c){case 0x70:return 0xd074;case 0x71:reads++;return request.size();
  case 0x72:check(pending,"duplicate TX acknowledgement");pending=false;acks++;return 0xd074;
@@ -51,9 +53,11 @@ int main(int argc,char**argv){try{
  }
  check(ended && received==expected,"Main did not deliver the byte-exact microcode stream");
  check(acks==1 && reads==1,"TX was acknowledged before acceptance or reread unnecessarily");
- dorado_net_reset();test_core_name="MENU";dorado_net_poll();
+ dorado_net_reset();test_core_name="Dorado";test_original_core_name="MENU";
+ unsigned previous_transactions=transactions;dorado_net_poll();
+ check(transactions==previous_transactions,"launcher name caused another core to be probed");
  // Let the server discover the closed socket during an idle broadcast.
- usleep(2200000);test_core_name="Dorado";pending=true;ended=false;frames=0;received.clear();
+ usleep(2200000);test_core_name="DoradoNetwork_20261017";test_original_core_name="Dorado";pending=true;ended=false;frames=0;received.clear();
  for(unsigned i=0;i<10000&&!ended;i++){dorado_net_poll();usleep(500);}
  check(ended && received==expected && acks==2 && reads==2,"core reload/reconnect failed");
  dorado_net_reset();

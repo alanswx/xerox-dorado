@@ -1,0 +1,7 @@
+zero straps: status host=00
+377 straps: status host=ff
+ETHERNET-HOST PASS: real status mux reads positive host straps 00/ff/2a
+- verilog/verilator/tb_ethernet_host.sv:26: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 6us; walltime 0.003 s; speed 3.290 ms/s
+- Verilator: cpu 0.002 s on 1 threads; alloced 2 MB

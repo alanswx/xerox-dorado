@@ -21,7 +21,8 @@ cp /path/to/dorado_net.{cpp,h} .
 make -j4
 ```
 
-No modified Main has been installed on MiSTer14 yet. The isolated build is
+A temporary modified Main runs from `/tmp/dorado-main/MiSTer` on MiSTer14.
+The stock `/media/fat/MiSTer` binary is unchanged. The isolated build is
 `misterubuntu:/home/alans/mister/Main_DoradoNet_20261017/bin/MiSTer`.
 Transport tests pass natively and on MiSTer's ARM: the real server returns
 18,728 microcode bytes in 38 frames while the fake SPI receiver is held
@@ -36,7 +37,8 @@ make -C fpga/mister/main test
 The service pathname defaults to `/tmp/dorado-net.sock`, overridable by
 `DORADO_NET_SOCKET` for isolated tests. `DORADO_NET_TRACE=1` prints link
 diagnostics once per second. The client uses its own owner-only socket and
-registers with an empty datagram. Only cores named `Dorado` are probed, and
+registers with an empty datagram. Only FPGA cores whose original config-string name is `Dorado` are probed
+(`user_io_get_core_name(1)`, since MGL `setname` overrides `CoreName`), and
 an older core lacking capability magic `D074` gets no packet commands.
 
 | Command | Command response | Subsequent words |
@@ -72,3 +74,11 @@ status `0000`; flipping one wire CRC bit gives status `0008`. This required
 pre-edge D/CWE capture on the receiver's j05 F9401: sampling its new D value
 after the clock edge had fed zeros to the checker and accepted corruption.
 The transmit chip retains its previously qualified capture behavior.
+
+Main already supports a per-core `main=` INI setting. A binary launched from
+`/tmp` without that setting immediately restarts the installed stock Main in
+`user_io_init()`. The isolated test uses a dedicated MGL name
+`DoradoNetwork_20261017` and INI section with `video_mode=8`, `vsync_adjust=0`,
+`main=/tmp/dorado-main/MiSTer`. Other launchers retain their existing settings.
+The hardware TX test delivers twelve real CRC-checked guest frames to the
+local service. Full supported Pup reception/boot is still under test.

@@ -1073,6 +1073,13 @@ eth-ctl-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_ethctl/tb_ethctl +slowio +eth 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_disk|Assertion"; exit $$rc; }
 
+.PHONY: ethernet-host-test
+ethernet-host-test:
+	@cd ../.. && $(V) --binary --top-module tb_ethernet_host $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_ethernet_host -o ethernet-host-test \
+		verilog/verilator/tb_ethernet_host.sv verilog/generated/DskEth-Rev-Cf.v \
+		>/dev/null && ./verilog/verilator/obj_ethernet_host/ethernet-host-test
+
 # cell_F9401 against a published CRC-16 check value (0xFEE8 for "123456789").
 crc-test:
 	@cd ../.. && $(V) --binary --top-module tb_crc $(V_WARN) \

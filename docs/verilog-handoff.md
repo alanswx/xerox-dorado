@@ -2,6 +2,12 @@
 
 ## Active mouse and cold-boot work (2026-10-17 UTC)
 
+**Current objective: boot Cedar on the FPGA.** Preserve the working
+Executive/mouse/disk milestones while completing real network reception,
+BaseBoard startup, external memory, and the matched Cedar microcode/germ/
+Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
+does not qualify as an RTL boot.
+
 The requested sequence is mouse input, display/software compatibility,
 backing-disk persistence plus an ARM-local boot server, then unassisted
 BaseBoard boot. Do not assume arbitrary Alto games should work on Dorado:
@@ -45,30 +51,20 @@ write-address exceptions. Framework I/O is not fully constrained. Evidence:
 medium while subsequent disk work proceeds separately. The previous
 Executive/Invaders launchers remain intact.
 
-**Disk persistence passes the medium tests; first-mount integration is being fixed.** Complete
-CRC-checked blocks flush when the controller drops write gate, without a
-later seek. The dirty LED remains asserted until the HPS acknowledgement.
-Remount/unmount with dirty data or a transfer in progress faults rather
-than writing an old cache into a replacement image. A stalled host times
-out. `hps-persistence-test` changes a data word via the actual serial stream,
-persists it, reopens the backing file with a fresh controller, compares
-over 5,000 serial bits and checks neighboring bytes. Corrupt CRC, readonly,
-dirty remount/unmount and missing-host cases leave the backing image intact.
-The original 11,024-bit HPS loopback test and a 14M-sample complete Executive/
-mouse regression also pass. Project:
-`misterubuntu:/home/alans/mister/Dorado_Persist_20261017/core`.
-The first hardware build has positive timing (+8.686 ns setup, +0.114 ns
-hold), but stops before executing guest code: Main sends `img_size` in
-several SPI words BEFORE `img_mounted`, which started a read that the new
-remount protection then correctly rejected as interrupted. The test copy
-command did not execute; seed and working image remain byte-identical.
-`dorado_pack_mount.sv` now gates attachment until the complete notification.
-`pack-mount-test` reproduces Main's ordering, fails with the old direct-size
-wiring and passes with the gate while retaining genuine interrupted-transfer
-faults. The corrected combined build is
-`misterubuntu:/home/alans/mister/Dorado_Network2_20261017/core`.
-Guest-created-file survival on hardware and power-loss durability remain
-unproven; Main's block acknowledgement alone does not prove fsync.
+**Disk persistence is qualified on MiSTer14.** A guest `Copy mouse.cm
+com.cm` (Return confirms the missing-left-arrow prompt), `WriteDirectory`
+and `Type mouse.cm` produce a 24-byte file. Host extraction of the actual
+HPS-backed image returns the identical bytes. `Bootfrom sys.boot`, then an
+FPGA reload retaining the disk followed immediately by another
+`Bootfrom sys.boot`, both reach Executive and read the new file correctly.
+The first size-before-mount notification race is fixed by
+`dorado_pack_mount.sv`; the interrupted-remount protection remains active.
+Project `Dorado_Network2_20261017/core` is installed as the separate Mount
+test; setup +7.189 ns, hold +0.103 ns after a scoped ContA c04 F10145A
+write-address hold review. See `reports/2026-10-17-mount/validation.json`
+and `images/rtl-mister14-file-after-reload-boot-2026-10-17.png`.
+This is an actual guest disk boot after checkpoint entry; unassisted
+BaseBoard startup and abrupt-power-loss durability are separate.
 
 **The ARM-local server runs on MiSTer14.**
 `fpga/mister/server/` builds a standalone process from the existing Pup/
@@ -80,8 +76,20 @@ CRC/status trailers; the old microcode-reply queue also needs its missing
 nil Pup checksum supplied at this boundary. Main transport is implemented
 against installed release 20260912 (`47221c18987e101f50caafeb3b615f53b62722ca`),
 with 38 microcode frames tested byte-exact under RX backpressure on both
-Mac and MiSTer ARM. The new Main is not yet loaded; this is not an RTL
-network boot.
+Mac and MiSTer ARM. Temporary Main is loaded using the existing per-core `main=` setting; the
+stock binary is unchanged. Main must use `user_io_get_core_name(1)` because
+MGL `setname` overrides its display/config name. Network3 delivers twelve
+actual CRC-checked guest packets to the ARM service, with zero CRC errors
+or drops. This is not yet a supported Pup receive/network-boot gate.
+
+**Station-address bug found on hardware.** Executive `EtherBoot` reports
+"This Alto has no Ethernet!" before TX. Both wrapper generators tied
+Host.0..7 to zero. DskEth's real status mux reads positive straps directly
+(test: 00/FF/2A); AltoEtherEmu.mc SIONop treats zero status as absent NIC.
+The generators now supply station 377, with an explicit exporter option
+to reproduce old zero-strapped builds. Isolated `Dorado_Network4_20261017`
+and export `fpga_network_host_20261017` are the corrected builds.
+
 
 `dorado_ethernet_wire.sv` is the next experimental link adapter. Its focused
 test covers fractional 340 ns Manchester timing, CRC rejection, 512-word

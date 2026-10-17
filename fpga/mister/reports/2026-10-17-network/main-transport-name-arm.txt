@@ -1,0 +1,3 @@
+Dorado: ARM-local packet server connected
+Dorado: ARM-local packet server connected
+MAIN-TRANSPORT PASS: 18728 microcode bytes, 38 frames, held RX backpressure, explicit TX ack, core-change reconnect

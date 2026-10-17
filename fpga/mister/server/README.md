@@ -46,9 +46,8 @@ stays in the packet. Server timers advance with monotonic time; alternating
 breath-of-life and routing/time broadcasts are attempted once per second,
 only when the underlying server is idle. They do not inspect guest memory.
 
-**The MiSTer Main/RTL packet bridge is not yet connected.** The intended
-boundary is Main's existing SPI ownership and a Dorado-specific UIO command,
-carrying packets between this socket and FPGA queues. RTL must serialize
-Manchester data and generate/check hardware CRC through the real Sil-derived
-Ethernet controller. Never forward the C queue's synthetic good status to
-the FPGA, and never let a separate daemon race Main for SPI.
+The MiSTer Main/RTL packet bridge now delivers actual guest TX packets to
+this service on MiSTer14. Main owns SPI and Dorado-specific UIO queues; RTL
+serializes Manchester data and checks hardware CRC through the Sil-derived
+controller. Full supported Pup reception and network boot remain under test.
+The service never supplies a controller status word or accesses SPI.

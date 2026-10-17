@@ -302,6 +302,10 @@ MACHINE_CONFIG_TIES = {
     'Mb0': "1'b1",
     'ChipsAre256/16K': "1'b1",
     'ChipsAre64K': "1'b0",
+    # DskEth k02/k03/j02/j03 read positive-logic station straps into the
+    # status high byte. All-zero straps make AltoEtherEmu.mc SIONop return
+    # 77777 ("no Ethernet"). Use station 377, matching EBoot's EHLoc.
+    **{f'Host.{i}': "1'b1" for i in range(8)},
 }
 
 
