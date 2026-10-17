@@ -1,0 +1,14 @@
+{
+  "rbf_sha256": "1cdc35a2dca2c8bb5902e194d64d819cf2a8c84b0c188daf86cdf690ea2d0d17",
+  "observation_utc": "2026-10-17 21:12",
+  "BFN113": "requested; C released",
+  "sample_count": 470,
+  "last_fifo_eop_count_mod256": 82,
+  "fifo_status_values": {
+    "0": 464,
+    "32": 6
+  },
+  "cpu_bytes_valid": false,
+  "reason": "Native24 input_eop is EthData_17 parity, not EthData_18 EOP. Ignore bytes23:16 and7:0. Corrected Native24b fit pending.",
+  "display": "maintenance cursor only; no Cedar login"
+}

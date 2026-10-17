@@ -1848,13 +1848,15 @@ class Generator:
         A('`default_nettype wire')
         self.placed = placed
         if receive_monitor:
+            # DskEth l07 captures FIFO bit18 into EthData_18 (EOP).
+            # EthData_16/17 from k11 are parity, not packet attention.
             receive_word = ','.join(f'RxSR_{i:02d}' for i in range(16))
             input_word = ','.join(f'EthData_{i:02d}' for i in range(16))
             tioa = ','.join(f'TIOA_{i}' for i in range(8))
             monitor = f'''  dorado_receive_monitor u_receive_monitor (
     .clk(sys_clk), .fifo_write_n(RxFifoWE_p_),
     .fifo_eop(RxSR_18), .fifo_word({{{receive_word}}}),
-    .input_n(bIOin_p_), .input_eop(EthData_17),
+    .input_n(bIOin_p_), .input_eop(EthData_18),
     .tioa({{{tioa}}}), .input_word({{{input_word}}}),
     .observation(receive_debug));'''
             out.insert(out.index('endmodule'), monitor)

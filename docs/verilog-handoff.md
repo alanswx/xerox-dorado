@@ -6,7 +6,7 @@
 keyboard/mouse interaction. This goal is incomplete: no Cedar OS text is visible
 on the FPGA yet.** C snapshots and host IOCB completion do not qualify.
 
-## Current state (Native23 on MiSTer14)
+## Current state (Native24 Cedar service wait on MiSTer14)
 
 Native23 fixes ProcH d13's extra MC10170 output inversion. CompactVM previously
 treated equal bounds as less-than, vacated its own germ pages, and faulted at
@@ -26,7 +26,8 @@ Report: `fpga/mister/reports/2026-10-17-native23/cold-ddr-220m.json`.
 The full FPGA fit passes all 29 timing checks (minimum +0.097 ns), with no
 illegal/unconstrained clocks. The three ContA e04 write-address hold exceptions
 are reviewed, exact and hold-only; setup/read/data/enables remain checked.
-Native23 was loaded on **10.0.2.14** with a fresh pack. Original firmware emitted
+Native23 was loaded on **10.0.2.14** with a fresh pack; it is now superseded
+by Native24, the same functional RTL with passive receive observation. Original firmware emitted
 a new BFN113 at 20:20, and the held C key released. A read-only DDR observation
 contains **964 exact nonzero pages of BasicCedarDorado.boot!22**. It has left the
 old queue loop and sends routing, time and address-lookup packets. It learned
@@ -46,17 +47,23 @@ Scratch names below are relative to `build/rtl-executive/`.
 
 | Work | Session | Location / next action |
 | --- | --- | --- |
-| Native23 hardware | Running | MiSTer14, `Cedar23_20261017/main.log`; preserve its boot while testing server behavior. |
-| Native24 passive monitor | 23426 | `misterubuntu:/home/alans/mister/Dorado_Native24_20261017/core`; fitting. `native24-build-explicit-ports.log`. Review STA and clock coverage before deployment. |
-| Reply-delay diagnostic | Active on MiSTer14 | ARM routing/BFN113/STP tests pass. Server `dorado-server-52b8795cf536e0fd`, log `server-cedar23-delay500.log`. Adds 500 ms external turnaround; no Main/FPGA restart. |
-| 64K-chip software control | 47318 | `cedar-64k-control/extended.log`, 16B-to-36B continuation with paired PDI; capacity diagnostic only. |
+| Native24 hardware | Boot COMPLETE | MiSTer14, `Cedar24_20261017/main.log`; fresh BFN113 requested and C released. Routing retries, maintenance cursor only. RBF1cdc35a2...; FIFO status00 on directed replies. |
+| Native24 passive monitor | Fit/review COMPLETE | 29 timing checks pass, min+0.122ns; zero illegal/unconstrained clocks. RBF1cdc35a2... deployed on MiSTer14. Exact MemX c21 hold-only review in native24 reports. |
+| Server diagnostics | Quiet-after-Cedar ACTIVE | server1d5e05e9..., PID9764, same logserver-cedar23-route.log. Suppresses idle broadcasts after BFN113; requested replies unchanged. ARM routing/BFN113/STP and quiet/reconnect tests pass. Delay/nil variants did not resolve retries. |
+| Corrected CPU monitor | Build72275 | `misterubuntu:/home/alans/mister/Dorado_Native24b_20261017/`, `native24b-build.log`. ONLY EOP tap17->18; timing review/deployment pending. Native24 CPU bytes invalid. |
+| Four64K-module software control | COMPLETE24B | `cedar-64k-map64-control/`: fresh8MB RAM/64K map reaches Viewers (166685px), type2, VirtualBanks0100; valid geometry reference, software only. |
+| Larger-memory cold RTL | 32916; PID86868 | `cedar-density64-ddrcheck.log`,500M limit,SYSPER4, four64K-chip modules/64K map,actualDDR. `storage64-candidate/`; component prototype, not production. Bounded caffeinate session36354. |
 
-Native24 changes only passive observation. First hierarchical taps were rejected
-by Quartus; explicit DskEth/backplane ports now synthesize. Its machine-debug
-word packs FIFO EOP count, CPU-consumed EOP count, hardware status byte, CPU
-status byte, MSB first. Counts wrap at 256. CPU task/PC and machine-status fields
-remain available. RAM, clocks and functional packages match Native23. New
-DskEth module naming may require rechecking timing-exception path matches.
+Native24 changes only passive observation. **Its CPU EOP tap is wrong:**
+EthData_17 is parity from k11. FIFO bit18 passes through l07 to EthData_18,
+which is the correct CPU-side EOP. Ignore machine-debug bytes23:16 and7:0
+on the deployed image. Bytes31:24 (FIFO EOP count) and15:8 (FIFO status)
+remain usable. Directed routing replies reach FIFO with status00; the initial
+BOL while the receiver starts had status20. This does not establish CPU receipt.
+The generator is corrected; Native24b changes only this passive tap and is
+building separately. Its timing must pass before programming. CPU task/PC
+and machine-status fields remain available. RAM/clocks/functional packages
+match Native23. The hardware screenshot still has no Cedar OS text.
 
 ## Capacity findings — corrected at 20:43 UTC
 
@@ -75,19 +82,23 @@ Software controls use the C IOCB bridge and are never FPGA evidence.
 
 ## Hardware and reproducibility
 
-Only **MiSTer14** is allocated. Other MiSTers are busy. Native23 image:
+Only **MiSTer14** is allocated. Other MiSTers are busy. Current Native24 image:
+`1cdc35a2dca2c8bb5902e194d64d819cf2a8c84b0c188daf86cdf690ea2d0d17`.
+Previous Native23 image:
 `89726440d5d599a5b01428e4f29b54d3969064508191016e100375746ff765e2`.
 Fresh pack baseline: `c0cd6784ea9df43d669dab2c445b3a1a7241048ac87f10afa747927d931bad5c`.
-RBF/MGL: `/media/fat/_Computer/DoradoRTL_Cedar23_20261017/`.
-Main log: `/media/fat/games/DoradoRTL/Cedar23_20261017/main.log`.
-Previous log: `Cedar21_20261017/main-before-native23.log`.
+RBF/MGL: `/media/fat/_Computer/DoradoRTL_Cedar24_20261017/`.
+Main log: `/media/fat/games/DoradoRTL/Cedar24_20261017/main.log`.
+Previous23 log: `Cedar23_20261017/main-before-native24.log`.
 
 Keep immutable Main `System_20261017/MiSTer-1fb2e098e6f0dba6`; never overwrite a
-running executable. Active experimental server: `System_20261017/dorado-server-52b8795cf536e0fd`,
-log `server-cedar23-delay500.log` (500 ms external turnaround). Previous tested
-server is `dorado-server-bdfd09cec0851e78`, log `server-cedar23-route.log`, cwd `System_20261017/dorado`, socket
+running executable. Active diagnostic server: `System_20261017/dorado-server-1d5e05e9d293b095`,
+log `server-cedar23-route.log`. It disables only idle broadcasts after BFN113.
+Default bdfd09ce..., Delay500 and nil500 binaries/logs are preserved; neither
+delay nor nil checksum resolved retries. Restart config points to the quiet
+server and Native24 core/MGL, cwd `System_20261017/dorado`, socket
 `/tmp/dorado-net.sock`. Full STP root/all 34 Basic.Loadees are staged. Restart
-configuration: `Cedar23_20261017/reboot-resume.json`.
+configuration: `Cedar24_20261017/reboot-resume.json`.
 
 Helpers: `cedar23-launch/c-until-request.py`, `cedar3-launch/cool-boot.py` (three
 boot pushes ONCE), `cedar10-launch/type-keys.py`, `mister_mouse.py`. Loading a
@@ -116,8 +127,14 @@ and has unreviewed hold violations; never deploy it.
 - [x] Deploy Native23 and complete original firmware/BFN113 boot.
 - [x] Observe real disk-loaded Cedar pages and new OS network traffic on FPGA.
 - [x] Fix server routing/file-lookup dispatch; pass native/ARM transport tests.
-- [ ] Test delayed replies and locate the remaining directed-service wait.
-- [ ] Finish/review Native24 passive monitor; deploy if still useful.
+- [x] Test delayed/nil-checksum replies; neither resolves live service retries.
+- [ ] Locate the remaining directed-service wait; clean FIFO status alone does not prove CPU receipt.
+- [x] Fit/review/deploy Native24 passive monitor (29 checks,min+0.122ns).
+- [x] Complete Native24 original firmware boot and inspect FIFO status.
+- [ ] Fit/review/deploy Native24b corrected EthData_18 EOP tap; qualify CPU status.
+- [ ] Qualify scratch `storage64-candidate/`:64K cells pass high-row/column
+  nonalias test (old map cell fails); complete MSA/DDR equivalence passes12,012
+  cycles /9,437,184 bits. MemX full-board high row/column test passes (old16K fails). Full Map protocol and cold boot remain unqualified.
 - [ ] Resolve physical RAM and map capacity with enforced limits; the 16K
   advertised-only desktop control is invalid.
 - [ ] Qualify remaining fixture differences: native RAM/cache/map initialization,

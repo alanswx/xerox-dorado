@@ -1,0 +1,3 @@
+[300000] %Fatal: tb_density_old.sv:14: Assertion failed in tb_density64.access: 64K quadrant1: map0 storage1 expected1
+%Error: build/rtl-executive/storage64-candidate/tb_density_old.sv:14: Verilog $stop
+Aborting...

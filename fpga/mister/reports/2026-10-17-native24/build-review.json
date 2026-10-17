@@ -1,0 +1,10 @@
+{
+  "timing_checks": 29,
+  "minimum_slack_ns": 0.122,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "rbf_sha256": "1cdc35a2dca2c8bb5902e194d64d819cf2a8c84b0c188daf86cdf690ea2d0d17",
+  "hold_review": "Exact MemX c21 a_lat[1] ->4 own write-address bit1 registers. Address captures only !p13; writes only p13 && !we_d && ce_lat. Hold only; setup/read/data/enables stay checked.",
+  "functional_change": "None; passive FIFO/CPU EOP counts/status only.",
+  "monitor_limitation": "CPU EOP tap incorrectly observes EthData_17 parity. Ignore machine bits23:16 and7:0. FIFO observation remains valid; Native24b fixes tap to EthData_18."
+}

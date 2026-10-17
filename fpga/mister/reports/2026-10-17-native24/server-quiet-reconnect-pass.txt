@@ -1,0 +1,4 @@
+Dorado Pup server listening on /tmp/pup-quiet-phase-976htlxl/server.sock (raw frames, no CRC/status)
+QUIET PHASE PASS: no idle broadcast after complete BFN113
+QUIET REEXEC PASS: fresh Main session restores initial BOL
+Dorado Pup server: retired disconnected Main session

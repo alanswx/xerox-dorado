@@ -1,0 +1,40 @@
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=4f290000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=4f290000 state=47ef cpu=30725725
+Switch to core frame buffer
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=4f290000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=4f290000 state=472f cpu=30725725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=4f290000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=4f290000 state=472f cpu=30725725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=4f290000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=16 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=50320000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=16 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=50320000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=16 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=50320000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=16 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=50320000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=16 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=50320000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=16 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=50320000 state=472f cpu=30725725
+Dorado net: flags=5 tx_words=13 good=16 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=50320000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=16 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=50320000 state=47ef cpu=30725725
+Dorado net: flags=5 tx_words=13 good=16 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=50320000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=17 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=513b0000 state=472f cpu=30725725
+Dorado net: flags=5 tx_words=13 good=17 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=513b0000 state=472f cpu=30725725
+Dorado net: flags=5 tx_words=13 good=17 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=513b0000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=17 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=513b0000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=17 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=513b0000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=17 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=513b0000 state=472f cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=17 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=513b0000 state=47ef cpu=30725725
+MiSTer_cmd: screenshot cedar24-receive-check
+ 1: 01 01 01 00   00 F5 03 84   01 AF 0B 00   03 84 02 D0
+Image: Width=900 Height=431  Line=2816  Header=256 output_width=900 output_height=720 
+saving screenshot at native res 900x431
+Dorado net: flags=5 tx_words=13 good=17 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=513b0000 state=47ea cpu=32d86725
+Screen saved to
+Dorado/20261017_210953-cedar24-receive-check.png
+Dorado net: flags=5 tx_words=13 good=18 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=52440000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=18 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=52440000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=18 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=52440000 state=47ea cpu=339f19f1
+Dorado net: flags=5 tx_words=13 good=18 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=52440000 state=472f cpu=30725725
+Dorado net: flags=5 tx_words=13 good=18 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=52440000 state=47ef cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=18 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=52440000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=18 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=52440000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=18 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=52440000 state=47ef cpu=30725725
+Dorado net: flags=5 tx_words=13 good=19 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=52440000 state=472f cpu=30725725

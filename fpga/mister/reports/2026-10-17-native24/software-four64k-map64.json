@@ -1,0 +1,19 @@
+{
+  "scope": "Fresh C capacity control only; normal host IOCB bridge. No FPGA or input proof.",
+  "stop_bb_cycles": 24000000000,
+  "observed": "Viewers desktop and CommandTool prompt",
+  "pixels": 166685,
+  "storage_words": 4194304,
+  "chip_type": 2,
+  "virtual_banks_rm48": "0x100",
+  "valid_entries": 10349,
+  "max_valid_vp": "0xfff4",
+  "valid_above_16k": 5,
+  "referenced_above_16k": 4,
+  "first_high_references": [
+    "0xfff0",
+    "0xfff1",
+    "0xfff2",
+    "0xfff3"
+  ]
+}

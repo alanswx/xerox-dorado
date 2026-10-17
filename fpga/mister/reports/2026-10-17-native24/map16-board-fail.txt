@@ -1,0 +1,3 @@
+[504000] %Fatal: tb_map64_board.sv:43: Assertion failed in tb_map64_board.access: MemX64 quadrant0 actual00baad expected100001
+%Error: build/rtl-executive/storage64-candidate/tb_map64_board.sv:43: Verilog $stop
+Aborting...
