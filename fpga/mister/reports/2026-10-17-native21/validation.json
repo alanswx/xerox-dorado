@@ -11,5 +11,6 @@
   "source_commit": "ebb027ac",
   "main_log": "/media/fat/games/DoradoRTL/Cedar21_20261017/main.log",
   "launcher": "/media/fat/_Computer/DoradoRTL_Cedar21_20261017/Cedar21.mgl",
-  "read_only_memory": "Read-only mmap of DDR0x30000000..0x303fffff saved cedar21-ddr.raw. Partially calibrated decoder yields all8960 original germ source words correctly, except expected PilotBoot request writes02f0=2/02f1=3. Root line matches at0200; partial relocated copy at0xfdc00. Dirty cache is absent from dump; do not infer zero/lost destination words from this snapshot."
+  "read_only_memory": "Read-only mmap of DDR0x30000000..0x303fffff saved cedar21-ddr.raw. Partially calibrated decoder yields all8960 original germ source words correctly, except expected PilotBoot request writes02f0=2/02f1=3. Root line matches at0200; partial relocated copy at0xfdc00. Dirty cache is absent from dump; do not infer zero/lost destination words from this snapshot.",
+  "maintenance_panel": "Cursor0431B rows318c/4a92/3096/489a/4892/33cc decode exactly to810 / germStarting using Xerox ProcessorHeadDorado digitFont. Genuine guest output, not an OS login. Multiple810 call sites prevent choosing one from final cursor alone."
 }

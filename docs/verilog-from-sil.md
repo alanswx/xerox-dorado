@@ -1,5 +1,15 @@
 # Phase 2: what the Sil files give the Verilog, and how to test it
 
+**Active work (2026-10-17): Cedar on MiSTer14.** Use the
+[current handoff and TODO checklist](verilog-handoff.md#current-todos-2026-10-17-native21).
+Native21 is committed/pushed and running on the FPGA. The original Cedar
+image loads and all8960 germ source words check correctly. Xerox's cursor
+font decodes the actual FPGA's tiny display as810 (`germStarting`). It then
+remains in RequeueSearchSQ; no Cedar login/desktop or interactive OS prompt
+yet. The next task is the first bad state after germ entry. Cold DDR-adapter
+and longer original-storage diagnostics are active; their paths, limits and
+limitations are recorded in the handoff. The roadmap below is historical.
+
 **2026-08-08.** Written while cross-checking the C emulator against the board
 netlists (`docs/sil-netlist-crosscheck.md`). That pass answered "does our
 model have the right shape". This one records what the same files mean for

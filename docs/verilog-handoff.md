@@ -8,6 +8,40 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+## Current TODOs (2026-10-17, Native21)
+
+- [x] Reproduce the four-module source corruption in a cold RTL boot.
+- [x] Fix MemX j01 selection timing; old RTL fails the captured module switch.
+- [x] Cold100M original-image/source-copy gate, four modules/native clocks.
+- [x] Quartus fit and all29 timing/clock checks; deploy matching Native21 RBF.
+- [x] Original FPGA BaseBoard boot, BFN113 download, correct source germ words.
+- [x] Decode the FPGA cursor: **810 / germStarting** (actual guest output).
+- [ ] Find the first bad state after germ entry. RequeueSearchSQ is a stuck
+  predecessor search, not a valid idle prompt; follow queue/link data to its
+  first incorrect read/write rather than treating the final loop as the cause.
+- [ ] Finish actual DDR-adapter cold run and extended original-storage run;
+  verify post-100M behavior, first maintenance-panel changes, and source/target
+  map data. Active paths/sessions below. Keep POD restores diagnostic only.
+- [ ] Check remaining fixture differences: map/cache seeds versus native cold
+  RAM, complete BaseBoard handoff, DDR pauses, HPS track-buffer timing.
+  A passing source-copy gate does not qualify all of these.
+- [ ] Get beyond810 through the germ's disk boot using original IOCBs/controller.
+- [ ] Boot the Cedar login, type Guest and two Returns, reach the desktop.
+- [ ] Type `Echo FPGA`, capture real OS text, and verify keyboard/mouse live.
+- [ ] Commit/push each confirmed fix and evidence; retain Executive/mouse/disk
+  regressions. Space Invaders compatibility remains a separate open item.
+
+**Maintenance-panel discovery,18:39 UTC.** The tiny mark in the actual FPGA
+screen is not just an empty cursor: the six decoded cursor words at0431B
+are318c/4a92/3096/489a/4892/33cc. Xerox's ProcessorHeadDorado digitFont decodes
+these exactly as810; MPCodes.mesa calls it germStarting. This proves guest
+code reached the germ's cursor output, but not DoInLoad or an OS prompt.
+`python3 tools/decode_dorado_mp.py build/rtl-executive/cedar21-physical-memory.bin`
+reproduces it; reports/2026-10-17-native21/maintenance-panel.json preserves it.
+BootSwapGerm has several810 call sites: do not infer which one from the final
+code alone. Its Initialize calls MesaRuntimeInit.Start and ProcessorFace.Go
+before walking available VM, allocating buffers and returning into Run.
+
 **Native21 FPGA result,18:33 UTC.** Original Cedar request at18:28; C
 released correctly. Hardware remains in RequeueSearchSQ239/23a/6c1/6c2 with
 white raster/tiny cursor, no CRC/RX errors. Screenshot cedar21-first-fpga.png
