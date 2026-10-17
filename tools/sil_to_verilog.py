@@ -1230,9 +1230,13 @@ class Generator:
             if drives:
                 self.exports.add(name)
 
-    def emit(self) -> str:
+    def emit(self, nominal_environment: bool = False) -> str:
         self.classify()
         mod = vname(self.b.name)
+        if nominal_environment:
+            if self.b.name.split('-Rev')[0] != 'BaseBd':
+                raise ValueError('nominal environment applies only to BaseBd')
+            mod += '_nominal'
         out: list[str] = []
         A = out.append
 
@@ -1277,6 +1281,7 @@ class Generator:
         else:
             A(f'module {mod} #(parameter integer SYSPER = 16) (')
         decl = ['    input  wire sys_clk'] + \
+               (['    input wire baseboard_boot_n'] if nominal_environment else []) + \
                [f'    input  wire {vname(n)}' for n in inputs] + \
                [f'    output wire {vname(n)}__drv' for n in exports]
         A(',\n'.join(decl) if decl else '    // no backplane ports detected')
@@ -1496,6 +1501,23 @@ class Generator:
             A('')
 
         A('  // ---- packages')
+        # An FPGA has no supply/temperature analog chain. Supply comparator
+        # levels at its actual output pins, driven by the REAL firmware DAC.
+        # The 6502 still runs ADConvert, range checks, power sequencing and
+        # every CP-bus/bootstrap transfer. Thresholds match baseboard.c's
+        # nominal environment: rails -> C0, current/calibration/temp -> 80.
+        dac = '{' + ', '.join(f'DAC_{i}' for i in range(7, -1, -1)) + '}'
+        nominal_pins = {
+            ('#4i21', 6): f'({dac} > 8\'hbf)',  # CVCC
+            ('i19', 6): f'({dac} > 8\'hbf)',    # CVDD
+            ('i20', 6): f'({dac} > 8\'hbf)',    # CVEE
+            ('#4i19', 6): f'({dac} > 8\'hbf)',  # CVTT
+            ('#4j21', 6): f'({dac} > 8\'h7f)',  # CI
+            ('h08', 4): f'({dac} > 8\'h7f)',    # base temperature
+            ('h08', 5): f'({dac} > 8\'h7f)',    # control-board temperature
+            ('c05', 14): 'baseboard_boot_n',     # external physical button
+        } if nominal_environment else {}
+        nominal_wired = set()
         placed = 0
         # THE DRAM ADDRESS LATCH IS SHARED. A 4K x 1 dynamic RAM latches a row
         # on RAS' falling and a column on CAS' falling, and every chip driven
@@ -1571,7 +1593,11 @@ class Generator:
                     target = f'{vname(netname)}__lead'
                 else:
                     target = vname(netname)
-                if isout and (self.b.name.split('-Rev')[0], pos, pin) in self.FITTED_OUTPUT_JUMPERS:
+                if isout and (pos, pin) in nominal_pins:
+                    nominal_wired.add((pos, pin))
+                    A(f'  assign {target} = {nominal_pins[(pos, pin)]}; // nominal external environment')
+                    target = ''
+                elif isout and (self.b.name.split('-Rev')[0], pos, pin) in self.FITTED_OUTPUT_JUMPERS:
                     source_pin = self.FITTED_OUTPUT_JUMPERS[
                         (self.b.name.split('-Rev')[0], pos, pin)]
                     A(f'  assign {target} = {self.read_name(pinnet[(pos, source_pin)])};'
@@ -1682,6 +1708,9 @@ class Generator:
             A(',\n'.join(conns) if conns else '    // no connections')
             A(f'  ); // {ptype}')
             placed += 1
+
+        if nominal_wired != set(nominal_pins):
+            raise ValueError(f'nominal environment pins not connected: {set(nominal_pins)-nominal_wired}')
 
         # THE CLOCK GENERATOR, as a phase counter rather than seven packages of
         # oscillator, shaping and dividers. See cell_CLOCKGEN and CLOCKGEN_PINS.
@@ -1802,6 +1831,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument('--cells', default='verilog/cells')
     ap.add_argument('-o', '--out')
     ap.add_argument('--report', action='store_true')
+    ap.add_argument('--nominal-environment', action='store_true',
+                    help='emit BaseBd nominal voltage/current/temperature comparators and physical boot input')
     args = ap.parse_args(argv[1:])
 
     board = load_board(args.wl, args.lc)
@@ -1810,7 +1841,7 @@ def main(argv: list[str]) -> int:
     gen = Generator(board, ecl, known_cells(args.cells),
                     cell_port_dirs(args.cells),
                     cells_wanting_clock(args.cells))
-    text = gen.emit()
+    text = gen.emit(nominal_environment=args.nominal_environment)
 
     if args.out:
         os.makedirs(os.path.dirname(args.out) or '.', exist_ok=True)

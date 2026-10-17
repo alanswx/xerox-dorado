@@ -300,6 +300,11 @@ CABLE_DRIVE_INPUTS = frozenset({
 # build: from late 1979 the machines carry 16K parts.
 MACHINE_CONFIG_TIES = {
     'Mb0': "1'b1",
+    # These tokens appear only when the matching storage slot is present.
+    # Without that board, MemX's M1..3 remain external inputs tied low.
+    'Mb1': "1'b1",
+    'Mb2': "1'b1",
+    'Mb3': "1'b1",
     'ChipsAre256/16K': "1'b1",
     'ChipsAre64K': "1'b0",
     # DskEth k02/k03/j02/j03 read positive-logic station straps into the
@@ -497,6 +502,24 @@ SLOT_INSTANCES = {
     }),
 }
 
+# A storage module is an even/odd pair of the same board. Slots 1..3
+# share the memory address and serial data buses, with their own clock,
+# select enables and presence token (HM memory-module interface). The
+# existing four-way MemX select decoder already supplies all these nets.
+for _slot in range(1, 4):
+    _common = {
+        "CLK.ms0Even'": f"CLK.ms{_slot}Even'",
+        "Mod0SinEn'": f"Mod{_slot}SinEn'",
+        "Mod0StrEn'": f"Mod{_slot}StrEn'",
+        'Mb0': f'Mb{_slot}',
+        'M0': f'M{_slot}',
+    }
+    SLOT_INSTANCES[f'msa{_slot}'] = ('msa', _common)
+    SLOT_INSTANCES[f'msa{_slot}Odd'] = ('msa', {
+        **SLOT_INSTANCES['msaOdd'][1], **_common,
+        "CLK.ms0Even'": f"CLK.ms{_slot}Odd'",
+    })
+
 DEFAULT_MACHINE = ['ProcH', 'ProcL', 'ContA', 'ContB', 'IFU',
                    'MemC', 'MemD', 'MemX', 'DskEth', 'DispY', 'BaseBd',
                    'msa', 'msaOdd']
@@ -552,7 +575,8 @@ def _classify_boards(names: list[str]):
     return out, vname
 
 
-def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> int:
+def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
+             external_storage: bool = False, nominal_environment: bool = False) -> int:
     """Wire the boards together into one module, BY NAME.
 
     The backplane is not straight-through -- the BaseBoard drives each board's
@@ -577,6 +601,25 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     a board this configuration does not have. The emitted comment says which.
     """
     info, vname = _classify_boards(names)
+    if nominal_environment and 'BaseBd' not in info:
+        raise SystemExit('--nominal-environment requires BaseBd')
+    storage_boards = [n for n in names if info[n]['base'] == 'msa'] if external_storage else []
+    if external_storage and not storage_boards:
+        raise SystemExit('--external-storage requires at least one MSA board')
+    storage_groups = 16 * len(storage_boards)
+    def storage_declarations():
+        n = storage_groups
+        return [
+            '    input wire storage_clk, storage_reset,',
+            '    output wire storage_ready,',
+            f'    output wire [{n-1}:0] storage_req_valid, storage_req_write,',
+            f'    input wire [{n-1}:0] storage_req_ready,',
+            f'    output wire [{14*n-1}:0] storage_req_addr,',
+            f'    output wire [{16*n-1}:0] storage_req_data,',
+            f'    input wire [{n-1}:0] storage_rsp_valid,',
+            f'    output wire [{n-1}:0] storage_rsp_ready,',
+            f'    input wire [{16*n-1}:0] storage_rsp_data,',
+        ]
     everything = load_backplane()          # all sixteen, to explain absences
 
     # The port list here is recomputed, not read out of the generated .v. If
@@ -655,6 +698,10 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     A(f'module {module} #(parameter integer SYSPER = 16) (')
     decl = ['    input  wire sys_clk,'
             '   // fabric clock; the Dorado clock is an ENABLE inside the cells']
+    if nominal_environment:
+        decl.append('    input wire baseboard_boot_n,')
+    if storage_boards:
+        decl += storage_declarations()
     names_sorted = sorted(ports)
     for i, net in enumerate(names_sorted):
         why = ('to a backplane connector (cable)' if not absent_partner[net]
@@ -671,6 +718,9 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     A('\n'.join(decl) if decl else '    // no external ports')
     A(');')
     A("")
+    if storage_boards:
+        A(f'  wire [{len(storage_boards)-1}:0] storage_board_ready;')
+        A('  assign storage_ready = &storage_board_ready;')
 
     all_nets = sorted(net_boards)
     A(f'  // {len(internal)} nets between boards, plus one contribution wire')
@@ -720,11 +770,25 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
         A(f'  // ---- {short}')
         # Clock generator and disk index discriminator both count fabric
         # samples. SYSPER is samples per 30 ns clock (two per instruction).
-        if short in ('BaseBd', 'DskEth'):
+        if nominal_environment and short == 'BaseBd':
+            A(f'  {d["module"]}_nominal #(.SYSPER(SYSPER)) b_{short} (')
+        elif short in storage_boards:
+            A(f'  msa_ddram #(.SYSPER(SYSPER)) b_{short} (')
+        elif short in ('BaseBd', 'DskEth'):
             A(f'  {d["module"]} #(.SYSPER(SYSPER)) b_{short} (')
         else:
             A(f'  {d["module"]} b_{short} (')
         conns = ['    .sys_clk(sys_clk)']
+        if nominal_environment and short == 'BaseBd':
+            conns.append('    .baseboard_boot_n(baseboard_boot_n)')
+        if short in storage_boards:
+            index = storage_boards.index(short)
+            conns += ['    .storage_clk(storage_clk)', '    .storage_reset(storage_reset)',
+                      f'    .storage_ready(storage_board_ready[{index}])']
+            for port, width in [('req_valid', 16), ('req_write', 16), ('req_ready', 16),
+                                ('req_addr', 224), ('req_data', 256), ('rsp_valid', 16),
+                                ('rsp_ready', 16), ('rsp_data', 256)]:
+                conns.append(f'    .storage_{port}(storage_{port}[{index*width}+:{width}])')
         def _read(n: str) -> str:
             if (short, n) in BOARD_READ_EXCLUDING and (short, n) in set(excl):
                 return f'{vname(n)}__rd_{short}'
@@ -802,6 +866,11 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     A(f"// {os.path.basename(os.path.splitext(path)[0])}.probes lists which bit is which.")
     A(f'module {wrap} #(parameter integer SYSPER = 16) (')
     A('    input  wire        sys_clk,')
+    if nominal_environment:
+        A('    input wire baseboard_boot_n,')
+    if storage_boards:
+        for declaration in storage_declarations():
+            A(declaration)
     A('    input  wire [15:0] probe_sel,')
     A('    output wire [31:0] probe_val,')
     A('    output wire [15:0] probe_words')
@@ -850,6 +919,12 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     A("")
     A(f'  {module} #(.SYSPER(SYSPER)) u_machine (')
     conns = ['    .sys_clk(sys_clk)']
+    if nominal_environment:
+        conns.append('    .baseboard_boot_n(baseboard_boot_n)')
+    if storage_boards:
+        conns += [f'    .storage_{p}(storage_{p})' for p in
+                  ('clk', 'reset', 'ready', 'req_valid', 'req_write', 'req_ready',
+                   'req_addr', 'req_data', 'rsp_valid', 'rsp_ready', 'rsp_data')]
     for n in names_sorted:
         if n in clk_ports:
             conns.append(f'    .{vname(n)}(dorado_clk)')
@@ -1015,13 +1090,17 @@ def main(argv: list[str]) -> int:
                     help='which boards to instantiate (default: a working '
                          'monochrome machine, ' + ' '.join(DEFAULT_MACHINE))
     ap.add_argument('--module', default='dorado_backplane')
+    ap.add_argument('--external-storage', action='store_true',
+                    help='connect msa_ddram raw storage ports; generated separately by sil_storage_ddram.py')
+    ap.add_argument('--nominal-environment', action='store_true',
+                    help='use BaseBd nominal analog variant and expose physical boot-button input')
     ap.add_argument('--case-variants', action='store_true',
                     help="re-derive BACKPLANE_CASE_ALIASES from the .bp files")
     args = ap.parse_args(argv[1:])
     if args.emit:
         names = ([b.strip() for b in args.boards.split(',') if b.strip()]
                  if args.boards else DEFAULT_MACHINE)
-        return emit_top(args.emit, names, args.module)
+        return emit_top(args.emit, names, args.module, args.external_storage, args.nominal_environment)
     if args.json:
         return to_json(args.json)
     if args.ports:

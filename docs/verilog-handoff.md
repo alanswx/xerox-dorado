@@ -145,6 +145,48 @@ startup bytes match). Integration with the working full machine, medium,
 boot server and boot button remains required. The current hardware still
 continues saved RTL state from the assisted Initial/AEmu boot.
 
+## Cedar memory and BaseBoard preparation (2026-10-17 UTC)
+
+`dorado_storage_ddram.sv`, `dorado_storage_group.sv` and
+`dorado_storage_arb.sv` move only the MSA's raw storage into MiSTer DDR.
+The original board's address selection, serial bus, ECC and chip read/write
+cycles remain RTL. A missing word pauses the complete machine while the
+host clock services DDR; no ARM process reads guest RAM or completes I/O.
+The proposed window starts at byte `0x30000000`, outside MiSTer14 Linux RAM
+(`mem=511M`) and the template scaler's 8 MB at `0x20000000`.
+**These modules are not yet wired into an FPGA build.**
+
+`tools/sil_storage_ddram.py` consumes canonical `msa.v`, verifies all 144
+chips and their common control signals, emits a separate `msa_ddram`, and
+records each raw backing bit's chip mapping. Sixteen raw groups represent
+one physical board. The backplane generator optionally assembles four
+storage modules (eight even/odd boards), giving 1M logical 16-bit words.
+This is a capacity increase from the current 64K-word FPGA continuation;
+Cedar's minimum memory requirement still needs qualification.
+
+Run `make -C verilog/verilator storage-ddram-test storage-group-test
+storage-array-test storage-board-test`. The engine tests byte-lane
+preservation, DDR stalls, immediate/delayed responses, backpressure and
+reset with an outstanding read. Group equivalence compares 4,009 chip
+cycles and every stored bit. Three-group arbitration compares 1,505 cycles
+with 4,449 DDR reads and 463 writes, including reset drain. Complete-board
+equivalence compares all serial/ECC outputs for 12,012 logical cycles,
+2,976 reads, 7,872 writes and all 2,359,296 stored bits; the backing contains
+6,986 set bits, so this is not merely an all-zero comparison.
+
+An 800M-sample five-board probe executes the real BaseBoard ROM with a
+physical boot-button pulse and nominal DAC/comparator environment. After
+power-up watchdog transients it remains stable, passes its voltage checks,
+programs the clock/manifold chain and writes MIR0/1/2 475 times each.
+CVCC changes 3,210 times following the firmware's DAC, rather than being
+forced to a static value. This probe excludes memory/IFU and **does not
+qualify cold boot**. Its opcode histogram can count the following address
+while SYNC changes, so exact per-PC call counts are not reliable evidence.
+An earlier probe with a one-time procedural force captured a static RHS
+and is explicitly invalid. The generator's optional nominal BaseBoard
+variant uses continuous comparator wiring and an external boot-button
+input; default board/backplane regeneration remains byte-identical.
+
 ## Invaders starts on MiSTer14 (2026-10-17 UTC)
 
 The canonical file-backed RTL simulation reproduces the FPGA's stall at

@@ -1080,6 +1080,41 @@ ethernet-host-test:
 		verilog/verilator/tb_ethernet_host.sv verilog/generated/DskEth-Rev-Cf.v \
 		>/dev/null && ./verilog/verilator/obj_ethernet_host/ethernet-host-test
 
+.PHONY: storage-ddram-test
+storage-ddram-test:
+	@cd ../.. && $(V) --binary --top-module tb_storage_ddram $(V_WARN) \
+		--Mdir verilog/verilator/obj_storage_ddram -o storage-ddram-test \
+		fpga/mister/dorado_storage_ddram.sv verilog/verilator/tb_storage_ddram.sv \
+		>/dev/null && ./verilog/verilator/obj_storage_ddram/storage-ddram-test
+
+.PHONY: storage-group-test
+storage-group-test:
+	@cd ../.. && $(V) --binary --top-module tb_storage_group $(V_WARN) \
+		--Mdir verilog/verilator/obj_storage_group -o storage-group-test \
+		fpga/mister/dorado_storage_group.sv verilog/cells/cell_MK4096P_6.v \
+		verilog/verilator/tb_storage_group.sv \
+		>/dev/null && ./verilog/verilator/obj_storage_group/storage-group-test
+
+.PHONY: storage-array-test
+storage-array-test:
+	@cd ../.. && $(V) --binary --top-module tb_storage_array $(V_WARN) \
+		--Mdir verilog/verilator/obj_storage_array -o storage-array-test \
+		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
+		fpga/mister/dorado_storage_arb.sv verilog/cells/cell_MK4096P_6.v \
+		verilog/verilator/tb_storage_array.sv \
+		>/dev/null && ./verilog/verilator/obj_storage_array/storage-array-test
+
+.PHONY: storage-board-test
+storage-board-test:
+	@cd ../.. && python3 tools/sil_storage_ddram.py \
+		-o verilog/verilator/obj_storage_board/msa_ddram.v && \
+		$(V) --binary --top-module tb_storage_board $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_storage_board -o storage-board-test \
+		verilog/verilator/obj_storage_board/msa_ddram.v verilog/generated/msa.v \
+		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
+		fpga/mister/dorado_storage_arb.sv verilog/verilator/tb_storage_board.sv \
+		>/dev/null && ./verilog/verilator/obj_storage_board/storage-board-test
+
 # cell_F9401 against a published CRC-16 check value (0xFEE8 for "123456789").
 crc-test:
 	@cd ../.. && $(V) --binary --top-module tb_crc $(V_WARN) \
