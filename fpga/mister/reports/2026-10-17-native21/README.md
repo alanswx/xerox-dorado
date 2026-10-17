@@ -24,3 +24,13 @@ or unconstrained internal clocks. Framework I/O delays remain separate.
 
 RBF/source hashes and isolated build path are in validation.json.
 Actual FPGA Cedar login, typed command and screenshot are still required.
+
+Hardware test18:28UTC: authentic BFN113 request and download, no CRC/RX
+errors. The FPGA still enters RequeueSearchSQ with a white raster/tiny
+cursor. Read-only DDR now decodes all8960 germ source words correctly,
+allowing the two original PilotBoot writes; a partial relocated copy is
+visible at0xfdc00. This resolves the demonstrated source-transfer defect,
+but does not qualify the relocated copy (dirty cache is invisible) or prove
+an OS boot. Next compare the native DDR-adapter run and extend the original
+storage run beyond the first Mesa instructions. No guest image patches or
+host IOCB-completion bridge are used.

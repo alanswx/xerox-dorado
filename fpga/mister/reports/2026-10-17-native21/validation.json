@@ -7,5 +7,9 @@
   "functional": "Cold100M, original Initial ROM, original Cedar EB/germ, four storage modules, native BaseBoard pulse shape, SYSPER4. 8931 sampled source words correct; IFU79377 fetches/79468 acknowledgements. 15 task initializations,86611683 clean all-six-enabled samples. See germ-gate.json.",
   "hold_review": "Three slow -0.023ns ContA e04 a_lat[1] to its own RAM address bit1 sinks. Exact1 source/3 sinks hold-only exception. a_lat capture !p13 and memory commit p13&&!we_d&&ce_lat are mutually exclusive. Setup/read/data/enables remain timed. RBF unchanged.",
   "timing": "PASS29 checks, minimum+0.097ns; zero illegal/unconstrained clocks. Framework I/O coverage remains separate.",
-  "device": "Not loaded yet. Actual Cedar OS boot remains required."
+  "device": "MiSTer14 Native21 programmed18:24UTC, original firmware boot and BFN113 request18:28UTC, C released automatically. No CRC/receive errors. Remains in RequeueSearchSQ239/23a/6c1/6c2, white raster/tiny cursor. Cedar OS not booted.",
+  "source_commit": "ebb027ac",
+  "main_log": "/media/fat/games/DoradoRTL/Cedar21_20261017/main.log",
+  "launcher": "/media/fat/_Computer/DoradoRTL_Cedar21_20261017/Cedar21.mgl",
+  "read_only_memory": "Read-only mmap of DDR0x30000000..0x303fffff saved cedar21-ddr.raw. Partially calibrated decoder yields all8960 original germ source words correctly, except expected PilotBoot request writes02f0=2/02f1=3. Root line matches at0200; partial relocated copy at0xfdc00. Dirty cache is absent from dump; do not infer zero/lost destination words from this snapshot."
 }

@@ -8,6 +8,35 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Native21 FPGA result,18:33 UTC.** Original Cedar request at18:28; C
+released correctly. Hardware remains in RequeueSearchSQ239/23a/6c1/6c2 with
+white raster/tiny cursor, no CRC/RX errors. Screenshot cedar21-first-fpga.png
+in build/rtl-executive. Read-only DDR mmap (PROT_READ at0x30000000,4MiB)
+decodes ALL8960 source germ words correctly, except the two expected PilotBoot
+request stores02f0=2/02f1=3. Partial relocated germ visible at physical0xfdc00.
+Decoder is partially calibrated and omits dirty cache: target zeros do not
+prove missing data. Source transfer is now fixed on hardware; OS not booted.
+
+Active diagnostics: cedar-native21-ddrcheck.log (session43707), cold full
+component with the actual msa_ddram/group/arb/ddram adapters and a raw Avalon
+memory peer; global machine clock pauses using the same falling-edge enable
+as FPGA. Separate host clock continues, no CPU/IOCB bridge. Native21-fixed
+MemX. Scratch native21-ddrcheck, object obj_native_rom_cedar_native21ddr.
+Also cedar-native21-extended.log (session89127): diagnostic original-storage
+model restored from baseline85m.rtl with j01 delay1, advancing to200M and
+saving fixed200m.rtl near the end. This POD restore excludes non-POD BaseBoard
+internals, so it is a diagnostic only; cold and FPGA checks still required.
+
+**Native21 hardware boot started,18:24 UTC.** Commit ebb027ac pushed.
+RBF programmed through Main's load_core/MGL path on MiSTer14. All copies hash
+identically; fresh pack hash c0cd6784... matches baseline. Original immutable
+Main/server unchanged. Main opened real input devices, mounted pack0, then C
+watcher was armed and three real boot pushes sent once. Current log:
+/media/fat/games/DoradoRTL/Cedar21_20261017/main.log. Wait through the original
+firmware ~4.5min startup. Watcher log cedar21-key-watch.log releases C only on
+a new BFN113. No OS boot claimed yet. Previous Native19 log copied to19/
+main-before-native21.log; open FD follows renamed21/main.log.
+
 **Native21 qualified, 18:24 UTC.** Canonical generator and MemX now contain
 only the one-stage j01 pin13 module-selector clock fix. Full cold100M with
 four storage modules and authentic BaseBoard pulses passes:8931 sampled germ
