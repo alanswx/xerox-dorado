@@ -1,0 +1,41 @@
+FTP_NETDIR request id=00000000 src=000442/17/52002 text="GrapevineRServer"
+FTP_NETDIR prime route
+FTP_NETDIR request id=00010001 src=000442/17/52002 text="GrapevineRServer"
+FTP_NETDIR lookup GrapevineRServer -> GV
+GV_AUTH request bytes=22 op=0009
+FTP_NETDIR request id=00000000 src=000442/17/116002 text="GrapevineRServer"
+FTP_NETDIR prime route
+FTP_NETDIR request id=00010001 src=000442/17/116002 text="GrapevineRServer"
+FTP_NETDIR lookup GrapevineRServer -> GV
+GV_AUTH request bytes=22 op=0009
+FTP_NETDIR request id=00000000 src=000442/17/116005 text="Ivy"
+FTP_NETDIR lookup release host -> STP
+STP_LOOKUP_MISSING <Guest>6.1>Basic.Loadees
+FTP_NETDIR request id=00000000 src=000442/17/116007 text="Ivy"
+FTP_NETDIR lookup release host -> STP
+STP_ENUM_MISSING ((User-Name Guest.pa)(Directory Guest)(Name-Body 6.1>Basic.Loadees)(Desired-property Directory)(Desired-property Name-Body)(Desired-property Version)(Desired-property Creation-Date)(Desired-property Size))
+FTP_NETDIR request id=00000000 src=000442/17/116011 text="Cyan"
+FTP_NETDIR refresh route for Cyan
+FTP_NETDIR request id=00010001 src=000442/17/116011 text="Cyan"
+FTP_NETDIR lookup release host -> STP
+STP_DATES indexed 4328 file dates under /media/fat/games/DoradoRTL/System_20261017/chm/cedar/stp-root
+STP_LOOKUP Cedar6.1/Top/Basic.Loadees -> !1 2361 bytes (null)
+FTP_NETDIR request id=00000000 src=000442/17/116013 text="Cyan"
+FTP_NETDIR lookup release host -> STP
+STP_SERVE Cedar6.1/Top/Basic.Loadees (2361 bytes)
+STP_NO_DF_DATE Cedar6.1/Top/Basic.Loadees
+STP_PLIST ((Server-Filename <Cedar6.1>Top>Basic.Loadees!1)(Directory Cedar6.1>Top)(Name-Body Basic.Loadees)(Version 1)(Byte-Size 8)(Creation-Date 01-Jan-84 00:00:00 GST)(Size 2361))
+STP_TRANSFER Cedar6.1/Top/Basic.Loadees (2361 bytes)
+STP_LOOKUP Cedar6.1/RPCRuntime/RPCRuntime.bcd -> !1 18432 bytes (null)
+STP_SERVE Cedar6.1/RPCRuntime/RPCRuntime.bcd (18432 bytes)
+STP_NO_DF_DATE Cedar6.1/RPCRuntime/RPCRuntime.bcd
+STP_PLIST ((Server-Filename <Cedar6.1>RPCRuntime>RPCRuntime.bcd!1)(Directory Cedar6.1>RPCRuntime)(Name-Body RPCRuntime.bcd)(Version 1)(Byte-Size 8)(Creation-Date 01-Jan-84 00:00:00 GST)(Size 18432))
+STP_TRANSFER Cedar6.1/RPCRuntime/RPCRuntime.bcd (18432 bytes)
+STP_LOOKUP Cedar6.1/UserProfile/UserProfileImpl.bcd -> !1 19520 bytes 20-Jan-86 17:55:38 PST
+STP_SERVE Cedar6.1/UserProfile/UserProfileImpl.bcd (19520 bytes)
+STP_PLIST ((Server-Filename <Cedar6.1>UserProfile>UserProfileImpl.bcd!1)(Directory Cedar6.1>UserProfile)(Name-Body UserProfileImpl.bcd)(Version 1)(Byte-Size 8)(Creation-Date 20-Jan-86 17:55:38 PST)(Size 19520))
+STP_TRANSFER Cedar6.1/UserProfile/UserProfileImpl.bcd (19520 bytes)
+Dorado net: flags=4 tx_words=16 good=62 crc_bad=0 dropped=1 rx_bad=0 aborted=0 machine=9b940000 state=47fc cpu=30233233
+Dorado net: flags=4 tx_words=16 good=62 crc_bad=0 dropped=1 rx_bad=0 aborted=0 machine=9b940000 state=47fc cpu=30233233
+Dorado net: flags=4 tx_words=16 good=62 crc_bad=0 dropped=1 rx_bad=0 aborted=0 machine=9b940000 state=47fc cpu=30233233
+Dorado net: flags=4 tx_words=16 good=62 crc_bad=0 dropped=1 rx_bad=0 aborted=0 machine=9b940000 state=47fc cpu=30233233

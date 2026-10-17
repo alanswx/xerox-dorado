@@ -23,6 +23,8 @@ def stamp(raw):
     if (len(raw)-512) % 532:
         raise ValueError('truncated PDI')
     pages = (len(raw)-512)//532
+    if pages == 0:
+        raise ValueError('PDI has no pages')
     data = lambda p: 512+p*532+20
     if word(data(0)) != 0o121212:
         raise ValueError('missing physical root')

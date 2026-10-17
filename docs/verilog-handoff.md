@@ -44,15 +44,24 @@ other label field and boot-only file remains unchanged; idempotence passes.
 Strict C control also exposes the existing attribute-clear workaround; it
 cannot independently qualify hint-only repair without separating the two
 compatibility behaviors. Diagnostic C build enforces DA while retaining the
-attribute workaround; do not confuse it with FPGA proof.
+attribute workaround: it retrieves Basic.Loadees plus16 files by2.5B BB
+cycles. Strict unmodified C still fails its own attribute-clear comparison.
+An identical diagnostic run with the uncorrected medium retrieves zero
+files and reproduces the FP failure. Do not confuse these C results with
+FPGA proof.
 Native25h is now deployed with the identical qualified RBF and corrected pack;
-original firmware startup is in progress (C watcher7588, boot pulses78961).
-no live guest-memory repair. Viewers/%/Echo/mouse remain open.
+original firmware emitted fresh BFN113 at22:27 UTC and C released.
+Actual Cedar login reached22:28; Guest accepted. At22:29 the real OS
+reached STP lookup/enumerate for Guest/6.1/Basic.Loadees (expected missing)
+then retrieves the release copy from Cedar6.1/Top. At22:31 STP_TRANSFER
+confirms Basic.Loadees, RPCRuntime.bcd and UserProfileImpl.bcd. The old FP
+error is cleared on real RTL. Subsequent loader/capacity progress remains open.
+No live guest-memory repair. Viewers/%/Echo/mouse remain open.
 
 Native26 expands to8MB RAM/64K Map and retains the receive fix. Fit and
 reviewed timing pass29 checks (minimum+0.074ns), no illegal/unconstrained
 clocks. Exact DskEth d08/e16 and MemC g02 same-cell address holds are
-reviewed. It has not been deployed. The larger-memory cold prototype is
+reviewed. It is staged separately with a fresh corrected pack, not deployed. The larger-memory cold prototype is
 still below the source-sampling coverage gate; it is not qualified.
 
 ## Active work
@@ -61,11 +70,10 @@ Scratch names below are relative to `build/rtl-executive/`.
 
 | Work | Session | Location / next action |
 | --- | --- | --- |
-| Native25 hardware | Boot/login COMPLETE;25h booting | MiSTer14, `Cedar25_20261017/main.log`; RBF3a8eee40..., fresh baseline pack, server11387. Original firmware/BFN113 complete; actual Cedar login and Guest keyboard accepted. 25h fixes offline label hints, firmware startup active. |
+| Native25 hardware | Boot/login COMPLETE;25h booting | MiSTer14, `Cedar25h_20261017/main.log`; RBF3a8eee40..., corrected fresh pack, server12085. Original firmware/BFN113 complete; actual Cedar login and Guest keyboard accepted. 25h fixes offline label hints; original firmware/BFN113 completed22:27, C released. |
 | Corrected CPU monitor | Fit/review COMPLETE | Native24b passes29 checks,min+0.080ns, no illegal/unconstrained clocks. Exact MemC f06/j07/d06 same-cell hold review in native24b reports. CPU EOP tap corrected to18; clean CPU status observed on directed replies. |
 | Server diagnostics | Quiet-after-Cedar RESTORED | server1d5e05e9..., PID12085, logserver-cedar23-route.log. Delay/nil/link-broadcast diagnostics did not clear retries. Restart this server before another core load to restore initial BOL, since quiet sessions can reuse Main's same PID/socket path. |
 | Native25 receive-full correction | Cold120M/fit/review COMPLETE | 8931 sampled germ words/no mismatch, original Initial/Cedar gates, IFU670280/670434, all6 errors enabled/clean106611683 samples. Timing29 checks,min+0.071ns; exact MemX c21 own4 hold paths reviewed. Hardware now passes routing/time/name and displays Cedar login; Guest accepted. |
-
 | Native26 capacity build | Fit/review COMPLETE | `misterubuntu:/home/alans/mister/Dorado_Native26_20261017/`, `native26-build.log`; four64K-chip modules/8MB physical RAM,64K map, Native25 k04 correction retained. Experimental; timing29 checks,min+0.074ns, no illegal/unconstrained clocks. Cold/hardware qualification pending. |
 | Four64K-module software control | COMPLETE24B | `cedar-64k-map64-control/`: fresh8MB RAM/64K map reaches Viewers (166685px), type2, VirtualBanks0100; valid geometry reference, software only. |
 | Larger-memory cold RTL | 32916; PID86868 | `cedar-density64-ddrcheck.log`,500M limit,SYSPER4, four64K-chip modules/64K map,actualDDR. `storage64-candidate/`; component prototype, not production. Bounded caffeinate session36354. |
@@ -105,6 +113,18 @@ cold120M/timing pass and hardware advances through services to real Cedar
 login, accepting Guest. The earlier service wait is cleared; desktop boot
 is still open. Tests: ethernet-input-hold-test and
 ethernet-receive-sequence-test. Evidence: native25/component-review.json.
+
+## Reproduce the offline media correction
+
+```sh
+python3 tools/pdi_stamp_file_hints.py build/rtl-executive/cedar-work-native-chs.pdi build/rtl-executive/cedar-work-native-hints.pdi
+python3 tools/pdi_to_trident.py build/rtl-executive/cedar-work-native-hints.pdi build/rtl-executive/cedar-work-native-hints.pack
+```
+
+The unchanged baseline stays separate. The tool rejects conflicting nonzero
+label hints or logical-root FPs. The corrected pack baseline is preserved on
+MiSTer14 as `System_20261017/cedar-work-native-hints-f3bce2a8.pack`; verify
+its full SHA before cloning any new writable test pack.
 
 ## Capacity findings — corrected at 20:43 UTC
 
@@ -212,7 +232,11 @@ and has unreviewed hold violations; never deploy it.
 - [x] Complete Native25 original firmware/BFN113; pass service replies and display Cedar login.
 - [x] Type Guest plus two Returns through the real FPGA keyboard; observe Guest.pa authentication.
 - [x] Identify post-login Basic.Loadees failure: synthetic file-label DA hints are zero.
-- [ ] Validate corrected offline hints with C bypass OFF, then original FPGA boot (Native25h).
+- [x] Validate hint repair with paired DA-enforcing C controls (17 served files versus0).
+- [x] Boot Native25h original firmware, accept Guest, reach real STP lookup past old FP failure.
+- [x] Observe real FPGA Basic.Loadees transfer, then RPCRuntime/UserProfile downloads.
+- [ ] Complete all34 loadees and reach Viewers (Native25h/26 capacity test).
+- [ ] Improve cable TX queue: one pending packet caused1 dropped short packet; BSP recovered, but a burst-capacity regression and deeper queue remain useful.
 - [ ] Recapture the receive buffer coherently if byte-level header proof is needed.
 - [x] Add experimental64K geometry generator; pass cell, full MemX geometry,
   full MSA/DDR9,437,184-bit comparison and unchanged default-board gates.

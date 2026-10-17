@@ -1,0 +1,35 @@
+Diagnostic C build, not FPGA evidence.
+8MB/64K geometry; existing attribute compatibility retained; label DA words2/3 always compared.
+machine_hints.c SHA256 22199700098ad80c7022f3e811fc8ea12ee660fd7df336cbd9d923a6947dfb26
+
+STP_LOOKUP_MISSING <Guest>6.1>Basic.Loadees
+STP_ENUM_MISSING ((User-Name Guest.pa)(Directory Guest)(Name-Body 6.1>Basic.Loadees)(Desired-property Directory)(Desired-property Name-Body)(Desired-property Version)(Desired-property Creation-Date)(Desired-property Size))
+STP_LOOKUP Cedar6.1/Top/Basic.Loadees -> !1 2361 bytes (null)
+FTP_RETRIEVE "((User-Name Guest.pa)(Directory Cedar6.1)(Name-Body Top>Basic.Loadees)(Desired-property Directory)(Desired-property Name-Body)(Desired-property Version)(Desired-property Creation-Date)(Desired-property Size))"
+STP_SERVE Cedar6.1/Top/Basic.Loadees (2361 bytes)
+STP_NO_DF_DATE Cedar6.1/Top/Basic.Loadees
+STP_PLIST ((Server-Filename <Cedar6.1>Top>Basic.Loadees!1)(Directory Cedar6.1>Top)(Name-Body Basic.Loadees)(Version 1)(Byte-Size 8)(Creation-Date 01-Jan-84 00:00:00 GST)(Size 2361))
+STP_TRANSFER Cedar6.1/Top/Basic.Loadees (2361 bytes)
+STP_SERVE Cedar6.1/RPCRuntime/RPCRuntime.bcd (18432 bytes)
+STP_SERVE Cedar6.1/UserProfile/UserProfileImpl.bcd (19520 bytes)
+STP_SERVE Cedar6.1/Idle/IdleImpl.bcd (17800 bytes)
+STP_SERVE Cedar6.1/DFPackage/DFPackage.bcd (32256 bytes)
+STP_SERVE Cedar6.1/BasicPackages/BasicPackages.bcd (19968 bytes)
+STP_SERVE Cedar6.1/Installer/InstallerImpl.bcd (32244 bytes)
+STP_SERVE Cedar6.1/Inscript/InscriptPackage.bcd (9728 bytes)
+STP_SERVE Cedar6.1/VersionMap/VersionMapImpl.bcd (21942 bytes)
+STP_SERVE Cedar6.1/VersionMap/VersionMapDefaultsImpl.bcd (9418 bytes)
+STP_SERVE Cedar6.1/WorldVM/WorldVMPackage.bcd (23040 bytes)
+STP_SERVE Cedar6.1/AMTypes/AMTypesPackage.bcd (102912 bytes)
+STP_SERVE Cedar6.1/AMModel/AMModelPackage.bcd (30720 bytes)
+STP_SERVE Cedar6.1/AMEvents/AMEventsPackage.bcd (9216 bytes)
+STP_SERVE Cedar6.1/AMProcess/AMProcessPackage.bcd (4608 bytes)
+STP_SERVE Cedar6.1/PrintTV/PrintTVPackage.bcd (18432 bytes)
+STP_SERVE Cedar6.1/Interpreter/InterpreterPackage.bcd (55808 bytes)
+dorado: booting (target 2500000000 cycles)...
+dorado: Alto/Mesa world loaded at cycle 32000029
+dorado: typing "Guest
+dorado: typed 5 keys @cyc 817600705
+dorado: typed 7 keys total, last @cyc 827000714
+dorado: 44048 display-list pixels; wrote /Users/alans/dev2/Dorado/build/rtl-executive/cedar-hints-enforced/final.pgm
+dorado: 675881119 microinstructions = 40.55 s of Dorado time in 52.34 s CPU = 0.77x real hardware (12.9 M uinstr/s; 2500000003 BB-6502 cycles, 3.70 per uinstr)
