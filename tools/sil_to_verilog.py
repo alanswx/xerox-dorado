@@ -1392,6 +1392,9 @@ class Generator:
             A("  // MemX20 c07: preserve clock setup without delaying HoldMapBuf.")
             A("  reg [2:0] mapbuf_fh_delay=3'b111;")
             A("  always @(posedge sys_clk) mapbuf_fh_delay <= {mapbuf_fh_delay[1:0],preFH_p_A};")
+            A("  // MemX09 j01: local module-selector capture phase.")
+            A("  reg sin_select_clock=1\'b0;")
+            A("  always @(posedge sys_clk) sin_select_clock <= Clk0_p_Bc;")
         if lagged:
             A(f'  // ---- {len(lagged)} clk1-family nets, one sys_clk behind')
             A('  //      their pre siblings (see clock_lag above)')
@@ -1710,6 +1713,8 @@ class Generator:
                     target = ''
                 elif not isout and self.memx_map_clock_leg() and pos == 'c07' and pin == 5:
                     target = 'mapbuf_fh_delay[2]'
+                elif not isout and self.memx_map_clock_leg() and pos == 'j01' and pin == 13:
+                    target = 'sin_select_clock'
                 elif (not isout and self.b.name.split('-Rev')[0] == 'MemD'
                       and netname in self.STORAGE_INPUT_NETS):
                     target = self.read_name(netname)

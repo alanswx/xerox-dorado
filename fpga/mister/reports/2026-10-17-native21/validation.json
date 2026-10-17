@@ -1,0 +1,11 @@
+{
+  "rbf_sha256": "a11ef8f66ee58b2f56d9a8dca45957f6db88b98e66868903b813b50b8495538c",
+  "generator_sha256": "58721cb29bbb2f1e02e4ab6bb1de33c7094e6fa2117a58a0c26198bbb1c529a3",
+  "memx_sha256": "77635850117d27461cd0d7c33d8c784c6bd750e7e3fa847d7d879e1062782b38",
+  "source_overlay_sha256": "548dceff5288404d494874319ce5ccb41aeedfc100e8fe514f682262ad3372c0",
+  "build": "misterubuntu:/home/alans/mister/Dorado_Native21_20261017/core",
+  "functional": "Cold100M, original Initial ROM, original Cedar EB/germ, four storage modules, native BaseBoard pulse shape, SYSPER4. 8931 sampled source words correct; IFU79377 fetches/79468 acknowledgements. 15 task initializations,86611683 clean all-six-enabled samples. See germ-gate.json.",
+  "hold_review": "Three slow -0.023ns ContA e04 a_lat[1] to its own RAM address bit1 sinks. Exact1 source/3 sinks hold-only exception. a_lat capture !p13 and memory commit p13&&!we_d&&ce_lat are mutually exclusive. Setup/read/data/enables remain timed. RBF unchanged.",
+  "timing": "PASS29 checks, minimum+0.097ns; zero illegal/unconstrained clocks. Framework I/O coverage remains separate.",
+  "device": "Not loaded yet. Actual Cedar OS boot remains required."
+}

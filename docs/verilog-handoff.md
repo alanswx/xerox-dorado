@@ -8,6 +8,20 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Native21 qualified, 18:24 UTC.** Canonical generator and MemX now contain
+only the one-stage j01 pin13 module-selector clock fix. Full cold100M with
+four storage modules and authentic BaseBoard pulses passes:8931 sampled germ
+words correct, IFU79377 fetches/79468 acknowledgements,15 task initializations,
+86611683 clean all-six-error-enabled samples. The small captured module3-to0
+regression passes all16 words; old RTL fails word0 DEED vs06EC. Map-hold passes.
+Quartus fitPASS; reviewed STA PASS29 checks, minimum+0.097ns, zero illegal/
+unconstrained clocks. Exact ContA e04 RAM address hold proof1 source/3 sinks
+is preserved with full before/after reports under reports/2026-10-17-native21.
+RBF SHA a11ef8f66ee58b2f56d9a8dca45957f6db88b98e66868903b813b50b8495538c.
+Next: load Native21 on allocated MiSTer14 with a fresh pack, immutable Main/
+server, original firmware three-push boot and C watcher. Actual Cedar OS
+login, typed command and screenshot remain required; hardware still Native19.
+
 **Native21 pre-build, 16:55 UTC.** Isolated project
 misterubuntu:/home/alans/mister/Dorado_Native21_20261017/core, session44044,
 builds fixed one-stage local j01 clock pin delay on otherwise Native19.

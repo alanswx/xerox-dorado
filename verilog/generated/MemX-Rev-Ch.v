@@ -1066,6 +1066,9 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
   // MemX20 c07: preserve clock setup without delaying HoldMapBuf.
   reg [2:0] mapbuf_fh_delay=3'b111;
   always @(posedge sys_clk) mapbuf_fh_delay <= {mapbuf_fh_delay[1:0],preFH_p_A};
+  // MemX09 j01: local module-selector capture phase.
+  reg sin_select_clock=1'b0;
+  always @(posedge sys_clk) sin_select_clock <= Clk0_p_Bc;
   // ---- 8 clk1-family nets, one sys_clk behind
   //      their pre siblings (see clock_lag above)
   reg  Clk1_p_Ab__lag1 = 1'b1;
@@ -4005,7 +4008,7 @@ module MemX_m_Rev_m_Ch #(parameter integer SYSPER = 16) (
     .p9(Mod2En_p_a),
     .p10(Mod1En_p_a),
     .p11(Mod0En_p_a),
-    .p13(Clk0_p_Bc),
+    .p13(sin_select_clock),
     .p14(Mod0SinEn_p___drv),
     .p15(Mod1SinEn_p___drv)
   ); // F10016

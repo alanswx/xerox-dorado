@@ -1,0 +1,11 @@
+U @465 clk0 c00 odd1 mod00 mod30 sin0000
+U @466 clk1 c01 odd1 mod00 mod30 sin0000
+U @467 clk1 c01 odd0 mod00 mod31 sin0000
+U @468 clk1 c01 odd0 mod00 mod31 sin0000
+U @469 clk0 c01 odd0 mod00 mod31 sin0000
+U @470 clk1 c01 odd0 mod00 mod31 sin0000
+U @471 clk1 c01 odd0 mod00 mod31 sindeed
+WORD 0 gotdeed expected06ec
+[942] %Fatal: tb_module_boundary.sv:567: Assertion failed in tb_module_boundary: Module switch supplied another module or serial position
+%Error: build/rtl-executive/module-boundary-replay/tb_module_boundary.sv:567: Verilog $stop
+Aborting...

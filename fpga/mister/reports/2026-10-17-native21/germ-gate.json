@@ -1,0 +1,12 @@
+{
+  "sampled_words": 8931,
+  "germ_words": 8960,
+  "unexpected_words": 0,
+  "first_mismatches": [],
+  "germ_handoff": true,
+  "ifu_fetches": 79377,
+  "ifu_acknowledgements": 79468,
+  "original_initial_pass": true,
+  "original_cedar_image_pass": true,
+  "pass": true
+}

@@ -388,6 +388,16 @@ map-buffer-hold-test:
 		verilog/verilator/tb_map_buffer_hold.sv verilog/generated/MemX-Rev-Ch.v >/dev/null
 	@cd ../.. && ./verilog/verilator/obj_map_buffer_hold/tb_map_buffer_hold
 
+# Captured Cedar module3-to0 handoff, with the original MSA serializers.
+.PHONY: storage-module-switch-test
+storage-module-switch-test:
+	@cd ../.. && $(V) --binary --top-module tb_storage_module_switch $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated \
+		--Mdir verilog/verilator/obj_storage_module_switch -o module-switch-test \
+		verilog/verilator/tb_storage_module_switch.sv \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_storage_module_switch/module-switch-test
+
 # Real AltoDiabloDisk.mc initialization, not the old per-word jam bench.
 .PHONY: disk-init-format-test
 disk-init-format-test:
