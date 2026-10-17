@@ -1,0 +1,12 @@
+STORAGE-GROUP PASS:        4009 logical chip cycles,        4257 requests,         254 writes, all 262144 backing bits identical
+- verilog/verilator/tb_storage_group.sv:84: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 68us; walltime 0.009 s; speed 7.934 ms/s
+- Verilator: cpu 0.009 s on 1 threads; alloced 2 MB
+Generated verilog/verilator/obj_storage_board/msa_ddram.v: 144 chips -> 16 raw storage groups; other MSA wiring preserved
+Stored one bits:        6986
+STORAGE-BOARD PASS:       12012 complete-board cycles,        2976 DDR reads,        7872 writes,        1111 output transitions, all 2359296 stored bits identical
+- verilog/verilator/tb_storage_board.sv:700: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 213us; walltime 0.039 s; speed 5.420 ms/s
+- Verilator: cpu 0.039 s on 1 threads; alloced 5 MB

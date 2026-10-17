@@ -1,0 +1,32 @@
+{
+  "candidate": "Native12",
+  "rbf_sha256": "96d0fd7596b4e2d02f148e8f2648f95586cb561a8248004e3356a8de3f1eba9d",
+  "functional_rtl": "Native10/11 with passive control_error_monitor; no new functional fix",
+  "native_state_import": false,
+  "timing_before": {
+    "core_hold_ns": -0.025,
+    "second_hold_ns": -0.022,
+    "core_setup_ns": 2.431,
+    "fixed_720p_hdmi_setup_ns": 4.862
+  },
+  "review": "Own-address and own-data hold exclusions apply to each exact same-group source/destination pair across all eight boards and sixteen groups per board. Every instance shares ready => !req_valid; a source changes only on a ready machine edge, so saved_addr/saved_data cannot capture on that edge. Setup, enable/request and all cross-group checks remain active. Assertions and full storage equivalence validate the conditions.",
+  "timing_reviewed": {
+    "checks": 29,
+    "minimum_slack_ns": 0.246,
+    "fixed_video_mode": 0,
+    "vsync_adjust": 0,
+    "framework_IO_fully_constrained": false
+  },
+  "storage_gates": {
+    "group_cycles": 4009,
+    "requests": 4257,
+    "group_writes": 254,
+    "group_backing_bits": 262144,
+    "board_cycles": 12012,
+    "board_reads": 2976,
+    "board_writes": 7872,
+    "board_backing_bits": 2359296,
+    "result": "All stored bits and outputs identical; disabled-transfer assertions pass."
+  },
+  "deployment": "Loaded on MiSTer14 as Cedar12.mgl, immutable existing Main and fresh Pilot pack; native diagnostic only, not Cedar qualification."
+}
