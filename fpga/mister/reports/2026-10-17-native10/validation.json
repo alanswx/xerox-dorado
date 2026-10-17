@@ -1,0 +1,33 @@
+{
+  "candidate": "Native10",
+  "rbf_sha256": "ea95a9bc797e8c4b1c36e4550f1cf66742b8b9dd36e5e69f3eb676b6a2920476",
+  "native_cpu_state_import": false,
+  "native_memory_state_import": false,
+  "im_parity": "Physical MC10170 B function for ContA e18,ContB j20/e01",
+  "fit": {
+    "ALMs": 34984,
+    "registers": 44188,
+    "RAM_blocks": 178,
+    "DSPs": 35
+  },
+  "original_1080p_timing": {
+    "qualified": false,
+    "HDMI_setup_ns": -0.188,
+    "path": "ascal o_vpix_inner[1].r[6] -> o_poly_lum[6]"
+  },
+  "fixed_720p_timing": {
+    "reported_checks": 29,
+    "minimum_slack_ns": 0.078,
+    "HDMI_setup_ns": 6.544,
+    "core_setup_ns": 1.821,
+    "core_hold_ns": 0.078,
+    "video_mode": 0,
+    "vsync_adjust": 0,
+    "runtime_pixel_clock_MHz": 74.25,
+    "analyzed_pixel_clock_MHz": 74.267578125,
+    "PLL_source_preserved": true,
+    "additional_false_paths": false
+  },
+  "deployment": "MiSTer14 Cedar10.mgl; fresh Pilot pack c0cd6784...; immutable Main PID6859, real C held by session30434",
+  "boot_status": "BaseBoard startup under observation; no microcode boot request yet. Cedar NOT qualified."
+}

@@ -375,7 +375,7 @@ The firmware-only probe was extended toward 2.1B samples, then stopped
 after its 650M progress report once the short parity test isolated the
 same startup failure. That partial repeat is not a qualification result.
 
-**The IM parity blocker is now reproduced and corrected (FPGA pending).**
+**The IM parity blocker is reproduced and corrected; FPGA test running.**
 The MC10170 model retains a legacy B-output inversion for unreconciled
 users. The three IM instances still selected it: ContA e18 and ContB j20
 (read checkers), and ContB e01 (write-parity generator). Motorola's 1978
@@ -406,13 +406,32 @@ stored-bit counts include both complemented BLOCK and the correct odd
 parity bit. The original Executive object/checkpoint remain preserved.
 Evidence: `reports/2026-10-17-im-parity/`.
 
-Native8/9's pre-fix fits were stopped. The corrected four-module native
-design, including actual display field and the passive Stop/clock monitor,
-is compiling with standard effort and two processors in
-`misterubuntu:/home/alans/mister/Dorado_Native10_20261017/core`.
-`DoradoRTL_Cedar10_20261017/Cedar10.mgl`, its INI section, and a separate
-fresh Pilot pack (SHA256 `c0cd6784...`) are staged on MiSTer14. No RBF has
-been loaded there yet; Native4 is still the running stalled core.
+Native8/9's pre-fix fits were stopped. Native10, with the corrected IM
+parity, actual display field and passive Stop/clock monitor, finished fitting:
+34,984 ALMs, 44,188 registers, 178 RAM blocks and 35 DSPs. Its original
+1080p analysis fails HDMI scaler setup by 0.188 ns (o_vpix_inner[1].r[6]
+to o_poly_lum); core setup is +1.821 ns and hold +0.078 ns.
+
+The same bitstream is qualified **only for fixed 720p60**, using MiSTer's
+mode 0 and vsync_adjust=0. The post-fit analysis replaces the reconfigurable
+HDMI output divider with six instead of three, preserving the actual PLL
+VCO/source latency and analyzing 74.268 MHz, slightly above the actual
+74.25 MHz output. All 29 reported checks are nonnegative, HDMI setup
++6.544 ns. No additional false paths or core timing changes are introduced;
+the original failed report is preserved. Framework I/O remains incompletely
+constrained. Raw reports, exact SDC and hashes:
+`reports/2026-10-17-native10/`.
+
+RBF SHA256 `ea95a9bc797e8c4b1c36e4550f1cf66742b8b9dd36e5e69f3eb676b6a2920476`
+is loaded on MiSTer14 through `DoradoRTL_Cedar10_20261017/Cedar10.mgl`,
+with a separate fresh Pilot pack (SHA256 `c0cd6784...`). Main PID 6859
+uses the same immutable binary; its log is now
+`games/DoradoRTL/Cedar10_20261017/main.log`. The server keeps PID 4406,
+with log `System_20261017/server-cedar10.log`. Real C is held for Initial's
+BFN113 selection. Startup is under observation: this is not yet a Cedar
+boot qualification. Native11 is a second fit of the same RTL with optional
+physical optimization enabled except retiming; no storage experiment is
+included in either candidate.
 
 **The native Pilot medium requires a different format.**
 `PilotDiskDefs.mc!1` and `PilotDisk.mc!1` specify drive 0's emulated geometry:
