@@ -325,6 +325,29 @@ buildable. `Dorado_Native6_20261017` is compiling this change separately;
 Native3/4/5 remain first cold-start candidates and have the older field tie.
 No claim of a Cedar display on hardware is made yet.
 
+**Native4 timing review.** The first corrected RBF fits at 35,234 ALMs,
+44,170 registers and 178 RAM blocks. Its initial timing report has core
+setup +1.857 ns and three data hold failures (-0.098, -0.094, -0.083 ns)
+from `dorado_storage_group.write_data` to that same group's `saved_data`.
+These are mutually exclusive transfers: a new DRAM write implies
+`write_pending=0`; an advancing machine clock requires `ready`, hence a
+cache hit; together those make `req_valid=0`, disabling `saved_data` on
+the source-changing edge. While a write is pending, the delayed CAS/WE
+controls are both low and cannot recapture `write_data`.
+`native_timing.sdc` excludes only those three instances' own data hold
+checks. Next-edge setup and request/control timing remain checked.
+Simulation assertions guard the exclusion's conditions; group and complete
+board equivalence pass with 254 and 7,872 writes respectively. The RBF
+itself is unchanged. Initial timing and detailed paths are preserved in
+`reports/2026-10-17-native4/`; repeated full timing passes every reported
+check, with core setup +1.857 ns and hold +0.110 ns. The unchanged RBF
+SHA256 is `ecca2fbcfe514800a71465ffe3276ac5afa214b7a4caac57166aa59f4ec8da94`.
+It is now loaded using `DoradoRTL_Cedar3_20261017/Cedar3.mgl`, with the
+separate Pilot pack and a real held C key for BFN113 selection. Hardware
+has reached the firmware's spin-up delay; no network boot request yet.
+Native5's different placement has clean core hold but an HDMI setup failure
+of -0.030 ns, and has not been loaded.
+
 **The native Pilot medium requires a different format.**
 `PilotDiskDefs.mc!1` and `PilotDisk.mc!1` specify drive 0's emulated geometry:
 real cylinder = virtual cylinder MOD 815, real head = virtual cylinder / 815,

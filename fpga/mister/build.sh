@@ -100,6 +100,8 @@ sys.exit(0 if json.load(open(sys.argv[1])).get('native') else 1)
 NATIVE_JSON
     then
       echo 'set_global_assignment -name VERILOG_MACRO DORADO_NATIVE'
+      cp "$HERE/native_timing.sdc" "$OUT/native_timing.sdc"
+      echo 'set_global_assignment -name SDC_FILE native_timing.sdc'
     else
       echo 'set_global_assignment -name VERILOG_MACRO DORADO_CHECKPOINT'
     fi

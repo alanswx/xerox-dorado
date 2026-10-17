@@ -64,8 +64,16 @@ module dorado_storage_group #(
     end
     // synthesis translate_off
     initial if(WIDTH<1 || WIDTH>16)$fatal(1,"storage group does not fit one raw word");
-    always @(posedge machine_clk)
+    always @(posedge machine_clk) begin
         if(!ready)$fatal(1,"Dorado clock advanced while storage group was stalled");
+        // native_timing.sdc's data-only hold exception relies on these:
+        // a pending write leaves both delayed DRAM controls low, and a new
+        // write cannot also capture a host request on this same edge.
+        if(write_pending && (cas_d || we_d))
+            $fatal(1,"Pending storage write has inconsistent DRAM controls");
+        if(!ras_n && !cas_n && !we_n && (cas_d || we_d) && req_valid)
+            $fatal(1,"Storage write_data changed while saved_data was enabled");
+    end
     // synthesis translate_on
 endmodule
 `default_nettype wire

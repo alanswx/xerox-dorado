@@ -1,0 +1,3 @@
+Storage equivalence with native timing precondition assertions enabled
+STORAGE-GROUP PASS:        4009 logical chip cycles,        4257 requests,         254 writes, all 262144 backing bits identical
+STORAGE-BOARD PASS:       12012 complete-board cycles,        2976 DDR reads,        7872 writes,        1111 output transitions, all 2359296 stored bits identical
