@@ -1,7 +1,7 @@
 # Phase 2: what the Sil files give the Verilog, and how to test it
 
 **Active work (2026-10-17): Cedar on MiSTer14.** Use the
-[current handoff and TODO checklist](verilog-handoff.md#current-todos-2026-10-17-native21).
+[current handoff and TODO checklist](verilog-handoff.md#current-todos-2026-10-17-native23).
 Native21 is committed/pushed and running on the FPGA. The original Cedar
 image loads and all8960 germ source words check correctly. Xerox's cursor
 font decodes the actual FPGA's tiny display as810 (`germStarting`). It then

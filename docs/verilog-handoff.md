@@ -19,10 +19,10 @@ MC10170's legacy output inversion. The physical XOR fixes Mesa's signed-jump
 condition. CompactVM previously treated equal bounds as less-than, vacated
 VP 3e02..3e05 and faulted on its local frame at 3e056e. Canonical generator and
 regenerated ProcH now select LEGACY_B_INVERT=0 at this package only.
-Signed-compare regression passes 256 vectors; frozen old RTL fails0-0-1.
+Signed-compare regression passes 256 vectors; frozen old RTL fails 0-0-1.
 Compute, module-switch and map-buffer-hold regressions pass. The older
 alu-diff probe now asserts overflow on all four documented signed add/subtract
-operations (previously informational only):10752 vectors pass, including1024
+operations (previously informational only): 10,752 vectors pass, including 1,024
 signed-overflow cases. signed-compare-test also protects the board override.
 
 **Diagnostic progress:** a layout-audited RTL replay preserves all four germ
@@ -37,7 +37,7 @@ path is given.
 
 | Active job | Session / process | Location / next check |
 | --- | --- | --- |
-| Native23 Quartus |6695; remote fitter2159605 | misterubuntu:/home/alans/mister/Dorado_Native23_20261017/core; routing. Local native23-build.log. Inspect STA/clock reports before hardware test. |
+| Native23 Quartus | Build complete; detailed hold review session35941 | misterubuntu:/home/alans/mister/Dorado_Native23_20261017/core. Fit/assembly/STA complete. Setup passes; three hold paths at -0.023 ns need review. Zero illegal/unconstrained clocks. |
 | Native23 cold DDR220M |67681; local60378 | cedar-native23-ddrcheck.log; verilog/verilator/obj_native_rom_cedar_native23ddr; SYSPER4. Passive copy trace enabled at61252022, from85000000, before copy. No guest-state writes. |
 | Constrained software desktop control |28760 | cedar-2mb-desktop/; restores paired3B snapshot/PDI, Guest+two Returns at3.1B,36B limit, periodic PGMs and FTP trace. Capacity evidence only. |
 
@@ -77,7 +77,7 @@ cedar10-launch/type-keys.py, mister_mouse.py. Allow the original firmware's
 ~4.5 min startup before concluding it is stuck. Never use +frame or overwrite
 the Executive/golden artifacts. Actual screenshots are required for OS claims.
 
-## Current TODOs (2026-10-17, Native21)
+## Current TODOs (2026-10-17, Native23)
 
 - [x] Reproduce the four-module source corruption in a cold RTL boot.
 - [x] Fix MemX j01 selection timing; old RTL fails the captured module switch.
@@ -92,6 +92,7 @@ the Executive/golden artifacts. Actual screenshots are required for OS claims.
 - [x] Finish actual DDR-adapter cold200M run and extended original-storage run;
   both reproduce the post-entry loop. Keep POD restores diagnostic only.
 - [x] Isolate the CompactVM signed-jump polarity and pass the captured equality path.
+- [x] Complete Native23 full Quartus fit/assembly (84% ALMs, 178 M10Ks).
 - [ ] Review Native23 Quartus setup/hold and clock coverage; test on MiSTer14
   with the passing focused regression/replay and a fresh pack. Finish the
   full cold DDR qualification in parallel before declaring the build qualified.
@@ -107,6 +108,17 @@ the Executive/golden artifacts. Actual screenshots are required for OS claims.
   regressions. Space Invaders compatibility remains a separate open item.
 
 ## Investigation diary (historical; current state above takes precedence)
+
+**Native23 build complete, 20:14 UTC.** Full map/fit/assembly/STA/audit complete.
+Fit took 51m28s wall, 35,041 ALMs (84%), 178 M10Ks, 35 DSPs. Setup passes
+(minimum 2.886 ns); three hold paths are -0.023 ns and are under detailed
+review before deployment. No illegal or unconstrained clocks. External I/O
+coverage remains the framework's separate limitation. No RBF loaded yet.
+Cold DDR run has passed 121M; partial source-copy audit has 8,931 sampled
+words and zero unexpected mismatches. Final cold summaries are still pending.
+The constrained software control at 30B is still loading DFPackage, so desktop
+capacity remains unresolved; its login screen is verified.
+
 
 **Current FPGA RAM/map geometry reaches Cedar login in software, 19:47 UTC.**
 Fresh3B controls complete:2MB/map16K28604 px, stock8MB/map64K28601 px.
