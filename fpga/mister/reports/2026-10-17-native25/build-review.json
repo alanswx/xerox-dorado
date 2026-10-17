@@ -1,0 +1,12 @@
+{
+  "timing_checks": 29,
+  "minimum_slack_ns": 0.071,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "rbf_sha256": "3a8eee4094b9d652bad276a139cf76f1a0abd627d92a21d8df92354bbf31b3c7",
+  "functional_change": "DskEth k04 receive-full B captures setup Input; RxBOP A unchanged",
+  "hold_review": "MemX c21 a_lat[1] -> own4 write-address bit1 endpoints, -.048ns slow. Exact1source/4sinks; capture!p13 versus write p13&&!we_d&&ce_lat mutually exclusive. Hold-only; setup/read/data/enables remain checked.",
+  "deployed": "MiSTer14; original firmware/BFN113 complete; real Cedar login and Guest keyboard accepted",
+  "cold_ddr_120M": "PASS; original Initial/Cedar payload, germ entry,8931 samples/no mismatches, IFU active, all6 hardware errors enabled and clean",
+  "scope": "CPU manifold cold qualification plus actual FPGA firmware/OS login. Viewers/CommandTool/Echo/mouse remain open; receive-buffer bytes not coherently recaptured."
+}

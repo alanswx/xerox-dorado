@@ -14,5 +14,5 @@
   "MSA_default_equivalence": "12012 full cycles /2359296 bits pass",
   "native64_elaboration": "pass",
   "cold500M": "running; partial8880 words/no mismatches/germ entry, below existing8900 minimum, not qualified",
-  "FPGA": "separate fit active; no timing qualification or deployment"
+  "FPGA": "Fit/review pass29 checks,min+0.074ns, no illegal/unconstrained clocks; cold/hardware qualification pending"
 }

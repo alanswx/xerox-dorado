@@ -2,14 +2,14 @@
 
 **Active work (2026-10-17): Cedar on MiSTer14.** Use the
 [current handoff and TODO checklist](verilog-handoff.md#current-todos-2026-10-17-fpga-boot).
-Native23 corrected the signed-compare bug that vacated the germ's own pages;
-its full220M cold DDR gate passes. Native24b is on the FPGA and boots original
-firmware, requests Cedar, loads from disk, and reads service replies through
-EOP with good hardware/CPU status. Cedar still retries routing; no OS text or
-interactive prompt yet. Earlier physical DDR captures suggest a duplicated
-first receive word. Native25's receive-full setup-capture correction passes
-focused tests and is in cold/fitted qualification. Experimental Native26 adds
-8MB RAM/64K Map; component gates pass, full cold/timing/hardware checks remain.
+Native25 now displays the real Cedar login and accepted `Guest` plus two
+Returns on MiSTer14. The receive-full setup-capture fix clears the earlier
+service-reply wait. Cold DDR120M and all29 timing checks pass (+0.071ns
+minimum). Post-login Basic.Loadees fails real label checks because synthetic media
+labels omit File.FP address hints; an offline media correction is in test. Viewers,
+CommandTool `%`, `Echo FPGA` and mouse interaction remain open. Native26
+adds8MB RAM/64K Map; component gates and reviewed timing pass (+0.074ns),
+but cold coverage/hardware qualification remain incomplete.
 The roadmap below is historical.
 
 **2026-08-08.** Written while cross-checking the C emulator against the board

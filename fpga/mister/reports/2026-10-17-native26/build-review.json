@@ -1,0 +1,11 @@
+{
+  "timing_checks": 29,
+  "minimum_slack_ns": 0.074,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "rbf_sha256": "586dc7f898709491813bd13deff59cec160be1ac620998cb757dd15e4f3bf4db",
+  "hold_review": "DskEth d08/e16 and MemC g02 own write-address bit1 only, each exact1source/4sinks. Unchanged F10145A captures !p13, commits p13&&!we_d&&ce_lat. Mutually exclusive; hold-only. Setup/read/data/enables remain timed.",
+  "external_io_limit": "Framework retains unconstrained external I/O paths; see full report.",
+  "cold_qualification": "Incomplete: prototype sampled8880 germ words/no mismatches, below existing8900 minimum.",
+  "deployed": false
+}

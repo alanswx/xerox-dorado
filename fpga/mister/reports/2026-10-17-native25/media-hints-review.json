@@ -1,0 +1,74 @@
+{
+  "files": [
+    {
+      "volume_base": 84,
+      "file_id": [
+        1,
+        0
+      ],
+      "logical_header_page": 1
+    },
+    {
+      "volume_base": 84,
+      "file_id": [
+        4,
+        0
+      ],
+      "logical_header_page": 1115
+    }
+  ],
+  "changed_labels": 45,
+  "changed_pages": [
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    1199,
+    1200,
+    1201,
+    1202,
+    1203,
+    1204,
+    1205,
+    1206,
+    1207,
+    1208,
+    1209,
+    1210,
+    1211,
+    1212,
+    1213,
+    1214,
+    1215,
+    1216,
+    1217,
+    1218,
+    1219,
+    1220,
+    1221,
+    1222,
+    1223,
+    1224
+  ],
+  "source_sha256": "9649afb8899993066db9cfd89070219ad4283398b23a6cd7d274277b46acffe1",
+  "output_sha256": "74287fde5b229b05cf227acfd4a03cf5fd1d91d80f609826852631769b779cd9",
+  "validation": "All changed bytes confined to label words2-3 on45 pages; every data byte/other label field unchanged; idempotent; logical-root FPs independently match header-derived hints.",
+  "hardware_result": "Native25h same RBF, fresh corrected offline pack deployed; original firmware startup in progress",
+  "pack_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "C_control": "Strict original C comparison also exposes existing per-sector attribute clearing (word7). Follow-up diagnostic will retain flag workaround but enforce DA hints. No C result is FPGA proof."
+}

@@ -15,3 +15,7 @@ words with no mismatch and germ entry, below the existing8900 minimum; it
 is not qualified. Review missing coverage, final IFU/image/error summaries,
 routed timing and actual firmware startup before claiming FPGA behavior.
 No Native26 image has been deployed and no desktop claim is made.
+
+Fit/review now complete:29 timing checks pass, minimum+0.074ns, zero
+illegal/unconstrained clocks. Exact own-address hold-only reviews and full
+fast/slow violating paths are included. No FPGA deployment yet.

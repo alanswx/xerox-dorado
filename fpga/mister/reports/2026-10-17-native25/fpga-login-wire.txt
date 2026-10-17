@@ -1,0 +1,122 @@
+[bootdir] 206b AltoTime req -> 207b reply, dPort net=0o1 host=0o42 (teaches NetExec net 0o1)
+TX n=16: 000042 001000 000034 000223 000000 000000 000000 000000 000004 000042 000017 062001 000042 000000 000000 176622
+[bootdir] TX other type=0o223
+PUP_ADDRLOOKUP -> AddressIs "Dorado" (queried 000000/0/4)
+ADDRESSLOOKUP reply: host=0o42 name=Dorado
+TX n=16: 000042 001000 000034 000223 000001 000001 000000 000000 000004 000042 000017 062001 000042 000000 000000 004623
+[bootdir] TX other type=0o223
+PUP_ADDRLOOKUP -> AddressIs "Dorado" (queried 000000/0/4)
+ADDRESSLOOKUP reply: host=0o42 name=Dorado
+TX n=16: 000042 001000 000034 000223 000002 000002 000000 000000 000004 000042 000017 062001 000042 000000 000000 012623
+[bootdir] TX other type=0o223
+PUP_ADDRLOOKUP -> AddressIs "Dorado" (queried 000000/0/4)
+ADDRESSLOOKUP reply: host=0o42 name=Dorado
+TX n=16: 000042 001000 000034 000223 000003 000003 000000 000000 000004 000042 000017 062001 000042 000000 000000 020623
+[bootdir] TX other type=0o223
+PUP_ADDRLOOKUP -> AddressIs "Dorado" (queried 000000/0/4)
+ADDRESSLOOKUP reply: host=0o42 name=Dorado
+TX n=16: 000042 001000 000034 000223 000004 000004 000000 000000 000004 000042 000017 062001 000042 000000 000000 026623
+[bootdir] TX other type=0o223
+PUP_ADDRLOOKUP -> AddressIs "Dorado" (queried 000000/0/4)
+ADDRESSLOOKUP reply: host=0o42 name=Dorado
+TX n=16: 000042 001000 000034 000223 000005 000005 000000 000000 000004 000042 000017 062001 000042 000000 000000 034623
+[bootdir] TX other type=0o223
+PUP_ADDRLOOKUP -> AddressIs "Dorado" (queried 000000/0/4)
+ADDRESSLOOKUP reply: host=0o42 name=Dorado
+TX n=16: 000042 001000 000034 000223 000006 000006 000000 000000 000004 000042 000017 062001 000042 000000 000000 042623
+[bootdir] TX other type=0o223
+PUP_ADDRLOOKUP -> AddressIs "Dorado" (queried 000000/0/4)
+ADDRESSLOOKUP reply: host=0o42 name=Dorado
+TX n=16: 000042 001000 000034 000223 000007 000007 000000 000000 000004 000042 000017 062001 000042 000000 000000 050623
+[bootdir] TX other type=0o223
+PUP_ADDRLOOKUP -> AddressIs "Dorado" (queried 000000/0/4)
+ADDRESSLOOKUP reply: host=0o42 name=Dorado
+TX n=16: 000042 001000 000034 000223 000010 000010 000000 000000 000004 000042 000017 062001 000042 000000 000000 056623
+[bootdir] TX other type=0o223
+PUP_ADDRLOOKUP -> AddressIs "Dorado" (queried 000000/0/4)
+ADDRESSLOOKUP reply: host=0o42 name=Dorado
+TX n=16: 000042 001000 000034 000223 000011 000011 000000 000000 000004 000042 000017 062001 000042 000000 000000 064623
+[bootdir] TX other type=0o223
+PUP_ADDRLOOKUP -> AddressIs "Dorado" (queried 000000/0/4)
+ADDRESSLOOKUP reply: host=0o42 name=Dorado
+TX n=13: 000042 001000 000026 000206 000017 061007 000000 000000 000004 000042 000017 062002 040103
+[bootdir] TX other type=0o206
+[bootdir] 206b AltoTime req -> 207b reply, dPort net=0o1 host=0o42 (teaches NetExec net 0o1)
+TX n=13: 000042 001000 000026 000206 000017 061007 000000 000000 000004 000042 000017 062002 040103
+[bootdir] TX other type=0o206
+[bootdir] 206b AltoTime req -> 207b reply, dPort net=0o1 host=0o42 (teaches NetExec net 0o1)
+Dorado Pup server listening on /tmp/dorado-net.sock (raw frames, no CRC/status)
+TX n=13: 000042 001000 000026 000264 000001 000113 000000 000000 000004 000042 000001 000001 177777
+[bootdir] TX uCodeBoot(264) type=0o264
+FTP_UNSERVED type=0o264 id=0001004b d=000000/0/4 s=000042/1/1
+FTP_UNSERVED body len=0 words:  text=""
+TX n=13: 000042 001000 000026 000264 000001 000113 000000 000000 000004 000042 000001 000001 177777
+[bootdir] TX uCodeBoot(264) type=0o264
+FTP_UNSERVED type=0o264 id=0001004b d=000000/0/4 s=000042/1/1
+FTP_UNSERVED body len=0 words:  text=""
+TX n=13: 000042 001000 000026 000200 000000 000000 000000 000000 000002 000042 000000 000002 054465
+[bootdir] TX other type=0o200
+[bootdir] 200b GatewayInfo req -> 201b reply, dPort net=0o1 host=0o42 (teaches NetExec net 0o1)
+TX n=13: 000042 001000 000026 000206 000017 051430 000400 000000 000004 000442 000017 052000 170267
+[bootdir] TX other type=0o206
+[bootdir] 206b AltoTime req -> 207b reply, dPort net=0o1 host=0o42 (teaches NetExec net 0o1)
+TX n=16: 000042 001000 000034 000223 000000 000000 000400 000000 000004 000442 000017 052001 000442 000000 000000 042624
+[bootdir] TX other type=0o223
+PUP_ADDRLOOKUP -> AddressIs "Dorado" (queried 000400/0/4)
+ADDRESSLOOKUP reply: host=0o42 name=Dorado
+TX n=21: 000042 001000 000046 000220 000000 000000 000400 000000 000004 000442 000017 052002 043562 060560 062566 064556 062522 051545 071166 062562 146627
+[bootdir] TX other type=0o220
+FTP_NETDIR request id=00000000 src=000442/17/52002 text="GrapevineRServer"
+FTP_NETDIR prime route
+FTP_QUEUE type=0o201 id=00000000 bytes=4 d=000442/0/2 s=000401/0/2 rx_words=17
+TX n=21: 000042 001000 000046 000220 000001 000001 000400 000000 000004 000442 000017 052002 043562 060560 062566 064556 062522 051545 071166 062562 046631
+[bootdir] TX other type=0o220
+FTP_NETDIR request id=00010001 src=000442/17/52002 text="GrapevineRServer"
+FTP_NETDIR lookup GrapevineRServer -> GV
+FTP_QUEUE type=0o221 id=00010001 bytes=6 d=000442/17/52002 s=000401/0/4 rx_words=18
+TX n=14: 000042 001000 000030 000001 000001 000001 000400 000000 000052 000442 000017 052003 000000 127346
+[bootdir] TX other type=0o1
+FTP_QUEUE type=0o2 id=00010001 bytes=2 d=000442/17/52003 s=000401/0/52 rx_words=16
+TX n=14: 000442 001000 000030 000001 000001 000001 000401 000000 000052 000442 000017 052003 000001 127550
+[bootdir] TX other type=0o1
+FTP_QUEUE type=0o2 id=00010001 bytes=2 d=000442/17/52003 s=000401/0/52 rx_words=16
+TX n=16: 000442 001000 000034 000010 000017 051431 000401 000000 000050 000442 000017 052004 000442 000017 052004 027515
+[bootdir] TX other type=0o10
+FTP_RFC conn=000f5319 client=000442/17/52004 server=000401/0/50 slot=0
+FTP_QUEUE type=0o10 id=000f5319 bytes=6 d=000442/17/52004 s=000401/0/50 rx_words=18
+FTP_QUEUE type=0o22 id=000f5319 bytes=6 d=000442/17/52004 s=000401/0/50 rx_words=18
+TX n=16: 000442 001000 000034 000022 000017 051431 000401 000000 000050 000442 000017 052004 002706 000040 076400 043252
+[bootdir] TX other type=0o22
+FTP_IN type=0o22 id=000f5319 len=28 rx_next=000f5319 tx_next=000f5319 wait=0 mode=0
+FTP_ACK ack=000f5319 alloc=32*1478 bytes
+TX n=24: 000442 001000 000054 000021 000017 051431 000401 000000 000050 000442 000017 052004 000011 000010 000000 043565 062563 072056 070141 000000 000000 000000 000000 124723
+[bootdir] TX other type=0o21
+FTP_IN type=0o21 id=000f5319 len=44 rx_next=000f5319 tx_next=000f5319 wait=0 mode=0
+GV_AUTH request bytes=22 op=0009
+FTP_QUEUE type=0o22 id=000f532f bytes=6 d=000442/17/52004 s=000401/0/50 rx_words=18
+FTP_QUEUE type=0o21 id=000f5319 bytes=2 d=000442/17/52004 s=000401/0/50 rx_words=16
+FTP_WINDOW data=2 ack=1 mode=0 in_flight=1/16
+TX n=16: 000442 001000 000034 000022 000017 051433 000401 000000 000050 000442 000017 052004 002706 000037 076400 047246
+[bootdir] TX other type=0o22
+FTP_IN type=0o22 id=000f531b len=28 rx_next=000f532f tx_next=000f531b wait=1 mode=0
+FTP_ACK ack=000f531b alloc=31*1478 bytes
+TX n=13: 000442 001000 000026 000021 000017 051457 000401 000000 000050 000442 000017 052004 012277
+[bootdir] TX other type=0o21
+FTP_IN type=0o21 id=000f532f len=22 rx_next=000f532f tx_next=000f531b wait=0 mode=0
+FTP_QUEUE type=0o22 id=000f532f bytes=6 d=000442/17/52004 s=000401/0/50 rx_words=18
+TX n=13: 000442 001000 000026 000021 000017 051457 000401 000000 000050 000442 000017 052004 012277
+[bootdir] TX other type=0o21
+FTP_IN type=0o21 id=000f532f len=22 rx_next=000f532f tx_next=000f531b wait=0 mode=0
+FTP_QUEUE type=0o22 id=000f532f bytes=6 d=000442/17/52004 s=000401/0/50 rx_words=18
+Dorado net: flags=5 tx_words=13 good=14 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=908a0000 state=472a cpu=30722c02
+Dorado net: flags=5 tx_words=13 good=14 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=908a0000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=14 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=908a0000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=908a0000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=918b0000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=918b0000 state=47ef cpu=30725725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=918b0000 state=47ef cpu=30725725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=918b0000 state=472f cpu=30725725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=918b0000 state=472a cpu=30722c02
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=918b0000 state=47ef cpu=30725725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=918b0000 state=47ef cpu=30725725
+Dorado net: flags=5 tx_words=13 good=15 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=918b0000 state=47ef cpu=30725725

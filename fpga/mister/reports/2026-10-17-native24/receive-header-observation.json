@@ -71,5 +71,11 @@
       "616e"
     ]
   },
-  "next": "Trace actual first-word Input and Store phases; distinguish duplicate bus consumption from an extra/shifted first store before applying an RTL fix."
+  "next": "Trace actual first-word Input and Store phases; distinguish duplicate bus consumption from an extra/shifted first store before applying an RTL fix.",
+  "software_login_phase_reference": {
+    "snapshot": "cedar-capacity-3b/ram2-map16/three-billion.snap",
+    "scope": "before Guest/Basic.Loadees, normal C IOCB bridge",
+    "physical_packet_start": "0x30a12",
+    "prefix": "2201 0200 001c 0094; no duplicated first word"
+  }
 }

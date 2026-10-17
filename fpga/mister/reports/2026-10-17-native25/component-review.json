@@ -9,6 +9,6 @@
   "complete_held_receive_sequence": "pass:12 payload words, CRC3b50, EOP/status00",
   "good_and_damaged_crc": "pass at8 phases",
   "Cedar_wait_cause": "plausible, not yet established on FPGA",
-  "cold_ddr": "120M fresh run active; not qualified yet",
-  "fpga": "fit active; no image programmed"
+  "cold_ddr": "120M PASS:8931 germ samples,0 mismatch,original images/IFU/all6 enabled error sources clean",
+  "fpga": "deployed timing-reviewed RBF3a8eee40...; original firmware boot pending"
 }

@@ -3,43 +3,57 @@
 ## Current objective (2026-10-17 UTC)
 
 **Boot Cedar on the FPGA, log in, reach Viewers, type `Echo FPGA`, and verify
-keyboard/mouse interaction. This goal is incomplete: no Cedar OS text is visible
-on the FPGA yet.** C snapshots and host IOCB completion do not qualify.
+keyboard/mouse interaction. Native25 now displays Cedar login and accepted
+`Guest` plus two Returns through the FPGA keyboard path. Viewers and an
+interactive CommandTool prompt remain incomplete.** C snapshots and host IOCB completion do not qualify.
 
-## Current state (Native24b receives clean-status replies; Native25/26 testing)
+## Current state (Native25 displays Cedar login; Native26 timing passes)
 
-Native23 fixes ProcH d13's extra MC10170 output inversion. CompactVM previously
-treated equal bounds as less-than, vacated its own germ pages, and faulted at
-VA `3e056e`. The canonical generator now selects the physical XOR at d13 only.
-The 256-vector board regression passes and frozen old RTL fails the captured
-`0-0-1` equality case. The ALU differential gate passes 10,752 vectors, including
-1,024 asserted signed-overflow cases. Compute, module-switch and map-buffer-hold
-regressions pass. Functional fix: `fd52288d`; stronger ALU gate: `fe1d4bb0`.
+**Native25 login is proved; Native25h is now booting on MiSTer14.** The original BaseBoard firmware requested
+BFN113, disk-loaded Cedar started, and the actual FPGA raster displays
+`Please login` / `Name:`. Keyboard injection of `Guest\n\n` reached Cedar:
+the server received the real Guest.pa authentication request and the display
+shows Guest with the Grapevine-down fallback. This is real RTL CPU, disk and
+serial Ethernet; no C-state import or host IOCB completion. Evidence:
+`fpga/mister/reports/2026-10-17-native25/fpga-first-os-check.png`,
+`fpga-after-guest.png` and `fpga-post-login.png`.
 
-The full cold DDR **220M run passes**: 8,931 sampled original germ words, zero
-unexpected mismatches; original Initial and Cedar image checks pass; IFU counts
-3,955,997 / 3,956,778; all six error sources enabled for 206,611,683 samples without
-error. It uses actual DDR adapters and whole-machine pauses, but substitutes
-correctly paced Pendulum/Refresh rather than qualifying BaseBoard firmware.
-Report: `fpga/mister/reports/2026-10-17-native23/cold-ddr-220m.json`.
+DskEth k04 B now samples Input setup before clk1 (`bedb99cd`). The old
+post-edge behavior misses retiring Input or consumes a newly enabled Input
+early. Both mutation-sensitive setup regressions and the full held-word /
+CRC / EOP sequence pass. Native25 advances through routing, time and name
+service on hardware, where Native24b retried. The exact physical receive
+buffer has not been recaptured coherently; do not claim its bytes verified.
 
-The full FPGA fit passes all 29 timing checks (minimum +0.097 ns), with no
-illegal/unconstrained clocks. The three ContA e04 write-address hold exceptions
-are reviewed, exact and hold-only; setup/read/data/enables remain checked.
-Native23 was loaded on **10.0.2.14** with a fresh pack; it is now superseded
-by Native24b, the same functional RTL with corrected passive receive observation. Original firmware emitted
-a new BFN113 at 20:20, and the held C key released. A read-only DDR observation
-contains **964 exact nonzero pages of BasicCedarDorado.boot!22**. It has left the
-old queue loop and sends routing, time and address-lookup packets. It learned
-network 1 and returns Pup NoSocket errors for obsolete broadcasts. Screenshots
-still show only the maintenance cursor. No login/desktop/input claim.
+Native25 cold DDR120M passes: original Initial/Cedar images, germ entry,
+8,931 sampled germ words / zero mismatches, IFU670280/670434 and all six
+hardware errors enabled/clean for106611683 samples. Timing passes all29
+checks (minimum+0.071ns), no illegal/unconstrained clocks. Exact MemX c21
+own write-address hold-only exceptions are documented in the report. Its
+geometry is still2MB RAM/16K Map.
 
-The STP dispatcher swallowed socket-2/type-200 routing probes as file lookups.
-Fixed in `3347212a`; captured old-server test fails, native and ARM routing,
-BFN113 and 66KB STP tests pass. The replacement server is active without a Main
-or FPGA restart. Directed service replies are still retried. Complete logged
-FPGA TX requests have valid Pup checksums; frames over 32 words are truncated
-in the log and cannot be checked from that log.
+**Post-login blocker identified:** LoaderDriver cannot open either
+`Basic.Loadees` path: `File.FP from directory/cache doesn't correspond to a
+local volume file`, then `Can't find any command file`. This exactly matches
+the known synthetic-PDI zero-DA-hint defect documented in docs/handoff.md.
+C's `DORADO_PDI_IGNORE_LABEL_FLAGS` bypasses both hint words; real RTL checks
+them. New `tools/pdi_stamp_file_hints.py` corrects a separate offline copy:
+45 labels for VAM/client files, logical hints1/1115 derived from first headers
+and independently checked against logical-root FPs. Every file data byte,
+other label field and boot-only file remains unchanged; idempotence passes.
+Strict C control also exposes the existing attribute-clear workaround; it
+cannot independently qualify hint-only repair without separating the two
+compatibility behaviors. Diagnostic C build enforces DA while retaining the
+attribute workaround; do not confuse it with FPGA proof.
+Native25h is now deployed with the identical qualified RBF and corrected pack;
+original firmware startup is in progress (C watcher7588, boot pulses78961).
+no live guest-memory repair. Viewers/%/Echo/mouse remain open.
+
+Native26 expands to8MB RAM/64K Map and retains the receive fix. Fit and
+reviewed timing pass29 checks (minimum+0.074ns), no illegal/unconstrained
+clocks. Exact DskEth d08/e16 and MemC g02 same-cell address holds are
+reviewed. It has not been deployed. The larger-memory cold prototype is
+still below the source-sampling coverage gate; it is not qualified.
 
 ## Active work
 
@@ -47,12 +61,12 @@ Scratch names below are relative to `build/rtl-executive/`.
 
 | Work | Session | Location / next action |
 | --- | --- | --- |
-| Native24b hardware | Boot COMPLETE | MiSTer14, `Cedar24b_20261017/main.log`; fresh BFN113 requested, C released. Routing retries persist. Corrected CPU/FIFO EOP counts advance together on replies, both status00. Early raw DDR had no matching packet headers (cache not captured), so no new buffer-content claim. |
+| Native25 hardware | Boot/login COMPLETE;25h booting | MiSTer14, `Cedar25_20261017/main.log`; RBF3a8eee40..., fresh baseline pack, server11387. Original firmware/BFN113 complete; actual Cedar login and Guest keyboard accepted. 25h fixes offline label hints, firmware startup active. |
 | Corrected CPU monitor | Fit/review COMPLETE | Native24b passes29 checks,min+0.080ns, no illegal/unconstrained clocks. Exact MemC f06/j07/d06 same-cell hold review in native24b reports. CPU EOP tap corrected to18; clean CPU status observed on directed replies. |
-| Server diagnostics | Quiet-after-Cedar RESTORED | server1d5e05e9..., PID10523, logserver-cedar23-route.log. Delay/nil/link-broadcast diagnostics did not clear retries. Restart this server before another core load to restore initial BOL, since quiet sessions can reuse Main's same PID/socket path. |
-| Native25 receive-full correction | Fit69484; cold9975 | `native25-build.log`, `cedar-native25-ddrcheck.log` (120M limit,SYSPER4). k04 B captures setup; old-fail/new-pass, held sequence and8 CRC phases pass. Not yet on FPGA or a proved Cedar blocker fix. First cold attempt accidentally defaulted to16; stopped/rejected, retained sysper16-rejected.log. Recipe now pins4. |
+| Server diagnostics | Quiet-after-Cedar RESTORED | server1d5e05e9..., PID12085, logserver-cedar23-route.log. Delay/nil/link-broadcast diagnostics did not clear retries. Restart this server before another core load to restore initial BOL, since quiet sessions can reuse Main's same PID/socket path. |
+| Native25 receive-full correction | Cold120M/fit/review COMPLETE | 8931 sampled germ words/no mismatch, original Initial/Cedar gates, IFU670280/670434, all6 errors enabled/clean106611683 samples. Timing29 checks,min+0.071ns; exact MemX c21 own4 hold paths reviewed. Hardware now passes routing/time/name and displays Cedar login; Guest accepted. |
 
-| Native26 capacity build | 17871 | `misterubuntu:/home/alans/mister/Dorado_Native26_20261017/`, `native26-build.log`; four64K-chip modules/8MB physical RAM,64K map, Native25 k04 correction retained. Experimental; fit/timing/hardware qualification pending. |
+| Native26 capacity build | Fit/review COMPLETE | `misterubuntu:/home/alans/mister/Dorado_Native26_20261017/`, `native26-build.log`; four64K-chip modules/8MB physical RAM,64K map, Native25 k04 correction retained. Experimental; timing29 checks,min+0.074ns, no illegal/unconstrained clocks. Cold/hardware qualification pending. |
 | Four64K-module software control | COMPLETE24B | `cedar-64k-map64-control/`: fresh8MB RAM/64K map reaches Viewers (166685px), type2, VirtualBanks0100; valid geometry reference, software only. |
 | Larger-memory cold RTL | 32916; PID86868 | `cedar-density64-ddrcheck.log`,500M limit,SYSPER4, four64K-chip modules/64K map,actualDDR. `storage64-candidate/`; component prototype, not production. Bounded caffeinate session36354. |
 
@@ -62,10 +76,10 @@ which is the correct CPU-side EOP. Ignore machine-debug bytes23:16 and7:0
 on the deployed image. Bytes31:24 (FIFO EOP count) and15:8 (FIFO status)
 remain usable. Directed routing replies reach FIFO with status00; the initial
 BOL while the receiver starts had status20. This does not establish CPU receipt.
-The generator is corrected; Native24b changes only this passive tap and is
-building separately. Its timing must pass before programming. CPU task/PC
+The generator was corrected and Native24b deployed after timing review;
+Native25 now supersedes both images. CPU task/PC
 and machine-status fields remain available. RAM/clocks/functional packages
-match Native23. The hardware screenshot still has no Cedar OS text.
+match Native23. Those historical Native24 screenshots have no Cedar OS text; Native25 does.
 
 Fresh read-only physical DDR capture (`native24/raw-ddr-broadcast-observe.bin`)
 shows a candidate receive buffer at physical0x8604 with IOCB pointer0350.
@@ -86,9 +100,10 @@ Input retiring on clk1 is missed by post-edge JK capture, leaving the word
 unread; a newly enabled Input can also consume too early. PRECAP_B=1 fixes
 both setup cases, with A/RxBOP unchanged. Exact generated-board diff is one
 parameter. Full held-word receive and8 good/damaged-CRC phases pass. This is
-**not yet proved to cause Cedar's duplicated header**. Native25 fit and a
-fresh120M cold DDR run are underway; qualify timing and hardware before
-claiming the boot wait is fixed. Tests: ethernet-input-hold-test and
+**not yet verified by a coherent receive-buffer recapture**. Native25
+cold120M/timing pass and hardware advances through services to real Cedar
+login, accepting Guest. The earlier service wait is cleared; desktop boot
+is still open. Tests: ethernet-input-hold-test and
 ethernet-receive-sequence-test. Evidence: native25/component-review.json.
 
 ## Capacity findings — corrected at 20:43 UTC
@@ -123,29 +138,40 @@ zero mismatches; this is below the existing8,900 gate threshold (old16K run
 sampled8,931), so it is **not a pass**. Final IFU/image/error summaries and the
 missing sample coverage remain to review. Do not weaken the gate to claim success.
 
+Density prototype trace budget: at244,622,225 samples a validated exact-build
+LLDB write set only testbench n_tow=-1 to stop a repeatedly rearmed printf.
+No CPU/RAM/controller/clock/run-limit state changed. Script/log in
+storage64-candidate/stop_repeated_tow_lldb.py and trace-budget-lldb.log.
+The500M cold run continues normally. Do not confuse trace control with guest repair.
+
 ## Hardware and reproducibility
 
-Only **MiSTer14** is allocated. Other MiSTers are busy. Current Native24b image:
-`2cffe64309801e11fd000757bbfef04ed551b23efe408638ce5e472a1dc97e74`.
+Only **MiSTer14** is allocated. Other MiSTers are busy. Current Native25h image (same RTL as25):
+`3a8eee4094b9d652bad276a139cf76f1a0abd627d92a21d8df92354bbf31b3c7`.
+Previous Native24b image:2cffe643... (same functional RTL as23, corrected monitor).
 Previous Native24 image:1cdc35a2... (CPU monitor tap invalid).
 Previous Native23 image:
 `89726440d5d599a5b01428e4f29b54d3969064508191016e100375746ff765e2`.
 Fresh pack baseline: `c0cd6784ea9df43d669dab2c445b3a1a7241048ac87f10afa747927d931bad5c`.
-RBF/MGL: `/media/fat/_Computer/DoradoRTL_Cedar24b_20261017/`.
-Main log: `/media/fat/games/DoradoRTL/Cedar24b_20261017/main.log`.
+RBF/MGL: `/media/fat/_Computer/DoradoRTL_Cedar25h_20261017/`.
+Current corrected pack SHA256: `f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51`.
+Main log: `/media/fat/games/DoradoRTL/Cedar25h_20261017/main.log`.
+Prior25 evidence: `Cedar25_20261017/main-before-native25h.log` and
+`server-before-native25h.log`.
+Previous24b log: `Cedar24b_20261017/main-before-native25.log`.
 Previous24 log: `Cedar24_20261017/main-before-native24b.log`.
 Previous23 log: `Cedar23_20261017/main-before-native24.log`.
 
 Keep immutable Main `System_20261017/MiSTer-1fb2e098e6f0dba6`; never overwrite a
 running executable. Active boot-capable quiet server:
-`System_20261017/dorado-server-1d5e05e9d293b095`, PID10523,
+`System_20261017/dorado-server-1d5e05e9d293b095`, PID12085,
 log `server-cedar23-route.log`. Link-broadcast diagnostic8ecf6cf9... did not
 clear time retries; its separate log `server-cedar24-broadcast.log` is preserved.
 Default bdfd09ce..., Delay500 and nil500 binaries/logs are preserved; neither
 delay nor nil checksum resolved retries. Restart config points to the quiet
-server1d5e05e9... and Native24b core/MGL, cwd `System_20261017/dorado`, socket
+server1d5e05e9... and Native25h core/MGL, cwd `System_20261017/dorado`, socket
 `/tmp/dorado-net.sock`. Full STP root/all 34 Basic.Loadees are staged. Restart
-configuration: `Cedar24b_20261017/reboot-resume.json`.
+configuration: `Cedar25h_20261017/reboot-resume.json`.
 
 Helpers: `cedar23-launch/c-until-request.py`, `cedar3-launch/cool-boot.py` (three
 boot pushes ONCE), `cedar10-launch/type-keys.py`, `mister_mouse.py`. Loading a
@@ -182,18 +208,24 @@ and has unreviewed hold violations; never deploy it.
 - [x] Complete Native24 original firmware boot and inspect FIFO status.
 - [x] Review/deploy Native24b corrected EthData_18 EOP tap (29 checks,min+0.080ns).
 - [x] Complete Native24b firmware/BFN113; observe good CPU/FIFO EOP status on replies.
-- [ ] Qualify Native25 k04 setup-capture correction in cold DDR, timing and FPGA; inspect first receive header again.
+- [x] Qualify Native25 k04 correction in cold120M DDR and routed timing.
+- [x] Complete Native25 original firmware/BFN113; pass service replies and display Cedar login.
+- [x] Type Guest plus two Returns through the real FPGA keyboard; observe Guest.pa authentication.
+- [x] Identify post-login Basic.Loadees failure: synthetic file-label DA hints are zero.
+- [ ] Validate corrected offline hints with C bypass OFF, then original FPGA boot (Native25h).
+- [ ] Recapture the receive buffer coherently if byte-level header proof is needed.
 - [x] Add experimental64K geometry generator; pass cell, full MemX geometry,
   full MSA/DDR9,437,184-bit comparison and unchanged default-board gates.
 - [ ] Review Native26 cold source coverage8,880 versus old8,931 samples,
   final IFU/image/error summaries and complete Map protocol.
-- [ ] Qualify Native26 fit/timing and original firmware/hardware startup.
+- [x] Qualify Native26 fit/timing:29 checks,min+0.074ns, zero illegal/unconstrained clocks.
+- [ ] Qualify Native26 original firmware/hardware startup after reviewing cold coverage.
 - [ ] Resolve physical RAM and map capacity with enforced limits; the 16K
   advertised-only desktop control is invalid.
 - [ ] Qualify remaining fixture differences: native RAM/cache/map initialization,
   complete BaseBoard handoff, DDR pauses and HPS track-buffer timing.
 - [ ] Calibrate MC12061 and qualify original firmware startup/timers.
-- [ ] Display the real Cedar login, type Guest and two Returns, reach Viewers.
+- [ ] Reach the Viewers desktop and a live CommandTool `%` prompt.
 - [ ] Type `Echo FPGA`, capture OS output/new prompt, verify live keyboard/mouse.
 - [ ] Commit/push confirmed fixes and evidence; preserve Executive/mouse/disk
   regressions. Space Invaders compatibility remains a separate open item.
