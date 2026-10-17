@@ -8,6 +8,36 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Current frontier, 2026-10-17 10:56 UTC.** Actual FPGA still runs
+Native11 and stops at ROM Initial CD2; Cedar has not booted on FPGA.
+Native14 is routing with the Initial/MCR/register-parity and RIOT clock
+fixes. Native15 adds the Ethernet transmit setup fix and has entered fit.
+Require full STA plus zero illegal/unconstrained clocks before loading.
+Native15 frozen overlay SHA256:
+`a901ddf48c8043f4870141393797c76a735e8b0471f0fde6ac46c914cbffb4e0`.
+Its project is `misterubuntu:/home/alans/mister/Dorado_Native15_20261017/core`.
+Both builds have automatic post-STA clock audits.
+
+Original-ROM Initial's request used to start with stale FFFF and lose its
+last checksum word. DskEth l06 B (TxBusRegFull') sampled its next inputs,
+allowing a FIFO write before the bus register captured the new word.
+Per-half MC10135 capture parameters now allow PRECAP_B=1 there while
+preserving A's receive-data-late behavior. Applying PRECAP to both halves
+fixed transmit but failed damaged-CRC reception; that version was rejected.
+Canonical B-only RTL passes FIFO parity and all eight receive phases with
+good status and bad CRC rejection. `make -C verilog/verilator
+initial-network-test SYSPER=4` passes 31M samples: all six errors enabled
+for 17,611,683 samples, zero errors, 15 task initializations, and exactly
+13 Cedar request words, station 042B, BFN113B, legal nil Pup checksum and
+zero hardware CRC residue. These are component gates, not native boot.
+
+The real ARM server accepts that decoded request and serves 31,376 bytes
+in 62 data frames, byte-identical to CedarDorado.eb!6 after its 512-byte
+header (SHA256 `83c81946859858da2ebfd8802ea592343bf7622b8822763d73578e0696b65d4e`).
+A component receive run replays a real server BOL packet before the replies,
+providing the normal receiver packet boundary rather than masking data-late
+or patching guest state. It is still running; no world-handoff claim yet.
+
 **Native boot frontier, 2026-10-17 09:45 UTC.** Native10 and Native11
 independent placements reproduce CIA `6322B` (`0xcd2`), Stop=1, dStop=0,
 with instruction parity good and no network transmission. The ROM's Initial

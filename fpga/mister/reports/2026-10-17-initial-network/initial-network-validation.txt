@@ -1,0 +1,4 @@
+INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for 17611683 samples without error
+tb_exec: ETH -- XmtData' transitions 408, TWReq.06 (tx) high 240, TWReq.07 (rx) high 0, Output strobes to EData(015) 13, to EControl(016) 6, of 31003764
+- Verilator: $finish at 62us; walltime 250.664 s; speed 247.385 ns/s
+INITIAL NETWORK PASS: 13 exact request words, station 42B, BFN 113B, nil Pup checksum and zero hardware CRC residue

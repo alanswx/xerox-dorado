@@ -5123,7 +5123,7 @@ module DskEth_m_Rev_m_Cf #(parameter integer SYSPER = 16) (
     .p14(RxOff),
     .p15(RxOn)
   ); // MC10231
-  cell_MC10135 u_l06 (
+  cell_MC10135 #(.PRECAP_B(1)) u_l06 (
     .sys_clk(sys_clk),
     .p2(RxDataLate),
     .p5(bClkEn_p_),

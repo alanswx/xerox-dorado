@@ -985,6 +985,8 @@ riot-clock-test:
 	@cd ../.. && ./verilog/verilator/obj_riot_clock/riot-clock-test
 
 .PHONY: initial-rom-test
+INITIAL_ROM_CYCLES ?= 16000000
+INITIAL_ROM_ARGS ?=
 initial-rom-test:
 	@$(MAKE) -s -C ../../dorado build/baseboard_rom_dump build/im_image build/boot0_hunks
 	@mkdir -p obj_initial_rom obj_exec
@@ -1005,9 +1007,16 @@ initial-rom-test:
 		verilog/verilator/dorado_pack.sv verilog/cells/dorado_trident.v >/dev/null
 	@cd ../.. && ./verilog/verilator/obj_initial_rom/tb_initial \
 		+preload=verilog/verilator/obj_initial_rom/im.txt +start=3907 \
-		+cycles=$$((16000000 * $(SYSPER) / 4)) +mb0 +nostuck +terminal \
+		+cycles=$$(($(INITIAL_ROM_CYCLES) * $(SYSPER) / 4)) +mb0 +nostuck +terminal \
 		+pendulum +hasram +ioreset +fastwait +imparityon +keepmirdebug \
-		+cpu-manifold +paritysources +initial-rom-check
+		+cpu-manifold +paritysources +initial-rom-check $(INITIAL_ROM_ARGS)
+
+.PHONY: initial-network-test
+initial-network-test:
+	@$(MAKE) initial-rom-test INITIAL_ROM_CYCLES=31000000 \
+		INITIAL_ROM_ARGS='+terminal-key=21 +etherhost=34 +largeformat +xmtrec=verilog/verilator/obj_initial_rom/request.txt'
+	@cd ../.. && python3 tools/check_initial_request.py \
+		verilog/verilator/obj_initial_rom/request.txt --sysper $(SYSPER)
 
 .PHONY: firmware-probe
 firmware-probe:

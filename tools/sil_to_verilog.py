@@ -800,6 +800,15 @@ class Generator:
         # wired-OR result sets TxFifoPE when a FIFO word is consumed.
         ('DskEth', 'k13'): {'LEGACY_B_INVERT': 0},
         ('DskEth', 'k17'): {'LEGACY_B_INVERT': 0},
+        # Ether06 l06: the bus-register-full JK must observe the Output
+        # setup value. Sampling the next value at the modeled clk1 edge
+        # advertises the register full before k14/k15/k16 capture its data;
+        # the FIFO writes the previous word. Original ROM Initial then
+        # transmits FFFF before its header and loses its nil checksum.
+        # PRECAP restores register capture before the FIFO transfer.
+        # Only B is the transmit-full flag. A's receive-data-late path
+        # retains its existing capture; the good/damaged CRC gate checks it.
+        ('DskEth', 'l06'): {'PRECAP_B': 1},
         # OutRegFull's JK and the underflow-check D flop share clk1. They
         # must both use setup inputs when memory releases IOHold on that
         # edge; post-edge JK capture consumes the word one clock too soon.

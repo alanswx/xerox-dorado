@@ -4,7 +4,8 @@
 
 `default_nettype none
 
-module cell_MC10135 #(parameter PRECAP = 0) (
+module cell_MC10135 #(parameter PRECAP = 0,
+    parameter PRECAP_A = PRECAP, parameter PRECAP_B = PRECAP) (
     input  wire sys_clk,
     input  wire p9,
     input  wire p7,
@@ -30,10 +31,14 @@ module cell_MC10135 #(parameter PRECAP = 0) (
   // retains existing timing for other packages pending their own audit.
   reg [3:0] jk_pre;
   always @(posedge sys_clk) jk_pre <= {p11,p10,p6,p7};
-  wire ja = ~(PRECAP ? jk_pre[0] : p7);
-  wire ka = ~(PRECAP ? jk_pre[1] : p6);
-  wire jb = ~(PRECAP ? jk_pre[2] : p10);
-  wire kb = ~(PRECAP ? jk_pre[3] : p11);
+  // The two independent flip-flops can have different setup paths. Ether06
+  // l06 B captures the Output handshake before its modeled clock edge;
+  // A retains the existing receive-data-late timing. PRECAP still selects
+  // both halves for existing placements such as DskEth c16.
+  wire ja = ~(PRECAP_A ? jk_pre[0] : p7);
+  wire ka = ~(PRECAP_A ? jk_pre[1] : p6);
+  wire jb = ~(PRECAP_B ? jk_pre[2] : p10);
+  wire kb = ~(PRECAP_B ? jk_pre[3] : p11);
 
   // FPGA: ONE CLOCK, and the ECL clock net becomes an ENABLE.
   //

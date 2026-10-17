@@ -561,6 +561,12 @@ module tb_exec;
   // as the MiSTer wrapper. The simulation driver supplies physical key
   // transitions here; guest keyboard memory is only written by microcode.
   reg [10:0] terminal_ps2_key /* verilator public_flat_rw */ = 11'd0;
+  integer terminal_hold_key;
+  initial if($value$plusargs("terminal-key=%h",terminal_hold_key))begin
+    wait(!term_reset); @(negedge sys_clk);
+    terminal_ps2_key={1'b1,1'b1,1'b0,terminal_hold_key[7:0]};
+    $display("tb_exec: physical terminal key held, PS/2 set-2 code %02h",terminal_hold_key[7:0]);
+  end
   wire [15:0] terminal_kw0, terminal_kw1, terminal_kw2, terminal_kw3;
   dorado_keyboard u_keyboard (
       .sys_clk(sys_clk), .reset(term_reset), .ps2_key(terminal_ps2_key),
@@ -661,6 +667,12 @@ module tb_exec;
   // idle -- the active-low Trident status lines DEASSERTED (1), the
   // Ethernet receiver quiet (RcvData 0, Collision 0), host address 0 -- so
   // Initial's Ethernet boot can be watched trying to start the controller.
+  integer full_etherhost=0;
+  bit full_largeformat=0;
+  initial begin
+    void'($value$plusargs("etherhost=%d",full_etherhost));
+    full_largeformat=$test$plusargs("largeformat");
+  end
   dorado_full #(.SYSPER(SYSPER)) m (
       .XmtData_p_(eth_xmt),
       .CLK_disk_p_(mclk),
@@ -681,14 +693,15 @@ module tb_exec;
       .DataP1__in(1'b0),
       .DataP2__in(1'b0),
       .DataP3__in(1'b0),
-      .Host_0(1'b0),
-      .Host_1(1'b0),
-      .Host_2(1'b0),
-      .Host_3(1'b0),
-      .Host_4(1'b0),
-      .Host_5(1'b0),
-      .Host_6(1'b0),
-      .Host_7(1'b0),
+      .Host_0(full_etherhost[7]),
+      .Host_1(full_etherhost[6]),
+      .Host_2(full_etherhost[5]),
+      .Host_3(full_etherhost[4]),
+      .Host_4(full_etherhost[3]),
+      .Host_5(full_etherhost[2]),
+      .Host_6(full_etherhost[1]),
+      .Host_7(full_etherhost[0]),
+      .TermIsLF(full_largeformat),
       .RcvData(rcv_r),      // +rcvplay=PATH replays a boot-reply stream here
       .SecIndx0_p_(drv_sec_n),
       .SecIndx1_p_(1'b1),
@@ -3189,12 +3202,72 @@ module tb_exec;
   end
 `endif
 `ifdef FULL
+  // Passive receive visibility, including the status actually delivered to
+  // the FIFO. This does not alter wakeups, completion or error reporting.
+  integer rxtrace_words=0,rxtrace_packets=0;
+  reg rxtrace_we=1,rxtrace_seen_carrier=0;
+  wire [15:0] rxtrace_word={m.b_DskEth.RxSR_00,m.b_DskEth.RxSR_01,
+    m.b_DskEth.RxSR_02,m.b_DskEth.RxSR_03,m.b_DskEth.RxSR_04,m.b_DskEth.RxSR_05,
+    m.b_DskEth.RxSR_06,m.b_DskEth.RxSR_07,m.b_DskEth.RxSR_08,m.b_DskEth.RxSR_09,
+    m.b_DskEth.RxSR_10,m.b_DskEth.RxSR_11,m.b_DskEth.RxSR_12,m.b_DskEth.RxSR_13,
+    m.b_DskEth.RxSR_14,m.b_DskEth.RxSR_15};
+  always @(negedge sys_clk) if($test$plusargs("rxtrace") && paritysources_arm)begin
+    if(m.b_DskEth.PDCarrier)rxtrace_seen_carrier=1;
+    if(rxtrace_we && !m.b_DskEth.RxFifoWE_p_ && rxtrace_seen_carrier)begin
+      if(rxtrace_words<40 || m.b_DskEth.RxSR_18)
+        $display("tb_exec: RXTRACE sample=%0d packet=%0d word=%0d data=%04h EOP=%b full=%b task=%0d",
+          n_cyc2,rxtrace_packets,rxtrace_words,rxtrace_word,m.b_DskEth.RxSR_18,m.b_DskEth.RxFifoFull,pct_ctask);
+      if(m.b_DskEth.RxSR_18)begin rxtrace_packets++;rxtrace_words=0;end
+      else rxtrace_words++;
+    end
+    rxtrace_we=m.b_DskEth.RxFifoWE_p_;
+  end
+  integer netbus_events=0;
+  reg netbus_in_d=1,netbus_we_d=1;
+  reg [63:0] netbus_history[0:31];
+  integer netbus_history_pos=0;
+  bit netbus_history_dumped=0;
+  wire [15:0] netbus_register={m.b_DskEth.u_k14.q[0],m.b_DskEth.u_k14.q[1],
+    m.b_DskEth.u_k14.q[2],m.b_DskEth.u_k14.q[3],m.b_DskEth.u_k14.q[4],m.b_DskEth.u_k14.q[5],
+    m.b_DskEth.u_k15.q[0],m.b_DskEth.u_k15.q[1],m.b_DskEth.u_k15.q[2],
+    m.b_DskEth.u_k15.q[3],m.b_DskEth.u_k15.q[4],m.b_DskEth.u_k15.q[5],
+    m.b_DskEth.u_k16.q[0],m.b_DskEth.u_k16.q[1],m.b_DskEth.u_k16.q[2],m.b_DskEth.u_k16.q[3]};
+  always @(negedge sys_clk) if($test$plusargs("netbus-trace") && paritysources_arm)begin
+    netbus_history[netbus_history_pos]={n_cyc2[23:0],cia_now,netbus_register,
+      m.b_DskEth.Clock1_p_Bb,m.b_DskEth.PreClock1_p_D,m.b_DskEth.TxBusRegClk_p_,
+      m.b_DskEth.TxBusRegFull_p_,m.b_DskEth.u_l06.ck_en,m.b_DskEth.u_l06.p10,
+      m.b_DskEth.u_l06.p11,m.b_DskEth.u_l06.jk_pre[3:2],
+      m.b_DskEth.bIOout_p_,m.b_DskEth.TIOA_eq_EthData_p_,m.b_DskEth.TxWriteFifo_p_};
+    if(m.b_DskEth.u_k14.ck_en && el2_armed && !netbus_history_dumped)begin
+      for(integer j=1;j<=32;j++)$display("tb_exec: NETBUS-HISTORY %016h",netbus_history[(netbus_history_pos+j)%32]);
+      netbus_history_dumped=1;
+    end
+    netbus_history_pos=(netbus_history_pos+1)%32;
+    if(netbus_events<128 && (m.b_DskEth.u_k14.ck_en ||
+       (netbus_we_d && !m.b_DskEth.TxWriteFifo_p_)))begin
+      $display("tb_exec: NETBUS sample=%0d CIA=%h task=%0d en=%b IOB=%04h olddata=%04h reg=%04h MD=%04h WE'=%b addr=%b%b%b%b full'=%b",
+        n_cyc2,cia_now,pct_ctask,m.b_DskEth.u_k14.ck_en,el2_iob,
+        {m.b_DskEth.u_k14.d_pre[0],m.b_DskEth.u_k14.d_pre[1],m.b_DskEth.u_k14.d_pre[2],
+         m.b_DskEth.u_k14.d_pre[3],m.b_DskEth.u_k14.d_pre[4],m.b_DskEth.u_k14.d_pre[5],
+         m.b_DskEth.u_k15.d_pre[0],m.b_DskEth.u_k15.d_pre[1],m.b_DskEth.u_k15.d_pre[2],
+         m.b_DskEth.u_k15.d_pre[3],m.b_DskEth.u_k15.d_pre[4],m.b_DskEth.u_k15.d_pre[5],
+         m.b_DskEth.u_k16.d_pre[0],m.b_DskEth.u_k16.d_pre[1],m.b_DskEth.u_k16.d_pre[2],m.b_DskEth.u_k16.d_pre[3]},
+        netbus_register,bootio_md,m.b_DskEth.TxWriteFifo_p_,
+        m.b_DskEth.TxFifoAd_0,m.b_DskEth.TxFifoAd_1,m.b_DskEth.TxFifoAd_2,m.b_DskEth.TxFifoAd_3,
+        m.b_DskEth.TxBusRegFull_p_);
+      netbus_events++;
+    end
+    netbus_we_d=m.b_DskEth.TxWriteFifo_p_;
+  end
   // +rcvplay=PATH: replay a phase-encoded reply stream (tools/eb_replies.py)
   // onto RcvData, starting +rcvdelay sys_clk (default 500,000 = 0.94 ms)
   // after the machine's own transmitter has sent a packet and gone idle --
   // the shape of a boot server answering the MicrocodeBootRequest.
   integer rp_fd, rp_n = 0, rp_i = 0, rp_delay = 500000, rp_start = -1, rp_lastx = 0, rp_code;
-  integer rp_t [0:399999]; reg rp_v [0:399999];
+  // Cedar's original microcode needs 444,292 transitions; the old 400K
+  // limit silently discarded its tail, including the end-of-file reply.
+  localparam integer REPLAY_TRANSITIONS=1000000;
+  integer rp_t [0:REPLAY_TRANSITIONS-1]; reg rp_v [0:REPLAY_TRANSITIONS-1];
   reg rp_line [0:0]; string rp_path; reg [255:0] rp_buf; integer rp_tt, rp_vv;
   initial begin
     if ($value$plusargs("rcvplay=%s", rp_path)) begin
@@ -3204,11 +3277,13 @@ module tb_exec;
       // (tools/eb_replies.py puts its packet index in a sidecar), and the
       // $fgets form silently loaded NOTHING -- 0 transitions -- in the first
       // boot run that armed this.
-      while (rp_n < 400000) begin
+      while (rp_n < REPLAY_TRANSITIONS) begin
         rp_code = $fscanf(rp_fd, "%d %d", rp_tt, rp_vv);
         if (rp_code != 2) break;
         rp_t[rp_n] = rp_tt; rp_v[rp_n] = rp_vv[0]; rp_n = rp_n + 1;
       end
+      if(rp_n==REPLAY_TRANSITIONS && $fscanf(rp_fd,"%d %d",rp_tt,rp_vv)==2)
+        $fatal(1,"rcvplay: reply stream exceeds capacity; refusing a truncated boot image");
       $fclose(rp_fd);
       void'($value$plusargs("rcvdelay=%d", rp_delay));
       $display("tb_exec: +rcvplay -- %0d transitions loaded from %s, delay %0d after the request", rp_n, rp_path, rp_delay);
