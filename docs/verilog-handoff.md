@@ -5,7 +5,7 @@
 **Boot Cedar on the FPGA, log in, reach Viewers, type `Echo FPGA`, and verify
 keyboard/mouse interaction. Native26 has loaded all33 Basic.Loadees BCDs,
 accepted Guest and the installer keyboard response, completed BootEssentials,
-attached Tioga/Press font names, and is attaching font metrics. HDMI has
+attached Tioga/Press font names, and completed font metrics. Remaining modules are STARTing. HDMI has
 recovered. Viewers and an interactive CommandTool remain incomplete.** C snapshots and host IOCB completion do not qualify.
 
 ## Current state (Native26 installer running; HDMI recovered)
@@ -215,14 +215,26 @@ described the requested modeline, not a verified physical clock. Main's OSD
 reports1920x1080,74.25MHz,60.0Hz: Fpix is requested metadata, refresh comes
 from the100MHz hardware counter. Read-only `/proc/12701/mem` inspection of
 current_video_info at23:47 finds vtimeh1666666 (60.000024Hz), source
-vtime18189197 (~5.50 fields/s),1072x862,interlaced=true. This may be a stale
-cached measurement or actual148.5MHz output; do not claim live74.25MHz
-qualification. Separate post-fit148.536MHz audit completed: slow100C scaler setup fails
+vtime18189197 (~5.50 fields/s),1072x862,interlaced=true. This was a cached measurement, subsequently resolved by a fresh hardware
+read below. Separate post-fit148.536MHz audit completed: slow100C scaler setup fails
 -2.382ns (o_h_lum_pix.g[7] -> o_poly_lum[0]); hold/recovery/removal pass
 at both examined models, with zero illegal/unconstrained clocks. This mode
 is NOT timing-qualified. Reports are hdmi148-* in the Native26 report directory.
 The original29 passing checks qualify only74.25MHz. INI remains original
 720p and running Main remains immutable1fb2; parser candidate is not deployed.
+
+### Fresh hardware timing resolves stale OSD (23:52 UTC)
+
+Read UIO_GET_VRES(0x23) using the running Main's own normal SPI functions
+at input_poll, then DisableIO/detach. No helper competed for SPI, no mode
+write, no guest state write. Fresh HDMI period is3333332 ticks at100MHz:
+**30.000012Hz**, consistent with2200x1125 totals and **74.25003MHz**.
+The OSD/current_video_info60Hz value was stale. Thus current live1080p30
+uses the original74.25MHz qualification. The extra148.536MHz scaler failure
+still stands: do not use1080p60 on this image. Evidence/scripts:
+`native26/hdmi-fresh-timing.{json,log,gdb}`. Core input is still1072x862,
+interlaced; fresh source period20496971 ticks (~4.879 fields/s), affected
+by DDR/HPS stalls. Same boot continues; font metrics almost finished.
 
 ## Active work
 
@@ -406,9 +418,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Complete all33 Native26 BCD downloads; actual screen reports every load ok.
 - [x] Answer installer personal-profile prompt through real keyboard; observe BootEssentials BringOver.
 - [x] Complete Native26 BootEssentials closure; now attaching font metrics.
-- [ ] Complete font attachments and remaining STARTs; monitor pack_fault.
+- [x] Complete font attachments; actual HDMI shows FontMetrics End BringOver/ok and Inscript/VersionMap START ok.
+- [ ] Complete remaining STARTs; monitor pack_fault.
 - [x] Restore external HDMI after live mode test; actual Cedar HDMI capture readable.
-- [ ] Resolve requested74.25MHz versus measured60Hz discrepancy; audit148.5MHz fit separately.
+- [x] Resolve requested74.25MHz versus cached60Hz discrepancy: fresh hardware counter30Hz,74.25MHz; separate148.5MHz timing fails.
 - [ ] Use qualified-clock progressive output and verify stable deinterlacing, including video.
 - [x] Fix Main extended-modeline zero-clock parser in separate patch; mutation regression and pinned GCC10.2.1 ARM build pass.
 - [ ] Deploy immutable parser-fixed Main at a planned restart; preserve current run until then.

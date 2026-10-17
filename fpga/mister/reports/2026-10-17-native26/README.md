@@ -78,3 +78,10 @@ fast setup and both models' hold/recovery/removal pass. Zero illegal and
 unconstrained clocks. This is not qualification of1080p60. No SDC/RBF or
 live board mode was changed by this audit. Script and representative full
 reports retained here; all reports also in frozen build's core/hdmi148-*.
+
+Fresh-read resolution: cached OSD refresh was stale. UIO_GET_VRES read via
+Main's own SPI at input_poll gives HDMI period3333332/100MHz =30.000012Hz,
+consistent with2200x1125 timing totals and74.25003MHz. No mode/guest writes.
+See hdmi-fresh-timing.{json,log,gdb}. Current live1080p30 is within the
+74.25MHz clock qualification; the148.5MHz audit failure remains a limit on
+future1080p60 use. Do not rely on cached Main OSD refresh after live changes.

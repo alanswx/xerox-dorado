@@ -1,0 +1,41 @@
+[New LWP 12702]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/libthread_db.so.1".
+0xb6eb1766 in ?? () from /lib/libc.so.6
+To enable execution of this file add
+	add-auto-load-safe-path /usr/lib/libstdc++.so.6.0.28-gdb.py
+line to your configuration file "/root/.gdbinit".
+To completely disable this security protection add
+	set auto-load safe-path /
+line to your configuration file "/root/.gdbinit".
+For more information about this security protection see the
+"Auto-loading safe path" section in the GDB manual.  E.g., run from the shell:
+	info "(gdb)Auto-loading safe path"
+Temporary breakpoint 1 at 0x8172e
+
+Thread 1 "MiSTer-1fb2e098" hit Temporary breakpoint 1, 0x0008172e in input_poll(int) ()
+$1 = 0
+VIDEO_WORD_00=257
+VIDEO_WORD_01=1072
+VIDEO_WORD_02=0
+VIDEO_WORD_03=862
+VIDEO_WORD_04=0
+VIDEO_WORD_05=62486
+VIDEO_WORD_06=0
+VIDEO_WORD_07=49739
+VIDEO_WORD_08=312
+VIDEO_WORD_09=27042
+VIDEO_WORD_10=0
+VIDEO_WORD_11=56532
+VIDEO_WORD_12=50
+VIDEO_WORD_13=9014
+VIDEO_WORD_14=0
+VIDEO_WORD_15=2
+VIDEO_WORD_16=64
+VIDEO_WORD_17=1
+VIDEO_WORD_18=0
+VIDEO_WORD_19=0
+VIDEO_WORD_20=0
+VIDEO_WORD_21=0
+VIDEO_WORD_22=0
+[Inferior 1 (process 12701) detached]
