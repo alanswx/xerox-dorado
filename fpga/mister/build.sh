@@ -80,6 +80,12 @@ rm -f "$OUT/Dorado.qsf.bak"
   if [ "${DORADO_QUARTUS_RETIME:-1}" = 0 ]; then
     echo 'set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF'
   fi
+  if [ "${DORADO_QUARTUS_PHYSICAL:-1}" = 0 ]; then
+    for DORADO_OPT in COMBO_LOGIC REGISTER_DUPLICATION REGISTER_RETIMING \
+                      COMBO_LOGIC_FOR_AREA ASYNCHRONOUS_SIGNAL_PIPELINING; do
+      echo "set_global_assignment -name PHYSICAL_SYNTHESIS_${DORADO_OPT} OFF"
+    done
+  fi
   echo 'set_global_assignment -name VERILOG_MACRO "DORADO_STORAGE_INPUT_DELAY=2"'
   # SEARCH_PATH so the PROM cells' $readmemh (paths relative to the repo root)
   # resolve from the project directory. Without it every PROM package fails to

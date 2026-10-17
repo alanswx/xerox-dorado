@@ -349,10 +349,12 @@ module tb_firmware;
       @(posedge sys_clk);
       if (`BB.CVCC != comparator_d) comparator_edges++;
       comparator_d = `BB.CVCC;
-      if (i % 50000000 == 49999999)
+      if (i % 50000000 == 49999999) begin
         $display("tb_firmware: progress %0d samples fetch=%04h DAC=%02h CVCC=%b target=%b DMD=%03h changes=%0d Run'=%b StopMIRClk=%b Hold=%b",
                  i+1,last_fetch,dac,`BB.CVCC,nominal_voltage,dmd,n_dmd,
                  m.u_machine.b_ContA.Run_p_,m.u_machine.b_ContA.StopMIRClk,m.u_machine.b_ContA.Hold);
+        $fflush();
+      end
       // PRESS THE BOOT BUTTON. `+bootbtn=N` grounds the button's net after N
       // cycles. The chain, traced from the firmware back through the netlist:
       //

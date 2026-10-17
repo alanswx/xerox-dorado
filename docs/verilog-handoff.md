@@ -286,6 +286,9 @@ samples the actual firmware shifts nonzero addresses through ContB's DMD
 Native2's superseded fit was stopped after over twenty minutes in optional
 physical retiming. Native3 restarts with retiming disabled; reproduce that
 build setting with `DORADO_QUARTUS_RETIME=0 fpga/mister/build.sh ...`.
+A second fit of the same mapped RTL runs in `Dorado_Native4_20261017`
+with every optional physical-synthesis stage disabled; Native3 remains
+running. Reproduce this setting with `DORADO_QUARTUS_PHYSICAL=0`.
 Setup/hold validation remains mandatory before deployment. No startup
 parity-state modification has been made; the serial faults explain why the
 firmware could not configure the processor's manifold in the first place.
