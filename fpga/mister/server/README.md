@@ -26,7 +26,8 @@ BFN `0110B` and the default EFTP file are currently exposed; the other
 microcode BFNs still have the C project's relative defaults. Only the two
 configured files are checked at startup. For Cedar, launch with cwd at the
 staged `dorado` directory so BFN113 resolves to `../chm/dorado/CedarDorado.eb!6`.
-`make cedar-test` qualifies that mapping and an actual BSP/STP retrieve:
+`make cedar-test` qualifies the captured Cedar socket-2 routing probe with
+STP enabled, that mapping, and an actual BSP/STP retrieve:
 31,376 microcode bytes in 62 frames and the 66,296-byte CedarSource.VersionMap
 in 45 data frames, including 1,504-byte frames. Payloads match their files
 byte-for-byte on both Mac and the MiSTer ARM. These are server/transport
@@ -56,3 +57,9 @@ this service on MiSTer14. Main owns SPI and Dorado-specific UIO queues; RTL
 serializes Manchester data and checks hardware CRC through the Sil-derived
 controller. Full supported Pup reception and network boot remain under test.
 The service never supplies a controller status word or accesses SPI.
+
+Cedar's cold routing probe uses Pup type `0200` on socket 2. File lookup
+uses the same type on file-service sockets, including socket 3 through our
+NetDir alias. Dispatch must respect the socket: treating every type `0200`
+as a filename silently drops the empty routing probe. The regression sends
+the captured request with a unique ID so idle routing broadcasts cannot pass.

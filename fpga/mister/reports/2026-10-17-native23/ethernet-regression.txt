@@ -1,0 +1,9 @@
+  EFTP sim: CRTTEST.BOOT delivered 3540 words byte-exact
+  EFTP sim: NETEXEC.BOOT delivered 21820 words byte-exact
+  BootDir: 260B reply advertises CedarNetExec.boot (bfn 0o111), Mayday serves 65280 words verbatim (Mesa outload, no leader)
+  BootDirAll: advertised 33 Alto B-format games across paginated 260B replies; Mayday serves each verbatim
+  FTP: NetDir advertises socket 3; RTP open gets initial BSP allocation
+  STP enumerate: New-Directory and Directory framing, level-crossing patterns, fileNotFound on no match
+  LookupFile: version, 1901-epoch create time and byte length for a release file; fileLookupError for a name we lack
+  Names: [Host]<Dir>Name and Interlisp's {DEVICE}<>Name both resolve against a served root
+All ethernet tests passed.

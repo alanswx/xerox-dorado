@@ -9,6 +9,7 @@
 #include <time.h>
 
 enum {
+    PUP_SOCKET_GATEWAY = 02,
     PUP_SOCKET_MISC = 04,
     PUP_SOCKET_FTP = 03,
     /* PupWKS.mesa: Grapevine registry enquiry/poll sockets. */
@@ -3727,7 +3728,12 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
             (void)eth_queue_gv_echo_reply(eth);
             return;
         }
-        if (eth->tx_words[3] == PUP_TYPE_FILE_LOOKUP) {
+        /* Pup type200 is socket-local: GatewayInfo on socket2, fileLookup
+         * on file services (including our NetDir alias, socket3). Cedar's
+         * cold routing probe has no body; do not swallow it as a filename. */
+        if (eth->tx_words[3] == PUP_TYPE_FILE_LOOKUP &&
+            !(eth->tx_words[7] == 0 &&
+              eth->tx_words[8] == PUP_SOCKET_GATEWAY)) {
             (void)eth_handle_file_lookup(eth);
             return;
         }

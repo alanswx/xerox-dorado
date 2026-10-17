@@ -1,0 +1,5 @@
+Dorado Pup server listening on /tmp/dorado-cedar-bfn-0rww1c0t/server.sock (raw frames, no CRC/status)
+Traceback (most recent call last):
+  File "/Users/alans/dev2/Dorado/fpga/mister/server/test_cedar_server.py", line 29, in <module>
+    frame=s.recv(4096);p=struct.unpack('>'+str(len(frame)//2)+'H',frame)
+TimeoutError: timed out

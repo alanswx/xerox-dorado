@@ -70,8 +70,11 @@ RBF SHA89726440d5d599a5b01428e4f29b54d3969064508191016e100375746ff765e2.
 Fresh pack SHA c0cd6784... verified before load. Prior log preserved as
 Cedar21_20261017/main-before-native23.log.
 Keep the original immutable Main (System_20261017/MiSTer-1fb2e098e6f0dba6)
-and raw-Pup server (dorado-server-215276e0b3d780b4). Never overwrite a running
-Main executable. Server root already contains all 34 Basic.Loadees.
+and preserve the old raw-Pup server binary. The active server is now
+System_20261017/dorado-server-bdfd09cec0851e78 (socket2 routing fix), with
+server-cedar23-route.log; Main/FPGA were not restarted. A fresh restart config
+is Cedar23_20261017/reboot-resume.json. Never overwrite a running executable.
+Server root already contains all 34 Basic.Loadees.
 
 Native23 RBF/MGL is staged for hardware testing under
 _Computer/DoradoRTL_Cedar23_20261017. The previous Main log is preserved; its open log was
@@ -105,6 +108,8 @@ the Executive/golden artifacts. Actual screenshots are required for OS claims.
 - [ ] Check remaining fixture differences: map/cache seeds versus native cold
   RAM, complete BaseBoard handoff, DDR pauses, HPS track-buffer timing.
   A passing source-copy gate does not qualify all of these.
+- [x] Identify/fix the STP dispatcher swallowing socket2/type200 routing probes;
+  old standalone test fails, native and ARM fixed tests pass.
 - [ ] Verify the FPGA gets beyond812 through the original disk controller.
   The diagnostic now loads 51 verified nonzero OS-file pages; hardware is pending.
 - [ ] Calibrate MC12061 to the10MHz crystal and recheck BaseBoard firmware/timers.
@@ -114,6 +119,30 @@ the Executive/golden artifacts. Actual screenshots are required for OS claims.
   regressions. Space Invaders compatibility remains a separate open item.
 
 ## Investigation diary (historical; current state above takes precedence)
+
+**Native23 reaches new network traffic, 20:22 UTC; server dispatch fix.**
+Original firmware completed and emitted fresh BFN113 at20:20; C key released.
+FPGA leaves the old RequeueSearchSQ loop and emits GatewayInfo requests on
+socket2/type200. Its screenshot still shows only the maintenance cursor,
+not Cedar text. The raw-Pup server's STP dispatcher wrongly intercepted
+all type200 packets as fileLookup, swallowing routing. The captured request
+fails against the old server and passes with socket2 excluded from that
+file-service branch. Native Ethernet tests and ARM routing/BFN113/66KB STP
+tests pass. New immutable server SHA bdfd09cec0851e78de580683c4de936fbed46411ba7ff1b5d2e7fcbda5801d66
+is active without touching Main/FPGA; log System_20261017/server-cedar23-route.log.
+Fresh reboot-resume configuration is in Cedar23_20261017/reboot-resume.json.
+Live retries now receive logged201b replies, but the guest still retries.
+Receiving/demultiplexing those replies remains under investigation.
+No OS prompt claim. Hardware screenshots are in the Native23 report directory.
+
+Software controls: stock8MB/map64K reaches the Viewers desktop by15B. The
+2MB/map16K control remains Loading DFPackage at36B; its final map has4097
+valid entries, no referenced VP above16K. Independent RAM/map controls now
+run from their paired1B snapshots in cedar-capacity-isolation/ (session90636):
+8MB/map16K passes all34 loadees by5B, while2MB/map64K remains atDFPackage.
+Thus physicalRAM appears limiting beyond login; wait for final control reports
+before deciding the hardware expansion. These are C controls, not FPGA evidence.
+
 
 **Native23 build complete, 20:14 UTC.** Full map/fit/assembly/STA/audit complete.
 Fit took 51m28s wall, 35,041 ALMs (84%), 178 M10Ks, 35 DSPs. Setup passes

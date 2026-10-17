@@ -18,6 +18,21 @@ with tempfile.TemporaryDirectory(prefix='dorado-cedar-bfn-',dir='/tmp') as tmp:
   with socket.socket(socket.AF_UNIX,socket.SOCK_DGRAM) as s:
    s.bind(str(pathlib.Path(tmp)/'client.sock'));s.settimeout(3)
    s.sendto(b'',server)
+   # Captured Cedar cold-boot routing probe. Pup type200 also names the
+   # file-lookup protocol, so an enabled STP root must not swallow socket2.
+   routing_id=(0xa55a,0x1234)
+   route=[0o42,0o1000,0o26,0o200,*routing_id,0,0,2,0o42,0,2,0xffff]
+   s.sendto(struct.pack('>13H',*route),server)
+   deadline=time.monotonic()+2
+   while True:
+    s.settimeout(max(.01,deadline-time.monotonic()))
+    frame=s.recv(4096);p=struct.unpack('>'+str(len(frame)//2)+'H',frame)
+    if p[3]==0o201 and p[4:6]==routing_id:break
+    assert time.monotonic()<deadline,'no matching routing reply with STP enabled'
+   assert p[7:9]==(0,2) and p[10:12]==(0,2)
+   assert p[12:14]==(0x0101,0x0100) and len(frame)==p[2]+4
+   print('CEDAR-ROUTING PASS: captured socket2/type200 probe with STP enabled')
+   s.settimeout(3)
    request=[0o42,0o1000,0o26,0o264,1,0o113,0,0,0,0,4,0o42,1,1,0xffff]
    s.sendto(struct.pack('>15H',*request),server)
    image=bytearray();seq=0
