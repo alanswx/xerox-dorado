@@ -18,7 +18,7 @@ int fd=-1;
 char socket_path[108];
 uint64_t next_poll=0,next_connect=0;
 uint64_t next_trace=0;
-unsigned char outgoing[1024],incoming[1025];
+unsigned char outgoing[2048],incoming[2049];
 unsigned outgoing_bytes=0,incoming_bytes=0;
 uint64_t milliseconds(){
     timespec t;clock_gettime(CLOCK_MONOTONIC,&t);
@@ -67,8 +67,9 @@ void dorado_net_poll(){
         next_trace=now+1000;
         unsigned length=spi_w(0),good=spi_w(0),bad=spi_w(0),dropped=spi_w(0),rx_bad=spi_w(0),aborted=spi_w(0);
         unsigned debug_lo=spi_w(0),debug_hi=spi_w(0),machine_status=spi_w(0);
-        printf("Dorado net: flags=%x tx_words=%u good=%u crc_bad=%u dropped=%u rx_bad=%u aborted=%u machine=%04x%04x state=%04x\n",
-               flags,length,good,bad,dropped,rx_bad,aborted,debug_hi,debug_lo,machine_status);fflush(stdout);
+        unsigned cpu_lo=spi_w(0),cpu_hi=spi_w(0);
+        printf("Dorado net: flags=%x tx_words=%u good=%u crc_bad=%u dropped=%u rx_bad=%u aborted=%u machine=%04x%04x state=%04x cpu=%04x%04x\n",
+               flags,length,good,bad,dropped,rx_bad,aborted,debug_hi,debug_lo,machine_status,cpu_hi,cpu_lo);fflush(stdout);
     }
     DisableIO();
     if(magic!=0xd074){disconnect();next_connect=now+500;return;}
@@ -76,7 +77,7 @@ void dorado_net_poll(){
 
     if(!outgoing_bytes && (flags&2)){
         unsigned words=spi_uio_cmd_cont(0x71);
-        if(words<2||words>512){DisableIO();return;}
+        if(words<2||words>((flags&4)?1024u:512u)){DisableIO();return;}
         for(unsigned i=0;i<words;i++){
             uint16_t w=spi_w(0);outgoing[2*i]=w>>8;outgoing[2*i+1]=w;
         }
@@ -92,7 +93,7 @@ void dorado_net_poll(){
     }
     if(!incoming_bytes){
         ssize_t n=recv(fd,incoming,sizeof incoming,MSG_DONTWAIT);
-        if(n>=4 && n<=1024 && !(n&1))incoming_bytes=unsigned(n);
+        if(n>=4 && n<=((flags&4)?2048:1024) && !(n&1))incoming_bytes=unsigned(n);
         else if(n<0 && errno!=EAGAIN && errno!=EINTR){
             disconnect();next_connect=now+1000;return;
         }

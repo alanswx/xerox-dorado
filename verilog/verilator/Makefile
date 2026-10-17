@@ -1473,6 +1473,17 @@ keyboard-terminal-test:
 # rotation at 3600 RPM. The gaps are counted as well as the pulses -- a line
 # stuck low gives a healthy pulse count and only the duty cycle tells them
 # apart, which is the lesson disk-input-test paid for.
+.PHONY: ethernet-large-test
+ethernet-large-test:
+	@cd ../.. && $(V) --binary --top-module tb_ethernet_wire $(V_WARN) +define+LARGE_FRAMES \
+		--Mdir verilog/verilator/obj_ethernet_wire_large -o wire-large-test \
+		fpga/mister/dorado_ethernet_wire.sv verilog/verilator/tb_ethernet_wire.sv \
+		>/dev/null && ./verilog/verilator/obj_ethernet_wire_large/wire-large-test
+	@cd ../.. && $(V) --binary --top-module tb_ethernet_uio $(V_WARN) +define+LARGE_FRAMES \
+		--Mdir verilog/verilator/obj_ethernet_uio_large -o uio-large-test \
+		fpga/mister/dorado_ethernet_uio.sv verilog/verilator/tb_ethernet_uio.sv \
+		>/dev/null && ./verilog/verilator/obj_ethernet_uio_large/uio-large-test
+
 .PHONY: pack-mount-test ethernet-clock-test ethernet-uio-test ethernet-wire-test ethernet-receive-test
 ethernet-receive-test:
 	@cd ../.. && $(V) --binary --top-module tb_ethernet_receive $(V_WARN) \

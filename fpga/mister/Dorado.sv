@@ -233,7 +233,7 @@ wire alto_video, alto_hsync, alto_vsync_n, hblank, vblank;
 wire machine_clk;
 `ifdef DORADO_NATIVE
 wire storage_ready,storage_initialized;
-wire [31:0] baseboard_debug;
+wire [31:0] baseboard_debug,processor_debug;
 wire machine_enable = ~reset && pack_ready && storage_ready;
 reg [28:0] boot_samples=0;
 always @(posedge machine_clk)if(boot_samples<29'd240000000)boot_samples<=boot_samples+1'b1;
@@ -249,27 +249,27 @@ wire machine_enable = ~reset;
 `ifdef DORADO_ETHERNET
 wire ethernet_rx, ethernet_tx_n, net_rx_ready, net_tx_valid;
 wire net_tx_ack, net_rx_wr, net_rx_commit;
-wire [8:0] net_tx_addr, net_rx_addr;
+wire [9:0] net_tx_addr, net_rx_addr;
 wire [15:0] net_tx_data, net_rx_data;
-wire [9:0] net_tx_words, net_rx_words;
+wire [10:0] net_tx_words, net_rx_words;
 wire [31:0] net_tx_good,net_tx_bad,net_tx_dropped,net_rx_bad;
 // Match the global clock gate's falling-edge enable latch. Host transfers
 // continue while the cable's emulated time pauses with the rest of DskEth.
 reg network_step = 0;
 always @(negedge clk_sys) network_step <= machine_enable;
-dorado_ethernet_uio u_network_uio (
+dorado_ethernet_uio #(.MAX_WORDS(1024)) u_network_uio (
     .clk(clk_sys), .reset(~pll_locked), .bus(ethernet_ext_bus),
     .rx_ready(net_rx_ready), .tx_valid(net_tx_valid), .tx_words(net_tx_words), .tx_data(net_tx_data),
     .tx_good(net_tx_good), .tx_bad(net_tx_bad), .tx_dropped(net_tx_dropped), .rx_bad(net_rx_bad),
 `ifdef DORADO_NATIVE
-    .machine_debug(baseboard_debug), .machine_status(machine_status),
+    .machine_debug(baseboard_debug), .machine_status(machine_status), .processor_debug(processor_debug),
 `else
-    .machine_debug(32'd0), .machine_status(16'd0),
+    .machine_debug(32'd0), .machine_status(16'd0), .processor_debug(32'd0),
 `endif
     .tx_addr(net_tx_addr), .tx_ack(net_tx_ack), .rx_wr(net_rx_wr), .rx_commit(net_rx_commit),
     .rx_addr(net_rx_addr), .rx_data(net_rx_data), .rx_words(net_rx_words), .aborted()
 );
-dorado_ethernet_wire #(.SYSPER(MACHINE_SYSPER)) u_network_wire (
+dorado_ethernet_wire #(.SYSPER(MACHINE_SYSPER),.MAX_WORDS(1024)) u_network_wire (
     .clk(clk_sys), .reset(~pll_locked), .step(network_step),
     .tx_line(~ethernet_tx_n), .rx_line(ethernet_rx),
     .rx_wr(net_rx_wr), .rx_commit(net_rx_commit), .rx_addr(net_rx_addr),
@@ -286,7 +286,7 @@ altclkctrl #(.clock_type("Global Clock"), .ena_register_mode("falling edge"),
 dorado_native_machine #(.SYSPER(MACHINE_SYSPER)) u_native (
     .reset(~pll_locked), .baseboard_boot_n(baseboard_boot_n), .large_format(~status[4]),
     .storage_ready(storage_ready), .storage_initialized(storage_initialized),
-    .baseboard_debug(baseboard_debug),
+    .baseboard_debug(baseboard_debug), .processor_debug(processor_debug),
     .ddram_busy(DDRAM_BUSY), .ddram_rvalid(DDRAM_DOUT_READY), .ddram_rdata(DDRAM_DOUT),
     .ddram_burstcount(DDRAM_BURSTCNT), .ddram_be(DDRAM_BE), .ddram_addr(DDRAM_ADDR),
     .ddram_read(DDRAM_RD), .ddram_write(DDRAM_WE), .ddram_wdata(DDRAM_DIN),

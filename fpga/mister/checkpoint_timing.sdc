@@ -23,7 +23,11 @@ if {[get_collection_size $address_source] && [get_collection_size $address_sink]
 # ns each. Its generated F10145A uses the identical mutually exclusive
 # capture/commit enables. The same hold-only exclusion applies; setup and
 # the asynchronous read address remain timed.
-foreach {board position} {MemC d06 MemX e20 ContA c04} {
+# The selectable-station fit reports four -0.039 ns paths from DskEth
+# j13 a_lat[1] to its own write-address registers. j13 is the same
+# F10145A with mutually exclusive !p13 capture / p13 commit enables.
+# Only that instance's write-address hold checks are excluded.
+foreach {board position} {MemC d06 MemX e20 ContA c04 DskEth j13} {
     set ram_scope [format {*|checkpoint_m_b_%s:b_%s|checkpoint_m_b_%s_u_%s:u_%s|} $board $board $board $position $position]
     set address_source [get_registers -nowarn "${ram_scope}a_lat*"]
     set address_sink [get_registers -nowarn "${ram_scope}altdpram:mem_rtl_0|*|*~OBSERVABLEPORTAADDRESSREGOUT*"]

@@ -1,0 +1,15 @@
+{
+  "hardware": "MiSTer14 10.0.2.14",
+  "core": "DoradoRTL_Station_20261017",
+  "rbf_sha256": "2ec166c3433244f8db2a3eea8aad48a7fb415d96661d6a7270913f8eb949d201",
+  "station_octal": "042",
+  "eftp_words": 21820,
+  "eftp_bytes": 43640,
+  "tx_good": 90,
+  "tx_crc_bad": 0,
+  "tx_dropped_before_service_connected": 2,
+  "additional_tx_drops_during_transfer": 0,
+  "rx_bad": 0,
+  "aborted_rx": 0,
+  "result": "Complete authentic EFTP transfer; NetExec executable handoff leaves blank display with tiny cursor. Not a NetExec or Cedar boot gate."
+}

@@ -14,18 +14,19 @@ module dorado_ethernet_wire #(
     input wire tx_line,
     output reg rx_line = 0,
     input wire rx_wr, rx_commit,
-    input wire [8:0] rx_addr,
+    input wire [$clog2(MAX_WORDS)-1:0] rx_addr,
     input wire [15:0] rx_data,
-    input wire [9:0] rx_words,
+    input wire [$clog2(MAX_WORDS):0] rx_words,
     output wire rx_ready,
-    input wire [8:0] tx_addr,
+    input wire [$clog2(MAX_WORDS)-1:0] tx_addr,
     output reg [15:0] tx_data,
     input wire tx_ack,
     output reg tx_valid = 0,
-    output reg [9:0] tx_words = 0,
+    output reg [$clog2(MAX_WORDS):0] tx_words = 0,
     output reg [31:0] tx_good = 0, tx_bad = 0, tx_dropped = 0,
     output reg [31:0] rx_bad = 0
 );
+  localparam integer ADDRESS_BITS=$clog2(MAX_WORDS);
   localparam integer HALF_UNITS = 170*SYSPER;
   localparam integer MID_MIN = (340*SYSPER*3)/(30*4);
   localparam integer IDLE_TICKS = (340*SYSPER*8)/(30*5);
@@ -38,16 +39,16 @@ module dorado_ethernet_wire #(
   (* ramstyle = "no_rw_check" *) reg [15:0] rx_buffer [0:MAX_WORDS-1];
   localparam R_IDLE=0, R_WAIT=1, R_SYNC=2, R_DATA=3, R_CRC=4, R_GAP=5;
   reg [2:0] rstate = R_IDLE;
-  reg [9:0] rlength = 0, rword = 0;
+  reg [ADDRESS_BITS:0] rlength = 0, rword = 0;
   reg [15:0] rshift = 0, rcrc = 0, rq;
   reg [15:0] rphase = 0;
   reg [3:0] rbit = 15;
   reg rhalf = 0;
   reg [31:0] rgap = 0;
-  wire [9:0] read_address = rstate <= R_WAIT ? 10'd0 : rword+1'b1;
+  wire [ADDRESS_BITS:0] read_address = rstate <= R_WAIT ? '0 : rword+1'b1;
   always @(posedge clk) begin
     if (rx_wr && rx_ready && rx_addr < MAX_WORDS) rx_buffer[rx_addr] <= rx_data;
-    rq <= rx_buffer[read_address[8:0]];
+    rq <= rx_buffer[read_address[ADDRESS_BITS-1:0]];
   end
   assign rx_ready = rstate == R_IDLE;
   wire rdata_bit = rstate == R_SYNC ? 1'b1 : rshift[15];
@@ -111,7 +112,7 @@ module dorado_ethernet_wire #(
   reg tline_d = 0, tactive = 0, tdiscard = 0;
   reg [15:0] tage = 0, tshift = 0, tcrc = 0;
   reg [3:0] tbit = 0;
-  reg [9:0] tcount = 0;
+  reg [ADDRESS_BITS:0] tcount = 0;
   wire [15:0] tshift_next = {tshift[14:0],tx_line};
   always @(posedge clk) begin
     tx_data <= tx_buffer[tx_addr];
@@ -128,7 +129,7 @@ module dorado_ethernet_wire #(
             tage <= 0; tshift <= tshift_next;
             tcrc <= crc_bit(tcrc,tx_line); tbit <= tbit+1'b1;
             if (tbit == 15) begin
-              if (!tdiscard && tcount < MAX_WORDS) tx_buffer[tcount[8:0]] <= tshift_next;
+              if (!tdiscard && tcount < MAX_WORDS) tx_buffer[tcount[ADDRESS_BITS-1:0]] <= tshift_next;
               if (tcount < MAX_WORDS+2) tcount <= tcount+1'b1;
             end
           end else if (tage >= IDLE_TICKS) begin

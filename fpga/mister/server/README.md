@@ -32,7 +32,7 @@ own pathname and sending a zero-length registration datagram. Each later
 datagram is one raw Ethernet frame: big-endian 16-bit words starting with
 destination/source and EtherType, **without Manchester preamble, hardware
 CRC, or receiver status**. Incoming frames are limited to the controller
-server's 512-word transmit buffer. Both socket paths must be unique; the
+server's 1024-word transmit buffer. Both socket paths must be unique; the
 server refuses to replace an existing pathname. Its socket is owner-only.
 After the first client registers, other peers are ignored until restart.
 If that client's socket disappears or refuses delivery, the server cancels

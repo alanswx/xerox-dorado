@@ -1,5 +1,6 @@
 // The host-number backplane straps are positive logic, read through the
-// real DskEth status multiplexers. Zero makes AEmu's SIONop report no NIC.
+// real DskEth status multiplexers. SIONop reports no NIC for zero;
+// station 377 also becomes Alto's all-ones absence sentinel after OR 77400.
 `timescale 1ns/1ps
 module tb_ethernet_host;
   reg clk=0; always #1 clk=~clk;
@@ -20,6 +21,8 @@ module tb_ethernet_host;
     host=8'hff;repeat(1000) @(negedge clk);
     $display("377 straps: status host=%h",read_host);
     if(read_host!==8'hff)$fatal(1,"host straps do not reach status");
+    host=8'o42;repeat(1000) @(negedge clk);
+    if(read_host!==8'o42)$fatal(1,"normal station straps do not reach status");
     host=8'h2a;repeat(1000) @(negedge clk);
     if(read_host!==8'h2a)$fatal(1,"host strap bit order reversed: %h",read_host);
     $display("ETHERNET-HOST PASS: real status mux reads positive host straps 00/ff/2a");

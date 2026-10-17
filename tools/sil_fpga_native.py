@@ -31,11 +31,15 @@ def main():
     commands = [
         ['tools/sil_backplane.py', '--emit', str(out/'dorado_native_backplane.v'),
          '--module', 'dorado_native_backplane', '--boards', ','.join(boards),
-         '--external-storage', '--nominal-environment'],
+         '--external-storage', '--nominal-environment', '--processor-monitor'],
         ['tools/sil_to_verilog.py', 'chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.wl',
          '--lc', 'chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.lc',
          '--dict', 'chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze', '--nominal-environment',
          '-o', str(out/'BaseBd_nominal.v')],
+        ['tools/sil_to_verilog.py', 'chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.wl',
+         '--lc', 'chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.lc',
+         '--dict', 'chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze', '--processor-monitor',
+         '-o', str(out/'ContA_monitor.v')],
         ['tools/sil_storage_ddram.py', '-o', str(out/'msa_ddram.v')],
     ]
     for command in commands:
@@ -76,7 +80,7 @@ def main():
             connections.append(f'    .{name}({value})')
     groups = args.storage_modules*32
     address_bits = 14 + (groups-1).bit_length()
-    connections.append('    .baseboard_debug(baseboard_debug)')
+    connections += ['    .baseboard_debug(baseboard_debug)', '    .processor_debug(processor_debug)']
     connections += [f'    .storage_{n}({v})' for n, v in [
         ('reset', 'reset || !storage_initialized'), ('ready', 'board_ready'),
         ('req_valid', 'valid'), ('req_write', 'wr'), ('req_ready', 'accept'),
@@ -110,7 +114,7 @@ module dorado_native_machine #(parameter integer SYSPER=4) (
     output wire ddram_read,ddram_write,
     output wire [63:0] ddram_wdata,
     output wire storage_ready,storage_initialized,
-    output wire [31:0] baseboard_debug,
+    output wire [31:0] baseboard_debug,processor_debug,
     output wire video,hsync,vsync_n,hblank,vblank,halfline,pixel_clk
 );
   localparam integer GROUPS=GROUP_COUNT,RAW_BITS=ADDRESS_BITS;
@@ -193,9 +197,9 @@ endmodule
     wrapper = wrapper.replace('CONNECTIONS', ',\n'.join(connections))
     (out/'dorado_native_machine.sv').write_text(wrapper)
     sources = [str(out/n) for n in ['dorado_native_backplane.v', 'BaseBd_nominal.v',
-                                   'msa_ddram.v', 'dorado_native_machine.sv']]
+                                   'msa_ddram.v', 'ContA_monitor.v', 'dorado_native_machine.sv']]
     for name in boards:
-        if name.startswith('msa') or name=='BaseBd':
+        if name.startswith('msa') or name in ('BaseBd','ContA'):
             continue
         candidates = list(Path('verilog/generated').glob(name+'-Rev-*.v'))
         if len(candidates)!=1:

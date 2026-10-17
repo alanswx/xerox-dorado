@@ -38,8 +38,8 @@ def main():
                    help='physical storage retained for this continuation; smaller configurations reject other addresses')
     p.add_argument('--hps-pack', action='store_true', help='connect a real HPS-backed serial Trident medium')
     p.add_argument('--ethernet-wire', action='store_true', help='expose the real Ethernet cable pins for packet-link validation')
-    p.add_argument('--ethernet-host', type=lambda s: int(s, 0), default=0xff,
-                   help='positive-logic station address straps (default 0xff / 377B; old exports used 0)')
+    p.add_argument('--ethernet-host', type=lambda s: int(s, 0), default=0x22,
+                   help='positive-logic station address straps (default 0x22 / 042B; 000 and 377 report no Alto NIC)')
     p.add_argument('--ethernet-host-port', action='store_true',
                    help='expose physical station straps as an eight-bit input')
     p.add_argument('--base-pack', type=Path, help='make a disposable disk with the checkpoint media overlay applied')

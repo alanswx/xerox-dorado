@@ -140,11 +140,11 @@ int main(int argc, char **argv) {
             perror("poll"); result = 1; break;
         }
         if (pfd.revents & POLLIN) {
-            unsigned char bytes[1025];
+            unsigned char bytes[2049];
             struct sockaddr_un from = {0}; socklen_t len = sizeof from;
             ssize_t n = recvfrom(fd, bytes, sizeof bytes, 0, (struct sockaddr *)&from, &len);
             if (n < 0) { if (errno == EINTR) continue; perror("recvfrom"); result = 1; break; }
-            if ((n != 0 && n < 4) || n > 1024 || (n & 1) || !from.sun_path[0]) continue;
+            if ((n != 0 && n < 4) || n > 2048 || (n & 1) || !from.sun_path[0]) continue;
             if (peer_len && (len != peer_len || memcmp(&from, &peer, len))) {
                 // Main can register its new PID before the next periodic
                 // broadcast discovers the old socket is dead. Retire that
@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
             }
             peer = from; peer_len = len;
             if (!n) continue; /* Main registers its return socket at startup. */
-            uint16_t words[512];
+            uint16_t words[1024];
             for (ssize_t i = 0; i < n/2; i++) words[i] = (bytes[2*i] << 8) | bytes[2*i+1];
             eth.local_host = words[0] & 255;
             dorado_ethernet_direct_transmit(&eth, words, n/2);

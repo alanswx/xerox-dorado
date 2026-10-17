@@ -2,26 +2,26 @@
 // 70: magic, flags, TX length. 71: TX length, words. 72: acknowledge TX.
 // 73: RX-ready, length, words; deselection commits ONLY a complete frame.
 `default_nettype none
-module dorado_ethernet_uio (
+module dorado_ethernet_uio #(parameter integer MAX_WORDS=512) (
     input wire clk, reset,
     inout wire [35:0] bus,
     input wire rx_ready,tx_valid,
-    input wire [9:0] tx_words,
+    input wire [$clog2(MAX_WORDS):0] tx_words,
     input wire [15:0] tx_data,
     input wire [31:0] tx_good,tx_bad,tx_dropped,rx_bad,
-    input wire [31:0] machine_debug,
+    input wire [31:0] machine_debug,processor_debug,
     input wire [15:0] machine_status,
-    output reg [8:0] tx_addr=0,rx_addr=0,
+    output reg [$clog2(MAX_WORDS)-1:0] tx_addr=0,rx_addr=0,
     output reg tx_ack=0,rx_wr=0,rx_commit=0,
     output reg [15:0] rx_data=0,
-    output reg [9:0] rx_words=0,
+    output reg [$clog2(MAX_WORDS):0] rx_words=0,
     output reg [31:0] aborted=0
 );
   wire enable=bus[34],strobe=bus[33];
   wire [15:0] din=bus[31:16];
   reg [15:0] command=0,dout=0;
   reg [11:0] count=0;
-  reg [9:0] received=0;
+  reg [$clog2(MAX_WORDS):0] received=0;
   reg receiving=0,rx_allowed=0,read_allowed=0;
   assign bus[32]=enable && command>=16'h70 && command<=16'h73;
   assign bus[15:0]=dout;
@@ -41,7 +41,7 @@ module dorado_ethernet_uio (
         command<=din;tx_addr<=0;
         case(din)
         16'h70:dout<=16'hd074;
-        16'h71:begin dout<={6'd0,tx_words};read_allowed<=tx_valid;end
+        16'h71:begin dout<=tx_words;read_allowed<=tx_valid;end
         16'h72:begin tx_ack<=1;dout<=16'hd074;end
         16'h73:begin
           dout<={15'd0,rx_ready};receiving<=1;received<=0;
@@ -51,8 +51,8 @@ module dorado_ethernet_uio (
         endcase
       end else case(command)
         16'h70:case(count)
-          1:dout<={14'd0,tx_valid,rx_ready};
-          2:dout<={6'd0,tx_words};
+          1:dout<={13'd0,(MAX_WORDS>512),tx_valid,rx_ready};
+          2:dout<=tx_words;
           3:dout<=tx_good[15:0];
           4:dout<=tx_bad[15:0];
           5:dout<=tx_dropped[15:0];
@@ -61,6 +61,8 @@ module dorado_ethernet_uio (
           8:dout<=machine_debug[15:0];
           9:dout<=machine_debug[31:16];
           10:dout<=machine_status;
+          11:dout<=processor_debug[15:0];
+          12:dout<=processor_debug[31:16];
           default:dout<=0;
         endcase
         16'h71:begin
@@ -69,13 +71,13 @@ module dorado_ethernet_uio (
         end
         16'h73:begin
           if(count==1)begin
-            if(din<2 || din>512)rx_allowed<=0;
-            rx_words<=din[9:0];
+            if(din<2 || din>MAX_WORDS)rx_allowed<=0;
+            rx_words<=din[$clog2(MAX_WORDS):0];
           end else begin
             if(rx_allowed && received<rx_words)begin
-              rx_wr<=1;rx_addr<=received[8:0];rx_data<=din;
+              rx_wr<=1;rx_addr<=received[$clog2(MAX_WORDS)-1:0];rx_data<=din;
             end else rx_allowed<=0;
-            if(received<513)received<=received+1'b1;
+            if(received<MAX_WORDS+1)received<=received+1'b1;
           end
         end
         default: ;

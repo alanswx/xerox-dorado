@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import pathlib
+import socket
 import subprocess
 import sys
 import tempfile
@@ -24,3 +25,23 @@ with tempfile.TemporaryDirectory(prefix="dorado-main-", dir="/tmp") as tmp:
     finally:
         proc.terminate()
         proc.wait(timeout=5)
+
+# Exercise the maximum raw frame independently of Pup application semantics.
+with tempfile.TemporaryDirectory(prefix="dorado-main-large-", dir="/tmp") as tmp:
+    path = str(pathlib.Path(tmp) / "server.sock")
+    with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as peer:
+        peer.bind(path)
+        peer.settimeout(5)
+        env = dict(os.environ, DORADO_NET_SOCKET=path, DORADO_TEST_LARGE="1")
+        test = subprocess.Popen([str(test_exe), str(root / "dorado/worlds/aemu.eb")], env=env)
+        try:
+            registration, address = peer.recvfrom(4096)
+            assert registration == b""
+            frame, sender = peer.recvfrom(4096)
+            assert sender == address and len(frame) == 2048
+            peer.sendto(frame, address)
+            assert test.wait(timeout=10) == 0
+        finally:
+            if test.poll() is None:
+                test.terminate()
+                test.wait(timeout=5)

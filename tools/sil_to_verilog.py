@@ -1230,13 +1230,17 @@ class Generator:
             if drives:
                 self.exports.add(name)
 
-    def emit(self, nominal_environment: bool = False) -> str:
+    def emit(self, nominal_environment: bool = False, processor_monitor: bool = False) -> str:
         self.classify()
         mod = vname(self.b.name)
         if nominal_environment:
             if self.b.name.split('-Rev')[0] != 'BaseBd':
                 raise ValueError('nominal environment applies only to BaseBd')
             mod += '_nominal'
+        if processor_monitor:
+            if self.b.name.split('-Rev')[0] != 'ContA':
+                raise ValueError('processor monitor applies only to ContA')
+            mod += '_monitor'
         out: list[str] = []
         A = out.append
 
@@ -1282,6 +1286,7 @@ class Generator:
             A(f'module {mod} #(parameter integer SYSPER = 16) (')
         decl = ['    input  wire sys_clk'] + \
                (['    input wire baseboard_boot_n', '    output wire [31:0] baseboard_debug'] if nominal_environment else []) + \
+               (['    output wire [31:0] processor_debug'] if processor_monitor else []) + \
                [f'    input  wire {vname(n)}' for n in inputs] + \
                [f'    output wire {vname(n)}__drv' for n in exports]
         A(',\n'.join(decl) if decl else '    // no backplane ports detected')
@@ -1504,6 +1509,12 @@ class Generator:
         if nominal_environment:
             address = ', '.join(f'MCA_{i:02d}' for i in range(15, -1, -1))
             A(f"  assign baseboard_debug = {{12'd0, MCReset_p_, MCClk, AHasCP, CVCC, {address}}};")
+        if processor_monitor:
+            fields = ['Run_p_', 'Hold', 'SetRun', 'SetSS_p_']
+            fields += [f'CTask_{i}' for i in range(4)]
+            fields += [f'CIA_{i:02d}' for i in range(4, 16)]
+            fields += [f'TPC_{i:02d}' for i in range(4, 16)]
+            A('  assign processor_debug = {' + ', '.join(fields) + '};')
         # An FPGA has no supply/temperature analog chain. Supply comparator
         # levels at its actual output pins, driven by the REAL firmware DAC.
         # The 6502 still runs ADConvert, range checks, power sequencing and
@@ -1836,6 +1847,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument('--report', action='store_true')
     ap.add_argument('--nominal-environment', action='store_true',
                     help='emit BaseBd nominal voltage/current/temperature comparators and physical boot input')
+    ap.add_argument('--processor-monitor', action='store_true',
+                    help='emit ContA passive task/PC/run/hold observation port')
     args = ap.parse_args(argv[1:])
 
     board = load_board(args.wl, args.lc)
@@ -1844,7 +1857,7 @@ def main(argv: list[str]) -> int:
     gen = Generator(board, ecl, known_cells(args.cells),
                     cell_port_dirs(args.cells),
                     cells_wanting_clock(args.cells))
-    text = gen.emit(nominal_environment=args.nominal_environment)
+    text = gen.emit(nominal_environment=args.nominal_environment, processor_monitor=args.processor_monitor)
 
     if args.out:
         os.makedirs(os.path.dirname(args.out) or '.', exist_ok=True)

@@ -43,15 +43,17 @@ an older core lacking capability magic `D074` gets no packet commands.
 
 | Command | Command response | Subsequent words |
 | --- | --- | --- |
-| `70` | `D074` | flags, TX length, good TX, bad CRC, dropped TX, bad RX submit, aborted RX transaction, optional machine debug low/high and status |
+| `70` | `D074` | flags, TX length, good TX, bad CRC, dropped TX, bad RX submit, aborted RX transaction, optional BaseBoard debug low/high, machine status, processor debug low/high |
 | `71` | TX length | TX data words; reading leaves the packet pending |
 | `72` | `D074` | acknowledges the pending TX after local server acceptance |
 | `73` | RX ready | length then data; deselection commits a complete packet |
 
-Flags: bit 0 = RX staging buffer ready, bit 1 = checked TX packet pending.
+Flags: bit 0 = RX staging buffer ready, bit 1 = checked TX packet pending,
+bit 2 = 1024-word frame buffers (otherwise the legacy 512-word limit).
 Counters are their low 16 bits. Words cross SPI as 16-bit values and cross
 the socket as big-endian bytes. Neither side carries the physical CRC or
-controller status. Buffers hold 512 data words. A busy TX buffer drops
+controller status. The Cedar configuration buffers 1024 data words to carry its advertised
+1478-byte Pup payloads. Legacy cores retain 512-word buffers. A busy TX buffer drops
 later wire packets and counts them; Main retains a received server frame
 until the RX staging buffer is ready. Partial, overlong and busy RX
 transactions do not reach the cable.
@@ -82,3 +84,9 @@ Main already supports a per-core `main=` INI setting. A binary launched from
 `main=/tmp/dorado-main/MiSTer`. Other launchers retain their existing settings.
 The hardware TX test delivers twelve real CRC-checked guest frames to the
 local service. Full supported Pup reception/boot is still under test.
+
+Never replace a running Main executable, including by atomic rename. Main
+reads `/proc/<pid>/exe` when it re-executes during a core load; replacing the
+inode leaves that pathname ending in ` (deleted)` and its restart falls back
+to a board reboot. Stage each binary at a fresh versioned path, then change
+only the corresponding core's `main=` setting. Stock Main remains intact.

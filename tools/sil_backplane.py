@@ -308,9 +308,10 @@ MACHINE_CONFIG_TIES = {
     'ChipsAre256/16K': "1'b1",
     'ChipsAre64K': "1'b0",
     # DskEth k02/k03/j02/j03 read positive-logic station straps into the
-    # status high byte. All-zero straps make AltoEtherEmu.mc SIONop return
-    # 77777 ("no Ethernet"). Use station 377, matching EBoot's EHLoc.
-    **{f'Host.{i}': "1'b1" for i in range(8)},
+    # status high byte. Zero explicitly takes SIONop's absent-interface
+    # branch; 377 OR 77400 also returns Alto's 77777 absent sentinel.
+    # A normal unicast station is 042B, matching the local boot server.
+    **{f'Host.{i}': f"1'b{(0o42 >> (7-i)) & 1}" for i in range(8)},
 }
 
 
@@ -576,7 +577,8 @@ def _classify_boards(names: list[str]):
 
 
 def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
-             external_storage: bool = False, nominal_environment: bool = False) -> int:
+             external_storage: bool = False, nominal_environment: bool = False,
+             processor_monitor: bool = False) -> int:
     """Wire the boards together into one module, BY NAME.
 
     The backplane is not straight-through -- the BaseBoard drives each board's
@@ -601,6 +603,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
     a board this configuration does not have. The emitted comment says which.
     """
     info, vname = _classify_boards(names)
+    if processor_monitor and 'ContA' not in info:
+        raise SystemExit('--processor-monitor requires ContA')
     if nominal_environment and 'BaseBd' not in info:
         raise SystemExit('--nominal-environment requires BaseBd')
     storage_boards = [n for n in names if info[n]['base'] == 'msa'] if external_storage else []
@@ -700,6 +704,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             '   // fabric clock; the Dorado clock is an ENABLE inside the cells']
     if nominal_environment:
         decl += ['    input wire baseboard_boot_n,', '    output wire [31:0] baseboard_debug,']
+    if processor_monitor:
+        decl.append('    output wire [31:0] processor_debug,')
     if storage_boards:
         decl += storage_declarations()
     names_sorted = sorted(ports)
@@ -772,6 +778,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
         # samples. SYSPER is samples per 30 ns clock (two per instruction).
         if nominal_environment and short == 'BaseBd':
             A(f'  {d["module"]}_nominal #(.SYSPER(SYSPER)) b_{short} (')
+        elif processor_monitor and short == 'ContA':
+            A(f'  {d["module"]}_monitor b_{short} (')
         elif short in storage_boards:
             A(f'  msa_ddram #(.SYSPER(SYSPER)) b_{short} (')
         elif short in ('BaseBd', 'DskEth'):
@@ -781,6 +789,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
         conns = ['    .sys_clk(sys_clk)']
         if nominal_environment and short == 'BaseBd':
             conns += ['    .baseboard_boot_n(baseboard_boot_n)', '    .baseboard_debug(baseboard_debug)']
+        if processor_monitor and short == 'ContA':
+            conns.append('    .processor_debug(processor_debug)')
         if short in storage_boards:
             index = storage_boards.index(short)
             conns += ['    .storage_clk(storage_clk)', '    .storage_reset(storage_reset)',
@@ -872,6 +882,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
     if storage_boards:
         for declaration in storage_declarations():
             A(declaration)
+    if processor_monitor:
+        A('    output wire [31:0] processor_debug,')
     A('    input  wire [15:0] probe_sel,')
     A('    output wire [31:0] probe_val,')
     A('    output wire [15:0] probe_words')
@@ -922,6 +934,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
     conns = ['    .sys_clk(sys_clk)']
     if nominal_environment:
         conns += ['    .baseboard_boot_n(baseboard_boot_n)', '    .baseboard_debug(baseboard_debug)']
+    if processor_monitor:
+        conns.append('    .processor_debug(processor_debug)')
     if storage_boards:
         conns += [f'    .storage_{p}(storage_{p})' for p in
                   ('clk', 'reset', 'ready', 'req_valid', 'req_write', 'req_ready',
@@ -1097,11 +1111,13 @@ def main(argv: list[str]) -> int:
                     help='use BaseBd nominal analog variant and expose physical boot-button input')
     ap.add_argument('--case-variants', action='store_true',
                     help="re-derive BACKPLANE_CASE_ALIASES from the .bp files")
+    ap.add_argument('--processor-monitor', action='store_true',
+                    help='expose passive ContA task/PC/run/hold observation port')
     args = ap.parse_args(argv[1:])
     if args.emit:
         names = ([b.strip() for b in args.boards.split(',') if b.strip()]
                  if args.boards else DEFAULT_MACHINE)
-        return emit_top(args.emit, names, args.module, args.external_storage, args.nominal_environment)
+        return emit_top(args.emit, names, args.module, args.external_storage, args.nominal_environment, args.processor_monitor)
     if args.json:
         return to_json(args.json)
     if args.ports:

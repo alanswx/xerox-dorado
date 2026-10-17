@@ -82,18 +82,26 @@ MGL `setname` overrides its display/config name. Network3 delivers twelve
 actual CRC-checked guest packets to the ARM service, with zero CRC errors
 or drops. This is not yet a supported Pup receive/network-boot gate.
 
-**Station-address bug found on hardware.** Executive `EtherBoot` reports
-"This Alto has no Ethernet!" before TX. Both wrapper generators tied
-Host.0..7 to zero. DskEth's real status mux reads positive straps directly
-(test: 00/FF/2A); AltoEtherEmu.mc SIONop treats zero status as absent NIC.
-The generators now supply station 377, with an explicit exporter option
-to reproduce old zero-strapped builds. **This does not yet fix EtherBoot:**
-`Dorado_Network4_20261017` still prints "This Alto has no Ethernet!".
-Its native model reads `FF00` through the real processor InputNoPE mux;
-the SIONop result and the guest's presence test need tracing. The 40M-sample
-native screenshot only shows the command before its result and is not a
-passing network-boot gate. Host 377 is also a broadcast address; test a
-normal station such as 042B before choosing the production straps.
+**Station-address bug fixed; full hardware EFTP transfer qualified.**
+Zero straps take SIONop's explicit no-NIC branch. Station 377 also fails:
+AltoEtherEmu right-justifies FF and ORs 77400B, producing the Alto absence
+sentinel 77777B. Both generators now default to normal station 042B.
+The real status mux gate checks 00/FF/042/2A; the selectable-station
+Network5 build is deployed as `DoradoRTL_Station_20261017` on MiSTer14.
+Executive EtherBoot sends a real Pup time request, Mayday, and ACKs for
+all 21,820 words / 43,640 bytes of NETEXEC.BOOT!8, including final dally.
+Hardware reports 90 good TX, zero CRC errors, zero malformed RX submits,
+and zero aborted transactions. Two TX drops preceded the service connection;
+the complete transfer adds none. **NetExec then leaves a blank display with
+a tiny cursor; its executable handoff remains unqualified.**
+
+Station RBF SHA256:
+`2ec166c3433244f8db2a3eea8aad48a7fb415d96661d6a7270913f8eb949d201`.
+24,136 ALMs, 22,482 registers, 447 RAM blocks, 35 DSPs. Setup +7.010 ns,
+hold +0.100 ns after reviewing the same mutually exclusive F10145A
+address-capture/write-commit hold path in DskEth j13. Only this instance's
+own write-address hold checks are excluded; setup/read checks remain.
+Reports: `fpga/mister/reports/2026-10-17-station/`.
 
 Network4's fit has 24,151 ALMs, 22,606 registers, 447 RAM blocks and 35 DSPs;
 setup +7.707 ns, hold +0.091 ns with the same four scoped RAM write-address
@@ -156,9 +164,16 @@ The proposed window starts at byte `0x30000000`, outside MiSTer14 Linux RAM
 (`mem=511M`) and the template scaler's 8 MB at `0x20000000`.
 `tools/sil_fpga_native.py` now assembles these with the real BaseBoard,
 terminal and HPS medium without checkpoint initializers. Four-module
-Quartus synthesis succeeds (41,394 registers, 1,275,472 RAM bits); fit/timing
-is running in `misterubuntu:/home/alans/mister/Dorado_Native1_20261017`.
-This is not yet a hardware boot gate.
+Quartus fit succeeds in
+`misterubuntu:/home/alans/mister/Dorado_Native1_20261017`: 33,091 ALMs,
+42,587 registers, 1,275,472 RAM bits, 175 RAM blocks, 35 DSPs. All reported
+slacks are nonnegative; Dorado setup +1.719 ns, hold +0.235 ns. This native
+hierarchy matches no checkpoint-only RAM exceptions. The RBF is loaded on
+MiSTer14, where passive diagnostics show initialized DDR and running
+BaseBoard firmware, but no network TX or working display yet. RBF SHA256
+`c68a253a6c6bc17ebdb4d49a8a09c24b8b84f538ee22de19a8e7113c37ab7350`.
+Reports: `fpga/mister/reports/2026-10-17-native1/`. Framework I/O remains
+incompletely constrained. This is not yet a hardware boot gate.
 
 `tools/sil_storage_ddram.py` consumes canonical `msa.v`, verifies all 144
 chips and their common control signals, emits a separate `msa_ddram`, and
@@ -206,13 +221,32 @@ temporary diagnostic Main SHA256:
 `766873a17ff55e51a9b17cc35b16e933b002261a9daa9113b892d0609f777211`.
 Stock `/media/fat/MiSTer` remains unchanged.
 
-`Dorado_Network5_20261017` is the separate checkpoint build with selectable
-physical station straps (default 042B, alternatives 001/377/000). It is
-still fitting. The matching normal-address RTL model receives real wire
-packets, requests NetExec by Mayday and acknowledges EFTP data. At 120M
-samples it has acknowledged through sequence 31/32 of the 21,820-word boot
-file; this is a partial transfer, **not a NetExec or Cedar boot gate**.
-Station 377 reproduces "This Alto has no Ethernet!" in the native model too.
+The Cedar-specific native build is fitting in
+`misterubuntu:/home/alans/mister/Dorado_Native2_20261017`. It selects Pilot
+10-word labels and includes passive ContA run/hold/task/CIA/TPC observation.
+No processor state is written by these diagnostics. The packet bridge now
+buffers 1024 words to carry Cedar's advertised 1478-byte Pup data payloads;
+UIO flags bit 2 advertises this capability, preserving legacy 512-word core
+compatibility. Full-size wire CRC, UIO backpressure/commit and Main process
+transport gates pass, including on the actual MiSTer ARM.
+
+Cedar's ARM-local STP tree and immutable versioned Main/server binaries are
+staged under `/media/fat/games/DoradoRTL/System_20261017`. Launch the server
+with cwd `System_20261017/dorado`, explicit BFN110 aemu/NetExec paths and
+STP root `System_20261017/chm/cedar/stp-root`; then its existing relative
+BFN113 mapping resolves to the matched CedarDorado.eb!6. The current service
+is running there; native firmware has not requested a boot file yet.
+
+**Never replace a running Main executable.** Its core-change restart reads
+`/proc/<pid>/exe`; replacing the inode leaves a deleted pathname and the
+failed exec falls back to rebooting the board. This caused one station-load
+reboot and was corrected. Use immutable content-addressed paths. Current
+native Main SHA256 is
+`1fb2e098e6f0dba64b2ad8f13964e8a6ecef553bab72039ee24e53cb9619e8d2`;
+static ARM server SHA256 is
+`215276e0b3d780b4a6f6cbb0a4339672d714a152c0a70858950b1cb05dea25f2`.
+Stock `/media/fat/MiSTer` is unchanged.
+
 
 **The native Pilot medium requires a different format.**
 `PilotDiskDefs.mc!1` and `PilotDisk.mc!1` specify drive 0's emulated geometry:
