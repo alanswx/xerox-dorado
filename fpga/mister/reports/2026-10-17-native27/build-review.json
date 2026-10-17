@@ -1,0 +1,10 @@
+{
+  "rbf_sha256": "ac94263dcabcf3e6da5ff28366acf13bcd79efe9d233c952052e7d8cd89042bd",
+  "timing_checks": 29,
+  "minimum_slack_ns": 0.115,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "hold_review": "ProcH l03 addressbit1 own4 sinks -.040ns slow; MemX e20 addressbit2 own2 sinks -.036ns slow; no fast violation. Unchanged F10145A captures only !p13; writes only p13&&!we_d&&ce_lat. Exact endpoint cardinalities enforced; hold-only, no setup/read/data/enable or cross-cell exclusions. Post-fit constraints only; do not carry exact cardinality assertions into a new fit.",
+  "deployed": false,
+  "qualification_limit": "Passive medium fault components pass; no Native27 full cold boot or actual hardware qualification yet; remains diagnostic candidate."
+}

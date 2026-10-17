@@ -3,11 +3,11 @@
 ## Current objective (2026-10-17 UTC)
 
 **Boot Cedar on the FPGA, log in, reach Viewers, type `Echo FPGA`, and verify
-keyboard/mouse interaction. Native25 now displays Cedar login and accepted
-`Guest` plus two Returns through the FPGA keyboard path. Viewers and an
-interactive CommandTool prompt remain incomplete.** C snapshots and host IOCB completion do not qualify.
+keyboard/mouse interaction. Native26 has loaded all33 Basic.Loadees BCDs,
+accepted Guest and the installer keyboard response, and is fetching the
+BootEssentials closure. Viewers and an interactive CommandTool remain incomplete.** C snapshots and host IOCB completion do not qualify.
 
-## Current state (media fix proved; disk fault under investigation; Native26 booting)
+## Current state (Native26 installer running; external video recovery open)
 
 **Native25h cleared the media blocker; Native26 is now booting on MiSTer14.** The original BaseBoard firmware requested
 BFN113, disk-loaded Cedar started, and the actual FPGA raster displays
@@ -78,15 +78,83 @@ serial versus host fault is not yet distinguished. Preserved files:
 Native26 (same media/controller,8MB/64K geometry) is now a separate hardware
 control; original firmware/BFN113 completed at22:46 UTC; C watcher64124 released.
 OS routing request/reply and actual Cedar login observed22:47; Guest
-is now being typed through real keyboard. Loader/fault behavior remains open. Its cold
+was accepted through real keyboard. By22:52, loader requests11 files
+through WorldVM, passing UserProfile/Idle/DFPackage/BasicPackages/Installer/
+Inscript/VersionMap. By22:58, Rosary is loaded and the guest is requesting
+TiogaPackage (287232B);24 transfers including Basic.Loadees have started
+by23:00. At23:03 all34 transfers including Basic.Loadees and its33 BCDs
+through Viewers/End.bcd have started. Final file completion/installer/desktop
+remain to observe; pack_fault remains0. User notes simulation also loads
+slowly and snapshots bypass this phase. FPGA ceiling is4.167M microinstr/s
+(0.25x Dorado) before DDR/HPS pauses; elapsed load time alone is not a fault. Its cold
 copy-sampling gate remains open (8880 words,0 mismatch, below8900 threshold).
 Native27 adds only passive first-fault observation to26: reason, cylinder,
 head, block/state/bit and CRC residue or LBA. Component bad-CRC and host-timeout
 probes pass without inventing completion. Initial fit22467 rejected carried post-fit SDC cardinalities before placement.
 Post-fit SDC was removed for fitting. Fit71756 was then stopped before
 RBF to add BaseBoard debug when Run' is set. Final map/fit restarted via
-`native27-candidate/remap.py`, lognative27-remap.log. No
-Native27 deployment before fit/timing review.
+`native27-candidate/remap.py`, lognative27-remap.log. Fit/asm/STA now finish;
+reviewed29 checks pass,min+.115ns, zero illegal/unconstrained clocks.
+Exact ProcH l03 own4 bit1/MemX e20 own2 bit2 hold-only review retained.
+Not deployed; keep Native26 installer running.
+
+## Video investigation and installer progress (2026-10-17 23:16 UTC)
+
+Actual Native26 screenshot confirms every33 BCD loading line through End.bcd
+reports `ok`. Startup reached InstallerImpl and waited for `Do you wish to
+install a personal profile? Yes`. At23:08 `No`+Return through the existing
+keyboard advanced to real BootEssentials BringOver (User.Profile, SafeStorage,
+File, FS etc.). This is a prompt, not a slow-loader hang. pack_fault remains0.
+
+The original display **is 2:1 interlaced**, HM printedp115 / PDFp122,
+`DoradoDocs/dorado-hardware-manual/Dorado_Hardware_Manual.md:5612`:
+"Only 2:1 interlaced monitors are supported in this design". DispY's actual
+OddField latch drives VGA_F1. HDMI should present a stable progressive image.
+
+The active720p60 configuration vertically downscales and keeps one source
+field: scaler header width900,height431. MiSTerKVMS HDMI captures show
+alternating incomplete text rows. Read-only scaler captures contain both
+field IDs, with clean status; interleaving these fields makes text readable
+(analysis composite only). Live1080p60 makes Main's **unmodified** internal
+capture1072x862 and all text readable; evidence in Native26 report directory.
+But HDMI capture goes black on the live mode change. Returning720p timing
+and host HDMI transmitter reinit have not restored external capture as of23:16.
+Do not claim video fixed or call the black capture guest failure. The1080p60
+clock was a diagnostic outside the fixed74.25MHz qualification, subsequently
+restored. The1080p30 diagnostic used **74.25MHz**, the qualified clock,
+with progressive1080 output. Main video_init subsequently restored original
+720p preset/VIC4 after invalidating only its host HDMI cache. INI unchanged;
+no core reload. Source still gets720p field reduction. Explicit core-framebuffer selection
+and a labelled Main OSD diagnostic also remain black externally. External HDMI remains
+black even after transmitter power cycle, full host video reinit, capture14
+reopen and supported capture-format renegotiation. User confirms viewer black.
+ADV7513 reads PLL9e=12, detectedVIC3e=10 (720p60), channelsa1=00,
+AVmute4b=00, power41=10, VIC3c=04; these show clock/timing lock but
+do not prove active pixel/DE correctness. Other two capture streams never
+changed/restarted. Original full capture config restored.
+
+**Main live-parser defect:** extended21+-item modelines leave Fpix zero,
+then setPLL loops at Fout0. First such command stalled Main23:12–23:14;
+queued host display commands were saved/cancelled, and GDB returned only
+from host video_mode_cmd at its caller using exact immutable1fb2 symbols.
+No FPGA CPU/register/memory writes or reload; normal transport resumed and
+pack_fault remained0. Avoid extended live modes; short9/11-item forms have
+an explicit nonzero pixel clock. Neither running executable was replaced.
+A later GDB call at host input_poll boundary reinitialized only Main's HDMI
+transmitter; external stream still black. These host interventions must be
+included with boot evidence. Native26 guest continues BootEssentials BringOver; later screenshots show
+AMTypes/Viewers/Interpreter/ViewerIO/terminal and debugger closure progress.
+PrintTV.df is absent in the served Top tree; installer warns and proceeds
+with its default continuation. No new CPU or disk fault observed.
+
+MiSTerKVMS CLI is `/Applications/MiSTerKVMS.app/Contents/MacOS/misterkvms-cli`.
+14 stream: `mkvm://10.0.2.128/Mister%2014`; always pass `--mister 10.0.2.14`.
+Use `screenshot PATH`, `record 8s PATH.mp4`; discovery `streams` lists all
+three stations, but only14 is allocated. Do not restart the shared capture
+service or touch126/192. Native27 fit/asm/review complete:29 checks,min+.115ns, no illegal or
+unconstrained clocks. ProcH l03 own addressbit1/4sinks and MemX e20
+ownbit2/2sinks hold-only review, unchanged capture/commit exclusion.
+RBF ac94263d... not deployed. Reports in native27 directory.
 
 ## Active work
 
@@ -100,7 +168,7 @@ Scratch names below are relative to `build/rtl-executive/`.
 | Native25 receive-full correction | Cold120M/fit/review COMPLETE | 8931 sampled germ words/no mismatch, original Initial/Cedar gates, IFU670280/670434, all6 errors enabled/clean106611683 samples. Timing29 checks,min+0.071ns; exact MemX c21 own4 hold paths reviewed. Hardware now passes routing/time/name and displays Cedar login; Guest accepted. |
 | Native26 capacity build | Fit/review COMPLETE | `misterubuntu:/home/alans/mister/Dorado_Native26_20261017/`, `native26-build.log`; four64K-chip modules/8MB physical RAM,64K map, Native25 k04 correction retained. Experimental; timing29 checks,min+0.074ns, no illegal/unconstrained clocks. Cold final500M reviewed; sample coverage fails8880/8900. Actual firmware/BFN113/OS routing succeeded; login under observation. |
 | Four64K-module software control | COMPLETE24B | `cedar-64k-map64-control/`: fresh8MB RAM/64K map reaches Viewers (166685px), type2, VirtualBanks0100; valid geometry reference, software only. |
-| Native27 passive fault/BB monitor | Remap/fit active | `native27-remap.log`; reason/context on pack fault, BB debug while CPU stopped; no RBF deployed. Prior fit-cardinality rejection fixed by proper pre-fit SDC. |
+| Native27 passive fault/BB monitor | Fit/review COMPLETE; not deployed | `native27-remap.log`;29 timing checks,min+.115ns, zero illegal/unconstrained clocks. Exact ProcH l03 bit1 own4/MemX e20 bit2 own2 hold-only review. RBF ac94263d...; keep Native26 installer active. |
 | Larger-memory cold RTL | COMPLETE500M | `cedar-density64-ddrcheck.log`,500M limit,SYSPER4, four64K-chip modules/64K map,actualDDR. `storage64-candidate/`; component prototype, not production. Final IFU8540094/8543534, original Initial/Cedar pass, all6 errors clean486611635 samples; source gate fails8880/8900 coverage, not a pass. |
 
 Native24 changes only passive observation. **Its CPU EOP tap is wrong:**
@@ -266,9 +334,16 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Diagnose Native25h pack_fault after RPCRuntime; UserProfile incomplete.
 - [x] Native26 original firmware/BFN113 handoff and real OS routing observed22:46.
 - [x] Native26 displays real Cedar login (screenshot22:47).
-- [ ] Observe Native26 Guest/loader and whether medium fault repeats.
-- [ ] Qualify Native27 passive fault-monitor fit/timing and reproduce the fault if needed.
-- [ ] Complete all34 loadees and reach Viewers.
+- [x] Native26 Guest accepted and loader passes UserProfile fault point, through WorldVM22:52 with pack_fault0.
+- [x] Complete all33 Native26 BCD downloads; actual screen reports every load ok.
+- [x] Answer installer personal-profile prompt through real keyboard; observe BootEssentials BringOver.
+- [ ] Complete Native26 BootEssentials closure and remaining STARTs; monitor pack_fault.
+- [ ] Restore external HDMI after live mode test; internal1072x862 raster readable.
+- [ ] Use qualified-clock progressive output and verify stable deinterlacing, including video.
+- [ ] Fix Main extended-modeline zero-clock parser before using that form again.
+- [x] Qualify Native27 passive fault-monitor fit/timing:29 checks,min+.115ns.
+- [ ] Reproduce medium fault with Native27 observation if needed; not deployed.
+- [ ] Complete the33 listed BCDs (34 files including Basic.Loadees) and reach Viewers.
 - [ ] Improve cable TX queue: one pending packet caused1 dropped short packet; BSP recovered, but a burst-capacity regression and deeper queue remain useful.
 - [ ] Recapture the receive buffer coherently if byte-level header proof is needed.
 - [x] Add experimental64K geometry generator; pass cell, full MemX geometry,

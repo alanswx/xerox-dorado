@@ -5,7 +5,8 @@ byte-exact; UserProfile remains incomplete after1024 bytes. Native26 is an
 independent8MB/64K hardware control. Native27 keeps its functional RTL and
 adds first-fault observation. No errors are ignored and no completion is
 invented. Build path: misterubuntu:/home/alans/mister/Dorado_Native27_20261017.
-Fit/timing review remains required before deployment.
+Fit/review now pass29 checks,min+.115ns; no illegal/unconstrained clocks.
+Not deployed; actual Native27 cold/hardware qualification remains open.
 
 When pack_fault is set, existing UIO machine/processor debug words switch
 to fault context/extra. When Run' is set (processor stopped), machine-debug shows BaseBoard
@@ -36,3 +37,11 @@ placement. Refit uses native26-before-review.sdc. A subsequent in-progress
 fit was stopped before any RBF to add stopped-CPU BaseBoard visibility;
 map/fit restarted from the final diagnostic source. The active FPGA26 was
 untouched by these build retries.
+
+Fit/asm/reviewed STA complete.29 checks pass, minimum+0.115ns; zero
+illegal/unconstrained clocks. Six slow hold paths are only ProcH l03 own
+a_lat[1] to its4 write-address sinks (-.040ns) and MemX e20 own a_lat[2]
+to its2 sinks (-.036ns). Unchanged F10145A address capture and write
+commit have mutually exclusive !p13/p13 enables. Exact post-fit endpoint
+cardinalities and hold-only exclusions retained; setup/read/data/enables
+remain timed. No fast-corner violation. RBF SHA256 `ac94263dcabcf3e6da5ff28366acf13bcd79efe9d233c952052e7d8cd89042bd`. Not deployed; Native26 installer still active.

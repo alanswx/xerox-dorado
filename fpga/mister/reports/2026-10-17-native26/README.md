@@ -22,4 +22,26 @@ exact same-cell write-address hold review included. RBF586dc7f8... is now
 on MiSTer14 as the separate memory-geometry hardware control with a fresh
 corrected-label packf3bce2a8.... Original BaseBoard/Initial firmware emitted
 BFN113 at22:46 UTC and C released; actual OS routing requests follow.
-Login/loader/disk-fault reproduction/desktop remain under observation.
+Actual login and Guest accepted. All33 BCD loading lines through End.bcd
+report ok. Installer keyboard response No+Return advanced personal-profile
+question into BootEssentials BringOver. Desktop/input remain incomplete;
+pack_fault0. See fpga-all-loadees-1080p.png and fpga-installer-1080p.png.
+
+Video investigation:720p downscales source1072x862 interlace to900x431,
+retaining only one field; HDMI video alternates missing text rows. Native
+1080p internal capture retains both fields and renders clear text. External
+HDMI stream went black during live mode change; not yet recovered. The
+1080p30 diagnostic used the qualified74.25MHz HDMI clock. Main video_init
+restored original720p preset/VIC4 without FPGA reload; HDMI still black
+after transmitter power cycle and capture14 reconnect/format test. Full
+capture configuration restored; other streams never restarted.1080p60 was an
+out-of-qualification diagnostic and is not the qualified build setting.
+No INI change/reload. Original display's2:1 interlace is explicitly specified
+by HMp115. HDMI must still be presented progressively without shimmer.
+
+Host Main extended-mode parsing stalled on zero Fpix23:12–23:14, recovered
+by returning only its host video_mode_cmd frame with exact binary symbols,
+cancelling queued host display commands. No guest-state write or reload;
+normal network/disk transport resumed with pack_fault0. Host-only HDMI
+transmitter reinit at input_poll boundary did not restore external capture.
+See current handoff for the exact intervention and remaining video TODOs.
