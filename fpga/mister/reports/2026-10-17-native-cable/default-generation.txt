@@ -1,0 +1,1 @@
+Default generator before/after byte-identical after probe basename normalization. Checked fresh outputs from HEAD generator and changed generator; existing dorado_full.v has an older Host0 fixture wrapper and was left untouched.

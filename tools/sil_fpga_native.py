@@ -31,7 +31,8 @@ def main():
     commands = [
         ['tools/sil_backplane.py', '--emit', str(out/'dorado_native_backplane.v'),
          '--module', 'dorado_native_backplane', '--boards', ','.join(boards),
-         '--external-storage', '--nominal-environment', '--processor-monitor', '--display-field'],
+         '--external-storage', '--nominal-environment', '--processor-monitor', '--display-field',
+         '--export-net', "XmtData'"],
         ['tools/sil_to_verilog.py', 'chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.wl',
          '--lc', 'chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.lc',
          '--dict', 'chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze', '--nominal-environment',
@@ -82,6 +83,16 @@ def main():
             # External control processor is absent: its active-low lines idle high.
             value = "1'b1" if name.startswith(('ACPABus_', 'ACPBus_', 'ACPStrb_')) else "1'b0"
             connections.append(f'    .{name}({value})')
+    # A board added inside the backplane can consume a cable output, hiding
+    # it from the default port heuristic. Never emit a native wrapper with
+    # one of its required external device connections silently absent.
+    required = {'XmtData_p_', 'RcvData', 'AltoTTLVideo', 'AltoHSync',
+                'AltoVSync_p_', 'HBlank', 'VBlank', 'HalfLine', 'OISData',
+                'DataP0', 'DataM0', 'Select0_p_', 'CylinderTag_p_',
+                'HeadTag_p_', 'DriveTag_p_', 'ContTag_p_'}
+    missing = required - {name for _, name in ports}
+    if missing:
+        raise ValueError(f'native device ports missing from backplane: {sorted(missing)}')
     groups = args.storage_modules*32
     address_bits = 14 + (groups-1).bit_length()
     connections += ['    .baseboard_debug(baseboard_debug)', '    .processor_debug(processor_debug)',

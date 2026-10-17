@@ -1018,6 +1018,19 @@ initial-network-test:
 	@cd ../.. && python3 tools/check_initial_request.py \
 		verilog/verilator/obj_initial_rom/request.txt --sysper $(SYSPER)
 
+# The native machine includes BaseBd, which also observes the TX cable.
+# Exercise the complete generated wrapper rather than the smaller full top.
+.PHONY: native-cable-test
+native-cable-test:
+	@cd ../.. && python3 tools/sil_fpga_native.py --pilot-disk \
+		-o build/rtl-executive/native-cable-test >/dev/null && \
+		$(V) --binary --top-module tb_native_cable $(V_WARN) \
+		-Iverilog/cells -Iverilog/generated -Iverilog/vendor/6502 -Iverilog/vendor/riot \
+		--Mdir verilog/verilator/obj_native_cable -o native-cable-test \
+		-f build/rtl-executive/native-cable-test/sources.f \
+		verilog/verilator/tb_native_cable.sv >/dev/null && \
+		./verilog/verilator/obj_native_cable/native-cable-test
+
 .PHONY: firmware-probe
 firmware-probe:
 	@cd ../.. && $(V) --binary --top-module tb_firmware $(V_WARN) \

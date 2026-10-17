@@ -578,7 +578,8 @@ def _classify_boards(names: list[str]):
 
 def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
              external_storage: bool = False, nominal_environment: bool = False,
-             processor_monitor: bool = False, display_field: bool = False) -> int:
+             processor_monitor: bool = False, display_field: bool = False,
+             export_nets: list[str] | None = None) -> int:
     """Wire the boards together into one module, BY NAME.
 
     The backplane is not straight-through -- the BaseBoard drives each board's
@@ -677,6 +678,18 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
                 ports[net] = 'output' if contribs[net] else 'input'
         else:
             internal[net] = len(contribs[net])
+
+    # A cable can also have an on-board observer. BaseBd monitors XmtData',
+    # so adding it makes the ordinary boundary heuristic internalize that
+    # net. Keep its resolved board connections and explicitly expose a tap.
+    for net in export_nets or []:
+        if net not in net_boards or not contribs.get(net):
+            raise SystemExit(f'cannot export undriven backplane net {net!r}')
+        if ports.get(net) == 'input':
+            raise SystemExit(f'cannot export input backplane net {net!r}')
+        ports[net] = 'output'
+        internal.pop(net, None)
+        absent_partner.setdefault(net, [])
 
     L: list[str] = []
     A = L.append
@@ -1147,12 +1160,15 @@ def main(argv: list[str]) -> int:
                     help='expose passive ContA task/PC/run/hold; with BaseBoard, also Stop/clock observations')
     ap.add_argument('--display-field', action='store_true',
                     help='expose DispY actual OddField latch for video capture')
+    ap.add_argument('--export-net', action='append', default=[],
+                    help='also expose this driven resolved net, retaining its board consumers')
     args = ap.parse_args(argv[1:])
     if args.emit:
         names = ([b.strip() for b in args.boards.split(',') if b.strip()]
                  if args.boards else DEFAULT_MACHINE)
         return emit_top(args.emit, names, args.module, args.external_storage,
-                        args.nominal_environment, args.processor_monitor, args.display_field)
+                        args.nominal_environment, args.processor_monitor, args.display_field,
+                        args.export_net)
     if args.json:
         return to_json(args.json)
     if args.ports:

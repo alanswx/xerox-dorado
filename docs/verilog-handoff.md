@@ -8,6 +8,42 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Actual hardware frontier, 2026-10-17 11:46 UTC.** Native15 passes
+CD2 with Stop=0 and reaches ROM Initial's Ethernet reply loop C66/C6F/C75.
+Main's TX good/bad counters remain zero; server receives no request.
+Cause is now proven: with BaseBd present, the generic backplane generator
+internalizes XmtData' because BaseBd also consumes it. The native wrapper
+then leaves ethernet_tx_n undriven. Its required binding existed in the
+Python dictionary but was silently skipped because the port did not exist.
+
+`sil_backplane.py --export-net "XmtData'"` now exposes the resolved cable
+while retaining BaseBd's input. Native generation requires all external
+network/video/terminal/disk device ports, failing if any are missing.
+`make -C verilog/verilator native-cable-test` checks the entire generated
+native wrapper with the machine paused: a driven DskEth cable reaches both
+the external output and BaseBd observer for sixteen samples. The frozen
+Native15 fails drive=1/external=0/BaseBd=1; corrected Native16 passes.
+This gate is boundary connectivity, not a CPU or protocol boot test.
+Evidence: `reports/2026-10-17-native-cable/`.
+
+**Native16** is building at
+`misterubuntu:/home/alans/mister/Dorado_Native16_20261017/core`, frozen
+overlay SHA256 `a262b057698f63ee5e297faca236b8a11e659338c426c539efca774d88ccb9bf`.
+Build session10735; map/fit/asm/full STA/clock audit are sequential and
+mandatory. It includes the reviewed Native15 hold constraints from outset.
+No Native16 RBF loaded yet. Actual FPGA remains Native15, C still held by
+helper24118 until12:34UTC; stop/release that helper before a fresh hold after
+Native16 Main is ready. Main log: `Cedar15_20261017/main.log`.
+Native14 fitter and audit watcher were stopped as superseded.
+
+The BaseBoard-manifold component run completed150M with exact3600IM+
+256IFUM readback, no errors, and task0 in Cedar map/cache initialization.
+The cycle-limit extension arrived after completion; it did NOT extend that
+run. A fresh400M run is session59398,
+`build/rtl-executive/cedar113-bbman-long.log`, bound file
+`cedar113-bbman-long-limit.txt`. Direct Initial entry and forced BaseBoard
+interface ownership remain explicit component setup, not native boot.
+
 **Actual Native15 loaded, 2026-10-17 11:34 UTC.** MiSTer14 now runs
 `DoradoRTL_Cedar15_20261017/Cedar15.mgl`, RBF SHA256
 `cb7a541fd4bd1bde02ad958afad37ff99a75d6d1c65d38914e43f16c39596b4b`.
