@@ -579,7 +579,8 @@ def _classify_boards(names: list[str]):
 def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
              external_storage: bool = False, nominal_environment: bool = False,
              processor_monitor: bool = False, display_field: bool = False,
-             export_nets: list[str] | None = None, receive_monitor: bool = False) -> int:
+             export_nets: list[str] | None = None, receive_monitor: bool = False,
+             storage_address_bits: int = 14) -> int:
     """Wire the boards together into one module, BY NAME.
 
     The backplane is not straight-through -- the BaseBoard drives each board's
@@ -623,7 +624,7 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             '    output wire storage_ready,',
             f'    output wire [{n-1}:0] storage_req_valid, storage_req_write,',
             f'    input wire [{n-1}:0] storage_req_ready,',
-            f'    output wire [{14*n-1}:0] storage_req_addr,',
+            f'    output wire [{storage_address_bits*n-1}:0] storage_req_addr,',
             f'    output wire [{16*n-1}:0] storage_req_data,',
             f'    input wire [{n-1}:0] storage_rsp_valid,',
             f'    output wire [{n-1}:0] storage_rsp_ready,',
@@ -841,7 +842,7 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             conns += ['    .storage_clk(storage_clk)', '    .storage_reset(storage_reset)',
                       f'    .storage_ready(storage_board_ready[{index}])']
             for port, width in [('req_valid', 16), ('req_write', 16), ('req_ready', 16),
-                                ('req_addr', 224), ('req_data', 256), ('rsp_valid', 16),
+                                ('req_addr', 16*storage_address_bits), ('req_data', 256), ('rsp_valid', 16),
                                 ('rsp_ready', 16), ('rsp_data', 256)]:
                 conns.append(f'    .storage_{port}(storage_{port}[{index*width}+:{width}])')
         def _read(n: str) -> str:
@@ -1164,6 +1165,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument('--module', default='dorado_backplane')
     ap.add_argument('--external-storage', action='store_true',
                     help='connect msa_ddram raw storage ports; generated separately by sil_storage_ddram.py')
+    ap.add_argument('--storage-address-bits', type=int, choices=(14, 16), default=14,
+                    help='per-chip raw address width; must match msa_ddram')
     ap.add_argument('--nominal-environment', action='store_true',
                     help='use BaseBd nominal analog variant and expose physical boot-button input')
     ap.add_argument('--case-variants', action='store_true',
@@ -1182,7 +1185,7 @@ def main(argv: list[str]) -> int:
                  if args.boards else DEFAULT_MACHINE)
         return emit_top(args.emit, names, args.module, args.external_storage,
                         args.nominal_environment, args.processor_monitor, args.display_field,
-                        args.export_net, args.receive_monitor)
+                        args.export_net, args.receive_monitor, args.storage_address_bits)
     if args.json:
         return to_json(args.json)
     if args.ports:

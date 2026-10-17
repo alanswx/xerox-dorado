@@ -1302,6 +1302,34 @@ storage-board-test:
 		fpga/mister/dorado_storage_arb.sv verilog/verilator/tb_storage_board.sv \
 		>/dev/null && ./verilog/verilator/obj_storage_board/storage-board-test
 
+.PHONY: memory-density64-test map-density64-test storage-board64-test
+memory-density64-test:
+	@cd ../.. && $(V) --binary --top-module tb_memory_density64 $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_memory_density64 -o density-test \
+		verilog/verilator/tb_memory_density64.sv >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_memory_density64/density-test
+
+map-density64-test:
+	@cd ../.. && python3 tools/sil_to_verilog.py \
+		'chm/sil/MemX-Rev-Ch.dm!1_/MemX-Rev-Ch.wl' \
+		--dict 'chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze' --map-kwords 64 \
+		-o verilog/verilator/obj_map_density64/MemX.v
+	@cd ../.. && $(V) --binary --top-module tb_map_density64 $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_map_density64 -o map-test \
+		verilog/verilator/obj_map_density64/MemX.v verilog/verilator/tb_map_density64.sv >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_map_density64/map-test
+
+storage-board64-test:
+	@cd ../.. && python3 tools/sil_storage_ddram.py --chip-address-bits 16 \
+		-o verilog/verilator/obj_storage_board64/msa_ddram.v \
+		--reference-output verilog/verilator/obj_storage_board64/msa.v
+	@cd ../.. && $(V) --binary --top-module tb_storage_board -GADDR_BITS=16 $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_storage_board64 -o storage-board-test \
+		verilog/verilator/obj_storage_board64/msa_ddram.v verilog/verilator/obj_storage_board64/msa.v \
+		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
+		fpga/mister/dorado_storage_arb.sv verilog/verilator/tb_storage_board.sv >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_storage_board64/storage-board-test
+
 # cell_F9401 against a published CRC-16 check value (0xFEE8 for "123456789").
 crc-test:
 	@cd ../.. && $(V) --binary --top-module tb_crc $(V_WARN) \

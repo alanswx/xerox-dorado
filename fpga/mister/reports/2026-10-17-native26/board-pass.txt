@@ -1,0 +1,6 @@
+Stored one bits:        1914
+STORAGE-BOARD PASS:       12012 complete-board cycles,        3008 DDR reads,        7872 writes,        1111 output transitions, all 9437184 stored bits identical
+- build/rtl-executive/density-generator-check/tb_board.sv:700: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 213us; walltime 0.043 s; speed 4.925 ms/s
+- Verilator: cpu 0.043 s on 1 threads; alloced 13 MB

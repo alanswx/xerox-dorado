@@ -6,7 +6,7 @@
 keyboard/mouse interaction. This goal is incomplete: no Cedar OS text is visible
 on the FPGA yet.** C snapshots and host IOCB completion do not qualify.
 
-## Current state (Native24 Cedar service wait on MiSTer14)
+## Current state (Native24b receives clean-status replies; Native25/26 testing)
 
 Native23 fixes ProcH d13's extra MC10170 output inversion. CompactVM previously
 treated equal bounds as less-than, vacated its own germ pages, and faulted at
@@ -27,7 +27,7 @@ The full FPGA fit passes all 29 timing checks (minimum +0.097 ns), with no
 illegal/unconstrained clocks. The three ContA e04 write-address hold exceptions
 are reviewed, exact and hold-only; setup/read/data/enables remain checked.
 Native23 was loaded on **10.0.2.14** with a fresh pack; it is now superseded
-by Native24, the same functional RTL with passive receive observation. Original firmware emitted
+by Native24b, the same functional RTL with corrected passive receive observation. Original firmware emitted
 a new BFN113 at 20:20, and the held C key released. A read-only DDR observation
 contains **964 exact nonzero pages of BasicCedarDorado.boot!22**. It has left the
 old queue loop and sends routing, time and address-lookup packets. It learned
@@ -47,11 +47,12 @@ Scratch names below are relative to `build/rtl-executive/`.
 
 | Work | Session | Location / next action |
 | --- | --- | --- |
-| Native24 hardware | Boot COMPLETE | MiSTer14, `Cedar24_20261017/main.log`; fresh BFN113 requested and C released. Routing retries, maintenance cursor only. RBF1cdc35a2...; FIFO status00 on directed replies. |
-| Native24 passive monitor | Fit/review COMPLETE | 29 timing checks pass, min+0.122ns; zero illegal/unconstrained clocks. RBF1cdc35a2... deployed on MiSTer14. Exact MemX c21 hold-only review in native24 reports. |
-| Server diagnostics | Quiet-after-Cedar RESTORED | server1d5e05e9..., PID10523, logserver-cedar23-route.log. Link-broadcast service replies did not clear time retries; binary8ecf6cf9... and separate log preserved. Restart config stays on the boot-capable quiet server. |
-| Corrected CPU monitor | Fit67581 | `misterubuntu:/home/alans/mister/Dorado_Native24b_20261017/`, `native24b-fit-restart.log`. First fit stopped on carried placement-specific c21 assertion (not a capacity failure); new fit removes that exception and times all paths. ONLY RTL change is EOP tap17->18; fit/assembly COMPLETE; STA has -0.055ns hold paths under full-path review. RBF2cffe643... is NOT deployed. Native24 CPU bytes invalid. |
-| Native25 receive-full correction | Fit69484; cold93934 | `native25-build.log`, `cedar-native25-ddrcheck.log` (120M limit). DskEth k04 B now captures setup; focused old-fail/new-pass, held sequence and8 CRC phases pass. Not yet on FPGA or a proved Cedar blocker fix. |
+| Native24b hardware | Boot COMPLETE | MiSTer14, `Cedar24b_20261017/main.log`; fresh BFN113 requested, C released. Routing retries persist. Corrected CPU/FIFO EOP counts advance together on replies, both status00. Early raw DDR had no matching packet headers (cache not captured), so no new buffer-content claim. |
+| Corrected CPU monitor | Fit/review COMPLETE | Native24b passes29 checks,min+0.080ns, no illegal/unconstrained clocks. Exact MemC f06/j07/d06 same-cell hold review in native24b reports. CPU EOP tap corrected to18; clean CPU status observed on directed replies. |
+| Server diagnostics | Quiet-after-Cedar RESTORED | server1d5e05e9..., PID10523, logserver-cedar23-route.log. Delay/nil/link-broadcast diagnostics did not clear retries. Restart this server before another core load to restore initial BOL, since quiet sessions can reuse Main's same PID/socket path. |
+| Native25 receive-full correction | Fit69484; cold9975 | `native25-build.log`, `cedar-native25-ddrcheck.log` (120M limit,SYSPER4). k04 B captures setup; old-fail/new-pass, held sequence and8 CRC phases pass. Not yet on FPGA or a proved Cedar blocker fix. First cold attempt accidentally defaulted to16; stopped/rejected, retained sysper16-rejected.log. Recipe now pins4. |
+
+| Native26 capacity build | 17871 | `misterubuntu:/home/alans/mister/Dorado_Native26_20261017/`, `native26-build.log`; four64K-chip modules/8MB physical RAM,64K map, Native25 k04 correction retained. Experimental; fit/timing/hardware qualification pending. |
 | Four64K-module software control | COMPLETE24B | `cedar-64k-map64-control/`: fresh8MB RAM/64K map reaches Viewers (166685px), type2, VirtualBanks0100; valid geometry reference, software only. |
 | Larger-memory cold RTL | 32916; PID86868 | `cedar-density64-ddrcheck.log`,500M limit,SYSPER4, four64K-chip modules/64K map,actualDDR. `storage64-candidate/`; component prototype, not production. Bounded caffeinate session36354. |
 
@@ -101,19 +102,38 @@ C advertises the size but indexes its full 64K array, and the final snapshot has
 381 referenced pages above 16K. The four-64K-chip, 8 MB control also has high
 references. Do not claim 16K suffices for the desktop. Stock 8 MB / 64K reaches
 Viewers. The 2 MB / 64K restored control is blank at 20B; do not describe it as
-DFPackage or infer its cause without more evidence. Test enforced capacity or
-support larger physical RAM and map before claiming the desktop configuration.
+DFPackage or infer its cause without more evidence. Larger-memory generator flags are now prepared and component-tested, but
+full cold boot/timing/FPGA desktop qualification remain required.
 Software controls use the C IOCB bridge and are never FPGA evidence.
+
+Experimental geometry is reproducible with:
+```
+python3 tools/sil_fpga_native.py -o build/rtl-executive/native26-density64 \
+  --pilot-disk --receive-monitor --storage-chip-kbits 64 --map-kwords 64
+make -C verilog memory-density64-test map-density64-test storage-board64-test
+make -C verilog/verilator storage-board-test
+```
+Default map/MSA generated RTL is byte-identical; default MSA comparison still
+checks2,359,296 bits. The64K board comparison checks9,437,184 bits over12,012
+complete board cycles. Native wrapper lint passes. Default wrapper differs
+from fitted24 only in passive-port connection order/whitespace. Density straps
+and DDR widths are explicitly checked. Manifest marks larger geometry experimental.
+Cold scratch64 run has reached germ entry with8,880 sampled source words,
+zero mismatches; this is below the existing8,900 gate threshold (old16K run
+sampled8,931), so it is **not a pass**. Final IFU/image/error summaries and the
+missing sample coverage remain to review. Do not weaken the gate to claim success.
 
 ## Hardware and reproducibility
 
-Only **MiSTer14** is allocated. Other MiSTers are busy. Current Native24 image:
-`1cdc35a2dca2c8bb5902e194d64d819cf2a8c84b0c188daf86cdf690ea2d0d17`.
+Only **MiSTer14** is allocated. Other MiSTers are busy. Current Native24b image:
+`2cffe64309801e11fd000757bbfef04ed551b23efe408638ce5e472a1dc97e74`.
+Previous Native24 image:1cdc35a2... (CPU monitor tap invalid).
 Previous Native23 image:
 `89726440d5d599a5b01428e4f29b54d3969064508191016e100375746ff765e2`.
 Fresh pack baseline: `c0cd6784ea9df43d669dab2c445b3a1a7241048ac87f10afa747927d931bad5c`.
-RBF/MGL: `/media/fat/_Computer/DoradoRTL_Cedar24_20261017/`.
-Main log: `/media/fat/games/DoradoRTL/Cedar24_20261017/main.log`.
+RBF/MGL: `/media/fat/_Computer/DoradoRTL_Cedar24b_20261017/`.
+Main log: `/media/fat/games/DoradoRTL/Cedar24b_20261017/main.log`.
+Previous24 log: `Cedar24_20261017/main-before-native24b.log`.
 Previous23 log: `Cedar23_20261017/main-before-native24.log`.
 
 Keep immutable Main `System_20261017/MiSTer-1fb2e098e6f0dba6`; never overwrite a
@@ -123,9 +143,9 @@ log `server-cedar23-route.log`. Link-broadcast diagnostic8ecf6cf9... did not
 clear time retries; its separate log `server-cedar24-broadcast.log` is preserved.
 Default bdfd09ce..., Delay500 and nil500 binaries/logs are preserved; neither
 delay nor nil checksum resolved retries. Restart config points to the quiet
-server1d5e05e9... and Native24 core/MGL, cwd `System_20261017/dorado`, socket
+server1d5e05e9... and Native24b core/MGL, cwd `System_20261017/dorado`, socket
 `/tmp/dorado-net.sock`. Full STP root/all 34 Basic.Loadees are staged. Restart
-configuration: `Cedar24_20261017/reboot-resume.json`.
+configuration: `Cedar24b_20261017/reboot-resume.json`.
 
 Helpers: `cedar23-launch/c-until-request.py`, `cedar3-launch/cool-boot.py` (three
 boot pushes ONCE), `cedar10-launch/type-keys.py`, `mister_mouse.py`. Loading a
@@ -146,7 +166,9 @@ to guest time at SYSPER4. A scratch 10MHz accumulator passes cadence probes at
 promoting it. Native22's slow-clock experiment failed one of 8,931 source reads
 and has unreviewed hold violations; never deploy it.
 
-## Current TODOs (2026-10-17, Native23)
+<a id="current-todos-2026-10-17-native23"></a>
+
+## Current TODOs (2026-10-17, FPGA boot)
 
 - [x] Fix MemX j01 module-switch timing; qualify original source copy and Native21.
 - [x] Trace the first germ fault and fix ProcH d13 signed-overflow polarity.
@@ -158,11 +180,14 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Trace the apparent duplicated first receive word in Input/Store; clean FIFO status alone does not prove correct buffer contents.
 - [x] Fit/review/deploy Native24 passive monitor (29 checks,min+0.122ns).
 - [x] Complete Native24 original firmware boot and inspect FIFO status.
-- [ ] Review/deploy Native24b corrected EthData_18 EOP tap; qualify CPU status.
+- [x] Review/deploy Native24b corrected EthData_18 EOP tap (29 checks,min+0.080ns).
+- [x] Complete Native24b firmware/BFN113; observe good CPU/FIFO EOP status on replies.
 - [ ] Qualify Native25 k04 setup-capture correction in cold DDR, timing and FPGA; inspect first receive header again.
-- [ ] Qualify scratch `storage64-candidate/`:64K cells pass high-row/column
-  nonalias test (old map cell fails); complete MSA/DDR equivalence passes12,012
-  cycles /9,437,184 bits. MemX full-board high row/column test passes (old16K fails). Full Map protocol and cold boot remain unqualified.
+- [x] Add experimental64K geometry generator; pass cell, full MemX geometry,
+  full MSA/DDR9,437,184-bit comparison and unchanged default-board gates.
+- [ ] Review Native26 cold source coverage8,880 versus old8,931 samples,
+  final IFU/image/error summaries and complete Map protocol.
+- [ ] Qualify Native26 fit/timing and original firmware/hardware startup.
 - [ ] Resolve physical RAM and map capacity with enforced limits; the 16K
   advertised-only desktop control is invalid.
 - [ ] Qualify remaining fixture differences: native RAM/cache/map initialization,

@@ -16,7 +16,7 @@
 
 `default_nettype none
 
-module cell_MK4096P_6 (
+module cell_MK4096P_6 #(parameter integer ADDR_BITS = 14) (
     input  wire sys_clk,
     input  wire p2,
     input  wire p3,
@@ -37,7 +37,7 @@ module cell_MK4096P_6 (
     // registers go away -- which matters because this array is what took the
     // DE10-Nano fit to 97% of its ALMs. The generator wires it; see
     // tools/sil_to_verilog.py's DRAM grouping.
-    input  wire [13:0] addr_i
+    input  wire [ADDR_BITS-1:0] addr_i
 );
 
   // Standard 16-pin dynamic RAM: 7 MULTIPLEXED address lines, row latched on
@@ -54,7 +54,7 @@ module cell_MK4096P_6 (
   // array is 2^14 deep -- the part in these sockets is the 16K-bit chip HM
   // p.10 names for a "256k x 16-bit" module, whatever the .lc calls the
   // socket. Was 4096 deep with the top two row bits dropped (2026-09-08).
-  reg mem [0:16383];
+  reg mem [0:(1<<ADDR_BITS)-1];
   reg        dout;
 
 
@@ -66,7 +66,7 @@ module cell_MK4096P_6 (
   // rather than block RAM -- 165 MosRam plus 144 MK4096 packages of it. So
   // the strobes are oversampled on `sys_clk` and used as one-cycle enables.
   // ...and the latch itself is in cell_MK4096P_addr now, one per group.
-  wire [13:0] addr = addr_i;
+  wire [ADDR_BITS-1:0] addr = addr_i;
 
   // Synchronous read and write, so this INFERS BLOCK RAM.
   // THE READ MUST BE UNCONDITIONAL FOR QUARTUS TO INFER M10K. This is the

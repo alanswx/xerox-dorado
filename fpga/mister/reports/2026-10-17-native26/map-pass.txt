@@ -1,0 +1,5 @@
+MAP64 BOARD PASS: actual MemX address/strap paths retain four distinct21-bit entries
+- build/rtl-executive/density-generator-check/tb_mapboard.sv:50: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 809ns; walltime 0.000 s; speed 1.682 ms/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 3 MB

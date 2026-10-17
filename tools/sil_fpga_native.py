@@ -19,10 +19,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-o', '--output', type=Path, required=True)
     parser.add_argument('--storage-modules', type=int, choices=range(1, 5), default=4)
+    parser.add_argument('--storage-chip-kbits', type=int, choices=(16, 64), default=16)
+    parser.add_argument('--map-kwords', type=int, choices=(16, 64), default=16)
     parser.add_argument('--receive-monitor', action='store_true', help='passive DskEth receive-status observation')
     parser.add_argument('--pilot-disk', action='store_true',
                         help='Pilot format: 28 usable of 29 slots, 10 label words, 256 data words')
     args = parser.parse_args()
+    chip_address_bits = 14 if args.storage_chip_kbits == 16 else 16
     out = args.output
     out.mkdir(parents=True, exist_ok=True)
     boards = ['ProcH', 'ProcL', 'ContA', 'ContB', 'IFU', 'MemC', 'MemD', 'MemX',
@@ -54,12 +57,24 @@ def main():
                          '--lc', 'chm/sil/DskEth-Rev-Cf.dm!1_/DskEth-Rev-Cf.lc',
                          '--dict', 'chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze',
                          '--receive-monitor', '-o', str(out/'DskEth_monitor.v')])
+    if chip_address_bits != 14:
+        commands[0] += ['--storage-address-bits', str(chip_address_bits)]
+        commands[4] += ['--chip-address-bits', str(chip_address_bits)]
+    if args.map_kwords != 16:
+        commands.append(['tools/sil_to_verilog.py',
+                         'chm/sil/MemX-Rev-Ch.dm!1_/MemX-Rev-Ch.wl',
+                         '--lc', 'chm/sil/MemX-Rev-Ch.dm!1_/MemX-Rev-Ch.lc',
+                         '--dict', 'chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze',
+                         '--map-kwords', str(args.map_kwords), '-o', str(out/'MemX_density.v')])
     for command in commands:
         subprocess.run([sys.executable, *command], check=True)
     source = (out/'dorado_native_backplane.v').read_text().split(');', 1)[0]
     ports = re.findall(r'^    (input|output)\s+wire\s+(\w+)\s*[,\n]', source, re.M)
     # Vector storage ports are connected separately below.
     bindings = {vname(name): value for name, value in MACHINE_CONFIG_TIES.items()}
+    if chip_address_bits == 16:
+        bindings[vname('ChipsAre256/16K')] = "1'b0"
+        bindings[vname('ChipsAre64K')] = "1'b1"
     bindings.update(sys_clk='sys_clk', baseboard_boot_n='baseboard_boot_n',
         storage_clk='clk_host', CLK_InBase='base_clock_out', CLK_OutBase_p_='base_clock_out',
         PixelClkVCO='pixel_clk', RawPixelClk='pixel_clk', TermIsLF='large_format',
@@ -101,7 +116,7 @@ def main():
     if missing:
         raise ValueError(f'native device ports missing from backplane: {sorted(missing)}')
     groups = args.storage_modules*32
-    address_bits = 14 + (groups-1).bit_length()
+    address_bits = chip_address_bits + (groups-1).bit_length()
     connections += ['    .baseboard_debug(baseboard_debug)', '    .processor_debug(processor_debug)',
                     '    .control_debug(control_debug)',
                     '    .video_field(video_field)']
@@ -220,6 +235,9 @@ RECEIVE_MONITOR
 endmodule
 `default_nettype wire
 '''.replace('GROUP_COUNT', str(groups)).replace('ADDRESS_BITS', str(address_bits))
+    if chip_address_bits != 14:
+        wrapper = wrapper.replace('[GROUPS*14-1:0]', f'[GROUPS*{chip_address_bits}-1:0]')
+        wrapper = wrapper.replace('.GROUP_ADDR_BITS(14)', f'.GROUP_ADDR_BITS({chip_address_bits})')
     wrapper = wrapper.replace('DISK_SECTORS', '29')
     wrapper = wrapper.replace('DISK_LABEL_WORDS', '10' if args.pilot_disk else '8')
     wrapper = wrapper.replace('DISK_PULSES', '117')
@@ -233,8 +251,12 @@ endmodule
                                    'dorado_native_machine.sv']]
     if args.receive_monitor:
         sources.append(str(out/'DskEth_monitor.v'))
+    if args.map_kwords != 16:
+        sources.append(str(out/'MemX_density.v'))
     for name in boards:
         if args.receive_monitor and name == 'DskEth':
+            continue
+        if args.map_kwords != 16 and name == 'MemX':
             continue
         if name.startswith('msa') or name in ('BaseBd','ContA','DispY'):
             continue
@@ -248,10 +270,14 @@ endmodule
     sources += [str(p) for p in sorted(Path('verilog/vendor/riot').glob('*.sv'))]
     sources += ['fpga/mister/'+n+'.sv' for n in ['dorado_receive_monitor','dorado_pack_hps','dorado_storage_group',
                 'dorado_storage_arb','dorado_storage_ddram','dorado_storage_init']]
-    (out/'manifest.json').write_text(json.dumps({'native': True, 'storage_modules': args.storage_modules, 'pilot_disk': args.pilot_disk, 'receive_monitor': args.receive_monitor,
+    manifest = {'native': True, 'storage_modules': args.storage_modules, 'pilot_disk': args.pilot_disk, 'receive_monitor': args.receive_monitor,
                                                'control_error_monitor': True,
         'display_field': True, 'control_clock_monitor': True,
-        'hps_pack': True, 'ethernet_wire': True, 'ethernet_host_port': True}, indent=2)+'\n')
+        'hps_pack': True, 'ethernet_wire': True, 'ethernet_host_port': True}
+    if args.storage_chip_kbits != 16 or args.map_kwords != 16:
+        manifest.update(storage_chip_kbits=args.storage_chip_kbits, map_kwords=args.map_kwords,
+                        memory_geometry_experimental=True)
+    (out/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
     (out/'sources.f').write_text('\n'.join(sources)+'\n')
     print(f'Generated cold-start machine: {args.storage_modules} storage modules, {groups} raw groups')
 

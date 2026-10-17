@@ -28,15 +28,16 @@
 
 `default_nettype none
 
-module cell_MK4096P_addr (
+// ROW_BITS=8 selects the extra multiplexed address line for 64K chips.
+module cell_MK4096P_addr #(parameter integer ROW_BITS = 7) (
     input  wire        sys_clk,
     input  wire        p4,          // RAS'
     input  wire        p15,         // CAS'
-    input  wire  [6:0] a,           // A6..A0, as the DRAM cell assembles them
-    output wire [13:0] addr
+    input  wire  [ROW_BITS-1:0] a,
+    output wire [2*ROW_BITS-1:0] addr
 );
 
-  reg [6:0] row, col;
+  reg [ROW_BITS-1:0] row, col;
   reg       ras_d, cas_d;
 
   // The strobes are oversampled on sys_clk and used as one-cycle enables --

@@ -1,0 +1,18 @@
+{
+  "experimental": true,
+  "physical_ram_bytes": 8388608,
+  "map_entries": 65536,
+  "storage_modules": 4,
+  "chip_kbits": 64,
+  "raw_ddr_bytes": 16777216,
+  "generator_default": "MemX/MSA14 byte identical",
+  "unrelated_boards": "BaseBoard/ContA/Display/default backplane byte identical; DskEth matches Native25",
+  "wrapper_default": "passive-port order/whitespace only versus fitted24",
+  "cells_high_row_column": "pass",
+  "actual_MemX_geometry": "pass; full Map protocol separate",
+  "MSA_DDR_equivalence": "12012 full cycles /9437184 bits pass",
+  "MSA_default_equivalence": "12012 full cycles /2359296 bits pass",
+  "native64_elaboration": "pass",
+  "cold500M": "running; partial8880 words/no mismatches/germ entry, below existing8900 minimum, not qualified",
+  "FPGA": "separate fit active; no timing qualification or deployment"
+}

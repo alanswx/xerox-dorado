@@ -1,0 +1,4 @@
+DENSITY64 PASS: row/column high bits retain four distinct map/storage addresses
+MAP64 BOARD PASS: actual MemX address/strap paths retain four distinct21-bit entries
+STORAGE-BOARD PASS:       12012 complete-board cycles,        3008 DDR reads,        7872 writes,        1111 output transitions, all 9437184 stored bits identical
+STORAGE-BOARD PASS:       12012 complete-board cycles,        2976 DDR reads,        7872 writes,        1111 output transitions, all 2359296 stored bits identical

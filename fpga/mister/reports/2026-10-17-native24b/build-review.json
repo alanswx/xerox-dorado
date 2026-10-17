@@ -1,0 +1,14 @@
+{
+  "timing_checks": 29,
+  "minimum_slack_ns": 0.08,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "rbf_sha256": "2cffe64309801e11fd000757bbfef04ed551b23efe408638ce5e472a1dc97e74",
+  "functional_change": "None from Native24. Passive CPU EOP tap now EthData_18 rather than parity17.",
+  "hold_review": "MemC f06/j07/d06 a_lat[1] -> each own4 write-address bit1 endpoints; slow -.055/-.052/-.049ns, fast f06/d06 -.002ns. a_lat captures only !p13; own mem commits only p13 && !we_d && ce_lat. Exact1source/4sink checked per cell; hold only. Setup/read/data/enables remain timed.",
+  "deployed": "MiSTer14; fresh pack, original firmware/BFN113 complete; routing retries with FIFO/CPU status00",
+  "limitations": [
+    "External framework I/O coverage remains separate",
+    "No OS login or interactive Cedar proof yet"
+  ]
+}

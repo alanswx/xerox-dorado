@@ -16,7 +16,9 @@
 
 `default_nettype none
 
-module cell_MosRam (
+// MemX's 64K stuffing uses socket pin9 as the eighth address bit.
+// Default14 preserves the archived 16K configuration.
+module cell_MosRam #(parameter integer ADDR_BITS = 14) (
     input  wire sys_clk,
     input  wire p2,
     input  wire p3,
@@ -41,7 +43,7 @@ module cell_MosRam (
   //
   // Address order is read off the BOARD's own net names, not assumed:
   // A0'=13 A1'=5 A2'=7 A3'=6 A4'=12 A5'=11 A6'=10.
-  reg [6:0] row, col;
+  reg [ADDR_BITS/2-1:0] row, col;
   // ONE BIT WIDE (the part is N x 1). This was `reg [11:0]` while storing a
   // single bit -- functionally right (the write zero-extends, the read takes
   // bit 0) and TWELVE TIMES the memory, across 309 packages. Quartus is the
@@ -56,10 +58,11 @@ module cell_MosRam (
   // so page p and page p+4096 shared an entry and the later map write won.
   // Found 2026-09-08 while chasing InitMap's map walk. The two strap pins
   // (1 and 9, below) would make it 64K; they are unjumpered on MemX.
-  reg mem [0:16383];
+  reg mem [0:(1<<ADDR_BITS)-1];
   reg        dout;
 
-  wire [6:0] a = {p10, p11, p12, p6, p7, p5, p13};   // A6..A0
+  wire [ADDR_BITS/2-1:0] a = {(ADDR_BITS == 16 ? p9 : 1'b0),
+                             p10, p11, p12, p6, p7, p5, p13};
 
 
   // FPGA: ONE CLOCK, and the strobes become ENABLES.
@@ -76,7 +79,7 @@ module cell_MosRam (
     if (~p15 & cas_d) col <= a;                      // CAS' falling
   end
 
-  wire [13:0] addr = {row, col};
+  wire [ADDR_BITS-1:0] addr = {row, col};
 
   // Synchronous read and write, so this INFERS BLOCK RAM.
   // THE READ MUST BE UNCONDITIONAL FOR QUARTUS TO INFER M10K. This is the
@@ -138,8 +141,8 @@ module cell_MosRam (
   // The 4k call site is commented out in the source, so from late 1979 the
   // memory boards were built with 16K parts and only the 16K timing PROM was
   // blown. The two strap pins here are how one socket also takes a 64K
-  // part; raising this to 64K x 1 needs those bits routed from the straps,
-  // which is a board-level question -- flagged rather than guessed.
+  // part. ADDR_BITS=16 is selected only by the explicit64K MemX
+  // generator configuration, which routes RTMapAd.1 through those straps.
 
 
   // Board-wired pins not named above (power, density straps)

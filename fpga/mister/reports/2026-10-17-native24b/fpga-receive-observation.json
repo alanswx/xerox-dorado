@@ -1,0 +1,10 @@
+{
+  "scope": "Read-only physical DDR, not coherent Map/cache",
+  "rbf": "2cffe64309801e11fd000757bbfef04ed551b23efe408638ce5e472a1dc97e74",
+  "BFN113": "new request observed; C released",
+  "CPU_EOP": "63 microcode packet ends, then64 after first directed routing reply",
+  "FIFO_status": "00 on directed routing reply",
+  "CPU_status": "00 on same reply",
+  "header_observations": [],
+  "interpretation": "CPU reaches EOP with good status. No matching packet headers were visible in this early physical-DDR capture; it cannot establish buffer contents because cache/Map were not captured. Prior Native24 header evidence remains the Input/Store lead."
+}

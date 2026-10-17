@@ -1308,7 +1308,12 @@ class Generator:
                 self.exports.add(name)
 
     def emit(self, nominal_environment: bool = False, processor_monitor: bool = False,
-             display_field: bool = False, receive_monitor: bool = False) -> str:
+             display_field: bool = False, receive_monitor: bool = False,
+             map_kwords: int = 16) -> str:
+        if map_kwords not in (16, 64):
+            raise ValueError('map size must be16 or64K words')
+        if map_kwords != 16 and self.b.name.split('-Rev')[0] != 'MemX':
+            raise ValueError('map density applies only to MemX')
         self.classify()
         mod = vname(self.b.name)
         if nominal_environment:
@@ -1865,7 +1870,22 @@ class Generator:
     .tioa({{{tioa}}}), .input_word({{{input_word}}}),
     .observation(receive_debug));'''
             out.insert(out.index('endmodule'), monitor)
-        return '\n'.join(out) + '\n'
+        text = '\n'.join(out) + '\n'
+        if map_kwords == 64:
+            text, count = re.subn(r'  cell_MosRam u_',
+                                 '  cell_MosRam #(.ADDR_BITS(16)) u_', text)
+            if count != 21:
+                raise ValueError(f'expected21 MemX map chips, got{count}')
+            # MemX's configuration headers route the eighth multiplexed
+            # address to socket pin9 instead of the 16K density straps.
+            text = text.replace('  // ---- packages', '''  // Explicit64K map stuffing: all21 planes and both address groups.
+  assign MapIs16k=1'b0;
+  assign MapIs64k=1'b1;
+  assign MapIs256k=1'b0;
+  assign RamA1orVCCa=RTMapAd_1a;
+  assign RamA1orVCCb=RTMapAd_1b;
+  // ---- packages''', 1)
+        return text
 
     def report(self) -> str:
         r = [f'board {self.b.name}',
@@ -1970,6 +1990,8 @@ def main(argv: list[str]) -> int:
                     help='expose DispY actual OddField latch for video capture')
     ap.add_argument('--receive-monitor', action='store_true',
                     help='expose passive DskEth FIFO and CPU receive status')
+    ap.add_argument('--map-kwords', type=int, choices=(16, 64), default=16,
+                    help='MemX map density;64 uses the eighth multiplexed address')
     args = ap.parse_args(argv[1:])
 
     board = load_board(args.wl, args.lc)
@@ -1980,7 +2002,7 @@ def main(argv: list[str]) -> int:
                     cells_wanting_clock(args.cells))
     text = gen.emit(nominal_environment=args.nominal_environment,
                     processor_monitor=args.processor_monitor, display_field=args.display_field,
-                    receive_monitor=args.receive_monitor)
+                    receive_monitor=args.receive_monitor, map_kwords=args.map_kwords)
 
     if args.out:
         os.makedirs(os.path.dirname(args.out) or '.', exist_ok=True)

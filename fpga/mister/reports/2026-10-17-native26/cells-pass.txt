@@ -1,0 +1,5 @@
+DENSITY64 PASS: row/column high bits retain four distinct map/storage addresses
+- build/rtl-executive/density-generator-check/tb_density.sv:21: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 405ns; walltime 0.000 s; speed 8.265 ms/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 2 MB

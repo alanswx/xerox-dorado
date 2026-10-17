@@ -1,0 +1,40 @@
+Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=463f0000 state=47ea cpu=3000c00c
+Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=463f0000 state=472f cpu=3026c180
+Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=463f0000 state=472f cpu=300af135
+Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=463f0000 state=472a cpu=70616616
+Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=463f0000 state=47ea cpu=309bc9bc
+Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=463f0000 state=47ea cpu=30761761
+Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=463f0000 state=47ef cpu=30725725
+Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=463f0000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=463f0000 state=472f cpu=30725725
+Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=463f0000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=463f0000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=2 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=47400000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=2 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=47400000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=2 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=47400000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=2 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=47400000 state=472f cpu=30725725
+Dorado net: flags=5 tx_words=13 good=2 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=47400000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=2 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=47400000 state=47ea cpu=32d85d85
+Dorado net: flags=5 tx_words=13 good=2 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=47400000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=2 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=47400000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=3 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=47400000 state=472f cpu=30725725
+Dorado net: flags=5 tx_words=13 good=3 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=48410000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=3 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=48410000 state=47ef cpu=30725725
+print key pressed - do screen shot
+ 1: 01 01 01 00   00 F5 03 84   01 AF 0B 00   03 84 02 D0
+Image: Width=900 Height=431  Line=2816  Header=256 output_width=900 output_height=720 
+rescaling screenshot from 900x431 to 900x720
+Dorado net: flags=5 tx_words=13 good=3 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=48410000 state=47ef cpu=30725725
+Screen saved to
+Dorado/20261017_214331-screen.png
+Dorado net: flags=5 tx_words=13 good=3 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=48410000 state=47ef cpu=30725725
+Dorado net: flags=5 tx_words=13 good=3 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=48410000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=3 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=48410000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=3 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=48410000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=3 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=48410000 state=47ef cpu=30725725
+Dorado net: flags=5 tx_words=13 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=49420000 state=472f cpu=335879fb
+Dorado net: flags=5 tx_words=13 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=49420000 state=47ef cpu=30725725
+Dorado net: flags=5 tx_words=13 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=49420000 state=47ea cpu=30725725
+Dorado net: flags=5 tx_words=13 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=49420000 state=47ea cpu=32d85d85
+Dorado net: flags=5 tx_words=13 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=49420000 state=47ea cpu=32d86725
+Dorado net: flags=5 tx_words=13 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=49420000 state=47ea cpu=30725725
