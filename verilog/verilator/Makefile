@@ -947,6 +947,14 @@ startseq:
 .PHONY: baseboard-test
 # LET THE REAL FIRMWARE DRIVE THE MACHINE -- BaseBd + ContA + ContB + ProcH +
 # ProcL, with the 6502 running its own EPROMs. A DIAGNOSTIC, not a gate.
+.PHONY: baseboard-manifold-test
+baseboard-manifold-test:
+	@cd ../.. && $(V) --binary --top-module tb_baseboard_manifold $(V_WARN) \
+		-Iverilog/cells -Iverilog/vendor/6502 -Iverilog/vendor/riot \
+		--Mdir verilog/verilator/obj_baseboard_manifold -o baseboard-manifold-test \
+		verilog/verilator/tb_baseboard_manifold.sv verilog/generated/BaseBd-Rev-Am.v \
+		>/dev/null && ./verilog/verilator/obj_baseboard_manifold/baseboard-manifold-test
+
 .PHONY: firmware-probe
 firmware-probe:
 	@cd ../.. && $(V) --binary --top-module tb_firmware $(V_WARN) \

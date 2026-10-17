@@ -248,6 +248,31 @@ static ARM server SHA256 is
 Stock `/media/fat/MiSTer` is unchanged.
 
 
+**Two actual BaseBoard manifold defects found during native bring-up.**
+`CPDMuxData'` is driven by BaseBd j17's two SN74LS01 open-collector NAND
+outputs, with complementary clock inputs. The generator resolved these as
+OR, making the net unconditionally high and serial DMuxData unconditionally
+low. Consequently the old five-board probe's 41,856 DMux clock edges shifted
+only zeros; its 475 MIR strobes were not proof of a successful bootstrap.
+This net now resolves with AND, while the ECL buses retain OR.
+
+After that correction, the BaseBoard's own DMD shift register still read
+zero for address A35. j17 selects shift data while TDMuxClk is high and
+readback when it falls; l21/l22 clock at that same falling edge. Their
+SN74LS174 models sampled the new readback value. Only these two instances
+now select pre-edge data capture, preserving the serial bit's setup value.
+The cell's default remains unchanged for other instances.
+
+`make -C verilog/verilator baseboard-manifold-test` exercises the actual
+board j17/l24 selector's eight input combinations and shifts a byte-asymmetric
+12-bit address through l21/l22. It fails on the old OR; with AND alone it
+still fails with DMD=000; with both fixes it passes at A35. These tests
+replace only the serial selector's inputs, not its outputs or stored state.
+`Dorado_Native3_20261017` is compiling with both fixes and the Pilot medium.
+A five-board ROM-driven probe is also running with the fixes. No startup
+parity-state modification has been made; the serial faults explain why the
+firmware could not configure the processor's manifold in the first place.
+
 **The native Pilot medium requires a different format.**
 `PilotDiskDefs.mc!1` and `PilotDisk.mc!1` specify drive 0's emulated geometry:
 real cylinder = virtual cylinder MOD 815, real head = virtual cylinder / 815,

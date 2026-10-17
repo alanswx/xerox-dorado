@@ -756,7 +756,7 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
   assign CLK_mx_p___drv = CLK_mx_p___k01_12 | CLK_mx_p___k01_14;
   wire CPDMuxData_p___j17_4;
   wire CPDMuxData_p___j17_1;
-  assign CPDMuxData_p_ = CPDMuxData_p___j17_4 | CPDMuxData_p___j17_1;
+  assign CPDMuxData_p_ = CPDMuxData_p___j17_4 & CPDMuxData_p___j17_1;
   wire CVCC__l62_10;
   wire CVCC___h_4i21_6;
   // CVCC: a 6532 port pin here is an INPUT (its pull-up loses)
@@ -3705,7 +3705,7 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
     .p9(BaseBd14_sil_pl_4),
     .p10(BaseBd14_sil_pl_5)
   ); // MPQ6002
-  cell_SN74LS174 u_l21 (
+  cell_SN74LS174 #(.PRECAP(1)) u_l21 (
     .sys_clk(sys_clk),
     .p1(TTLTrue_D),
     .p2(DMD_06),
@@ -3724,7 +3724,7 @@ module BaseBd_m_Rev_m_Am #(parameter integer SYSPER = 16) (
     .p15(DMD_11),
     .p16(VCC142)
   ); // SN74LS174
-  cell_SN74LS174 u_l22 (
+  cell_SN74LS174 #(.PRECAP(1)) u_l22 (
     .sys_clk(sys_clk),
     .p1(TTLTrue_D),
     .p2(DMD_00__l22_2),

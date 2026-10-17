@@ -82,12 +82,18 @@ def vname(name: str) -> str:
 
 
 # Nets that are ACTIVE-LOW OPEN-DRAIN and therefore resolve with AND, not
-# the OR every other multi-driver net here uses. Narrow and named: these two
+# the OR every other multi-driver net here uses. Narrow and named: the first two
 # are the 6502's interrupt inputs, open-drain by its own datasheet, and both
 # were MEASURED stuck high across a 260,000,000-cycle run. Widening this
 # belongs with evidence per net -- the ECL buses must stay ORed.
 WIRED_AND_NETS = frozenset({
     "MCIRQ'", "MCNMI'",
+    # BaseBd j17 ties two SN74LS01 open-collector NAND outputs together.
+    # Their complementary clock inputs select outgoing address data while
+    # shifting and muffler readback otherwise. OR makes the result always
+    # high: one NAND is necessarily idle. That pinned DMuxData low and
+    # prevented the firmware from programming any nonzero manifold address.
+    "CPDMuxData'",
 })
 
 # THE PreClock1'/Clock1' ORDERING IS REAL, AND ZERO DELAY ERASES IT. On the
@@ -732,6 +738,11 @@ class Generator:
     # and rounding them gives a 1 : 1.86 : 4.33 ratio where the parts are
     # 1 : 2 : 5. cell_K1115A carries the remainder in a phase accumulator.
     CELL_PARAMS = {
+        # j17 selects serial write data while TDMuxClk is high, then
+        # readback when it falls. l21/l22 clock on that falling edge;
+        # preserve their setup value rather than the new readback bit.
+        ('BaseBd', 'l21'): {'PRECAP': 1},
+        ('BaseBd', 'l22'): {'PRECAP': 1},
         ('DispY', 'a05'): {'FREQ_KHZ': 50000},
         ('DispM', 'c05'): {'FREQ_KHZ': 10000},
         ('DispM', 'd13'): {'FREQ_KHZ': 20000},

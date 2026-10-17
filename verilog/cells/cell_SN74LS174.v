@@ -17,7 +17,7 @@
 
 `default_nettype none
 
-module cell_SN74LS174 (
+module cell_SN74LS174 #(parameter integer PRECAP=0) (
     input  wire sys_clk,
     input  wire p1,  // CL'
     output wire p2,  // Q0
@@ -41,10 +41,16 @@ module cell_SN74LS174 (
   always @(posedge sys_clk) ck_d <= p9;
   wire ck_en = p9 & ~ck_d;
 
+  // Optional setup-value capture, as in cell_MC10176. BaseBd's manifold
+  // shift register clocks when its serial selector changes to readback;
+  // those two packages must retain the data present before that edge.
+  reg [5:0] d_pre;
+  always @(posedge sys_clk) d_pre <= {p14,p13,p11,p6,p4,p3};
+
   reg [5:0] q;
   always @(posedge sys_clk) begin
     if (!p1)        q <= 6'd0;                        // CLR', asynchronous
-    else if (ck_en) q <= {p14, p13, p11, p6, p4, p3}; // D6..D1
+    else if (ck_en) q <= PRECAP ? d_pre : {p14,p13,p11,p6,p4,p3};
   end
 
   assign {p15, p12, p10, p7, p5, p2} = q;             // Q6..Q1
