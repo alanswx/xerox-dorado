@@ -8,6 +8,23 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Component loader proof, 2026-10-17 11:20 UTC.** The B-only Ethernet
+fix downloads and installs the original Cedar image: 3,600 writable IM
+items and all 256 IFUM entries match. The 64 protected LoadRam words are
+excluded. PCT explicitly captures CIA238 in task0 at sample49,570,331,
+so the entry claim is not based only on an IM-address census. The 100M
+Pilot-pack run then parks at09c (MesaIFUNotReady) in task12, with no IFU
+memory request or byte clock. Trace identifies a component limitation:
+this full bench has no BaseBoard and its IOReset input is held low after
+startup. Cedar requests an I/O reset through the absent BaseBoard manifold;
+stale disk wakeups then enter the replaced task12 code when tasking resumes.
+Without a pack the stale display task instead enters Cedar map/cache code.
+Do not diagnose either as an established native IFU or memory failure.
+A new component run includes the generated BaseBoard manifold circuitry,
+with explicit ECL ownership and processor-side setup; firmware/CP bus and
+clocks remain outside this fixture. That run is not yet validated. Actual
+FPGA still runs Native11 CD2; Native14 and Native15 are routing.
+
 **Current frontier, 2026-10-17 10:56 UTC.** Actual FPGA still runs
 Native11 and stops at ROM Initial CD2; Cedar has not booted on FPGA.
 Native14 is routing with the Initial/MCR/register-parity and RIOT clock

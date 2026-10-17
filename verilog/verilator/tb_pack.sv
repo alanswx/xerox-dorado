@@ -8,7 +8,8 @@
 // come out zero. It checks the plumbing and the framing; whether the DskEth
 // board reads the same stream is the boot's business.
 `timescale 1ns/1ps
-module tb_pack;
+module tb_pack #(parameter integer LABEL_WORDS=8);
+  localparam integer SECTOR_BYTES=2*(1+2+LABEL_WORDS+256);
   localparam integer SYSPER = 2;
   reg sys_clk = 0; always #1 sys_clk = ~sys_clk;
   reg [11:0] tagbus_n = 12'hFFF; reg cyltag_n = 1, headtag_n = 1, drivetag_n = 1, conttag_n = 1;
@@ -19,7 +20,7 @@ module tb_pack;
     .sys_clk(sys_clk), .reset(1'b0), .attached(1'b1), .selected(selected),
     .TtlReady_n(ready_n), .TtlOnLine_n(online_n), .TtlTerm_n(term_n), .Selected_n(sel_n),
     .SecIndx_n(sec_n), .TtlIndex_n(), .data_bit(bit_), .data_adv(adv), .DataP(dp), .DataM(dm), .ClockP(cp), .ClockM(cm));
-  dorado_pack pk (
+  dorado_pack #(.LABEL_WORDS(LABEL_WORDS)) pk (
     .selected(selected), .write_data_p(1'b0), .write_data_m(1'b0), .write_gate(), .n_write_blocks(),
     .sys_clk(sys_clk), .attached(1'b1), .tagbus_n(tagbus_n), .cyltag_n(cyltag_n), .headtag_n(headtag_n),
     .drivetag_n(drivetag_n), .conttag_n(conttag_n), .pulse(drv.sector), .data_adv(adv), .data_bit(bit_), .endofcyl_n(eoc_n),
@@ -36,7 +37,7 @@ module tb_pack;
     .p1(1'b0), .p7(1'b0), .p8(1'b0), .p10(1'b0), .p16(1'b0));
 
   // the file, read independently
-  string path; integer fd, i, rc; reg [7:0] fb [0:533];
+  string path; integer fd, i, rc; reg [7:0] fb [0:SECTOR_BYTES-1];
   localparam integer CYL = 3, HEAD = 4, SECTOR = 0;
   // decoder
   integer zeros = 0, state = 0, nb = 0, wcount = 0, blk = 0, want = 2, errs = 0, ecc_bad = 0;
@@ -89,7 +90,7 @@ module tb_pack;
           if (nb == 32) begin
             if (eccr != 32'd0) ecc_bad = ecc_bad + 1;
             nblk_done = nblk_done + 1;
-            blk = blk + 1; want = (blk == 1) ? 8 : 256; zeros = 0; sh = 0; state = (blk == 3) ? 3 : 0;
+            blk = blk + 1; want = (blk == 1) ? LABEL_WORDS : 256; zeros = 0; sh = 0; state = (blk == 3) ? 3 : 0;
           end
         end
         default: ;
@@ -97,14 +98,14 @@ module tb_pack;
     end
   end
   initial begin
-    base[0] = 1; base[1] = 3; base[2] = 11;
+    base[0] = 1; base[1] = 3; base[2] = 3+LABEL_WORDS;
     if (!$value$plusargs("pack=%s", path)) path = "chm/diskpacks/games-trident.pack";
     fd = $fopen(path, "rb");
     if (fd == 0) $fatal(1, "tb_pack: cannot open %s", path);
-    rc = $fseek(fd, (((CYL * 5) + HEAD) * 29 + SECTOR) * 534, 0);
-    for (i = 0; i < 534; i = i + 1) fb[i] = $fgetc(fd);
+    rc = $fseek(fd, (((CYL * 5) + HEAD) * 29 + SECTOR) * SECTOR_BYTES, 0);
+    for (i = 0; i < SECTOR_BYTES; i = i + 1) fb[i] = $fgetc(fd);
     $display("tb_pack: file sector c%0d h%0d s%0d: header %04h %04h, label[0] %04h, data[0..3] %04h %04h %04h %04h",
-             CYL, HEAD, SECTOR, fw(1), fw(2), fw(3), fw(11), fw(12), fw(13), fw(14));
+             CYL, HEAD, SECTOR, fw(1), fw(2), fw(3), fw(base[2]), fw(base[2]+1), fw(base[2]+2), fw(base[2]+3));
     // the controller seeks: cylinder then head, then selects the unit
     repeat (20) @(posedge sys_clk);
     tagbus_n = ~CYL[11:0]; @(posedge sys_clk); cyltag_n = 0; repeat (6) @(posedge sys_clk); cyltag_n = 1;

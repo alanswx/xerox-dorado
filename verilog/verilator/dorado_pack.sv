@@ -49,8 +49,9 @@
 module dorado_pack #(
     parameter integer PRE_WORDS = 32,     // HM 9.6 write steps 0..3
     parameter integer GAP_WORDS = 11,     // postamble + steps 8..10
-    parameter integer TRACK_WORDS = 29 * 267,
-    parameter integer TRACK_BYTES = 29 * 534,
+    parameter integer LABEL_WORDS = 8,
+    parameter integer TRACK_WORDS = 29 * (1+2+LABEL_WORDS+256),
+    parameter integer TRACK_BYTES = 2 * TRACK_WORDS,
     parameter integer HEADS = 5           // a T-80; the world probes head 5 to tell it from a 19-head AMS-315
 ) (
     input  wire        sys_clk,
@@ -202,13 +203,14 @@ module dorado_pack #(
   reg [15:0] sync_word;
   reg [15:0] pulse_d = 16'hFFFF;
   integer sec = 0;
+  localparam integer SECTOR_WORDS = 1+2+LABEL_WORDS+256;
   function integer blk_words(input integer b);
-    blk_words = (b == 0) ? 2 : (b == 1) ? 8 : 256;
+    blk_words = (b == 0) ? 2 : (b == 1) ? LABEL_WORDS : 256;
   endfunction
   function integer blk_base(input integer b);        // word offset in the sector image
-    blk_base = (b == 0) ? 1 : (b == 1) ? 3 : 11;    // dummy word at 0
+    blk_base = (b == 0) ? 1 : (b == 1) ? 3 : 3+LABEL_WORDS; // dummy word at 0
   endfunction
-  wire [15:0] cur_word = track_word(sec * 267 + wi);
+  wire [15:0] cur_word = track_word(sec * SECTOR_WORDS + wi);
   wire        cur_data_bit = cur_word[bi];
 
   // Capture actual serial writes, including SYNC and both Fire-code words.
@@ -268,11 +270,11 @@ module dorado_pack #(
                   wr_ecc,wr_cyl,wr_head,wr_sector,wr_block);
               for(integer k=0;k<wr_count;k=k+1) begin
                 wr_address=(longint'(wr_cyl)*HEADS+wr_head)*TRACK_WORDS+
-                  wr_sector*267+blk_base(wr_block)+k;
+                  wr_sector*SECTOR_WORDS+blk_base(wr_block)+k;
                 written_words[wr_address]=wr_payload[k];
                 if(cur_cyl==wr_cyl && cur_head==wr_head) begin
-                  tbytes[2*(wr_sector*267+blk_base(wr_block)+k)]=wr_payload[k][7:0];
-                  tbytes[2*(wr_sector*267+blk_base(wr_block)+k)+1]=wr_payload[k][15:8];
+                  tbytes[2*(wr_sector*SECTOR_WORDS+blk_base(wr_block)+k)]=wr_payload[k][7:0];
+                  tbytes[2*(wr_sector*SECTOR_WORDS+blk_base(wr_block)+k)+1]=wr_payload[k][15:8];
                 end
               end
               n_write_blocks=n_write_blocks+1;
@@ -322,10 +324,10 @@ module dorado_pack #(
           // The outgoing stream is sync + data, not just the pack payload.
           wi = blk_base(blk); bi = 15; ecc = sync_ecc();
           phase = PH_WORDS; cnt = blk_words(blk) * 16;
-          data_bit <= track_word(sec * 267 + blk_base(blk))[15];
+          data_bit <= track_word(sec * SECTOR_WORDS + blk_base(blk))[15];
           if (dbg) $display("dorado_pack: sector %0d block %0d starts at image word %0d: %04h %04h (tbytes[%0d..]=%02h %02h %02h %02h)",
-                            sec, blk, wi, track_word(sec*267+wi), track_word(sec*267+wi+1),
-                            2*(sec*267+wi), tbytes[2*(sec*267+wi)], tbytes[2*(sec*267+wi)+1], tbytes[2*(sec*267+wi)+2], tbytes[2*(sec*267+wi)+3]);
+                            sec, blk, wi, track_word(sec*SECTOR_WORDS+wi), track_word(sec*SECTOR_WORDS+wi+1),
+                            2*(sec*SECTOR_WORDS+wi), tbytes[2*(sec*SECTOR_WORDS+wi)], tbytes[2*(sec*SECTOR_WORDS+wi)+1], tbytes[2*(sec*SECTOR_WORDS+wi)+2], tbytes[2*(sec*SECTOR_WORDS+wi)+3]);
           end
         end
         PH_WORDS: begin
@@ -336,7 +338,7 @@ module dorado_pack #(
             phase = PH_ECC; cnt = 32; data_bit <= ecc[31];
           end else begin
             if (bi == 0) begin bi = 15; wi = wi + 1; end else bi = bi - 1;
-            data_bit <= track_word(sec * 267 + wi)[bi];
+            data_bit <= track_word(sec * SECTOR_WORDS + wi)[bi];
           end
         end
         PH_ECC: begin

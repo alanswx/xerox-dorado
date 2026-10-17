@@ -1,0 +1,10 @@
+tb_exec: TASK -- Freeze 0, RepeatCur 1555376 of 100000000; CTask changed 67048 times; occupancy: t0=47746935 t1=272 t2=191632 t3=654960 t4=272 t5=272 t6=824 t7=862304 t8=272 t9=272 t10=272 t11=272 t12=50540625 t13=272 t14=272 t15=272
+tb_exec: MIR -- StopMIRClk 0, StopMIRClkEn 100000000, IMLHPE 0, IMRHPE 0, Error 0, of 100000000
+tb_exec: BYTES -- Fclk'a 0 edges, GLd' 1, FG changed 514, EnableFG' low on 51102936 of 100000000
+tb_exec: IFU -- IfuMemRef 0 transitions, IfuMemAck 0, opcode J changed 1536 times
+tb_exec: PACK -- build/rtl-executive/cedar-work-native-chs.pack: tags cyl 0 head 0 drive 440 control 0, drive at cyl 0 head 0, tracks loaded 1, sectors served 1306, blocks 3915, bits 7257732
+tb_exec: DISK -- SectorTW rises 437, IndexTW rises 2, Active high 0, ReadError high 99132772 (ReadDataErr 799, FifoOverflow 0, FifoUnderflow 0), FIFO write-address changes 4 | DiskBoot first @-1, DiskBootRetry first @-1 (0 entries), KWait first @-1, KBootTimeout first @-1, of 100003764
+LOADED EB PASS: 3600 original IM items match, protected loader page excluded, entry 238 executed
+- Verilator: $finish at 200us; walltime 813.966 s; speed 245.737 ns/s
+
+Component fixture only: original ROM Initial, real C/station042/LF, actual server BOL then original Cedar replies, Pilot pack attached. Direct Initial entry omits BaseBoard startup. Cedar entry238 executed, IM matches; Mesa IFU wait09c persists. No FPGA Cedar boot or desktop. IFUM verification is a separate run.

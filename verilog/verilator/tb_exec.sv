@@ -617,7 +617,12 @@ module tb_exec;
       .Selected_n(drv_sel_n), .SecIndx_n(drv_sec_n), .TtlIndex_n(drv_index_n),
       .data_bit(drv_bit), .data_adv(drv_adv),
       .DataP(drv_dp), .DataM(drv_dm), .ClockP(drv_cp), .ClockM(drv_cm));
+  // Pilot sectors carry ten label words; Alto's default remains eight.
+`ifdef PILOT_PACK
+  dorado_pack #(.LABEL_WORDS(10)) u_pack (
+`else
   dorado_pack u_pack (
+`endif
       .sys_clk(sys_clk), .attached(pack_on), .tagbus_n(tag_n),
       .cyltag_n(cyltag_n), .headtag_n(headtag_n), .drivetag_n(drivetag_n), .conttag_n(conttag_n),
       .pulse(u_drv.sector), .data_adv(drv_adv), .data_bit(drv_bit), .endofcyl_n(pk_eoc_n),
@@ -660,6 +665,25 @@ module tb_exec;
   // every machine, and only the WORLD-and-up tops have an IOReset port.
   reg ioreset_r = 1'b0;
   initial ioreset_r = $test$plusargs("ioreset");
+`ifdef BASEBOARD_MANIFOLD
+  // Component fixture: use the real BaseBoard serial decoder/latches for
+  // processor-issued I/O resets. Its firmware/CP bus and clocks are outside
+  // this direct-entry bench. ECL owns the serial interface after handoff.
+  wire bb_ioreset, bb_ttl_ioreset_n;
+  BaseBd_m_Rev_m_Am #(.SYSPER(SYSPER)) bb_manifold (
+    .sys_clk(sys_clk), .DMuxClk(m.DMuxClk), .DMuxData(m.DMuxData),
+    .UseDMD(m.UseDMD), .TTLIOReset_p_(bb_ttl_ioreset_n),
+    .TTLIOReset_p___drv(bb_ttl_ioreset_n), .IOReset__drv(bb_ioreset));
+  initial begin
+    force bb_manifold.EclUp=1'b1;
+    force bb_manifold.MCReset_p_=1'b1;
+  end
+  reg bb_ioreset_prev=0;
+  always @(negedge sys_clk) if(bb_ioreset!=bb_ioreset_prev)begin
+    $display("tb_exec: BASEBOARD IOReset=%b sample=%0d CIA=%h",bb_ioreset,n_cyc2,cia_now);
+    bb_ioreset_prev=bb_ioreset;
+  end
+`endif
 `ifdef FULL   // FULL before SCREEN: the Makefile defines BOTH, and an `ifdef chain
               // takes the first that is defined -- with SCREEN first, every
               // "eleven-board" run built the ten-board screen machine (2026-09-02).
@@ -802,7 +826,11 @@ module tb_exec;
       // was requested from the first cycle with no pendulum tick and no ack.
       // `+ioreset` holds the line asserted through the startup jams and
       // releases it when the machine is started, the way the BaseBoard does.
-      .IOReset(ioreset_r),
+      .IOReset(ioreset_r
+`ifdef BASEBOARD_MANIFOLD
+        | bb_ioreset
+`endif
+      ),
       .Pendulum(pendulum_r)
   );
   reg mb0_tie = 1'b0;
@@ -3344,6 +3372,50 @@ module tb_exec;
   // `+pcpc=HEX` opens the PCT window at the first MIR load of that address
   // (an address is a better handle than a cycle number in a 150M-cycle boot).
   reg [11:0] pcpc = 12'hfff;
+  // Read-only verification of what Initial received and LoadRam installed.
+  // No target data is copied into the machine. LoadRam's own page is protected.
+  final if ($test$plusargs("loaded-eb")) begin : verify_loaded_eb
+    string path;
+    integer fd, c, a, l, r, hi, lo, count, bad, start, ifucount;
+    reg [3:0] rstk, aluf;
+    reg [2:0] bsel, lc, asel;
+    reg [7:0] ff, jcn;
+    reg block_n, lp, rp;
+    reg [15:0] ifulo, ifuhi;
+    void'($value$plusargs("loaded-eb=%s",path));
+    fd=$fopen(path,"rb");
+    if(!fd) $fatal(1,"loaded-eb: cannot read %s",path);
+    c=$fseek(fd,512,0); count=0; bad=0; start=-1; ifucount=0;
+    while(!$feof(fd)) begin
+      hi=$fgetc(fd); lo=$fgetc(fd); if(hi<0 || lo<0) break; c=(hi<<8)|lo;
+      hi=$fgetc(fd); lo=$fgetc(fd); a=(hi<<8)|lo;
+      hi=$fgetc(fd); lo=$fgetc(fd); l=(hi<<8)|lo;
+      hi=$fgetc(fd); lo=$fgetc(fd); r=(hi<<8)|lo;
+      if(lo<0) $fatal(1,"loaded-eb: truncated item");
+      if((c&4095)==2) begin start=r; break; end
+      if((c&4095)==1) begin
+        ifum_readback_word(a[9:0],ifulo,ifuhi); ifucount++;
+        if(ifulo !== l[15:0] || ifuhi !== r[15:0]) begin
+          if(bad<8) $display("loaded-eb: IFUM %03h got %04h/%04h expected %04h/%04h",a,ifulo,ifuhi,l,r);
+          bad++;
+        end
+        continue;
+      end
+      if((c&4095)!=0 || (a>=12'hf80 && a<=12'hfbf)) continue;
+      im_readback_word(a[11:0],rstk,aluf,bsel,lc,asel,ff,jcn,block_n,lp,rp);
+      count++;
+      if(rstk !== {c[14],l[15:13]} || aluf !== l[12:9] ||
+         bsel !== l[8:6] || lc !== l[5:3] || asel !== l[2:0] ||
+         ff !== r[15:8] || jcn !== r[7:0] || block_n !== ~c[12]) begin
+        if(bad<8) $display("loaded-eb: IM %03h differs from original item %04h %04h %04h",a,c,l,r);
+        bad++;
+      end
+    end
+    $fclose(fd);
+    if(count<1000 || bad || start<0 || !visited[start&4095])
+      $fatal(1,"loaded-eb: words=%0d bad=%0d entry=%h reached=%b",count,bad,start,start>=0 ? visited[start&4095] : 1'b0);
+    $display("LOADED EB PASS: %0d original IM and %0d IFUM items match, protected loader page excluded, entry %03h executed",count,ifucount,start);
+  end
   initial void'($value$plusargs("pcpc=%h", pcpc));
   always @(posedge sys_clk)
     if (pcpc != 12'hfff && ring_cia == pcpc && ring_cia != pct_cia_d) begin

@@ -1213,6 +1213,17 @@ pack-test:
 		>/dev/null && { out=$$(./verilog/verilator/obj_pack/tb_pack +pack=chm/diskpacks/games-trident.pack 2>&1); \
 		  rc=$$?; echo "$$out" | grep -E "tb_pack|Assertion|%Error"; exit $$rc; }
 
+# Same file/cable/Fire-code check with Pilot's ten-word labels.
+# Use the CHS-linked Cedar pack prepared for the native boot experiment.
+.PHONY: pilot-file-pack-test
+PILOT_PACK ?= build/rtl-executive/cedar-work-native-chs.pack
+pilot-file-pack-test:
+	@cd ../.. && $(V) --binary --top-module tb_pack -GLABEL_WORDS=10 $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_pack_pilot_file -o tb_pack_pilot \
+		verilog/verilator/tb_pack.sv verilog/verilator/dorado_pack.sv \
+		verilog/cells/dorado_trident.v verilog/cells/cell_MC1650.v >/dev/null && \
+		./verilog/verilator/obj_pack_pilot_file/tb_pack_pilot +pack=$(PILOT_PACK)
+
 # The RTL's boot server: build the MicrocodeBootReply stream for a .eb and
 # round-trip every packet through the Manchester decoder, checking that the
 # CRC-16 residue of data+check word is zero (the 9401's own criterion).

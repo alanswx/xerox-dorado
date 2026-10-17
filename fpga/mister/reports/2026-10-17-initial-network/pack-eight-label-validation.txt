@@ -1,0 +1,4 @@
+tb_pack: file sector c3 h4 s0: header 0000 0000, label[0] 007e, data[0..3] 8530 4126 8240 23a0
+tb_pack: drive latched cyl 3 head 4 (tag strobes cyl 1 head 3); tracks loaded 3, sectors started 2, bits 10791, blocks 6
+tb_pack: decoded 3 blocks, 266 words, 0 word mismatches, 0 bad check words
+tb_pack: PASS -- header, label and data of c3 h4 s0 served with cancelling Fire-code check words, tags decoded
