@@ -8,10 +8,26 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
-**Latest investigation, 2026-10-17 13:51 UTC.** MiSTer14 still runs the
-timing-qualified Native16 RBF. The original Cedar microcode downloads and
-the component trace reaches the germ handoff, but its first Mesa pointer
-reads fail; there is no Cedar OS screen or IFU instruction fetch yet.
+**Latest hardware state, 2026-10-17 14:30 UTC.** MiSTer14 now runs
+Native18, SHA256 `25e4f127a7490e7852ea0d7d91928297a7636abfa80de3d1bf349a713764a42f`.
+All29 timing checks pass, minimum +0.091ns, with zero illegal/unconstrained
+internal clocks. Original slow hold -0.013ns was four MemC d06 a_lat[1]
+to its own RAM write-address bit1 paths. The exact one-source/four-sink
+HOLD review uses the same !p13 capture versus p13&&!we_d&&ce_lat commit
+proof as the earlier F10145A reviews; setup/read/data/enables remain timed.
+Before/after reports: `fpga/mister/reports/2026-10-17-native18/`.
+
+Native18 uses a separate fresh Cedar18 pack (baseline SHA c0cd6784...),
+fixed720p60 profile and the same immutable Main/server. The Native16 log
+was copied to main-before-native18.log, then the open log was moved to
+Cedar18_20261017/main.log. Main's executable was not replaced. Three real
+boot pushes requested CoolBoot once; the firmware is at CPUfc7 with live
+F4E0/F693 BaseBoard PCs. Allow the firmware waits to run. C is held by the
+watcher and releases at the next actual BFN113 request. No Cedar OS screen
+yet. The component run reaches the germ handoff but still reads corrupted
+source pointers before the copy; a read-only physical-storage inspection
+is running to separate storage contents from cache/refill corruption.
+
 The first map-write trace proves that the requested page reaches Mapbuf,
 then the next instruction's saved Link overwrites it before the RAM write.
 An expanded passive trace includes the unregistered hold input and
@@ -34,7 +50,7 @@ on all three original boards, with three pulse lengths; it passes. The
 old RTL fails at strobe24 (expected001, all three boards read000).
 Original-ROM regression passes at16M: all15 task initializations and
 2,611,683 samples with all six error sources enabled, no errors. No new
-FPGA RBF is built or deployed.
+FPGA RBF was built or deployed at that point; Native18 now includes this fix.
 Committed/pushed as `d55d7e4c`. The55M Cedar component run also confirms
 VirtualBanks=0040 (16K map), replacing the incorrect0400. Original IM3600
 and IFUM256 still match; the map-data overwrite remains a separate bug.

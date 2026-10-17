@@ -1,0 +1,11 @@
+{
+  "rbf_sha256": "25e4f127a7490e7852ea0d7d91928297a7636abfa80de3d1bf349a713764a42f",
+  "source_overlay_sha256": "0e577794e71bdb75b2f695ba3860e1f46aebc334b89c01c25761fe39fb5d6b17",
+  "source_commit": "fde11f7c; frozen source includes same generated MemX (generator comments differ only)",
+  "timing": "PASS29 minimum+0.091ns, internalillegalclocks0/0, unconstrainedclocks0/0. FrameworkI/Odelaysseparate.",
+  "before_review": "Slowhold-0.013ns, fourpaths MemCd06a_lat[1]toitsownfourRAMwriteaddressbit1endpoints. Fast+0.014ns.",
+  "review": "Exact1source/4sink guard. Cellcapturesa_lat only!p13, writesonlyp13&&!we_d&&ce_lat; sameedgeimpossible. OnlyHOLDexcluded,setup/read/data/enable remainchecked. RBFunchanged.",
+  "functional": "MapholdreplayandOriginalROMratios4/16pass;90MCedarIM/IFUMandfirst16mapwritespass. Componentstillbadgermsourcewords/noIFUfetch. ActualNative18bootresultpending.",
+  "build": "misterubuntu:/home/alans/mister/Dorado_Native18_20261017/core",
+  "device": "MiSTer14, freshCedar18disposablepackbaselineSHA c0cd6784ea9df43d669dab2c445b3a1a7241048ac87f10afa747927d931bad5c"
+}
