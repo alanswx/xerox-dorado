@@ -1,0 +1,16 @@
+{
+  "audit_exit": 0,
+  "checks": 29,
+  "min_slack": -0.106,
+  "coverage": {
+    "Illegal Clocks": [
+      0,
+      0
+    ],
+    "Unconstrained Clocks": [
+      0,
+      0
+    ]
+  },
+  "rbf_sha256": "cb7a541fd4bd1bde02ad958afad37ff99a75d6d1c65d38914e43f16c39596b4b"
+}

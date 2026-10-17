@@ -8,6 +8,29 @@ BaseBoard startup, external memory, and the matched Cedar microcode/germ/
 Pilot controller path. A C-emulator snapshot or host IOCB-completion bridge
 does not qualify as an RTL boot.
 
+**Actual Native15 loaded, 2026-10-17 11:34 UTC.** MiSTer14 now runs
+`DoradoRTL_Cedar15_20261017/Cedar15.mgl`, RBF SHA256
+`cb7a541fd4bd1bde02ad958afad37ff99a75d6d1c65d38914e43f16c39596b4b`.
+All29 timing checks pass, minimum +0.128ns, with zero illegal/unconstrained
+internal clocks. Original -0.106ns hold report is preserved. The only
+constraint review is three exact F10145A own a_lat-to-write-address HOLD
+pairs (DskEth j11/j09, MemC k06): !p13 capture vs p13&&!we_d&&ce_lat
+commit are mutually exclusive, the same audited proof as checkpoint cores.
+Setup, read, data and enable paths remain checked. RBF unchanged by review;
+fixed720p60 only, framework I/O delay coverage remains separate. Evidence:
+`reports/2026-10-17-native15/`. Cedar is NOT yet booted on FPGA.
+Main fd/log moved to `Cedar15_20261017/main.log`; fresh C helper and
+three-push cold boot are being started after Main opened its input devices.
+Fresh writable pack has baseline SHA256 c0cd6784...; immutable Main/server
+unchanged. Native14 still routing, superseded if Native15 boot is sound.
+
+The extended component fixture confirms the missing-BaseBoard diagnosis:
+real generated serial-manifold gates pulse IOReset at samples49,570,809
+and49,571,897; the stale disk task clears and Cedar map/cache initialization
+continues. This is still a direct-entry component fixture, not native boot.
+Its 150M bound is adjustable through
+`build/rtl-executive/cedar113-bbman-limit.txt` (once per million samples).
+
 **Component loader proof, 2026-10-17 11:20 UTC.** The B-only Ethernet
 fix downloads and installs the original Cedar image: 3,600 writable IM
 items and all 256 IFUM entries match. The 64 protected LoadRam words are

@@ -38,3 +38,25 @@ foreach board {msa msaOdd msa1 msa1Odd msa2 msa2Odd msa3 msa3Odd} {
         }
     }
 }
+
+# Native15 exposes the same F10145A write-address transfer already audited
+# for the checkpoint cores (checkpoint_timing.sdc). In cell_F10145A:
+#   a_lat changes only while !p13;
+#   mem[a_lat] writes only while p13 && !we_d && ce_lat.
+# Address capture and write commit therefore cannot occur on the same edge.
+# Exclude ONLY the three reported instances' own write-address HOLD paths.
+# Their next-edge setup, asynchronous read addresses, data and enables stay
+# checked. Slow-corner failures before review: j11 -0.106 ns, j09 -0.094 ns,
+# k06 -0.015 ns. The RBF is unchanged by this constraint review.
+foreach {board instance position} {
+    DskEth_m_Rev_m_Cf b_DskEth j11
+    DskEth_m_Rev_m_Cf b_DskEth j09
+    MemC_m_Rev_m_Be b_MemC k06
+} {
+    set ram_scope [format {*|dorado_native_machine:u_native|dorado_native_backplane:m|%s:%s|cell_F10145A:u_%s|} $board $instance $position]
+    set address_source [get_registers -nowarn "${ram_scope}a_lat*"]
+    set address_sink [get_registers -nowarn "${ram_scope}altdpram:mem_rtl_0|*|*~OBSERVABLEPORTAADDRESSREGOUT*"]
+    if {[get_collection_size $address_source] && [get_collection_size $address_sink]} {
+        set_false_path -hold -from $address_source -to $address_sink
+    }
+}

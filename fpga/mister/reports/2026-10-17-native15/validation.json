@@ -1,0 +1,20 @@
+{
+  "checks": 29,
+  "min_slack_ns": 0.128,
+  "clock_coverage": {
+    "illegal": [
+      0,
+      0
+    ],
+    "unconstrained": [
+      0,
+      0
+    ]
+  },
+  "rbf_sha256": "cb7a541fd4bd1bde02ad958afad37ff99a75d6d1c65d38914e43f16c39596b4b",
+  "original_source_overlay_sha256": "a901ddf48c8043f4870141393797c76a735e8b0471f0fde6ac46c914cbffb4e0",
+  "constraint_review": "Three exact F10145A own a_lat-to-write-address HOLD paths only: DskEth j11, j09; MemC k06. Capture !p13 vs write p13&&!we_d&&ce_lat are mutually exclusive. Setup, reads, data and enables remain timed. Same proof as checkpoint_timing.sdc. RBF unchanged.",
+  "initial_failed_hold_ns": -0.106,
+  "native_boot": "Loading on MiSTer14; not yet Cedar boot qualified.",
+  "mode": "fixed720p60 video_mode0 vsync_adjust0; framework IO delay coverage separate"
+}
