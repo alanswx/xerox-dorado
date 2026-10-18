@@ -166,6 +166,20 @@ new monotonic request/ACK/file/poll observer, then real input/network,
 cold-remount marker persistence and sustained Cedar stress. Reports disk-cache;
 Native41b remains halted and preserved. Complete snapshots remain milestone4a.
 
+Update20:17UTC: disk-cache Main40e1 is deployed on fresh same-RBF Native41c;
+Main16875/server16872. Actual image cache ready; C watcher70748 armed after
+final Main initialization, three real CoolBoot pulses completed. Original
+firmware spin-up, BFN113/login and all subsequent gates pending. Match new
+ELF symbols for Main controls. Current config/recipe/captures are native41c
+reports; failed41b physical image remains unchanged and preserved.
+
+Update20:25UTC: Native41c original firmware/BFN113 and actual HDMI Cedar
+login PASS. C watcher70748 completed/released, boot modifiers UP. Idle
+three10s windows1595653.86/1595625.89/1595901.82 issues/s, mean1595727.19
+(9.574% original nominal), essentially identical to41b. This is one boot,
+issues not drained retirements. Real Guest typing requested. Full Viewers,
+input, durable persistence and stress pending. No guest-state repair.
+
 **Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
 original firmware to the actual Cedar login on MiSTer14. Real Guest input
 is accepted; Basic boot is running. Main11453 is the

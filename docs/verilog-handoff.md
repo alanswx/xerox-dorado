@@ -9,14 +9,49 @@ qualify M10K placement and instruction measurement; move bulk RAM to SDRAM;
 reduce memory-request overhead; make ARM disk work nonblocking/coherent;
 connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
-External Xerox-network tunnelling is optional follow-up. Next: fix and instrument
-Main disk service after the Native41b post-desktop host-write timeout. Preserve
-the halted core and physical pack; cold remount and39/42 comparisons remain pending. Native39b's idle-login issue/wait baseline is measured.
+External Xerox-network tunnelling is optional follow-up. Next: qualify the
+fresh same-RBF Native41c with the new disk-cache Main and monotonic observer
+after41b failed post-desktop host-write stress. The failed physical pack is
+preserved; cold remount and39/42 comparisons remain pending. Native39b's idle-login issue/wait baseline is measured.
 User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is Native41b, fresh same-bitstream SDRAM boot with the fixed
+**Live MiSTer14 is Native41c, deployed20:15UTC with disk-cache Main.**
+Main16875, server16872. Same RBF a97af936 and e237dffc fixed server, fresh
+original f3bce2a8 seed, pinned Pup time1792324800,50MHz/SYSPER4, SDRAM and
+no raw line cache. New Main40e14b6b is immutable at
+`System_20261018_DiskCache/MiSTer-40e14b6b97d62435`; matching ELF alongside
+and `/tmp/dorado-main-40e1.elf`. `DORADO_DISK_CACHE=1`, disk trace
+`/tmp/dorado41c-disk.jsonl`, Main net trace enabled. Actual63578624-byte
+image-cache-ready observed; initial CPU is in normal BaseBoard spin-up.
+No guest-state import or completion/IOCB patch. The normal core loader
+programmed the RBF, its temporary automatic Main reexec was normally stopped,
+then final Main started with explicit cache/trace environment and a fresh
+server before CoolBoot. Deployment checks current binary/preserved pack,
+seed/RBF/timing and candidate source hashes. Old41b pack remains0046452c...
+unchanged; its dirty FPGA track could not be captured before reset.
+
+The real C watcher session70748 was armed after final Main initialization
+and held C through the new13-word type264/BFN113 request.
+It completed at the new BFN113 request~20:20UTC and released C; do not restart. Three real boot-button pulses20201
+completed and modifiers are UP. Main-only FB toggle33489/72582 completed,
+no capture reset; HDMI shows expected uninitialized firmware raster, not OS
+text yet. No active GDB. BFN113 and actual Cedar login have passed. Three10s idle windows give
+1595653.86/1595625.89/1595901.82 issues/s, mean1595727.19/s=9.574%
+nominal, reproducing41b; issues are not drained retirements, and three
+windows are one boot. Guest typing requested~20:25; full desktop/input/
+persistence/stress remain pending. No active GDB.
+Fresh paths: `Cedar41c_20261018/{main.log,server.log,cedar-work.pack}` and
+`_Computer/DoradoRTL_Cedar41c_20261018/Cedar41c.mgl`. Local helpers
+`build/rtl-executive/cedar41c-launch/`, committed native41c reports. New
+Main symbols differ: input_poll=84310, status_set=9d71c (Thumb9d71d),
+video_fb_enable=ac61c (Thumbac61d). Helpers assert matching40e1 ELF/hash;
+never use old1fb2 numeric call addresses with this process. Measure idle-login
+issues before Guest with prepared measure-login.py, then cause views if required for a new question.
+Memory available after preload317608KiB; the cache resides in ARM DDR.
+
+**Retired Native41b, fresh same-bitstream SDRAM boot with the fixed
 e237dffc daemon.** Main13741/server13734. Deployment18:28UTC, RBF a97af936,
 Main1fb2, original fresh f3bce2a8 pack, pinned time1792324800; directories
 `Cedar41b_20261018` and `_Computer/DoradoRTL_Cedar41b_20261018/Cedar41b.mgl`.
@@ -52,12 +87,12 @@ and the matched DDR42/optimized43 comparisons.
 Exact deployment/assertions/restart config and captures: native41b reports;
 local launch helpers in `build/rtl-executive/cedar41b-launch/`.
 
-**Current state,19:48UTC: Native41b POST-DESKTOP STRESS FAILED.** The core is
+**Preserved failure,19:48UTC: Native41b POST-DESKTOP STRESS FAILED.** The core is
 halted on a latched four-second host-transfer watchdog: machine=802a020a,
 state=47fc, cpu=000018ff. These fields now report the fault, overriding the
 selected instruction counters. Reason8, cylinder42/head0/block2, serial parser
 idle, host_state1 awaiting WRITE ACK assertion, sd_wr=1/sd_rd=0/sd_ack=0,
-LBA6399. CRC/RX/abort remain zero. Main13741/server13734 still run.
+LBA6399. CRC/RX/abort remain zero. Main13741/server13734 ran until the20:15 Native41c deployment.
 The exact current fault first appears at line112652 of the archived accumulated
 Main log; earlier prefix faults belong to previous runs. The frozen screen
 still shows the desktop and marker read. A normal `boot` was typed after
@@ -87,7 +122,7 @@ fault.json, fault-pack-preservation.json, compressed full logs and screen.
 The earlier fresh desktop/input/file-close/read successes remain valid;
 cold-remount persistence and two-hour stability remain unqualified.
 
-**ARM disk-service candidate implemented and component-qualified, not deployed.**
+**ARM disk-service candidate implemented, component-qualified and now on41c.**
 `fpga/mister/main/dorado_disk{,_cache,_trace}.{cpp,h}` plus main-disk patch
 preload one <=64MiB regular image into ARM DDR, coalesce dirty sectors and
 run all file IO on Main's actual existing worker. Whole-image dirty capacity
@@ -112,9 +147,9 @@ pthread identity, with production source unchanged; failure retained.
 GCC10.2.1 full pinned Main build passes, SHA40e14b6b97d62435c6e1ecd5c78bf9959c74b816a8e9452b1e64c28179ca8188;
 `misterubuntu:/home/alans/mister/Main_DoradoDisk_20261018/bin/MiSTer{,.elf}`,
 local `build/rtl-executive/arm-disk-adapter/`. Source/compiler identities and
-reports are in reports/2026-10-18-disk-cache. Next stage immutable Main and
-run a fresh same-RBF41c with DORADO_DISK_CACHE=1 and a new /tmp disk trace,
-then qualify real polls/input/packet delivery, close/cold remount and stress.
+reports are in reports/2026-10-18-disk-cache. Immutable Main is now on fresh same-RBF41c with DORADO_DISK_CACHE=1 and
+a new /tmp disk trace. Qualify real polls/input/packet delivery,
+close/cold remount and stress after original boot.
 Keep the failed41b physical pack untouched; use the original fresh seed.
 
 **Native44 group-interleaving candidate: simulation AND all-device timing PASS,
@@ -1021,7 +1056,7 @@ and has unreviewed hold violations; never deploy it.
 - [x] Resolve requested74.25MHz versus cached60Hz discrepancy: fresh hardware counter30Hz,74.25MHz; separate148.5MHz timing fails.
 - [ ] Use qualified-clock progressive output and verify stable deinterlacing, including video.
 - [x] Fix Main extended-modeline zero-clock parser in separate patch; mutation regression and pinned GCC10.2.1 ARM build pass.
-- [ ] Deploy immutable parser-fixed Main at a planned restart; preserve current run until then.
+- [x] Deploy immutable Main40e1 containing the parser fix as part of fresh41c disk-cache qualification; HDMI reinitialization remains open.
 - [x] Qualify Native27 passive fault-monitor fit/timing:29 checks,min+.115ns.
 - [ ] Reproduce medium fault with Native27 observation if needed; not deployed.
 - [x] Complete the33 listed BCDs (34 files including Basic.Loadees) and reach Viewers.
@@ -1096,7 +1131,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.
 - [x] Implement/test bounded whole-image ARM cache, dirty-run coalescing, worker file IO, Main-only SPI capture and error recovery; actual-worker Linux/ARM and full pinned Main build pass.
 - [x] Add monotonic bounded request/ACK/file/poll tracing and durable remount/program/restart/reboot/SIGTERM/SIGINT boundaries; component tests pass.
-- [ ] Deploy immutable disk-cache Main on fresh same-RBF41c with observer; prove real Main input/network polling during disk activity, cold-remount persistence and sustained fault-free Cedar stress.
+- [x] Deploy immutable disk-cache Main on fresh same-RBF41c with observer; cache-ready confirmed and real original CoolBoot requested.
+- [ ] Finish41c original Cedar boot; prove real Main input/network polling during disk activity, cold-remount persistence and sustained fault-free stress.
 - [ ] Separately reduce FPGA whole-track write amplification where original guest/CRC semantics permit.
 - [x] Add/test nonblocking pinned Main worker enqueue and empty-wake predicate on Linux/ARM; blocking and old-wake controls fail. Prerequisite only, not deployed/integrated disk I/O.
 - [x] Review MacPPC/Sun/NeXT DDR Ethernet host/RTL rings; record source hashes, address overlap and payload-size constraints.

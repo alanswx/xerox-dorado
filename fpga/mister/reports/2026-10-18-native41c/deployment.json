@@ -1,0 +1,16 @@
+{
+  "time_utc": "2026-10-18 20:15:07 UTC",
+  "old_pids": {
+    "main": 13741,
+    "server": 13734
+  },
+  "staging_main_pid": 16866,
+  "new_main_pid": 16875,
+  "new_server_pid": 16872,
+  "main_sha256": "40e14b6b97d62435c6e1ecd5c78bf9959c74b816a8e9452b1e64c28179ca8188",
+  "rbf_sha256": "a97af93667bf20b2f9bebb0959dc67a4710895f6416e91987242e7486a1f9297",
+  "server_sha256": "e237dffc8dfcb446b51d417a8cbb63bcf52812a861b75f16c4454bdaffda6f94",
+  "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "preserved_old_pack_sha256": "0046452c45d333b30020a47546e5fdfa65b4ecb9edd46d14cbb9ba048bf02b7b",
+  "phase": "Waiting for final Main image-cache-ready before original firmware CoolBoot"
+}

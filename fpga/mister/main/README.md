@@ -241,5 +241,6 @@ Run it on the unpatched source; the test applies the patch to a temporary
 copy. GCC 10.2.1 cross-build also passes in the isolated build-machine copy
 `Main_DoradoVideo_20261017`; binary SHA256
 `6358f31033c4dfc6fab209c67e2a1d3d65f9ea374fae210e1e230012b9ccee63`.
-This candidate is not deployed. The running immutable Main remains
-`1fb2e098...`, preserving the current Cedar FPGA boot.
+The standalone video candidate was not deployed. The disk-cache Main40e1
+now running on Native41c includes this parser fix; HDMI reinitialization still
+uses the separate framebuffer-toggle workaround.
