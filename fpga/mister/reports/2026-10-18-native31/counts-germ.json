@@ -1,0 +1,158 @@
+{
+  "units": "fabric rising edges; NOT retired instructions",
+  "samples": [
+    {
+      "observed_monotonic": 44152.359227386,
+      "enabled": 154952135,
+      "host": 194430803,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=093c61c7 state=47ea cpu=0b96c753"
+    },
+    {
+      "observed_monotonic": 44153.356970977,
+      "enabled": 168154871,
+      "host": 244430761,
+      "status": 18415,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=0a05d6f7 state=47ef cpu=0e91b7a9"
+    },
+    {
+      "observed_monotonic": 44154.365080763,
+      "enabled": 181356011,
+      "host": 294429204,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=0acf45eb state=472a cpu=118ca214"
+    },
+    {
+      "observed_monotonic": 44155.363596363,
+      "enabled": 194557939,
+      "host": 344429663,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=0b98b7f3 state=472a cpu=1487945f"
+    },
+    {
+      "observed_monotonic": 44156.361886371,
+      "enabled": 207759851,
+      "host": 394427735,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=0c6229eb state=472a cpu=17827d57"
+    },
+    {
+      "observed_monotonic": 44157.360630743,
+      "enabled": 220959369,
+      "host": 444428119,
+      "status": 18415,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=0d2b9289 state=47ef cpu=1a7d6f57"
+    },
+    {
+      "observed_monotonic": 44158.359224974,
+      "enabled": 234159058,
+      "host": 494427762,
+      "status": 18223,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=0df4fbd2 state=472f cpu=1d785e72"
+    },
+    {
+      "observed_monotonic": 44159.357755955,
+      "enabled": 247362244,
+      "host": 544426442,
+      "status": 18223,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=0ebe72c4 state=472f cpu=207349ca"
+    },
+    {
+      "observed_monotonic": 44160.365906471,
+      "enabled": 260305155,
+      "host": 594426313,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=0f83f103 state=472a cpu=236e39c9"
+    },
+    {
+      "observed_monotonic": 44161.36427857,
+      "enabled": 273189611,
+      "host": 644425726,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=10488aeb state=472a cpu=266927fe"
+    },
+    {
+      "observed_monotonic": 44162.363279046,
+      "enabled": 286043335,
+      "host": 694425462,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=110cacc7 state=47ea cpu=29641776"
+    },
+    {
+      "observed_monotonic": 44163.361891588,
+      "enabled": 298497771,
+      "host": 744424533,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=11cab6eb state=472a cpu=2c5f0455"
+    },
+    {
+      "observed_monotonic": 44164.360270537,
+      "enabled": 311404043,
+      "host": 794423940,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=128fa60b state=472a cpu=2f59f284"
+    },
+    {
+      "observed_monotonic": 44165.358777827,
+      "enabled": 324151495,
+      "host": 844422690,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=135228c7 state=47ea cpu=3254de22"
+    },
+    {
+      "observed_monotonic": 44166.356935804,
+      "enabled": 336663531,
+      "host": 894423388,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=141113eb state=472a cpu=354fd15c"
+    },
+    {
+      "observed_monotonic": 44167.359035584,
+      "enabled": 349358535,
+      "host": 944421842,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=14d2c9c7 state=47ea cpu=384abbd2"
+    },
+    {
+      "observed_monotonic": 44168.356691975,
+      "enabled": 362167531,
+      "host": 994421654,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=15963ceb state=472a cpu=3b45ab96"
+    },
+    {
+      "observed_monotonic": 44169.365428479,
+      "enabled": 374842123,
+      "host": 1044420325,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=1657a30b state=472a cpu=3e4096e5"
+    },
+    {
+      "observed_monotonic": 44170.364456465,
+      "enabled": 387352811,
+      "host": 1094420982,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=171688eb state=472a cpu=413b89f6"
+    },
+    {
+      "observed_monotonic": 44171.363423231,
+      "enabled": 400184400,
+      "host": 1144419458,
+      "status": 18415,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=17da5450 state=47ef cpu=44367482"
+    },
+    {
+      "observed_monotonic": 44172.363208366,
+      "enabled": 412925069,
+      "host": 1194419987,
+      "status": 18223,
+      "line": "Dorado net: flags=5 tx_words=13 good=1 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=189cbc8d state=472f cpu=47316713"
+    }
+  ],
+  "elapsed_observer_s": 20.00398098000005,
+  "delta_host": 999989184,
+  "delta_enabled": 257972934,
+  "enabled_fraction": 0.25797572426543364,
+  "implied_host_mhz": 49.98950883825513,
+  "instruction_ceiling_per_s": 1612348.2766589604
+}

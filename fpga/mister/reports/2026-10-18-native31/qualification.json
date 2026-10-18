@@ -1,0 +1,13 @@
+{
+  "timing_checks": 29,
+  "minimum_slack_ns": 0.08,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "rbf_sha256": "ca5572a080cf06655e83497c089a74e6c3c066d47bc9390d44b44b4ddc4d7705",
+  "core_frequency_mhz": 50,
+  "sysper": 4,
+  "core_setup_slack_ns": 1.21,
+  "hold_review": "Existing native26 pre-review constraints retained; no new post-fit exceptions.",
+  "external_io_limit": "Framework external ports remain unconstrained; see report. No unconstrained clocks.",
+  "hardware": "MiSTer14: original firmware/BFN113, Cedar login, fast Guest input, real Basic.Loadees loading pass. Internal raster initially good/HDMI black; Main host-FB toggle restores HDMI. Fresh physical HDMI30Hz/74.25003MHz. Viewers and exclusive Echo/mouse pending."
+}

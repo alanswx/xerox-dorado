@@ -31,6 +31,10 @@ geometry all9,437,184 bits identical. No ECC or read-before-write bypass.
 
 The installed Quartus17 parser required explicit generate/genvar syntax;
 the first Native31 map error is preserved remotely, corrected map passes.
-Native31's50MHz fit/timing/hardware are still pending. Simulation success
-does not establish a higher physical frequency. Native29 on hardware uses
-the original arbiter and remains the independent40MHz control.
+Native31's50MHz fit and timing pass: all29 checks, minimum+0.080ns,
+core setup+1.210ns, zero unconstrained clocks and no new post-fit exception.
+The old arbitration path no longer dominates; the worst path is readiness
+to network_step. Real firmware/BFN113/Cedar login and Guest input pass on
+MiSTer14; Viewers qualification continues. See ../2026-10-18-native31/.
+Native29 is the frozen original-arbiter40MHz control; it passed firmware,
+login and loader, and was replaced with user authorization.

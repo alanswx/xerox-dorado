@@ -1,13 +1,13 @@
 # Phase 2: what the Sil files give the Verilog, and how to test it
 
-**Active work (2026-10-18): Native29 runs at40MHz on MiSTer14.**
-Fresh original firmware/BFN113, Cedar login and fast buffered Guest input
-work; Basic.Loadees retrieval is underway. Timing29 checks pass, minimum
-+0.019ns, no illegal/unconstrained clocks. Native26's previous Viewers
-desktop is the reference; the user released that session for faster builds.
-Native30 adds passive clock counts; Native31 tests a balanced storage arbiter
-at50MHz. Neither later candidate is timing/hardware qualified. See the
-[handoff and TODOs](verilog-handoff.md) and [clock plan](verilog-clock-plan.md).
+**Active work (2026-10-18): Native31 is loaded at50MHz on MiSTer14.**
+Balanced storage arbitration and coherent passive clock counts are included.
+All29 STA checks pass, minimum+0.080ns, core setup+1.210ns, no unconstrained
+clocks or new post-fit exceptions. Original firmware/BFN113, Cedar login and
+fast Guest input pass; Viewers/input qualification continues. The6.25M/s instruction ceiling
+is50% above the old33.333MHz ceiling; actual guest speed remains unmeasured.
+Native26 previously reached Viewers; Native29 passed firmware/login/loader.
+See the [handoff and TODOs](verilog-handoff.md) and [clock plan](verilog-clock-plan.md).
 
 ## Clock architecture audit (2026-10-18)
 

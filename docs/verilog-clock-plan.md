@@ -12,7 +12,7 @@ defines a 30 ns clock, a new ordinary instruction every two clocks (60 ns),
 and three overlapping execution cycles. IM/TPC instructions extend the
 control sequence; those extra clocks are architectural behavior.
 
-The current ceiling is 4.167 M instructions/s at 33.333 MHz/SYSPER4,
+The original FPGA baseline ceiling is 4.167 M instructions/s at 33.333 MHz/SYSPER4,
 before backend pauses. Simply reducing SYSPER is invalid: the existing
 generator distorts the original phases at 4 and collapses them at 2; the
 paired original-ROM startup passes at 4 and fails at 2. Simply increasing
@@ -110,10 +110,11 @@ These counters will separate global backend pauses from CPU clock division.
 They count fabric edges, not instructions. See the
 [protocol/measurement notes](../fpga/mister/main/README.md) for units and
 wrap handling. A read-only Native26 desktop scaler-header baseline changes
-1.70 times/s over10s, but that is source-raster cadence for that workload,
-not a CPU or HDMI frequency measurement. Do not infer retired MIPS from it.
+1.70 times/s over10s in one fixed scaler-buffer header. Buffer reuse may
+skip complete fields: this is only that slot's header-change cadence, not
+a source-field, CPU or HDMI frequency. Do not infer retired MIPS from it.
 
-## Measured arbitration bottleneck: Native31 experiment
+## Measured arbitration bottleneck: Native31 at50MHz
 
 Native29's new limiting path takes22.666ns from an MSA address, through
 readiness and the128-way arbitration/payload selection, into address_latched
@@ -134,11 +135,21 @@ stored bits and outputs. Quartus17 required explicit generate/genvar syntax;
 the corrected source synthesizes. No speed gain is inferred from RTL alone.
 
 Frozen Native31 at `misterubuntu:/home/alans/mister/Dorado_Native31_20261018`
-combines this tree with Native30's diagnostics and a50MHz PLL target. That
-would raise the instruction ceiling to6.25M/s if it closes timing. It is an
-experiment, not a qualified frequency or deployment. Review complete STA
-and boot on hardware before promotion. The original clock-family migration
-and unused DDR return lanes remain additional work.
+combines this tree with Native30 diagnostics at50MHz. Fit succeeds in15m05s,
+84% ALMs,305 RAM blocks. All29 STA checks pass, min+0.080ns, core setup
++1.210ns,0 illegal/unconstrained clocks. Both fast/slow hold reports pass;
+no new post-fit exceptions. Worst path is now MSA readiness -> network_step,
+7.673ns data against10ns; Fmax56.88MHz is not an operating qualification.
+The original EccComputeErr inferred-latch warning matches Native29.
+
+Loaded on MiSTer14 around03:48UTC; original firmware/BFN113, Cedar login
+and fast Guest input pass. Actual HDMI was restored via Main host-FB toggle;
+fresh counters confirm1080p30/74.25003MHz. Viewers/input qualification pending. A20s firmware count sample gives
+26.4617% enabled edges and50.01MHz host clock. This halted-CPU workload is
+not Cedar performance. Ceiling6.25M/s before pauses,37.5% of original Dorado;
+50% above33.333MHz is a ceiling comparison, not measured guest acceleration.
+Evidence: `fpga/mister/reports/2026-10-18-native31/`.
+The original clock-family migration and unused DDR return lanes remain.
 
 ## First prototype: implemented, isolated
 
