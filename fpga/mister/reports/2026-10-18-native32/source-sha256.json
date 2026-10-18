@@ -1,0 +1,7 @@
+{
+  "fpga/mister/dorado_storage_ddram.sv": "4984c1f79bd977f13dc32b6f360abd306e88c054cbeccfa39ad4d0f118737d1d",
+  "fpga/mister/dorado_storage_arb.sv": "1f7a1911773c94bc517b629d1d398c82f58afcfed18a2d3090a21fa2f797fba7",
+  "fpga/mister/Dorado.sv": "3bb5df4f4e31c8501664f1accd222acaf1b92ee0fb02b6532f47ac2630770fa7",
+  "fpga/mister/dorado_ethernet_uio.sv": "3157d89cddf525b8dfe75ca77eaa6a2e0582f911523aa0e4b470e2c33b3789df",
+  "fpga/mister/dorado_speed_monitor.sv": "af6351b62ced57df2d7d18042b84f51ed6dcda90aeb432c67dafc4065416171d"
+}

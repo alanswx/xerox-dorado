@@ -180,8 +180,13 @@ comparisons pass, including all9,437,184 bits. Three-group DDR reads drop
 missing-invalidation failure controls prove the traffic/coherence tests.
 
 A separately frozen Native32 candidate enables the buffer at50MHz/SYSPER4.
-Quartus synthesis passes and retains both RAMs; fit/timing/hardware pending.
-Native31 remains the live control. Evidence/reproduction:
+Fit14m23 and29 summary checks plus full global fast/slow timing pass,
+overall min+0.084ns; no new exceptions/unconstrained clocks. Loaded on14
+around04:19UTC. Original firmware is loading; first enabled-edge sample
+25.0156% versus26.4617% uncached shows no firmware gain. Cedar loader/desktop
+benefit and full input qualification remain pending. Default cache stays OFF.
+Counters currently combine pause causes; separate DDR/HPS duration is not
+measured. Native31 control completed the loader and advanced BootEssentials. Evidence/reproduction:
 `fpga/mister/reports/2026-10-18-ddr-linebuffer/`. No hardware speedup claim yet.
 
 ## First prototype: implemented, isolated

@@ -1,0 +1,15 @@
+{
+  "timing_checks": 29,
+  "minimum_slack_ns": 0.084,
+  "minimum_standard_summary_slack_ns": 0.156,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "rbf_sha256": "5747eb2698ea0d8ebbed933b714da6ad29db79730f9eecd16595724aa9c040ea",
+  "core_frequency_mhz": 50,
+  "sysper": 4,
+  "raw_line_cache_entries": 128,
+  "core_setup_slack_ns": 1.214,
+  "hold_review": "No new exceptions; Native31 base constraints retained. Full fast/slow setup/hold/recovery/removal/pulse-width audits pass; fast hold minimum0.084ns.",
+  "external_io_limit": "Framework external ports remain unconstrained; detailed report retained.",
+  "hardware": "Ready to load; original firmware/Cedar/input qualification pending."
+}

@@ -2,42 +2,40 @@
 
 ## Current objective (2026-10-18 UTC)
 
-**Native31 is loaded on MiSTer14 at50MHz/SYSPER4 (03:48UTC).**
-All29 timing checks pass, min+0.080ns, core setup+1.210ns, zero illegal/
-unconstrained clocks; no new post-fit exceptions. RBF
-`ca5572a080cf06655e83497c089a74e6c3c066d47bc9390d44b44b4ddc4d7705`.
-Balanced storage selection now closes at50MHz; Fmax56.88MHz is not an
-operating qualification. Worst core path is readiness -> network_step,
-7.673ns data against10ns. The ceiling6.25M instructions/s is50% above the
-old33.333MHz ceiling, before pauses; not measured retired throughput.
+**Native32 is loaded on MiSTer14 at50MHz/SYSPER4 with128-line raw DDR buffer
+(04:19UTC).** All29 summary timing checks pass; full fast/slow setup, hold,
+recovery, removal and pulse-width categories also pass. Overall min+0.084ns
+(fast hold), core setup+1.214ns, zero illegal/unconstrained clocks; no new
+exceptions. RBF `5747eb2698ea0d8ebbed933b714da6ad29db79730f9eecd16595724aa9c040ea`.
+Fit14m23,84%ALMs,307M10Ks. Original CPU/DRAM/cache/ECC/serial timing and
+SYSPER4 are unchanged; only the backing adapter and cache option differ.
 
-Original firmware sent fresh BFN113; C was released. Internal capture shows
-Cedar login (03:55). Fast Guest input succeeded; real Basic.Loadees are loading.
-All34 Basic.Loadees completed. Single n at the actual profile question
-auto-completed No and advanced to BootEssentials (04:06UTC).
-Viewers/exclusive Echo/mouse qualification is pending. HDMI initially black
-with a good internal raster; Main host framebuffer enable/disable restored
-actual HDMI without guest reset. Fresh UIO23 confirms30.000012Hz/74.25003MHz.
-Main21722/server21719 are the unchanged immutable1fb2.../1d5... binaries.
-Launcher `_Computer/DoradoRTL_Cedar31_20261018/Cedar31.mgl`; active pack,
-logs and reboot config in `games/DoradoRTL/Cedar31_20261018`. Fresh corrected
-seed; active volume is guest-mutated. Per-core1080p30 request. The user has
-explicitly released the old session for reloads. No other MiSTer allocated.
+Original firmware is loading microcode (c0fc7000). C is held by the BFN113
+watcher, reasserted after Main restart; watcher owns final release. Cedar/
+login/Viewers/exclusive input are pending. Main22751/server22742, unchanged
+immutable1fb2.../1d5... binaries; sole Main SPI owner. Launcher
+`_Computer/DoradoRTL_Cedar32_20261018/Cedar32.mgl`; active pack/logs/reboot
+config `games/DoradoRTL/Cedar32_20261018`. Fresh corrected seed f3bce2a8...
+Per-core1080p30 request; actual physical timing still to recheck for this fit.
+The user has explicitly released prior sessions for reloads. Only14 allocated.
 
-Clock-count monitor is currently OFF (normal CPU); when ON, machine=enabled
-fabric edges, cpu=host edges.
-20s firmware sample:26.4617% enabled, measured50.01MHz fabric. CPU is halted
-while firmware loads; this is not a Cedar performance result. Use unsigned
-32-bit deltas over<60s; wrap85.9s. Coherent command70 snapshot is included.
-Return to CPU mode through OSD Debug monitor or saved clock-counts-off.gdb.
-Reports/scripts/hashes: `fpga/mister/reports/2026-10-18-native31/`.
+Clock-count mode is currently ON: machine=enabled fabric edges, cpu=host
+edges.32-bit deltas<60s, wrap85.9s. First firmware sample25.0156% enabled,
+50.0087MHz fabric, versus Native31 firmware26.4617%: no improvement in this
+workload. Cedar loader/desktop still pending. These are not retired
+instructions and the counters combine DDR/HPS/global pauses rather than
+measuring each cause. Do not claim the fixture read reduction as a hardware
+speedup. Reports/scripts: `fpga/mister/reports/2026-10-18-native32/`.
 
-Native29 control passed original firmware/BFN113, Cedar login, Guest input,
-all34 Basic.Loadees/End.bcd and the profile prompt. Conservative No input
-advanced it to real BootEssentials/User.Profile BringOver before replacement.
-First fast No attempt hit a later profile-name prompt; don't claim that
-attempt lossless. Native26 had already reached Viewers and working mouse;
-exclusive exact Echo test remains pending.
+Native31 control passed original firmware/BFN113, Cedar login, fast Guest,
+all34 Basic.Loadees and real BootEssentials installation. It was replaced
+before Viewers to prioritize the memory speed experiment. Loader sample
+16.9255% enabled. HDMI initially black with good internal raster; Main host
+framebuffer enable/disable restored actual HDMI without guest reset; fresh
+UIO23 proved30.000012Hz/74.25003MHz. Use that known workaround only if needed.
+Native29 likewise passed firmware/login/loader. Native26 remains the previous
+Viewers/mouse reference; its Echo trials interleaved with user typing, so
+exclusive exact Echo remains unqualified.
 
 **Clock implementation has started.** The staged plan is
 [verilog-clock-plan.md](verilog-clock-plan.md). An isolated direct phase/enable
@@ -61,18 +59,13 @@ Native31 includes its passive counters/coherent UIO plus the balanced arbiter.
 No Main/protocol change. Independent cyclic-scan order/payload/stall and
 full storage equivalence pass (all9,437,184 bits). See the clock plan.
 
-**Next memory candidate: Native32 is fitting, not deployed.** Optional128-line
-raw DDR buffer retains all four words per read; writes invalidate and still
-commit to DDR. Default generator option is OFF. Independent458-transaction
-scoreboard, reset/orphan/backpressure/write-busy and failure controls pass;
-complete storage14/16-bit boards match all2,359,296/9,437,184 bits. Three-group
-reads4449 ->509, writes463 and chipcycles1505 unchanged. Strict lint passes
-with only FPGA PROCASSINIT convention suppressed. Quartus synthesis retains
-128x64 data /128x21 tag RAMs. Need fresh fit/STA/clock review before loading.
-Frozen `/home/alans/mister/Dorado_Native32_20261018`, local build log
-`build/rtl-executive/native32-build.log`. Native31 loader utilization sample
-is16.9255% enabled (83.0745% paused), host50.0034MHz; not retired throughput.
-Evidence: reports/2026-10-18-ddr-linebuffer/ and native31/counts-loader.json.
+Native32's independent458-transaction cache scoreboard, response/backpressure/
+write-busy/reset/orphan and failure controls pass. Complete storage boards
+match all2,359,296/9,437,184 bits. Three-group reads4449 ->509, with463writes
+and1505 chipcycles unchanged. This is fixture traffic, not hardware speed.
+Default generator cache remains OFF pending real hardware benefit/correctness.
+Candidate source hash4984c1f7...; raw buffers128x64/128x21. Frozen build
+`/home/alans/mister/Dorado_Native32_20261018`; local native32-build.log.
 
 ## Boot history (current status above takes precedence)
 
@@ -604,7 +597,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Measure Cedar loader enabled fraction16.9255%, verify Guest input and actual1080p30 HDMI at50MHz (host-FB toggle workaround).
 - [ ] Verify Viewers/exclusive Echo/mouse and desktop enabled fraction at50MHz.
 - [x] Prototype optional128-line raw DDR buffer; independent coherence/reset/stall tests and full storage equivalence pass; disabled/stale-data mutations fail.
-- [ ] Review Native32 fit/STA/clock/hold paths, then qualify original firmware/Cedar/input and measure actual pause reduction before promotion.
+- [x] Review Native32 fit/STA/clock/fast+slow all-category timing, no new exceptions; load on14.
+- [ ] Finish Native32 original firmware/Cedar/Viewers/exclusive input, measure actual loader/desktop pause reduction; first firmware sample shows no gain.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.
 - [ ] Commit/push confirmed fixes and evidence; preserve Executive/mouse/disk
   regressions. Space Invaders compatibility remains a separate open item.
