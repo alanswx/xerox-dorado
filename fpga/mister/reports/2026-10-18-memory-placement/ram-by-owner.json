@@ -1,0 +1,125 @@
+{
+  "owners": {
+    "ascal": {
+      "logical_bits": 315521,
+      "logical_m10k_allocations": 44,
+      "mlab_cells": 0,
+      "rows": 17,
+      "unique_m10k_locations": 44
+    },
+    "u_network": {
+      "logical_bits": 32768,
+      "logical_m10k_allocations": 4,
+      "mlab_cells": 0,
+      "rows": 2,
+      "unique_m10k_locations": 4
+    },
+    "u_key_queue": {
+      "logical_bits": 2560,
+      "logical_m10k_allocations": 1,
+      "mlab_cells": 0,
+      "rows": 1,
+      "unique_m10k_locations": 1
+    },
+    "BaseBd": {
+      "logical_bits": 98304,
+      "logical_m10k_allocations": 56,
+      "mlab_cells": 0,
+      "rows": 36,
+      "unique_m10k_locations": 11
+    },
+    "ContA": {
+      "logical_bits": 560,
+      "logical_m10k_allocations": 0,
+      "mlab_cells": 35,
+      "rows": 9,
+      "unique_m10k_locations": 0
+    },
+    "ContB": {
+      "logical_bits": 147456,
+      "logical_m10k_allocations": 0,
+      "mlab_cells": 4608,
+      "rows": 144,
+      "unique_m10k_locations": 0
+    },
+    "DispY": {
+      "logical_bits": 11456,
+      "logical_m10k_allocations": 0,
+      "mlab_cells": 364,
+      "rows": 14,
+      "unique_m10k_locations": 0
+    },
+    "DskEth": {
+      "logical_bits": 10320,
+      "logical_m10k_allocations": 9,
+      "mlab_cells": 69,
+      "rows": 27,
+      "unique_m10k_locations": 9
+    },
+    "IFU": {
+      "logical_bits": 27648,
+      "logical_m10k_allocations": 0,
+      "mlab_cells": 864,
+      "rows": 27,
+      "unique_m10k_locations": 0
+    },
+    "MemC": {
+      "logical_bits": 22960,
+      "logical_m10k_allocations": 0,
+      "mlab_cells": 763,
+      "rows": 44,
+      "unique_m10k_locations": 0
+    },
+    "MemD": {
+      "logical_bits": 295392,
+      "logical_m10k_allocations": 72,
+      "mlab_cells": 30,
+      "rows": 80,
+      "unique_m10k_locations": 38
+    },
+    "MemX": {
+      "logical_bits": 1376784,
+      "logical_m10k_allocations": 168,
+      "mlab_cells": 33,
+      "rows": 31,
+      "unique_m10k_locations": 168
+    },
+    "ProcH": {
+      "logical_bits": 5024,
+      "logical_m10k_allocations": 0,
+      "mlab_cells": 170,
+      "rows": 14,
+      "unique_m10k_locations": 0
+    },
+    "ProcL": {
+      "logical_bits": 4912,
+      "logical_m10k_allocations": 0,
+      "mlab_cells": 163,
+      "rows": 12,
+      "unique_m10k_locations": 0
+    },
+    "u_media": {
+      "logical_bits": 131072,
+      "logical_m10k_allocations": 16,
+      "mlab_cells": 0,
+      "rows": 1,
+      "unique_m10k_locations": 16
+    },
+    "u_ddram": {
+      "logical_bits": 10880,
+      "logical_m10k_allocations": 3,
+      "mlab_cells": 0,
+      "rows": 2,
+      "unique_m10k_locations": 2
+    },
+    "other": {
+      "logical_bits": 68805,
+      "logical_m10k_allocations": 14,
+      "mlab_cells": 0,
+      "rows": 6,
+      "unique_m10k_locations": 14
+    }
+  },
+  "unique_m10k_locations": 307,
+  "note": "Logical RAM allocations can share physical M10Ks; summed allocation counts are not physical usage. Fitter total307/553 is authoritative."
+}

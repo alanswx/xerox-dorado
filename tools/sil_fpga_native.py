@@ -149,6 +149,9 @@ module dorado_native_machine #(parameter integer SYSPER=4) (
     output wire [5:0] sd_blk_cnt,
     output wire sd_rd,sd_wr,pack_ready,pack_fault,pack_dirty,
     output wire [31:0] pack_fault_debug,pack_fault_extra,
+    output wire [2:0] pack_host_phase,
+    output wire [31:0] pack_reads,pack_writes,
+    output wire [8:0] storage_events,
     input wire ddram_busy,ddram_rvalid,
     input wire [63:0] ddram_rdata,
     output wire [7:0] ddram_burstcount,ddram_be,
@@ -191,6 +194,7 @@ module dorado_native_machine #(parameter integer SYSPER=4) (
     .data_bit(media_bit),.write_gate(pack_writing),.endofcyl_n(pack_eoc_n),
     .ready(pack_ready),.fault(pack_fault),.dirty(pack_dirty),
     .fault_debug(pack_fault_debug),.fault_extra(pack_fault_extra),
+    .host_phase(pack_host_phase),.reads(pack_reads),.writes(pack_writes),
     .sd_lba(sd_lba),.sd_blk_cnt(sd_blk_cnt),.sd_rd(sd_rd),.sd_wr(sd_wr),.sd_ack(sd_ack),
     .sd_buff_addr(sd_buff_addr),.sd_buff_dout(sd_buff_dout),.sd_buff_wr(sd_buff_wr),.sd_buff_din(sd_buff_din));
   dorado_trident #(.SYSPER(2*SYSPER),.SECTORS_PER_REV(DISK_PULSES),.WORDS_PER_TRACK(10080)) u_drive(
@@ -219,6 +223,13 @@ module dorado_native_machine #(parameter integer SYSPER=4) (
     .raw_req_valid(rv),.raw_req_ready(rr),.raw_req_write(rw),.raw_req_addr(ra),.raw_req_data(wd),
     .raw_rsp_valid(sv),.raw_rsp_ready(sr),.raw_rsp_data(sd));
   wire backend_ready,backend_response;
+  wire backing_cache_hit;
+  // Passive host-clock events. Raw request counts exclude initialization;
+  // DDR command counts include it so initialization traffic remains visible.
+  assign storage_events={backing_cache_hit,
+    (sv && sr),(rv && !rr),(ddram_busy && (ddram_read || ddram_write)),
+    ddram_rvalid,(ddram_write && !ddram_busy),(ddram_read && !ddram_busy),
+    (rv && rr && rw),(rv && rr && !rw)};
   assign rr=storage_initialized && backend_ready;
   assign sv=storage_initialized && backend_response;
   assign init_accept=!storage_initialized && backend_ready;
@@ -231,6 +242,7 @@ module dorado_native_machine #(parameter integer SYSPER=4) (
     .rsp_valid(backend_response),.rsp_ready(storage_initialized ? sr : init_response_ready),.rsp_data(sd),
     .ddram_busy(ddram_busy),.ddram_burstcount(ddram_burstcount),.ddram_addr(ddram_addr),
     .ddram_read(ddram_read),.ddram_write(ddram_write),.ddram_wdata(ddram_wdata),.ddram_be(ddram_be),
+    .cache_hit(backing_cache_hit),
     .ddram_rdata(ddram_rdata),.ddram_rvalid(ddram_rvalid));
   dorado_native_backplane #(.SYSPER(SYSPER)) m (
 CONNECTIONS

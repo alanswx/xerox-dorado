@@ -1725,7 +1725,13 @@ mouse-terminal-test:
 		verilog/cells/dorado_terminal.v >/dev/null
 	@./obj_mouse_terminal/tb_mouse_terminal
 
-.PHONY: speed-monitor-test t-controls-test clock-phases-test clock-phase-audit key-queue-test keyboard-terminal-test
+.PHONY: pause-monitor-test speed-monitor-test t-controls-test clock-phases-test clock-phase-audit key-queue-test keyboard-terminal-test
+pause-monitor-test:
+	@cd ../.. && $(V) --binary --top-module tb_pause_monitor $(V_WARN) -Wno-TIMESCALEMOD \
+		--Mdir verilog/verilator/obj_pause_monitor -o tb_pause_monitor \
+		fpga/mister/dorado_speed_monitor.sv verilog/verilator/tb_pause_monitor.sv >/dev/null
+	@./obj_pause_monitor/tb_pause_monitor
+
 speed-monitor-test:
 	@cd ../.. && $(V) --binary --top-module tb_speed_monitor $(V_WARN) -Wno-TIMESCALEMOD \
 		--Mdir verilog/verilator/obj_speed_monitor -o tb_speed_monitor \

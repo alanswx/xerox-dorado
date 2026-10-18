@@ -2,6 +2,17 @@
 
 ## Current objective (2026-10-18 UTC)
 
+**Live MiSTer14 is now Native35 (diagnostic successor), at Cedar's idle login
+prompt. Native34 remains the last fully qualified Viewers/input reference.**
+Native35's original firmware/BFN113 and Cedar login pass. Separate10s idle
+windows measure23.2104% enabled,76.7903% DDR-only pauses, zero pack-only or
+overlap pauses,0.03810% raw backing-cache hits, and~2.75M DDR reads/s.
+No DDR command-busy cycles were observed; read-return pending occupied~54.74%
+of host time in its window. These are different windows, not one simultaneous
+snapshot or retired throughput. See reports/2026-10-18-native35/idle-analysis.json.
+Remaining pause overhead includes frontend sequencing; do not infer all of
+it is DDR hardware latency. Native36 placement is timing-checked only.
+
 **Native34 at50MHz/SYSPER4 passes one full original-firmware Cedar boot and
 interactive input test on MiSTer14.** RBF
 `0ebe68f456ce46e09b813dd126b605c083b606176ce0bdc797c9f3194f27bbbd`.
@@ -34,30 +45,53 @@ CPU/microcode/serial clocking retained;128-line raw DDR cache/no cold-read
 bubble. General builder still defaults33.333MHz/cacheOFF; Native34 is the
 qualified explicit configuration, not a proved cache performance win.
 
-Main24180/server24176 use immutable1fb2.../1d5... binaries; sole Main SPI
-owner. Launcher `_Computer/DoradoRTL_Cedar34_20261018/Cedar34.mgl`; fresh
-f3bce2a8... seed; active pack/logs/reboot config in Cedar34_20261018. The
+Native34 used Main24180/server24176 with immutable1fb2.../1d5... binaries;
+sole Main SPI owner. Launcher `_Computer/DoradoRTL_Cedar34_20261018/Cedar34.mgl`;
+fresh f3bce2a8... seed; retained pack/logs/reboot config in Cedar34_20261018. The
 active pack is now guest-mutated. First CommandTool still runs optional
 startup Bringovers; second tool is at `%` with test output. Some welcome
 app `.load.bcd` lookups report missing files; application-package cleanup
 is separate from the verified base desktop/input and clock work.
 User releases sessions for reloads; only14 allocated.
 
-**Passive observer24210 remains active through further disk writes.**
-No SPI/ptrace/ACK/reset/guest writes. RAM logs:
-`/tmp/dorado-native34-heartbeats.jsonl`, `/tmp/dorado-native34-observer.log`.
-Cedar34_20261018/observer.json records argv/PID. Stops at first fault, Main
-exit/change or2h deadline(~07:10UTC). Saved prefix through06:08 is in the
-report directory. At06:07UTC3435 heartbeats, maxgap1.1344s, zero late probes,
-pack faults or packet CRC/RX errors. Prior Native32 timeout did not recur;
-its specific host latency/ACK cause remains unproved. Preserve first-fault
-phase/LBA and observer evidence if any later failure occurs.
+**The completed two-hour passive observer captured long ARM disk writes.**
+It stopped at its deadline (~07:10UTC), with no pack fault. The full trace
+has a4.730966s maximum Main heartbeat gap. Repeated syscall/fd samples show
+the same7680-byte O_SYNC write to the active pack pending for at least2.80s;
+this is actual host blocking evidence, not proof of the earlier Native32
+fault's cause. The earlier06:08 prefix missed these later stalls. Full log
+and extracted samples are in reports/2026-10-18-memory-placement/.
+No SPI/ptrace/ACK/reset/guest writes were used for this observation.
+
+**All target MiSTers may require128MB SDRAM (user confirmed).** Current
+main RAM is8MiB /4M16-bit words, backed by a16MiB padded data/ECC region in
+shared DDR; external SDRAM is unused. Move bulk main RAM to a selectable
+dedicated SDRAM backend after measuring controller latency/serialization.
+Keep hot map/cache/microcode on chip. Native34 uses307/553 physical M10Ks
+but83% ALMs: IM and IFU currently consume large MLAB allocations. Native36
+tests their already registered F10415A arrays in M10K; no added RTL latency.
+Native35 adds passive DDR/ARM pause and traffic counters, same Main protocol.
+Both candidates pass29 timing-summary checks and20 categories across all
+four device conditions, zero illegal/unconstrained internal clocks and no
+new exceptions. Min slack35:+0.088ns,36:+0.068ns. Native35 uses85%ALMs/
+307M10Ks;36 uses66%ALMs/332M10Ks. Native36 is NOT hardware-tested.
+Native35 replaced34 at~14:27UTC with a fresh f3bce2a8 seed and unchanged
+Main1fb2/server1d5 binaries. Original firmware/BFN113 and Cedar login pass.
+Server5780/Main5785 (Main re-executes on load); Cedar35_20261018 logs/reboot
+config, launcher Cedar35.mgl.
+RBF SHA f223890bde59b518b5d4ffcc268542481973b2424c9f34bef578dd1db61e28c9.
+The real-C watcher released at the fresh BFN113; all scripted input is up.
+Idle pause/traffic measurements are captured; Viewers/input are not yet
+retested on35. Placement/SDRAM sequence, disk write-cache reference and
+diagnostic views are in docs/verilog-clock-plan.md.
 
 Counter mode ON: normal Main `machine=` is enabled fabric edges, `cpu=`
 host edges. Unsigned32bit deltas<60s(wrap85.9s), not retired instructions.
-Fault retains priority. F12, six Down taps, visually verify Debug monitor,
-ENTER toggle, F12 close; Right switches tabs. Private focus/select scripts
-split verification from action. No pending input scripts.
+Fault retains priority. Native35 Debug monitor now cycles16 views rather
+than toggling two. Private Main status-setter sampling scripts use the
+matching `/tmp/dorado-main-1fb2.elf`, break at input_poll on idle login and
+discard two post-detach observations; no second SPI owner. Final view is
+Clock counts. No pending input scripts.
 
 HDMI1080p30/74.250007MHz, native1072x862/source guest1024x808. At idle login
 normal Main host-framebuffer enable/disable restored initially black HDMI.
@@ -664,7 +698,15 @@ and has unreviewed hold violations; never deploy it.
 - [x] Fix host watchdog clock scaling and add ACK-phase first-fault observation; independent wall-time/CRC/persistence and build-config gates pass.
 - [x] Review Native34 fit/all four device timing conditions/clocks; cold firmware/BFN113/login/fast Guest pass, passive host-latency observer running.
 - [x] Complete Native34 loader/Viewers/exclusive Echo/mouse and edge-count performance observation; preserve observer prefix, no repeat timeout.
-- [ ] Add exact DDR/HPS pause-duration attribution; compare a pinned workload before promoting defaults or another storage optimization.
+- [x] Add/test/fit exact DDR/HPS pause attribution; capture Native35 idle-login DDR/ARM/cache/transaction windows. Compare controlled workloads before promoting performance defaults.
+- [x] Audit actual physical BRAM/MLAB allocation and deployed ARM disk path; preserve later O_SYNC stalls from full observer trace.
+- [x] Confirm128MB SDRAM as a supported-target requirement; document8MiB guest/16MiB raw backing placement and migration gates.
+- [ ] Qualify Native35 passive diagnostics and Native36 M10K placement candidate; keep placement/performance claims separate.
+- [ ] Implement/select/test SDRAM raw-storage backend; measure DDR contention versus single-outstanding frontend serialization.
+- [ ] Adapt ARM write coalescing with read/remount/error coherence; address blocking flushes and whole-track write amplification.
+- [x] Review MacPPC/Sun/NeXT DDR Ethernet host/RTL rings; record source hashes, address overlap and payload-size constraints.
+- [ ] Adapt frame rings for direct ARM daemon DDR transport, retaining original DskEth/CRC/wire timing and selectable SPI fallback; qualify reset/ownership/stalls/boot before deployment.
+- [ ] Optional external Xerox-network UDP tunnel compatible with IFS/ContrAlto; test Cedar STP separately from Alto interoperability.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.
 - [x] Commit/push confirmed current clock/storage fixes and Native34 evidence;
   preserve Executive/mouse/disk regressions. Space Invaders remains separate.

@@ -1,0 +1,91 @@
+{
+  "view": 2,
+  "workload": "Original firmware cold boot; Cedar login waiting, no guest typing",
+  "samples": [
+    {
+      "monotonic": 82774.298446781,
+      "machine": 2337122571,
+      "cpu": 1827414477,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8b4da90b state=472a cpu=6cec21cd"
+    },
+    {
+      "monotonic": 82775.296449604,
+      "machine": 2375511023,
+      "cpu": 1877415025,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8d976bef state=472a cpu=6fe71471"
+    },
+    {
+      "monotonic": 82776.295147014,
+      "machine": 2413898009,
+      "cpu": 1927413605,
+      "status": 18223,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8fe12919 state=472f cpu=72e1ff65"
+    },
+    {
+      "monotonic": 82777.294843104,
+      "machine": 2452311331,
+      "cpu": 1977412318,
+      "status": 18223,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=922b4d23 state=472f cpu=75dceade"
+    },
+    {
+      "monotonic": 82778.302572118,
+      "machine": 2490699412,
+      "cpu": 2027412854,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=94750e94 state=472a cpu=78d7dd76"
+    },
+    {
+      "monotonic": 82779.303594782,
+      "machine": 2529104185,
+      "cpu": 2077413111,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=96bf1139 state=47ea cpu=7bd2cef7"
+    },
+    {
+      "monotonic": 82780.301681626,
+      "machine": 2567491453,
+      "cpu": 2127411851,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=9908cf7d state=47ea cpu=7ecdba8b"
+    },
+    {
+      "monotonic": 82781.300047593,
+      "machine": 2605901453,
+      "cpu": 2177410415,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=9b52e68d state=472a cpu=81c8a56f"
+    },
+    {
+      "monotonic": 82782.301127468,
+      "machine": 2644295541,
+      "cpu": 2227410671,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=9d9cbf75 state=472a cpu=84c396ef"
+    },
+    {
+      "monotonic": 82783.299183671,
+      "machine": 2682682620,
+      "cpu": 2277409721,
+      "status": 18415,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=9fe67cfc state=47ef cpu=87be83b9"
+    },
+    {
+      "monotonic": 82784.297323546,
+      "machine": 2721069879,
+      "cpu": 2327408885,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=a2303b37 state=47ea cpu=8ab970f5"
+    }
+  ],
+  "delta": {
+    "ddr_only_pause_cycles": 383947308,
+    "host_cycles": 499994408
+  },
+  "elapsed_observer_s": 9.99887676499202,
+  "units": "Fabric cycles or transaction counts as named; NOT instructions",
+  "control": "Normal Main status setter at input_poll while idle login; first two post-detach observations discarded; no SPI owner added",
+  "fraction": 0.7679032042294361
+}

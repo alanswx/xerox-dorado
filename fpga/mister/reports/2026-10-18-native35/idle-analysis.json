@@ -1,0 +1,20 @@
+{
+  "workload": "Original-firmware cold boot, Cedar 6.1 login prompt idle, no typing",
+  "observation": "Separate approximately10s windows per diagnostic view; not a simultaneous all-counter snapshot or controlled speedup comparison",
+  "enabled_fraction": 0.23210404793412248,
+  "ddr_only_pause_fraction": 0.7679032042294361,
+  "pack_only_pause_fraction": 0.0,
+  "overlap_pause_fraction": 0.0,
+  "cache_hit_fraction": 0.00038099611972730466,
+  "ddr_read_commands_per_observer_s": 2752463.9436231866,
+  "ddr_write_commands_in_window": 96,
+  "ddr_issue_busy_cycles": 0,
+  "ddr_return_pending_cycles": 273759018,
+  "ddr_return_pending_fraction_approx": 0.5473886304816652,
+  "average_read_return_cycles_estimate": 9.943611282353695,
+  "estimate_limit": "Return duration/read-rate estimate combines different steady idle windows; each original pair remains coherent.",
+  "instruction_ceiling_per_s": 1450650.2995882656,
+  "throughput_limit": "Ceiling from enabled edges, NOT retired instructions or a measured A/B performance gain",
+  "conclusion": "At this idle login workload DDR-only pauses dominate, backing cache rarely hits, no issue-busy observed. Serialized read returns/handshakes need attention. Separate earlier ARM disk stalls remain real.",
+  "hardware": "PASS original firmware/BFN113 and visible Cedar login; Viewers/input not yet retested on Native35"
+}

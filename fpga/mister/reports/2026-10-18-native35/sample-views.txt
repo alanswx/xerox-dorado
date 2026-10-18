@@ -1,0 +1,8 @@
+2 ('ddr_only_pause_cycles', 'host_cycles') {'ddr_only_pause_cycles': 383947308, 'host_cycles': 499994408} 0.7679032042294361
+3 ('pack_only_pause_cycles', 'host_cycles') {'pack_only_pause_cycles': 0, 'host_cycles': 499994964} 0.0
+4 ('overlap_pause_cycles', 'host_cycles') {'overlap_pause_cycles': 0, 'host_cycles': 499995675} 0.0
+5 ('ddr_read_commands', 'ddr_write_commands') {'ddr_read_commands': 27538506, 'ddr_write_commands': 96} None
+6 ('backing_read_hits', 'raw_read_requests') {'backing_read_hits': 10496, 'raw_read_requests': 27548837} None
+7 ('ddr_issue_busy_cycles', 'ddr_return_pending_cycles') {'ddr_issue_busy_cycles': 0, 'ddr_return_pending_cycles': 273759018} None
+12 ('raw_read_requests', 'raw_write_requests') {'raw_read_requests': 27549291, 'raw_write_requests': 96} None
+1 ('enabled_cycles', 'host_cycles') {'enabled_cycles': 116050759, 'host_cycles': 499994550} 0.23210404793412248

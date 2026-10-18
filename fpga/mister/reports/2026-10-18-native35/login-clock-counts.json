@@ -1,0 +1,158 @@
+{
+  "units": "fabric rising edges; NOT retired instructions",
+  "samples": [
+    {
+      "observed_monotonic": 82652.892259423,
+      "enabled": 2247613931,
+      "host": 51844948,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=85f7ddeb state=472a cpu=03171754"
+    },
+    {
+      "observed_monotonic": 82653.89041047,
+      "enabled": 2259226091,
+      "host": 101843521,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=86a90deb state=472a cpu=06120241"
+    },
+    {
+      "observed_monotonic": 82654.888166294,
+      "enabled": 2270815918,
+      "host": 151844012,
+      "status": 18415,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8759e6ae state=47ef cpu=090cf4ac"
+    },
+    {
+      "observed_monotonic": 82655.88906492,
+      "enabled": 2282426895,
+      "host": 201842813,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=880b120f state=47ea cpu=0c07e07d"
+    },
+    {
+      "observed_monotonic": 82656.888565061,
+      "enabled": 2294034842,
+      "host": 251843286,
+      "status": 18223,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=88bc319a state=472f cpu=0f02d2d6"
+    },
+    {
+      "observed_monotonic": 82657.8868152,
+      "enabled": 2305638855,
+      "host": 301842105,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=896d41c7 state=47ea cpu=11fdbeb9"
+    },
+    {
+      "observed_monotonic": 82658.886080529,
+      "enabled": 2317232487,
+      "host": 351841493,
+      "status": 18415,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8a1e2967 state=47ef cpu=14f8acd5"
+    },
+    {
+      "observed_monotonic": 82659.884435449,
+      "enabled": 2328845503,
+      "host": 401840345,
+      "status": 18415,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8acf5cbf state=47ef cpu=17f398d9"
+    },
+    {
+      "observed_monotonic": 82660.882769719,
+      "enabled": 2340458695,
+      "host": 451840219,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8b8090c7 state=47ea cpu=1aee88db"
+    },
+    {
+      "observed_monotonic": 82661.883596355,
+      "enabled": 2352042695,
+      "host": 501839477,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8c3152c7 state=47ea cpu=1de97675"
+    },
+    {
+      "observed_monotonic": 82662.882819434,
+      "enabled": 2363652289,
+      "host": 551838997,
+      "status": 18415,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8ce278c1 state=47ef cpu=20e46515"
+    },
+    {
+      "observed_monotonic": 82663.890985095,
+      "enabled": 2375263211,
+      "host": 601839641,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8d93a3eb state=472a cpu=23df5819"
+    },
+    {
+      "observed_monotonic": 82664.889912401,
+      "enabled": 2386873570,
+      "host": 651838558,
+      "status": 18223,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8e44cce2 state=472f cpu=26da445e"
+    },
+    {
+      "observed_monotonic": 82665.889049829,
+      "enabled": 2398461759,
+      "host": 701837441,
+      "status": 18415,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8ef59f3f state=47ef cpu=29d53081"
+    },
+    {
+      "observed_monotonic": 82666.888338599,
+      "enabled": 2410067691,
+      "host": 751837144,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8fa6b6eb state=472a cpu=2cd01fd8"
+    },
+    {
+      "observed_monotonic": 82667.886595209,
+      "enabled": 2421679815,
+      "host": 801837409,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=9057e6c7 state=47ea cpu=2fcb1161"
+    },
+    {
+      "observed_monotonic": 82668.88499121,
+      "enabled": 2433291975,
+      "host": 851836438,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=910916c7 state=47ea cpu=32c5fe16"
+    },
+    {
+      "observed_monotonic": 82669.883211519,
+      "enabled": 2444881095,
+      "host": 901835596,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=91b9ecc7 state=47ea cpu=35c0eb4c"
+    },
+    {
+      "observed_monotonic": 82670.891831815,
+      "enabled": 2456493291,
+      "host": 951835267,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=926b1ceb state=472a cpu=38bbda83"
+    },
+    {
+      "observed_monotonic": 82671.88287675,
+      "enabled": 2468100699,
+      "host": 1001835017,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=931c3a5b state=472a cpu=3bb6ca09"
+    },
+    {
+      "observed_monotonic": 82672.89082424,
+      "enabled": 2479706091,
+      "host": 1051835206,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=4 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=93cd4feb state=472a cpu=3eb1bb46"
+    }
+  ],
+  "elapsed_observer_s": 19.998564817011356,
+  "delta_host": 999990258,
+  "delta_enabled": 232092160,
+  "enabled_fraction": 0.23209442106385,
+  "implied_host_mhz": 50.00310108000247,
+  "instruction_ceiling_per_s": 1450590.1316490625
+}

@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-18",
+  "target": "MiSTer14 / 10.0.2.14",
+  "target_sdram_requirement": {
+    "bytes": 134217728,
+    "source": "User confirms all supported MiSTers have 128 MB SDRAM"
+  },
+  "guest_main_ram": {
+    "bytes": 8388608,
+    "words_16bit": 4194304,
+    "storage_modules": 4,
+    "msa_boards": 8,
+    "chip_kbits": 64
+  },
+  "raw_backing": {
+    "backend": "DDR",
+    "byte_base": "0x30000000",
+    "reserved_bytes": 16777216,
+    "data_bytes": 8388608,
+    "ecc_bytes": 1048576,
+    "padding_bytes": 7340032
+  },
+  "sdram_backend": "Unused: pins currently Z; planned selectable raw-storage backend, not implemented",
+  "native34": {
+    "physical_m10ks": 307,
+    "total_m10ks": 553,
+    "alms": 34840,
+    "total_alms": 41910,
+    "steady_enabled_fraction": 0.2320689,
+    "steady_metric": "Enabled fabric edges, NOT retired instructions"
+  },
+  "native35": {
+    "purpose": "Passive pause/traffic counters with Native34 data paths and placement",
+    "alms": 35736,
+    "physical_m10ks": 307,
+    "all_four_timing_conditions": "PASS",
+    "hardware": "PASS original firmware/BFN113 and Cedar login; detailed idle counters captured. Viewers/input not yet retested.",
+    "idle_enabled_fraction": 0.23210404793412248,
+    "idle_ddr_only_pause_fraction": 0.7679032042294361,
+    "backing_read_cache_hit_fraction": 0.00038099611972730466
+  },
+  "native36": {
+    "purpose": "Native35 plus F10415A M10K placement only; identical registered read/write logic",
+    "alms": 27644,
+    "physical_m10ks": 332,
+    "all_four_timing_conditions": "PASS",
+    "hardware": "NOT TESTED"
+  },
+  "arm_write_evidence": {
+    "maximum_heartbeat_gap_s": 4.730965850998473,
+    "same_pack_write_sample_span_s": 2.8,
+    "syscall_number": 4,
+    "descriptor": 25,
+    "length_bytes": 7680,
+    "open_flag": "O_SYNC",
+    "pack_faults": 0,
+    "limitation": "Samples establish pending write; not proof of original Native32 timeout cause or one syscall lasting entire heartbeat gap"
+  },
+  "cache_placement": {
+    "original_guest_cache": "On chip; preserve architecture",
+    "ddr_backing_buffer_payload_bytes": 1024,
+    "core_track_buffer_bytes": 16384,
+    "mac_write_cache": "Reference only, not present in deployed Main",
+    "planned_disk_write_coalescer_location": "ARM Main/file I/O with read/remount/error coherence and responsive flush handling"
+  },
+  "network": {
+    "server": "Separate ARM Linux dorado-server; no guest CPU or memory",
+    "transport": "Original FPGA DskEth -> RTL wire/CRC+packet buffers -> Main SPI/UIO -> AF_UNIX SOCK_DGRAM",
+    "socket": "/tmp/dorado-net.sock",
+    "files": "MiSTer SD-card staged boot files/STP tree",
+    "disk_stall_interaction": "Main polling moves packets; blocking Main file writes delay delivery"
+  },
+  "next": [
+    "Measure Native35 raw operations, DDR issue busy and read-return waits versus pause cycles",
+    "Qualify M10K placement with original firmware and Cedar/input",
+    "Implement/select/qualify SDRAM storage backend; compare same workload",
+    "Reduce frontend serialization and traffic from measurements",
+    "Add coherent ARM write coalescing and reduce track flush amplification"
+  ]
+}

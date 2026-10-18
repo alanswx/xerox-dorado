@@ -99,7 +99,7 @@ localparam CONF_STR = {
 `ifdef DORADO_NATIVE
 	"O[3],Boot button,Released,Pressed;",
 	"O[4],Display,Large Format,Alto;",
-	"O[5],Debug monitor,CPU,Clock counts;",
+	"O[8:5],Debug monitor,CPU,Clock counts,DDR pauses,ARM pauses,Combined pauses,DDR reads-writes,Read cache,DDR bus waits,ARM read waits,ARM write waits,Max DDR pause,Max ARM pauses,Raw requests,Raw replies,Init pause,Pack transfers;",
 `endif
 	"J,;",
 	"V,v",`BUILD_DATE
@@ -275,11 +275,40 @@ reg network_step = 0;
 always @(negedge clk_sys) network_step <= machine_enable;
 `ifdef DORADO_NATIVE
 wire [31:0] host_edges,machine_edges;
-dorado_speed_monitor u_speed_monitor(.clk(clk_sys),.reset(~pll_locked),
-    .machine_step(network_step),.host_edges(host_edges),.machine_edges(machine_edges));
+wire [8:0] storage_events;
+wire [2:0] pack_host_phase;
+wire [31:0] pack_reads,pack_writes;
+wire [767:0] performance;
+dorado_speed_monitor #(.TRACK_CAUSES(1)) u_speed_monitor(.clk(clk_sys),.reset(~pll_locked),
+    .machine_step(network_step),.host_edges(host_edges),.machine_edges(machine_edges),
+    .reset_requested(reset),.pack_ready(pack_ready),.storage_ready(storage_ready),
+    .storage_initialized(storage_initialized),.storage_events(storage_events),
+    .pack_host_phase(pack_host_phase),.pack_reads(pack_reads),.pack_writes(pack_writes),
+    .performance(performance));
+reg [31:0] count_debug,count_reference;
+always @*begin
+    count_debug=machine_edges;count_reference=host_edges;
+    case(status[8:5])
+    2:count_debug=performance[4*32+:32];
+    3:count_debug=performance[3*32+:32];
+    4:count_debug=performance[5*32+:32];
+    5:begin count_debug=performance[9*32+:32];count_reference=performance[10*32+:32];end
+    6:begin count_debug=performance[11*32+:32];count_reference=performance[7*32+:32];end
+    7:begin count_debug=performance[12*32+:32];count_reference=performance[13*32+:32];end
+    8:begin count_debug=performance[15*32+:32];count_reference=performance[16*32+:32];end
+    9:begin count_debug=performance[17*32+:32];count_reference=performance[18*32+:32];end
+    10:count_debug=performance[19*32+:32];
+    11:begin count_debug=performance[20*32+:32];count_reference=performance[21*32+:32];end
+    12:begin count_debug=performance[7*32+:32];count_reference=performance[8*32+:32];end
+    13:count_debug=performance[14*32+:32];
+    14:begin count_debug=performance[6*32+:32];count_reference=performance[2*32+:32];end
+    15:begin count_debug=performance[22*32+:32];count_reference=performance[23*32+:32];end
+    default:begin end
+    endcase
+end
 // In count mode Main's existing machine/cpu words become enabled/host
 // fabric edges. u_network_uio snapshots both on the same command70 edge.
-wire speed_monitor_active = status[5] && !pack_fault;
+wire speed_monitor_active = (|status[8:5]) && !pack_fault;
 `endif
 dorado_ethernet_uio #(.MAX_WORDS(1024)) u_network_uio (
     .clk(clk_sys), .reset(~pll_locked), .bus(ethernet_ext_bus),
@@ -288,21 +317,21 @@ dorado_ethernet_uio #(.MAX_WORDS(1024)) u_network_uio (
 `ifdef DORADO_NATIVE
 `ifdef DORADO_RX_MONITOR
 `ifdef DORADO_PACK_FAULT_MONITOR
-    .machine_debug(pack_fault ? pack_fault_debug : speed_monitor_active ? machine_edges : native_key_overflow ?
+    .machine_debug(pack_fault ? pack_fault_debug : speed_monitor_active ? count_debug : native_key_overflow ?
         {16'h4b51,7'd0,native_key_queued} :
         (processor_debug[31] ? baseboard_debug : receive_debug)), .machine_status(machine_status),
-    .processor_debug(pack_fault ? pack_fault_extra : speed_monitor_active ? host_edges : processor_debug),
+    .processor_debug(pack_fault ? pack_fault_extra : speed_monitor_active ? count_reference : processor_debug),
 `else
-    .machine_debug(speed_monitor_active ? machine_edges : receive_debug), .machine_status(machine_status),
-    .processor_debug(speed_monitor_active ? host_edges : processor_debug),
+    .machine_debug(speed_monitor_active ? count_debug : receive_debug), .machine_status(machine_status),
+    .processor_debug(speed_monitor_active ? count_reference : processor_debug),
 `endif
 `else
 `ifdef DORADO_PACK_FAULT_MONITOR
-    .machine_debug(pack_fault ? pack_fault_debug : speed_monitor_active ? machine_edges : baseboard_debug), .machine_status(machine_status),
-    .processor_debug(pack_fault ? pack_fault_extra : speed_monitor_active ? host_edges : processor_debug),
+    .machine_debug(pack_fault ? pack_fault_debug : speed_monitor_active ? count_debug : baseboard_debug), .machine_status(machine_status),
+    .processor_debug(pack_fault ? pack_fault_extra : speed_monitor_active ? count_reference : processor_debug),
 `else
-    .machine_debug(speed_monitor_active ? machine_edges : baseboard_debug), .machine_status(machine_status),
-    .processor_debug(speed_monitor_active ? host_edges : processor_debug),
+    .machine_debug(speed_monitor_active ? count_debug : baseboard_debug), .machine_status(machine_status),
+    .processor_debug(speed_monitor_active ? count_reference : processor_debug),
 `endif
 `endif
 `else
@@ -346,6 +375,8 @@ dorado_native_machine #(.SYSPER(MACHINE_SYSPER)) u_native (
 `endif
     .reset(~pll_locked), .baseboard_boot_n(baseboard_boot_n), .large_format(~status[4]),
     .storage_ready(storage_ready), .storage_initialized(storage_initialized),
+    .storage_events(storage_events),.pack_host_phase(pack_host_phase),
+    .pack_reads(pack_reads),.pack_writes(pack_writes),
     .baseboard_debug(baseboard_debug), .processor_debug(processor_debug),
 `ifdef DORADO_CONTROL_ERROR_MONITOR
     .control_debug(control_debug),

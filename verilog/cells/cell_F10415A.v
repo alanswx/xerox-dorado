@@ -46,8 +46,14 @@ module cell_F10415A (
 );
 
   // A0-A9 = 2,3,4,5,6,7,9,10,11,12; DI=15, DO=1, CE'=14, WE'=13.
-  // A narrow IM slice uses MLABs; reserve the M10Ks for main storage.
+  // Native main storage now resides in DDR. Keep the historical placement
+  // as the default, with a separate fit experiment using M10K for these
+  // already registered reads. This changes placement, not read latency.
+`ifdef DORADO_F10415_M10K
+  (* ramstyle = "M10K, no_rw_check" *) reg mem [0:1023];
+`else
   (* ramstyle = "MLAB, no_rw_check" *) reg mem [0:1023];
+`endif
   //
   // ADDRESS BIT ORDER: A0 IS THE MOST SIGNIFICANT. PARC numbers every field
   // MSB-first -- `RSTK.0` is the top RSTK bit, `TNIA.04` the top address bit --

@@ -242,6 +242,162 @@ occurs. Native34 now supplies the interactive baseline for further work.
 
 ## Next measurement from the qualified Native34 baseline
 
+### Memory placement and host stalls (2026-10-18)
+
+The user confirms **128 MB external SDRAM on every target MiSTer**; this
+can be a required configuration. Currently its pins are undriven in
+`fpga/mister/Dorado.sv`. The native configuration provides **8 MiB of
+Dorado main RAM (4M 16-bit words)**, four storage modules/eight MSA boards
+using 64Kbit chips. Its raw backing occupies16MiB in DDR at0x30000000:
+8MiB data,1MiB ECC and padding between16-bit chip groups. ARM Linux does
+not serve these RAM accesses. The original memory controllers, map, cache,
+ECC and serial memory bus are upstream RTL.
+
+Native34's actual fitter RAM Summary gives307/553 physical M10Ks and
+34840/41910 ALMs. Logical RAM rows sometimes share M10K locations: summing
+their block counts gives387 and is WRONG for physical usage. Evidence:
+`fpga/mister/reports/2026-10-18-memory-placement/`.
+
+| Storage | Present placement | Recommendation |
+| --- | --- | --- |
+| 8MiB main RAM /16MiB raw backing | Shared DDR | Dedicated128MB SDRAM backend candidate |
+| Map (168KiB logical bits) |168 M10Ks | Keep on chip; preserve ports/timing |
+| Cache data/parity (36KiB allocated) |38 physical M10Ks | Keep on chip; allocation alone does not establish active guest cache capacity |
+| IM including parity (18KiB) |4608 MLAB cells | Try M10K placement; reads are already registered |
+| IFU decoding (3.375KiB) |864 MLAB cells | Same placement experiment |
+| Small register/task/flag arrays | MLAB | Keep near logic; respect asynchronous ports |
+| Raw DDR read buffer (1KiB payload plus tags) |2 physical M10Ks | Size/layout from real traffic measurements |
+| Disk track buffer (16KiB) |16 M10Ks | Retain; examine dirty-sector write amplification |
+| Disk image and file-server tree | ARM filesystem | Add coherent write coalescing on ARM |
+
+Native36 is a separate **placement-only experiment**, enabling
+`DORADO_F10415_M10K`; Native35 retains historical MLAB placement. The
+F10415A read/write always blocks are identical, with no added RTL read
+latency. Besides IM and IFU, this moves three1Kbit DispY arrays. The fitter
+packs the migrated arrays into16 ContB,8 IFU and1 DispY physical M10Ks.
+Both pass29 summary timing checks and20 categories across all four
+device conditions, with no illegal/unconstrained internal clocks or new
+exceptions (35 minimum+0.088ns;36 minimum+0.068ns). Native35 uses35736 ALMs/
+307M10Ks;36 uses27644 ALMs/332M10Ks. Native35 was loaded on MiSTer14 at
+~14:27UTC for original firmware/pause measurements;36 is not hardware-tested.
+Neither is yet a fully qualified successor. The historical default remains
+unchanged.
+
+The completed Native34 passive observer now establishes actual long ARM
+disk-write stalls. Its largest Main heartbeat gap is4.730966s. Samples
+from06:22:35.873 through06:22:38.673 show ARM write syscall4 to fd25,
+the active pack, with the same7680-byte buffer/length/file position.
+That is at least2.80s of sampled pending write, not proof that one syscall
+lasted the whole heartbeat gap. The descriptor is O_SYNC. There were no
+pack faults. This supersedes conclusions drawn only from the06:08 prefix;
+the particular Native32 failure remains untraced. Evidence is
+`late-arm-writes.json` and `native34-full-observer.jsonl.gz`.
+
+The deployed Main (SHA1fb2e098...) uses blocking generic O_SYNC disk writes;
+its pinned build predates the newer Mac write coalescer. The local Mac
+reference (`Main_MiSTer/support/mac/mac_disk.cpp`) holds up to eight64KiB
+runs per disk, coalesces adjacent/contained writes, flushes overlapping reads
+and drains at mount/idle/age boundaries. It is restricted to Mac SCSI cores,
+so Dorado does not benefit. Its flush still blocks Main. A Dorado adaptation
+must preserve read coherence, neighboring bytes, remount/core-load draining
+and write-error handling; batching alone cannot guarantee responsive Main
+while flushing. The core's existing track buffer may flush about16KiB for
+one changed guest sector. Measure and reduce that amplification separately.
+
+Main also transports network packets. The ARM-local `dorado-server` serves
+Pup boot, Mayday/EFTP, BSP/STP, directory and time from staged files, through
+`/tmp/dorado-net.sock`. Main alone owns SPI; RTL packet buffers/wire adapter
+connect to the original DskEth controller. The server runs no guest CPU or
+guest RAM. Main's blocking disk write therefore delays packet delivery too.
+The custom Main is selected by Dorado's per-core INI; stock Main is untouched.
+
+The user requested comparison with other cores' DDR Ethernet transports.
+Local source review confirms MacPPC7300 (`MacPPC7300_enet.sv` plus Main's
+`support/mac/mac_eth.cpp`): eight TX/eight RX slots, PPCE magic/epoch,
+producer/consumer counts and a64-bit DDR master at0x30400000. Sun's
+`eth_hps.sv`/`support/sun/sun_enet.cpp` uses0x1FF00000, SSETH002 magic and
+generation, eight TX/sixteen RX slots, explicit publication barriers and a
+DDR arbiter; NeXT uses the same window with four slots each way. Main's
+`shmem_map` maps `/dev/mem` with O_SYNC/MAP_SHARED. These handlers are still
+polled from Main; moving bytes through DDR alone does not avoid Main's
+blocking disk writes. Sources/hashes/findings are recorded in
+`reports/2026-10-18-memory-placement/ethernet-ddr-references.json`.
+
+Use that frame-ring pattern for a future **direct daemon-to-DDR** transport,
+with Main retaining lifecycle/OSD/input, capability/generation checking,
+single-owner32-bit indices, payload-before-publish barriers, explicit
+endianness, bounded/full/wrap/reset rules, and the DDR engine running even
+while guest clocks pause. Keep DskEth, real CRC and wire pacing in RTL and
+preserve the existing server's raw-frame boundary. Do not copy modern NIC
+register emulation, FCS injection, filters or10Mb/s pacing into Dorado.
+Main must quiesce the daemon and receive acknowledgement before changing
+cores, then resume it only after the new core's capability/generation is
+validated. DDR magic can survive FPGA reload, so a stale magic word alone
+cannot authorize continued writes into another core's memory.
+Keep the current SPI/socket path selectable until equivalence/cold-boot
+qualification. No DDR network implementation is deployed yet.
+
+Two reuse details need explicit handling: Mac's0x30400000 overlaps Dorado's
+current0x30000000..0x30ffffff raw backing; and a2048-byte slot with an inline
+header cannot hold our full2048-byte payload. Reserve a non-overlapping
+window and use separate descriptors or larger slots. Sun's0x1FF00000 is a
+precedent, not yet an allocated Dorado window.
+
+External connectivity is a separate layer. The original hardware manual's
+Ethernet chapter specifies a3Mb/s link with8-bit stations and16-bit packet
+checksum. [IFS](https://github.com/livingcomputermuseum/IFS#readme) documents
+UDP/raw-modern-Ethernet encapsulation for experimental Ethernet and gateway
+connections to other Xerox networks. An optional compatible UDP tunnel in
+the daemon can connect vintage peers; Cedar STP interoperability still
+needs testing. Current Pup requests are not directly understood by ordinary
+Internet TCP/IP services; that requires suitable guest software or an
+explicit service gateway. Keep local boot/file services as the default.
+
+SDRAM implementation sequence:
+
+1. Use Native35's passive counters to separate global DDR/pack pauses,
+   raw request counts, cache hits, DDR issue-busy and read-return time.
+   Compare within one selected view and a pinned workload; each pair is
+   coherent, different views are different observation windows.
+2. Implement a selectable raw-storage SDRAM backend with the existing
+   request/response contract, retaining the known DDR backend for comparison.
+   Reserve16MiB initially, preserve group/ECC layout, initialization,
+   read-before-write and reset/drain rules. Drive the physical module with
+   correctly constrained clock/IO and controller initialization/refresh.
+3. Run independent storage/ECC/reset/stall equivalence, all-device STA and
+   original-ROM/Cedar/input checks. Compare fresh seed, PLL, server, workload
+   and input. Dedicated SDRAM removes shared-DDR contention; it does not by
+   itself remove the current one-operation/128-requester serialization.
+4. From measured traffic, consider grouped transfers, pipelining or a larger
+   backing buffer. Keep original guest-visible cache/map/ECC behavior. Avoid
+   allocating the spare SDRAM to an RTL disk cache before fixing the ARM
+   write path and measuring misses; there is already a core track cache.
+
+Native35 diagnostics retain command70 and the existing Main binary. Its
+Debug monitor views show (`machine=`, `cpu=`): enabled/host; DDR-only/host;
+pack-only/host; overlap/host; DDR reads/writes; cache hits/raw reads;
+DDR busy/return-pending cycles; ARM read assert/release; ARM write
+assert/release; maximum DDR pause/host; maximum ARM read/write transfer;
+raw reads/writes; raw completions/host; init/reset pause; pack read/write
+completions. Faults retain priority. Counters are modulo2^32, use intervals
+under60s at50MHz. Categories enabled/reset/pack-only/DDR-only/overlap
+partition host edges, with gate inputs captured on the actual falling edge.
+Independent wrap/overlap/edge tests pass; a wrong-edge mutation fails.
+
+Native35 original firmware/BFN113/Cedar login pass. At idle login, separate
+approximately10s windows show23.2104% enabled,76.7903% DDR-only pauses, zero
+pack-only/overlap pauses, and0.03810% backing read-cache hits. Commands run
+at~2.75M reads/s (96 writes in that window). The busy/return view records
+zero issue-busy cycles and273759018 read-return-pending cycles (~54.74% of
+50MHz host time). Comparing the separate steady windows estimates~10 cycles
+per read return; this is not a single coherent combined measurement. The
+remaining pause share includes frontend/handshake sequencing. The enabled
+instruction ceiling is1.45065M/s, not measured retirement or an A/B speedup.
+Evidence/scripts are in `reports/2026-10-18-native35/`. This prioritizes
+read-return latency, request grouping/sequencing and the SDRAM experiment;
+it does not show command-issue contention at the exposed DDR port during
+that idle interval. Internal memory scheduling can still affect returns.
+
 The Native34 loader sample (`reports/2026-10-18-native34/loader-counts.json`)
 observed49.9948MHz host edges and17.4388% enabled edges over20.31s while
 loading packages. This is a different interval from earlier samples, so it

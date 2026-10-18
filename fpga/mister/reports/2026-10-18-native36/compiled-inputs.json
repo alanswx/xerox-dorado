@@ -1,0 +1,17 @@
+{
+  "core/Dorado.sv": "68e5b34589bf303e705e5dd647b3b63b7cfb785fe3640c96db8df6a00e9da343",
+  "core/Dorado.qsf": "21e48914c574224375cc14e7132d52e9b0dc09722cb94ff9ec1607a67b2fbe84",
+  "src/fpga/mister/dorado_speed_monitor.sv": "22255a7fd9475b31659dd53a39ef8f76507eaa5869eb8d5942df857f8e144ffc",
+  "src/fpga/mister/dorado_storage_ddram.sv": "b70226a872f56e8f88787f682e132258eaab4fb215f3159f4204fd6776a34393",
+  "src/fpga/mister/dorado_pack_hps.sv": "9cdb7737014433de32502bb8a80961802e2d290fae6251747ff922d381ddceed",
+  "src/verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227",
+  "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "a82b076ecae85d1b80d19277e7ae7fead958927a4618543107689fd0c7678311",
+  "core/native_timing.sdc": "df62acc5c1e4029eb441b28de904eadfe2f9d00a2d82ba61586b6571afccbec2",
+  "core/native24-reviewed-carried.sdc": "e10690e6fb31fe1f018a0e6220d53f8f5efdcb5adb8c1883b61d1d52b40cc067",
+  "core/native26-before-review.sdc": "df62acc5c1e4029eb441b28de904eadfe2f9d00a2d82ba61586b6571afccbec2",
+  "core/rejected-postfit-carried.sdc": "e5aef11a1ff5afe634966887ba7b98e1e7ed57b0781bf91929d8c4d6f0ca7320",
+  "core/Dorado.sdc": "89cb176f5eeb8c2adf59d758e56a605bd711631a4bccb92e77c77f995b62e71f",
+  "core/checkpoint_timing.sdc": "519f7bf9d2ba1e2ffd816ebda88b5237282d01b57c6d5425e21985496c76acaa",
+  "core/fixed-720p.sdc": "be72e182290ec226895aaa0ff897aac5af9596ad9739df1b5f3f66c4d827876c",
+  "note": "Compiled frozen inputs; Native35 default MLAB, Native36 adds DORADO_F10415_M10K; wrapper differs from canonical generator only in equivalent diagnostic formatting."
+}

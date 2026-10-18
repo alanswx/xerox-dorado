@@ -1,0 +1,8 @@
+{
+  "fpga/mister/Dorado.sv": "68e5b34589bf303e705e5dd647b3b63b7cfb785fe3640c96db8df6a00e9da343",
+  "fpga/mister/dorado_speed_monitor.sv": "22255a7fd9475b31659dd53a39ef8f76507eaa5869eb8d5942df857f8e144ffc",
+  "fpga/mister/dorado_pack_hps.sv": "9cdb7737014433de32502bb8a80961802e2d290fae6251747ff922d381ddceed",
+  "fpga/mister/dorado_storage_ddram.sv": "b70226a872f56e8f88787f682e132258eaab4fb215f3159f4204fd6776a34393",
+  "tools/sil_fpga_native.py": "9a3fe39400d54dbf9ff2de97c64c5e2df97744cf9875c500c335550f65a123ff",
+  "verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227"
+}

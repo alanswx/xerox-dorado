@@ -27,6 +27,7 @@ module dorado_pack_hps #(
     output reg data_bit = 0,
     output wire write_gate, endofcyl_n, ready, dirty,
     output wire fault,
+    output wire [2:0] host_phase,
     output wire [31:0] fault_debug, fault_extra,
     output reg [31:0] sd_lba = 0,
     output reg [5:0] sd_blk_cnt = 0,
@@ -103,6 +104,7 @@ module dorado_pack_hps #(
   assign dirty = generation != flushed_generation;
   wire need_track = !valid || cyl != cached_cyl || head != cached_head;
   reg [2:0] host_state = 0;
+  assign host_phase = host_state;
   reg [31:0] host_wait = 0;
   // Illegal-head probes only need EndOfCyl; keep the CPU running for them.
   assign ready = attached && !remounted && !fault && host_state == 0 && (!need_track || head >= 5);

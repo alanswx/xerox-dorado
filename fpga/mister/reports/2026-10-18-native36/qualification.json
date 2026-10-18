@@ -1,0 +1,18 @@
+{
+  "timing_checks": 29,
+  "corner_categories_checked": 20,
+  "operating_conditions_checked": 4,
+  "minimum_slack_ns": 0.068,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "rbf_sha256": "37b6bd39ed5df629743ae9420f7cd09dae947788ac53ba28b743cbcec61d03fe",
+  "core_frequency_mhz": 50,
+  "sysper": 4,
+  "host_clock_hz": 50000000,
+  "host_watchdog_clocks": 200000000,
+  "raw_line_cache_entries": 128,
+  "extra_exceptions": "None; Native34 SDC retained.",
+  "external_io_limit": "Framework 3 input /50 output ports unconstrained; no illegal or unconstrained internal clocks.",
+  "hardware": "NOT YET TESTED",
+  "change": "Passive diagnostics plus F10415A M10K placement"
+}

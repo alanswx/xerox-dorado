@@ -1,0 +1,294 @@
+{
+  "records": [
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:35.363218+00:00",
+      "monotonic": 53056.363905985,
+      "gap_seconds": 1.256944590000785,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x925c50 0x2000 0x0 0x2000 0x925c50 0xb39fefd0 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358852208\nsyscr: 503758\nsyscw: 38141\nread_bytes: 81920\nwrite_bytes: 635056128\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24495104\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:35.618586+00:00",
+      "monotonic": 53056.619273436,
+      "gap_seconds": 1.512735985998006,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x925c50 0x2000 0x0 0x2000 0x925c50 0xb39fefd0 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358852208\nsyscr: 503758\nsyscw: 38141\nread_bytes: 81920\nwrite_bytes: 635056128\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24495104\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:35.873445+00:00",
+      "monotonic": 53056.874134412,
+      "gap_seconds": 1.7678340339989518,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x115e7b0 0x1e00 0x0 0x1e00 0x115e7b0 0xb39fefd8 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358860400\nsyscr: 503758\nsyscw: 38142\nread_bytes: 81920\nwrite_bytes: 635068416\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24503296\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:36.127870+00:00",
+      "monotonic": 53057.128557072,
+      "gap_seconds": 2.022274244998698,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x115e7b0 0x1e00 0x0 0x1e00 0x115e7b0 0xb39fefd8 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358860400\nsyscr: 503758\nsyscw: 38142\nread_bytes: 81920\nwrite_bytes: 635068416\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24503296\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:36.382567+00:00",
+      "monotonic": 53057.383253636,
+      "gap_seconds": 2.2767710970001644,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x115e7b0 0x1e00 0x0 0x1e00 0x115e7b0 0xb39fefd8 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358860400\nsyscr: 503758\nsyscw: 38142\nread_bytes: 81920\nwrite_bytes: 635068416\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24503296\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:36.636833+00:00",
+      "monotonic": 53057.637520065,
+      "gap_seconds": 2.531234078000125,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x115e7b0 0x1e00 0x0 0x1e00 0x115e7b0 0xb39fefd8 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358860400\nsyscr: 503758\nsyscw: 38142\nread_bytes: 81920\nwrite_bytes: 635068416\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24503296\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:36.891434+00:00",
+      "monotonic": 53057.892126158,
+      "gap_seconds": 2.7858200799964834,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x115e7b0 0x1e00 0x0 0x1e00 0x115e7b0 0xb39fefd8 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358860400\nsyscr: 503758\nsyscw: 38142\nread_bytes: 81920\nwrite_bytes: 635068416\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24503296\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:37.145900+00:00",
+      "monotonic": 53058.146588849,
+      "gap_seconds": 3.040274271996168,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x115e7b0 0x1e00 0x0 0x1e00 0x115e7b0 0xb39fefd8 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358860400\nsyscr: 503758\nsyscw: 38142\nread_bytes: 81920\nwrite_bytes: 635068416\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24503296\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:37.400290+00:00",
+      "monotonic": 53058.40097552,
+      "gap_seconds": 3.294725143001415,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x115e7b0 0x1e00 0x0 0x1e00 0x115e7b0 0xb39fefd8 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358860400\nsyscr: 503758\nsyscw: 38142\nread_bytes: 81920\nwrite_bytes: 635068416\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24503296\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:37.655165+00:00",
+      "monotonic": 53058.655851976,
+      "gap_seconds": 3.549571288000152,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x115e7b0 0x1e00 0x0 0x1e00 0x115e7b0 0xb39fefd8 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358860400\nsyscr: 503758\nsyscw: 38142\nread_bytes: 81920\nwrite_bytes: 635068416\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24503296\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:37.910230+00:00",
+      "monotonic": 53058.910918093,
+      "gap_seconds": 3.8045964549964992,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x115e7b0 0x1e00 0x0 0x1e00 0x115e7b0 0xb39fefd8 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358860400\nsyscr: 503758\nsyscw: 38142\nread_bytes: 81920\nwrite_bytes: 635068416\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24503296\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:38.164837+00:00",
+      "monotonic": 53059.165523586,
+      "gap_seconds": 4.059208717997535,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x115e7b0 0x1e00 0x0 0x1e00 0x115e7b0 0xb39fefd8 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358860400\nsyscr: 503758\nsyscw: 38142\nread_bytes: 81920\nwrite_bytes: 635068416\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24503296\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:38.419164+00:00",
+      "monotonic": 53059.419850576,
+      "gap_seconds": 4.313552248000633,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x115e7b0 0x1e00 0x0 0x1e00 0x115e7b0 0xb39fefd8 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358860400\nsyscr: 503758\nsyscw: 38142\nread_bytes: 81920\nwrite_bytes: 635068416\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24503296\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:22:38.673817+00:00",
+      "monotonic": 53059.674502969,
+      "gap_seconds": 4.568193371000234,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x115e7b0 0x1e00 0x0 0x1e00 0x115e7b0 0xb39fefd8 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198100488\nwchar: 358860400\nsyscr: 503758\nsyscw: 38142\nread_bytes: 81920\nwrite_bytes: 635068416\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24503296\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:23:10.105594+00:00",
+      "monotonic": 53091.106282966,
+      "gap_seconds": 1.259978335001506,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x925c50 0x4000 0x0 0x4000 0x925c50 0xb39fefd0 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198819208\nwchar: 360003075\nsyscr: 508340\nsyscw: 38301\nread_bytes: 81920\nwrite_bytes: 637321216\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24650752\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    },
+    {
+      "kind": "heartbeat_gap",
+      "utc": "2026-10-18T06:23:10.355122+00:00",
+      "monotonic": 53091.355810504,
+      "gap_seconds": 1.5101898409993737,
+      "host": {
+        "wchan": "0",
+        "syscall": "4 0x19 0x925c50 0x4000 0x0 0x4000 0x925c50 0xb39fefd0 0xb6ef3766\n",
+        "stack": "",
+        "io": "rchar: 198820232\nwchar: 360019459\nsyscr: 508341\nsyscw: 38302\nread_bytes: 81920\nwrite_bytes: 637345792\ncancelled_write_bytes: 0\n",
+        "pack_fds": {
+          "25": {
+            "path": "/media/fat/games/DoradoRTL/Cedar34_20261018/cedar-work.pack",
+            "fdinfo": "pos:\t24650752\nflags:\t06410002\nmnt_id:\t17\nino:\t13877\n"
+          }
+        }
+      }
+    }
+  ],
+  "largest_gap": 4.730965850998473,
+  "faults": []
+}

@@ -1,0 +1,38 @@
+PAUSE-MONITOR PASS: all24 counters, actual gated edges, overlap, pre-gate sampling, reset, wrap, DDR/ARM phases and maxima
+- verilog/verilator/tb_pause_monitor.sv:92: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 8us; walltime 0.000 s; speed 17.593 ms/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 2 MB
+SPEED-MONITOR PASS: actual gated edges, pauses, reset and wrap; units=fabric edges
+- verilog/verilator/tb_speed_monitor.sv:34: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 4us; walltime 0.000 s; speed 25.406 ms/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 2 MB
+%Warning-TIMESCALEMOD: fpga/mister/dorado_storage_ddram.sv:7:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    7 | module dorado_storage_ddram #(
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_linecache.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_linecache;
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.044
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+STORAGE-LINECACHE PASS: 458 transactions;8 fills for32 interleaved lanes, writes/coherence/collisions/backpressure/reset drain; reads=244 writes=104
+- verilog/verilator/tb_storage_linecache.sv:146: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 8us; walltime 0.001 s; speed 9.641 ms/s
+- Verilator: cpu 0.001 s on 1 threads; alloced 2 MB
+%Warning-TIMESCALEMOD: fpga/mister/dorado_pack_hps.sv:5:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    5 | module dorado_pack_hps #(
+      |        ^~~~~~~~~~~~~~~
+                       verilog/verilator/tb_pack_wallclock.sv:5:8: ... Location of module with timescale
+    5 | module pack_wallclock_case #(parameter integer HZ=333)(output reg done=0);
+      |        ^~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.044
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+PACK-WALLCLOCK PASS: 500Hz;3s host service succeeds,4s assert/release watchdogs, sticky first fault/no fabricated completion
+PACK-WALLCLOCK PASS: 400Hz;3s host service succeeds,4s assert/release watchdogs, sticky first fault/no fabricated completion
+PACK-WALLCLOCK PASS: 333Hz;3s host service succeeds,4s assert/release watchdogs, sticky first fault/no fabricated completion
+- verilog/verilator/tb_pack_wallclock.sv:58: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 11s; walltime 0.005 s; speed 2354.207 s/s
+- Verilator: cpu 0.005 s on 1 threads; alloced 2 MB

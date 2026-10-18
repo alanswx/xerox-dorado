@@ -14,6 +14,20 @@ not measured retirement or an A/B speedup. Next measure exact pause causes
 and reduce DDR traffic, then complete original phase/enable/timer migration.
 Builder defaults remain33.333MHz/cacheOFF pending controlled comparison.
 Prior Native32 host-timeout cause remains unproved; Native34 did not recur.
+The completed two-hour observer subsequently captured a4.73s Main heartbeat
+gap and repeated samples of a pending O_SYNC pack write for at least2.80s.
+Main's disk writes also block its local packet transport. See the full
+memory-placement report, rather than only the earlier observer prefix.
+All target MiSTers have128MB SDRAM (user confirmed); currently unused.
+Guest main RAM is8MiB with16MiB padded raw DDR backing. Dedicated SDRAM is
+the planned bulk-memory backend; on-chip map/cache/microcode remain local.
+Native35 is now live at original-firmware Cedar login, with passive counters:
+separate idle windows show76.7903% DDR-only pauses,23.2104% enabled and
+0.03810% backing-buffer read hits. No issue-busy cycles were observed;
+read-return waits and frontend sequencing dominate. Native36 experiments
+with M10K placement for already registered arrays (85% ->66% ALMs compared
+with35); both pass all four timing conditions. Native36 hardware and
+Native35 Viewers/input qualification remain pending.
 See the [handoff](verilog-handoff.md) and [clock plan](verilog-clock-plan.md).
 
 ## Clock architecture audit (2026-10-18)

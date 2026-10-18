@@ -25,6 +25,7 @@ module dorado_storage_ddram #(
     output wire [7:0] ddram_burstcount,
     output wire [28:0] ddram_addr,
     output wire ddram_read, ddram_write,
+    output wire cache_hit,
     output wire [63:0] ddram_wdata,
     output wire [7:0] ddram_be,
     input wire [63:0] ddram_rdata,
@@ -88,6 +89,8 @@ module dorado_storage_ddram #(
     assign ddram_read = !write_latched &&
         (state==ISSUE || (state==LOOKUP && !line_hit));
     assign ddram_write = state==ISSUE && write_latched;
+    // Observation only: one pulse per read satisfied without a DDR command.
+    assign cache_hit = !reset && state==LOOKUP && !write_latched && line_hit;
     assign ddram_wdata = {4{data_latched}};
     assign ddram_be = write_latched ? (8'h03 << {address_latched[1:0],1'b0}) : 8'hff;
 

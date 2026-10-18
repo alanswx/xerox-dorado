@@ -1,0 +1,95 @@
+{
+  "sources": {
+    "mac_host": {
+      "path": "/Users/alans/dev2/Main_MiSTer/support/mac/mac_eth.cpp",
+      "sha256": "c364ea466cca5bba274bbadfff3a8766a439fcc2579ad488429e7edca0abeeae"
+    },
+    "mac_rtl": {
+      "path": "/Users/alans/dev2/MacPPC7300_MiSTer/rtl/machine/MacPPC7300_enet.sv",
+      "sha256": "687e3c3ef96739e042fba67bfb75175325371a6abb5bdb273485a352bea9701c"
+    },
+    "sun_host": {
+      "path": "/Users/alans/dev2/Main_MiSTer/support/sun/sun_enet.cpp",
+      "sha256": "36cb3b272fea81c0702bcd1132ba60fe73c5a6bebf626ff4b0a17e696ace5a94"
+    },
+    "sun_rtl": {
+      "path": "/Users/alans/dev2/NewSunSparcStation20_MiSTer/rtl/mister/eth_hps.sv",
+      "sha256": "10efdf78c592b6546b51a5d06b6761b51c9ee4e9bb69b8f09ef55803c53ca288"
+    },
+    "sun_test": {
+      "path": "/Users/alans/dev2/NewSunSparcStation20_MiSTer/rtl/mister/tb/tb_eth_hps.sv",
+      "sha256": "a21f6abe0869066274f7c78aca79b825b7a8488f66ccccda5ae8e8e436665060"
+    },
+    "next_host": {
+      "path": "/Users/alans/dev2/Main_MiSTer/support/next/next_enet.cpp",
+      "sha256": "87b066f62aa163c25012f418a42300395c908b1e19f64f558bdb5ccaa3aec679"
+    },
+    "mapping": {
+      "path": "/Users/alans/dev2/Main_MiSTer/shmem.cpp",
+      "sha256": "03c7ed4d950a741153c33df7daaaf83467421c82bf3b49cee6bdce53a916b0a7"
+    },
+    "amiga_host": {
+      "path": "/Users/alans/dev2/Main_MiSTer/support/minimig/minimig_a2065.cpp",
+      "sha256": "568c5510659ede85bbbf1f62406ddaa37bc125da87e6ed8a10230240f6573458"
+    }
+  },
+  "findings": {
+    "mac": {
+      "base": "0x30400000",
+      "bytes": "0x9000",
+      "tx_slots": 8,
+      "rx_slots": 8,
+      "slot_bytes": 2048,
+      "host_max_frame": 1536,
+      "protocol": "PPCE magic+epoch, 32-bit free-running producer/consumer counts in 64-bit words; payload before publishing producer",
+      "rtl": "Dual-clock packet buffers, 64-bit Avalon DDR master; burst reads, one-beat writes"
+    },
+    "sun": {
+      "base": "0x1FF00000",
+      "bytes": "0x10000",
+      "tx_slots": 8,
+      "rx_slots": 16,
+      "slot_bytes": 2048,
+      "magic": "SSETH002",
+      "protocol": "Magic published last, generation, producer/consumer counters, barriers",
+      "rtl": "Standalone DDR master, arbitration with memory/video; LANCE remains RTL",
+      "tests": "Source reviewed; random DDR wait/read latency, reset, full/wrap, oversize, ordering and pacing. Tests NOT rerun here."
+    },
+    "next": {
+      "base": "0x1FF00000",
+      "bytes": "0x10000",
+      "tx_slots": 4,
+      "rx_slots": 4,
+      "slot_bytes": 2048,
+      "magic": "NXTETH01"
+    },
+    "amiga": {
+      "transport": "DDR mailbox with additional device/register-model semantics; less direct reuse for Dorado",
+      "execution": "Source explicitly states Main single-thread poll loop"
+    },
+    "mapping": {
+      "device": "/dev/mem",
+      "open_flags": "O_RDWR|O_SYNC|O_CLOEXEC",
+      "mapping": "MAP_SHARED, PROT_READ|PROT_WRITE"
+    },
+    "main_execution": "Reviewed Sun/NeXT/Mac code is polled from Main; DDR transport alone does not make it independent of blocking Main disk I/O"
+  },
+  "dorado_decision": {
+    "pattern": "Reuse frame-only rings, generation/capability and publish/consume ownership, not guest NIC emulation",
+    "daemon": "Standalone ARM dorado-server directly services DDR queues; Main only lifecycle/OSD configuration",
+    "preserve": "Original DskEth, Manchester wire timing, real CRC and current Pup server packet format",
+    "address": "Do not reuse Mac 0x30400000: overlaps current Dorado 0x30000000..0x30ffffff backing. Choose explicit reserved non-overlap after full map audit; 0x1FF00000 is a precedent, not yet allocated here.",
+    "capacity": "Preserve 2048-byte Dorado MAX_WORDS1024 payload; 2048-byte slot with inline header is too small. Separate descriptors or larger slots.",
+    "coherence": "Define endian/order, 32-bit ownership fields, barriers/mapping, full/empty, wrap, abort/reset/drain and stale-generation rules",
+    "timing": "Host DDR engine must run while guest clock pauses; retain original wire pacing and backpressure",
+    "fallback": "Keep qualified SPI/Unix-socket route selectable during qualification",
+    "status": "Design/references reviewed; DDR network path NOT implemented",
+    "lifecycle": "Main must stop/quiesce daemon and receive ACK before core change; validate fresh capability/generation before resume. DDR magic persists across FPGA reload."
+  },
+  "external_compatibility": {
+    "hardware_manual": "https://xeroxparcarchive.computerhistory.org/_cd8_/doradosource/DoradoManual.dm!7_/.d1ether.bravo.html",
+    "ifs": "https://github.com/livingcomputermuseum/IFS",
+    "future": "Optional IFS/ContrAlto-compatible UDP encapsulation to vintage peers; ordinary TCP/IP services need guest support or explicit translation",
+    "cedar_stp": "Needs independent interoperability qualification"
+  }
+}
