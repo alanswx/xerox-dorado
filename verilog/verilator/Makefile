@@ -1677,7 +1677,13 @@ mouse-terminal-test:
 		verilog/cells/dorado_terminal.v >/dev/null
 	@./obj_mouse_terminal/tb_mouse_terminal
 
-.PHONY: t-controls-test clock-phases-test clock-phase-audit key-queue-test keyboard-terminal-test
+.PHONY: speed-monitor-test t-controls-test clock-phases-test clock-phase-audit key-queue-test keyboard-terminal-test
+speed-monitor-test:
+	@cd ../.. && $(V) --binary --top-module tb_speed_monitor $(V_WARN) -Wno-TIMESCALEMOD \
+		--Mdir verilog/verilator/obj_speed_monitor -o tb_speed_monitor \
+		fpga/mister/dorado_speed_monitor.sv verilog/verilator/tb_speed_monitor.sv >/dev/null
+	@./obj_speed_monitor/tb_speed_monitor
+
 t-controls-test:
 	@cd ../.. && python3 tools/check_t_control_wiring.py
 	@cd ../.. && $(V) --binary --top-module tb_t_controls $(V_WARN) -Wno-TIMESCALEMOD \

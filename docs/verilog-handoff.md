@@ -34,6 +34,14 @@ The experimental controls require correct independent enables; their
 sources and the complete T data/latch/task-file path remain unimplemented.
 No board/firmware qualification is claimed for this replacement.
 
+Native30 is a separate40MHz candidate with passive enabled/host fabric-edge
+counts and coherent command70 debug snapshots. Counter/gated-clock tests and
+512/1024-word UIO tests pass; the old UIO implementation fails the new
+mid-transaction-change test. No Main/protocol change; `Debug monitor=Clock
+counts` selects enabled edges in machine= and host edges in cpu=. Counts
+are modulo2^32, NOT retired instructions. Native29 remains frozen without
+these diagnostics. Both builds still need fresh timing/hardware review.
+
 Same original firmware/BFN113/Guest boot, Main12701/server12696, Native26
 RBF586dc7f8...,8MB RAM/64K Map. HDMI recovered at verified1080p30/74.25MHz.
 First CommandTool is running the profile's large optional demo-install script;

@@ -1,0 +1,3 @@
+[44000] %Fatal: tb_ethernet_uio.sv:57: Assertion failed in tb_ethernet_uio: wrong debug low word
+%Error: verilog/verilator/tb_ethernet_uio.sv:57: Verilog $stop
+Aborting...

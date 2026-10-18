@@ -1,0 +1,5 @@
+SPEED-MONITOR PASS: actual gated edges, pauses, reset and wrap; units=fabric edges
+- verilog/verilator/tb_speed_monitor.sv:34: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 4us; walltime 0.000 s; speed 11.419 ms/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 2 MB

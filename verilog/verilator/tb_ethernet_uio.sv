@@ -14,6 +14,8 @@ module tb_ethernet_uio;
   assign bus[31:16]=din;
   reg rx_ready=1,tx_valid=1;
   reg [15:0] tx_data=0;
+  reg [31:0] machine_debug=32'h1357abcd,processor_debug=32'h02468ace;
+  reg [15:0] machine_status=16'h2468;
   wire [ADDRESS_BITS-1:0] tx_addr,rx_addr;
   wire tx_ack,rx_wr,rx_commit;
   wire [15:0] rx_data;
@@ -29,7 +31,7 @@ module tb_ethernet_uio;
   end
   dorado_ethernet_uio #(.MAX_WORDS(WORDS)) dut(.clk(clk),.reset(reset),.bus(bus),
     .rx_ready(rx_ready),.tx_valid(tx_valid),.tx_words(10'd17),.tx_data(tx_data),
-    .processor_debug(32'h02468ace),.machine_debug(32'h1357abcd),.machine_status(16'h2468),
+    .processor_debug(processor_debug),.machine_debug(machine_debug),.machine_status(machine_status),
     .tx_good(32'd111),.tx_bad(32'd222),.tx_dropped(32'd333),.rx_bad(32'd444),
     .tx_addr(tx_addr),.tx_ack(tx_ack),.rx_wr(rx_wr),.rx_commit(rx_commit),
     .rx_addr(rx_addr),.rx_data(rx_data),.rx_words(rx_words),.aborted(aborted));
@@ -42,6 +44,9 @@ module tb_ethernet_uio;
   initial begin
     repeat(3)tick();reset=0;tick();enable=1;
     word(16'h70,r);if(r!==16'hd074||!bus[32])$fatal(1,"missing capability magic");
+    // Change both counter halves/status after the command. The entire reply
+    // must retain the command-time snapshot, not a mixture of two moments.
+    machine_debug=32'h13580001;processor_debug=32'h0247ffff;machine_status=16'hface;
     word(0,r);if(r!==(WORDS>512?7:3))$fatal(1,"wrong status flags");
     word(0,r);if(r!==17)$fatal(1,"wrong length");
     word(0,r);if(r!==111)$fatal(1,"wrong good counter");
@@ -54,6 +59,13 @@ module tb_ethernet_uio;
     word(0,r);if(r!==16'h2468)$fatal(1,"wrong machine status");
     word(0,r);if(r!==16'h8ace)$fatal(1,"wrong processor low word");
     word(0,r);if(r!==16'h0246)$fatal(1,"wrong processor high word");deselect();
+    enable=1;word(16'h70,r);
+    repeat(7)word(0,r);
+    word(0,r);if(r!==16'h0001)$fatal(1,"next snapshot missing machine low");
+    word(0,r);if(r!==16'h1358)$fatal(1,"next snapshot missing machine high");
+    word(0,r);if(r!==16'hface)$fatal(1,"next snapshot missing status");
+    word(0,r);if(r!==16'hffff)$fatal(1,"next snapshot missing processor low");
+    word(0,r);if(r!==16'h0247)$fatal(1,"next snapshot missing processor high");deselect();
     enable=1;word(16'h71,r);if(r!==17)$fatal(1,"wrong TX length");
     for(integer i=0;i<17;i++)begin
       word(0,r);if(r!==(16'ha500|i))$fatal(1,"TX data timing: word %d got %h",i,r);

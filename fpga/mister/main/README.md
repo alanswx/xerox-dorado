@@ -58,6 +58,23 @@ later wire packets and counts them; Main retains a received server frame
 until the RX staging buffer is ready. Partial, overlong and busy RX
 transactions do not reach the cable.
 
+The updated RTL snapshots the two32-bit debug words and machine status on
+command70's first word. Both halves therefore describe the same observation,
+including across counter rollovers; no Main protocol/binary change is needed.
+The new UIO regression changes these inputs during the transaction and
+fails on the old live-per-word implementation. Native29's frozen RBF still
+has the older implementation; Native30 is the separate candidate for this.
+
+Native30 adds a native-core `Debug monitor` option. In `Clock counts` mode,
+Main's `machine=` value is enabled fabric rising edges and `cpu=` is total
+host fabric rising edges, both modulo2^32. A medium fault retains priority
+over that mode. For samples less than one wrap apart (107s at40MHz), use
+`delta(enabled)/delta(host)` to measure the enabled fraction. These are
+**not retired instructions**. Dividing enabled edges by `2*SYSPER` gives
+only an instruction ceiling; original Hold and extended IM/TPC sequences
+can lower actual throughput further. Normal CPU monitoring returns with
+the option set to `CPU`. Native30 is not hardware-qualified yet.
+
 The FPGA serializes the sync bit, data and real CRC and observes DskEth's
 actual transmit wire. **DskEth includes the sync bit in its CRC.** The
 captured FileSystem lookup ends in `7C50`; CRC over sync, data and that

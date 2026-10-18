@@ -92,6 +92,25 @@ fixture pass for both frequencies; invalid/nonfinite/zero frequencies are
 rejected before modifying output. Fresh timing and hardware checks remain
 mandatory for any selected frequency.
 
+## Passive throughput measurements: Native30 candidate
+
+Native30 retains Native29's40MHz/SYSPER4 and adds passive enabled/host fabric
+edge counters plus coherent command70 debug snapshots. It is a separate
+frozen build at `misterubuntu:/home/alans/mister/Dorado_Native30_20261018`;
+Native29's build inputs remain unchanged.
+
+`make -C verilog speed-monitor-test` compares enabled counts with an actual
+gated clock through pauses/reset/wrap. UIO tests at512 and1024 words verify
+that changing both debug values/status during the reply cannot tear the
+observation; the pre-change implementation fails this regression.
+
+These counters will separate global backend pauses from CPU clock division.
+They count fabric edges, not instructions. See the
+[protocol/measurement notes](../fpga/mister/main/README.md) for units and
+wrap handling. A read-only Native26 desktop scaler-header baseline changes
+1.70 times/s over10s, but that is source-raster cadence for that workload,
+not a CPU or HDMI frequency measurement. Do not infer retired MIPS from it.
+
 ## First prototype: implemented, isolated
 
 [`dorado_clock_phases.sv`](../verilog/rtl/dorado_clock_phases.sv) describes

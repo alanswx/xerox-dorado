@@ -23,6 +23,10 @@ module dorado_ethernet_uio #(parameter integer MAX_WORDS=512) (
   reg [11:0] count=0;
   reg [$clog2(MAX_WORDS):0] received=0;
   reg receiving=0,rx_allowed=0,read_allowed=0;
+  // One coherent observation across the multiword status transaction.
+  // In particular, low/high counter halves must not straddle a rollover.
+  reg [31:0] machine_snapshot=0,processor_snapshot=0;
+  reg [15:0] status_snapshot=0;
   assign bus[32]=enable && command>=16'h70 && command<=16'h73;
   assign bus[15:0]=dout;
   always @(posedge clk)begin
@@ -40,7 +44,12 @@ module dorado_ethernet_uio #(parameter integer MAX_WORDS=512) (
       if(count==0)begin
         command<=din;tx_addr<=0;
         case(din)
-        16'h70:dout<=16'hd074;
+        16'h70:begin
+          dout<=16'hd074;
+          machine_snapshot<=machine_debug;
+          processor_snapshot<=processor_debug;
+          status_snapshot<=machine_status;
+        end
         16'h71:begin dout<=tx_words;read_allowed<=tx_valid;end
         16'h72:begin tx_ack<=1;dout<=16'hd074;end
         16'h73:begin
@@ -58,11 +67,11 @@ module dorado_ethernet_uio #(parameter integer MAX_WORDS=512) (
           5:dout<=tx_dropped[15:0];
           6:dout<=rx_bad[15:0];
           7:dout<=aborted[15:0];
-          8:dout<=machine_debug[15:0];
-          9:dout<=machine_debug[31:16];
-          10:dout<=machine_status;
-          11:dout<=processor_debug[15:0];
-          12:dout<=processor_debug[31:16];
+          8:dout<=machine_snapshot[15:0];
+          9:dout<=machine_snapshot[31:16];
+          10:dout<=status_snapshot;
+          11:dout<=processor_snapshot[15:0];
+          12:dout<=processor_snapshot[31:16];
           default:dout<=0;
         endcase
         16'h71:begin

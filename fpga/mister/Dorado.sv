@@ -99,6 +99,7 @@ localparam CONF_STR = {
 `ifdef DORADO_NATIVE
 	"O[3],Boot button,Released,Pressed;",
 	"O[4],Display,Large Format,Alto;",
+	"O[5],Debug monitor,CPU,Clock counts;",
 `endif
 	"J,;",
 	"V,v",`BUILD_DATE
@@ -272,6 +273,14 @@ wire [31:0] net_tx_good,net_tx_bad,net_tx_dropped,net_rx_bad;
 // continue while the cable's emulated time pauses with the rest of DskEth.
 reg network_step = 0;
 always @(negedge clk_sys) network_step <= machine_enable;
+`ifdef DORADO_NATIVE
+wire [31:0] host_edges,machine_edges;
+dorado_speed_monitor u_speed_monitor(.clk(clk_sys),.reset(~pll_locked),
+    .machine_step(network_step),.host_edges(host_edges),.machine_edges(machine_edges));
+// In count mode Main's existing machine/cpu words become enabled/host
+// fabric edges. u_network_uio snapshots both on the same command70 edge.
+wire speed_monitor_active = status[5] && !pack_fault;
+`endif
 dorado_ethernet_uio #(.MAX_WORDS(1024)) u_network_uio (
     .clk(clk_sys), .reset(~pll_locked), .bus(ethernet_ext_bus),
     .rx_ready(net_rx_ready), .tx_valid(net_tx_valid), .tx_words(net_tx_words), .tx_data(net_tx_data),
@@ -279,19 +288,21 @@ dorado_ethernet_uio #(.MAX_WORDS(1024)) u_network_uio (
 `ifdef DORADO_NATIVE
 `ifdef DORADO_RX_MONITOR
 `ifdef DORADO_PACK_FAULT_MONITOR
-    .machine_debug(pack_fault ? pack_fault_debug : native_key_overflow ?
+    .machine_debug(pack_fault ? pack_fault_debug : speed_monitor_active ? machine_edges : native_key_overflow ?
         {16'h4b51,7'd0,native_key_queued} :
         (processor_debug[31] ? baseboard_debug : receive_debug)), .machine_status(machine_status),
-    .processor_debug(pack_fault ? pack_fault_extra : processor_debug),
+    .processor_debug(pack_fault ? pack_fault_extra : speed_monitor_active ? host_edges : processor_debug),
 `else
-    .machine_debug(receive_debug), .machine_status(machine_status), .processor_debug(processor_debug),
+    .machine_debug(speed_monitor_active ? machine_edges : receive_debug), .machine_status(machine_status),
+    .processor_debug(speed_monitor_active ? host_edges : processor_debug),
 `endif
 `else
 `ifdef DORADO_PACK_FAULT_MONITOR
-    .machine_debug(pack_fault ? pack_fault_debug : baseboard_debug), .machine_status(machine_status),
-    .processor_debug(pack_fault ? pack_fault_extra : processor_debug),
+    .machine_debug(pack_fault ? pack_fault_debug : speed_monitor_active ? machine_edges : baseboard_debug), .machine_status(machine_status),
+    .processor_debug(pack_fault ? pack_fault_extra : speed_monitor_active ? host_edges : processor_debug),
 `else
-    .machine_debug(baseboard_debug), .machine_status(machine_status), .processor_debug(processor_debug),
+    .machine_debug(speed_monitor_active ? machine_edges : baseboard_debug), .machine_status(machine_status),
+    .processor_debug(speed_monitor_active ? host_edges : processor_debug),
 `endif
 `endif
 `else
