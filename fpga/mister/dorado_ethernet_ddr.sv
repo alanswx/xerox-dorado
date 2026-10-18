@@ -11,7 +11,8 @@ module dorado_ethernet_ddr #(
 ) (
     input wire clk,reset,enable,
     input wire [63:0] epoch,
-    output reg stopped=1,initialized=0,
+    output wire stopped,
+    output reg initialized=0,
     output reg [31:0] fault=0,
     input wire tx_valid,rx_ready,
     input wire [10:0] tx_words,
@@ -42,6 +43,13 @@ module dorado_ethernet_ddr #(
     reg [31:0] tx_prod=0,rx_cons=0,frame_bytes=0,poll_count=0;
     reg [10:0] word_index=0,frame_words=0;
     reg stop_latched=0,armed=0,prefer_rx=0;
+    // STOPPED is the drained FSM state. Derive the indication from it rather
+    // than maintaining a second initialized-high flag: on Native46 hardware
+    // the disabled engine reported that flag low with no epoch/fault, and
+    // Main correctly refused its lifecycle barrier. The state registers have
+    // audited zero power-up values; no active transaction enters STOPPED
+    // until STOP_MAGIC/STOP_STATUS writes have completed.
+    assign stopped=state==STOPPED;
     wire [31:0] tx_slot=32'h1000+{18'd0,tx_prod[2:0],11'd0};
     wire [31:0] rx_slot=32'h5000+{17'd0,rx_cons[3:0],11'd0};
     wire [31:0] tx_desc=32'h100+{25'd0,tx_prod[2:0],4'd0};
@@ -75,7 +83,7 @@ module dorado_ethernet_ddr #(
         if(state!=STOPPED && (!enable || reset || epoch!=active_epoch))stop_latched<=1;
         case(state)
         STOPPED:if(armed && enable && !reset && epoch!=0 && epoch!=active_epoch)begin
-            active_epoch<=epoch;armed<=0;stopped<=0;initialized<=0;
+            active_epoch<=epoch;armed<=0;initialized<=0;
             stop_latched<=0;fault<=0;init_index<=0;state<=INIT;
             tx_prod<=INITIAL_COUNT;rx_cons<=INITIAL_COUNT;poll_count<=0;prefer_rx<=0;
         end
@@ -100,7 +108,7 @@ module dorado_ethernet_ddr #(
         end
         STOP_MAGIC:write_word(0,0,8'hff,STOP_STATUS);
         STOP_STATUS:write_word('h30,fault==0 ? 64'd0 : 64'd2,8'hff,STOP_DONE);
-        STOP_DONE:begin stopped<=1;state<=STOPPED;end
+        STOP_DONE:state<=STOPPED;
         TX_ROOM:read_word('h18,TX_ROOM_RESULT);
         TX_ROOM_RESULT:if(tx_prod-read_data[31:0]>8)protocol_fault(1);
             else if(tx_prod-read_data[31:0]==8 || !tx_valid)state<=IDLE;

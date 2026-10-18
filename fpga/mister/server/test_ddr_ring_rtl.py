@@ -27,7 +27,7 @@ def run(output, mutations):
             ('bad_rx_epoch', 'if(read_data!=active_epoch)protocol_fault(5);',
              'if(1\'b0)protocol_fault(5);', 'unsolicited/busy wire commit'),
             ('false_stop', 'STOP_MAGIC:write_word(0,0,8\'hff,STOP_STATUS);',
-             'STOP_MAGIC:begin stopped<=1;state<=STOPPED;end', 'stopped before invalidating magic'),
+             'STOP_MAGIC:begin state<=STOPPED;end', 'stopped before invalidating magic'),
         ]
         for name, before, after, diagnostic in changes:
             assert original.count(before) == 1, name

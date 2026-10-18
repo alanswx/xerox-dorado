@@ -1,0 +1,23 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "dorado_ddr_wire_fixture",
+  "-Wno-fatal",
+  "-Wno-PROCASSINIT",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ddr-wire/ungated_wire/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ddr-wire/ungated_wire/fixture.sv",
+  "/Users/alans/dev2/Dorado/fpga/mister/dorado_ethernet_ddr.sv",
+  "/Users/alans/dev2/Dorado/fpga/mister/dorado_ethernet_uio.sv",
+  "/Users/alans/dev2/Dorado/fpga/mister/dorado_ethernet_wire.sv",
+  "/Users/alans/dev2/Dorado/fpga/mister/server/test_ddr_wire.cpp",
+  "-CFLAGS",
+  "-std=c++17 -I/Users/alans/dev2/Dorado/fpga/mister/server",
+  "-LDFLAGS",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ddr-wire/host.o"
+]

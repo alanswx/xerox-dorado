@@ -1,0 +1,69 @@
+Info: *******************************************************************
+Info: Running Quartus Prime Compiler Database Interface
+    Info: Version 17.0.2 Build 602 07/19/2017 SJ Lite Edition
+    Info: Copyright (C) 2017  Intel Corporation. All rights reserved.
+    Info: Your use of Intel Corporation's design tools, logic functions 
+    Info: and other software and tools, and its AMPP partner logic 
+    Info: functions, and any output files from any of the foregoing 
+    Info: (including device programming or simulation files), and any 
+    Info: associated documentation or information are expressly subject 
+    Info: to the terms and conditions of the Intel Program License 
+    Info: Subscription Agreement, the Intel Quartus Prime License Agreement,
+    Info: the Intel MegaCore Function License Agreement, or other 
+    Info: applicable license agreement, including, without limitation, 
+    Info: that your use is for the sole purpose of programming logic 
+    Info: devices manufactured by Intel and sold by Intel or its 
+    Info: authorized distributors.  Please refer to the applicable 
+    Info: agreement for further details.
+    Info: Processing started: Sun Oct 18 16:29:08 2026
+Info: Command: quartus_cdb -t ../inspect-stopped-all.tcl
+REGISTER 27475 emu:emu|dorado_ethernet_ddr:u_network_ddr|stopped
+BOOL_WYSIWYG 0
+BOOL_USER_LCELL 0
+BOOL_IS_SIGNAL_PROBE_SINK 0
+BOOL_USER_INSERTED 0
+BOOL_POWERS_UP 0
+BOOL_PCI_IO 0
+BOOL_SLOW_SLEW_RATE 0
+BOOL_TURBO 0
+BOOL_TMP_NAME 0
+BOOL_DATAIN_PROMOTED_TO_ADATASDATA 0
+BOOL_IS_INPUT 0
+BOOL_IS_OUTPUT 0
+BOOL_IS_BIDIR 0
+BOOL_POWER_UP_DONT_CARE 0
+BOOL_IS_WIRE_LUT 0
+INT_TIMING_NODE_INDEX -1
+INT_ALE_OFFSET 0
+UINT_FIXED_INPUT_COUNT 8
+UINT_FIXED_OUTPUT_COUNT 1
+UINT_FLAGS 0
+UINT_ID 27475
+UINT_LOCATION_INDEX 131081
+UINT_NEXT_ID 109056
+ENUM_ATOM_TYPE ARRIAV_FF
+ENUM_LOCATION_ELEMENT FF
+ENUM_PHYS_MODE LAB
+ENUM_PULSE_WIDTH 0
+HDBID_NAME_ID 13173
+Warning (38000): No valid data of type POINTER_NETLIST found. Returning empty string.
+POINTER_NETLIST {}
+Warning (38000): No valid data of type POINTER_ATOM_INFO found. Returning empty string.
+POINTER_ATOM_INFO {}
+Warning (38000): No valid data of type POINTER_ROUTING_ELEMENT found. Returning empty string.
+POINTER_ROUTING_ELEMENT {}
+Warning (38000): No valid data of type POINTER_CHIP_ENTRY found. Returning empty string.
+POINTER_CHIP_ENTRY {}
+VIRTUAL_IO 0
+DONT_MOD_THIS_ATOM 0
+POST_FIT_ATOM 1
+ROUTER_CREATED_ATOM 0
+ECO_MODIFIED 0
+QIC_CREATED_ATOM 0
+DONT_SWEEP 0
+Info (23030): Evaluation of Tcl script ../inspect-stopped-all.tcl was successful
+Info: Quartus Prime Compiler Database Interface was successful. 0 errors, 4 warnings
+    Info: Peak virtual memory: 1625 megabytes
+    Info: Processing ended: Sun Oct 18 16:29:10 2026
+    Info: Elapsed time: 00:00:02
+    Info: Total CPU time (on all processors): 00:00:02

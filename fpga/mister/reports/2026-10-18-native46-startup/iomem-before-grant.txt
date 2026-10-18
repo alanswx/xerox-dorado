@@ -1,0 +1,22 @@
+00000000-1fefffff : System RAM
+  00008000-00efffff : Kernel code
+  01000000-01149b4f : Kernel data
+ff702000-ff703fff : ff702000.ethernet ethernet@ff702000
+ff704000-ff704fff : ff704000.mmc mmc@ff704000
+ff706000-ff706fff : ff706000.fpgamgr fpgamgr@ff706000
+ff708000-ff708fff : ff708000.gpio gpio@ff708000
+ff709000-ff709fff : ff709000.gpio gpio@ff709000
+ff70a000-ff70afff : ff70a000.gpio gpio@ff70a000
+ffb40000-ffb4fffe : ffb40000.usb usb@ffb40000
+ffb90000-ffb90003 : ff706000.fpgamgr fpgamgr@ff706000
+ffc02000-ffc02fff : serial
+ffc03000-ffc03fff : serial
+ffc04000-ffc04fff : ffc04000.i2c i2c@ffc04000
+ffc06000-ffc06fff : ffc06000.i2c i2c@ffc06000
+ffd02000-ffd02fff : ffd02000.watchdog watchdog@ffd02000
+ffd05000-ffd05fff : rstmgr
+ffe01000-ffe01fff : pdma@ffe01000
+  ffe01000-ffe01fff : ffe01000.pdma pdma@ffe01000
+fff00000-fff00fff : fff00000.spi spi@fff00000
+fff01000-fff01fff : fff01000.spi spi@fff01000
+ffff0000-ffffffff : ffff0000.sram sram@ffff0000

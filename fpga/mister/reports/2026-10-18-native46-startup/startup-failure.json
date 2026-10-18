@@ -1,0 +1,29 @@
+{
+  "status": "Native46 staging Main blocked by stopped indication; no RESUME or physical daemon mapping",
+  "main_pid": 22443,
+  "main_hash": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "old_server_pid": 20495,
+  "stop_only_server_pid": 22607,
+  "capability_words": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    16,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "disk_barrier": "Actual Main returned true at input_poll via matching GDB; no network ACK fabricated",
+  "seed_sha256_now": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51"
+}

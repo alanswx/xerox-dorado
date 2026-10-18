@@ -12,7 +12,7 @@ endif
 LDFLAGS ?= $(GC)
 CFLAGS ?= -O2 -Wall -Wextra -ffunction-sections -fdata-sections
 
-.PHONY: all test cedar-test bsp-retry-test bsp-ack-race-test ddr-ring-test ddr-control-test ddr-map-test
+.PHONY: all test cedar-test bsp-retry-test bsp-ack-race-test ddr-ring-test ddr-control-test ddr-map-test ddr-wire-test
 all:
 	mkdir -p $(dir $(OUT))
 	$(CC) $(CFLAGS) -I$(ROOT)/dorado/include dorado_server.c \
@@ -38,3 +38,5 @@ ddr-map-test:
 	mkdir -p $(dir $(OUT))
 	$(CC) $(CFLAGS) -std=c11 -Werror dorado_ddr_mapping.c test_ddr_mapping.c -o $(OUT)-ddr-map-test
 	$(OUT)-ddr-map-test
+ddr-wire-test:
+	python3 test_ddr_wire.py --mutations

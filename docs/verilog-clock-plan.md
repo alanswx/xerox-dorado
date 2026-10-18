@@ -375,6 +375,28 @@ dynamic production-runtime tests pass. See DDR control/native46 reports.
 Snapshot4a remains required and incomplete; these transport STOP boundaries
 alone do not capture complete guest, wire, disk or server session state.
 
+### Native46 startup refusal and Native47 correction (2026-10-18)
+
+Combined production wrapper/UIO/DDR/wire+C tests now pass with independent
+serial payload/CRC, captured real Dorado packet, full2048-byte traffic,
+pauses/mid-frame phase, ownership handoff, STOP and restart. Broken mux and
+ungated-wire controls fail. No full CPU/DskEth board in this fixture.
+
+On actual46, Main21e6 observed disabled/epoch0/fault0 but not-stopped/owned
+(flags0x10), and correctly refused exit. A real daemon STOP ACK still left
+that indication false. No RESUME or daemon /dev/mem mapping occurred.
+42 retired after normal guest Boot/loader barriers, physical pack0c5ab6f5.
+46 seed remainedf3bce2a8. Both daemons exited normally, staging Main's disk
+barrier returned true, and whole-board reboot returned14 to stock MENU.
+This recovery does not qualify the hot-reload handshake.
+
+Native47 decodes stopped from the existing drained STOPPED FSM state rather
+than a redundant initialized-high flag. Simulation traffic/stop traces stay
+identical; early-stop controls fail. Actual Main regression also refuses the
+exact initial disabled/not-stopped observation. Isolated47 fitter/timing and
+hardware pending; no CPU/storage/clock/constraint changes. Do not claim a
+proved synthesis cause or physical DDR success before hardware evidence.
+
 ## Objective and constraints
 
 Restore the original throughput and clock relationships: HM section 2.3

@@ -1,0 +1,9 @@
+{
+  "old_pids": {
+    "main": 20496,
+    "server": 20495
+  },
+  "new_main": "/media/fat/games/DoradoRTL/System_20261018_DDRNetwork/MiSTer-21e67a3f5588a875",
+  "new_server": "/media/fat/games/DoradoRTL/System_20261018_DDRNetwork/dorado-server-c59962490772f12d",
+  "phase": "Staged artifacts/INI; normal loader next"
+}

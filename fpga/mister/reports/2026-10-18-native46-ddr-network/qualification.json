@@ -1,5 +1,5 @@
 {
-  "hardware": "NOT DEPLOYED",
+  "hardware": "Staging FPGA load performed; disabled engine not-stopped indication blocked Main exit; no daemon physical mapping/RESUME; full-board recovery, see ../2026-10-18-native46-startup",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,

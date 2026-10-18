@@ -145,6 +145,16 @@ int main(){
     bad_abi=true;check(dorado_ddr_poll(12),"invalid ABI allowed ownership");
     check(!dorado_ddr_barrier("invalid ABI"),"unverifiable state allowed programming");
     bad_abi=false;check(dorado_ddr_barrier("recovered status") && dorado_ddr_reset(),"recover barrier");
+    // Native46 hardware regression: enable=0, epoch=0, no fault, but stopped
+    // remains false. Neither a fresh Main nor an inactive daemon can turn
+    // that observation into permission to START/reload or forget ownership.
+    stuck=true;enabled=false;initialized=false;cookie=0;
+    unsigned previous_starts=starts;
+    for(unsigned i=0;i<20;i++){check(dorado_ddr_poll(12),"disabled undrained engine allowed SPI fallback");usleep(1000);}
+    check(starts==previous_starts,"START bypassed initial drain");
+    check(!dorado_ddr_barrier("disabled engine not stopped",10),"inactive epoch bypassed drain barrier");
+    check(!dorado_ddr_reset(),"disabled undrained engine lost ownership");
+    stuck=false;check(dorado_ddr_barrier("actual disabled drain") && dorado_ddr_reset(),"disabled engine recovery");
 #ifdef DORADO_TEST_LIFECYCLE
     disk_safe=false;
     check(fpga_load_rbf("test",nullptr,nullptr)==-1,"loader ignored disk failure");

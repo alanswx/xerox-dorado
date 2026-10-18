@@ -1,0 +1,24 @@
+{
+  "production_source_sha256": "df68487757c2cd5adfe2cee298c03d314df516b762d7f4228a0b280bef4011f5",
+  "scope": "Production wrapper wiring/packet adapters/C endpoint, independent DDR+serial oracles; no CPU or DskEth board in this fixture",
+  "cases": [
+    {
+      "case": "production",
+      "returncode": 0,
+      "expected_failure": null,
+      "fixture_sha256": "36a58d020f575d03ee5a86e242e21489ae417fcfa0a7c10a5dc4583025f647ee"
+    },
+    {
+      "case": "wrong_mux",
+      "returncode": 23,
+      "expected_failure": "serialized payload/CRC differs",
+      "fixture_sha256": "85a3ce79c9abd4f4ba75c51be1fbeec687e2dfa28536f5e236c9f63252e6b408"
+    },
+    {
+      "case": "ungated_wire",
+      "returncode": 23,
+      "expected_failure": "wire advanced while paused",
+      "fixture_sha256": "283bf71ee13455b44c7d1249b721e6bacedea8b734f5c388aa94d514f879fd73"
+    }
+  ]
+}

@@ -4,9 +4,12 @@ Implementation status: the C/RTL endpoints, optional Dorado.sv ownership
 mux, daemon control/mapping and Main grant/lifecycle manager are implemented.
 Native46 passes all-device timing; pinned Main and daemon ARM builds pass.
 Actual-service/guarded-memory tests pass on Mac/Linux/ARM, including Main's
-patched lifecycle prologues. **Not deployed or physically mapped yet.**
-Original-wire integration, physical coherence, packet bytes and full Cedar
-boot/delayed-Main delivery remain unqualified. SPI/socket stays the default.
+patched lifecycle prologues. **Native46 staging failed its stopped indication; no daemon physical
+mapping occurred. Native47 drained-state correction is compiling.**
+Combined production wrapper/UIO/wire/C-endpoint simulation passes with
+independent serial payload/CRC and broken mux/pause controls. Physical
+coherence, packet bytes and full Cedar boot/delayed-Main delivery remain
+unqualified. SPI/socket stays the default.
 
 The frame-only pattern follows the reviewed local Mac/Sun implementations.
 It preserves the original DskEth/controller and Manchester/CRC machinery;

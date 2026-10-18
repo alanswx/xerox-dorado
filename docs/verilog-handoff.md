@@ -10,8 +10,9 @@ reduce memory-request overhead; make ARM disk work nonblocking/coherent;
 connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
 External Xerox-network tunnelling is optional follow-up. Native41d cold
-marker persistence passes. Next: finish42 desktop/input, then paired
-42/43/44/45 comparisons and direct-DDR hardware qualification. Native41c
+marker persistence and42 desktop/input pass. Next: Native47 stopped-state
+fix/timing/hardware bring-up, then paired42/43/44/45 comparisons and full
+direct-DDR qualification. Native41c
 passes fresh Viewers/input and actual Main worker-delay disk service; network
 progress during delay and sustained stress remain open. The failed41b pack
 is preserved. Native39b's idle-login issue/wait baseline is measured.
@@ -19,7 +20,45 @@ User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is Native42, matched raw-DDR control.** Loaded22:15:51UTC;
+**Live MiSTer14 is stock MENU after full-board recovery,23:34UTC.**
+Stock Main876, SHAadeae62b; old42 Main20496, staging46 Main22443 and
+servers20495/22607 are gone. No control socket remains. Native47 is compiling
+on misterubuntu in `/home/alans/mister/Dorado_Native47_20261018` (parent
+439743; fitter441257 verified live23:35UTC). Local handle23028/build log:
+`build/rtl-executive/native47-build`. Do not restart because a poll expires.
+
+**Native46 hardware startup FAILED safely, no DDR RESUME/mapping.** Normal
+loader programmed46 and changed to immutable Main21e67a3f, staging PID22443.
+Command74 through actual Main returned flags0x10: owned, not stopped, enable
+clear, no initialized/fault/epoch. Old server has no control listener, so a
+separate real STOP-only service22607 was started on an isolated raw socket.
+Its STOP ACK did not change the hardware indication; Main timed out the drain
+and refused normal exit. No fake STOP/epoch or guest/IOCB repair was used.
+Dorado42's original guest Boot was visibly accepted at germ812 before load;
+its actual loader disk trace ends with two successful barriers/no errors.
+Retired42 physical pack SHA0c5ab6f58c22bac6dfd3cb807ad9a02f534715ca9d5aa189758fa83afa823619,
+63578624 bytes, remains at `Cedar42_20261018/cedar-work.pack`.
+
+Both daemons had no /dev/mem mapping and exited normally. Actual staging
+Main disk barrier returned true immediately before whole-board OS reboot;
+46's physical seed remained exactf3bce2a8. Reboot recovery is NOT a passed
+network hot-reload/STOP test. Preparation/INI/new immutable binaries and
+failure/recovery metadata remain under `Cedar46_20261018` and
+`System_20261018_DDRNetwork`; local diagnostics: cedar46-launch.
+
+Native47 removes only the redundant stopped flag and decodes the existing
+already-drained STOPPED FSM state. All zero/wrap/full/mid-frame/accepted-read/
+stalled-write/reset/epoch tests pass with identical deterministic traffic
+counts; premature-stop/byte-order/epoch controls still fail. Combined actual
+production wrapper/UIO/wire+C endpoint passes10,038,206 clocks with independent
+serial payload/CRC oracle,2048-byte frames, pauses, pending SPI ownership
+handoff and new-generation restart. Broken mux/ungated wire controls fail.
+This fixture contains no CPU/DskEth board; original board gates stay separate.
+Main regression now explicitly refuses enable=0/epoch=0/not-stopped startup.
+Native47 fitter/all-four-condition timing and hardware remain unqualified.
+CPU/storage/clocks/constraints are frozen46; no new cuts. No new Main binary.
+
+**Retired Native42 matched raw-DDR control (preserved).** Loaded22:15:51UTC;
 Main20496/server20495, Main40e14b6b/servere237dffc unchanged. RBF45af2e30,
 50MHz/SYSPER4, same logic/M10K placement as41, no raw line cache, original
 f3bce2a8 seed and Pup time1792324800. Timing passes29 checks/20 categories/
@@ -98,7 +137,7 @@ All state candidates are UNCLASSIFIED; wrapper/raw-SDRAM/Main/server scope
 still needs coverage. No online save/load or timing/area claim. Evidence:
 `reports/2026-10-18-snapshot-inventory/`.
 
-**Direct DDR candidate integrated, NOT DEPLOYED or physically mapped.**
+**Direct DDR software candidate integrated;46 startup failed,47 pending.**
 Optional wrapper/UIO ownership mux, daemon control/validated mapper and Main
 nonblocking fresh-epoch manager are implemented. Actual C service/client/
 manager pass guarded-memory/SPI tests on Mac/Linux; production-runtime ARM
@@ -124,7 +163,8 @@ Dorado Main sources plus exact server protocol headers. Candidate/control
 results: reports/2026-10-18-ddr-network-control. Next qualify original wire+
 engine+UIO mux, physical mapping/coherence, byte-exact boot/STP/full Cedar,
 reset/reload and packet progress during delayed Main work before promotion.
-The sole board remains on42; do not deploy46 before these gates/preservation.
+The sole board is back at MENU after46 failure. Deploy corrected47 only
+after all timing passes; preserve42/46 artifacts and stage fresh original seed.
 
 **Previous Native41c qualification (stopped, not live):**
 Main16875, server16872. Same RBF a97af936 and e237dffc fixed server, fresh
@@ -1333,7 +1373,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Deploy timing-qualified42 matched cache-off DDR control with same Main/server/seed and final fresh observer; original CoolBoot requested.
 - [x] Measure42 idle-login issues/causes before Guest; matched one-boot SDRAM gain10.2196%, not a repeated qualification.
 - [x] Finish42 original-firmware Viewers desktop, mouse/Cmd/focus and exact short/alphabet/digit echo in independent CommandTool.
-- [ ] Preserve42 through a normal guest Boot/host barriers before changing cores; repeat pinned workload comparisons.
+- [x] Preserve42 through normal guest Boot/germ812 and actual loader barriers; physical pack0c5ab6f5 retained.
+- [ ] Repeat pinned workload comparisons after DDR network bring-up.
 - [ ] Separately reduce FPGA whole-track write amplification where original guest/CRC semantics permit.
 - [x] Prototype default-OFF deferred internal DRAM reads; independent nonzero pipeline/write/reset/array/full-MSA/physical-state/default-generation gates pass.
 - [x] Native45 full all-device timing PASS:31 summary/36 categories/four conditions, minimum+0.017ns, no new cuts or clock coverage gaps.
@@ -1343,7 +1384,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Implement bounded C/RTL DDR frame endpoints; real interoperability/oracles, full2048-byte/stall/wrap/malformed/reset/stop and failure controls pass, C also on actual ARM.
 - [x] Implement Main/daemon STOP/resume/fresh grants, SPI capability/epoch and ownership mux, validated mapping and legacy fallback; guarded actual-service/lifecycle tests and pinned ARM builds pass.
 - [x] Native46 all-device timing31 summary/36 categories/four conditions min+0.112ns; original41 CPU/storage sources and constraints preserved.
-- [ ] Qualify combined original wire/DDR/UIO, physical mapping/coherence, byte-exact boot/STP, cold Cedar and delayed-Main packet progress before promotion.
+- [x] Qualify combined production wrapper/UIO/wire/DDR+C endpoint with independent serial payload/CRC and broken mux/pause controls.
+- [x] Capture46 disabled/not-stopped hardware refusal; preserve42/untouched46 seed; real STOP-only handshake and disk drain, then full-board recovery.
+- [ ] Qualify47 drained-state decode all-device timing/hardware; physical mapping/coherence, byte-exact boot/STP, cold Cedar and delayed-Main packet progress remain required.
 - [ ] Adapt frame rings for direct ARM daemon DDR transport, retaining original DskEth/CRC/wire timing and selectable SPI fallback; qualify reset/ownership/stalls/boot before deployment.
 - [ ] Optional external Xerox-network UDP tunnel compatible with IFS/ContrAlto; test Cedar STP separately from Alto interoperability.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.

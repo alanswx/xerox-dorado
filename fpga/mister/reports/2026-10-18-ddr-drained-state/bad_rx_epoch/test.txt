@@ -1,0 +1,4 @@
+DDR RTL FAIL: unsolicited/busy wire commit
+DDR RTL TRAFFIC PASS:128 frames each way, initial=fffffff0 clocks=514597 reads=18739 writes=20449 held=9735 immediate=1056 full=66097; C library/oracle payloads and32-bit counts
+DDR RTL STOP PASS: outstanding read/stalled write drain, reset/epoch change, no stale-grant restart, explicit new epoch
+DDR RTL MID-FRAME STOP PASS:2048-byte TX/RX finish payload and publication/ACK/commit tails before stop

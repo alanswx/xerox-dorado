@@ -1,0 +1,37 @@
+[
+  {
+    "case": "zero",
+    "initial_count": 0,
+    "returncode": 0,
+    "expected_failure": null,
+    "source_sha256": "81dfa0431d188cc662b3067c8781c31499b72ec0c42fe74620be8d225009c20a"
+  },
+  {
+    "case": "wrap",
+    "initial_count": 4294967280,
+    "returncode": 0,
+    "expected_failure": null,
+    "source_sha256": "81dfa0431d188cc662b3067c8781c31499b72ec0c42fe74620be8d225009c20a"
+  },
+  {
+    "case": "bad_tx_byte_order",
+    "initial_count": 4294967280,
+    "returncode": 23,
+    "expected_failure": "TX content/length/order",
+    "source_sha256": "00881a038aa6734478e0c94f965a4f40a634654d6d0f09ecb410b85e8cfff345"
+  },
+  {
+    "case": "bad_rx_epoch",
+    "initial_count": 4294967280,
+    "returncode": 23,
+    "expected_failure": "unsolicited/busy wire commit",
+    "source_sha256": "e72e996fe4f112f6ffb7630924f66d13ef520074ed7f3351be48daa561945924"
+  },
+  {
+    "case": "false_stop",
+    "initial_count": 4294967280,
+    "returncode": 23,
+    "expected_failure": "stopped before invalidating magic",
+    "source_sha256": "3b98ff9f47c1965e172014b7b832d259932ba2676ede671bab0b1af012d6eafa"
+  }
+]

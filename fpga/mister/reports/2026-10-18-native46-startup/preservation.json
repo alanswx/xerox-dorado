@@ -1,0 +1,8 @@
+{
+  "path": "/media/fat/games/DoradoRTL/Cedar42_20261018/cedar-work.pack",
+  "bytes": 63578624,
+  "sha256": "0c5ab6f58c22bac6dfd3cb807ad9a02f534715ca9d5aa189758fa83afa823619",
+  "guest_boot": "Normal guest Boot accepted; germ812 captured before native46 loader",
+  "host_boundary": "Actual Main loader flush barriers; trace ends barrier_end with no errors/drops",
+  "fpga_snapshot": false
+}

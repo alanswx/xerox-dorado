@@ -1,0 +1,8 @@
+{
+  "reason": "Disabled Native46 engine never reports stopped; hot reload refused, not bypassed",
+  "main_disk_barrier": "returned true immediately before recovery",
+  "daemons": "both exited normally; neither ever mapped physical DDR",
+  "method": "whole-system normal reboot; not a successful core STOP/hot-reload test",
+  "old42_preserved": "0c5ab6f58c22bac6dfd3cb807ad9a02f534715ca9d5aa189758fa83afa823619",
+  "time_utc": "2026-10-18 23:34:32 UTC"
+}

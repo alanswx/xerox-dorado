@@ -1,0 +1,7 @@
+Native42 guest Boot/germ812 verified. Normal loader now; old Main owns its durability barrier.
+Traceback (most recent call last):
+  File "/tmp/dorado46-deploy.py", line 71, in <module>
+    staging=found[0];time.sleep(1);os.kill(staging,signal.SIGTERM);stopped(staging)
+  File "/tmp/dorado46-deploy.py", line 25, in stopped
+    raise RuntimeError('Normal stop refused/timed out; no force kill: '+str(pid))
+RuntimeError: Normal stop refused/timed out; no force kill: 22443

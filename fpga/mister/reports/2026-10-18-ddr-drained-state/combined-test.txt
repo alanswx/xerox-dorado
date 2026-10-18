@@ -1,0 +1,3 @@
+production: DDR WIRE PASS: production wrapper mux/UIO/engine/wire+C endpoint; captured DskEth golden, CRC rejection,2048-byte frames, pause/serial phase, independent payload+CRC, STOP handoff/restart; clocks=10038206 reads=1129 writes=2166 held=810 immediate=63
+wrong_mux: DDR WIRE FAIL: serialized payload/CRC differs
+ungated_wire: DDR WIRE FAIL: wire advanced while paused

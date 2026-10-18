@@ -1,0 +1,64 @@
+Info: *******************************************************************
+Info: Running Quartus Prime Compiler Database Interface
+    Info: Version 17.0.2 Build 602 07/19/2017 SJ Lite Edition
+    Info: Copyright (C) 2017  Intel Corporation. All rights reserved.
+    Info: Your use of Intel Corporation's design tools, logic functions 
+    Info: and other software and tools, and its AMPP partner logic 
+    Info: functions, and any output files from any of the foregoing 
+    Info: (including device programming or simulation files), and any 
+    Info: associated documentation or information are expressly subject 
+    Info: to the terms and conditions of the Intel Program License 
+    Info: Subscription Agreement, the Intel Quartus Prime License Agreement,
+    Info: the Intel MegaCore Function License Agreement, or other 
+    Info: applicable license agreement, including, without limitation, 
+    Info: that your use is for the sole purpose of programming logic 
+    Info: devices manufactured by Intel and sold by Intel or its 
+    Info: authorized distributors.  Please refer to the applicable 
+    Info: agreement for further details.
+    Info: Processing started: Sun Oct 18 16:28:29 2026
+Info: Command: quartus_cdb -t ../inspect-network.tcl
+REGISTER 1149 {emu:emu|dorado_ethernet_ddr:u_network_ddr|return_state[0]}
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+REGISTER 1150 {emu:emu|dorado_ethernet_ddr:u_network_ddr|return_state[3]}
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+REGISTER 26527 {emu:emu|dorado_ethernet_ddr:u_network_ddr|state[4]}
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+REGISTER 26528 {emu:emu|dorado_ethernet_ddr:u_network_ddr|state[5]}
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+REGISTER 26529 {emu:emu|dorado_ethernet_ddr:u_network_ddr|state[2]}
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+REGISTER 26530 {emu:emu|dorado_ethernet_ddr:u_network_ddr|state[0]}
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+REGISTER 26531 {emu:emu|dorado_ethernet_ddr:u_network_ddr|state[3]}
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+REGISTER 26532 {emu:emu|dorado_ethernet_ddr:u_network_ddr|state[1]}
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+REGISTER 27475 emu:emu|dorado_ethernet_ddr:u_network_ddr|stopped
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+REGISTER 28492 {emu:emu|dorado_ethernet_ddr:u_network_ddr|return_state[4]}
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+REGISTER 28516 {emu:emu|dorado_ethernet_ddr:u_network_ddr|return_state[2]}
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+REGISTER 28564 {emu:emu|dorado_ethernet_ddr:u_network_ddr|return_state[1]}
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+REGISTER 107168 emu:emu|dorado_ethernet_ddr:u_network_ddr|stopped~DUPLICATE
+BOOL_POWERS_UP 0
+BOOL_POWER_UP_DONT_CARE 0
+Info (23030): Evaluation of Tcl script ../inspect-network.tcl was successful
+Info: Quartus Prime Compiler Database Interface was successful. 0 errors, 0 warnings
+    Info: Peak virtual memory: 1625 megabytes
+    Info: Processing ended: Sun Oct 18 16:28:32 2026
+    Info: Elapsed time: 00:00:03
+    Info: Total CPU time (on all processors): 00:00:02

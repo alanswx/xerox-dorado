@@ -1,0 +1,9 @@
+{
+  "fpga/mister/Dorado.sv": "df68487757c2cd5adfe2cee298c03d314df516b762d7f4228a0b280bef4011f5",
+  "fpga/mister/dorado_ethernet_ddr.sv": "5c6153f246a6f7d3883015526c7b6dfe7d8e2d5eae6308dfb07d97b323e3ac02",
+  "fpga/mister/dorado_ethernet_uio.sv": "0c6512a485420a7bc73b6b2e19a273ec6378d67983cfc3fcd4bb68f13b23d278",
+  "fpga/mister/dorado_ethernet_wire.sv": "2b679015ff751e6122489f06524d8ac8bcddfa6f651d96f2f6774d132bfc18be",
+  "fpga/mister/server/dorado_ddr_ring.c": "bb8267ef9ea5fd8ec89193bd638cb623faca6548fd4834c1da322b660b1fc2df",
+  "fpga/mister/server/test_ddr_wire.cpp": "5013ad13da822ce8b265c8bc7ca8ac6dd198cfa93a9b3eba53034a628796e07d",
+  "fpga/mister/server/test_ddr_wire.py": "fda8b70ab8ea1713cdd199707d539df05224a503fdd4c12a947fa9872c94c068"
+}
