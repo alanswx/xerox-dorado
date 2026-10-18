@@ -19,8 +19,10 @@ a higher PLL frequency or an enabled-edge ceiling is not proof of speed.
 This is an active implementation goal. The numbered milestones below are
 the delivery order and take precedence over historical candidate diaries.
 Native34 is the fully qualified desktop/input reference; Native35 provides
-the current diagnostic baseline. Neither SDRAM nor DDR networking is
-implemented yet. External IFS/ContrAlto tunnelling is optional follow-up,
+the earlier diagnostic baseline. Selectable SDRAM is implemented and
+passes simulation and all-device timing; its hardware qualification and DDR
+network transport remain pending. External IFS/ContrAlto tunnelling is
+optional follow-up,
 not a prerequisite for the performance goal.
 
 ### Milestones and acceptance
@@ -73,13 +75,14 @@ Do not overwrite the protected Executive simulation/checkpoint artifacts.
 Keep commits and the handoff current at each milestone. No new permission
 is needed for the already authorized builds, reloads and reversible tests.
 
-**Implementation update,2026-10-18 16:31UTC:** Native36 reaches Viewers,
+**Implementation update,2026-10-18 16:52UTC:** Native36 reaches Viewers,
 mouse/Cmd/focus and exact short/alphabet/digit Echo. It needed legitimate BSP
 probes to recover a lost20-byte Helvetica7 completion tail; this is not an
 unassisted cold-boot gate. A local file was created/closed/read back through
 Cedar; cold remount is pending. The automatic daemon probe fix passes native
 and ARM socket regressions plus an old-loop negative control. The tested
-ARM candidate is d4dbea66...; use it on the next boot. Shared C state layout
+ARM binary is d4dbea66...; it is now the live service for Native39 with
+pinned Pup time1792324800. Shared C state layout
 is unchanged. See reports/2026-10-18-bsp-retry and native36.
 
 Selectable SDRAM passes worst-case pin/frequency/full-board checks. Native37
@@ -94,11 +97,20 @@ use matched cache-off DDR before attributing an isolated device speedup.
 The instruction issue monitor passes15 board-level cases at SYSPER4/8/16
 against100 actual T increments, plus naive-count failure controls. Generated
 ports/native wrapper lint/default-OFF compatibility pass. The instrumented
-DDR Native39 passes all-device timing (min+0.034ns), not deployed yet.
-Native41 combines40's SDRAM with the monitor and is fitting on misterubuntu;
-its strict corner script is staged. Next measure39's issue/hold/wait baseline
-with the fixed daemon, then qualify/measure41 with matching inputs. Issue is
-not pipeline-drained retirement; no new hardware speed figure is claimed.
+DDR Native39 passes all-device timing (min+0.034ns) and is deployed on14.
+The first load selected NetExec: a held key was lost across Main re-exec,
+and the watcher falsely matched an EFTP sequence113. The corrected watcher
+checks uCodeBoot type264 and BFN113 explicitly; rearming after Main input
+initialization and sending the original three boot pushes selected Cedar.
+The pack still matched the original seed before that retry. Cedar boot is
+under observation; no idle-login benchmark yet.
+Native41 combines40's SDRAM with the monitor:31 summary checks and36 path
+categories across all four conditions, including SDRAM input/output timing,
+PASS, min+0.114ns. Zero illegal/unconstrained internal clocks and no added
+exceptions. Fit29888 ALMs(71%)/330 M10Ks; RBF a97af936... . Not deployed.
+Next measure39's issue/hold/wait baseline with the fixed daemon, then
+qualify/measure41 with matching inputs. Issue is not pipeline-drained
+retirement; no new hardware speed figure is claimed.
 
 Snapshot scope includes IM/IFUM, register/task files, processor/control
 pipeline and clock phase, main memory, cache/map/ECC and their registers,
@@ -114,6 +126,19 @@ and snapshot local Pup/BSP/STP transfer state and timers. SDRAM refresh must
 continue during pause/save/load. A live external peer cannot be rewound;
 define tunnel disconnection/recovery explicitly instead of claiming it was
 captured. Keep cold-boot qualification alongside fast-restore benchmarks.
+
+Before expanding state access across the machine, inventory every mutable
+cell/board register and memory, including generated delay/pipeline registers.
+Synthesize one representative board with the proposed access path and check
+area and timing: Native41 already uses71% of ALMs, so the state-access fabric
+must have a measured resource budget. Use hierarchical, bounded state access
+rather than exposing a giant parallel state mux. A manifest must account for
+every state element as saved, drained, or provably reconstructible. Restore
+must validate the entire bundle and disk generation before changing live
+state, then load with guest clocks frozen and resume all modeled devices
+from one captured phase. The user-facing operation is Save/Load machine state;
+first qualify identical-build Cedar desktop restores and measure the result
+before publishing a restore-time promise.
 
 ## Objective and constraints
 

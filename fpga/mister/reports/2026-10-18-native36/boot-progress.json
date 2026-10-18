@@ -9,7 +9,7 @@
   "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
   "live_directory": "/media/fat/games/DoradoRTL/Cedar36_20261018",
   "launcher": "/media/fat/_Computer/DoradoRTL_Cedar36_20261018/Cedar36.mgl",
-  "state": "BootEssentials installing, Viewers not yet qualified",
+  "state": "Session ended by Native39 load after assisted Viewers, mouse/click/exact keyboard and local file create/close/read; cold remount pending",
   "input": "Guest plus two Returns,0.1s down/up; profile answer n alone. All keys released.",
   "counters_at_152855_utc": {
     "good": 1315,
@@ -18,5 +18,13 @@
     "rx_bad": 0,
     "aborted": 0
   },
-  "limits": "Nonzero TX pending-buffer drops/retries; no loss-free claim. No retired-speed claim. No host completion of guest instructions/IOCBs or imported state."
+  "limits": "Nonzero TX pending-buffer drops/retries; no loss-free claim. No retired-speed claim. No host completion of guest instructions/IOCBs or imported state.",
+  "evidence": "See input-qualification.json and qualification.json for final results and documented BSP protocol assistance",
+  "counters_at_1629_utc": {
+    "good": 1979,
+    "dropped": 79,
+    "crc_bad": 0,
+    "rx_bad": 0,
+    "aborted": 0
+  }
 }

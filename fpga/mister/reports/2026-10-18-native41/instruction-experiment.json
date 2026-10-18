@@ -1,0 +1,16 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native40_20261018",
+  "change": "Native40 SDRAM/logic placement plus passive instruction issue/held/clock and Main command70 views",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "raw_line_cache_entries": 0,
+  "extra_timing_exceptions": "None",
+  "source_hashes": {
+    "core/Dorado.sv": "6d7b2b7c7b2a63f091c7ff97f43474a71600a524e8b14df0e49d79d71bfedcf8",
+    "core/Dorado.qsf": "cd5c35b15fa3f2b0c9035d1836cdc7d53aa0b8030acb2b20e8897e05b985731a",
+    "src/fpga/mister/dorado_instruction_monitor.sv": "a7b0988cc38a91b4435554992d3bdbd83258c405bccc07a8a723077c7ab41adc",
+    "src/build/rtl-executive/native16-tx-cable/ContA_monitor.v": "1eb77199656413cc740fd5c1081aad9e519adba2411fbd4d073e99f5a2987c5b",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "a763ef02c3f1a6418e912f756e428336ee0e4abf2c8ae4692a86e6df7e5dd435",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "4584f83067ff9ad624b2a6514109a193f95a5efc21f6c9f74ce2c4c467f965b6"
+  }
+}
