@@ -1,0 +1,11 @@
+{
+  "baseline": "../2026-10-18-native43/compiled-inputs.json",
+  "changed": [
+    "core/Dorado.qsf",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv",
+    "src/build/rtl-executive/native16-tx-cable/manifest.json",
+    "src/fpga/mister/dorado_storage_arb.sv"
+  ],
+  "unchanged_architectural_boards": true,
+  "unchanged_clock_constraints": true
+}

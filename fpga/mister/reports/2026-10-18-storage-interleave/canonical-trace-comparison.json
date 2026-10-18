@@ -1,0 +1,7 @@
+{
+  "operations": 10880,
+  "nonzero_words": 1499,
+  "canonical_order_and_data_identical": true,
+  "final_physical_model_contents_identical": true,
+  "limits": "Same synthetic full MSA stimulus/independent XSDS model; not FPGA throughput"
+}

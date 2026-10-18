@@ -7,7 +7,10 @@ module dorado_storage_arb #(
     parameter integer RAW_ADDR_BITS=24,
     // Select the next waiting group on response consumption. This removes
     // the otherwise empty IDLE cycle; the raw port remains single-outstanding.
-    parameter integer PREFETCH_NEXT=0
+    parameter integer PREFETCH_NEXT=0,
+    // Optional physical backing permutation: adjacent chip groups share
+    // columns/lines. Group-local addresses and all chip timing are unchanged.
+    parameter integer INTERLEAVE_GROUPS=0
 ) (
     input wire clk,reset,
     input wire [GROUPS-1:0] req_valid,req_write,
@@ -26,6 +29,7 @@ module dorado_storage_arb #(
     input wire [15:0] raw_rsp_data
 );
     localparam ID_BITS=GROUPS<=1 ? 1 : $clog2(GROUPS);
+    localparam GROUP_BITS=GROUPS<=1 ? 0 : $clog2(GROUPS);
     localparam IDLE=0,REQUEST=1,RESPONSE=2;
     reg [1:0] state=IDLE;
     reg [ID_BITS-1:0] owner=0,next_group=0;
@@ -77,7 +81,9 @@ module dorado_storage_arb #(
     end
     assign raw_req_valid=!reset && state==REQUEST;
     assign raw_req_write=write_latched;
-    assign raw_req_addr=(RAW_ADDR_BITS'(owner)<<GROUP_ADDR_BITS) | address_latched;
+    assign raw_req_addr=INTERLEAVE_GROUPS ?
+        (RAW_ADDR_BITS'(address_latched)<<GROUP_BITS) | RAW_ADDR_BITS'(owner) :
+        (RAW_ADDR_BITS'(owner)<<GROUP_ADDR_BITS) | address_latched;
     assign raw_req_data=data_latched;
     assign raw_rsp_ready=!reset && state==RESPONSE && rsp_ready[owner];
     genvar reply_group;
@@ -111,7 +117,8 @@ module dorado_storage_arb #(
     end
     // synthesis translate_off
     initial if(GROUPS<1 || GROUPS>1024 || GROUP_ADDR_BITS+ID_BITS>RAW_ADDR_BITS ||
-               (PREFETCH_NEXT!=0 && PREFETCH_NEXT!=1))
+               (PREFETCH_NEXT!=0 && PREFETCH_NEXT!=1) ||
+               (INTERLEAVE_GROUPS!=0 && INTERLEAVE_GROUPS!=1))
         $fatal(1,"storage groups exceed raw memory window");
     // synthesis translate_on
 endmodule

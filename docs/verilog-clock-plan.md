@@ -68,7 +68,7 @@ correctness blocker remains open; it is not replaced by a PLL-only speed
 claim. Original guest-visible CPU/cache/map/ECC behavior is preserved, with
 no imported C machine state or host completion of guest instructions/IOCBs.
 
-The immediate next action is Native41b SDRAM full desktop/input/persistence
+The immediate next action is Native41b SDRAM cold-remount persistence
 qualification, followed by the matched cache-off42 control. Only
 MiSTer14 is allocated. Use misterubuntu for Quartus and the Mac for Verilator.
 Do not overwrite the protected Executive simulation/checkpoint artifacts.
@@ -125,6 +125,15 @@ locality evidence, not real Cedar traffic, a latency model or FPGA speedup;
 no mapping/cache/burst RTL change is implemented. Preserve42/43 comparison
 order, then test a separate optional mapping experiment if real traffic
 supports it. Source/trace/negative controls: reports/2026-10-18-storage-locality.
+Update19:32UTC:41b has passed full fresh Viewers, real mouse/Cmd/focus, exact
+short/alphabet/digit echo, and guest local marker create/close/readback.
+Cold remount is pending; optional startup commands are still finishing.
+Native44's default-OFF backing group/word permutation passes independent
+packing/order/reset/array/full-MSA/physical-state checks; matched SDRAM fixture
+144461->122779 host cycles with identical logical behavior. All31 summary/36
+all-device checks pass min+0.099ns, no new cuts or clock-coverage gaps. It is
+not deployed or speed-qualified.42/43 comparisons and real Cedar measurements
+remain required before promotion. Current artifacts/state are in the handoff.
 
 **Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
 original firmware to the actual Cedar login on MiSTer14. Real Guest input

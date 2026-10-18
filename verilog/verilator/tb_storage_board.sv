@@ -1,8 +1,14 @@
 // Complete MSA board equivalence: original chips versus external backing.
 // Only the raw bit arrays move; every serial/ECC output is compared each cycle.
 `timescale 1ns/1ps
-module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0,PREFETCH_NEXT=0);
+module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0,PREFETCH_NEXT=0,INTERLEAVE_GROUPS=0);
     localparam integer CHIP_WORDS=1<<ADDR_BITS;
+    function automatic integer physical_word(input integer g,a);
+        physical_word=INTERLEAVE_GROUPS ? a*16+g : g*CHIP_WORDS+a;
+    endfunction
+    function automatic integer canonical_word(input integer p);
+        canonical_word=INTERLEAVE_GROUPS ? (p%16)*CHIP_WORDS+p/16 : p;
+    endfunction
     reg clk=0;
 `ifdef STORAGE_USE_SDRAM
     always #10 clk=~clk; //50MHz host, opposite-phase SDRAM clock
@@ -225,7 +231,8 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0,PREF
     end
     always @(posedge clk)if(!reset)begin
         if(rv && rr)begin
-            trace_address=ra;trace_data=wd;trace_write=rw;
+            trace_address=(ADDR_BITS+4)'(canonical_word(int'(ra)));
+            trace_data=wd;trace_write=rw;
         end
         if(sv && sr && raw_trace_fd)
             $fwrite(raw_trace_fd,"%0d,%0d,%0h,%0h\n",host_cycles,trace_write,
@@ -242,7 +249,7 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0,PREF
     integer latency=0;
     reg [7:0] host_random=8'hb7;
     dorado_storage_arb #(.GROUPS(16),.GROUP_ADDR_BITS(ADDR_BITS),.RAW_ADDR_BITS(ADDR_BITS+4),
-        .PREFETCH_NEXT(PREFETCH_NEXT)) arb(
+        .PREFETCH_NEXT(PREFETCH_NEXT),.INTERLEAVE_GROUPS(INTERLEAVE_GROUPS)) arb(
         .clk(clk),.reset(reset),.req_valid(valid),.req_write(wr),.req_ready(accept),
         .req_addr(addresses),.req_data(wdata),.rsp_valid(response),.rsp_ready(response_ready),.rsp_data(rdata),
         .raw_req_valid(rv),.raw_req_ready(rr),.raw_req_write(rw),.raw_req_addr(ra),.raw_req_data(wd),
@@ -308,436 +315,436 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0,PREF
         memory_port.check_model();
 `endif
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b04.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+11])
+            if(original.u_b04.mem[a] !== backing[physical_word(0,a)/4][((physical_word(0,a)%4)*16)+11])
                 $fatal(1,"raw backing differs chip b04 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b05.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+10])
+            if(original.u_b05.mem[a] !== backing[physical_word(0,a)/4][((physical_word(0,a)%4)*16)+10])
                 $fatal(1,"raw backing differs chip b05 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c06.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+9])
+            if(original.u_c06.mem[a] !== backing[physical_word(0,a)/4][((physical_word(0,a)%4)*16)+9])
                 $fatal(1,"raw backing differs chip c06 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d04.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+8])
+            if(original.u_d04.mem[a] !== backing[physical_word(0,a)/4][((physical_word(0,a)%4)*16)+8])
                 $fatal(1,"raw backing differs chip d04 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d05.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_d05.mem[a] !== backing[physical_word(0,a)/4][((physical_word(0,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip d05 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e06.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_e06.mem[a] !== backing[physical_word(0,a)/4][((physical_word(0,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip e06 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f04.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_f04.mem[a] !== backing[physical_word(0,a)/4][((physical_word(0,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip f04 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f05.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_f05.mem[a] !== backing[physical_word(0,a)/4][((physical_word(0,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip f05 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g06.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_g06.mem[a] !== backing[physical_word(0,a)/4][((physical_word(0,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip g06 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h04.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_h04.mem[a] !== backing[physical_word(0,a)/4][((physical_word(0,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip h04 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h05.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h05.mem[a] !== backing[physical_word(0,a)/4][((physical_word(0,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h05 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i06.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i06.mem[a] !== backing[physical_word(0,a)/4][((physical_word(0,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i06 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b06.mem[a] !== backing[(1*CHIP_WORDS+a)/4][((a%4)*16)+11])
+            if(original.u_b06.mem[a] !== backing[physical_word(1,a)/4][((physical_word(1,a)%4)*16)+11])
                 $fatal(1,"raw backing differs chip b06 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c04.mem[a] !== backing[(1*CHIP_WORDS+a)/4][((a%4)*16)+10])
+            if(original.u_c04.mem[a] !== backing[physical_word(1,a)/4][((physical_word(1,a)%4)*16)+10])
                 $fatal(1,"raw backing differs chip c04 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c05.mem[a] !== backing[(1*CHIP_WORDS+a)/4][((a%4)*16)+9])
+            if(original.u_c05.mem[a] !== backing[physical_word(1,a)/4][((physical_word(1,a)%4)*16)+9])
                 $fatal(1,"raw backing differs chip c05 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d06.mem[a] !== backing[(1*CHIP_WORDS+a)/4][((a%4)*16)+8])
+            if(original.u_d06.mem[a] !== backing[physical_word(1,a)/4][((physical_word(1,a)%4)*16)+8])
                 $fatal(1,"raw backing differs chip d06 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e04.mem[a] !== backing[(1*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_e04.mem[a] !== backing[physical_word(1,a)/4][((physical_word(1,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip e04 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e05.mem[a] !== backing[(1*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_e05.mem[a] !== backing[physical_word(1,a)/4][((physical_word(1,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip e05 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f06.mem[a] !== backing[(1*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_f06.mem[a] !== backing[physical_word(1,a)/4][((physical_word(1,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip f06 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g04.mem[a] !== backing[(1*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_g04.mem[a] !== backing[physical_word(1,a)/4][((physical_word(1,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip g04 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g05.mem[a] !== backing[(1*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_g05.mem[a] !== backing[physical_word(1,a)/4][((physical_word(1,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip g05 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h06.mem[a] !== backing[(1*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_h06.mem[a] !== backing[physical_word(1,a)/4][((physical_word(1,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip h06 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i04.mem[a] !== backing[(1*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_i04.mem[a] !== backing[physical_word(1,a)/4][((physical_word(1,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip i04 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i05.mem[a] !== backing[(1*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i05.mem[a] !== backing[physical_word(1,a)/4][((physical_word(1,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i05 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b07.mem[a] !== backing[(2*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_b07.mem[a] !== backing[physical_word(2,a)/4][((physical_word(2,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip b07 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c08.mem[a] !== backing[(2*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_c08.mem[a] !== backing[physical_word(2,a)/4][((physical_word(2,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip c08 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d07.mem[a] !== backing[(2*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_d07.mem[a] !== backing[physical_word(2,a)/4][((physical_word(2,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip d07 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e08.mem[a] !== backing[(2*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_e08.mem[a] !== backing[physical_word(2,a)/4][((physical_word(2,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip e08 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f07.mem[a] !== backing[(2*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_f07.mem[a] !== backing[physical_word(2,a)/4][((physical_word(2,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip f07 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g08.mem[a] !== backing[(2*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_g08.mem[a] !== backing[physical_word(2,a)/4][((physical_word(2,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip g08 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h07.mem[a] !== backing[(2*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h07.mem[a] !== backing[physical_word(2,a)/4][((physical_word(2,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h07 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i08.mem[a] !== backing[(2*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i08.mem[a] !== backing[physical_word(2,a)/4][((physical_word(2,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i08 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b08.mem[a] !== backing[(3*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_b08.mem[a] !== backing[physical_word(3,a)/4][((physical_word(3,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip b08 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c07.mem[a] !== backing[(3*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_c07.mem[a] !== backing[physical_word(3,a)/4][((physical_word(3,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip c07 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d08.mem[a] !== backing[(3*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_d08.mem[a] !== backing[physical_word(3,a)/4][((physical_word(3,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip d08 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e07.mem[a] !== backing[(3*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_e07.mem[a] !== backing[physical_word(3,a)/4][((physical_word(3,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip e07 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f08.mem[a] !== backing[(3*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_f08.mem[a] !== backing[physical_word(3,a)/4][((physical_word(3,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip f08 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g07.mem[a] !== backing[(3*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_g07.mem[a] !== backing[physical_word(3,a)/4][((physical_word(3,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip g07 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h08.mem[a] !== backing[(3*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h08.mem[a] !== backing[physical_word(3,a)/4][((physical_word(3,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h08 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i07.mem[a] !== backing[(3*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i07.mem[a] !== backing[physical_word(3,a)/4][((physical_word(3,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i07 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b09.mem[a] !== backing[(4*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_b09.mem[a] !== backing[physical_word(4,a)/4][((physical_word(4,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip b09 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c10.mem[a] !== backing[(4*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_c10.mem[a] !== backing[physical_word(4,a)/4][((physical_word(4,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip c10 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d09.mem[a] !== backing[(4*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_d09.mem[a] !== backing[physical_word(4,a)/4][((physical_word(4,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip d09 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e10.mem[a] !== backing[(4*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_e10.mem[a] !== backing[physical_word(4,a)/4][((physical_word(4,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip e10 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f09.mem[a] !== backing[(4*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_f09.mem[a] !== backing[physical_word(4,a)/4][((physical_word(4,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip f09 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g10.mem[a] !== backing[(4*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_g10.mem[a] !== backing[physical_word(4,a)/4][((physical_word(4,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip g10 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h09.mem[a] !== backing[(4*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h09.mem[a] !== backing[physical_word(4,a)/4][((physical_word(4,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h09 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i10.mem[a] !== backing[(4*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i10.mem[a] !== backing[physical_word(4,a)/4][((physical_word(4,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i10 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b10.mem[a] !== backing[(5*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_b10.mem[a] !== backing[physical_word(5,a)/4][((physical_word(5,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip b10 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c09.mem[a] !== backing[(5*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_c09.mem[a] !== backing[physical_word(5,a)/4][((physical_word(5,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip c09 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d10.mem[a] !== backing[(5*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_d10.mem[a] !== backing[physical_word(5,a)/4][((physical_word(5,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip d10 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e09.mem[a] !== backing[(5*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_e09.mem[a] !== backing[physical_word(5,a)/4][((physical_word(5,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip e09 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f10.mem[a] !== backing[(5*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_f10.mem[a] !== backing[physical_word(5,a)/4][((physical_word(5,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip f10 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g09.mem[a] !== backing[(5*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_g09.mem[a] !== backing[physical_word(5,a)/4][((physical_word(5,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip g09 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h10.mem[a] !== backing[(5*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h10.mem[a] !== backing[physical_word(5,a)/4][((physical_word(5,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h10 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i09.mem[a] !== backing[(5*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i09.mem[a] !== backing[physical_word(5,a)/4][((physical_word(5,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i09 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b11.mem[a] !== backing[(6*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_b11.mem[a] !== backing[physical_word(6,a)/4][((physical_word(6,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip b11 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c12.mem[a] !== backing[(6*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_c12.mem[a] !== backing[physical_word(6,a)/4][((physical_word(6,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip c12 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d11.mem[a] !== backing[(6*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_d11.mem[a] !== backing[physical_word(6,a)/4][((physical_word(6,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip d11 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e12.mem[a] !== backing[(6*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_e12.mem[a] !== backing[physical_word(6,a)/4][((physical_word(6,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip e12 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f11.mem[a] !== backing[(6*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_f11.mem[a] !== backing[physical_word(6,a)/4][((physical_word(6,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip f11 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g12.mem[a] !== backing[(6*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_g12.mem[a] !== backing[physical_word(6,a)/4][((physical_word(6,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip g12 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h11.mem[a] !== backing[(6*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h11.mem[a] !== backing[physical_word(6,a)/4][((physical_word(6,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h11 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i12.mem[a] !== backing[(6*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i12.mem[a] !== backing[physical_word(6,a)/4][((physical_word(6,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i12 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b12.mem[a] !== backing[(7*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_b12.mem[a] !== backing[physical_word(7,a)/4][((physical_word(7,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip b12 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c11.mem[a] !== backing[(7*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_c11.mem[a] !== backing[physical_word(7,a)/4][((physical_word(7,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip c11 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d12.mem[a] !== backing[(7*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_d12.mem[a] !== backing[physical_word(7,a)/4][((physical_word(7,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip d12 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e11.mem[a] !== backing[(7*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_e11.mem[a] !== backing[physical_word(7,a)/4][((physical_word(7,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip e11 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f12.mem[a] !== backing[(7*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_f12.mem[a] !== backing[physical_word(7,a)/4][((physical_word(7,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip f12 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g11.mem[a] !== backing[(7*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_g11.mem[a] !== backing[physical_word(7,a)/4][((physical_word(7,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip g11 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h12.mem[a] !== backing[(7*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h12.mem[a] !== backing[physical_word(7,a)/4][((physical_word(7,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h12 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i11.mem[a] !== backing[(7*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i11.mem[a] !== backing[physical_word(7,a)/4][((physical_word(7,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i11 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b15.mem[a] !== backing[(8*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_b15.mem[a] !== backing[physical_word(8,a)/4][((physical_word(8,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip b15 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c16.mem[a] !== backing[(8*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_c16.mem[a] !== backing[physical_word(8,a)/4][((physical_word(8,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip c16 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d15.mem[a] !== backing[(8*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_d15.mem[a] !== backing[physical_word(8,a)/4][((physical_word(8,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip d15 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e16.mem[a] !== backing[(8*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_e16.mem[a] !== backing[physical_word(8,a)/4][((physical_word(8,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip e16 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f15.mem[a] !== backing[(8*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_f15.mem[a] !== backing[physical_word(8,a)/4][((physical_word(8,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip f15 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g16.mem[a] !== backing[(8*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_g16.mem[a] !== backing[physical_word(8,a)/4][((physical_word(8,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip g16 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h15.mem[a] !== backing[(8*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h15.mem[a] !== backing[physical_word(8,a)/4][((physical_word(8,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h15 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i16.mem[a] !== backing[(8*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i16.mem[a] !== backing[physical_word(8,a)/4][((physical_word(8,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i16 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b16.mem[a] !== backing[(9*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_b16.mem[a] !== backing[physical_word(9,a)/4][((physical_word(9,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip b16 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c15.mem[a] !== backing[(9*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_c15.mem[a] !== backing[physical_word(9,a)/4][((physical_word(9,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip c15 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d16.mem[a] !== backing[(9*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_d16.mem[a] !== backing[physical_word(9,a)/4][((physical_word(9,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip d16 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e15.mem[a] !== backing[(9*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_e15.mem[a] !== backing[physical_word(9,a)/4][((physical_word(9,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip e15 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f16.mem[a] !== backing[(9*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_f16.mem[a] !== backing[physical_word(9,a)/4][((physical_word(9,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip f16 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g15.mem[a] !== backing[(9*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_g15.mem[a] !== backing[physical_word(9,a)/4][((physical_word(9,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip g15 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h16.mem[a] !== backing[(9*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h16.mem[a] !== backing[physical_word(9,a)/4][((physical_word(9,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h16 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i15.mem[a] !== backing[(9*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i15.mem[a] !== backing[physical_word(9,a)/4][((physical_word(9,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i15 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b17.mem[a] !== backing[(10*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_b17.mem[a] !== backing[physical_word(10,a)/4][((physical_word(10,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip b17 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c18.mem[a] !== backing[(10*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_c18.mem[a] !== backing[physical_word(10,a)/4][((physical_word(10,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip c18 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d17.mem[a] !== backing[(10*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_d17.mem[a] !== backing[physical_word(10,a)/4][((physical_word(10,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip d17 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e18.mem[a] !== backing[(10*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_e18.mem[a] !== backing[physical_word(10,a)/4][((physical_word(10,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip e18 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f17.mem[a] !== backing[(10*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_f17.mem[a] !== backing[physical_word(10,a)/4][((physical_word(10,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip f17 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g18.mem[a] !== backing[(10*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_g18.mem[a] !== backing[physical_word(10,a)/4][((physical_word(10,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip g18 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h17.mem[a] !== backing[(10*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h17.mem[a] !== backing[physical_word(10,a)/4][((physical_word(10,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h17 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i18.mem[a] !== backing[(10*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i18.mem[a] !== backing[physical_word(10,a)/4][((physical_word(10,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i18 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b18.mem[a] !== backing[(11*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_b18.mem[a] !== backing[physical_word(11,a)/4][((physical_word(11,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip b18 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c17.mem[a] !== backing[(11*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_c17.mem[a] !== backing[physical_word(11,a)/4][((physical_word(11,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip c17 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d18.mem[a] !== backing[(11*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_d18.mem[a] !== backing[physical_word(11,a)/4][((physical_word(11,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip d18 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e17.mem[a] !== backing[(11*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_e17.mem[a] !== backing[physical_word(11,a)/4][((physical_word(11,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip e17 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f18.mem[a] !== backing[(11*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_f18.mem[a] !== backing[physical_word(11,a)/4][((physical_word(11,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip f18 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g17.mem[a] !== backing[(11*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_g17.mem[a] !== backing[physical_word(11,a)/4][((physical_word(11,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip g17 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h18.mem[a] !== backing[(11*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h18.mem[a] !== backing[physical_word(11,a)/4][((physical_word(11,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h18 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i17.mem[a] !== backing[(11*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i17.mem[a] !== backing[physical_word(11,a)/4][((physical_word(11,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i17 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b19.mem[a] !== backing[(12*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_b19.mem[a] !== backing[physical_word(12,a)/4][((physical_word(12,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip b19 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c20.mem[a] !== backing[(12*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_c20.mem[a] !== backing[physical_word(12,a)/4][((physical_word(12,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip c20 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d19.mem[a] !== backing[(12*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_d19.mem[a] !== backing[physical_word(12,a)/4][((physical_word(12,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip d19 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e20.mem[a] !== backing[(12*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_e20.mem[a] !== backing[physical_word(12,a)/4][((physical_word(12,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip e20 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f19.mem[a] !== backing[(12*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_f19.mem[a] !== backing[physical_word(12,a)/4][((physical_word(12,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip f19 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g20.mem[a] !== backing[(12*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_g20.mem[a] !== backing[physical_word(12,a)/4][((physical_word(12,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip g20 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h19.mem[a] !== backing[(12*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h19.mem[a] !== backing[physical_word(12,a)/4][((physical_word(12,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h19 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i20.mem[a] !== backing[(12*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i20.mem[a] !== backing[physical_word(12,a)/4][((physical_word(12,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i20 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b20.mem[a] !== backing[(13*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_b20.mem[a] !== backing[physical_word(13,a)/4][((physical_word(13,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip b20 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c19.mem[a] !== backing[(13*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_c19.mem[a] !== backing[physical_word(13,a)/4][((physical_word(13,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip c19 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d20.mem[a] !== backing[(13*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_d20.mem[a] !== backing[physical_word(13,a)/4][((physical_word(13,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip d20 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e19.mem[a] !== backing[(13*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_e19.mem[a] !== backing[physical_word(13,a)/4][((physical_word(13,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip e19 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f20.mem[a] !== backing[(13*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_f20.mem[a] !== backing[physical_word(13,a)/4][((physical_word(13,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip f20 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g19.mem[a] !== backing[(13*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_g19.mem[a] !== backing[physical_word(13,a)/4][((physical_word(13,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip g19 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h20.mem[a] !== backing[(13*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h20.mem[a] !== backing[physical_word(13,a)/4][((physical_word(13,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h20 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i19.mem[a] !== backing[(13*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i19.mem[a] !== backing[physical_word(13,a)/4][((physical_word(13,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i19 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b21.mem[a] !== backing[(14*CHIP_WORDS+a)/4][((a%4)*16)+11])
+            if(original.u_b21.mem[a] !== backing[physical_word(14,a)/4][((physical_word(14,a)%4)*16)+11])
                 $fatal(1,"raw backing differs chip b21 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c22.mem[a] !== backing[(14*CHIP_WORDS+a)/4][((a%4)*16)+10])
+            if(original.u_c22.mem[a] !== backing[physical_word(14,a)/4][((physical_word(14,a)%4)*16)+10])
                 $fatal(1,"raw backing differs chip c22 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c23.mem[a] !== backing[(14*CHIP_WORDS+a)/4][((a%4)*16)+9])
+            if(original.u_c23.mem[a] !== backing[physical_word(14,a)/4][((physical_word(14,a)%4)*16)+9])
                 $fatal(1,"raw backing differs chip c23 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d21.mem[a] !== backing[(14*CHIP_WORDS+a)/4][((a%4)*16)+8])
+            if(original.u_d21.mem[a] !== backing[physical_word(14,a)/4][((physical_word(14,a)%4)*16)+8])
                 $fatal(1,"raw backing differs chip d21 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e22.mem[a] !== backing[(14*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_e22.mem[a] !== backing[physical_word(14,a)/4][((physical_word(14,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip e22 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e23.mem[a] !== backing[(14*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_e23.mem[a] !== backing[physical_word(14,a)/4][((physical_word(14,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip e23 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f21.mem[a] !== backing[(14*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_f21.mem[a] !== backing[physical_word(14,a)/4][((physical_word(14,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip f21 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g22.mem[a] !== backing[(14*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_g22.mem[a] !== backing[physical_word(14,a)/4][((physical_word(14,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip g22 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g23.mem[a] !== backing[(14*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_g23.mem[a] !== backing[physical_word(14,a)/4][((physical_word(14,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip g23 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h21.mem[a] !== backing[(14*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_h21.mem[a] !== backing[physical_word(14,a)/4][((physical_word(14,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip h21 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i22.mem[a] !== backing[(14*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_i22.mem[a] !== backing[physical_word(14,a)/4][((physical_word(14,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip i22 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i23.mem[a] !== backing[(14*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i23.mem[a] !== backing[physical_word(14,a)/4][((physical_word(14,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i23 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b22.mem[a] !== backing[(15*CHIP_WORDS+a)/4][((a%4)*16)+11])
+            if(original.u_b22.mem[a] !== backing[physical_word(15,a)/4][((physical_word(15,a)%4)*16)+11])
                 $fatal(1,"raw backing differs chip b22 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_b23.mem[a] !== backing[(15*CHIP_WORDS+a)/4][((a%4)*16)+10])
+            if(original.u_b23.mem[a] !== backing[physical_word(15,a)/4][((physical_word(15,a)%4)*16)+10])
                 $fatal(1,"raw backing differs chip b23 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_c21.mem[a] !== backing[(15*CHIP_WORDS+a)/4][((a%4)*16)+9])
+            if(original.u_c21.mem[a] !== backing[physical_word(15,a)/4][((physical_word(15,a)%4)*16)+9])
                 $fatal(1,"raw backing differs chip c21 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d22.mem[a] !== backing[(15*CHIP_WORDS+a)/4][((a%4)*16)+8])
+            if(original.u_d22.mem[a] !== backing[physical_word(15,a)/4][((physical_word(15,a)%4)*16)+8])
                 $fatal(1,"raw backing differs chip d22 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_d23.mem[a] !== backing[(15*CHIP_WORDS+a)/4][((a%4)*16)+7])
+            if(original.u_d23.mem[a] !== backing[physical_word(15,a)/4][((physical_word(15,a)%4)*16)+7])
                 $fatal(1,"raw backing differs chip d23 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_e21.mem[a] !== backing[(15*CHIP_WORDS+a)/4][((a%4)*16)+6])
+            if(original.u_e21.mem[a] !== backing[physical_word(15,a)/4][((physical_word(15,a)%4)*16)+6])
                 $fatal(1,"raw backing differs chip e21 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f22.mem[a] !== backing[(15*CHIP_WORDS+a)/4][((a%4)*16)+5])
+            if(original.u_f22.mem[a] !== backing[physical_word(15,a)/4][((physical_word(15,a)%4)*16)+5])
                 $fatal(1,"raw backing differs chip f22 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_f23.mem[a] !== backing[(15*CHIP_WORDS+a)/4][((a%4)*16)+4])
+            if(original.u_f23.mem[a] !== backing[physical_word(15,a)/4][((physical_word(15,a)%4)*16)+4])
                 $fatal(1,"raw backing differs chip f23 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_g21.mem[a] !== backing[(15*CHIP_WORDS+a)/4][((a%4)*16)+3])
+            if(original.u_g21.mem[a] !== backing[physical_word(15,a)/4][((physical_word(15,a)%4)*16)+3])
                 $fatal(1,"raw backing differs chip g21 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h22.mem[a] !== backing[(15*CHIP_WORDS+a)/4][((a%4)*16)+2])
+            if(original.u_h22.mem[a] !== backing[physical_word(15,a)/4][((physical_word(15,a)%4)*16)+2])
                 $fatal(1,"raw backing differs chip h22 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_h23.mem[a] !== backing[(15*CHIP_WORDS+a)/4][((a%4)*16)+1])
+            if(original.u_h23.mem[a] !== backing[physical_word(15,a)/4][((physical_word(15,a)%4)*16)+1])
                 $fatal(1,"raw backing differs chip h23 address %d",a);
         for(integer a=0;a<CHIP_WORDS;a++)
-            if(original.u_i21.mem[a] !== backing[(15*CHIP_WORDS+a)/4][((a%4)*16)+0])
+            if(original.u_i21.mem[a] !== backing[physical_word(15,a)/4][((physical_word(15,a)%4)*16)+0])
                 $fatal(1,"raw backing differs chip i21 address %d",a);
         for(integer a=0;a<4*CHIP_WORDS;a++)stored_ones+=$countones(backing[a]);
         $display("Stored one bits: %d",stored_ones);
@@ -751,10 +758,10 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0,PREF
                 for(integer lane=0;lane<4;lane++)
                     if(backing[a][lane*16+:16]!=0)
                         $fwrite(raw_trace_fd,"%0d,2,%0h,%0h\n",host_cycles,
-                            a*4+lane,backing[a][lane*16+:16]);
+                            canonical_word(a*4+lane),backing[a][lane*16+:16]);
             $fwrite(raw_trace_fd,"%0d,3,%0h,0\n",host_cycles,16*CHIP_WORDS);
         end
-        $display("STORAGE-BOARD PASS: %d complete-board cycles, %d backing reads, %d writes, %d output transitions, all %0d stored bits identical, prefetch=%0d host_cycles=%0d",steps,reads,writes,output_changes,144*CHIP_WORDS,PREFETCH_NEXT,host_cycles);
+        $display("STORAGE-BOARD PASS: %d complete-board cycles, %d backing reads, %d writes, %d output transitions, all %0d stored bits identical, prefetch=%0d host_cycles=%0d interleave=%0d",steps,reads,writes,output_changes,144*CHIP_WORDS,PREFETCH_NEXT,host_cycles,INTERLEAVE_GROUPS);
         $finish;
     end
     initial begin #100000000;$fatal(1,"board test timeout");end

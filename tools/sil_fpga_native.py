@@ -71,6 +71,17 @@ def prefetch_wrapper(wrapper):
         '.RAW_ADDR_BITS(RAW_BITS),.PREFETCH_NEXT(1)) u_arb(')
 
 
+def interleave_wrapper(wrapper):
+    """Opt into a physical backing permutation; chip-local ports stay intact."""
+    choices = ('.RAW_ADDR_BITS(RAW_BITS)) u_arb(',
+               '.RAW_ADDR_BITS(RAW_BITS),.PREFETCH_NEXT(1)) u_arb(')
+    matches = [s for s in choices if s in wrapper]
+    if len(matches) != 1 or wrapper.count(matches[0]) != 1:
+        raise ValueError('Expected one supported raw storage arbiter')
+    marker = matches[0]
+    return wrapper.replace(marker, marker.replace(') u_arb(', ',.INTERLEAVE_GROUPS(1)) u_arb('))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-o', '--output', type=Path, required=True)
@@ -83,6 +94,8 @@ def main():
                         help='raw storage backend; SDRAM requires the128MB MiSTer module')
     parser.add_argument('--storage-prefetch', action='store_true',
                         help='select a pending raw request on response completion (experimental)')
+    parser.add_argument('--storage-interleave', action='store_true',
+                        help='interleave raw chip groups in backing rows/lines (experimental)')
     parser.add_argument('--receive-monitor', action='store_true', help='passive DskEth receive-status observation')
     parser.add_argument('--instruction-monitor', action='store_true',
                         help='expose passive original ContA instruction-progress signals')
@@ -338,6 +351,8 @@ endmodule
         wrapper = sdram_wrapper(wrapper)
     if args.storage_prefetch:
         wrapper = prefetch_wrapper(wrapper)
+    if args.storage_interleave:
+        wrapper = interleave_wrapper(wrapper)
     (out/'dorado_native_machine.sv').write_text(wrapper)
     sources = [str(out/n) for n in ['dorado_native_backplane.v', 'BaseBd_nominal.v',
                                    'msa_ddram.v', 'ContA_monitor.v', 'DispY_field.v',
@@ -373,6 +388,9 @@ endmodule
     manifest['storage_backend'] = args.storage_backend
     if args.storage_prefetch:
         manifest['storage_prefetch'] = True
+    if args.storage_interleave:
+        manifest['storage_interleave'] = True
+        manifest['raw_layout'] = 'group-interleaved-v1'
     if args.instruction_monitor:
         manifest['instruction_monitor'] = True
     if args.storage_backend == 'sdram':

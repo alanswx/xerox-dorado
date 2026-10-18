@@ -1,0 +1,48 @@
+{
+  "ddr": {
+    "default_byte_identical_files": 12,
+    "interleave": [
+      {
+        "prefetch": false,
+        "changed": [
+          "manifest.json",
+          "dorado_native_machine.sv"
+        ],
+        "lint": "PASS",
+        "wrapper_sha256": "7a28f48d3fe94949a42ee08789ead9079949dd314e272832771dfa46f0c4ca2e"
+      },
+      {
+        "prefetch": true,
+        "changed": [
+          "manifest.json",
+          "dorado_native_machine.sv"
+        ],
+        "lint": "PASS",
+        "wrapper_sha256": "ad5bfd4a566781c72084a0d6d081089ae3a9782be68aa08426fb8d2b3ab7db5a"
+      }
+    ]
+  },
+  "sdram": {
+    "default_byte_identical_files": 12,
+    "interleave": [
+      {
+        "prefetch": false,
+        "changed": [
+          "manifest.json",
+          "dorado_native_machine.sv"
+        ],
+        "lint": "PASS",
+        "wrapper_sha256": "8186500b69db95e4ea997bf26d0f4f2da18648f4e2c5430da43501ffe8b393e8"
+      },
+      {
+        "prefetch": true,
+        "changed": [
+          "manifest.json",
+          "dorado_native_machine.sv"
+        ],
+        "lint": "PASS",
+        "wrapper_sha256": "105ba35769087f5e973cbe160a39adee8bd128979c938cf1fc66f6ce7be2cf68"
+      }
+    ]
+  }
+}

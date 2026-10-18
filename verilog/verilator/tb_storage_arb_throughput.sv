@@ -4,7 +4,7 @@
 `timescale 1ns/1ps
 `default_nettype none
 module storage_arb_stream #(
-    parameter integer GROUPS=3,PREFETCH_NEXT=0,PER_GROUP=32
+    parameter integer GROUPS=3,PREFETCH_NEXT=0,PER_GROUP=32,INTERLEAVE_GROUPS=0
 )(input wire clk,reset,output reg finished=0,
   output integer host_cycles=0,output integer received=0);
     localparam A=8,R=24;
@@ -27,7 +27,7 @@ module storage_arb_stream #(
     wire raw_ready=!busy;
     wire raw_response=busy && delay_count==0;
     dorado_storage_arb #(.GROUPS(GROUPS),.GROUP_ADDR_BITS(A),.RAW_ADDR_BITS(R),
-        .PREFETCH_NEXT(PREFETCH_NEXT)) d(
+        .PREFETCH_NEXT(PREFETCH_NEXT),.INTERLEAVE_GROUPS(INTERLEAVE_GROUPS)) d(
         .clk(clk),.reset(reset),.req_valid(valid),.req_write(wr),.req_ready(accepted),
         .req_addr(addr),.req_data(data),.rsp_valid(response),.rsp_ready({GROUPS{1'b1}}),.rsp_data(replies),
         .raw_req_valid(raw_valid),.raw_req_write(raw_wr),.raw_req_ready(raw_ready),
@@ -38,6 +38,13 @@ module storage_arb_stream #(
     reg [GROUPS-1:0] only_owner;
     reg [R-1:0] expected_address;
     reg [15:0] expected_data;
+    function automatic [R-1:0] golden_address(input integer g,s);
+        integer row;
+        begin
+            row=(s*7+g)%256;
+            golden_address=R'(INTERLEAVE_GROUPS ? row*(2**$clog2(GROUPS))+g : g*256+row);
+        end
+    endfunction
     always @(posedge clk)begin
         if(reset)begin
             host_cycles<=0;received<=0;sent<=0;busy<=0;finished<=0;
@@ -48,7 +55,7 @@ module storage_arb_stream #(
                 if(accepted[g] && valid[g])sequence_number[g]<=sequence_number[g]+1;
             if(raw_valid && raw_ready)begin
                 expected_owner=sent%GROUPS;expected_sequence=sent/GROUPS;
-                expected_address=(R'(expected_owner)<<A)|R'((expected_sequence*7+expected_owner)&((1<<A)-1));
+                expected_address=golden_address(expected_owner,expected_sequence);
                 expected_data=16'(16'h9000+expected_owner*32+expected_sequence);
                 only_owner='0;only_owner[expected_owner]=1;
                 if(raw_addr!==expected_address || raw_data!==expected_data ||
@@ -59,7 +66,7 @@ module storage_arb_stream #(
             end else if(busy && delay_count!=0)delay_count<=delay_count-1'b1;
             else if(raw_response && raw_accept_response)begin
                 expected_owner=received%GROUPS;expected_sequence=received/GROUPS;
-                expected_address=(R'(expected_owner)<<A)|R'((expected_sequence*7+expected_owner)&((1<<A)-1));
+                expected_address=golden_address(expected_owner,expected_sequence);
                 expected_data=16'(16'h9000+expected_owner*32+expected_sequence);
                 only_owner='0;only_owner[expected_owner]=1;
                 if(response!==only_owner || replies[expected_owner*16+:16]!==
@@ -74,14 +81,14 @@ module storage_arb_stream #(
         end
     end
 endmodule
-module tb_storage_arb_throughput #(parameter integer GROUPS=3);
+module tb_storage_arb_throughput #(parameter integer GROUPS=3,INTERLEAVE_GROUPS=0);
     reg clk=0;always #1 clk=~clk;
     reg reset=1;
     wire baseline_done,prefetch_done;
     wire [31:0] baseline_cycles,prefetch_cycles,baseline_received,prefetch_received;
-    storage_arb_stream #(.GROUPS(GROUPS),.PREFETCH_NEXT(0)) baseline(
+    storage_arb_stream #(.GROUPS(GROUPS),.PREFETCH_NEXT(0),.INTERLEAVE_GROUPS(INTERLEAVE_GROUPS)) baseline(
         .clk(clk),.reset(reset),.finished(baseline_done),.host_cycles(baseline_cycles),.received(baseline_received));
-    storage_arb_stream #(.GROUPS(GROUPS),.PREFETCH_NEXT(1)) prefetch(
+    storage_arb_stream #(.GROUPS(GROUPS),.PREFETCH_NEXT(1),.INTERLEAVE_GROUPS(INTERLEAVE_GROUPS)) prefetch(
         .clk(clk),.reset(reset),.finished(prefetch_done),.host_cycles(prefetch_cycles),.received(prefetch_received));
     initial begin
         repeat(3)@(negedge clk);reset=0;
@@ -91,8 +98,8 @@ module tb_storage_arb_throughput #(parameter integer GROUPS=3);
         if(baseline_cycles-prefetch_cycles!=GROUPS*32-1)
             $fatal(1,"expected one saved bubble per waiting successor: cycles=%0d/%0d",
                 baseline_cycles,prefetch_cycles);
-        $display("STORAGE-ARB-THROUGHPUT PASS groups=%0d requests=%0d baseline_cycles=%0d prefetch_cycles=%0d saved=%0d; synthetic fixed-latency backend, NOT FPGA throughput",
-            GROUPS,baseline_received,baseline_cycles,prefetch_cycles,baseline_cycles-prefetch_cycles);
+        $display("STORAGE-ARB-THROUGHPUT PASS groups=%0d requests=%0d baseline_cycles=%0d prefetch_cycles=%0d saved=%0d interleave=%0d; synthetic fixed-latency backend, NOT FPGA throughput",
+            GROUPS,baseline_received,baseline_cycles,prefetch_cycles,baseline_cycles-prefetch_cycles,INTERLEAVE_GROUPS);
         $finish;
     end
     initial begin #1000000;$fatal(1,"stream deadline");end

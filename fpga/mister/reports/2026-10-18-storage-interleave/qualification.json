@@ -1,0 +1,22 @@
+{
+  "status": "Simulation/default compatibility/native-wrapper lint/all-device Native44 timing PASS; NOT hardware-qualified or deployed",
+  "change": "Optional physical group/word backing permutation only, defaultOFF. Target retains Native43 response-boundary selection, one outstanding round robin, same raw capacity, original chip pipeline/guest cache/map/ECC, clocks and timing exceptions. No SDRAM burst/read buffer added.",
+  "raw_layout": "group-interleaved-v1 (opt-in manifest marker); fresh cold initialization required; legacy group-major raw dumps must not be decoded as this layout",
+  "arbiter": "16 G1/3/7/128 x successorOFF/ON x layoutOFF/ON cases PASS: independent integer cyclic-scan/packing/payload golden, arbitrary request/response stalls, late requests,48 total reset cases. Four prescribed stream cases retain exact1 bubble saving per successor in either layout. Owner-bit alias mutation fails independent raw-address golden. Native-sized128-group/16-bit-address/23-bit-raw case also PASS,8384 operations with changing high address bits and3 reset cases (51 resets total).",
+  "arrays": "1505 logical chip cycles, all data/output bits equal, three non-power-of-two groups, reset with in-flight read drains. Uncached4449reads/463writes;128-line cache522reads/463writes (old group-major fixture509 reads: layout is not a universal hit-rate improvement).",
+  "full_board": "SDRAM50MHz matched same flags/stimulus: both12012 cycles/3008reads/7872writes/1111 outputs, all9437184 stored bits equal. Host cycles144461->122779,15.009% fewer, synthetic only. Every10880 canonical transaction/order/reply and1499 nonzero final physical-model words identical across actual layouts.",
+  "ddr": "Interleaved128-line cache full MSA passes16K- and64K-chip variants: all2359296 /9437184 bits identical,1484/1500 physical reads,7872 writes,1111 outputs. No hardware/cache speed claim.",
+  "generator": "Default12 files byte-identical toc83d2261 for DDR andSDRAM; opt-in changes only manifest/wrapper. Both backends, with/without successor selection, native full-wrapper lint PASS.",
+  "negative_control": "Raw owner-bit alias rejected. Prior locality discarded-write/corrupt-read controls remain archived in storage-locality.",
+  "build": "Native44 fit29706ALMs/330M10Ks. All31 summary checks and36 categories across4 supported device conditions including SDRAM input/output PASS,min+0.099ns,zero illegal/unconstrained internal clocks,no new exceptions. Reports ../2026-10-18-native44. RBF e433d74655c66555889b1ea2502d8694ff76b2f6549f24d2d6f7302baa0d60db.",
+  "limits": "No FPGA speedup shown. Live core remains Native41b. Qualify same-frequency DDR42, SDRAM43 and this layout separately with pinned workloads and fresh original firmware, actual input/persistence and all-device timing before promotion.",
+  "source_sha256": {
+    "fpga/mister/dorado_storage_arb.sv": "750e623b4a2bf59fee9718fa98d1ac77ddde55e19b4e90df22d3e047a6fdd743",
+    "tools/sil_fpga_native.py": "44e0568ebf6996f4e9dceb3c4142b5720dcfefbc56f14fb836ffbad8c9420d6c",
+    "verilog/verilator/Makefile": "48068ace0b5dd49883a6cbcb01ffc32ecea42ca45faf063a26b202e3ecd659be",
+    "verilog/verilator/tb_storage_arb.sv": "4a2493d17273312ada660d160efeba1a4017f24667ae1c9279d67f5c16a17a84",
+    "verilog/verilator/tb_storage_arb_throughput.sv": "a7070bc61ce4816e731e2f958d562cd8bf26775a43cadfd8ad457468429b05b9",
+    "verilog/verilator/tb_storage_array.sv": "21ae1228cf1b37862218da1200dbba9289125a00d16cdefebc133a45f3b996bd",
+    "verilog/verilator/tb_storage_board.sv": "1efa907275a87ee040e15945898600387c44da7a1249856bb1e304d1acf97789"
+  }
+}

@@ -9,8 +9,8 @@ qualify M10K placement and instruction measurement; move bulk RAM to SDRAM;
 reduce memory-request overhead; make ARM disk work nonblocking/coherent;
 connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
-External Xerox-network tunnelling is optional follow-up. Next: qualify the
-live Native41b SDRAM cold boot and compare with39/42, using the tested
+External Xerox-network tunnelling is optional follow-up. Next: finish the
+live Native41b cold-remount persistence gate and compare with39/42, using the tested
 quiet+BSP-history daemon. Native39b's idle-login issue/wait baseline is measured.
 User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
@@ -34,17 +34,61 @@ finished, and the fixed server serves Cedar6.1/Top/Basic.Loadees at~18:39UTC.
 All34 base loadees loaded; the profile question was answered with one `n`
 at~18:46UTC, and HDMI confirms No. BootEssentials passed PrintTV.df and
 PrintTVImpl without repair and later AMTypes/Interpreter/Viewers/Watch.
-BootEssentials completed; TiogaFonts completed at~19:00 and PressFonts /
-FontMetrics follow at19:01. Actual HDMI advances through font names even
-when the server log is quiet: much of this work is local FS attachment.
-Main/server still13741/13734; good1734/dropped80/CRC0/RX0/abort0 at19:01.
-Next: finish fonts/Viewers, then mouse/exact keyboard/file close/remount. No guest
+All fonts and STARTs completed; **Viewers/Ready./CommandTool/Clock/Watch/EditTool
+are up from this fresh unassisted boot.** Real +100,+80 mouse moves, Cmd click
+opens a second CommandTool and body focus works. Actual0.1s-down/up keyboard
+commands `echo rtl41bok` and `echo abcdefghijklmnopqrstuvwxyz0123456789` show
+both exact replies and return to `%`. Initial immediate screenshots preceded
+deferred input dispatch while optional startup work ran; the later screenshot
+proves both commands/output without retyping. Do not equate helper exit with
+guest completion. Created/closed `///rtl41bpersist.txt` through ordinary
+`echo rtl41bpersist20261018 > ...`; `type` reads the exact marker and returns
+to prompt. **Cold remount remains pending.** Preserve the guest-mutated pack.
+No guest
 state import or ARM cursor repair in this run. Main's known FB enable/disable
 workaround restored HDMI; the earlier firmware raster was uninitialized noise.
 Main remains the sole SPI owner. Preserve this fresh baseline for qualification
 before the matched DDR42 and optimized43 comparisons.
 Exact deployment/assertions/restart config and captures: native41b reports;
 local launch helpers in `build/rtl-executive/cedar41b-launch/`.
+
+At19:24 a real STOP! click was requested in the first CommandTool; remaining
+startup command files continued, so this is not proof of all streams closed.
+That tool still runs optional CedarChest installs; the second is idle after
+the marker read. All keys/buttons UP, no active input/GDB helper. Main/server
+remain13741/13734; good2659/dropped128/CRC0/RX0/abort0, no pack fault at19:29.
+Before host reload, allow normal guest cleanup. `BootTool.mesa BootCommand`
+with no args checks SomethingWorthSaving then calls Booting.Boot[self];
+`File/BootingImpl.mesa` calls registered booting procs (which may flush) before
+germ inload. A normal `boot` from the second tool is a candidate clean-remount
+test; inspect rejection or actual guest reboot, then log in and read the marker.
+Do not patch guest CPU/RAM/IOCBs or mistake a cache read for cold persistence.
+Full current input evidence: native41b/input-qualification.json and screenshots.
+
+**Native44 group-interleaving candidate: simulation AND all-device timing PASS,
+not deployed.** Optional INTERLEAVE_GROUPS=1 remaps only raw backing addresses,
+leaving original chip-local ports and pipeline/cache/map/ECC intact. Default
+OFF; generator marks `group-interleaved-v1` in opt-in manifests. Native43's
+successor selection stays enabled,50MHz/SYSPER4/no raw line cache. 16 arbiter
+matrix cases plus native128-group/16-bit-address/23-bit-raw case pass independent
+integer packing/order/payload/stall/late-arrival checks and51 reset cases;
+owner-bit alias control fails. DDR three-group arrays/reset and full MSA16K/
+64K-chip cached cases pass; the small random array gets522 reads versus509
+before, so interleaving is not a universal cache improvement. Independent
+physical XSDS full MSA: all9437184 bits/12012 logical cycles/3008 reads/7872
+writes/1111 outputs match; host cycles144461->122779 (15.009% fewer, synthetic).
+All10880 canonical operations/order/replies and1499 final nonzero words are
+identical across actual layouts. Default12 generated files remain byte-identical
+toc83d2261 for DDR/SDRAM; all four option/backend wrapper lint cases pass.
+Fit29706ALMs/330M10Ks. All31 summary checks and36 all-device categories,
+including SDRAM input/output, pass min+0.099ns;0 illegal/unconstrained internal
+clocks, no added timing cuts. Only expected wrapper/manifest/arbiter/qsf-path
+input hashes differ from43; architectural boards/clock constraints identical.
+RBF SHA `e433d74655c66555889b1ea2502d8694ff76b2f6549f24d2d6f7302baa0d60db`,
+local `build/rtl-executive/native44-candidate/Dorado.rbf`. Quartus/all-corner
+jobs95449/5420 are completed, do not restart. Reports native44/storage-interleave.
+No FPGA speed claim yet. Preserve DDR42 and successor43 comparisons before
+loading44; old group-major raw dumps cannot be interpreted as this new layout.
 
 **Further raw-memory locality evidence (offline only).** Optional
 `+raw_trace=PATH` in tb_storage_board records completed raw operations plus
@@ -987,11 +1031,13 @@ and has unreviewed hold violations; never deploy it.
 - [x] Stage/deploy identical-RBF Native41b from untouched seed with tested e237dffc daemon; preserve old41 pack/logs after repeated old-server ACK race.
 - [x] Native41b original firmware/BFN113/login and actual Guest input; C watcher completed/released; three idle issue windows reproduce1.5957M/s.
 - [x] Native41b all34 loadees/profile No; pass original PrintTV stall point with fixed daemon and no cursor/guest repair.
-- [ ] Finish41b BootEssentials/fonts/Viewers, actual desktop interaction and disk close/remount; no profile input remains pending.
+- [x] Native41b full unassisted Viewers/mouse/Cmd/focus/exact short+alphabet+digit echo; local marker created/closed/read back.
+- [ ] Cold-remount41b's closed `///rtl41bpersist.txt`, expected `rtl41bpersist20261018`; clean optional startup work before host core reload.
 - [x] Optional response-boundary raw arbitration and generator: independent order/payload/reset/stall fixtures, full MSA equivalence and Native43 all-device timing pass.
 - [ ] Deploy43 and measure repeatable end-to-end gain against41; synthetic6.406% fewer host edges is not an FPGA throughput claim.
 - [x] Collect passive full-MSA raw trace/final physical-state oracle; replay layout/cache/row locality with discarded-write/corrupt-read failure controls.
-- [ ] After42/43 measurements, evaluate optional raw group/word interleaving; prove mapping/storage/read-before-write/ECC/reset equivalence and real Cedar locality before timing/hardware qualification.
+- [x] Implement default-OFF raw group interleaving; canonical transaction/physical-state/full-board/reset/packing checks, default generator compatibility and Native44 all-device timing pass.
+- [ ] Qualify42/43/44 actual pinned FPGA issue/latency/traffic and fresh boot/input/persistence; no speed claim from synthetic row/cache results alone.
 - [ ] Fix recurring initially black HDMI after core load in Main; framebuffer toggle is a workaround, parser patch is a separate defect.
 - [ ] Deploy/qualify instruction diagnostics, including maintenance/reset/task switching, and measure actual issue rates with external waits separately.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.

@@ -1,0 +1,38 @@
+{
+  "core": "Native41b,50MHz/SYSPER4,SDRAM8MiB guest/16MiB padded raw, no raw line buffer",
+  "rbf_sha256": "a97af93667bf20b2f9bebb0959dc67a4710895f6416e91987242e7486a1f9297",
+  "main_sha256": "1fb2e098e6f0dba64b2ad8f13964e8a6ecef553bab72039ee24e53cb9619e8d2",
+  "server_sha256": "e237dffc8dfcb446b51d417a8cbb63bcf52812a861b75f16c4454bdaffda6f94",
+  "scope": "Fresh original-firmware/CoolBoot/BFN113/Guest/profileNo/all34loadees/BootEssentials/fonts/Viewers; NO guest state import or ARM cursor repair. HDMI required documented Main-only FB toggle.",
+  "viewers": true,
+  "mouse": "Real +100,+80 moves visible. Cmd click opens second CommandTool, body focus works.",
+  "keyboard": {
+    "down_seconds": 0.1,
+    "up_seconds": 0.1,
+    "commands": [
+      "echo rtl41bok\n",
+      "echo abcdefghijklmnopqrstuvwxyz0123456789\n"
+    ],
+    "observed_exact": [
+      "rtl41bok",
+      "abcdefghijklmnopqrstuvwxyz0123456789"
+    ],
+    "returned_to_prompt": true,
+    "verification": "Visual actual HDMI; no OCR gate. Initial immediate captures preceded deferred dispatch while startup imports ran; later input-check screenshot proves both exact commands and replies. No retyping/injection."
+  },
+  "disk": {
+    "created_and_closed": "///rtl41bpersist.txt",
+    "expected": "rtl41bpersist20261018",
+    "immediate_read": "PASS exact via type command and returned prompt",
+    "cold_remount": "PENDING. Preserve this guest-mutated pack; stop optional startup file work before any reload."
+  },
+  "counters_191957_utc": {
+    "good": 2356,
+    "dropped": 120,
+    "crc_bad": 0,
+    "rx_bad": 0,
+    "aborted": 0,
+    "pack_fault": false
+  },
+  "limits": "One fresh boot; not three-boot/sustained/final speed acceptance. Main disk worker and snapshots not integrated. Native42 control/43 successor/44 interleave hardware comparisons still pending."
+}

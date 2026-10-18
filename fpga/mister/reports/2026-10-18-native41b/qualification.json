@@ -1,5 +1,5 @@
 {
-  "hardware": "Original firmware/BFN113/login/Guest/all34 Basic loadees/profile No/BootEssentials PASS with fixed e237dffc daemon and no state repair. Passed both old PrintTV/AMTypes stalls; TiogaFonts completed~19:00UTC and PressFonts/FontMetrics follow19:01. Full Viewers/input/persistence remain pending.",
+  "hardware": "PASS one fresh original-firmware/CoolBoot/BFN113 Cedar Viewers boot with required128MB SDRAM and fixed e237dffc server. Real Cmd/mouse/focus and exact short/alphabet/digits echo PASS at0.1s down/up. Local marker created/closed/read back exactly; COLD REMOUNT PENDING. No guest-state import or ARM cursor repair. Main FB toggle needed for HDMI.",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,
@@ -174,5 +174,6 @@
   "idle_issue_measurement": "Three10s windows in one boot:1595829.38/1595659.65/1595627.74 issues/s; mean1595705.59,9.574% original nominal rate. Not drained retirement; not three cold boots.",
   "current_debug_view": "instruction view1: machine=issued, cpu=host edges; neither is a CPU PC",
   "input": "C watcher complete and C released; Guest helper complete, all keys up, no active input or GDB helper.",
-  "latest_counters": "19:01UTC good1734/dropped80/CRC0/RX0/abort0, no pack fault; debug instruction1 remains issues/host edges."
+  "latest_counters": "19:01UTC good1734/dropped80/CRC0/RX0/abort0, no pack fault; debug instruction1 remains issues/host edges.",
+  "input_report": "input-qualification.json"
 }

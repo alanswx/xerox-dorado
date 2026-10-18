@@ -1,8 +1,9 @@
 // Independent cyclic-scan scoreboard for the balanced request/payload tree.
 `timescale 1ns/1ps
 `default_nettype none
-module tb_storage_arb #(parameter integer GROUPS=128,PREFETCH_NEXT=0);
-    localparam A=8,R=24;
+module tb_storage_arb #(parameter integer GROUPS=128,PREFETCH_NEXT=0,INTERLEAVE_GROUPS=0,
+    GROUP_ADDR_BITS=8,RAW_ADDR_BITS=24);
+    localparam A=GROUP_ADDR_BITS,R=RAW_ADDR_BITS;
     reg clk=0;always #1 clk=~clk;
     reg reset=1;
     reg [GROUPS-1:0] valid=0,wr=0,accept_response=0;
@@ -16,7 +17,7 @@ module tb_storage_arb #(parameter integer GROUPS=128,PREFETCH_NEXT=0);
     wire [15:0] raw_data;
     reg [15:0] reply_data=0;
     dorado_storage_arb #(.GROUPS(GROUPS),.GROUP_ADDR_BITS(A),.RAW_ADDR_BITS(R),
-        .PREFETCH_NEXT(PREFETCH_NEXT)) d(
+        .PREFETCH_NEXT(PREFETCH_NEXT),.INTERLEAVE_GROUPS(INTERLEAVE_GROUPS)) d(
         .clk(clk),.reset(reset),.req_valid(valid),.req_write(wr),.req_ready(accepted),
         .req_addr(addr),.req_data(data),.rsp_valid(response),.rsp_ready(accept_response),.rsp_data(replies),
         .raw_req_valid(raw_valid),.raw_req_write(raw_wr),.raw_req_ready(raw_ready),
@@ -51,7 +52,9 @@ module tb_storage_arb #(parameter integer GROUPS=128,PREFETCH_NEXT=0);
             while(valid!='0)begin
                 owner=expected_owner(valid,next_owner);
                 only_owner='0;only_owner[owner]=1;
-                expected_address=(R'(owner)<<A)|addr[owner*A+:A];
+                expected_address=INTERLEAVE_GROUPS ?
+                    R'(int'(addr[owner*A+:A])*(2**$clog2(GROUPS))+owner) :
+                    R'(owner*(2**A)+int'(addr[owner*A+:A]));
                 expected_data=data[owner*16+:16];expected_write=wr[owner];
                 wait(raw_valid);
                 // Request and ownership must survive an arbitrarily stalled
@@ -169,8 +172,8 @@ module tb_storage_arb #(parameter integer GROUPS=128,PREFETCH_NEXT=0);
         for(integer stage=0;stage<3;stage++)cancel_at_reset(stage);
         if(transactions<GROUPS || request_stalls<transactions || response_stalls<transactions)
             $fatal(1,"insufficient arbitration coverage");
-        $display("STORAGE-ARB PASS groups=%0d prefetch=%0d masks=%0d transactions=%0d request_stalls=%0d response_stalls=%0d resets=%0d host_cycles=%0d",
-            GROUPS,PREFETCH_NEXT,masks,transactions,request_stalls,response_stalls,reset_cases,host_cycles);
+        $display("STORAGE-ARB PASS groups=%0d prefetch=%0d masks=%0d transactions=%0d request_stalls=%0d response_stalls=%0d resets=%0d host_cycles=%0d interleave=%0d",
+            GROUPS,PREFETCH_NEXT,masks,transactions,request_stalls,response_stalls,reset_cases,host_cycles,INTERLEAVE_GROUPS);
         $finish;
     end
     initial begin #10000000;$fatal(1,"arbiter timeout G=%0d",GROUPS);end

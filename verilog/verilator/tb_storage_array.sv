@@ -1,7 +1,7 @@
 // Three groups exercise non-power-of-two arbitration and DDR byte lanes.
 // Every logical output and final stored bit is compared to the old chips.
 `timescale 1ns/1ps
-module tb_storage_array #(parameter integer LINE_CACHE_BITS=0,PREFETCH_NEXT=0);
+module tb_storage_array #(parameter integer LINE_CACHE_BITS=0,PREFETCH_NEXT=0,INTERLEAVE_GROUPS=0);
     localparam G=3,W=12,A=6;
     reg clk=0;always #1 clk=~clk;
     reg run=0,reset=0;
@@ -45,7 +45,7 @@ module tb_storage_array #(parameter integer LINE_CACHE_BITS=0,PREFETCH_NEXT=0);
         end
     end
     dorado_storage_arb #(.GROUPS(G),.GROUP_ADDR_BITS(A),.RAW_ADDR_BITS(8),
-        .PREFETCH_NEXT(PREFETCH_NEXT)) arb(
+        .PREFETCH_NEXT(PREFETCH_NEXT),.INTERLEAVE_GROUPS(INTERLEAVE_GROUPS)) arb(
         .clk(clk),.reset(reset),.req_valid(valid),.req_write(wr),.req_ready(accept),
         .req_addr(addresses),.req_data(wdata),.rsp_valid(response),.rsp_ready(response_ready),.rsp_data(rdata),
         .raw_req_valid(rv),.raw_req_ready(rr),.raw_req_write(rw),.raw_req_addr(ra),.raw_req_data(wd),
@@ -81,11 +81,14 @@ module tb_storage_array #(parameter integer LINE_CACHE_BITS=0,PREFETCH_NEXT=0);
     endtask
     reg finished=0;
     integer verified=0;
+    function automatic integer physical_word(input integer g,a);
+        physical_word=INTERLEAVE_GROUPS ? a*4+g : g*64+a;
+    endfunction
     for(genvar g=0;g<G;g++)for(genvar b=0;b<W;b++)begin:check_bit
         initial begin
             wait(finished);
             for(integer a=0;a<64;a++)
-                if(group[g].chip[b].c.mem[a] !== backing[(g*64+a)/4][((g*64+a)%4)*16+b])
+                if(group[g].chip[b].c.mem[a] !== backing[physical_word(g,a)/4][(physical_word(g,a)%4)*16+b])
                     $fatal(1,"backing differs group %d bit %d addr %d",g,b,a);
             verified++;
         end
@@ -109,7 +112,7 @@ module tb_storage_array #(parameter integer LINE_CACHE_BITS=0,PREFETCH_NEXT=0);
         finished=1;wait(verified==G*W);
         if(reads<(LINE_CACHE_BITS>0 ? 100 : 1000) || writes<100)
             $fatal(1,"test did not exercise enough memory operations: reads=%0d writes=%0d",reads,writes);
-        $display("STORAGE-ARRAY PASS: %d chip cycles, %d DDR reads, %d writes, three isolated groups, reset drain, prefetch=%0d host_cycles=%0d",steps,reads,writes,PREFETCH_NEXT,host_cycles);
+        $display("STORAGE-ARRAY PASS: %d chip cycles, %d DDR reads, %d writes, three isolated groups, reset drain, prefetch=%0d host_cycles=%0d interleave=%0d",steps,reads,writes,PREFETCH_NEXT,host_cycles,INTERLEAVE_GROUPS);
         $finish;
     end
     initial begin repeat(300000)tick();$fatal(1,"timeout state %d ready %b",arb.state,ready);end
