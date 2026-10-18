@@ -1,7 +1,7 @@
 // Complete MSA board equivalence: original chips versus external backing.
 // Only the raw bit arrays move; every serial/ECC output is compared each cycle.
 `timescale 1ns/1ps
-module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0,PREFETCH_NEXT=0);
     localparam integer CHIP_WORDS=1<<ADDR_BITS;
     reg clk=0;
 `ifdef STORAGE_USE_SDRAM
@@ -13,6 +13,8 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
     wire machine_clk=clk && run;
     reg [31:0] random_state=32'h73e91d4b;
     integer steps=0,reads=0,writes=0,output_changes=0,stored_ones=0;
+    integer host_cycles=0;
+    always @(posedge clk)host_cycles<=host_cycles+1;
     reg [2:0] phase=0;
     reg [63:0] stimulus=0;
     wire CLK_ms0Even_p_=steps[1];
@@ -217,7 +219,8 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
     reg [63:0] backing[0:4*CHIP_WORDS-1];
     integer latency=0;
     reg [7:0] host_random=8'hb7;
-    dorado_storage_arb #(.GROUPS(16),.GROUP_ADDR_BITS(ADDR_BITS),.RAW_ADDR_BITS(ADDR_BITS+4)) arb(
+    dorado_storage_arb #(.GROUPS(16),.GROUP_ADDR_BITS(ADDR_BITS),.RAW_ADDR_BITS(ADDR_BITS+4),
+        .PREFETCH_NEXT(PREFETCH_NEXT)) arb(
         .clk(clk),.reset(reset),.req_valid(valid),.req_write(wr),.req_ready(accept),
         .req_addr(addresses),.req_data(wdata),.rsp_valid(response),.rsp_ready(response_ready),.rsp_data(rdata),
         .raw_req_valid(rv),.raw_req_ready(rr),.raw_req_write(rw),.raw_req_addr(ra),.raw_req_data(wd),
@@ -717,7 +720,7 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
         for(integer a=0;a<4*CHIP_WORDS;a++)stored_ones+=$countones(backing[a]);
         $display("Stored one bits: %d",stored_ones);
         if(writes<100 || output_changes<100 || stored_ones<100)$fatal(1,"insufficient board activity: writes=%0d output_changes=%0d reads=%0d",writes,output_changes,reads);
-        $display("STORAGE-BOARD PASS: %d complete-board cycles, %d backing reads, %d writes, %d output transitions, all %0d stored bits identical",steps,reads,writes,output_changes,144*CHIP_WORDS);
+        $display("STORAGE-BOARD PASS: %d complete-board cycles, %d backing reads, %d writes, %d output transitions, all %0d stored bits identical, prefetch=%0d host_cycles=%0d",steps,reads,writes,output_changes,144*CHIP_WORDS,PREFETCH_NEXT,host_cycles);
         $finish;
     end
     initial begin #100000000;$fatal(1,"board test timeout");end

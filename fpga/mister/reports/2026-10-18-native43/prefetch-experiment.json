@@ -1,0 +1,16 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native41_20261018",
+  "change": "Raw arbiter response-boundary successor selection only; one outstanding operation, round robin, same address/data/ECC layout and original chip pipeline",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "raw_line_cache_entries": 0,
+  "extra_timing_exceptions": "None",
+  "source_hashes": {
+    "src/fpga/mister/dorado_storage_arb.sv": "0d99745fefdf0f3ea5c40fc5c6cc0c23201b73bd92a09967133cd1c03b59ac6c",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "b2d4610c5e26d222fddfe17bcece2ead8422ffc7ccca88d5c8786e214be4f8bb",
+    "src/build/rtl-executive/native16-tx-cable/manifest.json": "dc94122d161bb62d9e85ae3d18a6134fc1eaae71e4ff2d10cc659e8132bc1125",
+    "core/Dorado.qsf": "277af97a872cad3c7c789548f5dbd6b01874980d1c104ba8fd567aaa298dd52b",
+    "core/native_timing.sdc": "df62acc5c1e4029eb441b28de904eadfe2f9d00a2d82ba61586b6571afccbec2",
+    "core/sdram_timing.sdc": "1cae21e428cdec86783954a3df75e777b514dceda5ff681fde148decb5695a38"
+  }
+}

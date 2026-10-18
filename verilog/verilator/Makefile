@@ -1296,19 +1296,30 @@ storage-group-test:
 		verilog/verilator/tb_storage_group.sv \
 		>/dev/null && ./verilog/verilator/obj_storage_group/storage-group-test
 
-.PHONY: storage-arb-test
-storage-arb-test:
-	@for groups in 1 3 7 128; do \
+.PHONY: storage-arb-test storage-arb-throughput-test
+storage-arb-test: storage-arb-throughput-test
+	@for groups in 1 3 7 128; do for prefetch in 0 1; do \
 		cd ../.. && $(V) --binary --top-module tb_storage_arb $(V_WARN) -Wno-TIMESCALEMOD \
-		-GGROUPS=$$groups --Mdir verilog/verilator/obj_storage_arb_$$groups -o arb-test \
+		-GGROUPS=$$groups -GPREFETCH_NEXT=$$prefetch \
+		--Mdir verilog/verilator/obj_storage_arb_$${groups}_$$prefetch -o arb-test \
 		fpga/mister/dorado_storage_arb.sv verilog/verilator/tb_storage_arb.sv >/dev/null && \
-		./verilog/verilator/obj_storage_arb_$$groups/arb-test || exit $$?; \
+		./verilog/verilator/obj_storage_arb_$${groups}_$$prefetch/arb-test || exit $$?; \
+		cd verilog/verilator; \
+	done; done
+
+storage-arb-throughput-test:
+	@for groups in 3 128; do \
+		cd ../.. && $(V) --binary --top-module tb_storage_arb_throughput $(V_WARN) -Wno-TIMESCALEMOD \
+		-GGROUPS=$$groups --Mdir verilog/verilator/obj_storage_arb_throughput_$$groups -o throughput-test \
+		fpga/mister/dorado_storage_arb.sv verilog/verilator/tb_storage_arb_throughput.sv >/dev/null && \
+		./verilog/verilator/obj_storage_arb_throughput_$$groups/throughput-test || exit $$?; \
 		cd verilog/verilator; \
 	done
 
+STORAGE_PREFETCH_NEXT ?= 0
 .PHONY: storage-array-test
 storage-array-test:
-	@cd ../.. && $(V) --binary --top-module tb_storage_array $(V_WARN) \
+	@cd ../.. && $(V) --binary --top-module tb_storage_array -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) $(V_WARN) \
 		--Mdir verilog/verilator/obj_storage_array -o storage-array-test \
 		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
 		fpga/mister/dorado_storage_arb.sv verilog/cells/cell_MK4096P_6.v \
@@ -1317,7 +1328,7 @@ storage-array-test:
 
 .PHONY: storage-board-test
 storage-linecache-array-test:
-	@cd ../.. && $(V) --binary --top-module tb_storage_array -GLINE_CACHE_BITS=7 $(V_WARN) \
+	@cd ../.. && $(V) --binary --top-module tb_storage_array -GLINE_CACHE_BITS=7 -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) $(V_WARN) \
 		--Mdir verilog/verilator/obj_storage_linecache_array -o array-test \
 		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
 		fpga/mister/dorado_storage_arb.sv verilog/cells/cell_MK4096P_6.v \
@@ -1330,7 +1341,7 @@ storage-linecache-board-test:
 		cd ../.. && python3 tools/sil_storage_ddram.py --chip-address-bits $$bits \
 		-o verilog/verilator/obj_storage_linecache_board$$bits/msa_ddram.v \
 		--reference-output verilog/verilator/obj_storage_linecache_board$$bits/msa.v && \
-		$(V) --binary --top-module tb_storage_board -GADDR_BITS=$$bits -GLINE_CACHE_BITS=7 $(V_WARN) \
+		$(V) --binary --top-module tb_storage_board -GADDR_BITS=$$bits -GLINE_CACHE_BITS=7 -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_storage_linecache_board$$bits -o board-test \
 		verilog/verilator/obj_storage_linecache_board$$bits/msa_ddram.v \
 		verilog/verilator/obj_storage_linecache_board$$bits/msa.v \
@@ -1343,7 +1354,7 @@ storage-linecache-board-test:
 storage-board-test:
 	@cd ../.. && python3 tools/sil_storage_ddram.py \
 		-o verilog/verilator/obj_storage_board/msa_ddram.v && \
-		$(V) --binary --top-module tb_storage_board $(V_WARN) \
+		$(V) --binary --top-module tb_storage_board -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_storage_board -o storage-board-test \
 		verilog/verilator/obj_storage_board/msa_ddram.v verilog/generated/msa.v \
 		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
@@ -1371,7 +1382,7 @@ storage-board64-test:
 	@cd ../.. && python3 tools/sil_storage_ddram.py --chip-address-bits 16 \
 		-o verilog/verilator/obj_storage_board64/msa_ddram.v \
 		--reference-output verilog/verilator/obj_storage_board64/msa.v
-	@cd ../.. && $(V) --binary --top-module tb_storage_board -GADDR_BITS=16 $(V_WARN) \
+	@cd ../.. && $(V) --binary --top-module tb_storage_board -GADDR_BITS=16 -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_storage_board64 -o storage-board-test \
 		verilog/verilator/obj_storage_board64/msa_ddram.v verilog/verilator/obj_storage_board64/msa.v \
 		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
@@ -1760,7 +1771,7 @@ storage-sdram-board-test:
 	@cd ../.. && python3 tools/sil_storage_ddram.py --chip-address-bits 16 \
 		-o verilog/verilator/obj_storage_sdram_board/msa_ddram.v \
 		--reference-output verilog/verilator/obj_storage_sdram_board/msa.v
-	@cd ../.. && $(V) --binary --top-module tb_storage_board -GADDR_BITS=16 $(V_WARN) \
+	@cd ../.. && $(V) --binary --top-module tb_storage_board -GADDR_BITS=16 -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) $(V_WARN) \
 		-DSTORAGE_USE_SDRAM -Wno-TIMESCALEMOD -Wno-WIDTHTRUNC -Wno-WIDTHEXPAND -Wno-REALCVT \
 		-Iverilog/cells --Mdir verilog/verilator/obj_storage_sdram_board -o board-test \
 		verilog/verilator/obj_storage_sdram_board/msa_ddram.v \

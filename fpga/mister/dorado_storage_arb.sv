@@ -4,7 +4,10 @@
 module dorado_storage_arb #(
     parameter integer GROUPS=128,
     parameter integer GROUP_ADDR_BITS=14,
-    parameter integer RAW_ADDR_BITS=24
+    parameter integer RAW_ADDR_BITS=24,
+    // Select the next waiting group on response consumption. This removes
+    // the otherwise empty IDLE cycle; the raw port remains single-outstanding.
+    parameter integer PREFETCH_NEXT=0
 ) (
     input wire clk,reset,
     input wire [GROUPS-1:0] req_valid,req_write,
@@ -33,7 +36,8 @@ module dorado_storage_arb #(
     // requester if necessary. Carry its payload through the SAME balanced
     // tree. The old variable-index scan selected an owner, then ran a second
     // large address/data mux; Native29's measured path into address_latched
-    // is22.7ns. This changes neither arbitration order nor handshake cycles.
+    // is22.7ns. The optional response-boundary selection below uses this
+    // same tree, with the next pointer prepared at request acceptance.
     localparam LEAVES=1<<ID_BITS;
     localparam PAYLOAD=ID_BITS+GROUP_ADDR_BITS+17;
     wire [2*LEAVES-1:1] present,preferred;
@@ -89,14 +93,25 @@ module dorado_storage_arb #(
             data_latched<=chosen_data;write_latched<=chosen_write;
             state<=REQUEST;
         end
-        REQUEST: if(raw_req_ready)state<=RESPONSE;
+        REQUEST: if(raw_req_ready)begin
+            state<=RESPONSE;
+            // Prepare the next round-robin origin before response arrival,
+            // avoiding a new owner+1 adder in the request-selection path.
+            if(PREFETCH_NEXT)next_group<=owner==GROUPS-1 ? 0 : owner+1'b1;
+        end
         RESPONSE: if(raw_rsp_valid && rsp_ready[owner])begin
-            next_group<=owner==GROUPS-1 ? 0 : owner+1'b1;state<=IDLE;
+            next_group<=owner==GROUPS-1 ? 0 : owner+1'b1;
+            if(PREFETCH_NEXT && present[1])begin
+                owner<=chosen_owner;address_latched<=chosen_address;
+                data_latched<=chosen_data;write_latched<=chosen_write;
+                state<=REQUEST;
+            end else state<=IDLE;
         end
         endcase
     end
     // synthesis translate_off
-    initial if(GROUPS<1 || GROUPS>1024 || GROUP_ADDR_BITS+ID_BITS>RAW_ADDR_BITS)
+    initial if(GROUPS<1 || GROUPS>1024 || GROUP_ADDR_BITS+ID_BITS>RAW_ADDR_BITS ||
+               (PREFETCH_NEXT!=0 && PREFETCH_NEXT!=1))
         $fatal(1,"storage groups exceed raw memory window");
     // synthesis translate_on
 endmodule

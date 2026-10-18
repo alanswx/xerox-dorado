@@ -62,6 +62,15 @@ def sdram_wrapper(wrapper):
     return wrapper
 
 
+def prefetch_wrapper(wrapper):
+    """Enable response-boundary selection without regenerating a frozen board."""
+    marker = '.RAW_ADDR_BITS(RAW_BITS)) u_arb('
+    if wrapper.count(marker) != 1:
+        raise ValueError('Expected one raw storage arbiter in native wrapper')
+    return wrapper.replace(marker,
+        '.RAW_ADDR_BITS(RAW_BITS),.PREFETCH_NEXT(1)) u_arb(')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-o', '--output', type=Path, required=True)
@@ -72,6 +81,8 @@ def main():
                         help='optional raw DDR line buffer index bits; 0 disables (default)')
     parser.add_argument('--storage-backend', choices=('ddr', 'sdram'), default='ddr',
                         help='raw storage backend; SDRAM requires the128MB MiSTer module')
+    parser.add_argument('--storage-prefetch', action='store_true',
+                        help='select a pending raw request on response completion (experimental)')
     parser.add_argument('--receive-monitor', action='store_true', help='passive DskEth receive-status observation')
     parser.add_argument('--instruction-monitor', action='store_true',
                         help='expose passive original ContA instruction-progress signals')
@@ -325,6 +336,8 @@ endmodule
             '    output wire [31:0] baseboard_debug,processor_debug,')
     if args.storage_backend == 'sdram':
         wrapper = sdram_wrapper(wrapper)
+    if args.storage_prefetch:
+        wrapper = prefetch_wrapper(wrapper)
     (out/'dorado_native_machine.sv').write_text(wrapper)
     sources = [str(out/n) for n in ['dorado_native_backplane.v', 'BaseBd_nominal.v',
                                    'msa_ddram.v', 'ContA_monitor.v', 'DispY_field.v',
@@ -358,6 +371,8 @@ endmodule
         'display_field': True, 'control_clock_monitor': True,
         'hps_pack': True, 'ethernet_wire': True, 'ethernet_host_port': True}
     manifest['storage_backend'] = args.storage_backend
+    if args.storage_prefetch:
+        manifest['storage_prefetch'] = True
     if args.instruction_monitor:
         manifest['instruction_monitor'] = True
     if args.storage_backend == 'sdram':

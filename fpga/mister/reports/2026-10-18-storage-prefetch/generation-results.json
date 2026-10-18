@@ -1,0 +1,20 @@
+{
+  "ddr": {
+    "default_byte_identical_files": 12,
+    "opt_in_changed_files": [
+      "manifest.json",
+      "dorado_native_machine.sv"
+    ],
+    "native_wrapper_lint": "PASS",
+    "wrapper_sha256": "d4002ace17b4c5e27f996a220ecd8b4742f713bfbf46843f6beabb8e83443e24"
+  },
+  "sdram": {
+    "default_byte_identical_files": 12,
+    "opt_in_changed_files": [
+      "manifest.json",
+      "dorado_native_machine.sv"
+    ],
+    "native_wrapper_lint": "PASS",
+    "wrapper_sha256": "226f32ab4c09198047af9432c0f828287a8c6e44c7bc61074f341b443ef58491"
+  }
+}

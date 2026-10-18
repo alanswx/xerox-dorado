@@ -1,7 +1,7 @@
 // Independent cyclic-scan scoreboard for the balanced request/payload tree.
 `timescale 1ns/1ps
 `default_nettype none
-module tb_storage_arb #(parameter integer GROUPS=128);
+module tb_storage_arb #(parameter integer GROUPS=128,PREFETCH_NEXT=0);
     localparam A=8,R=24;
     reg clk=0;always #1 clk=~clk;
     reg reset=1;
@@ -15,13 +15,16 @@ module tb_storage_arb #(parameter integer GROUPS=128);
     wire [R-1:0] raw_addr;
     wire [15:0] raw_data;
     reg [15:0] reply_data=0;
-    dorado_storage_arb #(.GROUPS(GROUPS),.GROUP_ADDR_BITS(A),.RAW_ADDR_BITS(R)) d(
+    dorado_storage_arb #(.GROUPS(GROUPS),.GROUP_ADDR_BITS(A),.RAW_ADDR_BITS(R),
+        .PREFETCH_NEXT(PREFETCH_NEXT)) d(
         .clk(clk),.reset(reset),.req_valid(valid),.req_write(wr),.req_ready(accepted),
         .req_addr(addr),.req_data(data),.rsp_valid(response),.rsp_ready(accept_response),.rsp_data(replies),
         .raw_req_valid(raw_valid),.raw_req_write(raw_wr),.raw_req_ready(raw_ready),
         .raw_req_addr(raw_addr),.raw_req_data(raw_data),.raw_rsp_valid(raw_response),
         .raw_rsp_ready(raw_accept_response),.raw_rsp_data(reply_data));
     integer next_owner=0,transactions=0,masks=0,request_stalls=0,response_stalls=0;
+    integer host_cycles=0,reset_cases=0;
+    always @(posedge clk)host_cycles<=host_cycles+1;
     reg [31:0] random_state=32'h7be91d43;
     task tick;@(negedge clk);endtask
     // Behavioral golden: walk from the remembered next pointer, modulo G.
@@ -36,14 +39,15 @@ module tb_storage_arb #(parameter integer GROUPS=128);
             end
         end
     endfunction
-    task serve(input [GROUPS-1:0] mask);
+    task serve(input [GROUPS-1:0] mask,input [GROUPS-1:0] late_mask='0);
         integer owner;
         reg [R-1:0] expected_address;
         reg [15:0] expected_data;
         reg expected_write;
         reg [GROUPS-1:0] only_owner;
+        reg [GROUPS-1:0] late_pending;
         begin
-            valid=mask;masks++;
+            valid=mask;late_pending=late_mask;masks++;
             while(valid!='0)begin
                 owner=expected_owner(valid,next_owner);
                 only_owner='0;only_owner[owner]=1;
@@ -65,6 +69,10 @@ module tb_storage_arb #(parameter integer GROUPS=128);
                 // Only the accepted producer may change its payload now.
                 addr[owner*A+:A]=~addr[owner*A+:A];data[owner*16+:16]=~data[owner*16+:16];
                 wr[owner]=~wr[owner];
+                // New producers, including the previous owner, may offer
+                // requests while this response is outstanding. The golden
+                // cyclic scan must still start AFTER the completed owner.
+                valid=valid|late_pending;late_pending='0;
                 reply_data=16'(transactions^16'h8a51);
                 repeat(1+(transactions%3))begin
                     tick();
@@ -86,7 +94,39 @@ module tb_storage_arb #(parameter integer GROUPS=128);
             if(raw_valid || accepted!='0 || response!='0)$fatal(1,"empty queue generated traffic");
         end
     endtask
-    reg [GROUPS-1:0] mask,prime;
+    task cancel_at_reset(input integer stage);
+        reg [GROUPS-1:0] one;
+        begin
+            one='0;one[GROUPS-1]=1;serve(one);
+            one='0;one[0]=1;
+            valid='1;raw_ready=0;raw_response=0;accept_response=0;
+            wait(raw_valid);
+            tick(); // drive acceptance before a full following rising edge
+            if(stage>0)begin
+                raw_ready=1;tick();raw_ready=0;valid[0]=0;
+                raw_response=1;
+                if(stage>1)begin
+                    // Consume the response with another group pending;
+                    // the optimized implementation has selected its next
+                    // request, but reset must cancel that selection too.
+                    accept_response=one;#0.1;
+                    if(!raw_accept_response)$fatal(1,"reset case did not consume its response");
+                    tick();accept_response=0;
+                    if(PREFETCH_NEXT && GROUPS>1 && !raw_valid)
+                        $fatal(1,"pending successor did not avoid idle bubble");
+                end
+            end
+            reset=1;#0.1;
+            if(raw_valid || raw_accept_response || accepted!='0 || response!='0)
+                $fatal(1,"traffic escaped reset stage=%0d",stage);
+            repeat(2)tick();valid=0;raw_response=0;reset=0;next_owner=0;
+            repeat(2)tick();
+            if(raw_valid || accepted!='0 || response!='0)$fatal(1,"stale request after reset");
+            reset_cases++;
+            serve(one);
+        end
+    endtask
+    reg [GROUPS-1:0] mask,prime,late_mask;
     initial begin
         repeat(3)tick();reset=0;
         for(integer group=0;group<GROUPS;group++)begin
@@ -113,10 +153,24 @@ module tb_storage_arb #(parameter integer GROUPS=128);
                 serve(mask);
             end
         end
+        // Force an origin of1, select the last group, then introduce both
+        // 0 and1 while its response is pending. A stale selection origin
+        // incorrectly chooses1; the independent golden requires0 first.
+        if(GROUPS>2)begin
+            prime='0;prime[0]=1;serve(prime);
+            mask='0;mask[GROUPS-1]=1;
+            late_mask='0;late_mask[0]=1;late_mask[GROUPS>1 ? 1 : 0]=1;
+            serve(mask,late_mask);
+        end
+        // Re-offer the accepted producer with new payload while waiting.
+        mask='0;mask[GROUPS-1]=1;
+        late_mask='0;late_mask[0]=1;late_mask[GROUPS-1]=1;
+        serve(mask,late_mask);
+        for(integer stage=0;stage<3;stage++)cancel_at_reset(stage);
         if(transactions<GROUPS || request_stalls<transactions || response_stalls<transactions)
             $fatal(1,"insufficient arbitration coverage");
-        $display("STORAGE-ARB PASS groups=%0d masks=%0d transactions=%0d request_stalls=%0d response_stalls=%0d",
-            GROUPS,masks,transactions,request_stalls,response_stalls);
+        $display("STORAGE-ARB PASS groups=%0d prefetch=%0d masks=%0d transactions=%0d request_stalls=%0d response_stalls=%0d resets=%0d host_cycles=%0d",
+            GROUPS,PREFETCH_NEXT,masks,transactions,request_stalls,response_stalls,reset_cases,host_cycles);
         $finish;
     end
     initial begin #10000000;$fatal(1,"arbiter timeout G=%0d",GROUPS);end

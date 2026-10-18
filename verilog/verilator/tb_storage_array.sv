@@ -1,7 +1,7 @@
 // Three groups exercise non-power-of-two arbitration and DDR byte lanes.
 // Every logical output and final stored bit is compared to the old chips.
 `timescale 1ns/1ps
-module tb_storage_array #(parameter integer LINE_CACHE_BITS=0);
+module tb_storage_array #(parameter integer LINE_CACHE_BITS=0,PREFETCH_NEXT=0);
     localparam G=3,W=12,A=6;
     reg clk=0;always #1 clk=~clk;
     reg run=0,reset=0;
@@ -24,6 +24,8 @@ module tb_storage_array #(parameter integer LINE_CACHE_BITS=0);
     reg [63:0] dout=0,saved_read=0;
     reg [63:0] backing[0:63];
     integer latency=0,reads=0,writes=0,steps=0;
+    integer host_cycles=0;
+    always @(posedge clk)host_cycles<=host_cycles+1;
     reg [31:0] random_state=32'h6ca4138f;
     reg [7:0] host_random=8'hb7;
     always @(posedge machine_clk)addr<=next_addr;
@@ -42,7 +44,8 @@ module tb_storage_array #(parameter integer LINE_CACHE_BITS=0);
             initial for(integer a=0;a<16384;a++)c.mem[a]=0;
         end
     end
-    dorado_storage_arb #(.GROUPS(G),.GROUP_ADDR_BITS(A),.RAW_ADDR_BITS(8)) arb(
+    dorado_storage_arb #(.GROUPS(G),.GROUP_ADDR_BITS(A),.RAW_ADDR_BITS(8),
+        .PREFETCH_NEXT(PREFETCH_NEXT)) arb(
         .clk(clk),.reset(reset),.req_valid(valid),.req_write(wr),.req_ready(accept),
         .req_addr(addresses),.req_data(wdata),.rsp_valid(response),.rsp_ready(response_ready),.rsp_data(rdata),
         .raw_req_valid(rv),.raw_req_ready(rr),.raw_req_write(rw),.raw_req_addr(ra),.raw_req_data(wd),
@@ -106,7 +109,7 @@ module tb_storage_array #(parameter integer LINE_CACHE_BITS=0);
         finished=1;wait(verified==G*W);
         if(reads<(LINE_CACHE_BITS>0 ? 100 : 1000) || writes<100)
             $fatal(1,"test did not exercise enough memory operations: reads=%0d writes=%0d",reads,writes);
-        $display("STORAGE-ARRAY PASS: %d chip cycles, %d DDR reads, %d writes, three isolated groups, reset drain",steps,reads,writes);
+        $display("STORAGE-ARRAY PASS: %d chip cycles, %d DDR reads, %d writes, three isolated groups, reset drain, prefetch=%0d host_cycles=%0d",steps,reads,writes,PREFETCH_NEXT,host_cycles);
         $finish;
     end
     initial begin repeat(300000)tick();$fatal(1,"timeout state %d ready %b",arb.state,ready);end

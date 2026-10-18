@@ -1,0 +1,101 @@
+{
+  "status": "Isolated simulation and Native43 all-device FPGA timing PASS; not hardware-qualified or deployed",
+  "change": "Optional raw-arbiter successor selection on response consumption; single outstanding, unchanged storage layout/cache/map/ECC/chip pipeline; defaultOFF",
+  "arbiter_cases": [
+    {
+      "groups": 1,
+      "prefetch": 0,
+      "masks": 11,
+      "transactions": 11,
+      "request_stalls": 26,
+      "response_stalls": 33,
+      "resets": 3,
+      "host_cycles": 145
+    },
+    {
+      "groups": 1,
+      "prefetch": 1,
+      "masks": 11,
+      "transactions": 11,
+      "request_stalls": 26,
+      "response_stalls": 33,
+      "resets": 3,
+      "host_cycles": 145
+    },
+    {
+      "groups": 3,
+      "prefetch": 0,
+      "masks": 57,
+      "transactions": 73,
+      "request_stalls": 181,
+      "response_stalls": 219,
+      "resets": 3,
+      "host_cycles": 826
+    },
+    {
+      "groups": 3,
+      "prefetch": 1,
+      "masks": 57,
+      "transactions": 73,
+      "request_stalls": 181,
+      "response_stalls": 219,
+      "resets": 3,
+      "host_cycles": 826
+    },
+    {
+      "groups": 7,
+      "prefetch": 0,
+      "masks": 1801,
+      "transactions": 4045,
+      "request_stalls": 10111,
+      "response_stalls": 12135,
+      "resets": 3,
+      "host_cycles": 42048
+    },
+    {
+      "groups": 7,
+      "prefetch": 1,
+      "masks": 1801,
+      "transactions": 4045,
+      "request_stalls": 10111,
+      "response_stalls": 12135,
+      "resets": 3,
+      "host_cycles": 42048
+    },
+    {
+      "groups": 128,
+      "prefetch": 0,
+      "masks": 265,
+      "transactions": 8384,
+      "request_stalls": 20960,
+      "response_stalls": 25152,
+      "resets": 3,
+      "host_cycles": 80198
+    },
+    {
+      "groups": 128,
+      "prefetch": 1,
+      "masks": 265,
+      "transactions": 8384,
+      "request_stalls": 20960,
+      "response_stalls": 25152,
+      "resets": 3,
+      "host_cycles": 80198
+    }
+  ],
+  "fixed_backend": "G3:96 requests,480->385 cycles; G128:4096 requests,20480->16385 cycles. Independent prescribed payload/response-order checks; exactly one bubble per pending successor. NOT FPGA throughput.",
+  "full_board": "SDRAM50MHz, matched compiler flags:12012 machine cycles,3008 reads,7872 writes,1111 output changes,all9437184 bits equal to original chips in both modes. Baseline154349->candidate144461 host edges;6.406% reduction, synthetic board fixture only.",
+  "arrays": "Three groups,1505 chip cycles,reset drain and all stored bits match. No cache4449reads/463writes;128-line cache509reads/463writes.",
+  "negative_controls": "Stale round-robin origin fails new late-arrival order check. Disabling successor selection fails fixed-backend bubble-saving check480/480.",
+  "generator": "Both DDR/SDRAM default12 generated files byte-identical toffd7e70f. Opt-in changes only manifest/wrapper and both full native wrappers lint.",
+  "timing": "Native43: all31 summary checks and36 path categories across4 operating conditions including SDRAM I/O PASS, min+0.117ns,0 illegal/unconstrained internal clocks; no new cuts. Reports ../2026-10-18-native43. Initial staging failure and verified pre-map resume retained.",
+  "limits": "No FPGA or whole-system speedup demonstrated by this candidate. Board inputs and stored state compared at machine boundaries; measured physical host cycles are synthetic. Native41 full Cedar/input/persistence and Native42 matched control still pending.",
+  "source_sha256": {
+    "fpga/mister/dorado_storage_arb.sv": "0d99745fefdf0f3ea5c40fc5c6cc0c23201b73bd92a09967133cd1c03b59ac6c",
+    "tools/sil_fpga_native.py": "fbfac424b8469aea496c06efa231d867fc15d240b4f0c6a502c802ed0ea32a82",
+    "verilog/verilator/tb_storage_arb.sv": "549a7bd5c723cedec543efcf465cdd14c15548f6c983e9fe06a0b38e426b2d15",
+    "verilog/verilator/tb_storage_arb_throughput.sv": "9aa7cacd91c8e7f05fda8363a1b56c8d1de594f1a1cf65895d042f4ef0db77bc",
+    "verilog/verilator/tb_storage_array.sv": "a729389750a6379b8958bc8b46d4435cc704730e11d28da3e05248059d581dd9",
+    "verilog/verilator/tb_storage_board.sv": "f788935ff52d9978d45ce1a62a12812ac13a3100a9052123a07cecc61a1c24b9"
+  }
+}
