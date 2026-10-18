@@ -1,9 +1,12 @@
 # Dorado frame mailbox v1
 
-Implementation status: C ring endpoint and standalone RTL engine pass unit
-interoperability tests. **Not connected to Dorado.sv/Main/the daemon or
-deployed.** Hardware address/coherence/timing and original-wire integration
-remain unqualified. Keep the existing SPI/socket system as the default.
+Implementation status: the C/RTL endpoints, optional Dorado.sv ownership
+mux, daemon control/mapping and Main grant/lifecycle manager are implemented.
+Native46 passes all-device timing; pinned Main and daemon ARM builds pass.
+Actual-service/guarded-memory tests pass on Mac/Linux/ARM, including Main's
+patched lifecycle prologues. **Not deployed or physically mapped yet.**
+Original-wire integration, physical coherence, packet bytes and full Cedar
+boot/delayed-Main delivery remain unqualified. SPI/socket stays the default.
 
 The frame-only pattern follows the reviewed local Mac/Sun implementations.
 It preserves the original DskEth/controller and Manchester/CRC machinery;
@@ -14,9 +17,11 @@ Reserve ARM physical `0x1FF00000..0x1FF0FFFF` (64KiB). MiSTer14 reports
 System RAM ending at `0x1FEFFFFF`; its boot arguments reserve the upper513MiB.
 This window is below Main's boot mailbox at `0x1FFFF000`, the framework
 scaler at `0x20000000`, Main framebuffer at `0x22000000`, and Dorado's
-optional raw-DDR backing at `0x30000000..0x30FFFFFF`. A future mapping layer
-must recheck the actual platform reservation and refuse an overlapping Linux
-RAM configuration. No physical DDR is accessed by the current unit tests.
+optional raw-DDR backing at `0x30000000..0x30FFFFFF`. The mapping layer
+rechecks `/proc/iomem` before opening `/dev/mem` and rejects overlapping RAM,
+other driver claims and hidden/missing maps. No physical DDR is accessed by
+the current unit tests. This first wrapper uses SDRAM for raw guest storage,
+freeing the framework DDR port for frames without a new arbiter.
 
 The header uses8-byte spacing, with32-bit little-endian producer/consumer
 words and reserved high halves. Exactly one actor owns each runtime index.
@@ -55,7 +60,7 @@ must use the reviewed `/dev/mem`, O_SYNC, MAP_SHARED uncached/device pattern;
 ordinary cached memory is not a supported hardware mapping. Tests use a
 guarded software memory oracle, not proof of physical coherence.
 
-Lifecycle is mandatory integration work:
+The implemented lifecycle must pass its remaining hardware gates:
 
 1. Main revokes the current daemon grant; the daemon stops in its sole
    service thread, completes MMIO and acknowledges STOP before core reload.
@@ -81,6 +86,57 @@ framework's whole-FPGA reconfiguration remains a separate lifecycle boundary.
 `stopped` means DDR transport is quiescent; it is **not** a complete guest or
 wire-device snapshot barrier. Snapshot milestone4a must also save/drain the
 wire, queues and server session state.
+
+## Main control and capability negotiation
+
+Command70 flag bit3 advertises the optional DDR interface. Command74 returns
+magic D0D4 followed by17 words: version1; physical base low/high; size low/high;
+flags (stopped, initialized, enable, fault, owned in bits0..4); fault low/high;
+epoch in four low-first words; max bytes2048; TX slots8; RX slots16; control
+errors low/high. Runtime fields are captured together at command selection.
+Command75 is exactly six words including the command: mode0 STOP/1 START,
+then four low-first epoch words. It commits only on deselection. Partial,
+overlong, invalid-mode and reused/zero START epochs cannot change ownership.
+START requires the previous engine to be stopped with enable low. Ownership
+stays with DDR until its physical accesses and publication tail have drained;
+commands71..73 cannot consume or submit frames while DDR owns the port.
+
+The daemon's optional same-UID,0600 Unix-stream control socket defaults to
+`DORADO_NET_SOCKET + ".control"`; `DORADO_NET_CONTROL` overrides both ends.
+`DORADO_NET_DDR=1` enables negotiation in Main and the control listener in
+the daemon. Daemon startup alone never maps memory. Each32-byte record is
+little-endian: magic64 (`DDCTRL1\0`), command32, sequence32, epoch64, base32,
+size32. Commands are STOP1, RESUME2, STATUS3. Replies carry command|0x80000000,
+the exact sequence, current epoch, errno32 and active32. Duplicate identical
+requests replay their ACK without repeating mapping/reset; stale or altered
+sequences disconnect/quiesce. A live second controller cannot replace its
+owner. Old-owner EOF is processed before accepting a replacement connection.
+
+Main runs a bounded nonblocking STOP/drain/fresh-epoch/initialize/RESUME
+state machine. It verifies ongoing FPGA and daemon ownership; faults hold
+packet service rather than silently handing frames to SPI. Programming,
+reexec, reboot and initialization require a daemon STOP ACK followed by an
+actual FPGA stopped observation. Late/failed ACKs, cleanup errors or a drain
+timeout refuse the action and retain retry state. SIGTERM/SIGINT use Main's
+poll-thread disk and network barriers; no SPI occurs in a signal handler.
+An inherited enabled FPGA lease is stopped even if the new Main asks for
+SPI. An older core without bit3 retains the existing packet transport.
+
+Tests additionally include:
+
+```
+make -C fpga/mister/server ddr-control-test ddr-map-test
+python3 fpga/mister/main/tests/test_ddr_transport.py --main-source /path/to/patched/Main
+```
+
+The second command compiles the actual loader/reboot/reexec/init prologues,
+replacing their first hardware action with a counter. The real manager,
+client and C daemon service must prevent that action on late STOP, undrained
+FPGA and disk errors. Guarded RAM substitutes only for physical mapping;
+SPI is an independent ordering oracle. Dynamic ARM runs use Main's production
+runtime. A static ARM test reached cleanup then threw in test-thread joining;
+that configuration is retained as a failed test, not qualified. Evidence:
+`reports/2026-10-18-ddr-network-control/` and `2026-10-18-native46-ddr-network/`.
 
 Tests:
 

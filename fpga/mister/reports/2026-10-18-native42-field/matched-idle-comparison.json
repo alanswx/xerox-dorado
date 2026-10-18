@@ -1,0 +1,15 @@
+{
+  "status": "Preliminary matched idle comparison; ONE boot per configuration",
+  "ddr42_issues_per_second": 1447771.1948486827,
+  "sdram41c_issues_per_second": 1595727.1870984337,
+  "sdram_relative_gain": 0.10219570107223674,
+  "ddr42_fraction_of_original_60ns_nominal": 0.08686627169092097,
+  "sdram41c_fraction_of_original_60ns_nominal": 0.09574363122590603,
+  "matched": "50MHz/SYSPER4, same CPU/memory boards and logic/M10K placement, Main40e1/cache+trace, e237dffc server, f3bce2a8 original seed, Pup time1792324800, no raw line cache;42 changes raw backend to DDR",
+  "limitations": [
+    "adjacent windows are not independent cold boots",
+    "loader/desktop workloads and repeated paired comparisons still required",
+    "counter is qualified StartCycle issues, not drained retirement",
+    "cause views are different windows, not simultaneous attribution"
+  ]
+}

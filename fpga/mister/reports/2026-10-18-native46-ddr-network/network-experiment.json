@@ -1,0 +1,24 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native41_20261018",
+  "change": "Native41 SDRAM baseline plus opt-in direct-DDR frame engine, atomic SPI capability/epoch control and packet-port ownership mux; engine power-up disabled. No host activation or deployment.",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "raw_line_cache_entries": 0,
+  "storage_backend": "sdram",
+  "cpu_memory_cell_changes": [
+    "fpga/mister/Dorado.sv",
+    "fpga/mister/dorado_ethernet_uio.sv"
+  ],
+  "added_sources": [
+    "fpga/mister/dorado_ethernet_ddr.sv"
+  ],
+  "extra_timing_exceptions": "None",
+  "source_hashes": {
+    "core/Dorado.sv": "df68487757c2cd5adfe2cee298c03d314df516b762d7f4228a0b280bef4011f5",
+    "core/Dorado.qsf": "89781a51607539d7330c4e9ceb2f05afa8e8a5370888bd1b7369d182b04ddbcf",
+    "core/native_timing.sdc": "df62acc5c1e4029eb441b28de904eadfe2f9d00a2d82ba61586b6571afccbec2",
+    "core/sdram_timing.sdc": "1cae21e428cdec86783954a3df75e777b514dceda5ff681fde148decb5695a38",
+    "src/fpga/mister/dorado_ethernet_uio.sv": "0c6512a485420a7bc73b6b2e19a273ec6378d67983cfc3fcd4bb68f13b23d278",
+    "src/fpga/mister/dorado_ethernet_ddr.sv": "5c6153f246a6f7d3883015526c7b6dfe7d8e2d5eae6308dfb07d97b323e3ac02"
+  }
+}

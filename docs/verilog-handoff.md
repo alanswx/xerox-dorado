@@ -9,8 +9,9 @@ qualify M10K placement and instruction measurement; move bulk RAM to SDRAM;
 reduce memory-request overhead; make ARM disk work nonblocking/coherent;
 connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
-External Xerox-network tunnelling is optional follow-up. Next: qualify cold
-marker persistence in Native41d, then39/42/43/44/45 comparisons. Native41c
+External Xerox-network tunnelling is optional follow-up. Native41d cold
+marker persistence passes. Next: finish42 desktop/input, then paired
+42/43/44/45 comparisons and direct-DDR hardware qualification. Native41c
 passes fresh Viewers/input and actual Main worker-delay disk service; network
 progress during delay and sustained stress remain open. The failed41b pack
 is preserved. Native39b's idle-login issue/wait baseline is measured.
@@ -21,21 +22,26 @@ this requirement; it is part of final acceptance, not a main-RAM-only dump.
 **Live MiSTer14 is Native42, matched raw-DDR control.** Loaded22:15:51UTC;
 Main20496/server20495, Main40e14b6b/servere237dffc unchanged. RBF45af2e30,
 50MHz/SYSPER4, same logic/M10K placement as41, no raw line cache, original
-f3bce2a8 seed and Pup time1792324800. Detailed timing already passes29 checks/
-20 categories/four conditions min+0.115ns. New seed checked unchanged after
-temporary loader Main exited; final cache-ready confirmed. This is an
-untouched-seed measurement boot; no speed or full boot result yet.
+f3bce2a8 seed and Pup time1792324800. Timing passes29 checks/20 categories/
+four conditions min+0.115ns. Main remains sole SPI owner; core framebuffer0,
+instruction view1. C watcher38648 and boot pulses55801 COMPLETED; do not
+restart them. Guest\n\n and profile No were entered after idle measurement.
+All34 loadees, BootEssentials and font/FontMetrics Bringovers complete;
+23:04UTC capture shows package STARTs advancing. Desktop/input still pending.
+No CRC/RX/abort or pack fault observed; TX dropped counter7 is retained.
 Paths: `Cedar42_20261018`, `_Computer/DoradoRTL_Cedar42_20261018/Cedar42.mgl`;
-**Main log `/tmp/dorado42-main.log`, disk `/tmp/dorado42-disk.jsonl`**.
-Old41d19438/19352 and staging42 Main20478 are stopped. Main20496 remains
-the sole SPI owner. One setup GDB selects core framebuffer/input0 and
-instruction view1. C watcher38648 is new for42; boot pulses55801 requested
-after watcher-ready. Inspect these live handles/logs before further input;
-do not restart the watcher blindly. Local helpers: cedar42-launch.
-Actual helpers/metadata: reports/2026-10-18-native42-field. Next observe
-BFN113/login, measure the three idle issue windows before Guest, then causes
-and the remaining pinned loader/desktop/input gates. Paired repetitions
-remain required; one boot's adjacent windows are not three cold boots.
+Main `/tmp/dorado42-main.log`, disk `/tmp/dorado42-disk.jsonl`.
+
+**Preliminary matched idle result:** three adjacent10s windows average
+1,447,771 issues/s on DDR42 (8.6866% of nominal60ns ordinary cadence), versus
+1,595,727 on SDRAM41c: SDRAM is10.2196% faster. ONE boot per configuration;
+not repeated independent cold boots or drained retirement. Same board/clock/
+placement/Main/cache/server/seed/time, differing raw backend. Separate cause
+windows show76.7900% storage pause,23.2095% enabled, zero pack pause, and
+0.18365% held starts. Cause windows are not simultaneous attribution. Do not
+call the6.25M unpaused ceiling actual throughput.13 documented Main GDB
+control pauses precede Guest; exclude them from host-poll latency claims.
+Evidence: reports/2026-10-18-native42-field/{idle-*,matched-idle-comparison.json}.
 
 **Native41d cold-remount persistence PASSES, retired/preserved.** Both marker
 values exactly read in the idle second CommandTool at22:10UTC after a new
@@ -87,15 +93,33 @@ All state candidates are UNCLASSIFIED; wrapper/raw-SDRAM/Main/server scope
 still needs coverage. No online save/load or timing/area claim. Evidence:
 `reports/2026-10-18-snapshot-inventory/`.
 
-Direct DDR endpoints are implemented/tested offline, not connected/deployed.
-`dorado_ethernet_ddr.sv` plus real C ring endpoint passes zero/wrap/full/
-stall/malformed/stale-generation and2048-byte tests, pending-read/stalled-
-write and mid-frame stop; byte-order/epoch/stop failure controls fail. C
-passes Mac/Linux/MiSTer ARM; strict lint passes. Proposed0x1FF00000/64KiB
-aperture is outside observed Linux RAM and other known uses. No /dev/mem
-writes. Next integrate Main/daemon STOP/grants, SPI capability negotiation,
-wrapper/fallback, original wire/server and full timing/hardware gates.
-Protocol/evidence: `fpga/mister/dorado-ddr-protocol.md`, ddr-network-endpoints.
+**Direct DDR candidate integrated, NOT DEPLOYED or physically mapped.**
+Optional wrapper/UIO ownership mux, daemon control/validated mapper and Main
+nonblocking fresh-epoch manager are implemented. Actual C service/client/
+manager pass guarded-memory/SPI tests on Mac/Linux; production-runtime ARM
+also passes actual patched loader/reboot/reexec/init prologues. Delayed STOP,
+failed cleanup, physical drain, inherited leases, faults/stale ABI, partial
+records, second owners and legacy fallback are covered. A real test caught
+and fixed old-owner EOF racing a prompt reconnect. Default and DDR-enabled
+but ungranted real-server boot/STP/replay regressions pass. Disk worker and
+SIGTERM/SIGINT regression still passes with the network barrier linked.
+Static ARM test failed at test-thread joining; dynamic ARM passed. Preserve
+both; no static-runtime qualification or diagnosed cause claimed.
+
+Native46 freezes41's architectural/cell/storage sources and adds only the
+network wrapper/UIO/engine. Full four-condition timing passes31 summary/
+36 detailed categories, minimum+0.112ns; illegal/unconstrained clocks0;
+73% ALMs,52727 registers,330M10Ks. RBFc7e6f373. Sources/SDCs/hashes/reports:
+reports/2026-10-18-native46-ddr-network. No new timing cuts.
+New pinned Main21e67a3f (ELF118d90bd) is built at
+`misterubuntu:/home/alans/mister/Dorado_DDRNetwork_20261018/Main/bin/MiSTer`;
+running Main40e1 stays unchanged. New daemon build is isolated alongside.
+Apply new main-ddr-260912.patch AFTER the existing four patches; copy all
+Dorado Main sources plus exact server protocol headers. Candidate/control
+results: reports/2026-10-18-ddr-network-control. Next qualify original wire+
+engine+UIO mux, physical mapping/coherence, byte-exact boot/STP/full Cedar,
+reset/reload and packet progress during delayed Main work before promotion.
+The sole board remains on42; do not deploy46 before these gates/preservation.
 
 **Previous Native41c qualification (stopped, not live):**
 Main16875, server16872. Same RBF a97af936 and e237dffc fixed server, fresh
@@ -1302,7 +1326,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Read41c markers after41d cold Main/cache/full FPGA boot: exact rtl41cpersist20261018 and worker42 plus new prompt; normal guest Boot/loader barriers and preserved volumes.
 - [ ] Qualify sustained fault-free disk/network/input stress and three final fresh-seed desktop boots.
 - [x] Deploy timing-qualified42 matched cache-off DDR control with same Main/server/seed and final fresh observer; original CoolBoot requested.
-- [ ] Measure42 idle-login issues/causes before Guest; qualify loader/desktop/input and repeat pinned comparisons.
+- [x] Measure42 idle-login issues/causes before Guest; matched one-boot SDRAM gain10.2196%, not a repeated qualification.
+- [ ] Finish42 desktop/input and repeat pinned workload comparisons.
 - [ ] Separately reduce FPGA whole-track write amplification where original guest/CRC semantics permit.
 - [x] Prototype default-OFF deferred internal DRAM reads; independent nonzero pipeline/write/reset/array/full-MSA/physical-state/default-generation gates pass.
 - [x] Native45 full all-device timing PASS:31 summary/36 categories/four conditions, minimum+0.017ns, no new cuts or clock coverage gaps.
@@ -1310,7 +1335,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Add/test nonblocking pinned Main worker enqueue and empty-wake predicate on Linux/ARM; blocking and old-wake controls fail. Prerequisite only, not deployed/integrated disk I/O.
 - [x] Review MacPPC/Sun/NeXT DDR Ethernet host/RTL rings; record source hashes, address overlap and payload-size constraints.
 - [x] Implement bounded C/RTL DDR frame endpoints; real interoperability/oracles, full2048-byte/stall/wrap/malformed/reset/stop and failure controls pass, C also on actual ARM.
-- [ ] Integrate Main/daemon acknowledged STOP/resume and exclusive fresh grants, SPI capability/epoch negotiation, validated device mapping and runtime fallback before activating DDR.
+- [x] Implement Main/daemon STOP/resume/fresh grants, SPI capability/epoch and ownership mux, validated mapping and legacy fallback; guarded actual-service/lifecycle tests and pinned ARM builds pass.
+- [x] Native46 all-device timing31 summary/36 categories/four conditions min+0.112ns; original41 CPU/storage sources and constraints preserved.
+- [ ] Qualify combined original wire/DDR/UIO, physical mapping/coherence, byte-exact boot/STP, cold Cedar and delayed-Main packet progress before promotion.
 - [ ] Adapt frame rings for direct ARM daemon DDR transport, retaining original DskEth/CRC/wire timing and selectable SPI fallback; qualify reset/ownership/stalls/boot before deployment.
 - [ ] Optional external Xerox-network UDP tunnel compatible with IFS/ContrAlto; test Cedar STP separately from Alto interoperability.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.

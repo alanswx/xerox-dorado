@@ -1,5 +1,34 @@
 # Main's Dorado packet transport
 
+### Optional direct DDR transport (2026-10-18 candidate)
+
+After the four existing patches, apply `main-ddr-260912.patch`. Copy all
+`dorado_*.{cpp,h}` files from this directory plus the server's exact
+`dorado_ddr_control.h` and `dorado_ddr_ring.h` into the pinned Main root.
+The added manager contains no physical mapping or packet/server code.
+`DORADO_NET_DDR=1` in both Main and daemon selects the direct transport;
+the RBF must be built with `DORADO_DDR_NETWORK=1` and native SDRAM storage.
+Default SPI transport and older-core fallback remain available.
+
+Main's daemon STOP ACK, FPGA drain and fresh-epoch RESUME are mandatory.
+The new patch places checked barriers before FPGA programming, reboot,
+reexec and core initialization. Signal exit also requires disk and network
+barriers in the poll thread. An error or timeout refuses the lifecycle action.
+The daemon never maps DDR without Main's explicit grant. Control defaults to
+`DORADO_NET_SOCKET + ".control"`; both ends can use `DORADO_NET_CONTROL`.
+See [the protocol](../dorado-ddr-protocol.md) for ownership, ABI and limits.
+
+Actual-service/guarded-memory and lifecycle tests pass on Mac/Linux and
+MiSTer ARM with Main's dynamic runtime. The pinned candidate Main links as
+SHA256 `21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60`
+in `misterubuntu:/home/alans/mister/Dorado_DDRNetwork_20261018/Main/bin/MiSTer`.
+It has not replaced the running Main. Physical DDR, original-wire integration,
+Cedar boot and delayed-Main packet service remain required before promotion.
+
+```
+python3 fpga/mister/main/tests/test_ddr_transport.py --main-source /path/to/patched/Main
+```
+
 This is a small hook in Main's existing polling loop. Main retains exclusive
 SPI ownership and moves raw packets between the Dorado UIO extension and
 the ARM-local Unix-datagram server. It does not execute guest code or
@@ -8,15 +37,19 @@ implement Pup, EFTP, STP, controller registers or receiver status.
 The isolated build is based on **the installed Main release 20260912**,
 commit `47221c18987e101f50caafeb3b615f53b62722ca`. Existing build-machine
 checkouts include much older and newer versions; neither should silently
-replace that release. The integration patch adds an include, a poll call
+replace that release. The original integration patch adds an include, a poll call
 in `user_io_poll()` and a reset call in `user_io_init()`. The reset covers
 same-name reloads so pending packets cannot cross machines. Main's wildcard
 build picks up `dorado_net.cpp`.
 
 ```sh
-# In an isolated checkout at the pinned Main revision:
-git apply /path/to/main-260912.patch
-cp /path/to/dorado_net.{cpp,h} .
+# In an isolated checkout at the pinned Main revision, use the current
+# complete source set even when DDR negotiation will remain disabled:
+for patch in main-260912 main-video-mode-260912 main-offload-260912 main-disk-260912 main-ddr-260912; do
+  git apply /path/to/main/$patch.patch
+done
+cp /path/to/main/dorado_*.cpp /path/to/main/dorado_*.h .
+cp /path/to/server/dorado_ddr_control.h /path/to/server/dorado_ddr_ring.h .
 # Use Main's GCC 10.2.1 ARM toolchain and existing Makefile.
 make -j4
 ```

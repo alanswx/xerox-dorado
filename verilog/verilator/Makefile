@@ -1890,6 +1890,13 @@ ethernet-clock-test:
 		verilog/verilator/tb_ethernet_clock.sv verilog/generated/DskEth-Rev-Cf.v >/dev/null
 	@cd ../.. && verilog/verilator/obj_ethernet_clock/ethernet-clock-test
 
+ethernet-ddr-uio-test:
+	@cd ../.. && $(V) --binary --top-module tb_ethernet_ddr_uio $(V_WARN) \
+		--Mdir verilog/verilator/obj_ethernet_ddr_uio -o tb_ethernet_ddr_uio \
+		verilog/verilator/tb_ethernet_ddr_uio.sv fpga/mister/dorado_ethernet_uio.sv >/dev/null
+	@cd ../.. && ./verilog/verilator/obj_ethernet_ddr_uio/tb_ethernet_ddr_uio
+
+.PHONY: ethernet-ddr-uio-test
 ethernet-uio-test:
 	@cd ../.. && $(V) --binary --top-module tb_ethernet_uio $(V_WARN) \
 		--Mdir verilog/verilator/obj_ethernet_uio -o ethernet-uio-test \

@@ -1,0 +1,10 @@
+instruction 2 {'held_cycles': 26640, 'start_cycles': 14506020} 0.0018364789239226197
+instruction 3 {'board_clocks': 29011278, 'issued': 14479602} 2.003596369568722
+memory 1 {'enabled_edges': 116045520, 'host_edges': 499992483} 0.23209452930915364
+memory 2 {'storage_only_pause_edges': 383945862, 'host_edges': 499994762} 0.767899768517975
+memory 3 {'pack_only_pause_edges': 0, 'host_edges': 499994077} 0.0
+memory 4 {'overlap_pause_edges': 0, 'host_edges': 499996571} 0.0
+memory 5 {'physical_reads': 27544831, 'physical_writes': 96} None
+memory 6 {'backing_cache_hits': 0, 'raw_read_requests': 27544135} None
+memory 7 {'issue_busy_edges': 0, 'return_pending_edges': 273776303} None
+memory 12 {'raw_read_requests': 27542890, 'raw_write_requests': 96} None

@@ -14,4 +14,6 @@ int dorado_disk_service(int disk, int op, uint64_t lba, unsigned block_size,
 bool dorado_disk_barrier(const char *reason);
 // Signal-handler-safe request only; Main performs the drain in its poll loop.
 bool dorado_disk_defer_exit(int signal);
+// Also used by DDR networking when no cached disk has been mounted yet.
+bool dorado_disk_prepare_exit();
 #endif

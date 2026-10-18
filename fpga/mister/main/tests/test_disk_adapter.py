@@ -26,6 +26,7 @@ def build(root,execute):
                    cwd=root,check=True,capture_output=True)
     for name in ('dorado_disk','dorado_disk_cache','dorado_disk_trace'):
         for ext in ('.cpp','.h'):shutil.copyfile(here.parent/(name+ext),root/(name+ext))
+    shutil.copyfile(here.parent/'dorado_net.h',root/'dorado_net.h')
     for name in ('file_io.h','spi.h','user_io.h'):shutil.copyfile(here/'disk'/name,root/name)
     shutil.copyfile(here/'test_disk_adapter.cpp',root/'test.cpp')
     shutil.copyfile(args.source/'input.cpp',root/'input.cpp')

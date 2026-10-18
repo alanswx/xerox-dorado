@@ -9,6 +9,7 @@
 #include <unistd.h>
 const char *test_core_name="DoradoNetwork_20261017";
 const char *test_original_core_name="Dorado";
+bool dorado_disk_prepare_exit(){throw std::runtime_error("legacy transport installed DDR exit handler");}
 static std::vector<uint16_t> request={042,01000,026,0264,1,0110,0,0,4,042,1,1,0177777};
 static std::vector<uint16_t> incoming,received;
 static unsigned command,word_index,acks,reads,frames,length,transactions;

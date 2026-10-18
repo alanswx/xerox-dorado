@@ -12,10 +12,11 @@ endif
 LDFLAGS ?= $(GC)
 CFLAGS ?= -O2 -Wall -Wextra -ffunction-sections -fdata-sections
 
-.PHONY: all test cedar-test bsp-retry-test bsp-ack-race-test ddr-ring-test
+.PHONY: all test cedar-test bsp-retry-test bsp-ack-race-test ddr-ring-test ddr-control-test ddr-map-test
 all:
 	mkdir -p $(dir $(OUT))
 	$(CC) $(CFLAGS) -I$(ROOT)/dorado/include dorado_server.c \
+		dorado_ddr_ring.c dorado_ddr_control.c dorado_ddr_mapping.c \
 		$(ROOT)/dorado/src/ethernet.c $(ROOT)/dorado/src/io.c $(LDFLAGS) -o $(OUT)
 test: all
 	python3 test_server.py $(OUT) $(ROOT)
@@ -29,3 +30,11 @@ ddr-ring-test:
 	mkdir -p $(dir $(OUT))
 	$(CC) $(CFLAGS) -std=c11 -Werror dorado_ddr_ring.c test_ddr_ring.c -o $(OUT)-ddr-ring-test
 	$(OUT)-ddr-ring-test
+ddr-control-test:
+	mkdir -p $(dir $(OUT))
+	$(CC) $(CFLAGS) -std=c11 -Werror dorado_ddr_ring.c dorado_ddr_control.c test_ddr_control.c -o $(OUT)-ddr-control-test
+	$(OUT)-ddr-control-test
+ddr-map-test:
+	mkdir -p $(dir $(OUT))
+	$(CC) $(CFLAGS) -std=c11 -Werror dorado_ddr_mapping.c test_ddr_mapping.c -o $(OUT)-ddr-map-test
+	$(OUT)-ddr-map-test

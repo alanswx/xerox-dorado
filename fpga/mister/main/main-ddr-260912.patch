@@ -1,0 +1,43 @@
+--- a/user_io.cpp
++++ b/user_io.cpp
+@@ -1411,7 +1411,8 @@
+ void user_io_init(const char *path, const char *xml)
+ {
++	if (!dorado_net_barrier("core initialization")) return;
+ 	if (!dorado_disk_before_mount(0)) return;
+-	dorado_net_reset();
++	if (!dorado_net_reset()) return;
+ 	char *name;
+ 	static char mainpath[512];
+ 	core_name[0] = 0;
+--- a/fpga_io.cpp
++++ b/fpga_io.cpp
+@@ -17,6 +17,7 @@
+ #include "shmem.h"
+ #include "offload.h"
+ #include "dorado_disk.h"
++#include "dorado_net.h"
+ 
+ #include "fpga_base_addr_ac5.h"
+ #include "fpga_manager.h"
+@@ -426,5 +427,6 @@
+ int fpga_load_rbf(const char *name, const char *cfg, const char *xml)
+ {
++	if (!dorado_net_barrier("FPGA programming")) return -1;
+ 	if (!dorado_disk_barrier("FPGA programming")) return -1;
+ 	OsdDisable();
+ 	static char path[1024];
+@@ -589,5 +591,6 @@
+ void reboot(int cold)
+ {
++	if (!dorado_net_barrier("reboot")) return;
+ 	if (!dorado_disk_barrier("reboot")) return;
+ 	sync();
+ 	fpga_core_reset(1);
+@@ -622,5 +625,6 @@
+ void app_restart(const char *path, const char *xml, const char *exe)
+ {
++	if (!dorado_net_barrier("Main restart")) return;
+ 	if (!dorado_disk_barrier("Main restart")) return;
+ 	sync();
+ 	fpga_core_reset(1);

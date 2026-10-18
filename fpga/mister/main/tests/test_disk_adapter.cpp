@@ -19,6 +19,8 @@
 
 using Clock=std::chrono::steady_clock;
 const char *disk_test_core="Dorado";
+// Disk-only test. The DDR manager has separate actual-service/SPI-spy gates.
+bool dorado_net_barrier(const char *) { return true; }
 static pthread_t main_thread;
 static bool selected=false;
 static unsigned command=0, notifications=0, captures=0, replies=0, size_parts=0;

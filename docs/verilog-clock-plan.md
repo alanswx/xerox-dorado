@@ -349,6 +349,31 @@ online save/load. Evidence: reports/2026-10-18-snapshot-inventory/. Next extend
 scope/classification and qualify bounded access on one representative board
 before machine-wide hardware instrumentation.
 
+### DDR control integration and matched idle evidence (2026-10-18)
+
+Native42's matched raw-DDR idle-login windows average1,447,771 StartCycle
+issues/s (8.6866% of nominal original cadence). SDRAM41c averages1,595,727:
+10.2196% faster in ONE matched boot comparison. Adjacent windows are not
+independent boots. Separate cause windows show76.7900% storage pause,
+23.2095% enabled and zero disk pause; do not treat them as one atomic sample.
+All34 loadees and fonts complete on42; Viewers/input and repeated paired
+workloads remain open. Exact inputs/limits: native42-field reports.
+
+The optional DDR wrapper/ownership mux, SPI74/75 capability/atomic grants,
+daemon control+reservation-checked mapper and Main nonblocking manager are
+implemented. Actual-service/guarded-memory and actual patched Main lifecycle
+prologues pass on Linux/production-runtime ARM. Late ACKs and physical drain
+refuse programming/reexec/reboot/init; EOF reconnect ordering was caught and
+fixed. Default and ungranted-DDR real-server regressions pass. No physical
+DDR mapped/deployed yet, and no full wire/Cedar/delayed-Main claim.
+Native46 (frozen41 plus only network integration) passes31 summary checks,
+36 detailed categories/four conditions, min+0.112ns,73% ALMs/330M10Ks,
+zero illegal/unconstrained clocks and no added cuts. Pinned Main21e67a3f
+links; live42 still uses40e1/e237. Static ARM test-thread cleanup failed;
+dynamic production-runtime tests pass. See DDR control/native46 reports.
+Snapshot4a remains required and incomplete; these transport STOP boundaries
+alone do not capture complete guest, wire, disk or server session state.
+
 ## Objective and constraints
 
 Restore the original throughput and clock relationships: HM section 2.3

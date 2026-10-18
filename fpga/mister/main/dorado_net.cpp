@@ -1,5 +1,7 @@
 // Local packet transport only. No Pup server, guest CPU or device emulation.
 #include "dorado_net.h"
+#include "dorado_ddr.h"
+#include "dorado_disk.h"
 #include "spi.h"
 #include "user_io.h"
 #include <cerrno>
@@ -53,14 +55,20 @@ bool connect_server(){
 }
 }
 
-void dorado_net_reset(){disconnect();next_poll=next_connect=next_trace=0;}
+bool dorado_net_barrier(const char *reason){
+    if(!dorado_ddr_barrier(reason))return false;
+    disconnect();return true;
+}
+bool dorado_net_reset(){
+    if(!dorado_ddr_reset())return false;
+    disconnect();next_poll=next_connect=next_trace=0;return true;
+}
 
 void dorado_net_poll(){
     // MGL setname overrides CoreName for configuration/display. Capability
     // belongs to the FPGA's original config-string name, not the launcher.
     if(strcmp(user_io_get_core_name(1),"Dorado")){disconnect();next_connect=0;return;}
     uint64_t now=milliseconds();if(now<next_poll)return;next_poll=now+1;
-    if(fd<0 && now<next_connect)return;
     uint16_t magic=spi_uio_cmd_cont(0x70);
     uint16_t flags=spi_w(0);
     if(magic==0xd074 && now>=next_trace && getenv("DORADO_NET_TRACE")){
@@ -73,6 +81,11 @@ void dorado_net_poll(){
     }
     DisableIO();
     if(magic!=0xd074){disconnect();next_connect=now+500;return;}
+    if((flags&8) && (getenv("DORADO_NET_DDR") || dorado_ddr_needs_barrier()) && !dorado_disk_prepare_exit()){
+        disconnect();return;
+    }
+    if(dorado_ddr_poll(flags)){disconnect();return;}
+    if(fd<0 && now<next_connect)return;
     if(fd<0){next_connect=now+1000;if(!connect_server())return;}
 
     if(!outgoing_bytes && (flags&2)){

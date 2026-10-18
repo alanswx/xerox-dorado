@@ -1,0 +1,21 @@
+{
+  "status": "Offline integration only; NOT DEPLOYED, NO PHYSICAL MAPPING",
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "main_elf_sha256": "118d90bd19a63f92efd27a20d890b964254d279fd73cc8796e8f40eaad6e0435",
+  "main_base": "47221c18987e101f50caafeb3b615f53b62722ca",
+  "main_toolchain": "ARM GCC10.2.1",
+  "main_manager": "Actual C service/client/manager; protected RAM; SPI ordering oracle; Mac/Linux/ARM dynamic runtime PASS",
+  "actual_patched_lifecycle": "FPGA load/reboot/reexec/init prologues compiled; delayed daemon ACK and disk failure refuse hardware action",
+  "disk_regression": "Actual worker 4.2s file delay, polling/ACK/coherence/errors and SIGTERM/SIGINT PASS",
+  "static_arm_test": "FAILED at test std::thread joining with unknown error; cause undiagnosed; production dynamic runtime passes",
+  "service": "Fragmented records, EOF/reconnect, second owner, duplicated/stale/wrapped seq, cleanup error, protected stopped mapping; parser no-devmem; Mac sanitizers PASS",
+  "limitations": [
+    "No original-wire + DDR + UIO combined simulation yet",
+    "No physical DDR mapping/coherence test",
+    "No DDR boot/STP byte comparison or full original-firmware Cedar boot",
+    "No DDR packet progress during delayed Main test",
+    "STOP is not full machine snapshot"
+  ],
+  "created_utc": "2026-10-18T23:06:51.691037+00:00",
+  "daemon_sha256": "c59962490772f12d061ec61aa64e6a567144d26d7802a28349a8d9a044eda87e"
+}

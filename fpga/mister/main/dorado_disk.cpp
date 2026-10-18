@@ -1,5 +1,6 @@
 // Main-thread SPI adapter. Only the cache's IO callbacks execute on the worker.
 #include "dorado_disk.h"
+#include "dorado_net.h"
 #include "dorado_disk_cache.h"
 #include "dorado_disk_trace.h"
 #include "file_io.h"
@@ -79,6 +80,8 @@ bool dorado_disk_defer_exit(int signal) {
     return true;
 }
 
+bool dorado_disk_prepare_exit() { return install_exit_handler(); }
+
 bool dorado_disk_barrier(const char *reason) {
     if (!mounted) return true;
     trace().record("barrier_begin");
@@ -127,7 +130,7 @@ bool dorado_disk_mount(fileTYPE *file, unsigned index, bool writable, bool io_ve
 void dorado_disk_poll() {
     if (pending_exit) {
         int signal=pending_exit; pending_exit=0;
-        if (dorado_disk_barrier("process termination")) {
+        if (dorado_disk_barrier("process termination") && dorado_net_barrier("process termination")) {
             offload_stop();
             ::_exit(128+signal);
         }

@@ -55,6 +55,18 @@ if config.get('storage_backend', 'ddr') == 'sdram':
 PY
 fi
 
+# Direct frames use the host DDR port freed by the native SDRAM backend.
+# Keep the DDR raw-memory control selectable with the existing SPI transport.
+if [ "${DORADO_DDR_NETWORK:-0}" = 1 ]; then
+  [ -n "$CHECKPOINT" ] || { echo "DDR network requires a generated native machine"; exit 1; }
+  python3 - "$CHECKPOINT/manifest.json" <<'DDR_NETWORK_JSON'
+import json, sys
+c = json.load(open(sys.argv[1]))
+if not (c.get('native') and c.get('storage_backend') == 'sdram' and c.get('ethernet_wire')):
+    raise SystemExit('DDR network requires native SDRAM storage and the original Ethernet wire adapter')
+DDR_NETWORK_JSON
+fi
+
 [ -d "$TEMPLATE/sys" ] || { echo "no framework at $TEMPLATE/sys"; exit 1; }
 BASE=Template
 [ -f "$TEMPLATE/$BASE.qsf" ] || BASE=mycore
@@ -142,6 +154,10 @@ rm -f "$OUT/Dorado.qsf.bak"
   echo "set_global_assignment -name SYSTEMVERILOG_FILE $REPO/fpga/mister/dorado_mouse.sv"
   echo "set_global_assignment -name SYSTEMVERILOG_FILE $REPO/fpga/mister/dorado_key_queue.sv"
   echo "set_global_assignment -name SYSTEMVERILOG_FILE $REPO/fpga/mister/dorado_speed_monitor.sv"
+  if [ "${DORADO_DDR_NETWORK:-0}" = 1 ]; then
+    echo 'set_global_assignment -name VERILOG_MACRO DORADO_ETHERNET_DDR'
+    echo "set_global_assignment -name SYSTEMVERILOG_FILE $HERE/dorado_ethernet_ddr.sv"
+  fi
   if [ -n "$CHECKPOINT" ]; then
     [ -f "$CHECKPOINT/sources.f" ] || { echo "missing checkpoint sources: $CHECKPOINT" >&2; exit 1; }
     if python3 - "$CHECKPOINT/manifest.json" <<'NATIVE_JSON'

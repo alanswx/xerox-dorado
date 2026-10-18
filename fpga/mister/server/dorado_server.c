@@ -2,6 +2,8 @@
  * local datagram socket; the FPGA owns Manchester framing, CRC and device
  * status. There is no CPU emulator, guest memory or SPI access here. */
 #include "ethernet.h"
+#include "dorado_ddr_control.h"
+#include "dorado_ddr_mapping.h"
 #include <errno.h>
 #include <poll.h>
 #include <signal.h>
@@ -59,6 +61,12 @@ static void configure(dorado_ethernet *eth,int argc,char **argv) {
     if(argc==5)dorado_ethernet_set_ftp_root(eth,argv[4]);
     eth->rx_on=1;
 }
+static void receive_frame(dorado_ethernet *eth,const unsigned char *bytes,size_t n) {
+    uint16_t words[1024];
+    for(size_t i=0;i<n/2;i++)words[i]=(bytes[2*i]<<8)|bytes[2*i+1];
+    eth->local_host=words[0]&255;
+    dorado_ethernet_direct_transmit(eth,words,(int)(n/2));
+}
 int main(int argc, char **argv) {
     if (argc < 4 || argc > 5) {
         fprintf(stderr, "usage: %s SOCKET AEMU.eb ALTO.boot [STP_ROOT]\n", argv[0]);
@@ -83,18 +91,43 @@ int main(int argc, char **argv) {
     signal(SIGINT, stop); signal(SIGTERM, stop);
     dorado_ethernet eth;
     configure(&eth,argc,argv);
+    dorado_ddr_control control={0};control.listener=control.client=-1;
+    const char *ddr=getenv("DORADO_NET_DDR");
+    if(ddr && !strcmp(ddr,"1")) {
+        char path[108];const char *option=getenv("DORADO_NET_CONTROL");
+        int count=snprintf(path,sizeof path,"%s%s",option?option:argv[1],option?"":".control");
+        int error=count<0 || count>=(int)sizeof path ? ENAMETOOLONG :
+            dorado_ddr_control_open(&control,path,dorado_ddr_physical_mapper());
+        if(error) {
+            fprintf(stderr,"Dorado DDR control: %s\n",strerror(error));
+            dorado_ethernet_free(&eth);close(fd);unlink(argv[1]);return 1;
+        }
+        fprintf(stderr,"Dorado DDR control listening on %s; no mapping without Main grant\n",path);
+    }
     socklen_t peer_len = 0;
     uint64_t previous = monotonic_ns(), broadcast_at = previous + 1000000000ull;
     uint64_t probe_at = previous + 1000000000ull;
     unsigned probe_cursor = 0;
     unsigned broadcast_kind = 0;
+    int session_stale=0;
     int result = 0;
     fprintf(stderr, "Dorado Pup server listening on %s (raw frames, no CRC/status)\n", argv[1]);
     while (!stopping) {
+        unsigned control_events=dorado_ddr_control_poll(&control);
         uint64_t now = monotonic_ns();
+        if(control_events) {
+            peer_len=0;session_stale=1;
+            if(control.granted && control.ring.active) {
+                dorado_ethernet_free(&eth);configure(&eth,argc,argv);session_stale=0;
+                previous=now;broadcast_at=probe_at=now+1000000000ull;
+                probe_cursor=broadcast_kind=0;
+            }
+        }
+        int direct=control.granted && control.ring.active;
+        int has_peer=peer_len || direct;
         pump(&eth, (now - previous) / 32);
         previous = now;
-        if (peer_len && now >= probe_at) {
+        if (has_peer && now >= probe_at) {
             /* One idle STP probe per second, rotating through connections.
              * This is the BSP sender's timer, independent of guest CPU time.
              * Main continues to own SPI and the FPGA the real wire/CRC. */
@@ -110,7 +143,7 @@ int main(int argc, char **argv) {
          * Keep the installed Cedar-qualified daemon's quiet-after-BFN113
          * policy. Solicited service replies and BSP probes remain active.
          * configure() restores boot broadcasts for a replacement Main. */
-        if (peer_len && now >= broadcast_at && eth.last_boot_offset != 0113) {
+        if (has_peer && now >= broadcast_at && eth.last_boot_offset != 0113) {
             if (broadcast_kind++ & 1) (void)dorado_ethernet_time_broadcast(&eth);
             else (void)dorado_ethernet_breath_of_life(&eth);
             broadcast_at = now + 1000000000ull;
@@ -118,7 +151,7 @@ int main(int argc, char **argv) {
         /* Queue entries include the C controller's placeholder CRC and
          * attention/status. Strip BOTH before crossing the packet boundary.
          * The real FPGA receiver must generate/check its own wire status. */
-        if (peer_len && !eth.rx_hold && eth.rx_pos < eth.rx_count) {
+        if (has_peer && !eth.rx_hold && eth.rx_pos < eth.rx_count) {
             size_t end = eth.rx_pos;
             while (end < eth.rx_count && !eth.rx_attention[end]) end++;
             if (end == eth.rx_count || end < eth.rx_pos + 3 || eth.rx_words[end]) {
@@ -139,9 +172,18 @@ int main(int argc, char **argv) {
                 eth.rx_words[eth.rx_pos+2] == count*2-2) {
                 bytes[2*count] = 255; bytes[2*count+1] = 255; count++;
             }
-            ssize_t n = sendto(fd, bytes, count*2, MSG_DONTWAIT,
-                              (struct sockaddr *)&peer, peer_len);
+            ssize_t n;
+            if(direct) {
+                int result=dorado_ddr_send(&control.ring,bytes,count*2);
+                n=result?-1:(ssize_t)(count*2);if(result)errno=-result;
+            } else n=sendto(fd, bytes, count*2, MSG_DONTWAIT,
+                           (struct sockaddr *)&peer, peer_len);
             if (n == (ssize_t)(count*2)) eth.rx_pos = end + 1;
+            else if(direct && n<0 && (errno==ESTALE || errno==EPROTO || errno==ENOTCONN)) {
+                /* The next control poll quiesces/unmaps the failed grant.
+                 * Keep serving control; never fall through to another owner. */
+                continue;
+            }
             else if(n<0 && (errno==ENOENT || errno==ECONNREFUSED)) {
                 // Main changed/reloaded a core. Drop the disconnected
                 // session and wait for its next explicit registration.
@@ -150,9 +192,16 @@ int main(int argc, char **argv) {
                 perror("sendto"); result = 1; break;
             }
         }
+        if(direct && control.ring.active && eth.rx_pos>=eth.rx_count) {
+            unsigned char bytes[2048];int n=dorado_ddr_receive(&control.ring,bytes,sizeof bytes);
+            if(n>0)receive_frame(&eth,bytes,(size_t)n);
+            else if(n!=-EAGAIN && n!=-ESTALE && n!=-EPROTO && n!=-ENOTCONN) {
+                fprintf(stderr,"Dorado DDR receive: %s\n",strerror(-n));result=1;break;
+            }
+        }
         /* Drain a queued microcode stream before accepting another request;
          * a new request is allowed to replace that stream in the C model. */
-        struct pollfd pfd = {fd, eth.rx_pos >= eth.rx_count ? POLLIN : 0, 0};
+        struct pollfd pfd = {fd, !control.granted && eth.rx_pos >= eth.rx_count ? POLLIN : 0, 0};
         if (poll(&pfd, 1, 1) < 0) {
             if (errno == EINTR) continue;
             perror("poll"); result = 1; break;
@@ -172,14 +221,17 @@ int main(int argc, char **argv) {
                 dorado_ethernet_free(&eth);configure(&eth,argc,argv);peer_len=0;
                 fprintf(stderr,"Dorado Pup server: retired disconnected Main session\n");
             }
+            if(session_stale) {
+                dorado_ethernet_free(&eth);configure(&eth,argc,argv);session_stale=0;
+                previous=now;broadcast_at=probe_at=now+1000000000ull;
+                probe_cursor=broadcast_kind=0;
+            }
             peer = from; peer_len = len;
             if (!n) continue; /* Main registers its return socket at startup. */
-            uint16_t words[1024];
-            for (ssize_t i = 0; i < n/2; i++) words[i] = (bytes[2*i] << 8) | bytes[2*i+1];
-            eth.local_host = words[0] & 255;
-            dorado_ethernet_direct_transmit(&eth, words, n/2);
+            receive_frame(&eth,bytes,(size_t)n);
         }
     }
+    if(dorado_ddr_control_close(&control))result=1;
     dorado_ethernet_free(&eth);
     close(fd); unlink(argv[1]);
     return result;
