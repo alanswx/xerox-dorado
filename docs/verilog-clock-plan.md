@@ -151,6 +151,19 @@ not Cedar performance. Ceiling6.25M/s before pauses,37.5% of original Dorado;
 Evidence: `fpga/mister/reports/2026-10-18-native31/`.
 The original clock-family migration and unused DDR return lanes remain.
 
+### Original-board physical budget
+
+A separate slow-corner destination audit now measures processor, memory and
+I/O cones independently of backend arbitration. Worst processor path is
+ContB b24.qb (ASEL0) -> ProcL k22.d_pre[5] (DMuxData),17.182ns over21 logic
+levels, with+2.527ns margin against20ns. Memory/I/O copies of that DMuxData
+capture take17.172/16.772ns. These continuously sampled setup copies are
+part of the existing chip translation; they are not new original-hardware
+pipeline stages. Merely moving the readiness gate would not qualify a
+66.667MHz fit. The enable/latch migration must cover diagnostic/data-setup
+sampling as well as the main T/task path. Do not cut these paths without a
+proved replacement contract. Reports: native31/board-paths.tcl and reports.
+
 ## Backing storage: optional line buffer started
 
 Native31's real Cedar loader sample gives16.9255% enabled fabric edges;

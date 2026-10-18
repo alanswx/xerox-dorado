@@ -13,6 +13,8 @@ old33.333MHz ceiling, before pauses; not measured retired throughput.
 
 Original firmware sent fresh BFN113; C was released. Internal capture shows
 Cedar login (03:55). Fast Guest input succeeded; real Basic.Loadees are loading.
+All34 Basic.Loadees completed. Single n at the actual profile question
+auto-completed No and advanced to BootEssentials (04:06UTC).
 Viewers/exclusive Echo/mouse qualification is pending. HDMI initially black
 with a good internal raster; Main host framebuffer enable/disable restored
 actual HDMI without guest reset. Fresh UIO23 confirms30.000012Hz/74.25003MHz.
@@ -52,7 +54,9 @@ The experimental controls require correct independent enables; their
 sources and the complete T data/latch/task-file path remain unimplemented.
 No board/firmware qualification is claimed for this replacement.
 
-Native30 is the separate40MHz diagnostic control; its fit is still routing.
+Native30 was the separate40MHz diagnostic control; its prolonged fit was
+stopped after Native31 passed50MHz timing/login. Frozen sources/logs retained;
+only its exact fitter PID3641523 was terminated. Native32 fit was untouched.
 Native31 includes its passive counters/coherent UIO plus the balanced arbiter.
 No Main/protocol change. Independent cyclic-scan order/payload/stall and
 full storage equivalence pass (all9,437,184 bits). See the clock plan.

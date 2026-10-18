@@ -45,3 +45,14 @@ HDMI without reset or guest-state writes. This repeats Native26's host-video
 workaround; root cause remains open. Actual screenshot is fpga-hdmi-after-guest.png.
 Fresh UIO23 timing confirms3333332ticks at100MHz:30.000012Hz,74.25003MHz
 with2200x1125totals. Source field timing varies with backing stalls/workload.
+
+Additional original-board destination audit (slow corner): processor setup
++2.527ns/17.182ns data/21logic levels; memory+2.537ns/17.172ns; I/O
++2.932ns/16.772ns, each against20ns. All worst paths start ContB b24.qb
+(ASEL0) and end continuous DMuxData d_pre captures (ProcL k22, MemC l24,
+DskEth l23). Thus moving the backend gate alone does not establish66.667MHz
+operation: the sampled diagnostic/data-setup cones also need accurate enable
+translation/physical optimization. No new exceptions or circuit changes were
+made for these reports. Details: board-paths.tcl and compressed reports.
+All34 Basic.Loadees complete; single n auto-completes profile choice to No
+and advances to BootEssentials (actual fpga-bootessentials.png).
