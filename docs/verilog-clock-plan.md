@@ -211,6 +211,17 @@ Complete snapshots, controlled whole-Main multi-second file stall, sustained
 and three-fresh-boot qualification remain open. Main40e1/source and Native45
 optional memory/timing evidence are checked in and pushed.
 
+Update21:35UTC: actual Main4200ms delayed flush work passes continued disk
+service/instruction progress:3 read/21 write ACKs during the window, no poll
+gap above20ms, errors or trace loss. A bounded qualification DSO queues work
+on Main's actual worker, delays then fsyncs an owned mounted-image descriptor;
+this is not observed kernel latency. No FPGA/guest state or SPI ownership is
+changed. Echo42 completes afterward; no guest packet traffic occurs inside
+the window. Packet/input completion under delay remains open. Actual Main
+durability barrier and marker `worker42` readback pass; cold remount does not
+yet. Normal guest Boot has entered the germ812 screen. Evidence lives in
+reports/2026-10-18-main-slow-flush. Keep this gate's limits in qualification.
+
 **Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
 original firmware to the actual Cedar login on MiSTer14. Real Guest input
 is accepted; Basic boot is running. Main11453 is the

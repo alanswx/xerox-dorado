@@ -1,0 +1,12 @@
+[
+  {
+    "fd": 14,
+    "target": "/media/fat/games/DoradoRTL/Cedar41c_20261018/cedar-work.pack",
+    "info": "pos:\t0\nflags:\t06410002\nmnt_id:\t17\nino:\t36398\n"
+  },
+  {
+    "fd": 20,
+    "target": "/media/fat/games/DoradoRTL/Cedar41c_20261018/cedar-work.pack",
+    "info": "pos:\t0\nflags:\t04410002\nmnt_id:\t17\nino:\t36398\n"
+  }
+]

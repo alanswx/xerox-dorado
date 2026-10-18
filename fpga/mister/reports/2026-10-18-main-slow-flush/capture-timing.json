@@ -1,0 +1,8 @@
+{
+  "keyboard_start_utc_ns": 1792358982151196000,
+  "capture_start_utc_ns": 1792358984404057000,
+  "remote_check_after_capture": {
+    "monotonic_ns": 107487067213086,
+    "ended": false
+  }
+}

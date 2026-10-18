@@ -1,0 +1,258 @@
+{
+  "begin_ns": 107483064252983,
+  "end_ns": 107487264388008,
+  "duration_ns": 4200135025,
+  "events": {
+    "poll": 5,
+    "read_request": 3,
+    "read_ack": 3,
+    "write_request": 21,
+    "write_ack": 21
+  },
+  "overlapping_poll_gaps": [],
+  "during_error_events": [],
+  "following_events": [
+    {
+      "ns": 107487264588240,
+      "event": "pwrite_begin",
+      "offset": 14743552,
+      "bytes": 16384,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107487273688639,
+      "event": "pwrite_end",
+      "offset": 14743552,
+      "bytes": 16384,
+      "result": 16384,
+      "duration_ns": 4564670
+    },
+    {
+      "ns": 107487274087713,
+      "event": "pwrite_begin",
+      "offset": 24729088,
+      "bytes": 15872,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107487278126787,
+      "event": "pwrite_end",
+      "offset": 24729088,
+      "bytes": 15872,
+      "result": 15872,
+      "duration_ns": 4000304
+    },
+    {
+      "ns": 107487278265908,
+      "event": "fsync_begin",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107487278303059,
+      "event": "fsync_end",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 12480
+    },
+    {
+      "ns": 107488152398364,
+      "event": "poll",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107489152408376,
+      "event": "poll",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107489659734747,
+      "event": "read_request",
+      "offset": 233984,
+      "bytes": 15872,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107489662881631,
+      "event": "read_ack",
+      "offset": 233984,
+      "bytes": 15872,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107489782629012,
+      "event": "write_request",
+      "offset": 233984,
+      "bytes": 15872,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107489787121321,
+      "event": "write_ack",
+      "offset": 233984,
+      "bytes": 15872,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107489787240972,
+      "event": "pwrite_begin",
+      "offset": 233984,
+      "bytes": 15872,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107489790997213,
+      "event": "pwrite_end",
+      "offset": 233984,
+      "bytes": 15872,
+      "result": 15872,
+      "duration_ns": 3652980
+    },
+    {
+      "ns": 107489791124954,
+      "event": "fsync_begin",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107489791160534,
+      "event": "fsync_end",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 12270
+    },
+    {
+      "ns": 107489981479682,
+      "event": "write_request",
+      "offset": 233984,
+      "bytes": 15872,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107489985976751,
+      "event": "write_ack",
+      "offset": 233984,
+      "bytes": 15872,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107489986108652,
+      "event": "pwrite_begin",
+      "offset": 233984,
+      "bytes": 15872,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107489989681961,
+      "event": "pwrite_end",
+      "offset": 233984,
+      "bytes": 15872,
+      "result": 15872,
+      "duration_ns": 3506338
+    },
+    {
+      "ns": 107489989786322,
+      "event": "fsync_begin",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107489989821462,
+      "event": "fsync_end",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 12900
+    },
+    {
+      "ns": 107490152443179,
+      "event": "poll",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107491152467421,
+      "event": "poll",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107492152486854,
+      "event": "poll",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    }
+  ],
+  "tail_events": [
+    {
+      "ns": 107726157082499,
+      "event": "poll",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107727157095243,
+      "event": "poll",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107728157108807,
+      "event": "poll",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107729325759321,
+      "event": "barrier_begin",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 107729325766081,
+      "event": "barrier_end",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    }
+  ]
+}

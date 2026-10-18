@@ -62,6 +62,21 @@ multi-second actual Main file stall while input/packets progress. Preserve
 41c before42/43/44/45 comparisons; do not label RAM-cache readback persistence.
 Snapshot milestone4a remains planned, not implemented.
 
+**Update21:35UTC:** the actual Main worker delayed-flush gate passes disk
+service/instruction progress:4200ms bounded flush work,3 reads/21 writes
+acknowledged during the window, no overlapping poll gap above20ms or current
+pack/CRC/RX/abort fault. The injected job delays then calls real fsync; it is
+not observed kernel latency. Mouse moves and Echo42 completes afterward;
+the in-window capture does not prove command completion. There are no new
+network packets in the window, so packet progress remains open. A real Main
+durability barrier succeeds and `type ///rtlflush42.txt` reads `worker42`.
+Evidence/source/bridge tests: `reports/2026-10-18-main-slow-flush/`.
+Qualification DSO55bc9a8c remains resident; do not dlclose it. Its one job has
+finished. Main16875 remains the sole SPI owner. Setup and post-test GDB pauses
+are outside its measured window. Normal Cedar `boot` is now visibly accepted
+(germ812 on screen); preserve the mutated pack. A new Main process/image
+remount and marker readback are still required for cold persistence.
+
 Fresh paths: `Cedar41c_20261018/{main.log,server.log,cedar-work.pack}` and
 `_Computer/DoradoRTL_Cedar41c_20261018/Cedar41c.mgl`. Local helpers
 `build/rtl-executive/cedar41c-launch/`, committed native41c reports. New
@@ -1199,7 +1214,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Add monotonic bounded request/ACK/file/poll tracing and durable remount/program/restart/reboot/SIGTERM/SIGINT boundaries; component tests pass.
 - [x] Deploy immutable disk-cache Main on fresh same-RBF41c with observer; cache-ready confirmed and real original CoolBoot requested.
 - [x] Finish41c fresh original Cedar/Viewers/mouse/Cmd/focus/exact keyboard; local marker created/closed/read back.
-- [ ] Qualify41c durable cold-remount marker persistence, controlled multi-second whole-Main file stall with input/network progress, and sustained fault-free stress.
+- [x] Actual Main4200ms delayed flush work:3 read/21 write ACKs, continued instruction progress, no poll gap above20ms; subsequent marker readback and host durability barrier pass.
+- [ ] Qualify packet traffic and completed keyboard command during actual Main worker delay; first live window had no packets and Echo completed afterward.
+- [ ] Qualify41c durable cold-remount marker persistence and sustained fault-free stress; normal guest Boot now visibly accepted, cold ARM-cache remount still pending.
 - [ ] Separately reduce FPGA whole-track write amplification where original guest/CRC semantics permit.
 - [x] Prototype default-OFF deferred internal DRAM reads; independent nonzero pipeline/write/reset/array/full-MSA/physical-state/default-generation gates pass.
 - [x] Native45 full all-device timing PASS:31 summary/36 categories/four conditions, minimum+0.017ns, no new cuts or clock coverage gaps.

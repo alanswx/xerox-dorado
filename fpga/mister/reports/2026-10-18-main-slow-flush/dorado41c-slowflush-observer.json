@@ -1,0 +1,50 @@
+{
+  "arm_ns": 107483063691167,
+  "events": [
+    {
+      "phase": "waiting",
+      "ns": 107482146524575,
+      "result": 0,
+      "error": 0,
+      "duration_ns": 0
+    },
+    {
+      "phase": "begin",
+      "ns": 107483064252983,
+      "result": 0,
+      "error": 0,
+      "duration_ns": 0
+    },
+    {
+      "phase": "end",
+      "ns": 107487264388008,
+      "result": 0,
+      "error": 0,
+      "duration_ns": 4200137475
+    }
+  ],
+  "main_log_samples": [
+    {
+      "observed_ns": 107483640101009,
+      "text": "Dorado net: flags=5 tx_words=13 good=3257 crc_bad=0 dropped=6 rx_bad=0 aborted=0 machine=56298aa4 state=472a cpu=22f3cb55\n"
+    },
+    {
+      "observed_ns": 107484633173236,
+      "text": "Dorado net: flags=5 tx_words=13 good=3257 crc_bad=0 dropped=6 rx_bad=0 aborted=0 machine=563d0730 state=472a cpu=25eeb69b\n"
+    },
+    {
+      "observed_ns": 107485635981799,
+      "text": "Dorado net: flags=5 tx_words=13 good=3257 crc_bad=0 dropped=6 rx_bad=0 aborted=0 machine=5651d1dc state=472a cpu=28e9abaf\n"
+    },
+    {
+      "observed_ns": 107486630047027,
+      "text": "Dorado net: flags=5 tx_words=13 good=3257 crc_bad=0 dropped=6 rx_bad=0 aborted=0 machine=56660d60 state=472a cpu=2be493b7\n"
+    },
+    {
+      "observed_ns": 107487637608492,
+      "text": "Dorado net: flags=5 tx_words=13 good=3257 crc_bad=0 dropped=6 rx_bad=0 aborted=0 machine=56774544 state=47ea cpu=2edf8278\n"
+    }
+  ],
+  "server_log_samples": [],
+  "finished_ns": 107487772053232
+}
