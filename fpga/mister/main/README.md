@@ -151,6 +151,75 @@ reboot; an init-only hook is too late. Keep the existing Main as the sole SPI
 owner. Integration still needs the multi-second file-I/O/polling, coherence,
 mount/reset/error and actual Cedar close/remount tests in milestone3.
 
+### Coherent disk cache candidate (2026-10-18)
+
+`dorado_disk_cache` and `dorado_disk` now implement the disk path on the
+existing worker. Apply `main-260912.patch`, `main-video-mode-260912.patch`,
+`main-offload-260912.patch`, then `main-disk-260912.patch` to the pinned
+revision above. Copy `dorado_net.{cpp,h}`, `dorado_disk.{cpp,h}`,
+`dorado_disk_cache.{cpp,h}` and `dorado_disk_trace.{cpp,h}` into Main's root;
+its wildcard build includes them. The isolated GCC10.2.1 build is
+`misterubuntu:/home/alans/mister/Main_DoradoDisk_20261018`;
+candidate SHA256 `40e14b6b97d62435c6e1ecd5c78bf9959c74b816a8e9452b1e64c28179ca8188`.
+It is not deployed or qualified by a real Cedar run yet.
+
+Enable with `DORADO_DISK_CACHE=1`; only original core name `Dorado` is
+intercepted. The current single fixed regular pack must fit64MiB on slot0;
+unsupported images fail mount instead of silently reverting to blocking IO.
+The entire image preloads on the worker before Main advertises its size.
+RAM then reserves capacity for every possible dirty sector, so read misses
+cannot queue behind a long O_SYNC write. This is ARM Linux DDR, separate
+from the guest's8MiB on external SDRAM. MiSTer14 measured407984KiB available
+before these tests; the current image is63578624 bytes. Metadata, a bounded
+8192-event trace and a single64KiB write snapshot add under2MiB.
+
+Main captures/ACKs FPGA writes under a short cache lock, after checking
+bounds/generation/read-only/error state. The worker snapshots dirty runs,
+releases that lock before file IO, and coalesces overwritten/adjacent dirty
+sectors. Later writes redirty their sectors while the old snapshot remains
+immutable. Reads always see the latest accepted bytes. There is one cache
+worker job at a time; full Main queues defer preload/file work without
+waiting in polling. No block eviction is needed within the bounded image.
+ACK is RAM acceptance; durability requires the explicit drain and fsync.
+
+The patch drains before image replacement, user_io initialization, FPGA
+programming, Main fork/reexec and reboot. SIGTERM requests a drain in Main's
+poll loop; the exact existing input.cpp SIGINT handler now defers likewise.
+A file failure retains the recovery image/dirty state and prevents further
+write capture, successful drain, replacement or normal termination.
+`read_retained` supports explicit recovery access after failure. Forced
+process termination/power loss cannot preserve volatile RAM; complete
+machine snapshots and their disk barrier remain milestone4a.
+The existing RTL remount guard still rejects replacement with a dirty or
+pending FPGA track; an ARM drain alone is not a guest filesystem flush.
+
+`DORADO_DISK_TRACE=1` creates an owner-only `/tmp/dorado-disk-PID.jsonl`, or
+supply a fresh pathname. Records use monotonic nanoseconds for requests,
+ACKs, file begin/end/errors, poll gaps/heartbeats and lifecycle barriers.
+Main only appends into bounded RAM; the worker writes the trace file.
+Lifecycle barriers may also flush it after work drains. Overflow explicitly
+counts dropped records. Longer gaps during an explicit drain are reported
+separately from regular polling. Use this observer on the next real run;
+the exact Native41b timeout syscall was not observed.
+
+```sh
+python3 tests/test_disk_cache.py /path/to/pinned/Main
+python3 tests/test_disk_adapter.py /path/to/Main-with-main-260912.patch
+```
+
+Linux and MiSTer ARM pass actual-worker/file tests:4.2s write stalls with
+continued cached reads/writes and SPI-spy polling; queue saturation; full
+64MiB dirty capacity; overlap/unaligned neighbor coherence; EINTR/partial IO;
+write-during-sync; stale generation/read-only/bounds; failed write/sync
+recovery; full physical close/remount readback; and termination durability.
+The adapter driver extracts the patched pinned SIGINT function itself.
+Linux mutable-buffer and lost-dirty controls fail. ARM regular-loop maxima
+were2.782ms for cache tests and4.977ms for adapter SPI spies. These are
+component results, not full running Main/input/network or FPGA qualification.
+The first ARM adapter attempt failed a pre-main thread-identity test witness;
+runtime pthread identity passes without production changes. Full evidence,
+including that initial failure, is in `reports/2026-10-18-disk-cache`.
+
 ### Live video modeline parser correction
 
 Apply `main-video-mode-260912.patch` to the same pinned checkout before

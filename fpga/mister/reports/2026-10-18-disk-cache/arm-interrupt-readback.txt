@@ -1,0 +1,1 @@
+Independent readback of /tmp/dorado-disk-adapter-v3-interrupt.pack equals its complete expected image after normal SIGINT exit130. PASS.

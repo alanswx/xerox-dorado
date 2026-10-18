@@ -1,0 +1,101 @@
+{
+  "status": "Cache and adapter component tests PASS on Linux and MiSTer14 ARM; full pinned Main build PASS. Not deployed; real Main polling/input/network, FPGA disk ACK, fresh Cedar persistence and stress remain pending.",
+  "pinned_main_commit": "47221c18987e101f50caafeb3b615f53b62722ca",
+  "main_sha256": "40e14b6b97d62435c6e1ecd5c78bf9959c74b816a8e9452b1e64c28179ca8188",
+  "main_elf_sha256": "b4085cccf312b91191826f5378b84a318fa16c04d546412408635e9b73046a12",
+  "main_build": "misterubuntu:/home/alans/mister/Main_DoradoDisk_20261018",
+  "compiler": "GCC 10.2.1 ARM, existing Main build flags, isolated checkout",
+  "capacity": {
+    "image_max_bytes": 67108864,
+    "current_pack_bytes": 63578624,
+    "guest_sdram_bytes": 8388608,
+    "cache_location": "ARM Linux DDR, not guest SDRAM or FPGA block RAM",
+    "bounded_worker_jobs": 1,
+    "physical_write_snapshot_bytes": 65536,
+    "trace_events_capacity": 8192,
+    "dirty_sector_bytes": 512
+  },
+  "tests": [
+    "4.2s controlled worker file stall with live test SPI read/write/poll heartbeat",
+    "actual eight-slot Main queue full defers preload and consumes no FPGA data",
+    "full image/overlap/unaligned neighbor/read-after-write oracle",
+    "100 track writes coalesced to32 physical sectors",
+    "partial read/write EINTR handling",
+    "write during fsync followed by another durable barrier",
+    "partial write ENOSPC and fsync EIO retain recovery RAM and reject further ACK/replacement",
+    "64MiB all-sector-dirty capacity and complete physical oracle",
+    "stale generation/read-only/overflow/zero/out-of-range geometry rejection",
+    "SIGTERM and exact patched pinned input.cpp SIGINT drain before exit; error prevents both",
+    "monotonic file duration and concurrent SPI ACK/poll trace validation"
+  ],
+  "cache_linux_max_call_ms": 0.013,
+  "cache_linux_max_poll_gap_ms": 2.39,
+  "cache_arm_max_call_ms": 0.037,
+  "cache_arm_max_poll_gap_ms": 2.782,
+  "adapter_linux_max_poll_gap_ms": 2.24,
+  "adapter_arm_max_poll_gap_ms": 4.977,
+  "measurement_limits": "Test heartbeat/SPI spies with actual worker and files, not the entire running Main. Lifecycle barriers intentionally block; longer trace gaps at those boundaries do not describe the regular poll test. Guest file close is not an ARM durability barrier until real integration is qualified. Initial ARM adapter test failed its pre-main std::thread identity witness; switched test to runtime pthread identity, production source unchanged. Initial failure log retained. This does not prove the Native41b timeout syscall.",
+  "controls": "Linux shared mutable write-buffer and dropped-dirty mutations fail; old worker controls recorded separately",
+  "source_sha256": {
+    "fpga/mister/main/dorado_disk_cache.h": "9ffbf530b6587a3ddfeb4f73c2ab52f5738d37d2fff692723cfe036436f57c33",
+    "fpga/mister/main/dorado_disk_cache.cpp": "236cb4ac2f11a6ae9df1d5951d56e11e01e59a96880a96c756774ed9820464cb",
+    "fpga/mister/main/dorado_disk_trace.cpp": "ca81134fa1c6fb8732b354d3a82eb07444b0bfc87f98fe3d4bd8a899eea00b72",
+    "fpga/mister/main/dorado_disk_trace.h": "3c2462495773ed94cf3ed00fafe3d5736279f12a9d53895d9a23aac99d7bf4de",
+    "fpga/mister/main/dorado_disk.h": "ca9debff07a62c31d102edc8ad160f7bab09eb9bd9be57ad4f5c8a2b425490f5",
+    "fpga/mister/main/dorado_disk.cpp": "fa42f4f5957aed12fd42ecb25212d42c403138f1d2a7c8755bfa6a5098d40c5a",
+    "fpga/mister/main/main-disk-260912.patch": "e0f66425912d0552b0dbbb51639d6345abccdb23010b2be36716c8e6a2c4865c",
+    "fpga/mister/main/main-offload-260912.patch": "169b6b8ad4ff17fd2e0b7165c7f56ea4ec49b4cb7960741f3a1190aa0e0f3337",
+    "fpga/mister/main/main-260912.patch": "6fe24ad4aed593584353d334dd244e08c616ed2314b7d372f1d3cd0def81c122",
+    "fpga/mister/main/main-video-mode-260912.patch": "ca6a9ef4c58837490668e4ecb7efa4bee82e7661648c25f9393d4e1e0561daac",
+    "fpga/mister/main/tests/test_disk_adapter.cpp": "7f8e12068c9a5f0be527e953a449949c17683fa2e8d4ab1f150e3c2532e4491a",
+    "fpga/mister/main/tests/test_disk_cache.cpp": "2f19fd2dff3926fa668a75c3266082a906cccfd5b5afaa6daccaf68414f97954",
+    "fpga/mister/main/tests/test_disk_adapter.py": "125b889f7a4ed268c2e3048619633b86c7694531b6ffa7e8e3f9acdf001d5b90",
+    "fpga/mister/main/tests/test_disk_cache.py": "7caa22b58c891418b32363fbbab2444acc1c70ff8620a1fc5d5b0f692e8b6357",
+    "fpga/mister/main/tests/disk/file_io.h": "0b0730d78e0194b0c00140b7b74d5723bcba7548e0d8aff2227e4d6b6f5dda23",
+    "fpga/mister/main/tests/disk/spi.h": "8575ab2a9bf5ae6cbb70b5b24b42e8ba9c00ce39beb77aafcc1d102ecf5df9c8",
+    "fpga/mister/main/tests/disk/user_io.h": "7d60bb5f7f1fb35abe43c98f5bce3fcf88e97ee5f2492dcb7758844891470924"
+  },
+  "arm_traces": {
+    "dorado-disk-adapter-v2-normal.jsonl": {
+      "events": 8714,
+      "first_pwrite_ns": 4200109326,
+      "progress_during_write": {
+        "read_ack": 1911,
+        "write_ack": 1911,
+        "poll": 3
+      },
+      "note": "Recorded poll gaps include explicit lifecycle drain; test-loop maximum is reported separately."
+    },
+    "dorado-disk-adapter-v2-termination.jsonl": {
+      "events": 7675,
+      "first_pwrite_ns": 4200124783,
+      "progress_during_write": {
+        "read_ack": 1911,
+        "write_ack": 1911,
+        "poll": 3
+      },
+      "note": "Recorded poll gaps include explicit lifecycle drain; test-loop maximum is reported separately."
+    },
+    "dorado-disk-adapter-v3-error.jsonl": {
+      "events": 7674,
+      "first_pwrite_ns": 4200075563,
+      "progress_during_write": {
+        "read_ack": 1911,
+        "write_ack": 1911,
+        "poll": 3
+      },
+      "note": "Recorded poll gaps include explicit lifecycle drain; test-loop maximum is reported separately."
+    },
+    "dorado-disk-adapter-v3-interrupt.jsonl": {
+      "events": 7675,
+      "first_pwrite_ns": 4200124987,
+      "progress_during_write": {
+        "read_ack": 1911,
+        "write_ack": 1911,
+        "poll": 3
+      },
+      "note": "Recorded poll gaps include explicit lifecycle drain; test-loop maximum is reported separately."
+    }
+  },
+  "hardware": "MiSTer14 remains halted on preserved Native41b fault; no reload, guest patch, disk completion or change to that pack."
+}

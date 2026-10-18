@@ -1,0 +1,113 @@
+--- a/user_io.cpp
++++ b/user_io.cpp
+@@ -43,6 +43,7 @@
+ #include "scaler.h"
+ #include "support.h"
+ #include "dorado_net.h"
++#include "dorado_disk.h"
+ 
+ static char core_path[1024] = {};
+ static char rbf_path[1024] = {};
+@@ -1410,6 +1411,7 @@
+ 
+ void user_io_init(const char *path, const char *xml)
+ {
++	if (!dorado_disk_before_mount(0)) return;
+ 	dorado_net_reset();
+ 	char *name;
+ 	static char mainpath[512];
+@@ -2128,6 +2130,7 @@
+ 
+ int user_io_file_mount(const char *name, unsigned char index, char pre, int pre_size)
+ {
++	if (!dorado_disk_before_mount(index)) return 0;
+ 	int writable = 0;
+ 	int ret = 0;
+ 	int len = strlen(name);
+@@ -2262,6 +2265,16 @@
+ 	}
+ 
+ 	user_io_sd_set_config();
++
++	// Dorado preloads on the worker and announces the size only once ready.
++	if (dorado_disk_enabled() && len)
++	{
++		if (ret && !pre && dorado_disk_mount(&sd_image[index], index, writable, io_ver)) return 1;
++		FileClose(&sd_image[index]);
++		sd_image[index].size = 0;
++		ret = 0;
++		writable = 0;
++	}
+ 
+ 	// send mounted image size first then notify about mounting
+ 	EnableIO();
+@@ -3169,6 +3182,7 @@
+ 
+ void user_io_poll()
+ {
++	dorado_disk_poll();
+ 	dorado_net_poll();
+ 	#ifdef PROFILING
+ 		PROFILE_FUNCTION();
+@@ -3345,6 +3359,9 @@
+ 				blks = 1;
+ 			}
+ 			DisableIO();
++			int dorado = dorado_disk_service(disk, op, lba, blksz, sz, ack, fio_size);
++			if (dorado < 0) break;
++			if (dorado > 0) continue;
+ 			if ( sd_type[disk] == SD_TYPE_A2)
+ 			{
+ 				//if (op) printf("A2 %x %llu on %d\n", op,lba, disk);
+--- a/fpga_io.cpp
++++ b/fpga_io.cpp
+@@ -16,6 +16,7 @@
+ #include "menu.h"
+ #include "shmem.h"
+ #include "offload.h"
++#include "dorado_disk.h"
+ 
+ #include "fpga_base_addr_ac5.h"
+ #include "fpga_manager.h"
+@@ -425,6 +426,7 @@
+ 
+ int fpga_load_rbf(const char *name, const char *cfg, const char *xml)
+ {
++	if (!dorado_disk_barrier("FPGA programming")) return -1;
+ 	OsdDisable();
+ 	static char path[1024];
+ 	int ret = 0;
+@@ -587,6 +589,7 @@
+ 
+ void reboot(int cold)
+ {
++	if (!dorado_disk_barrier("reboot")) return;
+ 	sync();
+ 	fpga_core_reset(1);
+ 
+@@ -619,6 +622,7 @@
+ 
+ void app_restart(const char *path, const char *xml, const char *exe)
+ {
++	if (!dorado_disk_barrier("Main restart")) return;
+ 	sync();
+ 	fpga_core_reset(1);
+ 
+--- a/input.cpp
++++ b/input.cpp
+@@ -21,6 +21,7 @@
+ #include "input.h"
+ #include "autofire.h"
+ #include "user_io.h"
++#include "dorado_disk.h"
+ #include "menu.h"
+ #include "hardware.h"
+ #include "cfg.h"
+@@ -1637,6 +1638,7 @@
+ 
+ static void INThandler(int code)
+ {
++	if (dorado_disk_defer_exit(code)) return;
+ 	(void)code;
+ 
+ 	printf("\nExiting...\n");

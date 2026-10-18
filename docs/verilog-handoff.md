@@ -87,6 +87,36 @@ fault.json, fault-pack-preservation.json, compressed full logs and screen.
 The earlier fresh desktop/input/file-close/read successes remain valid;
 cold-remount persistence and two-hour stability remain unqualified.
 
+**ARM disk-service candidate implemented and component-qualified, not deployed.**
+`fpga/mister/main/dorado_disk{,_cache,_trace}.{cpp,h}` plus main-disk patch
+preload one <=64MiB regular image into ARM DDR, coalesce dirty sectors and
+run all file IO on Main's actual existing worker. Whole-image dirty capacity
+prevents reads queuing behind long O_SYNC writes; one64KiB immutable write
+snapshot/job, bounded metadata/trace. Main alone captures/ACKs SPI under the
+short cache lock. Failed data is retained with explicit recovery access;
+bounds/generation/readonly/error checks happen before capture. All normal
+remount/init/core-program/fork/reboot boundaries drain+fsync. SIGTERM and
+pinned input.cpp SIGINT defer termination into Main's loop, and reject it on
+failed dirty data. Forced termination/power loss still lose volatile RAM.
+A Main drain does not flush a dirty FPGA track or Cedar's filesystem.
+
+Actual cache/worker/file tests and adapter SPI spies pass Linux and ARM,
+including4.2s stalls, full8-slot queue, overlap/neighbors, complete physical
+close/remount oracle,64MiB all-sector-dirty capacity, EINTR/short IO,
+write-during-sync, ENOSPC/fsync EIO, stale generations and normal termination.
+Linux shared-buffer/lost-dirty controls fail. ARM test-loop max gap2.782ms
+cache /4.977ms adapter, not a whole-running-Main/input/network result.
+Monotonic trace independently shows >1900 read+write ACKs during the4.2s IO.
+An initial ARM harness thread-identity assertion was corrected to runtime
+pthread identity, with production source unchanged; failure retained.
+GCC10.2.1 full pinned Main build passes, SHA40e14b6b97d62435c6e1ecd5c78bf9959c74b816a8e9452b1e64c28179ca8188;
+`misterubuntu:/home/alans/mister/Main_DoradoDisk_20261018/bin/MiSTer{,.elf}`,
+local `build/rtl-executive/arm-disk-adapter/`. Source/compiler identities and
+reports are in reports/2026-10-18-disk-cache. Next stage immutable Main and
+run a fresh same-RBF41c with DORADO_DISK_CACHE=1 and a new /tmp disk trace,
+then qualify real polls/input/packet delivery, close/cold remount and stress.
+Keep the failed41b physical pack untouched; use the original fresh seed.
+
 **Native44 group-interleaving candidate: simulation AND all-device timing PASS,
 not deployed.** Optional INTERLEAVE_GROUPS=1 remaps only raw backing addresses,
 leaving original chip-local ports and pipeline/cache/map/ECC intact. Default
@@ -1049,12 +1079,12 @@ and has unreviewed hold violations; never deploy it.
 - [x] Native41 original firmware/Cedar login/Guest input on SDRAM; measure three idle issue windows and matching cause views,10.20% above39 configuration.
 - [ ] Complete41 full Viewers/input/persistence;42 matched device control remains untested on hardware.
 - [x] Diagnose/reproduce PrintTV ACK race; bounded producer-independent packet replay passes native/ARM loss/wrap/ring/reuse tests; old server fails regression.
-- [ ] Fresh original-firmware boot with e237dffc fixed daemon, without ARM cursor repair;41's18:22 repair is explicitly assisted.
+- [x] Fresh original-firmware/Viewers boot with e237dffc fixed daemon, without ARM cursor repair (41b); later disk stress failed separately.
 - [x] Stage/deploy identical-RBF Native41b from untouched seed with tested e237dffc daemon; preserve old41 pack/logs after repeated old-server ACK race.
 - [x] Native41b original firmware/BFN113/login and actual Guest input; C watcher completed/released; three idle issue windows reproduce1.5957M/s.
 - [x] Native41b all34 loadees/profile No; pass original PrintTV stall point with fixed daemon and no cursor/guest repair.
 - [x] Native41b full unassisted Viewers/mouse/Cmd/focus/exact short+alphabet+digit echo; local marker created/closed/read back.
-- [ ] Cold-remount41b's closed `///rtl41bpersist.txt`, expected `rtl41bpersist20261018`; clean optional startup work before host core reload.
+- [ ] Cold-remount persistence remains unqualified:41b halted on host-write timeout before the normal boot was visibly accepted; preserved pack excludes dirty FPGA track. Use a clean persistence case after disk-service repair.
 - [x] Optional response-boundary raw arbitration and generator: independent order/payload/reset/stall fixtures, full MSA equivalence and Native43 all-device timing pass.
 - [ ] Deploy43 and measure repeatable end-to-end gain against41; synthetic6.406% fewer host edges is not an FPGA throughput claim.
 - [x] Collect passive full-MSA raw trace/final physical-state oracle; replay layout/cache/row locality with discarded-write/corrupt-read failure controls.
@@ -1063,7 +1093,11 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Fix recurring initially black HDMI after core load in Main; framebuffer toggle is a workaround, parser patch is a separate defect.
 - [ ] Deploy/qualify instruction diagnostics, including maintenance/reset/task switching, and measure actual issue rates with external waits separately.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
-- [ ] Adapt ARM write coalescing with read/remount/error coherence; address blocking flushes and whole-track write amplification.
+- [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.
+- [x] Implement/test bounded whole-image ARM cache, dirty-run coalescing, worker file IO, Main-only SPI capture and error recovery; actual-worker Linux/ARM and full pinned Main build pass.
+- [x] Add monotonic bounded request/ACK/file/poll tracing and durable remount/program/restart/reboot/SIGTERM/SIGINT boundaries; component tests pass.
+- [ ] Deploy immutable disk-cache Main on fresh same-RBF41c with observer; prove real Main input/network polling during disk activity, cold-remount persistence and sustained fault-free Cedar stress.
+- [ ] Separately reduce FPGA whole-track write amplification where original guest/CRC semantics permit.
 - [x] Add/test nonblocking pinned Main worker enqueue and empty-wake predicate on Linux/ARM; blocking and old-wake controls fail. Prerequisite only, not deployed/integrated disk I/O.
 - [x] Review MacPPC/Sun/NeXT DDR Ethernet host/RTL rings; record source hashes, address overlap and payload-size constraints.
 - [ ] Adapt frame rings for direct ARM daemon DDR transport, retaining original DskEth/CRC/wire timing and selectable SPI fallback; qualify reset/ownership/stalls/boot before deployment.

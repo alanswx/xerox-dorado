@@ -150,6 +150,22 @@ milestone3 actual file-worker/coherence/lifecycle integration with monotonic
 request/ACK/file/poll tracing and injected multi-second storage stalls;
 then repeat fresh persistence/stability gates before promoting candidates.
 
+Update20:12UTC: milestone3's cache/adapter is implemented and passes actual
+worker/file tests on Linux and MiSTer14 ARM. One <=64MiB image preloads into
+ARM DDR before mount notification; Main alone ACKs into reserved coherent
+RAM, and one worker snapshot coalesces dirty sectors into <=64KiB file writes.
+Error data is retained and normal remount/program/reexec/reboot/termination
+requires successful drain+fsync. Tests inject4.2s writes and verify concurrent
+SPI-spy read/write/poll progress, complete physical close/remount oracles,
+queue saturation/capacity/error/generation/partial IO and exact patched Main
+SIGINT/SIGTERM lifecycle behavior. ARM regular test-loop max gaps2.782ms
+cache and4.977ms adapter; explicit lifecycle drain gaps are separate.
+This is not whole-running-Main or FPGA qualification. Full pinned GCC10.2.1
+Main build40e14b6b passes, not deployed. Next fresh same-RBF41c must use the
+new monotonic request/ACK/file/poll observer, then real input/network,
+cold-remount marker persistence and sustained Cedar stress. Reports disk-cache;
+Native41b remains halted and preserved. Complete snapshots remain milestone4a.
+
 **Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
 original firmware to the actual Cedar login on MiSTer14. Real Guest input
 is accepted; Basic boot is running. Main11453 is the
