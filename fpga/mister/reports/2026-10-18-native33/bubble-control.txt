@@ -1,0 +1,5 @@
+[4000] %Fatal: tb_storage_linecache.sv:97: Assertion failed in tb_storage_linecache.unnamedblk6.unnamedblk7: cold read has an avoidable lookup bubble
+%Error: verilog/verilator/tb_storage_linecache.sv:97: Verilog $stop
+Aborting...
+
+exit=1

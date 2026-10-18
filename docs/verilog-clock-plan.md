@@ -189,6 +189,18 @@ Counters currently combine pause causes; separate DDR/HPS duration is not
 measured. Native31 control completed the loader and advanced BootEssentials. Evidence/reproduction:
 `fpga/mister/reports/2026-10-18-ddr-linebuffer/`. No hardware speedup claim yet.
 
+### Remove cold-miss overhead: Native33 experiment
+
+Native32's buffer adds a lookup cycle on a miss, a possible contributor to
+its firmware regression. The independent Native33 candidate issues misses
+during that lookup cycle after synchronous tags settle; hits remain wholly
+off the DDR bus. Busy and zero-latency returns, writes, reset/orphan drain,
+and every original-board bit pass. A new latency contract fails on the old
+Native32 adapter. The full16-bit fixture's simulated host time drops235us
+->213us, same12012 chip cycles/2992reads/7872writes. FPGA benefit unmeasured.
+Native33 is building at50MHz with only this adapter delta; timing/hardware
+qualification pending. Native32 continues its original firmware/Cedar run.
+
 ## First prototype: implemented, isolated
 
 [`dorado_clock_phases.sv`](../verilog/rtl/dorado_clock_phases.sv) describes

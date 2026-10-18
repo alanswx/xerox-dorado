@@ -92,8 +92,11 @@ module tb_storage_linecache;
         tick();
         // All eight concurrent chip groups survive interleaved accesses to
         // the four lanes. Only eight64-bit reads are necessary, not32.
-        for(integer lane=0;lane<4;lane++)for(integer group_id=0;group_id<8;group_id++)
-            access_word(0,8'(16*group_id+lane),0);
+        for(integer lane=0;lane<4;lane++)for(integer group_id=0;group_id<8;group_id++)begin
+            request(0,8'(16*group_id+lane),0);
+            if(lane==0 && !rd)$fatal(1,"cold read has an avoidable lookup bubble");
+            finish_request(0,8'(16*group_id+lane),0);
+        end
         if(reads!=8)$fatal(1,"discarded useful DDR lanes: reads=%0d expected8",reads);
         // A proven hit must complete even when DDR cannot accept anything.
         force_busy=1;access_word(0,8'd1,0);force_busy=0;

@@ -10,17 +10,18 @@ exceptions. RBF `5747eb2698ea0d8ebbed933b714da6ad29db79730f9eecd16595724aa9c040e
 Fit14m23,84%ALMs,307M10Ks. Original CPU/DRAM/cache/ECC/serial timing and
 SYSPER4 are unchanged; only the backing adapter and cache option differ.
 
-Original firmware is loading microcode (c0fc7000). C is held by the BFN113
-watcher, reasserted after Main restart; watcher owns final release. Cedar/
-login/Viewers/exclusive input are pending. Main22751/server22742, unchanged
+Original firmware completed and sent BFN113 (~04:25UTC); watcher released
+C. Actual HDMI shows Cedar login with no host-FB workaround on this load.
+Fast Guest input is being delivered (~04:28). Loader/Viewers/exclusive
+CommandTool/mouse tests remain pending. Main22751/server22742, unchanged
 immutable1fb2.../1d5... binaries; sole Main SPI owner. Launcher
 `_Computer/DoradoRTL_Cedar32_20261018/Cedar32.mgl`; active pack/logs/reboot
 config `games/DoradoRTL/Cedar32_20261018`. Fresh corrected seed f3bce2a8...
 Per-core1080p30 request; actual physical timing still to recheck for this fit.
 The user has explicitly released prior sessions for reloads. Only14 allocated.
 
-Clock-count mode is currently ON: machine=enabled fabric edges, cpu=host
-edges.32-bit deltas<60s, wrap85.9s. First firmware sample25.0156% enabled,
+Clock-count mode is currently OFF (normal CPU). When ON, machine=enabled
+fabric edges, cpu=host edges.32-bit deltas<60s, wrap85.9s. First firmware sample25.0156% enabled,
 50.0087MHz fabric, versus Native31 firmware26.4617%: no improvement in this
 workload. Cedar loader/desktop still pending. These are not retired
 instructions and the counters combine DDR/HPS/global pauses rather than
@@ -66,6 +67,14 @@ and1505 chipcycles unchanged. This is fixture traffic, not hardware speed.
 Default generator cache remains OFF pending real hardware benefit/correctness.
 Candidate source hash4984c1f7...; raw buffers128x64/128x21. Frozen build
 `/home/alans/mister/Dorado_Native32_20261018`; local native32-build.log.
+
+**Native33 is building separately, not deployed.** It removes Native32's
+extra cold-miss lookup cycle: tags settle during LOOKUP and misses issue
+DDR on that cycle; busy and zero-latency cases remain correct. Full gates
+pass with every storage bit unchanged. New no-bubble requirement fails on
+Native32's exact adapter. Frozen `/home/alans/mister/Dorado_Native33_20261018`;
+local native33-build.log. Fresh fit/STA/clock/hold and hardware still pending.
+Live Native32 is unchanged. See reports/2026-10-18-native33/.
 
 ## Boot history (current status above takes precedence)
 

@@ -54,7 +54,7 @@ module dorado_storage_ddram #(
         reg [ADDR_BITS-3:0] tag_q=0;
         reg [63:0] data_q=0;
         wire read_complete=ddram_rvalid &&
-            ((state==ISSUE && !ddram_busy && !write_latched) || state==READ_WAIT);
+            ((ddram_read && !ddram_busy) || state==READ_WAIT);
         assign line_hit=valid_q && tag_q==address_latched[ADDR_BITS-1:2];
         assign line_data=data_q;
         always @(posedge clk)begin
@@ -82,7 +82,11 @@ module dorado_storage_ddram #(
     assign rsp_valid = state==RESPONSE && !aborted && !reset;
     assign ddram_burstcount = 8'd1;
     assign ddram_addr = BYTE_BASE[31:3] + 29'(address_latched >> 2);
-    assign ddram_read = state==ISSUE && !write_latched;
+    // Synchronous tags settle during LOOKUP. A miss can issue its read on
+    // that very cycle, preserving the uncached adapter's cold-read latency.
+    // Hits never assert a DDR command, even if the bus is unavailable.
+    assign ddram_read = !write_latched &&
+        (state==ISSUE || (state==LOOKUP && !line_hit));
     assign ddram_write = state==ISSUE && write_latched;
     assign ddram_wdata = {4{data_latched}};
     assign ddram_be = write_latched ? (8'h03 << {address_latched[1:0],1'b0}) : 8'hff;
@@ -101,6 +105,10 @@ module dorado_storage_ddram #(
         end
         LOOKUP: if(!write_latched && line_hit)begin
             rsp_data<=16'(line_data >> shift);state<=RESPONSE;
+        end else if(!ddram_busy)begin
+            if(ddram_rvalid)begin
+                rsp_data<=16'(ddram_rdata >> shift);state<=RESPONSE;
+            end else state<=READ_WAIT;
         end else state<=ISSUE;
         ISSUE: if(!ddram_busy) begin
             if(write_latched) state<=RESPONSE;
