@@ -9,15 +9,47 @@ qualify M10K placement and instruction measurement; move bulk RAM to SDRAM;
 reduce memory-request overhead; make ARM disk work nonblocking/coherent;
 connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
-External Xerox-network tunnelling is optional follow-up. Next: qualify the
-fresh same-RBF Native41c with the new disk-cache Main and monotonic observer
-after41b failed post-desktop host-write stress. The failed physical pack is
-preserved; cold remount and39/42 comparisons remain pending. Native39b's idle-login issue/wait baseline is measured.
+External Xerox-network tunnelling is optional follow-up. Next: qualify cold
+marker persistence in Native41d, then39/42/43/44/45 comparisons. Native41c
+passes fresh Viewers/input and actual Main worker-delay disk service; network
+progress during delay and sustained stress remain open. The failed41b pack
+is preserved. Native39b's idle-login issue/wait baseline is measured.
 User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is Native41c, deployed20:15UTC with disk-cache Main.**
+**Live MiSTer14 is Native41d, cold-persistence test.** Main19438/server19352;
+same Native41 RBF a97af936, Main40e14b6b and server e237dffc. Normal Cedar Boot
+was visibly accepted on41c; Main16875 then exited through its real durability
+barrier and server16872 stopped normally. Immutable physical source image
+`Cedar41c_20261018/cedar-work-clean-boot-preserved.pack` is63578624 bytes,
+SHA25681c4195570989a9d3ebf216f5600348af0c57997c738c4e98bf3ea6dd351ca04.
+New41d uses a copied image, a new ARM process/cache and full FPGA reload.
+This is NOT an untouched-seed performance boot. Old source and preserved
+image remain available. No complete FPGA snapshot exists yet; guest markers
+must be read after the cold boot before claiming persistence.
+
+Paths: `Cedar41d_20261018/{cedar-work.pack,server.log,deployment.json,
+qualification.json,reboot-resume.json}`, `_Computer/DoradoRTL_Cedar41d_20261018/
+Cedar41d.mgl`. Main log **`/tmp/dorado41d-main-final.log`**, disk trace
+**`/tmp/dorado41d-disk-final.jsonl`**. A temporary loader-reexec Main could
+not reopen the first O_EXCL trace; it was normally stopped and final19438
+started with these fresh paths and verified cache-ready. Do not use staged
+PID19353/19371 or old41c16875. Main remains the sole SPI owner.
+Main-only FB disable/enable workaround and passive instruction view1 are
+selected through matching40e1 ELF, three known diagnostic GDB pauses.
+Three actual CoolBoot pulses finished; C watcher61319 has observed the new
+BFN113 and released C. Do not restart it. No current pack/CRC/RX/abort fault.
+Login/Guest/profile/Viewers and both cold marker reads remain pending.
+Local helpers: `build/rtl-executive/cedar41d-launch/`.
+
+Snapshot milestone4a has begun: logical-path XML inventory covers4158 native
+instances with RAM pipeline/task-written/readmem coverage tests passing.
+All state candidates are UNCLASSIFIED; wrapper/raw-SDRAM/Main/server scope
+still needs coverage. No online save/load or timing/area claim. Evidence:
+`reports/2026-10-18-snapshot-inventory/`.
+
+**Previous Native41c qualification (stopped, not live):**
 Main16875, server16872. Same RBF a97af936 and e237dffc fixed server, fresh
 **Main live log is now `/tmp/dorado41c-main.log` (both stdout/stderr),**
 moved at21:16UTC to keep diagnostic writes off FAT; the original
@@ -1208,6 +1240,8 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Qualify42/43/44 actual pinned FPGA issue/latency/traffic and fresh boot/input/persistence; no speed claim from synthetic row/cache results alone.
 - [ ] Fix recurring initially black HDMI after core load in Main; framebuffer toggle is a workaround, parser patch is a separate defect.
 - [ ] Deploy/qualify instruction diagnostics, including maintenance/reset/task switching, and measure actual issue rates with external waits separately.
+- [x] Begin4a with generated per-instance logical-path state inventory; actual-cell/read-pipeline/task-write/ROM-load/array/hierarchy coverage and failure controls pass.
+- [ ] Extend/classify full snapshot inventory including wrapper/raw memory/Main/server; prototype bounded state access on one board and qualify area/timing before wide integration.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.
 - [x] Implement/test bounded whole-image ARM cache, dirty-run coalescing, worker file IO, Main-only SPI capture and error recovery; actual-worker Linux/ARM and full pinned Main build pass.
@@ -1216,7 +1250,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Finish41c fresh original Cedar/Viewers/mouse/Cmd/focus/exact keyboard; local marker created/closed/read back.
 - [x] Actual Main4200ms delayed flush work:3 read/21 write ACKs, continued instruction progress, no poll gap above20ms; subsequent marker readback and host durability barrier pass.
 - [ ] Qualify packet traffic and completed keyboard command during actual Main worker delay; first live window had no packets and Echo completed afterward.
-- [ ] Qualify41c durable cold-remount marker persistence and sustained fault-free stress; normal guest Boot now visibly accepted, cold ARM-cache remount still pending.
+- [x] Normal41c guest Boot, Main drain/fsync/exit, preserved physical image81c41955; new41d ARM cache and full FPGA reload, original BFN113 reached/C released.
+- [ ] Read41c markers after41d cold boot, then qualify sustained fault-free disk/network/input stress.
 - [ ] Separately reduce FPGA whole-track write amplification where original guest/CRC semantics permit.
 - [x] Prototype default-OFF deferred internal DRAM reads; independent nonzero pipeline/write/reset/array/full-MSA/physical-state/default-generation gates pass.
 - [x] Native45 full all-device timing PASS:31 summary/36 categories/four conditions, minimum+0.017ns, no new cuts or clock coverage gaps.

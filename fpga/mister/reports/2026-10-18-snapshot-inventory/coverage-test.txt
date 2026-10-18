@@ -1,0 +1,1 @@
+STATE INVENTORY PASS: original RAM/read pipeline, task writes, ROM loads, latch/edge/blocking captures, concat/index/array geometry, hierarchy and failure controls

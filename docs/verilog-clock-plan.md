@@ -329,6 +329,18 @@ RAM-command state. These are design requirements, not implemented features.
 Native45's candidate raises ALM use to79%; evaluate state-access area/timing
 on a representative board before committing to machine-wide instrumentation.
 
+Milestone4a has begun with `tools/sil_state_inventory.py`: unflattened XML
+per-instance destinations, bit/array geometry and source provenance, without
+host ABI offsets. A freshly elaborated Native45-style SDRAM fixture covers
+4158 native instances; all candidates remain UNCLASSIFIED. It includes RAM
+read pipelines, deferred old_data/known/address state, helper-task writes and
+readmem ROM loads. Real-elaboration/original-F10415 coverage and failure-control
+tests pass. External raw SDRAM, Dorado.sv queues/clock/video state, Main and
+server are outside this first inventory. This is not complete coverage or
+online save/load. Evidence: reports/2026-10-18-snapshot-inventory/. Next extend
+scope/classification and qualify bounded access on one representative board
+before machine-wide hardware instrumentation.
+
 ## Objective and constraints
 
 Restore the original throughput and clock relationships: HM section 2.3

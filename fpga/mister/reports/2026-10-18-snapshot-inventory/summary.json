@@ -1,0 +1,495 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "a0d9f2e931a4310f4a4ca6a3821a2de0e6d5e4ba9028bd8f1be68dbb893b5c66",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 4158,
+  "candidate_counts": {
+    "combinational_review": 24204,
+    "initial_only_candidate": 4405,
+    "sequential": 8900,
+    "subroutine_review": 13
+  },
+  "candidate_bits": {
+    "combinational_review": 43807,
+    "initial_only_candidate": 87421,
+    "sequential": 2109812,
+    "subroutine_review": 335
+  },
+  "owners": {
+    "__VdfgRegularize_hf4cf2ca3_0_0": {
+      "combinational_review": {
+        "count": 1,
+        "bits": 1
+      }
+    },
+    "__VdfgRegularize_hf4cf2ca3_0_1": {
+      "combinational_review": {
+        "count": 1,
+        "bits": 1
+      }
+    },
+    "ddram_addr": {
+      "initial_only_candidate": {
+        "count": 1,
+        "bits": 29
+      }
+    },
+    "ddram_be": {
+      "initial_only_candidate": {
+        "count": 1,
+        "bits": 8
+      }
+    },
+    "ddram_burstcount": {
+      "initial_only_candidate": {
+        "count": 1,
+        "bits": 8
+      }
+    },
+    "ddram_read": {
+      "initial_only_candidate": {
+        "count": 1,
+        "bits": 1
+      }
+    },
+    "ddram_wdata": {
+      "initial_only_candidate": {
+        "count": 1,
+        "bits": 64
+      }
+    },
+    "ddram_write": {
+      "initial_only_candidate": {
+        "count": 1,
+        "bits": 1
+      }
+    },
+    "hblank_d": {
+      "sequential": {
+        "count": 1,
+        "bits": 1
+      }
+    },
+    "init_accept": {
+      "combinational_review": {
+        "count": 1,
+        "bits": 1
+      }
+    },
+    "init_response": {
+      "combinational_review": {
+        "count": 1,
+        "bits": 1
+      }
+    },
+    "m": {
+      "combinational_review": {
+        "count": 288,
+        "bits": 328
+      }
+    },
+    "b_BaseBd": {
+      "combinational_review": {
+        "count": 1144,
+        "bits": 5165
+      },
+      "initial_only_candidate": {
+        "count": 352,
+        "bits": 65884
+      },
+      "sequential": {
+        "count": 243,
+        "bits": 40366
+      }
+    },
+    "b_ContA": {
+      "combinational_review": {
+        "count": 1639,
+        "bits": 1893
+      },
+      "initial_only_candidate": {
+        "count": 208,
+        "bits": 208
+      },
+      "sequential": {
+        "count": 424,
+        "bits": 2298
+      }
+    },
+    "b_ContB": {
+      "combinational_review": {
+        "count": 1073,
+        "bits": 2384
+      },
+      "initial_only_candidate": {
+        "count": 112,
+        "bits": 112
+      },
+      "sequential": {
+        "count": 387,
+        "bits": 147809
+      }
+    },
+    "b_DispY": {
+      "combinational_review": {
+        "count": 1671,
+        "bits": 2001
+      },
+      "initial_only_candidate": {
+        "count": 246,
+        "bits": 2292
+      },
+      "sequential": {
+        "count": 548,
+        "bits": 14308
+      }
+    },
+    "b_DskEth": {
+      "combinational_review": {
+        "count": 1619,
+        "bits": 2013
+      },
+      "sequential": {
+        "count": 676,
+        "bits": 4546
+      },
+      "initial_only_candidate": {
+        "count": 353,
+        "bits": 12371
+      }
+    },
+    "b_IFU": {
+      "combinational_review": {
+        "count": 1573,
+        "bits": 2233
+      },
+      "initial_only_candidate": {
+        "count": 201,
+        "bits": 456
+      },
+      "sequential": {
+        "count": 390,
+        "bits": 28653
+      }
+    },
+    "b_MemC": {
+      "combinational_review": {
+        "count": 1849,
+        "bits": 2795
+      },
+      "initial_only_candidate": {
+        "count": 266,
+        "bits": 266
+      },
+      "sequential": {
+        "count": 472,
+        "bits": 26133
+      }
+    },
+    "b_MemD": {
+      "combinational_review": {
+        "count": 1513,
+        "bits": 2444
+      },
+      "sequential": {
+        "count": 573,
+        "bits": 297394
+      },
+      "initial_only_candidate": {
+        "count": 317,
+        "bits": 317
+      }
+    },
+    "b_MemX": {
+      "combinational_review": {
+        "count": 1405,
+        "bits": 2095
+      },
+      "sequential": {
+        "count": 582,
+        "bits": 1379362
+      },
+      "initial_only_candidate": {
+        "count": 323,
+        "bits": 2363
+      }
+    },
+    "b_ProcH": {
+      "combinational_review": {
+        "count": 1286,
+        "bits": 1645
+      },
+      "sequential": {
+        "count": 288,
+        "bits": 6552
+      },
+      "initial_only_candidate": {
+        "count": 162,
+        "bits": 672
+      }
+    },
+    "b_ProcL": {
+      "combinational_review": {
+        "count": 1501,
+        "bits": 1870
+      },
+      "sequential": {
+        "count": 284,
+        "bits": 6211
+      },
+      "initial_only_candidate": {
+        "count": 168,
+        "bits": 678
+      }
+    },
+    "b_msa": {
+      "initial_only_candidate": {
+        "count": 211,
+        "bits": 211
+      },
+      "combinational_review": {
+        "count": 946,
+        "bits": 2040
+      },
+      "sequential": {
+        "count": 490,
+        "bits": 2962
+      }
+    },
+    "b_msa1": {
+      "initial_only_candidate": {
+        "count": 211,
+        "bits": 211
+      },
+      "combinational_review": {
+        "count": 946,
+        "bits": 2040
+      },
+      "sequential": {
+        "count": 490,
+        "bits": 2962
+      }
+    },
+    "b_msa1Odd": {
+      "initial_only_candidate": {
+        "count": 211,
+        "bits": 211
+      },
+      "combinational_review": {
+        "count": 946,
+        "bits": 2040
+      },
+      "sequential": {
+        "count": 490,
+        "bits": 2962
+      }
+    },
+    "b_msa2": {
+      "initial_only_candidate": {
+        "count": 211,
+        "bits": 211
+      },
+      "combinational_review": {
+        "count": 946,
+        "bits": 2040
+      },
+      "sequential": {
+        "count": 490,
+        "bits": 2962
+      }
+    },
+    "b_msa2Odd": {
+      "initial_only_candidate": {
+        "count": 211,
+        "bits": 211
+      },
+      "combinational_review": {
+        "count": 946,
+        "bits": 2040
+      },
+      "sequential": {
+        "count": 490,
+        "bits": 2962
+      }
+    },
+    "b_msa3": {
+      "initial_only_candidate": {
+        "count": 211,
+        "bits": 211
+      },
+      "combinational_review": {
+        "count": 946,
+        "bits": 2040
+      },
+      "sequential": {
+        "count": 490,
+        "bits": 2962
+      }
+    },
+    "b_msa3Odd": {
+      "initial_only_candidate": {
+        "count": 211,
+        "bits": 211
+      },
+      "combinational_review": {
+        "count": 946,
+        "bits": 2040
+      },
+      "sequential": {
+        "count": 490,
+        "bits": 2962
+      }
+    },
+    "b_msaOdd": {
+      "initial_only_candidate": {
+        "count": 211,
+        "bits": 211
+      },
+      "combinational_review": {
+        "count": 946,
+        "bits": 2040
+      },
+      "sequential": {
+        "count": 490,
+        "bits": 2962
+      }
+    },
+    "rr": {
+      "combinational_review": {
+        "count": 1,
+        "bits": 1
+      }
+    },
+    "storage_events": {
+      "combinational_review": {
+        "count": 1,
+        "bits": 9
+      }
+    },
+    "storage_ready": {
+      "combinational_review": {
+        "count": 1,
+        "bits": 1
+      }
+    },
+    "sv": {
+      "combinational_review": {
+        "count": 1,
+        "bits": 1
+      }
+    },
+    "u_arb": {
+      "combinational_review": {
+        "count": 12,
+        "bits": 339
+      },
+      "sequential": {
+        "count": 6,
+        "bits": 49
+      }
+    },
+    "u_drive": {
+      "combinational_review": {
+        "count": 13,
+        "bits": 28
+      },
+      "sequential": {
+        "count": 6,
+        "bits": 114
+      }
+    },
+    "u_initialize": {
+      "combinational_review": {
+        "count": 4,
+        "bits": 26
+      },
+      "sequential": {
+        "count": 3,
+        "bits": 25
+      }
+    },
+    "u_keyboard": {
+      "subroutine_review": {
+        "count": 1,
+        "bits": 7
+      },
+      "combinational_review": {
+        "count": 8,
+        "bits": 37
+      },
+      "sequential": {
+        "count": 5,
+        "bits": 65
+      }
+    },
+    "u_media": {
+      "subroutine_review": {
+        "count": 8,
+        "bits": 189
+      },
+      "sequential": {
+        "count": 55,
+        "bits": 131816
+      },
+      "combinational_review": {
+        "count": 12,
+        "bits": 124
+      }
+    },
+    "u_pixclk": {
+      "initial_only_candidate": {
+        "count": 1,
+        "bits": 1
+      },
+      "sequential": {
+        "count": 2,
+        "bits": 33
+      },
+      "combinational_review": {
+        "count": 1,
+        "bits": 1
+      }
+    },
+    "u_sdram": {
+      "combinational_review": {
+        "count": 12,
+        "bits": 14
+      },
+      "sequential": {
+        "count": 20,
+        "bits": 211
+      },
+      "initial_only_candidate": {
+        "count": 2,
+        "bits": 2
+      },
+      "subroutine_review": {
+        "count": 2,
+        "bits": 120
+      }
+    },
+    "u_terminal": {
+      "subroutine_review": {
+        "count": 2,
+        "bits": 19
+      },
+      "sequential": {
+        "count": 15,
+        "bits": 170
+      },
+      "combinational_review": {
+        "count": 5,
+        "bits": 36
+      }
+    }
+  },
+  "excluded_external_state": [
+    "16MiB raw backing in physical SDRAM",
+    "Dorado.sv wrapper: clocks/phase/gating, wire Ethernet FIFOs, key queue, video/scaler state",
+    "Main: mounted disk cache, worker jobs and lifecycle ownership",
+    "Local daemon: Pup/BSP/STP sessions, history, timers and file identity",
+    "Physical SDRAM chip command/open-row/refresh bookkeeping requires safe draining/reconstruction review"
+  ],
+  "configuration": "Freshly elaborated Native45-style64K-chip/64K-map SDRAM generator fixture; not attested as the frozen FPGA RBF. No save/load ports."
+}
