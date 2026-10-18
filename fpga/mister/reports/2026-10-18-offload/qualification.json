@@ -1,0 +1,29 @@
+{
+  "status": "Linux and MiSTer14 ARM exact-worker prerequisite PASS; no Main deployment, no asynchronous disk/cache implementation yet",
+  "source_main_revision": "47221c18987e101f50caafeb3b615f53b62722ca",
+  "change": "Nonblocking offload enqueue with eight-slot/full/stopped/empty handling; empty-wake predicate loop; no allocation while queue mutex held on accepted callback assignment",
+  "native": "3s callback,1357 poll attempts,max enqueue0.007ms,max heartbeat gap2.216ms; FIFO stop/join and capacity pass; blocking and old-wake controls fail",
+  "arm": "3s callback,1349 poll attempts,max enqueue0.020ms,max heartbeat gap2.385ms; FIFO stop/join/capacity/empty/stopped pass; blocking control fails100ms bound",
+  "commands": [
+    "python3 fpga/mister/main/tests/test_offload.py PINNED_MAIN",
+    "python3 fpga/mister/main/tests/test_offload.py PINNED_MAIN --emit OUT",
+    "cd OUT; arm-linux-gnueabihf-g++ -std=c++14 -O2 -g -Wall -Wextra -pthread -static test.cpp -o offload-arm",
+    "cd OUT; arm-linux-gnueabihf-g++ -std=c++14 -O2 -pthread -static -DCONTROL_BLOCKING_ENQUEUE test.cpp -o offload-arm-blocking-control",
+    "On MiSTer14: run offload-arm expecting0 and offload-arm-blocking-control expecting23 with enqueue-blocked diagnostic"
+  ],
+  "limits": "Generic worker test with a sleeping callback, NOT a disk file-operation injection or integrated Main/SPI/input/packet-service measurement. Disk coalescing/owned buffers/descriptor generations/completions/error retention/lifecycle draining are still required before milestone3 passes.",
+  "baseline_source_sha256": {
+    "offload.cpp": "021a3bb911fd8225dec2335a7caf7898c9555755c90113a3a7346521d86f3c24",
+    "offload.h": "6621dad69c4d288c26297b84994a4027cd5ce263767947eb7cb6dd004f12526a",
+    "profiling.h": "db7b5670c3613f534d88f377cb0e307157476b911b0f368d7ed5efcf8d2d2b00"
+  },
+  "candidate_sha256": {
+    "fpga/mister/main/main-offload-260912.patch": "169b6b8ad4ff17fd2e0b7165c7f56ea4ec49b4cb7960741f3a1190aa0e0f3337",
+    "fpga/mister/main/tests/test_offload.cpp": "b692d1b972cec8c98f9a2188d18c800bd2b6e3cb76a78c721cc3a23a97d47a44",
+    "fpga/mister/main/tests/test_offload.py": "7866f7bf67195f4d461541fbd3a7081e6b4ca7d31a7e806036c120f850e99523"
+  },
+  "arm_binary_sha256": {
+    "offload-arm": "8d3e6848352e11bfc4cf50855bb20e20aab4b5358b70780fc5a621d2120e5297",
+    "offload-arm-blocking-control": "420f7699956ae6098dd66e0260af8889c7ee3daacf41ec6468b7424a86855807"
+  }
+}

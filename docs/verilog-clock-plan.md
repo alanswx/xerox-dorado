@@ -108,6 +108,13 @@ three idle windows average1595705.59 issues/s (9.574% nominal), reproducing41.
 Real Guest accepted and Grapevine-down fallback completed; Basic.Loadees is
 being served. All keys up, no input/GDB helper. Full desktop/input/persistence
 and matched42/43 hardware comparisons remain pending.
+Update18:49UTC: all34 loadees loaded, profile No accepted; fresh41b passes
+PrintTV.df/PrintTVImpl without repair and loads later AMTypes. The nonblocking
+worker-enqueue prerequisite also passes actual Linux/ARM queue/heartbeat/
+drain tests (reports/2026-10-18-offload), with blocking/empty-wake controls.
+It is not integrated disk I/O and does not finish milestone3; the live Main
+is unchanged. Drain hooks must precede FPGA programming, remount, fork and
+reboot, covering both coalescer buffers and queued file work.
 
 **Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
 original firmware to the actual Cedar login on MiSTer14. Real Guest input

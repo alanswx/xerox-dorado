@@ -1,0 +1,83 @@
+diff --git a/offload.cpp b/offload.cpp
+index e25397d5..3710bd38 100644
+--- a/offload.cpp
++++ b/offload.cpp
+@@ -4,6 +4,7 @@
+ #include <inttypes.h>
+ #include <string.h>
+ #include <stdio.h>
++#include <utility>
+ 
+ static constexpr uint32_t QUEUE_SIZE = 8;
+ 
+@@ -27,24 +28,15 @@ static void *worker_thread(void *)
+ 		Work *current_work = nullptr;
+ 		// Wait for work
+ 		pthread_mutex_lock(&s_queue_lock);
+-		if (s_queue_head == s_queue_tail)
++		// A condition-variable wakeup does not imply that a job exists.
++		while (s_queue_head == s_queue_tail && !s_quit)
+ 		{
+-			// queue empty and quit flag set, exit
+-			if (s_quit)
+-			{
+-				pthread_mutex_unlock(&s_queue_lock);
+-				break;
+-			}
+-
+-			// wait for work signal
+ 			pthread_cond_wait(&s_cond_work, &s_queue_lock);
+-			
+-			// quit flag was set and queue still empty, quit
+-			if (s_quit && (s_queue_head == s_queue_tail))
+-			{
+-				pthread_mutex_unlock(&s_queue_lock);
+-				break;
+-			}
++		}
++		if (s_quit && s_queue_head == s_queue_tail)
++		{
++			pthread_mutex_unlock(&s_queue_lock);
++			break;
+ 		}
+ 
+ 		// get work
+@@ -119,4 +111,23 @@ void offload_add_work(std::function<void()> handler)
+ 	pthread_cond_signal(&s_cond_work);
+ 
+ 	pthread_mutex_unlock(&s_queue_lock);
+-}
+\ No newline at end of file
++}
++// The caller retains its request when this returns false. In particular, do
++// not acknowledge or consume FPGA disk data until a worker slot is reserved.
++bool offload_try_add_work(std::function<void()> handler)
++{
++	PROFILE_FUNCTION();
++	if (!handler) return false;
++	pthread_mutex_lock(&s_queue_lock);
++	if (s_quit || (s_queue_head - s_queue_tail) == QUEUE_SIZE)
++	{
++		pthread_mutex_unlock(&s_queue_lock);
++		return false;
++	}
++	Work *work = &s_queue[s_queue_head % QUEUE_SIZE];
++	work->handler = std::move(handler);
++	s_queue_head++;
++	pthread_cond_signal(&s_cond_work);
++	pthread_mutex_unlock(&s_queue_lock);
++	return true;
++}
+diff --git a/offload.h b/offload.h
+index a31ec04e..63bba727 100644
+--- a/offload.h
++++ b/offload.h
+@@ -8,5 +8,7 @@ void offload_start();
+ void offload_stop();
+ 
+ void offload_add_work(std::function<void()> work);
++// Nonblocking submission: false means full/stopping/empty; no work queued.
++bool offload_try_add_work(std::function<void()> work);
+ 
+ #endif
+\ No newline at end of file

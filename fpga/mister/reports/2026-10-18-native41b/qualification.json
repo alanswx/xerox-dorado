@@ -1,5 +1,5 @@
 {
-  "hardware": "Original firmware/CoolBoot/BFN113/Cedar login PASS; real Guest plus two Returns accepted, Grapevine-down fallback and Basic.Loadees retrieve observed18:39UTC with tested e237dffc server. No cursor repair or guest state import. Full Viewers/input/persistence pending.",
+  "hardware": "Original firmware/BFN113/login/Guest/all34 Basic loadees PASS with fixed e237dffc daemon. Profile No accepted18:46UTC; fresh BootEssentials passed PrintTV.df/PrintTVImpl and is loading later AMTypes at18:49. No state/cursor repairs. Full desktop/input/persistence pending.",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,

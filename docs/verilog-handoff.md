@@ -31,14 +31,34 @@ boots, and issues are not drained retirements. Current instruction debug
 view1: machine=issues/cpu=host edges, neither field is a processor PC.
 Real `Guest\n\n` at0.1s down/up was accepted, Grapevine-down fallback
 finished, and the fixed server serves Cedar6.1/Top/Basic.Loadees at~18:39UTC.
-Next: allow all34 base loadees, answer the later profile question `n` alone,
-then BootEssentials/Viewers/mouse/exact keyboard/file close/remount. No guest
+All34 base loadees loaded; the profile question was answered with one `n`
+at~18:46UTC, and HDMI confirms No. BootEssentials passed PrintTV.df and
+PrintTVImpl without repair and loads later AMTypes at18:49. Next: finish
+BootEssentials/fonts/Viewers, then mouse/exact keyboard/file close/remount. No guest
 state import or ARM cursor repair in this run. Main's known FB enable/disable
 workaround restored HDMI; the earlier firmware raster was uninitialized noise.
 Main remains the sole SPI owner. Preserve this fresh baseline for qualification
 before the matched DDR42 and optimized43 comparisons.
 Exact deployment/assertions/restart config and captures: native41b reports;
 local launch helpers in `build/rtl-executive/cedar41b-launch/`.
+
+**Disk-worker prerequisite qualified, not integrated.** New
+`fpga/mister/main/main-offload-260912.patch` adds a nonblocking eight-slot
+enqueue API to the pinned Main worker and rechecks the predicate after an
+empty condition-variable wake. Linux and actual MiSTer ARM tests cover a3s
+callback, full/empty/stopped handling, FIFO stop/join drain and poll heartbeat.
+ARM max enqueue0.020ms/heartbeat gap2.385ms; blocking enqueue fails100ms and
+the old wake predicate fails the Linux empty-wake control. These are generic
+worker tests, not file-I/O injection or integrated Main responsiveness.
+No new Main is loaded;1fb2 still performs blocking O_SYNC disk work.
+Actual source review locates `fpga_load_rbf`, `app_restart`/fork and reboot
+in fpga_io.cpp: app_restart already joins the worker, reboot only syncs,
+and an init-only drain occurs after FPGA programming. Future disk code must
+reserve capacity before consuming/ACKing SPI write data; own buffers and
+old-image descriptors; use Main-only read completions and generation checks;
+keep read/write/neighbor coherence; retain failed dirty data; drain coalesced
+and submitted work before remount/programming/fork/reboot. Details/commands
+in the Main README; reports/2026-10-18-offload records exact sources and tests.
 
 **Previous Native41 SDRAM:** all34 Basic loadees loaded; BootEssentials
 continued after a documented ARM-only BSP cursor repair. This boot was assisted.
@@ -935,13 +955,15 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Fresh original-firmware boot with e237dffc fixed daemon, without ARM cursor repair;41's18:22 repair is explicitly assisted.
 - [x] Stage/deploy identical-RBF Native41b from untouched seed with tested e237dffc daemon; preserve old41 pack/logs after repeated old-server ACK race.
 - [x] Native41b original firmware/BFN113/login and actual Guest input; C watcher completed/released; three idle issue windows reproduce1.5957M/s.
-- [ ] Finish41b all34 loadees/profile/desktop/input/persistence with tested daemon; no active input helper, answer later profile question `n` once.
+- [x] Native41b all34 loadees/profile No; pass original PrintTV stall point with fixed daemon and no cursor/guest repair.
+- [ ] Finish41b BootEssentials/fonts/Viewers, actual desktop interaction and disk close/remount; no profile input remains pending.
 - [x] Optional response-boundary raw arbitration and generator: independent order/payload/reset/stall fixtures, full MSA equivalence and Native43 all-device timing pass.
 - [ ] Deploy43 and measure repeatable end-to-end gain against41; synthetic6.406% fewer host edges is not an FPGA throughput claim.
 - [ ] Fix recurring initially black HDMI after core load in Main; framebuffer toggle is a workaround, parser patch is a separate defect.
 - [ ] Deploy/qualify instruction diagnostics, including maintenance/reset/task switching, and measure actual issue rates with external waits separately.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [ ] Adapt ARM write coalescing with read/remount/error coherence; address blocking flushes and whole-track write amplification.
+- [x] Add/test nonblocking pinned Main worker enqueue and empty-wake predicate on Linux/ARM; blocking and old-wake controls fail. Prerequisite only, not deployed/integrated disk I/O.
 - [x] Review MacPPC/Sun/NeXT DDR Ethernet host/RTL rings; record source hashes, address overlap and payload-size constraints.
 - [ ] Adapt frame rings for direct ARM daemon DDR transport, retaining original DskEth/CRC/wire timing and selectable SPI fallback; qualify reset/ownership/stalls/boot before deployment.
 - [ ] Optional external Xerox-network UDP tunnel compatible with IFS/ContrAlto; test Cedar STP separately from Alto interoperability.

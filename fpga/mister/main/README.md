@@ -110,6 +110,47 @@ inode leaves that pathname ending in ` (deleted)` and its restart falls back
 to a board reboot. Stage each binary at a fresh versioned path, then change
 only the corresponding core's `main=` setting. Stock Main remains intact.
 
+### Disk worker prerequisite (not integrated)
+
+`main-offload-260912.patch` adds `offload_try_add_work` to the pinned Main's
+existing eight-slot worker. It returns false immediately for a full/stopped
+queue or empty callback. The worker also rechecks its queue predicate after
+an empty condition-variable wakeup. Callback ownership moves into an accepted
+slot without another allocation while holding the queue mutex.
+
+Linux and MiSTer14 ARM tests run the exact worker with real pthreads: a
+three-second callback, repeated failed submissions with a live poll heartbeat,
+the eight-slot bound, FIFO stop/join draining, rejection after stop, and empty
+wakeups. Controls using the blocking enqueue and the old single-check wake
+predicate fail. These are worker tests; the live Main still uses synchronous
+disk I/O, and disk coherence/persistence are not qualified by this patch.
+
+```sh
+# Linux, against unmodified files from the pinned Main checkout:
+python3 tests/test_offload.py /path/to/Main
+# Emit the exact source for static ARM binaries and separate ARM runs:
+python3 tests/test_offload.py /path/to/Main --emit /tmp/worker-test
+cd /tmp/worker-test
+arm-linux-gnueabihf-g++ -std=c++14 -O2 -g -Wall -Wextra -pthread -static test.cpp -o offload-arm
+arm-linux-gnueabihf-g++ -std=c++14 -O2 -pthread -static -DCONTROL_BLOCKING_ENQUEUE test.cpp -o offload-arm-blocking-control
+```
+
+The disk adapter must reserve capacity before consuming/acknowledging FPGA
+write data, own immutable job buffers and old-image descriptors until work
+finishes, and deliver read results through explicit Main-thread completions.
+Remount/core generations must reject stale completions. Coalesced writes need
+read-after-write/neighbor coherence and a durable drain/error barrier; failed
+dirty data must remain available rather than being silently discarded.
+
+The actual lifecycle boundaries are `fpga_load_rbf`, `app_restart` and
+`reboot` in `fpga_io.cpp`, plus `user_io_file_mount`/`user_io_init`. Existing
+`app_restart` calls `offload_stop` before forking, but reboot only calls
+`sync`, and a coalescer may still have unsubmitted dirty runs. Hook the drain
+before FPGA programming/reset or descriptor replacement, and before fork or
+reboot; an init-only hook is too late. Keep the existing Main as the sole SPI
+owner. Integration still needs the multi-second file-I/O/polling, coherence,
+mount/reset/error and actual Cedar close/remount tests in milestone3.
+
 ### Live video modeline parser correction
 
 Apply `main-video-mode-260912.patch` to the same pinned checkout before
