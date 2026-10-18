@@ -8,6 +8,8 @@
 #include <sys/stat.h>
 #include <time.h>
 
+static void eth_ftp_history_reset(dorado_ethernet *eth);
+
 enum {
     PUP_SOCKET_GATEWAY = 02,
     PUP_SOCKET_MISC = 04,
@@ -209,6 +211,7 @@ static unsigned eth_ftp_pick_countdown;
 
 void dorado_ethernet_init(dorado_ethernet *eth)
 {
+    eth_ftp_history_reset(eth);
     memset(eth, 0, sizeof *eth);
     eth_ftp_pick_countdown = 0;   /* scan on the first call after a reset */
     eth->local_host = 042;
@@ -233,6 +236,7 @@ void dorado_ethernet_init(dorado_ethernet *eth)
 void dorado_ethernet_free(dorado_ethernet *eth)
 {
     if (!eth) return;
+    eth_ftp_history_reset(eth);
     eth_clear_rx(eth);
     free(eth->eftp_words);
     eth->eftp_words = NULL;
@@ -1746,6 +1750,172 @@ static uint32_t eth_ftp_conn_id(const dorado_ethernet *eth)
     return pup_id32(eth->ftp_client_sock_hi, eth->ftp_client_sock_lo);
 }
 
+/* BSP's output fingers outlive individual STP commands. Retain original
+ * stream Pups, including property lists and completion marks, and replay
+ * without rewinding the producer's tx_next/file position. A delayed ACK can
+ * then advance past a replay without unsigned byte-window underflow.
+ * Host-side storage stays outside the snapshot ABI, like enumeration state.
+ * Allocate lazily, bound each connection, and release on reset/free/RFC reuse.
+ * Complete machine snapshots must include this local server history too. */
+#define FTP_HISTORY_PACKETS 64u
+#define FTP_HISTORY_PAYLOAD 2048u
+struct ftp_history_packet {
+    uint32_t id;
+    uint16_t type, size;
+    uint8_t data[FTP_HISTORY_PAYLOAD];
+};
+struct ftp_history {
+    unsigned head, count;
+    uint32_t replay_next;
+    int replaying;
+    struct ftp_history_packet packet[FTP_HISTORY_PACKETS];
+};
+struct ftp_histories {
+    dorado_ethernet *owner;
+    struct ftp_histories *next;
+    struct ftp_history *slot[DORADO_FTP_MAX_CONN];
+};
+static struct ftp_histories *ftp_histories;
+static unsigned ftp_history_replays;
+
+static void eth_ftp_history_replaying(struct ftp_history *h, int active)
+{
+    if (h->replaying == active) return;
+    if (active) ftp_history_replays++;
+    else ftp_history_replays--;
+    h->replaying = active;
+}
+
+static struct ftp_history *eth_ftp_history(const dorado_ethernet *eth,
+                                           unsigned slot, int create)
+{
+    struct ftp_histories *s;
+    if (!eth->ftp_ctx_valid || slot >= DORADO_FTP_MAX_CONN) return NULL;
+    for (s = ftp_histories; s && s->owner != eth; s = s->next) {}
+    if (!s && create) {
+        s = calloc(1, sizeof *s);
+        if (!s) return NULL;
+        s->owner = (dorado_ethernet *)eth;
+        s->next = ftp_histories; ftp_histories = s;
+    }
+    if (!s) return NULL;
+    if (!s->slot[slot] && create) s->slot[slot] = calloc(1, sizeof *s->slot[slot]);
+    return s->slot[slot];
+}
+
+static void eth_ftp_history_reset(dorado_ethernet *eth)
+{
+    struct ftp_histories **link = &ftp_histories;
+    while (*link) {
+        struct ftp_histories *s = *link;
+        if (s->owner != eth) { link = &s->next; continue; }
+        for (unsigned i = 0; i < DORADO_FTP_MAX_CONN; i++) {
+            if (s->slot[i]) eth_ftp_history_replaying(s->slot[i], 0);
+            free(s->slot[i]);
+        }
+        *link = s->next; free(s); return;
+    }
+}
+
+void dorado_ethernet_discard_server_history(dorado_ethernet *eth)
+{
+    eth_ftp_history_reset(eth);
+}
+
+static unsigned eth_ftp_history_count(const dorado_ethernet *eth)
+{
+    const struct ftp_history *h = eth_ftp_history(eth, eth->ftp_ctx_cur, 0);
+    return h ? h->count : 0;
+}
+
+static int eth_ftp_history_pending(const dorado_ethernet *eth, unsigned slot)
+{
+    if (!ftp_history_replays) return 0; /* the idle C microengine fast path */
+    const struct ftp_history *h = eth_ftp_history(eth, slot, 0);
+    return h && h->replaying;
+}
+
+static void eth_ftp_history_close(dorado_ethernet *eth)
+{
+    struct ftp_history *h = eth_ftp_history(eth, eth->ftp_ctx_cur, 0);
+    if (!h) return;
+    eth_ftp_history_replaying(h, 0);
+    h->head = h->count = 0;
+}
+
+static void eth_ftp_history_ack(dorado_ethernet *eth, uint32_t ack)
+{
+    struct ftp_history *h = eth_ftp_history(eth, eth->ftp_ctx_cur, 0);
+    if (!h) return;
+    while (h->count) {
+        const struct ftp_history_packet *p = &h->packet[h->head];
+        if ((int32_t)(ack - (p->id + p->size)) < 0) break;
+        h->head = (h->head + 1u) % FTP_HISTORY_PACKETS; h->count--;
+    }
+    if (!h->count) eth_ftp_history_replaying(h, 0);
+    else if (h->replaying && (int32_t)(ack - h->replay_next) > 0)
+        h->replay_next = ack;
+}
+
+static int eth_ftp_history_rewind(dorado_ethernet *eth, uint32_t ack)
+{
+    struct ftp_history *h = eth_ftp_history(eth, eth->ftp_ctx_cur, 0);
+    if (!h) return 0;
+    for (unsigned i = 0; i < h->count; i++) {
+        const struct ftp_history_packet *p = &h->packet[(h->head + i) % FTP_HISTORY_PACKETS];
+        if ((uint32_t)(ack - p->id) >= p->size) continue;
+        eth_ftp_history_replaying(h, 1); h->replay_next = ack;
+        if (ftp_trace()) fprintf(stderr, "FTP_REPLAY from=%08x high=%08x packets=%u\n",
+                                 ack, eth->ftp_tx_next, h->count);
+        return 1;
+    }
+    return 0;
+}
+
+static int eth_ftp_history_deliver(dorado_ethernet *eth)
+{
+    if (!ftp_history_replays) return 0;
+    struct ftp_history *h = eth_ftp_history(eth, eth->ftp_ctx_cur, 0);
+    if (!h || !h->replaying) return 0;
+    for (unsigned i = 0; i < h->count; i++) {
+        const struct ftp_history_packet *p = &h->packet[(h->head + i) % FTP_HISTORY_PACKETS];
+        uint32_t offset = h->replay_next - p->id;
+        if (offset >= p->size) continue;
+        unsigned n = p->size - offset;
+        uint16_t type = (p->type == PUP_TYPE_BSP_MARK || p->type == PUP_TYPE_BSP_AMARK)
+            ? PUP_TYPE_BSP_AMARK : PUP_TYPE_BSP_ADATA;
+        if (eth_queue_pup_bytes(eth, type, h->replay_next,
+                eth->ftp_client_net_host, eth->ftp_client_sock_hi, eth->ftp_client_sock_lo,
+                eth->ftp_server_net_host, eth->ftp_server_sock_hi, eth->ftp_server_sock_lo,
+                p->data + offset, n)) {
+            h->replay_next += n;
+            if (h->replay_next == eth->ftp_tx_next) eth_ftp_history_replaying(h, 0);
+        }
+        return 1;
+    }
+    eth_ftp_history_replaying(h, 0);
+    return 0;
+}
+
+static int eth_ftp_queue_stream(dorado_ethernet *eth, uint16_t type,
+                                 uint32_t id, const uint8_t *data, size_t n)
+{
+    struct ftp_history *h = NULL;
+    struct ftp_history_packet *p = NULL;
+    if (n && eth->ftp_open && eth->ftp_ctx_valid &&
+        !eth->ftp_server_sock_hi && eth->ftp_server_sock_lo == PUP_SOCKET_FTP) {
+        h = eth_ftp_history(eth, eth->ftp_ctx_cur, 1);
+        if (!h || h->count == FTP_HISTORY_PACKETS || n > FTP_HISTORY_PAYLOAD) return 0;
+        p = &h->packet[(h->head + h->count) % FTP_HISTORY_PACKETS];
+        p->id = id; p->type = type; p->size = (uint16_t)n; memcpy(p->data, data, n);
+    }
+    int ok = eth_queue_pup_bytes(eth, type, id,
+        eth->ftp_client_net_host, eth->ftp_client_sock_hi, eth->ftp_client_sock_lo,
+        eth->ftp_server_net_host, eth->ftp_server_sock_hi, eth->ftp_server_sock_lo, data, n);
+    if (ok && p) h->count++;
+    return ok;
+}
+
 static uint32_t eth_ftp_file_size(dorado_ethernet *eth)
 {
     char path[512];
@@ -1797,6 +1967,9 @@ static unsigned eth_ftp_pup_quantum(const dorado_ethernet *eth);
 static int eth_ftp_file_packet_needs_ack(const dorado_ethernet *eth)
 {
     if (!eth->ftp_open) return 0;
+    unsigned history = eth_ftp_history_count(eth);
+    if (history >= FTP_HISTORY_PACKETS / 2u ||
+        (eth->ftp_client_pup_alloc && history + 1u >= eth->ftp_client_pup_alloc)) return 1;
     /* The last finger in the advertised PUP window must request an ACK.
      * The byte-window test below is not sufficient: a sequence of small
      * plist/completion packets can fill the PUP-count window while remaining
@@ -1812,7 +1985,7 @@ static int eth_ftp_file_packet_needs_ack(const dorado_ethernet *eth)
      * pup-count marks (next == half/full) drifted out of alignment with
      * the client's own finger accounting on multi-window transfers, so a
      * window could pass with no AData mark at all; the client then never
-     * acked, the byte window overran, and (with no retransmit ring) the
+     * acked, the byte window overran, and the
      * transfer wedged -- the >100 KB demand-fetch stall of 2026-07-18. */
     if (eth->ftp_client_byte_alloc != 0) {
         uint32_t outstanding = eth->ftp_tx_next - eth->ftp_last_ack;
@@ -1903,17 +2076,8 @@ static int eth_ftp_queue_mark(dorado_ethernet *eth, uint8_t mark,
     if (eth->ftp_open && eth->ftp_client_pup_alloc != 0 &&
         eth->ftp_tx_in_flight + 1u >= eth->ftp_client_pup_alloc)
         request_ack = 1;
-    if (!eth_queue_pup_bytes(eth,
-                             request_ack ? PUP_TYPE_BSP_AMARK
-                                         : PUP_TYPE_BSP_MARK,
-                             id,
-                             eth->ftp_client_net_host,
-                             eth->ftp_client_sock_hi,
-                             eth->ftp_client_sock_lo,
-                             eth->ftp_server_net_host,
-                             eth->ftp_server_sock_hi,
-                             eth->ftp_server_sock_lo,
-                             body, sizeof body))
+    if (!eth_ftp_queue_stream(eth, request_ack ? PUP_TYPE_BSP_AMARK : PUP_TYPE_BSP_MARK,
+                              id, body, sizeof body))
         return 0;
     eth->ftp_tx_next += 1;
     eth->ftp_tx_last_end = eth->ftp_tx_next;
@@ -1937,17 +2101,8 @@ static int eth_ftp_queue_data(dorado_ethernet *eth, const uint8_t *data,
     if (eth->ftp_open && eth->ftp_client_pup_alloc != 0 &&
         eth->ftp_tx_in_flight + 1u >= eth->ftp_client_pup_alloc)
         request_ack = 1;
-    if (!eth_queue_pup_bytes(eth,
-                             request_ack ? PUP_TYPE_BSP_ADATA
-                                         : PUP_TYPE_BSP_DATA,
-                             id,
-                             eth->ftp_client_net_host,
-                             eth->ftp_client_sock_hi,
-                             eth->ftp_client_sock_lo,
-                             eth->ftp_server_net_host,
-                             eth->ftp_server_sock_hi,
-                             eth->ftp_server_sock_lo,
-                             data, nbytes))
+    if (!eth_ftp_queue_stream(eth, request_ack ? PUP_TYPE_BSP_ADATA : PUP_TYPE_BSP_DATA,
+                              id, data, nbytes))
         return 0;
     eth->ftp_tx_next += (uint32_t)nbytes;
     eth->ftp_tx_last_end = eth->ftp_tx_next;
@@ -2459,7 +2614,8 @@ static int eth_ftp_tx_next_segment(dorado_ethernet *eth)
 static void eth_ftp_pick_busy_conn(dorado_ethernet *eth)
 {
     if (eth->ftp_open && (eth->ftp_pending_ack ||
-                          eth->ftp_tx_mode != FTP_TX_NONE))
+                          eth->ftp_tx_mode != FTP_TX_NONE ||
+                          eth_ftp_history_pending(eth, eth->ftp_ctx_cur)))
         return;
     if (eth_ftp_pick_countdown) { eth_ftp_pick_countdown--; return; }
     eth_ftp_pick_countdown = FTP_PICK_INTERVAL - 1u;
@@ -2467,7 +2623,7 @@ static void eth_ftp_pick_busy_conn(dorado_ethernet *eth)
         const struct dorado_ftp_ctx *c = &eth->ftp_ctx[i];
         if (eth->ftp_ctx_valid && eth->ftp_ctx_cur == (uint8_t)i) continue;
         if (!c->used || !c->open) continue;
-        if (c->pending_ack || c->tx_mode != FTP_TX_NONE) {
+        if (c->pending_ack || c->tx_mode != FTP_TX_NONE || eth_ftp_history_pending(eth, (unsigned)i)) {
             eth_ftp_ctx_activate(eth, i);
             return;
         }
@@ -2485,6 +2641,12 @@ static void eth_ftp_maybe_deliver(dorado_ethernet *eth)
         (void)eth_ftp_queue_ack(eth);
         return;
     }
+    if (eth->ftp_tx_mode == FTP_TX_NONE &&
+        !eth_ftp_history_pending(eth, eth->ftp_ctx_cur)) return;
+    if (eth_ftp_history_deliver(eth)) return;
+    unsigned history = eth_ftp_history_count(eth);
+    if (history >= FTP_HISTORY_PACKETS ||
+        (eth->ftp_client_pup_alloc && history >= eth->ftp_client_pup_alloc)) return;
     /* An AData/AMark asks for an acknowledgement but does not itself stall
      * PupStream's pusher.  The source continues until all advertised output
      * fingers are in flight; only then must the next segment wait. */
@@ -2702,6 +2864,11 @@ static int eth_ftp_handle_rfc(dorado_ethernet *eth, uint16_t server_socket)
     eth_ftp_ctx_activate(eth,
                          eth_ftp_ctx_alloc(eth, rfc_net_host, rfc_sock_hi,
                                            rfc_sock_lo));
+    struct ftp_history *old_history = eth_ftp_history(eth, eth->ftp_ctx_cur, 0);
+    if (old_history) {
+        eth_ftp_history_replaying(old_history, 0);
+        memset(old_history, 0, sizeof *old_history);
+    }
     eth->ftp_conn_hi = eth->tx_words[4];
     eth->ftp_conn_lo = eth->tx_words[5];
     eth->ftp_client_net_host = eth->tx_count >= 15
@@ -3501,6 +3668,15 @@ static int eth_ftp_handle_packet(dorado_ethernet *eth)
     case PUP_TYPE_BSP_ACK: {
         uint32_t ack = pup_id32(eth->tx_words[4], eth->tx_words[5]);
         uint32_t previous_ack = eth->ftp_last_ack;
+        /* BSP sequence arithmetic is modulo2^32 with a bounded window.
+         * Late old ACKs cannot move the committed cursor backwards; ACKs
+         * beyond the producer high-water mark do not acknowledge sent data. */
+        if ((int32_t)(ack - previous_ack) < 0 || (int32_t)(ack - eth->ftp_tx_next) > 0) {
+            if (ftp_trace()) fprintf(stderr, "FTP_ACK_IGNORED ack=%08x previous=%08x high=%08x\n",
+                                     ack, previous_ack, eth->ftp_tx_next);
+            return 1;
+        }
+        eth_ftp_history_ack(eth, ack);
         if (eth->tx_count >= 15) {
             eth->ftp_client_bytes_per_pup = eth->tx_words[12];
             eth->ftp_client_pup_alloc = eth->tx_words[13];
@@ -3514,13 +3690,15 @@ static int eth_ftp_handle_packet(dorado_ethernet *eth)
         if (ack != previous_ack) {
             /* Acknowledge all fingers up to this byte position.  Keeping
              * the one later packet (if any) would be more exact, but this
-             * server has no retransmit ring; resetting the accounting is
-             * the safe approximation and matches PupStream's unblocking
-             * behavior at the acknowledged half-window. */
+             * legacy counter is retained for old snapshots/GV connections;
+             * the retained packet history additionally enforces the exact
+             * outstanding-Pup limit on STP connections. */
             eth->ftp_waiting_for_ack = 0;
             eth->ftp_tx_in_flight = 0;
-        } else if (eth->ftp_open && eth->ftp_tx_next != ack) {
-            /* Duplicate acknowledgement: the client's receive cursor is
+        } else if (eth->ftp_open && eth->ftp_tx_next != ack &&
+                   !eth_ftp_history_rewind(eth, ack)) {
+            /* Legacy checkpoint fallback when host-side packet history is
+             * unavailable. Duplicate acknowledgement: the receive cursor is
              * frozen at `ack`.  A Pup past that position was lost (the
              * single-packet wire buffer drops one queued while the guest
              * receiver re-arms, exactly as a real wire loses one the
@@ -3599,6 +3777,7 @@ static int eth_ftp_handle_packet(dorado_ethernet *eth)
                                   eth->ftp_server_sock_lo,
                                   NULL, 0);
         eth->ftp_open = 0;
+        eth_ftp_history_close(eth);
         return 1;
     case PUP_TYPE_RTP_ABORT:
         if (ftp_trace()) {
@@ -3614,6 +3793,7 @@ static int eth_ftp_handle_packet(dorado_ethernet *eth)
             fprintf(stderr, "\"\n");
         }
         eth->ftp_open = 0;
+        eth_ftp_history_close(eth);
         return 1;
     default:
         return 0;
@@ -4119,7 +4299,7 @@ int dorado_ethernet_stp_probe(dorado_ethernet *eth, unsigned slot)
     /* PupStreamImpl.SendProbe: aData, pushId, zero user bytes. A missing
      * final unrequested mark otherwise leaves BOTH sides waiting forever:
      * the receiver has no later aData/aMark to trigger its acknowledgement.
-     * Duplicate acknowledgements already rewind the file/completion tail.
+     * Duplicate acknowledgements request retained stream-packet replay.
      * Preserve the active parser context, and do not spend output fingers
      * on these non-stream bytes. The normal queue owns checksum/framing. */
     int queued = eth_queue_pup_bytes(eth, PUP_TYPE_BSP_ADATA, c->tx_next,

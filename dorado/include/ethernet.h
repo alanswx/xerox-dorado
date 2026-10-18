@@ -279,6 +279,9 @@ typedef struct dorado_ethernet {
 
 void dorado_ethernet_init(dorado_ethernet *eth);
 void dorado_ethernet_free(dorado_ethernet *eth);
+/* Legacy snapshots do not serialize host-side BSP packet history. Discard
+ * history from the later live timeline before restoring Ethernet state. */
+void dorado_ethernet_discard_server_history(dorado_ethernet *eth);
 void dorado_ethernet_attach_to_io(dorado_ethernet *eth, dorado_io *io);
 void dorado_ethernet_direct_transmit(dorado_ethernet *eth,
                                      const uint16_t *words, size_t nwords);

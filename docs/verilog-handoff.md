@@ -16,7 +16,8 @@ User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is Native41 SDRAM, Guest accepted and Cedar Basic boot running.**
+**Live MiSTer14 is Native41 SDRAM; all34 Basic loadees loaded, BootEssentials
+continues after a documented ARM-only BSP cursor repair. This boot is assisted.**
 Main11453/server11445. Pack/logs/restart config in `Cedar41_20261018`, launcher
 `Cedar41.mgl`. RBF SHA
 `a97af93667bf20b2f9bebb0959dc67a4710895f6416e91987242e7486a1f9297`.
@@ -24,7 +25,8 @@ Main11453/server11445. Pack/logs/restart config in `Cedar41_20261018`, launcher
 no raw line cache. Main1fb2 unchanged, corrected quiet+BSP daemon89007902,
 pinned Pup time1792324800; original f3bce2a8 seed. Real firmware/BFN113
 at~17:24UTC, actual Cedar login~17:26; no imported state, host completion of
-guest instructions/IOCBs or live server-mode repair on this boot. C watcher
+guest instructions/IOCBs or live server-mode repair during startup. At18:22:13UTC,
+the old daemon's producer cursors were repaired as detailed below. C watcher
 finished and released C; all boot/typing keys up. Native41 hardware has
 passed original boot/login and Guest input, **not yet full Viewers/persistence**.
 All31 summary/36 all-device categories including SDRAM I/O pass,min+0.114ns;
@@ -51,18 +53,59 @@ retained. The recurring Main reinitialization defect is still open; do not
 claim it fixed by the extended-modeline parser patch. The first restored
 capture contains a transient mode overlay; `guest-hdmi.png` is clean.
 
-**Next:** leave41 running through all34 loadees/BootEssentials/fonts and
-qualify Viewers/mouse/exact keyboard/disk. At~17:32UTC real `Guest\n\n` at
+**Next:** leave41 running through BootEssentials/fonts and qualify
+Viewers/mouse/exact keyboard/disk. At~17:32UTC real `Guest\n\n` at
 0.1s down/up produced Guest.pa authentication, Grapevine-down fallback and
 Basic boot's expected missing `<Guest>6.1>Basic.Loadees` then default `[Cedar]`
-lookup. No pending input scripts or GDB. Wait for the later profile question
-and answer `n` alone. Current debug view is memory12 (raw read/write requests),
+lookup. The profile question was answered with `n` alone at~17:44; screenshot
+confirms No. No pending input scripts or GDB. Current debug view is memory12 (raw read/write requests),
 so Main's cpu= field is NOT a CPU PC. Restore normal CPU view through Main
 before interpreting PC/status samples. Collectors: local `cedar41-launch/`
 contains `sample-login-views.py PID LOGFILE` and `select-issued.gdb`;
 first two post-detach samples are discarded. Main stays sole SPI owner.
 After this boot, qualify cache-off42's matching idle workload and cold-remount
 36's marker volume. Preserve36's guest-mutated pack.
+
+**BSP race fixed in source and ARM-tested, not yet used for a fresh FPGA boot.**
+Native41 stalled at PrintTV after AMEvents completed. The old server rewound
+its producer on a duplicate ACK, then accepted the delayed forward ACK:
+`tx_next=0014434b`, `last_ack=00144f94`, unsigned outstanding4294964151.
+This blocked PrintTV metadata indefinitely. New bounded stream history keeps
+producer progress and retransmission cursors separate, including metadata and
+completion marks. Native/ARM boot/quiet/STP, dropped metadata/body/tail,
+delayed/stale/future ACKs,32-bit wrap,200960-byte ring wrap and closed-slot
+reuse pass; the old native binary fails the exact next-file regression.
+C unit/snapshot fidelity and forward determinism pass; snapshot ABI unchanged.
+Legacy restore discards later host history; full serialization remains4a.
+The tested ARM binary SHA is
+`e237dffc8dfcb446b51d417a8cbb63bcf52812a861b75f16c4454bdaffda6f94`,
+staged at `System_20261018_BSPHistory/dorado-server-e237dffc8dfcb446`.
+Do not restart the live old daemon mid-connection: it would lose state.
+At18:22:13UTC assertions verified exact old cursors/socket/file/context, then
+changed only ARM `tx_next`/`tx_last_end` (working state and slot4) to the already
+ACKed00144f94. PrintTV.df/PrintTVImpl completed and AMTypes followed.
+No guest memory/CPU/IOCB was changed. This is component qualification only;
+next fresh boot must use the fixed daemon and require no assistance.
+Primary trace, GDB reads/assertions/repair, screenshot, commands/hashes and
+positive/negative test logs: `reports/2026-10-18-bsp-history/`.
+
+**Native43 is ready for hardware qualification.** Commitc69d93f9 adds optional
+response-boundary raw-arbiter successor selection, default OFF. It preserves
+one outstanding operation, round-robin order, chip pipeline, data/cache/map/ECC
+semantics and clocks. Full MSA/independent SDRAM fixture matches all9437184
+stored bits,12012 logical cycles,3008 reads/7872 writes/1111 output changes;
+matched host edges154349->144461 (6.406% fewer in this synthetic fixture).
+Independent fixed-latency streams save exactly one bubble per successor;
+stale-origin and disabled-optimization controls fail. Both default DDR/SDRAM
+generations stay byte-identical toffd7e70f. All31 summary/36 all-device timing
+categories including SDRAM I/O PASS,min+0.117ns,0 clock-coverage gaps/no new
+cuts. RBF SHA
+`2f7511b8629f5bef6135be7022bf14e1d8f8638ef8b1ad9d7cd16d2e3d15593f`,
+local `build/rtl-executive/native43-candidate/Dorado.rbf`;29758 ALMs/330 M10Ks.
+No FPGA speedup or cold-boot result yet. After41 component qualification,
+measure42's matched DDR control and43 with the fixed server; repeat pinned
+comparisons before claiming an end-to-end improvement. Evidence:
+`reports/2026-10-18-storage-prefetch/` and `reports/2026-10-18-native43/`.
 
 **Native39b measured actual issues at the Cedar login.** Same50MHz/SYSPER4,
 Main1fb2, corrected89007902 daemon, pinned time, original seed. Three10s
@@ -858,6 +901,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Fit/all-device timing matched cache-off DDR42, min+0.115ns; preserve same41 board/placement policies.
 - [x] Native41 original firmware/Cedar login/Guest input on SDRAM; measure three idle issue windows and matching cause views,10.20% above39 configuration.
 - [ ] Complete41 full Viewers/input/persistence;42 matched device control remains untested on hardware.
+- [x] Diagnose/reproduce PrintTV ACK race; bounded producer-independent packet replay passes native/ARM loss/wrap/ring/reuse tests; old server fails regression.
+- [ ] Fresh original-firmware boot with e237dffc fixed daemon, without ARM cursor repair;41's18:22 repair is explicitly assisted.
+- [x] Optional response-boundary raw arbitration and generator: independent order/payload/reset/stall fixtures, full MSA equivalence and Native43 all-device timing pass.
+- [ ] Deploy43 and measure repeatable end-to-end gain against41; synthetic6.406% fewer host edges is not an FPGA throughput claim.
 - [ ] Fix recurring initially black HDMI after core load in Main; framebuffer toggle is a workaround, parser patch is a separate defect.
 - [ ] Deploy/qualify instruction diagnostics, including maintenance/reset/task switching, and measure actual issue rates with external waits separately.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.

@@ -6781,6 +6781,7 @@ int dorado_machine_restore(dorado_machine *m, const char *path)
     baseboard_cpu_reload(&m->bb);
 
     /* Ethernet — reconstruct the heap buffers from serialized contents. */
+    dorado_ethernet_discard_server_history(&m->ethernet);
     free(m->ethernet.eftp_words);
     free(m->ethernet.rx_words);
     free(m->ethernet.rx_attention);

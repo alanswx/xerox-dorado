@@ -58,6 +58,26 @@ the server session. `make cedar-test` checks both quiet and reset behavior;
 this preserves the policy of the previously qualified1d5e05e9 daemon.
 The server does not inspect guest memory.
 
+STP retains up to 64 unacknowledged stream packets per connection, including
+property lists and completion marks. Retransmission has its own cursor;
+the producer's sequence and file position stay at their high-water mark.
+This prevents a delayed forward ACK during replay from underflowing the byte
+window and wedging the next retrieve (Native41's AMEvents-to-PrintTV stall).
+Old ACKs cannot move the committed cursor backwards, and ACKs for unsent
+bytes are ignored. History is retired by ACK, reset on context reuse, and
+released on service reset/free. Native and ARM tests cover lost metadata,
+data and tails, the delayed-ACK race across sequence wrap, a 200,960-byte
+transfer across history-ring wrap, and closed-context reuse:
+
+```sh
+make -C fpga/mister/server bsp-retry-test bsp-ack-race-test
+```
+
+History is host-side state outside the legacy C snapshot ABI. Legacy restore
+discards later live history; full mid-transfer restore requires serializing
+it in the planned complete-machine snapshot bundle (milestone 4a). A daemon
+restart does not preserve live BSP connections.
+
 The MiSTer Main/RTL packet bridge now delivers actual guest TX packets to
 this service on MiSTer14. Main owns SPI and Dorado-specific UIO queues; RTL
 serializes Manchester data and checks hardware CRC through the Sil-derived

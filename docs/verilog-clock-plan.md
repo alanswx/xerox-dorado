@@ -75,6 +75,26 @@ Do not overwrite the protected Executive simulation/checkpoint artifacts.
 Keep commits and the handoff current at each milestone. No new permission
 is needed for the already authorized builds, reloads and reversible tests.
 
+**Update,2026-10-18 18:25UTC:** Native41 loaded all34 Basic loadees, answered
+the profile question No and entered BootEssentials, then stalled at PrintTV
+because the old ARM server mixed producer/replay cursors. Wire-only regression
+reproduces delayed forward ACK after a rewind and the resulting byte-window
+underflow; the bounded-history fix passes native and MiSTer ARM loss/sequence
+wrap/ring wrap/context-reuse tests. Fixed daemon e237dffc is staged for the next
+fresh boot. At18:22:13UTC, exact assertions allowed an ARM-only repair of the
+old producer to its already ACKed cursor; PrintTV completed and later packages
+continued. This boot is now explicitly assisted, not a whole-boot gate. No
+guest CPU/memory/IOCB changes. Full evidence: reports/2026-10-18-bsp-history.
+
+Native43 (commitc69d93f9) optionally selects a pending raw request at response
+completion. Independent round-robin/payload/reset/stall tests and full MSA
+state/output equivalence pass; the matched SDRAM board fixture needs6.406%
+fewer host edges. All31 summary/36 all-device timing categories pass,
+min+0.117ns, no new cuts. It is not deployed or FPGA-speed-qualified.
+Retain41 component qualification and42 matched device control, then qualify43
+with the fixed server and repeat pinned performance comparisons. Details and
+hashes are in the handoff and native43/storage-prefetch reports.
+
 **Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
 original firmware to the actual Cedar login on MiSTer14. Real Guest input
 is accepted; Basic boot is running. Main11453 is the

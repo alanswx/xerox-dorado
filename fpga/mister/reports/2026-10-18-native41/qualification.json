@@ -1,5 +1,5 @@
 {
-  "hardware": "MiSTer14 original power-on firmware/BFN113 and actual Cedar login PASS with corrected daemon. Real Guest plus two Returns accepted, Grapevine fallback/Basic boot running. Full Viewers/input/persistence and matched42 hardware control pending.",
+  "hardware": "Original firmware/BFN113/Cedar login/Guest/all34 Basic loadees PASS on SDRAM. Old890 daemon PrintTV stall diagnosed; ARM-only cursor repair at18:22:13UTC resumed BootEssentials. This boot is now ASSISTED; full Viewers/input/persistence and fresh fixed-daemon boot pending.",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,
@@ -175,5 +175,6 @@
   "input": "Guest plus two Returns via real virtual USB keyboard,0.1s down/up. Guest.pa auth/Basic.Loadees lookup and native/HDMI captures agree; all keys released.",
   "idle_issue_rate_per_second": 1595676.8428374638,
   "relative_to_native39": 1.101980522188037,
-  "clock_limit": "50MHz/SYSPER4 unchanged; measured issue~9.574% of nominal original rate, not pipeline retirement or full-speed qualification."
+  "clock_limit": "50MHz/SYSPER4 unchanged; measured issue~9.574% of nominal original rate, not pipeline retirement or full-speed qualification.",
+  "server_assistance_report": "../2026-10-18-bsp-history/qualification.json"
 }

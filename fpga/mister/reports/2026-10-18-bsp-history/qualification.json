@@ -1,0 +1,37 @@
+{
+  "status": "Native and MiSTer14 ARM isolated protocol tests PASS; fresh FPGA boot with fixed daemon pending. Native41 old daemon cursor repaired at18:22:13UTC; this boot is ASSISTED.",
+  "cause": "Duplicate ACK rewound old producer from00144f94 to00143d85; replay advanced to0014434b, then forward ACK00144f94 caused unsigned outstanding4294964151 and blocked PrintTV metadata.",
+  "fix": "Bounded64x2048-byte stream history per connection; independent replay cursor, producer high-water preserved; old/future ACK guards; ACK retirement and reset/end/abort/RFC reuse cleanup.",
+  "native_command": "make -C fpga/mister/server test cedar-test bsp-retry-test bsp-ack-race-test OUT=../../../build/rtl-executive/storage-prefetch/dorado-server-history",
+  "arm_commands": [
+    "test_server.py",
+    "test_cedar_server.py",
+    "test_bsp_retry.py",
+    "test_bsp_ack_race.py"
+  ],
+  "tests": [
+    "Boot/EFTP retransmit/reexec",
+    "Cedar socket2 routing/BFN113/quiet3.2s/reset/66296-byte STP",
+    "Dropped metadata/body/tail recovery with exact1036-byte content",
+    "Delayed forward ACK during replay, stale/future ACK guards, next2204-byte file, both normal and32-bit wrap sequences",
+    "200960-byte ring wrap and closed context reuse",
+    "C emulator full unit suite plus40M-cycle snapshot fidelity and45M forward determinism"
+  ],
+  "negative_control": {
+    "binary_sha256": "efd135a55e1e388ff1ad8dab23d5dbf8f052e9e95fe9f0eb1ca906040e725a47",
+    "result": "Expected failure: byte-window underflow and next.bin retrieve timeout; see bsp-ack-race-control.log.gz"
+  },
+  "arm_binary_sha256": "e237dffc8dfcb446b51d417a8cbb63bcf52812a861b75f16c4454bdaffda6f94",
+  "arm_binary_installed": "/media/fat/games/DoradoRTL/System_20261018_BSPHistory/dorado-server-e237dffc8dfcb446",
+  "arm_build": "/home/alans/mister/Dorado_BSPHistory_20261018/src",
+  "snapshot_limits": "No struct/legacy snapshot ABI changes. Legacy restore explicitly discards post-checkpoint host history. Full live transfer history serialization remains milestone4a; daemon restart cannot preserve connections.",
+  "live_assistance": "Verified exact Main/server PID/executable and old working/saved context. Changed only tx_next and tx_last_end to already ACKed00144f94 in ARM working state and slot4; no guest CPU/memory/IOCB change. PrintTV.df and PrintTVImpl completed afterward; later AMTypes started. Do not count this as an unassisted boot.",
+  "source_sha256": {
+    "dorado/src/ethernet.c": "80cd6f8d9aeceec94a7560109093f7092e694feb43ce02b65468a887b693de9a",
+    "dorado/include/ethernet.h": "009e9aff50ca361e313524d88e41d6476662505745d169ed04930411b640734c",
+    "dorado/src/machine.c": "6881f771476119360d6dbfab574ab5354edcb59844ad3d8748c5795adb6e7b71",
+    "fpga/mister/server/dorado_server.c": "51da7932d402bf3e2432baadccf3cf020c735232e3a3b798acf1c68847c4afc9",
+    "fpga/mister/server/test_bsp_retry.py": "45d27eb61f5d9fa96c19f4b680c13f050a0c18519ea53ac92026ba940061c846",
+    "fpga/mister/server/test_bsp_ack_race.py": "45d9e581f8ab57a25f27c3de88664cd7b8378b184284bcf9ce5b04d08f178280"
+  }
+}

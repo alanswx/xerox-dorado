@@ -12,7 +12,7 @@ endif
 LDFLAGS ?= $(GC)
 CFLAGS ?= -O2 -Wall -Wextra -ffunction-sections -fdata-sections
 
-.PHONY: all test cedar-test bsp-retry-test
+.PHONY: all test cedar-test bsp-retry-test bsp-ack-race-test
 all:
 	mkdir -p $(dir $(OUT))
 	$(CC) $(CFLAGS) -I$(ROOT)/dorado/include dorado_server.c \
@@ -23,3 +23,5 @@ cedar-test: all
 	python3 test_cedar_server.py $(OUT) $(ROOT)
 bsp-retry-test: all
 	python3 test_bsp_retry.py $(OUT) $(ROOT)
+bsp-ack-race-test: all
+	python3 test_bsp_ack_race.py $(OUT) $(ROOT)
