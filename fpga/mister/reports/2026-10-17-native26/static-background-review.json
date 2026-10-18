@@ -1,0 +1,18 @@
+{
+  "capture": "fpga-static-background.mp4",
+  "source": "actual MiSTerKVMS HDMI",
+  "crop_xywh": [
+    100,
+    500,
+    400,
+    400
+  ],
+  "frames_decoded": 476,
+  "consecutive_frame_mean_absolute_gray_difference": {
+    "min": 0,
+    "max": 3.14143125,
+    "mean": 0.006623592105263158
+  },
+  "maximum_fraction_pixels_changing_more_than_32_of_255": 0,
+  "scope": "One static stipple region only, excludes moving cursor/tool windows; supports absence of alternating high-contrast fields in this 8-second clip, not general motion/deinterlacing qualification."
+}

@@ -92,6 +92,7 @@ rm -f "$OUT/Dorado.qsf.bak"
   # elaborate; this is the same fix fpga/quartus needed.
   echo "set_global_assignment -name SEARCH_PATH \"$REPO\""
   echo "set_global_assignment -name SYSTEMVERILOG_FILE $REPO/fpga/mister/dorado_mouse.sv"
+  echo "set_global_assignment -name SYSTEMVERILOG_FILE $REPO/fpga/mister/dorado_key_queue.sv"
   if [ -n "$CHECKPOINT" ]; then
     [ -f "$CHECKPOINT/sources.f" ] || { echo "missing checkpoint sources: $CHECKPOINT" >&2; exit 1; }
     if python3 - "$CHECKPOINT/manifest.json" <<'NATIVE_JSON'

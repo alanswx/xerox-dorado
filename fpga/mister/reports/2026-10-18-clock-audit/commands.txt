@@ -1,0 +1,9 @@
+Run from repository root. Private models preserve obj_executive and alto-executive.rtl.
+
+make -C verilog clock-phase-audit
+make -C verilog/verilator -f Makefile -f ../../fpga/mister/reports/2026-10-18-clock-audit/rom2.mk initial-rom2-test SYSPER=2
+make -C verilog/verilator -f Makefile -f ../../fpga/mister/reports/2026-10-18-clock-audit/rom4.mk initial-rom4-speed-test SYSPER=4
+
+The SYSPER2 command is an expected failure control, make exit2.
+SYSPER4 passes, make exit0. Neither is full native-DDR qualification.
+TimeQuest: run core-paths.tcl in the frozen Native26 core project.

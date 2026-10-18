@@ -277,7 +277,9 @@ dorado_ethernet_uio #(.MAX_WORDS(1024)) u_network_uio (
 `ifdef DORADO_NATIVE
 `ifdef DORADO_RX_MONITOR
 `ifdef DORADO_PACK_FAULT_MONITOR
-    .machine_debug(pack_fault ? pack_fault_debug : (processor_debug[31] ? baseboard_debug : receive_debug)), .machine_status(machine_status),
+    .machine_debug(pack_fault ? pack_fault_debug : native_key_overflow ?
+        {16'h4b51,7'd0,native_key_queued} :
+        (processor_debug[31] ? baseboard_debug : receive_debug)), .machine_status(machine_status),
     .processor_debug(pack_fault ? pack_fault_extra : processor_debug),
 `else
     .machine_debug(receive_debug), .machine_status(machine_status), .processor_debug(processor_debug),
@@ -310,6 +312,17 @@ altclkctrl #(.clock_type("Global Clock"), .ena_register_mode("falling edge"),
     (.inclk({3'b000, clk_sys}), .clkselect(2'b00), .ena(machine_enable),
      .outclk(machine_clk));
 `ifdef DORADO_NATIVE
+// USB events continue while machine_clk is stopped for disk/DDR service.
+// Capture them on clk_sys, then expose transitions for complete source
+// fields so the terminal wire and Cedar's retrace watcher can observe them.
+wire [10:0] native_key;
+wire native_key_overflow;
+wire [8:0] native_key_queued;
+dorado_key_queue u_key_queue (
+    .clk_host(clk_sys), .reset(~pll_locked), .ps2_key(ps2_key),
+    .vsync_n(alto_vsync_n), .machine_key(native_key),
+    .overflow(native_key_overflow), .queued(native_key_queued)
+);
 dorado_native_machine #(.SYSPER(MACHINE_SYSPER)) u_native (
 `ifdef DORADO_RX_MONITOR
     .receive_debug(receive_debug),
@@ -330,7 +343,13 @@ dorado_native_machine #(.SYSPER(MACHINE_SYSPER)) u_native (
 `else
 dorado_checkpoint_machine u_checkpoint (
 `endif
-    .sys_clk(machine_clk), .ps2_key(ps2_key), .pixel_clk(pixel_clk),
+    .sys_clk(machine_clk),
+`ifdef DORADO_NATIVE
+    .ps2_key(native_key),
+`else
+    .ps2_key(ps2_key),
+`endif
+    .pixel_clk(pixel_clk),
 `ifdef DORADO_ETHERNET_HOST_PORT
     .ethernet_host(status[2:1]==0 ? 8'o042 : status[2:1]==1 ? 8'o001 :
                    status[2:1]==2 ? 8'o377 : 8'o000),
@@ -543,7 +562,11 @@ assign VGA_F1 = field_id;
 // measures. So `reset` here is the FRAMEWORK's reset, and until it is wired
 // into the BaseBoard's boot button it is only shown, not applied.
 `ifdef DORADO_HPS_PACK
+`ifdef DORADO_NATIVE
+assign LED_USER = reset | pack_fault | native_key_overflow;
+`else
 assign LED_USER = reset | pack_fault;
+`endif
 `else
 assign LED_USER = reset;
 `endif

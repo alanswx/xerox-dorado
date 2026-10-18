@@ -1,0 +1,6 @@
+61 keys checked against dorado/src/display.c
+PASS -- every PS/2 key lands where the C emulator puts it.
+  Limits: this checks PLACEMENT and uniqueness, not which host key
+  should be which -- a scancode assigned to the wrong Dorado key
+  passes here and types the wrong letter. The five marked
+  conventions (F1-F4, backtick) have nothing to check against.

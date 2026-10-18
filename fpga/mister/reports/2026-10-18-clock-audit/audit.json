@@ -1,0 +1,59 @@
+{
+  "deployed_reference_rbf_sha256": "586dc7f898709491813bd13deff59cec160be1ac620998cb757dd15e4f3bf4db",
+  "live_clock_changed": false,
+  "sources": [
+    "HM section2.3 / Figure7",
+    "HM section5.12 RunRefresh clocks",
+    "BaseBd-Rev-Am.press!1.pdf PDFpage13 printedBaseBd11",
+    "BaseBd12 j02 wire list",
+    "cell_CLOCKGEN.v",
+    "MC10176 / MC10231 / MC10175 / F10145A cell models",
+    "dorado_storage_group / dorado_storage_ddram"
+  ],
+  "core_clock_MHz": 33.333333,
+  "native_sysper": 4,
+  "instruction_ceiling_MIPS": 4.166666625,
+  "slow_model_fmax_MHz": 41.08,
+  "worst_core_setup_slack_ns": 4.117,
+  "worst_core_setup_relationship_ns": 15,
+  "worst_core_path": "MSA column/cache-address -> storage readiness/pause -> falling-edge network_step",
+  "original_nominal_ecp_lead_fraction": 0.125,
+  "original_nominal_slot_clock_low_fraction": 0.375,
+  "counter_actual": {
+    "16": {
+      "ecp_lead_fraction": 0.125,
+      "low_fraction": 0.375
+    },
+    "8": {
+      "ecp_lead_fraction": 0.125,
+      "low_fraction": 0.375
+    },
+    "4": {
+      "ecp_lead_fraction": 0.25,
+      "low_fraction": 0.25
+    },
+    "2": {
+      "ecp_lead_fraction": 0,
+      "low_fraction": 0.5
+    },
+    "1": {
+      "edges": 0
+    }
+  },
+  "paired_rom": {
+    "sysper2": {
+      "status": "FAIL",
+      "task_init_entries": 0,
+      "distinct_IM_addresses": 25,
+      "make_exit": 2
+    },
+    "sysper4": {
+      "status": "PASS",
+      "task_init_entries": 15,
+      "distinct_IM_addresses": 325,
+      "all_six_errors_enabled_clean_samples": 2611683,
+      "make_exit": 0
+    }
+  },
+  "limits": "Ideal digital original-divider reference excludes analog propagation/setup margins. ROM fixture is not full native DDR/Cedar qualification. No faster clock/phase implementation deployed."
+}

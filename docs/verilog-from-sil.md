@@ -1,16 +1,138 @@
 # Phase 2: what the Sil files give the Verilog, and how to test it
 
-**Active work (2026-10-17): Cedar on MiSTer14.** Use the
-[current handoff and TODO checklist](verilog-handoff.md#current-todos-2026-10-17-fpga-boot).
-Native25's receiver fix boots real Cedar login and accepts Guest on MiSTer14.
-Correcting45 offline file-label hints clears Basic.Loadees' File.FP error:
-actual FPGA writes Basic.Loadees and RPCRuntime byte-exact. Native25h then
-hits a disk-medium fault while UserProfile is incomplete. Native26's8MB/
-64K image now completes original firmware and shows login; its loader is
-under observation. Timing passes29 checks (+0.074ns). The500M density
-prototype passes images/IFU/all6 error checks but fails source-sampling
-coverage8880/8900. Native27's passive fault/BaseBoard monitor is fitting.
-Viewers, CommandTool `%`, `Echo FPGA` and mouse interaction remain open.
+**Active work (2026-10-18): Cedar Viewers is live on MiSTer14.**
+Ready, two CommandTools, WatchTool, EditTool, BootTool and Clock paint;
+mouse motion/clicks and command execution work. Scripted keyboard tests
+interleaved with the user's typing, so exact Echo FPGA/lossless input are
+not established by those runs. Native28's host key-event buffer passes its
+stopped-clock regression and is fitting, not deployed. Native26 remains
+running. See the [handoff and TODOs](verilog-handoff.md).
+
+## Clock architecture audit (2026-10-18)
+
+The extra FPGA division is an implementation constraint, not an original
+Dorado architectural requirement. The original two clocks per instruction
+are required. Four fabric ticks per clock are our present approximation.
+This audit changes the speed plan: derive an accurate clock/enable contract
+from the boards before treating a smaller SYSPER or a faster PLL as a fix.
+
+### Original timing and the present transform
+
+HM section2.3 / Figure7 specifies a30ns nominal clock, a new instruction
+every60ns, and three overlapping pipeline cycles. Control-oriented state
+normally clocks at t0/t2; data-oriented state at t1/t3. IM/TPC accesses
+extend the control sequence to six clocks; preserve that behavior.
+
+BaseBd11.sil (BaseBd-Rev-Am PDF page13, printed sheet11) provides the
+independent clock reference: the VCO/shaping gates feed g04/h04 as a
+Johnson divider; g03/h03 clock on the opposite phase. g04.Q' is SCP',
+h03.Q is ECP. BaseBd12 j02 ORs these with the inactive debug-clock input
+and fans out the slot clocks. Control then generates Phase0/StartCycle,
+local clocks, and the Run/Hold/Step/RunRefresh qualifications. These are
+real signal relationships and latch windows, not arbitrary delay padding.
+
+The FPGA uses one fabric clock and turns chip clock pins into sampled
+enables. MC10176 and MC10231 explicitly detect a clock and transfer one
+fabric tick later; PRECAP saves an earlier D value to undo same-edge races.
+MC10175 follows while low, but only at fabric edges. F10145A captures
+address/data while WE' is low and commits after its rising edge. The
+resulting extra discrete delays and finite latch samples do not exist in
+the original continuous ECL logic. Reducing the number of ticks changes
+capture ordering and valid windows, not just execution speed.
+
+At33.333MHz and SYSPER4, the current instruction ceiling is
+33.333/(2*4)=4.167M/s, before DDR/HPS pauses. SYSPER1 produces a constant
+CLOCKGEN output. A new paired original-ROM test reproduces the smaller
+ratio failure:4 passes15 task initializations and2611683 samples with all
+six errors enabled/clean;2 reaches zero task initializations,25 distinct
+IM addresses, and fails the same acceptance check. This fixture isolates
+startup clocking; it is not a full native-DDR/Cedar qualification.
+
+### A directly tested accuracy problem
+
+`make -C verilog clock-phase-audit` compares the actual CLOCKGEN RTL with
+an **independent ideal digital divider wired as the four original1690s**.
+The reference uses actual VCO edges, not the oversampled MC1690 model.
+It includes the j02 OR's low window. Fractions below are of one clock period:
+
+| SYSPER | CLOCKGEN ECP lead over SCP' | Original-divider lead | j02 OR low window, model / reference |
+| --- | --- | --- | --- |
+|16|1/8|1/8|3/8 /3/8|
+|8|1/8|1/8|3/8 /3/8|
+|4|1/4|1/8|1/4 /3/8|
+|2|0|1/8|1/2 /3/8|
+|1|no edges|1/8|constant /3/8|
+
+Thus the working4 setting already quantizes the pulse relationship, and2
+collapses the separate phases. This does not prove that quantization is
+the only cause of the startup failure: sampled edge detectors, data
+capture and transparent latch windows also change together. Earlier notes
+called waveforms "measured"; those were measurements of our simulated
+chain, not oscilloscope measurements of a Dorado. The independent reference
+confirms nominal divider relationships only; it does not model analog
+propagation/setup margins or replace the hardware manual as canon.
+
+### Physical timing and memory are separate constraints
+
+Fresh TimeQuest analysis of the **deployed Native26 fit**, unchanged SDC/RBF,
+reports core Fmax41.08MHz. The worst setup path has4.117ns margin against a
+15ns half-cycle relationship: an MSA column/cache-address register, through
+storage-ready/pause logic, to the falling-edge network_step register.
+Its data delay is about9.9ns. This is a backend/control path, not evidence
+that the ALU is the speed limit. The same readiness predicate gates the
+complete machine. A future66.67MHz target cannot be justified by the old
+checkpoint build's48MHz figure or by ignoring these paths.
+
+The current raw-memory replacement also stops the entire machine while
+its storage caches/host track buffers are serviced. Each storage group has
+one cached raw word; one outstanding DDR transaction returns64 bits but
+only one16-bit lane is retained. Independent original memory clocks and
+RunRefresh behavior (HM5.12) are broader than this backend pause mechanism.
+Count actual pause causes, improve raw-memory locality/use all returned
+lanes, and restructure the readiness handshake before attributing every
+slowdown to the CPU divider. Preserve read-before-write, ECC and real
+completion: no blanket timing exceptions or invented ready responses.
+
+Clock domains also need consistent units. K1115A crystal models are scaled
+with SYSPER, while MC12061 still divides the fabric clock by8. The existing
+cadence audit finds that timer1.667x fast relative to the current SYSPER4
+guest; changing the ratio changes that relationship again. BaseBoard,
+Ethernet, disk, display and Junk wakeups need their original rates and
+hold/run semantics checked together. A faster CPU with mismatched timers
+would not be a faithful speedup. The prepared MC12061 cadence correction
+still needs original-firmware qualification before promotion.
+
+### Recommended implementation sequence
+
+1. Establish clock-family contracts from the wire lists and schematics:
+   edge, polarity, Run/Hold/Step qualification, latch-open/close windows,
+   data setup/hold, and behavior during extended IM/TPC operations. Include
+   CPU, memory refresh, terminal/pixel, Ethernet and BaseBoard clocks.
+2. Prototype a synchronous phase/enable translation of the original clock
+   families. Use a suitable PLL timebase/related phases where sub-clock
+   positions are necessary; compute capture enables directly and sample
+   pre-edge state. Preserve transparent-latch windows and derived-clock
+   gating. One nominal enable for every register would lose real behavior.
+   Revisit per-board PRECAP exceptions against original circuit causality;
+   they cannot simply be deleted or copied into a new timing scheme.
+3. Prove the transform on the difficult boundaries first: ProcL T capture,
+   task/Link transitions, F10145A writes, cache/Map/IFU handshakes, and the
+   original-ROM startup. Compare state at architectural t0/t1 boundaries
+   against the original timing reference, then run cold Initial/Cedar and
+   all-six-error gates. Preserve the current Cedar RBF as the reference.
+4. Profile and shorten the storage-ready/pause network and reduce backing
+   RAM stalls. Re-run complete storage equivalence and real disk read/write
+   gates for each backend change. Treat host USB buffering separately.
+5. Close STA for the actual clock/enable relationships, then measure retired
+   microinstructions and machine-paused time on hardware. The architectural
+   target is33.333M clocks/s and16.667M microinstructions/s. The required
+   FPGA master rate follows the faithful phase representation and timing
+   closure;66.67MHz/SYSPER2 is an investigation target, not a settled design.
+
+Evidence: `fpga/mister/reports/2026-10-18-clock-audit/`, including diagnostic
+waveforms, paired ROM summaries, exact recipes, and deployed-fit timing.
+No live core/clock setting changed for this audit.
+
 The roadmap below is historical.
 
 **2026-08-08.** Written while cross-checking the C emulator against the board

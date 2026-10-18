@@ -85,3 +85,21 @@ consistent with2200x1125 timing totals and74.25003MHz. No mode/guest writes.
 See hdmi-fresh-timing.{json,log,gdb}. Current live1080p30 is within the
 74.25MHz clock qualification; the148.5MHz audit failure remains a limit on
 future1080p60 use. Do not rely on cached Main OSD refresh after live changes.
+
+Viewers desktop reached00:02 UTC on the same original native boot: Ready,
+WatchTool,EditTool, two CommandTools, BootTool and Clock. Actual mouse moves
++100,+80 in the internal raster and Cmd-button click opens a second tool
+with a `%` prompt. Direct captures/logs are included here.
+
+Typing tests were NOT isolated: the user was concurrently trying
+`openr tiogadoc`, and subsequent field-paced typing interleaved with that
+command. Screens show echo FPA/FPA and Echo GA/GA/new prompts; those are
+real command round trips, not exact Echo FPGA proof. The preliminary
+commentary claiming FPGA output was corrected. Do not use the overlapping
+runs to quantify hardware input loss. User independently reports typing
+works. All scripted input is stopped; keyboard/mouse left to the user.
+A separately reproduced design flaw exists: the native decoder's machine
+clock can stop while raw host key toggles arrive. New host key FIFO passes
+its stopped-clock failure-control test; Native28 builds independently,
+not deployed or hardware-qualified. Clock architecture audit is in the
+2026-10-18-clock-audit directory and docs/verilog-from-sil.md.

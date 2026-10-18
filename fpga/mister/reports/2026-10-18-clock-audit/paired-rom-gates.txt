@@ -1,0 +1,9 @@
+SYSPER=2; make exit=2; private model obj_initial_rom2
+tb_exec: 25 distinct IM addresses executed; last TNIA=f5c; longest run on one address=0 at TNIA=fff; TASKINITLOOP entries 0
+[16003979] %Fatal: tb_exec.sv:5340: Assertion failed in tb_exec: Initial ROM: manifold=00000000000000000000000000000001 all-enabled samples=0 errors=0 task initializations=0
+%Error: verilog/verilator/tb_exec.sv:5340: Verilog $stop
+
+SYSPER=4; make exit=0; private model obj_initial_rom4speed
+tb_exec: 325 distinct IM addresses executed; last TNIA=cc4; longest run on one address=161537 at TNIA=cd6; TASKINITLOOP entries 15
+INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for 2611683 samples without error
+

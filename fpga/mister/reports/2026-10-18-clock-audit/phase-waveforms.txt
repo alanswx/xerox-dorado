@@ -1,0 +1,10 @@
+CLOCK_AUDIT N=16 actual_edges=4 actual_period_ps=160000 actual_ecp_lead_ps=20000 reference_period_ps=160000 reference_ecp_lead_ps=20000
+CLOCK_PULSE N=16 actual_low_ps=60000 reference_low_ps=60000
+CLOCK_AUDIT N=8 actual_edges=8 actual_period_ps=80000 actual_ecp_lead_ps=10000 reference_period_ps=80000 reference_ecp_lead_ps=10000
+CLOCK_PULSE N=8 actual_low_ps=30000 reference_low_ps=30000
+CLOCK_AUDIT N=4 actual_edges=17 actual_period_ps=40000 actual_ecp_lead_ps=10000 reference_period_ps=40000 reference_ecp_lead_ps=5000
+CLOCK_PULSE N=4 actual_low_ps=10000 reference_low_ps=15000
+CLOCK_AUDIT N=2 actual_edges=34 actual_period_ps=20000 actual_ecp_lead_ps=0 reference_period_ps=20000 reference_ecp_lead_ps=2500
+CLOCK_PULSE N=2 actual_low_ps=10000 reference_low_ps=7500
+CLOCK_AUDIT N=1 actual_edges=0 actual_period_ps=0 actual_ecp_lead_ps=0 reference_period_ps=10000 reference_ecp_lead_ps=1250
+CLOCK_PULSE N=1 actual_low_ps=0 reference_low_ps=3750

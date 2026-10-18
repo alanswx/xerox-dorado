@@ -1677,7 +1677,20 @@ mouse-terminal-test:
 		verilog/cells/dorado_terminal.v >/dev/null
 	@./obj_mouse_terminal/tb_mouse_terminal
 
-.PHONY: keyboard-terminal-test
+.PHONY: clock-phase-audit key-queue-test keyboard-terminal-test
+clock-phase-audit:
+	@cd ../.. && $(V) --binary --top-module tb_clock_phase_audit $(V_WARN) \
+		--Mdir verilog/verilator/obj_clock_phase_audit -o tb_clock_phase_audit \
+		verilog/verilator/tb_clock_phase_audit.sv verilog/cells/cell_CLOCKGEN.v >/dev/null
+	@./obj_clock_phase_audit/tb_clock_phase_audit
+
+key-queue-test:
+	@cd ../.. && $(V) --binary --top-module tb_key_queue $(V_WARN) \
+		--Mdir verilog/verilator/obj_key_queue -o tb_key_queue \
+		verilog/verilator/tb_key_queue.sv fpga/mister/dorado_key_queue.sv \
+		verilog/cells/dorado_keyboard.v >/dev/null
+	@./obj_key_queue/tb_key_queue
+
 keyboard-terminal-test:
 	@cd ../.. && $(V) --binary --top-module tb_keyboard_terminal $(V_WARN) \
 		--Mdir verilog/verilator/obj_keyboard_terminal -o tb_keyboard_terminal \

@@ -1,0 +1,8 @@
+Native28: Native27 plus ungated host key-event queue.
+Unit/integration gates pass; hardware qualification is OPEN.
+Build: misterubuntu:/home/alans/mister/Dorado_Native28_20261018
+Local log: build/rtl-executive/native28-build.log
+Do not replace Native26 live desktop during user interaction.
+Clock speed remains SYSPER4; this change does not address the 1/4 ceiling.
+Two-field transition pacing is an adapter policy requiring hardware testing.
+Overflow is sticky via user LED/debug4b51xxxx; normal CPU timing unaffected.

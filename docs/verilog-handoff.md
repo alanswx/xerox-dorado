@@ -1,14 +1,27 @@
 # Verilog from Sil: handoff
 
-## Current objective (2026-10-17 UTC)
+## Current objective (2026-10-18 UTC)
 
-**Boot Cedar on the FPGA, log in, reach Viewers, type `Echo FPGA`, and verify
-keyboard/mouse interaction. Native26 has loaded all33 Basic.Loadees BCDs,
-accepted Guest and the installer keyboard response, completed BootEssentials,
-attached Tioga/Press font names, and completed font metrics. Remaining modules are STARTing. HDMI has
-recovered. Viewers and an interactive CommandTool remain incomplete.** C snapshots and host IOCB completion do not qualify.
+**Native26 has booted Cedar to Viewers on MiSTer14.** Ready, two CommandTools,
+WatchTool, EditTool, BootTool and Clock are visible. Real mouse motion and
+clicks work; a second CommandTool opens through Cmd and displays a live `%`.
+Keyboard commands execute. Requested `Echo FPGA` produced `echo FPA`/`FPA`
+at0.8s pacing and `Echo GA`/`GA` at2s pacing, but the user was concurrently
+typing `openr tiogadoc`. Subsequent field-paced typing visibly interleaved
+with that command. These are not isolated input-reliability tests.
+The initial commentary claiming exact FPGA output was premature and corrected.
+**Exact scripted Echo FPGA/reliability remain unqualified; user says typing works.** Native28 buffers host
+keyboard events across stopped machine clocks; regression passes, fit running.
+Keep Native26's current desktop alive while the candidate is reviewed. All
+scripted input has stopped; leave keyboard/mouse to the user during clock audit.
 
-## Current state (Native26 installer running; HDMI recovered)
+Same original firmware/BFN113/Guest boot, Main12701/server12696, Native26
+RBF586dc7f8...,8MB RAM/64K Map. HDMI recovered at verified1080p30/74.25MHz.
+First CommandTool is running the profile's large optional demo-install script;
+second tool is for interaction. Current pack_fault0. No C state import or
+host completion of guest disk I/O.
+
+## Boot history (current status above takes precedence)
 
 **Native25h cleared the media blocker; Native26 is now booting on MiSTer14.** The original BaseBoard firmware requested
 BFN113, disk-loaded Cedar started, and the actual FPGA raster displays
@@ -236,6 +249,86 @@ still stands: do not use1080p60 on this image. Evidence/scripts:
 interlaced; fresh source period20496971 ticks (~4.879 fields/s), affected
 by DDR/HPS stalls. Same boot continues; font metrics almost finished.
 
+### Viewers begins painting (23:56–23:58 UTC)
+
+Native GUI now replaces SimpleTerminal: stippled background and hourglass,
+then top herald with `Using []<>cedar.style!1 ... Using []<>basicprint.style!1`
+and `Idle`. Real server retrieves Tioga10.ks,Helvetica8.ks,Helvetica7.ks.
+User reports moving the mouse works. Preserve that observation, but capture
+our own deliberate motion/click and CommandTool keyboard proof after the
+windows appear. CPU PCs still advance and pack_fault0; no C state import.
+`fpga-viewers-background.png` and `fpga-viewers-first-herald.png` are direct
+Main internal captures. This is GUI startup, not yet the completed desktop.
+
+### Interactive desktop and keyboard loss (00:02–00:12 UTC)
+
+Actual native images: fpga-desktop-before-input.png,fpga-mouse-moved.png,
+fpga-commandtool-prompt.png. Mouse moves from roughly(534,312) to(634,392)
+after a real +100,+80 report. Cmd was clicked at(934,36); a second viewer
+appeared and was focused at(759,636). Its `%` prompt accepts commands and
+returns results/new prompts. First test at0.8s down/up and0.1s Shift setup
+showed `echo FPA` -> `FPA`. Second at2s down/up,1s Shift
+setup showed `Echo GA` -> `GA`. User subsequently confirms concurrent
+typing `openr tiogadoc`; field-paced input visibly appended to that command.
+These runs are confounded, not clean loss measurements. Do not claim
+lossless typing or exact FPGA proof; user independently says typing works. Native screenshots and slow-test HDMI clip
+are in the Native26 report directory.
+
+Native keyboard decoder is inside the gated machine clock, whereas MiSTer
+ps2_key events arrive on ungated clk_sys. A down/up pair during a disk wait
+returns the toggle to its old value; the gated decoder sees neither.
+New platform adapter dorado_key_queue captures256 events on host clock,
+coalesces identical repeat make events, and exposes each transition for two
+actual source fields (terminal serial transport plus retrace sampling).
+Saturation is sticky/visible via user LED and debug4b51xxxx, no CPU halt.
+No guest microcode/KeyBits bypass. Native26 remains unchanged.
+
+`make -C verilog key-queue-test` passes with the real matrix decoder and a
+direct unbuffered failure control, including Shift/G across different matrix
+words, two-field state hold, stopped-clock capture, repeat coalescing and
+overflow/reset. Existing keyboard-terminal-test and key-matrix-check pass.
+Native28 isolated build: misterubuntu:/home/alans/mister/Dorado_Native28_20261018,
+local native28-build.log, session20861; synthesis/placement complete, routing. Based on Native27 plus
+only top-level host-input buffer. Uses native26-before-review.sdc for fit;
+review exact new hold paths after placement. Not timing/hardware qualified.
+
+Speed: current33.333MHz/(2*SYSPER4)=4.167M microinstructions/s ceiling;
+DDR/HPS stops make actual throughput lower. Current Native26 core setup
+slack4.117ns has a15ns half-cycle relationship; fresh TimeQuest Fmax41.08MHz
+does not qualify66.67MHz. Worst paths are storage-ready -> network_step,
+not the ALU. Existing CLOCKGEN
+N=1 is constant, N=2 collapses ECP/SCP phases; historical SYSPER2 ReadBB
+failure needs fresh characterization, not a divider-only promotion. Half
+speed at33MHz/SYSPER2, then full at66.67MHz/2 are investigation targets,
+requiring phase correctness and critical-path closure. MC12061 timer
+calibration and64-bit DDR burst utilization remain separate measured work.
+
+### Holistic clock audit requested by user (00:20–00:30 UTC)
+
+See docs/verilog-from-sil.md section Clock architecture audit and
+`fpga/mister/reports/2026-10-18-clock-audit/`. Independent ideal divider
+wired as BaseBd11's four1690s confirms ECP lead1/8clock and j02 OR
+low3/8clock. Actual CLOCKGEN at4 has lead1/4,low1/4; at2 lead0,low1/2;
+at1 no edges. Ratios8/16 match nominal reference. This is a simulation
+reference derived from the original schematic, not measured real hardware.
+Fresh paired original-ROM fixture:4 passes15 task initializations,
+2611683 enabled/clean error samples,325 IM addresses;2 fails with zero
+initializations/25 addresses. Saved exact recipes and summaries; full logs
+`build/rtl-executive/speed/initial-rom{2,4}.log`. Do not overwrite protected
+Executive model/golden; private obj_initial_rom2/obj_initial_rom4speed used.
+
+Fresh deployed-fit STA identifies backend readiness -> falling-edge
+network_step as worst setup path (4.117ns slack,15ns relationship,~9.9ns
+data delay); Fmax41.08MHz. Earlier full-cycle slack/Fmax guesses are
+superseded. Global pause/backend architecture and sampled cell clocking
+both need review. Preserve original30ns clocks/60ns pipelined instruction
+throughput, extended IM/TPC phases, pre-edge data and latch windows.
+Recommended next work is explicit schematic-derived phase enables/related
+PLL phases, rather than reducing SYSPER blindly. Do not replace real
+clock-domain behavior with one universal enable or relax data timing.
+Raw DDR single-word locality/unused lanes and whole-machine pauses are a
+separate throughput problem. No clock/core change deployed for this audit.
+
 ## Active work
 
 Scratch names below are relative to `build/rtl-executive/`.
@@ -427,7 +520,7 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Deploy immutable parser-fixed Main at a planned restart; preserve current run until then.
 - [x] Qualify Native27 passive fault-monitor fit/timing:29 checks,min+.115ns.
 - [ ] Reproduce medium fault with Native27 observation if needed; not deployed.
-- [ ] Complete the33 listed BCDs (34 files including Basic.Loadees) and reach Viewers.
+- [x] Complete the33 listed BCDs (34 files including Basic.Loadees) and reach Viewers.
 - [ ] Improve cable TX queue: one pending packet caused1 dropped short packet; BSP recovered, but a burst-capacity regression and deeper queue remain useful.
 - [ ] Recapture the receive buffer coherently if byte-level header proof is needed.
 - [x] Add experimental64K geometry generator; pass cell, full MemX geometry,
@@ -441,8 +534,12 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Qualify remaining fixture differences: native RAM/cache/map initialization,
   complete BaseBoard handoff, DDR pauses and HPS track-buffer timing.
 - [ ] Calibrate MC12061 and qualify original firmware startup/timers.
-- [ ] Reach the Viewers desktop and a live CommandTool `%` prompt.
-- [ ] Type `Echo FPGA`, capture OS output/new prompt, verify live keyboard/mouse.
+- [x] Reach the Viewers desktop and a live CommandTool `%` prompt (00:02–00:03 UTC).
+- [x] Verify real mouse motion (+100,+80 in native raster), Cmd-button click and new CommandTool focus.
+- [ ] Exclusive scripted keyboard qualification: prior tests interleaved with user OpenR typing. Input round trip works; exact Echo FPGA unqualified.
+- [x] Add stopped-clock key-event queue regression, direct-old-path loss control, chord/hold/repeat/overflow gates.
+- [ ] Fit/review Native28 buffer candidate; then hardware qualification. Native26 desktop retained.
+- [ ] Address speed: characterize SYSPER2 ReadBB failure; SYSPER1 collapses existing CLOCKGEN. Full-speed likely needs phase work,66.67MHz timing closure at2, and fewer storage waits.
 - [ ] Commit/push confirmed fixes and evidence; preserve Executive/mouse/disk
   regressions. Space Invaders compatibility remains a separate open item.
 
