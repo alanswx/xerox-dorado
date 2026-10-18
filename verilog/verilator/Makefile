@@ -1677,7 +1677,14 @@ mouse-terminal-test:
 		verilog/cells/dorado_terminal.v >/dev/null
 	@./obj_mouse_terminal/tb_mouse_terminal
 
-.PHONY: clock-phase-audit key-queue-test keyboard-terminal-test
+.PHONY: clock-phases-test clock-phase-audit key-queue-test keyboard-terminal-test
+clock-phases-test:
+	@cd ../.. && $(V) --binary --top-module tb_clock_phases $(V_WARN) \
+		--Mdir verilog/verilator/obj_clock_phases -o tb_clock_phases \
+		verilog/verilator/tb_clock_phases.sv verilog/rtl/dorado_clock_phases.sv \
+		verilog/cells/cell_MC10176.v >/dev/null
+	@./obj_clock_phases/tb_clock_phases
+
 clock-phase-audit:
 	@cd ../.. && $(V) --binary --top-module tb_clock_phase_audit $(V_WARN) \
 		--Mdir verilog/verilator/obj_clock_phase_audit -o tb_clock_phase_audit \

@@ -5,8 +5,8 @@ Ready, two CommandTools, WatchTool, EditTool, BootTool and Clock paint;
 mouse motion/clicks and command execution work. Scripted keyboard tests
 interleaved with the user's typing, so exact Echo FPGA/lossless input are
 not established by those runs. Native28's host key-event buffer passes its
-stopped-clock regression and is fitting, not deployed. Native26 remains
-running. See the [handoff and TODOs](verilog-handoff.md).
+stopped-clock regression and has finished fitting; timing review remains
+before deployment. Native26 remains running. See the [handoff and TODOs](verilog-handoff.md).
 
 ## Clock architecture audit (2026-10-18)
 
@@ -103,6 +103,11 @@ would not be a faithful speedup. The prepared MC12061 cadence correction
 still needs original-firmware qualification before promotion.
 
 ### Recommended implementation sequence
+
+The executable stages, first isolated phase/enable implementation and its
+acceptance gates are now recorded in [the clock implementation plan](verilog-clock-plan.md).
+`make -C verilog clock-phases-test` compares it with the original divider and
+pre-edge register capture; no production clock source is changed.
 
 1. Establish clock-family contracts from the wire lists and schematics:
    edge, polarity, Run/Hold/Step qualification, latch-open/close windows,

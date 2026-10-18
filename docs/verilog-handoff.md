@@ -11,9 +11,21 @@ typing `openr tiogadoc`. Subsequent field-paced typing visibly interleaved
 with that command. These are not isolated input-reliability tests.
 The initial commentary claiming exact FPGA output was premature and corrected.
 **Exact scripted Echo FPGA/reliability remain unqualified; user says typing works.** Native28 buffers host
-keyboard events across stopped machine clocks; regression passes, fit running.
+keyboard events across stopped machine clocks; regression passes, fit completed
+(map/fit/asm/STA/audit); exact new hold/setup review and hardware qualification
+remain pending.
 Keep Native26's current desktop alive while the candidate is reviewed. All
-scripted input has stopped; leave keyboard/mouse to the user during clock audit.
+scripted input has stopped; leave keyboard/mouse to the user during clock work.
+
+**Clock implementation has started.** The staged plan is
+[verilog-clock-plan.md](verilog-clock-plan.md). An isolated direct phase/enable
+prototype matches an independent original four-flop divider, preserves the
+1/8 lead and3/8 low window, freezes at every phase, and captures pre-edge
+pipeline data without the legacy one-tick delay. It is not wired into any
+machine. The eight-slot scheduler is a timing oracle, not a full-speed
+architecture (literal full-speed implementation would need266.667MHz).
+Next: extract and translate ProcL/ProcH's T-enable/setup cone, then qualify
+board/firmware behavior before changing the master-clock architecture.
 
 Same original firmware/BFN113/Guest boot, Main12701/server12696, Native26
 RBF586dc7f8...,8MB RAM/64K Map. HDMI recovered at verified1080p30/74.25MHz.
@@ -288,7 +300,7 @@ direct unbuffered failure control, including Shift/G across different matrix
 words, two-field state hold, stopped-clock capture, repeat coalescing and
 overflow/reset. Existing keyboard-terminal-test and key-matrix-check pass.
 Native28 isolated build: misterubuntu:/home/alans/mister/Dorado_Native28_20261018,
-local native28-build.log, session20861; synthesis/placement complete, routing. Based on Native27 plus
+local native28-build.log, session20861; map/fit/asm/STA/audit completed. Based on Native27 plus
 only top-level host-input buffer. Uses native26-before-review.sdc for fit;
 review exact new hold paths after placement. Not timing/hardware qualified.
 
@@ -539,7 +551,10 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Exclusive scripted keyboard qualification: prior tests interleaved with user OpenR typing. Input round trip works; exact Echo FPGA unqualified.
 - [x] Add stopped-clock key-event queue regression, direct-old-path loss control, chord/hold/repeat/overflow gates.
 - [ ] Fit/review Native28 buffer candidate; then hardware qualification. Native26 desktop retained.
-- [ ] Address speed: characterize SYSPER2 ReadBB failure; SYSPER1 collapses existing CLOCKGEN. Full-speed likely needs phase work,66.67MHz timing closure at2, and fewer storage waits.
+- [x] Characterize clock baseline: original-ROM4 passes,2 fails startup; independent divider audit and Native26 Fmax41.08MHz saved.
+- [x] Write staged clock implementation plan and test an isolated direct phase/enable source against the original divider, pre-edge pipeline capture and all-phase freeze/resume.
+- [ ] Extract ProcL/ProcH T-enable/setup cone; prove explicit enables against original timing, then gate SendMIR/Boot0/compute/original-ROM startup. See docs/verilog-clock-plan.md.
+- [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.
 - [ ] Commit/push confirmed fixes and evidence; preserve Executive/mouse/disk
   regressions. Space Invaders compatibility remains a separate open item.
 

@@ -1,0 +1,7 @@
+- verilog/verilator/tb_clock_phases.sv:136: Verilog $finish
+CLOCK_PHASES PASS ticks_per_slot=1 periods=72 captures=72 legacy_late=36
+CLOCK_PHASES PASS ticks_per_slot=2 periods=36 captures=36 legacy_late=17
+CLOCK_PHASES PASS ticks_per_slot=3 periods=24 captures=24 legacy_late=10
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 7us; walltime 0.000 s; speed 19.904 ms/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 2 MB
