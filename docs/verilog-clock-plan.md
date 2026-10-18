@@ -68,49 +68,59 @@ correctness blocker remains open; it is not replaced by a PLL-only speed
 claim. Original guest-visible CPU/cache/map/ECC behavior is preserved, with
 no imported C machine state or host completion of guest instructions/IOCBs.
 
-The immediate next action is the Native39 instrumented DDR hardware baseline
-and strict Native41 combined SDRAM/counter qualification. Only
+The immediate next action is Native41 SDRAM cold-boot qualification and
+its matched idle-login measurement, followed by the cache-off42 control. Only
 MiSTer14 is allocated. Use misterubuntu for Quartus and the Mac for Verilator.
 Do not overwrite the protected Executive simulation/checkpoint artifacts.
 Keep commits and the handoff current at each milestone. No new permission
 is needed for the already authorized builds, reloads and reversible tests.
 
-**Implementation update,2026-10-18 16:52UTC:** Native36 reaches Viewers,
-mouse/Cmd/focus and exact short/alphabet/digit Echo. It needed legitimate BSP
-probes to recover a lost20-byte Helvetica7 completion tail; this is not an
-unassisted cold-boot gate. A local file was created/closed/read back through
-Cedar; cold remount is pending. The automatic daemon probe fix passes native
-and ARM socket regressions plus an old-loop negative control. The tested
-ARM binary is d4dbea66...; it is now the live service for Native39 with
-pinned Pup time1792324800. Shared C state layout
-is unchanged. See reports/2026-10-18-bsp-retry and native36.
+**Implementation update,2026-10-18 17:20UTC:** Native41 SDRAM is now live
+on MiSTer14, original BaseBoard startup under observation. Main11453 is the
+unchanged1fb2 binary; daemon11445 is89007902 (quiet-after-Cedar plus BSP
+probes). Fresh seed f3bce2a8, pinned Pup time1792324800,50MHz/SYSPER4,
+no raw line cache. All31 summary checks/36 all-device path categories,
+including SDRAM I/O, pass min+0.114ns. Hardware boot/speed remain unqualified.
 
-Selectable SDRAM passes worst-case pin/frequency/full-board checks. Native37
-failed input setup;38's falling-edge capture fixed that, but a tiny F10145
-MLAB hold still failed. Native40's opt-in logic placement preserves read/write
-RTL and passes31 summary checks plus36 categories across all four device
-conditions, including SDRAM input/output setup/hold, min+0.113ns; no added
-exceptions and zero illegal/unconstrained internal clocks. It is not yet
-hardware-qualified. DDR remains selectable. There is no SDRAM raw line cache;
-use matched cache-off DDR before attributing an isolated device speedup.
+Native39b's original-firmware Cedar login provides the actual DDR baseline:
+three10s windows give1,447,940/1,448,181/1,447,903 issues/s, mean~1.448M/s
+=8.69% of nominal16.667M/s. Held starts are~0.177%, clocks/issue~2.00367.
+Separate windows show23.2067% enabled and76.8169% storage-only pauses;
+pack-only/overlap0,~2.754M physical reads/s, backing read hits~0.039%.
+These views are not one atomic all-counter observation. Issue is not drained
+retirement. This is three windows in one boot, not three fresh-boot runs.
+Evidence: reports/2026-10-18-native39/idle-login* and per-view records.
 
-The instruction issue monitor passes15 board-level cases at SYSPER4/8/16
-against100 actual T increments, plus naive-count failure controls. Generated
-ports/native wrapper lint/default-OFF compatibility pass. The instrumented
-DDR Native39 passes all-device timing (min+0.034ns) and is deployed on14.
-The first load selected NetExec: a held key was lost across Main re-exec,
-and the watcher falsely matched an EFTP sequence113. The corrected watcher
-checks uCodeBoot type264 and BFN113 explicitly; rearming after Main input
-initialization and sending the original three boot pushes selected Cedar.
-The pack still matched the original seed before that retry. Cedar boot is
-under observation; no idle-login benchmark yet.
-Native41 combines40's SDRAM with the monitor:31 summary checks and36 path
-categories across all four conditions, including SDRAM input/output timing,
-PASS, min+0.114ns. Zero illegal/unconstrained internal clocks and no added
-exceptions. Fit29888 ALMs(71%)/330 M10Ks; RBF a97af936... . Not deployed.
-Next measure39's issue/hold/wait baseline with the fixed daemon, then
-qualify/measure41 with matching inputs. Issue is not pipeline-drained
-retirement; no new hardware speed figure is claimed.
+The new d4 daemon had omitted the installed1d5 variant's BFN113 broadcast
+suppression. Repeated gatewayInfo kept Cedar's documented drain-until-quiet
+routing loop open at fileInitialized860. Restoring quiet mode on the ARM
+service alone produced Time206/address223 requests and the login screen in
+~30s, without FPGA/Main reset or guest memory/IOCB writes. The service repair
+restored its already-observed BFN113 metadata; that boot is not a whole-boot
+time benchmark. The corrected89007902 daemon passes native/ARM quiet3.2s,
+quiet-reset, boot/routing/STP and BSP dropped-tail recovery after an actual
+Cedar113 request. The old flood binary fails the new regression. See
+reports/2026-10-18-quiet-bsp. Native41 must now pass a fresh unassisted boot.
+
+Native42 is a matched cache-off DDR control: identical41 clocks, M10K/logic
+placement and generated CPU/memory boards, only raw backend wiring and its
+constraints differ. All29 summary checks/20 all-device categories pass,
+min+0.115ns; no added exceptions or internal-clock coverage gaps. Not loaded.
+RBF45af2e30...,29788 ALMs/330 M10Ks. Use42 before attributing an isolated
+SDRAM device speedup:39 still has128 read-cache lines and different tiny-file
+placement. Selectable SDRAM passes independent worst-case pins/frequencies,
+refresh/reset and full MSA equivalence.37/38's failed timing and40/41's fixes
+remain recorded; no failed build was deployed.
+
+Native36 remains the assisted Viewers/mouse/exact short/alphabet/digit Echo
+reference. A local marker file was created/closed/read back; cold remount is
+pending. Its lost20-byte Helvetica7 completion tail motivated the automatic
+BSP probe fix. Native34 remains the last unassisted desktop/input reference.
+The independently checked issue monitor passes15 real-board microprogram
+cases; hardware measurements now agree with the clock/cycle partition.
+Remaining tasks include maintenance/reset/task-switch qualification,
+Native41 cold Cedar/input/persistence, paired measurements, request overhead,
+ARM disk work, DDR transport, complete snapshots and original clock phases.
 
 Snapshot scope includes IM/IFUM, register/task files, processor/control
 pipeline and clock phase, main memory, cache/map/ECC and their registers,

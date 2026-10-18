@@ -45,6 +45,28 @@ with tempfile.TemporaryDirectory(prefix='dorado-cedar-bfn-',dir='/tmp') as tmp:
     image.extend(payload);seq+=1
    assert image==source.read_bytes()[512:]
    print('CEDAR-BFN113 PASS:',len(image),'payload bytes,',seq,'frames, SHA256',hashlib.sha256(image).hexdigest())
+   # Real Cedar drains gatewayInfo until Get times out. A steady stream of
+   # idle routing packets prevents that timeout, unlike this socket client.
+   # Observe longer than two broadcast periods, with no outstanding request.
+   s.settimeout(3.2)
+   try:
+    unexpected=s.recv(4096)
+   except socket.timeout:
+    pass
+   else:
+    raise AssertionError(('unsolicited packet after Cedar boot',unexpected.hex()))
+   s.settimeout(3)
+   s.sendto(struct.pack('>13H',*route),server)
+   frame=s.recv(4096);p=struct.unpack('>'+str(len(frame)//2)+'H',frame)
+   assert p[3]==0o201 and p[4:6]==routing_id and p[7:9]==(0,2)
+   print('CEDAR-QUIET PASS: no idle broadcasts for3.2s; solicited routing still answers')
+  # Same process, replacement Main: configure must release Cedar quiet mode.
+  with socket.socket(socket.AF_UNIX,socket.SOCK_DGRAM) as replacement:
+   replacement.bind(str(pathlib.Path(tmp)/'replacement.sock'));replacement.settimeout(3)
+   replacement.sendto(b'',server)
+   frame=replacement.recv(4096);p=struct.unpack('>'+str(len(frame)//2)+'H',frame)
+   assert p[1]==0o602,'replacement Main did not receive breath-of-life'
+   print('CEDAR-QUIET-REEXEC PASS: fresh Main receives boot broadcast')
  finally:
   proc.terminate();assert proc.wait(timeout=5)==0
 

@@ -1,0 +1,12 @@
+{
+  "core/Dorado.sv": "6d7b2b7c7b2a63f091c7ff97f43474a71600a524e8b14df0e49d79d71bfedcf8",
+  "core/Dorado.qsf": "a153515c5650e7879e7f894b615dc2f3ef452038a6ca7c32cd392f4a29de465d",
+  "core/native_timing.sdc": "df62acc5c1e4029eb441b28de904eadfe2f9d00a2d82ba61586b6571afccbec2",
+  "src/fpga/mister/dorado_storage_ddram.sv": "b70226a872f56e8f88787f682e132258eaab4fb215f3159f4204fd6776a34393",
+  "src/fpga/mister/dorado_instruction_monitor.sv": "a7b0988cc38a91b4435554992d3bdbd83258c405bccc07a8a723077c7ab41adc",
+  "src/verilog/cells/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+  "src/build/rtl-executive/native16-tx-cable/ContA_monitor.v": "1eb77199656413cc740fd5c1081aad9e519adba2411fbd4d073e99f5a2987c5b",
+  "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "a763ef02c3f1a6418e912f756e428336ee0e4abf2c8ae4692a86e6df7e5dd435",
+  "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "04c986e3614489debd67a20342248286294f0c47ed17f949d1deac75ffe656d8",
+  "src/build/rtl-executive/native16-tx-cable/manifest.json": "588c94aae3ca0bb2672604554593c0f01588d072781b06aad188d444767d423a"
+}

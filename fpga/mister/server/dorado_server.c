@@ -104,7 +104,13 @@ int main(int argc, char **argv) {
             }
             probe_at = now + 1000000000ull;
         }
-        if (peer_len && now >= broadcast_at) {
+        /* Cedar's InitializeRoutingInfo drains socket2 until a one-second
+         * quiet interval. Repeated unsolicited gateway packets keep it in
+         * that loop, especially while the FPGA runs slower than real time.
+         * Keep the installed Cedar-qualified daemon's quiet-after-BFN113
+         * policy. Solicited service replies and BSP probes remain active.
+         * configure() restores boot broadcasts for a replacement Main. */
+        if (peer_len && now >= broadcast_at && eth.last_boot_offset != 0113) {
             if (broadcast_kind++ & 1) (void)dorado_ethernet_time_broadcast(&eth);
             else (void)dorado_ethernet_breath_of_life(&eth);
             broadcast_at = now + 1000000000ull;

@@ -1,0 +1,22 @@
+{
+  "sha256": "89007902b619049633233143b133246db9c9ba2a062937bf8ef71eb13dabdacf",
+  "exe": "/media/fat/games/DoradoRTL/System_20261018_QuietBSP/dorado-server-89007902b6190496",
+  "known_good_previous_sha256": "1d5e05e9d293b095de14fcb3430980a2956a6cccb712ed860c79571980e0ec17",
+  "known_good_source": "misterubuntu:/home/alans/mister/Dorado_ServerRoute_20261017/server_quiet.c",
+  "regressed_sha256": "d4dbea66c371ebd841d1db45dede8eac868fe7b4dc3da07b43d9f64d73f5150a",
+  "cause": "The new BSP-probe build used repository server.c, omitting the live quiet variant\u2019s last_boot_offset!=0113 guard. Repeated gatewayInfo kept Cedar InitializeRoutingInfo inside its drain-until-timeout loop.",
+  "period_source": "Cedar6.1/Pup/PupRouterImpl.mesa InitializeRoutingInfo, getTimeout1000, DO Get until NIL before testing the learned network",
+  "tests": "Native and ARM boot/EFTP/reexec/routing/BFN113/quiet3.2s/quiet-reset/largeSTP/droppedtail2probes PASS; old flood binary fails quiet test",
+  "hardware": "Native39b cold original firmware reached fileInitialized860. Service-only replacement at~17:13UTC; restored already-observed last_boot_offset113 in ARM daemon through GDB before registration. No FPGA/Main reset or guest CPU/RAM/IOCB write. Within~30s Cedar sent AltoTime206/address223 and displayed Please login/Name.",
+  "limits": "Live server repair is documented; not an unassisted whole-boot time benchmark. Idle-login counter comparison follows this stable service configuration. Future fresh boots must learn BFN113 from the real request without GDB.",
+  "main_pid": 10655,
+  "server_pid": 11101,
+  "pinned_pup_time": 1792324800,
+  "integrated_quiet_bsp_test": "Native and ARM BSP retry cases now boot actual Cedar BFN113 first, then drop/recover completion tail after two automatic probes while quiet mode is active.",
+  "source_sha256": {
+    "fpga/mister/server/dorado_server.c": "51da7932d402bf3e2432baadccf3cf020c735232e3a3b798acf1c68847c4afc9",
+    "fpga/mister/server/test_cedar_server.py": "64164eec8682ced6689bce6c9d8729b24f1d8814e46013c0927a3016953be993",
+    "fpga/mister/server/test_bsp_retry.py": "33439c980c25817b7c6e2eb07884b1b220d9cb9a050467076f107b90e3826e75",
+    "fpga/mister/reports/2026-10-18-quiet-bsp/previous-qualified-server.c": "898143c8668232606e75f5d016f76b10d751696fdf7c9ea6c65b56de0a83cb28"
+  }
+}

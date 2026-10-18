@@ -1,0 +1,91 @@
+{
+  "kind": "instruction",
+  "view": 3,
+  "workload": "Idle Cedar login; no Guest typing; fixed original seed and served tree, Main1fb2, quiet+BSP daemon89007902, Pup time1792324800;50MHz/SYSPER4",
+  "samples": [
+    {
+      "monotonic": 92246.057167769,
+      "machine": 1924795022,
+      "cpu": 938392996,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=64 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=72ba0a8e state=472a cpu=37eebda4"
+    },
+    {
+      "monotonic": 92247.054780331,
+      "machine": 1927698382,
+      "cpu": 939841422,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=64 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=72e657ce state=472a cpu=3804d78e"
+    },
+    {
+      "monotonic": 92248.062601011,
+      "machine": 1930595688,
+      "cpu": 941287925,
+      "status": 18223,
+      "line": "Dorado net: flags=5 tx_words=16 good=64 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=73128d68 state=472f cpu=381ae9f5"
+    },
+    {
+      "monotonic": 92249.061268653,
+      "machine": 1933498373,
+      "cpu": 942736522,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=64 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=733ed805 state=47ea cpu=3831048a"
+    },
+    {
+      "monotonic": 92250.058778324,
+      "machine": 1936401766,
+      "cpu": 944185743,
+      "status": 18223,
+      "line": "Dorado net: flags=5 tx_words=16 good=64 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=736b2566 state=472f cpu=3847218f"
+    },
+    {
+      "monotonic": 92251.05785803,
+      "machine": 1939303502,
+      "cpu": 945633701,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=64 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=73976c4e state=472a cpu=385d39a5"
+    },
+    {
+      "monotonic": 92252.05625191,
+      "machine": 1942200773,
+      "cpu": 947079975,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=64 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=73c3a1c5 state=47ea cpu=38734b27"
+    },
+    {
+      "monotonic": 92253.055222946,
+      "machine": 1945103493,
+      "cpu": 948528456,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=64 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=73efec85 state=47ea cpu=38896548"
+    },
+    {
+      "monotonic": 92254.062756023,
+      "machine": 1948006853,
+      "cpu": 949977525,
+      "status": 18410,
+      "line": "Dorado net: flags=5 tx_words=16 good=64 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=741c39c5 state=47ea cpu=389f81b5"
+    },
+    {
+      "monotonic": 92255.060713987,
+      "machine": 1950906384,
+      "cpu": 951424504,
+      "status": 18218,
+      "line": "Dorado net: flags=5 tx_words=16 good=64 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=74487810 state=472a cpu=38b595f8"
+    },
+    {
+      "monotonic": 92256.058816904,
+      "machine": 1953806075,
+      "cpu": 952871965,
+      "status": 18415,
+      "line": "Dorado net: flags=5 tx_words=16 good=64 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=7474b6fb state=47ef cpu=38cbac1d"
+    }
+  ],
+  "delta": {
+    "board_clocks": 29011053,
+    "issued": 14478969
+  },
+  "elapsed_observer_s": 10.001649134996114,
+  "control": "Main status setter at input_poll, first two observations discarded; separate view windows, no all-counter atomic correlation",
+  "ratio": 2.003668424181307
+}

@@ -1,0 +1,17 @@
+{
+  "workload": "Idle Cedar login, no Guest typing. Original power-on firmware/BFN113; ARM broadcast policy repaired live as documented in quiet-bsp qualification. Not a whole-boot time comparison.",
+  "issued_per_second_samples": [
+    1447940.4002940976,
+    1448180.937155698,
+    1447903.2910504476
+  ],
+  "mean_issued_per_second": 1448008.2095000811,
+  "ordinary_nominal_rate_fraction": 0.08688049257000487,
+  "enabled_fraction": 0.23206707226784393,
+  "storage_only_pause_fraction": 0.7681689440256787,
+  "pack_only_pause_fraction": 0,
+  "overlap_pause_fraction": 0,
+  "held_fraction": 0.0017686082683315506,
+  "board_clocks_per_issue": 2.003668424181307,
+  "limits": "Three ten-second issue windows from one idle login, not three independent cold boots. Other counter views have separate windows; do not sum their fractions as if atomic. Issue excludes RepeatCur/CP and is not pipeline-drained retirement. Live ARM service repair is documented in quiet-bsp qualification. No whole-boot time comparison."
+}

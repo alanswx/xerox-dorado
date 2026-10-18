@@ -50,7 +50,13 @@ entries. It adds the missing nil Pup checksum to that code's old microcode-
 boot packets, whose length already includes it. EFTP's actual Pup checksum
 stays in the packet. Server timers advance with monotonic time; alternating
 breath-of-life and routing/time broadcasts are attempted once per second,
-only when the underlying server is idle. They do not inspect guest memory.
+only when the underlying server is idle. After a Cedar BFN113 request,
+unsolicited boot/routing broadcasts stop: Cedar's routing initializer needs
+a quiet receive interval to finish. Solicited replies and BSP recovery
+probes continue. A replacement Main resets this policy with the rest of
+the server session. `make cedar-test` checks both quiet and reset behavior;
+this preserves the policy of the previously qualified1d5e05e9 daemon.
+The server does not inspect guest memory.
 
 The MiSTer Main/RTL packet bridge now delivers actual guest TX packets to
 this service on MiSTer14. Main owns SPI and Dorado-specific UIO queues; RTL

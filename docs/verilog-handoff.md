@@ -9,117 +9,122 @@ qualify M10K placement and instruction measurement; move bulk RAM to SDRAM;
 reduce memory-request overhead; make ARM disk work nonblocking/coherent;
 connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
-External Xerox-network tunnelling is optional follow-up. Next: finish the
-Native39 idle-login issue baseline with the live BSP-probe daemon, then
-load/qualify the all-device timing-passing Native41 SDRAM build.
+External Xerox-network tunnelling is optional follow-up. Next: qualify the
+live Native41 SDRAM cold boot and compare with39/42, using the corrected
+quiet+BSP daemon. Native39b's idle-login issue/wait baseline is measured.
 User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is Native39, original Cedar boot under observation.**
-Main9893/server9888, pack/logs/reboot config in `Cedar39_20261018`, launcher
-`Cedar39.mgl`. Main1fb2 is unchanged; daemon d4dbea66 is live with pinned Pup
-time1792324800. RBF SHA
-`8b260b6cb1332778ca97364732e732681fc6d13a6ea7be2e404b5e3186a863d5`.
-The first load selected NetExec because C was held before Main re-exec. Its
-watcher then falsely matched EFTP sequence113. Corrected watcher checks the
-actual type264/BFN113 fields; it was rearmed after Main input initialization,
-and the original three physical boot pushes selected Cedar at~16:49UTC.
-Pack remained byte-identical to seed f3bce2a8 before the retry. C and all boot
-keys are released. Passive instruction view1 is selected. At16:52UTC the germ
-was advancing with network service requests; idle-login benchmark pending.
-No new hardware speed figure yet. Use the precise watcher archived under
-`reports/2026-10-18-native39/`; always arm it AFTER Main initialization.
-
-**Native36's completed session is preserved.** Original firmware/BFN113,
-all34 packages, BootEssentials/fonts, Viewers, mouse, Cmd-button creation of
-a second CommandTool, focus and exact keyboard Echo passed after the BSP
-assistance below. At0.1s down/up it echoed `rtl36ok` and the alphabet/digits
-exactly. `echo rtl36persist20261018 > ///rtl36persist.txt` created/closed a
-local file; `type ///rtl36persist.txt` read the marker back. **Cold remount is
-still pending.** Preserve the mutated36 pack for that test. Its active Main
-log was copied to `Cedar36_20261018/main-before-native39.log` before39 load.
-Evidence: `reports/2026-10-18-native36/`. At16:29UTC good1979/dropped79/
-CRC0/RX0/aborted0. Native34 remains the last unassisted desktop/input boot.
-
-**The long gray-screen wait was a lost STP completion tail.** Task0 was in
-Cedar's documented BusyWait, with other hardware tasks and mouse alive.
-The final Helvetica7 font bytes arrived but its20-byte Yes/text/EOC tail
-was lost. Three empty BSP acknowledgement probes, sent from the running
-server's socket through normal Main/RTL Ethernet, elicited ACKs0019b021,
-0019b021,0019b035; the existing duplicate-ACK path replayed the tail and
-Viewers resumed. The first diagnostic probe omitted the high socket half
-and correctly got NoSocket; that rejected frame is retained in the evidence.
-This was protocol assistance, not a CPU/RAM/guest-IOCB patch. Native34 remains
-the last unassisted desktop/input reference.
-
-**Automatic recovery is implemented, tested and live on Native39.** The daemon
-now queues at most one empty aData probe per second, rotating through STP
-connections with unacknowledged output, without spending stream bytes or
-fingers. No shared C state members were added. Local and ARM tests pass
-boot/EFTP/re-exec/routing/large STP and a dropped unrequested completion
-tail:1036 file bytes recover after two automatic probes. Compiled old-loop
-control receives the body but fails with0 probes. This activates existing
-file/tail rewind; it is not a general metadata retransmit ring. Evidence:
-`reports/2026-10-18-bsp-retry/`. ARM candidate, tested on separate temporary
-sockets on14:
-`/media/fat/games/DoradoRTL/System_20261018_BSP/dorado-server-d4dbea66c371ebd8`,
-SHA `d4dbea66c371ebd841d1db45dede8eac868fe7b4dc3da07b43d9f64d73f5150a`.
-It is now the live service (PID9888). Full unassisted Viewers boot with it
-remains to be demonstrated; native/ARM regressions are not that hardware gate.
-
-**SDRAM is implemented and timing-qualified as a component; hardware pending.**
-The original MSA/cache/map/ECC interface stays upstream of the selectable
-raw backend, with an8MiB guest/16MiB padded backing on the required128MB
-XSDS module. Worst-case pin-model tests pass at20/33.333333/50MHz, including
-ranks/banks/row boundaries, refresh under backpressure and reset/drain.
-Full MSA equivalence compares all9,437,184 stored bits. Runtime controls
-reject short tRCD, blocked refresh and the old read capture under6ns clock
-output delay. See `reports/2026-10-18-sdram-preparation/`.
-Native37 FAILED SDRAM input setup(-4.436ns) and a MemC MLAB hold(-0.040ns).
-Native38's falling-edge input register/rising-edge response (one extra read
-cycle) fixed input setup but FAILED another F10145 MLAB hold(-0.093ns MemX).
-Neither was deployed. Fitter hold optimization was already All Paths.
-Native40 maps these tiny16x4 asynchronous-read register files into logic
-(`DORADO_F10145_LOGIC`): preprocessed behavior is identical after removing
-placement attributes. All31 timing-summary checks plus36 categories across
-all four device conditions, including SDRAM input/output setup/hold, PASS;
-min+0.113ns across the reports. No new exceptions; zero illegal/unconstrained
-internal clocks. Fit29348 ALMs(70%)/330 M10Ks. No hardware/speedup claim yet.
-SDRAM has no raw line cache;36/39 have128 entries. Use a matched cache-off
-DDR control before claiming an isolated memory-device performance gain.
-
-**Instruction issue reporting is implemented/tested and separately fitted.**
-The monitor counts original StartCycle, qualifies Run/Jam and separates
-RepeatCur held cycles. Fifteen board-level microprogram cases at SYSPER4/8/16
-match exactly100 architectural T increments: same-PC loops, original
-Hold&TaskSim and ReadTPC/WriteTPC/ReadIM. Naive held-start/half-clock controls
-fail at114/200. All15 pass through optional generated ContA/backplane/native
-ports; full native wrapper lint and byte-identical monitor-OFF generation
-also pass. Main command70 retains its coherent pair and sole SPI owner:
-OSD status[10:9]1=issued/host edges,2=held/cycles,3=board clocks/issued.
-This is ISSUE, not pipeline-drained retirement. Native39 clones frozen36's
-DDR/128-entry baseline at50MHz/SYSPER4 and passes29 summary checks plus20
-categories/all four conditions, min+0.034ns, no new exceptions, zero illegal/
-unconstrained internal clocks. Deployed on14; actual issue measurement
-awaits the matching idle Cedar login workload.
-
-**Native41 combines Native40 SDRAM/logic placement with the passive monitor.**
-Frozen build `misterubuntu:/home/alans/mister/Dorado_Native41_20261018`.
-All31 summary checks and36 path categories across all four device conditions,
-including explicit SDRAM input/output setup/hold, PASS: min+0.114ns.
-Zero illegal/unconstrained internal clocks; no added exceptions. Fit29888
-ALMs(71%)/330 M10Ks. RBF SHA
+**Live MiSTer14 is Native41 SDRAM, original BaseBoard startup.**
+Main11453/server11445. Pack/logs/restart config in `Cedar41_20261018`, launcher
+`Cedar41.mgl`. RBF SHA
 `a97af93667bf20b2f9bebb0959dc67a4710895f6416e91987242e7486a1f9297`.
-Full evidence and input hashes: `reports/2026-10-18-native41/`.
-Not deployed. Local qualified bitstream
+50MHz/SYSPER4,8MiB guest/16MiB raw backing on the required128MB SDRAM,
+no raw line cache. Main1fb2 unchanged. Corrected quiet+BSP daemon89007902,
+pinned Pup time1792324800; fresh f3bce2a8 seed. C watcher was armed AFTER
+Main registered, then three original boot pushes once. At17:20UTC it is
+still holding C pending the real type264/BFN113 request. Local watcher log
+`build/rtl-executive/cedar41-launch/c-until-request.log`, tool session96908.
+Do not restart based on an observation timeout. All31 timing-summary checks
+plus36 path categories/all four conditions including SDRAM I/O pass,
+min+0.114ns; zero illegal/unconstrained internal clocks, no new exceptions.
+Fit29888 ALMs(71%)/330 M10Ks. Full reports/input hashes in native41 evidence.
+Hardware boot and speed are not yet qualified. Local bitstream:
 `build/rtl-executive/native41-candidate/Dorado.rbf`.
-Compare with39 using the same new daemon, pinned time, seed and inputs.
-First measure39's idle-login issue/hold/wait baseline, then41. No PLL/SYSPER
-reduction yet. Remaining work includes cold remount of36's file, unassisted
-fresh boots, memory serialization, ARM disk buffering, DDR frame transport,
-complete snapshots and accurate clocks. Snapshot milestone4a now includes
-an early representative-board area/timing gate and complete state inventory.
+
+**Next:** observe actual Cedar login, then select instruction view1 with
+`cedar41-launch/select-issued.gdb` using Main11453. Capture three windows
+with `reports/2026-10-18-native39/sample-issued.py LOGFILE` on14. Capture
+cause/traffic views with local `cedar41-launch/sample-login-views.py 11453
+/media/fat/games/DoradoRTL/Cedar41_20261018/main.log`. Main stays sole SPI
+owner; collectors use its normal status setter at input_poll and discard
+two observations. Pin idle login/no Guest typing until comparisons finish.
+Then type Guest plus two Returns at0.1s down/up, wait through all34 loadees,
+answer profile question with `n`, and qualify Viewers/input/disk. Native42
+is the further matched cache-off DDR control, not deployed. Preserve36's
+mutated volume for its outstanding cold-remount marker test.
+
+**Native39b measured actual issues at the Cedar login.** Same50MHz/SYSPER4,
+Main1fb2, corrected89007902 daemon, pinned time, original seed. Three10s
+windows:1,447,940/1,448,181/1,447,903 issues/s, mean~1.448M/s =8.69% of the
+original16.667M/s nominal rate. Held/start~0.177%, board clocks/issue2.00367.
+Separate windows show23.2067% enabled,76.8169% storage-only pauses,0 pack-only/
+overlap;~2.754M physical reads/s; backing read-cache hit~0.039%.
+Separate views are not one simultaneous snapshot; issue is not pipeline-
+drained retirement. Three windows came from one idle login, not three boots.
+Full records/capture: `reports/2026-10-18-native39/idle-*`.
+The known15 microprogram tests (SYSPER4/8/16, same-PC/hold/extended IM/TPC)
+verify the count against100 real T increments. Maintenance/reset/task-switch
+qualification remains open.39 uses128 raw read-cache lines and MLAB tiny
+files;41/42 have no line cache and F10145 logic placement. Use42 to isolate
+the backing device.39b logs/pack preserved in `Cedar39b_20261018`, Main log
+copied to `main-before-native41.log` before replacement.
+
+**A server-build regression held39 at fileInitialized860.** The installed
+1d5e05e9 binary hashes exactly to Ubuntu `Dorado_ServerRoute_20261017/
+dorado-server-quiet-arm`, source `server_quiet.c`. The new d4 BSP-probe build
+used repository server.c and lost its BFN113 broadcast guard. Period
+`PupRouterImpl.InitializeRoutingInfo` drains gatewayInfo until Get's1000ms
+timeout; repeated unsolicited gateway packets kept that drain loop open.
+Both the initial warm39 and fresh39b showed one GatewayInfo request and
+then BusyWait/no time/name request, with clean pack/CRC/RX counters.
+
+Quiet mode was restored by replacing ONLY the ARM daemon on39b at17:13UTC,
+then restoring its already-observed BFN113 metadata before registration,
+using `restore-server-mode.gdb`. FPGA/Main stayed running; no guest CPU,
+RAM or IOCB writes. Within~30s Time206/address223 requests and real Cedar
+Please login/Name appeared. That repaired boot is not an unassisted
+whole-boot time benchmark. Native41 now boots the corrected service fresh
+and must learn113 from the real request, with no GDB server-mode restoration.
+
+Correct daemon: `/media/fat/games/DoradoRTL/System_20261018_QuietBSP/
+dorado-server-89007902b6190496`, SHA
+`89007902b619049633233143b133246db9c9ba2a062937bf8ef71eb13dabdacf`.
+Native and ARM tests pass boot/EFTP/reexec, BFN113/routing, quiet3.2s,
+replacement-Main broadcasts restored,66,296-byte STP and1036-byte dropped
+completion-tail recovery after two automatic probes in actual Cedar quiet
+mode. Previous flood binary FAILS the new quiet test. Shared C state layout
+unchanged; no general metadata retransmit ring. Evidence:
+`reports/2026-10-18-quiet-bsp/`. Keep this policy in source; do not rebuild a
+service from an untracked quiet variant again. BSP probes remain enabled
+in quiet mode; only unsolicited boot/routing broadcasts stop.
+
+**Native42 matched cache-off DDR control is timing-qualified, not deployed.**
+Frozen Ubuntu `Dorado_Native42_20261018`, same41 boards, clocks, F10145 logic/
+F10415 M10K and instruction views. Only raw-backend wiring/constraints differ;
+wrapper-prefix/suffix assertions check upstream identity. All29 summary
+checks/20 categories across all four conditions pass, min+0.115ns, zero
+illegal/unconstrained internal clocks, no added exceptions. Fit29788 ALMs/
+330 M10Ks. RBF SHA
+`45af2e303267c4583480b29464720b0892a06cbf82881fa00ba1634eab0b8c55`.
+Reports/recipe/provenance: native42. Bitstream:
+`build/rtl-executive/native42-candidate/Dorado.rbf`.
+The no-cache DDR regression passes byte lanes/stalls/backpressure/reset drain.
+
+**Native36's assisted desktop/input and local file remain preserved.** All34
+packages, BootEssentials/fonts, Viewers, mouse/click and exact `rtl36ok` plus
+alphabet/digits passed after legitimate BSP probes replayed a lost20-byte
+Helvetica7 completion tail. The first diagnostic probe had omitted a socket
+high half and correctly got NoSocket; corrected full32-bit probes recovered
+it without guest patches. Automatic probes now replace that assistance.
+`echo rtl36persist20261018 > ///rtl36persist.txt` created/closed a real local
+file; `type ///rtl36persist.txt` read it back. Cold remount is pending.
+Keep `Cedar36_20261018/cedar-work.pack`; logs/captures and final qualification
+are in native36 reports. At16:29UTC good1979/dropped79/CRC0/RX0/aborted0.
+Native34 remains the last unassisted full Viewers/input reference.
+
+Selectable SDRAM simulation qualification remains intact: independent chip
+pins/20..50MHz/6ns clock-delay controls, ranks/banks/rows/refresh/backpressure/
+reset-drain, and all9,437,184 MSA stored bits/output behavior match. Native37
+failed physical input setup;38's falling-edge capture fixed it but tiny
+F10145 MLAB holds still failed.40/41's logic placement preserves behavior
+and closes all-device timing. No failing build was deployed. Remaining goal:
+41/42 hardware comparison, request locality/serialization, responsive ARM disk,
+DDR frame rings, complete snapshots (including disk/server state), accurate
+phase/timer migration, repeated fresh boots/input/persistence and2h sustained
+qualification. Snapshot milestone4a requires a full state inventory and a
+representative-board area/timing gate before scaling state access.
 
 Native35's original firmware/BFN113 and Cedar login pass. Separate10s idle
 windows measure23.2104% enabled,76.7903% DDR-only pauses, zero pack-only or
@@ -829,7 +834,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Implement optional generated instruction-signal exports and Main coherent-pair views;15 exported-port cases/native wrapper lint/default-OFF compatibility pass.
 - [x] Fit/all-device timing Native39 instruction diagnostics on frozen36 DDR baseline; deploy with precise original-firmware boot selection.
 - [x] Combine SDRAM/logic placement and passive counter in41; pass all four conditions including explicit SDRAM I/O timing, min+0.114ns.
-- [ ] Finish39 idle-login measurements, then41 hardware qualification/comparison with the same daemon/time/seed/input.
+- [x] Measure39b idle actual issues/held/clocks and pause/traffic views; archive matching inputs and service-repair caveat.
+- [x] Restore installed quiet-after-Cedar daemon policy in source; native/ARM quiet/reset and Cedar-quiet BSP recovery pass, old flood binary fails.
+- [x] Fit/all-device timing matched cache-off DDR42, min+0.115ns; preserve same41 board/placement policies.
+- [ ] Finish41 SDRAM hardware qualification/comparison with the same corrected daemon/time/seed/input;42 matched device control remains untested on hardware.
 - [ ] Deploy/qualify instruction diagnostics, including maintenance/reset/task switching, and measure actual issue rates with external waits separately.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [ ] Adapt ARM write coalescing with read/remount/error coherence; address blocking flushes and whole-track write amplification.

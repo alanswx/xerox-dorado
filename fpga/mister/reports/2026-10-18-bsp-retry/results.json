@@ -15,7 +15,7 @@
   "diagnostic_caveat": "First diagnostic probe omitted high socket half; guest correctly returned NoSocket. Three corrected full32-bit probes followed. This assisted boot is not an unassisted cold-boot gate.",
   "new_daemon_sha256": "d4dbea66c371ebd841d1db45dede8eac868fe7b4dc3da07b43d9f64d73f5150a",
   "installed_candidate": "/media/fat/games/DoradoRTL/System_20261018_BSP/dorado-server-d4dbea66c371ebd8",
-  "deployment": "Live service PID9888 on MiSTer14 Native39, pinned Pup time1792324800. Full unassisted Viewers boot pending.",
+  "deployment": "Initial d4 daemon superseded by89007902 quiet+BSP variant after discovering that it omitted the installed1d5 quiet-after-Cedar policy. See2026-10-18-quiet-bsp qualification. Corrected service is live on Native41, PID11445.",
   "native_tests": "Boot/EFTP/re-exec/routing/large STP/lost-tail PASS",
   "arm_tests": "Same cases PASS on allocated MiSTer14",
   "negative_control": "Old daemon loop receives1036 bytes, drops tail, produces0 probes and fails recovery",

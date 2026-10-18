@@ -25,7 +25,7 @@ with tempfile.TemporaryDirectory(prefix='dorado-bsp-retry-', dir='/tmp') as tmp:
         proc = subprocess.Popen([
             str(exe), server, str(root/'dorado/worlds/aemu.eb'),
             str(root/'chm/bootfiles/CRTTEST.BOOT!1'), str(stp),
-        ], stdout=log, stderr=subprocess.STDOUT)
+        ], cwd=root/'dorado', stdout=log, stderr=subprocess.STDOUT)
         try:
             for _ in range(100):
                 if pathlib.Path(server).exists():
@@ -56,6 +56,24 @@ with tempfile.TemporaryDirectory(prefix='dorado-bsp-retry-', dir='/tmp') as tmp:
 
                 def ack():
                     send(0o22, rx, struct.pack('>3H', 1478, 32, 1478*32))
+
+                # Exercise retries in the actual quiet-after-Cedar mode,
+                # not just in a default/Alto server session.
+                boot = [0o42, 0o1000, 0o26, 0o264, 1, 0o113,
+                        0, 0, 0, 0, 4, 0o42, 1, 1, 0xffff]
+                sock.sendto(struct.pack('>15H', *boot), server)
+                microcode = bytearray()
+                seq = 0
+                while True:
+                    frame = sock.recv(4096)
+                    header = struct.unpack('>12H', frame[:24])
+                    assert header[3] == 0o265 and header[4:6] == (1, seq)
+                    data = frame[24:-2]
+                    if not data:
+                        break
+                    microcode.extend(data)
+                    seq += 1
+                assert microcode == (root/'chm/dorado/CedarDorado.eb!6').read_bytes()[512:]
 
                 send(0o10, tx, struct.pack('>3H', 0x122, client_hi, client_lo))
                 phase = 'rfc'

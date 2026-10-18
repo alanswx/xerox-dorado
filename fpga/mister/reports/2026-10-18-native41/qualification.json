@@ -1,5 +1,5 @@
 {
-  "hardware": "NOT DEPLOYED",
+  "hardware": "DEPLOYED MiSTer14; original firmware startup under observation, no Cedar or speed qualification yet",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,
@@ -161,5 +161,14 @@
       "slack_ns": 4.856
     }
   ],
-  "rbf_sha256": "a97af93667bf20b2f9bebb0959dc67a4710895f6416e91987242e7486a1f9297"
+  "rbf_sha256": "a97af93667bf20b2f9bebb0959dc67a4710895f6416e91987242e7486a1f9297",
+  "main_pid": 11453,
+  "server_pid": 11445,
+  "main_sha256": "1fb2e098e6f0dba64b2ad8f13964e8a6ecef553bab72039ee24e53cb9619e8d2",
+  "server_sha256": "89007902b619049633233143b133246db9c9ba2a062937bf8ef71eb13dabdacf",
+  "pinned_pup_time": 1792324800,
+  "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "live_directory": "/media/fat/games/DoradoRTL/Cedar41_20261018",
+  "launcher": "/media/fat/_Computer/DoradoRTL_Cedar41_20261018/Cedar41.mgl",
+  "boot_selection": "C watcher armed after new Main registration; three original physical boot pushes once. Watcher still active, pending true BFN113."
 }

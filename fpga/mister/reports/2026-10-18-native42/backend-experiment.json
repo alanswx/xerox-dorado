@@ -1,0 +1,19 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native41_20261018",
+  "ddr_wrapper_reference": "/home/alans/mister/Dorado_Native39_20261018",
+  "change": "SDRAM -> DDR raw backend, both cache-off; same F10145 logic and F10415 M10K, 50MHz/SYSPER4, original generated CPU/memory boards unchanged",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "raw_line_cache_entries": 0,
+  "extra_timing_exceptions": "None",
+  "removed_assignments": [
+    "set_global_assignment -name VERILOG_MACRO DORADO_STORAGE_SDRAM",
+    "set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_storage_sdram.sv",
+    "set_global_assignment -name SDC_FILE sdram_timing.sdc"
+  ],
+  "changed_inputs": {
+    "core/Dorado.qsf": "a153515c5650e7879e7f894b615dc2f3ef452038a6ca7c32cd392f4a29de465d",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "04c986e3614489debd67a20342248286294f0c47ed17f949d1deac75ffe656d8",
+    "src/build/rtl-executive/native16-tx-cable/manifest.json": "588c94aae3ca0bb2672604554593c0f01588d072781b06aad188d444767d423a"
+  }
+}

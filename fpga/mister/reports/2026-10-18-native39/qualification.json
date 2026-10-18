@@ -1,5 +1,5 @@
 {
-  "hardware": "DEPLOYED MiSTer14; corrected original-firmware BFN113 boot in progress; Cedar qualification pending",
+  "hardware": "Session preserved after original-firmware Cedar login and idle issue/wait measurements; replaced by Native41. Service repair documented in quiet-bsp qualification.",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,
@@ -93,10 +93,12 @@
     }
   ],
   "main_sha256": "1fb2e098e6f0dba64b2ad8f13964e8a6ecef553bab72039ee24e53cb9619e8d2",
-  "server_sha256": "d4dbea66c371ebd841d1db45dede8eac868fe7b4dc3da07b43d9f64d73f5150a",
+  "server_sha256": "89007902b619049633233143b133246db9c9ba2a062937bf8ef71eb13dabdacf",
   "pinned_pup_time": 1792324800,
-  "main_pid": 9893,
-  "server_pid": 9888,
+  "main_pid": 10655,
+  "server_pid": 11101,
   "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
-  "boot_selection": "Initial reload selected NetExec because C was lost across Main exec. Precise watcher rearmed after Main initialized; original three physical boot pulses selected BFN113. No state injection. Pack was still byte-identical to seed before retry."
+  "boot_selection": "Initial reload selected NetExec because C was lost across Main exec. Precise watcher rearmed after Main initialized; original three physical boot pulses selected BFN113. No state injection. Pack was still byte-identical to seed before retry.",
+  "active_directory": "Cedar39b_20261018",
+  "measurement": "See idle-login-issues.json, idle-login-analysis.json and per-view records."
 }

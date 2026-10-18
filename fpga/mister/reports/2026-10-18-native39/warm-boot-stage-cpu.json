@@ -1,0 +1,219 @@
+{
+  "samples": [
+    {
+      "monotonic": 91180.446503573,
+      "task": 3,
+      "cia": 1409,
+      "tpc": 3465,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18410,
+      "line": "Dorado net: flags=5 tx_words=38 good=235 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=7be00000 state=47ea cpu=33581d89"
+    },
+    {
+      "monotonic": 91181.446799464,
+      "task": 2,
+      "cia": 3462,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18410,
+      "line": "Dorado net: flags=5 tx_words=38 good=235 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=7ce10000 state=47ea cpu=32d86725"
+    },
+    {
+      "monotonic": 91182.444918272,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18218,
+      "line": "Dorado net: flags=5 tx_words=38 good=235 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=7de20000 state=472a cpu=30725725"
+    },
+    {
+      "monotonic": 91183.443577356,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18218,
+      "line": "Dorado net: flags=5 tx_words=38 good=235 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=7ee30000 state=472a cpu=30725725"
+    },
+    {
+      "monotonic": 91184.448596797,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18415,
+      "line": "Dorado net: flags=5 tx_words=38 good=236 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=7fe40000 state=47ef cpu=30725725"
+    },
+    {
+      "monotonic": 91185.448616366,
+      "task": 2,
+      "cia": 3462,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18410,
+      "line": "Dorado net: flags=5 tx_words=38 good=236 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=80e50000 state=47ea cpu=32d86725"
+    },
+    {
+      "monotonic": 91186.448366901,
+      "task": 2,
+      "cia": 3462,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18410,
+      "line": "Dorado net: flags=5 tx_words=38 good=236 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=81e60000 state=47ea cpu=32d86725"
+    },
+    {
+      "monotonic": 91187.446461289,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18223,
+      "line": "Dorado net: flags=5 tx_words=38 good=236 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=82e70000 state=472f cpu=30725725"
+    },
+    {
+      "monotonic": 91188.439533643,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18410,
+      "line": "Dorado net: flags=5 tx_words=38 good=237 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=83e80000 state=47ea cpu=30725725"
+    },
+    {
+      "monotonic": 91189.448927401,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18218,
+      "line": "Dorado net: flags=5 tx_words=38 good=237 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=84e90000 state=472a cpu=30725725"
+    },
+    {
+      "monotonic": 91190.447397832,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18415,
+      "line": "Dorado net: flags=5 tx_words=38 good=237 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=85ea0000 state=47ef cpu=30725725"
+    },
+    {
+      "monotonic": 91191.445772243,
+      "task": 2,
+      "cia": 3462,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18410,
+      "line": "Dorado net: flags=5 tx_words=38 good=237 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=86eb0000 state=47ea cpu=32d86725"
+    },
+    {
+      "monotonic": 91192.447518219,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18218,
+      "line": "Dorado net: flags=5 tx_words=38 good=238 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=87ec0000 state=472a cpu=30725725"
+    },
+    {
+      "monotonic": 91193.448141494,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18410,
+      "line": "Dorado net: flags=5 tx_words=38 good=238 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=88ed0000 state=47ea cpu=30725725"
+    },
+    {
+      "monotonic": 91194.447418574,
+      "task": 2,
+      "cia": 3462,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18410,
+      "line": "Dorado net: flags=5 tx_words=38 good=238 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=89ee0000 state=47ea cpu=32d86725"
+    },
+    {
+      "monotonic": 91195.446111318,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18410,
+      "line": "Dorado net: flags=5 tx_words=38 good=238 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8aef0000 state=47ea cpu=30725725"
+    },
+    {
+      "monotonic": 91196.449526192,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18415,
+      "line": "Dorado net: flags=5 tx_words=38 good=239 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8bf00000 state=47ef cpu=30725725"
+    },
+    {
+      "monotonic": 91197.448126734,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18218,
+      "line": "Dorado net: flags=5 tx_words=38 good=239 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8cf10000 state=472a cpu=30725725"
+    },
+    {
+      "monotonic": 91198.446237852,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18218,
+      "line": "Dorado net: flags=5 tx_words=38 good=239 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8df20000 state=472a cpu=30725725"
+    },
+    {
+      "monotonic": 91199.444973196,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18218,
+      "line": "Dorado net: flags=5 tx_words=38 good=239 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8ef30000 state=472a cpu=30725725"
+    },
+    {
+      "monotonic": 91200.448680423,
+      "task": 0,
+      "cia": 1829,
+      "tpc": 1829,
+      "run_n": 0,
+      "hold": 0,
+      "state": 18218,
+      "line": "Dorado net: flags=5 tx_words=38 good=240 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=8ff40000 state=472a cpu=30725725"
+    }
+  ],
+  "task_pcs": {
+    "3:581": 1,
+    "2:d86": 5,
+    "0:725": 15
+  }
+}
