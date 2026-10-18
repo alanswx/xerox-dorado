@@ -1,0 +1,3 @@
+ARMED {"monotonic_ns": 107483063691167, "utc_ns": 1792358982063212829}
+Captured during flush: True
+Live probe complete; inspect captured output and flush trace after the window.

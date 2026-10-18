@@ -1,0 +1,5 @@
+Waiting for offloaded work to finish...Done
+SLOW-SYNC PASS: 4.2s real-worker flush work, 2029 foreground polls, max gap 2.377ms; rejection/duplicate/owned-FD/content/drain/DSO ABI
+Waiting for offloaded work to finish...Done
+SLOW-SYNC PASS: bounded arm timeout, 98 foreground polls, max gap 2.094ms; rejection/duplicate/owned-FD/content/drain/DSO ABI
+SLOW-SYNC TRACE PASS: actual worker/DSO bridge and bounded timeout
