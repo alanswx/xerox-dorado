@@ -1,5 +1,30 @@
 # Native34: preserve host watchdog wall time at50MHz
 
+**Hardware result:** one original-firmware cold boot passes on MiSTer14.
+All34 base packages, BootEssentials, Tioga/Press/metrics and Viewers completed.
+Real mouse movement, Cmd-button creation of a second CommandTool and focus
+work. At0.1s key down/up timing, both `echo rtl50ok` and
+`echo abcdefghijklmnopqrstuvwxyz0123456789` received/echoed the exact argument
+and returned to `%`. Native/HDMI images and `input-qualification.json` record
+visual verification; OCR was inaccurate and is not a gate. No C checkpoint,
+guest state import, host IOCB completion or forced ACK was used.
+
+`hardware-observation.json` and saved Main/server/observer prefixes cover
+nearly an hour:3435 heartbeats, maxgap1.1344s, no late probes or pack/packet
+CRC/RX fault. Observer24210 remains running through further disk writes,
+stopping at2h/first fault/Main exit. The earlier timeout has not recurred;
+its specific host latency/ACK cause is still unproved.
+
+`loader-counts.json`, `font-counts.json` and `desktop-counts.json` count fabric
+edges, not retired instructions. The desktop sample includes automatic
+startup Bringovers:19.8755% enabled at50.0134MHz, implying a ceiling1.2422M
+ordinary instructions/s(~7.45% original), versus6.25M with no global pauses.
+This is not an idle benchmark or a controlled A/B speedup. General defaults
+remain33.333MHz/cacheOFF; next measure DDR/HPS pause durations. Original
+phase/enable translation and MC12061 calibration are still required.
+Some optional welcome app `.load.bcd` lookups fail; package cleanup is a
+separate task from the verified base desktop and input.
+
 Native32 stopped with host timeout reason8, cylinder124/head0/LBA18893.
 The fixed133333332-cycle limit shrank4s ->2.6667s with the PLL change.
 This scaling defect is proved; actual Main latency/ACK phase was not traced
@@ -35,8 +60,8 @@ no-bubble128-line cache at50MHz/SYSPER4, adds this pack_hps and explicit
 DORADO_HOST_CLOCK_HZ=50000000 plus matching clock metadata. build.py records
 all inputs/steps. Fit/STA/clock/all-corner audit has passed as recorded below.
 Native34 is deployed on14; Native32 fault evidence and volume were preserved.
-Full Cedar/Viewers/input qualification is pending. Do not promote Native32/33
-as working cores.
+The full base Cedar/Viewers/input test has now passed as recorded above.
+Do not promote the failed Native32 or undeployed Native33 as working cores.
 
 Fit completed13m52,34,840/41,910ALMs(83%),307M10Ks/35DSPs. All29 default
 summary checks pass. Expanded sign-off enumerates all four supported device
@@ -48,9 +73,18 @@ RBF SHA256 `0ebe68f456ce46e09b813dd126b605c083b606176ce0bdc797c9f3194f27bbbd`.
 Guarded deployment completed05:09UTC. Original firmware/BFN113/login and
 fast Guest input pass. All34 real packages loaded by05:29UTC, including
 ReadEvalPrint where32 stopped. HDMI profile question observed; real keyboard
-`n` accepted as No. BootEssentials installation in progress at05:33UTC,
-without pack/packet-CRC/RX fault; desktop/input qualification still pending.
+`n` accepted as No. BootEssentials/fonts completed, Viewers by06:02UTC,
+exact input tests by06:05UTC, without pack/packet-CRC/RX fault.
 Clock count mode is ON. Passive Main observer24210 runs through disk writes.
 At idle login a normal Main host-framebuffer toggle restored initially black
 HDMI; fresh physical1080p30/74.250007MHz is recorded separately. No debugger
 is used during package loading.
+
+Input drivers are preserved as `input-keyboard.py` and `input-mouse.py`,
+hardcoded to the allocated MiSTer14 WebSocket endpoint. Only run them during
+an exclusive input test with the intended viewer focused. The native captures
+show baseline, motion, focus, short Echo and alphabet/digits Echo; the HDMI
+capture independently shows the latter output and returned prompt. PNG chunk
+CRCs/IEND and compressed raster data were checked after completed copies.
+Saved log archives are prefixes; Main begins at the last Cedar34.mgl marker,
+not inherited earlier runs. All3475 saved Main status samples lack pack fault.

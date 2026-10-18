@@ -1,0 +1,56 @@
+{
+  "scope": "One original-firmware cold boot on MiSTer14; no C-state import or host guest-I/O completion",
+  "rbf_sha256": "0ebe68f456ce46e09b813dd126b605c083b606176ce0bdc797c9f3194f27bbbd",
+  "base_packages_loaded": 34,
+  "boot_essentials": true,
+  "tioga_press_metrics_attached": true,
+  "viewers_desktop": true,
+  "mouse": {
+    "requested_delta": [
+      100,
+      80
+    ],
+    "observed": "Cursor moved into expected native-raster region",
+    "cmd_button": "Opened second CommandTool",
+    "input_focus": "Clicked second CommandTool body"
+  },
+  "keyboard": {
+    "transport": "Real virtual USB keyboard; host FIFO then terminal serial and guest watcher",
+    "key_down_seconds": 0.1,
+    "key_up_seconds": 0.1,
+    "commands": [
+      "echo rtl50ok\n",
+      "echo abcdefghijklmnopqrstuvwxyz0123456789\n"
+    ],
+    "expected_output": [
+      "rtl50ok",
+      "abcdefghijklmnopqrstuvwxyz0123456789"
+    ],
+    "observed_output": [
+      "rtl50ok",
+      "abcdefghijklmnopqrstuvwxyz0123456789"
+    ],
+    "returned_to_prompt": true,
+    "verification": "Visual inspection of original native and HDMI captures; OCR was inaccurate and is not a gate",
+    "overlapping_test_input": "None observed"
+  },
+  "workload_caveat": "Startup Bringovers remain active in the first CommandTool; desktop sample is not idle or a controlled A/B",
+  "prior_timeout": "Not reproduced; clock-budget scaling bug fixed, actual Native32 host latency/ACK cause remains unproved",
+  "observer": "Still running to its2h deadline, first fault or Main exit; saved logs are a prefix",
+  "image_sha256": {
+    "fpga-echo-short.png": "fa4ba22e428613a141b269f9e6fd1465149e26d7841cd52ef58c7803d7edc998",
+    "hdmi-interactive.png": "81faf3831c13a533d9d7d51f01334f97516f751b8c37f74cd3062d1c303d29af",
+    "hdmi-viewers-background.png": "2f99f59ca3c22ba435b230e91c1944cd462dcc5c16c2d25115dd6bd3653b9627",
+    "hdmi-after-guest.png": "842008223f58a8a3c3e7389a96e3c742b48a981257355cd0b72411b7c366c8eb",
+    "hdmi-all-loadees-profile.png": "8813f0327960e1b085d11099ee2106cf9bbab1d5f2993e29b9a5380c50aacb23",
+    "fpga-input-focus.png": "bbc3d9fcb4daca639a1255d6ffc006f9231db7186939517c02a92dd4ae38afcb",
+    "fpga-internal-login.png": "c4ba36d69041c38368455550e66396de3fc1c4a9a6a509079692f9bc9c2256fc",
+    "fpga-echo-alphabet.png": "61554a21194f507be5cdd7bb8cbdcaa8470b19ade13efe1617f926969670e2f1",
+    "fpga-mouse-moved.png": "372a0d0527acb10b26be9fab591a99b335a00e48007bd70aff87b1ca6c440850",
+    "fpga-desktop-baseline.png": "8e151fd7335c246e46e5a823c5b9bebc9ff97ca8409863bdf1dc67356b0625de"
+  },
+  "input_driver_sha256": {
+    "input-keyboard.py": "93c0b03d5c2d3fddcc859ad78a3a70909d793c2619884feee59f6f37aabdfb50",
+    "input-mouse.py": "9ecb9ef839bab5c8dcdd62e94fccf932a03e5625e2dc37e38d60315ce9fad4a9"
+  }
+}

@@ -1,15 +1,20 @@
 # Phase 2: what the Sil files give the Verilog, and how to test it
 
-**Active work (2026-10-18): Native34 is running on14 at50MHz/SYSPER4.**
-It corrects the host watchdog's wall-time scaling and keeps the tested raw
-DDR cache/no-bubble adapter. All29 summary checks and20 categories across
-all four supported industrial conditions pass (min+0.101ns), zero missing
-clocks, no new exceptions. Original firmware/BFN113/login/fast Guest pass;
-All34 base packages loaded; BootEssentials installation is in progress.
-Full desktop/input qualification remains pending. Passive Main heartbeat/I/O
-observation is active, no SPI/ptrace. Native32 failed during loading with host timeout;
-actual stall cause still unproved. See the [handoff](verilog-handoff.md)
-and [clock plan](verilog-clock-plan.md) for evidence and required next gates.
+**Active work (2026-10-18): Native34 at50MHz/SYSPER4 passes one full
+original-firmware Cedar boot, Viewers desktop, mouse/click/focus and exact
+buffered short/alphabet/digits Echo on MiSTer14.** No pack/CRC/RX fault in
+nearly an hour of passive host observation. All29 summary timing checks and
+20 categories across all four supported device conditions pass(min+0.101ns),
+zero missing internal clocks, no new exceptions. Original clocks retained;
+host watchdog wall time is corrected, raw DDR cache/no-bubble adapter active.
+
+Global storage pauses still dominate: desktop with startup Bringovers sampled
+19.8755% enabled, giving a ceiling1.2422M microinstructions/s(~7.45% original),
+not measured retirement or an A/B speedup. Next measure exact pause causes
+and reduce DDR traffic, then complete original phase/enable/timer migration.
+Builder defaults remain33.333MHz/cacheOFF pending controlled comparison.
+Prior Native32 host-timeout cause remains unproved; Native34 did not recur.
+See the [handoff](verilog-handoff.md) and [clock plan](verilog-clock-plan.md).
 
 ## Clock architecture audit (2026-10-18)
 

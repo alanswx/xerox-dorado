@@ -2,53 +2,70 @@
 
 ## Current objective (2026-10-18 UTC)
 
-**Native34 is loaded on MiSTer14 at50MHz/SYSPER4 (05:09UTC), hardware test
-in progress.** RBF `0ebe68f456ce46e09b813dd126b605c083b606176ce0bdc797c9f3194f27bbbd`.
-Fit13m52/83%ALMs/307M10Ks. All29 summary checks plus20 timing categories
-across ALL four supported device conditions (fast/slow,-40/100C) pass,
-overall min+0.101ns; zero illegal/unconstrained clocks in every condition,
-no new exceptions. Actual Quartus parameters HOST_CLOCK_HZ50000000,
-HOST_TIMEOUT_CLOCKS200000000 preserve4s. Original CPU/microcode/serial
-clocking unchanged;128-line raw DDR cache with no added cold-read cycle.
+**Native34 at50MHz/SYSPER4 passes one full original-firmware Cedar boot and
+interactive input test on MiSTer14.** RBF
+`0ebe68f456ce46e09b813dd126b605c083b606176ce0bdc797c9f3194f27bbbd`.
+All34 base packages, BootEssentials, Tioga/Press/font metrics and Viewers
+completed. Fresh BFN113 at05:16UTC; fast Guest input passed; profile question
+answered with only `n`; desktop by06:02. Real mouse motion(+100,+80), Cmd
+button opening a second CommandTool and body focus worked. At06:04–06:05,
+0.1s down/up keyboard bursts received and echoed EXACTLY `rtl50ok` and
+`abcdefghijklmnopqrstuvwxyz0123456789`, then returned to `%`. Original
+native and HDMI captures are in reports/2026-10-18-native34/. Verification
+is visual; OCR was inaccurate and is not a gate. No C-state import or host
+completion of guest I/O. All scripted keys/buttons released; OSD closed.
 
-Main24180/server24176, same immutable1fb2.../1d5... binaries; sole Main SPI
+**Speed is still low despite the higher fabric clock.** Unpaused ceiling
+6.25M microinstructions/s(37.5% of original), versus4.167M at33.333MHz.
+Font attachment sampled19.8033% enabled edges; interactive desktop with
+startup Bringovers still active sampled19.8755% at50.0134MHz. The latter
+implies a ceiling1.2422M/s(~7.45% original), NOT retired throughput or a
+controlled A/B speedup. The old quarter-speed description omitted global
+storage pauses. Coarse1Hz status observations point mainly to DDR waits;
+next add exact cause-duration counters, then reduce measured memory traffic.
+Keep phase/enable migration and MC12061 calibration as separate required work.
+Do not benchmark from the herald's guest clock or merely lower SYSPER.
+
+Fit13m52,83%ALMs/307M10Ks; all29 summary checks plus20 timing categories
+across ALL four supported device conditions(fast/slow,-40/100C) pass, min
++0.101ns; zero illegal/unconstrained internal clocks, no new exceptions.
+HOST_CLOCK_HZ50000000/HOST_TIMEOUT_CLOCKS200000000 preserve4s. Original
+CPU/microcode/serial clocking retained;128-line raw DDR cache/no cold-read
+bubble. General builder still defaults33.333MHz/cacheOFF; Native34 is the
+qualified explicit configuration, not a proved cache performance win.
+
+Main24180/server24176 use immutable1fb2.../1d5... binaries; sole Main SPI
 owner. Launcher `_Computer/DoradoRTL_Cedar34_20261018/Cedar34.mgl`; fresh
-f3bce2a8... seed, active pack/logs/reboot config in Cedar34_20261018.
-Original firmware completed; fresh BFN113 at05:16UTC. C watcher finished and
-released all keys. Cedar login and fast `Guest\n\n` input passed. At05:29UTC
-all34 real package retrieves completed, including ReadEvalPrint where32
-failed. Profile question observed on HDMI; sent only `n` through real keyboard.
-BootEssentials installation reached Viewers TIP files at05:41UTC (91 total
-retrieves); no pack/CRC/RX faults.
-Counter mode ON (enabled/host edges), OSD closed. HDMI was initially black;
-normal Main host-framebuffer enable/disable at idle login restored capture.
-Fresh HDMI1080p30/74.250007MHz, native1072x862, source6.6686fields/s.
-No debugger during loader. Viewers desktop/exclusive Echo/mouse and actual
-performance still required before promotion.
-User explicitly released old sessions for reloads; only14 allocated.
+f3bce2a8... seed; active pack/logs/reboot config in Cedar34_20261018. The
+active pack is now guest-mutated. First CommandTool still runs optional
+startup Bringovers; second tool is at `%` with test output. Some welcome
+app `.load.bcd` lookups report missing files; application-package cleanup
+is separate from the verified base desktop/input and clock work.
+User releases sessions for reloads; only14 allocated.
 
-**Passive host observer24210 is active through this boot.** It reads Main24180
-log and /proc only; no SPI/ptrace/guest writes/ACK/reset. Outputs to RAM:
-`/tmp/dorado-native34-heartbeats.jsonl`, `/tmp/dorado-native34-observer.log`;
-argv/PID saved in Cedar34_20261018/observer.json. Deadline2h; stop on fault
-or Main exit/change. At05:39UTC maxgap1.126s, no faults. Keep it
-running through real disk writes. Copy evidence before reboot or stopping.
+**Passive observer24210 remains active through further disk writes.**
+No SPI/ptrace/ACK/reset/guest writes. RAM logs:
+`/tmp/dorado-native34-heartbeats.jsonl`, `/tmp/dorado-native34-observer.log`.
+Cedar34_20261018/observer.json records argv/PID. Stops at first fault, Main
+exit/change or2h deadline(~07:10UTC). Saved prefix through06:08 is in the
+report directory. At06:07UTC3435 heartbeats, maxgap1.1344s, zero late probes,
+pack faults or packet CRC/RX errors. Prior Native32 timeout did not recur;
+its specific host latency/ACK cause remains unproved. Preserve first-fault
+phase/LBA and observer evidence if any later failure occurs.
 
-Use normal OSD for counter mode, avoiding debugger pauses during I/O:
-F12 opens Core menu atMount; six Down taps focus Debug monitor (Ethernet
-station counts as a row). Visually verify focus; ENTER toggles (Right changes
-tabs), then F12 closes. Private scripts focus-debug-menu.py and
-select-debug-close.py split verification from selection. Native32 menu
-experiment confirmed Clock counts ->CPU; all keys/menu now released/closed.
-C34 startedCPU and was toggled at idle login before Guest; mode is now ON.
-Counts mode: machine=enabled edges,cpu=host;
-32bit unsigned deltas<60s (wrap85.9s), not retired instructions. Fault has
-priority and replaces those words. Fresh physical HDMI read can use ONE
-normal Main video_mode_adjust(true) call (fresh-video-once.gdb) atinput_poll,
-then current_video_info width/height/vtime/vtimeh. Verified on1fb2: function
-0xa8881, global0x9715ec; vtimeh offset24 (ctime offset20). Use only idle login,
-not during file writes; older23 separate-call script needlessly halts Main.
-Do not reuse addresses for a different Main binary. Current Main unchanged.
+Counter mode ON: normal Main `machine=` is enabled fabric edges, `cpu=`
+host edges. Unsigned32bit deltas<60s(wrap85.9s), not retired instructions.
+Fault retains priority. F12, six Down taps, visually verify Debug monitor,
+ENTER toggle, F12 close; Right switches tabs. Private focus/select scripts
+split verification from action. No pending input scripts.
+
+HDMI1080p30/74.250007MHz, native1072x862/source guest1024x808. At idle login
+normal Main host-framebuffer enable/disable restored initially black HDMI.
+Fresh physical query used one normal video_mode_adjust(true) atinput_poll
+on immutable1fb2(function0xa8881/global0x9715ec; vtimeh offset24). Do not
+reuse binary addresses on another Main or pause Main during disk I/O.
+Internal screenshots copied after file completion; partial copies were
+re-copied before inspection/archive. Clock count mode and guest retained.
 
 **Native32 hardware qualification FAILED before Viewers.** Preserved fault
 `807c0200/47fc/000049cd`, reason8/cylinder124/head0/LBA18893, first observed
@@ -79,7 +96,7 @@ not controlled whole-system speedups; they combine DDR/HPS/global pauses.
 Native31 passed all34loadees/BootEssentials before replacement. Native26 is
 the previous Viewers/mouse reference; its Echo tests interleaved user typing.
 Exclusive exact CommandTool Echo remains pending. Keep further optimizations
-on hold until Native34's fault-free interactive desktop is verified.
+can now proceed from Native34's verified desktop, with fault observation retained.
 
 **Clock implementation has started.** The staged plan is
 [verilog-clock-plan.md](verilog-clock-plan.md). An isolated direct phase/enable
@@ -109,9 +126,8 @@ full storage equivalence pass (all9,437,184 bits). See the clock plan.
 Cache/no-bubble independent regressions remain sound:458-transaction
 scoreboard, busy/zero-latency/backpressure/reset/orphan controls and complete
 MSA14/16-bit outputs/every2,359,296/9,437,184 bit pass. Default cache option
-remains OFF pending hardware correctness. Native34's host clock correction
-is independent of these data-path changes. No further optimization until
-this fault is resolved and the new core reaches an interactive desktop.
+remains OFF pending a controlled performance comparison. Native34's host clock correction is independent of these data-path changes. Native34
+now passes desktop/input; next measure exact pause causes before optimizing.
 
 ## Boot history (current status above takes precedence)
 
@@ -628,10 +644,10 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Calibrate MC12061 and qualify original firmware startup/timers.
 - [x] Reach the Viewers desktop and a live CommandTool `%` prompt (00:02–00:03 UTC).
 - [x] Verify real mouse motion (+100,+80 in native raster), Cmd-button click and new CommandTool focus.
-- [ ] Exclusive scripted keyboard qualification: prior tests interleaved with user OpenR typing. Input round trip works; exact Echo FPGA unqualified.
+- [x] Exclusive scripted keyboard qualification on Native34: short marker and full alphabet/digits echoed exactly, fresh prompts; prior Native26 overlap is not used as evidence.
 - [x] Add stopped-clock key-event queue regression, direct-old-path loss control, chord/hold/repeat/overflow gates.
 - [x] Fit/review buffer successor Native29 at40MHz; hardware firmware/Cedar login and fast buffered Guest input pass.
-- [ ] Complete Native31 cold Cedar/Viewers/CommandTool/Echo/mouse qualification at50MHz; prior sessions replaced with user authorization.
+- [x] Complete successor cold Cedar/Viewers/CommandTool/Echo/mouse qualification at50MHz on Native34; Native31 itself was superseded.
 - [x] Characterize clock baseline: original-ROM4 passes,2 fails startup; independent divider audit and Native26 Fmax41.08MHz saved.
 - [x] Write staged clock implementation plan and test an isolated direct phase/enable source against the original divider, pre-edge pipeline capture and all-phase freeze/resume.
 - [x] Extract/check original T-control wiring and translate/test independent control-bank capture interfaces (8192 cases, strict lint).
@@ -641,16 +657,17 @@ and has unreviewed hold violations; never deploy it.
 - [x] Replace variable-index arbitration scan/payload mux with a balanced tree; independent order/payload/stall and full MSA equivalence gates pass.
 - [x] Review Native31 50MHz STA/clock/fast+slow hold paths; all29 checks pass with no new post-fit exceptions. Load on MiSTer14 and measure firmware enabled fraction.
 - [x] Measure Cedar loader enabled fraction16.9255%, verify Guest input and actual1080p30 HDMI at50MHz (host-FB toggle workaround).
-- [ ] Verify Viewers/exclusive Echo/mouse and desktop enabled fraction at50MHz.
+- [x] Verify Native34 Viewers/exclusive Echo/mouse; desktop with startup Bringovers sampled19.8755% enabled (not idle or retired throughput).
 - [x] Prototype optional128-line raw DDR buffer; independent coherence/reset/stall tests and full storage equivalence pass; disabled/stale-data mutations fail.
 - [x] Review Native32 fit/STA/clock/fast+slow all-category timing, no new exceptions; load on14.
 - [x] Native32 firmware/login/Guest and real loader; record first host timeout807c0200/LBA18893. Hardware qualification failed before Viewers.
 - [x] Fix host watchdog clock scaling and add ACK-phase first-fault observation; independent wall-time/CRC/persistence and build-config gates pass.
 - [x] Review Native34 fit/all four device timing conditions/clocks; cold firmware/BFN113/login/fast Guest pass, passive host-latency observer running.
-- [ ] Complete Native34 loader/Viewers/exclusive Echo/mouse and actual performance; preserve observer evidence for any repeat timeout.
+- [x] Complete Native34 loader/Viewers/exclusive Echo/mouse and edge-count performance observation; preserve observer prefix, no repeat timeout.
+- [ ] Add exact DDR/HPS pause-duration attribution; compare a pinned workload before promoting defaults or another storage optimization.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.
-- [ ] Commit/push confirmed fixes and evidence; preserve Executive/mouse/disk
-  regressions. Space Invaders compatibility remains a separate open item.
+- [x] Commit/push confirmed current clock/storage fixes and Native34 evidence;
+  preserve Executive/mouse/disk regressions. Space Invaders remains separate.
 
 ## Investigation diary (historical; current state above takes precedence)
 

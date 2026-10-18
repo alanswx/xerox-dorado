@@ -1,0 +1,25 @@
+{
+  "observed_utc": "2026-10-18T06:07:47.995039+00:00",
+  "first_heartbeat": "2026-10-18T05:10:19.938300+00:00",
+  "last_heartbeat": "2026-10-18T06:07:46.434619+00:00",
+  "heartbeat_count": 3435,
+  "maximum_heartbeat_gap_seconds": 1.134372786997119,
+  "late_probe_count": 0,
+  "pack_fault_count": 0,
+  "last_status": {
+    "kind": "heartbeat",
+    "utc": "2026-10-18T06:07:46.434619+00:00",
+    "monotonic": 52167.435310481,
+    "gap_seconds": 0.9992383179996978,
+    "line": "Dorado net: flags=5 tx_words=29 good=1752 crc_bad=0 dropped=81 rx_bad=0 aborted=0 machine=7b23b0eb state=472a cpu=65356165"
+  },
+  "coarse_status_since_0529": {
+    "samples": 2319,
+    "enabled": 486,
+    "pack_not_ready": 96,
+    "ddr_not_ready": 1737,
+    "overlap": 0
+  },
+  "coarse_status_units": "Instantaneous roughly1Hz samples, not exact cycle durations; overlap included in both unavailable categories",
+  "observer_running": true
+}

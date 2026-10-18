@@ -1,7 +1,7 @@
 # Dorado RTL clock implementation plan
 
-Started 2026-10-18 UTC. Native26's successful Cedar desktop is the hardware
-reference. The user has released MiSTer14 for reloads/faster builds; keeping
+Started 2026-10-18 UTC. Native34 is now the50MHz verified Cedar desktop/
+input baseline; Native26 preserves the earlier33.333MHz reference. The user has released MiSTer14 for reloads/faster builds; keeping
 that session alive is no longer a constraint. See the [clock audit](verilog-from-sil.md#clock-architecture-audit-2026-10-18)
 for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
@@ -37,15 +37,24 @@ error reporting. No blanket timing cuts or guest-state repairs.
 | 5. Timers and implementation | Reconcile MC12061, BaseBoard, display, Ethernet and disk rates with the new timebase. Choose a realizable PLL/enable architecture and fit it. | All setup/hold/recovery/removal and clock checks pass; original firmware boots; measured retired instructions and paused time support the speed claim. |
 | 6. Hardware | Load a separately named qualified core on MiSTer14 after preserving the current session/artifacts. | Cold Cedar desktop, exclusive keyboard/mouse test, sustained network/disk traffic, stable video and measured throughput. |
 
-Stage2's ProcL/ProcH T controls are now translated and tested in isolation;
-the capture-enable sources and full T data/latch path remain to be derived.
-Their clock gates and data setup must be derived together. In parallel,
-Native29 tests a conservative40MHz PLL with the existing SYSPER4 transform:
-a20% instruction-ceiling increase. Its fit/timing and actual firmware/login
-now pass; Viewers/input qualification continues.
-This is an incremental speed step, not the full-speed clock redesign. The
-existing Executive executable/checkpoint are protected; use separate object
-directories and never `+frame` against the golden artifact.
+Stage2's ProcL/ProcH T controls pass in isolation and source wiring is
+checked. Explicit edge-enable integration and the full T data/latch path
+remain. The separate incremental storage work now supports a50MHz fit:
+Native34 passes original firmware, all34 Cedar base packages, BootEssentials/
+fonts, Viewers, real mouse/click/focus and exact short/alphabet/digits Echo.
+All four device timing conditions pass; no pack/CRC/RX fault through nearly
+one hour of host observation. This is an incremental speed step, not the
+full-speed clock redesign. The original timeout's specific cause remains
+unproved, although its clock-budget defect is fixed and it did not recur.
+
+Global pauses still dominate: interactive desktop with startup Bringovers
+sampled19.8755% enabled at50.0134MHz, implying a ceiling1.2422M ordinary
+microinstructions/s(~7.45% original). This is not retired throughput, an
+idle desktop benchmark or a controlled A/B speedup. Next measure exact
+DDR/HPS wait durations and reduce the dominant storage traffic. General
+builder defaults remain33.333MHz/cacheOFF pending a controlled comparison.
+The existing Executive executable/checkpoint are protected; use separate
+object directories and never `+frame` against the golden artifact.
 
 ## T-control extraction: implemented, isolated
 
@@ -220,23 +229,35 @@ or ACK is fabricated. Native34 fit13m52 passes29 summary checks and20 timing cat
 ALL four available device conditions (fast/slow,-40/100C), min+0.101ns,
 zero missing clocks and no new cuts. Actual elaboration50000000Hz/200000000
 cycles matches4s. Loaded on14 at05:09UTC; original firmware/BFN113/login
-and fast Guest input pass. Real package loading and passive heartbeat/I/O
-observation are active. Actual Cedar/Viewers/input and host
-timeout reproduction remain required before promotion.
+and fast Guest input pass. All34 packages, BootEssentials/fonts, Viewers
+and mouse/exact Echo subsequently passed. Saved3435 heartbeats through
+06:07UTC show maxgap1.1344s, no late probes/pack/CRC/RX fault. The historical
+Native32 host latency/ACK cause remains unproved; no general defaults promoted.
 
 Read-only tools/mister_watch_main.py timestamps Main heartbeats and samples
 late-I/O /proc state into RAM, without SPI/ptrace/guest mutation. It was
-validated on the preserved live fault; run through the next loader to tell
-long host service from an uncompleted handshake. No more speed changes
-until this fault is resolved and an interactive new core is verified.
+validated on the preserved live fault and remained active through Native34
+loading and interactive tests. Preserve first-fault data if a later timeout
+occurs. Native34 now supplies the interactive baseline for further work.
 
-## Next measurement after Native34 qualification
+## Next measurement from the qualified Native34 baseline
 
 The Native34 loader sample (`reports/2026-10-18-native34/loader-counts.json`)
 observed49.9948MHz host edges and17.4388% enabled edges over20.31s while
 loading packages. This is a different interval from earlier samples, so it
 is not an A/B speedup or a retired-instruction rate. The large pause share
 makes cause attribution the next useful measurement before another PLL change.
+A later20s font-attachment sample gives50.0029MHz and19.8033% enabled,
+with an instruction ceiling1.2377M/s (~7.43% of original16.667M/s).
+This remains an edge-derived upper bound, not measured retirement. The
+old quarter-speed description counted only nominal clock division; global
+backing-store pauses make actual elapsed speed substantially lower.
+Coarse1Hz status observations since05:29UTC (through05:54:35) found DDR not
+ready in1165/1532 samples, pack not ready in42, enabled in325, no overlap.
+These are instantaneous observations subject to sampling/aliasing, not
+cycle-duration measurements; they point toward the DDR adapter first.
+Do not benchmark from the herald's guest clock: MC12061 calibration remains
+open, independently of the correct physical fabric-edge measurement.
 
 Add passive host-domain counters for the actual falling-edge gate decision:
 reset/operator pause, pack-not-ready, DDR-not-ready and enabled. Define a

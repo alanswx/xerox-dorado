@@ -15,5 +15,5 @@
   "raw_line_cache_entries": 128,
   "extra_exceptions": "None; Native33 base SDC retained.",
   "external_io_limit": "Framework external input/output ports remain unconstrained; no internal clocks unconstrained.",
-  "hardware": "Loaded on MiSTer14 at05:09UTC, Main24180/server24176; original firmware loading. Passive observer24210 active in RAM. Full Cedar/input and timeout reproduction pending."
+  "hardware": "PASS one cold original-firmware/BFN113/Cedar boot, all34 packages, BootEssentials/fonts, Viewers, real mouse/click/focus and exact short/alphabet/digits Echo on MiSTer14. No pack/CRC/RX fault through06:07UTC. See input-qualification.json and hardware-observation.json; prior Native32 failure cause remains unproved."
 }
