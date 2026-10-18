@@ -210,6 +210,28 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0,PREF
     wire rv,rr,rw,sv,sr;
     wire [ADDR_BITS+3:0] ra;
     wire [15:0] wd,sd;
+    // Optional passive transaction trace for offline locality experiments.
+    // Log completed raw operations and actual read replies, leaving every
+    // original-board/storage equivalence check below active.
+    integer raw_trace_fd=0;
+    string raw_trace_path;
+    reg [ADDR_BITS+3:0] trace_address;
+    reg [15:0] trace_data;
+    reg trace_write;
+    initial if($value$plusargs("raw_trace=%s",raw_trace_path))begin
+        raw_trace_fd=$fopen(raw_trace_path,"w");
+        if(!raw_trace_fd)$fatal(1,"cannot open raw trace");
+        $fwrite(raw_trace_fd,"host_cycle,kind,address,value\n");
+    end
+    always @(posedge clk)if(!reset)begin
+        if(rv && rr)begin
+            trace_address=ra;trace_data=wd;trace_write=rw;
+        end
+        if(sv && sr && raw_trace_fd)
+            $fwrite(raw_trace_fd,"%0d,%0d,%0h,%0h\n",host_cycles,trace_write,
+                trace_address,trace_write ? trace_data : sd);
+    end
+    final if(raw_trace_fd)$fclose(raw_trace_fd);
     wire [28:0] da;
     wire dr,dw;
     wire [7:0] be,burst;
@@ -720,6 +742,18 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0,PREF
         for(integer a=0;a<4*CHIP_WORDS;a++)stored_ones+=$countones(backing[a]);
         $display("Stored one bits: %d",stored_ones);
         if(writes<100 || output_changes<100 || stored_ones<100)$fatal(1,"insufficient board activity: writes=%0d output_changes=%0d reads=%0d",writes,output_changes,reads);
+        if(raw_trace_fd)begin
+            // kind2 records nonzero FINAL words from the actual physical
+            // model above (zeros are implicit). kind3 terminates the full
+            // array scan with its word count. This detects dropped writes
+            // even when all captured read replies happened to be zero.
+            for(integer a=0;a<4*CHIP_WORDS;a++)
+                for(integer lane=0;lane<4;lane++)
+                    if(backing[a][lane*16+:16]!=0)
+                        $fwrite(raw_trace_fd,"%0d,2,%0h,%0h\n",host_cycles,
+                            a*4+lane,backing[a][lane*16+:16]);
+            $fwrite(raw_trace_fd,"%0d,3,%0h,0\n",host_cycles,16*CHIP_WORDS);
+        end
         $display("STORAGE-BOARD PASS: %d complete-board cycles, %d backing reads, %d writes, %d output transitions, all %0d stored bits identical, prefetch=%0d host_cycles=%0d",steps,reads,writes,output_changes,144*CHIP_WORDS,PREFETCH_NEXT,host_cycles);
         $finish;
     end

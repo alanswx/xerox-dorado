@@ -115,6 +115,16 @@ drain tests (reports/2026-10-18-offload), with blocking/empty-wake controls.
 It is not integrated disk I/O and does not finish milestone3; the live Main
 is unchanged. Drain hooks must precede FPGA programming, remount, fork and
 reboot, covering both coalescer buffers and queued file work.
+Update19:01UTC: BootEssentials and TiogaFonts completed;41b is attaching
+PressFonts/FontMetrics with no cursor repair or hardware faults. DDR42 and
+optimized43 candidates are verified/staged in MiSTer RAM but not loaded.
+Offline full-MSA raw trace with independent final-memory oracle suggests
+group/word interleaving improves locality: modeled128-line read fetches
+2992->1500, uncached row hits0->5447 of10880 operations. This is synthetic
+locality evidence, not real Cedar traffic, a latency model or FPGA speedup;
+no mapping/cache/burst RTL change is implemented. Preserve42/43 comparison
+order, then test a separate optional mapping experiment if real traffic
+supports it. Source/trace/negative controls: reports/2026-10-18-storage-locality.
 
 **Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
 original firmware to the actual Cedar login on MiSTer14. Real Guest input

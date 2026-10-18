@@ -1,5 +1,5 @@
 {
-  "hardware": "Original firmware/BFN113/login/Guest/all34 Basic loadees PASS with fixed e237dffc daemon. Profile No accepted18:46UTC; fresh BootEssentials passed PrintTV.df/PrintTVImpl and is loading later AMTypes at18:49. No state/cursor repairs. Full desktop/input/persistence pending.",
+  "hardware": "Original firmware/BFN113/login/Guest/all34 Basic loadees/profile No/BootEssentials PASS with fixed e237dffc daemon and no state repair. Passed both old PrintTV/AMTypes stalls; TiogaFonts completed~19:00UTC and PressFonts/FontMetrics follow19:01. Full Viewers/input/persistence remain pending.",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,
@@ -173,5 +173,6 @@
   "boot_selection": "Real C-key watcher completed at actual13-word BFN113 request18:34UTC; C released, all boot keys up.",
   "idle_issue_measurement": "Three10s windows in one boot:1595829.38/1595659.65/1595627.74 issues/s; mean1595705.59,9.574% original nominal rate. Not drained retirement; not three cold boots.",
   "current_debug_view": "instruction view1: machine=issued, cpu=host edges; neither is a CPU PC",
-  "input": "C watcher complete and C released; Guest helper complete, all keys up, no active input or GDB helper."
+  "input": "C watcher complete and C released; Guest helper complete, all keys up, no active input or GDB helper.",
+  "latest_counters": "19:01UTC good1734/dropped80/CRC0/RX0/abort0, no pack fault; debug instruction1 remains issues/host edges."
 }

@@ -33,14 +33,45 @@ Real `Guest\n\n` at0.1s down/up was accepted, Grapevine-down fallback
 finished, and the fixed server serves Cedar6.1/Top/Basic.Loadees at~18:39UTC.
 All34 base loadees loaded; the profile question was answered with one `n`
 at~18:46UTC, and HDMI confirms No. BootEssentials passed PrintTV.df and
-PrintTVImpl without repair and loads later AMTypes at18:49. Next: finish
-BootEssentials/fonts/Viewers, then mouse/exact keyboard/file close/remount. No guest
+PrintTVImpl without repair and later AMTypes/Interpreter/Viewers/Watch.
+BootEssentials completed; TiogaFonts completed at~19:00 and PressFonts /
+FontMetrics follow at19:01. Actual HDMI advances through font names even
+when the server log is quiet: much of this work is local FS attachment.
+Main/server still13741/13734; good1734/dropped80/CRC0/RX0/abort0 at19:01.
+Next: finish fonts/Viewers, then mouse/exact keyboard/file close/remount. No guest
 state import or ARM cursor repair in this run. Main's known FB enable/disable
 workaround restored HDMI; the earlier firmware raster was uninitialized noise.
 Main remains the sole SPI owner. Preserve this fresh baseline for qualification
 before the matched DDR42 and optimized43 comparisons.
 Exact deployment/assertions/restart config and captures: native41b reports;
 local launch helpers in `build/rtl-executive/cedar41b-launch/`.
+
+**Further raw-memory locality evidence (offline only).** Optional
+`+raw_trace=PATH` in tb_storage_board records completed raw operations plus
+an independent final-state oracle from the physical memory model. Traced
+and untraced full MSA/XSDS runs retain all9437184-bit equivalence checks and
+identical12012 logical/144461 host cycles. `tools/analyze_storage_locality.py`
+replays all10880 operations (3008 reads/7872 writes), checks every captured
+read and final1499 nonzero raw words/6986 set bits. All captured reads in
+this fixture happen to be zero: the first replay-only draft failed to detect
+dropped writes, so final-memory validation was added. Discarded-write and
+corrupted-read controls now fail independently.
+Current128-line64-bit direct-buffer software replay: group-major16 read hits
+versus interleaved1508; line fetches2992->1500. Equal-capacity LRU gives the
+same result. Uncached XSDS row locality (no refresh/reset model):0/10880 row
+hits/misses versus5447/5433 when group bits occupy the low address bits.
+This is a synthetic single-MSA trace, not actual Cedar traffic, an RTL
+implementation, a latency model or an FPGA speedup. After42/43 measurements,
+evaluate an optional bijective group/word backing-address permutation, with
+raw/array/board/read-before-write/ECC/reset tests, real Cedar locality and full
+timing before loading. A SDRAM burst/read buffer is a separate change.
+Evidence and reproduction commands: reports/2026-10-18-storage-locality.
+
+The matched DDR42/optimized43 RBFs and timing manifests are verified/staged
+in `/tmp/dorado42-candidate` and `/tmp/dorado43-candidate` on14, not loaded.
+Local42 launch/measurement helpers are prepared in `cedar42-launch`; inspect
+before execution, and preserve41b's qualified input/persistence evidence
+first. No new disk seed has been copied while the live installer writes.
 
 **Disk-worker prerequisite qualified, not integrated.** New
 `fpga/mister/main/main-offload-260912.patch` adds a nonblocking eight-slot
@@ -959,6 +990,8 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Finish41b BootEssentials/fonts/Viewers, actual desktop interaction and disk close/remount; no profile input remains pending.
 - [x] Optional response-boundary raw arbitration and generator: independent order/payload/reset/stall fixtures, full MSA equivalence and Native43 all-device timing pass.
 - [ ] Deploy43 and measure repeatable end-to-end gain against41; synthetic6.406% fewer host edges is not an FPGA throughput claim.
+- [x] Collect passive full-MSA raw trace/final physical-state oracle; replay layout/cache/row locality with discarded-write/corrupt-read failure controls.
+- [ ] After42/43 measurements, evaluate optional raw group/word interleaving; prove mapping/storage/read-before-write/ECC/reset equivalence and real Cedar locality before timing/hardware qualification.
 - [ ] Fix recurring initially black HDMI after core load in Main; framebuffer toggle is a workaround, parser patch is a separate defect.
 - [ ] Deploy/qualify instruction diagnostics, including maintenance/reset/task switching, and measure actual issue rates with external waits separately.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.

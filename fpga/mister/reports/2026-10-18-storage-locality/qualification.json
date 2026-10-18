@@ -1,0 +1,19 @@
+{
+  "status": "Offline layout/locality evidence only; no RTL mapping/cache/burst modification, no new bitstream or hardware speed claim",
+  "fixture": "Original full MSA board vs raw-storage substitution, independent XSDS physical SDRAM model50MHz, Native43 response-boundary arbiter enabled. Traced/untraced runs both12012 machine cycles,3008 reads,7872 writes,1111 outputs,144461 host edges, all9437184 original chip bits identical.",
+  "trace": "10880 completed raw operations; all3008 captured read replies happen to be zero. Independent actual-model final oracle:1499 nonzero padded16-bit words,6986 set bits, full1048576-word scan/end marker. Every replay verifies reads AND final physical contents.",
+  "replay": "Current128-line64-bit direct buffer: group-major16hits/3008reads (0.532%),interleaved groups1508hits (50.133%); line fetches2992->1500. LRU128lines gives same counts. Writes remain write-through with line/index invalidation.",
+  "rows": "Uncached XSDS geometry locality excluding refresh/reset: group-major0hits/10880row misses, interleaved5447hits/5433misses. Not a latency model.",
+  "controls": "Dropped writes fail independent final oracle despite zero-valued read replies; corrupting a captured read also fails. Replay-only initial experiment lacked final oracle and did not detect dropped writes; corrected before using results for implementation.",
+  "commands": [
+    "make -C verilog/verilator storage-sdram-board-test STORAGE_PREFETCH_NEXT=1",
+    "verilog/verilator/obj_storage_sdram_board/board-test +raw_trace=build/rtl-executive/storage-prefetch/msa-sdram-raw.csv",
+    "python3 tools/analyze_storage_locality.py build/rtl-executive/storage-prefetch/msa-sdram-raw.csv"
+  ],
+  "next": "After Native43 hardware comparison, consider optional bijective group/word address permutation; prove independent raw data/read-before-write/ECC/reset/whole-board equivalence and real Cedar locality, then all-device timing and pinned hardware comparison. SDRAM64-bit burst/read buffer would be a separate later change; not implemented.",
+  "source_sha256": {
+    "tools/analyze_storage_locality.py": "27679f24ac810382b96f8846848c297724b50bbcd9c032bdcc262b0c19b44b57",
+    "verilog/verilator/tb_storage_board.sv": "5a3e3eabb76ecb44a17459428e154a7666e9766ad6343d9c9bd7ca40960062ab",
+    "fpga/mister/dorado_storage_arb.sv": "0d99745fefdf0f3ea5c40fc5c6cc0c23201b73bd92a09967133cd1c03b59ac6c"
+  }
+}

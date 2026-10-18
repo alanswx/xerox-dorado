@@ -1,0 +1,69 @@
+{
+  "trace_sha256": "92e4d746a106102be3fc51bbeb63c4629bdfc6778c5bc36c3c52a7f807a042e1",
+  "operations": 10880,
+  "address_bits": 16,
+  "group_bits": 4,
+  "lines": 128,
+  "layouts": {
+    "group-major": {
+      "none": {
+        "reads": 3008,
+        "writes": 7872,
+        "read_hits": 0,
+        "line_fetches": 3008,
+        "read_hit_fraction": 0.0
+      },
+      "direct": {
+        "reads": 3008,
+        "writes": 7872,
+        "read_hits": 16,
+        "line_fetches": 2992,
+        "read_hit_fraction": 0.005319148936170213
+      },
+      "lru": {
+        "reads": 3008,
+        "writes": 7872,
+        "read_hits": 16,
+        "line_fetches": 2992,
+        "read_hit_fraction": 0.005319148936170213
+      }
+    },
+    "interleaved-groups": {
+      "none": {
+        "reads": 3008,
+        "writes": 7872,
+        "read_hits": 0,
+        "line_fetches": 3008,
+        "read_hit_fraction": 0.0
+      },
+      "direct": {
+        "reads": 3008,
+        "writes": 7872,
+        "read_hits": 1508,
+        "line_fetches": 1500,
+        "read_hit_fraction": 0.5013297872340425
+      },
+      "lru": {
+        "reads": 3008,
+        "writes": 7872,
+        "read_hits": 1508,
+        "line_fetches": 1500,
+        "read_hit_fraction": 0.5013297872340425
+      }
+    }
+  },
+  "final_nonzero_words": 1499,
+  "row_locality": {
+    "group-major": {
+      "hits": 0,
+      "misses": 10880,
+      "hit_fraction": 0.0
+    },
+    "interleaved-groups": {
+      "hits": 5447,
+      "misses": 5433,
+      "hit_fraction": 0.5006433823529411
+    }
+  },
+  "limits": "Synthetic one-MSA fixture only. Software64-bit read-buffer replay; Row counts omit refresh/reset and are uncached geometry locality only; no latency/timing/area or FPGA throughput prediction. No RTL layout or SDRAM burst change is implemented by this tool."
+}
