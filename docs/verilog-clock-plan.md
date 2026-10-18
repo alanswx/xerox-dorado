@@ -68,7 +68,7 @@ correctness blocker remains open; it is not replaced by a PLL-only speed
 claim. Original guest-visible CPU/cache/map/ECC behavior is preserved, with
 no imported C machine state or host completion of guest instructions/IOCBs.
 
-The immediate next action is Native41 SDRAM full desktop/input/persistence
+The immediate next action is Native41b SDRAM full desktop/input/persistence
 qualification, followed by the matched cache-off42 control. Only
 MiSTer14 is allocated. Use misterubuntu for Quartus and the Mac for Verilator.
 Do not overwrite the protected Executive simulation/checkpoint artifacts.
@@ -94,6 +94,15 @@ min+0.117ns, no new cuts. It is not deployed or FPGA-speed-qualified.
 Retain41 component qualification and42 matched device control, then qualify43
 with the fixed server and repeat pinned performance comparisons. Details and
 hashes are in the handoff and native43/storage-prefetch reports.
+
+At18:28UTC a fresh41b run replaced the old41 session after the old daemon hit
+the same ACK race again. Same RBF a97af936/Main1fb2/seed f3bce2a8, fixed
+ARM-tested daemon e237dffc, no guest-state import or cursor assistance.
+Main13741/server13734; original firmware CoolBoot and C watcher active.
+At18:33UTC firmware advances into SetRun/CPUfc1; BFN113/login still pending.
+Preserve the original boot sequence and poll the existing watcher, rather
+than restarting on an observation timeout. Exact current state is in the
+handoff and reports/2026-10-18-native41b.
 
 **Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
 original firmware to the actual Cedar login on MiSTer14. Real Guest input

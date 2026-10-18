@@ -10,14 +10,35 @@ reduce memory-request overhead; make ARM disk work nonblocking/coherent;
 connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
 External Xerox-network tunnelling is optional follow-up. Next: qualify the
-live Native41 SDRAM cold boot and compare with39/42, using the corrected
-quiet+BSP daemon. Native39b's idle-login issue/wait baseline is measured.
+live Native41b SDRAM cold boot and compare with39/42, using the tested
+quiet+BSP-history daemon. Native39b's idle-login issue/wait baseline is measured.
 User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is Native41 SDRAM; all34 Basic loadees loaded, BootEssentials
-continues after a documented ARM-only BSP cursor repair. This boot is assisted.**
+**Live MiSTer14 is Native41b, fresh same-bitstream SDRAM boot with the fixed
+e237dffc daemon.** Main13741/server13734. Deployment18:28UTC, RBF a97af936,
+Main1fb2, original fresh f3bce2a8 pack, pinned time1792324800; directories
+`Cedar41b_20261018` and `_Computer/DoradoRTL_Cedar41b_20261018/Cedar41b.mgl`.
+Original firmware CoolBoot requested by three real boot-button pulses after
+Main reinitialized/connected. Real C is intentionally held by local
+`build/rtl-executive/cedar41b-launch/c-until-request.py`, running tool
+session59506; it watches only a NEW13-word type264/BFN113 packet in41b's log,
+releases C immediately, and has a15-minute timeout/finally-release. Do not
+start another watcher or send another boot sequence. At18:33:10UTC Main and
+daemon are authoritatively live, original firmware advanced from CPUfc7 to
+fc1/SetRun, no boot request yet, TXgood/CRC/RX/abort all0. Firmware wait is
+not proof of a new failure. Poll the existing watcher and logs. Once the
+request completes, inspect login before real Guest input, then all34 loadees,
+profile `n`, BootEssentials/Viewers/input/persistence. No guest state import
+or ARM cursor repair in this fresh run. Main's known FB enable/disable
+workaround restored HDMI; current firmware raster is uninitialized noise,
+not an OS screen. Main remains the sole SPI owner.
+Exact deployment/assertions/restart config and captures: native41b reports;
+local launch helpers in `build/rtl-executive/cedar41b-launch/`.
+
+**Previous Native41 SDRAM:** all34 Basic loadees loaded; BootEssentials
+continued after a documented ARM-only BSP cursor repair. This boot was assisted.
 Main11453/server11445. Pack/logs/restart config in `Cedar41_20261018`, launcher
 `Cedar41.mgl`. RBF SHA
 `a97af93667bf20b2f9bebb0959dc67a4710895f6416e91987242e7486a1f9297`.
@@ -53,7 +74,13 @@ retained. The recurring Main reinitialization defect is still open; do not
 claim it fixed by the extended-modeline parser patch. The first restored
 capture contains a transient mode overlay; `guest-hdmi.png` is clean.
 
-**Next:** leave41 running through BootEssentials/fonts and qualify
+**Superseded by41b:** the old daemon hit the same race again at
+`tx_next=0017b520,last_ack=0017b534`, so further cursor repairs were abandoned.
+Old server stopped for41b; old pack preserved, complete server log is
+`Cedar41_20261018/server-before-native41b.log`, complete Main prefix is
+`Cedar41_20261018/main-before-native41b.log`. The open Main log moved to41b.
+No current input/GDB uses the retired41 session. Original next action was
+to leave41 running through BootEssentials/fonts and qualify
 Viewers/mouse/exact keyboard/disk. At~17:32UTC real `Guest\n\n` at
 0.1s down/up produced Guest.pa authentication, Grapevine-down fallback and
 Basic boot's expected missing `<Guest>6.1>Basic.Loadees` then default `[Cedar]`
@@ -903,6 +930,8 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Complete41 full Viewers/input/persistence;42 matched device control remains untested on hardware.
 - [x] Diagnose/reproduce PrintTV ACK race; bounded producer-independent packet replay passes native/ARM loss/wrap/ring/reuse tests; old server fails regression.
 - [ ] Fresh original-firmware boot with e237dffc fixed daemon, without ARM cursor repair;41's18:22 repair is explicitly assisted.
+- [x] Stage/deploy identical-RBF Native41b from untouched seed with tested e237dffc daemon; preserve old41 pack/logs after repeated old-server ACK race.
+- [ ] Finish41b real firmware/BFN113/login/Guest/profile/desktop/input/persistence; current C-key watcher session59506 releases on request or timeout.
 - [x] Optional response-boundary raw arbitration and generator: independent order/payload/reset/stall fixtures, full MSA equivalence and Native43 all-device timing pass.
 - [ ] Deploy43 and measure repeatable end-to-end gain against41; synthetic6.406% fewer host edges is not an FPGA throughput claim.
 - [ ] Fix recurring initially black HDMI after core load in Main; framebuffer toggle is a workaround, parser patch is a separate defect.
