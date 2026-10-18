@@ -1,0 +1,6 @@
+Stored one bits:        6986
+STORAGE-BOARD PASS:       12012 complete-board cycles,        2992 DDR reads,        7872 writes,        1111 output transitions, all 9437184 stored bits identical
+- build/rtl-executive/storage-locality/tb_storage_board.sv:705: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 213us; walltime 0.049 s; speed 4.355 ms/s
+- Verilator: cpu 0.049 s on 1 threads; alloced 13 MB

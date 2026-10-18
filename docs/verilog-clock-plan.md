@@ -219,8 +219,9 @@ persistence/neighbor protection and assembly fixtures pass. No completion
 or ACK is fabricated. Native34 fit13m52 passes29 summary checks and20 timing categories across
 ALL four available device conditions (fast/slow,-40/100C), min+0.101ns,
 zero missing clocks and no new cuts. Actual elaboration50000000Hz/200000000
-cycles matches4s. Loaded on14 at05:09UTC; original firmware is loading, with
-passive heartbeat/I/O observer active. Actual Cedar/Viewers/input and host
+cycles matches4s. Loaded on14 at05:09UTC; original firmware/BFN113/login
+and fast Guest input pass. Real package loading and passive heartbeat/I/O
+observation are active. Actual Cedar/Viewers/input and host
 timeout reproduction remain required before promotion.
 
 Read-only tools/mister_watch_main.py timestamps Main heartbeats and samples
@@ -228,6 +229,44 @@ late-I/O /proc state into RAM, without SPI/ptrace/guest mutation. It was
 validated on the preserved live fault; run through the next loader to tell
 long host service from an uncompleted handshake. No more speed changes
 until this fault is resolved and an interactive new core is verified.
+
+## Next measurement after Native34 qualification
+
+The Native34 loader sample (`reports/2026-10-18-native34/loader-counts.json`)
+observed49.9948MHz host edges and17.4388% enabled edges over20.31s while
+loading packages. This is a different interval from earlier samples, so it
+is not an A/B speedup or a retired-instruction rate. The large pause share
+makes cause attribution the next useful measurement before another PLL change.
+
+Add passive host-domain counters for the actual falling-edge gate decision:
+reset/operator pause, pack-not-ready, DDR-not-ready and enabled. Define a
+priority for simultaneous causes and retain overlap separately; category
+sums must equal host edges over one coherent snapshot. Latch gate inputs
+with network_step so the accounting reflects actual machine edges rather
+than a later combinational readiness value. Separate pack request count/
+service duration and raw DDR read/write/hit/miss counts explain the pauses.
+Do not change the gate, ACK timing, original memory/ECC or clock families.
+
+Keep the existing Main command70 layout compatible. Additional diagnostics
+need an explicit selectable view and coherent snapshot, with fault priority
+preserved. Test category accounting through overlap, stopped machine clocks,
+reset and counter wrap; prove diagnostics leave functional outputs unchanged.
+Then fit/review all four device conditions before deployment. Compare a
+pinned workload against Native34 at the same frequency, volume seed, server
+and input sequence. Select the next storage change from these measurements.
+The original phase/enable migration remains required for full-speed timing.
+
+A passive trace of the synthetic64K MSA board fixture reproduces2992 actual
+DDR read fills from3008 raw reads and7872 writes (12012 chip cycles, all
+9,437,184 stored bits/output behavior identical). Offline cache replay
+matches that exact fill count. Hypothetically packing four neighboring
+storage groups into a64-bit word reduces read fills to1500 for that trace;
+a row/column transpose gives3008, and retaining current write-hit cache
+lines gives2992. Writes remain7872 in all cases, so this does not establish
+a whole-system benefit. These are analysis-only layout alternatives, with
+no changed RTL, volume mapping or deployed build. Replay and captured requests:
+`fpga/mister/reports/2026-10-18-ddr-linebuffer/locality/`. Measure the real workload
+and write traffic before choosing a layout/coalescing implementation.
 
 ## First prototype: implemented, isolated
 

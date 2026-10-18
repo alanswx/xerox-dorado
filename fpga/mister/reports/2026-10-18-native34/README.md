@@ -33,9 +33,10 @@ distinguish long Linux I/O from an uncompleted hardware handshake.
 Frozen candidate Dorado_Native34_20261018 on misterubuntu clones Native33's
 no-bubble128-line cache at50MHz/SYSPER4, adds this pack_hps and explicit
 DORADO_HOST_CLOCK_HZ=50000000 plus matching clock metadata. build.py records
-all inputs/steps. Fit/STA/clock/all-corner audit and full original-firmware/
-Cedar/Viewers/input qualification pending. Not deployed;14 still holds the
-Native32 fault for diagnosis. Do not promote Native32/33 as working cores.
+all inputs/steps. Fit/STA/clock/all-corner audit has passed as recorded below.
+Native34 is deployed on14; Native32 fault evidence and volume were preserved.
+Full Cedar/Viewers/input qualification is pending. Do not promote Native32/33
+as working cores.
 
 Fit completed13m52,34,840/41,910ALMs(83%),307M10Ks/35DSPs. All29 default
 summary checks pass. Expanded sign-off enumerates all four supported device
@@ -44,4 +45,12 @@ categories pass, overall minimum+0.101ns. Every condition has zero illegal/
 unconstrained clocks and actual50MHz core. No new exceptions. Quartus map
 parameters confirm HOST_CLOCK_HZ50000000 and HOST_TIMEOUT_CLOCKS200000000.
 RBF SHA256 `0ebe68f456ce46e09b813dd126b605c083b606176ce0bdc797c9f3194f27bbbd`.
-Guarded deployment is now in progress. Hardware qualification still pending.
+Guarded deployment completed05:09UTC. Original firmware/BFN113/login and
+fast Guest input pass. All34 real packages loaded by05:29UTC, including
+ReadEvalPrint where32 stopped. HDMI profile question observed; real keyboard
+`n` accepted as No. BootEssentials installation in progress at05:33UTC,
+without pack/packet-CRC/RX fault; desktop/input qualification still pending.
+Clock count mode is ON. Passive Main observer24210 runs through disk writes.
+At idle login a normal Main host-framebuffer toggle restored initially black
+HDMI; fresh physical1080p30/74.250007MHz is recorded separately. No debugger
+is used during package loading.

@@ -1,0 +1,13 @@
+{
+  "transaction": "One normal Main video_mode_adjust(true) call at idle login, via input_poll",
+  "main_pid": 24180,
+  "values": {
+    "WIDTH": 1072,
+    "HEIGHT": 862,
+    "SOURCE_VTIME": 14995751,
+    "HDMI_VTIME": 3333333
+  },
+  "hdmi_hz": 30.0000030000003,
+  "pixel_clock_MHz": 74.25000742500075,
+  "source_hz": 6.668555646196046
+}

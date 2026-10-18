@@ -4,9 +4,10 @@
 It corrects the host watchdog's wall-time scaling and keeps the tested raw
 DDR cache/no-bubble adapter. All29 summary checks and20 categories across
 all four supported industrial conditions pass (min+0.101ns), zero missing
-clocks, no new exceptions. Original firmware is loading; full Cedar/input
-qualification remains pending. Passive Main heartbeat/I/O observation is
-active, no SPI/ptrace. Native32 failed during loading with host timeout;
+clocks, no new exceptions. Original firmware/BFN113/login/fast Guest pass;
+All34 base packages loaded; BootEssentials installation is in progress.
+Full desktop/input qualification remains pending. Passive Main heartbeat/I/O
+observation is active, no SPI/ptrace. Native32 failed during loading with host timeout;
 actual stall cause still unproved. See the [handoff](verilog-handoff.md)
 and [clock plan](verilog-clock-plan.md) for evidence and required next gates.
 

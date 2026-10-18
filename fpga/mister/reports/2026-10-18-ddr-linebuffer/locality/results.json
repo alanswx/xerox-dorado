@@ -1,0 +1,26 @@
+{
+  "scope": "Synthetic 16-group MSA fixture; not a Cedar workload or FPGA speed measurement",
+  "requests": 10880,
+  "reads": 3008,
+  "writes": 7872,
+  "current": {
+    "hits": 16,
+    "read_fills": 2992,
+    "writes": 7872
+  },
+  "group_low2": {
+    "hits": 1508,
+    "read_fills": 1500,
+    "writes": 7872
+  },
+  "row_column_transpose": {
+    "hits": 0,
+    "read_fills": 3008,
+    "writes": 7872
+  },
+  "current_write_hit_update": {
+    "hits": 16,
+    "read_fills": 2992,
+    "writes": 7872
+  }
+}

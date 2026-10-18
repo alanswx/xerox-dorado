@@ -14,18 +14,24 @@ clocking unchanged;128-line raw DDR cache with no added cold-read cycle.
 Main24180/server24176, same immutable1fb2.../1d5... binaries; sole Main SPI
 owner. Launcher `_Computer/DoradoRTL_Cedar34_20261018/Cedar34.mgl`; fresh
 f3bce2a8... seed, active pack/logs/reboot config in Cedar34_20261018.
-Original firmware is loading microcode(c0fc7000); C is held by the BFN113
-watcher (local cedar34-launch/c-until-request.log, session49486) and will be
-released automatically. No other script input. Counter mode OFF(normalCPU).
-No pack/CRC/RX faults so far. Still need firmware/BFN113/Cedar login/loader,
-Viewers/exclusive Echo/mouse and actual performance before promotion.
+Original firmware completed; fresh BFN113 at05:16UTC. C watcher finished and
+released all keys. Cedar login and fast `Guest\n\n` input passed. At05:29UTC
+all34 real package retrieves completed, including ReadEvalPrint where32
+failed. Profile question observed on HDMI; sent only `n` through real keyboard.
+BootEssentials installation reached Viewers TIP files at05:41UTC (91 total
+retrieves); no pack/CRC/RX faults.
+Counter mode ON (enabled/host edges), OSD closed. HDMI was initially black;
+normal Main host-framebuffer enable/disable at idle login restored capture.
+Fresh HDMI1080p30/74.250007MHz, native1072x862, source6.6686fields/s.
+No debugger during loader. Viewers desktop/exclusive Echo/mouse and actual
+performance still required before promotion.
 User explicitly released old sessions for reloads; only14 allocated.
 
 **Passive host observer24210 is active through this boot.** It reads Main24180
 log and /proc only; no SPI/ptrace/guest writes/ACK/reset. Outputs to RAM:
 `/tmp/dorado-native34-heartbeats.jsonl`, `/tmp/dorado-native34-observer.log`;
 argv/PID saved in Cedar34_20261018/observer.json. Deadline2h; stop on fault
-or Main exit/change. At05:12UTC102 samples, maxgap1.004s, no faults. Keep it
+or Main exit/change. At05:39UTC maxgap1.126s, no faults. Keep it
 running through real disk writes. Copy evidence before reboot or stopping.
 
 Use normal OSD for counter mode, avoiding debugger pauses during I/O:
@@ -34,8 +40,8 @@ station counts as a row). Visually verify focus; ENTER toggles (Right changes
 tabs), then F12 closes. Private scripts focus-debug-menu.py and
 select-debug-close.py split verification from selection. Native32 menu
 experiment confirmed Clock counts ->CPU; all keys/menu now released/closed.
-C34 should startCPU. Toggle only after BFN watcher has released C, ideally
-at idle login before Guest. Counts mode: machine=enabled edges,cpu=host;
+C34 startedCPU and was toggled at idle login before Guest; mode is now ON.
+Counts mode: machine=enabled edges,cpu=host;
 32bit unsigned deltas<60s (wrap85.9s), not retired instructions. Fault has
 priority and replaces those words. Fresh physical HDMI read can use ONE
 normal Main video_mode_adjust(true) call (fresh-video-once.gdb) atinput_poll,
@@ -637,7 +643,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Review Native32 fit/STA/clock/fast+slow all-category timing, no new exceptions; load on14.
 - [x] Native32 firmware/login/Guest and real loader; record first host timeout807c0200/LBA18893. Hardware qualification failed before Viewers.
 - [x] Fix host watchdog clock scaling and add ACK-phase first-fault observation; independent wall-time/CRC/persistence and build-config gates pass.
-- [ ] Review Native34 fit/all timing corners/clocks; cold-boot with passive host-latency observer, resolve any repeat timeout, then Viewers/Echo/mouse and actual performance.
+- [x] Review Native34 fit/all four device timing conditions/clocks; cold firmware/BFN113/login/fast Guest pass, passive host-latency observer running.
+- [ ] Complete Native34 loader/Viewers/exclusive Echo/mouse and actual performance; preserve observer evidence for any repeat timeout.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.
 - [ ] Commit/push confirmed fixes and evidence; preserve Executive/mouse/disk
   regressions. Space Invaders compatibility remains a separate open item.
