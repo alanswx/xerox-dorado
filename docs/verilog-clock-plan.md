@@ -1,7 +1,8 @@
 # Dorado RTL clock implementation plan
 
-Started 2026-10-18 UTC. Native26's live Cedar desktop on MiSTer14 remains
-the hardware reference. See the [clock audit](verilog-from-sil.md#clock-architecture-audit-2026-10-18)
+Started 2026-10-18 UTC. Native26's successful Cedar desktop is the hardware
+reference. The user has released MiSTer14 for reloads/faster builds; keeping
+that session alive is no longer a constraint. See the [clock audit](verilog-from-sil.md#clock-architecture-audit-2026-10-18)
 for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Objective and constraints
@@ -36,10 +37,60 @@ error reporting. No blanket timing cuts or guest-state repairs.
 | 5. Timers and implementation | Reconcile MC12061, BaseBoard, display, Ethernet and disk rates with the new timebase. Choose a realizable PLL/enable architecture and fit it. | All setup/hold/recovery/removal and clock checks pass; original firmware boots; measured retired instructions and paused time support the speed claim. |
 | 6. Hardware | Load a separately named qualified core on MiSTer14 after preserving the current session/artifacts. | Cold Cedar desktop, exclusive keyboard/mouse test, sustained network/disk traffic, stable video and measured throughput. |
 
-The next implementation is stage2's ProcL/ProcH T cone, not a live PLL
-change. Its clock gates and data setup must be derived together. The
+Stage2's ProcL/ProcH T controls are now translated and tested in isolation;
+the capture-enable sources and full T data/latch path remain to be derived.
+Their clock gates and data setup must be derived together. In parallel,
+Native29 tests a conservative40MHz PLL with the existing SYSPER4 transform:
+a20% instruction-ceiling increase, pending a fresh fit/timing/hardware gate.
+This is an incremental speed step, not the full-speed clock redesign. The
 existing Executive executable/checkpoint are protected; use separate object
 directories and never `+frame` against the golden artifact.
+
+## T-control extraction: implemented, isolated
+
+The original sheets have different capture nets: ProcH h22 uses Clock0'Da;
+ProcL d17 uses SHCP'C. Their RbSelMd/RbSelMd' output pins are also swapped.
+`tools/check_t_control_wiring.py` checks24 pin bindings per board, package
+types, the tied LC/FF075 drivers and write-enable connections directly from
+the original Xerox wire lists.
+
+`verilog/rtl/dorado_t_controls.sv` accepts a separate explicit capture enable
+for each half and samples its LC/FF/task-comparison setup inputs directly.
+`make -C verilog t-controls-test` compares it with an independently clocked
+pin-level original gate cone over all8 LC values,256 FF values and4 capture
+masks:8,192 comparisons. It separately checks8,164 legal combinations
+against HM3.8/Table10, preserves both banks through2,048 no-capture cases,
+and rejects late input pass-through. A universal-enable mutation disagrees
+in4,096 cases. No reset has been added to the original resetless controls.
+Strict module lint passes.
+
+This proves the decode/capture interface **given correct enables**. The test
+does not derive those enables from BaseBoard/processor clock gates, model
+all T data latches/task files, or qualify firmware with this replacement.
+The module remains outside the machine and FPGA source list. Stage2 is
+therefore incomplete, and its SendMIR/Boot0/compute/ROM gates are pending.
+
+## Incremental hardware candidate: Native29
+
+Frozen build: `misterubuntu:/home/alans/mister/Dorado_Native29_20261018`.
+It clones Native28 and changes only the PLL output from33.333333 to40MHz;
+CPU/board/DRAM logic and SYSPER4 are retained. Native28's host key queue
+and passive fault diagnostics are included. Ceiling5.0M instructions/s,
+before storage pauses, versus4.167M on Native26.
+
+The existing Fmax measurement motivates this candidate; it does not qualify
+the new placement. Review all actual clocks/setup/hold/recovery/removal and
+unconstrained/illegal clocks, and re-derive any exact own-RAM-address hold
+exceptions from the new endpoints before programming. Then cold boot from
+the corrected immutable disk seed, exercise keyboard/mouse, and measure
+actual progress/pauses separately from the nominal instruction ceiling.
+
+`DORADO_SYS_MHZ=40 sh fpga/mister/build.sh ...` now selects that PLL
+frequency; the default remains33.333333. The assembler records the chosen
+value in `dorado_clock_config.json`. Shell syntax and a temporary template
+fixture pass for both frequencies; invalid/nonfinite/zero frequencies are
+rejected before modifying output. Fresh timing and hardware checks remain
+mandatory for any selected frequency.
 
 ## First prototype: implemented, isolated
 
@@ -92,7 +143,7 @@ original sheets/manual remain the references.
 | BaseBoard phases | BaseBd11 g04/h04/g03/h03; SCP'=g04.Q', ECP=h03.Q. ECP leads SCP' by 1/8 clock. BaseBd12 j02 OR, with debug pulse inactive, is low for 3/8. | Add debug pulses and fanout qualification; no analog-delay claims. |
 | Run and memory enable | ContA l02–l06 generate processor/memory enables and RunRefresh. HM5.12 requires memory clocks during processor halt when RunRefresh is set. | Preserve asynchronous set/reset, step and stop behavior. Do not use global scheduler advance as processor Hold. |
 | Instruction phases | ContA l07: Phase0/Phase1 depend on StartCycle/sPhase0 and clk2'Bf; HM2.3 defines ordinary/extended timing. | Preserve feedback and IM/TPC extension; do not toggle t0/t1 unconditionally. |
-| T and task setup | ProcL20 d17 MC10176 clocks on SHCP'C, producing TbSelMd and write enables; its inputs include LC and task comparison. Processor Curr/Next stages also use SHCP'C/Clock1'. | First extraction target: setup versus data/capture ordering in both processor halves, including held instructions. |
+| T and task setup | ProcL20 d17 MC10176 clocks on SHCP'C; ProcH20 h22 on Clock0'Da. Both produce TbSelMd/write enables from LC/FF and task comparison. Processor Curr/Next stages also use SHCP'C/Clock1'. | Control decode/capture interface passes8192 cases. Enable-source derivation and complete T setup/data/task ordering remain. |
 | Map latch/MCR | MemX f01/g01 MC10175 follow Mapbuf while MapbufLd' is low; f04 F10016 consumes Mapbuf at Clk1'Ab. | Preserve transparency before close and the consuming edge. Current clock lag/PRECAP values are compensation, not the physical specification. |
 | RAM writes | F10145A captures address/data in the active write window; existing native fit has narrowly reviewed own-address hold exceptions. | Keep old-data reads, write commitment and setup checks; re-review every new placement. |
 | Peripheral clocks | K1115A rates depend on SYSPER; MC12061's fabric/8 currently mis-scales the BaseBoard clock. | Qualify prepared timer correction against original firmware and measure terminal/Ethernet/disk/Junk rates together. |

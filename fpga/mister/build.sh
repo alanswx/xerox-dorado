@@ -10,12 +10,29 @@
 #   ./build.sh [TEMPLATE_DIR] [OUT_DIR] [GENERATED_CHECKPOINT_DIR]
 # defaults suit the build machine:
 #   ./build.sh ~/mister/Template_MiSTer ~/mister/Dorado_MiSTer
+# DORADO_SYS_MHZ selects the core PLL frequency (default33.333333).
+# A different frequency needs fresh fit/STA/clock and hardware qualification.
 set -e
 TEMPLATE=${1:-$HOME/mister/Template_MiSTer}
 OUT=${2:-$HOME/mister/Dorado_MiSTer}
 CHECKPOINT=${3:-}
 HERE=$(cd "$(dirname "$0")" && pwd)
 REPO=$(cd "$HERE/../.." && pwd)
+DORADO_SYS_MHZ=$(python3 - "${DORADO_SYS_MHZ:-33.333333}" <<'PY'
+from decimal import Decimal, InvalidOperation
+import sys
+try:
+    value = Decimal(sys.argv[1])
+    if not value.is_finite() or value <= 0:
+        raise ValueError()
+    result = format(value, '.6f')
+    if Decimal(result) <= 0:
+        raise ValueError()
+except (InvalidOperation, ValueError):
+    raise SystemExit('DORADO_SYS_MHZ must be a finite positive frequency in MHz')
+print(result)
+PY
+)
 
 [ -d "$TEMPLATE/sys" ] || { echo "no framework at $TEMPLATE/sys"; exit 1; }
 BASE=Template
@@ -45,17 +62,24 @@ pathlib.Path(sys.argv[2]).write_text(match[1] + '\n')
 PY
 fi
 
-# The PLL runs at 33.333 MHz. SYSPER counts samples per 30 ns clock, and
+# The PLL defaults to 33.333 MHz. SYSPER counts samples per 30 ns clock, and
 # each instruction takes two clocks: SYSPER=4 therefore gives 4.167 M
 # microinstructions/s (0.25x hardware speed), the validated simulation ratio.
 #
 # Patched here rather than in the template so the retune belongs to this repo
 # and survives a template refresh.
-sed -i.bak 's|output_clock_frequency0("20.000000 MHz")|output_clock_frequency0("33.333333 MHz")|' \
-    "$OUT/rtl/pll/pll_0002.v"
-rm -f "$OUT/rtl/pll/pll_0002.v.bak"
-grep -q '33.333333 MHz' "$OUT/rtl/pll/pll_0002.v" || {
-    echo "PLL retune did not apply -- template PLL frequency changed?"; exit 1; }
+python3 - "$OUT/rtl/pll/pll_0002.v" "$DORADO_SYS_MHZ" <<'PY'
+from pathlib import Path
+import json, sys
+path = Path(sys.argv[1])
+source = path.read_text()
+old = 'output_clock_frequency0("20.000000 MHz")'
+if source.count(old) != 1:
+    raise SystemExit('PLL retune did not apply -- template PLL frequency changed?')
+path.write_text(source.replace(old, f'output_clock_frequency0("{sys.argv[2]} MHz")'))
+(path.parents[2] / 'dorado_clock_config.json').write_text(
+    json.dumps({'sys_mhz': sys.argv[2]}, indent=2) + '\n')
+PY
 
 # Point the project at our sources. THE TEMPLATE'S FILE LIST IS files.qip, NOT
 # the qsf -- the qsf only does `source files.qip` -- so renaming Template.sv in
@@ -187,4 +211,5 @@ printf '`define BUILD_DATE "%s"\n' "$(date +%Y%m%d)" > "$OUT/build_id.v"
 echo "assembled $OUT"
 echo "  framework: $TEMPLATE"
 echo "  RTL:       $REPO/verilog"
+echo "  core PLL:  $DORADO_SYS_MHZ MHz (requires timing qualification)"
 grep -c SYSTEMVERILOG_FILE "$OUT/Dorado.qsf" | sed 's/^/  sources:   /'

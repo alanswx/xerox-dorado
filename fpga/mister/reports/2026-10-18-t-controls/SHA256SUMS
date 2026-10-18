@@ -1,0 +1,3 @@
+f972713f28297aa90cc115c18d4541384c7889a1a84ec43d78c2a26e1fa8ebba  verilog/rtl/dorado_t_controls.sv
+c903efd51465fb4d92244c9fd38c38bc3ed86b7d776bb223c070cd66ad249da2  verilog/verilator/tb_t_controls.sv
+08dcdca33a818fccdf2b556b73f123d0b0b8ca90b5fe3c9b98af6b967c0adac4  tools/check_t_control_wiring.py

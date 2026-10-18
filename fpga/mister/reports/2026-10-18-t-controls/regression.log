@@ -1,0 +1,7 @@
+T-CONTROL WIRING PASS ProcH-Rev-Ce h22.9=Clock0'Da, 24 pin checks
+T-CONTROL WIRING PASS ProcL-Rev-Ci d17.9=SHCP'C, 24 pin checks
+T-CONTROLS PASS comparisons=8192 manual_checks=8164 held=2048 universal_enable_failures=4096
+- verilog/verilator/tb_t_controls.sv:121: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 82us; walltime 0.007 s; speed 11.112 ms/s
+- Verilator: cpu 0.007 s on 1 threads; alloced 2 MB

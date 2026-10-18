@@ -174,7 +174,8 @@ wire [63:0] img_size;
 // clk_sys / (2 * MACHINE_SYSPER). At 33.333 MHz and SYSPER=4 this is
 // 4.167 M microinstructions/s, one quarter of a real Dorado's rate.
 //
-// The checkpoint/HPS fit (2026-10-16) reported 48.06 MHz core Fmax.
+// The deployed Native26 fit reported 41.08 MHz core Fmax, limited by a
+// half-cycle storage-ready -> network_step path. Re-fit/review each candidate.
 // The current fresh-boot and interactive reference uses SYSPER=4.
 localparam integer MACHINE_SYSPER = 4;
 
@@ -182,7 +183,8 @@ localparam integer MACHINE_SYSPER = 4;
 // select blocks reject a pin driver outright ("inclk[3] ... must be driven by
 // a PLL's output clock"). So the PLL is not optional dressing here.
 //
-// build.sh retunes the template PLL from 20 MHz to 33.333333 MHz.
+// build.sh retunes the template PLL; default33.333333 MHz, configurable
+// with DORADO_SYS_MHZ. Native29's40 MHz is experimental until qualified.
 wire clk_sys, pll_locked;
 pll pll
 (

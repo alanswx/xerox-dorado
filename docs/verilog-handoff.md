@@ -14,8 +14,10 @@ The initial commentary claiming exact FPGA output was premature and corrected.
 keyboard events across stopped machine clocks; regression passes, fit completed
 (map/fit/asm/STA/audit); exact new hold/setup review and hardware qualification
 remain pending.
-Keep Native26's current desktop alive while the candidate is reviewed. All
-scripted input has stopped; leave keyboard/mouse to the user during clock work.
+**User has released MiSTer14 for reloads/faster builds.** Preserving the
+current desktop is no longer a requirement. Native29 is fitting with40MHz
+PLL/SYSPER4 (20% higher ceiling); review the new placement's timing before
+loading. Scripted input is currently stopped.
 
 **Clock implementation has started.** The staged plan is
 [verilog-clock-plan.md](verilog-clock-plan.md). An isolated direct phase/enable
@@ -24,8 +26,13 @@ prototype matches an independent original four-flop divider, preserves the
 pipeline data without the legacy one-tick delay. It is not wired into any
 machine. The eight-slot scheduler is a timing oracle, not a full-speed
 architecture (literal full-speed implementation would need266.667MHz).
-Next: extract and translate ProcL/ProcH's T-enable/setup cone, then qualify
-board/firmware behavior before changing the master-clock architecture.
+ProcL/ProcH T-control decode/capture now passes8192 comparisons against an
+independent original gate cone,8164 legal HM3.8 checks and2048 hold cases;
+a universal-enable mutation fails4096 cases. Original wire-list checks
+confirm h22 clock=Clock0'Da versus d17 clock=SHCP'C and swapped R-select pins.
+The experimental controls require correct independent enables; their
+sources and the complete T data/latch/task-file path remain unimplemented.
+No board/firmware qualification is claimed for this replacement.
 
 Same original firmware/BFN113/Guest boot, Main12701/server12696, Native26
 RBF586dc7f8...,8MB RAM/64K Map. HDMI recovered at verified1080p30/74.25MHz.
@@ -553,7 +560,9 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Fit/review Native28 buffer candidate; then hardware qualification. Native26 desktop retained.
 - [x] Characterize clock baseline: original-ROM4 passes,2 fails startup; independent divider audit and Native26 Fmax41.08MHz saved.
 - [x] Write staged clock implementation plan and test an isolated direct phase/enable source against the original divider, pre-edge pipeline capture and all-phase freeze/resume.
-- [ ] Extract ProcL/ProcH T-enable/setup cone; prove explicit enables against original timing, then gate SendMIR/Boot0/compute/original-ROM startup. See docs/verilog-clock-plan.md.
+- [x] Extract/check original T-control wiring and translate/test independent control-bank capture interfaces (8192 cases, strict lint).
+- [ ] Derive ProcL/ProcH T capture enables and complete data/latch/task-file cone; gate SendMIR/Boot0/compute/original-ROM startup. See docs/verilog-clock-plan.md.
+- [ ] Review Native29 40MHz fit/STA/clock/hold endpoints, then cold boot/input on MiSTer14. User permits replacing current session; no speedup deployed yet.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.
 - [ ] Commit/push confirmed fixes and evidence; preserve Executive/mouse/disk
   regressions. Space Invaders compatibility remains a separate open item.

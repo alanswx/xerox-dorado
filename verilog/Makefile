@@ -48,10 +48,10 @@ TOOLS   = ../tools
         crc-test eth-ctl-test ebreplies-check pack-test boot-world-disk \
         ethernet-input-hold-test ethernet-receive-sequence-test \
         memory-density64-test map-density64-test storage-board64-test pack-fault-test \
-        key-queue-test clock-phase-audit clock-phases-test \
+        key-queue-test clock-phase-audit clock-phases-test t-controls-test \
         clean-generated
 
-clock-phases-test clock-phase-audit key-queue-test ethernet-input-hold-test ethernet-receive-sequence-test memory-density64-test map-density64-test storage-board64-test pack-fault-test:
+t-controls-test clock-phases-test clock-phase-audit key-queue-test ethernet-input-hold-test ethernet-receive-sequence-test memory-density64-test map-density64-test storage-board64-test pack-fault-test:
 	@$(MAKE) -C verilator $@
 
 # PROM contents, sliced per package position from PARC's own BCPL.

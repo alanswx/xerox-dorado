@@ -46,6 +46,12 @@ sh fpga/mister/build.sh [TEMPLATE_DIR] [OUT_DIR]
 cd <OUT_DIR> && quartus_sh --flow compile Dorado
 ```
 
+The core PLL defaults to33.333333MHz. `DORADO_SYS_MHZ=40` selects40MHz
+when assembling a separate build, recording it in `dorado_clock_config.json`.
+Every frequency/placement requires fresh timing and hardware qualification;
+Native29's40MHz/SYSPER4 experiment is tracked in
+[the clock plan](../../docs/verilog-clock-plan.md).
+
 The build script assembles the project using the template's `sys/`, PLL and
 DE10-Nano pin assignments. It copies the Dorado wrapper into the output directory and references the
 source RTL in the checkout.
