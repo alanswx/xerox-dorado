@@ -16,34 +16,53 @@ User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is Native41 SDRAM, original BaseBoard startup.**
+**Live MiSTer14 is Native41 SDRAM, Guest accepted and Cedar Basic boot running.**
 Main11453/server11445. Pack/logs/restart config in `Cedar41_20261018`, launcher
 `Cedar41.mgl`. RBF SHA
 `a97af93667bf20b2f9bebb0959dc67a4710895f6416e91987242e7486a1f9297`.
 50MHz/SYSPER4,8MiB guest/16MiB raw backing on the required128MB SDRAM,
-no raw line cache. Main1fb2 unchanged. Corrected quiet+BSP daemon89007902,
-pinned Pup time1792324800; fresh f3bce2a8 seed. C watcher was armed AFTER
-Main registered, then three original boot pushes once. At17:20UTC it is
-still holding C pending the real type264/BFN113 request. Local watcher log
-`build/rtl-executive/cedar41-launch/c-until-request.log`, tool session96908.
-Do not restart based on an observation timeout. All31 timing-summary checks
-plus36 path categories/all four conditions including SDRAM I/O pass,
-min+0.114ns; zero illegal/unconstrained internal clocks, no new exceptions.
-Fit29888 ALMs(71%)/330 M10Ks. Full reports/input hashes in native41 evidence.
-Hardware boot and speed are not yet qualified. Local bitstream:
-`build/rtl-executive/native41-candidate/Dorado.rbf`.
+no raw line cache. Main1fb2 unchanged, corrected quiet+BSP daemon89007902,
+pinned Pup time1792324800; original f3bce2a8 seed. Real firmware/BFN113
+at~17:24UTC, actual Cedar login~17:26; no imported state, host completion of
+guest instructions/IOCBs or live server-mode repair on this boot. C watcher
+finished and released C; all boot/typing keys up. Native41 hardware has
+passed original boot/login and Guest input, **not yet full Viewers/persistence**.
+All31 summary/36 all-device categories including SDRAM I/O pass,min+0.114ns;
+zero illegal/unconstrained internal clocks and no new exceptions.
+Fit29888 ALMs(71%)/330 M10Ks. Reports/input hashes in native41 evidence;
+local bitstream `build/rtl-executive/native41-candidate/Dorado.rbf`.
 
-**Next:** observe actual Cedar login, then select instruction view1 with
-`cedar41-launch/select-issued.gdb` using Main11453. Capture three windows
-with `reports/2026-10-18-native39/sample-issued.py LOGFILE` on14. Capture
-cause/traffic views with local `cedar41-launch/sample-login-views.py 11453
-/media/fat/games/DoradoRTL/Cedar41_20261018/main.log`. Main stays sole SPI
-owner; collectors use its normal status setter at input_poll and discard
-two observations. Pin idle login/no Guest typing until comparisons finish.
-Then type Guest plus two Returns at0.1s down/up, wait through all34 loadees,
-answer profile question with `n`, and qualify Viewers/input/disk. Native42
-is the further matched cache-off DDR control, not deployed. Preserve36's
-mutated volume for its outstanding cold-remount marker test.
+Three10s idle-login windows measured1,595,808/1,595,612/1,595,611 issues/s,
+mean1,595,677/s =9.574% of the original nominal16.667M/s. This configuration
+is10.20% above39b's1.448M/s.41 differs in raw cache and F10145 placement,
+so this is not an isolated SDRAM-device speedup;42 is the matched control.
+Held/start0.1825%, board clocks/issue2.00364. Separate windows:25.5765%
+enabled,74.4241% storage-only pauses,0 pack-only/overlap,~3.036M physical
+reads/s,0 backing hits. Physical READ->return estimate~4.0003 fabric clocks
+from separate stable windows (DDR~9.94), not per-request timestamps.
+Three windows in one boot are not three independent cold runs; issues are
+not pipeline-drained retirements. Full JSON/capture evidence is native41's
+`idle-*`. The measured improvement does not satisfy full-speed acceptance.
+
+HDMI was initially black after load despite a clear native screenshot.
+The same Main-only framebuffer enable/disable workaround restored actual
+1080p30 capture; no FPGA/capture reset. Logs and before/after captures are
+retained. The recurring Main reinitialization defect is still open; do not
+claim it fixed by the extended-modeline parser patch. The first restored
+capture contains a transient mode overlay; `guest-hdmi.png` is clean.
+
+**Next:** leave41 running through all34 loadees/BootEssentials/fonts and
+qualify Viewers/mouse/exact keyboard/disk. At~17:32UTC real `Guest\n\n` at
+0.1s down/up produced Guest.pa authentication, Grapevine-down fallback and
+Basic boot's expected missing `<Guest>6.1>Basic.Loadees` then default `[Cedar]`
+lookup. No pending input scripts or GDB. Wait for the later profile question
+and answer `n` alone. Current debug view is memory12 (raw read/write requests),
+so Main's cpu= field is NOT a CPU PC. Restore normal CPU view through Main
+before interpreting PC/status samples. Collectors: local `cedar41-launch/`
+contains `sample-login-views.py PID LOGFILE` and `select-issued.gdb`;
+first two post-detach samples are discarded. Main stays sole SPI owner.
+After this boot, qualify cache-off42's matching idle workload and cold-remount
+36's marker volume. Preserve36's guest-mutated pack.
 
 **Native39b measured actual issues at the Cedar login.** Same50MHz/SYSPER4,
 Main1fb2, corrected89007902 daemon, pinned time, original seed. Three10s
@@ -837,7 +856,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Measure39b idle actual issues/held/clocks and pause/traffic views; archive matching inputs and service-repair caveat.
 - [x] Restore installed quiet-after-Cedar daemon policy in source; native/ARM quiet/reset and Cedar-quiet BSP recovery pass, old flood binary fails.
 - [x] Fit/all-device timing matched cache-off DDR42, min+0.115ns; preserve same41 board/placement policies.
-- [ ] Finish41 SDRAM hardware qualification/comparison with the same corrected daemon/time/seed/input;42 matched device control remains untested on hardware.
+- [x] Native41 original firmware/Cedar login/Guest input on SDRAM; measure three idle issue windows and matching cause views,10.20% above39 configuration.
+- [ ] Complete41 full Viewers/input/persistence;42 matched device control remains untested on hardware.
+- [ ] Fix recurring initially black HDMI after core load in Main; framebuffer toggle is a workaround, parser patch is a separate defect.
 - [ ] Deploy/qualify instruction diagnostics, including maintenance/reset/task switching, and measure actual issue rates with external waits separately.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [ ] Adapt ARM write coalescing with read/remount/error coherence; address blocking flushes and whole-track write amplification.

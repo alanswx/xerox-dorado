@@ -68,19 +68,29 @@ correctness blocker remains open; it is not replaced by a PLL-only speed
 claim. Original guest-visible CPU/cache/map/ECC behavior is preserved, with
 no imported C machine state or host completion of guest instructions/IOCBs.
 
-The immediate next action is Native41 SDRAM cold-boot qualification and
-its matched idle-login measurement, followed by the cache-off42 control. Only
+The immediate next action is Native41 SDRAM full desktop/input/persistence
+qualification, followed by the matched cache-off42 control. Only
 MiSTer14 is allocated. Use misterubuntu for Quartus and the Mac for Verilator.
 Do not overwrite the protected Executive simulation/checkpoint artifacts.
 Keep commits and the handoff current at each milestone. No new permission
 is needed for the already authorized builds, reloads and reversible tests.
 
-**Implementation update,2026-10-18 17:20UTC:** Native41 SDRAM is now live
-on MiSTer14, original BaseBoard startup under observation. Main11453 is the
+**Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
+original firmware to the actual Cedar login on MiSTer14. Real Guest input
+is accepted; Basic boot is running. Main11453 is the
 unchanged1fb2 binary; daemon11445 is89007902 (quiet-after-Cedar plus BSP
 probes). Fresh seed f3bce2a8, pinned Pup time1792324800,50MHz/SYSPER4,
 no raw line cache. All31 summary checks/36 all-device path categories,
-including SDRAM I/O, pass min+0.114ns. Hardware boot/speed remain unqualified.
+including SDRAM I/O, pass min+0.114ns. Full Viewers/input/persistence remain
+unqualified. Three10s idle-login windows measure1.595677M issues/s,9.574%
+of nominal original throughput and10.20% above39b. Separate windows show
+25.5765% enabled/74.4241% storage-only waits,0 pack/overlap,~3.036M physical
+reads/s,0 backing hits, held0.1825%, clocks/issue2.00364. READ->return interval
+is~4 fabric clocks versus DDR~9.94 (a separate-window estimate). This is one
+boot and includes the cache/placement differences below; use42 to isolate
+the device and repeat complete pinned comparisons before a final speed claim.
+HDMI required Main's known framebuffer enable/disable workaround; the recurring
+reinitialization defect remains open. Full captures/measurements are native41.
 
 Native39b's original-firmware Cedar login provides the actual DDR baseline:
 three10s windows give1,447,940/1,448,181/1,447,903 issues/s, mean~1.448M/s

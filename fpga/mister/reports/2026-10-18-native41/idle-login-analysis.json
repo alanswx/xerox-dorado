@@ -1,0 +1,24 @@
+{
+  "workload": "Idle Cedar login, no Guest typing; fresh original firmware/BFN113 boot, quiet+BSP daemon89007902 learned113 from actual request; no live server repair or guest state changes",
+  "issued_per_second_samples": [
+    1595808.2656333623,
+    1595611.5348739035,
+    1595610.7280051254
+  ],
+  "mean_issued_per_second": 1595676.8428374638,
+  "ordinary_nominal_rate_fraction": 0.09574061057024784,
+  "relative_to_native39_ddr_128_line_buffer": 1.101980522188037,
+  "limits": "Three10s windows in one fresh SDRAM login; not three independent boots or an isolated device comparison. Native39 has128 raw cache lines and MLAB F10145 files; Native41 no raw cache and F10145 logic. Matched cache-off DDR42 is timing-qualified but not hardware-measured. Full Viewers/input/persistence still pending. Issue is not drained retirement.",
+  "held_fraction": 0.0018251352994603034,
+  "board_clocks_per_issue": 2.0036382702510553,
+  "enabled_fraction": 0.255764886361152,
+  "storage_only_pause_fraction": 0.7442406631288397,
+  "pack_only_pause_fraction": 0.0,
+  "overlap_pause_fraction": 0.0,
+  "physical_command_observer_rates_per_s": {
+    "physical_reads": 3037226.553941189,
+    "physical_writes": 9.60503381956071
+  },
+  "backing_cache_hits": 0,
+  "physical_read_return_interval_fabric_cycles_separate_window_estimate": 4.000252204250656
+}

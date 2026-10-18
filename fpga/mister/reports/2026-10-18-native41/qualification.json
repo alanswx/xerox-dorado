@@ -1,5 +1,5 @@
 {
-  "hardware": "DEPLOYED MiSTer14; original firmware startup under observation, no Cedar or speed qualification yet",
+  "hardware": "MiSTer14 original power-on firmware/BFN113 and actual Cedar login PASS with corrected daemon. Real Guest plus two Returns accepted, Grapevine fallback/Basic boot running. Full Viewers/input/persistence and matched42 hardware control pending.",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,
@@ -170,5 +170,10 @@
   "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
   "live_directory": "/media/fat/games/DoradoRTL/Cedar41_20261018",
   "launcher": "/media/fat/_Computer/DoradoRTL_Cedar41_20261018/Cedar41.mgl",
-  "boot_selection": "C watcher armed after new Main registration; three original physical boot pushes once. Watcher still active, pending true BFN113."
+  "boot_selection": "Real type264/BFN113 at~17:24UTC; C released. No imported state or guest instruction/IOCB completion. Real Cedar login at~17:26UTC; no live daemon-mode repair.",
+  "hdmi": "Initially black after core load; normal Main framebuffer enable then disable restored1920x1080p30 capture. GDB called Main only, no FPGA/capture reset. This recurring Main reinitialization defect remains open.",
+  "input": "Guest plus two Returns via real virtual USB keyboard,0.1s down/up. Guest.pa auth/Basic.Loadees lookup and native/HDMI captures agree; all keys released.",
+  "idle_issue_rate_per_second": 1595676.8428374638,
+  "relative_to_native39": 1.101980522188037,
+  "clock_limit": "50MHz/SYSPER4 unchanged; measured issue~9.574% of nominal original rate, not pipeline retirement or full-speed qualification."
 }
