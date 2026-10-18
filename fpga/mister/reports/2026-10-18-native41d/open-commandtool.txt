@@ -1,0 +1,7 @@
+Sent move:200,0
+Sent move:200,0
+Sent move:200,0
+Sent move:200,0
+Sent move:112,0
+Sent left_down
+Sent left_up

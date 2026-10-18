@@ -1,0 +1,103 @@
+{
+  "event_counts": {
+    "mount": 1,
+    "poll": 2114,
+    "pread_begin": 971,
+    "pread_end": 971,
+    "read_request": 513,
+    "read_ack": 513,
+    "poll_gap": 7,
+    "write_request": 42,
+    "write_ack": 42,
+    "pwrite_begin": 40,
+    "pwrite_end": 40,
+    "fsync_begin": 30,
+    "fsync_end": 30,
+    "barrier_begin": 2,
+    "barrier_end": 2
+  },
+  "tail": [
+    {
+      "ns": 110245019854152,
+      "event": "poll",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 110245945216710,
+      "event": "read_request",
+      "offset": 8658944,
+      "bytes": 15872,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 110245948374704,
+      "event": "read_ack",
+      "offset": 8658944,
+      "bytes": 15872,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 110246019885170,
+      "event": "poll",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 110246178289778,
+      "event": "read_request",
+      "offset": 8736768,
+      "bytes": 16384,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 110246181546463,
+      "event": "read_ack",
+      "offset": 8736768,
+      "bytes": 16384,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 110246211574975,
+      "event": "barrier_begin",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 110246211582055,
+      "event": "barrier_end",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 110246352644246,
+      "event": "barrier_begin",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    },
+    {
+      "ns": 110246352655347,
+      "event": "barrier_end",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 0
+    }
+  ],
+  "errors": [],
+  "interpretation": "Actual Main normal FPGA-programming/restart barriers finish successfully; no forced write completion or false manual GDB barrier success."
+}

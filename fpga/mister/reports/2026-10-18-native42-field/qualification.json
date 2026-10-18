@@ -1,0 +1,107 @@
+{
+  "hardware": "Fresh matched Native42 DDR control; requested, not yet qualified",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "operating_conditions_checked": 4,
+  "path_categories_checked": 20,
+  "timing_checks": 29,
+  "minimum_slack_ns": 0.115,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "extra_timing_exceptions": "None",
+  "raw_backend": "DDR, no raw line buffer",
+  "raw_line_cache_entries": 0,
+  "guest_ram_mib": 8,
+  "raw_backing_mib": 16,
+  "change": "Native41 matched cache-off DDR control, same logic/M10K placement and clocks",
+  "reports": [
+    {
+      "report": "native42-hold-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 0.196
+    },
+    {
+      "report": "native42-hold-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 0.246
+    },
+    {
+      "report": "native42-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 0.115
+    },
+    {
+      "report": "native42-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 0.131
+    },
+    {
+      "report": "native42-mpw-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native42-mpw-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native42-mpw-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native42-mpw-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native42-recovery-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 10.457
+    },
+    {
+      "report": "native42-recovery-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 10.243
+    },
+    {
+      "report": "native42-recovery-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 11.833
+    },
+    {
+      "report": "native42-recovery-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 11.483
+    },
+    {
+      "report": "native42-removal-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 0.896
+    },
+    {
+      "report": "native42-removal-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 0.962
+    },
+    {
+      "report": "native42-removal-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 0.397
+    },
+    {
+      "report": "native42-removal-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 0.467
+    },
+    {
+      "report": "native42-setup-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 1.4
+    },
+    {
+      "report": "native42-setup-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 1.464
+    },
+    {
+      "report": "native42-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 6.06
+    },
+    {
+      "report": "native42-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 5.376
+    }
+  ],
+  "rbf_sha256": "45af2e303267c4583480b29464720b0892a06cbf82881fa00ba1634eab0b8c55",
+  "main_sha256": "40e14b6b97d62435c6e1ecd5c78bf9959c74b816a8e9452b1e64c28179ca8188",
+  "server_sha256": "e237dffc8dfcb446b51d417a8cbb63bcf52812a861b75f16c4454bdaffda6f94",
+  "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "assistance": "None; original firmware CoolBoot after final Main cache-ready",
+  "source_run": "Cedar41d_20261018",
+  "disk_cache": "1",
+  "disk_trace": "/tmp/dorado42-disk.jsonl"
+}

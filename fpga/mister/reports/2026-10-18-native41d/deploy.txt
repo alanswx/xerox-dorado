@@ -1,0 +1,12 @@
+{
+  "time_utc": "2026-10-18 21:39:20 UTC",
+  "main_pid": 19353,
+  "server_pid": 19352,
+  "cold_image_sha256": "81c4195570989a9d3ebf216f5600348af0c57997c738c4e98bf3ea6dd351ca04",
+  "rbf_sha256": "a97af93667bf20b2f9bebb0959dc67a4710895f6416e91987242e7486a1f9297",
+  "main_sha256": "40e14b6b97d62435c6e1ecd5c78bf9959c74b816a8e9452b1e64c28179ca8188",
+  "server_sha256": "e237dffc8dfcb446b51d417a8cbb63bcf52812a861b75f16c4454bdaffda6f94",
+  "preserved_source_pack": "/media/fat/games/DoradoRTL/Cedar41c_20261018/cedar-work-clean-boot-preserved.pack",
+  "phase": "New Main cache cold preload, then normal full FPGA load requested"
+}
+Full reload requested; verify new image-cache-ready before C watcher/CoolBoot

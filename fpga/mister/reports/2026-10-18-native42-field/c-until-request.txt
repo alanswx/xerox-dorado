@@ -1,0 +1,2 @@
+Holding C until Initial sends BFN113, then releasing immediately
+Request watcher ready

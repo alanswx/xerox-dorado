@@ -1,0 +1,4 @@
+Physical BaseBoard boot pulse 1/3
+Physical BaseBoard boot pulse 2/3
+Physical BaseBoard boot pulse 3/3
+Three pushes request firmware CoolBoot: reload microcode

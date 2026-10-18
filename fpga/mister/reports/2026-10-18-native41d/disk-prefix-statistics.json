@@ -1,0 +1,34 @@
+{
+  "counts": {
+    "mount": 1,
+    "poll": 903,
+    "pread_begin": 971,
+    "pread_end": 971,
+    "read_request": 211,
+    "read_ack": 211,
+    "poll_gap": 6,
+    "write_request": 41,
+    "write_ack": 41,
+    "pwrite_begin": 39,
+    "pwrite_end": 39,
+    "fsync_begin": 29,
+    "fsync_end": 29
+  },
+  "max_duration_ns": {
+    "mount": 0,
+    "poll": 0,
+    "pread_begin": 0,
+    "pread_end": 1743449,
+    "read_request": 0,
+    "read_ack": 0,
+    "poll_gap": 409846599,
+    "write_request": 0,
+    "write_ack": 0,
+    "pwrite_begin": 0,
+    "pwrite_end": 35427613,
+    "fsync_begin": 0,
+    "fsync_end": 36171
+  },
+  "errors": [],
+  "note": "Observer prefix after cold readback; includes known GDB control pauses, including a fifth failed diagnostic call. No manual post-readback barrier executed: GDB lacked bool in its selected language; later normal Main loader performs the real durability barrier."
+}

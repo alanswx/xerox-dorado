@@ -40,6 +40,14 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+Current hardware update22:16UTC:41d passes real cold-remount readback of
+both41c marker files after new Main/cache and full FPGA original boot. Its
+volume is preserved after normal guest Boot and actual loader durability
+barriers.42 matched raw-DDR/no-cache control is now loaded with Main40e1,
+e237dffc server and fresh f3bce2a8 seed. Idle measurements and software boot
+qualification are pending; no new speed claim. Keep later candidate diary
+"not deployed" labels historical. Evidence: native41d and native42-field.
+
 Use three explicitly recorded workloads: idle Cedar login, a fixed cold
 loader sequence through all 34 base packages, and a desktop script with
 known CommandTool output, mouse actions and file transfer/write activity.

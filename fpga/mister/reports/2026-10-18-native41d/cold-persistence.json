@@ -1,0 +1,33 @@
+{
+  "status": "PASS: real guest cold-remount readback of both41c markers",
+  "observed_utc": "2026-10-18 22:10:14 UTC",
+  "source_image_sha256": "81c4195570989a9d3ebf216f5600348af0c57997c738c4e98bf3ea6dd351ca04",
+  "source_image_bytes": 63578624,
+  "source_run": "Native41c",
+  "destination_run": "Native41d",
+  "main_pid": 19438,
+  "server_pid": 19352,
+  "main_sha256": "40e14b6b97d62435c6e1ecd5c78bf9959c74b816a8e9452b1e64c28179ca8188",
+  "rbf_sha256": "a97af93667bf20b2f9bebb0959dc67a4710895f6416e91987242e7486a1f9297",
+  "server_sha256": "e237dffc8dfcb446b51d417a8cbb63bcf52812a861b75f16c4454bdaffda6f94",
+  "markers": {
+    "///rtl41cpersist.txt": "rtl41cpersist20261018",
+    "///rtlflush42.txt": "worker42"
+  },
+  "evidence": "cold-persistence-final.png; manually inspected complete command text, values and new prompt",
+  "cold_boundaries": [
+    "Native41c normal guest Boot accepted; germ812 display",
+    "old Main normal cache drain/fsync/exit; old server normal stop",
+    "physical file preserved and copied; three SHA256 matches before boot",
+    "full FPGA reload and original BaseBoard/BFN113 firmware boot",
+    "new Main process with full physical-file cache preload; new local server",
+    "actual Guest login/profile/installer/Viewers; real mouse/Cmd/focus/type"
+  ],
+  "not_claimed": [
+    "untouched-seed performance comparison",
+    "complete machine snapshot/restore",
+    "power-loss recovery",
+    "two-hour sustained qualification",
+    "three fresh-seed desktop boots"
+  ]
+}

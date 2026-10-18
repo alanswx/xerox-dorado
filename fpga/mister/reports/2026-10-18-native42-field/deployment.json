@@ -1,0 +1,25 @@
+{
+  "time_utc": "2026-10-18 22:15:51 UTC",
+  "old_pids": {
+    "main": 19438,
+    "server": 19352
+  },
+  "staging_main_pid": 20478,
+  "new_main_pid": 20496,
+  "new_server_pid": 20495,
+  "main_sha256": "40e14b6b97d62435c6e1ecd5c78bf9959c74b816a8e9452b1e64c28179ca8188",
+  "server_sha256": "e237dffc8dfcb446b51d417a8cbb63bcf52812a861b75f16c4454bdaffda6f94",
+  "rbf_sha256": "45af2e303267c4583480b29464720b0892a06cbf82881fa00ba1634eab0b8c55",
+  "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "main_log": "/tmp/dorado42-main.log",
+  "disk_trace": "/tmp/dorado42-disk.jsonl",
+  "preserved_old_volume": {
+    "path": "/media/fat/games/DoradoRTL/Cedar41d_20261018/cedar-work.pack",
+    "bytes": 63578624,
+    "sha256": "c7420ed1a220f2b0fd3075cf25c5c149bc99c79fe326e326464d07160acca30c",
+    "guest_boot": "Accepted after exact cold marker readbacks; germ812 display",
+    "host_boundary": "Real Main FPGA-programming/restart barriers and normal loader; last observer barrier_end",
+    "fpga_snapshot": false
+  },
+  "phase": "Full42 FPGA load complete; waiting for final cache-ready before original CoolBoot"
+}

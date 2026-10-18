@@ -1,0 +1,1 @@
+Sent 'type ///rtl41cpersist.txt\ntype ///rtlflush42.txt\n' through real virtual USB keyboard

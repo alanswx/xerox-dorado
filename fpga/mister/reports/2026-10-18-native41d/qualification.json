@@ -1,0 +1,178 @@
+{
+  "hardware": "Native41d cold ARM cache/full FPGA reload persistence test, NOT a fresh seed performance boot",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "operating_conditions_checked": 4,
+  "path_categories_checked": 36,
+  "timing_checks": 31,
+  "minimum_slack_ns": 0.114,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "extra_timing_exceptions": "None",
+  "raw_backend": "SDRAM, no raw line buffer",
+  "raw_line_cache_entries": 0,
+  "required_sdram_mb": 128,
+  "guest_ram_mib": 8,
+  "raw_backing_mib": 16,
+  "change": "Native40 SDRAM/logic placement plus Native39 passive instruction issue/held/clock views",
+  "reports": [
+    {
+      "report": "native41-hold-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 0.2
+    },
+    {
+      "report": "native41-hold-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 0.189
+    },
+    {
+      "report": "native41-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 0.114
+    },
+    {
+      "report": "native41-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 0.132
+    },
+    {
+      "report": "native41-mpw-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native41-mpw-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native41-mpw-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native41-mpw-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native41-recovery-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 10.695
+    },
+    {
+      "report": "native41-recovery-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 10.544
+    },
+    {
+      "report": "native41-recovery-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 11.896
+    },
+    {
+      "report": "native41-recovery-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 11.546
+    },
+    {
+      "report": "native41-removal-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 1.147
+    },
+    {
+      "report": "native41-removal-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 1.205
+    },
+    {
+      "report": "native41-removal-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 0.533
+    },
+    {
+      "report": "native41-removal-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 0.625
+    },
+    {
+      "report": "native41-sdram-input-hold-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 6.569
+    },
+    {
+      "report": "native41-sdram-input-hold-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 6.946
+    },
+    {
+      "report": "native41-sdram-input-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 4.47
+    },
+    {
+      "report": "native41-sdram-input-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 4.951
+    },
+    {
+      "report": "native41-sdram-input-setup-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 5.481
+    },
+    {
+      "report": "native41-sdram-input-setup-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 5.089
+    },
+    {
+      "report": "native41-sdram-input-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 8.64
+    },
+    {
+      "report": "native41-sdram-input-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 8.198
+    },
+    {
+      "report": "native41-sdram-output-hold-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 6.439
+    },
+    {
+      "report": "native41-sdram-output-hold-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 6.348
+    },
+    {
+      "report": "native41-sdram-output-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 7.258
+    },
+    {
+      "report": "native41-sdram-output-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 7.226
+    },
+    {
+      "report": "native41-sdram-output-setup-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 2.527
+    },
+    {
+      "report": "native41-sdram-output-setup-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 2.44
+    },
+    {
+      "report": "native41-sdram-output-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 5.128
+    },
+    {
+      "report": "native41-sdram-output-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 4.856
+    },
+    {
+      "report": "native41-setup-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 0.962
+    },
+    {
+      "report": "native41-setup-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 1.072
+    },
+    {
+      "report": "native41-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 5.128
+    },
+    {
+      "report": "native41-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 4.856
+    }
+  ],
+  "rbf_sha256": "a97af93667bf20b2f9bebb0959dc67a4710895f6416e91987242e7486a1f9297",
+  "host_clock_hz": 50000000,
+  "host_watchdog_clocks": 200000000,
+  "main_sha256": "40e14b6b97d62435c6e1ecd5c78bf9959c74b816a8e9452b1e64c28179ca8188",
+  "server_sha256": "e237dffc8dfcb446b51d417a8cbb63bcf52812a861b75f16c4454bdaffda6f94",
+  "pinned_pup_time": 1792324800,
+  "seed_sha256": null,
+  "assistance": "None",
+  "original_run": "Cedar41b_20261018",
+  "disk_cache": "1",
+  "disk_trace": "/tmp/dorado41d-disk.jsonl",
+  "source_run": "Cedar41c_20261018",
+  "cold_image_sha256": "81c4195570989a9d3ebf216f5600348af0c57997c738c4e98bf3ea6dd351ca04",
+  "persistence": "PENDING guest marker reads after original firmware boot"
+}

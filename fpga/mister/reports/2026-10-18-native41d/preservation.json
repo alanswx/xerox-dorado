@@ -1,0 +1,8 @@
+{
+  "path": "/media/fat/games/DoradoRTL/Cedar41d_20261018/cedar-work.pack",
+  "bytes": 63578624,
+  "sha256": "c7420ed1a220f2b0fd3075cf25c5c149bc99c79fe326e326464d07160acca30c",
+  "guest_boot": "Accepted after exact cold marker readbacks; germ812 display",
+  "host_boundary": "Real Main FPGA-programming/restart barriers and normal loader; last observer barrier_end",
+  "fpga_snapshot": false
+}

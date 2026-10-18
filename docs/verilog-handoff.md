@@ -18,7 +18,38 @@ User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is Native41d, cold-persistence test.** Main19438/server19352;
+**Live MiSTer14 is Native42, matched raw-DDR control.** Loaded22:15:51UTC;
+Main20496/server20495, Main40e14b6b/servere237dffc unchanged. RBF45af2e30,
+50MHz/SYSPER4, same logic/M10K placement as41, no raw line cache, original
+f3bce2a8 seed and Pup time1792324800. Detailed timing already passes29 checks/
+20 categories/four conditions min+0.115ns. New seed checked unchanged after
+temporary loader Main exited; final cache-ready confirmed. This is an
+untouched-seed measurement boot; no speed or full boot result yet.
+Paths: `Cedar42_20261018`, `_Computer/DoradoRTL_Cedar42_20261018/Cedar42.mgl`;
+**Main log `/tmp/dorado42-main.log`, disk `/tmp/dorado42-disk.jsonl`**.
+Old41d19438/19352 and staging42 Main20478 are stopped. Main20496 remains
+the sole SPI owner. One setup GDB selects core framebuffer/input0 and
+instruction view1. C watcher38648 is new for42; boot pulses55801 requested
+after watcher-ready. Inspect these live handles/logs before further input;
+do not restart the watcher blindly. Local helpers: cedar42-launch.
+Actual helpers/metadata: reports/2026-10-18-native42-field. Next observe
+BFN113/login, measure the three idle issue windows before Guest, then causes
+and the remaining pinned loader/desktop/input gates. Paired repetitions
+remain required; one boot's adjacent windows are not three cold boots.
+
+**Native41d cold-remount persistence PASSES, retired/preserved.** Both marker
+values exactly read in the idle second CommandTool at22:10UTC after a new
+Main/cache and full original-firmware FPGA boot: rtl41cpersist20261018 and
+worker42, each returning to a prompt. Source41c81c41955 remains unchanged.
+After another normal guest Boot, actual Main loader durability barriers
+preceded42 programming/restart; retired41d physical image is c7420ed1...
+at its original path. Preservation/captures/deployment/observer evidence:
+reports/2026-10-18-native41d. No power-loss/full-snapshot/two-hour claim.
+The optional post-readback GDB barrier attempt failed before calling Main
+(selected language lacked bool); its log remains, later real loader barriers
+are the successful boundary. Fifth known diagnostic GDB pause on41d.
+
+**Previous41d bring-up details (not live):** Main19438/server19352;
 same Native41 RBF a97af936, Main40e14b6b and server e237dffc. Normal Cedar Boot
 was visibly accepted on41c; Main16875 then exited through its real durability
 barrier and server16872 stopped normally. Immutable physical source image
@@ -1268,7 +1299,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Actual Main4200ms delayed flush work:3 read/21 write ACKs, continued instruction progress, no poll gap above20ms; subsequent marker readback and host durability barrier pass.
 - [ ] Qualify packet traffic and completed keyboard command during actual Main worker delay; first live window had no packets and Echo completed afterward.
 - [x] Normal41c guest Boot, Main drain/fsync/exit, preserved physical image81c41955; new41d ARM cache and full FPGA reload, original BFN113 reached/C released.
-- [ ] Read41c markers after41d cold boot, then qualify sustained fault-free disk/network/input stress.
+- [x] Read41c markers after41d cold Main/cache/full FPGA boot: exact rtl41cpersist20261018 and worker42 plus new prompt; normal guest Boot/loader barriers and preserved volumes.
+- [ ] Qualify sustained fault-free disk/network/input stress and three final fresh-seed desktop boots.
+- [x] Deploy timing-qualified42 matched cache-off DDR control with same Main/server/seed and final fresh observer; original CoolBoot requested.
+- [ ] Measure42 idle-login issues/causes before Guest; qualify loader/desktop/input and repeat pinned comparisons.
 - [ ] Separately reduce FPGA whole-track write amplification where original guest/CRC semantics permit.
 - [x] Prototype default-OFF deferred internal DRAM reads; independent nonzero pipeline/write/reset/array/full-MSA/physical-state/default-generation gates pass.
 - [x] Native45 full all-device timing PASS:31 summary/36 categories/four conditions, minimum+0.017ns, no new cuts or clock coverage gaps.

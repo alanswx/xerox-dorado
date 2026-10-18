@@ -1,0 +1,18 @@
+[New LWP 19439]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/libthread_db.so.1".
+0x0006ef82 in fpga_spi(unsigned short) ()
+warning: File "/usr/lib/libstdc++.so.6.0.28-gdb.py" auto-loading has been declined by your `auto-load safe-path' set to "To enable execution of this file add
+	add-auto-load-safe-path /usr/lib/libstdc++.so.6.0.28-gdb.py
+line to your configuration file "/root/.gdbinit".
+To completely disable this security protection add
+	set auto-load safe-path /
+line to your configuration file "/root/.gdbinit".
+For more information about this security protection see the
+"Auto-loading safe path" section in the GDB manual.  E.g., run from the shell:
+	info "(gdb)Auto-loading safe path"
+$debugdir:$datadir/auto-load".
+Temporary breakpoint 1 at 0x84326
+
+Thread 1 "MiSTer-40e14b6b" hit Temporary breakpoint 1, 0x00084326 in input_poll(int) ()
+[Inferior 1 (process 19438) detached]
