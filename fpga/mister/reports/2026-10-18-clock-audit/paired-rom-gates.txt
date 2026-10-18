@@ -6,4 +6,3 @@ tb_exec: 25 distinct IM addresses executed; last TNIA=f5c; longest run on one ad
 SYSPER=4; make exit=0; private model obj_initial_rom4speed
 tb_exec: 325 distinct IM addresses executed; last TNIA=cc4; longest run on one address=161537 at TNIA=cd6; TASKINITLOOP entries 15
 INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for 2611683 samples without error
-
