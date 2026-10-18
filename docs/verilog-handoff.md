@@ -19,6 +19,11 @@ this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
 **Live MiSTer14 is Native41c, deployed20:15UTC with disk-cache Main.**
 Main16875, server16872. Same RBF a97af936 and e237dffc fixed server, fresh
+**Main live log is now `/tmp/dorado41c-main.log` (both stdout/stderr),**
+moved at21:16UTC to keep diagnostic writes off FAT; the original
+Cedar41c/main.log is the retained prefix and no longer advances. No guest
+state/clock/IO patch; fourth known Main GDB control pause. All future
+collectors/launchers must use the new path or inspect `/proc/16875/fd/1`.
 original f3bce2a8 seed, pinned Pup time1792324800,50MHz/SYSPER4, SDRAM and
 no raw line cache. New Main40e14b6b is immutable at
 `System_20261018_DiskCache/MiSTer-40e14b6b97d62435`; matching ELF alongside
@@ -41,8 +46,22 @@ text yet. No active GDB. BFN113 and actual Cedar login have passed. Three10s idl
 1595653.86/1595625.89/1595901.82 issues/s, mean1595727.19/s=9.574%
 nominal, reproducing41b; issues are not drained retirements, and three
 windows are one boot. Guest accepted~20:25; all34 loadees complete and profile No sent at20:35.
-Actual HDMI passed BootEssentials/Viewers/Watch and now FontMetrics attachment
-(~20:53). Full desktop/input/persistence/stress remain pending. No active GDB.
+Actual HDMI passed BootEssentials/fonts/STARTs and **Viewers desktop at21:03**.
+Real mouse move/Cmd click opens second CommandTool and focus works; exact
+`rtl41cok` and full alphabet/digits echo with new prompts at21:06. Local
+`///rtl41cpersist.txt` created/closed and `type` reads exact
+`rtl41cpersist20261018` at21:08, returning to prompt. **Cold remount is pending**;
+preserve this mutated pack. Optional first-tool imports still run (BiScrollers
+near21:08). All keys/buttons up, no active input/GDB helper. No current fault
+(CRC/RX/abort0, good2453/dropped6 at21:08:34). Whole-Main controlled delay,
+three fresh boots and two-hour final stress remain pending.
+Observer prefix/current input evidence: native41c/input-qualification.json,
+actual HDMI captures, dorado41c-disk-prefix-2110.jsonl.gz + statistics.
+Next qualify a durable close/cold remount of this marker and a controlled
+multi-second actual Main file stall while input/packets progress. Preserve
+41c before42/43/44/45 comparisons; do not label RAM-cache readback persistence.
+Snapshot milestone4a remains planned, not implemented.
+
 Fresh paths: `Cedar41c_20261018/{main.log,server.log,cedar-work.pack}` and
 `_Computer/DoradoRTL_Cedar41c_20261018/Cedar41c.mgl`. Local helpers
 `build/rtl-executive/cedar41c-launch/`, committed native41c reports. New
@@ -1179,7 +1198,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Implement/test bounded whole-image ARM cache, dirty-run coalescing, worker file IO, Main-only SPI capture and error recovery; actual-worker Linux/ARM and full pinned Main build pass.
 - [x] Add monotonic bounded request/ACK/file/poll tracing and durable remount/program/restart/reboot/SIGTERM/SIGINT boundaries; component tests pass.
 - [x] Deploy immutable disk-cache Main on fresh same-RBF41c with observer; cache-ready confirmed and real original CoolBoot requested.
-- [ ] Finish41c original Cedar boot; prove real Main input/network polling during disk activity, cold-remount persistence and sustained fault-free stress.
+- [x] Finish41c fresh original Cedar/Viewers/mouse/Cmd/focus/exact keyboard; local marker created/closed/read back.
+- [ ] Qualify41c durable cold-remount marker persistence, controlled multi-second whole-Main file stall with input/network progress, and sustained fault-free stress.
 - [ ] Separately reduce FPGA whole-track write amplification where original guest/CRC semantics permit.
 - [x] Prototype default-OFF deferred internal DRAM reads; independent nonzero pipeline/write/reset/array/full-MSA/physical-state/default-generation gates pass.
 - [x] Native45 full all-device timing PASS:31 summary/36 categories/four conditions, minimum+0.017ns, no new cuts or clock coverage gaps.

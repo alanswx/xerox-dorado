@@ -1,0 +1,35 @@
+{
+  "core": "Native41c, same SDRAM Native41 RBF,50MHz/SYSPER4",
+  "main": "40e14b6b disk-cache + monotonic observer",
+  "server": "e237dffc fixed quiet/BSP history",
+  "scope": "One fresh seed, original CoolBoot/BFN113/Guest/profile No/all34loadees/BootEssentials/fonts/Viewers; no guest CPU/RAM/IOCB repair or imported state.",
+  "mouse": "Real relative movement, Cmd menu click opens second CommandTool, body focus; screenshots and input logs.",
+  "keyboard": {
+    "down_seconds": 0.1,
+    "up_seconds": 0.1,
+    "commands": [
+      "echo rtl41cok",
+      "echo abcdefghijklmnopqrstuvwxyz0123456789"
+    ],
+    "exact_outputs": [
+      "rtl41cok",
+      "abcdefghijklmnopqrstuvwxyz0123456789"
+    ],
+    "returned_prompt": true
+  },
+  "disk": {
+    "file": "///rtl41cpersist.txt",
+    "expected": "rtl41cpersist20261018",
+    "created_closed_and_readback": "PASS exact with returned prompt",
+    "cold_remount": "PENDING; neither live ARM cache nor guest FS cache readback proves this"
+  },
+  "faults_at_210834_utc": {
+    "pack": false,
+    "crc_bad": 0,
+    "rx_bad": 0,
+    "aborted": 0,
+    "good": 2453,
+    "dropped": 6
+  },
+  "limits": "Cold remount/durable whole-Main injected stall/three fresh boots/two-hour final stress unqualified. Optional startup imports continue; do not discard this guest-mutated pack. No complete FPGA snapshot feature yet."
+}

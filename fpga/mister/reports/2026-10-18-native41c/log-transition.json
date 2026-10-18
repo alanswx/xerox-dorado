@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-18 21:17:46 UTC",
+  "monotonic_ns": 106767178467808,
+  "pid": 16875,
+  "old_stdout": "/media/fat/games/DoradoRTL/Cedar41c_20261018/main.log",
+  "new_stdout": "/tmp/dorado41c-main.log",
+  "method": "fflush + open(O_EXCL) + dup2 stdout/stderr at input_poll; exact Main ELF. No guest state, IO or clock patch.",
+  "reason": "Keep diagnostic writes off the same FAT volume as synchronous pack writes.",
+  "old_file": "Complete prefix retained in place; future samples use /tmp log",
+  "limits": "This adds a fourth known GDB diagnostic pause; do not treat it as a file-service poll stall."
+}

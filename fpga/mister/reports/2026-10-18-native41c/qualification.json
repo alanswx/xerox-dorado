@@ -1,5 +1,5 @@
 {
-  "hardware": "Fresh original firmware to actual Cedar login PASS with unchanged SDRAM RBF and new disk-cache Main; Guest typing requested. Full Viewers/input/persistence/stress remain pending.",
+  "hardware": "Fresh original firmware -> Cedar Viewers desktop/mouse/Cmd/focus/exact keyboard/local file create-close-read PASS with new disk-cache Main. Cold remount, controlled whole-Main long-stall and sustained final qualification PENDING.",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,
@@ -175,5 +175,83 @@
   "current_main_pid": 16875,
   "current_server_pid": 16872,
   "idle_issue_mean_per_second": 1595727.1870984337,
-  "watcher": "70748 completed at actual new BFN113 request and C released; no active input/GDB helper after Guest typing"
+  "watcher": "70748 completed at actual new BFN113 request and C released; no active input/GDB helper after Guest typing",
+  "desktop_seen_utc": "2026-10-18 21:03 UTC",
+  "input_seen_utc": "2026-10-18 21:06 UTC",
+  "marker_read_seen_utc": "2026-10-18 21:08 UTC",
+  "active_helpers": "None; all keys/buttons up; no GDB; C watcher completed",
+  "disk_observer_prefix": {
+    "utc": "2026-10-18 21:13:05 UTC",
+    "prefix_bytes": 9895045,
+    "events": 95358,
+    "counts": {
+      "read_ack": 3087,
+      "write_ack": 18816,
+      "pwrite_begin": 17754,
+      "pwrite_end": 17754,
+      "fsync_begin": 5259,
+      "fsync_end": 5259,
+      "poll_gap": 122,
+      "trace_dropped": 0,
+      "pwrite_error": 0,
+      "fsync_error": 0
+    },
+    "max_completed_pwrite_ns": 82051681,
+    "max_observed_poll_gap_ns": 377713000,
+    "max_poll_gap_after_last_diagnostic_window_ns": 92721333,
+    "steady_window_start_ns": 103520761253532,
+    "largest_poll_gaps": [
+      {
+        "ns": 103519761253532,
+        "event": "poll_gap",
+        "offset": 0,
+        "bytes": 0,
+        "result": 0,
+        "duration_ns": 377713000
+      },
+      {
+        "ns": 103094309301459,
+        "event": "poll_gap",
+        "offset": 0,
+        "bytes": 0,
+        "result": 0,
+        "duration_ns": 377038350
+      },
+      {
+        "ns": 103073295752078,
+        "event": "poll_gap",
+        "offset": 0,
+        "bytes": 0,
+        "result": 0,
+        "duration_ns": 374884806
+      },
+      {
+        "ns": 104956552758634,
+        "event": "poll_gap",
+        "offset": 0,
+        "bytes": 0,
+        "result": 0,
+        "duration_ns": 92721333
+      },
+      {
+        "ns": 103106435287039,
+        "event": "poll_gap",
+        "offset": 0,
+        "bytes": 0,
+        "result": 0,
+        "duration_ns": 73241218
+      },
+      {
+        "ns": 104786532768109,
+        "event": "poll_gap",
+        "offset": 0,
+        "bytes": 0,
+        "result": 0,
+        "duration_ns": 72753243
+      }
+    ],
+    "limits": "Read-only live trace prefix, may end during an operation. Three ~377ms gaps correspond to GDB FB/issue controls before the steady window. No controlled multi-second whole-Main delay injected. Not two-hour or cold-remount qualification."
+  },
+  "main_stdout": "/tmp/dorado41c-main.log",
+  "logging_note": "Moved stdout/stderr off FAT at safe input_poll; original prefix stays Cedar41c/main.log. Fourth known GDB control pause; guest unchanged."
 }

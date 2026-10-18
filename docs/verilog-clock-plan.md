@@ -198,6 +198,19 @@ All31 summary/36 path categories across four conditions PASS min+0.017ns,
 including SDRAM IO,0 illegal/unconstrained internal clocks. No new timing
 cuts/clocks/placement policies, not deployed;14 remains41c.
 
+Update21:13UTC:41c reached full fresh Viewers/Clock/Watch/EditTool at21:03.
+Real mouse/Cmd/focus and exact short/alphabet/digit echo pass. Local marker
+///rtl41cpersist.txt created/closed; type reads rtl41cpersist20261018 exactly
+and returns to prompt at21:08. Cold remount is pending; preserve this volume.
+Optional first-tool imports continue. Actual disk trace and current input/
+screenshots are archived with native41c; no current pack/CRC/RX/abort fault.
+At21:16 Main stdout/stderr moved to /tmp/dorado41c-main.log to keep
+diagnostic logging off FAT. Old log prefix retained; guest unchanged, fourth
+known GDB control pause. Future samplers use the new path.
+Complete snapshots, controlled whole-Main multi-second file stall, sustained
+and three-fresh-boot qualification remain open. Main40e1/source and Native45
+optional memory/timing evidence are checked in and pushed.
+
 **Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
 original firmware to the actual Cedar login on MiSTer14. Real Guest input
 is accepted; Basic boot is running. Main11453 is the
@@ -293,6 +306,15 @@ chip/word schema or raw-layout migration needs its own equivalence tests. Existi
 and sil_fpga_checkpoint.py provide exact-build RTL checkpoint/instance/XML
 mapping; reuse that inventory rather than its host ABI offsets. Baking a
 simulation checkpoint into power-up initializers is not live FPGA save/load.
+The representative prototype must retain synchronous RAM inference and its
+read pipeline, including old-before-write values. A restore port that simply
+conditions the mandatory BRAM read can turn those arrays into logic. Check
+state loading/read-clock control and phase/history restoration against the
+original cell, then measure area and routed timing. Drain/close physical SDRAM
+transactions while refresh continues; classify backend open-row/refresh
+bookkeeping explicitly as reconstructible instead of replaying stale physical
+RAM-command state. These are design requirements, not implemented features.
+
 Native45's candidate raises ALM use to79%; evaluate state-access area/timing
 on a representative board before committing to machine-wide instrumentation.
 

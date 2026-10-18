@@ -29,5 +29,7 @@
       "DORADO_DISK_CACHE": "1",
       "DORADO_DISK_TRACE": "/tmp/dorado41c-disk.jsonl"
     }
-  }
+  },
+  "main_stdout": "/tmp/dorado41c-main.log",
+  "main_stderr": "same as stdout"
 }
