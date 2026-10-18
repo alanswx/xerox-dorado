@@ -28,8 +28,12 @@ instruction view1. C watcher38648 and boot pulses55801 COMPLETED; do not
 restart them. Guest\n\n and profile No were entered after idle measurement.
 All34 loadees, BootEssentials and font/FontMetrics Bringovers complete;
 23:04UTC capture shows package STARTs advancing;23:07UTC shows gray
-Viewers startup raster/Idle. Full desktop/input still pending.
-No CRC/RX/abort or pack fault observed; TX dropped counter7 is retained.
+Viewers startup raster/Idle.23:10UTC captures Ready/Viewers, initial
+CommandTool doing startup apps, WatchTool/EditTool/Clock icons.23:12UTC
+second CommandTool passes exact `rtl42 keyboard ok` and full alphabet/digit
+echo plus returned prompts, real mouse movement/Cmd click/focus. Original
+first tool continues optional apps; no guest/daemon cursor repair.
+No CRC/RX/abort or pack fault observed; TX dropped counter advanced to9.
 Paths: `Cedar42_20261018`, `_Computer/DoradoRTL_Cedar42_20261018/Cedar42.mgl`;
 Main `/tmp/dorado42-main.log`, disk `/tmp/dorado42-disk.jsonl`.
 
@@ -1328,7 +1332,8 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Qualify sustained fault-free disk/network/input stress and three final fresh-seed desktop boots.
 - [x] Deploy timing-qualified42 matched cache-off DDR control with same Main/server/seed and final fresh observer; original CoolBoot requested.
 - [x] Measure42 idle-login issues/causes before Guest; matched one-boot SDRAM gain10.2196%, not a repeated qualification.
-- [ ] Finish42 desktop/input and repeat pinned workload comparisons.
+- [x] Finish42 original-firmware Viewers desktop, mouse/Cmd/focus and exact short/alphabet/digit echo in independent CommandTool.
+- [ ] Preserve42 through a normal guest Boot/host barriers before changing cores; repeat pinned workload comparisons.
 - [ ] Separately reduce FPGA whole-track write amplification where original guest/CRC semantics permit.
 - [x] Prototype default-OFF deferred internal DRAM reads; independent nonzero pipeline/write/reset/array/full-MSA/physical-state/default-generation gates pass.
 - [x] Native45 full all-device timing PASS:31 summary/36 categories/four conditions, minimum+0.017ns, no new cuts or clock coverage gaps.

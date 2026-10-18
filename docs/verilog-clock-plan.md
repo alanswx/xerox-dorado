@@ -356,8 +356,9 @@ issues/s (8.6866% of nominal original cadence). SDRAM41c averages1,595,727:
 10.2196% faster in ONE matched boot comparison. Adjacent windows are not
 independent boots. Separate cause windows show76.7900% storage pause,
 23.2095% enabled and zero disk pause; do not treat them as one atomic sample.
-All34 loadees and fonts complete on42; Viewers/input and repeated paired
-workloads remain open. Exact inputs/limits: native42-field reports.
+All34 loadees/fonts and original-firmware Viewers desktop complete on42;
+mouse/Cmd/focus and exact short/alphabet/digit echo with new prompts pass.
+Repeated paired workloads and final cold persistence/stress remain open. Exact inputs/limits: native42-field reports.
 
 The optional DDR wrapper/ownership mux, SPI74/75 capability/atomic grants,
 daemon control+reservation-checked mapper and Main nonblocking manager are

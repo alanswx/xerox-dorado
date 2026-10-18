@@ -1,5 +1,5 @@
 {
-  "hardware": "Fresh matched Native42 DDR control; requested, not yet qualified",
+  "hardware": "One fresh-seed original-firmware Cedar Viewers desktop and actual keyboard/mouse PASS; repeated performance/persistence/stress gates incomplete",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,
@@ -103,5 +103,21 @@
   "assistance": "None; original firmware CoolBoot after final Main cache-ready",
   "source_run": "Cedar41d_20261018",
   "disk_cache": "1",
-  "disk_trace": "/tmp/dorado42-disk.jsonl"
+  "disk_trace": "/tmp/dorado42-disk.jsonl",
+  "desktop_observed_utc": "2026-10-18T23:10:04Z",
+  "input_observed_utc": "2026-10-18T23:12:44Z",
+  "keyboard_short": "rtl42 keyboard ok: exact output and new % prompt",
+  "keyboard_alphabet_digits": "abcdefghijklmnopqrstuvwxyz0123456789: exact output and new % prompt",
+  "mouse": "Real pointer movement and Cmd click opened separate second CommandTool; body click focused it",
+  "input_path": "MiSTer virtual USB keyboard/mouse via actual web control; no guest state/IOCB repair",
+  "known_main_gdb_control_pauses": 13,
+  "performance": "Preliminary ONE matched boot; adjacent 10s windows average1447771.1948486827 issues/s; SDRAM41c10.219570107% faster",
+  "limits": [
+    "Not three fresh-seed boots or repeated pinned comparisons",
+    "Issue count is not drained retirement",
+    "Optional profile applications continue in original CommandTool; input uses second independent tool",
+    "No Native42 cold-remount persistence or two-hour sustained test",
+    "Native46 DDR network candidate not deployed",
+    "No complete FPGA snapshot"
+  ]
 }
