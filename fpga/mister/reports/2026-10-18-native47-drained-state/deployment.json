@@ -1,0 +1,14 @@
+{
+  "time_utc": "2026-10-18 23:47:39 UTC",
+  "old_main": 876,
+  "staging_main": 1504,
+  "main_pid": 1509,
+  "server_pid": 1506,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "server_sha256": "c59962490772f12d061ec61aa64e6a567144d26d7802a28349a8d9a044eda87e",
+  "rbf_sha256": "3df4a7993da3fb100392d8bb6455f62961638f0a6c27e2ca4eab15da8c4adde6",
+  "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "main_log": "/tmp/dorado47-main.log",
+  "disk_trace": "/tmp/dorado47-disk.jsonl",
+  "phase": "Native47 programmed, waiting for physical DDR grant and cache-ready"
+}

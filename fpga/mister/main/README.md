@@ -22,8 +22,11 @@ Actual-service/guarded-memory and lifecycle tests pass on Mac/Linux and
 MiSTer ARM with Main's dynamic runtime. The pinned candidate Main links as
 SHA256 `21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60`
 in `misterubuntu:/home/alans/mister/Dorado_DDRNetwork_20261018/Main/bin/MiSTer`.
-It has not replaced the running Main. Physical DDR, original-wire integration,
-Cedar boot and delayed-Main packet service remain required before promotion.
+Native46 startup correctly refused an invalid stopped indication. Native47
+passes all-device timing and now runs this Main with a legitimate physical
+DDR grant. Combined production wrapper/wire tests pass; physical packet
+bytes, Cedar boot, active-lease reload and delayed-Main delivery still require
+qualification. See the Native46 startup and Native47 drained-state reports.
 
 ```
 python3 fpga/mister/main/tests/test_ddr_transport.py --main-source /path/to/patched/Main

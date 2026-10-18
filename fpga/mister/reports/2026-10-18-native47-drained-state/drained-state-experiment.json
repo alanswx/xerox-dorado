@@ -1,0 +1,8 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native46_20261018",
+  "change": "Native46 plus stopped decoded from existing drained STOPPED state; remove separate initialized-high flag; no other functional source, clocks, placement or timing-constraint changes",
+  "source_changes": [
+    "fpga/mister/dorado_ethernet_ddr.sv"
+  ],
+  "extra_timing_exceptions": "None"
+}

@@ -394,7 +394,11 @@ Native47 decodes stopped from the existing drained STOPPED FSM state rather
 than a redundant initialized-high flag. Simulation traffic/stop traces stay
 identical; early-stop controls fail. Actual Main regression also refuses the
 exact initial disabled/not-stopped observation. Isolated47 fitter/timing and
-hardware pending; no CPU/storage/clock/constraint changes. Do not claim a
+hardware startup/grant PASS (Main1509/server1506, epochfdfe0a77fc6c87b5).
+All31/36/four-condition timing checks pass, min+0.111ns; actual daemon maps
+exactly1FF00000/64KiB while Main does not. Original firmware boot underway;
+physical payloads/full Cedar/active STOP-reload/stress still pending. No
+CPU/storage/clock/constraint changes. Do not claim a
 proved synthesis cause or physical DDR success before hardware evidence.
 
 ## Objective and constraints

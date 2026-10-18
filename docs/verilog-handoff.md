@@ -20,12 +20,39 @@ User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is stock MENU after full-board recovery,23:34UTC.**
-Stock Main876, SHAadeae62b; old42 Main20496, staging46 Main22443 and
-servers20495/22607 are gone. No control socket remains. Native47 is compiling
-on misterubuntu in `/home/alans/mister/Dorado_Native47_20261018` (parent
-439743; fitter441257 verified live23:35UTC). Local handle23028/build log:
-`build/rtl-executive/native47-build`. Do not restart because a poll expires.
+**Live MiSTer14 is Native47, direct DDR active, original boot underway.**
+Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
+server1506 isc5996249; staging Main1504 exited normally. RBF3df4a799,
+50MHz/SYSPER4, SDRAM/no raw cache and no43/44/45 memory optimizations.
+Original f3bce2a8 seed checked unchanged after the temporary Main exited;
+final Main cache-ready63578624 bytes and real DDR RESUME ACK observed.
+Daemon maps exactly64KiB at physical1FF00000; Main has no mapping there.
+Main-owned command74 reports flags0x16, epochfdfe0a77fc6c87b5, fault/errors0.
+This validates startup/grant and header coherence, not a complete Cedar boot
+or active-lease reload yet. Main remains the sole SPI owner.
+
+Core video/input0 and instruction view1 selected with matching21e6 ELF
+`/tmp/dorado-main-21e6.elf`; one known setup/capability GDB pause. Do not use
+old40e1 addresses. Current symbols: input_poll85580, video_fb_enablead7fc,
+status_set9e98c, disk_barrier67b50 (Thumb call addresses+1).
+C watcher47714 COMPLETED and releasedC after new BFN113; do not restart it.
+Three real CoolBoot pulses89381 completed. Original47 boot passes the initial
+wait and physical-DDR BFN113;23:54UTC capture shows Pilot850 vmInitialized
+(normal startup). No CRC/RX/abort/transport/pack fault observed. Login/idle
+measurement/Guest/desktop are still pending.
+Paths: `Cedar47_20261018`, `_Computer/DoradoRTL_Cedar47_20261018/Cedar47.mgl`;
+Main `/tmp/dorado47-main.log`, disk `/tmp/dorado47-disk.jsonl`.
+Local helpers/handles: `build/rtl-executive/cedar47-launch/`; deployment
+99188 completed. Next observe login, measure idle before Guest,
+then loader/desktop/input. Physical packet payloads remain unqualified.
+
+Native47 full timing PASS:31 summary checks/36 categories/four conditions,
+min+0.111ns, zero illegal/unconstrained clocks;30,480 ALMs (73%),52,639
+registers,330 RAM blocks. No new timing cuts or CPU/storage changes.
+Build23028/collector66320 are COMPLETE; parent439743/fitter441257 retired.
+Do not restart them. Timing/source/build evidence and checked deployment:
+`reports/2026-10-18-native47-drained-state`; actual ARM final-daemon raw-socket
+boot/Cedar/STP/retry/wrap/history/quiet/reexec byte tests also PASS there.
 
 **Native46 hardware startup FAILED safely, no DDR RESUME/mapping.** Normal
 loader programmed46 and changed to immutable Main21e67a3f, staging PID22443.
@@ -55,7 +82,8 @@ serial payload/CRC oracle,2048-byte frames, pauses, pending SPI ownership
 handoff and new-generation restart. Broken mux/ungated wire controls fail.
 This fixture contains no CPU/DskEth board; original board gates stay separate.
 Main regression now explicitly refuses enable=0/epoch=0/not-stopped startup.
-Native47 fitter/all-four-condition timing and hardware remain unqualified.
+Native47 all-device timing and real startup/grant now pass; full boot,
+physical packet bytes, active STOP/reload and stress remain unqualified.
 CPU/storage/clocks/constraints are frozen46; no new cuts. No new Main binary.
 
 **Retired Native42 matched raw-DDR control (preserved).** Loaded22:15:51UTC;
@@ -163,8 +191,8 @@ Dorado Main sources plus exact server protocol headers. Candidate/control
 results: reports/2026-10-18-ddr-network-control. Next qualify original wire+
 engine+UIO mux, physical mapping/coherence, byte-exact boot/STP/full Cedar,
 reset/reload and packet progress during delayed Main work before promotion.
-The sole board is back at MENU after46 failure. Deploy corrected47 only
-after all timing passes; preserve42/46 artifacts and stage fresh original seed.
+The sole board is now on timing-qualified47 with a legitimate physical
+DDR grant. Preserve42/46 artifacts; finish the original47 firmware boot.
 
 **Previous Native41c qualification (stopped, not live):**
 Main16875, server16872. Same RBF a97af936 and e237dffc fixed server, fresh
@@ -1386,7 +1414,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Native46 all-device timing31 summary/36 categories/four conditions min+0.112ns; original41 CPU/storage sources and constraints preserved.
 - [x] Qualify combined production wrapper/UIO/wire/DDR+C endpoint with independent serial payload/CRC and broken mux/pause controls.
 - [x] Capture46 disabled/not-stopped hardware refusal; preserve42/untouched46 seed; real STOP-only handshake and disk drain, then full-board recovery.
-- [ ] Qualify47 drained-state decode all-device timing/hardware; physical mapping/coherence, byte-exact boot/STP, cold Cedar and delayed-Main packet progress remain required.
+- [x] Native47 all-device timing31/36/four conditions min+0.111ns; normal temporary Main exit, real fresh DDR grant, exact daemon mapping/header/epoch and cache-ready pass.
+- [x] Actual final ARM daemon boot/Cedar/STP/quiet/reexec/retry/wrap/history bytes pass on isolated Unix sockets with DDR enabled but ungranted.
+- [ ] Finish47 original-firmware boot and qualify physical packet bytes/full Cedar, active STOP/reload and delayed-Main packet progress.
 - [ ] Adapt frame rings for direct ARM daemon DDR transport, retaining original DskEth/CRC/wire timing and selectable SPI fallback; qualify reset/ownership/stalls/boot before deployment.
 - [ ] Optional external Xerox-network UDP tunnel compatible with IFS/ContrAlto; test Cedar STP separately from Alto interoperability.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.

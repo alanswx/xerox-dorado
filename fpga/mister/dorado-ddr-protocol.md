@@ -5,7 +5,8 @@ mux, daemon control/mapping and Main grant/lifecycle manager are implemented.
 Native46 passes all-device timing; pinned Main and daemon ARM builds pass.
 Actual-service/guarded-memory tests pass on Mac/Linux/ARM, including Main's
 patched lifecycle prologues. **Native46 staging failed its stopped indication; no daemon physical
-mapping occurred. Native47 drained-state correction is compiling.**
+mapping occurred. Native47 correction passes all-device timing and has
+received its real physical DDR grant; original firmware boot is underway.**
 Combined production wrapper/UIO/wire/C-endpoint simulation passes with
 independent serial payload/CRC and broken mux/pause controls. Physical
 coherence, packet bytes and full Cedar boot/delayed-Main delivery remain
