@@ -38,3 +38,32 @@ Cedar loader/desktop performance remains unmeasured. Do not claim a hardware
 speedup from fixture read-count reductions. CPU is stopped for the firmware
 load in both cases. Existing counters measure combined global pauses and
 do not split DDR versus HPS disk duration.
+
+HARDWARE QUALIFICATION FAILED before Viewers (first observed04:36UTC).
+Original firmware/BFN113/login/fast Guest work; real27th retrieve is
+ReadEvalPrintImpl.bcd. First disk fault807c0200/000049cd is reason8(HPS
+transfer timeout), cylinder124/head0/LBA18893. Packet CRC/RXbad remain0.
+The live core is intentionally stopped by this fault; do not promote it.
+
+The old watchdog is133,333,332 host cycles,4s at33.333MHz but only2.6667s
+at50MHz. This is a proved clock-scaling bug; whether this actual failure
+was a slow host or missed ACK was not observed. The old record lacks host
+phase. Main uses synchronous image writes after returning SPI data ACK;
+a later request can wait while a previous file write completes. That is
+a possible mechanism, not a measured cause. Main file descriptor24 shows
+O_SYNC and position9689088; no new kernel SD error was found.
+
+Host remains sole-owner immutable Main1fb2..., no guest repairs or forced
+completion. Whole log snapshot main-at-first-fault.log and active volume
+remain remotely in Cedar32_20261018 for forensics. Saved context includes
+only this session after its last Cedar32.mgl marker (older faults are in
+the inherited Main log). Passive tools/mister_watch_main.py was validated
+against this preserved fault: no SPI or ptrace, observations in RAM.
+
+Matching Imager-phase sample20.0104% enabled versus Native31's16.9255%
+is encouraging, not a controlled whole-machine speed result. Early sample
+18.5936% is another phase. Firmware25.0156% vs26.4617% did not improve.
+Fresh HDMI timing30.000012Hz/74.25003MHz; actual HDMI needed no workaround.
+Native34 is building with frequency-derived4s budget and passive ACK-phase
+first-fault details. All standalone CRC, persistence and watchdog gates pass;
+actual hardware still requires qualification. Native33 lacks that correction.

@@ -201,6 +201,30 @@ Native32 adapter. The full16-bit fixture's simulated host time drops235us
 Native33 is building at50MHz with only this adapter delta; timing/hardware
 qualification pending. Native32 continues its original firmware/Cedar run.
 
+## Host wall-time watchdog: Native34 correction
+
+Native32 stopped at27th retrieve with reason8, cylinder124/head0/LBA18893.
+It had passed firmware/login/Guest and timing; it is not hardware-qualified.
+The host watchdog remained133333332cycles while PLL increased33.333 ->50MHz:
+its4s budget became2.6667s. Host service is wall time; SYSPER/guest time does
+not apply. The actual failing Main latency/ACK phase was not captured, so
+the scaling defect is proved but its role in this particular fault is not.
+
+pack_hps now uses4*HOST_CLOCK_HZ; assembly derives that macro from the same
+validated PLL setting and records matching Hz/4s metadata. Passive host
+fault details retain the ACK phase/SD flags. Scaled-frequency regressions
+accept3s service and fault missing/stuck ACK at4s with sticky phase/LBA;
+the fixed-count failure control faults prematurely at500Hz. Existing CRC/
+persistence/neighbor protection and assembly fixtures pass. No completion
+or ACK is fabricated. Native34 build at50MHz is running; full fresh timing
+and actual Cedar/Viewers/input qualification are required before promotion.
+
+Read-only tools/mister_watch_main.py timestamps Main heartbeats and samples
+late-I/O /proc state into RAM, without SPI/ptrace/guest mutation. It was
+validated on the preserved live fault; run through the next loader to tell
+long host service from an uncompleted handshake. No more speed changes
+until this fault is resolved and an interactive new core is verified.
+
 ## First prototype: implemented, isolated
 
 [`dorado_clock_phases.sv`](../verilog/rtl/dorado_clock_phases.sv) describes

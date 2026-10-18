@@ -1,0 +1,5 @@
+[3007000000000] %Fatal: tb_pack_wallclock.sv:34: Assertion failed in tb_pack_wallclock.c: host budget shrank before3s service at500Hz
+%Error: verilog/verilator/tb_pack_wallclock.sv:34: Verilog $stop
+Aborting...
+
+exit=1

@@ -49,10 +49,10 @@ TOOLS   = ../tools
         ethernet-input-hold-test ethernet-receive-sequence-test \
         memory-density64-test map-density64-test storage-board64-test pack-fault-test \
         key-queue-test clock-phase-audit clock-phases-test t-controls-test speed-monitor-test storage-arb-test \
-        storage-linecache-test storage-linecache-array-test storage-linecache-board-test \
+        storage-linecache-test storage-linecache-array-test storage-linecache-board-test pack-wallclock-test \
         clean-generated
 
-storage-linecache-test storage-linecache-array-test storage-linecache-board-test storage-arb-test speed-monitor-test t-controls-test clock-phases-test clock-phase-audit key-queue-test ethernet-input-hold-test ethernet-receive-sequence-test memory-density64-test map-density64-test storage-board64-test pack-fault-test:
+pack-wallclock-test storage-linecache-test storage-linecache-array-test storage-linecache-board-test storage-arb-test speed-monitor-test t-controls-test clock-phases-test clock-phase-audit key-queue-test ethernet-input-hold-test ethernet-receive-sequence-test memory-density64-test map-density64-test storage-board64-test pack-fault-test:
 	@$(MAKE) -C verilator $@
 
 # PROM contents, sliced per package position from PARC's own BCPL.

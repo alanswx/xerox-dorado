@@ -1274,6 +1274,13 @@ storage-ddram-test:
 		fpga/mister/dorado_storage_ddram.sv verilog/verilator/tb_storage_ddram.sv \
 		>/dev/null && ./verilog/verilator/obj_storage_ddram/storage-ddram-test
 
+.PHONY: pack-wallclock-test
+pack-wallclock-test:
+	@cd ../.. && $(V) --binary --top-module tb_pack_wallclock $(V_WARN) \
+		--Mdir verilog/verilator/obj_pack_wallclock -o wallclock-test \
+		fpga/mister/dorado_pack_hps.sv verilog/verilator/tb_pack_wallclock.sv \
+		>/dev/null && ./verilog/verilator/obj_pack_wallclock/wallclock-test
+
 .PHONY: storage-linecache-test
 storage-linecache-test:
 	@cd ../.. && $(V) --binary --top-module tb_storage_linecache $(V_WARN) \

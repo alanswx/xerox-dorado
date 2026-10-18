@@ -1,14 +1,14 @@
 # Phase 2: what the Sil files give the Verilog, and how to test it
 
-**Active work (2026-10-18): Native32 is loaded at50MHz on MiSTer14.**
-It adds an optional128-line raw DDR buffer to the tested balanced arbiter.
-All29 summary STA checks and global fast/slow setup/hold/recovery/removal/
-pulse-width checks pass, min+0.084ns, no unconstrained clocks or new cuts.
-Original firmware is loading; Cedar/Viewers/input and actual speed benefit
-are pending. First firmware edge sample25.0% enabled versus26.5% uncached
-shows no gain there. Fixture DDR read reductions are not FPGA speedups.
-Native31 passed firmware/login/all loadees/BootEssentials; Native26 previously
-reached Viewers. See the [handoff](verilog-handoff.md) and [clock plan](verilog-clock-plan.md).
+**Active work (2026-10-18): Native32 hardware qualification FAILED.**
+Its50MHz fit passes timing and it reaches Cedar login/real package loading,
+but stops at host timeout reason8/LBA18893 before Viewers. The fixed host
+watchdog shrank4s ->2.67s when PLL rose33.333 ->50MHz. Native34 corrects that
+wall-time scaling and records ACK phase; regressions pass, FPGA build runs.
+The actual timeout's host latency/phase was not measured, so root cause
+remains open. The preserved live fault is on14; no other MiSTer allocated.
+Do not promote Native32/33 as working cores. See the [handoff](verilog-handoff.md)
+and [clock plan](verilog-clock-plan.md) for evidence and next qualification.
 
 ## Clock architecture audit (2026-10-18)
 

@@ -1,0 +1,48 @@
+[
+  {
+    "mhz": "33.333333",
+    "hz": 33333333,
+    "watchdog_clocks": 133333332,
+    "qsf_and_pll_match": true
+  },
+  {
+    "mhz": "40",
+    "hz": 40000000,
+    "watchdog_clocks": 160000000,
+    "qsf_and_pll_match": true
+  },
+  {
+    "mhz": "50",
+    "hz": 50000000,
+    "watchdog_clocks": 200000000,
+    "qsf_and_pll_match": true
+  },
+  {
+    "invalid": "0",
+    "rejected_before_output": true
+  },
+  {
+    "invalid": "-1",
+    "rejected_before_output": true
+  },
+  {
+    "invalid": "nan",
+    "rejected_before_output": true
+  },
+  {
+    "invalid": "inf",
+    "rejected_before_output": true
+  },
+  {
+    "invalid": "oops",
+    "rejected_before_output": true
+  },
+  {
+    "invalid": "0.00000001",
+    "rejected_before_output": true
+  },
+  {
+    "invalid": "500.000001",
+    "rejected_before_output": true
+  }
+]

@@ -1,0 +1,23 @@
+%Warning-TIMESCALEMOD: fpga/mister/dorado_pack_hps.sv:5:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    5 | module dorado_pack_hps #(
+      |        ^~~~~~~~~~~~~~~
+                       verilog/verilator/tb_pack_wallclock.sv:5:8: ... Location of module with timescale
+    5 | module pack_wallclock_case #(parameter integer HZ=333)(output reg done=0);
+      |        ^~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.044
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+PACK-WALLCLOCK PASS: 500Hz;3s host service succeeds,4s assert/release watchdogs, sticky first fault/no fabricated completion
+PACK-WALLCLOCK PASS: 400Hz;3s host service succeeds,4s assert/release watchdogs, sticky first fault/no fabricated completion
+PACK-WALLCLOCK PASS: 333Hz;3s host service succeeds,4s assert/release watchdogs, sticky first fault/no fabricated completion
+- verilog/verilator/tb_pack_wallclock.sv:58: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 11s; walltime 0.005 s; speed 2387.257 s/s
+- Verilator: cpu 0.005 s on 1 threads; alloced 2 MB
+65535 Pilot pages -> 63578624 raw/padded bytes: build/rtl-executive/pilot-pack-fixture.pack
+PILOT-PACK PASS: header 2, label 10, data 256 words; three Fire codes; changed labels/data persisted through HPS; neighboring bytes intact
+PACK-FAULT PASS: damaged Fire code stops, reason4/residue retained, no host write invented
+PACK-TIMEOUT PASS: reason8 and original requested LBA457 retained; no completion fabricated
+- verilog/verilator/tb_pack_timeout_debug.sv:14: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 87ps; walltime 0.000 s; speed 3.955 us/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 2 MB

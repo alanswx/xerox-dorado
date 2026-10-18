@@ -9,7 +9,14 @@ module dorado_pack_hps #(
     parameter [5:0] INITIAL_HEAD = 0,
     parameter integer PRE_WORDS = 32,
     parameter integer GAP_WORDS = 11,
-    parameter integer HOST_TIMEOUT_CLOCKS = 133333332
+`ifdef DORADO_HOST_CLOCK_HZ
+    parameter integer HOST_CLOCK_HZ = `DORADO_HOST_CLOCK_HZ,
+`else
+    parameter integer HOST_CLOCK_HZ = 33333333,
+`endif
+    // This bounds ARM service in WALL time, independent of guest speed or
+    // pauses. build.sh derives HOST_CLOCK_HZ from the very same PLL setting.
+    parameter integer HOST_TIMEOUT_CLOCKS = 4 * HOST_CLOCK_HZ
 ) (
     input wire clk_sys, machine_clk, reset, attached, readonly, remounted,
     input wire [11:0] tagbus_n,
@@ -42,6 +49,11 @@ module dorado_pack_hps #(
   assign fault_extra = serial_fault ? serial_extra : host_extra;
   function automatic [31:0] fault_status(input [3:0] reason);
     fault_status={reason,cyl,head,wr_block,wr_state,wr_bits};
+  endfunction
+  function automatic [31:0] host_fault_status(input [3:0] reason);
+    // Host faults need the ACK phase, not the serial bit count. Preserve
+    // cylinder/head/block/serial-state and keep the requested LBA in extra.
+    host_fault_status={reason,cyl,head,wr_block,wr_state,host_state,sd_rd,sd_wr,sd_ack};
   endfunction
   reg [11:0] cyl = INITIAL_CYL;
   reg [5:0] head = INITIAL_HEAD;
@@ -105,7 +117,7 @@ module dorado_pack_hps #(
       // dirty buffer into the replacement image or silently mark it clean.
       if ((valid && dirty) || host_state != 0) begin
         host_fault <= 1;
-        if (!host_fault) begin host_debug<=fault_status(5);host_extra<=sd_lba;end
+        if (!host_fault) begin host_debug<=host_fault_status(5);host_extra<=sd_lba;end
       end
       valid <= 0; host_state <= 0; sd_rd <= 0; sd_wr <= 0; host_wait <= 0;
     end else begin
@@ -117,12 +129,12 @@ module dorado_pack_hps #(
             ((need_track && head < 5) || (!write_gate && wr_state == 0 && !store))) begin
           if (readonly) begin
             host_fault <= 1;
-            if (!host_fault) begin host_debug<=fault_status(6);host_extra<=cached_lba;end
+            if (!host_fault) begin host_debug<=host_fault_status(6);host_extra<=cached_lba;end
           end else if (wr_state != 0 || store) begin
             // A seek that interrupts a serial block cannot make partial
             // buffer data eligible for writeback.
             host_fault <= 1;
-            if (!host_fault) begin host_debug<=fault_status(7);host_extra<=cached_lba;end
+            if (!host_fault) begin host_debug<=host_fault_status(7);host_extra<=cached_lba;end
           end else begin
             sd_lba <= cached_lba; sd_blk_cnt <= cached_count;
             sd_wr <= 1; host_state <= 1;
@@ -149,7 +161,7 @@ module dorado_pack_hps #(
       // No completion is invented when the host disappears or stalls.
       if (host_state != 0 && host_wait >= HOST_TIMEOUT_CLOCKS-1) begin
         host_fault <= 1; sd_rd <= 0; sd_wr <= 0; host_state <= 0;
-        if (!host_fault) begin host_debug<=fault_status(8);host_extra<=sd_lba;end
+        if (!host_fault) begin host_debug<=host_fault_status(8);host_extra<=sd_lba;end
       end
     end
   end

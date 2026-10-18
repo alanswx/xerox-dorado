@@ -33,6 +33,15 @@ except (InvalidOperation, ValueError):
 print(result)
 PY
 )
+DORADO_SYS_HZ=$(python3 - "$DORADO_SYS_MHZ" <<'PY'
+from decimal import Decimal
+import sys
+value = int(Decimal(sys.argv[1]) * 1000000)
+if not 0 < value <= 500000000:
+    raise SystemExit('DORADO_SYS_MHZ must produce 1..500000000 Hz for the host watchdog')
+print(value)
+PY
+)
 
 [ -d "$TEMPLATE/sys" ] || { echo "no framework at $TEMPLATE/sys"; exit 1; }
 BASE=Template
@@ -68,7 +77,7 @@ fi
 #
 # Patched here rather than in the template so the retune belongs to this repo
 # and survives a template refresh.
-python3 - "$OUT/rtl/pll/pll_0002.v" "$DORADO_SYS_MHZ" <<'PY'
+python3 - "$OUT/rtl/pll/pll_0002.v" "$DORADO_SYS_MHZ" "$DORADO_SYS_HZ" <<'PY'
 from pathlib import Path
 import json, sys
 path = Path(sys.argv[1])
@@ -78,7 +87,8 @@ if source.count(old) != 1:
     raise SystemExit('PLL retune did not apply -- template PLL frequency changed?')
 path.write_text(source.replace(old, f'output_clock_frequency0("{sys.argv[2]} MHz")'))
 (path.parents[2] / 'dorado_clock_config.json').write_text(
-    json.dumps({'sys_mhz': sys.argv[2]}, indent=2) + '\n')
+    json.dumps({'sys_mhz': sys.argv[2], 'sys_hz': int(sys.argv[3]),
+                'hps_timeout_seconds': 4}, indent=2) + '\n')
 PY
 
 # Point the project at our sources. THE TEMPLATE'S FILE LIST IS files.qip, NOT
@@ -98,6 +108,8 @@ rm -f "$OUT/Dorado.qsf.bak"
   echo ""
   echo "# ---- the Dorado, generated from PARC's Sil wire lists ----"
   echo "set_global_assignment -name NUM_PARALLEL_PROCESSORS ${DORADO_QUARTUS_JOBS:-1}"
+  # Physical host watchdog, not a guest clock or a SYSPER-derived timer.
+  echo "set_global_assignment -name VERILOG_MACRO \"DORADO_HOST_CLOCK_HZ=$DORADO_SYS_HZ\""
   # Optional for bring-up iterations: retiming took over twenty minutes on
   # the diagnostic native core. This changes placement optimization only;
   # setup/hold analysis is still required before deploying the result.

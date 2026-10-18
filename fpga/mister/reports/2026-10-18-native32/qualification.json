@@ -11,5 +11,5 @@
   "core_setup_slack_ns": 1.214,
   "hold_review": "No new exceptions; Native31 base constraints retained. Full fast/slow setup/hold/recovery/removal/pulse-width audits pass; fast hold minimum0.084ns.",
   "external_io_limit": "Framework external ports remain unconstrained; detailed report retained.",
-  "hardware": "Ready to load; original firmware/Cedar/input qualification pending."
+  "hardware": "FAILED before Viewers: original firmware/BFN113/login/Guest and27 retrieves pass, then first host-transfer watchdog fault807c0200/000049cd, cylinder124/head0/LBA18893. Fixed133333332-cycle watchdog is2.6667s at50MHz; root host delay/ACK phase unobserved. Do not promote."
 }
