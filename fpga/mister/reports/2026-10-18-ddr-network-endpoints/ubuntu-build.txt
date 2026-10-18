@@ -1,0 +1,5 @@
+DDR RING HOST PASS:16384 oracle attempts;2048-byte payloads, full/empty,32-bit wrap, descriptor epoch/sequence, guards, malformed/stale/ownership faults and stopped-memory access
+94ccc3418eb13e9ff116a1ac2ca6b317cd43b16021e7eb88762256dfaed0b91c  dorado_ddr_ring.h
+bb8267ef9ea5fd8ec89193bd638cb623faca6548fd4834c1da322b660b1fc2df  dorado_ddr_ring.c
+c8e759c3dd9a269f9420cd8a484b08d3b33856966ee0352a72a2c046e917870a  test_ddr_ring.c
+224be194a8cb1c708207f2ef9b8d51675a7252124bd5753a7c392f10cf3d0e90  test-arm

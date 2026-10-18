@@ -1,0 +1,1 @@
+DDR RING HOST PASS:16384 oracle attempts;2048-byte payloads, full/empty,32-bit wrap, descriptor epoch/sequence, guards, malformed/stale/ownership faults and stopped-memory access

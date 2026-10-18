@@ -8,6 +8,14 @@ The process/socket regression passes natively and on MiSTer14's ARM:
 18,728 microcode payload bytes and 7,080 EFTP bytes match their source files;
 dropping the first EFTP packet produces an identical retransmission.
 
+Direct DDR transport is being implemented separately. The bounded C ring
+endpoint and standalone RTL engine pass cross-language stall/full/wrap/reset
+and2048-byte payload tests, including actual ARM endpoint tests. They are
+**not connected to this daemon or deployed**. The existing socket path stays
+the default until Main's acknowledged stop/resume grant and FPGA capability
+checks are integrated and qualified. Protocol and reproduction commands:
+[dorado-ddr-protocol.md](../dorado-ddr-protocol.md).
+
 ```sh
 make -C fpga/mister/server test
 # On Linux with the ARM cross compiler:

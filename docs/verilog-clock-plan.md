@@ -673,6 +673,19 @@ cannot authorize continued writes into another core's memory.
 Keep the current SPI/socket path selectable until equivalence/cold-boot
 qualification. No DDR network implementation is deployed yet.
 
+Milestone4 implementation has begun: `dorado_ethernet_ddr.sv` and the C
+`server/dorado_ddr_ring` endpoint pass cross-language tests against independent
+DDR/registered-wire-buffer oracles. Full2048-byte frames, both full rings,
+zero/count-wrap, random stalls/read latency, mid-frame and pending-read/
+stalled-write stops, stale epochs and malformed indices pass; byte-order/
+epoch/premature-stop failure controls are detected. C also passes on actual
+ARM with full-system ordering/stop barriers. Proposed64KiB window0x1FF00000
+is outside MiSTer14's live System RAM and reviewed framework/raw-storage
+regions. No /dev/mem access, integration, fit or hardware speed claim yet.
+Acknowledged Main/daemon lifecycle and fresh SPI capability/grant checks are
+the next required implementation step before activation. Protocol/evidence:
+fpga/mister/dorado-ddr-protocol.md and reports/2026-10-18-ddr-network-endpoints/.
+
 Two reuse details need explicit handling: Mac's0x30400000 overlaps Dorado's
 current0x30000000..0x30ffffff raw backing; and a2048-byte slot with an inline
 header cannot hold our full2048-byte payload. Reserve a non-overlapping

@@ -1,0 +1,15 @@
+zero: DDR RTL TRAFFIC PASS:128 frames each way, initial=00000000 clocks=514597 reads=18739 writes=20449 held=9735 immediate=1056 full=66097; C library/oracle payloads and32-bit counts
+DDR RTL STOP PASS: outstanding read/stalled write drain, reset/epoch change, no stale-grant restart, explicit new epoch
+DDR RTL FAULT PASS: malformed length/sequence/epoch, impossible indices, no wire commit/ACK
+wrap: DDR RTL TRAFFIC PASS:128 frames each way, initial=fffffff0 clocks=514597 reads=18739 writes=20449 held=9735 immediate=1056 full=66097; C library/oracle payloads and32-bit counts
+DDR RTL STOP PASS: outstanding read/stalled write drain, reset/epoch change, no stale-grant restart, explicit new epoch
+DDR RTL FAULT PASS: malformed length/sequence/epoch, impossible indices, no wire commit/ACK
+bad_tx_byte_order: DDR RTL FAIL: TX content/length/order
+Traceback (most recent call last):
+  File "/Users/alans/dev2/Dorado/fpga/mister/server/test_ddr_ring_rtl.py", line 70, in <module>
+    run(args.output.resolve(), args.mutations)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alans/dev2/Dorado/fpga/mister/server/test_ddr_ring_rtl.py", line 54, in run
+    assert result.returncode and diagnostic in result.stdout, (name, result.returncode, result.stdout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('bad_rx_epoch', 23, 'DDR RTL FAIL: unsolicited/busy wire commit\nDDR RTL TRAFFIC PASS:128 frames each way, initial=fffffff0 clocks=514597 reads=18739 writes=20449 held=9735 immediate=1056 full=66097; C library/oracle payloads and32-bit counts\nDDR RTL STOP PASS: outstanding read/stalled write drain, reset/epoch change, no stale-grant restart, explicit new epoch\n')

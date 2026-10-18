@@ -40,7 +40,14 @@ Main-only FB disable/enable workaround and passive instruction view1 are
 selected through matching40e1 ELF, three known diagnostic GDB pauses.
 Three actual CoolBoot pulses finished; C watcher61319 has observed the new
 BFN113 and released C. Do not restart it. No current pack/CRC/RX/abort fault.
-Login/Guest/profile/Viewers and both cold marker reads remain pending.
+Guest.pa default login accepted with two Returns. All34 loadees/profile No
+and BootEssentials pass. Existing newer font DFs prompt before overwrites;
+accept their visible No defaults with Return. FontMetrics confirmation
+answered; Viewers reached gray raster/style loads at22:03UTC. Both cold
+marker reads remain pending. Four known Main GDB controls: after initial
+FB disable/enable and counter selection, `video_fb_enable(0,0)` restored
+core video/input from Linux. **1 selects Linux,0 selects core**; leave it0.
+Boot C/modifiers were released again with core focus.
 Local helpers: `build/rtl-executive/cedar41d-launch/`.
 
 Snapshot milestone4a has begun: logical-path XML inventory covers4158 native
@@ -48,6 +55,16 @@ instances with RAM pipeline/task-written/readmem coverage tests passing.
 All state candidates are UNCLASSIFIED; wrapper/raw-SDRAM/Main/server scope
 still needs coverage. No online save/load or timing/area claim. Evidence:
 `reports/2026-10-18-snapshot-inventory/`.
+
+Direct DDR endpoints are implemented/tested offline, not connected/deployed.
+`dorado_ethernet_ddr.sv` plus real C ring endpoint passes zero/wrap/full/
+stall/malformed/stale-generation and2048-byte tests, pending-read/stalled-
+write and mid-frame stop; byte-order/epoch/stop failure controls fail. C
+passes Mac/Linux/MiSTer ARM; strict lint passes. Proposed0x1FF00000/64KiB
+aperture is outside observed Linux RAM and other known uses. No /dev/mem
+writes. Next integrate Main/daemon STOP/grants, SPI capability negotiation,
+wrapper/fallback, original wire/server and full timing/hardware gates.
+Protocol/evidence: `fpga/mister/dorado-ddr-protocol.md`, ddr-network-endpoints.
 
 **Previous Native41c qualification (stopped, not live):**
 Main16875, server16872. Same RBF a97af936 and e237dffc fixed server, fresh
@@ -1258,6 +1275,8 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Measure45 actual Cedar after preserving42/43/44 baselines; area79% must be weighed against measured gain and snapshot budget.
 - [x] Add/test nonblocking pinned Main worker enqueue and empty-wake predicate on Linux/ARM; blocking and old-wake controls fail. Prerequisite only, not deployed/integrated disk I/O.
 - [x] Review MacPPC/Sun/NeXT DDR Ethernet host/RTL rings; record source hashes, address overlap and payload-size constraints.
+- [x] Implement bounded C/RTL DDR frame endpoints; real interoperability/oracles, full2048-byte/stall/wrap/malformed/reset/stop and failure controls pass, C also on actual ARM.
+- [ ] Integrate Main/daemon acknowledged STOP/resume and exclusive fresh grants, SPI capability/epoch negotiation, validated device mapping and runtime fallback before activating DDR.
 - [ ] Adapt frame rings for direct ARM daemon DDR transport, retaining original DskEth/CRC/wire timing and selectable SPI fallback; qualify reset/ownership/stalls/boot before deployment.
 - [ ] Optional external Xerox-network UDP tunnel compatible with IFS/ContrAlto; test Cedar STP separately from Alto interoperability.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.

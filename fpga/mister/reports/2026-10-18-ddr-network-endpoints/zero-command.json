@@ -1,0 +1,22 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "dorado_ethernet_ddr",
+  "-Wno-fatal",
+  "-Wno-PROCASSINIT",
+  "-GPOLL_CYCLES=4",
+  "-GINITIAL_COUNT=0",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ddr-network/qualification-complete/zero/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ddr-network/qualification-complete/zero/dorado_ethernet_ddr.sv",
+  "/Users/alans/dev2/Dorado/fpga/mister/server/test_ddr_ring_rtl.cpp",
+  "-CFLAGS",
+  "-std=c++17 -I/Users/alans/dev2/Dorado/fpga/mister/server -DDDR_INITIAL_COUNT=0u",
+  "-LDFLAGS",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ddr-network/qualification-complete/host.o"
+]
