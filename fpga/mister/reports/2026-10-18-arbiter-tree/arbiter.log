@@ -1,0 +1,20 @@
+STORAGE-ARB PASS groups=1 masks=4 transactions=3 request_stalls=6 response_stalls=9
+- verilog/verilator/tb_storage_arb.sv:120: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 77ns; walltime 0.000 s; speed 2.962 ms/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 2 MB
+STORAGE-ARB PASS groups=3 masks=48 transactions=60 request_stalls=150 response_stalls=180
+- verilog/verilator/tb_storage_arb.sv:120: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 1us; walltime 0.000 s; speed 7.010 ms/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 2 MB
+STORAGE-ARB PASS groups=7 masks=1792 transactions=4032 request_stalls=10080 response_stalls=12096
+- verilog/verilator/tb_storage_arb.sv:120: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 84us; walltime 0.010 s; speed 8.432 ms/s
+- Verilator: cpu 0.010 s on 1 threads; alloced 2 MB
+STORAGE-ARB PASS groups=128 masks=256 transactions=8371 request_stalls=20926 response_stalls=25113
+- verilog/verilator/tb_storage_arb.sv:120: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 160us; walltime 0.081 s; speed 1.973 ms/s
+- Verilator: cpu 0.081 s on 1 threads; alloced 2 MB

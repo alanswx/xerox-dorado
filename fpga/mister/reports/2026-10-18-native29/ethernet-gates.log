@@ -1,0 +1,27 @@
+ETHERNET-WIRE PASS: serial framing, fractional clock, CRC rejection, full-size packets, host backpressure, paused machine
+- verilog/verilator/tb_ethernet_wire.sv:102: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 2ms; walltime 0.392 s; speed 8.347 ms/s
+- Verilator: cpu 0.197 s on 1 threads; alloced 2 MB
+CONTROL RxOn=1 BOP=0 curr=1 prev=1
+WARMUP end BOP=1 full=1 data=0000
+PRE SECOND BOP=1 full=0
+INPUT n=0 data=2201 EOP=0 BOP=1 full=1
+INPUT n=1 data=0200 EOP=0 BOP=1 full=1
+INPUT n=2 data=001a EOP=0 BOP=1 full=1
+INPUT n=3 data=0081 EOP=0 BOP=1 full=1
+INPUT n=4 data=0000 EOP=0 BOP=1 full=1
+INPUT n=5 data=0000 EOP=0 BOP=1 full=1
+INPUT n=6 data=0122 EOP=0 BOP=1 full=1
+INPUT n=7 data=0000 EOP=0 BOP=1 full=1
+INPUT n=8 data=0002 EOP=0 BOP=1 full=1
+INPUT n=9 data=0101 EOP=0 BOP=1 full=1
+INPUT n=10 data=0000 EOP=0 BOP=1 full=1
+INPUT n=11 data=0002 EOP=0 BOP=1 full=1
+INPUT n=12 data=3b50 EOP=0 BOP=1 full=1
+INPUT n=13 data=0000 EOP=1 BOP=1 full=1
+ETHERNET RECEIVE SEQUENCE PASS
+- verilog/verilator/tb_ethernet_receive_sequence.sv:75: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 96us; walltime 0.026 s; speed 3.823 ms/s
+- Verilator: cpu 0.025 s on 1 threads; alloced 2 MB

@@ -41,7 +41,8 @@ Stage2's ProcL/ProcH T controls are now translated and tested in isolation;
 the capture-enable sources and full T data/latch path remain to be derived.
 Their clock gates and data setup must be derived together. In parallel,
 Native29 tests a conservative40MHz PLL with the existing SYSPER4 transform:
-a20% instruction-ceiling increase, pending a fresh fit/timing/hardware gate.
+a20% instruction-ceiling increase. Its fit/timing and actual firmware/login
+now pass; Viewers/input qualification continues.
 This is an incremental speed step, not the full-speed clock redesign. The
 existing Executive executable/checkpoint are protected; use separate object
 directories and never `+frame` against the golden artifact.
@@ -78,12 +79,13 @@ CPU/board/DRAM logic and SYSPER4 are retained. Native28's host key queue
 and passive fault diagnostics are included. Ceiling5.0M instructions/s,
 before storage pauses, versus4.167M on Native26.
 
-The existing Fmax measurement motivates this candidate; it does not qualify
-the new placement. Review all actual clocks/setup/hold/recovery/removal and
-unconstrained/illegal clocks, and re-derive any exact own-RAM-address hold
-exceptions from the new endpoints before programming. Then cold boot from
-the corrected immutable disk seed, exercise keyboard/mouse, and measure
-actual progress/pauses separately from the nominal instruction ceiling.
+The new placement passes29 checks, minimum+0.019ns, core setup+1.499ns,
+zero illegal/unconstrained clocks. Exact MemD h15 and MemC j07 own F10145A
+write-address bit1 holds were reviewed (each1source/4sinks), preserving
+setup/data/enables/reads. Fmax42.55MHz. Original firmware/BFN113 and Cedar
+login work on MiSTer14; fast Guest input is accepted, real Basic.Loadees
+retrieval underway. Viewers and full interaction remain pending. The fitted
+RBF is `a963f81c353b240a5528bdffb1b1d6c43df3dd0e8aa37afed38e142292337acf`.
 
 `DORADO_SYS_MHZ=40 sh fpga/mister/build.sh ...` now selects that PLL
 frequency; the default remains33.333333. The assembler records the chosen
@@ -110,6 +112,33 @@ They count fabric edges, not instructions. See the
 wrap handling. A read-only Native26 desktop scaler-header baseline changes
 1.70 times/s over10s, but that is source-raster cadence for that workload,
 not a CPU or HDMI frequency measurement. Do not infer retired MIPS from it.
+
+## Measured arbitration bottleneck: Native31 experiment
+
+Native29's new limiting path takes22.666ns from an MSA address, through
+readiness and the128-way arbitration/payload selection, into address_latched
+(25ns relationship,1.499ns slack). The old scan rotates a variable-index
+request lookup, selects an owner, then performs a second large payload mux.
+
+The replacement in `dorado_storage_arb.sv` uses a balanced tree carrying
+the selected owner/address/data/write together. At each node, requests at
+or above next_group take precedence; within each class the lower index
+wins. This preserves the exact cyclic order and the original outstanding-
+request FSM, including reset, read-before-write and response backpressure.
+
+Independent cyclic-scan scoreboard: all masks/pointers at1/3/7 groups, plus
+all128 pointers with random masks (8,371 transactions). Payload stability
+through request/response stalls passes. Three-group array/reset and complete
+MSA14/16-bit geometry comparisons pass, including all2,359,296/9,437,184
+stored bits and outputs. Quartus17 required explicit generate/genvar syntax;
+the corrected source synthesizes. No speed gain is inferred from RTL alone.
+
+Frozen Native31 at `misterubuntu:/home/alans/mister/Dorado_Native31_20261018`
+combines this tree with Native30's diagnostics and a50MHz PLL target. That
+would raise the instruction ceiling to6.25M/s if it closes timing. It is an
+experiment, not a qualified frequency or deployment. Review complete STA
+and boot on hardware before promotion. The original clock-family migration
+and unused DDR return lanes remain additional work.
 
 ## First prototype: implemented, isolated
 

@@ -1,0 +1,18 @@
+{
+  "elapsed_seconds": 10.005152439000085,
+  "header_changes": 17,
+  "header_changes_per_second": 1.6991245364472407,
+  "first": "0101010000510430035e0d0005460438",
+  "last": "0101010000f30430035e0d0005460438",
+  "markers": {
+    "0x40": 474,
+    "0xe2": 93,
+    "0x0": 382,
+    "0xa2": 77,
+    "0xc0": 383,
+    "0x62": 77,
+    "0x80": 383,
+    "0x22": 76
+  },
+  "interpretation": "Read-only scaler source-field/header cadence for this workload, not retired CPU instructions or HDMI output rate."
+}

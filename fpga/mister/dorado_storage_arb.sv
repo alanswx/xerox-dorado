@@ -29,15 +29,44 @@ module dorado_storage_arb #(
     reg [GROUP_ADDR_BITS-1:0] address_latched=0;
     reg [15:0] data_latched=0;
     reg write_latched=0;
-    reg found;
-    integer chosen,candidate;
-    always @* begin
-        found=0;chosen=0;candidate=0;
-        for(integer i=0;i<GROUPS;i++)begin
-            candidate=next_group+i;
-            if(candidate>=GROUPS)candidate=candidate-GROUPS;
-            if(!found && req_valid[candidate])begin found=1;chosen=candidate;end
+    // Prefer the first request at/above next_group, wrapping to the lowest
+    // requester if necessary. Carry its payload through the SAME balanced
+    // tree. The old variable-index scan selected an owner, then ran a second
+    // large address/data mux; Native29's measured path into address_latched
+    // is22.7ns. This changes neither arbitration order nor handshake cycles.
+    localparam LEAVES=1<<ID_BITS;
+    localparam PAYLOAD=ID_BITS+GROUP_ADDR_BITS+17;
+    wire [2*LEAVES-1:1] present,preferred;
+    wire [PAYLOAD-1:0] payload [1:2*LEAVES-1];
+    genvar leaf,node;
+    generate for(leaf=0;leaf<LEAVES;leaf=leaf+1)begin:choice_leaf
+        if(leaf<GROUPS)begin:populated
+            assign present[LEAVES+leaf]=req_valid[leaf];
+            if(leaf==LEAVES-1)begin:last_index
+                assign preferred[LEAVES+leaf]=req_valid[leaf];
+            end else begin:compare_index
+                assign preferred[LEAVES+leaf]=req_valid[leaf] && ID_BITS'(leaf)>=next_group;
+            end
+            assign payload[LEAVES+leaf]={ID_BITS'(leaf),
+                req_addr[leaf*GROUP_ADDR_BITS+:GROUP_ADDR_BITS],req_data[leaf*16+:16],req_write[leaf]};
+        end else begin:padding
+            assign present[LEAVES+leaf]=1'b0;
+            assign preferred[LEAVES+leaf]=1'b0;
+            assign payload[LEAVES+leaf]='0;
         end
+    end
+    for(node=1;node<LEAVES;node=node+1)begin:choice_node
+        wire choose_left=preferred[2*node] || (!preferred[2*node+1] && present[2*node]);
+        assign present[node]=present[2*node] || present[2*node+1];
+        assign preferred[node]=preferred[2*node] || preferred[2*node+1];
+        assign payload[node]=choose_left ? payload[2*node] : payload[2*node+1];
+    end endgenerate
+    wire [ID_BITS-1:0] chosen_owner;
+    wire [GROUP_ADDR_BITS-1:0] chosen_address;
+    wire [15:0] chosen_data;
+    wire chosen_write;
+    assign {chosen_owner,chosen_address,chosen_data,chosen_write}=payload[1];
+    always @* begin
         req_ready=0;rsp_valid=0;
         if(!reset && state==REQUEST)req_ready[owner]=raw_req_ready;
         if(!reset && state==RESPONSE)rsp_valid[owner]=raw_rsp_valid;
@@ -54,10 +83,10 @@ module dorado_storage_arb #(
     always @(posedge clk)begin
         if(reset)begin state<=IDLE;next_group<=0;end
         else case(state)
-        IDLE: if(found)begin
-            owner<=ID_BITS'(chosen);
-            address_latched<=req_addr[chosen*GROUP_ADDR_BITS+:GROUP_ADDR_BITS];
-            data_latched<=req_data[chosen*16+:16];write_latched<=req_write[chosen];
+        IDLE: if(present[1])begin
+            owner<=chosen_owner;
+            address_latched<=chosen_address;
+            data_latched<=chosen_data;write_latched<=chosen_write;
             state<=REQUEST;
         end
         REQUEST: if(raw_req_ready)state<=RESPONSE;

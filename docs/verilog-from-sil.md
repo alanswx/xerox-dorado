@@ -1,12 +1,13 @@
 # Phase 2: what the Sil files give the Verilog, and how to test it
 
-**Active work (2026-10-18): Cedar Viewers is live on MiSTer14.**
-Ready, two CommandTools, WatchTool, EditTool, BootTool and Clock paint;
-mouse motion/clicks and command execution work. Scripted keyboard tests
-interleaved with the user's typing, so exact Echo FPGA/lossless input are
-not established by those runs. Native28's host key-event buffer passes its
-stopped-clock regression and has finished fitting; timing review remains
-before deployment. Native26 remains running. See the [handoff and TODOs](verilog-handoff.md).
+**Active work (2026-10-18): Native29 runs at40MHz on MiSTer14.**
+Fresh original firmware/BFN113, Cedar login and fast buffered Guest input
+work; Basic.Loadees retrieval is underway. Timing29 checks pass, minimum
++0.019ns, no illegal/unconstrained clocks. Native26's previous Viewers
+desktop is the reference; the user released that session for faster builds.
+Native30 adds passive clock counts; Native31 tests a balanced storage arbiter
+at50MHz. Neither later candidate is timing/hardware qualified. See the
+[handoff and TODOs](verilog-handoff.md) and [clock plan](verilog-clock-plan.md).
 
 ## Clock architecture audit (2026-10-18)
 

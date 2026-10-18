@@ -1,0 +1,13 @@
+{
+  "timing_checks": 29,
+  "minimum_slack_ns": 0.019,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "rbf_sha256": "a963f81c353b240a5528bdffb1b1d6c43df3dd0e8aa37afed38e142292337acf",
+  "core_frequency_mhz": 40,
+  "sysper": 4,
+  "core_setup_slack_ns": 1.499,
+  "hold_review": "MemD h15 and MemC j07 own F10145A address bit1 to own4 write-address sinks only; mutually exclusive capture/commit, exact collection cardinalities asserted. Setup/data/enables/read remain checked.",
+  "external_io_limit": "Framework retains unconstrained external input/output ports; see report. No unconstrained clocks.",
+  "hardware": "MiSTer14: original firmware/BFN113, Cedar login, quickly buffered Guest input and real loader/STP transfers pass. Viewers/Echo/mouse pending. Main12701; server20653."
+}

@@ -1,0 +1,4 @@
+Holding C until Initial sends BFN113, then releasing immediately
+Request watcher ready
+New Cedar request: TX n=13: 000042 001000 000026 000264 000001 000113 000000 000000 000004 000042 000001 000001 177777
+C released

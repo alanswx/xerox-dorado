@@ -2,22 +2,32 @@
 
 ## Current objective (2026-10-18 UTC)
 
-**Native26 has booted Cedar to Viewers on MiSTer14.** Ready, two CommandTools,
-WatchTool, EditTool, BootTool and Clock are visible. Real mouse motion and
-clicks work; a second CommandTool opens through Cmd and displays a live `%`.
-Keyboard commands execute. Requested `Echo FPGA` produced `echo FPA`/`FPA`
-at0.8s pacing and `Echo GA`/`GA` at2s pacing, but the user was concurrently
-typing `openr tiogadoc`. Subsequent field-paced typing visibly interleaved
-with that command. These are not isolated input-reliability tests.
-The initial commentary claiming exact FPGA output was premature and corrected.
-**Exact scripted Echo FPGA/reliability remain unqualified; user says typing works.** Native28 buffers host
-keyboard events across stopped machine clocks; regression passes, fit completed
-(map/fit/asm/STA/audit); exact new hold/setup review and hardware qualification
-remain pending.
-**User has released MiSTer14 for reloads/faster builds.** Preserving the
-current desktop is no longer a requirement. Native29 is fitting with40MHz
-PLL/SYSPER4 (20% higher ceiling); review the new placement's timing before
-loading. Scripted input is currently stopped.
+**Native29 is running on MiSTer14 at40MHz/SYSPER4.** It passes29 timing
+checks (minimum+0.019ns, core setup+1.499ns), with zero illegal/unconstrained
+clocks. RBF `a963f81c353b240a5528bdffb1b1d6c43df3dd0e8aa37afed38e142292337acf`.
+Its ceiling is5.0M instructions/s versus4.167M at33.333MHz, before pauses;
+this is not a measured retired-instruction rate or the full-speed redesign.
+
+The original firmware sent BFN113 around03:19 UTC. Actual HDMI shows Cedar
+login; quickly typed `Guest\n\n` at0.1s transitions was preserved by the new
+host key queue. The screen shows `Guest.pa` and Grapevine-down fallback;
+the guest is retrieving Basic.Loadees from Cedar6.1/Top. Real CPU/disk and
+serial Ethernet, no guest-state import or host I/O completion. CRC/rx_bad/
+pack_fault remain0. Viewers/new CommandTool/Echo/mouse are still pending for
+this version. Screens and timing evidence: reports/2026-10-18-native29/.
+
+Current Main12701 (same immutable1fb2...), server20653 (same immutable1d5...).
+Launcher `_Computer/DoradoRTL_Cedar29_20261018/Cedar29.mgl`; fresh corrected
+seed copied to `games/DoradoRTL/Cedar29_20261018/cedar-work.pack`. Main log
+is now `Cedar29_20261018/main.log` (includes earlier sessions before its last
+load marker); fresh server log is `Cedar29_20261018/server.log`. Reboot config
+is in that directory. Per-core INI requests1080p30/74.25MHz; HDMI captures
+are1920x1080 with readable native text. Fresh physical clock read pending.
+**The user explicitly permits replacing the current core/session.**
+
+Reference: Native26 previously reached Viewers, two CommandTools, working
+mouse and command execution. Its scripted Echo tests interleaved with user
+OpenR typing; exact Echo/reliability was never qualified by those runs.
 
 **Clock implementation has started.** The staged plan is
 [verilog-clock-plan.md](verilog-clock-plan.md). An isolated direct phase/enable
@@ -40,13 +50,16 @@ counts and coherent command70 debug snapshots. Counter/gated-clock tests and
 mid-transaction-change test. No Main/protocol change; `Debug monitor=Clock
 counts` selects enabled edges in machine= and host edges in cpu=. Counts
 are modulo2^32, NOT retired instructions. Native29 remains frozen without
-these diagnostics. Both builds still need fresh timing/hardware review.
+these diagnostics. Native30's map passes and fit is running; it is not
+timing/hardware qualified.
 
-Same original firmware/BFN113/Guest boot, Main12701/server12696, Native26
-RBF586dc7f8...,8MB RAM/64K Map. HDMI recovered at verified1080p30/74.25MHz.
-First CommandTool is running the profile's large optional demo-install script;
-second tool is for interaction. Current pack_fault0. No C state import or
-host completion of guest disk I/O.
+The new Native29 critical path is readiness -> arbitration/payload mux ->
+address_latched (22.666ns data,25ns relationship,1.499ns slack); Fmax42.55MHz.
+Balanced selection/payload-tree rewrite passes cyclic-scan order and full
+storage equivalence (all9,437,184 bits), without changing handshake cycles.
+Native31 combines it with Native30 diagnostics at an EXPERIMENTAL50MHz
+target. Quartus17 needed explicit generate/genvar syntax; initial map error
+is preserved, corrected map passes. Fit/timing/hardware remain pending.
 
 ## Boot history (current status above takes precedence)
 
@@ -565,12 +578,16 @@ and has unreviewed hold violations; never deploy it.
 - [x] Verify real mouse motion (+100,+80 in native raster), Cmd-button click and new CommandTool focus.
 - [ ] Exclusive scripted keyboard qualification: prior tests interleaved with user OpenR typing. Input round trip works; exact Echo FPGA unqualified.
 - [x] Add stopped-clock key-event queue regression, direct-old-path loss control, chord/hold/repeat/overflow gates.
-- [ ] Fit/review Native28 buffer candidate; then hardware qualification. Native26 desktop retained.
+- [x] Fit/review buffer successor Native29 at40MHz; hardware firmware/Cedar login and fast buffered Guest input pass.
+- [ ] Complete Native29 Viewers/CommandTool/Echo/mouse qualification; reference Native26 desktop was replaced with user authorization.
 - [x] Characterize clock baseline: original-ROM4 passes,2 fails startup; independent divider audit and Native26 Fmax41.08MHz saved.
 - [x] Write staged clock implementation plan and test an isolated direct phase/enable source against the original divider, pre-edge pipeline capture and all-phase freeze/resume.
 - [x] Extract/check original T-control wiring and translate/test independent control-bank capture interfaces (8192 cases, strict lint).
 - [ ] Derive ProcL/ProcH T capture enables and complete data/latch/task-file cone; gate SendMIR/Boot0/compute/original-ROM startup. See docs/verilog-clock-plan.md.
-- [ ] Review Native29 40MHz fit/STA/clock/hold endpoints, then cold boot/input on MiSTer14. User permits replacing current session; no speedup deployed yet.
+- [x] Review Native29 40MHz fit/STA/clock/hold endpoints; cold firmware/BFN113/login and fast Guest input pass on MiSTer14.
+- [x] Add coherent fabric-edge counters and dynamic UIO snapshot regression (old-code failure control); Native30 map passes, fit pending.
+- [x] Replace variable-index arbitration scan/payload mux with a balanced tree; independent order/payload/stall and full MSA equivalence gates pass.
+- [ ] Review Native30 timing and measure actual enabled fraction. Review Native31's experimental50MHz target; never promote on fit success alone.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.
 - [ ] Commit/push confirmed fixes and evidence; preserve Executive/mouse/disk
   regressions. Space Invaders compatibility remains a separate open item.

@@ -1282,6 +1282,16 @@ storage-group-test:
 		verilog/verilator/tb_storage_group.sv \
 		>/dev/null && ./verilog/verilator/obj_storage_group/storage-group-test
 
+.PHONY: storage-arb-test
+storage-arb-test:
+	@for groups in 1 3 7 128; do \
+		cd ../.. && $(V) --binary --top-module tb_storage_arb $(V_WARN) -Wno-TIMESCALEMOD \
+		-GGROUPS=$$groups --Mdir verilog/verilator/obj_storage_arb_$$groups -o arb-test \
+		fpga/mister/dorado_storage_arb.sv verilog/verilator/tb_storage_arb.sv >/dev/null && \
+		./verilog/verilator/obj_storage_arb_$$groups/arb-test || exit $$?; \
+		cd verilog/verilator; \
+	done
+
 .PHONY: storage-array-test
 storage-array-test:
 	@cd ../.. && $(V) --binary --top-module tb_storage_array $(V_WARN) \
