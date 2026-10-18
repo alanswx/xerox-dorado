@@ -1290,7 +1290,7 @@ storage-linecache-test:
 
 .PHONY: storage-group-test
 storage-group-test:
-	@cd ../.. && $(V) --binary --top-module tb_storage_group $(V_WARN) \
+	@cd ../.. && $(V) --binary --top-module tb_storage_group -GDEFER_READS=$(STORAGE_DEFER_READS) -GADDR_BITS=$(STORAGE_GROUP_ADDR_BITS) $(V_WARN) \
 		--Mdir verilog/verilator/obj_storage_group -o storage-group-test \
 		fpga/mister/dorado_storage_group.sv verilog/cells/cell_MK4096P_6.v \
 		verilog/verilator/tb_storage_group.sv \
@@ -1325,9 +1325,12 @@ storage-arb-throughput-test:
 
 STORAGE_PREFETCH_NEXT ?= 0
 STORAGE_INTERLEAVE_GROUPS ?= 0
+STORAGE_DEFER_READS ?= 0
+STORAGE_GROUP_ADDR_BITS ?= 14
+STORAGE_DEFER_ARG = $(if $(filter 1,$(STORAGE_DEFER_READS)),--defer-reads,)
 .PHONY: storage-array-test
 storage-array-test:
-	@cd ../.. && $(V) --binary --top-module tb_storage_array -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) -GINTERLEAVE_GROUPS=$(STORAGE_INTERLEAVE_GROUPS) $(V_WARN) \
+	@cd ../.. && $(V) --binary --top-module tb_storage_array -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) -GINTERLEAVE_GROUPS=$(STORAGE_INTERLEAVE_GROUPS) -GDEFER_READS=$(STORAGE_DEFER_READS) $(V_WARN) \
 		--Mdir verilog/verilator/obj_storage_array -o storage-array-test \
 		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
 		fpga/mister/dorado_storage_arb.sv verilog/cells/cell_MK4096P_6.v \
@@ -1336,7 +1339,7 @@ storage-array-test:
 
 .PHONY: storage-board-test
 storage-linecache-array-test:
-	@cd ../.. && $(V) --binary --top-module tb_storage_array -GLINE_CACHE_BITS=7 -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) -GINTERLEAVE_GROUPS=$(STORAGE_INTERLEAVE_GROUPS) $(V_WARN) \
+	@cd ../.. && $(V) --binary --top-module tb_storage_array -GLINE_CACHE_BITS=7 -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) -GINTERLEAVE_GROUPS=$(STORAGE_INTERLEAVE_GROUPS) -GDEFER_READS=$(STORAGE_DEFER_READS) $(V_WARN) \
 		--Mdir verilog/verilator/obj_storage_linecache_array -o array-test \
 		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
 		fpga/mister/dorado_storage_arb.sv verilog/cells/cell_MK4096P_6.v \
@@ -1346,10 +1349,10 @@ storage-linecache-array-test:
 .PHONY: storage-linecache-array-test storage-linecache-board-test
 storage-linecache-board-test:
 	@for bits in 14 16; do \
-		cd ../.. && python3 tools/sil_storage_ddram.py --chip-address-bits $$bits \
+		cd ../.. && python3 tools/sil_storage_ddram.py $(STORAGE_DEFER_ARG) --chip-address-bits $$bits \
 		-o verilog/verilator/obj_storage_linecache_board$$bits/msa_ddram.v \
 		--reference-output verilog/verilator/obj_storage_linecache_board$$bits/msa.v && \
-		$(V) --binary --top-module tb_storage_board -GADDR_BITS=$$bits -GLINE_CACHE_BITS=7 -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) -GINTERLEAVE_GROUPS=$(STORAGE_INTERLEAVE_GROUPS) $(V_WARN) \
+		$(V) --binary --top-module tb_storage_board -GADDR_BITS=$$bits -GLINE_CACHE_BITS=7 -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) -GINTERLEAVE_GROUPS=$(STORAGE_INTERLEAVE_GROUPS) -GDEFER_READS=$(STORAGE_DEFER_READS) $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_storage_linecache_board$$bits -o board-test \
 		verilog/verilator/obj_storage_linecache_board$$bits/msa_ddram.v \
 		verilog/verilator/obj_storage_linecache_board$$bits/msa.v \
@@ -1360,9 +1363,9 @@ storage-linecache-board-test:
 	done
 
 storage-board-test:
-	@cd ../.. && python3 tools/sil_storage_ddram.py \
+	@cd ../.. && python3 tools/sil_storage_ddram.py $(STORAGE_DEFER_ARG) \
 		-o verilog/verilator/obj_storage_board/msa_ddram.v && \
-		$(V) --binary --top-module tb_storage_board -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) -GINTERLEAVE_GROUPS=$(STORAGE_INTERLEAVE_GROUPS) $(V_WARN) \
+		$(V) --binary --top-module tb_storage_board -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) -GINTERLEAVE_GROUPS=$(STORAGE_INTERLEAVE_GROUPS) -GDEFER_READS=$(STORAGE_DEFER_READS) $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_storage_board -o storage-board-test \
 		verilog/verilator/obj_storage_board/msa_ddram.v verilog/generated/msa.v \
 		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
@@ -1387,10 +1390,10 @@ map-density64-test:
 	@cd ../.. && ./verilog/verilator/obj_map_density64/map-test
 
 storage-board64-test:
-	@cd ../.. && python3 tools/sil_storage_ddram.py --chip-address-bits 16 \
+	@cd ../.. && python3 tools/sil_storage_ddram.py $(STORAGE_DEFER_ARG) --chip-address-bits 16 \
 		-o verilog/verilator/obj_storage_board64/msa_ddram.v \
 		--reference-output verilog/verilator/obj_storage_board64/msa.v
-	@cd ../.. && $(V) --binary --top-module tb_storage_board -GADDR_BITS=16 -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) -GINTERLEAVE_GROUPS=$(STORAGE_INTERLEAVE_GROUPS) $(V_WARN) \
+	@cd ../.. && $(V) --binary --top-module tb_storage_board -GADDR_BITS=16 -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) -GINTERLEAVE_GROUPS=$(STORAGE_INTERLEAVE_GROUPS) -GDEFER_READS=$(STORAGE_DEFER_READS) $(V_WARN) \
 		-Iverilog/cells --Mdir verilog/verilator/obj_storage_board64 -o storage-board-test \
 		verilog/verilator/obj_storage_board64/msa_ddram.v verilog/verilator/obj_storage_board64/msa.v \
 		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
@@ -1776,10 +1779,10 @@ instruction-progress-test: instruction-progress-build
 	done
 
 storage-sdram-board-test:
-	@cd ../.. && python3 tools/sil_storage_ddram.py --chip-address-bits 16 \
+	@cd ../.. && python3 tools/sil_storage_ddram.py $(STORAGE_DEFER_ARG) --chip-address-bits 16 \
 		-o verilog/verilator/obj_storage_sdram_board/msa_ddram.v \
 		--reference-output verilog/verilator/obj_storage_sdram_board/msa.v
-	@cd ../.. && $(V) --binary --top-module tb_storage_board -GADDR_BITS=16 -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) -GINTERLEAVE_GROUPS=$(STORAGE_INTERLEAVE_GROUPS) $(V_WARN) \
+	@cd ../.. && $(V) --binary --top-module tb_storage_board -GADDR_BITS=16 -GPREFETCH_NEXT=$(STORAGE_PREFETCH_NEXT) -GINTERLEAVE_GROUPS=$(STORAGE_INTERLEAVE_GROUPS) -GDEFER_READS=$(STORAGE_DEFER_READS) $(V_WARN) \
 		-DSTORAGE_USE_SDRAM -Wno-TIMESCALEMOD -Wno-WIDTHTRUNC -Wno-WIDTHEXPAND -Wno-REALCVT \
 		-Iverilog/cells --Mdir verilog/verilator/obj_storage_sdram_board -o board-test \
 		verilog/verilator/obj_storage_sdram_board/msa_ddram.v \

@@ -96,6 +96,8 @@ def main():
                         help='select a pending raw request on response completion (experimental)')
     parser.add_argument('--storage-interleave', action='store_true',
                         help='interleave raw chip groups in backing rows/lines (experimental)')
+    parser.add_argument('--storage-defer-reads', action='store_true',
+                        help='defer unobserved internal DRAM reads, preserving output pipeline (experimental)')
     parser.add_argument('--receive-monitor', action='store_true', help='passive DskEth receive-status observation')
     parser.add_argument('--instruction-monitor', action='store_true',
                         help='expose passive original ContA instruction-progress signals')
@@ -139,6 +141,8 @@ def main():
     if args.instruction_monitor:
         commands[0].append('--instruction-monitor')
         commands[2].append('--instruction-monitor')
+    if args.storage_defer_reads:
+        commands[4].append('--defer-reads')
     if chip_address_bits != 14:
         commands[0] += ['--storage-address-bits', str(chip_address_bits)]
         commands[4] += ['--chip-address-bits', str(chip_address_bits)]
@@ -391,6 +395,8 @@ endmodule
     if args.storage_interleave:
         manifest['storage_interleave'] = True
         manifest['raw_layout'] = 'group-interleaved-v1'
+    if args.storage_defer_reads:
+        manifest['storage_defer_reads'] = True
     if args.instruction_monitor:
         manifest['instruction_monitor'] = True
     if args.storage_backend == 'sdram':

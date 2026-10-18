@@ -1,7 +1,7 @@
 // Three groups exercise non-power-of-two arbitration and DDR byte lanes.
 // Every logical output and final stored bit is compared to the old chips.
 `timescale 1ns/1ps
-module tb_storage_array #(parameter integer LINE_CACHE_BITS=0,PREFETCH_NEXT=0,INTERLEAVE_GROUPS=0);
+module tb_storage_array #(parameter integer LINE_CACHE_BITS=0,PREFETCH_NEXT=0,INTERLEAVE_GROUPS=0,DEFER_READS=0);
     localparam G=3,W=12,A=6;
     reg clk=0;always #1 clk=~clk;
     reg run=0,reset=0;
@@ -20,7 +20,7 @@ module tb_storage_array #(parameter integer LINE_CACHE_BITS=0,PREFETCH_NEXT=0,IN
     wire dr,dw;
     wire [7:0] be,burst;
     wire [63:0] ddata;
-    reg busy=1,dvalid=0,read_pending=0;
+    reg busy=1,dvalid=0,read_pending=0,hold_response=0;
     reg [63:0] dout=0,saved_read=0;
     reg [63:0] backing[0:63];
     integer latency=0,reads=0,writes=0,steps=0;
@@ -30,7 +30,7 @@ module tb_storage_array #(parameter integer LINE_CACHE_BITS=0,PREFETCH_NEXT=0,IN
     reg [7:0] host_random=8'hb7;
     always @(posedge machine_clk)addr<=next_addr;
     for(genvar g=0;g<G;g++)begin:group
-        dorado_storage_group #(.ADDR_BITS(A),.WIDTH(W)) d(
+        dorado_storage_group #(.ADDR_BITS(A),.WIDTH(W),.DEFER_READS(DEFER_READS)) d(
             .host_clk(clk),.machine_clk(machine_clk),.reset(reset),
             .ras_n(ras_n[g]),.cas_n(cas_n[g]),.we_n(we_n[g]),
             .addr(addr[g*A+:A]),.data_in(data_in[g*W+:W]),.data_out(actual[g*W+:W]),
@@ -71,12 +71,12 @@ module tb_storage_array #(parameter integer LINE_CACHE_BITS=0,PREFETCH_NEXT=0,IN
         end
         if(read_pending)begin
             if(latency!=0)latency<=latency-1;
-            else begin read_pending<=0;dout<=saved_read;dvalid<=1;end
+            else if(!hold_response)begin read_pending<=0;dout<=saved_read;dvalid<=1;end
         end
     end
     task tick;@(negedge clk);endtask
     task step;
-        wait(&ready);tick();run=1;tick();run=0;steps++;
+        tick();wait(&ready);tick();run=1;tick();run=0;steps++;
         if(actual!==expected)$fatal(1,"logical cycle differs at %d: %h expected %h",steps,actual,expected);
     endtask
     reg finished=0;
@@ -107,12 +107,17 @@ module tb_storage_array #(parameter integer LINE_CACHE_BITS=0,PREFETCH_NEXT=0,IN
         step();step();wait(&ready);tick();
         // Reset with a cache-miss read in flight. DDR data must drain
         // without getting assigned to a different bank after reset.
-        next_addr='1;step();tick();reset=1;repeat(4)tick();reset=0;
+        // First invalidate a fully warm line cache: this small image can
+        // fit entirely, so changing an address alone does not prove a miss.
+        reset=1;repeat(4)tick();reset=0;
+        ras_n='0;cas_n='0;we_n='1;
+        next_addr='1;step();next_addr={G{A'(31)}};step();hold_response=1;
+        wait(read_pending);tick();reset=1;repeat(4)tick();reset=0;hold_response=0;
         wait(&ready);step();step();wait(&ready);tick();
         finished=1;wait(verified==G*W);
-        if(reads<(LINE_CACHE_BITS>0 ? 100 : 1000) || writes<100)
+        if(reads<(LINE_CACHE_BITS>0 || DEFER_READS ? 100 : 1000) || writes<100)
             $fatal(1,"test did not exercise enough memory operations: reads=%0d writes=%0d",reads,writes);
-        $display("STORAGE-ARRAY PASS: %d chip cycles, %d DDR reads, %d writes, three isolated groups, reset drain, prefetch=%0d host_cycles=%0d interleave=%0d",steps,reads,writes,PREFETCH_NEXT,host_cycles,INTERLEAVE_GROUPS);
+        $display("STORAGE-ARRAY PASS: %d chip cycles, %d DDR reads, %d writes, three isolated groups, reset drain, prefetch=%0d host_cycles=%0d interleave=%0d defer=%0d",steps,reads,writes,PREFETCH_NEXT,host_cycles,INTERLEAVE_GROUPS,DEFER_READS);
         $finish;
     end
     initial begin repeat(300000)tick();$fatal(1,"timeout state %d ready %b",arb.state,ready);end

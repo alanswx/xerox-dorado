@@ -1,0 +1,16 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native44_20261018",
+  "change": "Defer only unobserved unconditional internal chip reads. Preserve previous-column output pipeline and old-before-write values; writes retain original capture/commit cadence. Same Native44 successor/interleaving, SDRAM, no line cache, clocks, architectural boards and timing constraints.",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "raw_line_cache_entries": 0,
+  "extra_timing_exceptions": "None",
+  "source_hashes": {
+    "src/fpga/mister/dorado_storage_group.sv": "4cc548cf769757956c61c8075a50c3ba341f73cbfcbedd4f4de8c2ed40e0b334",
+    "src/build/rtl-executive/native16-tx-cable/msa_ddram.v": "d4edd773105fcb069e0df4fe0287c33fdb86619886db0e3babf2c13e8448690b",
+    "src/build/rtl-executive/native16-tx-cable/manifest.json": "1b44ac30b69180cbef562895ce93318fea56b95c848a4f25613a1603e5e9968e",
+    "core/Dorado.qsf": "ed7955b3bb63de5e279131aebf08b90bbdf7f858edd9ed65678e7cc6ec7cd142",
+    "core/native_timing.sdc": "df62acc5c1e4029eb441b28de904eadfe2f9d00a2d82ba61586b6571afccbec2",
+    "core/sdram_timing.sdc": "1cae21e428cdec86783954a3df75e777b514dceda5ff681fde148decb5695a38"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "baseline_sha256": "7c9e0c9b12c3561780229583c07bd8d8a63e5073e902878c26a922c441ae2169",
+  "candidate_sha256": "ccfe22b361fbb88b625f3cddb111004f2f89bf07035fe88e93c90768643538de",
+  "baseline_reads": 3008,
+  "candidate_reads": 2256,
+  "writes": 7872,
+  "final_nonzero_words": 1499,
+  "per_owner_write_sequence_and_payload": "identical for all16 physical model owners",
+  "final_physical_state": "identical",
+  "limits": "Independent full-MSA physical trace; cross-owner write order is not required to match because owners are disjoint; group/nonzero tests separately check prior-column/old-value output timing."
+}

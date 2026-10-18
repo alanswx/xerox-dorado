@@ -110,7 +110,7 @@ inode leaves that pathname ending in ` (deleted)` and its restart falls back
 to a board reboot. Stage each binary at a fresh versioned path, then change
 only the corresponding core's `main=` setting. Stock Main remains intact.
 
-### Disk worker prerequisite (not integrated)
+### Disk worker prerequisite
 
 `main-offload-260912.patch` adds `offload_try_add_work` to the pinned Main's
 existing eight-slot worker. It returns false immediately for a full/stopped
@@ -122,8 +122,8 @@ Linux and MiSTer14 ARM tests run the exact worker with real pthreads: a
 three-second callback, repeated failed submissions with a live poll heartbeat,
 the eight-slot bound, FIFO stop/join draining, rejection after stop, and empty
 wakeups. Controls using the blocking enqueue and the old single-check wake
-predicate fail. These are worker tests; the live Main still uses synchronous
-disk I/O, and disk coherence/persistence are not qualified by this patch.
+predicate fail. These are worker tests; disk coherence/persistence are not
+qualified by that patch alone. The disk adapter below uses this interface.
 
 ```sh
 # Linux, against unmodified files from the pinned Main checkout:
@@ -161,7 +161,8 @@ revision above. Copy `dorado_net.{cpp,h}`, `dorado_disk.{cpp,h}`,
 its wildcard build includes them. The isolated GCC10.2.1 build is
 `misterubuntu:/home/alans/mister/Main_DoradoDisk_20261018`;
 candidate SHA256 `40e14b6b97d62435c6e1ecd5c78bf9959c74b816a8e9452b1e64c28179ca8188`.
-It is not deployed or qualified by a real Cedar run yet.
+It is running on fresh same-RBF Native41c. Original firmware/Cedar login and
+Guest acceptance pass; full desktop/persistence/stress remain pending.
 
 Enable with `DORADO_DISK_CACHE=1`; only original core name `Dorado` is
 intercepted. The current single fixed regular pack must fit64MiB on slot0;

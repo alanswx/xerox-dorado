@@ -1,7 +1,9 @@
 // Complete MSA board equivalence: original chips versus external backing.
 // Only the raw bit arrays move; every serial/ECC output is compared each cycle.
 `timescale 1ns/1ps
-module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0,PREFETCH_NEXT=0,INTERLEAVE_GROUPS=0);
+module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0,PREFETCH_NEXT=0,INTERLEAVE_GROUPS=0,DEFER_READS=0);
+    initial if(external_memory.u_storage_0.DEFER_READS!=DEFER_READS)
+        $fatal(1,"testbench/generator deferred-read options differ");
     localparam integer CHIP_WORDS=1<<ADDR_BITS;
     function automatic integer physical_word(input integer g,a);
         physical_word=INTERLEAVE_GROUPS ? a*16+g : g*CHIP_WORDS+a;
@@ -761,7 +763,7 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0,PREF
                             canonical_word(a*4+lane),backing[a][lane*16+:16]);
             $fwrite(raw_trace_fd,"%0d,3,%0h,0\n",host_cycles,16*CHIP_WORDS);
         end
-        $display("STORAGE-BOARD PASS: %d complete-board cycles, %d backing reads, %d writes, %d output transitions, all %0d stored bits identical, prefetch=%0d host_cycles=%0d interleave=%0d",steps,reads,writes,output_changes,144*CHIP_WORDS,PREFETCH_NEXT,host_cycles,INTERLEAVE_GROUPS);
+        $display("STORAGE-BOARD PASS: %d complete-board cycles, %d backing reads, %d writes, %d output transitions, all %0d stored bits identical, prefetch=%0d host_cycles=%0d interleave=%0d defer=%0d",steps,reads,writes,output_changes,144*CHIP_WORDS,PREFETCH_NEXT,host_cycles,INTERLEAVE_GROUPS,DEFER_READS);
         $finish;
     end
     initial begin #100000000;$fatal(1,"board test timeout");end

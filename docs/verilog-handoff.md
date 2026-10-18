@@ -40,8 +40,9 @@ no capture reset; HDMI shows expected uninitialized firmware raster, not OS
 text yet. No active GDB. BFN113 and actual Cedar login have passed. Three10s idle windows give
 1595653.86/1595625.89/1595901.82 issues/s, mean1595727.19/s=9.574%
 nominal, reproducing41b; issues are not drained retirements, and three
-windows are one boot. Guest typing requested~20:25; full desktop/input/
-persistence/stress remain pending. No active GDB.
+windows are one boot. Guest accepted~20:25; all34 loadees complete and profile No sent at20:35.
+Actual HDMI passed BootEssentials/Viewers/Watch and now FontMetrics attachment
+(~20:53). Full desktop/input/persistence/stress remain pending. No active GDB.
 Fresh paths: `Cedar41c_20261018/{main.log,server.log,cedar-work.pack}` and
 `_Computer/DoradoRTL_Cedar41c_20261018/Cedar41c.mgl`. Local helpers
 `build/rtl-executive/cedar41c-launch/`, committed native41c reports. New
@@ -151,6 +152,52 @@ reports are in reports/2026-10-18-disk-cache. Immutable Main is now on fresh sam
 a new /tmp disk trace. Qualify real polls/input/packet delivery,
 close/cold remount and stress after original boot.
 Keep the failed41b physical pack untouched; use the original fresh seed.
+
+**Native45 deferred-read experiment: simulations and full timing PASS, not deployed.**
+Optional default-OFF DEFER_READS tracks the previous internal RAM pipeline
+address/known-value flag. It fetches only an observed unknown stage or a
+pending write's old word. Pending writes finish first; old_data bypass preserves
+same-address prewrite outputs even after raw RAM was updated. This is not
+RAS-only request gating. Original MK4096 cells/pin wiring/output cycles and
+architectural cache/map/ECC stay unchanged. Helpers expose --defer-reads /
+--storage-defer-reads; default generation is byte-identical (12 files each
+DDR/SDRAM). Opt-in changes only16 group parameters and mapping/manifests.
+
+Independent original-bit-cell tests pass14/16-bit addresses,4745 cycles,
+382 writes,40 retained-pipeline resets each and262144/1048576 final bits;
+nonzero prior-column and same/other-column old-before-write hazards included.
+Two wrong-address/old-value controls fail. All eight cache/successor/layout
+array combinations and matched cached/uncached defaults pass1506 cycles,
+463 writes and final physical bits. The revised reset fixture invalidates
+a fully warm cache and holds a proven physical miss through reset: changing
+addresses alone had not guaranteed a miss, causing the cached default to
+wait forever. Fresh builds reproduced that fixture timeout and pass its fix;
+initial incremental segfault retained without claiming a proven cause.
+Full MSA cached DDR14/16 and independent physical XSDS16 pass all2,359,296/
+9,437,184 bits,7872 writes/1111 output transitions/6986 stored ones.
+Every7872 ordered write/payload per owner and1499 final nonzero raw words
+match the captured baseline. SDRAM fixture reads3008->2256, host cycles
+122779->115685 (5.778% fewer); synthetic only, not a real Cedar speed claim.
+Default-OFF full MSA is unchanged. Opted native DDR/SDRAM wrapper lint passes
+with actual monitor/placement/50MHz macros; missing RX macro first attempt
+was a lint invocation issue, retained in evidence.
+
+Isolated Quartus Native45 at `/home/alans/mister/Dorado_Native45_20261018`
+clones44; only group frontend +16 msa group parameters/manifest and generator
+helpers changed, no added clock/placement/timing cuts. Build84242 completed.
+Fit32973ALMs (79%)/54681 registers/330M10Ks. All31 summary checks and36
+path categories across four device conditions, including SDRAM IO, PASS
+minimum+0.017ns,0 illegal/unconstrained internal clocks, no new timing cuts.
+Audit21038 completed; do not restart it. RBF SHA256
+9481aba01b4ae5e0404cb79e537171527b2b41a36e76ac682f784fc5c03477a7;
+local build/rtl-executive/native45-candidate/Dorado.rbf. Source comparison
+checks all362 frozen files: only group frontend,16 msa group parameters,
+manifest and native generator differ; one uncompiled storage-generator helper
+added. Clock SDCS byte-identical and QSF identical after path normalization.
+Not deployed:14 remains41c. Source/simulation evidence storage-defer; local
+`storage-defer/` and `native45-build/`. All42/43/44 comparisons remain untested
+on FPGA. Do not promote45 from synthetic results or its timing pass without real
+pinned Cedar/performance/input/persistence qualification.
 
 **Native44 group-interleaving candidate: simulation AND all-device timing PASS,
 not deployed.** Optional INTERLEAVE_GROUPS=1 remaps only raw backing addresses,
@@ -1134,6 +1181,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Deploy immutable disk-cache Main on fresh same-RBF41c with observer; cache-ready confirmed and real original CoolBoot requested.
 - [ ] Finish41c original Cedar boot; prove real Main input/network polling during disk activity, cold-remount persistence and sustained fault-free stress.
 - [ ] Separately reduce FPGA whole-track write amplification where original guest/CRC semantics permit.
+- [x] Prototype default-OFF deferred internal DRAM reads; independent nonzero pipeline/write/reset/array/full-MSA/physical-state/default-generation gates pass.
+- [x] Native45 full all-device timing PASS:31 summary/36 categories/four conditions, minimum+0.017ns, no new cuts or clock coverage gaps.
+- [ ] Measure45 actual Cedar after preserving42/43/44 baselines; area79% must be weighed against measured gain and snapshot budget.
 - [x] Add/test nonblocking pinned Main worker enqueue and empty-wake predicate on Linux/ARM; blocking and old-wake controls fail. Prerequisite only, not deployed/integrated disk I/O.
 - [x] Review MacPPC/Sun/NeXT DDR Ethernet host/RTL rings; record source hashes, address overlap and payload-size constraints.
 - [ ] Adapt frame rings for direct ARM daemon DDR transport, retaining original DskEth/CRC/wire timing and selectable SPI fallback; qualify reset/ownership/stalls/boot before deployment.

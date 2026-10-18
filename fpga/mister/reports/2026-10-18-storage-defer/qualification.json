@@ -1,0 +1,68 @@
+{
+  "status": "Simulation/default generation/native-wrapper lint and Native45 all-device timing PASS. Optional default-OFF; not hardware-qualified or deployed.",
+  "flag": "dorado_storage_group.DEFER_READS=1, sil_storage_ddram.py --defer-reads, sil_fpga_native.py --storage-defer-reads, Make STORAGE_DEFER_READS=1",
+  "change": "Materialize unconditional internal read stage only if its output is observed. Keep prior logical address/known-value metadata; pending write finishes first, and old_data preserves previous-column/same-address prewrite values. Original chips, pin wiring, write capture/commit and external output cycles are unchanged.",
+  "group_tests": {
+    "logical_cycles_each": 4745,
+    "retained_pipeline_resets_each": 40,
+    "address_bits": [
+      14,
+      16
+    ],
+    "checked_bits_each": [
+      262144,
+      1048576
+    ],
+    "baseline_requests": 4937,
+    "deferred_requests": 2112,
+    "writes_each": 382,
+    "oracle": "Unmodified original bit cells, distinct nonzero seeded words, arbitrary previous/current columns, immediate same/other-address write/read turnarounds, random controls and variable response delays"
+  },
+  "array_tests": "Eight cache0/7 x successor0/1 x interleave0/1 opt-in cases plus matched uncached/cached defaults, all1506 cycles/463 writes/final2304 bits. Final cases use fresh build directories. Controlled cold line miss with response held through reset, then original bit-cell/final physical-memory comparison.",
+  "whole_msa": {
+    "logical_cycles": 12012,
+    "stored_bits_16k": 2359296,
+    "stored_bits_64k": 9437184,
+    "writes": 7872,
+    "output_transitions": 1111,
+    "stored_one_bits": 6986,
+    "sdram_baseline_reads": 3008,
+    "sdram_deferred_reads": 2256,
+    "sdram_baseline_host_cycles": 122779,
+    "sdram_deferred_host_cycles": 115685,
+    "host_cycle_reduction_fraction": 0.05777861034867526,
+    "ddr_cached_deferred_reads_16k": 1120,
+    "ddr_cached_deferred_reads_64k": 1128,
+    "ddr_cached_deferred_host_cycles_16k": 77802,
+    "ddr_cached_deferred_host_cycles_64k": 77834,
+    "per_owner_ordered_write_payloads": "All7872 across16 owners identical to captured baseline physical model",
+    "final_physical_state": "All1499 nonzero words identical; complete array scan matches original chips"
+  },
+  "controls": "Removing old_data output bypass fails on first write/read turnover; requesting current rather than prior pipeline address times out. Both final-fixture controls fail.",
+  "generator": "Default12 outputs byte-identical to9c717183 for DDR and SDRAM (normalized output path). Opt-in changes exactly16 group parameters and two manifest files. Both opted complete-native wrappers lint with exact native50MHz/M10K/logic/monitor macros.",
+  "qualification_limits": "Synthetic MSA/array results are not FPGA speed claims. Captured full-MSA reads happen to be zero; distinct nonzero group and dense array fixtures independently check output pipeline. An initial cached reset fixture could hit its fully warm cache and never start a physical read: fresh build reproduced timeout; explicit cache invalidation and cold-line selection fixed the fixture, both defaults and candidates pass. Initial incremental run segfault is retained without claiming a proven cause. A first lint omitted required pre-existing DORADO_RX_MONITOR macro; rerun with actual macros passes. No CPU/RAM/IOCB patch, live clock change or imported C state. Native41c continues separately.",
+  "source_sha256": {
+    "fpga/mister/dorado_storage_group.sv": "4cc548cf769757956c61c8075a50c3ba341f73cbfcbedd4f4de8c2ed40e0b334",
+    "tools/sil_storage_ddram.py": "5c49e1b264441ad33792a2a5dde727242d950f7541e9002b99b0d636dbc953a3",
+    "tools/sil_fpga_native.py": "6feb249f396cf2b9a7d09d811d0940140cd5516ccff23666edf3ab54aa72bb79",
+    "verilog/verilator/Makefile": "64d0256460f8e54d0e03b865c0b6397919231511103bd7c99f82516aa512ebb1",
+    "verilog/verilator/tb_storage_group.sv": "15b2a1d40686bad22063d39df6d17887c6f66d45407f9f98ee92617049a20480",
+    "verilog/verilator/tb_storage_array.sv": "26c1bfc74c03307a802a00abcfc04109124b9c656f2c377e0b4c77432258d710",
+    "verilog/verilator/tb_storage_board.sv": "eb11af68faeb45415c136aa68ad505aa7c7e4226fe96b644c772dd50b8cae0f2"
+  },
+  "next": "Review Native45 all-device timing including SDRAM IO and any new pipeline endpoints, with no added broad cuts; retain42/43/44 baselines and qualify pinned real Cedar before promotion.",
+  "native45": {
+    "rbf_sha256": "9481aba01b4ae5e0404cb79e537171527b2b41a36e76ac682f784fc5c03477a7",
+    "summary_checks": 31,
+    "path_categories": 36,
+    "conditions": 4,
+    "minimum_slack_ns": 0.017,
+    "illegal_clocks": 0,
+    "unconstrained_clocks": 0,
+    "extra_timing_exceptions": "None",
+    "alms": 32973,
+    "registers": 54681,
+    "m10ks": 330,
+    "hardware": "NOT DEPLOYED"
+  }
+}

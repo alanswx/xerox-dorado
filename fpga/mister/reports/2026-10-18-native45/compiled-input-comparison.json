@@ -1,0 +1,15 @@
+{
+  "source_files_compared": 362,
+  "changed_only": [
+    "tools/sil_fpga_native.py",
+    "fpga/mister/dorado_storage_group.sv",
+    "build/rtl-executive/native16-tx-cable/manifest.json",
+    "build/rtl-executive/native16-tx-cable/msa_ddram.v"
+  ],
+  "added_only": [
+    "tools/sil_storage_ddram.py"
+  ],
+  "qsf": "identical after project-root normalization",
+  "native_and_sdram_constraints": "byte-identical",
+  "architectural_boards": "all unchanged except16 optional raw-group parameters in msa_ddram"
+}

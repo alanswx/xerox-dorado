@@ -180,6 +180,24 @@ three10s windows1595653.86/1595625.89/1595901.82 issues/s, mean1595727.19
 issues not drained retirements. Real Guest typing requested. Full Viewers,
 input, durable persistence and stress pending. No guest-state repair.
 
+Update20:53UTC:41c passes all34 loadees/profile No and BootEssentials,
+now attaching FontMetrics, with no pack/CRC/RX/abort fault. Actual worker
+trace has thousands of writes, no file errors or trace drops; maximum30.516ms
+in the20:30 prefix, not a controlled real-Main multi-second stall test.
+Three~377ms poll gaps occurred during known GDB video/counter controls;
+other observed gaps in that prefix are below100ms. Keep controlled worker
+unit/SPI-spy results separate from entire-Main qualification.
+
+Optional deferred internal DRAM reads (Native45) pass original-cell nonzero
+pipeline/old-before-write/reset tests at14/16-bit addresses, complete arrays,
+cached DDR/MSA and physical XSDS equivalence. All7872 per-owner write payloads
+and final1499 nonzero words match baseline. SDRAM synthetic host cycles
+122779->115685, not a hardware speed claim. Default generated12 files remain
+identical, opted wrappers lint. Native45 build completes at79%ALMs/330M10Ks;
+All31 summary/36 path categories across four conditions PASS min+0.017ns,
+including SDRAM IO,0 illegal/unconstrained internal clocks. No new timing
+cuts/clocks/placement policies, not deployed;14 remains41c.
+
 **Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
 original firmware to the actual Cedar login on MiSTer14. Real Guest input
 is accepted; Basic boot is running. Main11453 is the
@@ -264,6 +282,19 @@ state, then load with guest clocks frozen and resume all modeled devices
 from one captured phase. The user-facing operation is Save/Load machine state;
 first qualify identical-build Cedar desktop restores and measure the result
 before publishing a restore-time promise.
+
+The inventory must include raw-storage frontend state. A pending raw write
+may already have changed external RAM before its logical chip commit, with
+old_data preserving the prewrite pipeline value. A snapshot must serialize
+that state or explicitly normalize its exported RAM/pending write, rather
+than silently invalidating caches. Deferred pipeline addresses/known-value
+flags matter too. First qualify identical-build restore. Any later canonical
+chip/word schema or raw-layout migration needs its own equivalence tests. Existing tools/sil_verilator_state.py
+and sil_fpga_checkpoint.py provide exact-build RTL checkpoint/instance/XML
+mapping; reuse that inventory rather than its host ABI offsets. Baking a
+simulation checkpoint into power-up initializers is not live FPGA save/load.
+Native45's candidate raises ALM use to79%; evaluate state-access area/timing
+on a representative board before committing to machine-wide instrumentation.
 
 ## Objective and constraints
 

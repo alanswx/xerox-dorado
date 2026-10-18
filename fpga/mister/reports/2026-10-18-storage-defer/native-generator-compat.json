@@ -1,0 +1,44 @@
+{
+  "ddr": {
+    "default_files_unchanged": [
+      "BaseBd_nominal.v",
+      "ContA_monitor.v",
+      "DispY_field.v",
+      "DskEth_monitor.v",
+      "MemX_density.v",
+      "dorado_native_backplane.probes",
+      "dorado_native_backplane.v",
+      "dorado_native_machine.sv",
+      "manifest.json",
+      "msa_ddram.mapping.json",
+      "msa_ddram.v",
+      "sources.f"
+    ],
+    "opt_in_changed_only": [
+      "manifest.json",
+      "msa_ddram.mapping.json",
+      "msa_ddram.v"
+    ]
+  },
+  "sdram": {
+    "default_files_unchanged": [
+      "BaseBd_nominal.v",
+      "ContA_monitor.v",
+      "DispY_field.v",
+      "DskEth_monitor.v",
+      "MemX_density.v",
+      "dorado_native_backplane.probes",
+      "dorado_native_backplane.v",
+      "dorado_native_machine.sv",
+      "manifest.json",
+      "msa_ddram.mapping.json",
+      "msa_ddram.v",
+      "sources.f"
+    ],
+    "opt_in_changed_only": [
+      "manifest.json",
+      "msa_ddram.mapping.json",
+      "msa_ddram.v"
+    ]
+  }
+}
