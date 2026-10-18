@@ -36,3 +36,12 @@ DORADO_HOST_CLOCK_HZ=50000000 plus matching clock metadata. build.py records
 all inputs/steps. Fit/STA/clock/all-corner audit and full original-firmware/
 Cedar/Viewers/input qualification pending. Not deployed;14 still holds the
 Native32 fault for diagnosis. Do not promote Native32/33 as working cores.
+
+Fit completed13m52,34,840/41,910ALMs(83%),307M10Ks/35DSPs. All29 default
+summary checks pass. Expanded sign-off enumerates all four supported device
+conditions (fast/slow at-40/100C): all20 setup/hold/recovery/removal/pulse
+categories pass, overall minimum+0.101ns. Every condition has zero illegal/
+unconstrained clocks and actual50MHz core. No new exceptions. Quartus map
+parameters confirm HOST_CLOCK_HZ50000000 and HOST_TIMEOUT_CLOCKS200000000.
+RBF SHA256 `0ebe68f456ce46e09b813dd126b605c083b606176ce0bdc797c9f3194f27bbbd`.
+Guarded deployment is now in progress. Hardware qualification still pending.

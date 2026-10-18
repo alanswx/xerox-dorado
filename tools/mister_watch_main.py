@@ -72,6 +72,9 @@ def main():
         source.seek(0, 2)
         pending = ''
         while time.monotonic() - started < args.seconds:
+            if not proc.exists():
+                emit('complete', reason='main_exited')
+                return
             chunk = source.readline()
             now = time.monotonic()
             if chunk:
@@ -97,6 +100,13 @@ def main():
                         return
             else:
                 if now-previous > 1.25 and now-last_probe >= .25:
+                    try:
+                        same_main = (proc / 'cmdline').read_bytes().split(b'\0') == argv
+                    except OSError:
+                        same_main = False
+                    if not same_main:
+                        emit('complete', reason='main_changed')
+                        return
                     emit('heartbeat_gap', gap_seconds=now-previous, host=snapshot(args.pid))
                     last_probe = now
                 time.sleep(.01)

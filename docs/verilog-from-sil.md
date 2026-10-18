@@ -1,14 +1,14 @@
 # Phase 2: what the Sil files give the Verilog, and how to test it
 
-**Active work (2026-10-18): Native32 hardware qualification FAILED.**
-Its50MHz fit passes timing and it reaches Cedar login/real package loading,
-but stops at host timeout reason8/LBA18893 before Viewers. The fixed host
-watchdog shrank4s ->2.67s when PLL rose33.333 ->50MHz. Native34 corrects that
-wall-time scaling and records ACK phase; regressions pass, FPGA build runs.
-The actual timeout's host latency/phase was not measured, so root cause
-remains open. The preserved live fault is on14; no other MiSTer allocated.
-Do not promote Native32/33 as working cores. See the [handoff](verilog-handoff.md)
-and [clock plan](verilog-clock-plan.md) for evidence and next qualification.
+**Active work (2026-10-18): Native34 is running on14 at50MHz/SYSPER4.**
+It corrects the host watchdog's wall-time scaling and keeps the tested raw
+DDR cache/no-bubble adapter. All29 summary checks and20 categories across
+all four supported industrial conditions pass (min+0.101ns), zero missing
+clocks, no new exceptions. Original firmware is loading; full Cedar/input
+qualification remains pending. Passive Main heartbeat/I/O observation is
+active, no SPI/ptrace. Native32 failed during loading with host timeout;
+actual stall cause still unproved. See the [handoff](verilog-handoff.md)
+and [clock plan](verilog-clock-plan.md) for evidence and required next gates.
 
 ## Clock architecture audit (2026-10-18)
 

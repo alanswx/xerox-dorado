@@ -2,62 +2,78 @@
 
 ## Current objective (2026-10-18 UTC)
 
-**Live Native32 on MiSTer14 is STOPPED by a real pack fault; do not promote.**
-At27 retrieves (ReadEvalPrintImpl.bcd), first observed04:36UTC:
-`machine=807c0200 state=47fc cpu=000049cd`. Reason8 is ARM track-transfer
-watchdog, cylinder124/head0/LBA18893. Original record lacks host ACK phase.
-Packet CRC/rx_bad remain0; timing passed, but hardware qualification FAILED
-before Viewers. Core and volume remain intact for diagnosis. Main22751/
-server22742 are alive, same immutable1fb2.../1d5... binaries, sole Main SPI.
-No held keys or script input. Clock-count option is ON, but fault words take
-priority: DO NOT interpret them as counts/CPU state. Old volume is guest-
-mutated/incomplete; use a fresh f3bce2a8... seed for the next qualification.
+**Native34 is loaded on MiSTer14 at50MHz/SYSPER4 (05:09UTC), hardware test
+in progress.** RBF `0ebe68f456ce46e09b813dd126b605c083b606176ce0bdc797c9f3194f27bbbd`.
+Fit13m52/83%ALMs/307M10Ks. All29 summary checks plus20 timing categories
+across ALL four supported device conditions (fast/slow,-40/100C) pass,
+overall min+0.101ns; zero illegal/unconstrained clocks in every condition,
+no new exceptions. Actual Quartus parameters HOST_CLOCK_HZ50000000,
+HOST_TIMEOUT_CLOCKS200000000 preserve4s. Original CPU/microcode/serial
+clocking unchanged;128-line raw DDR cache with no added cold-read cycle.
 
-**Native34 is building, not deployed.** It retains Native33's no-bubble
-128-line cache at50MHz/SYSPER4 and corrects the host watchdog's physical
-clock:133333332cycles became2.6667s at50MHz instead of the original4s.
-New HOST_CLOCK_HZ comes from the SAME builder PLL request;4*HZ preserves
-wall time. Candidate QSF explicitly sets50000000, metadata matches.
-Host-fault low6bits now preserve {host_state[2:0],sd_rd,sd_wr,sd_ack}; serial
-faults retain wr_bits. Extra still gives LBA. No completion/ACK fabricated.
-Scaled333/400/500Hz tests prove3s responses succeed, missing/stuck ACK faults
-at4s, sticky first phase/LBA preserved; old fixed-budget control fails at500.
-Existing Pilot persistence/neighbor/CRC/timeout gates and build fixtures pass.
-Frozen `/home/alans/mister/Dorado_Native34_20261018`, local native34-build.log.
-Need fresh full timing/clock/all-corner audit, then original firmware/Cedar/
-Viewers/exclusive input and actual pause measurements on14. No new approval
-needed; user explicitly released prior sessions. Only14 is allocated.
+Main24180/server24176, same immutable1fb2.../1d5... binaries; sole Main SPI
+owner. Launcher `_Computer/DoradoRTL_Cedar34_20261018/Cedar34.mgl`; fresh
+f3bce2a8... seed, active pack/logs/reboot config in Cedar34_20261018.
+Original firmware is loading microcode(c0fc7000); C is held by the BFN113
+watcher (local cedar34-launch/c-until-request.log, session49486) and will be
+released automatically. No other script input. Counter mode OFF(normalCPU).
+No pack/CRC/RX faults so far. Still need firmware/BFN113/Cedar login/loader,
+Viewers/exclusive Echo/mouse and actual performance before promotion.
+User explicitly released old sessions for reloads; only14 allocated.
 
-The shorter watchdog is a proved scaling bug; it is NOT yet proved to be
-this hardware timeout's cause. Main returns SPI write-data ACK before its
-O_SYNC image write returns, so a subsequent request can wait behind that
-write. Actual latency/ACK phase was not observed at failure. No new kernel
-SD error. Main fd24 at position9689088 on LBA18893's31-block end. Main Net/
-Video user_io.cpp hashes match; deployed Main is Net1fb2, Video is undeployed.
+**Passive host observer24210 is active through this boot.** It reads Main24180
+log and /proc only; no SPI/ptrace/guest writes/ACK/reset. Outputs to RAM:
+`/tmp/dorado-native34-heartbeats.jsonl`, `/tmp/dorado-native34-observer.log`;
+argv/PID saved in Cedar34_20261018/observer.json. Deadline2h; stop on fault
+or Main exit/change. At05:12UTC102 samples, maxgap1.004s, no faults. Keep it
+running through real disk writes. Copy evidence before reboot or stopping.
 
-Forensics/scripts: reports/2026-10-18-native32/ and native34/. Full log copy
-`Cedar32_20261018/main-at-first-fault.log` remains remotely. Main log inherits
-older sessions: filter after LAST Cedar32.mgl marker. Host observer
-`tools/mister_watch_main.py` reads normal Main log and /proc only; no SPI,
-ptrace, pause/reset, guest writes or I/O completion. It records late heartbeat
-kernel/syscall/I/O state into new /tmp/dorado-*.jsonl RAM files; validated on
-preserved Native32 fault. Start with next core/new actual Main PID and
---fault-format2, keep running through the loader to distinguish Linux stalls
-from an uncompleted handshake. Do not reuse old1fb2 GDB calls on other Main
-binaries; current Main is unchanged and existing script addresses are valid.
+Use normal OSD for counter mode, avoiding debugger pauses during I/O:
+F12 opens Core menu atMount; six Down taps focus Debug monitor (Ethernet
+station counts as a row). Visually verify focus; ENTER toggles (Right changes
+tabs), then F12 closes. Private scripts focus-debug-menu.py and
+select-debug-close.py split verification from selection. Native32 menu
+experiment confirmed Clock counts ->CPU; all keys/menu now released/closed.
+C34 should startCPU. Toggle only after BFN watcher has released C, ideally
+at idle login before Guest. Counts mode: machine=enabled edges,cpu=host;
+32bit unsigned deltas<60s (wrap85.9s), not retired instructions. Fault has
+priority and replaces those words. Fresh physical HDMI read can use ONE
+normal Main video_mode_adjust(true) call (fresh-video-once.gdb) atinput_poll,
+then current_video_info width/height/vtime/vtimeh. Verified on1fb2: function
+0xa8881, global0x9715ec; vtimeh offset24 (ctime offset20). Use only idle login,
+not during file writes; older23 separate-call script needlessly halts Main.
+Do not reuse addresses for a different Main binary. Current Main unchanged.
 
-Native32 passed original firmware/BFN113, real HDMI login and fast Guest;
-all before fault. Fresh physical HDMI30.000012Hz/74.25003MHz, no host-FB
-workaround on that load. Firmware enabled25.0156% vs uncached26.4617% showed
-no gain; early loader18.5936% and matched Imager20.0104% vs16.9255% are
-observations, not controlled whole-system speedups. Counters combine DDR/
-HPS/global pauses, not retired instructions. Intervals<60s, wrap85.9s.
+**Native32 hardware qualification FAILED before Viewers.** Preserved fault
+`807c0200/47fc/000049cd`, reason8/cylinder124/head0/LBA18893, first observed
+04:36UTC at27th retrieve(ReadEvalPrintImpl.bcd). Packet CRC/RXbad stayed0.
+The fixed133333332-cycle watchdog shrank4s ->2.6667s at50MHz: a proved
+clock-scaling bug. The actual failure's host latency/ACK phase was not traced,
+so causal diagnosis remains open. Main returns SPI data ACK before O_SYNC
+file write returns; a later request could wait behind that write (hypothesis).
+Native32 volume is guest-mutated/incomplete; do not reuse as a good seed.
+Main-at-first-fault.log, context, volume and observer validation retained
+in Cedar32_20261018 and reports/native32/. Filter inherited Main log after
+LAST Cedar32.mgl marker; older faults precede it. All four timing conditions
+also passed for32 in the expanded post-fault audit; no static timing failure
+found. Native33 fit13m56 completed but retains unscaledwatchdog; superseded.
 
-Native31 control passed firmware/login/all34loadees and BootEssentials,
-replaced before Viewers. Native26 is still the previous Viewers/mouse
-reference; its Echo trials interleaved with user input. Exclusive exact
-CommandTool Echo remains pending. Native33 fit completed13m56 but is not
-promoted: it retains the known unscaled host watchdog. Native34 supersedes it.
+Native34 keeps4*physicalHOST_CLOCK_HZ from builder's SAME PLL selection,
+with matching metadata/QSF macro. Host-fault low6bits now are
+{host_state[2:0],sd_rd,sd_wr,sd_ack}; serial faults retain wr_bits. Extra=LBA.
+States1/2 write ACKassert/release,3/4 read ACKassert/release. No completion
+invented. Scaled333/400/500Hz tests accept3s service and faultmissing/stuck
+ACKat4s preserving first phase/LBA; fixed-budget mutation failsat500Hz.
+CRC/Pilot persistence/neighbor and build configuration fixtures pass.
+
+Native32 passed firmware/login/fastGuest; fresh actual1080p30/74.25003MHz
+HDMI needed no workaround. Firmware enabled25.0156% vs26.4617% uncached;
+earlyloader18.5936%, Imager20.0104% vs16.9255%. These are observations,
+not controlled whole-system speedups; they combine DDR/HPS/global pauses.
+Native31 passed all34loadees/BootEssentials before replacement. Native26 is
+the previous Viewers/mouse reference; its Echo tests interleaved user typing.
+Exclusive exact CommandTool Echo remains pending. Keep further optimizations
+on hold until Native34's fault-free interactive desktop is verified.
 
 **Clock implementation has started.** The staged plan is
 [verilog-clock-plan.md](verilog-clock-plan.md). An isolated direct phase/enable

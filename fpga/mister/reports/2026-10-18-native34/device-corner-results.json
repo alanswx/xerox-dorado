@@ -1,0 +1,102 @@
+[
+  {
+    "corner": "7_slow_1100mv_100c",
+    "category": "setup",
+    "slack_ns": 1.314
+  },
+  {
+    "corner": "7_slow_1100mv_100c",
+    "category": "hold",
+    "slack_ns": 0.154
+  },
+  {
+    "corner": "7_slow_1100mv_100c",
+    "category": "recovery",
+    "slack_ns": 10.429
+  },
+  {
+    "corner": "7_slow_1100mv_100c",
+    "category": "removal",
+    "slack_ns": 1.018
+  },
+  {
+    "corner": "7_slow_1100mv_100c",
+    "category": "mpw",
+    "slack_ns": 1.122
+  },
+  {
+    "corner": "7_slow_1100mv_-40c",
+    "category": "setup",
+    "slack_ns": 1.257
+  },
+  {
+    "corner": "7_slow_1100mv_-40c",
+    "category": "hold",
+    "slack_ns": 0.119
+  },
+  {
+    "corner": "7_slow_1100mv_-40c",
+    "category": "recovery",
+    "slack_ns": 10.59
+  },
+  {
+    "corner": "7_slow_1100mv_-40c",
+    "category": "removal",
+    "slack_ns": 0.965
+  },
+  {
+    "corner": "7_slow_1100mv_-40c",
+    "category": "mpw",
+    "slack_ns": 1.122
+  },
+  {
+    "corner": "MIN_fast_1100mv_100c",
+    "category": "setup",
+    "slack_ns": 5.124
+  },
+  {
+    "corner": "MIN_fast_1100mv_100c",
+    "category": "hold",
+    "slack_ns": 0.132
+  },
+  {
+    "corner": "MIN_fast_1100mv_100c",
+    "category": "recovery",
+    "slack_ns": 11.656
+  },
+  {
+    "corner": "MIN_fast_1100mv_100c",
+    "category": "removal",
+    "slack_ns": 0.464
+  },
+  {
+    "corner": "MIN_fast_1100mv_100c",
+    "category": "mpw",
+    "slack_ns": 1.122
+  },
+  {
+    "corner": "MIN_fast_1100mv_-40c",
+    "category": "setup",
+    "slack_ns": 5.839
+  },
+  {
+    "corner": "MIN_fast_1100mv_-40c",
+    "category": "hold",
+    "slack_ns": 0.101
+  },
+  {
+    "corner": "MIN_fast_1100mv_-40c",
+    "category": "recovery",
+    "slack_ns": 11.965
+  },
+  {
+    "corner": "MIN_fast_1100mv_-40c",
+    "category": "removal",
+    "slack_ns": 0.396
+  },
+  {
+    "corner": "MIN_fast_1100mv_-40c",
+    "category": "mpw",
+    "slack_ns": 1.122
+  }
+]

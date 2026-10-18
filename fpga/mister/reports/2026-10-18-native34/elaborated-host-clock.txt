@@ -1,0 +1,3 @@
+Quartus map user parameters for u_native.u_media:
+; HOST_CLOCK_HZ       ; 50000000     ; Signed Integer                                                         ;
+; HOST_TIMEOUT_CLOCKS ; 200000000    ; Signed Integer                                                         ;

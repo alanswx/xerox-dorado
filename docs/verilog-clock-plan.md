@@ -216,8 +216,12 @@ fault details retain the ACK phase/SD flags. Scaled-frequency regressions
 accept3s service and fault missing/stuck ACK at4s with sticky phase/LBA;
 the fixed-count failure control faults prematurely at500Hz. Existing CRC/
 persistence/neighbor protection and assembly fixtures pass. No completion
-or ACK is fabricated. Native34 build at50MHz is running; full fresh timing
-and actual Cedar/Viewers/input qualification are required before promotion.
+or ACK is fabricated. Native34 fit13m52 passes29 summary checks and20 timing categories across
+ALL four available device conditions (fast/slow,-40/100C), min+0.101ns,
+zero missing clocks and no new cuts. Actual elaboration50000000Hz/200000000
+cycles matches4s. Loaded on14 at05:09UTC; original firmware is loading, with
+passive heartbeat/I/O observer active. Actual Cedar/Viewers/input and host
+timeout reproduction remain required before promotion.
 
 Read-only tools/mister_watch_main.py timestamps Main heartbeats and samples
 late-I/O /proc state into RAM, without SPI/ptrace/guest mutation. It was

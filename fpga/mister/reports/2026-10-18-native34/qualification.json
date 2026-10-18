@@ -1,0 +1,19 @@
+{
+  "timing_checks": 29,
+  "corner_categories_checked": 20,
+  "operating_conditions_checked": 4,
+  "minimum_slack_ns": 0.101,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "rbf_sha256": "0ebe68f456ce46e09b813dd126b605c083b606176ce0bdc797c9f3194f27bbbd",
+  "core_frequency_mhz": 50,
+  "sysper": 4,
+  "host_clock_hz": 50000000,
+  "host_watchdog_clocks": 200000000,
+  "host_watchdog_seconds": 4,
+  "fault_format": 2,
+  "raw_line_cache_entries": 128,
+  "extra_exceptions": "None; Native33 base SDC retained.",
+  "external_io_limit": "Framework external input/output ports remain unconstrained; no internal clocks unconstrained.",
+  "hardware": "Loaded on MiSTer14 at05:09UTC, Main24180/server24176; original firmware loading. Passive observer24210 active in RAM. Full Cedar/input and timeout reproduction pending."
+}
