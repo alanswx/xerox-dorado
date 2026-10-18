@@ -1,0 +1,36 @@
+{
+  "status": "Post-desktop stress FAILED on latched host-write watchdog. Fresh boot/Viewers/input and marker close/read passed earlier; cold remount NOT completed.",
+  "main_pid": 13741,
+  "server_pid": 13734,
+  "debug_hex": "802a020a",
+  "extra_hex": "000018ff",
+  "state_hex": "47fc",
+  "decode": {
+    "reason": 8,
+    "cylinder": 42,
+    "head": 0,
+    "block": 2,
+    "serial_state": 0,
+    "host_state": 1,
+    "sd_rd": 0,
+    "sd_wr": 1,
+    "sd_ack": 0,
+    "lba": 6399
+  },
+  "meaning": "4s wall-time host-transfer timeout while waiting for write ACK assertion. Serial block parser idle; no CRC/RX/abort fault. Core is deliberately stopped by medium fault.",
+  "evidence": "Source dorado_pack_hps.host_fault_status and watchdog; first CURRENT matching fault is line112652 of archived accumulated Main log. Earlier prefix faults belong to previous runs and must not be used as this run\u2019s first fault.",
+  "arm_file": "fd31 /media/fat/games/DoradoRTL/Cedar41b_20261018/cedar-work.pack, flags06410002, file position3292160, Main currently running (not still blocked).",
+  "position": "LBA6399*512 +31*512 =3292160, matching this aligned full-track window. Repeated writes of one cached track make this insufficient to identify which generation Main last serviced.",
+  "limits": "No syscall/monotonic observer covered the exact timeout. Prior Native34 observer independently shows long O_SYNC writes, but the actual blocker here remains unproven. No guest boot command is visible, so do not attribute the fault to Booting.Boot; the host could already have stalled during optional DoradoLogic imports.",
+  "guest_marker": "///rtl41bpersist.txt contained rtl41bpersist20261018 before the fault; cold-remount persistence is unqualified.",
+  "preservation": "No reset, fault clear, guest RAM/CPU/IOCB patch or host disk completion. Preserve original pack and a separate physical-image copy; the copy cannot capture the dirty FPGA track buffer.",
+  "next": "Inspect Main disk service with timestamped request/ACK/file-operation/poll tracing and implement bounded/coherent worker buffering. Reproduce controlled multi-second stalls and rerun fresh boot/input/persistence/stress with observer. Keep42/43/44 timing-ready candidates separate; no promotion from this failed stress run.",
+  "physical_pack_copy": {
+    "utc": "2026-10-18 19:48:14 UTC",
+    "source": "/media/fat/games/DoradoRTL/Cedar41b_20261018/cedar-work.pack",
+    "preserved": "/media/fat/games/DoradoRTL/Cedar41b_20261018/cedar-work-fault-preserved.pack",
+    "size": 63578624,
+    "sha256": "0046452c45d333b30020a47546e5fdfa65b4ecb9edd46d14cbb9ba048bf02b7b",
+    "note": "Physical image at latched host timeout; does NOT include dirty FPGA track RAM. No guest-state repair or replay applied."
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-18 19:48:14 UTC",
+  "source": "/media/fat/games/DoradoRTL/Cedar41b_20261018/cedar-work.pack",
+  "preserved": "/media/fat/games/DoradoRTL/Cedar41b_20261018/cedar-work-fault-preserved.pack",
+  "size": 63578624,
+  "sha256": "0046452c45d333b30020a47546e5fdfa65b4ecb9edd46d14cbb9ba048bf02b7b",
+  "note": "Physical image at latched host timeout; does NOT include dirty FPGA track RAM. No guest-state repair or replay applied."
+}

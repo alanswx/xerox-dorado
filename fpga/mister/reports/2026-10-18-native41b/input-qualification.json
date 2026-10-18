@@ -34,5 +34,6 @@
     "aborted": 0,
     "pack_fault": false
   },
-  "limits": "One fresh boot; not three-boot/sustained/final speed acceptance. Main disk worker and snapshots not integrated. Native42 control/43 successor/44 interleave hardware comparisons still pending."
+  "limits": "One fresh boot; not three-boot/sustained/final speed acceptance. Main disk worker and snapshots not integrated. Native42 control/43 successor/44 interleave hardware comparisons still pending.",
+  "post_input_stress": "FAILED later on host-transfer watchdog802a020a/LBA6399; cold remount did not complete. Earlier functional input/file readback evidence remains valid; no sustained pass."
 }

@@ -68,8 +68,10 @@ correctness blocker remains open; it is not replaced by a PLL-only speed
 claim. Original guest-visible CPU/cache/map/ECC behavior is preserved, with
 no imported C machine state or host completion of guest instructions/IOCBs.
 
-The immediate next action is Native41b SDRAM cold-remount persistence
-qualification, followed by the matched cache-off42 control. Only
+The immediate next action is instrumented, bounded coherent ARM disk service:
+Native41b post-desktop stress failed on a host-write watchdog. Preserve its
+halted state and physical pack; cold-remount persistence and matched42
+comparison remain pending. Only
 MiSTer14 is allocated. Use misterubuntu for Quartus and the Mac for Verilator.
 Do not overwrite the protected Executive simulation/checkpoint artifacts.
 Keep commits and the handoff current at each milestone. No new permission
@@ -134,6 +136,19 @@ packing/order/reset/array/full-MSA/physical-state checks; matched SDRAM fixture
 all-device checks pass min+0.099ns, no new cuts or clock-coverage gaps. It is
 not deployed or speed-qualified.42/43 comparisons and real Cedar measurements
 remain required before promotion. Current artifacts/state are in the handoff.
+
+Update19:48UTC: **Native41b post-desktop stress FAILED.** Latched fault
+802a020a/47fc/000018ff is a4s host watchdog awaiting WRITE ACK assertion at
+LBA6399. Main/server remain live; CRC/RX/abort zero. Exact blocking syscall
+was not observed. Prior long O_SYNC writes are a suspect, not a proven cause
+for this event. The physical pack is preserved unchanged with matching SHA256
+0046452c45d333b30020a47546e5fdfa65b4ecb9edd46d14cbb9ba048bf02b7b;
+the copy excludes dirty FPGA track RAM. No reset, fault clear or host
+completion. Earlier desktop/input/marker close/read passed, but the typed
+boot was not visibly accepted and cold remount never completed. Prioritize
+milestone3 actual file-worker/coherence/lifecycle integration with monotonic
+request/ACK/file/poll tracing and injected multi-second storage stalls;
+then repeat fresh persistence/stability gates before promoting candidates.
 
 **Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
 original firmware to the actual Cedar login on MiSTer14. Real Guest input

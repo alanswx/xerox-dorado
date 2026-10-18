@@ -9,9 +9,9 @@ qualify M10K placement and instruction measurement; move bulk RAM to SDRAM;
 reduce memory-request overhead; make ARM disk work nonblocking/coherent;
 connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
-External Xerox-network tunnelling is optional follow-up. Next: finish the
-live Native41b cold-remount persistence gate and compare with39/42, using the tested
-quiet+BSP-history daemon. Native39b's idle-login issue/wait baseline is measured.
+External Xerox-network tunnelling is optional follow-up. Next: fix and instrument
+Main disk service after the Native41b post-desktop host-write timeout. Preserve
+the halted core and physical pack; cold remount and39/42 comparisons remain pending. Native39b's idle-login issue/wait baseline is measured.
 User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
@@ -27,8 +27,8 @@ is terminal; do not restart it. All boot/typing keys are UP; no active input
 or GDB helper. Actual HDMI Cedar login at18:35; three10s idle windows measure
 1595829.38/1595659.65/1595627.74 issues/s, mean1595705.59/s=9.574% original.
 This reproduces41's idle rate; three windows in one boot are not three fresh
-boots, and issues are not drained retirements. Current instruction debug
-view1: machine=issues/cpu=host edges, neither field is a processor PC.
+boots, and issues are not drained retirements. Before the later fault, instruction debug
+view1 showed machine=issues/cpu=host edges; current fault overrides both fields.
 Real `Guest\n\n` at0.1s down/up was accepted, Grapevine-down fallback
 finished, and the fixed server serves Cedar6.1/Top/Basic.Loadees at~18:39UTC.
 All34 base loadees loaded; the profile question was answered with one `n`
@@ -47,23 +47,45 @@ to prompt. **Cold remount remains pending.** Preserve the guest-mutated pack.
 No guest
 state import or ARM cursor repair in this run. Main's known FB enable/disable
 workaround restored HDMI; the earlier firmware raster was uninitialized noise.
-Main remains the sole SPI owner. Preserve this fresh baseline for qualification
-before the matched DDR42 and optimized43 comparisons.
+Main remains the sole SPI owner. Preserve this run and its fault evidence before subsequent reloads
+and the matched DDR42/optimized43 comparisons.
 Exact deployment/assertions/restart config and captures: native41b reports;
 local launch helpers in `build/rtl-executive/cedar41b-launch/`.
 
-At19:24 a real STOP! click was requested in the first CommandTool; remaining
-startup command files continued, so this is not proof of all streams closed.
-That tool still runs optional CedarChest installs; the second is idle after
-the marker read. All keys/buttons UP, no active input/GDB helper. Main/server
-remain13741/13734; good2659/dropped128/CRC0/RX0/abort0, no pack fault at19:29.
-Before host reload, allow normal guest cleanup. `BootTool.mesa BootCommand`
-with no args checks SomethingWorthSaving then calls Booting.Boot[self];
-`File/BootingImpl.mesa` calls registered booting procs (which may flush) before
-germ inload. A normal `boot` from the second tool is a candidate clean-remount
-test; inspect rejection or actual guest reboot, then log in and read the marker.
-Do not patch guest CPU/RAM/IOCBs or mistake a cache read for cold persistence.
-Full current input evidence: native41b/input-qualification.json and screenshots.
+**Current state,19:48UTC: Native41b POST-DESKTOP STRESS FAILED.** The core is
+halted on a latched four-second host-transfer watchdog: machine=802a020a,
+state=47fc, cpu=000018ff. These fields now report the fault, overriding the
+selected instruction counters. Reason8, cylinder42/head0/block2, serial parser
+idle, host_state1 awaiting WRITE ACK assertion, sd_wr=1/sd_rd=0/sd_ack=0,
+LBA6399. CRC/RX/abort remain zero. Main13741/server13734 still run.
+The exact current fault first appears at line112652 of the archived accumulated
+Main log; earlier prefix faults belong to previous runs. The frozen screen
+still shows the desktop and marker read. A normal `boot` was typed after
+refocusing, but is not visibly accepted; do not attribute this timeout to
+Booting.Boot or claim a clean reboot/remount. Optional startup imports were
+also in progress. All keys/buttons are up; no active input or GDB helper.
+
+Main's image fd31 has O_RDWR|O_SYNC, position3292160, exactly the end of the
+31-block window beginning at LBA6399. Repeated writes to the same cached track
+mean this cannot identify which write generation Main last serviced. No
+monotonic/syscall observer covered the timeout itself: earlier Native34 long
+O_SYNC writes are a strong suspect, not proof of this fault's blocking call.
+Do not clear the fault, fake a completion or reset before preserving evidence.
+The physical image was copied without mutation at19:48:14UTC to
+`Cedar41b_20261018/cedar-work-fault-preserved.pack`,63578624 bytes, SHA256
+`0046452c45d333b30020a47546e5fdfa65b4ecb9edd46d14cbb9ba048bf02b7b`;
+source size/mtime stayed unchanged and both hashes matched. This copy does
+**not** include dirty FPGA track RAM. Original remains untouched.
+
+Next implement bounded coherent Main disk buffering/file work and timestamped
+request/ACK/file-operation/poll observations. Cover injected multi-second IO,
+read-after-write, neighboring data, queue saturation, failed writes and drain
+before remount/core programming/fork/reboot. Then repeat fresh boot, exact
+input, actual cold-remount marker persistence and sustained stress. Do not
+promote42/43/44 from the failed stress result. Evidence: native41b first-disk-
+fault.json, fault-pack-preservation.json, compressed full logs and screen.
+The earlier fresh desktop/input/file-close/read successes remain valid;
+cold-remount persistence and two-hour stability remain unqualified.
 
 **Native44 group-interleaving candidate: simulation AND all-device timing PASS,
 not deployed.** Optional INTERLEAVE_GROUPS=1 remaps only raw backing addresses,

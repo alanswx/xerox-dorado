@@ -1,5 +1,5 @@
 {
-  "hardware": "PASS one fresh original-firmware/CoolBoot/BFN113 Cedar Viewers boot with required128MB SDRAM and fixed e237dffc server. Real Cmd/mouse/focus and exact short/alphabet/digits echo PASS at0.1s down/up. Local marker created/closed/read back exactly; COLD REMOUNT PENDING. No guest-state import or ARM cursor repair. Main FB toggle needed for HDMI.",
+  "hardware": "Fresh original-firmware Cedar Viewers/mouse/Cmd/exact keyboard/local marker close+read PASS, then POST-DESKTOP STRESS FAILED on host-write watchdog802a020a/LBA6399 waiting ACKassert. Cold remount and sustained qualification NOT passed; preserve halted state. See first-disk-fault.json.",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,
