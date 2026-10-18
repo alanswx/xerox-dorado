@@ -308,6 +308,31 @@ must establish which transitions can share a fabric edge using explicit
 pre-edge state and which require ordered or related PLL phases. Neither
 66.67 MHz/SYSPER2 nor a fixed number of final phases is promised yet.
 
+### Processor clock-source wiring checked
+
+`tools/check_t_control_wiring.py` now follows the source paths as well as
+T's capture pins in the ORIGINAL wire lists. It checks package types,
+33 connected pins and15 unwired gate/reset inputs across the two boards.
+With the documented pulldown of unwired MECL inputs:
+
+- ProcH l01 -> g13 -> i18 gives
+  `Clock0'Da = CLK.ph' | CLKEnable'c | StartCycle'a`.
+- ProcL l02 samples `StartCycle'a` on the positive edge of
+  `CLK.pl' | CLKEnable'b`; g12 NOR and c18 OR give `SHCP'C = ~l02.Q`.
+  The original l02 capture has no reset on this half.
+
+This makes the remaining enable work concrete: the high capture follows
+an OR-gated clock edge, whereas the low capture follows the enable
+flip-flop's falling Q. Changes in StartCycle or clock-enable can themselves
+create edges; deriving both from one nominal phase would miss this. The
+full ContA StartCycle/Run/extension ordering and same-edge setup still need
+an event-driven reference before integration. No guessed shared enable,
+new reset or production-clock change is introduced by this audit.
+
+`make -C verilog t-controls-test` passes the expanded original-wiring check
+and existing8192 comparisons/8164 legal manual checks/2048 holds; its
+universal-enable failure control still detects4096 disagreements.
+
 ## Clock-family contract register
 
 This table distinguishes established relationships from integration work
@@ -319,7 +344,7 @@ original sheets/manual remain the references.
 | BaseBoard phases | BaseBd11 g04/h04/g03/h03; SCP'=g04.Q', ECP=h03.Q. ECP leads SCP' by 1/8 clock. BaseBd12 j02 OR, with debug pulse inactive, is low for 3/8. | Add debug pulses and fanout qualification; no analog-delay claims. |
 | Run and memory enable | ContA l02–l06 generate processor/memory enables and RunRefresh. HM5.12 requires memory clocks during processor halt when RunRefresh is set. | Preserve asynchronous set/reset, step and stop behavior. Do not use global scheduler advance as processor Hold. |
 | Instruction phases | ContA l07: Phase0/Phase1 depend on StartCycle/sPhase0 and clk2'Bf; HM2.3 defines ordinary/extended timing. | Preserve feedback and IM/TPC extension; do not toggle t0/t1 unconditionally. |
-| T and task setup | ProcL20 d17 MC10176 clocks on SHCP'C; ProcH20 h22 on Clock0'Da. Both produce TbSelMd/write enables from LC/FF and task comparison. Processor Curr/Next stages also use SHCP'C/Clock1'. | Control decode/capture interface passes8192 cases. Enable-source derivation and complete T setup/data/task ordering remain. |
+| T and task setup | ProcL20 d17 MC10176 clocks on SHCP'C; ProcH20 h22 on Clock0'Da. Both produce TbSelMd/write enables from LC/FF and task comparison. Processor Curr/Next stages also use SHCP'C/Clock1'. | Control decode/capture interface passes8192 cases. Clock-source paths now checked against original wire lists; edge-enable integration and complete T setup/data/task ordering remain. |
 | Map latch/MCR | MemX f01/g01 MC10175 follow Mapbuf while MapbufLd' is low; f04 F10016 consumes Mapbuf at Clk1'Ab. | Preserve transparency before close and the consuming edge. Current clock lag/PRECAP values are compensation, not the physical specification. |
 | RAM writes | F10145A captures address/data in the active write window; existing native fit has narrowly reviewed own-address hold exceptions. | Keep old-data reads, write commitment and setup checks; re-review every new placement. |
 | Peripheral clocks | K1115A rates depend on SYSPER; MC12061's fabric/8 currently mis-scales the BaseBoard clock. | Qualify prepared timer correction against original firmware and measure terminal/Ethernet/disk/Junk rates together. |

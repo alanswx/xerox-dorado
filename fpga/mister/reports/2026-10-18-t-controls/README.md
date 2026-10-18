@@ -26,3 +26,13 @@ gates, T data latches, task files and complete processor/firmware equivalence
 are NOT qualified. No generated board or FPGA uses this new module yet.
 The separate Native29 candidate changes the existing core PLL only; it does
 not use either experimental clock/control module.
+
+The subsequent source-path audit checks another33 connected and15 unwired
+inputs, plus package types and exclusive source drivers in the original
+wire lists. ProcH l01/g13/i18 form the OR-gated Clock0'Da. ProcL l02/g12/c18
+form SHCP'C from inverse l02.Q; l02 captures StartCycle'a on the positive
+edge of CLK.pl' OR CLKEnable'b. See the clock plan for explicit equations.
+The expanded wiring audit and unchanged T-control regression pass;
+`clock-source-audit.txt` preserves the output. This records the clock sources;
+it does not yet implement the edge enables or establish same-edge ordering
+with ContA, latches and task files. Production RTL and Native34 are unchanged.

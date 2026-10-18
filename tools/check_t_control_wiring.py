@@ -3,7 +3,8 @@
 
 HM3.8 and ProcH20/ProcL20 define the function; this check verifies package
 identity and the capture/data pins used in the independent cone regression.
-It does not infer the two capture enables or qualify the whole processor.
+The clock-path check records the original fanout and enable flip-flop.
+It does not implement the two capture enables or qualify the whole processor.
 """
 from pathlib import Path
 from sil_netlist import load_board
@@ -63,6 +64,60 @@ def check(board_name, latch, clock, select_gate, write_gate, low):
     print(f"T-CONTROL WIRING PASS {board_name} {latch}.9={clock}, {len(expected)} pin checks")
 
 
+def check_clock_path(board_name, low):
+    root = Path(__file__).resolve().parents[1]
+    directory = root / "chm/sil" / (board_name + ".dm!1_")
+    board = load_board(str(directory / (board_name + ".wl")))
+    pins = {(pin['pkg'], pin['pin']): name
+            for name, net in board.nets.items() for pin in net['pins']}
+    clock = "CLK.pl'" if low else "CLK.ph'"
+    enable = "CLKEnable'b" if low else "CLKEnable'c"
+    start = "Clk0En'" if low else "Clock0En'"
+    phase1 = "pClk1En'" if low else "pClock1En'"
+    expected = {
+        ('l01', 4): start, ('l01', 6): "StartCycle'a",
+        ('l01', 9): enable, ('l01', 11): clock,
+        ('l01', 12): "ppClk'b", ('l01', 13): "ppClk'a", ('l01', 14): "ppClk'c",
+        ('l02', 2): phase1, ('l02', 6): enable,
+        ('l02', 7): start, ('l02', 9): clock,
+    }
+    types = {'l01': 'SE10210', 'l02': 'SE10231'}
+    absent = [('l01', 5), ('l01', 7), ('l01', 10), ('l02', 13)]
+    if low:
+        expected.update({('g12', 4): "PreSHCP'C", ('g12', 6): phase1,
+                         ('c18', 9): "PreSHCP'C", ('c18', 13): "SHCP'C",
+                         ('d17', 9): "SHCP'C"})
+        types.update(g12='SE10211', c18='SE10210', d17='MC10176')
+        absent += [('g12', 5), ('g12', 7), ('c18', 10), ('c18', 11)]
+        equation = "SHCP'C = ~l02.Q; l02 samples StartCycle'a on rising(CLK.pl' | CLKEnable'b)"
+    else:
+        expected.update({('g13', 3): "PreClock0'D", ('g13', 5): "ppClk'c",
+                         ('g13', 6): start, ('i18', 3): "Clock0'Da",
+                         ('i18', 5): "PreClock0'D", ('h22', 9): "Clock0'Da"})
+        types.update(g13='SE10210', i18='SE10210', h22='MC10176')
+        absent += [('g13', 7), ('i18', 6), ('i18', 7)]
+        equation = "Clock0'Da = CLK.ph' | CLKEnable'c | StartCycle'a"
+    for key, value in expected.items():
+        if pins.get(key) != value:
+            raise SystemExit(f"{board_name} clock path {key}: {pins.get(key)!r} != {value!r}")
+    for key in absent:
+        if key in pins:
+            raise SystemExit(f"{board_name} clock path {key}: expected unwired input, got {pins[key]!r}")
+    for package, part in types.items():
+        if board.packages[package]['type'] != part:
+            raise SystemExit(f"{board_name} clock path {package}: expected {part}")
+    outputs = [('l01', 4), ('l01', 14), ('l02', 2)]
+    outputs += [('g12', 4), ('c18', 13)] if low else [('g13', 3), ('i18', 3)]
+    for output in outputs:
+        drivers = {(pin['pkg'], pin['pin']) for pin in board.nets[pins[output]]['pins']
+                   if pin['dir'] == 'out'}
+        if drivers != {output}:
+            raise SystemExit(f"{board_name} clock path {pins[output]}: unexpected drivers {drivers}")
+    print(f"T-CLOCK WIRING PASS {board_name}: {equation}; {len(expected)} pins, {len(absent)} unwired inputs")
+
+
 if __name__ == "__main__":
     check("ProcH-Rev-Ce", "h22", "Clock0'Da", "f18", "f18", False)
     check("ProcL-Rev-Ci", "d17", "SHCP'C", "g23", "g23", True)
+    check_clock_path("ProcH-Rev-Ce", False)
+    check_clock_path("ProcL-Rev-Ci", True)

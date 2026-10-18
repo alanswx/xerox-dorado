@@ -93,7 +93,10 @@ independent original gate cone,8164 legal HM3.8 checks and2048 hold cases;
 a universal-enable mutation fails4096 cases. Original wire-list checks
 confirm h22 clock=Clock0'Da versus d17 clock=SHCP'C and swapped R-select pins.
 The experimental controls require correct independent enables; their
-sources and the complete T data/latch/task-file path remain unimplemented.
+source wiring is now checked (33 connected/15 unwired pins): high clock
+is CLK.ph' OR CLKEnable'c OR StartCycle'a; low clock is inverse l02.Q,
+which samples StartCycle'a on rising(CLK.pl' OR CLKEnable'b). Edge-enable
+integration and the complete T data/latch/task-file path remain unimplemented.
 No board/firmware qualification is claimed for this replacement.
 
 Native30 was the separate40MHz diagnostic control; its prolonged fit was
