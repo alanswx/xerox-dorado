@@ -57,6 +57,19 @@ Native31 includes its passive counters/coherent UIO plus the balanced arbiter.
 No Main/protocol change. Independent cyclic-scan order/payload/stall and
 full storage equivalence pass (all9,437,184 bits). See the clock plan.
 
+**Next memory candidate: Native32 is fitting, not deployed.** Optional128-line
+raw DDR buffer retains all four words per read; writes invalidate and still
+commit to DDR. Default generator option is OFF. Independent458-transaction
+scoreboard, reset/orphan/backpressure/write-busy and failure controls pass;
+complete storage14/16-bit boards match all2,359,296/9,437,184 bits. Three-group
+reads4449 ->509, writes463 and chipcycles1505 unchanged. Strict lint passes
+with only FPGA PROCASSINIT convention suppressed. Quartus synthesis retains
+128x64 data /128x21 tag RAMs. Need fresh fit/STA/clock review before loading.
+Frozen `/home/alans/mister/Dorado_Native32_20261018`, local build log
+`build/rtl-executive/native32-build.log`. Native31 loader utilization sample
+is16.9255% enabled (83.0745% paused), host50.0034MHz; not retired throughput.
+Evidence: reports/2026-10-18-ddr-linebuffer/ and native31/counts-loader.json.
+
 ## Boot history (current status above takes precedence)
 
 **Native25h cleared the media blocker; Native26 is now booting on MiSTer14.** The original BaseBoard firmware requested
@@ -584,7 +597,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Add coherent fabric-edge counters and dynamic UIO snapshot regression (old-code failure control); Native30 map passes, fit pending.
 - [x] Replace variable-index arbitration scan/payload mux with a balanced tree; independent order/payload/stall and full MSA equivalence gates pass.
 - [x] Review Native31 50MHz STA/clock/fast+slow hold paths; all29 checks pass with no new post-fit exceptions. Load on MiSTer14 and measure firmware enabled fraction.
-- [ ] Measure enabled fraction during Cedar loading/desktop; verify real input and stable HDMI at50MHz.
+- [x] Measure Cedar loader enabled fraction16.9255%, verify Guest input and actual1080p30 HDMI at50MHz (host-FB toggle workaround).
+- [ ] Verify Viewers/exclusive Echo/mouse and desktop enabled fraction at50MHz.
+- [x] Prototype optional128-line raw DDR buffer; independent coherence/reset/stall tests and full storage equivalence pass; disabled/stale-data mutations fail.
+- [ ] Review Native32 fit/STA/clock/hold paths, then qualify original firmware/Cedar/input and measure actual pause reduction before promotion.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.
 - [ ] Commit/push confirmed fixes and evidence; preserve Executive/mouse/disk
   regressions. Space Invaders compatibility remains a separate open item.

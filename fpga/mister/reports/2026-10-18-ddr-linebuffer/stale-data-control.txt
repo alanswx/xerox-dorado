@@ -1,0 +1,5 @@
+[540000] %Fatal: tb_storage_linecache.sv:72: Assertion failed in tb_storage_linecache.finish_request: word scoreboard addr=00 got=1234 expected=9000
+%Error: verilog/verilator/tb_storage_linecache.sv:72: Verilog $stop
+Aborting...
+
+exit=1

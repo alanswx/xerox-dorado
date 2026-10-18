@@ -21,6 +21,8 @@ def main():
     parser.add_argument('--storage-modules', type=int, choices=range(1, 5), default=4)
     parser.add_argument('--storage-chip-kbits', type=int, choices=(16, 64), default=16)
     parser.add_argument('--map-kwords', type=int, choices=(16, 64), default=16)
+    parser.add_argument('--storage-line-cache-bits', type=int, choices=range(0, 11), default=0,
+                        help='optional raw DDR line buffer index bits; 0 disables (default)')
     parser.add_argument('--receive-monitor', action='store_true', help='passive DskEth receive-status observation')
     parser.add_argument('--pilot-disk', action='store_true',
                         help='Pilot format: 28 usable of 29 slots, 10 label words, 256 data words')
@@ -221,7 +223,7 @@ module dorado_native_machine #(parameter integer SYSPER=4) (
   assign sv=storage_initialized && backend_response;
   assign init_accept=!storage_initialized && backend_ready;
   assign init_response=!storage_initialized && backend_response;
-  dorado_storage_ddram #(.ADDR_BITS(RAW_BITS)) u_ddram(
+  dorado_storage_ddram #(.ADDR_BITS(RAW_BITS),.LINE_CACHE_BITS(LINE_BUFFER_BITS),.GROUP_ADDR_BITS(14)) u_ddram(
     .clk(clk_host),.reset(reset),
     .req_valid(storage_initialized ? rv : init_valid),.req_ready(backend_ready),
     .req_write(storage_initialized ? rw : 1'b1),
@@ -236,7 +238,7 @@ CONNECTIONS
 RECEIVE_MONITOR
 endmodule
 `default_nettype wire
-'''.replace('GROUP_COUNT', str(groups)).replace('ADDRESS_BITS', str(address_bits))
+'''.replace('GROUP_COUNT', str(groups)).replace('ADDRESS_BITS', str(address_bits)).replace('LINE_BUFFER_BITS', str(args.storage_line_cache_bits))
     if chip_address_bits != 14:
         wrapper = wrapper.replace('[GROUPS*14-1:0]', f'[GROUPS*{chip_address_bits}-1:0]')
         wrapper = wrapper.replace('.GROUP_ADDR_BITS(14)', f'.GROUP_ADDR_BITS({chip_address_bits})')
@@ -273,6 +275,7 @@ endmodule
     sources += ['fpga/mister/'+n+'.sv' for n in ['dorado_receive_monitor','dorado_pack_hps','dorado_storage_group',
                 'dorado_storage_arb','dorado_storage_ddram','dorado_storage_init']]
     manifest = {'native': True, 'storage_modules': args.storage_modules, 'pilot_disk': args.pilot_disk, 'receive_monitor': args.receive_monitor,
+        'storage_line_cache_bits': args.storage_line_cache_bits,
                                                'control_error_monitor': True, 'pack_fault_monitor': True,
         'display_field': True, 'control_clock_monitor': True,
         'hps_pack': True, 'ethernet_wire': True, 'ethernet_host_port': True}

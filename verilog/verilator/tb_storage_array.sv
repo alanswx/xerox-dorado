@@ -1,7 +1,7 @@
 // Three groups exercise non-power-of-two arbitration and DDR byte lanes.
 // Every logical output and final stored bit is compared to the old chips.
 `timescale 1ns/1ps
-module tb_storage_array;
+module tb_storage_array #(parameter integer LINE_CACHE_BITS=0);
     localparam G=3,W=12,A=6;
     reg clk=0;always #1 clk=~clk;
     reg run=0,reset=0;
@@ -47,7 +47,7 @@ module tb_storage_array;
         .req_addr(addresses),.req_data(wdata),.rsp_valid(response),.rsp_ready(response_ready),.rsp_data(rdata),
         .raw_req_valid(rv),.raw_req_ready(rr),.raw_req_write(rw),.raw_req_addr(ra),.raw_req_data(wd),
         .raw_rsp_valid(sv),.raw_rsp_ready(sr),.raw_rsp_data(sd));
-    dorado_storage_ddram #(.ADDR_BITS(8)) memory_port(
+    dorado_storage_ddram #(.ADDR_BITS(8),.LINE_CACHE_BITS(LINE_CACHE_BITS),.GROUP_ADDR_BITS(A)) memory_port(
         .clk(clk),.reset(reset),.req_valid(rv),.req_ready(rr),.req_write(rw),.req_addr(ra),.req_data(wd),
         .rsp_valid(sv),.rsp_ready(sr),.rsp_data(sd),.ddram_busy(busy),.ddram_burstcount(burst),
         .ddram_addr(da),.ddram_read(dr),.ddram_write(dw),.ddram_wdata(ddata),.ddram_be(be),
@@ -104,7 +104,8 @@ module tb_storage_array;
         next_addr='1;step();tick();reset=1;repeat(4)tick();reset=0;
         wait(&ready);step();step();wait(&ready);tick();
         finished=1;wait(verified==G*W);
-        if(reads<1000 || writes<100)$fatal(1,"test did not exercise enough memory operations");
+        if(reads<(LINE_CACHE_BITS>0 ? 100 : 1000) || writes<100)
+            $fatal(1,"test did not exercise enough memory operations: reads=%0d writes=%0d",reads,writes);
         $display("STORAGE-ARRAY PASS: %d chip cycles, %d DDR reads, %d writes, three isolated groups, reset drain",steps,reads,writes);
         $finish;
     end

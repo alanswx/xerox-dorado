@@ -1,7 +1,7 @@
 // Complete MSA board equivalence: same pins, original chips versus DDR.
 // Only the raw bit arrays move; every serial/ECC output is compared each cycle.
 `timescale 1ns/1ps
-module tb_storage_board #(parameter integer ADDR_BITS=14);
+module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
     localparam integer CHIP_WORDS=1<<ADDR_BITS;
     reg clk=0;always #1 clk=~clk;
     reg run=0,reset=1;
@@ -217,7 +217,7 @@ module tb_storage_board #(parameter integer ADDR_BITS=14);
         .req_addr(addresses),.req_data(wdata),.rsp_valid(response),.rsp_ready(response_ready),.rsp_data(rdata),
         .raw_req_valid(rv),.raw_req_ready(rr),.raw_req_write(rw),.raw_req_addr(ra),.raw_req_data(wd),
         .raw_rsp_valid(sv),.raw_rsp_ready(sr),.raw_rsp_data(sd));
-    dorado_storage_ddram #(.ADDR_BITS(ADDR_BITS+4)) memory_port(
+    dorado_storage_ddram #(.ADDR_BITS(ADDR_BITS+4),.LINE_CACHE_BITS(LINE_CACHE_BITS),.GROUP_ADDR_BITS(ADDR_BITS)) memory_port(
         .clk(clk),.reset(reset),.req_valid(rv),.req_ready(rr),.req_write(rw),.req_addr(ra),.req_data(wd),
         .rsp_valid(sv),.rsp_ready(sr),.rsp_data(sd),.ddram_busy(busy),.ddram_burstcount(burst),
         .ddram_addr(da),.ddram_read(dr),.ddram_write(dw),.ddram_wdata(ddata),.ddram_be(be),

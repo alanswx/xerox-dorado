@@ -151,6 +151,26 @@ not Cedar performance. Ceiling6.25M/s before pauses,37.5% of original Dorado;
 Evidence: `fpga/mister/reports/2026-10-18-native31/`.
 The original clock-family migration and unused DDR return lanes remain.
 
+## Backing storage: optional line buffer started
+
+Native31's real Cedar loader sample gives16.9255% enabled fabric edges;
+83.0745% are global pauses (50.0034MHz host). These are not instructions.
+This justifies using all four16-bit lanes from a raw64-bit DDR read before
+attempting another PLL increase.
+
+`dorado_storage_ddram.sv` now has an optional128-line buffer (default OFF).
+Full tags prevent false hits; writes invalidate and still wait for DDR;
+reset invalidates and drains outstanding responses. All original DRAM/
+ECC/cache behavior stays upstream. Independent scoreboard and full board
+comparisons pass, including all9,437,184 bits. Three-group DDR reads drop
+4449 ->509 with identical1505 chip cycles/463writes. Cache-disabled and
+missing-invalidation failure controls prove the traffic/coherence tests.
+
+A separately frozen Native32 candidate enables the buffer at50MHz/SYSPER4.
+Quartus synthesis passes and retains both RAMs; fit/timing/hardware pending.
+Native31 remains the live control. Evidence/reproduction:
+`fpga/mister/reports/2026-10-18-ddr-linebuffer/`. No hardware speedup claim yet.
+
 ## First prototype: implemented, isolated
 
 [`dorado_clock_phases.sv`](../verilog/rtl/dorado_clock_phases.sv) describes

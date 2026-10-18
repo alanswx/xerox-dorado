@@ -1,0 +1,17 @@
+{
+  "native": true,
+  "storage_modules": 4,
+  "pilot_disk": true,
+  "receive_monitor": true,
+  "storage_line_cache_bits": 7,
+  "control_error_monitor": true,
+  "pack_fault_monitor": true,
+  "display_field": true,
+  "control_clock_monitor": true,
+  "hps_pack": true,
+  "ethernet_wire": true,
+  "ethernet_host_port": true,
+  "storage_chip_kbits": 64,
+  "map_kwords": 64,
+  "memory_geometry_experimental": true
+}

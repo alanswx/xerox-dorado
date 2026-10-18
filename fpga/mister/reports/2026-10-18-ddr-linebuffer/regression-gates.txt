@@ -1,0 +1,303 @@
+%Warning-TIMESCALEMOD: fpga/mister/dorado_storage_ddram.sv:7:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    7 | module dorado_storage_ddram #(
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_ddram.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_ddram;
+      |        ^~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.044
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+STORAGE-DDRAM PASS: byte lanes, stalls, delayed reads, response backpressure, reset drain
+- verilog/verilator/tb_storage_ddram.sv:87: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 265ns; walltime 0.000 s; speed 5.638 ms/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 2 MB
+%Warning-TIMESCALEMOD: fpga/mister/dorado_storage_ddram.sv:7:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    7 | module dorado_storage_ddram #(
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_linecache.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_linecache;
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.044
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+STORAGE-LINECACHE PASS: 458 transactions;8 fills for32 interleaved lanes, writes/coherence/collisions/backpressure/reset drain; reads=244 writes=104
+- verilog/verilator/tb_storage_linecache.sv:143: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 9us; walltime 0.001 s; speed 10.233 ms/s
+- Verilator: cpu 0.001 s on 1 threads; alloced 2 MB
+%Warning-TIMESCALEMOD: fpga/mister/dorado_storage_ddram.sv:7:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    7 | module dorado_storage_ddram #(
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_array.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_array #(parameter integer LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.044
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: fpga/mister/dorado_storage_group.sv:6:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    6 | module dorado_storage_group #(
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_array.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_array #(parameter integer LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: fpga/mister/dorado_storage_arb.sv:4:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    4 | module dorado_storage_arb #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_array.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_array #(parameter integer LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MK4096P_6.v:19:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   19 | module cell_MK4096P_6 #(parameter integer ADDR_BITS = 14) (
+      |        ^~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_array.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_array #(parameter integer LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+STORAGE-ARRAY PASS:        1505 chip cycles,         509 DDR reads,         463 writes, three isolated groups, reset drain
+- verilog/verilator/tb_storage_array.sv:110: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 55us; walltime 0.011 s; speed 5.070 ms/s
+- Verilator: cpu 0.011 s on 1 threads; alloced 3 MB
+Generated verilog/verilator/obj_storage_linecache_board14/msa_ddram.v: 144 chips -> 16 raw storage groups; other MSA wiring preserved
+%Warning-TIMESCALEMOD: verilog/verilator/obj_storage_linecache_board14/msa_ddram.v:24:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   24 | module msa_ddram #(parameter integer SYSPER = 16) (
+      |        ^~~~~~~~~
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.044
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: verilog/verilator/obj_storage_linecache_board14/msa.v:23:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   23 | module msa #(parameter integer SYSPER = 16) (
+      |        ^~~
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: fpga/mister/dorado_storage_ddram.sv:7:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    7 | module dorado_storage_ddram #(
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: fpga/mister/dorado_storage_group.sv:6:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    6 | module dorado_storage_group #(
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: fpga/mister/dorado_storage_arb.sv:4:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    4 | module dorado_storage_arb #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MK4096P_addr.v:32:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   32 | module cell_MK4096P_addr #(parameter integer ROW_BITS = 7) (
+      |        ^~~~~~~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board14/msa_ddram.v:926:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10141.v:30:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   30 | module cell_MC10141 #(parameter PRECAP = 1) (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board14/msa_ddram.v:1054:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10125.v:8:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    8 | module cell_MC10125 (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board14/msa_ddram.v:1064:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74S174.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_SN74S174 (
+      |        ^~~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board14/msa_ddram.v:1079:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74H04.v:24:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   24 | module cell_SN74H04 (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board14/msa_ddram.v:1130:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74166.v:7:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    7 | module cell_SN74166 (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board14/msa_ddram.v:1233:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10176.v:13:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   13 | module cell_MC10176 #(parameter PRECAP = 1) (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board14/msa_ddram.v:1446:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10124.v:8:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    8 | module cell_MC10124 (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board14/msa_ddram.v:1760:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10103.v:28:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | module cell_MC10103 (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board14/msa_ddram.v:1987:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10210.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_MC10210 (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board14/msa_ddram.v:2029:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_F10016.v:8:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    8 | module cell_F10016 #(parameter PRECAP = 0) (
+      |        ^~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board14/msa_ddram.v:2205:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MK4096P_6.v:19:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   19 | module cell_MK4096P_6 #(parameter integer ADDR_BITS = 14) (
+      |        ^~~~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board14/msa.v:1477:1: ... note: In file included from 'msa.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+Stored one bits:        6986
+STORAGE-BOARD PASS:       12012 complete-board cycles,        2944 DDR reads,        7872 writes,        1111 output transitions, all 2359296 stored bits identical
+- verilog/verilator/tb_storage_board.sv:701: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 218us; walltime 0.040 s; speed 5.472 ms/s
+- Verilator: cpu 0.040 s on 1 threads; alloced 5 MB
+Generated verilog/verilator/obj_storage_linecache_board16/msa_ddram.v: 144 chips -> 16 raw storage groups; other MSA wiring preserved
+%Warning-TIMESCALEMOD: verilog/verilator/obj_storage_linecache_board16/msa_ddram.v:24:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   24 | module msa_ddram #(parameter integer SYSPER = 16) (
+      |        ^~~~~~~~~
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.044
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: verilog/verilator/obj_storage_linecache_board16/msa.v:23:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   23 | module msa #(parameter integer SYSPER = 16) (
+      |        ^~~
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: fpga/mister/dorado_storage_ddram.sv:7:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    7 | module dorado_storage_ddram #(
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: fpga/mister/dorado_storage_group.sv:6:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    6 | module dorado_storage_group #(
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: fpga/mister/dorado_storage_arb.sv:4:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    4 | module dorado_storage_arb #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MK4096P_addr.v:32:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   32 | module cell_MK4096P_addr #(parameter integer ROW_BITS = 7) (
+      |        ^~~~~~~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board16/msa_ddram.v:926:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10141.v:30:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   30 | module cell_MC10141 #(parameter PRECAP = 1) (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board16/msa_ddram.v:1054:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10125.v:8:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    8 | module cell_MC10125 (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board16/msa_ddram.v:1064:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74S174.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_SN74S174 (
+      |        ^~~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board16/msa_ddram.v:1079:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74H04.v:24:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   24 | module cell_SN74H04 (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board16/msa_ddram.v:1130:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_SN74166.v:7:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    7 | module cell_SN74166 (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board16/msa_ddram.v:1233:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10176.v:13:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   13 | module cell_MC10176 #(parameter PRECAP = 1) (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board16/msa_ddram.v:1446:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10124.v:8:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    8 | module cell_MC10124 (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board16/msa_ddram.v:1760:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10103.v:28:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | module cell_MC10103 (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board16/msa_ddram.v:1987:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MC10210.v:20:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   20 | module cell_MC10210 (
+      |        ^~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board16/msa_ddram.v:2029:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_F10016.v:8:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    8 | module cell_F10016 #(parameter PRECAP = 0) (
+      |        ^~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board16/msa_ddram.v:2205:1: ... note: In file included from 'msa_ddram.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: verilog/cells/cell_MK4096P_6.v:19:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   19 | module cell_MK4096P_6 #(parameter integer ADDR_BITS = 14) (
+      |        ^~~~~~~~~~~~~~
+                       verilog/verilator/obj_storage_linecache_board16/msa.v:1477:1: ... note: In file included from 'msa.v'
+                       verilog/verilator/tb_storage_board.sv:4:8: ... Location of module with timescale
+    4 | module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
+      |        ^~~~~~~~~~~~~~~~
+Stored one bits:        6986
+STORAGE-BOARD PASS:       12012 complete-board cycles,        2992 DDR reads,        7872 writes,        1111 output transitions, all 9437184 stored bits identical
+- verilog/verilator/tb_storage_board.sv:701: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 219us; walltime 0.047 s; speed 4.690 ms/s
+- Verilator: cpu 0.047 s on 1 threads; alloced 13 MB

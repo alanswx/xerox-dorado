@@ -1274,6 +1274,13 @@ storage-ddram-test:
 		fpga/mister/dorado_storage_ddram.sv verilog/verilator/tb_storage_ddram.sv \
 		>/dev/null && ./verilog/verilator/obj_storage_ddram/storage-ddram-test
 
+.PHONY: storage-linecache-test
+storage-linecache-test:
+	@cd ../.. && $(V) --binary --top-module tb_storage_linecache $(V_WARN) \
+		--Mdir verilog/verilator/obj_storage_linecache -o storage-linecache-test \
+		fpga/mister/dorado_storage_ddram.sv verilog/verilator/tb_storage_linecache.sv \
+		>/dev/null && ./verilog/verilator/obj_storage_linecache/storage-linecache-test
+
 .PHONY: storage-group-test
 storage-group-test:
 	@cd ../.. && $(V) --binary --top-module tb_storage_group $(V_WARN) \
@@ -1302,6 +1309,30 @@ storage-array-test:
 		>/dev/null && ./verilog/verilator/obj_storage_array/storage-array-test
 
 .PHONY: storage-board-test
+storage-linecache-array-test:
+	@cd ../.. && $(V) --binary --top-module tb_storage_array -GLINE_CACHE_BITS=7 $(V_WARN) \
+		--Mdir verilog/verilator/obj_storage_linecache_array -o array-test \
+		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
+		fpga/mister/dorado_storage_arb.sv verilog/cells/cell_MK4096P_6.v \
+		verilog/verilator/tb_storage_array.sv >/dev/null && \
+		./verilog/verilator/obj_storage_linecache_array/array-test
+
+.PHONY: storage-linecache-array-test storage-linecache-board-test
+storage-linecache-board-test:
+	@for bits in 14 16; do \
+		cd ../.. && python3 tools/sil_storage_ddram.py --chip-address-bits $$bits \
+		-o verilog/verilator/obj_storage_linecache_board$$bits/msa_ddram.v \
+		--reference-output verilog/verilator/obj_storage_linecache_board$$bits/msa.v && \
+		$(V) --binary --top-module tb_storage_board -GADDR_BITS=$$bits -GLINE_CACHE_BITS=7 $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_storage_linecache_board$$bits -o board-test \
+		verilog/verilator/obj_storage_linecache_board$$bits/msa_ddram.v \
+		verilog/verilator/obj_storage_linecache_board$$bits/msa.v \
+		fpga/mister/dorado_storage_ddram.sv fpga/mister/dorado_storage_group.sv \
+		fpga/mister/dorado_storage_arb.sv verilog/verilator/tb_storage_board.sv >/dev/null && \
+		./verilog/verilator/obj_storage_linecache_board$$bits/board-test || exit $$?; \
+		cd verilog/verilator; \
+	done
+
 storage-board-test:
 	@cd ../.. && python3 tools/sil_storage_ddram.py \
 		-o verilog/verilator/obj_storage_board/msa_ddram.v && \

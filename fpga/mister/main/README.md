@@ -73,7 +73,9 @@ over that mode. For samples less than one wrap apart (107s at40MHz), use
 **not retired instructions**. Dividing enabled edges by `2*SYSPER` gives
 only an instruction ceiling; original Hold and extended IM/TPC sequences
 can lower actual throughput further. Normal CPU monitoring returns with
-the option set to `CPU`. Native30 is not hardware-qualified yet.
+the option set to `CPU`. Native31 includes these counters and runs on hardware at50MHz (85.9s wrap;
+use intervals<60s). Its Cedar loader sample is16.9255% enabled; see the
+Native31 report. Native30 itself remains an undeployed control candidate.
 
 The FPGA serializes the sync bit, data and real CRC and observes DskEth's
 actual transmit wire. **DskEth includes the sync bit in its CRC.** The

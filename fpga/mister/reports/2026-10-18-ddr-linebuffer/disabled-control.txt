@@ -1,0 +1,5 @@
+[776000] %Fatal: tb_storage_linecache.sv:97: Assertion failed in tb_storage_linecache: discarded useful DDR lanes: reads=32 expected8
+%Error: verilog/verilator/tb_storage_linecache.sv:97: Verilog $stop
+Aborting...
+
+exit=1
