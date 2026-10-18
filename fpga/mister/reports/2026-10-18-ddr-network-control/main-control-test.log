@@ -1,0 +1,1 @@
+MAIN CONTROL CLIENT PASS: actual daemon service,3/5-byte fragments, EINTR/EAGAIN, pending request then STOP, delayed ACK refusal/retry, cleanup failure, wrong reply rejection and reconnect; opens=4 closes=5

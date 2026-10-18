@@ -1,0 +1,5 @@
+DDR-UIO PASS: complete atomic control, coherent capability/epoch/errors, partial/overlong/mode/stale rejection, ownership until drain, SPI isolation/fallback/reset
+- verilog/verilator/tb_ethernet_ddr_uio.sv:90: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.044 2026-01-01
+- Verilator: $finish at 563ns; walltime 0.000 s; speed 6.624 ms/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 2 MB

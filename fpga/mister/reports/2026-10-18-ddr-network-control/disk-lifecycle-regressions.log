@@ -1,0 +1,20 @@
+Dorado disk: cache needs one regular sector-aligned image <=64MiB on slot0
+Dorado disk: monotonic trace /tmp/dorado-disk-adapter-i0suka_p/normal.jsonl
+Dorado disk: image cache ready, 262144 bytes, generation 1
+Dorado disk: image cache ready, 262144 bytes, generation 2
+DISK-ADAPTER PASS: actual adapter/cache/worker, 4.2s file stall, 1937 main-thread SPI read/write polls, max gap 3.781ms; deferred mount/full cold remount/overflow/sole SPI owner
+Waiting for offloaded work to finish...Done
+Dorado disk: cache needs one regular sector-aligned image <=64MiB on slot0
+Dorado disk: monotonic trace /tmp/dorado-disk-adapter-i0suka_p/error.jsonl
+Dorado disk: image cache ready, 262144 bytes, generation 1
+DISK-ADAPTER ERROR PASS: file failure retains image, prevents lifecycle change and consumes no further SPI write
+Waiting for offloaded work to finish...Done
+Dorado disk: refusing test failed core load: IO error 28, generation 1, dirty 400; cache retained
+Dorado disk: refusing image replacement: IO error 28, generation 1, dirty 400; cache retained
+Dorado disk: refusing process termination: IO error 28, generation 1, dirty 400; cache retained
+Dorado disk: IO error 28; requests held, dirty data retained, lifecycle barriers blocked
+Dorado disk: refusing process termination: IO error 28, generation 1, dirty 400; cache retained
+Dorado disk: cache needs one regular sector-aligned image <=64MiB on slot0
+Dorado disk: cache needs one regular sector-aligned image <=64MiB on slot0
+DISK-ADAPTER TERMINATION PASS: SIGTERM and exact patched input.cpp SIGINT handler drain before exit
+DISK-ADAPTER TRACE PASS: monotonic IO durations and concurrent request/ACK/poll records, explicit errors/barriers, no dropped records

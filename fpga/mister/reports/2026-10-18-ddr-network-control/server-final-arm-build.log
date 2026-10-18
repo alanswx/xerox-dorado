@@ -1,0 +1,20 @@
+mkdir -p /home/alans/mister/Dorado_DDRNetwork_20261018/
+/usr/local/gcc-arm-10.2-2020.11-x86_64-arm-none-linux-gnueabihf/bin/arm-none-linux-gnueabihf-gcc -O2 -Wall -Wextra -ffunction-sections -fdata-sections -I../../../dorado/include dorado_server.c \
+	dorado_ddr_ring.c dorado_ddr_control.c dorado_ddr_mapping.c \
+	../../../dorado/src/ethernet.c ../../../dorado/src/io.c -Wl,--gc-sections -o /home/alans/mister/Dorado_DDRNetwork_20261018/server-ddr-arm
+../../../dorado/src/ethernet.c: In function ‘eth_tx_packet_done.part.0’:
+../../../dorado/src/ethernet.c:3269:56: warning: ‘%s’ directive output may be truncated writing up to 511 bytes into a region of size 128 [-Wformat-truncation=]
+ 3269 |     snprintf(slot->open_name, sizeof slot->open_name, "%s%s", name,
+      |                                                        ^~     ~~~~
+../../../dorado/src/ethernet.c:3269:5: note: ‘snprintf’ output between 1 and 514 bytes into a destination of size 128
+ 3269 |     snprintf(slot->open_name, sizeof slot->open_name, "%s%s", name,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 3270 |              strchr(name, '!') ? "" : "!1");
+      |              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../../../dorado/src/ethernet.c: In function ‘dorado_ethernet_add_boot_dir_all’:
+../../../dorado/src/ethernet.c:391:48: warning: ‘%s’ directive output may be truncated writing up to 255 bytes into a region of size 64 [-Wformat-truncation=]
+  391 |         snprintf(names[n++], sizeof names[0], "%s", de->d_name);
+      |                                                ^~
+../../../dorado/src/ethernet.c:391:9: note: ‘snprintf’ output between 1 and 256 bytes into a destination of size 64
+  391 |         snprintf(names[n++], sizeof names[0], "%s", de->d_name);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

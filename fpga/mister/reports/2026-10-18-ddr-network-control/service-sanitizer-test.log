@@ -1,0 +1,1 @@
+DDR CONTROL PASS: fragments/EOF, duplicate ownership, fresh/stale/wrapped sequences, failed cleanup ACK, protected stopped memory, ring fault and endpoint lifetime; opens=5 closes=6

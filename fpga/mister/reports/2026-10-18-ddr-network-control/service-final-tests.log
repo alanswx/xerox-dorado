@@ -1,0 +1,8 @@
+mkdir -p ../../../build/
+cc -O2 -Wall -Wextra -ffunction-sections -fdata-sections -std=c11 -Werror dorado_ddr_ring.c dorado_ddr_control.c test_ddr_control.c -o ../../../build/dorado-server-ddr-control-test
+../../../build/dorado-server-ddr-control-test
+DDR CONTROL PASS: fragments/EOF, duplicate ownership, fresh/stale/wrapped sequences, failed cleanup ACK, protected stopped memory, ring fault and endpoint lifetime; opens=5 closes=6
+mkdir -p ../../../build/
+cc -O2 -Wall -Wextra -ffunction-sections -fdata-sections -std=c11 -Werror dorado_ddr_mapping.c test_ddr_mapping.c -o ../../../build/dorado-server-ddr-map-test
+../../../build/dorado-server-ddr-map-test
+DDR MAP PARSER PASS: actual reservation shape, overlaps/boundaries/driver claims, redacted/missing/malformed maps; no physical mapping attempted

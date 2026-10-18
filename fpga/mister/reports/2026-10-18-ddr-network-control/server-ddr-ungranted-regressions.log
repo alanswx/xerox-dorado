@@ -1,0 +1,30 @@
+mkdir -p ../../../build/
+cc -O2 -Wall -Wextra -ffunction-sections -fdata-sections -I../../../dorado/include dorado_server.c \
+		dorado_ddr_ring.c dorado_ddr_control.c dorado_ddr_mapping.c \
+		../../../dorado/src/ethernet.c ../../../dorado/src/io.c -Wl,-dead_strip -o ../../../build/dorado-server
+python3 test_server.py ../../../build/dorado-server ../../..
+Dorado DDR control listening on /tmp/dorado-pup-_cjuky44/server.sock.control; no mapping without Main grant
+Dorado Pup server listening on /tmp/dorado-pup-_cjuky44/server.sock (raw frames, no CRC/status)
+Dorado Pup server: retired disconnected Main session
+PUP-SERVER PASS: 18728 microcode bytes, 7080 EFTP bytes, retransmission, idle broadcasts, no controller trailers
+PUP-SERVER REEXEC PASS: immediate new-path registration, stale old socket, idle BOL without guest TX
+python3 test_cedar_server.py ../../../build/dorado-server ../../..
+Dorado DDR control listening on /tmp/dorado-cedar-bfn-3zfmanwc/server.sock.control; no mapping without Main grant
+Dorado Pup server listening on /tmp/dorado-cedar-bfn-3zfmanwc/server.sock (raw frames, no CRC/status)
+Dorado Pup server: retired disconnected Main session
+Dorado DDR control listening on /tmp/dorado-cedar-stp-rtfrwyxt/server.sock.control; no mapping without Main grant
+Dorado Pup server listening on /tmp/dorado-cedar-stp-rtfrwyxt/server.sock (raw frames, no CRC/status)
+CEDAR-ROUTING PASS: captured socket2/type200 probe with STP enabled
+CEDAR-BFN113 PASS: 31376 payload bytes, 62 frames, SHA256 83c81946859858da2ebfd8802ea592343bf7622b8822763d73578e0696b65d4e
+CEDAR-QUIET PASS: no idle broadcasts for3.2s; solicited routing still answers
+CEDAR-QUIET-REEXEC PASS: fresh Main receives boot broadcast
+CEDAR-STP PASS: 66296 file bytes, 45 data frames, largest frame 1504 bytes, SHA256 bebd06081862eb402433432e28d911454c0726828672469e51f5435b092f2055
+python3 test_bsp_retry.py ../../../build/dorado-server ../../..
+BSP-RETRY PASS: metadata recovered after 1 automatic probes; 1036 file bytes, SHA256 b99874d2cc2a4a107b422a2414fa17f41cc884a50eadcd8073275fe8b1427934
+BSP-RETRY PASS: body recovered after 2 automatic probes; 1036 file bytes, SHA256 b99874d2cc2a4a107b422a2414fa17f41cc884a50eadcd8073275fe8b1427934
+BSP-RETRY PASS: tail recovered after 2 automatic probes; 1036 file bytes, SHA256 b99874d2cc2a4a107b422a2414fa17f41cc884a50eadcd8073275fe8b1427934
+python3 test_bsp_ack_race.py ../../../build/dorado-server ../../..
+BSP-ACK-RACE PASS start=12345678 old_ack=1234d619 replay_end=1234dbdf final_ack=1234e623 second_file=2204 SHA256=e4515f30e7b30f98b931fbe1294fd78e07c64037c14b273e808f5356cc994732
+BSP-HISTORY-RING PASS start=12345678 file=200960 SHA256=2b74284b58b7cfb054beae5732dc698954904e9c22b7fc5f16243c31cf490e6f; closed-slot reuse byte-exact
+BSP-ACK-RACE PASS start=ffffd000 old_ack=00004fa1 replay_end=00005567 final_ack=00005fab second_file=2204 SHA256=e4515f30e7b30f98b931fbe1294fd78e07c64037c14b273e808f5356cc994732
+BSP-HISTORY-RING PASS start=ffffd000 file=200960 SHA256=2b74284b58b7cfb054beae5732dc698954904e9c22b7fc5f16243c31cf490e6f; closed-slot reuse byte-exact

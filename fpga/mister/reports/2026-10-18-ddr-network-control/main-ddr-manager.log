@@ -1,0 +1,8 @@
+Dorado DDR: refusing delayed daemon STOP: daemon STOP error 60
+Dorado DDR: refusing slow FPGA drain: FPGA has not drained
+Dorado DDR: active FPGA transport lost; packet ownership held, lifecycle barrier required
+Dorado DDR: invalid capability record; packet ownership held, lifecycle barrier required
+Dorado DDR: direct frame queues active, epoch 99821fd617d6890d
+Dorado DDR: direct frame queues active, epoch ae31641c60289a00
+Dorado DDR: direct frame queues active, epoch 9dc0d3003628ca9f
+DDR MANAGER PASS: actual daemon ACK/grant ordering, guarded mapping, delayed STOP refusal/retry, physical drain, inherited leases, status/fault/ABI, missing daemon, legacy fallback; grants=3 stops=11

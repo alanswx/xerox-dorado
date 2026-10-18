@@ -1,0 +1,12 @@
+Dorado DDR: refusing FPGA programming: daemon STOP error 110
+Dorado DDR: refusing reboot: daemon STOP error 110
+Dorado DDR: refusing Main restart: daemon STOP error 110
+Dorado DDR: refusing core initialization: daemon STOP error 110
+Dorado DDR: refusing delayed daemon STOP: daemon STOP error 110
+Dorado DDR: refusing slow FPGA drain: FPGA has not drained
+Dorado DDR: direct frame queues active, epoch dda5796e5f2376c2
+Dorado DDR: direct frame queues active, epoch 13d11c1f3038d070
+Dorado DDR: direct frame queues active, epoch 4becc53ca9726f32
+DDR MANAGER PASS: actual daemon ACK/grant ordering, guarded mapping, delayed STOP refusal/retry, physical drain, inherited leases, status/fault/ABI, missing daemon, legacy fallback; grants=3 stops=11
+Dorado DDR: active FPGA transport lost; packet ownership held, lifecycle barrier required
+Dorado DDR: invalid capability record; packet ownership held, lifecycle barrier required

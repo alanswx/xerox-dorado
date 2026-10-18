@@ -1,0 +1,44 @@
+{
+  "hardware": "NOT DEPLOYED",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "operating_conditions_checked": 4,
+  "path_categories_checked": 36,
+  "timing_checks": 31,
+  "minimum_slack_ns": 0.112,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "extra_timing_exceptions": "None",
+  "raw_backend": "SDRAM, no raw line buffer",
+  "raw_line_cache_entries": 0,
+  "storage_defer_reads": false,
+  "storage_prefetch": false,
+  "storage_interleave": false,
+  "network_ddr": true,
+  "required_sdram_mb": 128,
+  "guest_ram_mib": 8,
+  "raw_backing_mib": 16,
+  "change": "Native41 SDRAM baseline plus opt-in DDR Ethernet engine, atomic SPI epoch/grant control and ownership mux; power-up disabled; architectural board/cell/storage sources unchanged; no new timing cuts",
+  "rbf_sha256": "c7e6f373dd10ff55cfaaccda3c95ad6aa9d27a2a5e27dee83cb2f1728856ebbb"
+}
+Fitter Status : Successful - Sun Oct 18 15:43:58 2026
+Quartus Prime Version : 17.0.2 Build 602 07/19/2017 SJ Lite Edition
+Revision Name : Dorado
+Top-level Entity Name : sys_top
+Family : Cyclone V
+Device : 5CSEBA6U23I7
+Timing Models : Final
+Logic utilization (in ALMs) : 30,547 / 41,910 ( 73 % )
+Total registers : 52727
+Total pins : 145 / 314 ( 46 % )
+Total virtual pins : 0
+Total block memory bits : 2,506,566 / 5,662,720 ( 44 % )
+Total RAM Blocks : 330 / 553 ( 60 % )
+Total DSP Blocks : 35 / 112 ( 31 % )
+Total HSSI RX PCSs : 0
+Total HSSI PMA RX Deserializers : 0
+Total HSSI TX PCSs : 0
+Total HSSI PMA TX Serializers : 0
+Total PLLs : 3 / 6 ( 50 % )
+Total DLLs : 0 / 4 ( 0 % )
+

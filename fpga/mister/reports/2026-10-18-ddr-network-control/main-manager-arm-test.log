@@ -1,0 +1,10 @@
+Dorado DDR: refusing FPGA programming: daemon STOP error 110
+Dorado DDR: refusing reboot: daemon STOP error 110
+Dorado DDR: refusing Main restart: daemon STOP error 110
+Dorado DDR: refusing core initialization: daemon STOP error 110
+Dorado DDR: refusing delayed daemon STOP: daemon STOP error 110
+Dorado DDR: refusing slow FPGA drain: FPGA has not drained
+Dorado DDR: active FPGA transport lost; packet ownership held, lifecycle barrier required
+Dorado DDR: invalid capability record; packet ownership held, lifecycle barrier required
+terminate called after throwing an instance of 'std::system_error'
+  what():  Unknown error -1224838416

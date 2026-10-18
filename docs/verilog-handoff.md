@@ -27,7 +27,8 @@ four conditions min+0.115ns. Main remains sole SPI owner; core framebuffer0,
 instruction view1. C watcher38648 and boot pulses55801 COMPLETED; do not
 restart them. Guest\n\n and profile No were entered after idle measurement.
 All34 loadees, BootEssentials and font/FontMetrics Bringovers complete;
-23:04UTC capture shows package STARTs advancing. Desktop/input still pending.
+23:04UTC capture shows package STARTs advancing;23:07UTC shows gray
+Viewers startup raster/Idle. Full desktop/input still pending.
 No CRC/RX/abort or pack fault observed; TX dropped counter7 is retained.
 Paths: `Cedar42_20261018`, `_Computer/DoradoRTL_Cedar42_20261018/Cedar42.mgl`;
 Main `/tmp/dorado42-main.log`, disk `/tmp/dorado42-disk.jsonl`.
