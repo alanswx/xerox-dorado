@@ -1,0 +1,159 @@
+{
+  "hardware": "NOT DEPLOYED",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "operating_conditions_checked": 4,
+  "path_categories_checked": 36,
+  "minimum_slack_ns": 0.113,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "extra_timing_exceptions": "None",
+  "raw_backend": "SDRAM, no raw line buffer",
+  "change": "Native38 SDRAM capture plus F10145 logic placement; same read/write RTL",
+  "reports": [
+    {
+      "report": "native40-hold-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 0.19
+    },
+    {
+      "report": "native40-hold-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 0.16
+    },
+    {
+      "report": "native40-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 0.113
+    },
+    {
+      "report": "native40-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 0.131
+    },
+    {
+      "report": "native40-mpw-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native40-mpw-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native40-mpw-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native40-mpw-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native40-recovery-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 10.742
+    },
+    {
+      "report": "native40-recovery-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 10.567
+    },
+    {
+      "report": "native40-recovery-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 12.001
+    },
+    {
+      "report": "native40-recovery-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 11.692
+    },
+    {
+      "report": "native40-removal-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 0.872
+    },
+    {
+      "report": "native40-removal-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 0.909
+    },
+    {
+      "report": "native40-removal-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 0.376
+    },
+    {
+      "report": "native40-removal-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 0.451
+    },
+    {
+      "report": "native40-sdram-input-hold-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 6.544
+    },
+    {
+      "report": "native40-sdram-input-hold-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 6.899
+    },
+    {
+      "report": "native40-sdram-input-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 4.447
+    },
+    {
+      "report": "native40-sdram-input-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 4.95
+    },
+    {
+      "report": "native40-sdram-input-setup-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 5.477
+    },
+    {
+      "report": "native40-sdram-input-setup-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 5.099
+    },
+    {
+      "report": "native40-sdram-input-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 8.639
+    },
+    {
+      "report": "native40-sdram-input-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 8.184
+    },
+    {
+      "report": "native40-sdram-output-hold-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 6.418
+    },
+    {
+      "report": "native40-sdram-output-hold-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 6.332
+    },
+    {
+      "report": "native40-sdram-output-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 7.25
+    },
+    {
+      "report": "native40-sdram-output-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 7.217
+    },
+    {
+      "report": "native40-sdram-output-setup-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 2.635
+    },
+    {
+      "report": "native40-sdram-output-setup-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 2.556
+    },
+    {
+      "report": "native40-sdram-output-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 5.176
+    },
+    {
+      "report": "native40-sdram-output-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 4.911
+    },
+    {
+      "report": "native40-setup-7_slow_1100mv_-40c.rpt.gz",
+      "slack_ns": 1.424
+    },
+    {
+      "report": "native40-setup-7_slow_1100mv_100c.rpt.gz",
+      "slack_ns": 1.594
+    },
+    {
+      "report": "native40-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "slack_ns": 5.176
+    },
+    {
+      "report": "native40-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "slack_ns": 4.911
+    }
+  ]
+}

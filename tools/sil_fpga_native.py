@@ -73,6 +73,8 @@ def main():
     parser.add_argument('--storage-backend', choices=('ddr', 'sdram'), default='ddr',
                         help='raw storage backend; SDRAM requires the128MB MiSTer module')
     parser.add_argument('--receive-monitor', action='store_true', help='passive DskEth receive-status observation')
+    parser.add_argument('--instruction-monitor', action='store_true',
+                        help='expose passive original ContA instruction-progress signals')
     parser.add_argument('--pilot-disk', action='store_true',
                         help='Pilot format: 28 usable of 29 slots, 10 label words, 256 data words')
     args = parser.parse_args()
@@ -110,6 +112,9 @@ def main():
                          '--lc', 'chm/sil/DskEth-Rev-Cf.dm!1_/DskEth-Rev-Cf.lc',
                          '--dict', 'chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze',
                          '--receive-monitor', '-o', str(out/'DskEth_monitor.v')])
+    if args.instruction_monitor:
+        commands[0].append('--instruction-monitor')
+        commands[2].append('--instruction-monitor')
     if chip_address_bits != 14:
         commands[0] += ['--storage-address-bits', str(chip_address_bits)]
         commands[4] += ['--chip-address-bits', str(chip_address_bits)]
@@ -173,6 +178,8 @@ def main():
     connections += ['    .baseboard_debug(baseboard_debug)', '    .processor_debug(processor_debug)',
                     '    .control_debug(control_debug)',
                     '    .video_field(video_field)']
+    if args.instruction_monitor:
+        connections.append('    .instruction_signals(instruction_signals)')
     connections += [f'    .storage_{n}({v})' for n, v in [
         ('reset', 'reset || !storage_initialized'), ('ready', 'board_ready'),
         ('req_valid', 'valid'), ('req_write', 'wr'), ('req_ready', 'accept'),
@@ -312,6 +319,10 @@ endmodule
         connections.append('    .receive_debug(receive_debug)')
     wrapper = wrapper.replace('CONNECTIONS', ',\n'.join(connections))
     wrapper = wrapper.replace('RECEIVE_MONITOR', '')
+    if args.instruction_monitor:
+        wrapper = wrapper.replace('    output wire [31:0] baseboard_debug,processor_debug,',
+            '    output wire [4:0] instruction_signals,\n'
+            '    output wire [31:0] baseboard_debug,processor_debug,')
     if args.storage_backend == 'sdram':
         wrapper = sdram_wrapper(wrapper)
     (out/'dorado_native_machine.sv').write_text(wrapper)
@@ -347,6 +358,8 @@ endmodule
         'display_field': True, 'control_clock_monitor': True,
         'hps_pack': True, 'ethernet_wire': True, 'ethernet_host_port': True}
     manifest['storage_backend'] = args.storage_backend
+    if args.instruction_monitor:
+        manifest['instruction_monitor'] = True
     if args.storage_backend == 'sdram':
         manifest['required_sdram_bytes'] = 128*1024*1024
     if args.storage_chip_kbits != 16 or args.map_kwords != 16:

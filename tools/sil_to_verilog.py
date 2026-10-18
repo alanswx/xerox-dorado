@@ -1309,7 +1309,9 @@ class Generator:
 
     def emit(self, nominal_environment: bool = False, processor_monitor: bool = False,
              display_field: bool = False, receive_monitor: bool = False,
-             map_kwords: int = 16) -> str:
+             map_kwords: int = 16, instruction_monitor: bool = False) -> str:
+        if instruction_monitor and not processor_monitor:
+            raise ValueError('instruction monitor requires processor monitor')
         if map_kwords not in (16, 64):
             raise ValueError('map size must be16 or64K words')
         if map_kwords != 16 and self.b.name.split('-Rev')[0] != 'MemX':
@@ -1378,6 +1380,7 @@ class Generator:
         decl = ['    input  wire sys_clk'] + \
                (['    input wire baseboard_boot_n', '    output wire [31:0] baseboard_debug'] if nominal_environment else []) + \
                (['    output wire [31:0] processor_debug', '    output wire [14:0] processor_control'] if processor_monitor else []) + \
+               (['    output wire [4:0] instruction_signals'] if instruction_monitor else []) + \
                (['    output wire video_field'] if display_field else []) + \
                (['    output wire [31:0] receive_debug'] if receive_monitor else []) + \
                [f'    input  wire {vname(n)}' for n in inputs] + \
@@ -1616,6 +1619,8 @@ class Generator:
             fields += [f'TPC_{i:02d}' for i in range(4, 16)]
             A('  assign processor_debug = {' + ', '.join(fields) + '};')
             A('  assign processor_control = {rStop, Error_p_, StopAtT1, Jam, NoDispatch, dRun, SetRunRfsh, ClearMemStop, SCorFreezea, preStartCyclea, Stop, dStop, RunClk_p_a, FreezeAC, FreezeBD};')
+            if instruction_monitor:
+                A("  assign instruction_signals = {StartCycle, RepeatCur, clk2_p_Be, ~Run_p_, Jam};")
         if display_field:
             # HM p.115: OddField selects half-line VSync phasing. Export
             # the real VCW latch for the scaler, without changing the board.
@@ -1986,6 +1991,8 @@ def main(argv: list[str]) -> int:
                     help='emit BaseBd nominal voltage/current/temperature comparators and physical boot input')
     ap.add_argument('--processor-monitor', action='store_true',
                     help='emit ContA passive task/PC/run/hold and Stop/clock observation ports')
+    ap.add_argument('--instruction-monitor', action='store_true',
+                    help='also expose original ContA StartCycle/RepeatCur/clock/Run/Jam signals')
     ap.add_argument('--display-field', action='store_true',
                     help='expose DispY actual OddField latch for video capture')
     ap.add_argument('--receive-monitor', action='store_true',
@@ -2002,7 +2009,8 @@ def main(argv: list[str]) -> int:
                     cells_wanting_clock(args.cells))
     text = gen.emit(nominal_environment=args.nominal_environment,
                     processor_monitor=args.processor_monitor, display_field=args.display_field,
-                    receive_monitor=args.receive_monitor, map_kwords=args.map_kwords)
+                    receive_monitor=args.receive_monitor, map_kwords=args.map_kwords,
+                    instruction_monitor=args.instruction_monitor)
 
     if args.out:
         os.makedirs(os.path.dirname(args.out) or '.', exist_ok=True)

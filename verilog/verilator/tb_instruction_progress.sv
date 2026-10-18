@@ -1,4 +1,4 @@
-// Reuse the actual nine-board RTL and its CP-bus startup fixture. Tiny
+// Reuse the actual processor/control/memory/IFU RTL and CP-bus startup. Tiny
 // microprograms increment T once per instruction, independently checking
 // the proposed monitor against architectural register changes. No CPU model
 // supplies expected instruction counts. Generated fixtures are plain IM bits.
@@ -8,10 +8,10 @@ module tb_instruction_progress;
     wire [31:0] issued,held,cycles,clocks;
     dorado_instruction_monitor monitor(
         .clk(harness.sys_clk),.reset(1'b0),
-        .start_cycle(harness.m.b_ContA.StartCycle),
-        .repeat_current(harness.m.b_ContA.RepeatCur),
-        .clock2(harness.m.b_ContA.clk2_p_Be),
-        .running(!harness.m.b_ContA.Run_p_),.jam(harness.m.b_ContA.Jam),
+        .start_cycle(harness.m.instruction_signals[4]),
+        .repeat_current(harness.m.instruction_signals[3]),
+        .clock2(harness.m.instruction_signals[2]),
+        .running(harness.m.instruction_signals[1]),.jam(harness.m.instruction_signals[0]),
         .issued(issued),.held(held),.cycles(cycles),.clocks(clocks));
     integer arm_pc=256,expect_holds=0,extended=0;
     initial begin

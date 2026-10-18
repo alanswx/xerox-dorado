@@ -20,5 +20,9 @@ matching pipeline phases. It checks exactly100 issues, separately counted
 held cycles, the cycle partition, clock counts and constant/alternating PC.
 It does not compare against an interpreter or an edge-derived instruction
 estimate. Run `make -C verilog instruction-progress-test SYSPER=4`, then8
-and16. The monitor remains unintegrated with hardware diagnostics until
-the generated wiring and coherent host reporting are qualified.
+and16. These tests regenerate ContA and the backplane with the optional
+instruction-signal exports and connect the monitor through those ports.
+Native hardware diagnostics require `--instruction-monitor` when generating
+the machine. OSD status[10:9] selects issued/host clocks, held/cycles or board
+clocks/issued through Main's existing coherent command70 pair. Fit and
+hardware qualification are still required before quoting an issue rate.

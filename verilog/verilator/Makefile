@@ -1729,12 +1729,21 @@ PROGRESS_MONITOR_RTL ?= fpga/mister/dorado_instruction_monitor.sv
 PROGRESS_TEST_OBJ ?= verilog/verilator/obj_instruction_progress_$(SYSPER)
 .PHONY: instruction-progress-build instruction-progress-test storage-sdram-board-test storage-sdram-test pause-monitor-test speed-monitor-test t-controls-test clock-phases-test clock-phase-audit key-queue-test keyboard-terminal-test
 instruction-progress-build:
+	@cd ../.. && mkdir -p "$(PROGRESS_TEST_OBJ)" && python3 tools/sil_backplane.py \
+		--emit "$(PROGRESS_TEST_OBJ)/dorado_world.v" --module dorado_world \
+		--boards ContA,ContB,ProcH,ProcL,MemC,MemD,MemX,msa,msaOdd,IFU \
+		--processor-monitor --instruction-monitor >/dev/null
+	@cd ../.. && python3 tools/sil_to_verilog.py \
+		chm/sil/ContA-Rev-Cd.dm\!1_/ContA-Rev-Cd.wl \
+		--lc chm/sil/ContA-Rev-Cd.dm\!1_/ContA-Rev-Cd.lc \
+		--dict chm/sil/msa-Rev-Bg.dm\!1_/ecldict.analyze \
+		--processor-monitor --instruction-monitor -o "$(PROGRESS_TEST_OBJ)/ContA_monitor.v" >/dev/null
 	@cd ../.. && $(V) --binary --top-module tb_instruction_progress $(V_WARN) -Wno-TIMESCALEMOD \
 		-DWORLD -Iverilog/cells -Iverilog/generated \
 		--Mdir $(PROGRESS_TEST_OBJ) -o progress-test \
 		verilog/verilator/tb_instruction_progress.sv verilog/verilator/tb_exec.sv \
-		$(PROGRESS_MONITOR_RTL) verilog/generated/dorado_world.v \
-		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		$(PROGRESS_MONITOR_RTL) "$(PROGRESS_TEST_OBJ)/dorado_world.v" \
+		"$(PROGRESS_TEST_OBJ)/ContA_monitor.v" verilog/generated/ContB-Rev-Cd.v \
 		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
 		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
 		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v verilog/generated/IFU-Rev-Ch.v >/dev/null

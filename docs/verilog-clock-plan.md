@@ -66,35 +66,39 @@ correctness blocker remains open; it is not replaced by a PLL-only speed
 claim. Original guest-visible CPU/cache/map/ECC behavior is preserved, with
 no imported C machine state or host completion of guest instructions/IOCBs.
 
-The immediate next action is Native36 hardware qualification while preparing
-the SDRAM controller and instruction-counter design independently. Only
+The immediate next action is the Native39 instrumented DDR hardware baseline
+and strict Native41 combined SDRAM/counter qualification. Only
 MiSTer14 is allocated. Use misterubuntu for Quartus and the Mac for Verilator.
 Do not overwrite the protected Executive simulation/checkpoint artifacts.
 Keep commits and the handoff current at each milestone. No new permission
 is needed for the already authorized builds, reloads and reversible tests.
 
-**Implementation update,2026-10-18 15:39UTC:** Native36's original firmware,
-BFN113, Cedar login,34 base packages and profile answer pass on MiSTer14;
-BootEssentials is installing. Full Viewers/input/persistence remain pending.
-The selectable raw SDRAM backend passes independent worst-case pin-model
-tests at20/33.333333/50MHz and full MSA equivalence (9,437,184 identical bits).
-Runtime negative controls reject short tRCD and refresh starvation.
-Native37 clones frozen36 with only backend/pin changes; it fitted but FAILED
-setup(-4.436ns SDRAM input) and hold(-0.040ns MemC MLAB). It was not deployed.
-Native38 is building a falling-edge input capture followed by the rising-edge
-response, one extra read cycle, with unchanged timing limits and no new cuts.
-Revised tests pass, including6ns physical clock delay that rejects the old
-capture. All-device and external pin timing remain gates. See reports/
-2026-10-18-sdram-preparation, native37 and native38.
-There is no SDRAM raw line cache; use a matched cache-off DDR control before
-attributing a measured performance difference to the memory device alone.
+**Implementation update,2026-10-18 16:31UTC:** Native36 reaches Viewers,
+mouse/Cmd/focus and exact short/alphabet/digit Echo. It needed legitimate BSP
+probes to recover a lost20-byte Helvetica7 completion tail; this is not an
+unassisted cold-boot gate. A local file was created/closed/read back through
+Cedar; cold remount is pending. The automatic daemon probe fix passes native
+and ARM socket regressions plus an old-loop negative control. The tested
+ARM candidate is d4dbea66...; use it on the next boot. Shared C state layout
+is unchanged. See reports/2026-10-18-bsp-retry and native36.
 
-The instruction issue monitor passes15 nine-board microprogram cases at
-SYSPER4/8/16 against actual T increments, including constant-PC loops,
-original Hold&TaskSim holds and ReadTPC/WriteTPC/ReadIM extensions. Naive
-held-start/half-clock counters are rejected. Generated-port/coherent host
-integration and hardware rate measurement are still pending; this is issue,
-not pipeline-drained retirement. See reports/2026-10-18-instruction-progress.
+Selectable SDRAM passes worst-case pin/frequency/full-board checks. Native37
+failed input setup;38's falling-edge capture fixed that, but a tiny F10145
+MLAB hold still failed. Native40's opt-in logic placement preserves read/write
+RTL and passes31 summary checks plus36 categories across all four device
+conditions, including SDRAM input/output setup/hold, min+0.113ns; no added
+exceptions and zero illegal/unconstrained internal clocks. It is not yet
+hardware-qualified. DDR remains selectable. There is no SDRAM raw line cache;
+use matched cache-off DDR before attributing an isolated device speedup.
+
+The instruction issue monitor passes15 board-level cases at SYSPER4/8/16
+against100 actual T increments, plus naive-count failure controls. Generated
+ports/native wrapper lint/default-OFF compatibility pass. The instrumented
+DDR Native39 passes all-device timing (min+0.034ns), not deployed yet.
+Native41 combines40's SDRAM with the monitor and is fitting on misterubuntu;
+its strict corner script is staged. Next measure39's issue/hold/wait baseline
+with the fixed daemon, then qualify/measure41 with matching inputs. Issue is
+not pipeline-drained retirement; no new hardware speed figure is claimed.
 
 Snapshot scope includes IM/IFUM, register/task files, processor/control
 pipeline and clock phase, main memory, cache/map/ECC and their registers,

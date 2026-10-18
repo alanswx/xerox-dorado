@@ -152,6 +152,14 @@ NATIVE_JSON
       echo 'set_global_assignment -name VERILOG_MACRO DORADO_NATIVE'
       cp "$HERE/native_timing.sdc" "$OUT/native_timing.sdc"
       echo 'set_global_assignment -name SDC_FILE native_timing.sdc'
+      if python3 - "$CHECKPOINT/manifest.json" <<'INSTRUCTION_JSON'
+import json, sys
+sys.exit(0 if json.load(open(sys.argv[1])).get('instruction_monitor') else 1)
+INSTRUCTION_JSON
+      then
+        echo 'set_global_assignment -name VERILOG_MACRO DORADO_INSTRUCTION_MONITOR'
+        echo "set_global_assignment -name SYSTEMVERILOG_FILE $HERE/dorado_instruction_monitor.sv"
+      fi
       if python3 - "$CHECKPOINT/manifest.json" <<'SDRAM_JSON'
 import json, sys
 sys.exit(0 if json.load(open(sys.argv[1])).get('storage_backend') == 'sdram' else 1)

@@ -580,7 +580,7 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
              external_storage: bool = False, nominal_environment: bool = False,
              processor_monitor: bool = False, display_field: bool = False,
              export_nets: list[str] | None = None, receive_monitor: bool = False,
-             storage_address_bits: int = 14) -> int:
+             storage_address_bits: int = 14, instruction_monitor: bool = False) -> int:
     """Wire the boards together into one module, BY NAME.
 
     The backplane is not straight-through -- the BaseBoard drives each board's
@@ -605,6 +605,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
     a board this configuration does not have. The emitted comment says which.
     """
     info, vname = _classify_boards(names)
+    if instruction_monitor and not processor_monitor:
+        raise SystemExit('--instruction-monitor requires --processor-monitor')
     if processor_monitor and 'ContA' not in info:
         raise SystemExit('--processor-monitor requires ContA')
     if display_field and 'DispY' not in info:
@@ -724,6 +726,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
         decl += ['    input wire baseboard_boot_n,', '    output wire [31:0] baseboard_debug,']
     if processor_monitor:
         decl.append('    output wire [31:0] processor_debug,')
+        if instruction_monitor:
+            decl.append('    output wire [4:0] instruction_signals,')
         if nominal_environment:
             decl.append('    output wire [9:0] control_debug,')
     if display_field:
@@ -831,6 +835,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             conns += ['    .baseboard_boot_n(baseboard_boot_n)', f'    .baseboard_debug({observation})']
         if processor_monitor and short == 'ContA':
             conns.append('    .processor_debug(processor_debug)')
+            if instruction_monitor:
+                conns.append('    .instruction_signals(instruction_signals)')
             if nominal_environment:
                 conns.append('    .processor_control(processor_control)')
         if display_field and short == 'DispY':
@@ -930,6 +936,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
             A(declaration)
     if processor_monitor:
         A('    output wire [31:0] processor_debug,')
+        if instruction_monitor:
+            A('    output wire [4:0] instruction_signals,')
         if nominal_environment:
             A('    output wire [9:0] control_debug,')
     if display_field:
@@ -988,6 +996,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane',
         conns += ['    .baseboard_boot_n(baseboard_boot_n)', '    .baseboard_debug(baseboard_debug)']
     if processor_monitor:
         conns.append('    .processor_debug(processor_debug)')
+        if instruction_monitor:
+            conns.append('    .instruction_signals(instruction_signals)')
         if nominal_environment:
             conns.append('    .control_debug(control_debug)')
     if display_field:
@@ -1173,6 +1183,8 @@ def main(argv: list[str]) -> int:
                     help="re-derive BACKPLANE_CASE_ALIASES from the .bp files")
     ap.add_argument('--processor-monitor', action='store_true',
                     help='expose passive ContA task/PC/run/hold; with BaseBoard, also Stop/clock observations')
+    ap.add_argument('--instruction-monitor', action='store_true',
+                    help='also expose original ContA instruction-progress signals')
     ap.add_argument('--display-field', action='store_true',
                     help='expose DispY actual OddField latch for video capture')
     ap.add_argument('--receive-monitor', action='store_true',
@@ -1185,7 +1197,8 @@ def main(argv: list[str]) -> int:
                  if args.boards else DEFAULT_MACHINE)
         return emit_top(args.emit, names, args.module, args.external_storage,
                         args.nominal_environment, args.processor_monitor, args.display_field,
-                        args.export_net, args.receive_monitor, args.storage_address_bits)
+                        args.export_net, args.receive_monitor, args.storage_address_bits,
+                        args.instruction_monitor)
     if args.json:
         return to_json(args.json)
     if args.ports:

@@ -48,7 +48,16 @@ module cell_F10145A (
 
   // A0-A3 = 10,9,7,6 address; D0-D3 = 5,4,11,12 data in;
   // Q0-Q3 = 2,1,15,14 data out; CE'=3 chip enable, WE'=13 write enable.
+  // Optional physical placement experiment. The SDRAM fits exposed short
+  // address-register -> MLAB write-address hold paths in different instances.
+  // These tiny asynchronous-read files can use logic registers, retaining
+  // the SAME write-window capture/commit and read behavior below. No extra
+  // pipeline stages or relaxed timing constraints are introduced.
+`ifdef DORADO_F10145_LOGIC
+  (* ramstyle = "logic" *) reg [3:0] mem [0:15];
+`else
   (* ramstyle = "MLAB, no_rw_check" *) reg [3:0] mem [0:15];
+`endif
   //
   // ADDRESS BIT ORDER: A0 IS THE MOST SIGNIFICANT. PARC numbers every field
   // MSB-first -- `RSTK.0` is the top RSTK bit, `TNIA.04` the top address bit --

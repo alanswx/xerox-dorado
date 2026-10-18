@@ -9,55 +9,98 @@ qualify M10K placement and instruction measurement; move bulk RAM to SDRAM;
 reduce memory-request overhead; make ARM disk work nonblocking/coherent;
 connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
-External Xerox-network tunnelling is optional follow-up. Next: Native36
-hardware qualification and preparation of the SDRAM/counter implementation.
+External Xerox-network tunnelling is optional follow-up. Next: deploy and
+measure Native39 with the tested BSP-probe daemon, then qualify Native41.
 User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is now Native36 (M10K placement), installing Cedar after the
-base-package load and profile question. Native34 remains the last fully
-qualified Viewers/input reference.** Native36 loaded at about15:00UTC from
-the same fresh f3bce2a8 seed and immutable Main1fb2/server1d5 binaries.
-Original firmware/BFN113, visible Cedar login, fast `Guest` plus two Returns,
-all34 base packages and the `n` profile answer pass. At15:24UTC BootEssentials
-is installing; Viewers/input/persistence are still pending. Main6748/server6742;
-logs and guest-mutated pack in `Cedar36_20261018`, launcher `Cedar36.mgl`.
-RBF SHA `37b6bd39ed5df629743ae9420f7cd09dae947788ac53ba28b743cbcec61d03fe`.
-TX pending-buffer drops/retries are nonzero (52 at15:22UTC); CRC/RX/abort
-counters remain zero. Do not describe this as a loss-free network run.
+**Live MiSTer14 is Native36 at an interactive Cedar Viewers desktop.**
+Original firmware/BFN113, all 34 packages, BootEssentials/fonts, mouse,
+Cmd-button creation of a second CommandTool, body focus and exact keyboard
+Echo pass. At 0.1 s down/up the second tool echoed `rtl36ok` and
+`abcdefghijklmnopqrstuvwxyz0123456789` exactly, returning to `%`.
+Native/HDMI evidence: `fpga/mister/reports/2026-10-18-native36/`.
+`echo rtl36persist20261018 > ///rtl36persist.txt` created and closed a real
+local file; `type ///rtl36persist.txt` read the exact marker back. **Cold
+close/remount persistence is still pending.** All scripted keys/buttons are
+up, OSD closed, clock-count view1 selected. No pending input/GDB scripts.
+Main6748/server6742; current pack/logs/reboot config in `Cedar36_20261018`,
+launcher `Cedar36.mgl`. RBF SHA
+`37b6bd39ed5df629743ae9420f7cd09dae947788ac53ba28b743cbcec61d03fe`.
+Original seed f3bce2a8 and immutable Main1fb2/server1d5 retained. The active
+pack is guest-mutated. At16:29UTC good1979/dropped79/CRC0/RX0/aborted0.
+Do not claim loss-free networking or an unassisted cold-boot gate here.
 
-**The selectable SDRAM backend is implemented and simulation-tested; not yet
-hardware-qualified.** `dorado_storage_sdram.sv` preserves the original
-upstream MSA/cache/map/ECC interface and supports the128MB XSDS module at
-20..50MHz. Worst-case -7 chip-model tests pass at20/33.333333/50MHz, including
-both ranks/banks, row boundaries, refresh under backpressure and reset/drain.
-Full MSA equivalence passes all9,437,184 stored bits. Runtime controls detect
-short tRCD and blocked refresh. Evidence/source provenance:
-`fpga/mister/reports/2026-10-18-sdram-preparation/`.
-Native37 fitted at66%ALMs/330M10Ks but FAILED setup(-4.436ns SDRAM_DQ to
-response) and hold(-0.040ns MemC u_h06 MLAB address register); never deployed.
-Its external clock-output skew exhausted the rising-edge capture margin.
-Native38 is building the correction: falling-edge input register followed
-by rising-edge response, one extra host read cycle, SAME timing limits and
-no new exceptions. Revised pin-model/frequency/full-board tests pass,
-including a6ns delayed physical clock; the old capture fails this test.
-Frozen builds: misterubuntu `Dorado_Native37_20261018` (failed evidence) and
-`Dorado_Native38_20261018` (current build). Both retain50MHz/SYSPER4 and M10K
-placement. All-condition internal AND SDRAM pin timing must pass before
-deployment. SDRAM has no raw line cache;36 has128 entries,
-so a matched cache-off DDR control is needed before an isolated speed claim.
+**The long gray-screen wait was a lost STP completion tail.** Task0 was in
+Cedar's documented BusyWait, with other hardware tasks and mouse alive.
+The final Helvetica7 font bytes arrived but its20-byte Yes/text/EOC tail
+was lost. Three empty BSP acknowledgement probes, sent from the running
+server's socket through normal Main/RTL Ethernet, elicited ACKs0019b021,
+0019b021,0019b035; the existing duplicate-ACK path replayed the tail and
+Viewers resumed. The first diagnostic probe omitted the high socket half
+and correctly got NoSocket; that rejected frame is retained in the evidence.
+This was protocol assistance, not a CPU/RAM/guest-IOCB patch. Native34 remains
+the last unassisted desktop/input reference.
 
-**Instruction issue monitor implemented/tested, hardware wiring pending.**
-`dorado_instruction_monitor.sv` counts original StartCycle rising edges,
-qualifies Run/Jam and separates RepeatCur held cycles. Fifteen nine-board
-RTL cases pass at SYSPER4/8/16: ordinary same-PC increments, original
-Hold&TaskSim holds, ReadTPC, WriteTPC and ReadIM extensions. Each matches
-exactly100 architectural T increments. Naive held-start and half-clock
-mutations fail at114/200 instead of100. Reports:
-`fpga/mister/reports/2026-10-18-instruction-progress/`. This is ISSUE, not
-pipeline-drained retirement; do not infer hardware speed before integrating
-the generated ports and coherent Main reporting. No live throughput claim.
+**Automatic recovery is implemented and tested, not yet live.** The daemon
+now queues at most one empty aData probe per second, rotating through STP
+connections with unacknowledged output, without spending stream bytes or
+fingers. No shared C state members were added. Local and ARM tests pass
+boot/EFTP/re-exec/routing/large STP and a dropped unrequested completion
+tail:1036 file bytes recover after two automatic probes. Compiled old-loop
+control receives the body but fails with0 probes. This activates existing
+file/tail rewind; it is not a general metadata retransmit ring. Evidence:
+`reports/2026-10-18-bsp-retry/`. ARM candidate, tested on separate temporary
+sockets on14:
+`/media/fat/games/DoradoRTL/System_20261018_BSP/dorado-server-d4dbea66c371ebd8`,
+SHA `d4dbea66c371ebd841d1db45dede8eac868fe7b4dc3da07b43d9f64d73f5150a`.
+Use this daemon on the next cold boot; current live service is still1d5.
+
+**SDRAM is implemented and timing-qualified as a component; hardware pending.**
+The original MSA/cache/map/ECC interface stays upstream of the selectable
+raw backend, with an8MiB guest/16MiB padded backing on the required128MB
+XSDS module. Worst-case pin-model tests pass at20/33.333333/50MHz, including
+ranks/banks/row boundaries, refresh under backpressure and reset/drain.
+Full MSA equivalence compares all9,437,184 stored bits. Runtime controls
+reject short tRCD, blocked refresh and the old read capture under6ns clock
+output delay. See `reports/2026-10-18-sdram-preparation/`.
+Native37 FAILED SDRAM input setup(-4.436ns) and a MemC MLAB hold(-0.040ns).
+Native38's falling-edge input register/rising-edge response (one extra read
+cycle) fixed input setup but FAILED another F10145 MLAB hold(-0.093ns MemX).
+Neither was deployed. Fitter hold optimization was already All Paths.
+Native40 maps these tiny16x4 asynchronous-read register files into logic
+(`DORADO_F10145_LOGIC`): preprocessed behavior is identical after removing
+placement attributes. All31 timing-summary checks plus36 categories across
+all four device conditions, including SDRAM input/output setup/hold, PASS;
+min+0.113ns across the reports. No new exceptions; zero illegal/unconstrained
+internal clocks. Fit29348 ALMs(70%)/330 M10Ks. No hardware/speedup claim yet.
+SDRAM has no raw line cache;36/39 have128 entries. Use a matched cache-off
+DDR control before claiming an isolated memory-device performance gain.
+
+**Instruction issue reporting is implemented/tested and separately fitted.**
+The monitor counts original StartCycle, qualifies Run/Jam and separates
+RepeatCur held cycles. Fifteen board-level microprogram cases at SYSPER4/8/16
+match exactly100 architectural T increments: same-PC loops, original
+Hold&TaskSim and ReadTPC/WriteTPC/ReadIM. Naive held-start/half-clock controls
+fail at114/200. All15 pass through optional generated ContA/backplane/native
+ports; full native wrapper lint and byte-identical monitor-OFF generation
+also pass. Main command70 retains its coherent pair and sole SPI owner:
+OSD status[10:9]1=issued/host edges,2=held/cycles,3=board clocks/issued.
+This is ISSUE, not pipeline-drained retirement. Native39 clones frozen36's
+DDR/128-entry baseline at50MHz/SYSPER4 and passes29 summary checks plus20
+categories/all four conditions, min+0.034ns, no new exceptions, zero illegal/
+unconstrained internal clocks. Not deployed or measured yet.
+
+**Native41 combines Native40 SDRAM/logic placement with the passive monitor.**
+It is fitting on misterubuntu under `Dorado_Native41_20261018`; local log
+`build/rtl-executive/sdram-preparation/native41-build.log`. Preserve that job;
+do not restart based on an observation timeout. Its corner script is already
+staged. After strict timing, compare against Native39 with the SAME new
+probe daemon, seeds and inputs. First measure39's idle-login issue/hold/wait
+baseline, then41. No PLL/SYSPER reduction yet. Remaining work includes the
+cold remount of36's file, unassisted fresh boots, memory serialization, ARM
+disk buffering, DDR frame transport, complete snapshots and accurate clocks.
 
 Native35's original firmware/BFN113 and Cedar login pass. Separate10s idle
 windows measure23.2104% enabled,76.7903% DDR-only pauses, zero pack-only or
@@ -66,7 +109,8 @@ No DDR command-busy cycles were observed; read-return pending occupied~54.74%
 of host time in its window. These are different windows, not one simultaneous
 snapshot or retired throughput. See reports/2026-10-18-native35/idle-analysis.json.
 Remaining pause overhead includes frontend sequencing; do not infer all of
-it is DDR hardware latency. Native36 full desktop qualification is pending.
+it is DDR hardware latency. Native36 desktop/input passes after the
+documented BSP recovery; unassisted cold-boot qualification remains open.
 
 **Native34 at50MHz/SYSPER4 passes one full original-firmware Cedar boot and
 interactive input test on MiSTer14.** RBF
@@ -756,11 +800,16 @@ and has unreviewed hold violations; never deploy it.
 - [x] Add/test/fit exact DDR/HPS pause attribution; capture Native35 idle-login DDR/ARM/cache/transaction windows. Compare controlled workloads before promoting performance defaults.
 - [x] Audit actual physical BRAM/MLAB allocation and deployed ARM disk path; preserve later O_SYNC stalls from full observer trace.
 - [x] Confirm128MB SDRAM as a supported-target requirement; document8MiB guest/16MiB raw backing placement and migration gates.
-- [ ] Qualify Native35 passive diagnostics and Native36 M10K placement candidate; keep placement/performance claims separate.
+- [x] Qualify Native36 M10K Viewers/mouse/exact keyboard after documented BSP recovery; keep placement/performance claims separate.
+- [x] Diagnose the lost font-completion tail and test automatic daemon probes natively/on ARM, with old-loop failure control.
+- [ ] Use the new daemon for unassisted cold boots; cold-remount36's closed local marker file.
 - [x] Implement/select/simulate SDRAM raw-storage backend, full MSA equivalence, independent timing/refresh/clock-delay controls and build preflight.
-- [ ] Close SDRAM fitted pin/internal timing (37 failed,38 capture fix building), qualify on hardware, then measure DDR contention versus single-outstanding frontend serialization.
+- [x] Close SDRAM pin/internal timing on40 after capture/logic-placement fixes; all four device conditions and explicit I/O checks pass.
+- [ ] Qualify combined41 on hardware and compare backing traffic/serialization against the instrumented DDR baseline.
 - [x] Derive instruction issue/held counters from original control strobes and verify15 real-board microprogram cases plus naive-count failure controls.
-- [ ] Integrate/export/coherently sample instruction counters on FPGA; qualify maintenance/reset/task-switch behavior and measure actual issue rates with external waits separately.
+- [x] Implement optional generated instruction-signal exports and Main coherent-pair views;15 exported-port cases/native wrapper lint/default-OFF compatibility pass.
+- [x] Fit/all-device timing Native39 instruction diagnostics on frozen36 DDR baseline.
+- [ ] Deploy/qualify instruction diagnostics, including maintenance/reset/task switching, and measure actual issue rates with external waits separately.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [ ] Adapt ARM write coalescing with read/remount/error coherence; address blocking flushes and whole-track write amplification.
 - [x] Review MacPPC/Sun/NeXT DDR Ethernet host/RTL rings; record source hashes, address overlap and payload-size constraints.
@@ -5288,7 +5337,7 @@ Branch `verilog-backplane`, picked up cold from the 2026-09-01 handoff, whose
 symptom that block attributed to phase collapse was measured again with new
 per-sys_clk probes and each had an ordinary cause: one cell modelled two pins
 of the ALU wrong, one backplane line was spelled two ways, and one BaseBoard
-line the nine-board bench never drove. The C emulator stayed the oracle
+line the board-level bench never drove. The C emulator stayed the oracle
 throughout (DORADO_PCDIS with a 6104,6141 window, and DORADO_TASK_TRACE).
 
 ### What the RTL does now
@@ -5309,7 +5358,7 @@ throughout (DORADO_PCDIS with a 6104,6141 window, and DORADO_TASK_TRACE).
   times too, so the bench's "stuck: 65537 on one address" is a false alarm
   for a counted loop) completes, and the Ethernet boot code (ec0-eff,
   BOOTTRANSFER f00) runs and lands at BOOTTRANSFERTIMEOUT (f1e, 0o7436) --
-  correct, because the nine-board `dorado_world` has no DskEth board. 379
+  correct, because the board-level `dorado_world` has no DskEth board. 379
   distinct IM addresses in 140M sys_clk (~24 min). NEXT: a world with
   DskEth and a bench that plays the C emulator's boot server
   (`dorado/src/ethernet.c`, EFTP) over the modelled cable, and a stuck
@@ -5953,7 +6002,7 @@ an image-to-real map.
    but on ContB that pin reaches only the muffler mux e23; left alone.)
    `make -C verilog backplane` now regenerates `dorado_world.v` and
    `dorado_screen.v` too -- they were not in the target.
-3. **IOReset is a BaseBoard line the nine-board bench never drove.** The
+3. **IOReset is a BaseBoard line the board-level bench never drove.** The
    firmware asserts it in `DoIOReset` (the first InitManifolds entry) and
    `PrepareProcessor` re-asserts it before every load. On the IFU it is the
    reset of a21 (ShutUp), which holds the junk-wakeup flip-flops j08/k08.
@@ -6076,7 +6125,7 @@ or upgraded model.
 
 ### Where the boot stands, in one paragraph
 
-PARC's Initial microcode now boots -- on the nine-board `dorado_world`
+PARC's Initial microcode now boots -- on the board-level `dorado_world`
 (`make -C verilog/verilator exec-boot`) -- through the ReadBB handshake,
 checksum, ALUFM/RM/STK/IFUM init, map init, the storage-module probe,
 the stack, the fault path, and INTO Initial's TASK-INITIALIZATION loop.

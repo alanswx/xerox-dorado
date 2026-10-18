@@ -107,6 +107,9 @@ localparam CONF_STR = {
 	"O[3],Boot button,Released,Pressed;",
 	"O[4],Display,Large Format,Alto;",
 	"O[8:5],Debug monitor,CPU,Clock counts,DDR pauses,ARM pauses,Combined pauses,DDR reads-writes,Read cache,DDR bus waits,ARM read waits,ARM write waits,Max DDR pause,Max ARM pauses,Raw requests,Raw replies,Init pause,Pack transfers;",
+`ifdef DORADO_INSTRUCTION_MONITOR
+	"O[10:9],Instruction monitor,Off,Issued per host clock,Held per cycle,Clocks per issue;",
+`endif
 `endif
 	"J,;",
 	"V,v",`BUILD_DATE
@@ -286,6 +289,15 @@ wire [8:0] storage_events;
 wire [2:0] pack_host_phase;
 wire [31:0] pack_reads,pack_writes;
 wire [767:0] performance;
+`ifdef DORADO_INSTRUCTION_MONITOR
+wire [4:0] instruction_signals;
+wire [31:0] instructions_issued,instruction_holds,instruction_cycles,instruction_clocks;
+dorado_instruction_monitor u_instruction_monitor(.clk(clk_sys),.reset(~pll_locked),
+    .start_cycle(instruction_signals[4]),.repeat_current(instruction_signals[3]),
+    .clock2(instruction_signals[2]),.running(instruction_signals[1]),.jam(instruction_signals[0]),
+    .issued(instructions_issued),.held(instruction_holds),
+    .cycles(instruction_cycles),.clocks(instruction_clocks));
+`endif
 dorado_speed_monitor #(.TRACK_CAUSES(1)) u_speed_monitor(.clk(clk_sys),.reset(~pll_locked),
     .machine_step(network_step),.host_edges(host_edges),.machine_edges(machine_edges),
     .reset_requested(reset),.pack_ready(pack_ready),.storage_ready(storage_ready),
@@ -312,10 +324,22 @@ always @*begin
     15:begin count_debug=performance[22*32+:32];count_reference=performance[23*32+:32];end
     default:begin end
     endcase
+`ifdef DORADO_INSTRUCTION_MONITOR
+    case(status[10:9])
+    1:begin count_debug=instructions_issued;count_reference=host_edges;end
+    2:begin count_debug=instruction_holds;count_reference=instruction_cycles;end
+    3:begin count_debug=instruction_clocks;count_reference=instructions_issued;end
+    default:begin end
+    endcase
+`endif
 end
 // In count mode Main's existing machine/cpu words become enabled/host
 // fabric edges. u_network_uio snapshots both on the same command70 edge.
-wire speed_monitor_active = (|status[8:5]) && !pack_fault;
+wire speed_monitor_active = ((|status[8:5])
+`ifdef DORADO_INSTRUCTION_MONITOR
+    || (|status[10:9])
+`endif
+    ) && !pack_fault;
 `endif
 dorado_ethernet_uio #(.MAX_WORDS(1024)) u_network_uio (
     .clk(clk_sys), .reset(~pll_locked), .bus(ethernet_ext_bus),
@@ -389,6 +413,9 @@ dorado_native_machine #(.SYSPER(MACHINE_SYSPER)) u_native (
     .sdram_dq_out(storage_dq_out),.sdram_dq_oe(storage_dq_oe),.sdram_dq_in(SDRAM_DQ),
 `endif
     .storage_events(storage_events),.pack_host_phase(pack_host_phase),
+`ifdef DORADO_INSTRUCTION_MONITOR
+    .instruction_signals(instruction_signals),
+`endif
     .pack_reads(pack_reads),.pack_writes(pack_writes),
     .baseboard_debug(baseboard_debug), .processor_debug(processor_debug),
 `ifdef DORADO_CONTROL_ERROR_MONITOR

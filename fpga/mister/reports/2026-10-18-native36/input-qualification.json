@@ -1,0 +1,45 @@
+{
+  "core": "Native36,50MHz/SYSPER4,M10K placement",
+  "rbf_sha256": "37b6bd39ed5df629743ae9420f7cd09dae947788ac53ba28b743cbcec61d03fe",
+  "scope": "Original firmware/BFN113/Cedar work-volume boot with documented BSP tail recovery; not an unassisted cold-boot qualification",
+  "viewers": true,
+  "mouse": "Real +100,+80 moves; Cmd click opens second CommandTool, body focus works",
+  "keyboard": {
+    "down_seconds": 0.1,
+    "up_seconds": 0.1,
+    "commands": [
+      "echo rtl36ok\n",
+      "echo abcdefghijklmnopqrstuvwxyz0123456789\n"
+    ],
+    "observed_exact": [
+      "rtl36ok",
+      "abcdefghijklmnopqrstuvwxyz0123456789"
+    ],
+    "returned_to_prompt": true,
+    "verification": "Visual native and HDMI inspection; no OCR gate"
+  },
+  "disk": {
+    "created_and_closed": "///rtl36persist.txt",
+    "expected": "rtl36persist20261018",
+    "immediate_type_readback": "PASS exact marker",
+    "cold_close_remount": "PENDING; do not claim persistence yet"
+  },
+  "counters_at_162915_utc": {
+    "good": 1979,
+    "dropped": 79,
+    "crc_bad": 0,
+    "rx_bad": 0,
+    "aborted": 0
+  },
+  "caveats": "Three legitimate BSP probes recovered a lost20-byte font tail; first malformed endpoint probe received NoSocket. Optional startup Bringovers remain active in first CommandTool. No guest CPU/RAM/IOCB completion injection.",
+  "image_sha256": {
+    "mouse-after-recovery.png": "12938c119da23be8dc97afd1629219209b9878c266107a2b5127080f9928c394",
+    "viewers-desktop.png": "57fde9a2d6c56361e2ec32aee933668ad213dfa3f101e50df223fdc4629aa045",
+    "second-commandtool.png": "a78e2bafe64e432f2868904b61234626eed199c666cf181b9745ca3b1897d30a",
+    "echo-short.png": "338d19bf4f2aca38bca9a1bc827c4f8686ec3c1ceeefa64f558c2acf5c187223",
+    "echo-alphabet.png": "ad641185ec8ed83005bbfa207acab124b4f4f164c44795842331dd98290b9501",
+    "hdmi-input.png": "f28460a7deab08f0ea96cf777a65b7b7a40ec1820ba7d7aa1e1ab2328c484134",
+    "persist-create.png": "532e0767c53d2c1e48f71ee583771426bb0b8145ff8d22c4fd2c07f3060ece4d",
+    "persist-read.png": "b2576152a1bc0f1e37b8708265dab0413830cff8300725293ece6d93f4e503a0"
+  }
+}
