@@ -3,7 +3,7 @@
 
 The BaseBoard owns processor clocks, power-on code, CP bus and IM loading.
 External models are a terminal, serial Trident medium, nominal analog
-comparators and raw DDR storage. No guest CPU or memory state is imported.
+comparators and raw DDR or SDRAM storage. No guest CPU or memory state is imported.
 """
 import argparse
 import json
@@ -15,6 +15,53 @@ from sil_backplane import MACHINE_CONFIG_TIES
 from sil_to_verilog import vname
 
 
+def sdram_wrapper(wrapper):
+    """Replace only the raw backend in a canonical or frozen native wrapper."""
+    for marker in ('    input wire ddram_busy,ddram_rvalid,',
+                   '  wire backing_cache_hit;', '  assign rr=',
+                   '  dorado_storage_ddram #(', '  dorado_native_backplane #('):
+        if wrapper.count(marker) != 1:
+            raise ValueError(f'Expected one native wrapper marker: {marker!r}')
+    wrapper = wrapper.replace('    input wire ddram_busy,ddram_rvalid,', '''    output wire [12:0] sdram_a,
+    output wire [1:0] sdram_ba,
+    output wire sdram_ncs,sdram_nras,sdram_ncas,sdram_nwe,sdram_dqml,sdram_dqmh,sdram_cke,
+    output wire [15:0] sdram_dq_out,
+    output wire sdram_dq_oe,
+    input wire [15:0] sdram_dq_in,
+    input wire ddram_busy,ddram_rvalid,''')
+    start = wrapper.index('  wire backing_cache_hit;') + len('  wire backing_cache_hit;\n')
+    end = wrapper.index('  assign rr=', start)
+    wrapper = wrapper[:start] + '''  wire physical_read,physical_write,read_return,sdram_initialized;
+  // Same passive slots now count SDRAM commands/returns. The physical DDR
+  // port stays idle. Raw counts still exclude power-on zero-fill.
+  assign storage_events={1'b0,(sv && sr),(rv && !rr),1'b0,
+    read_return,physical_write,physical_read,(rv && rr && rw),(rv && rr && !rw)};
+  assign ddram_burstcount=0;assign ddram_addr=0;
+  assign ddram_read=0;assign ddram_write=0;assign ddram_wdata=0;assign ddram_be=0;
+''' + wrapper[end:]
+    start = wrapper.index('  dorado_storage_ddram #(')
+    end = wrapper.index('  dorado_native_backplane #(', start)
+    wrapper = wrapper[:start] + '''`ifdef DORADO_HOST_CLOCK_HZ
+  localparam integer STORAGE_CLOCK_HZ=`DORADO_HOST_CLOCK_HZ;
+`else
+  localparam integer STORAGE_CLOCK_HZ=33333333;
+`endif
+  dorado_storage_sdram #(.ADDR_BITS(RAW_BITS),.CLOCK_HZ(STORAGE_CLOCK_HZ)) u_sdram(
+    .clk(clk_host),.reset(reset),
+    .req_valid(storage_initialized ? rv : init_valid),.req_ready(backend_ready),
+    .req_write(storage_initialized ? rw : 1'b1),
+    .req_addr(storage_initialized ? ra : init_address),.req_data(storage_initialized ? wd : 16'd0),
+    .rsp_valid(backend_response),.rsp_ready(storage_initialized ? sr : init_response_ready),.rsp_data(sd),
+    .initialized(sdram_initialized),.cache_hit(backing_cache_hit),
+    .physical_read(physical_read),.physical_write(physical_write),.read_return(read_return),
+    .sdram_a(sdram_a),.sdram_ba(sdram_ba),.sdram_ncs(sdram_ncs),
+    .sdram_nras(sdram_nras),.sdram_ncas(sdram_ncas),.sdram_nwe(sdram_nwe),
+    .sdram_dqml(sdram_dqml),.sdram_dqmh(sdram_dqmh),.sdram_cke(sdram_cke),
+    .dq_out(sdram_dq_out),.dq_oe(sdram_dq_oe),.dq_in(sdram_dq_in));
+''' + wrapper[end:]
+    return wrapper
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-o', '--output', type=Path, required=True)
@@ -23,10 +70,14 @@ def main():
     parser.add_argument('--map-kwords', type=int, choices=(16, 64), default=16)
     parser.add_argument('--storage-line-cache-bits', type=int, choices=range(0, 11), default=0,
                         help='optional raw DDR line buffer index bits; 0 disables (default)')
+    parser.add_argument('--storage-backend', choices=('ddr', 'sdram'), default='ddr',
+                        help='raw storage backend; SDRAM requires the128MB MiSTer module')
     parser.add_argument('--receive-monitor', action='store_true', help='passive DskEth receive-status observation')
     parser.add_argument('--pilot-disk', action='store_true',
                         help='Pilot format: 28 usable of 29 slots, 10 label words, 256 data words')
     args = parser.parse_args()
+    if args.storage_backend == 'sdram' and args.storage_line_cache_bits:
+        parser.error('SDRAM has no DDR line buffer; use --storage-line-cache-bits 0')
     chip_address_bits = 14 if args.storage_chip_kbits == 16 else 16
     out = args.output
     out.mkdir(parents=True, exist_ok=True)
@@ -261,6 +312,8 @@ endmodule
         connections.append('    .receive_debug(receive_debug)')
     wrapper = wrapper.replace('CONNECTIONS', ',\n'.join(connections))
     wrapper = wrapper.replace('RECEIVE_MONITOR', '')
+    if args.storage_backend == 'sdram':
+        wrapper = sdram_wrapper(wrapper)
     (out/'dorado_native_machine.sv').write_text(wrapper)
     sources = [str(out/n) for n in ['dorado_native_backplane.v', 'BaseBd_nominal.v',
                                    'msa_ddram.v', 'ContA_monitor.v', 'DispY_field.v',
@@ -286,11 +339,16 @@ endmodule
     sources += [str(p) for p in sorted(Path('verilog/vendor/riot').glob('*.sv'))]
     sources += ['fpga/mister/'+n+'.sv' for n in ['dorado_receive_monitor','dorado_pack_hps','dorado_storage_group',
                 'dorado_storage_arb','dorado_storage_ddram','dorado_storage_init']]
+    if args.storage_backend == 'sdram':
+        sources.append('fpga/mister/dorado_storage_sdram.sv')
     manifest = {'native': True, 'storage_modules': args.storage_modules, 'pilot_disk': args.pilot_disk, 'receive_monitor': args.receive_monitor,
         'storage_line_cache_bits': args.storage_line_cache_bits,
                                                'control_error_monitor': True, 'pack_fault_monitor': True,
         'display_field': True, 'control_clock_monitor': True,
         'hps_pack': True, 'ethernet_wire': True, 'ethernet_host_port': True}
+    manifest['storage_backend'] = args.storage_backend
+    if args.storage_backend == 'sdram':
+        manifest['required_sdram_bytes'] = 128*1024*1024
     if args.storage_chip_kbits != 16 or args.map_kwords != 16:
         manifest.update(storage_chip_kbits=args.storage_chip_kbits, map_kwords=args.map_kwords,
                         memory_geometry_experimental=True)

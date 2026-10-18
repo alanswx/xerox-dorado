@@ -1,0 +1,8 @@
+{
+  "core/Dorado.sv": "8df857a57cc2e9f45ea1eb1253bc6fd4c5a4380cf2baac679cef281e8a3c0c76",
+  "core/Dorado.qsf": "4a0a86d8115b0281421d04c0f152339d68d6e675362fb44297cacf5d6729d3bd",
+  "core/native_timing.sdc": "df62acc5c1e4029eb441b28de904eadfe2f9d00a2d82ba61586b6571afccbec2",
+  "core/sdram_timing.sdc": "1cae21e428cdec86783954a3df75e777b514dceda5ff681fde148decb5695a38",
+  "src/fpga/mister/dorado_storage_sdram.sv": "32dae51c74c952dacfdb94e8446e78d79f5599455358796dbd86239eb52da1c3",
+  "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "80cfb255e9d7112ba86f841f68eaa54219ab6979d2c1b30f5128d7aed0a8373a"
+}

@@ -1,0 +1,158 @@
+{
+  "results": [
+    {
+      "sysper": 4,
+      "microprogram": "ordinary",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 0,
+      "cycles": 100,
+      "clocks": 200,
+      "pc_changes": 0
+    },
+    {
+      "sysper": 4,
+      "microprogram": "held",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 14,
+      "cycles": 114,
+      "clocks": 228,
+      "pc_changes": 0
+    },
+    {
+      "sysper": 4,
+      "microprogram": "read-tpc",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 0,
+      "cycles": 100,
+      "clocks": 399,
+      "pc_changes": 99
+    },
+    {
+      "sysper": 4,
+      "microprogram": "write-tpc",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 0,
+      "cycles": 100,
+      "clocks": 399,
+      "pc_changes": 99
+    },
+    {
+      "sysper": 4,
+      "microprogram": "read-im",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 0,
+      "cycles": 100,
+      "clocks": 399,
+      "pc_changes": 99
+    },
+    {
+      "sysper": 8,
+      "microprogram": "ordinary",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 0,
+      "cycles": 100,
+      "clocks": 200,
+      "pc_changes": 0
+    },
+    {
+      "sysper": 8,
+      "microprogram": "held",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 14,
+      "cycles": 114,
+      "clocks": 228,
+      "pc_changes": 0
+    },
+    {
+      "sysper": 8,
+      "microprogram": "read-tpc",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 0,
+      "cycles": 100,
+      "clocks": 399,
+      "pc_changes": 99
+    },
+    {
+      "sysper": 8,
+      "microprogram": "write-tpc",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 0,
+      "cycles": 100,
+      "clocks": 399,
+      "pc_changes": 99
+    },
+    {
+      "sysper": 8,
+      "microprogram": "read-im",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 0,
+      "cycles": 100,
+      "clocks": 399,
+      "pc_changes": 99
+    },
+    {
+      "sysper": 16,
+      "microprogram": "ordinary",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 0,
+      "cycles": 100,
+      "clocks": 200,
+      "pc_changes": 0
+    },
+    {
+      "sysper": 16,
+      "microprogram": "held",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 14,
+      "cycles": 114,
+      "clocks": 228,
+      "pc_changes": 0
+    },
+    {
+      "sysper": 16,
+      "microprogram": "read-tpc",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 0,
+      "cycles": 100,
+      "clocks": 399,
+      "pc_changes": 99
+    },
+    {
+      "sysper": 16,
+      "microprogram": "write-tpc",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 0,
+      "cycles": 100,
+      "clocks": 399,
+      "pc_changes": 99
+    },
+    {
+      "sysper": 16,
+      "microprogram": "read-im",
+      "architectural_increments": 100,
+      "issued": 100,
+      "held": 0,
+      "cycles": 100,
+      "clocks": 399,
+      "pc_changes": 99
+    }
+  ],
+  "scope": "Independent architectural register-change comparison on nine-board RTL; issue measurement, not drained retirement",
+  "hardware": "NOT INTEGRATED",
+  "monitor_sha256": "a7b0988cc38a91b4435554992d3bdbd83258c405bccc07a8a723077c7ab41adc",
+  "bench_sha256": "d3562209b4d49f64028d99496ea716bf290545b96f4acbb7b75f1937508747ef"
+}

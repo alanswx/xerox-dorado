@@ -1,0 +1,13 @@
+{
+  "source_repository": "https://github.com/birdybro/SDRAMsim_MiSTer",
+  "source_commit": "7e1ccf88a8b178212d189ecff5bb0ad7623cbf58",
+  "files": {
+    "xsds_128mbyte_sdram_model.sv": "1424ef8bf568bef770a9ab1f3ae469c5df3d509892237336344b98c04c6379ae",
+    "LICENSE": "199fe26ee92d4b68553d1603c604883fd28819a6e958ad403e0d93a63a7f88a2",
+    "ref/AllianceMemory_512M_SDRAM_Bdie_AS4C32M16SB-7TXN-6TIN-7BIN_Rev1.2_March2020.pdf": "4b6440f55c93c2448702f2d4d3fe08d65b19e040b83642d430aa425802170c07",
+    "ref/sdram_xsds_3.0.pdf": "ef8c5aef9704bd4482d3bd389ab0f663159d75ffff5908ed0286307893249cf7"
+  },
+  "license": "MIT, copyright2026 Kevin Coleman",
+  "controller": "Original implementation, not adapted from Mac SDRAM RTL",
+  "vendored_model_sha256": "1424ef8bf568bef770a9ab1f3ae469c5df3d509892237336344b98c04c6379ae"
+}

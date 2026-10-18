@@ -13,6 +13,6 @@
   "raw_line_cache_entries": 128,
   "extra_exceptions": "None; Native34 SDC retained.",
   "external_io_limit": "Framework 3 input /50 output ports unconstrained; no illegal or unconstrained internal clocks.",
-  "hardware": "NOT YET TESTED",
+  "hardware": "IN PROGRESS: original firmware/BFN113, Cedar login, fast Guest input,34 base packages and profile n pass; BootEssentials installing. Full desktop/input/persistence pending.",
   "change": "Passive diagnostics plus F10415A M10K placement"
 }

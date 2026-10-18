@@ -1,0 +1,22 @@
+{
+  "machine": "MiSTer14,10.0.2.14",
+  "rbf_sha256": "37b6bd39ed5df629743ae9420f7cd09dae947788ac53ba28b743cbcec61d03fe",
+  "bfn113_utc": "2026-10-18 approximately15:00UTC",
+  "main_pid": 6748,
+  "server_pid": 6742,
+  "main_sha256": "1fb2e098e6f0dba64b2ad8f13964e8a6ecef553bab72039ee24e53cb9619e8d2",
+  "server_sha256": "1d5e05e9d293b095de14fcb3430980a2956a6cccb712ed860c79571980e0ec17",
+  "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "live_directory": "/media/fat/games/DoradoRTL/Cedar36_20261018",
+  "launcher": "/media/fat/_Computer/DoradoRTL_Cedar36_20261018/Cedar36.mgl",
+  "state": "BootEssentials installing, Viewers not yet qualified",
+  "input": "Guest plus two Returns,0.1s down/up; profile answer n alone. All keys released.",
+  "counters_at_152855_utc": {
+    "good": 1315,
+    "dropped": 58,
+    "crc_bad": 0,
+    "rx_bad": 0,
+    "aborted": 0
+  },
+  "limits": "Nonzero TX pending-buffer drops/retries; no loss-free claim. No retired-speed claim. No host completion of guest instructions/IOCBs or imported state."
+}

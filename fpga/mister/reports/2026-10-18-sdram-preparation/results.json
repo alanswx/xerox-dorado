@@ -1,0 +1,52 @@
+{
+  "unit_checks": 309,
+  "reads": 156,
+  "writes": 153,
+  "passing_clocks_hz": [
+    20000000,
+    33333333,
+    50000000
+  ],
+  "independent_pin_model_errors": 0,
+  "independent_pin_model_warnings": 0,
+  "negative_controls": [
+    {
+      "control": "short-rcd",
+      "compiled": true,
+      "rejected": true,
+      "reason": "tRCD"
+    },
+    {
+      "control": "blocked-refresh",
+      "compiled": true,
+      "rejected": true,
+      "reason": "refresh"
+    },
+    {
+      "control": "rising-capture",
+      "compiled": true,
+      "rejected": true,
+      "reason": "read 00000000 got"
+    }
+  ],
+  "full_board": {
+    "cycles": 12012,
+    "reads": 3008,
+    "writes": 7872,
+    "output_transitions": 1111,
+    "stored_bits_compared": 9437184,
+    "identical": true
+  },
+  "hardware": "NOT TESTED: Native37 timing failed, Native38 corrected capture build running",
+  "limits": "Simulation covers pin protocol and board equivalence; fitted external timing and real module boot remain required",
+  "controller_sha256": "0cc289e155f5b05b588e710c8621f21098de41f39e21a27a535f50cc00bcbeb7",
+  "delayed_clock_test": {
+    "host_hz": 50000000,
+    "physical_clock_delay_ns": 6,
+    "checks": 309,
+    "model_errors": 0,
+    "model_warnings": 0,
+    "result": "PASS"
+  },
+  "read_capture": "Falling-edge IO input capture, then rising-edge response; one extra host read cycle"
+}

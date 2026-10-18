@@ -11,9 +11,54 @@ connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
 External Xerox-network tunnelling is optional follow-up. Next: Native36
 hardware qualification and preparation of the SDRAM/counter implementation.
+User added **complete core snapshots**, including matching disk/device/server
+state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
+this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is now Native35 (diagnostic successor), at Cedar's idle login
-prompt. Native34 remains the last fully qualified Viewers/input reference.**
+**Live MiSTer14 is now Native36 (M10K placement), installing Cedar after the
+base-package load and profile question. Native34 remains the last fully
+qualified Viewers/input reference.** Native36 loaded at about15:00UTC from
+the same fresh f3bce2a8 seed and immutable Main1fb2/server1d5 binaries.
+Original firmware/BFN113, visible Cedar login, fast `Guest` plus two Returns,
+all34 base packages and the `n` profile answer pass. At15:24UTC BootEssentials
+is installing; Viewers/input/persistence are still pending. Main6748/server6742;
+logs and guest-mutated pack in `Cedar36_20261018`, launcher `Cedar36.mgl`.
+RBF SHA `37b6bd39ed5df629743ae9420f7cd09dae947788ac53ba28b743cbcec61d03fe`.
+TX pending-buffer drops/retries are nonzero (52 at15:22UTC); CRC/RX/abort
+counters remain zero. Do not describe this as a loss-free network run.
+
+**The selectable SDRAM backend is implemented and simulation-tested; not yet
+hardware-qualified.** `dorado_storage_sdram.sv` preserves the original
+upstream MSA/cache/map/ECC interface and supports the128MB XSDS module at
+20..50MHz. Worst-case -7 chip-model tests pass at20/33.333333/50MHz, including
+both ranks/banks, row boundaries, refresh under backpressure and reset/drain.
+Full MSA equivalence passes all9,437,184 stored bits. Runtime controls detect
+short tRCD and blocked refresh. Evidence/source provenance:
+`fpga/mister/reports/2026-10-18-sdram-preparation/`.
+Native37 fitted at66%ALMs/330M10Ks but FAILED setup(-4.436ns SDRAM_DQ to
+response) and hold(-0.040ns MemC u_h06 MLAB address register); never deployed.
+Its external clock-output skew exhausted the rising-edge capture margin.
+Native38 is building the correction: falling-edge input register followed
+by rising-edge response, one extra host read cycle, SAME timing limits and
+no new exceptions. Revised pin-model/frequency/full-board tests pass,
+including a6ns delayed physical clock; the old capture fails this test.
+Frozen builds: misterubuntu `Dorado_Native37_20261018` (failed evidence) and
+`Dorado_Native38_20261018` (current build). Both retain50MHz/SYSPER4 and M10K
+placement. All-condition internal AND SDRAM pin timing must pass before
+deployment. SDRAM has no raw line cache;36 has128 entries,
+so a matched cache-off DDR control is needed before an isolated speed claim.
+
+**Instruction issue monitor implemented/tested, hardware wiring pending.**
+`dorado_instruction_monitor.sv` counts original StartCycle rising edges,
+qualifies Run/Jam and separates RepeatCur held cycles. Fifteen nine-board
+RTL cases pass at SYSPER4/8/16: ordinary same-PC increments, original
+Hold&TaskSim holds, ReadTPC, WriteTPC and ReadIM extensions. Each matches
+exactly100 architectural T increments. Naive held-start and half-clock
+mutations fail at114/200 instead of100. Reports:
+`fpga/mister/reports/2026-10-18-instruction-progress/`. This is ISSUE, not
+pipeline-drained retirement; do not infer hardware speed before integrating
+the generated ports and coherent Main reporting. No live throughput claim.
+
 Native35's original firmware/BFN113 and Cedar login pass. Separate10s idle
 windows measure23.2104% enabled,76.7903% DDR-only pauses, zero pack-only or
 overlap pauses,0.03810% raw backing-cache hits, and~2.75M DDR reads/s.
@@ -21,7 +66,7 @@ No DDR command-busy cycles were observed; read-return pending occupied~54.74%
 of host time in its window. These are different windows, not one simultaneous
 snapshot or retired throughput. See reports/2026-10-18-native35/idle-analysis.json.
 Remaining pause overhead includes frontend sequencing; do not infer all of
-it is DDR hardware latency. Native36 placement is timing-checked only.
+it is DDR hardware latency. Native36 full desktop qualification is pending.
 
 **Native34 at50MHz/SYSPER4 passes one full original-firmware Cedar boot and
 interactive input test on MiSTer14.** RBF
@@ -84,7 +129,7 @@ Native35 adds passive DDR/ARM pause and traffic counters, same Main protocol.
 Both candidates pass29 timing-summary checks and20 categories across all
 four device conditions, zero illegal/unconstrained internal clocks and no
 new exceptions. Min slack35:+0.088ns,36:+0.068ns. Native35 uses85%ALMs/
-307M10Ks;36 uses66%ALMs/332M10Ks. Native36 is NOT hardware-tested.
+307M10Ks;36 uses66%ALMs/332M10Ks. Native36 is now booting on hardware as above.
 Native35 replaced34 at~14:27UTC with a fresh f3bce2a8 seed and unchanged
 Main1fb2/server1d5 binaries. Original firmware/BFN113 and Cedar login pass.
 Server5780/Main5785 (Main re-executes on load); Cedar35_20261018 logs/reboot
@@ -712,7 +757,11 @@ and has unreviewed hold violations; never deploy it.
 - [x] Audit actual physical BRAM/MLAB allocation and deployed ARM disk path; preserve later O_SYNC stalls from full observer trace.
 - [x] Confirm128MB SDRAM as a supported-target requirement; document8MiB guest/16MiB raw backing placement and migration gates.
 - [ ] Qualify Native35 passive diagnostics and Native36 M10K placement candidate; keep placement/performance claims separate.
-- [ ] Implement/select/test SDRAM raw-storage backend; measure DDR contention versus single-outstanding frontend serialization.
+- [x] Implement/select/simulate SDRAM raw-storage backend, full MSA equivalence, independent timing/refresh/clock-delay controls and build preflight.
+- [ ] Close SDRAM fitted pin/internal timing (37 failed,38 capture fix building), qualify on hardware, then measure DDR contention versus single-outstanding frontend serialization.
+- [x] Derive instruction issue/held counters from original control strobes and verify15 real-board microprogram cases plus naive-count failure controls.
+- [ ] Integrate/export/coherently sample instruction counters on FPGA; qualify maintenance/reset/task-switch behavior and measure actual issue rates with external waits separately.
+- [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [ ] Adapt ARM write coalescing with read/remount/error coherence; address blocking flushes and whole-track write amplification.
 - [x] Review MacPPC/Sun/NeXT DDR Ethernet host/RTL rings; record source hashes, address overlap and payload-size constraints.
 - [ ] Adapt frame rings for direct ARM daemon DDR transport, retaining original DskEth/CRC/wire timing and selectable SPI fallback; qualify reset/ownership/stalls/boot before deployment.

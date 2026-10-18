@@ -1,9 +1,14 @@
-// Complete MSA board equivalence: same pins, original chips versus DDR.
+// Complete MSA board equivalence: original chips versus external backing.
 // Only the raw bit arrays move; every serial/ECC output is compared each cycle.
 `timescale 1ns/1ps
 module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
     localparam integer CHIP_WORDS=1<<ADDR_BITS;
-    reg clk=0;always #1 clk=~clk;
+    reg clk=0;
+`ifdef STORAGE_USE_SDRAM
+    always #10 clk=~clk; //50MHz host, opposite-phase SDRAM clock
+`else
+    always #1 clk=~clk;
+`endif
     reg run=0,reset=1;
     wire machine_clk=clk && run;
     reg [31:0] random_state=32'h73e91d4b;
@@ -217,6 +222,15 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
         .req_addr(addresses),.req_data(wdata),.rsp_valid(response),.rsp_ready(response_ready),.rsp_data(rdata),
         .raw_req_valid(rv),.raw_req_ready(rr),.raw_req_write(rw),.raw_req_addr(ra),.raw_req_data(wd),
         .raw_rsp_valid(sv),.raw_rsp_ready(sr),.raw_rsp_data(sd));
+`ifdef STORAGE_USE_SDRAM
+    tb_xsds_storage #(.ADDR_BITS(ADDR_BITS+4)) memory_port(
+        .clk(clk),.reset(reset),.req_valid(rv),.req_ready(rr),.req_write(rw),.req_addr(ra),.req_data(wd),
+        .rsp_valid(sv),.rsp_ready(sr),.rsp_data(sd),.physical_read(dr),.physical_write(dw));
+    always @(negedge clk)begin
+        if(dr)reads<=reads+1;
+        if(dw)writes<=writes+1;
+    end
+`else
     dorado_storage_ddram #(.ADDR_BITS(ADDR_BITS+4),.LINE_CACHE_BITS(LINE_CACHE_BITS),.GROUP_ADDR_BITS(ADDR_BITS)) memory_port(
         .clk(clk),.reset(reset),.req_valid(rv),.req_ready(rr),.req_write(rw),.req_addr(ra),.req_data(wd),
         .rsp_valid(sv),.rsp_ready(sr),.rsp_data(sd),.ddram_busy(busy),.ddram_burstcount(burst),
@@ -241,6 +255,7 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
             else begin read_pending<=0;dout<=saved_read;dvalid<=1;end
         end
     end
+`endif
     task tick;@(negedge clk);endtask
     reg [18:0] last_output=0;
     task step;
@@ -262,6 +277,11 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
         phase=7;
         repeat(12)step();
         wait(ready);tick();
+`ifdef STORAGE_USE_SDRAM
+        // Read the independent chip model, not a mirror of DUT requests.
+        for(integer a=0;a<4*CHIP_WORDS;a++)backing[a]=memory_port.peek64(a);
+        memory_port.check_model();
+`endif
         for(integer a=0;a<CHIP_WORDS;a++)
             if(original.u_b04.mem[a] !== backing[(0*CHIP_WORDS+a)/4][((a%4)*16)+11])
                 $fatal(1,"raw backing differs chip b04 address %d",a);
@@ -697,7 +717,7 @@ module tb_storage_board #(parameter integer ADDR_BITS=14, LINE_CACHE_BITS=0);
         for(integer a=0;a<4*CHIP_WORDS;a++)stored_ones+=$countones(backing[a]);
         $display("Stored one bits: %d",stored_ones);
         if(writes<100 || output_changes<100 || stored_ones<100)$fatal(1,"insufficient board activity: writes=%0d output_changes=%0d reads=%0d",writes,output_changes,reads);
-        $display("STORAGE-BOARD PASS: %d complete-board cycles, %d DDR reads, %d writes, %d output transitions, all %0d stored bits identical",steps,reads,writes,output_changes,144*CHIP_WORDS);
+        $display("STORAGE-BOARD PASS: %d complete-board cycles, %d backing reads, %d writes, %d output transitions, all %0d stored bits identical",steps,reads,writes,output_changes,144*CHIP_WORDS);
         $finish;
     end
     initial begin #100000000;$fatal(1,"board test timeout");end

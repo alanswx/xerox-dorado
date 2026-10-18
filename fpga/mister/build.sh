@@ -43,6 +43,18 @@ print(value)
 PY
 )
 
+# Fail before staging an unsupported SDRAM clock. Its controller/pin phase
+# contract is intentionally narrower than the generic PLL selector.
+if [ -n "$CHECKPOINT" ]; then
+  python3 - "$CHECKPOINT/manifest.json" "$DORADO_SYS_HZ" <<'PY'
+import json, sys
+config = json.load(open(sys.argv[1]))
+if config.get('storage_backend', 'ddr') == 'sdram':
+    if not config.get('native') or not 20000000 <= int(sys.argv[2]) <= 50000000:
+        raise SystemExit('Native SDRAM backend requires a20..50MHz host clock')
+PY
+fi
+
 [ -d "$TEMPLATE/sys" ] || { echo "no framework at $TEMPLATE/sys"; exit 1; }
 BASE=Template
 [ -f "$TEMPLATE/$BASE.qsf" ] || BASE=mycore
@@ -140,6 +152,21 @@ NATIVE_JSON
       echo 'set_global_assignment -name VERILOG_MACRO DORADO_NATIVE'
       cp "$HERE/native_timing.sdc" "$OUT/native_timing.sdc"
       echo 'set_global_assignment -name SDC_FILE native_timing.sdc'
+      if python3 - "$CHECKPOINT/manifest.json" <<'SDRAM_JSON'
+import json, sys
+sys.exit(0 if json.load(open(sys.argv[1])).get('storage_backend') == 'sdram' else 1)
+SDRAM_JSON
+      then
+        echo 'set_global_assignment -name VERILOG_MACRO DORADO_STORAGE_SDRAM'
+        cp "$HERE/sdram_timing.sdc" "$OUT/sdram_timing.sdc"
+        echo 'set_global_assignment -name SDC_FILE sdram_timing.sdc'
+        for DORADO_SDRAM_PORT in 'SDRAM_DQ[*]' 'SDRAM_A[*]' 'SDRAM_BA[*]' \
+          SDRAM_nCS SDRAM_nRAS SDRAM_nCAS SDRAM_nWE SDRAM_DQML SDRAM_DQMH; do
+          echo "set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to $DORADO_SDRAM_PORT"
+        done
+        echo 'set_instance_assignment -name FAST_INPUT_REGISTER ON -to SDRAM_DQ[*]'
+        echo 'set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to SDRAM_DQ[*]'
+      fi
       if python3 - "$CHECKPOINT/manifest.json" <<'CONTROL_MONITOR_JSON'
 import json, sys
 sys.exit(0 if json.load(open(sys.argv[1])).get('control_error_monitor') else 1)

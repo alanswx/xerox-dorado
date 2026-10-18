@@ -1,0 +1,14 @@
+[
+  {
+    "control": "count-held",
+    "compiled": true,
+    "rejected_at_runtime": true,
+    "diagnostic": "[9872000] %Fatal: tb_instruction_progress.sv:43: Assertion failed in tb_instruction_progress: issued 114, architectural increments100"
+  },
+  {
+    "control": "half-board-clocks",
+    "compiled": true,
+    "rejected_at_runtime": true,
+    "diagnostic": "[15504000] %Fatal: tb_instruction_progress.sv:43: Assertion failed in tb_instruction_progress: issued 200, architectural increments100"
+  }
+]

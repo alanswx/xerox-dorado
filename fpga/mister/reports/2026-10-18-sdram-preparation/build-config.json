@@ -1,0 +1,30 @@
+[
+  {
+    "mhz": 19,
+    "accepted": false,
+    "untouched_on_rejection": true
+  },
+  {
+    "mhz": 20,
+    "accepted": true,
+    "untouched_on_rejection": null
+  },
+  {
+    "mhz": 33.333333,
+    "accepted": true,
+    "untouched_on_rejection": null
+  },
+  {
+    "mhz": 50,
+    "accepted": true,
+    "untouched_on_rejection": null
+  },
+  {
+    "mhz": 51,
+    "accepted": false,
+    "untouched_on_rejection": true
+  },
+  {
+    "incompatible_line_cache": "rejected before output creation"
+  }
+]

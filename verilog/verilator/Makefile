@@ -1725,7 +1725,57 @@ mouse-terminal-test:
 		verilog/cells/dorado_terminal.v >/dev/null
 	@./obj_mouse_terminal/tb_mouse_terminal
 
-.PHONY: pause-monitor-test speed-monitor-test t-controls-test clock-phases-test clock-phase-audit key-queue-test keyboard-terminal-test
+PROGRESS_MONITOR_RTL ?= fpga/mister/dorado_instruction_monitor.sv
+PROGRESS_TEST_OBJ ?= verilog/verilator/obj_instruction_progress_$(SYSPER)
+.PHONY: instruction-progress-build instruction-progress-test storage-sdram-board-test storage-sdram-test pause-monitor-test speed-monitor-test t-controls-test clock-phases-test clock-phase-audit key-queue-test keyboard-terminal-test
+instruction-progress-build:
+	@cd ../.. && $(V) --binary --top-module tb_instruction_progress $(V_WARN) -Wno-TIMESCALEMOD \
+		-DWORLD -Iverilog/cells -Iverilog/generated \
+		--Mdir $(PROGRESS_TEST_OBJ) -o progress-test \
+		verilog/verilator/tb_instruction_progress.sv verilog/verilator/tb_exec.sv \
+		$(PROGRESS_MONITOR_RTL) verilog/generated/dorado_world.v \
+		verilog/generated/ContA-Rev-Cd.v verilog/generated/ContB-Rev-Cd.v \
+		verilog/generated/ProcH-Rev-Ce.v verilog/generated/ProcL-Rev-Ci.v \
+		verilog/generated/MemC-Rev-Be.v verilog/generated/MemD-Rev-Ca.v \
+		verilog/generated/MemX-Rev-Ch.v verilog/generated/msa.v verilog/generated/IFU-Rev-Ch.v >/dev/null
+instruction-progress-test: instruction-progress-build
+	@cd ../.. && set -e; for case_name in ordinary held read-tpc write-tpc read-im; do \
+		args=''; case $$case_name in held) args='+arm_pc=258 +expect_holds=1';; \
+			read-*|write-*) args='+extended=1';; esac; \
+		"$(PROGRESS_TEST_OBJ)/progress-test" \
+			+preload=verilog/verilator/fixtures/instruction-progress/$$case_name.txt \
+			+start=256 +cycles=100000 +nostuck $$args; \
+	done
+
+storage-sdram-board-test:
+	@cd ../.. && python3 tools/sil_storage_ddram.py --chip-address-bits 16 \
+		-o verilog/verilator/obj_storage_sdram_board/msa_ddram.v \
+		--reference-output verilog/verilator/obj_storage_sdram_board/msa.v
+	@cd ../.. && $(V) --binary --top-module tb_storage_board -GADDR_BITS=16 $(V_WARN) \
+		-DSTORAGE_USE_SDRAM -Wno-TIMESCALEMOD -Wno-WIDTHTRUNC -Wno-WIDTHEXPAND -Wno-REALCVT \
+		-Iverilog/cells --Mdir verilog/verilator/obj_storage_sdram_board -o board-test \
+		verilog/verilator/obj_storage_sdram_board/msa_ddram.v \
+		verilog/verilator/obj_storage_sdram_board/msa.v \
+		fpga/mister/dorado_storage_sdram.sv fpga/mister/dorado_storage_group.sv \
+		fpga/mister/dorado_storage_arb.sv verilog/verilator/tb_storage_board.sv \
+		verilog/verilator/fixtures/xsds_storage.sv \
+		verilog/verilator/third_party/xsds/xsds_128mbyte_sdram_model.sv >/dev/null
+	@./obj_storage_sdram_board/board-test
+
+SDRAM_TEST_RTL ?= fpga/mister/dorado_storage_sdram.sv
+SDRAM_TEST_OBJ ?= verilog/verilator/obj_storage_sdram
+SDRAM_TEST_HZ ?= 50000000
+SDRAM_TEST_CLOCK_DELAY ?= 0
+storage-sdram-test:
+	@cd ../.. && $(V) --binary --top-module tb_storage_sdram $(V_WARN) -Wno-TIMESCALEMOD \
+		-Wno-DEFPARAM -Wno-WIDTHTRUNC -Wno-WIDTHEXPAND -Wno-REALCVT \
+		-GCLOCK_HZ=$(SDRAM_TEST_HZ) -GCLOCK_DELAY_NS=$(SDRAM_TEST_CLOCK_DELAY) \
+		--Mdir $(SDRAM_TEST_OBJ) -o tb_storage_sdram \
+		$(SDRAM_TEST_RTL) \
+		verilog/verilator/third_party/xsds/xsds_128mbyte_sdram_model.sv \
+		verilog/verilator/tb_storage_sdram.sv >/dev/null
+	@cd ../.. && "$(SDRAM_TEST_OBJ)/tb_storage_sdram"
+
 pause-monitor-test:
 	@cd ../.. && $(V) --binary --top-module tb_pause_monitor $(V_WARN) -Wno-TIMESCALEMOD \
 		--Mdir verilog/verilator/obj_pause_monitor -o tb_pause_monitor \

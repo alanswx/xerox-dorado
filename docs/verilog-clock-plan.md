@@ -32,8 +32,9 @@ not a prerequisite for the performance goal.
 | 2. Reduce memory request overhead | Use measured traffic to improve grouping, locality and the single-outstanding frontend. Investigate unnecessary raw fetches on address changes; change them only after proving the original DRAM output pipeline remains correct. | Fewer raw operations and/or shorter waits on pinned workloads, with storage equivalence and original firmware preserved. Demonstrate a repeatable end-to-end improvement; increasing buffer capacity alone is not an acceptance criterion. |
 | 3. Keep disk I/O responsive | Adapt the Mac write-coalescing approach and move blocking file reads/writes/flushes to a bounded ARM worker. Main remains the sole SPI owner and handles explicit completions. Separately reduce whole-track write amplification where guest sector/CRC semantics permit. | Read-after-write, neighboring bytes, eviction, remount/core-load draining and write errors pass. An injected multi-second file operation does not block Main's poll/input service; target under 100 ms poll gaps in that controlled test. Real Cedar disk writes persist after close/remount. |
 | 4. Connect the daemon through DDR | Adapt the Mac/Sun frame-ring pattern for direct `dorado-server` access. Reserve a non-overlapping region, retain the full 2048-byte payload capacity, define ownership/order/generation, and add an acknowledged stop/resume handshake around core loads. Keep SPI/socket transport selectable during qualification. | Random DDR stalls, full/wrap, malformed lengths, reset/reload and stale-generation tests pass. Original DskEth/CRC/wire timing stay in RTL. Boot-file and STP payloads match, Cedar cold-boots, and packet delivery continues while Main has delayed disk work. |
+| 4a. Complete machine snapshots (user added) | After SDRAM/ARM I/O interfaces settle, add generated state export/import for every sequential chip/board and mutable RAM, plus device/clock phase, input queues, disk state and local server connection state. Use the ARM daemon and DDR staging to save/load an atomic, checksummed snapshot bundle with its matching disk image or COW generation. | Restore the full machine at a defined safe boundary. Save/continue/restore tests reproduce subsequent state, output, input, transfers and disk writes. Test pending operations and reset/error cases. Qualify a saved Cedar desktop on FPGA with a measured restore-time benefit. Reject incompatible schemas/builds before modifying the machine. |
 | 5. Finish accurate clocks | Integrate the independently checked phase contract and T-control cone, then remaining processor/control/IFU/map/cache latch families. Calibrate BaseBoard, Junk/RCLK, display, Ethernet and disk timers together. | Board/microengine and extended-instruction checks, original-ROM startup, all-device timing and cold Cedar/input pass at each step. Demonstrate the original 60 ns nominal ordinary-instruction cadence and report actual instruction progress, holds and external waits separately. |
-| 6. Qualify and release the combined result | Combine individually qualified changes, repeat the benchmark set, run sustained disk/network/input activity, and publish reproducible artifacts with the handoff updated. | Three consecutive fresh-seed original-firmware Cedar desktop boots; exact short and alphabet/digit echo; mouse/click; verified disk persistence; at least two hours of sustained operation without pack/CRC/RX faults. Archive timing, traces, captures, measured speed and remaining limits; commit and push. |
+| 6. Qualify and release the combined result | Combine individually qualified changes including complete snapshots, repeat the benchmark set, run sustained disk/network/input activity, and publish reproducible artifacts with the handoff updated. | Three consecutive fresh-seed original-firmware Cedar desktop boots; verified complete desktop snapshot restore; exact short and alphabet/digit echo; mouse/click; verified disk persistence; at least two hours of sustained operation without pack/CRC/RX faults. Archive timing, traces, captures, measured speed and remaining limits; commit and push. |
 
 ### Benchmark contract
 
@@ -58,7 +59,7 @@ and addressed before that change is promoted.
 ### Completion and scope
 
 The goal is complete only when the combined core passes milestone 6, the
-SDRAM/disk/DDR transport changes are operational, original phase/timer
+SDRAM/disk/DDR transport and complete snapshots are operational, original phase/timer
 relationships and nominal cadence are verified, and reproducible measurements
 show the improvement over the frozen baseline. An unresolved clock or
 correctness blocker remains open; it is not replaced by a PLL-only speed
@@ -71,6 +72,44 @@ MiSTer14 is allocated. Use misterubuntu for Quartus and the Mac for Verilator.
 Do not overwrite the protected Executive simulation/checkpoint artifacts.
 Keep commits and the handoff current at each milestone. No new permission
 is needed for the already authorized builds, reloads and reversible tests.
+
+**Implementation update,2026-10-18 15:39UTC:** Native36's original firmware,
+BFN113, Cedar login,34 base packages and profile answer pass on MiSTer14;
+BootEssentials is installing. Full Viewers/input/persistence remain pending.
+The selectable raw SDRAM backend passes independent worst-case pin-model
+tests at20/33.333333/50MHz and full MSA equivalence (9,437,184 identical bits).
+Runtime negative controls reject short tRCD and refresh starvation.
+Native37 clones frozen36 with only backend/pin changes; it fitted but FAILED
+setup(-4.436ns SDRAM input) and hold(-0.040ns MemC MLAB). It was not deployed.
+Native38 is building a falling-edge input capture followed by the rising-edge
+response, one extra read cycle, with unchanged timing limits and no new cuts.
+Revised tests pass, including6ns physical clock delay that rejects the old
+capture. All-device and external pin timing remain gates. See reports/
+2026-10-18-sdram-preparation, native37 and native38.
+There is no SDRAM raw line cache; use a matched cache-off DDR control before
+attributing a measured performance difference to the memory device alone.
+
+The instruction issue monitor passes15 nine-board microprogram cases at
+SYSPER4/8/16 against actual T increments, including constant-PC loops,
+original Hold&TaskSim holds and ReadTPC/WriteTPC/ReadIM extensions. Naive
+held-start/half-clock counters are rejected. Generated-port/coherent host
+integration and hardware rate measurement are still pending; this is issue,
+not pipeline-drained retirement. See reports/2026-10-18-instruction-progress.
+
+Snapshot scope includes IM/IFUM, register/task files, processor/control
+pipeline and clock phase, main memory, cache/map/ECC and their registers,
+BaseBoard CPU/RAM, serial disk position/controller state, display state,
+Ethernet buffers/wire state, input queues and any outstanding host work.
+Generate a versioned state schema from the same cells/wire lists rather
+than relying on FPGA register readback or dumping only main RAM. First
+support matching builds; cross-build restore needs an explicit, tested
+compatibility rule or migration. Record ROM/microcode/configuration hashes.
+At capture, establish a barrier across guest execution and host services:
+drain or serialize outstanding transactions, flush/capture dirty disk data,
+and snapshot local Pup/BSP/STP transfer state and timers. SDRAM refresh must
+continue during pause/save/load. A live external peer cannot be rewound;
+define tunnel disconnection/recovery explicitly instead of claiming it was
+captured. Keep cold-boot qualification alongside fast-restore benchmarks.
 
 ## Objective and constraints
 

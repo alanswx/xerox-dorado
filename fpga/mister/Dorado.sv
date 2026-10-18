@@ -24,8 +24,15 @@ assign ADC_BUS  = 'Z;
 assign USER_OUT = '1;
 assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
+`ifndef DORADO_STORAGE_SDRAM
 assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML,
         SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
+`else
+wire [15:0] storage_dq_out;
+wire storage_dq_oe;
+assign SDRAM_CLK=~clk_sys;
+assign SDRAM_DQ=storage_dq_oe ? storage_dq_out : 16'hzzzz;
+`endif
 `ifndef DORADO_NATIVE
 assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN,
         DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;
@@ -375,6 +382,12 @@ dorado_native_machine #(.SYSPER(MACHINE_SYSPER)) u_native (
 `endif
     .reset(~pll_locked), .baseboard_boot_n(baseboard_boot_n), .large_format(~status[4]),
     .storage_ready(storage_ready), .storage_initialized(storage_initialized),
+`ifdef DORADO_STORAGE_SDRAM
+    .sdram_a(SDRAM_A),.sdram_ba(SDRAM_BA),.sdram_ncs(SDRAM_nCS),
+    .sdram_nras(SDRAM_nRAS),.sdram_ncas(SDRAM_nCAS),.sdram_nwe(SDRAM_nWE),
+    .sdram_dqml(SDRAM_DQML),.sdram_dqmh(SDRAM_DQMH),.sdram_cke(SDRAM_CKE),
+    .sdram_dq_out(storage_dq_out),.sdram_dq_oe(storage_dq_oe),.sdram_dq_in(SDRAM_DQ),
+`endif
     .storage_events(storage_events),.pack_host_phase(pack_host_phase),
     .pack_reads(pack_reads),.pack_writes(pack_writes),
     .baseboard_debug(baseboard_debug), .processor_debug(processor_debug),
