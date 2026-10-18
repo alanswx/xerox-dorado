@@ -21,19 +21,22 @@ e237dffc daemon.** Main13741/server13734. Deployment18:28UTC, RBF a97af936,
 Main1fb2, original fresh f3bce2a8 pack, pinned time1792324800; directories
 `Cedar41b_20261018` and `_Computer/DoradoRTL_Cedar41b_20261018/Cedar41b.mgl`.
 Original firmware CoolBoot requested by three real boot-button pulses after
-Main reinitialized/connected. Real C is intentionally held by local
-`build/rtl-executive/cedar41b-launch/c-until-request.py`, running tool
-session59506; it watches only a NEW13-word type264/BFN113 packet in41b's log,
-releases C immediately, and has a15-minute timeout/finally-release. Do not
-start another watcher or send another boot sequence. At18:33:10UTC Main and
-daemon are authoritatively live, original firmware advanced from CPUfc7 to
-fc1/SetRun, no boot request yet, TXgood/CRC/RX/abort all0. Firmware wait is
-not proof of a new failure. Poll the existing watcher and logs. Once the
-request completes, inspect login before real Guest input, then all34 loadees,
-profile `n`, BootEssentials/Viewers/input/persistence. No guest state import
-or ARM cursor repair in this fresh run. Main's known FB enable/disable
-workaround restored HDMI; current firmware raster is uninitialized noise,
-not an OS screen. Main remains the sole SPI owner.
+Main reinitialized/connected. Real C watcher completed at the actual new
+13-word type264/BFN113 request at18:34UTC and released C. Tool session59506
+is terminal; do not restart it. All boot/typing keys are UP; no active input
+or GDB helper. Actual HDMI Cedar login at18:35; three10s idle windows measure
+1595829.38/1595659.65/1595627.74 issues/s, mean1595705.59/s=9.574% original.
+This reproduces41's idle rate; three windows in one boot are not three fresh
+boots, and issues are not drained retirements. Current instruction debug
+view1: machine=issues/cpu=host edges, neither field is a processor PC.
+Real `Guest\n\n` at0.1s down/up was accepted, Grapevine-down fallback
+finished, and the fixed server serves Cedar6.1/Top/Basic.Loadees at~18:39UTC.
+Next: allow all34 base loadees, answer the later profile question `n` alone,
+then BootEssentials/Viewers/mouse/exact keyboard/file close/remount. No guest
+state import or ARM cursor repair in this run. Main's known FB enable/disable
+workaround restored HDMI; the earlier firmware raster was uninitialized noise.
+Main remains the sole SPI owner. Preserve this fresh baseline for qualification
+before the matched DDR42 and optimized43 comparisons.
 Exact deployment/assertions/restart config and captures: native41b reports;
 local launch helpers in `build/rtl-executive/cedar41b-launch/`.
 
@@ -931,7 +934,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Diagnose/reproduce PrintTV ACK race; bounded producer-independent packet replay passes native/ARM loss/wrap/ring/reuse tests; old server fails regression.
 - [ ] Fresh original-firmware boot with e237dffc fixed daemon, without ARM cursor repair;41's18:22 repair is explicitly assisted.
 - [x] Stage/deploy identical-RBF Native41b from untouched seed with tested e237dffc daemon; preserve old41 pack/logs after repeated old-server ACK race.
-- [ ] Finish41b real firmware/BFN113/login/Guest/profile/desktop/input/persistence; current C-key watcher session59506 releases on request or timeout.
+- [x] Native41b original firmware/BFN113/login and actual Guest input; C watcher completed/released; three idle issue windows reproduce1.5957M/s.
+- [ ] Finish41b all34 loadees/profile/desktop/input/persistence with tested daemon; no active input helper, answer later profile question `n` once.
 - [x] Optional response-boundary raw arbitration and generator: independent order/payload/reset/stall fixtures, full MSA equivalence and Native43 all-device timing pass.
 - [ ] Deploy43 and measure repeatable end-to-end gain against41; synthetic6.406% fewer host edges is not an FPGA throughput claim.
 - [ ] Fix recurring initially black HDMI after core load in Main; framebuffer toggle is a workaround, parser patch is a separate defect.

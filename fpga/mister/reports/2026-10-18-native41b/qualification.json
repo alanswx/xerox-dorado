@@ -1,5 +1,5 @@
 {
-  "hardware": "Fresh same-Native41 core with ARM-tested BSP history daemon; requested, not yet qualified",
+  "hardware": "Original firmware/CoolBoot/BFN113/Cedar login PASS; real Guest plus two Returns accepted, Grapevine-down fallback and Basic.Loadees retrieve observed18:39UTC with tested e237dffc server. No cursor repair or guest state import. Full Viewers/input/persistence pending.",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,
@@ -169,5 +169,9 @@
   "pinned_pup_time": 1792324800,
   "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
   "assistance": "None",
-  "original_run": "Cedar41_20261018"
+  "original_run": "Cedar41_20261018",
+  "boot_selection": "Real C-key watcher completed at actual13-word BFN113 request18:34UTC; C released, all boot keys up.",
+  "idle_issue_measurement": "Three10s windows in one boot:1595829.38/1595659.65/1595627.74 issues/s; mean1595705.59,9.574% original nominal rate. Not drained retirement; not three cold boots.",
+  "current_debug_view": "instruction view1: machine=issued, cpu=host edges; neither is a CPU PC",
+  "input": "C watcher complete and C released; Guest helper complete, all keys up, no active input or GDB helper."
 }

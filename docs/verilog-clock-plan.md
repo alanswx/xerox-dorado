@@ -103,6 +103,11 @@ At18:33UTC firmware advances into SetRun/CPUfc1; BFN113/login still pending.
 Preserve the original boot sequence and poll the existing watcher, rather
 than restarting on an observation timeout. Exact current state is in the
 handoff and reports/2026-10-18-native41b.
+Update18:39UTC: actual BFN113 served18:34, C released; HDMI login18:35;
+three idle windows average1595705.59 issues/s (9.574% nominal), reproducing41.
+Real Guest accepted and Grapevine-down fallback completed; Basic.Loadees is
+being served. All keys up, no input/GDB helper. Full desktop/input/persistence
+and matched42/43 hardware comparisons remain pending.
 
 **Implementation update,2026-10-18 17:33UTC:** Native41 SDRAM has cold-booted
 original firmware to the actual Cedar login on MiSTer14. Real Guest input
