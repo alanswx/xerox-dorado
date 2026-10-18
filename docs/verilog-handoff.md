@@ -2,6 +2,16 @@
 
 ## Current objective (2026-10-18 UTC)
 
+**Active goal: deliver a faster, correctness-qualified Cedar FPGA system.**
+The ordered delivery plan and completion gates are in
+[verilog-clock-plan.md](verilog-clock-plan.md#active-delivery-plan-and-goal-2026-10-18):
+qualify M10K placement and instruction measurement; move bulk RAM to SDRAM;
+reduce memory-request overhead; make ARM disk work nonblocking/coherent;
+connect the daemon through DDR frame queues; finish accurate clock/timer
+migration; then repeat fresh boots and sustained end-to-end qualification.
+External Xerox-network tunnelling is optional follow-up. Next: Native36
+hardware qualification and preparation of the SDRAM/counter implementation.
+
 **Live MiSTer14 is now Native35 (diagnostic successor), at Cedar's idle login
 prompt. Native34 remains the last fully qualified Viewers/input reference.**
 Native35's original firmware/BFN113 and Cedar login pass. Separate10s idle

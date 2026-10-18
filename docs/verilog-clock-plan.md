@@ -5,6 +5,73 @@ input baseline; Native26 preserves the earlier33.333MHz reference. The user has 
 that session alive is no longer a constraint. See the [clock audit](verilog-from-sil.md#clock-architecture-audit-2026-10-18)
 for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
+## Active delivery plan and goal (2026-10-18)
+
+Deliver a faster, correct Dorado on MiSTer that cold-boots the original
+firmware to Cedar's Viewers desktop and an interactive CommandTool. Use the
+confirmed 128 MB SDRAM module for bulk main memory, keep hot architectural
+state on chip, and use reserved DDR queues for direct ARM-daemon packet
+transport. Remove blocking disk work from Main's polling loop. Finish the
+clock/enable and timer migration to target the original 60 ns ordinary
+microinstruction cadence. Report measured instruction progress and waits;
+a higher PLL frequency or an enabled-edge ceiling is not proof of speed.
+
+This is an active implementation goal. The numbered milestones below are
+the delivery order and take precedence over historical candidate diaries.
+Native34 is the fully qualified desktop/input reference; Native35 provides
+the current diagnostic baseline. Neither SDRAM nor DDR networking is
+implemented yet. External IFS/ContrAlto tunnelling is optional follow-up,
+not a prerequisite for the performance goal.
+
+### Milestones and acceptance
+
+| Milestone | Change | Evidence required to finish |
+| --- | --- | --- |
+| 0. Establish the smaller working baseline | Qualify Native36's opt-in M10K placement on MiSTer14. Freeze recipes, original seed, Main/server binaries and benchmark inputs. Define an instruction-progress counter from the original control-board strobes. | Original firmware, Cedar desktop, exact keyboard echo, mouse/click and disk persistence pass; all four timing conditions pass. Independent known microprograms check the counter, including extended instructions and holds. Until then retain the explicit edge-ceiling label. |
+| 1. Move bulk RAM to SDRAM | Add a selectable SDRAM raw-storage backend, initially retaining the same 16 MiB padded data/ECC layout for 8 MiB guest RAM. Derive controller geometry, initialization, refresh and IO timing from an appropriate MiSTer 128 MB controller/module reference. Keep the DDR backend selectable. | Independent storage/ECC/read-before-write/reset/stall fixtures agree. Constrain the new SDRAM clock and IO, pass all-device timing, then cold-boot Cedar and verify input and persisted disk writes. Compare with the same-frequency DDR control. |
+| 2. Reduce memory request overhead | Use measured traffic to improve grouping, locality and the single-outstanding frontend. Investigate unnecessary raw fetches on address changes; change them only after proving the original DRAM output pipeline remains correct. | Fewer raw operations and/or shorter waits on pinned workloads, with storage equivalence and original firmware preserved. Demonstrate a repeatable end-to-end improvement; increasing buffer capacity alone is not an acceptance criterion. |
+| 3. Keep disk I/O responsive | Adapt the Mac write-coalescing approach and move blocking file reads/writes/flushes to a bounded ARM worker. Main remains the sole SPI owner and handles explicit completions. Separately reduce whole-track write amplification where guest sector/CRC semantics permit. | Read-after-write, neighboring bytes, eviction, remount/core-load draining and write errors pass. An injected multi-second file operation does not block Main's poll/input service; target under 100 ms poll gaps in that controlled test. Real Cedar disk writes persist after close/remount. |
+| 4. Connect the daemon through DDR | Adapt the Mac/Sun frame-ring pattern for direct `dorado-server` access. Reserve a non-overlapping region, retain the full 2048-byte payload capacity, define ownership/order/generation, and add an acknowledged stop/resume handshake around core loads. Keep SPI/socket transport selectable during qualification. | Random DDR stalls, full/wrap, malformed lengths, reset/reload and stale-generation tests pass. Original DskEth/CRC/wire timing stay in RTL. Boot-file and STP payloads match, Cedar cold-boots, and packet delivery continues while Main has delayed disk work. |
+| 5. Finish accurate clocks | Integrate the independently checked phase contract and T-control cone, then remaining processor/control/IFU/map/cache latch families. Calibrate BaseBoard, Junk/RCLK, display, Ethernet and disk timers together. | Board/microengine and extended-instruction checks, original-ROM startup, all-device timing and cold Cedar/input pass at each step. Demonstrate the original 60 ns nominal ordinary-instruction cadence and report actual instruction progress, holds and external waits separately. |
+| 6. Qualify and release the combined result | Combine individually qualified changes, repeat the benchmark set, run sustained disk/network/input activity, and publish reproducible artifacts with the handoff updated. | Three consecutive fresh-seed original-firmware Cedar desktop boots; exact short and alphabet/digit echo; mouse/click; verified disk persistence; at least two hours of sustained operation without pack/CRC/RX faults. Archive timing, traces, captures, measured speed and remaining limits; commit and push. |
+
+### Benchmark contract
+
+Use three explicitly recorded workloads: idle Cedar login, a fixed cold
+loader sequence through all 34 base packages, and a desktop script with
+known CommandTool output, mouse actions and file transfer/write activity.
+Pin the volume seed, served files, Main/server binaries, clock settings and
+input sequence. Record wall time, instruction progress once validated,
+pause categories, raw reads/writes, buffer hits, memory service latency,
+disk service/flush duration and Main polling gaps. Repeat performance
+comparisons three times and retain each result; do not compare unrelated
+boot phases or independently changed implementations as one speed claim.
+
+Expand coherent diagnostic snapshots when necessary: Native35's selectable
+pairs are coherent individually, but its different views are different
+windows. CPU retirement, memory-service and pause correlations need either
+one common snapshot or a captured transaction trace. Attribute changes
+separately: M10K placement, SDRAM, request sequencing, ARM disk, DDR packet
+transport, then clock migration. A failed test or negative result is recorded
+and addressed before that change is promoted.
+
+### Completion and scope
+
+The goal is complete only when the combined core passes milestone 6, the
+SDRAM/disk/DDR transport changes are operational, original phase/timer
+relationships and nominal cadence are verified, and reproducible measurements
+show the improvement over the frozen baseline. An unresolved clock or
+correctness blocker remains open; it is not replaced by a PLL-only speed
+claim. Original guest-visible CPU/cache/map/ECC behavior is preserved, with
+no imported C machine state or host completion of guest instructions/IOCBs.
+
+The immediate next action is Native36 hardware qualification while preparing
+the SDRAM controller and instruction-counter design independently. Only
+MiSTer14 is allocated. Use misterubuntu for Quartus and the Mac for Verilator.
+Do not overwrite the protected Executive simulation/checkpoint artifacts.
+Keep commits and the handoff current at each milestone. No new permission
+is needed for the already authorized builds, reloads and reversible tests.
+
 ## Objective and constraints
 
 Restore the original throughput and clock relationships: HM section 2.3
