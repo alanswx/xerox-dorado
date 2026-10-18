@@ -4106,6 +4106,33 @@ void dorado_ethernet_direct_transmit(dorado_ethernet *eth,
     eth->tx_eop = 0;
 }
 
+int dorado_ethernet_stp_probe(dorado_ethernet *eth, unsigned slot)
+{
+    if (!eth || !eth->ftp_enabled || slot >= DORADO_FTP_MAX_CONN ||
+        eth->rx_pos < eth->rx_count || eth->rx_hold)
+        return 0;
+    eth_ftp_ctx_store(eth);
+    const struct dorado_ftp_ctx *c = &eth->ftp_ctx[slot];
+    if (!c->used || !c->open || c->server_sock_hi != 0 ||
+        c->server_sock_lo != PUP_SOCKET_FTP || c->tx_next == c->last_ack)
+        return 0;
+    /* PupStreamImpl.SendProbe: aData, pushId, zero user bytes. A missing
+     * final unrequested mark otherwise leaves BOTH sides waiting forever:
+     * the receiver has no later aData/aMark to trigger its acknowledgement.
+     * Duplicate acknowledgements already rewind the file/completion tail.
+     * Preserve the active parser context, and do not spend output fingers
+     * on these non-stream bytes. The normal queue owns checksum/framing. */
+    int queued = eth_queue_pup_bytes(eth, PUP_TYPE_BSP_ADATA, c->tx_next,
+                                    c->client_net_host, c->client_sock_hi,
+                                    c->client_sock_lo, c->server_net_host,
+                                    c->server_sock_hi, c->server_sock_lo,
+                                    NULL, 0);
+    if (queued && ftp_trace())
+        fprintf(stderr, "STP_PROBE slot=%u id=%08x ack=%08x\n",
+                slot, c->tx_next, c->last_ack);
+    return queued;
+}
+
 int dorado_ethernet_breath_of_life(dorado_ethernet *eth)
 {
     /* Boot servers broadcast breath-of-life packets periodically; only

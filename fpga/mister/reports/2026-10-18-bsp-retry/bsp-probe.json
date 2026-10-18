@@ -1,0 +1,25 @@
+{
+  "type": "BSP aData, empty acknowledgement probe",
+  "source": "PupStreamImpl.mesa SendProbe",
+  "server_socket": 3,
+  "client_socket": "0o22/0o112046",
+  "id": "0019b035",
+  "raw_words": [
+    "2201",
+    "0200",
+    "0016",
+    "0011",
+    "0019",
+    "b035",
+    "0122",
+    "0012",
+    "9426",
+    "0101",
+    "0000",
+    "0003",
+    "ffff"
+  ],
+  "peer": "/tmp/dorado-main-6748.sock",
+  "purpose": "Diagnose stalled Helvetica7.ks transfer through original server socket, normal Main bridge and RTL Ethernet",
+  "corrected_endpoint": "Original probe omitted high socket half and received NoSocket; this uses full32bit endpoint from live trace"
+}

@@ -85,6 +85,8 @@ int main(int argc, char **argv) {
     configure(&eth,argc,argv);
     socklen_t peer_len = 0;
     uint64_t previous = monotonic_ns(), broadcast_at = previous + 1000000000ull;
+    uint64_t probe_at = previous + 1000000000ull;
+    unsigned probe_cursor = 0;
     unsigned broadcast_kind = 0;
     int result = 0;
     fprintf(stderr, "Dorado Pup server listening on %s (raw frames, no CRC/status)\n", argv[1]);
@@ -92,6 +94,16 @@ int main(int argc, char **argv) {
         uint64_t now = monotonic_ns();
         pump(&eth, (now - previous) / 32);
         previous = now;
+        if (peer_len && now >= probe_at) {
+            /* One idle STP probe per second, rotating through connections.
+             * This is the BSP sender's timer, independent of guest CPU time.
+             * Main continues to own SPI and the FPGA the real wire/CRC. */
+            for (unsigned n = 0; n < DORADO_FTP_MAX_CONN; n++) {
+                unsigned slot = probe_cursor++ % DORADO_FTP_MAX_CONN;
+                if (dorado_ethernet_stp_probe(&eth, slot)) break;
+            }
+            probe_at = now + 1000000000ull;
+        }
         if (peer_len && now >= broadcast_at) {
             if (broadcast_kind++ & 1) (void)dorado_ethernet_time_broadcast(&eth);
             else (void)dorado_ethernet_breath_of_life(&eth);

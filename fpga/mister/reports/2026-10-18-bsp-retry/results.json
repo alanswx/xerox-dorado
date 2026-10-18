@@ -1,0 +1,23 @@
+{
+  "observed_core": "Native36 on MiSTer14",
+  "file": "Fonts/TiogaFonts/Helvetica7.ks",
+  "file_bytes": 1036,
+  "missing_completion_bytes": 20,
+  "tx_next": "0019b035",
+  "stalled_ack": "0019b021",
+  "probe_ack_sequence": [
+    "0019b021",
+    "0019b021",
+    "0019b035"
+  ],
+  "rewind": "FTP_REWIND to=0019b021 back=20 file_pos=1036 mode=4 step=0",
+  "hardware_recovery": "Viewers Ready/CommandTool desktop resumed after standards-defined probes from existing server socket through Main and RTL Ethernet",
+  "diagnostic_caveat": "First diagnostic probe omitted high socket half; guest correctly returned NoSocket. Three corrected full32-bit probes followed. This assisted boot is not an unassisted cold-boot gate.",
+  "new_daemon_sha256": "d4dbea66c371ebd841d1db45dede8eac868fe7b4dc3da07b43d9f64d73f5150a",
+  "installed_candidate": "/media/fat/games/DoradoRTL/System_20261018_BSP/dorado-server-d4dbea66c371ebd8",
+  "deployment": "Candidate tested on separate temporary sockets, not yet the live service",
+  "native_tests": "Boot/EFTP/re-exec/routing/large STP/lost-tail PASS",
+  "arm_tests": "Same cases PASS on allocated MiSTer14",
+  "negative_control": "Old daemon loop receives1036 bytes, drops tail, produces0 probes and fails recovery",
+  "limits": "Reuses existing file/tail rewind; no general metadata retransmit ring. New daemon cadence1s, one probe rotating across active STP connections. Shared C state struct unchanged."
+}

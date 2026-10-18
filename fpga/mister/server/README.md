@@ -63,3 +63,26 @@ uses the same type on file-service sockets, including socket 3 through our
 NetDir alias. Dispatch must respect the socket: treating every type `0200`
 as a filename silently drops the empty routing probe. The regression sends
 the captured request with a unique ID so idle routing broadcasts cannot pass.
+
+The daemon now sends at most one empty BSP acknowledgement probe per second,
+rotating through open STP connections with unacknowledged output. This is
+`PupStreamImpl.SendProbe`'s aData/pushId/zero-byte packet, with the full
+client socket address. It spends no stream bytes or output fingers. Duplicate
+acknowledgements invoke the existing file/completion-tail rewind logic.
+Probe timers belong to the ARM service; Main still owns SPI, and the FPGA
+still supplies Manchester framing, CRC and controller status.
+
+The observed FPGA failure was a lost20-byte Helvetica7 transfer-completion
+tail after all font bytes arrived. With no later acknowledgement-requesting
+packet, Cedar and the server waited indefinitely at the gray Viewers screen.
+Protocol probes elicited the stalled byte cursor; duplicate ACK replayed the
+tail and the desktop resumed. This does not implement a general retransmit
+ring for every STP metadata packet; it makes the existing retransmission path
+live when an unrequested final packet is lost.
+
+`make bsp-retry-test` drops that tail, supplies ACKs only when BSP requests
+them, and verifies recovery plus all1036 file bytes. It passes natively and
+on MiSTer's ARM. An independently compiled old-loop control receives the
+body but fails with zero probes. The service adds no machine-state members
+to the shared C controller structure, preserving its snapshot ABI. Complete
+FPGA snapshot bundles will also need the daemon's probe timer/cursor state.

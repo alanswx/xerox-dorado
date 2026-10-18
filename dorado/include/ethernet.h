@@ -307,6 +307,11 @@ void dorado_ethernet_set_ftp_root(dorado_ethernet *eth, const char *root);
  * backpressure without delaying the preceding plist negotiation. */
 int dorado_ethernet_ftp_file_delivery_active(const dorado_ethernet *eth);
 
+/* Queue an empty acknowledgement-requesting BSP probe for an open STP
+ * connection with unacknowledged output. Caller owns the retry cadence.
+ * Does not consume stream bytes/fingers or change the snapshot ABI. */
+int dorado_ethernet_stp_probe(dorado_ethernet *eth, unsigned slot);
+
 /* Optional Stage-2 delivery gate for clients such as the Cedar/Pilot germ
  * that post Ethernet input IOCBs through a controller status block. */
 void dorado_ethernet_set_eftp_rx_armed(dorado_ethernet *eth, int armed);
