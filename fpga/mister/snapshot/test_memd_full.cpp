@@ -12,6 +12,9 @@ static std::array<std::array<uint32_t,4096>,BANKS> memory{};
 static std::array<uint32_t,BANKS> pipeline{};
 static std::array<unsigned,BANKS>writes{};
 static std::array<unsigned,SMALLS>small_writes{};
+static std::array<unsigned,2>storage_words{};
+static bool storage_history=false;
+static unsigned storage_writes;
 static uint32_t rng=0x296554d0;
 static unsigned edges,holds,requests,late_changes,walked_bits;
 static unsigned random_word(){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
@@ -30,6 +33,8 @@ static void equal(){
         check(bank(d.candidate_probe,b)==memory[b][d.probe_row],"candidate RAM probe differs");
     }
     for(unsigned i=0;i<(OUTPUTS+31)/32;++i)check(d.original_outputs[i]==d.candidate_outputs[i],"board output differs");
+    for(unsigned i=0;i<2;++i)check(get(d.original_ff,state_words[WORDS-3+i].offset,18)==storage_words[i],"independent storage input pipeline differs");
+    check(get(d.original_ff,state_words[WORDS-1].offset,1)==unsigned(storage_history),"independent storage input clock history differs");
 }
 static void pins(){
     for(unsigned i=0;i<(INPUTS+31)/32;++i)d.stimulus[i]=(edges%257<32)?0:(edges%257<64?0xffffffffu:random_word());
@@ -41,6 +46,8 @@ static void cycle(bool run,bool reference,bool late=false,bool compare=true){
     d.run=run;d.run_ref=reference;d.host_clk=0;d.eval();
     if(late){d.run=!run;d.run_ref=!reference;d.eval();++late_changes;}
     if(d.ref_advance){
+        if(d.storage_clock&&!storage_history){storage_words[1]=storage_words[0];storage_words[0]=d.storage_data;++storage_writes;}
+        storage_history=d.storage_clock;
         for(unsigned b=0;b<BANKS;++b){
             unsigned a=get(d.addresses,b*12,12);pipeline[b]=memory[b][a];
             if(!((d.we_n>>b)&1)&&!((d.ce_n>>b)&1)){memory[b][a]=bank(d.data_bits,b);++writes[b];}
@@ -82,6 +89,7 @@ int main(int argc,char**argv){
     for(unsigned i=0;i<SMALLS;++i)std::printf("writer small%u=%u\n",i,small_writes[i]);
     for(auto count:writes)check(count>0,"original cache RAM writer not exercised");
     for(auto count:small_writes)check(count>0,"original small RAM writer not exercised");
+    check(storage_writes>1,"original storage input writer not exercised");
     d.request=0;cycle(false,false);d.freeze=1;d.held=0;d.request=1;d.write=1;
     cycle(false,false);check(!d.frozen&&!d.done,"unheld freeze accepted");
     d.held=1;d.request=1;d.write=1;d.state_index=0;cycle(false,false);check(d.frozen&&!d.done,"entry request accepted");
@@ -135,5 +143,5 @@ int main(int argc,char**argv){
     d.freeze=0;d.request=0;cycle(false,false);d.held=0;
     for(unsigned i=0;i<20000;++i){pins();bool run=i==0||(random_word()&3)!=0;cycle(run,run,i%3==0);}
     check(walked_bits==STATE_BITS,"incomplete modeled bit walk");
-    std::printf("FULL MemD RESTORE PASS host=%u held=%u requests=%u late_changes=%u bits=%u invalid_index_space=%u post_restore=20000\n",edges,holds,requests,late_changes,walked_bits,INDEX_COUNT);
+    std::printf("FULL MemD RESTORE PASS host=%u held=%u requests=%u late_changes=%u bits=%u invalid_index_space=%u storage_writes=%u post_restore=20000\n",edges,holds,requests,late_changes,walked_bits,INDEX_COUNT,storage_writes);
 }

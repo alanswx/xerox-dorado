@@ -22,23 +22,32 @@ full55desktop/mouse/exact keyboard/warm marker still pending. No reset/retry.
 Current/tmp/dorado55-main.log,/tmp/dorado55-disk.jsonl, server/volume
 Cedar55_20261019, localcedar55-launch. No full snapshot,60ns or final release.
 
-Complete native MemD adapter/classification/restore/matched timing now PASS:
-296,554modeled mutable bits, all14cache/eight small-file original writers,
-physical probes independent of state decode, allstatebits/all1,048,576indices,
-destructive restore/recapture/first actual resume/20,000cycles. Ten broken
-RTLs plus nonzero storage-delay setting reject;14schema controls reject.
-Only actual native STORAGE_INPUT_DELAY=0 is qualified, other values explicitly
-fatal; no hidden omitted delay state. Finalsimulation35362 andclassifier59157
-TERMINAL. Matched isolated SV fits4360 /home/alans/mister/SnapshotMemDSV_20261019
-and read-only audit PASS all four conditions,min+0.164ns.294,912cache RAMbits,
-38->40M10Ks,604->2267ALM/1353->2340regs include shell/admin/pruning; all14actual
-macros/physicalbanks OLD_DATA,ninebadfitsreject. InitialSnapshotMemD_20261019
-parser failure preserved: unchanged original needs SystemVerilog for its
-optional-loop declaration, same as native project. No RTL/SDC relaxation.
-Evidence snapshot-memd-full. Full-core MemD integration remains next, then
-MemX/display/DskEth/BaseBoard/backends/outer/ARM state and coherent global
-bundle, original60ns migration and final combined gates. All our Quartus jobs
-are terminal; unrelated SharpX1 build must not be touched.
+**MemD parameter correction: actual native storage delay is TWO, not zero.**
+Initial full-core Native56 build28174 TERMINAL in map; explicit adapter guard
+rejected Native55 QSF DORADO_STORAGE_INPUT_DELAY=2. No RBF/no hardware reload.
+Prior isolated296,554bit zero-delay qualification remains valid for that
+configuration only; its description as actual native was incorrect. Sources/
+raw evidence preserved in snapshot-memd-full, with an explicit README erratum.
+Do not bypass the guard, override the actual parameter, or promote that fit.
+The actual two words+edge history add37bits: complete296,591. Generated
+block state was absent from the generic XML inventory; lexical generated
+scope traversal and nested-scope regression now pass. FreshXML16damagedschema
+controls reject. Native2 original/oracle/physical-probe restore passes allstate/
+allindices/actual14,265storagecaptures/firstedge/20,000cycles;12brokenRTL plus
+unsupported delay reject. Finalsim46163 TERMINAL. Matched native2 fits72957
+and audit TERMINAL, all four conditions,min+0.107ns;294,912cachebits/38->40M10Ks,
+620->2358ALM/1389->2411regs include shell/admin/pruning; all14macros/physical
+banks OLD_DATA,ninebadfitcontrolsreject. Evidence snapshot-memd-native2.
+Fresh full-core Native56b build34403 LIVE at
+/home/alans/mister/Dorado_Native56b_20261019, assetsDorado_Native56b_inputs_20261019.
+The exact frozen55 wrapper/clocks/SDCs/policies and native delay2 are retained;
+all seven adapters' admin inactive. Next qualify31summary/148detailed/four
+conditions and all-memory inference before any normal reload. Original failed
+Dorado_Native56_20261019 stays terminal/preserved. Live55 Main21577/server21576/
+RBF3eee3109 unchanged; actual font-DF installation completed and module STARTs
+advance. Full55Viewers/input still pending. No boot reset/retry.
+Remaining full MemD/native2 integration, MemX/display/DskEth/BaseBoard/backends/
+outer/ARM/global bundle, original60ns and combined gates remain open.
 
 Retired54 full Viewers/Clock/Watch/Edit/mouse/Cmd/separate initialized focus,
 exact short/alphabet/digit echoes and warm rtl54persist file create/close/type
@@ -2100,7 +2109,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Complete55base34/final ACK and whole-loader/replay accounting; observer58164/21775 terminal/absent; visible default No accepted after profile timeout/filename detour.
 - [ ] Complete55BootEssentials/full desktop/mouse/exact keyboard/warm marker.
 - [x] Review MemD cache RAM against wire list; qualify4096-word old-data RAM primitive simulation/classification/isolated timing.
-- [x] Complete native MemD board adapter/state classification/restore/matched isolated timing(+0.164ns); unsupported storage delay rejects.
+- [x] Qualify zero-delay MemD state adapter(+0.164ns); full-core guard correctly rejects actual native delay2. Preserve explicit correction.
+- [x] Qualify actual native delay2 MemD state, including37input-pipeline bits and generated-scope XML coverage; simulation/classification/matched fits(+0.107ns).
 - [ ] Integrate qualified MemD into next full core, qualify all-device timing and original firmware/interactive Cedar; all admin inactive. Then remaining device/ARM/global state.
 - [ ] Finish remaining board/device/ARM state and atomic snapshot bundle with actual FPGA Cedar restore.
 - [ ] Finish original60ns clock/enable and timer migration; final three fresh boots, coherent snapshot restore, persistence, pinned measurements and two-hour combined stress.

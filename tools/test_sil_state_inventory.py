@@ -17,6 +17,19 @@ module leaf(input logic clk, en, input logic [2:0] addr,
   logic [3:0] task_only[0:7];
   logic [2:0][3:0] multidim[-2:2][1:0];
   logic [2:0] captured;
+  if(1)begin: delay
+    logic [3:0] words[0:1];
+    logic history=0;
+    initial begin words[0]=0;words[1]=0;end
+    always @(posedge clk)begin
+      history<=en;
+      if(en&&!history)begin words[0]<=data;words[1]<=words[0];end
+    end
+    if(1)begin:nested
+      logic [2:0] captured;
+      always @(posedge clk)captured<=addr;
+    end
+  end
   initial $readmemh("fixture-rom.mem",rom);
   task update_row; task_only[addr] <= data; endtask
   always @(posedge clk) begin
@@ -68,6 +81,14 @@ def main():
             assert group['comb']['category'] == 'combinational_review'
             assert group['multidim']['width'] == 12 and group['multidim']['bits'] == 120
             assert group['multidim']['unpacked_dimensions'] == [[-2, 2], [1, 0]]
+        # State declared inside generated scopes must be inventoried too,
+        # including nested same-name variables in distinct lexical scopes.
+        for instance in ('top.units[0].u','top.units[1].u'):
+            normalized={p.replace('__BRA__','[').replace('__KET__',']'):r for p,r in rows.items()}
+            assert normalized[instance+'.delay.words']['bits']==8
+            assert normalized[instance+'.delay.words']['unpacked_dimensions']==[[0,1]]
+            assert normalized[instance+'.delay.history']['category']=='sequential'
+            assert normalized[instance+'.delay.nested.captured']['bits']==3
         # Original chip: saving just its1024 RAM bits loses the read pipeline.
         assert rows['top.im.mem']['bits'] == 1024
         assert rows['top.im.dout_r']['bits'] == 1
@@ -94,7 +115,7 @@ def main():
         else:
             raise AssertionError('unknown state destination accepted')
     print('STATE INVENTORY PASS: original RAM/read pipeline, task writes, ROM loads, '
-          'latch/edge/blocking captures, concat/index/array geometry, hierarchy and failure controls')
+          'generated/nested state, latch/edge/blocking captures, concat/index/array geometry, hierarchy and failure controls')
 
 
 if __name__ == '__main__':

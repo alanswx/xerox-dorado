@@ -19,7 +19,7 @@ def fixture(root,manifest):
         if name!='sys_clk':ports.append(dict(direction=direction,name=name,width=1 if msb is None else abs(int(msb)-int(lsb))+1))
     inputs=[p for p in ports if p['direction']=='input'];outputs=[p for p in ports if p['direction']=='output']
     ni=sum(p['width']for p in inputs);no=sum(p['width']for p in outputs);nb=len(manifest['banks']);ns=len(manifest['files'])
-    aux_bits=manifest['ff_bits']+ns*74+manifest['phase_bits']
+    aux_bits=manifest['ff_bits']+ns*74+manifest['phase_bits']+manifest['storage_input_bits']
     code=[f'''module memd_full_fixture(
  input wire host_clk,run,run_ref,input wire [{ni-1}:0] stimulus,
  input wire freeze,held,request,write,input wire [19:0] state_index,input wire [17:0] state_data,
@@ -29,7 +29,8 @@ def fixture(root,manifest):
  output wire [{aux_bits-1}:0] original_ff,candidate_ff,
  output wire [71:0] original_raw,candidate_raw,data_bits,original_probe,candidate_probe,
  output wire [{nb*12-1}:0] addresses,output wire [{nb-1}:0] we_n,ce_n,
- output wire [{ns-1}:0] small_write,output wire advance,ref_advance);
+ output wire [{ns-1}:0] small_write,output wire advance,ref_advance,
+ output wire [17:0] storage_data,output wire storage_clock);
  reg enabled=0,ref_enabled=0;
  always @(negedge host_clk)begin enabled<=run;ref_enabled<=run_ref;end
  wire guest_clk=host_clk & enabled,ref_clk=host_clk & ref_enabled;
@@ -49,7 +50,7 @@ def fixture(root,manifest):
             '.state_freeze(freeze)','.state_guest_held(held)','.state_request(request)','.state_write(write)',
             '.state_index(state_index)','.state_data(state_data)','.state_frozen(frozen)',
             '.state_done(done)','.state_error(error)','.state_result(result)']
-        code +=[f' {module} #(.SYSPER(4),.STORAGE_INPUT_DELAY(0)) {copy}(',','.join(connections),');']
+        code +=[f' {module} #(.SYSPER(4),.STORAGE_INPUT_DELAY(2)) {copy}(',','.join(connections),');']
         code.append('assign '+copy+'_outputs={'+','.join(copy+'_'+p['name']for p in reversed(outputs))+'};')
     words=[];offset=0
     def aux(word,width,expression):
@@ -65,7 +66,10 @@ def fixture(root,manifest):
         base='original.'+row['package']+'.'
         code.append(f"assign small_write[{row['memory_index']}]={base}p13 && !{base}we_d && {base}ce_lat;")
     aux(manifest['phase']['word'],10,lambda c:'{'+','.join(c+'.'+n for n in reversed(manifest['phase']['fields']))+'}')
+    for a in range(2):aux(manifest['storage_input']['word']|a,18,lambda c,a=a:f'{c}.storage_rx_pipeline.words[{a}]')
+    aux(manifest['storage_input']['word']|2,1,lambda c:f'{c}.storage_rx_pipeline.clock_d')
     assert offset==aux_bits
+    code.append('assign storage_data=original.storage_rx_raw;assign storage_clock=original.clk2_p_Aa;')
     bank_offsets=[];offset=0
     for i,bank in enumerate(manifest['banks']):
         width=bank['width'];bank_offsets.append(offset);first=bank['members'][0]['instance']
@@ -114,18 +118,20 @@ def run(root,output,mutations):
             ('response_truncation','board','reg [4:0] state_response_memory_index;','reg [3:0] state_response_memory_index;','RAM/pipeline state export differs'),
             ('row_alias','f10470_word_bank.sv','word_index[11:0]:address',"{1'b0,word_index[10:0]}:address",'RAM/pipeline state export differs'),
             ('lost_small_window','cell_F10145A_snapshot.sv','{ce_lat,d_lat,a_lat,we_d} <= state_data;',"{ce_lat,d_lat,a_lat,we_d} <= 10'b0;",'aux bit write/readback differs'),
+            ('lost_storage_word','board','words[state_row[0]]<=state_data;',"words[state_row[0]]<=18'b0;",'aux bit write/readback differs'),
+            ('lost_storage_history','board','clock_d<=state_data[0];',"clock_d<=1'b0;",('aux bit write/readback differs','board auxiliary state differs')),
         ]:
             original=board if target=='board'else clones[target];assert before in original,(name,before)
             changed=original.replace(before,after,1);copies=clones.copy()
             if target!='board':copies[target]=changed
             cases.append((name,changed if target=='board'else board,copies,diagnostic))
-        cases.append(('unsupported_storage_delay',board,clones,'MemD snapshot requires STORAGE_INPUT_DELAY=0'))
+        cases.append(('unsupported_storage_delay',board,clones,'MemD snapshot requires STORAGE_INPUT_DELAY=2'))
     results=[]
     for name,text,copies,diagnostic in cases:
         case=output/name;case.mkdir();(case/'board.sv').write_text(text)
         case_top=top
         if name=='unsupported_storage_delay':
-            before='#(.SYSPER(4),.STORAGE_INPUT_DELAY(0)) candidate'
+            before='#(.SYSPER(4),.STORAGE_INPUT_DELAY(2)) candidate'
             assert top.count(before)==1
             case_top=top.replace(before,'#(.SYSPER(4),.STORAGE_INPUT_DELAY(1)) candidate')
         (case/'fixture.sv').write_text(case_top);(case/'ports.h').write_text(header)
@@ -137,7 +143,9 @@ def run(root,output,mutations):
         with(case/'build.log').open('w')as log:subprocess.run(command,stdout=log,stderr=subprocess.STDOUT,check=True)
         result=subprocess.run([str(case/'obj/Vmemd_full_fixture')],capture_output=True,text=True,timeout=360)
         text=result.stdout+result.stderr;(case/'test.txt').write_text(text);print(name+': '+text.strip(),flush=True)
-        if diagnostic:assert result.returncode and diagnostic in text,(name,text)
+        if diagnostic:
+            expected=(diagnostic,)if isinstance(diagnostic,str)else diagnostic
+            assert result.returncode and any(s in text for s in expected),(name,text)
         else:assert result.returncode==0 and 'FULL MemD RESTORE PASS'in text,text
         results.append(dict(case=name,returncode=result.returncode,expected_failure=diagnostic))
     (output/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')

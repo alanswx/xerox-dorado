@@ -42,6 +42,25 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+Native2 MemD correction is now independently qualified:296,591mutable bits,
+generated/nested-scope XML regression, original/oracle/physical-probe restore,
+14,265actual input captures and firstedge/20,000cycles pass. Matched isolated
+four-condition50MHz fits pass min+0.107ns, all14cache banks OLD_DATA,
+294,912bits/38->40M10Ks. Fresh full-core56b build34403 is live; same actual
+storage delay2, clocks/SDCs/policies, all admin inactive. Failed first56zero-delay
+integration is preserved, not resumed. Live55fonts completed/STARTs advancing;
+full desktop/input and full56b timing remain pending. No speed gain claim.
+
+
+Correction after initial Native56 integration: actual Native55 QSF uses
+DORADO_STORAGE_INPUT_DELAY=2. The initial zero-delay MemD adapter correctly
+refused it, so no RBF/hardware change resulted. Earlier zero-delay isolated
+results are valid only for zero delay; their "actual native" label was wrong.
+Qualify all37input-pipeline bits plus generated-scope XML coverage at delay2
+before a fresh full-core integration. Preserve the real delay; do not tie it
+away to pass the build. The target is296,591 modeled MemD state bits.
+
+
 19Oct continuation: live55 base34/33BCD/1,345,843bytes/final guest ACK pass,
 339.016350..339.224798s. Whole-loader issues563,541,985..566,984,017,
 interior1.666950..1.667154M/s,57protocol replays(Tioga22/Watch35); drop7,

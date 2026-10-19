@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Complete state access for the frozen native MemD, STORAGE_INPUT_DELAY=0.
+"""Complete state access for the frozen native MemD, STORAGE_INPUT_DELAY=2.
 
 Experiments only. All consumers/external inputs must be held by the caller.
-The optional non-native storage input pipeline is explicitly unsupported;
-it cannot silently escape the save map. No global machine barrier is added.
+Both native storage input words and their edge history are exported. Other
+delay configurations explicitly reject. No global machine barrier is added.
 """
 import argparse
 from collections import Counter
@@ -56,7 +56,9 @@ def generate(source_root):
     output reg state_frozen=1'b0,state_done=1'b0,state_error=1'b0,
     output wire [17:0] state_result,
     input  wire sys_clk,''')
-    text=contb.replace_once(text,DELAY,'assign storage_rx_data = storage_rx_raw;')
+    # Remove the exact original branch before checking board-owned processes;
+    # its native two-word state is reinstalled under the host/hold contract.
+    text=contb.replace_once(text,DELAY,'')
     phases=re.findall(r'^\s*reg\s+(\w+)\s*=\s*1\'b1;',text,re.M)
     if len(phases)!=10 or len(set(phases))!=10:raise ValueError('unreviewed MemD phase registers')
     phase='always @(posedge sys_clk) begin\n'+''.join(f'{n} <= {n}__lead;\n'for n in phases)+'end'
@@ -125,13 +127,33 @@ def generate(source_root):
         code +=[f'  assign {name}=state_bank_q_{i}[{bit}];'for bit,name in enumerate(outputs)]
         banks.append(dict(index=package,word=package<<13,bank=i,memory_index=ns+i,width=width,
             members=members,address=address,data=data,outputs=outputs,we=p['p15'],ce=p['p16'],ram_words=4096,pipeline_word=4096))
-    phase_index=nf+ns+len(banks);nm=ns+len(banks);packed='{'+','.join(reversed(phases))+'}'
+    phase_index=nf+ns+len(banks);storage_index=phase_index+1
+    nm=ns+len(banks);packed='{'+','.join(reversed(phases))+'}'
     if phase_index>=128 or nm!=22:raise ValueError('MemD package/response index review required')
     body=re.sub(r'^always\s*@\s*\(\s*posedge\s+sys_clk\s*\)\s*','',block,count=1)
     fabric=f'''
-  // This adapter qualifies only the native zero-delay storage-input binding.
-  generate if(STORAGE_INPUT_DELAY!=0)begin:unsupported_storage_delay
-    initial $fatal(1,"MemD snapshot requires STORAGE_INPUT_DELAY=0");
+  // Native55's actual QSF binds two storage-input word-clock stages.
+  generate if(STORAGE_INPUT_DELAY!=2)begin:unsupported_storage_delay
+    initial $fatal(1,"MemD snapshot requires STORAGE_INPUT_DELAY=2");
+  end endgenerate
+  generate begin:storage_rx_pipeline
+    reg [17:0] words[0:1];
+    reg clock_d=0;
+    initial begin words[0]=0;words[1]=0;end
+    always @(posedge state_host_clk)begin
+      if(state_hold)begin
+        if(state_accept && state_write && state_is_storage)begin
+          if(state_row<2)words[state_row[0]]<=state_data;
+          else if(state_row==2)clock_d<=state_data[0];
+        end
+      end else if(state_guest_advance)begin
+        clock_d<=clk2_p_Aa;
+        if(clk2_p_Aa && !clock_d)begin
+          words[0]<=storage_rx_raw;words[1]<=words[0];
+        end
+      end
+    end
+    assign storage_rx_data=words[1];
   end endgenerate
   // 20-bit address:7-bit package/13-bit row; FF/phase0,small file0..16,
   // cache0..4095 and raw read pipeline4096. All other indices error.
@@ -143,8 +165,9 @@ def generate(source_root):
   wire state_is_small=state_package>=7'd{nf} && state_package<7'd{nf+ns};
   wire state_is_ram=state_package>=7'd{nf+ns} && state_package<7'd{phase_index};
   wire state_is_phase=state_package==7'd{phase_index} && state_row==0;
+  wire state_is_storage=state_package==7'd{storage_index} && state_row<=2;
   wire state_valid=state_is_ff || (state_is_small && state_row<=16) ||
-                   (state_is_ram && state_row<=13'd4096) || state_is_phase;
+                   (state_is_ram && state_row<=13'd4096) || state_is_phase || state_is_storage;
   wire [17:0] state_ff_result[0:{nf-1}];
   wire [9:0] state_small_result[0:{ns-1}];
   wire [17:0] state_memory_result[0:{nm-1}];
@@ -160,7 +183,8 @@ def generate(source_root):
       state_response_memory<=state_valid && (state_is_small || state_is_ram);
       state_response_memory_index<=(state_is_small || state_is_ram)?5'(state_package-7'd{nf}):5'd0;
       state_aux_result<=state_is_ff?state_ff_result[state_package]:
-        (state_is_phase?{{8'b0,{packed}}}:18'b0);
+        (state_is_phase?{{8'b0,{packed}}}:(state_is_storage?
+          (state_row<2?storage_rx_pipeline.words[state_row[0]]:{{17'b0,storage_rx_pipeline.clock_d}}):18'b0));
     end
     if(state_hold)begin
       if(state_accept && state_write && state_is_phase){packed}<=state_data[9:0];
@@ -173,17 +197,18 @@ def generate(source_root):
     for kind in FIELDS:
         if kind in kinds and (source_root/'verilog/cells'/f'{kind}.v').read_bytes()!=(ROOT/'verilog/cells'/f'{kind}.v').read_bytes():
             raise ValueError('qualified FF differs from frozen MemD: '+kind)
-    bits=sum(r['width']for r in rows)+ns*74+72*4097+len(phases)
-    if nf!=92 or bits!=296554:raise ValueError('unexpected MemD modeled state size')
+    bits=sum(r['width']for r in rows)+ns*74+72*4097+len(phases)+37
+    if nf!=92 or bits!=296591:raise ValueError('unexpected MemD modeled state size')
     manifest=dict(module=MODULE,original_module=ORIGINAL_MODULE,original_sha256=im.BOARD_SHA,
         ff=rows,files=files,banks=banks,phase=dict(package_index=phase_index,word=phase_index<<13,fields=phases,width=10),
         logical_state_bits=bits,ff_bits=sum(r['width']for r in rows),ram_bits=ns*64+72*4096,
         write_window_bits=ns*10,read_pipeline_bits=72,phase_bits=10,index_bits=20,row_bits=13,
-        parameters=dict(STORAGE_INPUT_DELAY=0),grouping=grouping,
+        parameters=dict(STORAGE_INPUT_DELAY=2),grouping=grouping,storage_input_bits=37,
+        storage_input=dict(package_index=storage_index,word=storage_index<<13,words=2,width=18,clock_word=2),
         original_sources={'verilog/cells/'+k+'.v':hashlib.sha256((source_root/'verilog/cells'/f'{k}.v').read_bytes()).hexdigest()for k in kinds},
         generated_sha256=hashlib.sha256(text.encode()).hexdigest(),
         cloned_sources={n:hashlib.sha256(s.encode()).hexdigest()for n,s in clones.items()},
-        scope='Complete modeled frozen native MemD,STORAGE_INPUT_DELAY=0 only;2-state. External consumers/inputs,global barrier,device/ARM state and physical machine snapshot excluded.')
+        scope='Complete modeled frozen native MemD,STORAGE_INPUT_DELAY=2 only;2-state. External consumers/inputs,global barrier,device/ARM state and physical machine snapshot excluded.')
     return text,manifest,clones
 
 

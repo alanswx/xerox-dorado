@@ -64,9 +64,10 @@ def physical_ram(text,manifest):
 
 def audit(directory):
     record=json.loads((directory/'provenance.json').read_text());manifest=record['manifest'];results={}
-    assert manifest['original_sha256']==BOARD_SHA and manifest['logical_state_bits']==296554
+    assert manifest['original_sha256']==BOARD_SHA and manifest['logical_state_bits']==296591
     assert len(manifest['ff'])==92 and len(manifest['files'])==8 and len(manifest['banks'])==14 and manifest['phase']['width']==10
-    assert manifest['index_bits']==20 and manifest['row_bits']==13 and manifest['parameters']==dict(STORAGE_INPUT_DELAY=0)
+    assert manifest['index_bits']==20 and manifest['row_bits']==13 and manifest['parameters']==dict(STORAGE_INPUT_DELAY=2)
+    assert manifest['storage_input_bits']==37 and manifest['storage_input']['words']==2
     assert sorted(r['width']for r in manifest['banks'])==[3]*6+[6]*6+[9]*2
     for name,expected in record['compiled_files'].items():
         if not name.endswith('.qsf'):assert digest(directory/name)==expected,'compiled input differs: '+name
@@ -110,7 +111,7 @@ def audit(directory):
     return dict(status='PASS',scope=record['scope'],results=results,
         delta={key:results['snapshot']['resources'][key]-results['baseline']['resources'][key]for key in ('alms','registers','ram_bits','ram_blocks')},
         minimum_snapshot_slack_ns=min(v for row in results['snapshot']['timing'].values()for v in row.values()),
-        state_count_scope='296554 modeled native MemD mutable bits; resources include shell/admin/pruning, not enabled whole-core costs.')
+        state_count_scope='296591 modeled native MemD mutable bits; resources include shell/admin/pruning, not enabled whole-core costs.')
 
 
 def controls(directory):

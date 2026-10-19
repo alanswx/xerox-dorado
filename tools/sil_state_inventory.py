@@ -67,43 +67,66 @@ def inventory(xml):
 
     descriptions = {}
     for name, module in modules.items():
-        declarations = {v.get('name'): v for v in module.findall('./var')}
+        declarations = {}
         writers = defaultdict(set)
-        for process in module:
-            if process.tag not in ('always', 'initial', 'initialstatic', 'func', 'task'):
-                continue
-            local = {}
-            for declaration in process.findall('.//var'):
+
+        def visit(scope, prefix, inherited):
+            # Generated blocks can own registers and RAM, not just child
+            # module instances. Resolve destinations in their lexical scope;
+            # otherwise a whole generated pipeline can silently disappear.
+            environment = dict(inherited)
+            local_names = set()
+            for declaration in scope.findall('./var'):
                 variable = declaration.get('name')
-                if variable in local or variable in declarations:
-                    raise ValueError(f'Unreviewed shadowed process variable {name}.{variable}')
-                key = '@'+process.get('loc', '')+'.'+variable
-                local[variable] = key
+                key = prefix+variable
+                if variable in local_names or key in declarations:
+                    raise ValueError(f'Duplicate scoped declaration {name}.{key}')
+                local_names.add(variable)
                 declarations[key] = declaration
-            edges = sorted({s.get('edgeType') for s in process.findall('./sentree/senitem')})
-            edge_sensitive = any(edge not in ('COMBO', 'TRUE') for edge in edges)
-            for assign in process.iter():
-                if assign.tag == 'readmem':
-                    # $readmemh/$readmemb populate ROM/RAM without an assignment.
-                    target = assign.find('./varref')
-                    if target is None or target.get('name') not in declarations:
-                        raise ValueError('Unreviewed readmem destination')
-                    writers[target.get('name')].add('initial_only_candidate' if
-                        process.tag in ('initial', 'initialstatic') else 'subroutine_review')
+                environment[variable] = key
+            for process in scope:
+                if process.tag == 'genblock':
+                    block = process.get('name')
+                    if not block:
+                        raise ValueError('Unnamed generated state scope')
+                    visit(process, prefix+block+'.', environment)
                     continue
-                if assign.tag not in ('assign', 'assigndly', 'contassign'):
+                if process.tag not in ('always', 'initial', 'initialstatic', 'func', 'task'):
                     continue
-                if len(assign) != 2:
-                    raise ValueError('Unreviewed assignment form')
-                kind = ('subroutine_review' if process.tag in ('func', 'task') else
-                        'initial_only_candidate' if process.tag != 'always' else
-                        'sequential' if edge_sensitive or assign.tag == 'assigndly' else
-                        'combinational_review')
-                for target in destinations(assign[1]):
-                    target = local.get(target, target)
-                    if target not in declarations:
-                        raise ValueError(f'Unresolved module destination {name}.{target}')
-                    writers[target].add(kind)
+                local = {}
+                for declaration in process.findall('.//var'):
+                    variable = declaration.get('name')
+                    if variable in local or variable in environment:
+                        raise ValueError(f'Unreviewed shadowed process variable {name}.{variable}')
+                    key = prefix+'@'+process.get('loc', '')+'.'+variable
+                    if key in declarations:
+                        raise ValueError('Duplicate scoped process declaration')
+                    local[variable] = key
+                    declarations[key] = declaration
+                destinations_by_name = {**environment, **local}
+                edges = sorted({s.get('edgeType') for s in process.findall('./sentree/senitem')})
+                edge_sensitive = any(edge not in ('COMBO', 'TRUE') for edge in edges)
+                for assign in process.iter():
+                    if assign.tag == 'readmem':
+                        target = assign.find('./varref')
+                        if target is None or target.get('name') not in destinations_by_name:
+                            raise ValueError('Unreviewed readmem destination')
+                        writers[destinations_by_name[target.get('name')]].add('initial_only_candidate' if
+                            process.tag in ('initial', 'initialstatic') else 'subroutine_review')
+                        continue
+                    if assign.tag not in ('assign', 'assigndly', 'contassign'):
+                        continue
+                    if len(assign) != 2:
+                        raise ValueError('Unreviewed assignment form')
+                    kind = ('subroutine_review' if process.tag in ('func', 'task') else
+                            'initial_only_candidate' if process.tag != 'always' else
+                            'sequential' if edge_sensitive or assign.tag == 'assigndly' else
+                            'combinational_review')
+                    for variable in destinations(assign[1]):
+                        if variable not in destinations_by_name:
+                            raise ValueError(f'Unresolved module destination {name}.{variable}')
+                        writers[destinations_by_name[variable]].add(kind)
+        visit(module, '', {})
         descriptions[name] = []
         for variable, kinds in sorted(writers.items()):
             declaration = declarations[variable]

@@ -36,7 +36,7 @@ def top(ports,manifest):
         ' always @(posedge host_clk) launch<=input_stage;'
     text=text.replace(fragment,staged)
     assert text.count('#(.SYSPER(4))')==2
-    return text.replace('#(.SYSPER(4))','#(.SYSPER(4),.STORAGE_INPUT_DELAY(0))')
+    return text.replace('#(.SYSPER(4))','#(.SYSPER(4),.STORAGE_INPUT_DELAY(2))')
 
 
 

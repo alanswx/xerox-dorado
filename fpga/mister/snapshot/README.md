@@ -328,13 +328,15 @@ adapters remain admin inactive; there is no full physical save/load or60ns
 clock migration yet. Evidence native54-field/native55-field.
 
 
-## Complete native MemD qualification (2026-10-19)
+## Zero-delay MemD qualification (2026-10-19; native-setting correction below)
 
 `generate_memd_full.py`, `test_memd_full.py/.cpp`, `classify_memd_full.py`,
 `fit_memd_full.py` and `audit_memd_full.py` cover296,554mutable native MemD
 bits:968FF/history,ten phase,294,912cache RAM,72rawreadpipeline,512smallRAM,
-80small-file window. Native STORAGE_INPUT_DELAY=0 only; nonzero explicitly
-fatal, not silently accepted with missing state.14reviewed canonical cache
+80small-file window. This experiment covered STORAGE_INPUT_DELAY=0 only; other settings explicitly
+fatal. Full-core integration subsequently proved actual native delay is TWO;
+that guard rejected the first integration before an RBF. Its earlier native
+label was incorrect; raw zero-delay evidence is preserved with an erratum.14reviewed canonical cache
 banks retain original CE/WE/pin order; all22memory responses use5selectorbits.
 
 Original/oracle/fixture-only physical probes exercise all14cache/eight
@@ -350,3 +352,24 @@ for the same original's optional-loop declaration, with no RTL/SDC relaxation.
 Evidence reports/2026-10-19-snapshot-memd-full. Full-core MemD integration,
 remaining boards/device/ARM state/global barriers and actual FPGA restore are
 still required; this does not change production clocks or provide snapshots.
+
+
+## Actual native2 MemD and generated-scope inventory correction (2026-10-19)
+
+Native55 QSF binds DORADO_STORAGE_INPUT_DELAY=2. Both input words and edge
+history are now exported:296,591mutable bits. Other delays explicitly reject.
+The XML inventory now includes generated lexical scopes; a real nested-scope
+regression covers arrays, histories and same-name variables without aliasing.
+Fresh classification16damagedschemacontrols reject, with64source-pinned loop
+index bits explicitly recomputed (each overwritten before use).
+
+Native2 original/oracle/physical-probe simulation passes allbits/all20bitindices,
+all14cache/eight small-file writers and14,265actual storage captures, complete
+destructive restore/recapture/firstedge/20,000cycles. Twelve broken RTLs plus
+unsupported delay reject. Matched isolated50MHz/four-condition timing passes,
+min+0.107ns, all14actual cache banks OLD_DATA/294,912bits/38->40M10Ks.
+620->2358ALM/1389->2411regs include shell/admin/pruning, not enabled fullcore.
+Nine badfitcontrols reject. Evidence snapshot-memd-native2 includes rejected
+first56 integration/authoritative native parameter; zero-delay evidence remains
+historical. Fresh56b fullcore integration is building; actual global save/load,
+remaining boards/device/ARM state and original60ns migration remain open.

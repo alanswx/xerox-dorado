@@ -1,3 +1,15 @@
+# Correction: this qualification covers zero delay, not the actual native setting
+
+Full-core integration subsequently proved Native55's actual QSF binds
+DORADO_STORAGE_INPUT_DELAY=2. The zero-delay adapter's explicit guard rejected
+that integration before producing an RBF. The earlier description below of
+zero delay as "actual native" was incorrect. The raw tests/fits remain valid
+for their explicitly stated zero-delay configuration, and are preserved.
+The two actual input-pipeline words and their edge history require separate
+qualification. No live core was changed by the failed integration.
+
+The earlier record follows.
+
 # Complete native MemD state adapter qualification
 
 The exact frozen MemD-Rev-Ca board (679660eb) now has complete modeled
