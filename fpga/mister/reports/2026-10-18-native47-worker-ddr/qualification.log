@@ -1,0 +1,60 @@
+{
+  "status": "PASS for concurrent physical DDR packet, disk ACK and instruction progress during delayed actual Main worker flush work",
+  "begin_ns": 1915296794925,
+  "end_ns": 1919496928940,
+  "duration_ns": 4200137685,
+  "worker": "One real Main worker callback sleeps4200ms then actual fsync; not an injected4.2s kernel syscall",
+  "disk_events": {
+    "poll": 4,
+    "read_request": 10,
+    "read_ack": 10,
+    "write_request": 100,
+    "write_ack": 100
+  },
+  "overlapping_poll_gaps": [],
+  "trace_errors_or_drops": 0,
+  "delta_issued": 3904318,
+  "delta_host_edges": 150001118,
+  "delta_good_inner_samples": 1,
+  "delta_dropped_inner_samples": 0,
+  "wire_lines_fully_inside": 36,
+  "complete_tx_frames": 6,
+  "metadata_response_end_ack": [
+    {
+      "data": {
+        "earliest_ns": 1916538369316,
+        "latest_ns": 1916561590723,
+        "text": "FTP_QUEUE type=0o20 id=00262d02 bytes=168 d=000442/22/62014 s=000401/0/3 rx_words=99"
+      },
+      "eoc": {
+        "earliest_ns": 1916549548166,
+        "latest_ns": 1916573655151,
+        "text": "FTP_QUEUE type=0o23 id=00262daa bytes=1 d=000442/22/62014 s=000401/0/3 rx_words=16"
+      },
+      "probe_ack": {
+        "queued": {
+          "earliest_ns": 1917034484829,
+          "latest_ns": 1917056746569,
+          "text": "FTP_QUEUE type=0o21 id=00262dab bytes=0 d=000442/22/62014 s=000401/0/3 rx_words=15"
+        },
+        "ack": {
+          "earliest_ns": 1917168640085,
+          "latest_ns": 1917290069803,
+          "text": "FTP_ACK ack=00262dab alloc=32*1478 bytes"
+        }
+      }
+    }
+  ],
+  "capture": {
+    "ns": 1916925182646,
+    "ended": false
+  },
+  "qualifications": [
+    "Source hash/worker ABI checked; Main sole SPI owner",
+    "Observation intervals use next recorded iteration as conservative read-completion upper bound",
+    "Real Watch.bcd STP retrieve+168-byte metadata and matching EOC ACK inside window; not a claimed1478-byte file-data window",
+    "No keyboard command or mouse test performed during this loader window",
+    "DSO must remain loaded until Main exits; use a fresh Main for later clean performance comparisons",
+    "No cold-persistence/two-hour/full-snapshot claim"
+  ]
+}

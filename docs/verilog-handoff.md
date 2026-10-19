@@ -10,8 +10,8 @@ reduce memory-request overhead; make ARM disk work nonblocking/coherent;
 connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
 External Xerox-network tunnelling is optional follow-up. Native41d cold
-marker persistence and42 desktop/input pass. Next: Native47 stopped-state
-fix/timing/hardware bring-up, then paired42/43/44/45 comparisons and full
+marker persistence and42 desktop/input pass. Next: finish Native47 Viewers/input and active-DDR
+STOP/reload, then paired42/43/44/45 comparisons and full
 direct-DDR qualification. Native41c
 passes fresh Viewers/input and actual Main worker-delay disk service; network
 progress during delay and sustained stress remain open. The failed41b pack
@@ -32,7 +32,7 @@ This validates startup/grant and header coherence, not a complete Cedar boot
 or active-lease reload yet. Main remains the sole SPI owner.
 
 Core video/input0 and instruction view1 selected with matching21e6 ELF
-`/tmp/dorado-main-21e6.elf`; two known Main GDB pauses (setup/capability and idle counter selection). Do not use
+`/tmp/dorado-main-21e6.elf`; three known Main GDB pauses (setup/capability, idle selection, worker-probe load). Do not use
 old40e1 addresses. Current symbols: input_poll85580, video_fb_enablead7fc,
 status_set9e98c, disk_barrier67b50 (Thumb call addresses+1).
 C watcher47714 COMPLETED and releasedC after new BFN113; do not restart it.
@@ -46,11 +46,27 @@ nominal cadence). Same speed as41c within this one-boot comparison; Main/
 server/network differ, so not a matched backend/performance promotion. Normal
 Guest\n\n input sent after measurement and ACCEPTED:00:00UTC19Oct
 Guest.pa/Grapevine-down fallback and Basic boot file locating the remote
-Basic.Loadees. Full loader/profile/fonts/desktop/input still pending.
+Basic.Loadees. All34 loadees complete, profile No entered and visibly accepted;
+BootEssentials recursion advancing. Fonts/desktop/input still pending.
 Paths: `Cedar47_20261018`, `_Computer/DoradoRTL_Cedar47_20261018/Cedar47.mgl`;
 Main `/tmp/dorado47-main.log`, disk `/tmp/dorado47-disk.jsonl`.
 Local helpers/handles: `build/rtl-executive/cedar47-launch/`; deployment
 99188 completed. Next observe34 loadees, profile No, fonts and full desktop/input. Physical packet payloads remain unqualified.
+
+**Actual Main delayed worker + physical DDR PASS.** Probe55bc9a8c is now
+loaded in Main1509 at /tmp/dorado47-loader-probe.so, must remain resident
+until Main exits. Actual source FD20 is duplicated; real worker waits4200ms
+then fsync succeeds. This is delayed flush work, not a4.2s kernel syscall.
+Window1915296794925..1919496928940ns:10 read/100 write ACKs; no poll gap>20ms,
+trace error/drop or in-window CRC/RX/abort/pack fault. Inner Main snapshots
+advance3,904,318 issues/150,001,118 host edges; TX drops stay15. Six complete
+physical guest packets, Watch.bcd metadata response168B and its exact EOC ACK
+are conservatively bounded in-window. No typed command/mouse test performed.
+Evidence: reports/2026-10-18-native47-worker-ddr. Missing metadata/guest-ACK
+controls fail the observer qualifier. A checked active-STOP GDB helper is
+PREPARED/NOT RUN in native47-active-stop; only after Viewers/input and normal
+guest Boot/germ812, never in the middle of this live guest. Use a FRESH Main for later
+clean performance comparisons; do not unload this DSO in the running process.
 
 Native47 full timing PASS:31 summary checks/36 categories/four conditions,
 min+0.111ns, zero illegal/unconstrained clocks;30,480 ALMs (73%),52,639
@@ -1400,7 +1416,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Deploy immutable disk-cache Main on fresh same-RBF41c with observer; cache-ready confirmed and real original CoolBoot requested.
 - [x] Finish41c fresh original Cedar/Viewers/mouse/Cmd/focus/exact keyboard; local marker created/closed/read back.
 - [x] Actual Main4200ms delayed flush work:3 read/21 write ACKs, continued instruction progress, no poll gap above20ms; subsequent marker readback and host durability barrier pass.
-- [ ] Qualify packet traffic and completed keyboard command during actual Main worker delay; first live window had no packets and Echo completed afterward.
+- [x] Qualify physical DDR packet progress during actual Main4200ms worker delay: real STP metadata plus exact guest ACK;10 reads/100 writes, no>20ms poll gap or faults.
+- [ ] Qualify completed keyboard command/mouse under worker delay and sustained stress; the loader-window test injected no input.
 - [x] Normal41c guest Boot, Main drain/fsync/exit, preserved physical image81c41955; new41d ARM cache and full FPGA reload, original BFN113 reached/C released.
 - [x] Read41c markers after41d cold Main/cache/full FPGA boot: exact rtl41cpersist20261018 and worker42 plus new prompt; normal guest Boot/loader barriers and preserved volumes.
 - [ ] Qualify sustained fault-free disk/network/input stress and three final fresh-seed desktop boots.

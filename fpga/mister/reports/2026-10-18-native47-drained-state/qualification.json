@@ -1,5 +1,5 @@
 {
-  "hardware": "Original firmware -> physical-DDR BFN113 -> Cedar login PASS; idle measured; Guest accepted and Basic.Loadees retrieval begun; full desktop pending",
+  "hardware": "Original firmware/direct-DDR login+Guest+34 loadees/profile No PASS; BootEssentials advancing; full Viewers/input pending",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,
@@ -178,18 +178,19 @@
   "mapping": "Daemon1506 maps rw-s1ff00000/65536bytes; Main1509 has no mapping of ring",
   "main_log": "/tmp/dorado47-main.log",
   "disk_trace": "/tmp/dorado47-disk.jsonl",
-  "known_main_gdb_pauses": 2,
+  "known_main_gdb_pauses": 3,
   "first_real_packet": "Original firmware microcode boot request, BFN113; watcher releasedC",
   "boot_display": "Guest.pa accepted, Grapevine-down fallback, Basic boot file locating [Cedar]<Cedar6.1>Top>Basic.Loadees",
   "assistance": "None; original CoolBoot real key presses; no C-state/guest/IOCB or server cursor repair",
   "limits": [
     "Physical file/boot payload hashes not independently collected yet",
-    "Idle performance/login/loader/desktop/input still pending",
     "Active-lease STOP/reload and delayed-Main packet progress remain required",
-    "No full snapshots or final clocks/three-boots/two-hour qualification"
+    "No full snapshots or final clocks/three-boots/two-hour qualification",
+    "BootEssentials/fonts/Viewers/input, active-lease reload and sustained stress pending"
   ],
   "last_updated_utc": "2026-10-19T00:02:09.367465+00:00",
   "idle_issues_per_second": 1595641.4612215483,
   "idle_nominal_rate_fraction": 0.0957384876732929,
-  "idle_limits": "One boot, three adjacent10s windows, StartCycle issues not drained retirement; Main/server/network differ from41c/42; not a matched backend or final repeated performance comparison"
+  "idle_limits": "One boot, three adjacent10s windows, StartCycle issues not drained retirement; Main/server/network differ from41c/42; not a matched backend or final repeated performance comparison",
+  "worker_probe": "55bc9a8c loaded/resident at /tmp/dorado47-loader-probe.so;4200ms worker+real fsync and physical DDR progress PASS; see ../2026-10-18-native47-worker-ddr"
 }

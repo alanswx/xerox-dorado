@@ -1,0 +1,10 @@
+{
+  "sha256": "55bc9a8c1435779951835aa18ad1a3922066f8efba5ca586554ab6e81333053d",
+  "path": "/tmp/dorado47-loader-probe.so",
+  "main_pid": 1509,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "worker_thumb_entry": "0x992c9",
+  "source_fd": 20,
+  "worker_source_sha256": "8f3329ba13ec374fb05170dc3719e13e00ed813a5057e71872aa40217662279a",
+  "lifetime": "Keep DSO loaded until Main exits; no future clean performance comparison in this process"
+}

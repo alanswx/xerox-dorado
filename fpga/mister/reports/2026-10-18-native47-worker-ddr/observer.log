@@ -1,0 +1,2 @@
+ARMED {"ns": 1915295702678, "utc_ns": 1792368394074034678}
+COMPLETE {"events": [{"phase": "waiting", "ns": 1912797545329, "result": 0, "error": 0, "duration_ns": 0}, {"phase": "begin", "ns": 1915296794925, "result": 0, "error": 0, "duration_ns": 0}, {"phase": "end", "ns": 1919496928940, "result": 0, "error": 0, "duration_ns": 4200137685}], "main_chunks": 5, "wire_chunks": 187}

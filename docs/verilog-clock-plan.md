@@ -405,6 +405,23 @@ still pending. No
 CPU/storage/clock/constraint changes. Do not claim a
 proved synthesis cause or physical DDR success before hardware evidence.
 
+### Native47 actual delayed worker plus physical DDR (2026-10-19 UTC)
+
+During4200ms of actual Main worker flush work,10 read/100 write requests
+are acknowledged, with no overlapping poll gap>20ms or trace errors/drops.
+A real Watch.bcd STP metadata response168B plus EOC is acknowledged at its
+exact endpoint by the guest inside the same interval; six complete guest
+packets are conservatively bounded there. Inner Main snapshots advance
+3,904,318 issues over150,001,118 host edges, with no CRC/RX/abort/pack fault
+and stable TX drop count15. The probe delays then real-fsyncs the mounted
+image FD; this is not a4.2s kernel-call claim. No command/mouse was injected
+in this loader window. Keep DSO resident to process exit; fresh Main required
+for later clean performance comparisons. Missing metadata/ACK failure
+controls do not qualify. Evidence: native47-worker-ddr reports.
+All34 loadees/profile No pass; BootEssentials/font installation and full
+Viewers/input/active lease reload/stress remain pending. Snapshots and full
+clock/timer migration are still required, not supplied by this test.
+
 ## Objective and constraints
 
 Restore the original throughput and clock relationships: HM section 2.3

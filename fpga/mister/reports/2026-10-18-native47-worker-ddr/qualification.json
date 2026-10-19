@@ -1,0 +1,294 @@
+{
+  "status": "PASS for concurrent physical DDR packet, disk ACK and instruction progress during delayed actual Main worker flush work",
+  "begin_ns": 1915296794925,
+  "end_ns": 1919496928940,
+  "duration_ns": 4200137685,
+  "worker": "One real Main worker callback sleeps4200ms then actual fsync; not an injected4.2s kernel syscall",
+  "disk_events": {
+    "poll": 4,
+    "read_request": 10,
+    "read_ack": 10,
+    "write_request": 100,
+    "write_ack": 100
+  },
+  "overlapping_poll_gaps": [],
+  "trace_errors_or_drops": 0,
+  "main_samples": [
+    {
+      "earliest_ns": 1916273749445,
+      "latest_ns": 1916296041925,
+      "text": "Dorado net: flags=c tx_words=14 good=959 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=4b654c3b state=47ea cpu=483632c1",
+      "good": 959,
+      "dropped": 15,
+      "issued": 1264929851,
+      "host": 1211511489
+    },
+    {
+      "earliest_ns": 1917279066542,
+      "latest_ns": 1918293070134,
+      "text": "Dorado net: flags=c tx_words=16 good=960 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=4b7c457e state=47ea cpu=4b3122d0",
+      "good": 960,
+      "dropped": 15,
+      "issued": 1266435454,
+      "host": 1261511376
+    },
+    {
+      "earliest_ns": 1918282066401,
+      "latest_ns": 1919288784567,
+      "text": "Dorado net: flags=c tx_words=16 good=960 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=4b917047 state=47ea cpu=4e2c17ba",
+      "good": 960,
+      "dropped": 15,
+      "issued": 1267822663,
+      "host": 1311512506
+    },
+    {
+      "earliest_ns": 1919277714343,
+      "latest_ns": 1919365983947,
+      "text": "Dorado net: flags=c tx_words=16 good=960 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=4ba0df79 state=472a cpu=5127089f",
+      "good": 960,
+      "dropped": 15,
+      "issued": 1268834169,
+      "host": 1361512607
+    }
+  ],
+  "delta_issued": 3904318,
+  "delta_host_edges": 150001118,
+  "delta_good_inner_samples": 1,
+  "delta_dropped_inner_samples": 0,
+  "wire_lines_fully_inside": 36,
+  "complete_tx_frames": 6,
+  "matched_response_guest_ack": [
+    {
+      "queued": {
+        "earliest_ns": 1917034484829,
+        "latest_ns": 1917056746569,
+        "text": "FTP_QUEUE type=0o21 id=00262dab bytes=0 d=000442/22/62014 s=000401/0/3 rx_words=15"
+      },
+      "ack": {
+        "earliest_ns": 1917168640085,
+        "latest_ns": 1917290069803,
+        "text": "FTP_ACK ack=00262dab alloc=32*1478 bytes"
+      }
+    }
+  ],
+  "metadata_response_end_ack": [
+    {
+      "data": {
+        "earliest_ns": 1916538369316,
+        "latest_ns": 1916561590723,
+        "text": "FTP_QUEUE type=0o20 id=00262d02 bytes=168 d=000442/22/62014 s=000401/0/3 rx_words=99"
+      },
+      "eoc": {
+        "earliest_ns": 1916549548166,
+        "latest_ns": 1916573655151,
+        "text": "FTP_QUEUE type=0o23 id=00262daa bytes=1 d=000442/22/62014 s=000401/0/3 rx_words=16"
+      },
+      "probe_ack": {
+        "queued": {
+          "earliest_ns": 1917034484829,
+          "latest_ns": 1917056746569,
+          "text": "FTP_QUEUE type=0o21 id=00262dab bytes=0 d=000442/22/62014 s=000401/0/3 rx_words=15"
+        },
+        "ack": {
+          "earliest_ns": 1917168640085,
+          "latest_ns": 1917290069803,
+          "text": "FTP_ACK ack=00262dab alloc=32*1478 bytes"
+        }
+      }
+    }
+  ],
+  "window_wire": [
+    {
+      "earliest_ns": 1915739999006,
+      "latest_ns": 1915907970328,
+      "text": "TX n=26: 000442 001000 000057 000200 000022 061623 000401 000000 000003 000442 000022 066022 036103 062544 060562 033056 030476 053541 072143 064076 053541 072143 064056 061143 062000 172550"
+    },
+    {
+      "earliest_ns": 1915895998592,
+      "latest_ns": 1915962857742,
+      "text": "[bootdir] TX other type=0o200"
+    },
+    {
+      "earliest_ns": 1915951869994,
+      "latest_ns": 1915973991931,
+      "text": "STP_LOOKUP Cedar6.1/Watch/Watch.bcd -> !1 49002 bytes 10-May-86 13:13:32 PDT"
+    },
+    {
+      "earliest_ns": 1915962857742,
+      "latest_ns": 1916073068939,
+      "text": "FTP_QUEUE type=0o201 id=00126393 bytes=10 d=000442/22/66022 s=000401/0/3 rx_words=20"
+    },
+    {
+      "earliest_ns": 1916062037670,
+      "latest_ns": 1916153738200,
+      "text": "TX n=14: 000442 001000 000027 000023 000022 077670 000401 000000 000003 000442 000022 062014 000531 003365"
+    },
+    {
+      "earliest_ns": 1916141896353,
+      "latest_ns": 1916165878495,
+      "text": "[bootdir] TX other type=0o23"
+    },
+    {
+      "earliest_ns": 1916153738200,
+      "latest_ns": 1916177517902,
+      "text": "FTP_IN type=0o23 id=00127fb8 len=23 rx_next=00127fb8 tx_next=00262d01 wait=0 mode=0"
+    },
+    {
+      "earliest_ns": 1916153738200,
+      "latest_ns": 1916177517902,
+      "text": "FTP_MARK id=00127fb8 mark=0o1 phase=3 rx_next=00127fb9"
+    },
+    {
+      "earliest_ns": 1916165878495,
+      "latest_ns": 1916354630576,
+      "text": "TX n=116: 000442 001000 000344 000020 000022 077671 000401 000000 000003 000442 000022 062014 024050 052563 062562 026516 060555 062440 043565 062563 072056 070141 024450 042151 071145 061564 067562 074440 041545 062141 071066 027061"
+    },
+    {
+      "earliest_ns": 1916330615111,
+      "latest_ns": 1916365787915,
+      "text": "[bootdir] TX other type=0o20"
+    },
+    {
+      "earliest_ns": 1916343479496,
+      "latest_ns": 1916365787915,
+      "text": "FTP_IN type=0o20 id=00127fb9 len=228 rx_next=00127fb9 tx_next=00262d01 wait=0 mode=0"
+    },
+    {
+      "earliest_ns": 1916354630576,
+      "latest_ns": 1916457115687,
+      "text": "TX n=14: 000442 001000 000027 000026 000022 100207 000401 000000 000003 000442 000022 062014 003131 165765"
+    },
+    {
+      "earliest_ns": 1916444910850,
+      "latest_ns": 1916468320967,
+      "text": "[bootdir] TX other type=0o26"
+    },
+    {
+      "earliest_ns": 1916457115687,
+      "latest_ns": 1916482137209,
+      "text": "FTP_IN type=0o26 id=00128087 len=23 rx_next=00128087 tx_next=00262d01 wait=0 mode=0"
+    },
+    {
+      "earliest_ns": 1916457115687,
+      "latest_ns": 1916482137209,
+      "text": "FTP_MARK id=00128087 mark=0o6 phase=3 rx_next=00128088"
+    },
+    {
+      "earliest_ns": 1916468320967,
+      "latest_ns": 1916504371439,
+      "text": "FTP_CMD mark=0o1 len=206 phase=3"
+    },
+    {
+      "earliest_ns": 1916468320967,
+      "latest_ns": 1916504371439,
+      "text": "FTP_RETRIEVE \"((User-Name Guest.pa)(Directory Cedar6.1)(Name-Body Watch>Watch.bcd)(Desired-property Directory)(Desired-property Name-Body)(Desired-property Version)(Desired-property Creation-Date)(Desired-property Size))\""
+    },
+    {
+      "earliest_ns": 1916493262719,
+      "latest_ns": 1916526808028,
+      "text": "STP_SERVE Cedar6.1/Watch/Watch.bcd (49002 bytes)"
+    },
+    {
+      "earliest_ns": 1916515515639,
+      "latest_ns": 1916538369316,
+      "text": "FTP_QUEUE type=0o22 id=00128088 bytes=6 d=000442/22/62014 s=000401/0/3 rx_words=18"
+    },
+    {
+      "earliest_ns": 1916515515639,
+      "latest_ns": 1916538369316,
+      "text": "FTP_QUEUE type=0o23 id=00262d01 bytes=1 d=000442/22/62014 s=000401/0/3 rx_words=16"
+    },
+    {
+      "earliest_ns": 1916526808028,
+      "latest_ns": 1916549548166,
+      "text": "FTP_WINDOW mark=0o13 ack=0 mode=2 in_flight=1/14"
+    },
+    {
+      "earliest_ns": 1916526808028,
+      "latest_ns": 1916549548166,
+      "text": "STP_PLIST ((Server-Filename <Cedar6.1>Watch>Watch.bcd!1)(Directory Cedar6.1>Watch)(Name-Body Watch.bcd)(Version 1)(Byte-Size 8)(Creation-Date 10-May-86 13:13:32 PDT)(Size 49002))"
+    },
+    {
+      "earliest_ns": 1916538369316,
+      "latest_ns": 1916561590723,
+      "text": "FTP_QUEUE type=0o20 id=00262d02 bytes=168 d=000442/22/62014 s=000401/0/3 rx_words=99"
+    },
+    {
+      "earliest_ns": 1916549548166,
+      "latest_ns": 1916573655151,
+      "text": "FTP_WINDOW data=168 ack=0 mode=2 in_flight=2/14"
+    },
+    {
+      "earliest_ns": 1916549548166,
+      "latest_ns": 1916573655151,
+      "text": "FTP_QUEUE type=0o23 id=00262daa bytes=1 d=000442/22/62014 s=000401/0/3 rx_words=16"
+    },
+    {
+      "earliest_ns": 1916561590723,
+      "latest_ns": 1917045611269,
+      "text": "FTP_WINDOW mark=0o6 ack=0 mode=0 in_flight=3/14"
+    },
+    {
+      "earliest_ns": 1917034484829,
+      "latest_ns": 1917056746569,
+      "text": "FTP_QUEUE type=0o21 id=00262dab bytes=0 d=000442/22/62014 s=000401/0/3 rx_words=15"
+    },
+    {
+      "earliest_ns": 1917045611269,
+      "latest_ns": 1917068163808,
+      "text": "STP_PROBE slot=2 id=00262dab ack=00262d01"
+    },
+    {
+      "earliest_ns": 1917056746569,
+      "latest_ns": 1917168640085,
+      "text": "TX n=16: 000442 001000 000034 000022 000046 026653 000401 000000 000003 000442 000022 062014 002706 000040 076400 032166"
+    },
+    {
+      "earliest_ns": 1917146399805,
+      "latest_ns": 1917179783504,
+      "text": "[bootdir] TX other type=0o22"
+    },
+    {
+      "earliest_ns": 1917157516865,
+      "latest_ns": 1917179783504,
+      "text": "FTP_IN type=0o22 id=00262dab len=28 rx_next=00128088 tx_next=00262dab wait=0 mode=0"
+    },
+    {
+      "earliest_ns": 1917168640085,
+      "latest_ns": 1917290069803,
+      "text": "FTP_ACK ack=00262dab alloc=32*1478 bytes"
+    },
+    {
+      "earliest_ns": 1919354954632,
+      "latest_ns": 1919445395921,
+      "text": "TX n=14: 000442 001000 000027 000023 000022 100210 000401 000000 000003 000442 000022 062014 001450 155223"
+    },
+    {
+      "earliest_ns": 1919434246277,
+      "latest_ns": 1919467652529,
+      "text": "[bootdir] TX other type=0o23"
+    },
+    {
+      "earliest_ns": 1919445395921,
+      "latest_ns": 1919467652529,
+      "text": "FTP_IN type=0o23 id=00128088 len=23 rx_next=00128088 tx_next=00262dab wait=0 mode=0"
+    },
+    {
+      "earliest_ns": 1919456533775,
+      "latest_ns": 1919478793142,
+      "text": "FTP_MARK id=00128088 mark=0o3 phase=1 rx_next=00128089"
+    }
+  ],
+  "capture": {
+    "ns": 1916925182646,
+    "ended": false
+  },
+  "qualifications": [
+    "Source hash/worker ABI checked; Main sole SPI owner",
+    "Observation intervals use next recorded iteration as conservative read-completion upper bound",
+    "Real Watch.bcd STP retrieve+168-byte metadata and matching EOC ACK inside window; not a claimed1478-byte file-data window",
+    "No keyboard command or mouse test performed during this loader window",
+    "DSO must remain loaded until Main exits; use a fresh Main for later clean performance comparisons",
+    "No cold-persistence/two-hour/full-snapshot claim"
+  ]
+}

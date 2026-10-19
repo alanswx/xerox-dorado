@@ -1,0 +1,6 @@
+[1792368394.172] host: open 'cli' source Capture stream 'mkvm://10.0.2.128/Mister%2014' local '' mister 
+[1792368394.174] video: start mkvm://10.0.2.128/Mister%2014 (1280x720 px)
+[1792368394.201] mkvm: mkvm://10.0.2.128/Mister%2014 connected (misterkvms-capture 1.0.5 1920x1080, MiSTer Some("10.0.2.14"))
+[1792368394.234] video: stream connecting -> connected
+[1792368394.869] video: stop
+{"height":1080,"path":"/Users/alans/dev2/Dorado/build/rtl-executive/cedar47-slow-worker/during-worker.png","source":"capture","width":1352}

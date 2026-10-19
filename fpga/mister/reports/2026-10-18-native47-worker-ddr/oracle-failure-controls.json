@@ -1,0 +1,14 @@
+[
+  {
+    "case": "remove_guest_ack",
+    "returncode": 1,
+    "expected_failure": "no in-window guest ACK",
+    "output": "Traceback (most recent call last):\n  File \"/tmp/dorado-worker-oracle-dr7t1nw8/qualify.py\", line 55, in <module>\n    assert matched,'no in-window guest ACK of in-window server response'\n           ^^^^^^^\nAssertionError: no in-window guest ACK of in-window server response\n"
+  },
+  {
+    "case": "remove_metadata",
+    "returncode": 1,
+    "expected_failure": "no guest ACK of exact168-byte",
+    "output": "Traceback (most recent call last):\n  File \"/tmp/dorado-worker-oracle-fqh6m9xf/qualify.py\", line 65, in <module>\n    assert metadata,'no guest ACK of exact168-byte metadata+EOC endpoint'\n           ^^^^^^^^\nAssertionError: no guest ACK of exact168-byte metadata+EOC endpoint\n"
+  }
+]
