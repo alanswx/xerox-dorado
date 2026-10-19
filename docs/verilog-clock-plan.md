@@ -42,6 +42,16 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+Live56b normal load12:59:00UTC, Main23403/server23400, actual fresh epoch
+f0eca3ad955c5ee2/flags0x16/fault/errors0. Same50MHz/SYSPER4/policies/native2delay,
+all seven adapters/admininactive. Original firmware/new BFN113/C release and
+actual845 pass; no retry/reset after normal early pause. Login/new measurement/
+base34finalACK/full desktop/input pending. Last qualified idle is55's1.947777M
+issues/s, no new speed claim. Retired55full desktop/input/warm marker/normalBoot812
+pass; actual Main barriers preserve55volume7dc98469. No cold55marker/fullsnapshot/
+60ns/finalrelease claim. Localcedar56b-launch, evidence native56b-field.
+
+
 Native56b full-core native2 MemD integration is now qualified:31summary/
 148detailed/four-condition timing,min+0.116ns;all14cache physical RAMs OLD_DATA,
 inherited IFUM/IM/MLAB geometry retained. Eight shared adapters byte-identical;

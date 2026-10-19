@@ -59,6 +59,10 @@
     "bytes": 69,
     "sha256": "70f3904bcd6ddfbec8e9abfaaa8ee1a9fd6a2ea3a2367f699dcee19e4933fddd"
   },
+  "normal-boot.log.gz": {
+    "bytes": 66,
+    "sha256": "41305a6e28b262f39515e311f834c8c77dd765fe8010e83705e92ee5f7aa9591"
+  },
   "idle-login-issues.json": {
     "bytes": 9947,
     "sha256": "b3eaa8cbd5cad4a08a573d712463680a4e1ccb95d9138888cc153e7c62234e3d"
@@ -78,6 +82,10 @@
   "measurement-to-input.json": {
     "bytes": 665,
     "sha256": "926328bdbada163f78251fad258440c7ba5b168039ab24ce57af1c3e53c41ef3"
+  },
+  "normal-boot-0.png": {
+    "bytes": 7569,
+    "sha256": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352"
   },
   "retired54-disk-through-load.jsonl.gz": {
     "bytes": 795976,
@@ -210,6 +218,10 @@
   "retired54-main-through-load.log.gz": {
     "bytes": 51342,
     "sha256": "670b1173ab7f5e373fd58c30fa8962348e3cc2adb8cd800b2c80c1360802b0f4"
+  },
+  "normal-boot-qualification.json": {
+    "bytes": 655,
+    "sha256": "3b09ef59469046ba0e67742afc65fcf774b55c8f7b44c608100e6f8a7b93e1af"
   },
   "collect-deployment.log.gz": {
     "bytes": 1215,

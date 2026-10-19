@@ -1235,10 +1235,6 @@
     "bytes": 1092,
     "sha256": "f8493cf1733b133611086a8bbdce8cf5a83f73fc8826fc0f31e2182abe98a561"
   },
-  "src/fpga/mister/main/main-260912.patch": {
-    "bytes": 629,
-    "sha256": "6fe24ad4aed593584353d334dd244e08c616ed2314b7d372f1d3cd0def81c122"
-  },
   "src/fpga/mister/main/Makefile": {
     "bytes": 306,
     "sha256": "ed9dbc1941bd14de2129a6a0c1a64b0433ea84c3dcb37c0bca13fe880ec5a17d"
@@ -1246,6 +1242,10 @@
   "src/fpga/mister/main/dorado_net.h": {
     "bytes": 211,
     "sha256": "10eb990c8c3e9d7a9c2078aeb9672750882e872fe86f57ead939412e59e1b51d"
+  },
+  "src/fpga/mister/main/main-260912.patch.gz": {
+    "bytes": 362,
+    "sha256": "63512c843d8a5af60d6df5e4b688e8fd5668f72d69e21949d88b261606fc6fe4"
   },
   "src/fpga/mister/main/README.md": {
     "bytes": 3463,

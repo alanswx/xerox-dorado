@@ -1,0 +1,106 @@
+{
+  "server-through-deployment.log.gz": {
+    "bytes": 132,
+    "sha256": "70980ef0acac2714ce9e963a69686d7b53bd7af3a139f42fd69ab854b3c91941"
+  },
+  "collect-deployment.py": {
+    "bytes": 3024,
+    "sha256": "139d11ebf1aeb8238585578b8ec9fb3030e7f9e392bcd2aae9191897dd0bc15b"
+  },
+  "qualification.json": {
+    "bytes": 190603,
+    "sha256": "2c3efbb090b5e86acd3af21334dcca971f9e9cd81ee4a0baa72b8b5fac3862b8"
+  },
+  "deploy.py": {
+    "bytes": 9282,
+    "sha256": "67c7e4a1a7a57617248e1c81bac237eaaff171fe059dbf476c3ec1ae6f378d88"
+  },
+  "retired55-normal-boot-qualification.json": {
+    "bytes": 655,
+    "sha256": "3b09ef59469046ba0e67742afc65fcf774b55c8f7b44c608100e6f8a7b93e1af"
+  },
+  "cool-boot.log.gz": {
+    "bytes": 113,
+    "sha256": "0187e889170264b967042a4a9e079e8bf17a36794e5e8b41f45013f1167a5a83"
+  },
+  "retired55-disk-through-load.jsonl.gz": {
+    "bytes": 963441,
+    "sha256": "ddcf6d6946823c568388ed9da985b1575dfa38d2ebd267589f0be3dcf7c6a680"
+  },
+  "deployment.json": {
+    "bytes": 1234,
+    "sha256": "2e7639efe8274a9e19987aa693b2564921f465f5a5a662570837d8b0e18a194a"
+  },
+  "retired55-desktop-qualification.json": {
+    "bytes": 1580,
+    "sha256": "8d071184dfce2325a60514bae76480728857daf5cdd03c96def8ec4f5b36f51c"
+  },
+  "setup-core.gdb": {
+    "bytes": 1349,
+    "sha256": "417b09041a72b09c2a6fda639a0e3224e02ced02f26ec7d33458ecac9d29df5c"
+  },
+  "main-through-deployment.log.gz": {
+    "bytes": 5732,
+    "sha256": "b095172b45f97cc966036191e5df518ea2915923b17ac95c52b8a5abb5ca2a12"
+  },
+  "deployment-collection.json": {
+    "bytes": 3365,
+    "sha256": "ca66bcf9bd27b4fc162b544d6d709dcc84f14c11436a17d283a351a4a3c76c4a"
+  },
+  "setup-core.log.gz": {
+    "bytes": 579,
+    "sha256": "f3ffa75c3c53337f23e325f1a3e4095f1498f35f2314411685ac6c2797453d36"
+  },
+  "README.md": {
+    "bytes": 1494,
+    "sha256": "a47eaf40b15a802e3047345010f328c07fc6e647400e6728839b058c7e57de3c"
+  },
+  "pilot845.png": {
+    "bytes": 7534,
+    "sha256": "ca7ec2a8263d145139c47e244d62557f4942167c6d1b290512a741aa0cb8c703"
+  },
+  "disk-through-deployment.jsonl.gz": {
+    "bytes": 24679,
+    "sha256": "c7e3ffecc8fb2b6d27b38bfbfb85d0acf8db419a9ebb331c9074868fb3eb96bc"
+  },
+  "c-until-request.py": {
+    "bytes": 1870,
+    "sha256": "56acd9defb647fc3c7970b361043f2808b5fc87e5540c851eba60ccc12dd609e"
+  },
+  "reboot-resume.json": {
+    "bytes": 1483,
+    "sha256": "d99b3d6ca139a353dfc1083d9fae69455c8afa2ce300f89751664eb1f445ad1c"
+  },
+  "retired55-main-through-load.log.gz": {
+    "bytes": 64276,
+    "sha256": "e73312db53b6c3e728da5b86eddffed9265259405ca6433d8fabd3a863326657"
+  },
+  "cool-boot.py": {
+    "bytes": 1117,
+    "sha256": "711d80bf969c37f3df3d490671905fe5ccef8a662433e48982ed6facb41e2590"
+  },
+  "deploy.log.gz": {
+    "bytes": 849,
+    "sha256": "0da4c61284429423593c8dbb8504d541bc84b5039a7184ae121f689805672572"
+  },
+  "c-until-request.log.gz": {
+    "bytes": 166,
+    "sha256": "8340eaf77241c2c25af5f78f150ce9c42c424bab1e0f3a7a1e800d5acc707539"
+  },
+  "retired55-preservation.json": {
+    "bytes": 523,
+    "sha256": "833ef475147654d26d8abc48dd80fc022dad5c0aed7b3f0dcd216ab3e0dfb77a"
+  },
+  "collect-deployment.log.gz": {
+    "bytes": 1214,
+    "sha256": "01aedf9cb8c34fd8497037aae7cc8f2a19f5a5a20875ba9605519130d59e9619"
+  },
+  "physical-capability.json": {
+    "bytes": 511,
+    "sha256": "c882f6d13d813b197609fe64286fedfaeb24db0f4df06dc974521e2568e3336a"
+  },
+  "field-status.json": {
+    "bytes": 567,
+    "sha256": "aa02ced9618582148adfa4a12d2b577894cb4c53db131a2f6ee63c662542e16d"
+  }
+}

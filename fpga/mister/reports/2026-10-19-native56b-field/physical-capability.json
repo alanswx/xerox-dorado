@@ -1,0 +1,32 @@
+{
+  "status": "PASS: sole actual Main capability/fresh epoch",
+  "main_pid": 23403,
+  "server_pid": 23400,
+  "words": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    22,
+    0,
+    0,
+    24290,
+    38236,
+    41901,
+    61676,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "epoch": "f0eca3ad955c5ee2",
+  "flags": 22,
+  "fault": 0,
+  "rx_errors": 0,
+  "tx_errors": 0,
+  "stop_errors": 0,
+  "scope": "Actual Main SPI74 after normal core load, all state admin inactive; no machine snapshot or CPU repair"
+}

@@ -1,0 +1,26 @@
+{
+  "status": "PASS: original-firmware fresh Viewers, mouse/Cmd/focus, exact keyboard and warm marker readback",
+  "main_pid": 21577,
+  "server_pid": 21576,
+  "rbf_sha256": "3eee3109a46eb029e0253a1d776cfafd652870d99e5a2cd5f3ffd0c650b7b107",
+  "checked_utc": "2026-10-19T12:45:04.493992+00:00",
+  "echoes": [
+    "rtl55 keyboard ok",
+    "abcdefghijklmnopqrstuvwxyz0123456789"
+  ],
+  "visual_review": "Ready/Viewers/Clock/WatchTool/EditTool. Actual cursor reached Cmd after the first move sequence, click opened a second tool; waited for initialized prompts and separately focused native737,608. Exact echoes and normal guest file readback with returned prompt. Original profile tool continues optional software installs.",
+  "warm_marker": {
+    "status": "PASS: normal guest create/close/readback and new prompt",
+    "file": "///rtl55persist.txt",
+    "expected": "rtl55persist",
+    "cold_persistence": "NOT TESTED for this marker"
+  },
+  "captures": {
+    "viewers-ready.png": "c1a8f101c47c3e5216975196ce882f873cb01155b50119a0d20cd72fee993072",
+    "mouse-on-cmd.png": "8ebcf139e4ab7a1cc1aeb26cacb414f36b9a3000442c3fb19a460c02f8792116",
+    "commandtool-ready.png": "4193fffd520c7dcc797cb25e5573b269710a29b18f327abe548ad4008c325cfa",
+    "input-short.png": "dfa7fbe5ccb84bcb5389121e9cb3c018b6f22406eb7f7a4c55eaba9b4d851827",
+    "marker-readback.png": "14b1174bda70907d596ba0f243eabe3f881d309bccb3fae1d2e127bd13e15fb5"
+  },
+  "limits": "One fresh55 desktop. All snapshot admin inactive; no complete snapshot, original60ns, final3boots/2h stress or causal replay clearance."
+}

@@ -1,6 +1,46 @@
 # Verilog from Sil: handoff
 
-## Current objective (2026-10-18 UTC)
+## Current objective (2026-10-19 UTC)
+
+**LIVE Native56b original firmware/new BFN113/actual845 PASS; login qualification next.**
+Normal deploy78010 TERMINAL12:59:00UTC, Main23403/server23400, temporary23386
+normally exited. RBF0bbe092f1e10476dc3cc465418836f94a3e06c04ce5f08530c055fbfc52dd7cf.
+Same50MHz/SYSPER4/SDRAM/no raw cache/direct DDR/policies; seven board adapters
+including complete native2 MemD, ALL state admin inactive. Original f3bce2a8seed
+untouched before final cache. Actual sole Main SPI74
+[53460,1,0,8176,0,1,22,0,0,24290,38236,41901,61676,2048,8,16,0,0],
+epochf0eca3ad955c5ee2/flags0x16/fault/errors0; daemon alone maps64KiB1FF00000,
+Main no ring/probeDSO. Setup35828, C watcher7703 and three pushes59767 TERMINAL.
+Actual new BFN113 observed and C released; original845 now visible. Initial
+issue1/state43pause ended normally, as in55; no extra reset/retry. Collector68278
+TERMINAL. Current/tmp/dorado56b-main.log,/tmp/dorado56b-disk.jsonl, run/server
+Cedar56b_20261019, localcedar56b-launch. No live observer yet. Next capture actual
+Cedar login, prepare measured33-sample->Guest recipe, then one bounded loader
+observer/new finalACK/full desktop/mouse/exact keyboard/warm marker. New speed
+not measured; last qualified55idle1,947,777issues/s, no new gain claim.
+
+Retired55 passes full Viewers/Clock/Watch/Edit/real mouse/Cmd/initialized separate
+focus/exact short and alphabet/digit echoes, warm ///rtl55persist.txt create/
+close/type readback.86,220complete desktop disk records/no recorded errors/loss.
+Normal guest Boot actual812 captured. Actual Main disk/network barriers and
+normal temporary23386exit preserve63578624-byte55pack SHA256
+7dc9846986dc1121769fd95557e21e8c1b67292736cdc0f8b3a3d87a0a81dde2.
+Old Main21577/server21576/temp23386 absent; old trace endsbarrier_end/noerrors.
+No cleanOSshutdown/cold55marker/machine snapshot claim. Evidence native56b-field
+startup/ownership/retired55; native55-field desktop/Boot.
+
+Native56b full-core timing/source/RAM qualification PASS31summary/148detailed/
+fourconditions,min+0.116ns;30,303ALM/52,996regs/332M10Ks/35DSP, admin inactive.
+Build34403/audit29951 TERMINAL; all our Quartus jobs terminal, unrelatedSharpX1
+must not be touched. Evidence native56b-memd. Actual native2 MemD296,591bits/
+original-oracle/physical-probe restore/freshXML/isolated +0.107ns qualification
+is in snapshot-memd-native2. Earlier zero-delay label was wrong; its guard
+rejected firstNative56 before RBF. Preserve realdelay2, no override/rollback.
+MemX inventory review is next implementation input, not qualified snapshots.
+Global board/device/ARM bundle/actual FPGArestore, original60ns and final
+threefreshboots/persistence/pinnedmeasurements/2hstress remain required.
+
+Earlier qualification records follow; the live machine is described above.
 
 **LIVE Native55 full Viewers/input/warm marker PASS; Native56b full-core timing PASS, not deployed.**
 Current Main21577/server21576 and RBF3eee3109 remain unchanged; normal deploy
@@ -2133,7 +2173,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify zero-delay MemD state adapter(+0.164ns); full-core guard correctly rejects actual native delay2. Preserve explicit correction.
 - [x] Qualify actual native delay2 MemD state, including37input-pipeline bits and generated-scope XML coverage; simulation/classification/matched fits(+0.107ns).
 - [x] Integrate actual native2 MemD into56b; full-core31summary/148detailed/four-condition timing(+0.116ns)/RAM inference/source audit pass, all admin inactive.
-- [ ] Normally Boot/preserve55, fresh-seed load qualified56b, then original firmware/interactive Cedar and speed/loader qualification. Then remaining device/ARM/global state.
+- [x] Normal55Boot812 and actual Main barriers preserve volume; fresh-seed56b load/new DDR epoch/original firmware/new BFN113/C release/actual845 pass.
+- [ ] Complete56bCedar login/idle measurement/base loader/finalACK/full desktop/input/warm marker; next remaining device/ARM/global state.
 - [ ] Finish remaining board/device/ARM state and atomic snapshot bundle with actual FPGA Cedar restore.
 - [ ] Finish original60ns clock/enable and timer migration; final three fresh boots, coherent snapshot restore, persistence, pinned measurements and two-hour combined stress.
 
