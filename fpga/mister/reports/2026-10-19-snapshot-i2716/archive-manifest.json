@@ -1,0 +1,2509 @@
+{
+  "status": "PASS",
+  "files": [
+    {
+      "path": "simulation-v1/candidate/build.log.gz",
+      "uncompressed_path": "simulation-v1/candidate/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v1/candidate/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v1/candidate/cell_i2716_snapshot.sv",
+      "sha256": "31f94795994c8d9ce814adff25de75499dabf934939ae4aea774ae228c59815a",
+      "bytes": 5301
+    },
+    {
+      "path": "simulation-v1/candidate/command.json",
+      "uncompressed_path": "simulation-v1/candidate/command.json",
+      "sha256": "0a81d61dc5c28b37d2c6a4832c380c47319a5d74c9f164f7be9087bee4fa1441",
+      "bytes": 474
+    },
+    {
+      "path": "simulation-v1/candidate/fixture.sv.gz",
+      "uncompressed_path": "simulation-v1/candidate/fixture.sv",
+      "sha256": "81305ebf4d1f629e90bc65ff44984e1e40fcd6dacc759a9f9a86e930c85d5329",
+      "bytes": 16819
+    },
+    {
+      "path": "simulation-v1/candidate/test.txt.gz",
+      "uncompressed_path": "simulation-v1/candidate/test.txt",
+      "sha256": "de0bfc2392dd4777059dfdc680f5cd410af932f025a0e54313f773fba16878ba",
+      "bytes": 293
+    },
+    {
+      "path": "simulation-v1/empty_zero/build.log.gz",
+      "uncompressed_path": "simulation-v1/empty_zero/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v1/empty_zero/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v1/empty_zero/cell_i2716_snapshot.sv",
+      "sha256": "6c0c5211edc5419e626ed1249b115e0ad972c095efd9affcaa79b033738e9b2c",
+      "bytes": 5345
+    },
+    {
+      "path": "simulation-v1/empty_zero/command.json",
+      "uncompressed_path": "simulation-v1/empty_zero/command.json",
+      "sha256": "cf1e7d22948179912ca4ac072ab5f2082bb104ca0930064aca0e237af77e6f9e",
+      "bytes": 477
+    },
+    {
+      "path": "simulation-v1/empty_zero/fixture.sv.gz",
+      "uncompressed_path": "simulation-v1/empty_zero/fixture.sv",
+      "sha256": "81305ebf4d1f629e90bc65ff44984e1e40fcd6dacc759a9f9a86e930c85d5329",
+      "bytes": 16819
+    },
+    {
+      "path": "simulation-v1/empty_zero/test.txt.gz",
+      "uncompressed_path": "simulation-v1/empty_zero/test.txt",
+      "sha256": "6cfd0adf3b73d237856a44a57f2d0dab583c4dd8f723c299b788e08d00c58f99",
+      "bytes": 185
+    },
+    {
+      "path": "simulation-v1/executed-inputs/cell_i2716.v.gz",
+      "uncompressed_path": "simulation-v1/executed-inputs/cell_i2716.v",
+      "sha256": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57",
+      "bytes": 4510
+    },
+    {
+      "path": "simulation-v1/executed-inputs/generate_i2716.py",
+      "uncompressed_path": "simulation-v1/executed-inputs/generate_i2716.py",
+      "sha256": "1af1d75015d133c5261a3ba48255419d51f2dee8873e53cece83b03cc4e62873",
+      "bytes": 3433
+    },
+    {
+      "path": "simulation-v1/executed-inputs/test_i2716.py",
+      "uncompressed_path": "simulation-v1/executed-inputs/test_i2716.py",
+      "sha256": "8e657432c9bcbaa49c5bfedc5734b501439972ed47d7eaa71b697a1796d77c1a",
+      "bytes": 5464
+    },
+    {
+      "path": "simulation-v1/executed-inputs/test_i2716.sv.gz",
+      "uncompressed_path": "simulation-v1/executed-inputs/test_i2716.sv",
+      "sha256": "b8371a803d9837b46f373e19e243b91df23e4c85a1eec89e2e5b054ff26c01c0",
+      "bytes": 4791
+    },
+    {
+      "path": "simulation-v1/ignore_freeze/build.log.gz",
+      "uncompressed_path": "simulation-v1/ignore_freeze/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v1/ignore_freeze/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v1/ignore_freeze/cell_i2716_snapshot.sv",
+      "sha256": "68dff429195f28b289bc7136d5950ee04f398a47e83efce056fc574015fc3585",
+      "bytes": 5286
+    },
+    {
+      "path": "simulation-v1/ignore_freeze/command.json",
+      "uncompressed_path": "simulation-v1/ignore_freeze/command.json",
+      "sha256": "31c6fd9ca014a442ad415d46d69c5b84069ef56922f05c44a43af64be5e5ded4",
+      "bytes": 486
+    },
+    {
+      "path": "simulation-v1/ignore_freeze/fixture.sv.gz",
+      "uncompressed_path": "simulation-v1/ignore_freeze/fixture.sv",
+      "sha256": "81305ebf4d1f629e90bc65ff44984e1e40fcd6dacc759a9f9a86e930c85d5329",
+      "bytes": 16819
+    },
+    {
+      "path": "simulation-v1/ignore_freeze/test.txt.gz",
+      "uncompressed_path": "simulation-v1/ignore_freeze/test.txt",
+      "sha256": "ed5e493263d3e9f57f2e541575f03ba419d5be51a36c0f6b846d9d79c0a4be7a",
+      "bytes": 195
+    },
+    {
+      "path": "simulation-v1/ignore_held/build.log.gz",
+      "uncompressed_path": "simulation-v1/ignore_held/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v1/ignore_held/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v1/ignore_held/cell_i2716_snapshot.sv",
+      "sha256": "6e19b2305d2756716637b5512e6c199ab0388fde562fcce3cbb752d535983290",
+      "bytes": 5281
+    },
+    {
+      "path": "simulation-v1/ignore_held/command.json",
+      "uncompressed_path": "simulation-v1/ignore_held/command.json",
+      "sha256": "0dad215b192083a991ed84d0c3695653966a3840a2e6d0d2505a490b7eeb5c4c",
+      "bytes": 480
+    },
+    {
+      "path": "simulation-v1/ignore_held/fixture.sv.gz",
+      "uncompressed_path": "simulation-v1/ignore_held/fixture.sv",
+      "sha256": "81305ebf4d1f629e90bc65ff44984e1e40fcd6dacc759a9f9a86e930c85d5329",
+      "bytes": 16819
+    },
+    {
+      "path": "simulation-v1/ignore_held/test.txt.gz",
+      "uncompressed_path": "simulation-v1/ignore_held/test.txt",
+      "sha256": "746bca97e277d78eeb101b1d84ae8d69bc2b87219c640c9c2d1cb31664e3da8c",
+      "bytes": 184
+    },
+    {
+      "path": "simulation-v1/invalid_alias/build.log.gz",
+      "uncompressed_path": "simulation-v1/invalid_alias/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v1/invalid_alias/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v1/invalid_alias/cell_i2716_snapshot.sv",
+      "sha256": "7b0a2a71aa20a08f3f0a61e73737fc64c6d41738d228fe6aa37029d909995cb6",
+      "bytes": 5287
+    },
+    {
+      "path": "simulation-v1/invalid_alias/command.json",
+      "uncompressed_path": "simulation-v1/invalid_alias/command.json",
+      "sha256": "737f11a0254f0714a3fe121afaa3503b34eea4c3b433b3460448a7e998831e94",
+      "bytes": 486
+    },
+    {
+      "path": "simulation-v1/invalid_alias/fixture.sv.gz",
+      "uncompressed_path": "simulation-v1/invalid_alias/fixture.sv",
+      "sha256": "81305ebf4d1f629e90bc65ff44984e1e40fcd6dacc759a9f9a86e930c85d5329",
+      "bytes": 16819
+    },
+    {
+      "path": "simulation-v1/invalid_alias/test.txt.gz",
+      "uncompressed_path": "simulation-v1/invalid_alias/test.txt",
+      "sha256": "a0395c28310ca71669e20d1ece684348f4a25f4fa8e56dfafc40db54d87ffb6a",
+      "bytes": 186
+    },
+    {
+      "path": "simulation-v1/lost_enable/build.log.gz",
+      "uncompressed_path": "simulation-v1/lost_enable/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v1/lost_enable/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v1/lost_enable/cell_i2716_snapshot.sv",
+      "sha256": "90d1ae2b99c69488c3befdfaf97988178eeec8db80217de6ef4d5ea66c3ecddd",
+      "bytes": 5308
+    },
+    {
+      "path": "simulation-v1/lost_enable/command.json",
+      "uncompressed_path": "simulation-v1/lost_enable/command.json",
+      "sha256": "22da38e3d0a58fcd5c635a55010b11fc9308facc531e2800a89e9aaa6443099a",
+      "bytes": 480
+    },
+    {
+      "path": "simulation-v1/lost_enable/fixture.sv.gz",
+      "uncompressed_path": "simulation-v1/lost_enable/fixture.sv",
+      "sha256": "81305ebf4d1f629e90bc65ff44984e1e40fcd6dacc759a9f9a86e930c85d5329",
+      "bytes": 16819
+    },
+    {
+      "path": "simulation-v1/lost_enable/test.txt.gz",
+      "uncompressed_path": "simulation-v1/lost_enable/test.txt",
+      "sha256": "105f788aede3e0a1276fe395dfcaff1b3e8ffedfbd34478408233e92c8839d15",
+      "bytes": 193
+    },
+    {
+      "path": "simulation-v1/manifest.json",
+      "uncompressed_path": "simulation-v1/manifest.json",
+      "sha256": "775aa4971cdc04972b21eb17c9249a396001f44aa627dfac55514e22c0f244b1",
+      "bytes": 906
+    },
+    {
+      "path": "simulation-v1/padding/build.log.gz",
+      "uncompressed_path": "simulation-v1/padding/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v1/padding/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v1/padding/cell_i2716_snapshot.sv",
+      "sha256": "055303117ebba52d96c6a06595900ac369b4ad424e71ab04ae31aa5e2f105c2e",
+      "bytes": 5301
+    },
+    {
+      "path": "simulation-v1/padding/command.json",
+      "uncompressed_path": "simulation-v1/padding/command.json",
+      "sha256": "70fb58eec417df28b29937c7a24fc05bf2ca6dd219a4437b277b340d2852a7f0",
+      "bytes": 468
+    },
+    {
+      "path": "simulation-v1/padding/fixture.sv.gz",
+      "uncompressed_path": "simulation-v1/padding/fixture.sv",
+      "sha256": "81305ebf4d1f629e90bc65ff44984e1e40fcd6dacc759a9f9a86e930c85d5329",
+      "bytes": 16819
+    },
+    {
+      "path": "simulation-v1/padding/test.txt.gz",
+      "uncompressed_path": "simulation-v1/padding/test.txt",
+      "sha256": "8db85ec023320dd69230ad87953b84f08562de3cf494ebf68abdf9862dfcf237",
+      "bytes": 187
+    },
+    {
+      "path": "simulation-v1/results.json",
+      "uncompressed_path": "simulation-v1/results.json",
+      "sha256": "9a06dee819cdac0405685e6b1c9a0a2ddece07e180414e1c9115e7e37c1e4f4a",
+      "bytes": 2424
+    },
+    {
+      "path": "simulation-v1/running_access/build.log.gz",
+      "uncompressed_path": "simulation-v1/running_access/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v1/running_access/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v1/running_access/cell_i2716_snapshot.sv",
+      "sha256": "dfd99787c68d795a77fa1af30d7f590808a39a2bcbabb1d767c6775eb4619d0d",
+      "bytes": 5271
+    },
+    {
+      "path": "simulation-v1/running_access/command.json",
+      "uncompressed_path": "simulation-v1/running_access/command.json",
+      "sha256": "2d2b8e86a351beb7e2caece60eee8fab443e0e042b97d83c2c0b0ae8ce7376b3",
+      "bytes": 489
+    },
+    {
+      "path": "simulation-v1/running_access/fixture.sv.gz",
+      "uncompressed_path": "simulation-v1/running_access/fixture.sv",
+      "sha256": "81305ebf4d1f629e90bc65ff44984e1e40fcd6dacc759a9f9a86e930c85d5329",
+      "bytes": 16819
+    },
+    {
+      "path": "simulation-v1/running_access/test.txt.gz",
+      "uncompressed_path": "simulation-v1/running_access/test.txt",
+      "sha256": "b7730aaff3bb6f97650da908c8b9d8eca75616810d5168dc00a3f028743a1e5b",
+      "bytes": 187
+    },
+    {
+      "path": "simulation-v1/ungated_read/build.log.gz",
+      "uncompressed_path": "simulation-v1/ungated_read/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v1/ungated_read/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v1/ungated_read/cell_i2716_snapshot.sv",
+      "sha256": "56c45bf0a28a8478517a663680f862565c7783581938517ae2e66efe1f82ca75",
+      "bytes": 5284
+    },
+    {
+      "path": "simulation-v1/ungated_read/command.json",
+      "uncompressed_path": "simulation-v1/ungated_read/command.json",
+      "sha256": "70b710e8fae53bc07460e429f14ce2d0cdeffa04b0ebb597d86ef2b5a051fc38",
+      "bytes": 483
+    },
+    {
+      "path": "simulation-v1/ungated_read/fixture.sv.gz",
+      "uncompressed_path": "simulation-v1/ungated_read/fixture.sv",
+      "sha256": "81305ebf4d1f629e90bc65ff44984e1e40fcd6dacc759a9f9a86e930c85d5329",
+      "bytes": 16819
+    },
+    {
+      "path": "simulation-v1/ungated_read/test.txt.gz",
+      "uncompressed_path": "simulation-v1/ungated_read/test.txt",
+      "sha256": "a2372b24e8e9cb776351b3819dc82419e7818824fc1b610f907882a1b2c2c034",
+      "bytes": 193
+    },
+    {
+      "path": "simulation-v1/verilog/proms/eprom/BaseBd-b61.mem.gz",
+      "uncompressed_path": "simulation-v1/verilog/proms/eprom/BaseBd-b61.mem",
+      "sha256": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+      "bytes": 6413
+    },
+    {
+      "path": "simulation-v1/verilog/proms/eprom/BaseBd-c61.mem.gz",
+      "uncompressed_path": "simulation-v1/verilog/proms/eprom/BaseBd-c61.mem",
+      "sha256": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "bytes": 6413
+    },
+    {
+      "path": "simulation-v1/verilog/proms/eprom/BaseBd-e60.mem.gz",
+      "uncompressed_path": "simulation-v1/verilog/proms/eprom/BaseBd-e60.mem",
+      "sha256": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "bytes": 6413
+    },
+    {
+      "path": "simulation-v1/verilog/proms/eprom/BaseBd-f60.mem.gz",
+      "uncompressed_path": "simulation-v1/verilog/proms/eprom/BaseBd-f60.mem",
+      "sha256": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "bytes": 6413
+    },
+    {
+      "path": "simulation-v1/wrong_rom_read/build.log.gz",
+      "uncompressed_path": "simulation-v1/wrong_rom_read/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v1/wrong_rom_read/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v1/wrong_rom_read/cell_i2716_snapshot.sv",
+      "sha256": "837ba40190d5ea52d65fa6d26b46464f553bb7b7964e36f0dbee0fed917b16a6",
+      "bytes": 5302
+    },
+    {
+      "path": "simulation-v1/wrong_rom_read/command.json",
+      "uncompressed_path": "simulation-v1/wrong_rom_read/command.json",
+      "sha256": "51786f3c16c399febf174e48cd4fa7277296ec18b65705bed00c72221428befb",
+      "bytes": 489
+    },
+    {
+      "path": "simulation-v1/wrong_rom_read/fixture.sv.gz",
+      "uncompressed_path": "simulation-v1/wrong_rom_read/fixture.sv",
+      "sha256": "81305ebf4d1f629e90bc65ff44984e1e40fcd6dacc759a9f9a86e930c85d5329",
+      "bytes": 16819
+    },
+    {
+      "path": "simulation-v1/wrong_rom_read/test.txt.gz",
+      "uncompressed_path": "simulation-v1/wrong_rom_read/test.txt",
+      "sha256": "3fb2038613d1bc649bc84f8d0abbe51e78cb371ba7e6f70b2fb1e6a0b6cfe5ab",
+      "bytes": 189
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/candidate/build.log.gz",
+      "uncompressed_path": "simulation-v2-rejected-declaration/candidate/build.log",
+      "sha256": "b9acbffc91f980917d245fb2c4d4b099b16960552ca522d235b26f2a0d6fa56b",
+      "bytes": 4480
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/candidate/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v2-rejected-declaration/candidate/cell_i2716_snapshot.sv",
+      "sha256": "1f0fb3dd34933d5f0efb999618a75bc4650eb4b63c60cf65fd9399979bd96746",
+      "bytes": 5501
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/candidate/command.json",
+      "uncompressed_path": "simulation-v2-rejected-declaration/candidate/command.json",
+      "sha256": "98b515d1c1fed681f5018c0d00c1c98be1b0f06842b55078663e2cd5148e1126",
+      "bytes": 474
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/candidate/fixture.sv.gz",
+      "uncompressed_path": "simulation-v2-rejected-declaration/candidate/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/executed-inputs/cell_i2716.v.gz",
+      "uncompressed_path": "simulation-v2-rejected-declaration/executed-inputs/cell_i2716.v",
+      "sha256": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57",
+      "bytes": 4510
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/executed-inputs/generate_i2716.py",
+      "uncompressed_path": "simulation-v2-rejected-declaration/executed-inputs/generate_i2716.py",
+      "sha256": "35280f194eb0d01b91951555e9ce52b202b983323f49a991abe1883ac2275277",
+      "bytes": 3724
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/executed-inputs/generate_snapshot_ff.py",
+      "uncompressed_path": "simulation-v2-rejected-declaration/executed-inputs/generate_snapshot_ff.py",
+      "sha256": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+      "bytes": 5780
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/executed-inputs/test_i2716.py",
+      "uncompressed_path": "simulation-v2-rejected-declaration/executed-inputs/test_i2716.py",
+      "sha256": "f7b966854c7d6d18c206cc08c71fd2576a99f5f5d1f1ac7e900a6f03489ddea1",
+      "bytes": 5746
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/executed-inputs/test_i2716.sv.gz",
+      "uncompressed_path": "simulation-v2-rejected-declaration/executed-inputs/test_i2716.sv",
+      "sha256": "b8371a803d9837b46f373e19e243b91df23e4c85a1eec89e2e5b054ff26c01c0",
+      "bytes": 4791
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/verilog/proms/eprom/BaseBd-b61.mem.gz",
+      "uncompressed_path": "simulation-v2-rejected-declaration/verilog/proms/eprom/BaseBd-b61.mem",
+      "sha256": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+      "bytes": 6413
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/verilog/proms/eprom/BaseBd-c61.mem.gz",
+      "uncompressed_path": "simulation-v2-rejected-declaration/verilog/proms/eprom/BaseBd-c61.mem",
+      "sha256": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "bytes": 6413
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/verilog/proms/eprom/BaseBd-e60.mem.gz",
+      "uncompressed_path": "simulation-v2-rejected-declaration/verilog/proms/eprom/BaseBd-e60.mem",
+      "sha256": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "bytes": 6413
+    },
+    {
+      "path": "simulation-v2-rejected-declaration/verilog/proms/eprom/BaseBd-f60.mem.gz",
+      "uncompressed_path": "simulation-v2-rejected-declaration/verilog/proms/eprom/BaseBd-f60.mem",
+      "sha256": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "bytes": 6413
+    },
+    {
+      "path": "simulation-v3/candidate/build.log.gz",
+      "uncompressed_path": "simulation-v3/candidate/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v3/candidate/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v3/candidate/cell_i2716_snapshot.sv",
+      "sha256": "e4ca317c677ced4c3a1b82db5061f3120c7b3666fc4d294bfe3e2fc81ddd341f",
+      "bytes": 5501
+    },
+    {
+      "path": "simulation-v3/candidate/command.json",
+      "uncompressed_path": "simulation-v3/candidate/command.json",
+      "sha256": "21cc939340f2429b10455bcf6c09278cc8656444012018bb94faeee3975531e6",
+      "bytes": 474
+    },
+    {
+      "path": "simulation-v3/candidate/fixture.sv.gz",
+      "uncompressed_path": "simulation-v3/candidate/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v3/candidate/test.txt.gz",
+      "uncompressed_path": "simulation-v3/candidate/test.txt",
+      "sha256": "c2dac5668f091c063f786ce591d929b2bcd37aae142ace6501dad49d81c8184c",
+      "bytes": 293
+    },
+    {
+      "path": "simulation-v3/early_resume/build.log.gz",
+      "uncompressed_path": "simulation-v3/early_resume/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v3/early_resume/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v3/early_resume/cell_i2716_snapshot.sv",
+      "sha256": "7b7395eefb1bd8bd8c49be7224196995401c279524562afe7e6224569f5b35d5",
+      "bytes": 5553
+    },
+    {
+      "path": "simulation-v3/early_resume/command.json",
+      "uncompressed_path": "simulation-v3/early_resume/command.json",
+      "sha256": "5a7f2373db458be8202bb655565d73c62b48be09d70dea9cfa8ebc12884597f4",
+      "bytes": 483
+    },
+    {
+      "path": "simulation-v3/early_resume/fixture.sv.gz",
+      "uncompressed_path": "simulation-v3/early_resume/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v3/early_resume/test.txt.gz",
+      "uncompressed_path": "simulation-v3/early_resume/test.txt",
+      "sha256": "f9cadb22a39b0464818bb6c8c70b20c7edada3687bbd0662a383f40154caa45a",
+      "bytes": 195
+    },
+    {
+      "path": "simulation-v3/empty_zero/build.log.gz",
+      "uncompressed_path": "simulation-v3/empty_zero/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v3/empty_zero/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v3/empty_zero/cell_i2716_snapshot.sv",
+      "sha256": "02b9f39da22b2d9a0e4e95921d631b1e6d2203ff82764f608c79b8ea56eb83cf",
+      "bytes": 5545
+    },
+    {
+      "path": "simulation-v3/empty_zero/command.json",
+      "uncompressed_path": "simulation-v3/empty_zero/command.json",
+      "sha256": "848c008e9aeaf1f3c234ef92a76690db0bcf32040e0a965e980b3e178bcd6daf",
+      "bytes": 477
+    },
+    {
+      "path": "simulation-v3/empty_zero/fixture.sv.gz",
+      "uncompressed_path": "simulation-v3/empty_zero/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v3/empty_zero/test.txt.gz",
+      "uncompressed_path": "simulation-v3/empty_zero/test.txt",
+      "sha256": "c1dede68265d398abb86ae46f726cb055381f89e4a821ea878c864653710f6cd",
+      "bytes": 185
+    },
+    {
+      "path": "simulation-v3/executed-inputs/cell_i2716.v.gz",
+      "uncompressed_path": "simulation-v3/executed-inputs/cell_i2716.v",
+      "sha256": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57",
+      "bytes": 4510
+    },
+    {
+      "path": "simulation-v3/executed-inputs/generate_i2716.py",
+      "uncompressed_path": "simulation-v3/executed-inputs/generate_i2716.py",
+      "sha256": "5796311ef17446e6f5c45f278cf364f0dc1179c34377b83f9131a6a589346fd9",
+      "bytes": 3778
+    },
+    {
+      "path": "simulation-v3/executed-inputs/generate_snapshot_ff.py",
+      "uncompressed_path": "simulation-v3/executed-inputs/generate_snapshot_ff.py",
+      "sha256": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+      "bytes": 5780
+    },
+    {
+      "path": "simulation-v3/executed-inputs/test_i2716.py",
+      "uncompressed_path": "simulation-v3/executed-inputs/test_i2716.py",
+      "sha256": "f7b966854c7d6d18c206cc08c71fd2576a99f5f5d1f1ac7e900a6f03489ddea1",
+      "bytes": 5746
+    },
+    {
+      "path": "simulation-v3/executed-inputs/test_i2716.sv.gz",
+      "uncompressed_path": "simulation-v3/executed-inputs/test_i2716.sv",
+      "sha256": "b8371a803d9837b46f373e19e243b91df23e4c85a1eec89e2e5b054ff26c01c0",
+      "bytes": 4791
+    },
+    {
+      "path": "simulation-v3/ignore_freeze/build.log.gz",
+      "uncompressed_path": "simulation-v3/ignore_freeze/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v3/ignore_freeze/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v3/ignore_freeze/cell_i2716_snapshot.sv",
+      "sha256": "a1c0ce542cbfe2161436281aae9cad37c9eac3819a21aacaf752289596d32022",
+      "bytes": 5486
+    },
+    {
+      "path": "simulation-v3/ignore_freeze/command.json",
+      "uncompressed_path": "simulation-v3/ignore_freeze/command.json",
+      "sha256": "6a7c4ae5a724f2dbccc3fa2e6773e9e18f10906430e0150b8ccc8614148d62da",
+      "bytes": 486
+    },
+    {
+      "path": "simulation-v3/ignore_freeze/fixture.sv.gz",
+      "uncompressed_path": "simulation-v3/ignore_freeze/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v3/ignore_freeze/test.txt.gz",
+      "uncompressed_path": "simulation-v3/ignore_freeze/test.txt",
+      "sha256": "83fd70c9c23bf526251ea2eeec58f329fbe8a53ab0917e98a7b929b8b70c131a",
+      "bytes": 195
+    },
+    {
+      "path": "simulation-v3/ignore_held/build.log.gz",
+      "uncompressed_path": "simulation-v3/ignore_held/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v3/ignore_held/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v3/ignore_held/cell_i2716_snapshot.sv",
+      "sha256": "6109a94d7d8c22bd32d728cf4b11915dce676baee32d53c773a3d4ae7fa6c1c1",
+      "bytes": 5481
+    },
+    {
+      "path": "simulation-v3/ignore_held/command.json",
+      "uncompressed_path": "simulation-v3/ignore_held/command.json",
+      "sha256": "aac4271f639554d7841554e857d5a40340b9b77cd97b56d7fa5a3dca798f416d",
+      "bytes": 480
+    },
+    {
+      "path": "simulation-v3/ignore_held/fixture.sv.gz",
+      "uncompressed_path": "simulation-v3/ignore_held/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v3/ignore_held/test.txt.gz",
+      "uncompressed_path": "simulation-v3/ignore_held/test.txt",
+      "sha256": "2ee6e427e2b192c0bcb9835554b40a2b3a67c7f5588fe4d97814db71faecd59a",
+      "bytes": 184
+    },
+    {
+      "path": "simulation-v3/invalid_alias/build.log.gz",
+      "uncompressed_path": "simulation-v3/invalid_alias/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v3/invalid_alias/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v3/invalid_alias/cell_i2716_snapshot.sv",
+      "sha256": "65feefcaec75293c259036f06d3f02054db046bb32f5114218cd5a39fcbf9ba2",
+      "bytes": 5487
+    },
+    {
+      "path": "simulation-v3/invalid_alias/command.json",
+      "uncompressed_path": "simulation-v3/invalid_alias/command.json",
+      "sha256": "2127d3be3a21ff311c32bfbc4edc7bfe87182b265c9f29dd5c5dbe9b56124142",
+      "bytes": 486
+    },
+    {
+      "path": "simulation-v3/invalid_alias/fixture.sv.gz",
+      "uncompressed_path": "simulation-v3/invalid_alias/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v3/invalid_alias/test.txt.gz",
+      "uncompressed_path": "simulation-v3/invalid_alias/test.txt",
+      "sha256": "e84888030b47ff83580717eab0295c85bf4edfd781bd94292f87903fd7f5d171",
+      "bytes": 186
+    },
+    {
+      "path": "simulation-v3/lost_enable/build.log.gz",
+      "uncompressed_path": "simulation-v3/lost_enable/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v3/lost_enable/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v3/lost_enable/cell_i2716_snapshot.sv",
+      "sha256": "7d40b46202595a4b03a852bf9f38c029c42e6cab4e4776ffa6d3d8a3e8fabed2",
+      "bytes": 5492
+    },
+    {
+      "path": "simulation-v3/lost_enable/command.json",
+      "uncompressed_path": "simulation-v3/lost_enable/command.json",
+      "sha256": "3c5f87936e68ddbc593912b2318a346cddfca631dcaff3e99722d0e1c8a619f1",
+      "bytes": 480
+    },
+    {
+      "path": "simulation-v3/lost_enable/fixture.sv.gz",
+      "uncompressed_path": "simulation-v3/lost_enable/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v3/lost_enable/test.txt.gz",
+      "uncompressed_path": "simulation-v3/lost_enable/test.txt",
+      "sha256": "4c003658e824bbc8802ed135a730c43ae44f813c42ad39149a94e179989cf89b",
+      "bytes": 193
+    },
+    {
+      "path": "simulation-v3/lost_restored_data/build.log.gz",
+      "uncompressed_path": "simulation-v3/lost_restored_data/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v3/lost_restored_data/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v3/lost_restored_data/cell_i2716_snapshot.sv",
+      "sha256": "98be507f5767169d31dc71a4c55825d7ea36566d61044f77d41ca907e743228e",
+      "bytes": 5490
+    },
+    {
+      "path": "simulation-v3/lost_restored_data/command.json",
+      "uncompressed_path": "simulation-v3/lost_restored_data/command.json",
+      "sha256": "e71c09a9554e7e85e1110dfe23ae5df99237cbc5076c1ca2a9713923d1f4f3b6",
+      "bytes": 501
+    },
+    {
+      "path": "simulation-v3/lost_restored_data/fixture.sv.gz",
+      "uncompressed_path": "simulation-v3/lost_restored_data/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v3/lost_restored_data/test.txt.gz",
+      "uncompressed_path": "simulation-v3/lost_restored_data/test.txt",
+      "sha256": "ef50d1041ab072f3ad566c347f0d566f93acd189bbecd20cbf180d796904f45c",
+      "bytes": 200
+    },
+    {
+      "path": "simulation-v3/manifest.json",
+      "uncompressed_path": "simulation-v3/manifest.json",
+      "sha256": "f77c71df51e3feac99a5653f280941070e82038124b389cb99204c307feb1cc3",
+      "bytes": 943
+    },
+    {
+      "path": "simulation-v3/padding/build.log.gz",
+      "uncompressed_path": "simulation-v3/padding/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v3/padding/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v3/padding/cell_i2716_snapshot.sv",
+      "sha256": "466d68354dea3f987e33c160daa16c7475d247f97599a5663a50dc0d706e2482",
+      "bytes": 5501
+    },
+    {
+      "path": "simulation-v3/padding/command.json",
+      "uncompressed_path": "simulation-v3/padding/command.json",
+      "sha256": "2bc837910b56d89016c7e0bd17b7e770005a44b38139d7ccb603717c5bd573e6",
+      "bytes": 468
+    },
+    {
+      "path": "simulation-v3/padding/fixture.sv.gz",
+      "uncompressed_path": "simulation-v3/padding/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v3/padding/test.txt.gz",
+      "uncompressed_path": "simulation-v3/padding/test.txt",
+      "sha256": "21268f7828075de77f7cc16aa30f1b5cc239525061e9b33c4f782b6fe87ebfdc",
+      "bytes": 187
+    },
+    {
+      "path": "simulation-v3/results.json",
+      "uncompressed_path": "simulation-v3/results.json",
+      "sha256": "b5bc305af882711efa55a0c32b7a6e33120ac663f97149284e25af20c875f694",
+      "bytes": 2790
+    },
+    {
+      "path": "simulation-v3/running_access/build.log.gz",
+      "uncompressed_path": "simulation-v3/running_access/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v3/running_access/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v3/running_access/cell_i2716_snapshot.sv",
+      "sha256": "86fd687cacb716f5a0207bb8c86b50eba6d2d5d35ed86536f29e54f1fba15beb",
+      "bytes": 5471
+    },
+    {
+      "path": "simulation-v3/running_access/command.json",
+      "uncompressed_path": "simulation-v3/running_access/command.json",
+      "sha256": "f19139b5bbbe402096001f65e902484ef2c3df6088ebf9f33c35cf6c4f408097",
+      "bytes": 489
+    },
+    {
+      "path": "simulation-v3/running_access/fixture.sv.gz",
+      "uncompressed_path": "simulation-v3/running_access/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v3/running_access/test.txt.gz",
+      "uncompressed_path": "simulation-v3/running_access/test.txt",
+      "sha256": "f425565562b9d96443be6cfd735f308650ff454175b3c39eea455e974911b7a9",
+      "bytes": 187
+    },
+    {
+      "path": "simulation-v3/ungated_read/build.log.gz",
+      "uncompressed_path": "simulation-v3/ungated_read/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v3/ungated_read/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v3/ungated_read/cell_i2716_snapshot.sv",
+      "sha256": "4d05933f5a66db285fdc2d2ce1c02a90940dea67da5890a13aeb6aeb15383f44",
+      "bytes": 5484
+    },
+    {
+      "path": "simulation-v3/ungated_read/command.json",
+      "uncompressed_path": "simulation-v3/ungated_read/command.json",
+      "sha256": "9b6b2bbfb7e4285a3efb3e3362df0cdf9f27c74319d70d3813ddf5b5d0012dc4",
+      "bytes": 483
+    },
+    {
+      "path": "simulation-v3/ungated_read/fixture.sv.gz",
+      "uncompressed_path": "simulation-v3/ungated_read/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v3/ungated_read/test.txt.gz",
+      "uncompressed_path": "simulation-v3/ungated_read/test.txt",
+      "sha256": "1032b906b23ec21bb3d579e0bf65afd0234c45bea38731befa9378a8e0d9d89c",
+      "bytes": 193
+    },
+    {
+      "path": "simulation-v3/verilog/proms/eprom/BaseBd-b61.mem.gz",
+      "uncompressed_path": "simulation-v3/verilog/proms/eprom/BaseBd-b61.mem",
+      "sha256": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+      "bytes": 6413
+    },
+    {
+      "path": "simulation-v3/verilog/proms/eprom/BaseBd-c61.mem.gz",
+      "uncompressed_path": "simulation-v3/verilog/proms/eprom/BaseBd-c61.mem",
+      "sha256": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "bytes": 6413
+    },
+    {
+      "path": "simulation-v3/verilog/proms/eprom/BaseBd-e60.mem.gz",
+      "uncompressed_path": "simulation-v3/verilog/proms/eprom/BaseBd-e60.mem",
+      "sha256": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "bytes": 6413
+    },
+    {
+      "path": "simulation-v3/verilog/proms/eprom/BaseBd-f60.mem.gz",
+      "uncompressed_path": "simulation-v3/verilog/proms/eprom/BaseBd-f60.mem",
+      "sha256": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "bytes": 6413
+    },
+    {
+      "path": "simulation-v3/wrong_rom_read/build.log.gz",
+      "uncompressed_path": "simulation-v3/wrong_rom_read/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "simulation-v3/wrong_rom_read/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "simulation-v3/wrong_rom_read/cell_i2716_snapshot.sv",
+      "sha256": "0d721b4a30a2ae1c112c7d35cfe423f607036d9df2326fd547dfc05d00a083c0",
+      "bytes": 5502
+    },
+    {
+      "path": "simulation-v3/wrong_rom_read/command.json",
+      "uncompressed_path": "simulation-v3/wrong_rom_read/command.json",
+      "sha256": "3b4ec075a98e7a5c7702fa59778c20157a3911c8a5f2f889013780c4ac24e2a4",
+      "bytes": 489
+    },
+    {
+      "path": "simulation-v3/wrong_rom_read/fixture.sv.gz",
+      "uncompressed_path": "simulation-v3/wrong_rom_read/fixture.sv",
+      "sha256": "60e8ce3c5e2949496a0ef33b38111b9767989fa31dd774f21ce97c17d074ac52",
+      "bytes": 16883
+    },
+    {
+      "path": "simulation-v3/wrong_rom_read/test.txt.gz",
+      "uncompressed_path": "simulation-v3/wrong_rom_read/test.txt",
+      "sha256": "4bb4abccb5821097668a49fb8c49f9b6bc7dfb2bd217ef4ec1b3f4898d80d357",
+      "bytes": 189
+    },
+    {
+      "path": "classification-v1/baseboard.xml.gz",
+      "uncompressed_path": "classification-v1/baseboard.xml",
+      "sha256": "caa57d8b61083723dd747f267fb5cef3e8fee872ff7ce8924183b09b166d0aef",
+      "bytes": 2759489
+    },
+    {
+      "path": "classification-v1/classify_baseboard_eprom.py",
+      "uncompressed_path": "classification-v1/classify_baseboard_eprom.py",
+      "sha256": "9ad93f3ef7dbf9516548a3ff725887f5376b6f757ebd58aae8fe675b111f4e4b",
+      "bytes": 5729
+    },
+    {
+      "path": "classification-v1/command.json",
+      "uncompressed_path": "classification-v1/command.json",
+      "sha256": "9686a091769fe0df590b5239d260d9035168ea63e7ed6b5702d5e72b7d24b0b2",
+      "bytes": 14725
+    },
+    {
+      "path": "classification-v1/elaborate.log.gz",
+      "uncompressed_path": "classification-v1/elaborate.log",
+      "sha256": "9dc661b7746ecd4330fd975a011ae11358b631e212be38e0ef2b878c22df248d",
+      "bytes": 188002
+    },
+    {
+      "path": "classification-v1/eprom-classification.json",
+      "uncompressed_path": "classification-v1/eprom-classification.json",
+      "sha256": "794eb32266b61635964e343ce97aa40ba41d81f43d00c6ac5b40eca2109db709",
+      "bytes": 18265
+    },
+    {
+      "path": "classification-v1/generate_i2716.py",
+      "uncompressed_path": "classification-v1/generate_i2716.py",
+      "sha256": "1af1d75015d133c5261a3ba48255419d51f2dee8873e53cece83b03cc4e62873",
+      "bytes": 3433
+    },
+    {
+      "path": "classification-v1/inventory.json.gz",
+      "uncompressed_path": "classification-v1/inventory.json",
+      "sha256": "414b77220d89a4514fe3a52fdce38a70d432becde495d7ed3961d27ae8266030",
+      "bytes": 833262
+    },
+    {
+      "path": "classification-v1/inventory_baseboard.py",
+      "uncompressed_path": "classification-v1/inventory_baseboard.py",
+      "sha256": "267544c2517e175b4d895306bd984b82986c8017ee94bbc00f52526a54cdb521",
+      "bytes": 5099
+    },
+    {
+      "path": "classification-v1/provenance.json",
+      "uncompressed_path": "classification-v1/provenance.json",
+      "sha256": "1f51fc0ed44f75c2b2203aa54249dc768aea39cefc601f5d631bedf0e9c0a6f9",
+      "bytes": 14676
+    },
+    {
+      "path": "classification-v1/sequential-review.json",
+      "uncompressed_path": "classification-v1/sequential-review.json",
+      "sha256": "cff23619c05417840d87aa928fab370e67fc669bd9953e2337e05d561380564e",
+      "bytes": 15446
+    },
+    {
+      "path": "classification-v2/baseboard.xml.gz",
+      "uncompressed_path": "classification-v2/baseboard.xml",
+      "sha256": "caa57d8b61083723dd747f267fb5cef3e8fee872ff7ce8924183b09b166d0aef",
+      "bytes": 2759489
+    },
+    {
+      "path": "classification-v2/classify_baseboard_eprom.py",
+      "uncompressed_path": "classification-v2/classify_baseboard_eprom.py",
+      "sha256": "9ad93f3ef7dbf9516548a3ff725887f5376b6f757ebd58aae8fe675b111f4e4b",
+      "bytes": 5729
+    },
+    {
+      "path": "classification-v2/command.json",
+      "uncompressed_path": "classification-v2/command.json",
+      "sha256": "b9b797aa9a2f4e833840db8d99c47e6846391693437eda6acd4bd9840bf4c3af",
+      "bytes": 14725
+    },
+    {
+      "path": "classification-v2/elaborate.log.gz",
+      "uncompressed_path": "classification-v2/elaborate.log",
+      "sha256": "e5e17d85a5fc7651de3d7257a956d1c91073fa6701379712ae99900ea6b065a0",
+      "bytes": 188002
+    },
+    {
+      "path": "classification-v2/eprom-classification.json",
+      "uncompressed_path": "classification-v2/eprom-classification.json",
+      "sha256": "794eb32266b61635964e343ce97aa40ba41d81f43d00c6ac5b40eca2109db709",
+      "bytes": 18265
+    },
+    {
+      "path": "classification-v2/generate_i2716.py",
+      "uncompressed_path": "classification-v2/generate_i2716.py",
+      "sha256": "5796311ef17446e6f5c45f278cf364f0dc1179c34377b83f9131a6a589346fd9",
+      "bytes": 3778
+    },
+    {
+      "path": "classification-v2/inventory.json.gz",
+      "uncompressed_path": "classification-v2/inventory.json",
+      "sha256": "414b77220d89a4514fe3a52fdce38a70d432becde495d7ed3961d27ae8266030",
+      "bytes": 833262
+    },
+    {
+      "path": "classification-v2/inventory_baseboard.py",
+      "uncompressed_path": "classification-v2/inventory_baseboard.py",
+      "sha256": "267544c2517e175b4d895306bd984b82986c8017ee94bbc00f52526a54cdb521",
+      "bytes": 5099
+    },
+    {
+      "path": "classification-v2/provenance.json",
+      "uncompressed_path": "classification-v2/provenance.json",
+      "sha256": "1f51fc0ed44f75c2b2203aa54249dc768aea39cefc601f5d631bedf0e9c0a6f9",
+      "bytes": 14676
+    },
+    {
+      "path": "classification-v2/sequential-review.json",
+      "uncompressed_path": "classification-v2/sequential-review.json",
+      "sha256": "cff23619c05417840d87aa928fab370e67fc669bd9953e2337e05d561380564e",
+      "bytes": 15446
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/audit.tcl",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/audit.tcl",
+      "sha256": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+      "bytes": 745
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-clocks-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-clocks-7_slow_1100mv_-40c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-clocks-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-clocks-7_slow_1100mv_100c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-clocks-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-clocks-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-clocks-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-clocks-MIN_fast_1100mv_100c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-hold-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-hold-7_slow_1100mv_-40c.rpt",
+      "sha256": "4f6c3184d325ec6404d8d0720ca184a783af5501ad31e58a0d971a0254d42355",
+      "bytes": 19355
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-hold-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-hold-7_slow_1100mv_100c.rpt",
+      "sha256": "caac2c5250bdd6f88d870d01654fd122686291adbebdb88fe195a560363387a4",
+      "bytes": 19355
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-hold-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "b2d9a0f3f3aa7b11c873eecce0941fd6427393cb735c6cba69f3832a7a46fb11",
+      "bytes": 19359
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-hold-MIN_fast_1100mv_100c.rpt",
+      "sha256": "20d108f82c8740b04fdf43bc252401e2fa8e9848dbd9f95a06f34257d1aeeff8",
+      "bytes": 19359
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-mpw-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-mpw-7_slow_1100mv_-40c.rpt",
+      "sha256": "f6dcbcea7247762ea6de86596c031b405e2022b6187709d4abc10c2ea00a5dfb",
+      "bytes": 7412
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-mpw-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-mpw-7_slow_1100mv_100c.rpt",
+      "sha256": "1823c1026a1d565eb23e6e42ae19c3c995f74125a2e6b1641310ecd0e1774d7b",
+      "bytes": 7412
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-mpw-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-mpw-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "d851675aa89ac95ffdf66530358008e19290e672777f14e8b8e00eb42f060f31",
+      "bytes": 7687
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-mpw-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-mpw-MIN_fast_1100mv_100c.rpt",
+      "sha256": "98560a1dc9eef92ee7895b870f981053b58bc0dedb174adcc65a857465738c23",
+      "bytes": 7687
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-recovery-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-recovery-7_slow_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-recovery-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-recovery-7_slow_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-recovery-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-recovery-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-recovery-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-recovery-MIN_fast_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-removal-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-removal-7_slow_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-removal-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-removal-7_slow_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-removal-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-removal-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-removal-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-removal-MIN_fast_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-setup-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-setup-7_slow_1100mv_-40c.rpt",
+      "sha256": "059f4e5bb166bc2687be7a23c866233dd38fb0ada7cc3eb8e3ab82c9e8c40c8d",
+      "bytes": 19201
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-setup-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-setup-7_slow_1100mv_100c.rpt",
+      "sha256": "0c93eae40f23b151ff6ee77c7bdcd7d1fe43cca0a35d050cedb5f562a8e1bdc9",
+      "bytes": 19201
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-setup-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "31f480b59a46f9cc114de1eac28db2166d82ab0ad3fa2cfa81e7ebfbbedb94c4",
+      "bytes": 19205
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-setup-MIN_fast_1100mv_100c.rpt",
+      "sha256": "69d8715f34647b2c2b783b8d35e8212650bb93a9622b0c02435b8b94484647ec",
+      "bytes": 19205
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-ucp-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-ucp-7_slow_1100mv_-40c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-ucp-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-ucp-7_slow_1100mv_100c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-ucp-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-ucp-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank-ucp-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank-ucp-MIN_fast_1100mv_100c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/bank.sdc.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/bank.sdc",
+      "sha256": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+      "bytes": 419
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/cell_i2716.v.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/cell_i2716.v",
+      "sha256": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57",
+      "bytes": 4510
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/cell_i2716_snapshot.sv",
+      "sha256": "31f94795994c8d9ce814adff25de75499dabf934939ae4aea774ae228c59815a",
+      "bytes": 5301
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/corners.log.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/corners.log",
+      "sha256": "22d42058c2b9b27eaac1f871bc046d020af158afcb7b1837761177b8e816da5f",
+      "bytes": 8295
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/db/snapshot_fit.ram0_cell_i2716_3f6ca783.hdl.mif.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/db/snapshot_fit.ram0_cell_i2716_3f6ca783.hdl.mif",
+      "sha256": "f684e2c98f83ef7f41bb86e392341ebb7eba249071c36c1ea64ff952a47b73ae",
+      "bytes": 35932
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/db/snapshot_fit.ram0_cell_i2716_48dd3afd.hdl.mif.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/db/snapshot_fit.ram0_cell_i2716_48dd3afd.hdl.mif",
+      "sha256": "b63755f266cac30ab0c1e4bfd3ed893d19627194443ea3ff3e444d30596cdeef",
+      "bytes": 35932
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/db/snapshot_fit.ram0_cell_i2716_c49a8431.hdl.mif.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/db/snapshot_fit.ram0_cell_i2716_c49a8431.hdl.mif",
+      "sha256": "090d2fa8188c9c6f2136c82f7f42688b244fbb50a6eb64fb9e610f7ee3fdbc7a",
+      "bytes": 35932
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/db/snapshot_fit.ram0_cell_i2716_f7a4d018.hdl.mif.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/db/snapshot_fit.ram0_cell_i2716_f7a4d018.hdl.mif",
+      "sha256": "b589544a0242f93bfbf0077fbaacf3af3b822e78345e7f7708c2f55eb8e5399c",
+      "bytes": 35932
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/fit.log.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/fit.log",
+      "sha256": "f9dfc70ceef412ae241ee37f2f9581a093124b84d2300488c7f49b810d76fc15",
+      "bytes": 5895
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/map.log.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/map.log",
+      "sha256": "c46e25dd1e3f7da53a842049dda009b680b0139b02b89772f70f969651909d3b",
+      "bytes": 123370
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/snapshot_fit.fit.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/snapshot_fit.fit.rpt",
+      "sha256": "0e406bc1696f819914a0eb526eb2ef83e271003e02dc46e1c5fff7061cdb5c7a",
+      "bytes": 214244
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/snapshot_fit.fit.summary",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/snapshot_fit.fit.summary",
+      "sha256": "421ddc3dd5479d3d4f1854a8dfef6e6df284d50764981c40de24353258035a88",
+      "bytes": 674
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/snapshot_fit.flow.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/snapshot_fit.flow.rpt",
+      "sha256": "6f6a749457620d18591db7b262fc4434ba2d29d82531d16be103e115b4351269",
+      "bytes": 7803
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/snapshot_fit.map.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/snapshot_fit.map.rpt",
+      "sha256": "806469db5587709a6c6cf9db34c5bbdd92b5556e52cdcb1f0b9b0ed6d6ebfa36",
+      "bytes": 227705
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/snapshot_fit.map.summary",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/snapshot_fit.map.summary",
+      "sha256": "1b3de108e937db4036f35727c30e8d1c038ebf860cef1a5443e96ec7105b4502",
+      "bytes": 516
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/snapshot_fit.pin.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/snapshot_fit.pin",
+      "sha256": "5a8437ef36245b348e6f516d63bcafc16374a461bafa322bd84fa662b5e8adfd",
+      "bytes": 79953
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/snapshot_fit.qpf.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/snapshot_fit.qpf",
+      "sha256": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+      "bytes": 34
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/snapshot_fit.qsf.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/snapshot_fit.qsf",
+      "sha256": "97390f9119dacd71771a3a601070d41a7bf7b77de2c89f27be06f7438bcf572c",
+      "bytes": 1801
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/snapshot_fit.sta.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/snapshot_fit.sta.rpt",
+      "sha256": "3dd867931a8bd1d0d35c308294c2373b893ccbed78ae56702ab223297e1f8093",
+      "bytes": 19039
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/snapshot_fit.sta.summary",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/snapshot_fit.sta.summary",
+      "sha256": "c637a2502abe569a9a811eae576aee99c6de8d4660db8c87c50c3043f3e2cdac",
+      "bytes": 399
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/sta.log.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/sta.log",
+      "sha256": "eb6e5a10867e4777a660d45baabf0577c21e11d15c95452a5c04bb45fb8c018b",
+      "bytes": 3335
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/top.sv.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/top.sv",
+      "sha256": "1c4f71e28a0cc0dcef69d5c000a3a330cf8b8d46d4fccc9da1cc750a6d5cc4f8",
+      "bytes": 12143
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/verilog/proms/eprom/BaseBd-b61.mem.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/verilog/proms/eprom/BaseBd-b61.mem",
+      "sha256": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/verilog/proms/eprom/BaseBd-c61.mem.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/verilog/proms/eprom/BaseBd-c61.mem",
+      "sha256": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/verilog/proms/eprom/BaseBd-e60.mem.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/verilog/proms/eprom/BaseBd-e60.mem",
+      "sha256": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v1-rejected-logic/baseline/verilog/proms/eprom/BaseBd-f60.mem.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/baseline/verilog/proms/eprom/BaseBd-f60.mem",
+      "sha256": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v1-rejected-logic/executed-sources/cell_i2716.v.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/executed-sources/cell_i2716.v",
+      "sha256": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57",
+      "bytes": 4510
+    },
+    {
+      "path": "fit-v1-rejected-logic/executed-sources/fit_f10415.py",
+      "uncompressed_path": "fit-v1-rejected-logic/executed-sources/fit_f10415.py",
+      "sha256": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+      "bytes": 5749
+    },
+    {
+      "path": "fit-v1-rejected-logic/executed-sources/fit_f10415_enable.py",
+      "uncompressed_path": "fit-v1-rejected-logic/executed-sources/fit_f10415_enable.py",
+      "sha256": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+      "bytes": 6602
+    },
+    {
+      "path": "fit-v1-rejected-logic/executed-sources/fit_i2716.py",
+      "uncompressed_path": "fit-v1-rejected-logic/executed-sources/fit_i2716.py",
+      "sha256": "9763c330958834a400f697931bb55697425d2e3622342a4d39d8a7d376f0db3e",
+      "bytes": 6488
+    },
+    {
+      "path": "fit-v1-rejected-logic/executed-sources/generate_i2716.py",
+      "uncompressed_path": "fit-v1-rejected-logic/executed-sources/generate_i2716.py",
+      "sha256": "1af1d75015d133c5261a3ba48255419d51f2dee8873e53cece83b03cc4e62873",
+      "bytes": 3433
+    },
+    {
+      "path": "fit-v1-rejected-logic/executed-sources/generate_snapshot_ff.py",
+      "uncompressed_path": "fit-v1-rejected-logic/executed-sources/generate_snapshot_ff.py",
+      "sha256": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+      "bytes": 5780
+    },
+    {
+      "path": "fit-v1-rejected-logic/provenance.json",
+      "uncompressed_path": "fit-v1-rejected-logic/provenance.json",
+      "sha256": "b55d734e4cf5317ca9b76fd78878dd2a03c7365faba10213a515d150c4be8753",
+      "bytes": 9149
+    },
+    {
+      "path": "fit-v1-rejected-logic/rejection.json",
+      "uncompressed_path": "fit-v1-rejected-logic/rejection.json",
+      "sha256": "94d03a1c02fc1d58a5c1586d63f18972fc75e75c4b797ab80c329f5d83c8f9a9",
+      "bytes": 325
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/audit.tcl",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/audit.tcl",
+      "sha256": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+      "bytes": 745
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-clocks-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-clocks-7_slow_1100mv_-40c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-clocks-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-clocks-7_slow_1100mv_100c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-clocks-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-clocks-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-clocks-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-clocks-MIN_fast_1100mv_100c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-hold-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-hold-7_slow_1100mv_-40c.rpt",
+      "sha256": "e0957129f14455b705feac43445605825cca61b7a851dceb83c98df0c6825d03",
+      "bytes": 24438
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-hold-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-hold-7_slow_1100mv_100c.rpt",
+      "sha256": "127e9c94c448f242c27f691401fb99198e5f97d44295c43aad354e77307e7a23",
+      "bytes": 24438
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-hold-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "469c32071d7b5917167945172d0453195bb8435f639f306fcf6515eab51cf52c",
+      "bytes": 24615
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-hold-MIN_fast_1100mv_100c.rpt",
+      "sha256": "1cbb83823d567f0b90045b54f28c0d8e62aceb09655ee14bc3439e5d37b96ac9",
+      "bytes": 24615
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-mpw-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-mpw-7_slow_1100mv_-40c.rpt",
+      "sha256": "523c365a8fbc5a8178a69d610ccc77dedce0236a3918fa429e8d2d16338e88e4",
+      "bytes": 3502
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-mpw-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-mpw-7_slow_1100mv_100c.rpt",
+      "sha256": "4ca9661ff354878bca67b19b6752f5845c2c4746ec27166a3f11e970c7d12794",
+      "bytes": 3935
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-mpw-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-mpw-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "4988b64c56c36cd3872948ec490bd2fc3cdea4b390a771478b9a1bb375d3b633",
+      "bytes": 3937
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-mpw-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-mpw-MIN_fast_1100mv_100c.rpt",
+      "sha256": "549ca8ad979acf9c6269147f210d7b8240afb19b5c10d094a63c31a01108cc89",
+      "bytes": 4487
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-recovery-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-recovery-7_slow_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-recovery-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-recovery-7_slow_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-recovery-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-recovery-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-recovery-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-recovery-MIN_fast_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-removal-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-removal-7_slow_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-removal-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-removal-7_slow_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-removal-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-removal-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-removal-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-removal-MIN_fast_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-setup-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-setup-7_slow_1100mv_-40c.rpt",
+      "sha256": "819abb73e16803190729338ad354c864d6d96895b404471ffd9042f65f605779",
+      "bytes": 19113
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-setup-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-setup-7_slow_1100mv_100c.rpt",
+      "sha256": "2096d607fc2cd6d7d1d3d3c535551dfb10dbcee090eae6f619081e0eff77b18c",
+      "bytes": 19032
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-setup-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "14316a8586cf0fa1c6cb935f3e96cfe48907380b4b0c652813e326f6f902bd0a",
+      "bytes": 19149
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-setup-MIN_fast_1100mv_100c.rpt",
+      "sha256": "f70989f71bedb57109946f7298a1b637e9c96a5704535e394f76b7c5b4e9d2cd",
+      "bytes": 19149
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-ucp-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-ucp-7_slow_1100mv_-40c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-ucp-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-ucp-7_slow_1100mv_100c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-ucp-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-ucp-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank-ucp-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank-ucp-MIN_fast_1100mv_100c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/bank.sdc.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/bank.sdc",
+      "sha256": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+      "bytes": 419
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/cell_i2716.v.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/cell_i2716.v",
+      "sha256": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57",
+      "bytes": 4510
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/cell_i2716_snapshot.sv",
+      "sha256": "31f94795994c8d9ce814adff25de75499dabf934939ae4aea774ae228c59815a",
+      "bytes": 5301
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/corners.log.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/corners.log",
+      "sha256": "9e56d33ba711cdee67319af2d3560ef5ff1886bbbccc25038acfe7284976a674",
+      "bytes": 8295
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/fit.log.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/fit.log",
+      "sha256": "b9ba54a6452bf120e35d8592a4d6526039525bc4e2c0cb25096dd1a75a8b58df",
+      "bytes": 5615
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/map.log.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/map.log",
+      "sha256": "4e8a0230b102297e15620d6d71f16f6871df3012348880b4b49aa87abcfd3de3",
+      "bytes": 89583
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/snapshot_fit.fit.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/snapshot_fit.fit.rpt",
+      "sha256": "d98d41321ec0635490a87e35408d2456704e8f871d46c9d7ea15719de529cc13",
+      "bytes": 225651
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/snapshot_fit.fit.summary",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/snapshot_fit.fit.summary",
+      "sha256": "f7396f2ce19768323587b49ef621bcb9ef987f6f82059828d19a389f8c930310",
+      "bytes": 670
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/snapshot_fit.flow.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/snapshot_fit.flow.rpt",
+      "sha256": "e58a7a9f97ac1f50035c246bc88ec4cf53b044be3aa140f473187ccfe8f989f7",
+      "bytes": 7919
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/snapshot_fit.map.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/snapshot_fit.map.rpt",
+      "sha256": "c7361396284a93c1e01aa236c6b8a5753d9d1970007bf662d1a845827ef4e1ca",
+      "bytes": 154815
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/snapshot_fit.map.summary",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/snapshot_fit.map.summary",
+      "sha256": "eb9db002169b8de02ca5f516f62699a6a2f7b648b8b4df9a0dbc45826ee2c04e",
+      "bytes": 512
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/snapshot_fit.pin.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/snapshot_fit.pin",
+      "sha256": "5a8437ef36245b348e6f516d63bcafc16374a461bafa322bd84fa662b5e8adfd",
+      "bytes": 79953
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/snapshot_fit.qpf.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/snapshot_fit.qpf",
+      "sha256": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+      "bytes": 34
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/snapshot_fit.qsf.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/snapshot_fit.qsf",
+      "sha256": "b56acf08dbbda469090201eb13657cb2a57ee5748059c5bbb337aea0e000bdc0",
+      "bytes": 1872
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/snapshot_fit.sta.rpt.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/snapshot_fit.sta.rpt",
+      "sha256": "c42b6812f91cd6b72520229e588e7d12c40ba5b6ade779d3d04a7e467bd39181",
+      "bytes": 19032
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/snapshot_fit.sta.summary",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/snapshot_fit.sta.summary",
+      "sha256": "64adbf72a5c26281aaf43bf577507a8e619a9a863bb08216e2ed792afebbac4c",
+      "bytes": 399
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/sta.log.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/sta.log",
+      "sha256": "5093099cce2f5e3064030a5e4a5b721a86edfef18bb88073b30b93bf84f8b719",
+      "bytes": 3335
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/top.sv.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/top.sv",
+      "sha256": "1c4f71e28a0cc0dcef69d5c000a3a330cf8b8d46d4fccc9da1cc750a6d5cc4f8",
+      "bytes": 12143
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/verilog/proms/eprom/BaseBd-b61.mem.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/verilog/proms/eprom/BaseBd-b61.mem",
+      "sha256": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/verilog/proms/eprom/BaseBd-c61.mem.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/verilog/proms/eprom/BaseBd-c61.mem",
+      "sha256": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/verilog/proms/eprom/BaseBd-e60.mem.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/verilog/proms/eprom/BaseBd-e60.mem",
+      "sha256": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v1-rejected-logic/snapshot/verilog/proms/eprom/BaseBd-f60.mem.gz",
+      "uncompressed_path": "fit-v1-rejected-logic/snapshot/verilog/proms/eprom/BaseBd-f60.mem",
+      "sha256": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v2/audit.json",
+      "uncompressed_path": "fit-v2/audit.json",
+      "sha256": "2ee74be94c8bfb4e09fcb3a5890cdbea1271f20842db8f1044547adc282e56a4",
+      "bytes": 15663
+    },
+    {
+      "path": "fit-v2/baseline/audit.tcl",
+      "uncompressed_path": "fit-v2/baseline/audit.tcl",
+      "sha256": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+      "bytes": 745
+    },
+    {
+      "path": "fit-v2/baseline/bank-clocks-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-clocks-7_slow_1100mv_-40c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v2/baseline/bank-clocks-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-clocks-7_slow_1100mv_100c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v2/baseline/bank-clocks-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-clocks-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v2/baseline/bank-clocks-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-clocks-MIN_fast_1100mv_100c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v2/baseline/bank-hold-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-hold-7_slow_1100mv_-40c.rpt",
+      "sha256": "4f6c3184d325ec6404d8d0720ca184a783af5501ad31e58a0d971a0254d42355",
+      "bytes": 19355
+    },
+    {
+      "path": "fit-v2/baseline/bank-hold-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-hold-7_slow_1100mv_100c.rpt",
+      "sha256": "caac2c5250bdd6f88d870d01654fd122686291adbebdb88fe195a560363387a4",
+      "bytes": 19355
+    },
+    {
+      "path": "fit-v2/baseline/bank-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-hold-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "b2d9a0f3f3aa7b11c873eecce0941fd6427393cb735c6cba69f3832a7a46fb11",
+      "bytes": 19359
+    },
+    {
+      "path": "fit-v2/baseline/bank-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-hold-MIN_fast_1100mv_100c.rpt",
+      "sha256": "20d108f82c8740b04fdf43bc252401e2fa8e9848dbd9f95a06f34257d1aeeff8",
+      "bytes": 19359
+    },
+    {
+      "path": "fit-v2/baseline/bank-mpw-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-mpw-7_slow_1100mv_-40c.rpt",
+      "sha256": "f6dcbcea7247762ea6de86596c031b405e2022b6187709d4abc10c2ea00a5dfb",
+      "bytes": 7412
+    },
+    {
+      "path": "fit-v2/baseline/bank-mpw-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-mpw-7_slow_1100mv_100c.rpt",
+      "sha256": "1823c1026a1d565eb23e6e42ae19c3c995f74125a2e6b1641310ecd0e1774d7b",
+      "bytes": 7412
+    },
+    {
+      "path": "fit-v2/baseline/bank-mpw-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-mpw-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "d851675aa89ac95ffdf66530358008e19290e672777f14e8b8e00eb42f060f31",
+      "bytes": 7687
+    },
+    {
+      "path": "fit-v2/baseline/bank-mpw-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-mpw-MIN_fast_1100mv_100c.rpt",
+      "sha256": "98560a1dc9eef92ee7895b870f981053b58bc0dedb174adcc65a857465738c23",
+      "bytes": 7687
+    },
+    {
+      "path": "fit-v2/baseline/bank-recovery-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-recovery-7_slow_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/baseline/bank-recovery-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-recovery-7_slow_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/baseline/bank-recovery-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-recovery-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/baseline/bank-recovery-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-recovery-MIN_fast_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/baseline/bank-removal-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-removal-7_slow_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/baseline/bank-removal-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-removal-7_slow_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/baseline/bank-removal-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-removal-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/baseline/bank-removal-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-removal-MIN_fast_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/baseline/bank-setup-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-setup-7_slow_1100mv_-40c.rpt",
+      "sha256": "059f4e5bb166bc2687be7a23c866233dd38fb0ada7cc3eb8e3ab82c9e8c40c8d",
+      "bytes": 19201
+    },
+    {
+      "path": "fit-v2/baseline/bank-setup-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-setup-7_slow_1100mv_100c.rpt",
+      "sha256": "0c93eae40f23b151ff6ee77c7bdcd7d1fe43cca0a35d050cedb5f562a8e1bdc9",
+      "bytes": 19201
+    },
+    {
+      "path": "fit-v2/baseline/bank-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-setup-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "31f480b59a46f9cc114de1eac28db2166d82ab0ad3fa2cfa81e7ebfbbedb94c4",
+      "bytes": 19205
+    },
+    {
+      "path": "fit-v2/baseline/bank-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-setup-MIN_fast_1100mv_100c.rpt",
+      "sha256": "69d8715f34647b2c2b783b8d35e8212650bb93a9622b0c02435b8b94484647ec",
+      "bytes": 19205
+    },
+    {
+      "path": "fit-v2/baseline/bank-ucp-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-ucp-7_slow_1100mv_-40c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v2/baseline/bank-ucp-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-ucp-7_slow_1100mv_100c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v2/baseline/bank-ucp-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-ucp-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v2/baseline/bank-ucp-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/bank-ucp-MIN_fast_1100mv_100c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v2/baseline/bank.sdc.gz",
+      "uncompressed_path": "fit-v2/baseline/bank.sdc",
+      "sha256": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+      "bytes": 419
+    },
+    {
+      "path": "fit-v2/baseline/cell_i2716.v.gz",
+      "uncompressed_path": "fit-v2/baseline/cell_i2716.v",
+      "sha256": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57",
+      "bytes": 4510
+    },
+    {
+      "path": "fit-v2/baseline/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "fit-v2/baseline/cell_i2716_snapshot.sv",
+      "sha256": "e4ca317c677ced4c3a1b82db5061f3120c7b3666fc4d294bfe3e2fc81ddd341f",
+      "bytes": 5501
+    },
+    {
+      "path": "fit-v2/baseline/corners.log.gz",
+      "uncompressed_path": "fit-v2/baseline/corners.log",
+      "sha256": "8d35c9b91f9e263a5bda4288ceb8f83abb743fb68887ef03d3fde7e3d82ad7fd",
+      "bytes": 8295
+    },
+    {
+      "path": "fit-v2/baseline/db/snapshot_fit.ram0_cell_i2716_3f6ca783.hdl.mif.gz",
+      "uncompressed_path": "fit-v2/baseline/db/snapshot_fit.ram0_cell_i2716_3f6ca783.hdl.mif",
+      "sha256": "f684e2c98f83ef7f41bb86e392341ebb7eba249071c36c1ea64ff952a47b73ae",
+      "bytes": 35932
+    },
+    {
+      "path": "fit-v2/baseline/db/snapshot_fit.ram0_cell_i2716_48dd3afd.hdl.mif.gz",
+      "uncompressed_path": "fit-v2/baseline/db/snapshot_fit.ram0_cell_i2716_48dd3afd.hdl.mif",
+      "sha256": "b63755f266cac30ab0c1e4bfd3ed893d19627194443ea3ff3e444d30596cdeef",
+      "bytes": 35932
+    },
+    {
+      "path": "fit-v2/baseline/db/snapshot_fit.ram0_cell_i2716_c49a8431.hdl.mif.gz",
+      "uncompressed_path": "fit-v2/baseline/db/snapshot_fit.ram0_cell_i2716_c49a8431.hdl.mif",
+      "sha256": "090d2fa8188c9c6f2136c82f7f42688b244fbb50a6eb64fb9e610f7ee3fdbc7a",
+      "bytes": 35932
+    },
+    {
+      "path": "fit-v2/baseline/db/snapshot_fit.ram0_cell_i2716_f7a4d018.hdl.mif.gz",
+      "uncompressed_path": "fit-v2/baseline/db/snapshot_fit.ram0_cell_i2716_f7a4d018.hdl.mif",
+      "sha256": "b589544a0242f93bfbf0077fbaacf3af3b822e78345e7f7708c2f55eb8e5399c",
+      "bytes": 35932
+    },
+    {
+      "path": "fit-v2/baseline/fit.log.gz",
+      "uncompressed_path": "fit-v2/baseline/fit.log",
+      "sha256": "b5830b2f33047fa632836cccc41cdc92af7400fa75a9914827b6eb903f6e1df9",
+      "bytes": 6025
+    },
+    {
+      "path": "fit-v2/baseline/map.log.gz",
+      "uncompressed_path": "fit-v2/baseline/map.log",
+      "sha256": "d1a3a6ad476e0abbaec75742306fd933f0bb0faf5e58b1240b0ed46889ba6c4f",
+      "bytes": 125842
+    },
+    {
+      "path": "fit-v2/baseline/snapshot_fit.fit.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/snapshot_fit.fit.rpt",
+      "sha256": "997428578b1aa1a5adb66e09d5d4793a772f881d9f297c2e975f7b194c70f4dc",
+      "bytes": 214625
+    },
+    {
+      "path": "fit-v2/baseline/snapshot_fit.fit.smsg",
+      "uncompressed_path": "fit-v2/baseline/snapshot_fit.fit.smsg",
+      "sha256": "17f4d158d5a254600dca8dec1249007f5a14b55a393303c3861a5f19aecb0866",
+      "bytes": 811
+    },
+    {
+      "path": "fit-v2/baseline/snapshot_fit.fit.summary",
+      "uncompressed_path": "fit-v2/baseline/snapshot_fit.fit.summary",
+      "sha256": "291fd7a3c259318a161e69c75e0ca69faefefc9c9d8caa081e37df5ee436aa4d",
+      "bytes": 674
+    },
+    {
+      "path": "fit-v2/baseline/snapshot_fit.flow.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/snapshot_fit.flow.rpt",
+      "sha256": "87bbb86a7bba2dbfc2dfd190b5956f34c4f6afc3d0af8cd08b00a86157b1f656",
+      "bytes": 7803
+    },
+    {
+      "path": "fit-v2/baseline/snapshot_fit.map.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/snapshot_fit.map.rpt",
+      "sha256": "bcb9edaaf29ea407a0f6252fd04a698aa270170020b8ceb3dce03cd303b0983e",
+      "bytes": 230252
+    },
+    {
+      "path": "fit-v2/baseline/snapshot_fit.map.summary",
+      "uncompressed_path": "fit-v2/baseline/snapshot_fit.map.summary",
+      "sha256": "41bf6811db995d91bd1d6c839b1604705189e1b78e93c1c261ed7efeda543a6e",
+      "bytes": 516
+    },
+    {
+      "path": "fit-v2/baseline/snapshot_fit.pin.gz",
+      "uncompressed_path": "fit-v2/baseline/snapshot_fit.pin",
+      "sha256": "5a8437ef36245b348e6f516d63bcafc16374a461bafa322bd84fa662b5e8adfd",
+      "bytes": 79953
+    },
+    {
+      "path": "fit-v2/baseline/snapshot_fit.qpf.gz",
+      "uncompressed_path": "fit-v2/baseline/snapshot_fit.qpf",
+      "sha256": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+      "bytes": 34
+    },
+    {
+      "path": "fit-v2/baseline/snapshot_fit.qsf.gz",
+      "uncompressed_path": "fit-v2/baseline/snapshot_fit.qsf",
+      "sha256": "97390f9119dacd71771a3a601070d41a7bf7b77de2c89f27be06f7438bcf572c",
+      "bytes": 1801
+    },
+    {
+      "path": "fit-v2/baseline/snapshot_fit.sta.rpt.gz",
+      "uncompressed_path": "fit-v2/baseline/snapshot_fit.sta.rpt",
+      "sha256": "05e8fd3105a2688321036724c0feb946fba92de897006c49c4ec0a383cd83470",
+      "bytes": 19039
+    },
+    {
+      "path": "fit-v2/baseline/snapshot_fit.sta.summary",
+      "uncompressed_path": "fit-v2/baseline/snapshot_fit.sta.summary",
+      "sha256": "c637a2502abe569a9a811eae576aee99c6de8d4660db8c87c50c3043f3e2cdac",
+      "bytes": 399
+    },
+    {
+      "path": "fit-v2/baseline/sta.log.gz",
+      "uncompressed_path": "fit-v2/baseline/sta.log",
+      "sha256": "2d763217f88a7462a0115d6c4c1230814b47b3eee815bc661763c2c9545ef459",
+      "bytes": 3335
+    },
+    {
+      "path": "fit-v2/baseline/top.sv.gz",
+      "uncompressed_path": "fit-v2/baseline/top.sv",
+      "sha256": "1c4f71e28a0cc0dcef69d5c000a3a330cf8b8d46d4fccc9da1cc750a6d5cc4f8",
+      "bytes": 12143
+    },
+    {
+      "path": "fit-v2/baseline/verilog/proms/eprom/BaseBd-b61.mem.gz",
+      "uncompressed_path": "fit-v2/baseline/verilog/proms/eprom/BaseBd-b61.mem",
+      "sha256": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v2/baseline/verilog/proms/eprom/BaseBd-c61.mem.gz",
+      "uncompressed_path": "fit-v2/baseline/verilog/proms/eprom/BaseBd-c61.mem",
+      "sha256": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v2/baseline/verilog/proms/eprom/BaseBd-e60.mem.gz",
+      "uncompressed_path": "fit-v2/baseline/verilog/proms/eprom/BaseBd-e60.mem",
+      "sha256": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v2/baseline/verilog/proms/eprom/BaseBd-f60.mem.gz",
+      "uncompressed_path": "fit-v2/baseline/verilog/proms/eprom/BaseBd-f60.mem",
+      "sha256": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v2/executed-sources/cell_i2716.v.gz",
+      "uncompressed_path": "fit-v2/executed-sources/cell_i2716.v",
+      "sha256": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57",
+      "bytes": 4510
+    },
+    {
+      "path": "fit-v2/executed-sources/fit_f10415.py",
+      "uncompressed_path": "fit-v2/executed-sources/fit_f10415.py",
+      "sha256": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+      "bytes": 5749
+    },
+    {
+      "path": "fit-v2/executed-sources/fit_f10415_enable.py",
+      "uncompressed_path": "fit-v2/executed-sources/fit_f10415_enable.py",
+      "sha256": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+      "bytes": 6602
+    },
+    {
+      "path": "fit-v2/executed-sources/fit_i2716.py",
+      "uncompressed_path": "fit-v2/executed-sources/fit_i2716.py",
+      "sha256": "9763c330958834a400f697931bb55697425d2e3622342a4d39d8a7d376f0db3e",
+      "bytes": 6488
+    },
+    {
+      "path": "fit-v2/executed-sources/generate_i2716.py",
+      "uncompressed_path": "fit-v2/executed-sources/generate_i2716.py",
+      "sha256": "5796311ef17446e6f5c45f278cf364f0dc1179c34377b83f9131a6a589346fd9",
+      "bytes": 3778
+    },
+    {
+      "path": "fit-v2/executed-sources/generate_snapshot_ff.py",
+      "uncompressed_path": "fit-v2/executed-sources/generate_snapshot_ff.py",
+      "sha256": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+      "bytes": 5780
+    },
+    {
+      "path": "fit-v2/provenance.json",
+      "uncompressed_path": "fit-v2/provenance.json",
+      "sha256": "e5d740f764d898c4aa580c56a5f6c3fa32f66623274925d08851fe1d1d3202d9",
+      "bytes": 9188
+    },
+    {
+      "path": "fit-v2/snapshot/audit.tcl",
+      "uncompressed_path": "fit-v2/snapshot/audit.tcl",
+      "sha256": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+      "bytes": 745
+    },
+    {
+      "path": "fit-v2/snapshot/bank-clocks-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-clocks-7_slow_1100mv_-40c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v2/snapshot/bank-clocks-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-clocks-7_slow_1100mv_100c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v2/snapshot/bank-clocks-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-clocks-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v2/snapshot/bank-clocks-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-clocks-MIN_fast_1100mv_100c.rpt",
+      "sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+      "bytes": 1295
+    },
+    {
+      "path": "fit-v2/snapshot/bank-hold-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-hold-7_slow_1100mv_-40c.rpt",
+      "sha256": "77130394a7a4fa0c65772665b217b8be1a67526f392fe9eb71d3928e29696fc4",
+      "bytes": 25013
+    },
+    {
+      "path": "fit-v2/snapshot/bank-hold-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-hold-7_slow_1100mv_100c.rpt",
+      "sha256": "95a41f9d5eebc687c3689361329309d3e255dd4295a4bdbb57e9300c8c45490e",
+      "bytes": 24931
+    },
+    {
+      "path": "fit-v2/snapshot/bank-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-hold-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "9c88209a3599fd9af1c6ddc22c9240aa1aa3b6f05a11b8bcd9a430ac551122bc",
+      "bytes": 25017
+    },
+    {
+      "path": "fit-v2/snapshot/bank-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-hold-MIN_fast_1100mv_100c.rpt",
+      "sha256": "216876c08012de327eadb7330cb6484a398d2ef96ec412872293fa70e9f39573",
+      "bytes": 25017
+    },
+    {
+      "path": "fit-v2/snapshot/bank-mpw-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-mpw-7_slow_1100mv_-40c.rpt",
+      "sha256": "c525dea7a5462295efc1044ead392c1a2c952cb3d8b5d7c7b0dc964f86f61749",
+      "bytes": 7862
+    },
+    {
+      "path": "fit-v2/snapshot/bank-mpw-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-mpw-7_slow_1100mv_100c.rpt",
+      "sha256": "01e74f9a0bc328e2495d7e8fdf1ff4ec3986421134f465f1d3837b5072e53436",
+      "bytes": 7862
+    },
+    {
+      "path": "fit-v2/snapshot/bank-mpw-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-mpw-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "2d7d6d0286f389ff4eb6527b895e759d928dd960a9cbb6af3b85f26c0adc00f6",
+      "bytes": 7787
+    },
+    {
+      "path": "fit-v2/snapshot/bank-mpw-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-mpw-MIN_fast_1100mv_100c.rpt",
+      "sha256": "bac66f905faa7ef35722f8c26d26d9e6e76b7d09452bed2d69e91828bc66b9d8",
+      "bytes": 7787
+    },
+    {
+      "path": "fit-v2/snapshot/bank-recovery-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-recovery-7_slow_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/snapshot/bank-recovery-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-recovery-7_slow_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/snapshot/bank-recovery-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-recovery-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/snapshot/bank-recovery-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-recovery-MIN_fast_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/snapshot/bank-removal-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-removal-7_slow_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/snapshot/bank-removal-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-removal-7_slow_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/snapshot/bank-removal-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-removal-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/snapshot/bank-removal-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-removal-MIN_fast_1100mv_100c.rpt",
+      "sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+      "bytes": 73
+    },
+    {
+      "path": "fit-v2/snapshot/bank-setup-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-setup-7_slow_1100mv_-40c.rpt",
+      "sha256": "6e49176bfe2044a516cda0950f827ff9cc81d7e454bb41f964184d694c709997",
+      "bytes": 19177
+    },
+    {
+      "path": "fit-v2/snapshot/bank-setup-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-setup-7_slow_1100mv_100c.rpt",
+      "sha256": "e0c1b75cfba7d583796209fb5dfa014320f89b636313c241963f4450a30cfb0f",
+      "bytes": 19177
+    },
+    {
+      "path": "fit-v2/snapshot/bank-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-setup-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "b70b0455b2b8cbd12ae80db52b33f27522b39310eb9ebf49259a7cd7aef1fc2a",
+      "bytes": 19181
+    },
+    {
+      "path": "fit-v2/snapshot/bank-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-setup-MIN_fast_1100mv_100c.rpt",
+      "sha256": "da92195fe910a0503efa06a07c8ec3a3bd7653f8ff3e9ee5ebeda63b1563df2b",
+      "bytes": 19131
+    },
+    {
+      "path": "fit-v2/snapshot/bank-ucp-7_slow_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-ucp-7_slow_1100mv_-40c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v2/snapshot/bank-ucp-7_slow_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-ucp-7_slow_1100mv_100c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v2/snapshot/bank-ucp-MIN_fast_1100mv_-40c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-ucp-MIN_fast_1100mv_-40c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v2/snapshot/bank-ucp-MIN_fast_1100mv_100c.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank-ucp-MIN_fast_1100mv_100c.rpt",
+      "sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+      "bytes": 1015
+    },
+    {
+      "path": "fit-v2/snapshot/bank.sdc.gz",
+      "uncompressed_path": "fit-v2/snapshot/bank.sdc",
+      "sha256": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+      "bytes": 419
+    },
+    {
+      "path": "fit-v2/snapshot/cell_i2716.v.gz",
+      "uncompressed_path": "fit-v2/snapshot/cell_i2716.v",
+      "sha256": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57",
+      "bytes": 4510
+    },
+    {
+      "path": "fit-v2/snapshot/cell_i2716_snapshot.sv.gz",
+      "uncompressed_path": "fit-v2/snapshot/cell_i2716_snapshot.sv",
+      "sha256": "e4ca317c677ced4c3a1b82db5061f3120c7b3666fc4d294bfe3e2fc81ddd341f",
+      "bytes": 5501
+    },
+    {
+      "path": "fit-v2/snapshot/corners.log.gz",
+      "uncompressed_path": "fit-v2/snapshot/corners.log",
+      "sha256": "3f2dcea225b7610112a505027560899f00506523b78cd391b7118b41e4bef55e",
+      "bytes": 8295
+    },
+    {
+      "path": "fit-v2/snapshot/db/snapshot_fit.ram0_cell_i2716_snapshot_74db18f1.hdl.mif.gz",
+      "uncompressed_path": "fit-v2/snapshot/db/snapshot_fit.ram0_cell_i2716_snapshot_74db18f1.hdl.mif",
+      "sha256": "74bd833dca96a4568ad4edb4326b85132fd628f82a2783ed78218e666bfda5a4",
+      "bytes": 35941
+    },
+    {
+      "path": "fit-v2/snapshot/db/snapshot_fit.ram0_cell_i2716_snapshot_a8a04421.hdl.mif.gz",
+      "uncompressed_path": "fit-v2/snapshot/db/snapshot_fit.ram0_cell_i2716_snapshot_a8a04421.hdl.mif",
+      "sha256": "ae119a1f4941fe5da417c73080195134601842baf022a4836a13a81817adaf7c",
+      "bytes": 35941
+    },
+    {
+      "path": "fit-v2/snapshot/db/snapshot_fit.ram0_cell_i2716_snapshot_e836c081.hdl.mif.gz",
+      "uncompressed_path": "fit-v2/snapshot/db/snapshot_fit.ram0_cell_i2716_snapshot_e836c081.hdl.mif",
+      "sha256": "afb96abe6f13e9933f6c097f5f6f536fab0325d8962ccf0af5da525e7bb25a14",
+      "bytes": 35941
+    },
+    {
+      "path": "fit-v2/snapshot/db/snapshot_fit.ram0_cell_i2716_snapshot_fa5cd924.hdl.mif.gz",
+      "uncompressed_path": "fit-v2/snapshot/db/snapshot_fit.ram0_cell_i2716_snapshot_fa5cd924.hdl.mif",
+      "sha256": "22d1206cacd94c216de99a666ac3b2a73f177de4e0cdd1169f5ba3e4b0323b84",
+      "bytes": 35941
+    },
+    {
+      "path": "fit-v2/snapshot/fit.log.gz",
+      "uncompressed_path": "fit-v2/snapshot/fit.log",
+      "sha256": "ed0afb93d2a46a3d17c8e0b281a935c91d5034b9a0a7509e0cd7aeb26fe6384e",
+      "bytes": 6025
+    },
+    {
+      "path": "fit-v2/snapshot/map.log.gz",
+      "uncompressed_path": "fit-v2/snapshot/map.log",
+      "sha256": "18105f29841a8c0e7e219018e538cf7d178fe1df8661683de2137ffc97b381f3",
+      "bytes": 98793
+    },
+    {
+      "path": "fit-v2/snapshot/snapshot_fit.fit.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/snapshot_fit.fit.rpt",
+      "sha256": "473d925083a8a84e99e1e5e455ca5b38b92fbdf5e546e5abae54074340ae12a4",
+      "bytes": 229104
+    },
+    {
+      "path": "fit-v2/snapshot/snapshot_fit.fit.smsg",
+      "uncompressed_path": "fit-v2/snapshot/snapshot_fit.fit.smsg",
+      "sha256": "17f4d158d5a254600dca8dec1249007f5a14b55a393303c3861a5f19aecb0866",
+      "bytes": 811
+    },
+    {
+      "path": "fit-v2/snapshot/snapshot_fit.fit.summary",
+      "uncompressed_path": "fit-v2/snapshot/snapshot_fit.fit.summary",
+      "sha256": "fba239b8ae5840a06873710e753ec05abdfa36551a6144eb869a96bb9395cea2",
+      "bytes": 675
+    },
+    {
+      "path": "fit-v2/snapshot/snapshot_fit.flow.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/snapshot_fit.flow.rpt",
+      "sha256": "faeafaaf3fb4d258a32915716f186cd23ebe7b933b2d1f096a019942238d96be",
+      "bytes": 7919
+    },
+    {
+      "path": "fit-v2/snapshot/snapshot_fit.map.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/snapshot_fit.map.rpt",
+      "sha256": "663c5ea7079cd8e3bdf0a02c851488816e9adf284e9757604c79970fa3e1b17f",
+      "bytes": 211441
+    },
+    {
+      "path": "fit-v2/snapshot/snapshot_fit.map.summary",
+      "uncompressed_path": "fit-v2/snapshot/snapshot_fit.map.summary",
+      "sha256": "ef10f768dcbdae89e447e85c90e0ecec80c80537ce00238b638aced501cb009c",
+      "bytes": 517
+    },
+    {
+      "path": "fit-v2/snapshot/snapshot_fit.pin.gz",
+      "uncompressed_path": "fit-v2/snapshot/snapshot_fit.pin",
+      "sha256": "5a8437ef36245b348e6f516d63bcafc16374a461bafa322bd84fa662b5e8adfd",
+      "bytes": 79953
+    },
+    {
+      "path": "fit-v2/snapshot/snapshot_fit.qpf.gz",
+      "uncompressed_path": "fit-v2/snapshot/snapshot_fit.qpf",
+      "sha256": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+      "bytes": 34
+    },
+    {
+      "path": "fit-v2/snapshot/snapshot_fit.qsf.gz",
+      "uncompressed_path": "fit-v2/snapshot/snapshot_fit.qsf",
+      "sha256": "b56acf08dbbda469090201eb13657cb2a57ee5748059c5bbb337aea0e000bdc0",
+      "bytes": 1872
+    },
+    {
+      "path": "fit-v2/snapshot/snapshot_fit.sta.rpt.gz",
+      "uncompressed_path": "fit-v2/snapshot/snapshot_fit.sta.rpt",
+      "sha256": "57109f2f9dd00be711dff2ee95ded998ad9ce533f76de70dffc04fd17d5b490d",
+      "bytes": 19039
+    },
+    {
+      "path": "fit-v2/snapshot/snapshot_fit.sta.summary",
+      "uncompressed_path": "fit-v2/snapshot/snapshot_fit.sta.summary",
+      "sha256": "a0dfd7bba4c9201f1c3167c113add79fa1ea6d2a4232cf1724d32b9abe37aef5",
+      "bytes": 399
+    },
+    {
+      "path": "fit-v2/snapshot/sta.log.gz",
+      "uncompressed_path": "fit-v2/snapshot/sta.log",
+      "sha256": "9c0b28b098d13fe63a4869931613927f73d374faa366e208ad92b23391ca14a7",
+      "bytes": 3335
+    },
+    {
+      "path": "fit-v2/snapshot/top.sv.gz",
+      "uncompressed_path": "fit-v2/snapshot/top.sv",
+      "sha256": "1c4f71e28a0cc0dcef69d5c000a3a330cf8b8d46d4fccc9da1cc750a6d5cc4f8",
+      "bytes": 12143
+    },
+    {
+      "path": "fit-v2/snapshot/verilog/proms/eprom/BaseBd-b61.mem.gz",
+      "uncompressed_path": "fit-v2/snapshot/verilog/proms/eprom/BaseBd-b61.mem",
+      "sha256": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v2/snapshot/verilog/proms/eprom/BaseBd-c61.mem.gz",
+      "uncompressed_path": "fit-v2/snapshot/verilog/proms/eprom/BaseBd-c61.mem",
+      "sha256": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v2/snapshot/verilog/proms/eprom/BaseBd-e60.mem.gz",
+      "uncompressed_path": "fit-v2/snapshot/verilog/proms/eprom/BaseBd-e60.mem",
+      "sha256": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "bytes": 6413
+    },
+    {
+      "path": "fit-v2/snapshot/verilog/proms/eprom/BaseBd-f60.mem.gz",
+      "uncompressed_path": "fit-v2/snapshot/verilog/proms/eprom/BaseBd-f60.mem",
+      "sha256": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "bytes": 6413
+    },
+    {
+      "path": "local-review/simulation-v1.log.gz",
+      "uncompressed_path": "local-review/simulation-v1.log",
+      "sha256": "fea228d56fb0aeeeebb210f17e9defbc0bcf0f901576ea9f8564d358ec56731e",
+      "bytes": 2126
+    },
+    {
+      "path": "local-review/simulation-v2.log.gz",
+      "uncompressed_path": "local-review/simulation-v2.log",
+      "sha256": "3cd8f8a9bcdba085074e9887365e69359847704afaaa1d1bb6fb46d275afee51",
+      "bytes": 1622
+    },
+    {
+      "path": "local-review/simulation-v3.log.gz",
+      "uncompressed_path": "local-review/simulation-v3.log",
+      "sha256": "319e33ebb73ce8df7e20e493c43c28d823f27d20a971f69b00c2d165ffa01e47",
+      "bytes": 2555
+    },
+    {
+      "path": "tools/generate_i2716.py",
+      "uncompressed_path": "tools/generate_i2716.py",
+      "sha256": "5796311ef17446e6f5c45f278cf364f0dc1179c34377b83f9131a6a589346fd9",
+      "bytes": 3778
+    },
+    {
+      "path": "tools/test_i2716.py",
+      "uncompressed_path": "tools/test_i2716.py",
+      "sha256": "f7b966854c7d6d18c206cc08c71fd2576a99f5f5d1f1ac7e900a6f03489ddea1",
+      "bytes": 5746
+    },
+    {
+      "path": "tools/test_i2716.sv.gz",
+      "uncompressed_path": "tools/test_i2716.sv",
+      "sha256": "b8371a803d9837b46f373e19e243b91df23e4c85a1eec89e2e5b054ff26c01c0",
+      "bytes": 4791
+    },
+    {
+      "path": "tools/classify_baseboard_eprom.py",
+      "uncompressed_path": "tools/classify_baseboard_eprom.py",
+      "sha256": "9ad93f3ef7dbf9516548a3ff725887f5376b6f757ebd58aae8fe675b111f4e4b",
+      "bytes": 5729
+    },
+    {
+      "path": "tools/fit_i2716.py",
+      "uncompressed_path": "tools/fit_i2716.py",
+      "sha256": "9763c330958834a400f697931bb55697425d2e3622342a4d39d8a7d376f0db3e",
+      "bytes": 6488
+    },
+    {
+      "path": "tools/audit_i2716.py",
+      "uncompressed_path": "tools/audit_i2716.py",
+      "sha256": "051132c145e4a39f80b23c2b48ac8c8d8bc2b5fe83450bb68c8e2186cd2899b8",
+      "bytes": 10479
+    },
+    {
+      "path": "tools/generate_snapshot_ff.py",
+      "uncompressed_path": "tools/generate_snapshot_ff.py",
+      "sha256": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+      "bytes": 5780
+    },
+    {
+      "path": "tools/inventory_baseboard.py",
+      "uncompressed_path": "tools/inventory_baseboard.py",
+      "sha256": "267544c2517e175b4d895306bd984b82986c8017ee94bbc00f52526a54cdb521",
+      "bytes": 5099
+    },
+    {
+      "path": "tools/fit_f10415.py",
+      "uncompressed_path": "tools/fit_f10415.py",
+      "sha256": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+      "bytes": 5749
+    },
+    {
+      "path": "tools/fit_f10415_enable.py",
+      "uncompressed_path": "tools/fit_f10415_enable.py",
+      "sha256": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+      "bytes": 6602
+    },
+    {
+      "path": "actual-source/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v.gz",
+      "uncompressed_path": "actual-source/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v",
+      "sha256": "387f588aed70ff2870c662a51ffecb731ca83e549787bd130e30cd23f83a376e",
+      "bytes": 102420
+    },
+    {
+      "path": "actual-source/verilog/cells/cell_i2716.v.gz",
+      "uncompressed_path": "actual-source/verilog/cells/cell_i2716.v",
+      "sha256": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57",
+      "bytes": 4510
+    },
+    {
+      "path": "actual-source/verilog/proms/eprom/BaseBd-b61.mem.gz",
+      "uncompressed_path": "actual-source/verilog/proms/eprom/BaseBd-b61.mem",
+      "sha256": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+      "bytes": 6413
+    },
+    {
+      "path": "actual-source/verilog/proms/eprom/BaseBd-c61.mem.gz",
+      "uncompressed_path": "actual-source/verilog/proms/eprom/BaseBd-c61.mem",
+      "sha256": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "bytes": 6413
+    },
+    {
+      "path": "actual-source/verilog/proms/eprom/BaseBd-e60.mem.gz",
+      "uncompressed_path": "actual-source/verilog/proms/eprom/BaseBd-e60.mem",
+      "sha256": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "bytes": 6413
+    },
+    {
+      "path": "actual-source/verilog/proms/eprom/BaseBd-f60.mem.gz",
+      "uncompressed_path": "actual-source/verilog/proms/eprom/BaseBd-f60.mem",
+      "sha256": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "bytes": 6413
+    }
+  ],
+  "raw_bytes_preserved": true,
+  "native59_original_source_match": true
+}

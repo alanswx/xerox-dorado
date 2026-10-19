@@ -2,6 +2,41 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**BaseBoard EPROM snapshot qualification passes, including empty-socket unknowns.**
+
+All eight actual 2716 sockets now have qualified nine-bit read-pipeline state
+(72 bits total). Four original images remain immutable and four empty
+INIT_FILE sockets retain their uninitialized semantics. Four-state Icarus
+simulation checks the untouched originals and an independent ROM/pipeline
+oracle: 34,735 host edges, every pipeline bit/all32indices/everyROMaddress,
+X/Z state, input/enable holds, destructive continuation/restore and first
+real-edge resume. Eleven broken RTL variants and two source guards reject.
+Fresh actual-board classification accounts for all eight pipelines and four
+immutable images;13bad schema/source/image controls reject.
+
+The first fit is REJECTED: directly restoring d prevents block-ROM inference
+and costs1,529ALMs/563regs/zeroRAM. The corrected adapter leaves the ROM read
+pipeline intact and holds restored data separately until the first real
+guest edge; it adds no guest warm-up edge. Accepted simulation is v3; v2's
+Icarus declaration-order failure is retained. Corrected matched50MHz fits
+and independent audit pass all four conditions/min+0.165ns, no illegal or
+unconstrained clocks/I/O. Both variants retain65,536firmware bits/eightM10Ks;
+all synthesized firmware bytes match all four assets in both variants.
+Shell totals271ALM/89regs ->347ALM/531regs include admin/pruning and are not
+whole-core overhead. Twelve damaged-fit controls reject. All28compiled
+inputs and raw archived bytes pass extraction/hash/independent-audit readback.
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-i2716/`.
+
+No production BaseBoard/live FPGA change or speed gain is claimed. Native59
+remains the interactive baseline; its last qualified idle issue rate is
+1,947,654.12/s. All new simulation/Quartus/audit jobs are terminal.
+Next: remaining279BaseBoard clock/reset/FFbits (reuse qualified families),
+then complete BaseBoard classification/restore/timing. Enabled whole-core
+capacity/timing, coherent backend/input/ARM/server/matching-disk barriers,
+atomic bundle and physical Cedar restore remain open. Original60ns clocks/
+timer calibration and final three fresh boots/cold persistence/pinned speed/
+two-hour combined stress remain required. Goal ACTIVE.
+
 **BaseBoard SRAM snapshot qualification passes. Native59 remains the interactive hardware baseline.**
 
 The actual 32 Intel 2125 slices are grounded in the original wire list as
@@ -2791,7 +2826,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Finish Native59 full-core audit:196detailed/fourconditions/40crossings/source/memory; preserve58 via normal Boot/Main barriers and qualify fresh59 firmware/full Viewers/mouse/exact keyboard/warm marker.
 - [x] Qualify the actual 1725-node netlist6502 and complete1098-bit MCS6532 wrapper: original/oracle/restore/fresh classification/matched timing.
 - [x] Ground actual32 BaseBoard i2125 slices in the original wire list; qualify all32800bits, four old-data M10Ks, fresh classification and matched timing(+0.211ns).
-- [ ] Qualify eight EPROM read registers and remaining279 BaseBoard clock/reset/FF bits; complete board classification/restore/timing.
+- [x] Qualify all eight EPROM pipelines/72bits with four-state original/oracle/restore, fresh classification and corrected block-ROM fits(+0.165ns); preserve rejected logic-inference/declaration attempts and verify all synthesized firmware bytes.
+- [ ] Qualify remaining279 BaseBoard clock/reset/FF bits; complete board classification/restore/timing.
 - [ ] Check full-core FPGA capacity/timing with all snapshot administrative paths enabled.
 - [ ] Complete backends/wrapper/input/ARM cache/server/matching-disk-generation state, coherent barriers and atomic bundle; qualify actual FPGA Cedar save/restore.
 - [ ] Finish original60ns clock/enable and timer migration; repeat pinned speed/stall comparisons.

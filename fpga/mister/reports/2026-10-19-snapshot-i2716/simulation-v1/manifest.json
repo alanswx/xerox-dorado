@@ -1,0 +1,34 @@
+{
+  "module": "cell_i2716_snapshot",
+  "logical_state_bits": 9,
+  "fields": [
+    {
+      "name": "d",
+      "width": 8,
+      "lsb": 0
+    },
+    {
+      "name": "en_q",
+      "width": 1,
+      "lsb": 8
+    }
+  ],
+  "words": [
+    {
+      "index": 0,
+      "width": 9
+    }
+  ],
+  "valid_indices": [
+    0
+  ],
+  "invalid_indices": [
+    1,
+    2,
+    3
+  ],
+  "original_sha256": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57",
+  "generated_sha256": "31f94795994c8d9ce814adff25de75499dabf934939ae4aea774ae228c59815a",
+  "scope": "Preserve actual 2716 ROM bytes/unknowns and export its nine read-pipeline bits.\n\nROM initialization and pin equations stay unchanged. Caller holds every consumer;\nthis is a primitive adapter, not a complete machine barrier or file format.\n",
+  "rom": "Immutable initialization unchanged; empty INIT_FILE remains uninitialized, never forced to zero"
+}

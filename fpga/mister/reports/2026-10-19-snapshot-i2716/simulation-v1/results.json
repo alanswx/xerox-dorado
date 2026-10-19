@@ -1,0 +1,81 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated_read",
+      "returncode": 1,
+      "expected_failure": "2716 raw pipeline differs"
+    },
+    {
+      "case": "ignore_freeze",
+      "returncode": 1,
+      "expected_failure": "2716 raw pipeline differs"
+    },
+    {
+      "case": "ignore_held",
+      "returncode": 1,
+      "expected_failure": "2716 handshake differs"
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "2716 handshake differs"
+    },
+    {
+      "case": "invalid_alias",
+      "returncode": 1,
+      "expected_failure": "2716 handshake differs"
+    },
+    {
+      "case": "lost_enable",
+      "returncode": 1,
+      "expected_failure": "2716 raw pipeline differs"
+    },
+    {
+      "case": "wrong_rom_read",
+      "returncode": 1,
+      "expected_failure": "2716 raw pipeline differs"
+    },
+    {
+      "case": "empty_zero",
+      "returncode": 1,
+      "expected_failure": "2716 raw pipeline differs"
+    },
+    {
+      "case": "padding",
+      "returncode": 1,
+      "expected_failure": "2716 response/padding differs"
+    }
+  ],
+  "source_guards": [
+    {
+      "case": "cell",
+      "rejected": true,
+      "diagnostic": "unreviewed original 2716"
+    },
+    {
+      "case": "init",
+      "rejected": true,
+      "diagnostic": "unreviewed original 2716"
+    }
+  ],
+  "logical_state_bits": 72,
+  "scope": "Four-state original and independent immutable-ROM/pipeline oracle, all8sockets/4images/4empty; no board/global barrier/physical snapshot.",
+  "source_hashes": {
+    "fpga/mister/snapshot/test_i2716.py": "8e657432c9bcbaa49c5bfedc5734b501439972ed47d7eaa71b697a1796d77c1a",
+    "fpga/mister/snapshot/test_i2716.sv": "b8371a803d9837b46f373e19e243b91df23e4c85a1eec89e2e5b054ff26c01c0",
+    "fpga/mister/snapshot/generate_i2716.py": "1af1d75015d133c5261a3ba48255419d51f2dee8873e53cece83b03cc4e62873",
+    "verilog/cells/cell_i2716.v": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57"
+  },
+  "image_hashes": {
+    "b61": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+    "c61": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+    "e60": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+    "f60": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028"
+  }
+}

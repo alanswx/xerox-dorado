@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "raw_files": 417,
+  "fit_compiled_inputs": 28,
+  "independent_fit_audit": "PASS",
+  "synthesized_firmware_bytes_checked": 16384,
+  "native59_original_source_match": true
+}

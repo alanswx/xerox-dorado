@@ -1,0 +1,477 @@
+{
+  "status": "PASS",
+  "scope": "Eight actual2716socket configurations,4originalimages/4emptyINIT_FILE;72read pipeline bits,same50MHz negative-edge launch/capture shell/10ns embedded paths,2nsmax/0nsmin virtualIO,no cuts. Not whole BaseBoard/global barrier/physicalsnapshot.",
+  "results": {
+    "baseline": {
+      "resources": {
+        "alms": 271,
+        "registers": 89,
+        "ram_bits": 65536,
+        "ram_blocks": 8
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 2.14,
+          "hold": 5.61,
+          "mpw": 8.81
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 2.12,
+          "hold": 5.68,
+          "mpw": 8.86
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.766,
+          "hold": 7.572,
+          "mpw": 8.463
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.57,
+          "hold": 7.541,
+          "mpw": 8.537
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 61,
+          "10030": 15,
+          "13024": 1,
+          "13410": 200
+        },
+        "fit": {
+          "292013": 1
+        }
+      },
+      "physical_ram": [
+        {
+          "Name": "cell_i2716:rom_b61|altsyncram:mem_rtl_0|altsyncram_dud1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "2048",
+          "Port A Width": "8",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "16384",
+          "Implementation Port A Depth": "2048",
+          "Implementation Port A Width": "8",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "16384",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "db/snapshot_fit.ram0_cell_i2716_48dd3afd.hdl.mif",
+          "Location": "M10K_X38_Y29_N0, M10K_X41_Y29_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "cell_i2716:rom_c61|altsyncram:mem_rtl_0|altsyncram_spd1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "2048",
+          "Port A Width": "8",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "16384",
+          "Implementation Port A Depth": "2048",
+          "Implementation Port A Width": "8",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "16384",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "db/snapshot_fit.ram0_cell_i2716_c49a8431.hdl.mif",
+          "Location": "M10K_X26_Y34_N0, M10K_X26_Y33_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "cell_i2716:rom_e60|altsyncram:mem_rtl_0|altsyncram_grd1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "2048",
+          "Port A Width": "8",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "16384",
+          "Implementation Port A Depth": "2048",
+          "Implementation Port A Width": "8",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "16384",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "db/snapshot_fit.ram0_cell_i2716_3f6ca783.hdl.mif",
+          "Location": "M10K_X26_Y30_N0, M10K_X26_Y29_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "cell_i2716:rom_f60|altsyncram:mem_rtl_0|altsyncram_ard1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "2048",
+          "Port A Width": "8",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "16384",
+          "Implementation Port A Depth": "2048",
+          "Implementation Port A Width": "8",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "16384",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "db/snapshot_fit.ram0_cell_i2716_f7a4d018.hdl.mif",
+          "Location": "M10K_X26_Y38_N0, M10K_X26_Y37_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        }
+      ],
+      "rom_macros": [
+        {
+          "socket": "f60",
+          "instance": "cell_i2716:rom_f60|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "ROM",
+            "WIDTH_A": "8",
+            "NUMWORDS_A": "2048"
+          }
+        },
+        {
+          "socket": "e60",
+          "instance": "cell_i2716:rom_e60|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "ROM",
+            "WIDTH_A": "8",
+            "NUMWORDS_A": "2048"
+          }
+        },
+        {
+          "socket": "c61",
+          "instance": "cell_i2716:rom_c61|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "ROM",
+            "WIDTH_A": "8",
+            "NUMWORDS_A": "2048"
+          }
+        },
+        {
+          "socket": "b61",
+          "instance": "cell_i2716:rom_b61|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "ROM",
+            "WIDTH_A": "8",
+            "NUMWORDS_A": "2048"
+          }
+        }
+      ]
+    },
+    "snapshot": {
+      "resources": {
+        "alms": 347,
+        "registers": 531,
+        "ram_bits": 65536,
+        "ram_blocks": 8
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 1.75,
+          "hold": 0.334,
+          "mpw": 8.805
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 1.699,
+          "hold": 0.351,
+          "mpw": 8.864
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.533,
+          "hold": 0.165,
+          "mpw": 8.439
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.271,
+          "hold": 0.185,
+          "mpw": 8.509
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 5,
+          "10030": 15,
+          "13024": 1,
+          "13410": 72
+        },
+        "fit": {
+          "292013": 1
+        }
+      },
+      "physical_ram": [
+        {
+          "Name": "cell_i2716_snapshot:rom_b61|altsyncram:mem_rtl_0|altsyncram_ehf1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "2048",
+          "Port A Width": "8",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "16384",
+          "Implementation Port A Depth": "2048",
+          "Implementation Port A Width": "8",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "16384",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "db/snapshot_fit.ram0_cell_i2716_snapshot_a8a04421.hdl.mif",
+          "Location": "M10K_X38_Y37_N0, M10K_X41_Y37_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "cell_i2716_snapshot:rom_c61|altsyncram:mem_rtl_0|altsyncram_ajf1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "2048",
+          "Port A Width": "8",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "16384",
+          "Implementation Port A Depth": "2048",
+          "Implementation Port A Width": "8",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "16384",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "db/snapshot_fit.ram0_cell_i2716_snapshot_74db18f1.hdl.mif",
+          "Location": "M10K_X38_Y33_N0, M10K_X41_Y33_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "cell_i2716_snapshot:rom_e60|altsyncram:mem_rtl_0|altsyncram_rkf1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "2048",
+          "Port A Width": "8",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "16384",
+          "Implementation Port A Depth": "2048",
+          "Implementation Port A Width": "8",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "16384",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "db/snapshot_fit.ram0_cell_i2716_snapshot_fa5cd924.hdl.mif",
+          "Location": "M10K_X41_Y34_N0, M10K_X38_Y34_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "cell_i2716_snapshot:rom_f60|altsyncram:mem_rtl_0|altsyncram_rhf1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "2048",
+          "Port A Width": "8",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "16384",
+          "Implementation Port A Depth": "2048",
+          "Implementation Port A Width": "8",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "16384",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "db/snapshot_fit.ram0_cell_i2716_snapshot_e836c081.hdl.mif",
+          "Location": "M10K_X41_Y41_N0, M10K_X38_Y41_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        }
+      ],
+      "rom_macros": [
+        {
+          "socket": "f60",
+          "instance": "cell_i2716_snapshot:rom_f60|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "ROM",
+            "WIDTH_A": "8",
+            "NUMWORDS_A": "2048"
+          }
+        },
+        {
+          "socket": "e60",
+          "instance": "cell_i2716_snapshot:rom_e60|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "ROM",
+            "WIDTH_A": "8",
+            "NUMWORDS_A": "2048"
+          }
+        },
+        {
+          "socket": "c61",
+          "instance": "cell_i2716_snapshot:rom_c61|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "ROM",
+            "WIDTH_A": "8",
+            "NUMWORDS_A": "2048"
+          }
+        },
+        {
+          "socket": "b61",
+          "instance": "cell_i2716_snapshot:rom_b61|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "ROM",
+            "WIDTH_A": "8",
+            "NUMWORDS_A": "2048"
+          }
+        }
+      ]
+    }
+  },
+  "delta": {
+    "alms": 76,
+    "registers": 442,
+    "ram_bits": 0,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.165,
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/cell_i2716.v"
+    },
+    {
+      "case": "adapter",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/cell_i2716_snapshot.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "macro",
+      "rejected": true,
+      "diagnostic": "project source/macro/SDC changed"
+    },
+    {
+      "case": "macro_mode",
+      "rejected": true,
+      "diagnostic": "('EPROM macro differs', 'f60', 'OPERATION_MODE', ['RAM'])"
+    },
+    {
+      "case": "physical_geometry",
+      "rejected": true,
+      "diagnostic": "('physical EPROM differs', 'b61', 'Size', '8192')"
+    },
+    {
+      "case": "physical_bank",
+      "rejected": true,
+      "diagnostic": "duplicate/empty/foreign EPROM socket"
+    },
+    {
+      "case": "ram_count",
+      "rejected": true,
+      "diagnostic": "RAM geometry/packing differs"
+    },
+    {
+      "case": "firmware",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/verilog/proms/eprom/BaseBd-b61.mem"
+    },
+    {
+      "case": "synthesized_firmware",
+      "rejected": true,
+      "diagnostic": "synthesized firmware bytes differ"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation/missing path hold/7_slow_1100mv_-40c"
+    },
+    {
+      "case": "warning",
+      "rejected": true,
+      "diagnostic": "('unreviewed warning increase', 'map', Counter({'10999': 1}))"
+    }
+  ]
+}

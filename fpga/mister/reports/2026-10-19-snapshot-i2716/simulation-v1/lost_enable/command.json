@@ -1,0 +1,11 @@
+[
+  "iverilog",
+  "-g2012",
+  "-s",
+  "i2716_fixture",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-i2716-v1-20261019/lost_enable/test.vvp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-i2716-v1-20261019/lost_enable/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-i2716-v1-20261019/lost_enable/cell_i2716_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-i2716-v1-20261019/executed-inputs/cell_i2716.v"
+]

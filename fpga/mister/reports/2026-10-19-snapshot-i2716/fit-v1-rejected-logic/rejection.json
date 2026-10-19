@@ -1,0 +1,9 @@
+{
+  "status": "REJECTED",
+  "reason": "RAM geometry/packing differs",
+  "candidate_block_memory_bits": 0,
+  "candidate_ram_blocks": 0,
+  "candidate_alms": 1529,
+  "candidate_registers": 563,
+  "correction": "Keep ROM read register on its original pipeline; restore into a separate held output until first real guest edge."
+}

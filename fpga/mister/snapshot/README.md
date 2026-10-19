@@ -6,6 +6,14 @@ in the running MiSTer core. This directory now qualifies bounded RAM access
 and complete modeled ContB state restore in isolated RTL/routed experiments.
 Machine-wide state access, coherent barriers and physical restore remain open.
 
+All eight BaseBoard EPROM pipelines now pass complete72bit four-state
+original/oracle/restore and actual-board classification. Empty sockets stay
+uninitialized. Corrected matched fits retain four original images/eightM10Ks,
+pass four conditions(+0.165ns), and verify synthesized image bytes exactly.
+The first logic-inference fit is rejected and preserved. These are isolated
+helpers; remaining279clock/reset/FFbits and complete BaseBoard/global
+qualification are next. Evidence: reports/2026-10-19-snapshot-i2716.
+
 The actual BaseBoard's four 2125 byte banks now pass complete 32,800-bit
 original/oracle/restore tests, wire-list grouping, fresh XML classification
 and matched four-condition timing (+0.211ns). They retain four M10Ks and
