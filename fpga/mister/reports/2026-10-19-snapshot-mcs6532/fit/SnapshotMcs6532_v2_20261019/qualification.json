@@ -1,0 +1,168 @@
+{
+  "status": "PASS",
+  "scope": "Isolated actual MCS6532 wrapper with default MOS RIOT init_7800=0:1097vendor bits plus original phase_d=1098bits/134words. Original phase-rise/OE bus mask preserved. Matched50MHz negative-edge input staging/positive-edge launch and output capture;20ns embedded paths,2ns max0ns min virtual I/O. Shell/admin/pruning counts, not complete BaseBoard/global snapshot cost or speed.",
+  "results": {
+    "baseline": {
+      "resources": {
+        "alms": 672,
+        "registers": 1208,
+        "ram_blocks": 0
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 8.072,
+          "hold": 0.421,
+          "mpw": 9.255
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 7.937,
+          "hold": 0.411,
+          "mpw": 9.178
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 8.47,
+          "hold": 0.166,
+          "mpw": 9.048
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 8.414,
+          "hold": 0.18,
+          "mpw": 9.107
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 8,
+          "13024": 1,
+          "13410": 21
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    },
+    "snapshot": {
+      "resources": {
+        "alms": 2064,
+        "registers": 1351,
+        "ram_blocks": 0
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 7.609,
+          "hold": 0.341,
+          "mpw": 9.269
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 7.404,
+          "hold": 0.362,
+          "mpw": 9.169
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 8.135,
+          "hold": 0.162,
+          "mpw": 9.047
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 8.014,
+          "hold": 0.183,
+          "mpw": 9.105
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 1
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    }
+  },
+  "delta": {
+    "alms": 1392,
+    "registers": 143,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.162,
+  "state_retention": {
+    "baseline": {
+      "|cell_MCS6532:cell_inst|": {
+        "total_registers": 1091,
+        "own_registers": 1,
+        "block_memory_bits": 0
+      },
+      "|M6532:u_riot|": {
+        "total_registers": 1090,
+        "own_registers": 1090,
+        "block_memory_bits": 0
+      }
+    },
+    "snapshot": {
+      "|cell_MCS6532_snapshot:cell_inst|": {
+        "total_registers": 1121,
+        "own_registers": 5,
+        "block_memory_bits": 0
+      },
+      "|M6532_snapshot:u_riot|": {
+        "total_registers": 1116,
+        "own_registers": 1116,
+        "block_memory_bits": 0
+      }
+    }
+  },
+  "retention_scope": "Snapshot total1121 = all1098modeled bits plus23interface bits. Child1116 =1097state+18response+shared frozen; wrapper own5 =phase_d+done+error+phase_result bit+response selector. Two identical frozen registers merge; unused child done/error prune. Synthesis counts, not fitted unique-register totals or global snapshot cost.",
+  "limits": "Matched isolated wrapper only; full BaseBoard/global FPGA save/load and clock/speed changes remain unqualified.",
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/cell_MCS6532_snapshot.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "macro",
+      "rejected": true,
+      "diagnostic": "project source/macro/constraint differs"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation/missing path hold/7_slow_1100mv_-40c"
+    },
+    {
+      "case": "warning",
+      "rejected": true,
+      "diagnostic": "('unreviewed warnings', 'map', Counter({'10999': 1}))"
+    },
+    {
+      "case": "phase_register",
+      "rejected": true,
+      "diagnostic": "wrapper/RIOT retained-state count differs"
+    },
+    {
+      "case": "child_register",
+      "rejected": true,
+      "diagnostic": "wrapper/RIOT retained-state count differs"
+    },
+    {
+      "case": "parameter_binding",
+      "rejected": true,
+      "diagnostic": "actual child parameter binding differs"
+    },
+    {
+      "case": "missing_corner",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "schema",
+      "rejected": true,
+      "diagnostic": "qualified wrapper schema differs"
+    }
+  ]
+}

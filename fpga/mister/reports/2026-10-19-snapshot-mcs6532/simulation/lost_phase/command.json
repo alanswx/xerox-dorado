@@ -1,0 +1,19 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "mcs6532_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mcs6532-v2-20261019/lost_phase/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mcs6532-v2-20261019/lost_phase/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mcs6532-v2-20261019/lost_phase/cell_MCS6532_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mcs6532-v2-20261019/lost_phase/M6532_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mcs6532-v2-20261019/executed-inputs/cell_MCS6532.v",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mcs6532-v2-20261019/executed-inputs/M6532.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mcs6532-v2-20261019/executed-inputs/test_mcs6532.cpp"
+]

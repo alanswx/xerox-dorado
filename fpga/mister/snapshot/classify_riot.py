@@ -24,7 +24,14 @@ def classify(report,manifest):
     decisions=[]
     for row in report['candidates']:
         name=row['name']
-        if re.fullmatch(r'@(?:e|fg),\d+,\d+,\d+,\d+\.old_pa7',name):name='old_pa7'
+        if Path(row['source']).resolve()!=gen.SOURCE.resolve():raise ValueError('RIOT declaration source differs')
+        if name.split('.')[-1]=='old_pa7':
+            # File IDs differ when this module is elaborated alone, in its
+            # wrapper or in the board. Pin the declaration and procedure,
+            # not Verilator's incidental file-table index.
+            if not re.fullmatch(r'@[A-Za-z0-9_]+,101,1,101,10\.old_pa7',name)or row['line']!=129:
+                raise ValueError('RIOT PA7 declaration/scope differs')
+            name='old_pa7'
         if row['module']!='M6532'or row['path']!='M6532.'+row['name']or name not in expected:
             raise ValueError('extra/duplicate/unreviewed RIOT field:'+row['path'])
         wanted=expected.pop(name)
@@ -56,7 +63,7 @@ def run(out):
             if v.get('name')=='init_7800'and v.get('param')=='true'and v.find('const')is not None]
     assert params==[0],('actual RIOT binding differs',params)
     r=inventory(raw);_,m=gen.generate();q=classify(r,m);controls=[]
-    for name in ('lost_ram','lost_pa7','lost_read_output','wrong_depth','wrong_width','new_state','duplicate','derived_state','schema_alias','source_hash'):
+    for name in ('lost_ram','lost_pa7','lost_read_output','wrong_depth','wrong_width','new_state','duplicate','derived_state','schema_alias','source_hash','foreign_source','wrong_pa7_declaration'):
         report,manifest=copy.deepcopy(r),copy.deepcopy(m)
         if name.startswith('lost_'):
             field={'lost_ram':'riot_ram','lost_pa7':'old_pa7','lost_read_output':'d_out'}[name]
@@ -68,7 +75,9 @@ def run(out):
         elif name=='duplicate':report['candidates'].append(copy.deepcopy(report['candidates'][0]))
         elif name=='derived_state':next(v for v in report['candidates']if v['name']=='pa7')['category']='sequential'
         elif name=='schema_alias':manifest['words'][129]['lsb']=1024
-        else:manifest['original_sha256']='0'*64
+        elif name=='source_hash':manifest['original_sha256']='0'*64
+        elif name=='foreign_source':report['candidates'][0]['source']='/tmp/unreviewed/M6532.sv'
+        else:next(v for v in report['candidates']if v['name'].endswith('.old_pa7'))['line']=128
         try:classify(report,manifest)
         except ValueError as e:controls.append(dict(case=name,rejected=True,diagnostic=str(e)))
         else:raise AssertionError('damaged RIOT inventory/schema accepted:'+name)
@@ -76,7 +85,7 @@ def run(out):
     for name,value in [('inventory.json',r),('manifest.json',m),('classification.json',q)]:
         (out/name).write_text(json.dumps(value,indent=2)+'\n')
     for name in ('classify_riot.py','generate_riot.py'):(out/name).write_bytes((Path(__file__).parent/name).read_bytes())
-    print('RIOT CLASSIFICATION PASS:1097bits/133words/init_7800=0;10damaged schemas rejected')
+    print('RIOT CLASSIFICATION PASS:1097bits/133words/init_7800=0;12damaged schemas rejected')
 
 
 if __name__=='__main__':

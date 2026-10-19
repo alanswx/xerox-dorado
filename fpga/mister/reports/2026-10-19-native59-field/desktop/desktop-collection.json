@@ -1,0 +1,27 @@
+{
+  "utc": "2026-10-19T17:29:36.346628+00:00",
+  "main_pid": 29511,
+  "server_pid": 29510,
+  "completed_disk_trace_records": 90163,
+  "partial_final_record": false,
+  "disk_errors_or_trace_loss": false,
+  "files": {
+    "main-through-desktop.log": {
+      "source": "/tmp/dorado59-main.log",
+      "bytes": 407932,
+      "sha256": "13eb2af13b2529e5d3091a204fc7d9395add97ab33f36e90a35f9bf0ee8ca1f4"
+    },
+    "disk-through-desktop.jsonl": {
+      "source": "/tmp/dorado59-disk.jsonl",
+      "bytes": 9274225,
+      "sha256": "0e628fa8b600971a8b2ae905bd52986d7420bb0774d410797ac8090458543943"
+    },
+    "server-through-desktop.log": {
+      "source": "/media/fat/games/DoradoRTL/Cedar59_20261019/server.log",
+      "bytes": 1319109,
+      "sha256": "cf090378815a097ed8d363b9e663dd4e4d73c6164a3e8efa2b6c943c4d46d9e1"
+    }
+  },
+  "collector_memory": "Streaming fixed-size prefixes, disk spooling and one parsed record at a time",
+  "scope": "Read-only live log prefixes after observed desktop/input; no live-pack copy, guest Boot, host disk barrier, clean shutdown, cold persistence or full machine snapshot"
+}

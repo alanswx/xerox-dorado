@@ -2,6 +2,64 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**Native59 full Viewers/input/warm file PASS; complete MCS6532 wrapper PASS.**
+
+Live MiSTer14 Main 29511 / server 29510 / RBF db6883e4 are unchanged.
+Ready, CommandTool, Clock, WatchTool and EditTool are visible. Real mouse
+movement to native912,8 Cmd and click opens a second initialized CommandTool;
+separate focus737,608 and .2s/event typing produce exact short and alphabet/
+digit echoes. Normal `echo rtl59persist > ///rtl59persist.txt` then `type`
+returns rtl59persist. The first capture was mid-render; the settled capture
+completes without retyping. Background startup remains active in the first
+pane. No normal59 guest Boot, cold marker, clean shutdown or global snapshot
+is claimed. Idle measurement remains 1,947,654.12 issues/s; no speed gain.
+
+Bounded desktop collector 21786 is terminal: 90,163 complete disk records,
+no partial final record, recorded disk error or trace loss. Raw archived log
+bytes were rehashed against its manifest. Evidence native59-field/desktop
+includes captures, exact input tools/logs and warm-marker proof. Closed58
+/tmp trace duplicates alone were removed after exact retained SD hashes and
+no-open-FD checks, freeing 11,766,051 bytes. Old58 pack and SD traces remain;
+active59 files were untouched. Current tmpfs has about31MiB free.
+
+Complete actual MCS6532 wrapper now passes all 1,098 bits (1,097 RIOT +
+phase_d),134 valid words/all256indices, independent full-state/output/timer/
+phase oracle and untouched original wrapper. Accepted v2:91,501 host /
+4,469 held / 4,135 requests / 2,600 writes /17,772 phase rises /4,083 late
+changes; high-phase save, RESET INACTIVE at first high resume, no synthetic
+RIOT tick, subsequent fall/rise and20,000more. Eight broken RTL/two changed
+sources reject. V1 passed; v2 strengthens the first edge against reset
+masking and compiles captured immutable test/reference inputs.
+
+Fresh wrapper classification saves phase and all child state, rejects12
+bad schemas. Vendor classifier now pins the PA7 declaration/procedure/source
+instead of incidental XML file IDs;12 source/schema controls reject. Corrected
+matched wrapper fit99666 and independent audit are terminal PASS across four
+conditions/min+0.162ns/noillegal/unconstrainedIO/noextraexceptions;10 damaged
+fit/schema/binding controls reject. Actual child init_7800=0 checked. Snapshot
+synthesis1121=1098state+23interface bits (child1116/own5); shared frozen merges,
+unused child done/error prune. Baseline1091/own1, child1090. Fitter shell
+672ALM/1208regs ->2064ALM/1351regs, no block RAM. Not whole-core enabled cost.
+First fit20549 is retained REJECTED: Quartus10207 on a private oe monitor.
+V2 fixture uses the same public-pin OE equation, with unchanged RTL/SDC/clock.
+All25 compiled inputs and accepted test sources were archived/read-back
+verified. Evidence snapshot-mcs6532. RIOT milestone PUSHED e7a8fc7a. No live
+production BaseBoard change was made; the new helpers remain isolated.
+
+All our Quartus, simulations, audits, observers, collectors and input jobs
+are terminal. Only normal Main/server/guest startup are running. Keep59 until
+the next qualified load; its bottom CommandTool remains focused737,608.
+
+Next: finish the actual BaseBoard's32 i2125 RAM slices/registered reads,
+eight EPROM read registers and remaining279 clock/reset/FF bits, reusing
+qualified families. Qualify grouping, complete board classification/restore
+and matched timing on actual nominal SYSPER4/CLOCKGEN N4 sources. Then check
+resource/timing with all administrative paths live before treating isolated
+or admin-off counts as a global fit budget; implement coherent backends/
+wrapper/input/ARM/server/matching-disk-generation bundle and actual FPGA
+restore. Original60ns clocks/timer calibration, final3freshboots/coldpersist/
+pinnedperf/two-hour combined stress still required. Goal ACTIVE.
+
 **Native59 base loader qualified; complete RIOT primitive qualified.**
 
 Native59 remains on MiSTer14 (Main 29511, server 29510, RBF db6883e4,

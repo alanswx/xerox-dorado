@@ -6,6 +6,14 @@ in the running MiSTer core. This directory now qualifies bounded RAM access
 and complete modeled ContB state restore in isolated RTL/routed experiments.
 Machine-wide state access, coherent barriers and physical restore remain open.
 
+Latest wrapper qualification: the actual `cell_MCS6532` phase_d plus all
+RIOT state now pass complete1,098-bit original/oracle/restore tests and four-
+condition matched timing, minimum+0.162ns. These remain isolated helpers;
+Native59's original BaseBoard is unchanged. Native59 now passes fresh full
+Viewers/mouse/exact typing/warm file readback. Next remaining BaseBoard RAM/
+EPROM/clock-reset state, whole-board qualification and an enabled global
+resource/barrier/restore check. See the current handoff for live artifacts.
+
 Latest RIOT qualification: `generate_riot.py` / `test_riot.py` /
 `classify_riot.py` / `fit_riot.py` / `audit_riot.py` now qualify all1,097bits
 of the actual MOS RIOT, including RAM/read output/timers and block-local PA7

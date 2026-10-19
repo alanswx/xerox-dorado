@@ -1,0 +1,1463 @@
+{
+  "scope": "Isolated actual MCS6532 wrapper with default MOS RIOT init_7800=0:1097vendor bits plus original phase_d=1098bits/134words. Original phase-rise/OE bus mask preserved. Matched50MHz negative-edge input staging/positive-edge launch and output capture;20ns embedded paths,2ns max0ns min virtual I/O. Shell/admin/pruning counts, not complete BaseBoard/global snapshot cost or speed.",
+  "manifest": {
+    "module": "cell_MCS6532_snapshot",
+    "logical_state_bits": 1098,
+    "child_manifest": {
+      "module": "M6532_snapshot",
+      "logical_state_bits": 1097,
+      "ram_bits": 1024,
+      "control_bits": 73,
+      "fields": [
+        {
+          "name": "d_out",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "out_a",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "out_b",
+          "width": 8,
+          "lsb": 16
+        },
+        {
+          "name": "dir_a",
+          "width": 8,
+          "lsb": 24
+        },
+        {
+          "name": "dir_b",
+          "width": 8,
+          "lsb": 32
+        },
+        {
+          "name": "interrupt",
+          "width": 8,
+          "lsb": 40
+        },
+        {
+          "name": "timer",
+          "width": 8,
+          "lsb": 48
+        },
+        {
+          "name": "prescaler",
+          "width": 10,
+          "lsb": 56
+        },
+        {
+          "name": "incr",
+          "width": 2,
+          "lsb": 66
+        },
+        {
+          "name": "irq_en",
+          "width": 2,
+          "lsb": 68
+        },
+        {
+          "name": "edge_detect",
+          "width": 1,
+          "lsb": 70
+        },
+        {
+          "name": "rollover",
+          "width": 1,
+          "lsb": 71
+        },
+        {
+          "name": "old_pa7",
+          "width": 1,
+          "lsb": 72
+        }
+      ],
+      "words": [
+        {
+          "index": 0,
+          "lsb": 0,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 1,
+          "lsb": 8,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 2,
+          "lsb": 16,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 3,
+          "lsb": 24,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 4,
+          "lsb": 32,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 5,
+          "lsb": 40,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 6,
+          "lsb": 48,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 7,
+          "lsb": 56,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 8,
+          "lsb": 64,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 9,
+          "lsb": 72,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 10,
+          "lsb": 80,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 11,
+          "lsb": 88,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 12,
+          "lsb": 96,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 13,
+          "lsb": 104,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 14,
+          "lsb": 112,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 15,
+          "lsb": 120,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 16,
+          "lsb": 128,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 17,
+          "lsb": 136,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 18,
+          "lsb": 144,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 19,
+          "lsb": 152,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 20,
+          "lsb": 160,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 21,
+          "lsb": 168,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 22,
+          "lsb": 176,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 23,
+          "lsb": 184,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 24,
+          "lsb": 192,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 25,
+          "lsb": 200,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 26,
+          "lsb": 208,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 27,
+          "lsb": 216,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 28,
+          "lsb": 224,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 29,
+          "lsb": 232,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 30,
+          "lsb": 240,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 31,
+          "lsb": 248,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 32,
+          "lsb": 256,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 33,
+          "lsb": 264,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 34,
+          "lsb": 272,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 35,
+          "lsb": 280,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 36,
+          "lsb": 288,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 37,
+          "lsb": 296,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 38,
+          "lsb": 304,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 39,
+          "lsb": 312,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 40,
+          "lsb": 320,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 41,
+          "lsb": 328,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 42,
+          "lsb": 336,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 43,
+          "lsb": 344,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 44,
+          "lsb": 352,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 45,
+          "lsb": 360,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 46,
+          "lsb": 368,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 47,
+          "lsb": 376,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 48,
+          "lsb": 384,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 49,
+          "lsb": 392,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 50,
+          "lsb": 400,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 51,
+          "lsb": 408,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 52,
+          "lsb": 416,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 53,
+          "lsb": 424,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 54,
+          "lsb": 432,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 55,
+          "lsb": 440,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 56,
+          "lsb": 448,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 57,
+          "lsb": 456,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 58,
+          "lsb": 464,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 59,
+          "lsb": 472,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 60,
+          "lsb": 480,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 61,
+          "lsb": 488,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 62,
+          "lsb": 496,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 63,
+          "lsb": 504,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 64,
+          "lsb": 512,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 65,
+          "lsb": 520,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 66,
+          "lsb": 528,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 67,
+          "lsb": 536,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 68,
+          "lsb": 544,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 69,
+          "lsb": 552,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 70,
+          "lsb": 560,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 71,
+          "lsb": 568,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 72,
+          "lsb": 576,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 73,
+          "lsb": 584,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 74,
+          "lsb": 592,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 75,
+          "lsb": 600,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 76,
+          "lsb": 608,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 77,
+          "lsb": 616,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 78,
+          "lsb": 624,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 79,
+          "lsb": 632,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 80,
+          "lsb": 640,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 81,
+          "lsb": 648,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 82,
+          "lsb": 656,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 83,
+          "lsb": 664,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 84,
+          "lsb": 672,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 85,
+          "lsb": 680,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 86,
+          "lsb": 688,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 87,
+          "lsb": 696,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 88,
+          "lsb": 704,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 89,
+          "lsb": 712,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 90,
+          "lsb": 720,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 91,
+          "lsb": 728,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 92,
+          "lsb": 736,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 93,
+          "lsb": 744,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 94,
+          "lsb": 752,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 95,
+          "lsb": 760,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 96,
+          "lsb": 768,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 97,
+          "lsb": 776,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 98,
+          "lsb": 784,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 99,
+          "lsb": 792,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 100,
+          "lsb": 800,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 101,
+          "lsb": 808,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 102,
+          "lsb": 816,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 103,
+          "lsb": 824,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 104,
+          "lsb": 832,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 105,
+          "lsb": 840,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 106,
+          "lsb": 848,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 107,
+          "lsb": 856,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 108,
+          "lsb": 864,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 109,
+          "lsb": 872,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 110,
+          "lsb": 880,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 111,
+          "lsb": 888,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 112,
+          "lsb": 896,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 113,
+          "lsb": 904,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 114,
+          "lsb": 912,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 115,
+          "lsb": 920,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 116,
+          "lsb": 928,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 117,
+          "lsb": 936,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 118,
+          "lsb": 944,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 119,
+          "lsb": 952,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 120,
+          "lsb": 960,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 121,
+          "lsb": 968,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 122,
+          "lsb": 976,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 123,
+          "lsb": 984,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 124,
+          "lsb": 992,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 125,
+          "lsb": 1000,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 126,
+          "lsb": 1008,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 127,
+          "lsb": 1016,
+          "width": 8,
+          "kind": "RAM"
+        },
+        {
+          "index": 128,
+          "lsb": 1024,
+          "width": 18,
+          "kind": "CONTROL"
+        },
+        {
+          "index": 129,
+          "lsb": 1042,
+          "width": 18,
+          "kind": "CONTROL"
+        },
+        {
+          "index": 130,
+          "lsb": 1060,
+          "width": 18,
+          "kind": "CONTROL"
+        },
+        {
+          "index": 131,
+          "lsb": 1078,
+          "width": 18,
+          "kind": "CONTROL"
+        },
+        {
+          "index": 132,
+          "lsb": 1096,
+          "width": 1,
+          "kind": "CONTROL"
+        }
+      ],
+      "index_bits": 8,
+      "parameters": {
+        "init_7800": 0
+      },
+      "valid_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132
+      ],
+      "invalid_indices": [
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255
+      ],
+      "original_sha256": "43c9d1670fcbb98ad4681883981930817e2882a5ab32790f8285961c3ae0c1b1",
+      "generated_sha256": "c8435f56312d982023ddf12ef3119ddbd3591254603beb4037d33a459b5941e8",
+      "original_pa7_path": "riot_stuff.old_pa7 (static procedural reg, declaration hoisted without initialization/reset)",
+      "scope": "Complete modeled MOS RIOT state for the actual BaseBoard init_7800=0 binding.\n\nRetain ce-gated reads, unconditional reset priority, timer/interrupt ordering,\nRAM and the block-local PA7 history. Caller supplies a coherent external hold.\nThe enclosing MCS6532 phase-history bit is separate board/wrapper state.\n"
+    },
+    "phase": {
+      "name": "phase_d",
+      "width": 1,
+      "word": 133,
+      "initial": 0
+    },
+    "index_bits": 8,
+    "valid_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133
+    ],
+    "invalid_indices": [
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178,
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      188,
+      189,
+      190,
+      191,
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      198,
+      199,
+      200,
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      208,
+      209,
+      210,
+      211,
+      212,
+      213,
+      214,
+      215,
+      216,
+      217,
+      218,
+      219,
+      220,
+      221,
+      222,
+      223,
+      224,
+      225,
+      226,
+      227,
+      228,
+      229,
+      230,
+      231,
+      232,
+      233,
+      234,
+      235,
+      236,
+      237,
+      238,
+      239,
+      240,
+      241,
+      242,
+      243,
+      244,
+      245,
+      246,
+      247,
+      248,
+      249,
+      250,
+      251,
+      252,
+      253,
+      254,
+      255
+    ],
+    "parameters": {
+      "child_init_7800": 0
+    },
+    "original_sha256": "5cc858c9465df03ee72bbb3a45e4b6ea6eab571872ae497285f3d32ed75337c0",
+    "generated_sha256": "4e5315987bc803272c6ff1aa1ca444d4cf93333acea4d224ad98dd1a0a3ffbbb",
+    "child_sha256": "c8435f56312d982023ddf12ef3119ddbd3591254603beb4037d33a459b5941e8",
+    "scope": "Actual MCS6532 wrapper state: complete RIOT plus original phase_d history.\n\nPreserve the old-phase rising-edge enable and OE bus mask. Both wrapper and\nRIOT freeze on the same externally confirmed boundary; no global barrier.\n"
+  },
+  "builder_sha256": "1b84ca13fbe6d455016f6ad65d54210362a35fc4ad1d316e0056ac13cf490f63",
+  "source_hashes": {
+    "fpga/mister/snapshot/fit_mcs6532.py": "1b84ca13fbe6d455016f6ad65d54210362a35fc4ad1d316e0056ac13cf490f63",
+    "fpga/mister/snapshot/generate_riot.py": "a4cf664b8c2ee5994043c1cf2ee6d4738daa1cc35b3c1c027878488e407dfd57",
+    "fpga/mister/snapshot/generate_mcs6532.py": "e82c73f72e7c257945f0bea8863cd67de48086624050c6d3d81624411d2a1268",
+    "verilog/cells/cell_MCS6532.v": "5cc858c9465df03ee72bbb3a45e4b6ea6eab571872ae497285f3d32ed75337c0",
+    "fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "verilog/vendor/riot/M6532.sv": "43c9d1670fcbb98ad4681883981930817e2882a5ab32790f8285961c3ae0c1b1"
+  },
+  "compiled_files": {
+    "snapshot/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "snapshot/cell_MCS6532_snapshot.sv": "4e5315987bc803272c6ff1aa1ca444d4cf93333acea4d224ad98dd1a0a3ffbbb",
+    "snapshot/M6532.sv": "43c9d1670fcbb98ad4681883981930817e2882a5ab32790f8285961c3ae0c1b1",
+    "snapshot/top.sv": "0c3f1da0b80d71608c8b74c1e352f124e9eefdfb3bc51cc053ddf63d7d0a60ef",
+    "snapshot/M6532_snapshot.sv": "c8435f56312d982023ddf12ef3119ddbd3591254603beb4037d33a459b5941e8",
+    "snapshot/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "snapshot/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "snapshot/snapshot_fit.qsf": "e0be1640d511335ca8daf3ab3a3af2eacd3d1b8424f179d86d1cc1780ae9e426",
+    "snapshot/cell_MCS6532.v": "5cc858c9465df03ee72bbb3a45e4b6ea6eab571872ae497285f3d32ed75337c0",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/cell_MCS6532_snapshot.sv": "4e5315987bc803272c6ff1aa1ca444d4cf93333acea4d224ad98dd1a0a3ffbbb",
+    "baseline/M6532.sv": "43c9d1670fcbb98ad4681883981930817e2882a5ab32790f8285961c3ae0c1b1",
+    "baseline/top.sv": "0c3f1da0b80d71608c8b74c1e352f124e9eefdfb3bc51cc053ddf63d7d0a60ef",
+    "baseline/M6532_snapshot.sv": "c8435f56312d982023ddf12ef3119ddbd3591254603beb4037d33a459b5941e8",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/snapshot_fit.qsf": "c52f3e3104d03f3079b33b79f7d3fbc0db8d78daed35b04107635049d332d0bf",
+    "baseline/cell_MCS6532.v": "5cc858c9465df03ee72bbb3a45e4b6ea6eab571872ae497285f3d32ed75337c0",
+    "executed-sources/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "executed-sources/M6532.sv": "43c9d1670fcbb98ad4681883981930817e2882a5ab32790f8285961c3ae0c1b1",
+    "executed-sources/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "executed-sources/fit_mcs6532.py": "1b84ca13fbe6d455016f6ad65d54210362a35fc4ad1d316e0056ac13cf490f63",
+    "executed-sources/generate_mcs6532.py": "e82c73f72e7c257945f0bea8863cd67de48086624050c6d3d81624411d2a1268",
+    "executed-sources/generate_riot.py": "a4cf664b8c2ee5994043c1cf2ee6d4738daa1cc35b3c1c027878488e407dfd57",
+    "executed-sources/cell_MCS6532.v": "5cc858c9465df03ee72bbb3a45e4b6ea6eab571872ae497285f3d32ed75337c0"
+  },
+  "expected_qsf": {
+    "baseline": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MCS6532_snapshot.sv\nset_global_assignment -name SYSTEMVERILOG_FILE M6532_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MCS6532.v\nset_global_assignment -name SYSTEMVERILOG_FILE M6532.sv\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze\nset_instance_assignment -name VIRTUAL_PIN ON -to held\nset_instance_assignment -name VIRTUAL_PIN ON -to request\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to pins[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to outputs[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen\nset_instance_assignment -name VIRTUAL_PIN ON -to done\nset_instance_assignment -name VIRTUAL_PIN ON -to error\n",
+    "snapshot": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MCS6532_snapshot.sv\nset_global_assignment -name SYSTEMVERILOG_FILE M6532_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MCS6532.v\nset_global_assignment -name SYSTEMVERILOG_FILE M6532.sv\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze\nset_instance_assignment -name VIRTUAL_PIN ON -to held\nset_instance_assignment -name VIRTUAL_PIN ON -to request\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to pins[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to outputs[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen\nset_instance_assignment -name VIRTUAL_PIN ON -to done\nset_instance_assignment -name VIRTUAL_PIN ON -to error\nset_global_assignment -name VERILOG_MACRO \"SNAPSHOT_BANK_EXPERIMENT=1\"\n"
+  }
+}

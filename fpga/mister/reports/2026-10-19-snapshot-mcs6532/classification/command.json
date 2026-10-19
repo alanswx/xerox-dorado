@@ -1,0 +1,11 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_MCS6532",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mcs6532-classify-v1-20261019/original.xml",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_MCS6532.v",
+  "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv"
+]

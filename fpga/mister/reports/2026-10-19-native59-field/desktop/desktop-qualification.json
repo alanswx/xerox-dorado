@@ -1,0 +1,44 @@
+{
+  "status": "PASS: original-firmware fresh Viewers desktop, mouse/click, exact short and alphabet/digit echoes; normal warm file create/close/type",
+  "main_pid": 29511,
+  "server_pid": 29510,
+  "rbf_sha256": "db6883e495bacd51c188f0b22c459937071d4860516ae102bb84c4c7bf441cad",
+  "clock": "50MHz/SYSPER4 unchanged; all ten snapshot administration inputs inactive",
+  "desktop": "Ready/Viewers, CommandTool, Clock, WatchTool and EditTool visible",
+  "input": "Real virtual USB mouse to native912,8 Cmd, click, initialized second CommandTool, separate focus737,608; actual paced keyboard .2 seconds/event",
+  "short_echo": "rtl59 keyboard ok",
+  "alphabet_echo": "abcdefghijklmnopqrstuvwxyz0123456789",
+  "warm_marker": {
+    "path": "///rtl59persist.txt",
+    "expected": "rtl59persist",
+    "status": "PASS: normal echo redirected and type returns exact marker"
+  },
+  "captures": {
+    "dorado59-desktop-latest-20261019.png": {
+      "sha256": "cf5b5a07589851e77bb613c6bb79487d6cc66e4cc5bef53e60188712759bc145",
+      "bytes": 516524,
+      "mtime_utc": "2026-10-19T17:20:30.561730+00:00"
+    },
+    "dorado59-mouse-on-cmd-20261019.png": {
+      "sha256": "3120117e28d090cc7bda7af543a9506a05c4e1fd4f5c57b08f7c930730c43451",
+      "bytes": 529602,
+      "mtime_utc": "2026-10-19T17:22:36.563433+00:00"
+    },
+    "dorado59-second-cmd-check-20261019.png": {
+      "sha256": "b24f75b5fa386942933fc4c9f0b52ca2c35aa48cb4b896a71fb9d93a26a25c7e",
+      "bytes": 412155,
+      "mtime_utc": "2026-10-19T17:23:33.044725+00:00"
+    },
+    "dorado59-keyboard-short-20261019.png": {
+      "sha256": "0e4038284f124baf96026b6d156ce86e0b1f0f87724aa3c333721760dbb0fb4e",
+      "bytes": 405072,
+      "mtime_utc": "2026-10-19T17:25:21.207344+00:00"
+    },
+    "dorado59-marker-settled-20261019.png": {
+      "sha256": "6de6aab87df227ce3a2a2711ffa1f0a6e44f83d5dd70e6f54e1b6a75cb393484",
+      "bytes": 432655,
+      "mtime_utc": "2026-10-19T17:28:11.263813+00:00"
+    }
+  },
+  "scope": "Reviewed actual captures and input logs. Initial marker capture was mid-render; settled result completes without retyping. No clean OS shutdown/cold marker/full snapshot/original60ns/speed improvement/final stability claim"
+}

@@ -1,0 +1,11 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_MCS6532",
+  "-Wno-fatal",
+  "--xml-output",
+  "build/rtl-executive/snapshot-mcs6532-inventory-20261019/original.xml",
+  "verilog/cells/cell_MCS6532.v",
+  "verilog/vendor/riot/M6532.sv"
+]

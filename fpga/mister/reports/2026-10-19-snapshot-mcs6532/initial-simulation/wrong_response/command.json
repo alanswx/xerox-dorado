@@ -1,0 +1,19 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "mcs6532_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mcs6532-v1-20261019/wrong_response/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mcs6532-v1-20261019/wrong_response/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mcs6532-v1-20261019/wrong_response/cell_MCS6532_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mcs6532-v1-20261019/wrong_response/M6532_snapshot.sv",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_MCS6532.v",
+  "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_mcs6532.cpp"
+]
