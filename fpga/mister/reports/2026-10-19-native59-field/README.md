@@ -1,5 +1,11 @@
 # Native59 physical startup and Native58 preservation
 
+Latest: fresh original-firmware Cedar login and Guest/Grapevine-down/base
+loader entry PASS. The fixed observer-ready/33-sample/Guest sequence measures
+1,947,654.12 issues/s, unchanged58. The bounded loader observer remains live;
+complete base transfer/finalACK/desktop/input/persistence are pending. See
+login/ and the current handoff. Earlier startup scope below is historical.
+
 Native59 was normally loaded on MiSTer14 after its full-core qualification
 was committed and pushed as b9d7b45a. Original firmware boot is in progress;
 this report does not yet qualify Cedar login, desktop/input or speed.

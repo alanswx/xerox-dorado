@@ -1,0 +1,20 @@
+{
+  "status": "PASS: original-firmware fresh Cedar login and actual Guest/Grapevine-down/Basic loader entry",
+  "checked_utc": "2026-10-19T16:49:50.880401+00:00",
+  "main_pid": 29511,
+  "server_pid": 29510,
+  "rbf_sha256": "db6883e495bacd51c188f0b22c459937071d4860516ae102bb84c4c7bf441cad",
+  "idle_login_issues_per_s": 1947654.1206588426,
+  "nominal_60ns_fraction": 0.11685924723953056,
+  "observer": {
+    "local_session": 68059,
+    "remote_pid": 29777,
+    "output": "/tmp/dorado59-loader-observer.jsonl",
+    "state": "LIVE confirmed;20minute bound; do not restart; stop only after actual final guest ACK"
+  },
+  "captures": {
+    "dorado59-boot-progress-latest-20261019.png": "9144e8d5c687a7d2e7f863f61a834498d8cc66ccf62d762d1914ee00e55be645",
+    "dorado59-after-guest-20261019.png": "0d5cb7641d9ee41657cde6c76a83a8d3304513eeea75778e4e30919f220c1815"
+  },
+  "limits": "Base transfer sequence/finalACK, module START, Viewers/input/disk persistence still pending. One boot/manual login gate varies; no pinned comparison or speed gain claim."
+}

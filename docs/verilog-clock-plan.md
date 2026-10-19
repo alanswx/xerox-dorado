@@ -42,6 +42,37 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Native59 fresh original-firmware Cedar login PASS; Guest/base loader running.**
+Live Main29511/server29510/RBFdb6883e4/newDDR aa846a314ec45d23 unchanged.
+Actual login screenshot and real Guest/Grapevine-down/Basic.Loadees entry
+captured. Preliminary issue1/state43 and845 cleared withoutretry. C watcher
+49389 is TERMINAL after actual original Initial BFN113; neverrestart.
+Observer local68059/remote29777 VERIFIED LIVE,20minute bound; output
+/tmp/dorado59-loader-observer.jsonl, stopfile /tmp/dorado59-loader-observer.stop.
+Do not stop/restart until actual34-file sequence/End.bcd finalguestACK.
+
+Fixed observerREADY ->33sample idle ->immediate Guest wrapper19177 TERMINAL.
+Rates1,947,836.01/1,947,570.25/1,947,556.10, mean1,947,654.1206588426issues/s,
+unchanged58(1,947,767.345); no speed gain. Qualified StartCycleRun/Jam issues,
+excludingRepeatCur, not drainedretirements;50MHz host edges checked. Initial
+status measurement is preserved separately in preview-idle and is not the
+fixed cadence run. Prior manual login gate stillvaries, so this is not the
+final pinned threebootbenchmark. Guest input completed; currentbase packages
+are transferring, CRC/RX/abort0. No GDB/hashwork during timed loader.
+Evidence native59-field/login and actual captures. Source/binary/timing/
+deployment/complete6502state qualifiers PUSHED b9d7b45a/d73377ae. AllQuartus/
+6502audit/deploy/boot/input/measurement collectors terminal; only loader
+observer remains active in addition to normal Main/server.
+
+Next: observe SAMEboot through actualbase34/finalACK, stopobserver normally,
+confirmPIDabsent, run tools/analyze_fpga_loader.py and server/analyse_loader_progress.py
+against same source hashes/reference; boundedSDspooled postloader collection.
+Only answer actualvisible profile prompt, then BootEssentials/fonts/STARTs/
+Viewers/mouse/exactkeyboard/warmmarker. Snapshot next actualRIOT/remaining
+BaseBoard, then wrappers/backends/input/ARMserver/diskgeneration/globalbundle/
+physicalrestore. Original60ns/timers,3freshboots/coldpersist/pinnedperf/2hstress
+remain required. GoalACTIVE; no global snapshot or full59desktop claim.
+
 **Native59 is now loaded; original firmware boot running. Netlist6502 routed qualification PASS.**
 Native59 build/source/memory/timing qualification was committed and PUSHED
 b9d7b45a before normal deployment. Live Main29511/server29510, RBFdb6883e4,

@@ -1,0 +1,4 @@
+{
+  "scope": "Initial status measurement before final observer/measurement/Guest cadence; retained separately, not a pinned loader benchmark",
+  "next": "Run fixed33-sample measurement immediately followed by Guest after observer READY"
+}
