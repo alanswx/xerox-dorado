@@ -1,0 +1,35 @@
+{
+  "status": "PASS_FINAL_V4",
+  "attempts": [
+    {
+      "version": 1,
+      "status": "REJECTED",
+      "finding": "Original-board physical comparison failed at edge2: generator removed the CPU input/output combinational suffix along with the old admin process. Corrected process boundary and added byte-exact original-suffix guard."
+    },
+    {
+      "version": 2,
+      "status": "POSITIVE_PASS_CONTROL_TARGET_CORRECTED",
+      "finding": "Positive full restore passes. The proposed lost-chain-bit mutation changed an unused internal wire slice, so it had no physical effect. Version3 targets a consumed helper serial-input pin instead."
+    },
+    {
+      "version": 3,
+      "status": "POSITIVE_PASS_DIAGNOSTIC_ORDER_CORRECTED",
+      "finding": "Positive passes; chain/FF/CPU/ownership/hold/reset controls reject. Reset reentry corruption is caught by full physical-state comparison before the expected later response check. Version4 accepts both correct diagnostics."
+    },
+    {
+      "version": 4,
+      "status": "PASS",
+      "finding": "All13 real executions complete: positive and12 damaged variants. Existing compiled binaries are reused only after every original/candidate/helper/fixture/C++/header/oracle byte matches; each is actually executed again with exit status and binary hash recorded."
+    }
+  ],
+  "positive_cpp_and_candidate_rtl_v2_v3_v4_byte_identical": true,
+  "fit": {
+    "status": "PASS_ISOLATED_FIT",
+    "alms_before": 6403,
+    "alms_after": 5564,
+    "minimum_slack_ns": 0.124,
+    "damaged_controls": 14,
+    "audit_packaging": "Export named synthesized firmware MIFs separately from Quartus DBs. All four synthesized images in each variant match original assets. Distinguish four RAM OLD_DATA macro entries from four ROM DONT_CARE entries."
+  },
+  "limits": "No complete-core integration, FPGA deployment, machine snapshot or speed improvement claimed."
+}

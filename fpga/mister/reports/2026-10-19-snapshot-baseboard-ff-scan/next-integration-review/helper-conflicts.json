@@ -1,0 +1,163 @@
+{
+  "scope": "Actual compiled isolated serial helper definitions; no core integration or capacity prediction.",
+  "boards": [
+    "ContA",
+    "ContB",
+    "ProcH",
+    "ProcL",
+    "IFU",
+    "MemC",
+    "MemD",
+    "MemX",
+    "DskEth",
+    "DispY",
+    "BaseBd"
+  ],
+  "definitions": 44,
+  "conflicts": {
+    "cell_MC10176_snapshot": [
+      {
+        "board": "ContA",
+        "file": "cell_MC10176_snapshot.v",
+        "sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      },
+      {
+        "board": "ContB",
+        "file": "cell_MC10176_snapshot.v",
+        "sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      },
+      {
+        "board": "ProcH",
+        "file": "cell_MC10176_snapshot.v",
+        "sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      },
+      {
+        "board": "ProcL",
+        "file": "cell_MC10176_snapshot.v",
+        "sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      },
+      {
+        "board": "IFU",
+        "file": "cell_MC10176_snapshot.v",
+        "sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      },
+      {
+        "board": "MemC",
+        "file": "cell_MC10176_snapshot.v",
+        "sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      },
+      {
+        "board": "MemD",
+        "file": "cell_MC10176_snapshot.v",
+        "sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      },
+      {
+        "board": "MemX",
+        "file": "cell_MC10176_snapshot.v",
+        "sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      },
+      {
+        "board": "DskEth",
+        "file": "cell_MC10176_snapshot.v",
+        "sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      },
+      {
+        "board": "DispY",
+        "file": "cell_MC10176_snapshot.v",
+        "sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      },
+      {
+        "board": "BaseBd",
+        "file": "cell_MC10176_snapshot.v",
+        "sha256": "3e50f161aab8fc38b9a96f7ba6448a4ed6faf3823b08f244cf2da2030ece2e40"
+      }
+    ],
+    "dorado_ff_scan_controller": [
+      {
+        "board": "ContA",
+        "file": "ff_scan_controller.sv",
+        "sha256": "d8997bce3743be8fdf90884d454b4520aababa53aaccd5d960f72c0020a893f8"
+      },
+      {
+        "board": "ContB",
+        "file": "ff_scan_controller.sv",
+        "sha256": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+      },
+      {
+        "board": "ProcH",
+        "file": "ff_scan_controller.sv",
+        "sha256": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+      },
+      {
+        "board": "ProcL",
+        "file": "ff_scan_controller.sv",
+        "sha256": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+      },
+      {
+        "board": "IFU",
+        "file": "ff_scan_controller.sv",
+        "sha256": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+      },
+      {
+        "board": "MemC",
+        "file": "ff_scan_controller.sv",
+        "sha256": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+      },
+      {
+        "board": "MemD",
+        "file": "ff_scan_controller.sv",
+        "sha256": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+      },
+      {
+        "board": "MemX",
+        "file": "ff_scan_controller.sv",
+        "sha256": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+      },
+      {
+        "board": "DskEth",
+        "file": "ff_scan_controller.sv",
+        "sha256": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+      },
+      {
+        "board": "DispY",
+        "file": "ff_scan_controller.sv",
+        "sha256": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+      },
+      {
+        "board": "BaseBd",
+        "file": "ff_scan_controller.sv",
+        "sha256": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+      }
+    ],
+    "cell_SN74LS174_snapshot": [
+      {
+        "board": "DskEth",
+        "file": "cell_SN74LS174_snapshot.sv",
+        "sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+      },
+      {
+        "board": "BaseBd",
+        "file": "cell_SN74LS174_snapshot.sv",
+        "sha256": "8032f80b07bc4406ac40aecfa810c8f4c70b960562902bf9ccb45307e7abdaa2"
+      }
+    ],
+    "cell_MC10136_snapshot": [
+      {
+        "board": "DskEth",
+        "file": "cell_MC10136_snapshot.sv",
+        "sha256": "ff9d6691af62ffeead8320fbfe8da3c3a2b349166b6c1939086bf8b42ead62c6"
+      },
+      {
+        "board": "BaseBd",
+        "file": "cell_MC10136_snapshot.sv",
+        "sha256": "d7ed78e0ac7a7873f874d84bb7f5338ec0bfe5e0bc1a2927de27cdcea5bf3c16"
+      }
+    ]
+  },
+  "review": {
+    "cell_MC10176_snapshot": "BaseBoard adds a full serial output/input and replaces the direct admin load with a shift. Keep a distinct module namespace in a combined build.",
+    "cell_SN74LS174_snapshot": "BaseBoard serial helper differs from the qualified shared DskEth parallel-load helper; keep distinct namespaces.",
+    "cell_MC10136_snapshot": "BaseBoard serial helper differs from the qualified shared DskEth parallel-load helper; keep distinct namespaces.",
+    "dorado_ff_scan_controller": "ContA measured fit predates an explicit COUNT_BITS cast on first_bit=index*18. Assignment truncation and the explicit cast preserve the same low COUNT_BITS bits; valid ContA indices0..37 yield0..666 and invalid indices cannot assign first_bit. Normalize explicitly during integration and audit the chosen source hash."
+  }
+}

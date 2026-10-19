@@ -1,0 +1,5 @@
+{
+  "previous_case": "/Users/alans/dev2/Dorado/build/rtl-executive/baseboard-ff-scan-v3-20261019/reset_access",
+  "binary_sha256": "e4952f591509fac20cfd8a54b8ccc97225749a9ce58dfaa304dc8c70d968298f",
+  "verified": "Every original, candidate, helper, physical fixture, C++ driver, header and independent oracle is byte-identical; real binary executed again."
+}

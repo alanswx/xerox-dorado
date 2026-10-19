@@ -1,0 +1,5 @@
+{
+  "previous_case": "/Users/alans/dev2/Dorado/build/rtl-executive/baseboard-ff-scan-v3-20261019/lost_chain_bit",
+  "binary_sha256": "8aaed48f76fda54db20409f1d018ae5edad7bd4ff670a1d0852944b9dddbfcf5",
+  "verified": "Every original, candidate, helper, physical fixture, C++ driver, header and independent oracle is byte-identical; real binary executed again."
+}

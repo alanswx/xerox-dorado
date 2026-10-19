@@ -1,0 +1,5 @@
+{
+  "previous_case": "/Users/alans/dev2/Dorado/build/rtl-executive/baseboard-ff-scan-v3-20261019/lost_cpu_node",
+  "binary_sha256": "26db08726759907abb36c53d2b0b6b298f2aea824673b49a2ff9c3892039e899",
+  "verified": "Every original, candidate, helper, physical fixture, C++ driver, header and independent oracle is byte-identical; real binary executed again."
+}

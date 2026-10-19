@@ -1083,3 +1083,79 @@ save/continue/restore, original 60 ns clocks/timers, pinned comparisons, three
 fresh boots/cold persistence and two-hour stress remain open. The last
 qualified Native59 idle rate stays 1,947,654.12 issues/s. Goal ACTIVE. All
 experiments in this entry are terminal; older running-job entries are historical.
+
+
+## Complete BaseBoard serial FF/CPU access (2026-10-19)
+
+**Complete BaseBoard serial state access is qualified, saving 839 ALMs in an isolated matched fit. All eleven board serial adapters are now qualified individually. The last combined core remains 3,318 ALMs over capacity; the combined serial build has not been measured.**
+
+`generate_baseboard_ff_scan.py` chains all 279 clock/reset/FF bits and all
+1,725 original 6502 nodes into one 2,004-bit bank without a shadow bank.
+Compact words 0..111 end in six valid bits; SRAM/EPROM/RIOT packages 30..46
+retain their original access maps. Legacy per-package FF addressing and the
+old CPU selector are retired.
+`compact-ff-cpu-v1` records all offsets and legacy_parallel_word metadata.
+SYSPER4, CLOCKGEN N4, the vendor CPU netlist/relaxation/input/output wiring,
+five complete RIOTs, four byte SRAMs, and all eight EPROM pipelines remain.
+Both matched fits use the already-qualified shared RIOT RAM writer.
+
+The unchanged original full-board stimulus, physical probes and independent
+SRAM/RIOT oracles pass 13,920,731 host edges, 13,822,573 holds, 33,334 late-enable
+changes and 402,802 requests. All 40,366 modeled physical bits / 4,890 state
+words / 131,072 addresses, padding, destructive restore, quiet recapture and
+the first resumed edge plus 20,000 more cycles pass. All 100 output bits are
+compared. Normal extra-SRAM writer counts remain zero, as in the earlier full
+board gate; their unchanged primitive/bank tests provide normal-write coverage.
+All twelve damaged RTL variants reject, including real chain/CPU/FF loss,
+completion/ownership, reset access/reentry, SRAM/EPROM/local hold, RIOT phase
+and SRAM pipeline corruption. Quarantine checks all seventeen memory/device
+frozen flags and the full physical image while guest advance/pins/new writes
+are attempted. A fresh reset acknowledgment prevents stale-boundary access.
+
+V1 caught a real generator error at edge2: the old CPU-admin replacement also
+removed its original combinational input/output suffix. V2 restores that suffix
+and guards its exact bytes. Its positive passes, but a proposed mutation
+changed an unused chain wire; V3 targets an actual consumed serial-input pin.
+V3 then catches reset reentry at the broader physical-state comparison before
+the expected later diagnostic. V4 accepts both valid diagnostics. V2/V3/V4
+positive RTL, fixture and derived C++ are byte-identical. V4 reuses exact compiled
+fixtures where available only after checking every original/helper/candidate/
+fixture/C++/header/oracle byte, and actually runs every binary again, recording
+its hash and exit status. All histories are retained.
+
+Fresh XML accounts for 40,366 physical + 582 private transport bits and 65,536
+immutable firmware bits, without sequential exclusions; 23 damaged inventories/
+layouts reject. The EPROM's qualified raw/restored-byte selection is unchanged,
+including the four uninitialized empty sockets. Matched enabled fits preserve
+the original staged-input/positive-edge 50 MHz/20 ns shell and SDC:
+6,403 -> 5,564 ALMs; 9,136 -> 9,163 registers. All FFs/CPU nodes/RIOT state,
+SRAM pipelines and canonical EPROM pipelines are retained. Four independent
+mutable SRAM M10Ks and the immutable ROMs' seven shared physical sites retain
+98,304 RAM/ROM bits / eleven M10Ks, original latency and RAM OLD_DATA behavior.
+All four synthesized firmware images match original assets in each variant;
+raw MIF evidence is kept separately from the excluded Quartus databases.
+All four device conditions pass, minimum +0.124 ns; no new cuts, unconstrained
+paths or unreviewed warning categories. Fourteen damaged fit/source/state/
+clock/constraint/memory/firmware controls reject. All 1,403 raw files pass hash
+readback; extracted fit/XML/source regeneration and damaged controls pass.
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-baseboard-ff-scan/`.
+Quartus session 31054 and final simulation 24065 are terminal.
+
+Next: prepare the combined build with explicit schema/formatter versions,
+longer bounded transport, global hold/fault/SYSTEM-reset ownership, and helper
+namespaces. The compiled-helper review finds four conflicting definitions:
+three intentional BaseBoard serial interfaces and ContA's older equivalent
+first_bit width cast. Resolve those explicitly, then qualify actual combined
+capacity/timing. Earlier isolated savings are not subtracted from the last
+measured whole-core result of 45,228 / 41,910 ALMs. No production builder,
+RBF, live FPGA or speed change is claimed. Local quarantine is insufficient
+to freeze foreign consumers, backends, input and ARM services.
+
+Classify/expose the 154,037 native-wrapper candidate bits (review-only),
+top-level input/network/video and 16 MiB external raw RAM. Complete coherent
+ARM/disk/input/server barriers that preserve connections/rebase timers, and
+atomic bundles paired with the matching disk generation. Actual FPGA Cedar
+save/continue/restore, original 60 ns clocks/timers, pinned comparisons, three
+fresh boots/cold persistence and two-hour stress remain open. The last
+qualified Native59 idle rate stays 1,947,654.12 issues/s. Goal ACTIVE. All
+experiments in this entry are terminal; older running-job entries are historical.

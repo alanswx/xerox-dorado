@@ -1,0 +1,5 @@
+{
+  "previous_case": "/Users/alans/dev2/Dorado/build/rtl-executive/baseboard-ff-scan-v3-20261019/lost_ff_shift",
+  "binary_sha256": "fd2ee99d74d906a859c951b7e427d2fd183317f8e04d87575c77f02b4b2634c1",
+  "verified": "Every original, candidate, helper, physical fixture, C++ driver, header and independent oracle is byte-identical; real binary executed again."
+}
