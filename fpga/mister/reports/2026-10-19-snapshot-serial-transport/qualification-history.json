@@ -1,0 +1,32 @@
+{
+  "status": "PASS_FINAL_V6",
+  "scope": "Real scan and stub-domain contract, no native/global snapshot implementation.",
+  "attempts": [
+    {
+      "version": 1,
+      "finding": "Fixture declaration order rejected by Icarus before simulation; move long-scan wire declarations before initializers."
+    },
+    {
+      "version": 2,
+      "finding": "Positive passes. Damaged transport-reset ownership is caught by a later commanded-hold assertion; widen the accepted correct diagnostic."
+    },
+    {
+      "version": 3,
+      "finding": "Expanded positive passes. Busy-overwrite attempted an out-of-range address, so address validation independently rejected it; use a valid address to exercise ownership."
+    },
+    {
+      "version": 4,
+      "finding": "Busy mutation now rejects. Bad schema acceptance is observed at a later control check because the fixture checked before owner propagation; add two observation cycles."
+    },
+    {
+      "version": 5,
+      "finding": "Positive and preceding damaged controls reject. One generated early-control mutation lacked a token-separating space; fix mutation syntax."
+    },
+    {
+      "version": 6,
+      "finding": "Positive12238ticks/141packets/44checks and all19damaged variants pass."
+    }
+  ],
+  "catalog_attempts": "V1 found IFU separate ff_rows metadata. V2 caught a duplicate phase append by exact total-bit coverage. V3 includes separately tested IFUM/cache/map RAM and pipelines and passes all1944744bits/385runs. Codec independently checked against cross-byte integer oracle; actual formatted packets drive RTL.",
+  "limits": "No production builder/RBF/FPGA/speed change. Native wrappers/backends/input/ARM/disk barriers and full snapshots remain required."
+}

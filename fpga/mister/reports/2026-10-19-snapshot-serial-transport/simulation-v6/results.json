@@ -1,0 +1,121 @@
+{
+  "status": "PASS",
+  "scope": "Serial transport/ownership contract, real longest scan, stub foreign domains.\n\nNo native wrapper/ARM quiesce, FPGA integration or complete snapshot claim.\n",
+  "source_hashes": {
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_board_state_serial.py": "847000142d65ed027d09cae65a1ae31b8eda6d21e017c508942e6fa3fe49a013",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_board_state_serial.sv": "ee637fbbcb78ed4339a932ba046f122d25d84b19985cebc1a0859552061f32ef",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/board_state_fabric_serial.sv": "0590bcab69fae2169e572980ed9b0a3b2a06d15d795845b8189f563bd61d9951",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/board_state_uio_serial.sv": "526fd866a3c6c4abf5be4acc8d3c42d0bb1e83db1849e3069e40e51b99392102",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/fpga/mister/dorado_ethernet_uio.sv": "0c6512a485420a7bc73b6b2e19a273ec6378d67983cfc3fcd4bb68f13b23d278"
+  },
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "short_timeout",
+      "returncode": 1,
+      "expected_failure": "result differs"
+    },
+    {
+      "case": "service_bypass",
+      "returncode": 1,
+      "expected_failure": "missing service acknowledged"
+    },
+    {
+      "case": "board_bypass",
+      "returncode": 1,
+      "expected_failure": "request before complete boundary"
+    },
+    {
+      "case": "width_alias",
+      "returncode": 1,
+      "expected_failure": "result differs"
+    },
+    {
+      "case": "owner_alias",
+      "returncode": 1,
+      "expected_failure": "result differs"
+    },
+    {
+      "case": "write_leak",
+      "returncode": 1,
+      "expected_failure": "result differs"
+    },
+    {
+      "case": "child_hold",
+      "returncode": 1,
+      "expected_failure": "child hold not propagated"
+    },
+    {
+      "case": "abort",
+      "returncode": 1,
+      "expected_failure": "lost boundary not quarantined"
+    },
+    {
+      "case": "transport_reset_owner",
+      "returncode": 1,
+      "expected_failure": [
+        "transport reset released quarantine",
+        "owner allowed fault release",
+        "active transport reset lost ownership"
+      ]
+    },
+    {
+      "case": "release_busy_owner",
+      "returncode": 1,
+      "expected_failure": "owner released busy session"
+    },
+    {
+      "case": "busy_routing",
+      "returncode": 1,
+      "expected_failure": "busy transaction selected another child"
+    },
+    {
+      "case": "request_schema",
+      "returncode": 1,
+      "expected_failure": "bad schema accepted"
+    },
+    {
+      "case": "abi",
+      "returncode": 1,
+      "expected_failure": "bad ABI accepted"
+    },
+    {
+      "case": "control_early",
+      "returncode": 1,
+      "expected_failure": [
+        "long control accepted",
+        "bad key accepted"
+      ]
+    },
+    {
+      "case": "request_short",
+      "returncode": 1,
+      "expected_failure": "short request accepted"
+    },
+    {
+      "case": "request_padding",
+      "returncode": 1,
+      "expected_failure": "request padding ignored"
+    },
+    {
+      "case": "status_schema",
+      "returncode": 1,
+      "expected_failure": "serial capability/schema differs"
+    },
+    {
+      "case": "torn_status",
+      "returncode": 1,
+      "expected_failure": "torn status result"
+    },
+    {
+      "case": "command_collision",
+      "returncode": 1,
+      "expected_failure": "EXT_BUS ownership collision"
+    }
+  ]
+}

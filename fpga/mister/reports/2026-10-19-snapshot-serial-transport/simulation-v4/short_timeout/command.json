@@ -1,0 +1,13 @@
+[
+  "iverilog",
+  "-g2012",
+  "-s",
+  "board_state_serial_fixture",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/board-state-serial-v4-20261019/short_timeout/test.vvp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/board-state-serial-v4-20261019/short_timeout/test_board_state_serial.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/board-state-serial-v4-20261019/short_timeout/board_state_fabric_serial.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/board-state-serial-v4-20261019/short_timeout/board_state_uio_serial.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/board-state-serial-v4-20261019/short_timeout/ff_scan_controller.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/board-state-serial-v4-20261019/short_timeout/dorado_ethernet_uio.sv"
+]

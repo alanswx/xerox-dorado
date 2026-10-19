@@ -1,0 +1,12 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "snapshot_fit",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/board-state-serial-classification-v1-20261019/transport.xml",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/board-state-serial-classification-v1-20261019/top.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/board-state-serial-classification-v1-20261019/board_state_fabric_serial.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/board-state-serial-classification-v1-20261019/board_state_uio_serial.sv"
+]

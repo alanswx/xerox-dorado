@@ -1,0 +1,42 @@
+{
+  "scope": "Matched isolated old/serial board transport timing and area, no core build.",
+  "driver_sha256": "3d5f09355e500ac4e845c3b4aaf36e5f5f49af83f1a99762fde4c8e26d979d39",
+  "source_hashes": {
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/fit_board_state_serial.py": "3d5f09355e500ac4e845c3b4aaf36e5f5f49af83f1a99762fde4c8e26d979d39",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/board_state_fabric.sv": "b0a43cf71410296654acc514cac6b02d004396356c327ed5b25fe5049914e9a9",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/board_state_uio.sv": "b72d47d5cbafb21ad7cd10ad30c349a327da38e472fe54800d0704fa283171ee",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/board_state_fabric_serial.sv": "0590bcab69fae2169e572980ed9b0a3b2a06d15d795845b8189f563bd61d9951",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/board_state_uio_serial.sv": "526fd866a3c6c4abf5be4acc8d3c42d0bb1e83db1849e3069e40e51b99392102"
+  },
+  "compiled_files": {
+    "snapshot/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "snapshot/board_state_fabric_serial.sv": "0590bcab69fae2169e572980ed9b0a3b2a06d15d795845b8189f563bd61d9951",
+    "snapshot/board_state_uio.sv": "b72d47d5cbafb21ad7cd10ad30c349a327da38e472fe54800d0704fa283171ee",
+    "snapshot/top.sv": "9e6deb2bdd9a37988553b66bd916376df039ed265118fbc7e27929b4dbd6f0ee",
+    "snapshot/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "snapshot/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "snapshot/snapshot_fit.qsf": "516dad6814625d98b1621bda887357edb970ea24e60db67bc6519f1b59531ee0",
+    "snapshot/board_state_uio_serial.sv": "526fd866a3c6c4abf5be4acc8d3c42d0bb1e83db1849e3069e40e51b99392102",
+    "snapshot/board_state_fabric.sv": "b0a43cf71410296654acc514cac6b02d004396356c327ed5b25fe5049914e9a9",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/board_state_fabric_serial.sv": "0590bcab69fae2169e572980ed9b0a3b2a06d15d795845b8189f563bd61d9951",
+    "baseline/board_state_uio.sv": "b72d47d5cbafb21ad7cd10ad30c349a327da38e472fe54800d0704fa283171ee",
+    "baseline/top.sv": "955cc5e2b770d43e688f8cf683702d266ffe835154915a0797011a5109ab9ad8",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/snapshot_fit.qsf": "516dad6814625d98b1621bda887357edb970ea24e60db67bc6519f1b59531ee0",
+    "baseline/board_state_uio_serial.sv": "526fd866a3c6c4abf5be4acc8d3c42d0bb1e83db1849e3069e40e51b99392102",
+    "baseline/board_state_fabric.sv": "b0a43cf71410296654acc514cac6b02d004396356c327ed5b25fe5049914e9a9",
+    "executed-sources/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "executed-sources/board_state_fabric_serial.sv": "0590bcab69fae2169e572980ed9b0a3b2a06d15d795845b8189f563bd61d9951",
+    "executed-sources/board_state_uio.sv": "b72d47d5cbafb21ad7cd10ad30c349a327da38e472fe54800d0704fa283171ee",
+    "executed-sources/fit_board_state_serial.py": "3d5f09355e500ac4e845c3b4aaf36e5f5f49af83f1a99762fde4c8e26d979d39",
+    "executed-sources/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "executed-sources/board_state_uio_serial.sv": "526fd866a3c6c4abf5be4acc8d3c42d0bb1e83db1849e3069e40e51b99392102",
+    "executed-sources/board_state_fabric.sv": "b0a43cf71410296654acc514cac6b02d004396356c327ed5b25fe5049914e9a9"
+  },
+  "shell": "280 staged input bits,168 captured output bits; original50MHz/20ns/2nsmax0nsminSDC; no cuts.",
+  "limits": "Isolated transport only; services are input contracts, no native pause implementation or snapshot/core capacity claim."
+}

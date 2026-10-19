@@ -2,78 +2,86 @@
 
 ## Current objective (2026-10-19 UTC)
 
-**Complete BaseBoard serial state access is qualified, saving 839 ALMs in an isolated matched fit. All eleven board serial adapters are now qualified individually. The last combined core remains 3,318 ALMs over capacity; the combined serial build has not been measured.**
+**Serial transport ownership and the compact eleven-board format are qualified as isolated components. The new transport costs 39 additional ALMs and passes four-condition timing. Native machine/service barriers and the combined serial core are not yet integrated.**
 
-`generate_baseboard_ff_scan.py` chains all 279 clock/reset/FF bits and all
-1,725 original 6502 nodes into one 2,004-bit bank without a shadow bank.
-Compact words 0..111 end in six valid bits; SRAM/EPROM/RIOT packages 30..46
-retain their original access maps. Legacy per-package FF addressing and the
-old CPU selector are retired.
-`compact-ff-cpu-v1` records all offsets and legacy_parallel_word metadata.
-SYSPER4, CLOCKGEN N4, the vendor CPU netlist/relaxation/input/output wiring,
-five complete RIOTs, four byte SRAMs, and all eight EPROM pipelines remain.
-Both matched fits use the already-qualified shared RIOT RAM writer.
+`board_state_fabric_serial.sv` replaces the old 16-edge deadline with a bounded
+2,048-cycle budget for the longest 2,004-cycle physical scan. Hold ownership
+is independent of the SPI parser: a transport reset while held/active,
+timeout, lost local/service boundary or child fault preserves quarantine until
+SYSTEM reset. Explicit clean release remains possible after a normal session.
+Busy release and competing requests are rejected. Child hold/fault ownership
+is aggregated across all eleven boards. Admission requires the local domain,
+all eleven board acknowledgments and all five foreign-service acknowledgments.
+Global hold and scan abort are separate outputs: integration must keep EVERY
+RAM/FF/foreign consumer held while abort stops the scan controller. These are
+contracts, not native backend or ARM pause implementations; no acknowledgment
+may be tied high to bypass the missing implementation.
 
-The unchanged original full-board stimulus, physical probes and independent
-SRAM/RIOT oracles pass 13,920,731 host edges, 13,822,573 holds, 33,334 late-enable
-changes and 402,802 requests. All 40,366 modeled physical bits / 4,890 state
-words / 131,072 addresses, padding, destructive restore, quiet recapture and
-the first resumed edge plus 20,000 more cycles pass. All 100 output bits are
-compared. Normal extra-SRAM writer counts remain zero, as in the earlier full
-board gate; their unchanged primitive/bank tests provide normal-write coverage.
-All twelve damaged RTL variants reject, including real chain/CPU/FF loss,
-completion/ownership, reset access/reentry, SRAM/EPROM/local hold, RIOT phase
-and SRAM pipeline corruption. Quarantine checks all seventeen memory/device
-frozen flags and the full physical image while guest advance/pins/new writes
-are attempted. A fresh reset acknowledgment prevents stale-boundary access.
+`board_state_uio_serial.sv` uses ABI2 with key, version and four16-bit schema
+words on every control/request. Exact deselected 8-word controls and 13-word
+requests commit; malformed/short/long/old-ABI/wrong-schema packets are inert.
+Status is coherent, reports all ownership/acknowledgment/error fields, and
+permanently identifies board-only scope. Commands76..79 coexist with the
+unchanged Native59 Ethernet70..75 interface. The old ABI1 sources are retained
+unchanged as the earlier experiment.
 
-V1 caught a real generator error at edge2: the old CPU-admin replacement also
-removed its original combinational input/output suffix. V2 restores that suffix
-and guards its exact bytes. Its positive passes, but a proposed mutation
-changed an unused chain wire; V3 targets an actual consumed serial-input pin.
-V3 then catches reset reentry at the broader physical-state comparison before
-the expected later diagnostic. V4 accepts both valid diagnostics. V2/V3/V4
-positive RTL, fixture and derived C++ are byte-identical. V4 reuses exact compiled
-fixtures where available only after checking every original/helper/candidate/
-fixture/C++/header/oracle byte, and actually runs every binary again, recording
-its hash and exit status. All histories are retained.
+Four-state V6 passes 12,238 host ticks / 141 packets / 44 checks using the REAL
+2,004-bit scan controller and explicit stub boards/foreign domains. Full scan
+rotation, last-word padding, valid competing requests, busy release, partial
+packets, counter rollover, coherent status, missing/unknown/lost acknowledgments,
+active/paused/idle parser resets, timeout and sticky quarantine pass; all
+nineteen damaged RTL controls reject. V1 fixes declaration order. V2 corrects
+an earlier/later valid diagnostic. V3's competing request was out of range and
+independently blocked by address validation; V4 uses a valid address. V4/V5
+then correct observation timing for malformed controls and one mutation's token
+separator. Candidate transport RTL is unchanged across these fixture
+corrections. Histories are archived. Fresh XML accounts for all389private
+transport +728staged-shell bits, no sequential exclusions; thirteen damaged
+inventories/bindings reject.
 
-Fresh XML accounts for 40,366 physical + 582 private transport bits and 65,536
-immutable firmware bits, without sequential exclusions; 23 damaged inventories/
-layouts reject. The EPROM's qualified raw/restored-byte selection is unchanged,
-including the four uninitialized empty sockets. Matched enabled fits preserve
-the original staged-input/positive-edge 50 MHz/20 ns shell and SDC:
-6,403 -> 5,564 ALMs; 9,136 -> 9,163 registers. All FFs/CPU nodes/RIOT state,
-SRAM pipelines and canonical EPROM pipelines are retained. Four independent
-mutable SRAM M10Ks and the immutable ROMs' seven shared physical sites retain
-98,304 RAM/ROM bits / eleven M10Ks, original latency and RAM OLD_DATA behavior.
-All four synthesized firmware images match original assets in each variant;
-raw MIF evidence is kept separately from the excluded Quartus databases.
-All four device conditions pass, minimum +0.124 ns; no new cuts, unconstrained
-paths or unreviewed warning categories. Fourteen damaged fit/source/state/
-clock/constraint/memory/firmware controls reject. All 1,403 raw files pass hash
-readback; extracted fit/XML/source regeneration and damaged controls pass.
-Evidence: `fpga/mister/reports/2026-10-19-snapshot-baseboard-ff-scan/`.
-Quartus session 31054 and final simulation 24065 are terminal.
+Matched old/new enabled transport fits preserve the same staged-positive-edge
+50 MHz/20 ns shell and SDC: 577 ->616ALMs; 1,089 ->1,165registers; no RAM.
+All four device conditions pass, minimum+0.109ns. Exact source/clock/constraint,
+owner/parser retention, constant-field pruning, warnings and unconstrained-path
+checks pass; nine damaged fit controls reject. The fit uses an explicit prototype
+schema constant; the combined core must instantiate its actual catalog identity
+and repeat complete-core timing. This is not a measured whole-core area delta.
 
-Next: prepare the combined build with explicit schema/formatter versions,
-longer bounded transport, global hold/fault/SYSTEM-reset ownership, and helper
-namespaces. The compiled-helper review finds four conflicting definitions:
-three intentional BaseBoard serial interfaces and ContA's older equivalent
-first_bit width cast. Resolve those explicitly, then qualify actual combined
-capacity/timing. Earlier isolated savings are not subtracted from the last
-measured whole-core result of 45,228 / 41,910 ALMs. No production builder,
-RBF, live FPGA or speed change is claimed. Local quarantine is insufficient
-to freeze foreign consumers, backends, input and ARM services.
+`serial_state_format.py` binds all eleven qualified final simulation receipts
+and complete address maps into `dorado-serial-boards-v1` / ABI2, with dense LSB0
+payloads and385compact runs covering all1,944,744modeled board bits. IFUM/cache/
+map RAMs and their pipelines were tested through separate oracle/probe buses,
+so those full maps are explicitly included alongside the flat FF/device maps.
+The catalog fingerprint is SHA256 and its diagnostic schema ID is
+`c876f8b45b768814`. A matching whole-build/disk/service bundle is still required
+for machine restore; this catalog is board-only. The formatter validates once
+and copies immutable lookup runs, avoiding per-word full-catalog hashing.
+Every board payload round-trips; an independent cross-byte integer oracle,
+invalid maps/padding/frames/status and mutation of the original JSON are tested.
+Twenty-four actual Python-formatted packets drive the real UIO/owner/longest-scan
+RTL at the actual catalog identity, alongside the existing contract tests.
 
-Classify/expose the 154,037 native-wrapper candidate bits (review-only),
-top-level input/network/video and 16 MiB external raw RAM. Complete coherent
-ARM/disk/input/server barriers that preserve connections/rebase timers, and
-atomic bundles paired with the matching disk generation. Actual FPGA Cedar
-save/continue/restore, original 60 ns clocks/timers, pinned comparisons, three
-fresh boots/cold persistence and two-hour stress remain open. The last
-qualified Native59 idle rate stays 1,947,654.12 issues/s. Goal ACTIVE. All
-experiments in this entry are terminal; older running-job entries are historical.
+All891raw files pass lossless hash readback; extracted fit/XML/negative controls
+and catalog regeneration from archived original receipt bytes pass. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-serial-transport/`.
+Quartus session17418, transport67925 and format41200 are terminal.
+
+All eleven individual serial boards remain qualified (latest BaseBoard saves
+839ALMs, ContB58, in isolated fits). The last combined result remains
+45,228 /41,910ALMs, 3,318over capacity. No production builder, RBF, live FPGA,
+clock, timer or speed change is claimed. Next: namespace the three differing
+BaseBoard FF helpers and normalize ContA's equivalent counter cast; connect
+forced global hold and separate abort to every board. Classify/expose the
+154,037native-wrapper candidate bits (review-only), top-level input/network/
+video and16MiBexternal raw RAM, then implement actual backend/input/Main/daemon/
+disk-generation barriers and acknowledgments, including a preserving server
+pause/resume path and timer rebasing. Qualify actual combined capacity/timing
+and coherent, atomic disk-paired FPGA Cedar save/continue/restore.
+
+Original60ns clocks/timers, pinned comparisons, three fresh boots/cold persistence
+and two-hour stress remain open. Last qualified Native59 idle stays
+1,947,654.12issues/s. Goal ACTIVE. All experiments in this entry are terminal;
+older running-job entries are historical.
 
 **Enabled60 exceeds FPGA capacity; the first state-preserving area fix is qualified and a new full-core build is running.**
 
@@ -3100,7 +3108,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify complete BaseBoard serial FF/CPU access: all 40,366 physical bits/all 131,072 indices/original outputs/independent SRAM+RIOT oracles/destructive restore/first-edge/20K more; twelve damaged variants and all seventeen helper quarantine flags. Preserve CPU suffix, mutation-target and diagnostic-order corrections, with byte-identical V2/V3/V4 positive fixtures and actual reexecution of every V4 case.
 - [x] Qualify fresh BaseBoard inventory 40,366 physical + 582 private + 65,536 immutable bits/23 controls; matched enabled fits 6,403 -> 5,564 ALMs/minimum +0.124 ns, exact FF/CPU/RIOT/pipeline/M10K/OLD_DATA/synthesized firmware retention and fourteen damaged fit controls. Archive 1,403 raw files and pass extracted fit/XML/source audits.
 - [ ] Qualify actual combined whole-core serial-access capacity/timing; isolated board savings are not measured core savings.
-- [ ] Before integration, namespace the three differing BaseBoard FF helpers and explicitly normalize ContA's counter cast; version compact schemas/formatter and extend the16-edge fabric timeout beyond the2,004-cycle maximum scan. Connect global hold/fault/SYSTEM-reset ownership across boards/backends/input/ARM services. Local board hold is insufficient.
+- [x] Qualify ABI2 serial transport/hold ownership contract with2048cycle budget, actual2004bit scan, five stub-domain acknowledgments, parser-vs-SYSTEM reset, sticky quarantine and coherent status;12238ticks/141packets/44checks,19damaged RTL controls. Fresh389private+728shell inventory/13controls and matched577->616ALM/fourconditions/min+0.109ns/9fit controls pass. Native barriers remain unimplemented.
+- [x] Bind complete eleven-board compact format from qualified receipts:1944744bits/385runs, schema c876f8b45b768814, dense encoding/independent bit oracle/all-board roundtrips/invalid-map and packet validation;24Python-formatted packets drive actual RTL. Archive891raw files; extracted fit/XML/controls and original-receipt catalog regeneration pass.
+- [ ] Before native serial integration, namespace three differing BaseBoard FF helpers and normalize ContA's counter cast; apply forced global hold and separate scan abort on every board. Implement actual backend/input/ARM service quiesce and acknowledgments with correct SYSTEM-reset lifetime; generic contracts and local holds do not freeze the native machine.
 - [ ] Continue area reductions without dropping state until all enabled interfaces fit, then qualify complete-core timing and physical memory inference; no RBF/deployment yet.
 - [ ] Complete wrapper/backend/top-level sequential-state classification/access in addition to eleven-board state; native-wrapper154,037bit inventory is review-only.
 - [ ] Complete backends/wrapper/input/ARM cache/server/matching-disk-generation state, coherent barriers and atomic bundle; qualify actual FPGA Cedar save/restore.

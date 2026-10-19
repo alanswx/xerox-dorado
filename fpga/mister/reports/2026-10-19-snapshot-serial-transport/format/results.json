@@ -1,0 +1,136 @@
+{
+  "status": "PASS",
+  "scope": "Qualify pinned board maps, dense encoding and real ABI2 formatted packets.",
+  "catalog_sha256": "c876f8b45b768814ab4a7447c8ea31058e02bb8924aeea8cca1622357f94565a",
+  "schema_id": "c876f8b45b768814",
+  "boards": [
+    {
+      "board": "ContA",
+      "bits": 1353,
+      "words": 192,
+      "bytes": 170,
+      "sha256": "f4919df683e7526ea0c1b8d80f9af9ba3e710214eadf05b5da7c93a4d0a3178b"
+    },
+    {
+      "board": "ContB",
+      "bits": 147809,
+      "words": 8212,
+      "bytes": 18477,
+      "sha256": "fa1ad3f7c5315b773ad11505dd140c9ebd1571feb92b5bbc836c7d0e5ef22371"
+    },
+    {
+      "board": "ProcH",
+      "bits": 5712,
+      "words": 1701,
+      "bytes": 714,
+      "sha256": "f8c3fe9e7e1d5e48369d4b4718348d11d3bf9ea6746f80e70754c85dce0979f5"
+    },
+    {
+      "board": "ProcL",
+      "bits": 5581,
+      "words": 1668,
+      "bytes": 698,
+      "sha256": "9f5aac3a4b18ea2d03543f885586f28a4b1e55639901494b2babccad0450da54"
+    },
+    {
+      "board": "IFU",
+      "bits": 28653,
+      "words": 11331,
+      "bytes": 3582,
+      "sha256": "91445ea685a6313f12b94d799590f8a00a19725133a445b511118763732094f3"
+    },
+    {
+      "board": "MemC",
+      "bits": 23718,
+      "words": 5797,
+      "bytes": 2965,
+      "sha256": "d7b3a1e2766682af7d9c644b05e8e1a00242b57cc41e0724c5046eac323dd6ff"
+    },
+    {
+      "board": "MemD",
+      "bits": 296591,
+      "words": 57552,
+      "bytes": 37074,
+      "sha256": "5f56053fc940c7ca63edb33f386274f2ad41fd3c7225496987c8bd3db742d652"
+    },
+    {
+      "board": "MemX",
+      "bits": 1378312,
+      "words": 1376515,
+      "bytes": 172289,
+      "sha256": "17b017782f907304042fe87e7c9f4dd4087042539c51c81f9b92980b126763e8"
+    },
+    {
+      "board": "DskEth",
+      "bits": 2656,
+      "words": 383,
+      "bytes": 332,
+      "sha256": "fc0502a1e43408773b903c45bab4363a26a9e2325b98f754bdb9a2c208177f5d"
+    },
+    {
+      "board": "DispY",
+      "bits": 13993,
+      "words": 5513,
+      "bytes": 1750,
+      "sha256": "fb8c3d7c6eb18cd1ea7261cdae45e77b594fd382c784f6015df5c90cdebfd10f"
+    },
+    {
+      "board": "BaseBd",
+      "bits": 40366,
+      "words": 4890,
+      "bytes": 5046,
+      "sha256": "4f6d31a0de9bc90df9564d1520d60efc142acc74d73d424c2bd7855d40ba7901"
+    }
+  ],
+  "total_bits": 1944744,
+  "runs": 385,
+  "failure_controls": [
+    {
+      "case": "fingerprint",
+      "rejected": true
+    },
+    {
+      "case": "alias",
+      "rejected": true
+    },
+    {
+      "case": "gap",
+      "rejected": true
+    },
+    {
+      "case": "oversized",
+      "rejected": true
+    },
+    {
+      "case": "wrong_width",
+      "rejected": true
+    },
+    {
+      "case": "missing_board",
+      "rejected": true
+    },
+    {
+      "case": "wrong_abi",
+      "rejected": true
+    },
+    {
+      "case": "missing_map_run",
+      "rejected": true
+    },
+    {
+      "case": "wrong_total",
+      "rejected": true
+    }
+  ],
+  "formatted_rtl_packets": 24,
+  "rtl_result": "SERIAL BOARD STATE PASS ticks=17812 packets=187 checks=66 real2004scan/ABI2/schema/all11boards/5services/timeout/sticky-global-hold/transport-vs-SYSTEM-reset/Ethernet\n/Users/alans/dev2/Dorado/build/rtl-executive/serial-state-format-v1-20261019/fixture.sv:582: $finish called at 71249 (1s)",
+  "source_hashes": {
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_serial_state_format.py": "bd6dcc71649426c5ab3738e6d0a4a949eda28b9ee6433da87147447a069e28b8",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/serial_state_format.py": "3be6a86678d96925efdf9d22f429eea12ccbfec39c6c6ce0881ce67f82c008e1",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_board_state_serial.sv": "ee637fbbcb78ed4339a932ba046f122d25d84b19985cebc1a0859552061f32ef",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/board_state_fabric_serial.sv": "0590bcab69fae2169e572980ed9b0a3b2a06d15d795845b8189f563bd61d9951",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/board_state_uio_serial.sv": "526fd866a3c6c4abf5be4acc8d3c42d0bb1e83db1849e3069e40e51b99392102",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/fpga/mister/dorado_ethernet_uio.sv": "0c6512a485420a7bc73b6b2e19a273ec6378d67983cfc3fcd4bb68f13b23d278"
+  }
+}

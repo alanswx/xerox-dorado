@@ -1,0 +1,101 @@
+{
+  "status": "PASS",
+  "scope": "Original ContB/independent IM oracle with compact FF access and quarantine.\n\nRetain original stimulus, reference, RAM and pipeline oracles. Only admin\nmapping/waits, reset handling and direct fault observations are derived.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "lost_chain_bit",
+      "returncode": 1,
+      "expected_failure": "board FF state differs"
+    },
+    {
+      "case": "lost_ff_shift",
+      "returncode": 1,
+      "expected_failure": "board FF state differs"
+    },
+    {
+      "case": "early_completion",
+      "returncode": 1,
+      "expected_failure": "scan rotation length differs"
+    },
+    {
+      "case": "busy_owner",
+      "returncode": 1,
+      "expected_failure": "scan rotation length differs"
+    },
+    {
+      "case": "lost_local_hold",
+      "returncode": 1,
+      "expected_failure": "memory helper escaped quarantine"
+    },
+    {
+      "case": "reset_access",
+      "returncode": 1,
+      "expected_failure": "system reset admitted access"
+    },
+    {
+      "case": "reset_reentry",
+      "returncode": 1,
+      "expected_failure": "reset reentry accepted request"
+    },
+    {
+      "case": "lost_bank_hold",
+      "returncode": 1,
+      "expected_failure": "memory helper escaped quarantine"
+    },
+    {
+      "case": "lost_pipeline",
+      "returncode": 1,
+      "expected_failure": [
+        "destructive RAM write failed",
+        "board raw pipeline differs"
+      ]
+    }
+  ],
+  "source_hashes": {
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_contb_ff_scan.py": "8bd18bd1aa70af5cf4325c8d8f553370ac826b13cfabcb451eb0f8140d0ec495",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_contb_ff_scan.py": "e35a065c629e031d299a86e6b80fcf83bf514beffb9a5382a2441cbc50b62dcc",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_contb_full.py": "03541d49d05f2b2006d3a007d282177eeeba9a4a8b3c207210647970a2cc2c87",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_contb_full.cpp": "65bd25e53caa51036a88f7cf047a1dccc2ac4744fb4cdc33be9e9fe2a6d45e37",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_contb_snapshot.py": "5b24ff64188da6497e543cfa61362434f9b02f103d2546844e937b3b5fde47b5",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_contb_full.py": "9058fedbfec998ee4217a758cd7030f00941a7740952715ebbe7cb0801293a5d",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_contb.py": "70c3a50a8d705b210563d84b6c272e8d2c072f01fb1197705df2c71144705710",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/audit_contb_im.py": "51e06b61c69461b2d8baae1b8be7462c9f02692c70401bc6ac571e534f2c1083",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_conta_ff_scan.py": "cc880c971c6a37e56daf99b32f9a7ee05a2175d6f64d61530da1d685e9c6b814",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_conta_full.py": "f7dff22beba5bf41abc69d450317cc26d7dca13071d39025c028935bf8b618d9",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/f10415_enable_bank.sv": "6df465a02e8ad84759d82c2be1a96b2de2f9ab630042ae00c670db3105b5f0a6",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/generated/ContB-Rev-Cd.v": "172f68891c2ad75dd8f69a9d8a8a3d369bc83d4f6db1d54b77a7b0be595add58",
+    "/Users/alans/dev2/Dorado/chm/sil/ContB-Rev-Cd.dm!1_/ContB-Rev-Cd.wl": "25e82daa80f25dce0986b269ce0a145981fbb7d2be24b80e3d6c649d2e02ba68",
+    "/Users/alans/dev2/Dorado/chm/sil/ContB-Rev-Cd.dm!1_/ContB-Rev-Cd.lc": "8ce7eb1bb436c11583a3bb95fe4e04bb96f7f898656a3e9751a0e0f9f7e4c80e",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10211.v": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_LM3911_20K.v": "7bac5b0e7235f7840a51a6ab47321745bceda31c5216652cb4550eae83d32ecc",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10164.v": "5e8978b4ceed6b2e5dee8a4c9f5dd841bfe175059e5dcc19f1b6099e8e156e0c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10101.v": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_SE10211.v": "4f7c8607bdaad0f3fa7b0a49c679c004817b3032c3d37b20cb0a46f3ab1cb11d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10172.v": "559a7747f2e4b967edf4a8651dfb1e7bb286210d70b9aa6f8c6a64ae4f87231b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10107.v": "dadd09a4dc0e4e6e126aa6f30c5b3fd92acbba8aaf25e94cb2f399b779011065",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0"
+  }
+}

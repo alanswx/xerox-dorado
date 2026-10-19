@@ -1,0 +1,300 @@
+{
+  "status": "PASS",
+  "scope": "Complete private transport/shell XML inventory; no guest-state exclusions.",
+  "private_transport_bits": 389,
+  "private_shell_bits": 728,
+  "guest_state_bits": 0,
+  "sequential_exclusions": [],
+  "decisions": [
+    {
+      "path": "snapshot_fit.fabric.age",
+      "bits": 11,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.fabric.command_hold",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.fabric.control_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.fabric.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.fabric.error",
+      "bits": 3,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.fabric.fault",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.fabric.owner",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.fabric.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.fabric.result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.fabric.was_write",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.input_stage",
+      "bits": 280,
+      "scope": "PRIVATE SHELL"
+    },
+    {
+      "path": "snapshot_fit.launch",
+      "bits": 280,
+      "scope": "PRIVATE SHELL"
+    },
+    {
+      "path": "snapshot_fit.outputs",
+      "bits": 168,
+      "scope": "PRIVATE SHELL"
+    },
+    {
+      "path": "snapshot_fit.uio.board",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.busy",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.command",
+      "bits": 16,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.complete",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.control_errors",
+      "bits": 32,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.count",
+      "bits": 12,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.data",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.dout",
+      "bits": 16,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.error_snapshot",
+      "bits": 3,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.errors_snapshot",
+      "bits": 32,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.flags_snapshot",
+      "bits": 16,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.frozen_snapshot",
+      "bits": 11,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.hold_update",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.hold_value",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.index",
+      "bits": 24,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.last_error",
+      "bits": 3,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.last_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.mode",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.operation",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.pending_board",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.pending_data",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.pending_index",
+      "bits": 24,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.request",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.result_snapshot",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.sequence_snapshot",
+      "bits": 32,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.services_snapshot",
+      "bits": 5,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.txn_sequence",
+      "bits": 32,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.valid_packet",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "snapshot_fit.uio.write",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    }
+  ],
+  "bindings": {
+    "dorado_board_state_fabric_serial": {
+      "RESPONSE_LIMIT": 2048,
+      "SERVICE_DOMAINS": 5,
+      "AGE_BITS": 11
+    },
+    "dorado_board_state_uio_serial": {
+      "SCHEMA_ID": 8774596943940913927,
+      "SERVICE_DOMAINS": 5,
+      "RESPONSE_LIMIT": 2048
+    }
+  },
+  "xml_sha256": "8497a59b83b5431f8f4f48ceb49dc4b352d6d029fdc8d4dc5bb7a4201fdb4cce",
+  "failure_controls": [
+    {
+      "case": "lost_hold",
+      "rejected": true,
+      "diagnostic": "missing transport state: ['snapshot_fit.fabric.command_hold']"
+    },
+    {
+      "case": "lost_fault",
+      "rejected": true,
+      "diagnostic": "missing transport state: ['snapshot_fit.fabric.fault']"
+    },
+    {
+      "case": "lost_owner",
+      "rejected": true,
+      "diagnostic": "missing transport state: ['snapshot_fit.fabric.owner']"
+    },
+    {
+      "case": "lost_busy",
+      "rejected": true,
+      "diagnostic": "missing transport state: ['snapshot_fit.uio.busy']"
+    },
+    {
+      "case": "lost_sequence",
+      "rejected": true,
+      "diagnostic": "missing transport state: ['snapshot_fit.uio.txn_sequence']"
+    },
+    {
+      "case": "lost_status",
+      "rejected": true,
+      "diagnostic": "missing transport state: ['snapshot_fit.uio.result_snapshot']"
+    },
+    {
+      "case": "short_age",
+      "rejected": true,
+      "diagnostic": "transport field geometry differs: snapshot_fit.fabric.age"
+    },
+    {
+      "case": "short_index",
+      "rejected": true,
+      "diagnostic": "transport field geometry differs: snapshot_fit.uio.index"
+    },
+    {
+      "case": "short_services",
+      "rejected": true,
+      "diagnostic": "transport field geometry differs: snapshot_fit.uio.services_snapshot"
+    },
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate transport state: snapshot_fit.fabric.age_hidden"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate transport state: snapshot_fit.fabric.age"
+    },
+    {
+      "case": "bad_schema",
+      "rejected": true,
+      "diagnostic": "transport parameter/schema binding differs"
+    },
+    {
+      "case": "short_timeout",
+      "rejected": true,
+      "diagnostic": "transport parameter/schema binding differs"
+    }
+  ]
+}

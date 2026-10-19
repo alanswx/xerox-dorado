@@ -1,0 +1,214 @@
+{
+  "status": "PASS_ISOLATED_FIT",
+  "scope": "Independent isolated serial transport source, retention, policy and timing audit.",
+  "results": {
+    "baseline": {
+      "resources": {
+        "alms": 577,
+        "registers": 1089,
+        "ram_bits": 0,
+        "ram_blocks": 0
+      },
+      "retention": [
+        {
+          "Compilation Hierarchy Node": "|snapshot_fit",
+          "Combinational ALUTs": "464 (2)",
+          "Dedicated Logic Registers": "1038 (672)",
+          "Block Memory Bits": "0",
+          "DSP Blocks": "0",
+          "Pins": "1",
+          "Virtual Pins": "448",
+          "Full Hierarchy Name": "|snapshot_fit",
+          "Entity Name": "snapshot_fit",
+          "Library Name": "work"
+        },
+        {
+          "Compilation Hierarchy Node": "|dorado_board_state_fabric:fabric|",
+          "Combinational ALUTs": "230 (230)",
+          "Dedicated Logic Registers": "33 (33)",
+          "Block Memory Bits": "0",
+          "DSP Blocks": "0",
+          "Pins": "0",
+          "Virtual Pins": "0",
+          "Full Hierarchy Name": "|snapshot_fit|dorado_board_state_fabric:fabric",
+          "Entity Name": "dorado_board_state_fabric",
+          "Library Name": "work"
+        },
+        {
+          "Compilation Hierarchy Node": "|dorado_board_state_uio:uio|",
+          "Combinational ALUTs": "232 (232)",
+          "Dedicated Logic Registers": "333 (333)",
+          "Block Memory Bits": "0",
+          "DSP Blocks": "0",
+          "Pins": "0",
+          "Virtual Pins": "0",
+          "Full Hierarchy Name": "|snapshot_fit|dorado_board_state_uio:uio",
+          "Entity Name": "dorado_board_state_uio",
+          "Library Name": "work"
+        }
+      ],
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 7.447,
+          "hold": 0.344,
+          "mpw": 9.291
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 7.341,
+          "hold": 0.361,
+          "mpw": 9.18
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 8.12,
+          "hold": 0.165,
+          "mpw": 9.051
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 7.972,
+          "hold": 0.179,
+          "mpw": 9.112
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 6,
+          "12241": 1
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    },
+    "snapshot": {
+      "resources": {
+        "alms": 616,
+        "registers": 1165,
+        "ram_bits": 0,
+        "ram_blocks": 0
+      },
+      "retention": [
+        {
+          "Compilation Hierarchy Node": "|snapshot_fit",
+          "Combinational ALUTs": "518 (1)",
+          "Dedicated Logic Registers": "1110 (726)",
+          "Block Memory Bits": "0",
+          "DSP Blocks": "0",
+          "Pins": "1",
+          "Virtual Pins": "448",
+          "Full Hierarchy Name": "|snapshot_fit",
+          "Entity Name": "snapshot_fit",
+          "Library Name": "work"
+        },
+        {
+          "Compilation Hierarchy Node": "|dorado_board_state_fabric_serial:fabric|",
+          "Combinational ALUTs": "267 (267)",
+          "Dedicated Logic Registers": "42 (42)",
+          "Block Memory Bits": "0",
+          "DSP Blocks": "0",
+          "Pins": "0",
+          "Virtual Pins": "0",
+          "Full Hierarchy Name": "|snapshot_fit|dorado_board_state_fabric_serial:fabric",
+          "Entity Name": "dorado_board_state_fabric_serial",
+          "Library Name": "work"
+        },
+        {
+          "Compilation Hierarchy Node": "|dorado_board_state_uio_serial:uio|",
+          "Combinational ALUTs": "250 (250)",
+          "Dedicated Logic Registers": "342 (342)",
+          "Block Memory Bits": "0",
+          "DSP Blocks": "0",
+          "Pins": "0",
+          "Virtual Pins": "0",
+          "Full Hierarchy Name": "|snapshot_fit|dorado_board_state_uio_serial:uio",
+          "Entity Name": "dorado_board_state_uio_serial",
+          "Library Name": "work"
+        }
+      ],
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 7.364,
+          "hold": 0.294,
+          "mpw": 9.268
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 7.195,
+          "hold": 0.321,
+          "mpw": 9.178
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 8.076,
+          "hold": 0.109,
+          "mpw": 9.051
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 7.952,
+          "hold": 0.132,
+          "mpw": 9.111
+        }
+      },
+      "warnings": {
+        "map": {
+          "12241": 1
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    }
+  },
+  "delta": {
+    "alms": 39,
+    "registers": 76,
+    "ram_bits": 0,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.109,
+  "limits": "Prototype schema constant; isolated transport contract only, no native wrapper/ARM barrier, full-core capacity, physical snapshot or speed claim.",
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/board_state_fabric_serial.sv"
+    },
+    {
+      "case": "reset",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/board_state_fabric_serial.sv"
+    },
+    {
+      "case": "schema",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/board_state_uio_serial.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "policy",
+      "rejected": true,
+      "diagnostic": "project/clock policy differs: snapshot_fit.qsf"
+    },
+    {
+      "case": "hold_state",
+      "rejected": true,
+      "diagnostic": "transport register retention differs: dorado_board_state_fabric_serial"
+    },
+    {
+      "case": "status_state",
+      "rejected": true,
+      "diagnostic": "transport register retention differs: dorado_board_state_uio_serial"
+    },
+    {
+      "case": "hold_timing",
+      "rejected": true,
+      "diagnostic": "timing violation: hold"
+    },
+    {
+      "case": "clock",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/top.sv"
+    }
+  ]
+}

@@ -1159,3 +1159,87 @@ save/continue/restore, original 60 ns clocks/timers, pinned comparisons, three
 fresh boots/cold persistence and two-hour stress remain open. The last
 qualified Native59 idle rate stays 1,947,654.12 issues/s. Goal ACTIVE. All
 experiments in this entry are terminal; older running-job entries are historical.
+
+
+## Serial transport ownership and compact format (2026-10-19)
+
+**Serial transport ownership and the compact eleven-board format are qualified as isolated components. The new transport costs 39 additional ALMs and passes four-condition timing. Native machine/service barriers and the combined serial core are not yet integrated.**
+
+`board_state_fabric_serial.sv` replaces the old 16-edge deadline with a bounded
+2,048-cycle budget for the longest 2,004-cycle physical scan. Hold ownership
+is independent of the SPI parser: a transport reset while held/active,
+timeout, lost local/service boundary or child fault preserves quarantine until
+SYSTEM reset. Explicit clean release remains possible after a normal session.
+Busy release and competing requests are rejected. Child hold/fault ownership
+is aggregated across all eleven boards. Admission requires the local domain,
+all eleven board acknowledgments and all five foreign-service acknowledgments.
+Global hold and scan abort are separate outputs: integration must keep EVERY
+RAM/FF/foreign consumer held while abort stops the scan controller. These are
+contracts, not native backend or ARM pause implementations; no acknowledgment
+may be tied high to bypass the missing implementation.
+
+`board_state_uio_serial.sv` uses ABI2 with key, version and four16-bit schema
+words on every control/request. Exact deselected 8-word controls and 13-word
+requests commit; malformed/short/long/old-ABI/wrong-schema packets are inert.
+Status is coherent, reports all ownership/acknowledgment/error fields, and
+permanently identifies board-only scope. Commands76..79 coexist with the
+unchanged Native59 Ethernet70..75 interface. The old ABI1 sources are retained
+unchanged as the earlier experiment.
+
+Four-state V6 passes 12,238 host ticks / 141 packets / 44 checks using the REAL
+2,004-bit scan controller and explicit stub boards/foreign domains. Full scan
+rotation, last-word padding, valid competing requests, busy release, partial
+packets, counter rollover, coherent status, missing/unknown/lost acknowledgments,
+active/paused/idle parser resets, timeout and sticky quarantine pass; all
+nineteen damaged RTL controls reject. V1 fixes declaration order. V2 corrects
+an earlier/later valid diagnostic. V3's competing request was out of range and
+independently blocked by address validation; V4 uses a valid address. V4/V5
+then correct observation timing for malformed controls and one mutation's token
+separator. Candidate transport RTL is unchanged across these fixture
+corrections. Histories are archived. Fresh XML accounts for all389private
+transport +728staged-shell bits, no sequential exclusions; thirteen damaged
+inventories/bindings reject.
+
+Matched old/new enabled transport fits preserve the same staged-positive-edge
+50 MHz/20 ns shell and SDC: 577 ->616ALMs; 1,089 ->1,165registers; no RAM.
+All four device conditions pass, minimum+0.109ns. Exact source/clock/constraint,
+owner/parser retention, constant-field pruning, warnings and unconstrained-path
+checks pass; nine damaged fit controls reject. The fit uses an explicit prototype
+schema constant; the combined core must instantiate its actual catalog identity
+and repeat complete-core timing. This is not a measured whole-core area delta.
+
+`serial_state_format.py` binds all eleven qualified final simulation receipts
+and complete address maps into `dorado-serial-boards-v1` / ABI2, with dense LSB0
+payloads and385compact runs covering all1,944,744modeled board bits. IFUM/cache/
+map RAMs and their pipelines were tested through separate oracle/probe buses,
+so those full maps are explicitly included alongside the flat FF/device maps.
+The catalog fingerprint is SHA256 and its diagnostic schema ID is
+`c876f8b45b768814`. A matching whole-build/disk/service bundle is still required
+for machine restore; this catalog is board-only. The formatter validates once
+and copies immutable lookup runs, avoiding per-word full-catalog hashing.
+Every board payload round-trips; an independent cross-byte integer oracle,
+invalid maps/padding/frames/status and mutation of the original JSON are tested.
+Twenty-four actual Python-formatted packets drive the real UIO/owner/longest-scan
+RTL at the actual catalog identity, alongside the existing contract tests.
+
+All891raw files pass lossless hash readback; extracted fit/XML/negative controls
+and catalog regeneration from archived original receipt bytes pass. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-serial-transport/`.
+Quartus session17418, transport67925 and format41200 are terminal.
+
+All eleven individual serial boards remain qualified (latest BaseBoard saves
+839ALMs, ContB58, in isolated fits). The last combined result remains
+45,228 /41,910ALMs, 3,318over capacity. No production builder, RBF, live FPGA,
+clock, timer or speed change is claimed. Next: namespace the three differing
+BaseBoard FF helpers and normalize ContA's equivalent counter cast; connect
+forced global hold and separate abort to every board. Classify/expose the
+154,037native-wrapper candidate bits (review-only), top-level input/network/
+video and16MiBexternal raw RAM, then implement actual backend/input/Main/daemon/
+disk-generation barriers and acknowledgments, including a preserving server
+pause/resume path and timer rebasing. Qualify actual combined capacity/timing
+and coherent, atomic disk-paired FPGA Cedar save/continue/restore.
+
+Original60ns clocks/timers, pinned comparisons, three fresh boots/cold persistence
+and two-hour stress remain open. Last qualified Native59 idle stays
+1,947,654.12issues/s. Goal ACTIVE. All experiments in this entry are terminal;
+older running-job entries are historical.
