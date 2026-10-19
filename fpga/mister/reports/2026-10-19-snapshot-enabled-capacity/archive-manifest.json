@@ -1,0 +1,156 @@
+[
+  {
+    "source": "build/rtl-executive/enabled60-capacity-20261019/Dorado.map.summary",
+    "raw_name": "failed-fit/Dorado.map.summary",
+    "stored": "failed-fit/Dorado.map.summary.gz",
+    "raw_bytes": 512,
+    "raw_sha256": "d28601ae1f542422a0ad7063dede6dfb6cadb8de8f0e84de9f43220dc683dbc4"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-capacity-20261019/Dorado.fit.summary",
+    "raw_name": "failed-fit/Dorado.fit.summary",
+    "stored": "failed-fit/Dorado.fit.summary.gz",
+    "raw_bytes": 671,
+    "raw_sha256": "654b811fcc8cbb515597999ae9518cdffb0b0fb922d167929ba44eee069cf8a9"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-capacity-20261019/Dorado.map.rpt",
+    "raw_name": "failed-fit/Dorado.map.rpt",
+    "stored": "failed-fit/Dorado.map.rpt.gz",
+    "raw_bytes": 13274273,
+    "raw_sha256": "a5c4c03312ab8f5d743935b241dffdcc1516edac9448b3d1d8eebdbd459fc7ce"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-capacity-20261019/Dorado.fit.rpt",
+    "raw_name": "failed-fit/Dorado.fit.rpt",
+    "stored": "failed-fit/Dorado.fit.rpt.gz",
+    "raw_bytes": 8318906,
+    "raw_sha256": "24786142b1622caada250199c5f78517e409dbeaf422cf2702ba018a8f8038bf"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-capacity-20261019/fit.log",
+    "raw_name": "failed-fit/fit.log",
+    "stored": "failed-fit/fit.log.gz",
+    "raw_bytes": 18325,
+    "raw_sha256": "0e865fe7f60c093f24e91eb9094f73f0408e1966408d3396a3e119dca2c0ebdf"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-capacity-review-20261019.json",
+    "raw_name": "capacity-review.json",
+    "stored": "capacity-review.json",
+    "raw_bytes": 3693,
+    "raw_sha256": "ee791bd19da0da24010bd1b9fe7fd29d5ea679a88ab19243f53b934a17c9bfd7"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-remote-review-20261019/actual-build-audit.json",
+    "raw_name": "actual-source-audit.json",
+    "stored": "actual-source-audit.json",
+    "raw_bytes": 4985,
+    "raw_sha256": "f860afedc4a78409affa6b1ac2287b10d16bc1b8ae7c2eeab8e806e04692c218"
+  },
+  {
+    "source": "fpga/mister/snapshot/audit_enabled_capacity.py",
+    "raw_name": "tools/audit_enabled_capacity.py",
+    "stored": "tools/audit_enabled_capacity.py",
+    "raw_bytes": 4462,
+    "raw_sha256": "2b3dbc11a168ce9476b05e54261e02d019cec78c568473fa5ead50471166ac32"
+  },
+  {
+    "source": "fpga/mister/snapshot/inventory_machine_support.py",
+    "raw_name": "tools/inventory_machine_support.py",
+    "stored": "tools/inventory_machine_support.py",
+    "raw_bytes": 4623,
+    "raw_sha256": "d23be53bbb5d01f06284cfa7b3381d58855a4283a40c2f19a601017639c848d4"
+  },
+  {
+    "source": "build/rtl-executive/archive-enabled-capacity-20261019.py",
+    "raw_name": "tools/archive-enabled-capacity-20261019.py",
+    "stored": "tools/archive-enabled-capacity-20261019.py",
+    "raw_bytes": 4773,
+    "raw_sha256": "8a5eacd041d3259bee2f958ddc4f8064ba6d820855c947f04a22d5b726e00233"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-support-inventory-v1-20261019.log",
+    "raw_name": "machine-support-v1/driver.log",
+    "stored": "machine-support-v1/driver.log.gz",
+    "raw_bytes": 1084,
+    "raw_sha256": "d05c770314030b1e999e69a2685dd62477efc2ff4ffe2f0095666a9cff6c5df7"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-support-inventory-v2-20261019/provenance.json",
+    "raw_name": "machine-support-v2/provenance.json",
+    "stored": "machine-support-v2/provenance.json",
+    "raw_bytes": 56078,
+    "raw_sha256": "d7bf9e2cb1f1b974494f1f609d5a79e2400dd15fe0beb9b068f8c54a47d6fdb2"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-support-inventory-v2-20261019/elaborate.log",
+    "raw_name": "machine-support-v2/elaborate.log",
+    "stored": "machine-support-v2/elaborate.log.gz",
+    "raw_bytes": 9249263,
+    "raw_sha256": "d76287f9869258aa1e6f78bdbcdae91912519c8e7c1a93648b262c26b8df9a3a"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-support-inventory-v2-20261019/machine-support-review.json",
+    "raw_name": "machine-support-v2/machine-support-review.json",
+    "stored": "machine-support-v2/machine-support-review.json.gz",
+    "raw_bytes": 6259245,
+    "raw_sha256": "2e9fea24976da61f70acb4379b221071fc80aaa4ab04399e8cfab17195d97c40"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-support-inventory-v2-20261019.log",
+    "raw_name": "machine-support-v2/driver.log",
+    "stored": "machine-support-v2/driver.log.gz",
+    "raw_bytes": 62405,
+    "raw_sha256": "930cbc8b8dffc061c3116dd9c3a49e8237af41ab7d685c5f95319ceb2ad25452"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-support-inventory-v3-20261019/provenance.json",
+    "raw_name": "machine-support-v3/provenance.json",
+    "stored": "machine-support-v3/provenance.json",
+    "raw_bytes": 56078,
+    "raw_sha256": "71f1f5a81dd846ae392b11cd0482ef3f8d4537b800d33a6ecafd70d13bf8ca66"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-support-inventory-v3-20261019/complete-review-inventory.json",
+    "raw_name": "machine-support-v3/complete-review-inventory.json",
+    "stored": "machine-support-v3/complete-review-inventory.json.gz",
+    "raw_bytes": 19342179,
+    "raw_sha256": "3a5b4c1b922da18955a9de6ec44f0cf8ecd3eec51db84b0cafdb3fbc07049ec5"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-support-inventory-v3-20261019/elaborate.log",
+    "raw_name": "machine-support-v3/elaborate.log",
+    "stored": "machine-support-v3/elaborate.log.gz",
+    "raw_bytes": 9249263,
+    "raw_sha256": "39c16dab1e778b6e2a332c9b12acc3d85bddc67958f80940e2726946511c7bcd"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-support-inventory-v3-20261019/native-machine.xml",
+    "raw_name": "machine-support-v3/native-machine.xml",
+    "stored": "machine-support-v3/native-machine.xml.gz",
+    "raw_bytes": 18393941,
+    "raw_sha256": "2fddc842cc8176a4567ed7c8b44cd7fae0bea00a0c8b8e5002b92a4ac0ef817b"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-support-inventory-v3-20261019/machine-support-review.json",
+    "raw_name": "machine-support-v3/machine-support-review.json",
+    "stored": "machine-support-v3/machine-support-review.json.gz",
+    "raw_bytes": 6202604,
+    "raw_sha256": "a2828d5a441408ac7dae421c2f7310ffdc5299276738d71ec8bb68796a697bdf"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-support-inventory-v3-20261019.log",
+    "raw_name": "machine-support-v3/driver.log",
+    "stored": "machine-support-v3/driver.log.gz",
+    "raw_bytes": 5764,
+    "raw_sha256": "9e2ad3171ddc696d47d72e513eadcbffd79f109e3f205c0b1d57c936b22cb7b4"
+  },
+  {
+    "source": "tools/sil_state_inventory.py",
+    "raw_name": "tools/sil_state_inventory.py",
+    "stored": "tools/sil_state_inventory.py",
+    "raw_bytes": 9225,
+    "raw_sha256": "e953a67b80dbde6729e991dacf9efc31fdde78111b7f0feef1dc51681eb2fb35"
+  }
+]

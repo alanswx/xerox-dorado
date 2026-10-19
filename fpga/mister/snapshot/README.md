@@ -562,6 +562,38 @@ integrations reject. The audit also passes against the actual remote build.
 Quartus17's optional complete set of relative source aliases is checked to
 resolve exactly to the18new files. Evidence: reports/2026-10-19-snapshot-board-state.
 
-Full-core synthesis passes; fitting is running in
-`misterubuntu:/home/alans/mister/Dorado_Enabled60_20261019`. Capacity/routed
-timing and hardware operation remain unqualified. Live Native59 is unchanged.
+The first full-core synthesis passes, but fitting is terminal/rejected at
+54,403 ALMs versus 41,910 available (5,505 LABs versus 4,191). No timing or
+hardware operation is qualified. Evidence: reports/2026-10-19-snapshot-enabled-capacity.
+
+## First enabled-area reduction: shared RIOT RAM port (2026-10-19)
+
+`generate_riot_shared_port.py` folds mutually exclusive normal/administrative
+RAM accesses into one address/data/write-enable port. It preserves all 128x8
+RAM bits, exact whole-array reset, read-before-write, latency and the existing
+133-word ABI. There is no new state or validity/reconstruction scheme.
+`test_riot_shared_port.py` reuses the unchanged original/independent oracle:
+all 1,097 bits, addresses, timers, reset/hold and restore/first-edge/20K further
+cycles pass; six broken variants reject. Fresh XML and synthesis retain all
+1,097 physical + 21 interface bits. Matched enabled fixtures use identical
+50MHz constraints; four conditions pass, minimum +0.167ns, 1,645 -> 782 ALMs.
+Seven damaged fit/retention controls reject. These are isolated shell counts.
+
+`generate_baseboard_shared_riot.py` changes only the RIOT child and its manifest.
+`test_baseboard_shared_riot.py` selects it in the unchanged full-board fixture;
+all 40,366 physical bits/131,072 indices, original outputs, independent models,
+destructive restore and 20K further cycles pass. This run repeats the positive
+board test; earlier SRAM writer and broken-board coverage remains separate.
+Only M6532_snapshot.sv differs among the 22 prepared HDL assets.
+
+The opt-in `build_enabled_core.py --shared-riot` build is now running in
+`misterubuntu:/home/alans/mister/Dorado_Enabled60SharedRIOT_20261019`.
+Every board remains enabled; local/actual remote source audit and fifteen bad
+integration controls pass. Capacity/routed timing remain unqualified. Evidence:
+reports/2026-10-19-snapshot-riot-shared-port. No new RBF or speed change.
+
+`inventory_machine_support.py` also elaborates exact staged source/macros to
+inventory the native wrapper outside the eleven boards. It identifies 154,037
+sequential candidate bits, mostly disk buffering/raw-memory frontend state.
+This is REVIEW ONLY. Top-level input/network/video, external RAM and ARM state
+remain outside that XML and need their own classification and global barrier.

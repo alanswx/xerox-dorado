@@ -1,0 +1,1983 @@
+[
+  {
+    "source": "fpga/mister/snapshot/generate_riot_shared_port.py",
+    "raw_name": "tools/generate_riot_shared_port.py",
+    "stored": "tools/generate_riot_shared_port.py",
+    "raw_bytes": 2478,
+    "raw_sha256": "be7e5ba4ade75e9b5ce10bf62dd171a6736fc81e6dfdebe0185b5cd6011f697c"
+  },
+  {
+    "source": "fpga/mister/snapshot/test_riot_shared_port.py",
+    "raw_name": "tools/test_riot_shared_port.py",
+    "stored": "tools/test_riot_shared_port.py",
+    "raw_bytes": 3668,
+    "raw_sha256": "49cd94756c128538fb28c958cd8d991338fbb8b3acce26339e42407ed3bed35a"
+  },
+  {
+    "source": "fpga/mister/snapshot/classify_riot_shared_port.py",
+    "raw_name": "tools/classify_riot_shared_port.py",
+    "stored": "tools/classify_riot_shared_port.py",
+    "raw_bytes": 4373,
+    "raw_sha256": "eab40d1b260b01944d809404925d477f6d55cd09ff3ec12877c823d2f4d21b96"
+  },
+  {
+    "source": "fpga/mister/snapshot/fit_riot_shared_port.py",
+    "raw_name": "tools/fit_riot_shared_port.py",
+    "stored": "tools/fit_riot_shared_port.py",
+    "raw_bytes": 3018,
+    "raw_sha256": "c4df45402f47e5db2afe1a26cd278c4a336d778c013e667372f9443f1de87b6b"
+  },
+  {
+    "source": "fpga/mister/snapshot/audit_riot_shared_port.py",
+    "raw_name": "tools/audit_riot_shared_port.py",
+    "stored": "tools/audit_riot_shared_port.py",
+    "raw_bytes": 2804,
+    "raw_sha256": "4511770feb99814a868326a3a5549e445d814ee03b75903e06f13ddede757a86"
+  },
+  {
+    "source": "fpga/mister/snapshot/generate_baseboard_shared_riot.py",
+    "raw_name": "tools/generate_baseboard_shared_riot.py",
+    "stored": "tools/generate_baseboard_shared_riot.py",
+    "raw_bytes": 1023,
+    "raw_sha256": "ff941c29d58ab142097a3e0a1c9d84788473c3b733d606a97ac754fa749fe199"
+  },
+  {
+    "source": "fpga/mister/snapshot/test_baseboard_shared_riot.py",
+    "raw_name": "tools/test_baseboard_shared_riot.py",
+    "stored": "tools/test_baseboard_shared_riot.py",
+    "raw_bytes": 1846,
+    "raw_sha256": "dce33deab225f7a65e52f96970c686432e00428381b77ebb728db97dffa60b7d"
+  },
+  {
+    "source": "fpga/mister/snapshot/build_enabled_core.py",
+    "raw_name": "tools/build_enabled_core.py",
+    "stored": "tools/build_enabled_core.py",
+    "raw_bytes": 14887,
+    "raw_sha256": "5dc76d3610ff7f0503b5b2e17e8cf54c024ef661eee13c97a1b67b571551e8ad"
+  },
+  {
+    "source": "fpga/mister/snapshot/generate_baseboard_full.py",
+    "raw_name": "tools/generate_baseboard_full.py",
+    "stored": "tools/generate_baseboard_full.py",
+    "raw_bytes": 10413,
+    "raw_sha256": "9dc3430ceae180e3b472dcce5da65265af98d36cb260c0fb5d2f603be0651a23"
+  },
+  {
+    "source": "fpga/mister/snapshot/generate_riot.py",
+    "raw_name": "tools/generate_riot.py",
+    "stored": "tools/generate_riot.py",
+    "raw_bytes": 4302,
+    "raw_sha256": "a4cf664b8c2ee5994043c1cf2ee6d4738daa1cc35b3c1c027878488e407dfd57"
+  },
+  {
+    "source": "fpga/mister/snapshot/fit_riot.py",
+    "raw_name": "tools/fit_riot.py",
+    "stored": "tools/fit_riot.py",
+    "raw_bytes": 11040,
+    "raw_sha256": "184f17eff6aed92a17a0b49ec4e5e8761eceed9c84a0e4575d84a6c3285382d1"
+  },
+  {
+    "source": "build/rtl-executive/archive-enabled-capacity-20261019.py",
+    "raw_name": "tools/archive-enabled-capacity-20261019.py",
+    "stored": "tools/archive-enabled-capacity-20261019.py",
+    "raw_bytes": 4773,
+    "raw_sha256": "8a5eacd041d3259bee2f958ddc4f8064ba6d820855c947f04a22d5b726e00233"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/results.json",
+    "raw_name": "simulation/results.json",
+    "stored": "simulation/results.json",
+    "raw_bytes": 20213,
+    "raw_sha256": "75a0fca244a31d95746f30c444eca472c0cd26c1cf1812a00d932d2e437c5ccf"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/candidate/fixture.sv",
+    "raw_name": "simulation/candidate/fixture.sv",
+    "stored": "simulation/candidate/fixture.sv.gz",
+    "raw_bytes": 1935,
+    "raw_sha256": "7be9c1de96179015cf2662734edcb327f7f5ced0fdae44c083555a097c4a4111"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/candidate/M6532_snapshot.sv",
+    "raw_name": "simulation/candidate/M6532_snapshot.sv",
+    "stored": "simulation/candidate/M6532_snapshot.sv.gz",
+    "raw_bytes": 8435,
+    "raw_sha256": "6f0011c3920d90930630c0099904a292508ee79de6dbe5beef337aae77b46cbc"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/candidate/command.json",
+    "raw_name": "simulation/candidate/command.json",
+    "stored": "simulation/candidate/command.json",
+    "raw_bytes": 644,
+    "raw_sha256": "42de268e8ee51960fc668b9e95eb3c3e75480047c85c0a3531e27b1b2bdc8723"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/candidate/test.txt",
+    "raw_name": "simulation/candidate/test.txt",
+    "stored": "simulation/candidate/test.txt.gz",
+    "raw_bytes": 184,
+    "raw_sha256": "550bafe6ca059052233b23c97aa915b1823e900fe42f206cf9f47ca563da7669"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/candidate/build.log",
+    "raw_name": "simulation/candidate/build.log",
+    "stored": "simulation/candidate/build.log.gz",
+    "raw_bytes": 4190,
+    "raw_sha256": "4935b8e70cf9ae3ab8d39a0f36085fdd8a1d2c6d7f4cb913ef36dc93e5705fb7"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/lost_pa7/fixture.sv",
+    "raw_name": "simulation/lost_pa7/fixture.sv",
+    "stored": "simulation/lost_pa7/fixture.sv.gz",
+    "raw_bytes": 1935,
+    "raw_sha256": "7be9c1de96179015cf2662734edcb327f7f5ced0fdae44c083555a097c4a4111"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/lost_pa7/M6532_snapshot.sv",
+    "raw_name": "simulation/lost_pa7/M6532_snapshot.sv",
+    "stored": "simulation/lost_pa7/M6532_snapshot.sv.gz",
+    "raw_bytes": 8424,
+    "raw_sha256": "4b2fcb03a4a5dcfda831362f975ea17449c14ba9a9ba824317ef3a13570a90e0"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/lost_pa7/command.json",
+    "raw_name": "simulation/lost_pa7/command.json",
+    "stored": "simulation/lost_pa7/command.json",
+    "raw_bytes": 641,
+    "raw_sha256": "025ef510ed032f02eabe6d3a668dd21ac77f93cab67754969d30d996e7fbc9a5"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/lost_pa7/test.txt",
+    "raw_name": "simulation/lost_pa7/test.txt",
+    "stored": "simulation/lost_pa7/test.txt.gz",
+    "raw_bytes": 45,
+    "raw_sha256": "ed3763ea907c433974bd92d05a5a9cf4d10f50f0f4a90b839606284a945de1f0"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/lost_pa7/build.log",
+    "raw_name": "simulation/lost_pa7/build.log",
+    "stored": "simulation/lost_pa7/build.log.gz",
+    "raw_bytes": 4190,
+    "raw_sha256": "5b0649621d30d4b4cf1cf58c3ed3ddeaa14041d16ad3b0a89c6dd7032e9c627a"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/reset_enable/fixture.sv",
+    "raw_name": "simulation/reset_enable/fixture.sv",
+    "stored": "simulation/reset_enable/fixture.sv.gz",
+    "raw_bytes": 1935,
+    "raw_sha256": "7be9c1de96179015cf2662734edcb327f7f5ced0fdae44c083555a097c4a4111"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/reset_enable/M6532_snapshot.sv",
+    "raw_name": "simulation/reset_enable/M6532_snapshot.sv",
+    "stored": "simulation/reset_enable/M6532_snapshot.sv.gz",
+    "raw_bytes": 8441,
+    "raw_sha256": "6b6471ba35c25b089f94afd711ea3936d25cf17f41f8402592dd381825607f88"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/reset_enable/command.json",
+    "raw_name": "simulation/reset_enable/command.json",
+    "stored": "simulation/reset_enable/command.json",
+    "raw_bytes": 653,
+    "raw_sha256": "19627563d113792ca36e926b4841a9a0dc160882b5eb063f7020cfe9807bee73"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/reset_enable/test.txt",
+    "raw_name": "simulation/reset_enable/test.txt",
+    "stored": "simulation/reset_enable/test.txt.gz",
+    "raw_bytes": 45,
+    "raw_sha256": "e9414e55905d3edc4879c73f6b58b9220439ec864711b0483af8647762eba06f"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/reset_enable/build.log",
+    "raw_name": "simulation/reset_enable/build.log",
+    "stored": "simulation/reset_enable/build.log.gz",
+    "raw_bytes": 4190,
+    "raw_sha256": "bcf64840df2ddc9c1b4f1e1e99abc543aa0d07a13bb188ac89c665954ddc8683"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/running_access/fixture.sv",
+    "raw_name": "simulation/running_access/fixture.sv",
+    "stored": "simulation/running_access/fixture.sv.gz",
+    "raw_bytes": 1935,
+    "raw_sha256": "7be9c1de96179015cf2662734edcb327f7f5ced0fdae44c083555a097c4a4111"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/running_access/M6532_snapshot.sv",
+    "raw_name": "simulation/running_access/M6532_snapshot.sv",
+    "stored": "simulation/running_access/M6532_snapshot.sv.gz",
+    "raw_bytes": 8405,
+    "raw_sha256": "9ea17ba3d332dc81469bf0d642ef74140bc1351f48e5f33dc98e4c57deccdef2"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/running_access/command.json",
+    "raw_name": "simulation/running_access/command.json",
+    "stored": "simulation/running_access/command.json",
+    "raw_bytes": 659,
+    "raw_sha256": "285d0a1ec8c5fd4f0ce416cfee7607c763d176987f5f92b0060eac05a1eabb08"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/running_access/test.txt",
+    "raw_name": "simulation/running_access/test.txt",
+    "stored": "simulation/running_access/test.txt.gz",
+    "raw_bytes": 45,
+    "raw_sha256": "711ffcc6fa56bf0eb3d3d3dc25e4f8ea7f388a4fd6d5c5f1cf20dac2195ea60a"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/running_access/build.log",
+    "raw_name": "simulation/running_access/build.log",
+    "stored": "simulation/running_access/build.log.gz",
+    "raw_bytes": 4190,
+    "raw_sha256": "cb3f5d10a156f57513fc2e562d32c0cc7d8dc8f342b282da7b2a9465e9af9cae"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/admin_alias/fixture.sv",
+    "raw_name": "simulation/admin_alias/fixture.sv",
+    "stored": "simulation/admin_alias/fixture.sv.gz",
+    "raw_bytes": 1935,
+    "raw_sha256": "7be9c1de96179015cf2662734edcb327f7f5ced0fdae44c083555a097c4a4111"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/admin_alias/M6532_snapshot.sv",
+    "raw_name": "simulation/admin_alias/M6532_snapshot.sv",
+    "stored": "simulation/admin_alias/M6532_snapshot.sv.gz",
+    "raw_bytes": 8423,
+    "raw_sha256": "080e2e034b6ff0652152d0ab104465722cff96d80e06e546b7dcc5e92d90ea8d"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/admin_alias/command.json",
+    "raw_name": "simulation/admin_alias/command.json",
+    "stored": "simulation/admin_alias/command.json",
+    "raw_bytes": 650,
+    "raw_sha256": "b0e0e59954f1e1d6550c76d3a79800c2e3bbd70a6ffdc9a29d3d6f3766a91551"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/admin_alias/test.txt",
+    "raw_name": "simulation/admin_alias/test.txt",
+    "stored": "simulation/admin_alias/test.txt.gz",
+    "raw_bytes": 45,
+    "raw_sha256": "a3f98416436f3b0c0ef946dd114050453f93c71f1349c5a6b80482ddc39347a4"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/admin_alias/build.log",
+    "raw_name": "simulation/admin_alias/build.log",
+    "stored": "simulation/admin_alias/build.log.gz",
+    "raw_bytes": 4190,
+    "raw_sha256": "cef266a46ef8ce564f5257b6bc25f951f029ae32af7291b39ffdaf504c5c8e27"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/held_reset/fixture.sv",
+    "raw_name": "simulation/held_reset/fixture.sv",
+    "stored": "simulation/held_reset/fixture.sv.gz",
+    "raw_bytes": 1935,
+    "raw_sha256": "7be9c1de96179015cf2662734edcb327f7f5ced0fdae44c083555a097c4a4111"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/held_reset/M6532_snapshot.sv",
+    "raw_name": "simulation/held_reset/M6532_snapshot.sv",
+    "stored": "simulation/held_reset/M6532_snapshot.sv.gz",
+    "raw_bytes": 8421,
+    "raw_sha256": "9e0200fb41a011c4cc781aedb4b1674b3470d22ece87aea440dd30bc506dd475"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/held_reset/command.json",
+    "raw_name": "simulation/held_reset/command.json",
+    "stored": "simulation/held_reset/command.json",
+    "raw_bytes": 647,
+    "raw_sha256": "80b12d1889114826b2e22ab4673b423d1ccf424a787b1442f9b13b10d788682c"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/held_reset/test.txt",
+    "raw_name": "simulation/held_reset/test.txt",
+    "stored": "simulation/held_reset/test.txt.gz",
+    "raw_bytes": 45,
+    "raw_sha256": "8e2ad49657af89cadcb3498a3b0882f74536bdf09bc66c58840e1e4fd42dd23c"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/held_reset/build.log",
+    "raw_name": "simulation/held_reset/build.log",
+    "stored": "simulation/held_reset/build.log.gz",
+    "raw_bytes": 4190,
+    "raw_sha256": "10950992b77249a08eadc37f1655c500bdac86fd051309038d2afa038a7fde4b"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/executed-inputs/generate_riot_shared_port.py",
+    "raw_name": "simulation/executed-inputs/generate_riot_shared_port.py",
+    "stored": "simulation/executed-inputs/generate_riot_shared_port.py",
+    "raw_bytes": 2478,
+    "raw_sha256": "be7e5ba4ade75e9b5ce10bf62dd171a6736fc81e6dfdebe0185b5cd6011f697c"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/executed-inputs/M6532.sv",
+    "raw_name": "simulation/executed-inputs/M6532.sv",
+    "stored": "simulation/executed-inputs/M6532.sv.gz",
+    "raw_bytes": 6055,
+    "raw_sha256": "43c9d1670fcbb98ad4681883981930817e2882a5ab32790f8285961c3ae0c1b1"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/executed-inputs/test_riot_shared_port.py",
+    "raw_name": "simulation/executed-inputs/test_riot_shared_port.py",
+    "stored": "simulation/executed-inputs/test_riot_shared_port.py",
+    "raw_bytes": 3668,
+    "raw_sha256": "49cd94756c128538fb28c958cd8d991338fbb8b3acce26339e42407ed3bed35a"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/executed-inputs/test_riot.py",
+    "raw_name": "simulation/executed-inputs/test_riot.py",
+    "stored": "simulation/executed-inputs/test_riot.py",
+    "raw_bytes": 5351,
+    "raw_sha256": "45c5142abd83d8c2ab7b03ec422d5596db7d3a172e9e81b5232fc6f5e58944b7"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/executed-inputs/test_riot.cpp",
+    "raw_name": "simulation/executed-inputs/test_riot.cpp",
+    "stored": "simulation/executed-inputs/test_riot.cpp.gz",
+    "raw_bytes": 8819,
+    "raw_sha256": "36c096280fcf17491c0eda7199e8d82f302ff1972e276bd2712668b984a000ea"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/executed-inputs/generate_riot.py",
+    "raw_name": "simulation/executed-inputs/generate_riot.py",
+    "stored": "simulation/executed-inputs/generate_riot.py",
+    "raw_bytes": 4302,
+    "raw_sha256": "a4cf664b8c2ee5994043c1cf2ee6d4738daa1cc35b3c1c027878488e407dfd57"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/guest_write_enable/fixture.sv",
+    "raw_name": "simulation/guest_write_enable/fixture.sv",
+    "stored": "simulation/guest_write_enable/fixture.sv.gz",
+    "raw_bytes": 1935,
+    "raw_sha256": "7be9c1de96179015cf2662734edcb327f7f5ced0fdae44c083555a097c4a4111"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/guest_write_enable/M6532_snapshot.sv",
+    "raw_name": "simulation/guest_write_enable/M6532_snapshot.sv",
+    "stored": "simulation/guest_write_enable/M6532_snapshot.sv.gz",
+    "raw_bytes": 8429,
+    "raw_sha256": "a9c976d7d10a777db7fe641cfe64842bb649a4bb87f9fe36ec13ff5871790aac"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/guest_write_enable/command.json",
+    "raw_name": "simulation/guest_write_enable/command.json",
+    "stored": "simulation/guest_write_enable/command.json",
+    "raw_bytes": 671,
+    "raw_sha256": "d2a19eab0e1c061eb25d316bfc6b4bfcd0f17b6d0e26f6d93bcae6a34ec18579"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/guest_write_enable/test.txt",
+    "raw_name": "simulation/guest_write_enable/test.txt",
+    "stored": "simulation/guest_write_enable/test.txt.gz",
+    "raw_bytes": 44,
+    "raw_sha256": "cc3feb87feb6d849eb73df53dfb18ce242ceac55ec569621d8f4a06e4df31920"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019/guest_write_enable/build.log",
+    "raw_name": "simulation/guest_write_enable/build.log",
+    "stored": "simulation/guest_write_enable/build.log.gz",
+    "raw_bytes": 4190,
+    "raw_sha256": "98def79c52c2c62141ab2ac2cbe5918c87187f4127c618ec5f999c992ef34f4c"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-v1-20261019.log",
+    "raw_name": "simulation/driver.log",
+    "stored": "simulation/driver.log.gz",
+    "raw_bytes": 549,
+    "raw_sha256": "47d2c0d6c7e6f9e22ca14cd4ca312aab90bb6fe5175903d70d6de1d66c9e5b19"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-classification-v1-20261019/classification.json",
+    "raw_name": "classification/classification.json",
+    "stored": "classification/classification.json",
+    "raw_bytes": 5566,
+    "raw_sha256": "d20d0480bf374f6ee9688aae37dd12af76d9fd0c6c5900d24c2b42f87b731157"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-classification-v1-20261019/shared/elaborate.log",
+    "raw_name": "classification/shared/elaborate.log",
+    "stored": "classification/shared/elaborate.log.gz",
+    "raw_bytes": 592,
+    "raw_sha256": "5e37995122a8816450d03379059cac115ca6b410ee697d9b5f7631beb923f803"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-classification-v1-20261019/shared/M6532_snapshot.sv",
+    "raw_name": "classification/shared/M6532_snapshot.sv",
+    "stored": "classification/shared/M6532_snapshot.sv.gz",
+    "raw_bytes": 8435,
+    "raw_sha256": "6f0011c3920d90930630c0099904a292508ee79de6dbe5beef337aae77b46cbc"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-classification-v1-20261019/shared/riot.xml",
+    "raw_name": "classification/shared/riot.xml",
+    "stored": "classification/shared/riot.xml.gz",
+    "raw_bytes": 102512,
+    "raw_sha256": "7fd0ea0d56215cbe69ad04d86076de6b9a0c2fd6f6df977b7d1ea901f42488b8"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-classification-v1-20261019/shared/command.json",
+    "raw_name": "classification/shared/command.json",
+    "stored": "classification/shared/command.json",
+    "raw_bytes": 354,
+    "raw_sha256": "ef00fa2c0a435d4012fb594fa8efcbe0b6fbf8ffa40bd250498f3d2e2c77adf9"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-classification-v1-20261019/shared/inventory.json",
+    "raw_name": "classification/shared/inventory.json",
+    "stored": "classification/shared/inventory.json",
+    "raw_bytes": 16320,
+    "raw_sha256": "181f50ba3af7067db3cdb02ca5375193ec05a97633e848689c033bc97180b2fe"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-classification-v1-20261019/qualified/elaborate.log",
+    "raw_name": "classification/qualified/elaborate.log",
+    "stored": "classification/qualified/elaborate.log.gz",
+    "raw_bytes": 592,
+    "raw_sha256": "9a1b4ce715d5cefc0c72e3b409e60519c912acaa3c588627a9ecd4d383c3ebdc"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-classification-v1-20261019/qualified/M6532_snapshot.sv",
+    "raw_name": "classification/qualified/M6532_snapshot.sv",
+    "stored": "classification/qualified/M6532_snapshot.sv.gz",
+    "raw_bytes": 7743,
+    "raw_sha256": "c8435f56312d982023ddf12ef3119ddbd3591254603beb4037d33a459b5941e8"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-classification-v1-20261019/qualified/riot.xml",
+    "raw_name": "classification/qualified/riot.xml",
+    "stored": "classification/qualified/riot.xml.gz",
+    "raw_bytes": 99842,
+    "raw_sha256": "f5b37aa854ad1d5c0c46d6329667ac583e3b3cb13f2e9b87562bcdbe358d6440"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-classification-v1-20261019/qualified/command.json",
+    "raw_name": "classification/qualified/command.json",
+    "stored": "classification/qualified/command.json",
+    "raw_bytes": 360,
+    "raw_sha256": "11cc1860b0083a2a53a649bcd559b72d6e9f91c14ba70a336c3140933097da07"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-classification-v1-20261019/qualified/inventory.json",
+    "raw_name": "classification/qualified/inventory.json",
+    "stored": "classification/qualified/inventory.json",
+    "raw_bytes": 13021,
+    "raw_sha256": "820b2ed2ff3efd8bc4253d142114b778d99b05e07b61b38bfbaa68bd77e7756e"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/provenance.json",
+    "raw_name": "fit/provenance.json",
+    "stored": "fit/provenance.json",
+    "raw_bytes": 43486,
+    "raw_sha256": "4c4ca5d9959f0efe5f7603c5ceccd288cbe060b208107cde05e08863d12743c4"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-clocks-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-clocks-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-clocks-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 1295,
+    "raw_sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-hold-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-hold-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-hold-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 23971,
+    "raw_sha256": "931769b8927c815c47f5d7b5d2a8b4fcab2fae1c887bccc81081e16a8e2e43c1"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank.sdc",
+    "raw_name": "fit/snapshot/bank.sdc",
+    "stored": "fit/snapshot/bank.sdc.gz",
+    "raw_bytes": 419,
+    "raw_sha256": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/corners.log",
+    "raw_name": "fit/snapshot/corners.log",
+    "stored": "fit/snapshot/corners.log.gz",
+    "raw_bytes": 8295,
+    "raw_sha256": "a69a7dce66b3c2be24743acadd509c2160466d1bf4a59d93a2e91d33c714693f"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/snapshot_fit.flow.rpt",
+    "raw_name": "fit/snapshot/snapshot_fit.flow.rpt",
+    "stored": "fit/snapshot/snapshot_fit.flow.rpt.gz",
+    "raw_bytes": 7919,
+    "raw_sha256": "33e2c2fbdb1bcc6ef83361008b771304edcd6116df7327a449d4c1f23e4acbd6"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-removal-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-removal-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-removal-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-setup-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-setup-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-setup-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 21590,
+    "raw_sha256": "01e9df52ff6a478cce1c0396f22fe28310342340d648baedda9a6475784946d3"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-setup-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-setup-7_slow_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-setup-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 21505,
+    "raw_sha256": "88c58a85953c56a0c485c350a315c68b9e81689fa8b117411e25f183350bbf11"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-removal-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-removal-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-removal-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/snapshot_fit.fit.summary",
+    "raw_name": "fit/snapshot/snapshot_fit.fit.summary",
+    "stored": "fit/snapshot/snapshot_fit.fit.summary.gz",
+    "raw_bytes": 669,
+    "raw_sha256": "c03df677522b20cdd83a96755686ad37dd3f72cf02520adafd844d80ca295182"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-mpw-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-mpw-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-mpw-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 3530,
+    "raw_sha256": "fc82b37ce8efdffd190194c928cd2728acf40724e509f6b7fc66e50e1124822b"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-removal-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-removal-7_slow_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-removal-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/M6532.sv",
+    "raw_name": "fit/snapshot/M6532.sv",
+    "stored": "fit/snapshot/M6532.sv.gz",
+    "raw_bytes": 6055,
+    "raw_sha256": "43c9d1670fcbb98ad4681883981930817e2882a5ab32790f8285961c3ae0c1b1"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-clocks-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-clocks-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-clocks-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 1295,
+    "raw_sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-hold-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-hold-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-hold-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 23971,
+    "raw_sha256": "84f1137a54ca2a81a1335802b99073276167f80b50a42de02c82bad3a3039b7d"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-mpw-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-mpw-7_slow_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-mpw-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 4185,
+    "raw_sha256": "7fd06177ad589459535458426553836016e6b5c1b436fb69f102307d5209f0e1"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-setup-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-setup-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-setup-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 21505,
+    "raw_sha256": "c0a04ef29138e10a87aad4807c773581896c441c3a82c536ab6df13f480c8c49"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-setup-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-setup-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-setup-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 21509,
+    "raw_sha256": "9dcbdc77f1ae90774c6df71f17f0097d555342a0e804cf718ed542eacda6c76c"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/snapshot_fit.fit.smsg",
+    "raw_name": "fit/snapshot/snapshot_fit.fit.smsg",
+    "stored": "fit/snapshot/snapshot_fit.fit.smsg.gz",
+    "raw_bytes": 811,
+    "raw_sha256": "17f4d158d5a254600dca8dec1249007f5a14b55a393303c3861a5f19aecb0866"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/top.sv",
+    "raw_name": "fit/snapshot/top.sv",
+    "stored": "fit/snapshot/top.sv.gz",
+    "raw_bytes": 1569,
+    "raw_sha256": "ab543fa84811df74644083a1198db05b20b7484abf6ef63300248a9d129d12ff"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-removal-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-removal-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-removal-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/snapshot_fit.map.summary",
+    "raw_name": "fit/snapshot/snapshot_fit.map.summary",
+    "stored": "fit/snapshot/snapshot_fit.map.summary.gz",
+    "raw_bytes": 513,
+    "raw_sha256": "20c76aac8e4b1db5494ce65a7d8c22de3b65bd370f2a9112a0d67aff1bdb8920"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/M6532_snapshot.sv",
+    "raw_name": "fit/snapshot/M6532_snapshot.sv",
+    "stored": "fit/snapshot/M6532_snapshot.sv.gz",
+    "raw_bytes": 8435,
+    "raw_sha256": "6f0011c3920d90930630c0099904a292508ee79de6dbe5beef337aae77b46cbc"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/snapshot_fit.fit.rpt",
+    "raw_name": "fit/snapshot/snapshot_fit.fit.rpt",
+    "stored": "fit/snapshot/snapshot_fit.fit.rpt.gz",
+    "raw_bytes": 246616,
+    "raw_sha256": "abc2d8735367ee7b3912b05270bdc67d176fb8538e504822b332c6d88763df5c"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/map.log",
+    "raw_name": "fit/snapshot/map.log",
+    "stored": "fit/snapshot/map.log.gz",
+    "raw_bytes": 18884,
+    "raw_sha256": "df17fb4d4e3cd4ca149ea0e5f2c7dfbc22755494c51c4cd2b93fcfa9c386b17f"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-recovery-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-recovery-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-recovery-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-ucp-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-ucp-7_slow_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-ucp-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 1015,
+    "raw_sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-recovery-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-recovery-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-recovery-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/audit.tcl",
+    "raw_name": "fit/snapshot/audit.tcl",
+    "stored": "fit/snapshot/audit.tcl.gz",
+    "raw_bytes": 745,
+    "raw_sha256": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-ucp-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-ucp-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-ucp-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 1015,
+    "raw_sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/snapshot_fit.sta.summary",
+    "raw_name": "fit/snapshot/snapshot_fit.sta.summary",
+    "stored": "fit/snapshot/snapshot_fit.sta.summary.gz",
+    "raw_bytes": 399,
+    "raw_sha256": "3067288addd867c162c20108cb2ca79f12be12befa93b7984318b0ab162c6635"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/fit.log",
+    "raw_name": "fit/snapshot/fit.log",
+    "stored": "fit/snapshot/fit.log.gz",
+    "raw_bytes": 5749,
+    "raw_sha256": "5682fb80aa8ee3242d83698c4d900a478cff1914369e2d1d57499282f4903976"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-mpw-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-mpw-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-mpw-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 4487,
+    "raw_sha256": "30ee3abb3b1042e7ee34582899943979ab5e25fea1c0d53ad3dc0672d9f8e9d5"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/snapshot_fit.map.rpt",
+    "raw_name": "fit/snapshot/snapshot_fit.map.rpt",
+    "stored": "fit/snapshot/snapshot_fit.map.rpt.gz",
+    "raw_bytes": 67914,
+    "raw_sha256": "b7d265116b4a1ba8dcfeac9fe0a13458407be35fd74e467dcad5221781e97a3d"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-hold-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-hold-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-hold-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 23622,
+    "raw_sha256": "278eaffda54a65a67e87bce0355b850be1dc655b07b1c269ce8ad95a357b2f42"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-clocks-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-clocks-7_slow_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-clocks-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 1295,
+    "raw_sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-ucp-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-ucp-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-ucp-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 1015,
+    "raw_sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/snapshot_fit.qpf",
+    "raw_name": "fit/snapshot/snapshot_fit.qpf",
+    "stored": "fit/snapshot/snapshot_fit.qpf.gz",
+    "raw_bytes": 34,
+    "raw_sha256": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-recovery-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-recovery-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-recovery-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-recovery-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-recovery-7_slow_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-recovery-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/sta.log",
+    "raw_name": "fit/snapshot/sta.log",
+    "stored": "fit/snapshot/sta.log.gz",
+    "raw_bytes": 3335,
+    "raw_sha256": "0495cf3a678ada9a92d85f2e1b444767b0572ca3a2198ec6bfc90007fd2df910"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/snapshot_fit.qsf",
+    "raw_name": "fit/snapshot/snapshot_fit.qsf",
+    "stored": "fit/snapshot/snapshot_fit.qsf.gz",
+    "raw_bytes": 1723,
+    "raw_sha256": "1e52c76784d018f92553103cf508f73bcbff36341a958aeea80322a5c7fc12dd"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/snapshot_fit.pin",
+    "raw_name": "fit/snapshot/snapshot_fit.pin",
+    "stored": "fit/snapshot/snapshot_fit.pin.gz",
+    "raw_bytes": 79953,
+    "raw_sha256": "5a8437ef36245b348e6f516d63bcafc16374a461bafa322bd84fa662b5e8adfd"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-hold-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/snapshot/bank-hold-7_slow_1100mv_100c.rpt",
+    "stored": "fit/snapshot/bank-hold-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 23717,
+    "raw_sha256": "95be914007ffe352a5c832851df3d6367a5bebca3dd2aa25908ff3b1eeee7ce8"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-clocks-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-clocks-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-clocks-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 1295,
+    "raw_sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-mpw-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-mpw-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-mpw-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 4487,
+    "raw_sha256": "483e9dbc577d9da0ab180fd33cbe9728ddf748354b97b60c59963a4257515047"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/snapshot_fit.sta.rpt",
+    "raw_name": "fit/snapshot/snapshot_fit.sta.rpt",
+    "stored": "fit/snapshot/snapshot_fit.sta.rpt.gz",
+    "raw_bytes": 19179,
+    "raw_sha256": "56ccf885373e958be7d9753154f1dfb9ebe1877062f256f5ee78ecbd5bcb9d6a"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/snapshot/bank-ucp-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/snapshot/bank-ucp-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/snapshot/bank-ucp-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 1015,
+    "raw_sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-clocks-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-clocks-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-clocks-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 1295,
+    "raw_sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-hold-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-hold-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-hold-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 23867,
+    "raw_sha256": "68442ac3a0b2d7178dde2afd34c75ad42cf3abc720563a3068536b677ec77f94"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank.sdc",
+    "raw_name": "fit/baseline/bank.sdc",
+    "stored": "fit/baseline/bank.sdc.gz",
+    "raw_bytes": 419,
+    "raw_sha256": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/corners.log",
+    "raw_name": "fit/baseline/corners.log",
+    "stored": "fit/baseline/corners.log.gz",
+    "raw_bytes": 8295,
+    "raw_sha256": "a0eca1cdf12ab9a48aa3752ee9aa5ef6a6a9a1173e2a029bd12e633c8f2dba8f"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/snapshot_fit.flow.rpt",
+    "raw_name": "fit/baseline/snapshot_fit.flow.rpt",
+    "stored": "fit/baseline/snapshot_fit.flow.rpt.gz",
+    "raw_bytes": 7919,
+    "raw_sha256": "f9f07f25332b5f79b53837f7fb01ac6de8838ceea835e4adbd165fd0b8712ea5"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-removal-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-removal-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-removal-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-setup-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-setup-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-setup-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 21509,
+    "raw_sha256": "31bfeae30ad09eed9426ef1c14542a216b29c75130725e055bce4d6436005095"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-setup-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-setup-7_slow_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-setup-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 21586,
+    "raw_sha256": "4ebc4e7a8cf67da8086aadb6d5530176f4e57e819d2264fa197251773b99e1ed"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-removal-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-removal-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-removal-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/snapshot_fit.fit.summary",
+    "raw_name": "fit/baseline/snapshot_fit.fit.summary",
+    "stored": "fit/baseline/snapshot_fit.fit.summary.gz",
+    "raw_bytes": 671,
+    "raw_sha256": "00f07847a29678ae39391d1e71d53ffd55c6904639806c65958d536a7d96ec2d"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-mpw-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-mpw-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-mpw-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 3530,
+    "raw_sha256": "d8a01cc22d0bf570ef940b839c57998d03cbcaee2c2c6b0653ac41419da72bd7"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-removal-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-removal-7_slow_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-removal-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/M6532.sv",
+    "raw_name": "fit/baseline/M6532.sv",
+    "stored": "fit/baseline/M6532.sv.gz",
+    "raw_bytes": 6055,
+    "raw_sha256": "43c9d1670fcbb98ad4681883981930817e2882a5ab32790f8285961c3ae0c1b1"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-clocks-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-clocks-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-clocks-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 1295,
+    "raw_sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-hold-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-hold-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-hold-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 24017,
+    "raw_sha256": "152d18a26cf69d11912bd36376f736b1b61ec468c6bbc4be561a0b3d7faa15fc"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-mpw-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-mpw-7_slow_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-mpw-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 4035,
+    "raw_sha256": "11bc0f93368bbd12c13ee683ad204d71f9e2404223821a50b89ac602109992a5"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-setup-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-setup-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-setup-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 21586,
+    "raw_sha256": "8a417415c88b838bcaa767853fdf625afa15b446564bd7652cb746eb23a140a2"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-setup-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-setup-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-setup-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 21590,
+    "raw_sha256": "189e5ba75d056bd8d28bb13d9ba1af90307270c327e29b676f8c18783754c0e0"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/snapshot_fit.fit.smsg",
+    "raw_name": "fit/baseline/snapshot_fit.fit.smsg",
+    "stored": "fit/baseline/snapshot_fit.fit.smsg.gz",
+    "raw_bytes": 811,
+    "raw_sha256": "17f4d158d5a254600dca8dec1249007f5a14b55a393303c3861a5f19aecb0866"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/top.sv",
+    "raw_name": "fit/baseline/top.sv",
+    "stored": "fit/baseline/top.sv.gz",
+    "raw_bytes": 1569,
+    "raw_sha256": "ab543fa84811df74644083a1198db05b20b7484abf6ef63300248a9d129d12ff"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-removal-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-removal-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-removal-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/snapshot_fit.map.summary",
+    "raw_name": "fit/baseline/snapshot_fit.map.summary",
+    "stored": "fit/baseline/snapshot_fit.map.summary.gz",
+    "raw_bytes": 513,
+    "raw_sha256": "ccd76d141c15094996d5c5e51464229fb37757b757f2fadf799c660b70d8ed46"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/M6532_snapshot.sv",
+    "raw_name": "fit/baseline/M6532_snapshot.sv",
+    "stored": "fit/baseline/M6532_snapshot.sv.gz",
+    "raw_bytes": 7743,
+    "raw_sha256": "c8435f56312d982023ddf12ef3119ddbd3591254603beb4037d33a459b5941e8"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/snapshot_fit.fit.rpt",
+    "raw_name": "fit/baseline/snapshot_fit.fit.rpt",
+    "stored": "fit/baseline/snapshot_fit.fit.rpt.gz",
+    "raw_bytes": 273616,
+    "raw_sha256": "79ef3ed83e88de8ab51cad3b4c3b0ada83aa7649d0401f961999a69668ce3b01"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/map.log",
+    "raw_name": "fit/baseline/map.log",
+    "stored": "fit/baseline/map.log.gz",
+    "raw_bytes": 18884,
+    "raw_sha256": "57ed3c2a5d30629e4bd652b31faab7c4ebeac5d40a414b1df7dee8c13b33a3f4"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-recovery-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-recovery-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-recovery-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-ucp-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-ucp-7_slow_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-ucp-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 1015,
+    "raw_sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-recovery-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-recovery-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-recovery-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/audit.tcl",
+    "raw_name": "fit/baseline/audit.tcl",
+    "stored": "fit/baseline/audit.tcl.gz",
+    "raw_bytes": 745,
+    "raw_sha256": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-ucp-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-ucp-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-ucp-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 1015,
+    "raw_sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/snapshot_fit.sta.summary",
+    "raw_name": "fit/baseline/snapshot_fit.sta.summary",
+    "stored": "fit/baseline/snapshot_fit.sta.summary.gz",
+    "raw_bytes": 399,
+    "raw_sha256": "e97804502c81fb91e9b2f97b3c5ee27282b64cb761b714a7757cc366c5cb5a61"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/fit.log",
+    "raw_name": "fit/baseline/fit.log",
+    "stored": "fit/baseline/fit.log.gz",
+    "raw_bytes": 5749,
+    "raw_sha256": "eb37d19030ce11216bf3eb32afb30d0ac0db9d53051e6ebb49788f2df0616f2d"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-mpw-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-mpw-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-mpw-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 3987,
+    "raw_sha256": "38f815f46f361c05e200e3ee15dafab5be8f7a754c6e3866a5fbbe4bd0a822b2"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/snapshot_fit.map.rpt",
+    "raw_name": "fit/baseline/snapshot_fit.map.rpt",
+    "stored": "fit/baseline/snapshot_fit.map.rpt.gz",
+    "raw_bytes": 67744,
+    "raw_sha256": "bf5cef79d1c551f2b64f5ab4cbcf8c5c9cf30724707825012d26a0ac1e9cc1e7"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-hold-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-hold-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-hold-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 23540,
+    "raw_sha256": "fd264801912a19621192df022940e152650ac5f225027cf806f441344286c161"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-clocks-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-clocks-7_slow_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-clocks-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 1295,
+    "raw_sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-ucp-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-ucp-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-ucp-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 1015,
+    "raw_sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/snapshot_fit.qpf",
+    "raw_name": "fit/baseline/snapshot_fit.qpf",
+    "stored": "fit/baseline/snapshot_fit.qpf.gz",
+    "raw_bytes": 34,
+    "raw_sha256": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-recovery-MIN_fast_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-recovery-MIN_fast_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-recovery-MIN_fast_1100mv_100c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-recovery-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-recovery-7_slow_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-recovery-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 73,
+    "raw_sha256": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/sta.log",
+    "raw_name": "fit/baseline/sta.log",
+    "stored": "fit/baseline/sta.log.gz",
+    "raw_bytes": 3336,
+    "raw_sha256": "dd9cc33534958b770c8629ba6b80e33914a67376446eb58001c5c4ae11417b85"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/snapshot_fit.qsf",
+    "raw_name": "fit/baseline/snapshot_fit.qsf",
+    "stored": "fit/baseline/snapshot_fit.qsf.gz",
+    "raw_bytes": 1723,
+    "raw_sha256": "1e52c76784d018f92553103cf508f73bcbff36341a958aeea80322a5c7fc12dd"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/snapshot_fit.pin",
+    "raw_name": "fit/baseline/snapshot_fit.pin",
+    "stored": "fit/baseline/snapshot_fit.pin.gz",
+    "raw_bytes": 79953,
+    "raw_sha256": "5a8437ef36245b348e6f516d63bcafc16374a461bafa322bd84fa662b5e8adfd"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-hold-7_slow_1100mv_100c.rpt",
+    "raw_name": "fit/baseline/bank-hold-7_slow_1100mv_100c.rpt",
+    "stored": "fit/baseline/bank-hold-7_slow_1100mv_100c.rpt.gz",
+    "raw_bytes": 23524,
+    "raw_sha256": "02037544c3b114a6a3ea8b928ea15a92ce1b2b8dee0bd1c16754ffed4cae9b95"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-clocks-7_slow_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-clocks-7_slow_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-clocks-7_slow_1100mv_-40c.rpt.gz",
+    "raw_bytes": 1295,
+    "raw_sha256": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-mpw-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-mpw-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-mpw-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 3987,
+    "raw_sha256": "170c05892afc44a6d97f8b92e81e2727fda762e94a1a58d345779314690c95fc"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/snapshot_fit.sta.rpt",
+    "raw_name": "fit/baseline/snapshot_fit.sta.rpt",
+    "stored": "fit/baseline/snapshot_fit.sta.rpt.gz",
+    "raw_bytes": 19180,
+    "raw_sha256": "64031432c7f328fc436fdaf24f37bb57fb09aeaff497d7ea805b94d850380514"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/baseline/bank-ucp-MIN_fast_1100mv_-40c.rpt",
+    "raw_name": "fit/baseline/bank-ucp-MIN_fast_1100mv_-40c.rpt",
+    "stored": "fit/baseline/bank-ucp-MIN_fast_1100mv_-40c.rpt.gz",
+    "raw_bytes": 1015,
+    "raw_sha256": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/executed-sources/generate_riot_shared_port.py",
+    "raw_name": "fit/executed-sources/generate_riot_shared_port.py",
+    "stored": "fit/executed-sources/generate_riot_shared_port.py",
+    "raw_bytes": 2478,
+    "raw_sha256": "be7e5ba4ade75e9b5ce10bf62dd171a6736fc81e6dfdebe0185b5cd6011f697c"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/executed-sources/fit_f10415.py",
+    "raw_name": "fit/executed-sources/fit_f10415.py",
+    "stored": "fit/executed-sources/fit_f10415.py",
+    "raw_bytes": 5749,
+    "raw_sha256": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/executed-sources/fit_riot.py",
+    "raw_name": "fit/executed-sources/fit_riot.py",
+    "stored": "fit/executed-sources/fit_riot.py",
+    "raw_bytes": 11040,
+    "raw_sha256": "184f17eff6aed92a17a0b49ec4e5e8761eceed9c84a0e4575d84a6c3285382d1"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/executed-sources/M6532.sv",
+    "raw_name": "fit/executed-sources/M6532.sv",
+    "stored": "fit/executed-sources/M6532.sv.gz",
+    "raw_bytes": 6055,
+    "raw_sha256": "43c9d1670fcbb98ad4681883981930817e2882a5ab32790f8285961c3ae0c1b1"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/executed-sources/fit_riot_shared_port.py",
+    "raw_name": "fit/executed-sources/fit_riot_shared_port.py",
+    "stored": "fit/executed-sources/fit_riot_shared_port.py",
+    "raw_bytes": 3018,
+    "raw_sha256": "c4df45402f47e5db2afe1a26cd278c4a336d778c013e667372f9443f1de87b6b"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/executed-sources/fit_f10415_enable.py",
+    "raw_name": "fit/executed-sources/fit_f10415_enable.py",
+    "stored": "fit/executed-sources/fit_f10415_enable.py",
+    "raw_bytes": 6602,
+    "raw_sha256": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-fit-result-20261019/SnapshotRIOTSharedPort_20261019/executed-sources/generate_riot.py",
+    "raw_name": "fit/executed-sources/generate_riot.py",
+    "stored": "fit/executed-sources/generate_riot.py",
+    "raw_bytes": 4302,
+    "raw_sha256": "a4cf664b8c2ee5994043c1cf2ee6d4738daa1cc35b3c1c027878488e407dfd57"
+  },
+  {
+    "source": "build/rtl-executive/riot-shared-port-audited-20261019.json",
+    "raw_name": "fit-audit.json",
+    "stored": "fit-audit.json",
+    "raw_bytes": 3074,
+    "raw_sha256": "d5baeeb35d937c806de358dbed52a411683957f65e55ef044c51ddada3501b99"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/fixture-metadata.json",
+    "raw_name": "full-baseboard/fixture-metadata.json",
+    "stored": "full-baseboard/fixture-metadata.json.gz",
+    "raw_bytes": 374255,
+    "raw_sha256": "d1154001494b4686d011a2836ac39f5b1a48a2c134a15a73fa82c9344d2a70be"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/results.json",
+    "raw_name": "full-baseboard/results.json",
+    "stored": "full-baseboard/results.json",
+    "raw_bytes": 5455,
+    "raw_sha256": "9dbfb39cae7904b032b1de2056d5bb04b9009e1316ef34082029df1c660c7c4a"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/manifest.json",
+    "raw_name": "full-baseboard/manifest.json",
+    "stored": "full-baseboard/manifest.json.gz",
+    "raw_bytes": 221226,
+    "raw_sha256": "04d3d74b0906d1a727f039a4ba1181a33cc3a1f2f88a06af2d74713180afa67a"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/compiler-environment.json",
+    "raw_name": "full-baseboard/compiler-environment.json",
+    "stored": "full-baseboard/compiler-environment.json",
+    "raw_bytes": 36,
+    "raw_sha256": "cd5455d26c0d6de5ba92a9e87b1ae39b90374b9c944fdb63295d835a174d59d0"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_CLOCKGEN_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_CLOCKGEN_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_CLOCKGEN_snapshot.sv.gz",
+    "raw_bytes": 3837,
+    "raw_sha256": "f63361d579ee1b4270ffc2e0cd1f30751cecbd3a1f571b2997a017b1b0fe414a"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/fixture.sv",
+    "raw_name": "full-baseboard/candidate/fixture.sv",
+    "stored": "full-baseboard/candidate/fixture.sv.gz",
+    "raw_bytes": 1379158,
+    "raw_sha256": "77c23b7503583bd6296b255c1fc00d72e8053b3643af2931d6cb19840a91df69"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_MC10136_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_MC10136_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_MC10136_snapshot.sv.gz",
+    "raw_bytes": 3446,
+    "raw_sha256": "ff9d6691af62ffeead8320fbfe8da3c3a2b349166b6c1939086bf8b42ead62c6"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_SN74LS259_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_SN74LS259_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_SN74LS259_snapshot.sv.gz",
+    "raw_bytes": 2359,
+    "raw_sha256": "817be57756dfbf0cd139345fe1b1fc7f046f12980d7415648797d2fefe8a876a"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/BaseBd_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/BaseBd_snapshot.sv",
+    "stored": "full-baseboard/candidate/BaseBd_snapshot.sv.gz",
+    "raw_bytes": 115250,
+    "raw_sha256": "52e3ff9e49c5074fc0bef41ae248326c320e79f0987c8c8207adaf2e4582b210"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/f10415_word_bank.sv",
+    "raw_name": "full-baseboard/candidate/f10415_word_bank.sv",
+    "stored": "full-baseboard/candidate/f10415_word_bank.sv.gz",
+    "raw_bytes": 2585,
+    "raw_sha256": "d5e0649f392cfdbc116de9bbc5b615ba923526704357ddfb0888ace111fea5ca"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_MCS6532_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_MCS6532_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_MCS6532_snapshot.sv.gz",
+    "raw_bytes": 5130,
+    "raw_sha256": "4e5315987bc803272c6ff1aa1ca444d4cf93333acea4d224ad98dd1a0a3ffbbb"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/i2125_byte_bank.sv",
+    "raw_name": "full-baseboard/candidate/i2125_byte_bank.sv",
+    "stored": "full-baseboard/candidate/i2125_byte_bank.sv.gz",
+    "raw_bytes": 1192,
+    "raw_sha256": "723abdeb7224522eb3eb2f7502b0321744383bc76eebeccc677a2b7ccf8b6752"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_MC1690_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_MC1690_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_MC1690_snapshot.sv.gz",
+    "raw_bytes": 1797,
+    "raw_sha256": "ec88d9c0cbba6716374e19c3e90e95179d8d98c057b14b28c0aa531100b343b1"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_SN74LS174_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_SN74LS174_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_SN74LS174_snapshot.sv.gz",
+    "raw_bytes": 2311,
+    "raw_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/M6532_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/M6532_snapshot.sv",
+    "stored": "full-baseboard/candidate/M6532_snapshot.sv.gz",
+    "raw_bytes": 8435,
+    "raw_sha256": "6f0011c3920d90930630c0099904a292508ee79de6dbe5beef337aae77b46cbc"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_MCS6502_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_MCS6502_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_MCS6502_snapshot.sv.gz",
+    "raw_bytes": 5307,
+    "raw_sha256": "439fdd48f5887cca8829c44ef3850bb87b7800d4139f3649dcbee51f190a8d14"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_MC12061_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_MC12061_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_MC12061_snapshot.sv.gz",
+    "raw_bytes": 2341,
+    "raw_sha256": "433ccfc2123e0a2c2749fecff109d26f803a26d4c3b0c4993b0b3e11acf36e87"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/command.json",
+    "raw_name": "full-baseboard/candidate/command.json",
+    "stored": "full-baseboard/candidate/command.json",
+    "raw_bytes": 8273,
+    "raw_sha256": "811e5f993b51be39a84a8270354b9b2025d9d0944aeda6e3627f59decc61ffab"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_MPQ3303_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_MPQ3303_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_MPQ3303_snapshot.sv.gz",
+    "raw_bytes": 3814,
+    "raw_sha256": "0f2ee15778be7ac7abc6543358d78510b93c767c2a282af5803eec023184792e"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_MC10176_snapshot.v",
+    "raw_name": "full-baseboard/candidate/cell_MC10176_snapshot.v",
+    "stored": "full-baseboard/candidate/cell_MC10176_snapshot.v.gz",
+    "raw_bytes": 4486,
+    "raw_sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_SN74LS163_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_SN74LS163_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_SN74LS163_snapshot.sv.gz",
+    "raw_bytes": 2778,
+    "raw_sha256": "4426d4de5f8610c96344e15f04f9fcfa7d39e3edf1764c0b33c518d8dec8859f"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/test.txt",
+    "raw_name": "full-baseboard/candidate/test.txt",
+    "stored": "full-baseboard/candidate/test.txt.gz",
+    "raw_bytes": 239,
+    "raw_sha256": "61b11f46e139a4473f87e7601e9c4d24037e3c3a37feef65818ab4ca316c1b86"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_MC14521B_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_MC14521B_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_MC14521B_snapshot.sv.gz",
+    "raw_bytes": 3448,
+    "raw_sha256": "88975feee2a09e1c554e3d6252df826dd59cd749a6e203b5ebe6053295615b75"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_i2716_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_i2716_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_i2716_snapshot.sv.gz",
+    "raw_bytes": 5501,
+    "raw_sha256": "e4ca317c677ced4c3a1b82db5061f3120c7b3666fc4d294bfe3e2fc81ddd341f"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_SN74LS175_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_SN74LS175_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_SN74LS175_snapshot.sv.gz",
+    "raw_bytes": 1949,
+    "raw_sha256": "e0abc2d0e9edd2016e974e0deda46e55aa7a1fe72b996a6a97135e194a1a2376"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/chip_6502_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/chip_6502_snapshot.sv",
+    "stored": "full-baseboard/candidate/chip_6502_snapshot.sv.gz",
+    "raw_bytes": 87074,
+    "raw_sha256": "652df2e5744a79ac26f5e0358de7d419e8993e24454b531d541515ff51cebbee"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/cell_SN74LS74_snapshot.sv",
+    "raw_name": "full-baseboard/candidate/cell_SN74LS74_snapshot.sv",
+    "stored": "full-baseboard/candidate/cell_SN74LS74_snapshot.sv.gz",
+    "raw_bytes": 2452,
+    "raw_sha256": "0973ae83bc29c8a16d8581cebe72cb28e53c8de6a843a50c514c8a2391bd98a4"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/candidate/build.log",
+    "raw_name": "full-baseboard/candidate/build.log",
+    "stored": "full-baseboard/candidate/build.log.gz",
+    "raw_bytes": 398924,
+    "raw_sha256": "93662c835e3c3340f7a25d51b66c6ebf904530fa38e3886b6fb850218945d1fc"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_CLOCKGEN.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_CLOCKGEN.v",
+    "stored": "full-baseboard/executed-inputs/cell_CLOCKGEN.v.gz",
+    "raw_bytes": 3231,
+    "raw_sha256": "6101cd5bf07c11fdb143ddeedb1532f2e8ebc19d5e8c45ee7f843b8b05b92c09"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/BaseBd_original.v",
+    "raw_name": "full-baseboard/executed-inputs/BaseBd_original.v",
+    "stored": "full-baseboard/executed-inputs/BaseBd_original.v.gz",
+    "raw_bytes": 102420,
+    "raw_sha256": "387f588aed70ff2870c662a51ffecb731ca83e549787bd130e30cd23f83a376e"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/generate_riot_shared_port.py",
+    "raw_name": "full-baseboard/executed-inputs/generate_riot_shared_port.py",
+    "stored": "full-baseboard/executed-inputs/generate_riot_shared_port.py",
+    "raw_bytes": 2478,
+    "raw_sha256": "be7e5ba4ade75e9b5ce10bf62dd171a6736fc81e6dfdebe0185b5cd6011f697c"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MC12040.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MC12040.v",
+    "stored": "full-baseboard/executed-inputs/cell_MC12040.v.gz",
+    "raw_bytes": 837,
+    "raw_sha256": "bb15f243386dadac55c47969f7a64e0e059536d3c7f4700ed411f9bd684cd87e"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS08.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS08.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS08.v.gz",
+    "raw_bytes": 1137,
+    "raw_sha256": "66e2eac156a19b11c7ad7713da3f43e20d34c979178b635d7607c9732c2b4a56"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SE10211.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SE10211.v",
+    "stored": "full-baseboard/executed-inputs/cell_SE10211.v.gz",
+    "raw_bytes": 1701,
+    "raw_sha256": "4f7c8607bdaad0f3fa7b0a49c679c004817b3032c3d37b20cb0a46f3ab1cb11d"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MC10124.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MC10124.v",
+    "stored": "full-baseboard/executed-inputs/cell_MC10124.v.gz",
+    "raw_bytes": 1745,
+    "raw_sha256": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_ADC_MC8BC.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_ADC_MC8BC.v",
+    "stored": "full-baseboard/executed-inputs/cell_ADC_MC8BC.v.gz",
+    "raw_bytes": 914,
+    "raw_sha256": "21640595bc8413534327782f63df1d87f924802a3069862429df7a39bb223848"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/chip_6502.v",
+    "raw_name": "full-baseboard/executed-inputs/chip_6502.v",
+    "stored": "full-baseboard/executed-inputs/chip_6502.v.gz",
+    "raw_bytes": 76486,
+    "raw_sha256": "8ae05dff81a1c2971e03d2e01c4c3cb09b4f111c40e54b7e9e437f1d8add46da"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_AM2615.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_AM2615.v",
+    "stored": "full-baseboard/executed-inputs/cell_AM2615.v.gz",
+    "raw_bytes": 830,
+    "raw_sha256": "946b86e92ebfcc45b121586731511bc3cf5ddb17204693a986ee82f51fc4df24"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS175.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS175.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS175.v.gz",
+    "raw_bytes": 1488,
+    "raw_sha256": "617c9c875496d26d48ca5f4555cb2951fc2c7c8f11dee3ea3a4bc8d91dfa7ff1"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MCS6502.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MCS6502.v",
+    "stored": "full-baseboard/executed-inputs/cell_MCS6502.v.gz",
+    "raw_bytes": 4674,
+    "raw_sha256": "f07cb48d6d0ac2ffb71ce10bb2f8db86dbe2133f88c0baef408a2d691ea2641e"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MC12061.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MC12061.v",
+    "stored": "full-baseboard/executed-inputs/cell_MC12061.v.gz",
+    "raw_bytes": 1849,
+    "raw_sha256": "9480333422f9f6b846a7507bcd1d4676681b6840aafe55dc3825fad3ece744df"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MC10101.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MC10101.v",
+    "stored": "full-baseboard/executed-inputs/cell_MC10101.v.gz",
+    "raw_bytes": 2114,
+    "raw_sha256": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MC1660.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MC1660.v",
+    "stored": "full-baseboard/executed-inputs/cell_MC1660.v.gz",
+    "raw_bytes": 2333,
+    "raw_sha256": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/test_baseboard_full.cpp",
+    "raw_name": "full-baseboard/executed-inputs/test_baseboard_full.cpp",
+    "stored": "full-baseboard/executed-inputs/test_baseboard_full.cpp.gz",
+    "raw_bytes": 7968,
+    "raw_sha256": "9abe290ed79562cefba2cdec715e714db4e89ce289e75ab1c512d7d53fb17504"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_CA3140.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_CA3140.v",
+    "stored": "full-baseboard/executed-inputs/cell_CA3140.v.gz",
+    "raw_bytes": 659,
+    "raw_sha256": "b0b3395726e6bec690de9b612d9412b9b0207ad899fd7e9c028beb6a11fc7fe8"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN7438.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN7438.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN7438.v.gz",
+    "raw_bytes": 1843,
+    "raw_sha256": "1896f689e835a5bfbb7a6481ae2eb307319ae696009cfdadad932536b783ffee"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MC1690.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MC1690.v",
+    "stored": "full-baseboard/executed-inputs/cell_MC1690.v.gz",
+    "raw_bytes": 1336,
+    "raw_sha256": "c46a086041ccff663cae5d3a71c91ac52d791760bcc0f26657cefd387172b753"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/test_baseboard_shared_riot.py",
+    "raw_name": "full-baseboard/executed-inputs/test_baseboard_shared_riot.py",
+    "stored": "full-baseboard/executed-inputs/test_baseboard_shared_riot.py",
+    "raw_bytes": 1846,
+    "raw_sha256": "dce33deab225f7a65e52f96970c686432e00428381b77ebb728db97dffa60b7d"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS157.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS157.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS157.v.gz",
+    "raw_bytes": 1433,
+    "raw_sha256": "fac433f3b0f708e6ea78efd936316bddf3e54a9ce67b37ea264feef410d18bec"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS253.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS253.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS253.v.gz",
+    "raw_bytes": 1448,
+    "raw_sha256": "3387405c741b6beb269095d087792315268bbc96de18b35f9c5139976695a189"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS259.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS259.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS259.v.gz",
+    "raw_bytes": 1880,
+    "raw_sha256": "e756e0efb317aff6c96a2ad2ae8e5ee381f447e08ee22b5ceeb0657a2eef843f"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/ports.h",
+    "raw_name": "full-baseboard/executed-inputs/ports.h",
+    "stored": "full-baseboard/executed-inputs/ports.h.gz",
+    "raw_bytes": 79913,
+    "raw_sha256": "4de7fca96689ee6b65deea4bcba089da6b42297fc8e9c7e480a858cd34ecfc63"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/M6532.sv",
+    "raw_name": "full-baseboard/executed-inputs/M6532.sv",
+    "stored": "full-baseboard/executed-inputs/M6532.sv.gz",
+    "raw_bytes": 6055,
+    "raw_sha256": "43c9d1670fcbb98ad4681883981930817e2882a5ab32790f8285961c3ae0c1b1"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN7486.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN7486.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN7486.v.gz",
+    "raw_bytes": 789,
+    "raw_sha256": "374a7453a9febfa0c1c6f1b643eb176aed8f837e4b32cfbc1e4b08b18be38019"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MC10102.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MC10102.v",
+    "stored": "full-baseboard/executed-inputs/cell_MC10102.v.gz",
+    "raw_bytes": 1505,
+    "raw_sha256": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS138.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS138.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS138.v.gz",
+    "raw_bytes": 1729,
+    "raw_sha256": "dbf5033727074a7d3a0f396e51f620fa355648331c68a2ee3f1d5e5c0e05d5da"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS01.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS01.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS01.v.gz",
+    "raw_bytes": 1779,
+    "raw_sha256": "168340fae0d8c2399f0ba6ccc062e18e96ef348615a33edbf0ba4fe5036e69fb"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/generate_baseboard_full.py",
+    "raw_name": "full-baseboard/executed-inputs/generate_baseboard_full.py",
+    "stored": "full-baseboard/executed-inputs/generate_baseboard_full.py",
+    "raw_bytes": 10413,
+    "raw_sha256": "9dc3430ceae180e3b472dcce5da65265af98d36cb260c0fb5d2f603be0651a23"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MC14521B.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MC14521B.v",
+    "stored": "full-baseboard/executed-inputs/cell_MC14521B.v.gz",
+    "raw_bytes": 2898,
+    "raw_sha256": "566a04d2ac2dff2b9cd695147d9c9a37d36fb4997dc81b32a57f7cf9d06ebf3d"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS74.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS74.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS74.v.gz",
+    "raw_bytes": 1997,
+    "raw_sha256": "dc01bf5078d1eae612e82f55adebd7fa3c485cb08ee3d0f5f7eebe93f09a71b1"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_i2125.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_i2125.v",
+    "stored": "full-baseboard/executed-inputs/cell_i2125.v.gz",
+    "raw_bytes": 3045,
+    "raw_sha256": "6eb55772966be2b159da55d2495a57dd66de73f10137479f7f417002aaa157c9"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS04.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS04.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS04.v.gz",
+    "raw_bytes": 1150,
+    "raw_sha256": "090d22e996b0d3dbcc5342075a06e76f8b745732117f77db108563cbaf03c8f9"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MPQ3303.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MPQ3303.v",
+    "stored": "full-baseboard/executed-inputs/cell_MPQ3303.v.gz",
+    "raw_bytes": 3357,
+    "raw_sha256": "98ae705be80d123e4669c0c785d1e6fe601dada155302cc68301704816fdfba1"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/test_baseboard_full.py",
+    "raw_name": "full-baseboard/executed-inputs/test_baseboard_full.py",
+    "stored": "full-baseboard/executed-inputs/test_baseboard_full.py",
+    "raw_bytes": 12964,
+    "raw_sha256": "9ccd3cc9372ffde38c549edfadb5f1427d3419203c2ef348ae284cb98afcdf39"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/riot_oracle.hpp",
+    "raw_name": "full-baseboard/executed-inputs/riot_oracle.hpp",
+    "stored": "full-baseboard/executed-inputs/riot_oracle.hpp.gz",
+    "raw_bytes": 3776,
+    "raw_sha256": "65e5260f9c6fe84f1aa125180ac19887c25f77777597ce25b74b30155afb5050"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS00.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS00.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS00.v.gz",
+    "raw_bytes": 788,
+    "raw_sha256": "090bfee9dc5e7ec3a99ab5e51b73692211a71bb0119544221c3b35b89673db2f"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS139.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS139.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS139.v.gz",
+    "raw_bytes": 1141,
+    "raw_sha256": "e11443babfdbc0a3ee6a6093afd0e83f949a1bf64e672bbff9edb1cb1a0ad404"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MC10136.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MC10136.v",
+    "stored": "full-baseboard/executed-inputs/cell_MC10136.v.gz",
+    "raw_bytes": 3135,
+    "raw_sha256": "b4314b6a838492c95fd72423e92a883e8ea92c660c55fdc1f266b034b68e8017"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS163.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS163.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS163.v.gz",
+    "raw_bytes": 2320,
+    "raw_sha256": "6c6e4478fde05434115d552c17e40d3825ee8a34fc5b7801e9fc8b3e2c1ae3ad"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MC10176.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MC10176.v",
+    "stored": "full-baseboard/executed-inputs/cell_MC10176.v.gz",
+    "raw_bytes": 4087,
+    "raw_sha256": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_CD4051.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_CD4051.v",
+    "stored": "full-baseboard/executed-inputs/cell_CD4051.v.gz",
+    "raw_bytes": 1200,
+    "raw_sha256": "2ea6f302892fd148e2bd066264a981305d0f4e2c863a576ed88574e0935a63ee"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS251.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS251.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS251.v.gz",
+    "raw_bytes": 1536,
+    "raw_sha256": "dc2d4bf49a0d01a3ab0fbca506f37556b6d833df15156dc35d464fd4334db5c9"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MC10125.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MC10125.v",
+    "stored": "full-baseboard/executed-inputs/cell_MC10125.v.gz",
+    "raw_bytes": 1560,
+    "raw_sha256": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS85.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS85.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS85.v.gz",
+    "raw_bytes": 1582,
+    "raw_sha256": "353514b1267bd9ee63d642ca4013e4d7f33b030872a81b18eb27cf98c06b4f5f"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS151.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS151.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS151.v.gz",
+    "raw_bytes": 1264,
+    "raw_sha256": "710a404028d7d0ce179f08b32c87f0055715d81731b0054fa89b9d4301abf75e"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS174.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS174.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS174.v.gz",
+    "raw_bytes": 2040,
+    "raw_sha256": "05a45e9f4788af98180a92f3ef5987f54a5e1c495fc9c006f5e61b5761d14b59"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_i2716.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_i2716.v",
+    "stored": "full-baseboard/executed-inputs/cell_i2716.v.gz",
+    "raw_bytes": 4510,
+    "raw_sha256": "05b1a05547819d302561e981a88a8a36bc4661a139dbc394eb0bc3769ca9cb57"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/generate_baseboard_shared_riot.py",
+    "raw_name": "full-baseboard/executed-inputs/generate_baseboard_shared_riot.py",
+    "stored": "full-baseboard/executed-inputs/generate_baseboard_shared_riot.py",
+    "raw_bytes": 1023,
+    "raw_sha256": "ff941c29d58ab142097a3e0a1c9d84788473c3b733d606a97ac754fa749fe199"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_SN74LS32.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_SN74LS32.v",
+    "stored": "full-baseboard/executed-inputs/cell_SN74LS32.v.gz",
+    "raw_bytes": 783,
+    "raw_sha256": "10a581b280d4b540302cb7272116f3593e59a2b2c1902fbf58eaa37a9b74357f"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/generate_riot.py",
+    "raw_name": "full-baseboard/executed-inputs/generate_riot.py",
+    "stored": "full-baseboard/executed-inputs/generate_riot.py",
+    "raw_bytes": 4302,
+    "raw_sha256": "a4cf664b8c2ee5994043c1cf2ee6d4738daa1cc35b3c1c027878488e407dfd57"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MC10210.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MC10210.v",
+    "stored": "full-baseboard/executed-inputs/cell_MC10210.v.gz",
+    "raw_bytes": 1605,
+    "raw_sha256": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MCS6532.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MCS6532.v",
+    "stored": "full-baseboard/executed-inputs/cell_MCS6532.v.gz",
+    "raw_bytes": 3584,
+    "raw_sha256": "5cc858c9465df03ee72bbb3a45e4b6ea6eab571872ae497285f3d32ed75337c0"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/executed-inputs/cell_MPQ6002.v",
+    "raw_name": "full-baseboard/executed-inputs/cell_MPQ6002.v",
+    "stored": "full-baseboard/executed-inputs/cell_MPQ6002.v.gz",
+    "raw_bytes": 1064,
+    "raw_sha256": "02209a3050f51dfbc81617b4b8dcfba535ee9bf2d4d331c5391593edd8c5ada1"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/verilog/proms/eprom/BaseBd-f60.mem",
+    "raw_name": "full-baseboard/verilog/proms/eprom/BaseBd-f60.mem",
+    "stored": "full-baseboard/verilog/proms/eprom/BaseBd-f60.mem.gz",
+    "raw_bytes": 6413,
+    "raw_sha256": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/verilog/proms/eprom/BaseBd-b61.mem",
+    "raw_name": "full-baseboard/verilog/proms/eprom/BaseBd-b61.mem",
+    "stored": "full-baseboard/verilog/proms/eprom/BaseBd-b61.mem.gz",
+    "raw_bytes": 6413,
+    "raw_sha256": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/verilog/proms/eprom/BaseBd-e60.mem",
+    "raw_name": "full-baseboard/verilog/proms/eprom/BaseBd-e60.mem",
+    "stored": "full-baseboard/verilog/proms/eprom/BaseBd-e60.mem.gz",
+    "raw_bytes": 6413,
+    "raw_sha256": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019/verilog/proms/eprom/BaseBd-c61.mem",
+    "raw_name": "full-baseboard/verilog/proms/eprom/BaseBd-c61.mem",
+    "stored": "full-baseboard/verilog/proms/eprom/BaseBd-c61.mem.gz",
+    "raw_bytes": 6413,
+    "raw_sha256": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89"
+  },
+  {
+    "source": "build/rtl-executive/baseboard-shared-riot-v1-20261019.log",
+    "raw_name": "full-baseboard/driver.log",
+    "stored": "full-baseboard/driver.log.gz",
+    "raw_bytes": 250,
+    "raw_sha256": "f99206dfa4ba9aef764bd18f94953c2f1013fcd2c64f8bf310deb7461008f865"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_CLOCKGEN_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_CLOCKGEN_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_CLOCKGEN_snapshot.sv.gz",
+    "raw_bytes": 3837,
+    "raw_sha256": "f63361d579ee1b4270ffc2e0cd1f30751cecbd3a1f571b2997a017b1b0fe414a"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_MC10136_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_MC10136_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_MC10136_snapshot.sv.gz",
+    "raw_bytes": 3446,
+    "raw_sha256": "ff9d6691af62ffeead8320fbfe8da3c3a2b349166b6c1939086bf8b42ead62c6"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_SN74LS259_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_SN74LS259_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_SN74LS259_snapshot.sv.gz",
+    "raw_bytes": 2359,
+    "raw_sha256": "817be57756dfbf0cd139345fe1b1fc7f046f12980d7415648797d2fefe8a876a"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/board_state_uio.sv",
+    "raw_name": "prepared-full-core-assets/board_state_uio.sv",
+    "stored": "prepared-full-core-assets/board_state_uio.sv.gz",
+    "raw_bytes": 4185,
+    "raw_sha256": "b72d47d5cbafb21ad7cd10ad30c349a327da38e472fe54800d0704fa283171ee"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/f10415_word_bank.sv",
+    "raw_name": "prepared-full-core-assets/f10415_word_bank.sv",
+    "stored": "prepared-full-core-assets/f10415_word_bank.sv.gz",
+    "raw_bytes": 2585,
+    "raw_sha256": "d5e0649f392cfdbc116de9bbc5b615ba923526704357ddfb0888ace111fea5ca"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_MCS6532_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_MCS6532_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_MCS6532_snapshot.sv.gz",
+    "raw_bytes": 5130,
+    "raw_sha256": "4e5315987bc803272c6ff1aa1ca444d4cf93333acea4d224ad98dd1a0a3ffbbb"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/i2125_byte_bank.sv",
+    "raw_name": "prepared-full-core-assets/i2125_byte_bank.sv",
+    "stored": "prepared-full-core-assets/i2125_byte_bank.sv.gz",
+    "raw_bytes": 1192,
+    "raw_sha256": "723abdeb7224522eb3eb2f7502b0321744383bc76eebeccc677a2b7ccf8b6752"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_MC1690_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_MC1690_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_MC1690_snapshot.sv.gz",
+    "raw_bytes": 1797,
+    "raw_sha256": "ec88d9c0cbba6716374e19c3e90e95179d8d98c057b14b28c0aa531100b343b1"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_SN74LS174_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_SN74LS174_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_SN74LS174_snapshot.sv.gz",
+    "raw_bytes": 2311,
+    "raw_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/M6532_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/M6532_snapshot.sv",
+    "stored": "prepared-full-core-assets/M6532_snapshot.sv.gz",
+    "raw_bytes": 8435,
+    "raw_sha256": "6f0011c3920d90930630c0099904a292508ee79de6dbe5beef337aae77b46cbc"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/BaseBd_full_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/BaseBd_full_snapshot.sv",
+    "stored": "prepared-full-core-assets/BaseBd_full_snapshot.sv.gz",
+    "raw_bytes": 115250,
+    "raw_sha256": "52e3ff9e49c5074fc0bef41ae248326c320e79f0987c8c8207adaf2e4582b210"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_MCS6502_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_MCS6502_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_MCS6502_snapshot.sv.gz",
+    "raw_bytes": 5307,
+    "raw_sha256": "439fdd48f5887cca8829c44ef3850bb87b7800d4139f3649dcbee51f190a8d14"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_MC12061_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_MC12061_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_MC12061_snapshot.sv.gz",
+    "raw_bytes": 2341,
+    "raw_sha256": "433ccfc2123e0a2c2749fecff109d26f803a26d4c3b0c4993b0b3e11acf36e87"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_MPQ3303_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_MPQ3303_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_MPQ3303_snapshot.sv.gz",
+    "raw_bytes": 3814,
+    "raw_sha256": "0f2ee15778be7ac7abc6543358d78510b93c767c2a282af5803eec023184792e"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_MC10176_snapshot.v",
+    "raw_name": "prepared-full-core-assets/cell_MC10176_snapshot.v",
+    "stored": "prepared-full-core-assets/cell_MC10176_snapshot.v.gz",
+    "raw_bytes": 4486,
+    "raw_sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_SN74LS163_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_SN74LS163_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_SN74LS163_snapshot.sv.gz",
+    "raw_bytes": 2778,
+    "raw_sha256": "4426d4de5f8610c96344e15f04f9fcfa7d39e3edf1764c0b33c518d8dec8859f"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_MC14521B_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_MC14521B_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_MC14521B_snapshot.sv.gz",
+    "raw_bytes": 3448,
+    "raw_sha256": "88975feee2a09e1c554e3d6252df826dd59cd749a6e203b5ebe6053295615b75"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_i2716_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_i2716_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_i2716_snapshot.sv.gz",
+    "raw_bytes": 5501,
+    "raw_sha256": "e4ca317c677ced4c3a1b82db5061f3120c7b3666fc4d294bfe3e2fc81ddd341f"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_SN74LS175_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_SN74LS175_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_SN74LS175_snapshot.sv.gz",
+    "raw_bytes": 1949,
+    "raw_sha256": "e0abc2d0e9edd2016e974e0deda46e55aa7a1fe72b996a6a97135e194a1a2376"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/assets.json",
+    "raw_name": "prepared-full-core-assets/assets.json",
+    "stored": "prepared-full-core-assets/assets.json.gz",
+    "raw_bytes": 251236,
+    "raw_sha256": "2ab9b8771c19c34cc958ddaa27776be06f12423b45a5ed2850e05f93fc1b4b36"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/chip_6502_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/chip_6502_snapshot.sv",
+    "stored": "prepared-full-core-assets/chip_6502_snapshot.sv.gz",
+    "raw_bytes": 87074,
+    "raw_sha256": "652df2e5744a79ac26f5e0358de7d419e8993e24454b531d541515ff51cebbee"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/board_state_fabric.sv",
+    "raw_name": "prepared-full-core-assets/board_state_fabric.sv",
+    "stored": "prepared-full-core-assets/board_state_fabric.sv.gz",
+    "raw_bytes": 2280,
+    "raw_sha256": "b0a43cf71410296654acc514cac6b02d004396356c327ed5b25fe5049914e9a9"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-assets-20261019/cell_SN74LS74_snapshot.sv",
+    "raw_name": "prepared-full-core-assets/cell_SN74LS74_snapshot.sv",
+    "stored": "prepared-full-core-assets/cell_SN74LS74_snapshot.sv.gz",
+    "raw_bytes": 2452,
+    "raw_sha256": "0973ae83bc29c8a16d8581cebe72cb28e53c8de6a843a50c514c8a2391bd98a4"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-source-audit-20261019.json",
+    "raw_name": "full-core-source-audit.json",
+    "stored": "full-core-source-audit.json",
+    "raw_bytes": 4985,
+    "raw_sha256": "27c61214168745f964d3f8525887c0d2588dccac66913c176e81ade062cc61bc"
+  }
+]

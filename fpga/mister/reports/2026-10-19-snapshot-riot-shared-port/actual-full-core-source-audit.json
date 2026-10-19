@@ -1,0 +1,126 @@
+{
+  "status": "PASS",
+  "scope": "Independently check enabled board-state wiring against the frozen live core.\n\nThis audits source integration, not fitting, whole-machine snapshot completeness,\nor equivalence of the already separately qualified board adapters.\n",
+  "baseline_receipt_files": 413,
+  "boards": 11,
+  "original_board_pins": 2137,
+  "unchanged_core_files": 85,
+  "adapter_files": 22,
+  "new_project_sources": 18,
+  "new_project_source_assignments": 18,
+  "inspected_hashes": {
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "0af8a58754be62f47bab44738089cceebe2bc753af15407e83cecebd01c99bff",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "5e521cab0c94647f7a62c23d4c89d790170821857a40cf26df6fcb3685f31eab",
+    "core/Dorado.sv": "63bde5a5f0fa67d9b6e9d6a52acd4cf9c27c279ef1da8c238a6b145f7c77f2b6",
+    "core/Dorado.qsf": "66775719697837f6d9c5cc5678c6174690d2fad532bf5cb53627e67a740f62b0",
+    "src/fpga/mister/snapshot_enabled/assets.json": "2ab9b8771c19c34cc958ddaa27776be06f12423b45a5ed2850e05f93fc1b4b36"
+  },
+  "broken_controls": [
+    {
+      "case": 0,
+      "path": "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v",
+      "before": "snapshot_board_request[10]",
+      "after": "snapshot_board_request[0]",
+      "rejection": "board state binding differs: BaseBd"
+    },
+    {
+      "case": 1,
+      "path": "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v",
+      "before": "snapshot_index[23:0]",
+      "after": "snapshot_index[22:0]",
+      "rejection": "board state binding differs: MemX"
+    },
+    {
+      "case": 2,
+      "path": "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v",
+      "before": "snapshot_board_result[180+:18]",
+      "after": "snapshot_board_result[162+:18]",
+      "rejection": "board state binding differs: BaseBd"
+    },
+    {
+      "case": 3,
+      "path": "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v",
+      "before": ".state_guest_advance(contb_advance)",
+      "after": ".state_guest_advance(1'b1)",
+      "rejection": "board state binding differs: ProcH"
+    },
+    {
+      "case": 4,
+      "path": "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v",
+      "before": "BaseBd_full_snapshot_experiment #(.SYSPER(SYSPER))",
+      "after": "BaseBd_full_snapshot_experiment #(.SYSPER(16))",
+      "rejection": "BaseBoard clock parameter differs"
+    },
+    {
+      "case": 5,
+      "path": "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v",
+      "before": ".board_frozen(snapshot_frozen)",
+      "after": ".board_frozen(11'h7ff)",
+      "rejection": "fabric binding differs"
+    },
+    {
+      "case": 6,
+      "path": "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv",
+      "before": ".snapshot_guest_held(snapshot_guest_held)",
+      "after": ".snapshot_guest_held(1'b1)",
+      "rejection": "machine state binding differs: m"
+    },
+    {
+      "case": 7,
+      "path": "core/Dorado.sv",
+      "before": ".snapshot_freeze(board_state_freeze)",
+      "after": ".snapshot_freeze(1'b0)",
+      "rejection": "machine state binding differs: u_native"
+    },
+    {
+      "case": 8,
+      "path": "core/Dorado.sv",
+      "before": "&& !board_state_freeze",
+      "after": "",
+      "rejection": "core boundary/bus differs: wiremachine_enable=~reset&&pack_ready&&storage_ready&&!board_state_freeze;"
+    },
+    {
+      "case": 9,
+      "path": "core/Dorado.sv",
+      "before": "negedge clk_sys",
+      "after": "posedge clk_sys",
+      "rejection": "core boundary/bus differs: always@(negedgeclk_sys)network_step<=machine_enable;"
+    },
+    {
+      "case": 10,
+      "path": "core/Dorado.sv",
+      "before": "board_state_freeze && !network_step",
+      "after": "board_state_freeze",
+      "rejection": "core boundary/bus differs: assignboard_state_guest_held=board_state_freeze&&!network_step;"
+    },
+    {
+      "case": 11,
+      "path": "core/Dorado.sv",
+      "before": "ethernet_ext_bus[32]|board_state_ext_bus[32]",
+      "after": "ethernet_ext_bus[32]",
+      "rejection": "core boundary/bus differs: assigndorado_ext_bus[32]=ethernet_ext_bus[32]|board_state_ext_bus[32];"
+    },
+    {
+      "case": 12,
+      "path": "core/Dorado.sv",
+      "before": ".EXT_BUS(dorado_ext_bus)",
+      "after": ".EXT_BUS(ethernet_ext_bus)",
+      "rejection": "core boundary/bus differs: .EXT_BUS(dorado_ext_bus)"
+    },
+    {
+      "case": 13,
+      "path": "core/native_timing.sdc",
+      "before": "\n",
+      "after": "\nset_false_path -from [all_registers]\n",
+      "rejection": "timing constraint differs: native_timing.sdc"
+    },
+    {
+      "case": 14,
+      "path": "core/Dorado.qsf",
+      "before": "DORADO_STORAGE_INPUT_DELAY=2",
+      "after": "DORADO_STORAGE_INPUT_DELAY=1",
+      "rejection": "existing project policy differs"
+    }
+  ],
+  "audit_sha256": "bce916295a21a289622adafc688cbdd2be275fea162612c576687a3cd8e1c7fa"
+}

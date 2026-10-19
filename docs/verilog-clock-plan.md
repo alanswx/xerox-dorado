@@ -42,6 +42,56 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Enabled60 exceeds FPGA capacity; the first state-preserving area fix is qualified and a new full-core build is running.**
+
+The original all-enabled experiment is TERMINAL: synthesis passed, fitter
+failed (exit 3). It needs 5,505 LABs / 4,191 available; the failed summary
+reports 54,403 ALMs / 41,910, an excess of 12,493. No STA, assembly or reload
+followed. The eleven-board source audit remains valid. Failed-fit attribution
+puts five BaseBoard RIOTs at 7,341.5 ALMs; these are diagnostic estimates,
+not a legal placement or a prediction for the next fit. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-enabled-capacity/`.
+
+Normal and administrative RIOT RAM ports now share their mutually exclusive
+address/data/write-enable path. There is no added state, reset change, latency
+change, valid mask or snapshot ABI change. The original/independent oracle
+passes all 1,097 physical bits and addresses; six broken RTL controls reject.
+Fresh XML and synthesis retain the same 1,097 physical + 21 transport bits,
+with no sequential exclusions. Matched old/new enabled fixtures pass all four
+conditions (minimum +0.167ns), 1,645 -> 782 ALMs, zero block RAM, and seven bad
+fit/retention controls reject. These are isolated counts, not a whole-core
+saving. Full BaseBoard positive restore gate passes again: 526,012 host edges,
+all 40,366 bits and 131,072 indices, 402,862 requests and 20,000 post-restore
+cycles. Ordinary extra-SRAM writer counts remain zero; their unchanged earlier
+primitive/bank gates still provide that coverage. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-riot-shared-port/`.
+
+The next all-enabled build is LIVE at
+`/home/alans/mister/Dorado_Enabled60SharedRIOT_20261019`, builder PID 1875288,
+local session 53356. Synthesis passed; fitter PID 1878054 is running.
+Only M6532_snapshot.sv differs among the
+22 prepared HDL assets; all eleven boards and 1,944,744 modeled bits remain.
+Both local and exact remote source audits pass, including fifteen damaged
+controls. Observe this same job; capacity/timing remain unqualified. The
+builder still omits assembly/deployment. All other new qualification jobs are
+terminal. Live Native59 is unchanged; last qualified idle remains 1,947,654.12
+issues/s, with no clock, timer or speed improvement claimed.
+
+Fresh native-wrapper support XML identifies another 154,037 sequential
+candidate bits outside the eleven boards, mainly the disk buffer and raw
+memory frontends. This is REVIEW ONLY; all candidates still need classification
+and access. Top-level input/network/video, external raw RAM and ARM state are
+outside that XML. Existing daemon lifecycle RESUME calls configure(), losing
+old protocol connections; snapshot pause/resume needs a distinct preserving
+path, including timer rebasing, rather than reusing core-load STOP/RESUME.
+
+Next: read the new full fit and use its measured attribution for further
+RAM-port/state-read/decode area reductions without dropping state coverage.
+Then complete support-state/global barriers, the atomic disk-paired bundle
+and actual FPGA Cedar restore. Original 60ns clocks/timers and final three
+fresh boots, cold persistence, pinned comparisons and two-hour combined stress
+remain open. Goal ACTIVE.
+
 **All eleven board state interfaces are connected; transport and source integration pass. Full-core fitting is running.**
 
 The new bounded fabric and diagnostic EXT_BUS commands 76–79 enable all eleven

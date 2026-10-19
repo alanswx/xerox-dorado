@@ -1,0 +1,17 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "riot_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/riot-shared-port-v1-20261019/admin_alias/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/riot-shared-port-v1-20261019/admin_alias/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/riot-shared-port-v1-20261019/admin_alias/M6532_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/riot-shared-port-v1-20261019/executed-inputs/M6532.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/riot-shared-port-v1-20261019/executed-inputs/test_riot.cpp"
+]

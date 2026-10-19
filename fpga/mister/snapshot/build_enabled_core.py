@@ -34,8 +34,9 @@ def once(t,a,b):
  return t.replace(a,b,1)
 
 
-def prepare(frozen,out):
- import generate_baseboard_full as gen
+def prepare(frozen,out,shared_riot=False):
+ if shared_riot:import generate_baseboard_shared_riot as gen
+ else:import generate_baseboard_full as gen
  board,m,clones=gen.generate(frozen);out.mkdir(parents=True,exist_ok=False)
  files={'BaseBd_full_snapshot.sv':board,**clones}
  for n in ('board_state_fabric.sv','board_state_uio.sv'):files[n]=(Path(__file__).parent/n).read_bytes()
@@ -60,6 +61,7 @@ def prepare(frozen,out):
    manifest=matches[0]
   catalog.append(dict(id=i,board=name,index_bits=bits,module=manifest['module'],logical_state_bits=manifest['logical_state_bits']))
  record=dict(scope=__doc__,baseboard_manifest=m,catalog=catalog,assets={n:digest(out/n)for n in files},shared=shared,
+  implementation_variant='shared_riot_ram_port'if shared_riot else'qualified_original_ports',
   expected_original_sources=m['original_sources']|{gen.SOURCE:m['original_sha256']},builder_sha256=digest(Path(__file__)),
   helper_scope='Board state only; all11adapters active, Main/wrapper/backends/input/server/disk generation not captured; no machine snapshot or deployment qualification.',
   nominal_clock='Same50MHz/SYSPER4, unchanged SDRAM/DDR/ECC and timing constraints')
@@ -176,6 +178,7 @@ def stage(baseline,out,assets):
  (out/'core/audit-adapter-crossings.tcl').write_text(crossing)
  tracked=[bp,machine,core,qsf,out/'core/device-corners.tcl',out/'core/audit-adapter-crossings.tcl',*[out/'src'/n for n in added]]
  record=dict(scope=a['helper_scope'],baseline=str(baseline),output=str(out),catalog=a['catalog'],board_state_bits=sum(x['logical_state_bits']for x in a['catalog']),
+  implementation_variant=a.get('implementation_variant','qualified_original_ports'),
   source_changes=changed,core_changes=['Dorado.sv','Dorado.qsf','device-corners.tcl','audit-adapter-crossings.tcl'],added_sources=added,
   timing_changes='None; identical clocks/SDC/operating conditions',snapshot_admin='ENABLED through bounded76..79UIO diagnostics; not a whole-machine snapshot',
   source_hashes={str(p.relative_to(out)):digest(p)for p in tracked})
@@ -193,8 +196,8 @@ def run(out,quartus):
 
 
 if __name__=='__main__':
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--prepare-assets',type=Path);p.add_argument('--frozen-root',type=Path);p.add_argument('--stage',type=Path);p.add_argument('--baseline',type=Path);p.add_argument('--assets',type=Path);p.add_argument('--run',type=Path);p.add_argument('--quartus',type=Path,default=Path('/home/alans/intelFPGA_lite/17.0/quartus/bin'));a=p.parse_args()
- if a.prepare_assets and a.frozen_root:prepare(a.frozen_root.resolve(),a.prepare_assets.resolve())
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--prepare-assets',type=Path);p.add_argument('--frozen-root',type=Path);p.add_argument('--shared-riot',action='store_true');p.add_argument('--stage',type=Path);p.add_argument('--baseline',type=Path);p.add_argument('--assets',type=Path);p.add_argument('--run',type=Path);p.add_argument('--quartus',type=Path,default=Path('/home/alans/intelFPGA_lite/17.0/quartus/bin'));a=p.parse_args()
+ if a.prepare_assets and a.frozen_root:prepare(a.frozen_root.resolve(),a.prepare_assets.resolve(),a.shared_riot)
  elif a.stage and a.baseline and a.assets:stage(a.baseline.resolve(),a.stage.resolve(),a.assets.resolve())
  elif a.run:run(a.run.resolve(),a.quartus)
  else:p.error('Specify preparation, staging or run inputs')

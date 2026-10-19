@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "raw_files": 22,
+  "raw_bytes": 90522352,
+  "stored_bytes": 3426064,
+  "scope": "Lossless readback of raw evidence, excluding derived objects/databases; not global snapshot qualification."
+}

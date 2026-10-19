@@ -1,0 +1,239 @@
+{
+  "status": "PASS",
+  "physical_bits": 1097,
+  "transport_bits": 21,
+  "sequential_exclusions": [],
+  "results": {
+    "qualified": {
+      "generated_sha256": "c8435f56312d982023ddf12ef3119ddbd3591254603beb4037d33a459b5941e8",
+      "xml_sha256": "f5b37aa854ad1d5c0c46d6329667ac583e3b3cb13f2e9b87562bcdbe358d6440",
+      "decisions": [
+        {
+          "name": "d_out",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "dir_a",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "dir_b",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "edge_detect",
+          "bits": 1,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "incr",
+          "bits": 2,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "interrupt",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "irq_en",
+          "bits": 2,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "old_pa7",
+          "bits": 1,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "out_a",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "out_b",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "prescaler",
+          "bits": 10,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "riot_ram",
+          "bits": 1024,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "rollover",
+          "bits": 1,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "state_done",
+          "bits": 1,
+          "scope": "PRIVATE TRANSPORT"
+        },
+        {
+          "name": "state_error",
+          "bits": 1,
+          "scope": "PRIVATE TRANSPORT"
+        },
+        {
+          "name": "state_frozen",
+          "bits": 1,
+          "scope": "PRIVATE TRANSPORT"
+        },
+        {
+          "name": "state_result",
+          "bits": 18,
+          "scope": "PRIVATE TRANSPORT"
+        },
+        {
+          "name": "timer",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        }
+      ]
+    },
+    "shared": {
+      "generated_sha256": "6f0011c3920d90930630c0099904a292508ee79de6dbe5beef337aae77b46cbc",
+      "xml_sha256": "7fd0ea0d56215cbe69ad04d86076de6b9a0c2fd6f6df977b7d1ea901f42488b8",
+      "decisions": [
+        {
+          "name": "d_out",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "dir_a",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "dir_b",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "edge_detect",
+          "bits": 1,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "incr",
+          "bits": 2,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "interrupt",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "irq_en",
+          "bits": 2,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "old_pa7",
+          "bits": 1,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "out_a",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "out_b",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "prescaler",
+          "bits": 10,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "riot_ram",
+          "bits": 1024,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "rollover",
+          "bits": 1,
+          "scope": "PHYSICAL RIOT"
+        },
+        {
+          "name": "state_done",
+          "bits": 1,
+          "scope": "PRIVATE TRANSPORT"
+        },
+        {
+          "name": "state_error",
+          "bits": 1,
+          "scope": "PRIVATE TRANSPORT"
+        },
+        {
+          "name": "state_frozen",
+          "bits": 1,
+          "scope": "PRIVATE TRANSPORT"
+        },
+        {
+          "name": "state_result",
+          "bits": 18,
+          "scope": "PRIVATE TRANSPORT"
+        },
+        {
+          "name": "timer",
+          "bits": 8,
+          "scope": "PHYSICAL RIOT"
+        }
+      ]
+    }
+  },
+  "controls": [
+    {
+      "case": "lost_ram",
+      "rejected": true,
+      "diagnostic": "missing sequential fields: riot_ram"
+    },
+    {
+      "case": "lost_pa7",
+      "rejected": true,
+      "diagnostic": "missing sequential fields: old_pa7"
+    },
+    {
+      "case": "lost_dout",
+      "rejected": true,
+      "diagnostic": "missing sequential fields: d_out"
+    },
+    {
+      "case": "ram_width",
+      "rejected": true,
+      "diagnostic": "extra/duplicate/wrong sequential field: riot_ram"
+    },
+    {
+      "case": "ram_depth",
+      "rejected": true,
+      "diagnostic": "extra/duplicate/wrong sequential field: riot_ram"
+    },
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate/wrong sequential field: hidden"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate/wrong sequential field: old_pa7"
+    }
+  ],
+  "scope": "Fresh old/new RIOT field geometry comparison, with no sequential exclusions.",
+  "tool_sha256": "eab40d1b260b01944d809404925d477f6d55cd09ff3ec12877c823d2f4d21b96"
+}

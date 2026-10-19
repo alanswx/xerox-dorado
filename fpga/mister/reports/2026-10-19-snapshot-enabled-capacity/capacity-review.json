@@ -1,0 +1,90 @@
+{
+  "status": "REJECTED_CAPACITY",
+  "scope": "Record the terminal rejected all-board fit; never treats it as qualification.",
+  "required_labs": 5505,
+  "available_labs": 4191,
+  "alms_needed": 54403,
+  "available_alms": 41910,
+  "excess_alms": 12493,
+  "excess_percent": 29.80911476974468,
+  "boards": [
+    {
+      "module": "BaseBd_full_snapshot_experiment",
+      "failed_fit_alm_estimate": 9765.9,
+      "baseline_alm_attribution": 3291.9,
+      "difference": 6474.0
+    },
+    {
+      "module": "ContA_full_snapshot_experiment",
+      "failed_fit_alm_estimate": 1760.4,
+      "baseline_alm_attribution": 797.8,
+      "difference": 962.6
+    },
+    {
+      "module": "ContB_full_snapshot_experiment",
+      "failed_fit_alm_estimate": 623.9,
+      "baseline_alm_attribution": 141.9,
+      "difference": 482.0
+    },
+    {
+      "module": "DispY_full_snapshot_experiment",
+      "failed_fit_alm_estimate": 2376.8,
+      "baseline_alm_attribution": 782.2,
+      "difference": 1594.6
+    },
+    {
+      "module": "DskEth_full_snapshot_experiment",
+      "failed_fit_alm_estimate": 3426.5,
+      "baseline_alm_attribution": 1299.6,
+      "difference": 2126.9
+    },
+    {
+      "module": "IFU_full_snapshot_experiment",
+      "failed_fit_alm_estimate": 1344.2,
+      "baseline_alm_attribution": 387.2,
+      "difference": 957.0
+    },
+    {
+      "module": "MemC_full_snapshot_experiment",
+      "failed_fit_alm_estimate": 3771.7,
+      "baseline_alm_attribution": 2462.0,
+      "difference": 1309.7
+    },
+    {
+      "module": "MemD_full_snapshot_experiment",
+      "failed_fit_alm_estimate": 2231.2,
+      "baseline_alm_attribution": 626.3,
+      "difference": 1604.9
+    },
+    {
+      "module": "MemX_full_snapshot_experiment",
+      "failed_fit_alm_estimate": 3046.8,
+      "baseline_alm_attribution": 879.5,
+      "difference": 2167.3
+    },
+    {
+      "module": "ProcH_full_snapshot_experiment",
+      "failed_fit_alm_estimate": 1701.2,
+      "baseline_alm_attribution": 925.1,
+      "difference": 776.1
+    },
+    {
+      "module": "ProcL_full_snapshot_experiment",
+      "failed_fit_alm_estimate": 1600.3,
+      "baseline_alm_attribution": 894.3,
+      "difference": 706.0
+    }
+  ],
+  "five_riot_failed_fit_alm_estimate": 7341.5,
+  "attribution_limit": "Failed-fit hierarchy estimates guide experiments; not a legal placed design, routed timing, or a sum predicting the next fit.",
+  "input_hashes": {
+    "build/rtl-executive/enabled60-remote-review-20261019/actual-build-audit.json": "f860afedc4a78409affa6b1ac2287b10d16bc1b8ae7c2eeab8e806e04692c218",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/output_files/Dorado.fit.rpt.gz": "4fe977c11837a90f6c27a75d22af9b439273d58fd19f2e1abce30351b083f029",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/enabled60-capacity-20261019/Dorado.fit.rpt": "24786142b1622caada250199c5f78517e409dbeaf422cf2702ba018a8f8038bf",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/enabled60-capacity-20261019/Dorado.fit.summary": "654b811fcc8cbb515597999ae9518cdffb0b0fb922d167929ba44eee069cf8a9",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/enabled60-capacity-20261019/Dorado.map.rpt": "a5c4c03312ab8f5d743935b241dffdcc1516edac9448b3d1d8eebdbd459fc7ce",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/enabled60-capacity-20261019/Dorado.map.summary": "d28601ae1f542422a0ad7063dede6dfb6cadb8de8f0e84de9f43220dc683dbc4",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/enabled60-capacity-20261019/fit.log": "0e865fe7f60c093f24e91eb9094f73f0408e1966408d3396a3e119dca2c0ebdf",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/audit_enabled_capacity.py": "2b3dbc11a168ce9476b05e54261e02d019cec78c568473fa5ead50471166ac32"
+  }
+}
