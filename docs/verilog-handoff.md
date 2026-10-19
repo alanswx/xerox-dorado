@@ -2,22 +2,36 @@
 
 ## Current objective (2026-10-18 UTC)
 
-**19Oct09:17UTC: Native53 processor integration building, not deployed.**
+**19Oct09:30UTC: Native53 full-core timing PASS, not yet deployed.**
 New build_native_processor.py/audit_native_processor.py use exact frozen52,
 eight byte-identical shared adapters and six new processor RTL files. Same
 50MHz/SYSPER4, actual network_step advance, all admin INACTIVE, outer wrapper/
 SDCs unchanged. Remote /home/alans/mister/Dorado_Native53_20261019, handle88182
-still LIVE (quartus_fit951490 routing); do not restart. Completed synthesis
-retains12 processor MLABs and8 OLD_DATA instruction banks; only new warning
-10036 unused object. Routed/all-corner100-category audit and original hardware
-boot remain pending. Live52 finished font fetches and entered gray desktop
-initialization; full Viewers/input remains pending. No reload yet.
+TERMINAL. Both read-only audits75774/18441 terminal. All31summary/100detailed
+checks/four conditions PASS,min+0.115ns, no new cuts/illegal/unconstrained clocks.
+Existing framework I/O unchanged3ports13input/50ports154output paths.12processor
+MLABs/9216bits/288cells and8 OLD_DATA instruction banks retained; only new map
+warning10036 unused object.30232ALMs/52845regs/330M10Ks/35DSP, admin inactive,
+not enabled snapshot budget. RBFc323f163b0c43ad8ce332096c9509e7e1b19b02a0dfe454260f6b4453ed77391.
+Sources/full evidence native53-processors. Original hardware boot pending.
+
+Live52 full Viewers/Ready/Watch/Edit/Clock, real mouse/Cmd then separate focus,
+exact short/alphabet/digit echo and rtl52persist.txt create/close/type readback
+PASS.85180 complete live disk trace records have no errors/loss. Normal guest
+Boot captured actual812; host disk/network barriers/cold marker readback are
+not supplied by that guest Boot. Desktop/Boot evidence native52-field. Prepared
+normal52->53 recipe cedar53-launch/deploy.py, not yet executed. No reload yet.
 
 Next IFU MC10135 primitive simulation/classification PASS:7 modeled bits,
 four PRECAP modes,92195 host edges, all128 state values, exact first resume
 and20000morecycles.7 faulty RTL/3 changed-source/8 XML-schema controls reject.
-Source generate/test/classify_jk.py/test_jk.cpp; evidence snapshot-jk. No
-isolated routed timing, IFU integration/global barrier or complete snapshots.
+Source generate/test/classify_jk.py/test_jk.cpp; evidence snapshot-jk. Matched
+fit_jk.py negative-edge launch/positive-edge capture50MHz shell now passes all
+four conditions,min+0.164ns, no cuts/unconstrained paths;68->73ALMs,38->74regs,
+zeroRAM, five damaged-fit controls reject. Same cell RTL/20ns SDC/2ns max0ns min
+I/O;10ns into cell/20ns output paths. Positive-edge shell had virtual-input hold
+-0.465ns, not repaired by multi-corner option; both rejected/preserved. No IFU
+integration/global barrier or complete snapshots.
 
 **Live update19Oct08:40UTC: Native52 original firmware to Cedar login PASS.**
 Normal loader86819 TERMINAL08:34:08UTC, Main16101/21e67a3f/server16100/c5996249,
@@ -34,8 +48,9 @@ real Guest TERMINAL. Three adjacent10s windows mean
 claim. Timed base loader34transfers/33BCD/1,345,843bytes/final ACK PASS321.874793..
 322.041597s.56replays in AMTypes (49c56in EditTool);530.135..533.505M issues,
 interior1.65125..1.65146M/s. All34source hashes match after timing, not physical
-payload hashes. Timed Yes/default missing name accepted; No retry accepted; actual BootEssentials advancing. Full
-52desktop/input pending. No observer restart; it completed normally. Same33-sample measurement->Guest
+payload hashes. Timed Yes/default missing name accepted; No retry accepted;
+BootEssentials/fonts/full52desktop/input/warm marker now pass as recorded above.
+No observer restart; it completed normally. Same33-sample measurement->Guest
 recipe; earlier manual login gate varies, not final fully pinned repeats.
 Live Main /tmp/dorado52-main.log, disk /tmp/dorado52-disk.jsonl, volume/server
 Cedar52_20261019; helpers cedar52-launch, evidence native52-field.

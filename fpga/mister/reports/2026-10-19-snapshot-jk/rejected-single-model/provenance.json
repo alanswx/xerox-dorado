@@ -1,0 +1,57 @@
+{
+  "scope": "Isolated four independent PRECAP modes; original full-advance vs exact-advance/state adapters; same50MHz positive-edge shell/2ns max0ns min I/O, no cuts or production timing changes. Counts include shell/admin/pruning; no IFU, global barrier or physical snapshot claim.",
+  "manifest": {
+    "kind": "cell_MC10135",
+    "fields": [
+      [
+        "qa",
+        1
+      ],
+      [
+        "qb",
+        1
+      ],
+      [
+        "jk_pre",
+        4
+      ],
+      [
+        "ck_d",
+        1
+      ]
+    ],
+    "modeled_state_bits": 7,
+    "original_sha256": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "generated_sha256": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+    "scope": "Primitive host-advance/state access; caller holds all consumers, no global machine barrier"
+  },
+  "builder_sha256": "239cdfb964cc225d79e620a1dd4aba8d843a023c3d682d8774c4c5973923ee64",
+  "source_hashes": {
+    "fpga/mister/snapshot/fit_jk.py": "239cdfb964cc225d79e620a1dd4aba8d843a023c3d682d8774c4c5973923ee64",
+    "fpga/mister/snapshot/generate_jk.py": "77ba8b5a719e394c7c5c27e55fc95424c2a1f40686d92bc32116b88325fbf2ed",
+    "fpga/mister/snapshot/test_jk.py": "eb1394b02101abfc470aaaccb5b9cdc5d33bea6888b83480dab2f4077a4ff3c6",
+    "fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "verilog/cells/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c"
+  },
+  "compiled_files": {
+    "snapshot/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "snapshot/cell_MC10135_snapshot.sv": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+    "snapshot/top.sv": "b5339ac8b5ac8e255d435b37a74d03def47bbd7880d57b8017fdb3bb8ecd1575",
+    "snapshot/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "snapshot/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "snapshot/snapshot_fit.qsf": "533a0489f3eca516f14e9c9db6721b57376d99cbc6e15e8d74dc49e31b0d099d",
+    "snapshot/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/cell_MC10135_snapshot.sv": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+    "baseline/top.sv": "b5339ac8b5ac8e255d435b37a74d03def47bbd7880d57b8017fdb3bb8ecd1575",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/snapshot_fit.qsf": "32a9870fc601f4a42e6995ac89e38b89714f142907773edbbb677ad926c04097",
+    "baseline/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c"
+  },
+  "expected_qsf": {
+    "baseline": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10135_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MC10135.v\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to hold\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to pins[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to outputs[*]\n",
+    "snapshot": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10135_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MC10135.v\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to hold\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to pins[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to outputs[*]\nset_global_assignment -name VERILOG_MACRO \"SNAPSHOT_BANK_EXPERIMENT=1\"\n"
+  }
+}

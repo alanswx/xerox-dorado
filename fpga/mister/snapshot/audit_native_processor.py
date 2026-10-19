@@ -189,6 +189,15 @@ def collect(root,baseline,archive):
         change=metadata['scope'],instruction_memories=instruction_ram(mapping),processor_memories=memories,
         processor_memory_bits=9216,processor_mlab_cells=288,warning_comparison=warnings,
         failure_controls=failures,reports=reports,rbf_sha256=sha(rbf))
+    parent=json.loads((baseline/'qualification.json').read_text())
+    for name,value in dict(storage_prefetch=True,storage_interleave=True,storage_defer_reads=False,
+                           network_ddr=True,raw_line_cache_entries=0,required_sdram_mb=128,
+                           guest_ram_mib=8,raw_backing_mib=16).items():
+        assert parent[name]==value,'unreviewed baseline memory/transport policy: '+name
+        q[name]=value
+    assert parent['raw_backend'].startswith('SDRAM')
+    q['raw_backend']=parent['raw_backend']
+    q['policy_scope']='Inherited from qualified52, with exact unchanged outer wrapper, project assignments and all other source bytes verified above.'
     (root/'qualification.json').write_text(json.dumps(q,indent=2)+'\n')
     inputs=[p for p in (root/'src').rglob('*')if p.is_file()]
     inputs+=[core/name for name in ('Dorado.sv','Dorado.qsf','Dorado.sdc','native_timing.sdc','sdram_timing.sdc','checkpoint_timing.sdc','device-corners.tcl','audit-adapter-crossings.tcl')]

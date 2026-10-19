@@ -42,12 +42,18 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-19Oct09:17UTC: Native53 processor-adapter full-core build is routing on
-misterubuntu; all state admin inactive, exact frozen52 clocks/wrapper/SDCs.
-No speed or full snapshot claim. Synthesis retains12 processor MLABs/eight
-OLD_DATA IM banks; full timing/original boot pending. MC10135 next-IFU
+19Oct09:30UTC: Native53 processor-adapter full-core timing PASS31summary/
+100detailed checks/four conditions,min+0.115ns. All state admin inactive,
+exact frozen52 clocks/wrapper/SDCs, no new cuts/unconstrained clocks; framework
+I/O unchanged.12processor MLABs/eight OLD_DATA IM banks retained. Original
+hardware boot pending; no speed or full snapshot claim. Live52 now passes
+full desktop/mouse/Cmd/focus/exact keyboard/warm rtl52persist marker; normal
+guest Boot captured812. MC10135 next-IFU
 primitive simulation/XML coverage now passes all7bits/four PRECAP modes and
-restore, with7 damaged RTL/3 source/8 schema controls; isolated fit/IFU still
+restore, with7 damaged RTL/3 source/8 schema controls. Matched negative-edge
+launch/positive-edge capture50MHz fit passes min+0.164ns/all conditions/no cuts;
+five bad-fit controls reject. Earlier positive-edge virtual-input hold failure
+and unrepaired multi-corner repeat remain rejected/preserved. IFU integration
 pending. These are milestone4a steps, not completion of4a or60ns migration.
 
 Current hardware update19Oct:47/48/49 original Viewers/input and
@@ -108,7 +114,7 @@ all state admin inactive. Main16101/server16100, fresh actual DDR epoch
 BFN113/Pilot/Cedar login pass; fixed33-sample measurement->Guest mean
 1,947,787.783issues/s matches49c. Timed loader/final ACK now PASS321.875..322.042s,
 56AMTypes replays/530.135..533.505M issues; observer16342 terminal/absent. All34
-source hashes match after timing. Full52desktop/input pending; No retry accepted; actual BootEssentials advancing. No speed gain/full snapshot/60ns claim. Evidence
+source hashes match after timing. Full52Viewers/input/warm marker now pass; normal guest Boot captured812. No speed gain/full snapshot/60ns claim. Evidence
 native52-field; retired49c preserved63578624B SHA7edf6ada62cb7f1c2658b0008773c6b561c0d54de96b7dce8c20ba7139a91e87.
 
 Use three explicitly recorded workloads: idle Cedar login, a fixed cold

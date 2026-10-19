@@ -1,0 +1,116 @@
+{
+  "status": "PASS",
+  "scope": "Isolated four independent PRECAP modes; original full-advance vs exact-advance/state adapters; same50MHz negative-edge launch/positive-edge capture shell,10ns into cell/20ns output paths,2ns max0ns min I/O, no cuts or production timing changes. Counts include shell/admin/pruning; no IFU, global barrier or physical snapshot claim.",
+  "results": {
+    "baseline": {
+      "resources": {
+        "alms": 68,
+        "registers": 38,
+        "ram_blocks": 0
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 8.274,
+          "hold": 0.466,
+          "mpw": 9.33
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 8.161,
+          "hold": 0.459,
+          "mpw": 9.207
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 8.616,
+          "hold": 0.171,
+          "mpw": 9.057
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 8.604,
+          "hold": 0.184,
+          "mpw": 9.116
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 4,
+          "13024": 1,
+          "13410": 72
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    },
+    "snapshot": {
+      "resources": {
+        "alms": 73,
+        "registers": 74,
+        "ram_blocks": 0
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 7.375,
+          "hold": 0.458,
+          "mpw": 9.294
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 7.301,
+          "hold": 0.436,
+          "mpw": 9.178
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 8.26,
+          "hold": 0.164,
+          "mpw": 9.047
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 8.184,
+          "hold": 0.181,
+          "mpw": 9.106
+        }
+      },
+      "warnings": {
+        "map": {
+          "13024": 1,
+          "13410": 44
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    }
+  },
+  "delta": {
+    "alms": 5,
+    "registers": 36,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.164,
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/cell_MC10135_snapshot.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "macro",
+      "rejected": true,
+      "diagnostic": "project source/macro/constraint differs"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation/missing path hold/7_slow_1100mv_-40c"
+    },
+    {
+      "case": "warning",
+      "rejected": true,
+      "diagnostic": "('unreviewed warnings', 'map', Counter({'10999': 1}))"
+    }
+  ]
+}

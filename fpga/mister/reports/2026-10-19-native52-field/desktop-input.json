@@ -1,0 +1,25 @@
+{
+  "status": "PASS: original-firmware fresh Viewers, mouse/Cmd/focus, exact keyboard and warm marker readback",
+  "main_pid": 16101,
+  "server_pid": 16100,
+  "rbf_sha256": "be80e03f26e5b9e5e7984a0d9b5df15b84d264a1f526e95149e085d25a08768c",
+  "checked_utc": "2026-10-19T09:26:04.244474+00:00",
+  "echoes": [
+    "rtl52 keyboard ok",
+    "abcdefghijklmnopqrstuvwxyz0123456789"
+  ],
+  "visual_review": "Ready herald/WatchTool/EditTool/Clock, real mouse opened second CommandTool. Verified initialized % before separate focus737,608. Exact short/alphabet/digit outputs and new prompts. Normal marker create/close/type readback matches. First profile tool continues optional installs.",
+  "warm_marker": {
+    "status": "PASS: normal guest create/close/readback and new prompt",
+    "file": "///rtl52persist.txt",
+    "expected": "rtl52persist",
+    "cold_persistence": "NOT TESTED for this marker"
+  },
+  "captures": {
+    "viewers-desktop.png": "bdb87e1929b366e9c127a9e7b54e230f9ad5d098f26037ca3d4b0eb17e3a8659",
+    "viewers-second-cmd.png": "f8368879abfbe0946c55f3fb3e499f4647ee343763e341deba1fbf52420011c5",
+    "input-short.png": "7902b33ebeb1b334473e4bca08b2b11e0a4b56c398fe3bfe4de4b1152ced09c6",
+    "marker-readback.png": "e4b15329a327e3fe1aa6bc23312591f204a1534f29f7ef49eddced72cc711863"
+  },
+  "limits": "One fresh52 desktop, not final3boots/2h stress, full physical snapshot or original60ns migration. Snapshot admin inactive; replay cause remains open."
+}

@@ -1,0 +1,42 @@
+{
+  "status": "REJECTED",
+  "reason": "Virtual input to launch-register hold violations with single-model fitter optimization; no timing waiver",
+  "hold": {
+    "baseline": {
+      "bank-hold-MIN_fast_1100mv_-40c.rpt": [
+        "0",
+        "0.151"
+      ],
+      "bank-hold-7_slow_1100mv_-40c.rpt": [
+        "0",
+        "0.180"
+      ],
+      "bank-hold-MIN_fast_1100mv_100c.rpt": [
+        "0",
+        "0.175"
+      ],
+      "bank-hold-7_slow_1100mv_100c.rpt": [
+        "0",
+        "0.340"
+      ]
+    },
+    "snapshot": {
+      "bank-hold-MIN_fast_1100mv_-40c.rpt": [
+        "0",
+        "0.166"
+      ],
+      "bank-hold-7_slow_1100mv_-40c.rpt": [
+        "3",
+        "-0.465"
+      ],
+      "bank-hold-MIN_fast_1100mv_100c.rpt": [
+        "0",
+        "0.180"
+      ],
+      "bank-hold-7_slow_1100mv_100c.rpt": [
+        "1",
+        "-0.023"
+      ]
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native52_20261019",
+  "candidate": "/home/alans/mister/Dorado_Native53_20261019",
+  "change": "Frozen52 plus exact-advance ProcH/ProcL adapters; shared qualified FF/file clones reused byte-identically. All state admin inactive; no global save/load or speed claim.",
+  "snapshot_admin": "INACTIVE; no physical save/load",
+  "extra_timing_exceptions": "None",
+  "source_changes": [
+    "build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+  ],
+  "added_sources": [
+    "fpga/mister/snapshot_native_processor/cell_F10414_snapshot.sv",
+    "fpga/mister/snapshot_native_processor/cell_MC10175_snapshot.v",
+    "fpga/mister/snapshot_native_processor/cell_MB7071H_snapshot.sv",
+    "fpga/mister/snapshot_native_processor/cell_MC1668_snapshot.v",
+    "fpga/mister/snapshot_native_processor/assets.json",
+    "fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv",
+    "fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv"
+  ],
+  "shared_sources": {
+    "cell_MC10176_snapshot.v": "fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+    "cell_MC10231_snapshot.v": "fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+    "cell_F10000_snapshot.v": "fpga/mister/snapshot_native_conta/cell_F10000_snapshot.v",
+    "cell_F10016_snapshot.v": "fpga/mister/snapshot_native_conta/cell_F10016_snapshot.v",
+    "cell_MC10141_snapshot.v": "fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+    "cell_MC10173_snapshot.v": "fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+    "cell_SE10231_snapshot.v": "fpga/mister/snapshot_native_conta/cell_SE10231_snapshot.v",
+    "cell_F10145A_snapshot.sv": "fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv"
+  },
+  "speed": "Same50MHz/SYSPER4; no speed claim. Protocol replay variability remains open.",
+  "source_hashes": {
+    "core/Dorado.sv": "6e00eb03e3428b4c1f594609d1f1d3ef82a188e036954f4f14fc9e982fcd8ec9",
+    "core/Dorado.qsf": "2084f02ce918d7f40b6c42f2583c11097fcb581d9b38c2e58a62a0fbf0d62f2d",
+    "core/device-corners.tcl": "8902fce4ed02f6ace90b3a5bcdbac0a1dcbb355f8b6f3a7c13cd5fb19f456fa9",
+    "core/audit-adapter-crossings.tcl": "acfe4bd311c2c79c7df67dbe35cb340704828cc4e61938d46cc96782d895be9e",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "e876c3ec4a8b5a9f40661d1bcf9a719e87b7e0ac9c63f0d5969e7898389ec06d",
+    "src/fpga/mister/snapshot_native_processor/cell_F10414_snapshot.sv": "47b6e3b885402a7aeeba873f920c04c005f7a71041e9a9bf02d4348cd5e65886",
+    "src/fpga/mister/snapshot_native_processor/cell_MC10175_snapshot.v": "cdf7e1124e7ef3cf8d8deeda514957e4bdc6fd4d1f55854bdc671e3b62db2280",
+    "src/fpga/mister/snapshot_native_processor/cell_MB7071H_snapshot.sv": "8b6d1a96ff8b8afcba08529fecae3c3306bfd4681627ec7dce19ab18c37f5cfd",
+    "src/fpga/mister/snapshot_native_processor/cell_MC1668_snapshot.v": "f4b85f8096f5f543e45da6d93b9c109dbd698db19488cc86700e3433b384e415",
+    "src/fpga/mister/snapshot_native_processor/assets.json": "9d51cebf23c270d977f45ffa686100fba2742af2a947763b18c06ac9bea05557",
+    "src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "4cb7855963757ea62aaf799b76a34184b6d8f9ad9aec066c20d2e08f92d849bd",
+    "src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "a3067afe1f21cf1a28175316f2d8e365e2b56600208b6e96b3e17a12fe2c3cf8"
+  }
+}

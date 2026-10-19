@@ -207,8 +207,11 @@ Native53 now integrates both qualified processor adapters into frozen52 with
 all admin inactive, the same actual falling-edge-latched advance and unchanged
 outer wrapper/clocks/SDCs. `build_native_processor.py` pins all source/PROM
 dependencies, reuses eight existing adapter files byte-identically and adds
-six RTL files. Synthesis retains all12 processor MLAB RAMs and eight OLD_DATA
-instruction banks; routed fit/all-corner audit and hardware boot remain pending.
+six RTL files. Routed timing passes31summary/100detailed checks/four conditions,
+min+0.115ns, no new cuts or illegal/unconstrained clocks; unchanged framework I/O.
+All12processor MLAB RAMs/9216bits/288cells and eight OLD_DATA instruction banks
+are retained.30232ALMs/52845regs/330M10Ks/35DSP with admin inactive. Evidence
+reports/2026-10-19-native53-processors; original hardware boot remains pending.
 `audit_native_processor.py` checks100 detailed timing categories across four
 conditions, including both directions for all four adapted boards. No complete
 snapshot, enabled snapshot resource budget or speed gain is claimed.
@@ -220,4 +223,9 @@ oracle over92195 host edges, all128 state words and first-edge restore plus
 20000 subsequent cycles. Seven damaged RTL variants fail; three altered-source
 and eight XML/schema controls reject. `classify_jk.py` accounts for all original
 state and nine derived wires. Evidence: reports/2026-10-19-snapshot-jk. This is
-simulation/coverage only; routed timing and IFU integration remain pending.
+simulation/coverage plus matched isolated timing, not IFU integration. Negative-
+edge launch/positive-edge capture50MHz shell passes four conditions,min+0.164ns,
+68->73ALMs/38->74regs/zeroRAM; all five corrupted-fit controls reject. Same
+cell RTL/SDC,10ns into cell/20ns output paths and2ns max0ns min I/O. Earlier
+positive-edge shell failed virtual-input hold at-0.465ns; multi-corner option
+alone did not repair it. Both failed fits are rejected/preserved in the report.
