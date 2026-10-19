@@ -1,0 +1,17 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "mosram_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mosram-v3-20261019/ungated_read/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mosram-v3-20261019/ungated_read/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mosram-v3-20261019/ungated_read/cell.sv",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_mosram.cpp"
+]

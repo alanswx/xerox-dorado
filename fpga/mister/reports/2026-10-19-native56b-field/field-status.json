@@ -1,5 +1,5 @@
 {
-  "status": "Original BaseBoard/Initial/new BFN113/C release PASS; Cedar login/loader/desktop/input/speed pending",
+  "status": "Original firmware/login/idle measurement/Guest/base34/final ACK PASS; BootEssentials active; full desktop/input pending",
   "main_pid": 23403,
   "server_pid": 23400,
   "rbf_sha256": "0bbe092f1e10476dc3cc465418836f94a3e06c04ce5f08530c055fbfc52dd7cf",
@@ -8,5 +8,7 @@
   "snapshot_admin": "INACTIVE",
   "scope": "Normal fresh-seed original-firmware start; no complete snapshots, original60ns or final release qualification",
   "observed_boot_code": "845",
-  "boot_code_scope": "Actual845 mesaRuntimeInitialized captured; no unobserved812/855 claim"
+  "boot_code_scope": "Actual845 mesaRuntimeInitialized captured; no unobserved812/855 claim",
+  "idle_issues_per_s": 1947741.6895079839,
+  "loader_observer": "23698/57449 TERMINAL by stop after finalACK; independently absent"
 }

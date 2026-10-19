@@ -1,0 +1,206 @@
+{
+  "scope": "Two isolated original MosRam sockets14/16 vs independent exact-advance/state adapters; matched50MHz staged-input/positive-edge neighbors,20ns embedded paths. Counts include shell/admin/pruning; no full MemX/global barrier/physical FPGA save/load or speed qualification.",
+  "driver_sha256": "b92a3940520d86e960b1949ae11efb6e20461326c4ae11d60e743d6f4ec4f4d2",
+  "schemas": {
+    "14": {
+      "module": "cell_MosRam_snapshot",
+      "address_bits": 14,
+      "index_bits": 15,
+      "words": 16384,
+      "width": 1,
+      "transport_bits": 18,
+      "ram": {
+        "words": 16384,
+        "width": 1,
+        "indices": [
+          0,
+          16383
+        ]
+      },
+      "history": {
+        "first_word": 16384,
+        "words": 2,
+        "width": 21,
+        "fields": [
+          {
+            "name": "row",
+            "width": 7,
+            "lsb": 0
+          },
+          {
+            "name": "col",
+            "width": 7,
+            "lsb": 7
+          },
+          {
+            "name": "ras_d",
+            "width": 1,
+            "lsb": 14
+          },
+          {
+            "name": "cas_d",
+            "width": 1,
+            "lsb": 15
+          },
+          {
+            "name": "dout",
+            "width": 1,
+            "lsb": 16
+          },
+          {
+            "name": "dout_r",
+            "width": 1,
+            "lsb": 17
+          },
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 18
+          },
+          {
+            "name": "write_pending",
+            "width": 1,
+            "lsb": 19
+          },
+          {
+            "name": "write_data",
+            "width": 1,
+            "lsb": 20
+          }
+        ]
+      },
+      "modeled_state_bits": 16405,
+      "original_sha256": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+      "valid_indices": [
+        0,
+        16385
+      ],
+      "invalid_indices": [
+        16386,
+        32767
+      ],
+      "scope": "Single original14/16-bit MosRam socket; complete modeled bit state, not global consumers/phase/backend or machine snapshots"
+    },
+    "16": {
+      "module": "cell_MosRam_snapshot",
+      "address_bits": 16,
+      "index_bits": 17,
+      "words": 65536,
+      "width": 1,
+      "transport_bits": 18,
+      "ram": {
+        "words": 65536,
+        "width": 1,
+        "indices": [
+          0,
+          65535
+        ]
+      },
+      "history": {
+        "first_word": 65536,
+        "words": 2,
+        "width": 23,
+        "fields": [
+          {
+            "name": "row",
+            "width": 8,
+            "lsb": 0
+          },
+          {
+            "name": "col",
+            "width": 8,
+            "lsb": 8
+          },
+          {
+            "name": "ras_d",
+            "width": 1,
+            "lsb": 16
+          },
+          {
+            "name": "cas_d",
+            "width": 1,
+            "lsb": 17
+          },
+          {
+            "name": "dout",
+            "width": 1,
+            "lsb": 18
+          },
+          {
+            "name": "dout_r",
+            "width": 1,
+            "lsb": 19
+          },
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 20
+          },
+          {
+            "name": "write_pending",
+            "width": 1,
+            "lsb": 21
+          },
+          {
+            "name": "write_data",
+            "width": 1,
+            "lsb": 22
+          }
+        ]
+      },
+      "modeled_state_bits": 65559,
+      "original_sha256": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+      "valid_indices": [
+        0,
+        65537
+      ],
+      "invalid_indices": [
+        65538,
+        131071
+      ],
+      "scope": "Single original14/16-bit MosRam socket; complete modeled bit state, not global consumers/phase/backend or machine snapshots"
+    }
+  },
+  "generated_sha256": "79424f988cf243e8f6015c3f6012411a094cdbd3e0e01bee5a636f0d8ebee50c",
+  "original_sha256": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+  "source_hashes": {
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/fit_mosram.py": "b92a3940520d86e960b1949ae11efb6e20461326c4ae11d60e743d6f4ec4f4d2",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_mosram.py": "809ea5aada366924d1e0a889d6f23ce6cc57f5b6ce3ab107657620501acbeede",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_contb_full.py": "9058fedbfec998ee4217a758cd7030f00941a7740952715ebbe7cb0801293a5d",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_contb.py": "70c3a50a8d705b210563d84b6c272e8d2c072f01fb1197705df2c71144705710",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/audit_contb_im.py": "51e06b61c69461b2d8baae1b8be7462c9f02692c70401bc6ac571e534f2c1083",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d"
+  },
+  "compiled_files": {
+    "snapshot/cell_MosRam_snapshot.sv": "79424f988cf243e8f6015c3f6012411a094cdbd3e0e01bee5a636f0d8ebee50c",
+    "snapshot/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "snapshot/top.sv": "dce3886371787da57d93f23c254deae0c7d5c3e953208bc0799b13b7819ed5d6",
+    "snapshot/cell_MosRam.v": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+    "snapshot/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "snapshot/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "snapshot/snapshot_fit.qsf": "26e3f91b956854cdaf8b9d032ab904a475abae89bb9ed07f66974abf803fea3f",
+    "baseline/cell_MosRam_snapshot.sv": "79424f988cf243e8f6015c3f6012411a094cdbd3e0e01bee5a636f0d8ebee50c",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/top.sv": "dce3886371787da57d93f23c254deae0c7d5c3e953208bc0799b13b7819ed5d6",
+    "baseline/cell_MosRam.v": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/snapshot_fit.qsf": "688e84d86bc718afcef70d49eccc27fd928e030d3de4e2fbf033c4f6dc006990",
+    "executed-sources/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "executed-sources/generate_mosram.py": "809ea5aada366924d1e0a889d6f23ce6cc57f5b6ce3ab107657620501acbeede",
+    "executed-sources/audit_contb_im.py": "51e06b61c69461b2d8baae1b8be7462c9f02692c70401bc6ac571e534f2c1083",
+    "executed-sources/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "executed-sources/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "executed-sources/cell_MosRam.v": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+    "executed-sources/generate_contb_full.py": "9058fedbfec998ee4217a758cd7030f00941a7740952715ebbe7cb0801293a5d",
+    "executed-sources/fit_mosram.py": "b92a3940520d86e960b1949ae11efb6e20461326c4ae11d60e743d6f4ec4f4d2",
+    "executed-sources/generate_contb.py": "70c3a50a8d705b210563d84b6c272e8d2c072f01fb1197705df2c71144705710"
+  },
+  "expected_qsf": {
+    "baseline": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SDC_FILE bank.sdc\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MosRam_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MosRam.v\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to address[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to ras_n\nset_instance_assignment -name VIRTUAL_PIN ON -to cas_n\nset_instance_assignment -name VIRTUAL_PIN ON -to we_n\nset_instance_assignment -name VIRTUAL_PIN ON -to data\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze\nset_instance_assignment -name VIRTUAL_PIN ON -to held\nset_instance_assignment -name VIRTUAL_PIN ON -to request\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to state_data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to q[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to done[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to error[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\n",
+    "snapshot": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SDC_FILE bank.sdc\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MosRam_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MosRam.v\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to address[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to ras_n\nset_instance_assignment -name VIRTUAL_PIN ON -to cas_n\nset_instance_assignment -name VIRTUAL_PIN ON -to we_n\nset_instance_assignment -name VIRTUAL_PIN ON -to data\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze\nset_instance_assignment -name VIRTUAL_PIN ON -to held\nset_instance_assignment -name VIRTUAL_PIN ON -to request\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to state_data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to q[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to done[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to error[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_global_assignment -name VERILOG_MACRO \"SNAPSHOT_BANK_EXPERIMENT=1\"\n"
+  }
+}

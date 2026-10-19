@@ -21,3 +21,20 @@ No clean OS shutdown, cold marker readback or machine snapshot is claimed.
 Raw startup collection is read-only and reflects its recorded collection time,
 before later firmware progress. Text logs are gzip-compressed unchanged.
 No complete snapshots, original60ns, final3boots/2h stress or release claim.
+
+
+Visible login/actual Guest now pass. Three10s idle windows1,947,728.06 /
+1,947,839.11 /1,947,657.90issues/s, mean1,947,741.690; no gain over55.
+Same33-sample measurement->Guest cadence; preceding manual gate varies.
+Base34files/33BCD/1,345,843bytes/final guestACK321.952726..322.161282s.
+Whole-loader issue bounds530,173,424..533,584,518/interior1.651306..1.651517M/s.
+46protocol replays, all Tioga. Queue refusals/drop counter is nonzero; no
+CRC/RX/abort faults. Replay variation remains causally unresolved; not a
+pinned repeated speed comparison. Observer23698/57449 terminal by stop after
+finalACK and independently absent.34served source hashes match after timing,
+not physical received-payload hashes. post-loader/ retains exact later raw
+collection without overwriting original startup companions.
+
+Lowercase n+Return accepted the visible profile confirmation directly; no
+filename detour on56b. Actual BootEssentials progress is visible. Full desktop/
+mouse/exact keyboard/warm marker qualification remains pending.

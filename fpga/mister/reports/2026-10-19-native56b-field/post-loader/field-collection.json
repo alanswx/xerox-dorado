@@ -1,0 +1,85 @@
+{
+  "utc": "2026-10-19 13:17:17 UTC",
+  "main_pid": 23403,
+  "server_pid": 23400,
+  "maps": {
+    "main": [
+      "b3a7d000-b5238000 rw-s 22000000 00:06 2          /dev/mem",
+      "b5238000-b6238000 rw-s ff000000 00:06 2          /dev/mem"
+    ],
+    "server": [
+      "b6e7b000-b6e8b000 rw-s 1ff00000 00:06 2          /dev/mem"
+    ]
+  },
+  "old_processes_absent": true,
+  "old_pack_hash_reverified": "7dc9846986dc1121769fd95557e21e8c1b67292736cdc0f8b3a3d87a0a81dde2",
+  "scope": "Read-only startup evidence; no live-pack copy, SPI, guest write or atomic snapshot. Actual34/final ACK proved separately; full desktop/input pending.",
+  "remote_files": {
+    "deployment.json": "/media/fat/games/DoradoRTL/Cedar56b_20261019/deployment.json",
+    "reboot-resume.json": "/media/fat/games/DoradoRTL/Cedar56b_20261019/reboot-resume.json",
+    "qualification.json": "/media/fat/games/DoradoRTL/Cedar56b_20261019/qualification.json",
+    "main-through-deployment.log": "/tmp/dorado56b-main.log",
+    "disk-through-deployment.jsonl": "/tmp/dorado56b-disk.jsonl",
+    "server-through-deployment.log": "/media/fat/games/DoradoRTL/Cedar56b_20261019/server.log",
+    "retired55-preservation.json": "/media/fat/games/DoradoRTL/Cedar55_20261019/preservation.json",
+    "retired55-desktop-qualification.json": "/media/fat/games/DoradoRTL/Cedar55_20261019/desktop-qualification.json",
+    "retired55-normal-boot-qualification.json": "/media/fat/games/DoradoRTL/Cedar55_20261019/normal-boot-qualification.json",
+    "retired55-disk-through-load.jsonl": "/media/fat/games/DoradoRTL/Cedar55_20261019/disk-through-native56b-load.jsonl",
+    "retired55-main-through-load.log": "/media/fat/games/DoradoRTL/Cedar55_20261019/main-through-native56b-loader.log",
+    "loader-observer.jsonl": "/tmp/dorado56b-loader-observer.jsonl"
+  },
+  "files": {
+    "deployment.json": {
+      "bytes": 1234,
+      "sha256": "2e7639efe8274a9e19987aa693b2564921f465f5a5a662570837d8b0e18a194a"
+    },
+    "reboot-resume.json": {
+      "bytes": 1483,
+      "sha256": "d99b3d6ca139a353dfc1083d9fae69455c8afa2ce300f89751664eb1f445ad1c"
+    },
+    "qualification.json": {
+      "bytes": 190603,
+      "sha256": "2c3efbb090b5e86acd3af21334dcca971f9e9cd81ee4a0baa72b8b5fac3862b8"
+    },
+    "main-through-deployment.log": {
+      "bytes": 165765,
+      "sha256": "faf8bb55748d2d95980f302b343096ef9ccbb426451a948a2698734c985a0627"
+    },
+    "disk-through-deployment.jsonl": {
+      "bytes": 2636411,
+      "sha256": "8efd660aaf539e1729e9dd602af4aee9fcd7e14565acf2ce25c0c41f9df5b119"
+    },
+    "server-through-deployment.log": {
+      "bytes": 446392,
+      "sha256": "e35ae5e5f425417b5708c4851da3cc4639372030ef0da71c068c7dceb54229a7"
+    },
+    "retired55-preservation.json": {
+      "bytes": 523,
+      "sha256": "833ef475147654d26d8abc48dd80fc022dad5c0aed7b3f0dcd216ab3e0dfb77a"
+    },
+    "retired55-desktop-qualification.json": {
+      "bytes": 1580,
+      "sha256": "8d071184dfce2325a60514bae76480728857daf5cdd03c96def8ec4f5b36f51c"
+    },
+    "retired55-normal-boot-qualification.json": {
+      "bytes": 655,
+      "sha256": "3b09ef59469046ba0e67742afc65fcf774b55c8f7b44c608100e6f8a7b93e1af"
+    },
+    "retired55-disk-through-load.jsonl": {
+      "bytes": 11286573,
+      "sha256": "927ea809a0ac436a04a8a6e57d52c7b565fd7a280227890513e1c1139d35918c"
+    },
+    "retired55-main-through-load.log": {
+      "bytes": 562137,
+      "sha256": "d79a3f6363e469aed0bc85dabe97d42053779d21a94f3434b4e8ba304929b548"
+    },
+    "loader-observer.jsonl": {
+      "bytes": 1907577,
+      "sha256": "46751e99e2bf9469090ab75e219dbff9c97d8f8a1a55144948905eb413276a8f"
+    },
+    "remote-source-hashes.json": {
+      "bytes": 5487,
+      "sha256": "bb25d28142196edd654c5e367d3586621c56f925bd842b0526df1779af224acb"
+    }
+  }
+}

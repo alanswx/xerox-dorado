@@ -42,6 +42,17 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+Live56b visible login/Guest/base34/33BCD/1,345,843bytes/final guest ACK now PASS,
+321.952726..322.161282s; issue bounds530,173,424..533,584,518/interior1.651306..
+1.651517M/s,46Tioga replays. Idle1,947,741.690issues/s matches55, no gain.
+Same33-sample recipe, earlier manual gate varied. Observer57449/23698 terminal/
+absent after finalACK; all34source hashes verified after timing, not payload
+hashes. Actual lowercase n accepted; BootEssentials active/full desktop pending.
+Independent14/16MosRam complete-state restore/XML/matched50MHz fits now pass,
+all81,964bits/firstpendingwrite/20,000cycles,min+0.166ns/tenM10Ks retained,
+actual placement/OLD_DATA proved. Full MemX/global snapshots/60ns still open.
+
+
 Live56b normal load12:59:00UTC, Main23403/server23400, actual fresh epoch
 f0eca3ad955c5ee2/flags0x16/fault/errors0. Same50MHz/SYSPER4/policies/native2delay,
 all seven adapters/admininactive. Original firmware/new BFN113/C release and

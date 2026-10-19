@@ -1,0 +1,394 @@
+{
+  "14": {
+    "status": "PASS",
+    "modeled_state_bits": 16405,
+    "xml_sha256": "d0896e3f9d4c6a172aab5f3b599b7d894df0bb4ebd2855ba46931bca49b7974d",
+    "decisions": [
+      {
+        "path": "cell_MosRam._unused_pins",
+        "bits": 1,
+        "decision": "RECOMPUTE",
+        "reason": "Pinned original continuous address/output expression or AND-with-literal-zero unused pins"
+      },
+      {
+        "path": "cell_MosRam.a",
+        "bits": 7,
+        "decision": "RECOMPUTE",
+        "reason": "Pinned original continuous address/output expression or AND-with-literal-zero unused pins"
+      },
+      {
+        "path": "cell_MosRam.addr",
+        "bits": 14,
+        "decision": "RECOMPUTE",
+        "reason": "Pinned original continuous address/output expression or AND-with-literal-zero unused pins"
+      },
+      {
+        "path": "cell_MosRam.cas_d",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 16384,
+          "lsb": 15,
+          "width": 1
+        }
+      },
+      {
+        "path": "cell_MosRam.col",
+        "bits": 7,
+        "decision": "SAVE",
+        "access": {
+          "word": 16384,
+          "lsb": 7,
+          "width": 7
+        }
+      },
+      {
+        "path": "cell_MosRam.dout",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 16384,
+          "lsb": 16,
+          "width": 1
+        }
+      },
+      {
+        "path": "cell_MosRam.dout_r",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 16384,
+          "lsb": 17,
+          "width": 1
+        }
+      },
+      {
+        "path": "cell_MosRam.mem",
+        "bits": 16384,
+        "decision": "SAVE",
+        "access": {
+          "words": [
+            0,
+            16383
+          ],
+          "bit": 0
+        }
+      },
+      {
+        "path": "cell_MosRam.p14",
+        "bits": 1,
+        "decision": "RECOMPUTE",
+        "reason": "Pinned original continuous address/output expression or AND-with-literal-zero unused pins"
+      },
+      {
+        "path": "cell_MosRam.ras_d",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 16384,
+          "lsb": 14,
+          "width": 1
+        }
+      },
+      {
+        "path": "cell_MosRam.row",
+        "bits": 7,
+        "decision": "SAVE",
+        "access": {
+          "word": 16384,
+          "lsb": 0,
+          "width": 7
+        }
+      },
+      {
+        "path": "cell_MosRam.we_d",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 16385,
+          "lsb": 0,
+          "width": 1
+        }
+      },
+      {
+        "path": "cell_MosRam.write_data",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 16385,
+          "lsb": 2,
+          "width": 1
+        }
+      },
+      {
+        "path": "cell_MosRam.write_pending",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 16385,
+          "lsb": 1,
+          "width": 1
+        }
+      }
+    ],
+    "scope": "Pinned original14/16-bit MosRam socket, independent histories preserved; not full MemX/whole machine or physical FPGA restore",
+    "failure_controls": [
+      {
+        "case": "lost_row",
+        "rejected": true,
+        "diagnostic": "missing original MosRam state"
+      },
+      {
+        "case": "lost_raw",
+        "rejected": true,
+        "diagnostic": "missing original MosRam state"
+      },
+      {
+        "case": "lost_output",
+        "rejected": true,
+        "diagnostic": "missing original MosRam state"
+      },
+      {
+        "case": "lost_pending",
+        "rejected": true,
+        "diagnostic": "missing original MosRam state"
+      },
+      {
+        "case": "lost_write_data",
+        "rejected": true,
+        "diagnostic": "missing original MosRam state"
+      },
+      {
+        "case": "new_state",
+        "rejected": true,
+        "diagnostic": "unclassified/different original MosRam state: unexported"
+      },
+      {
+        "case": "duplicate",
+        "rejected": true,
+        "diagnostic": "unexpected/duplicate original MosRam field"
+      },
+      {
+        "case": "ram_depth",
+        "rejected": true,
+        "diagnostic": "unclassified/different original MosRam state: mem"
+      },
+      {
+        "case": "wrong_width",
+        "rejected": true,
+        "diagnostic": "unclassified/different original MosRam state: row"
+      },
+      {
+        "case": "ram_history_alias",
+        "rejected": true,
+        "diagnostic": "unreviewed MosRam state schema"
+      },
+      {
+        "case": "wrong_history_padding",
+        "rejected": true,
+        "diagnostic": "unreviewed MosRam state schema"
+      },
+      {
+        "case": "wrong_density",
+        "rejected": true,
+        "diagnostic": "unqualified MosRam address width"
+      }
+    ]
+  },
+  "16": {
+    "status": "PASS",
+    "modeled_state_bits": 65559,
+    "xml_sha256": "d8713c7e499295289315e7aa1fc3d92d4d799691c1d53a87e6a4b9e6c66a521c",
+    "decisions": [
+      {
+        "path": "cell_MosRam._unused_pins",
+        "bits": 1,
+        "decision": "RECOMPUTE",
+        "reason": "Pinned original continuous address/output expression or AND-with-literal-zero unused pins"
+      },
+      {
+        "path": "cell_MosRam.a",
+        "bits": 8,
+        "decision": "RECOMPUTE",
+        "reason": "Pinned original continuous address/output expression or AND-with-literal-zero unused pins"
+      },
+      {
+        "path": "cell_MosRam.addr",
+        "bits": 16,
+        "decision": "RECOMPUTE",
+        "reason": "Pinned original continuous address/output expression or AND-with-literal-zero unused pins"
+      },
+      {
+        "path": "cell_MosRam.cas_d",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 65536,
+          "lsb": 17,
+          "width": 1
+        }
+      },
+      {
+        "path": "cell_MosRam.col",
+        "bits": 8,
+        "decision": "SAVE",
+        "access": {
+          "word": 65536,
+          "lsb": 8,
+          "width": 8
+        }
+      },
+      {
+        "path": "cell_MosRam.dout",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 65537,
+          "lsb": 0,
+          "width": 1
+        }
+      },
+      {
+        "path": "cell_MosRam.dout_r",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 65537,
+          "lsb": 1,
+          "width": 1
+        }
+      },
+      {
+        "path": "cell_MosRam.mem",
+        "bits": 65536,
+        "decision": "SAVE",
+        "access": {
+          "words": [
+            0,
+            65535
+          ],
+          "bit": 0
+        }
+      },
+      {
+        "path": "cell_MosRam.p14",
+        "bits": 1,
+        "decision": "RECOMPUTE",
+        "reason": "Pinned original continuous address/output expression or AND-with-literal-zero unused pins"
+      },
+      {
+        "path": "cell_MosRam.ras_d",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 65536,
+          "lsb": 16,
+          "width": 1
+        }
+      },
+      {
+        "path": "cell_MosRam.row",
+        "bits": 8,
+        "decision": "SAVE",
+        "access": {
+          "word": 65536,
+          "lsb": 0,
+          "width": 8
+        }
+      },
+      {
+        "path": "cell_MosRam.we_d",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 65537,
+          "lsb": 2,
+          "width": 1
+        }
+      },
+      {
+        "path": "cell_MosRam.write_data",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 65537,
+          "lsb": 4,
+          "width": 1
+        }
+      },
+      {
+        "path": "cell_MosRam.write_pending",
+        "bits": 1,
+        "decision": "SAVE",
+        "access": {
+          "word": 65537,
+          "lsb": 3,
+          "width": 1
+        }
+      }
+    ],
+    "scope": "Pinned original14/16-bit MosRam socket, independent histories preserved; not full MemX/whole machine or physical FPGA restore",
+    "failure_controls": [
+      {
+        "case": "lost_row",
+        "rejected": true,
+        "diagnostic": "missing original MosRam state"
+      },
+      {
+        "case": "lost_raw",
+        "rejected": true,
+        "diagnostic": "missing original MosRam state"
+      },
+      {
+        "case": "lost_output",
+        "rejected": true,
+        "diagnostic": "missing original MosRam state"
+      },
+      {
+        "case": "lost_pending",
+        "rejected": true,
+        "diagnostic": "missing original MosRam state"
+      },
+      {
+        "case": "lost_write_data",
+        "rejected": true,
+        "diagnostic": "missing original MosRam state"
+      },
+      {
+        "case": "new_state",
+        "rejected": true,
+        "diagnostic": "unclassified/different original MosRam state: unexported"
+      },
+      {
+        "case": "duplicate",
+        "rejected": true,
+        "diagnostic": "unexpected/duplicate original MosRam field"
+      },
+      {
+        "case": "ram_depth",
+        "rejected": true,
+        "diagnostic": "unclassified/different original MosRam state: mem"
+      },
+      {
+        "case": "wrong_width",
+        "rejected": true,
+        "diagnostic": "unclassified/different original MosRam state: row"
+      },
+      {
+        "case": "ram_history_alias",
+        "rejected": true,
+        "diagnostic": "unreviewed MosRam state schema"
+      },
+      {
+        "case": "wrong_history_padding",
+        "rejected": true,
+        "diagnostic": "unreviewed MosRam state schema"
+      },
+      {
+        "case": "wrong_density",
+        "rejected": true,
+        "diagnostic": "unqualified MosRam address width"
+      }
+    ]
+  }
+}

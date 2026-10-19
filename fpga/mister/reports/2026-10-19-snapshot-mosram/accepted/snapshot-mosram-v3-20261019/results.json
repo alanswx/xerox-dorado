@@ -1,0 +1,90 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated_history",
+      "returncode": 1,
+      "expected_failure": "ordinary/hold history differs"
+    },
+    {
+      "case": "ungated_read",
+      "returncode": 1,
+      "expected_failure": "ordinary/hold history differs"
+    },
+    {
+      "case": "ungated_write",
+      "returncode": 1,
+      "expected_failure": [
+        "physical RAM differs",
+        "ordinary/hold history differs"
+      ]
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "running state request accepted"
+    },
+    {
+      "case": "freeze_without_held",
+      "returncode": 1,
+      "expected_failure": "unheld freeze accepted"
+    },
+    {
+      "case": "invalid_alias",
+      "returncode": 1,
+      "expected_failure": "invalid state index accepted"
+    },
+    {
+      "case": "row_alias",
+      "returncode": 1,
+      "expected_failure": [
+        "RAM export differs",
+        "physical RAM differs"
+      ]
+    },
+    {
+      "case": "lost_raw_pipeline",
+      "returncode": 1,
+      "expected_failure": [
+        "history bit write/readback differs",
+        "physical history write differs",
+        "ordinary/hold history differs"
+      ]
+    },
+    {
+      "case": "wrong_write_data",
+      "returncode": 1,
+      "expected_failure": [
+        "physical RAM differs",
+        "ordinary/hold history differs"
+      ]
+    },
+    {
+      "case": "premature_resume",
+      "returncode": 1,
+      "expected_failure": "ordinary/hold history differs"
+    },
+    {
+      "case": "lost_pending_write",
+      "returncode": 1,
+      "expected_failure": "ordinary/hold history differs"
+    },
+    {
+      "case": "unsupported_density",
+      "returncode": 1,
+      "expected_failure": "MosRam snapshot ADDR_BITS must be14 or16"
+    }
+  ],
+  "scope": "Primitive modeled socket state only; no full MemX/whole-machine snapshot or physical FPGA save/load",
+  "source_hashes": {
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_mosram.py": "6418f03d99179c01ffd222ec8045b9fd6d1175d60f61aa650187b3a52e2cb0fb",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_mosram.cpp": "5729d790f9ab72ed8e28668c3932cc92727d84443050cb1c02f24a8603b33a4c",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_mosram.py": "809ea5aada366924d1e0a889d6f23ce6cc57f5b6ce3ab107657620501acbeede",
+    "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d"
+  }
+}

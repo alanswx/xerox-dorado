@@ -1,0 +1,192 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "d8713c7e499295289315e7aa1fc3d92d4d799691c1d53a87e6a4b9e6c66a521c",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "initial_only_candidate": 1,
+    "combinational_review": 3,
+    "sequential": 10
+  },
+  "candidate_bits": {
+    "initial_only_candidate": 1,
+    "combinational_review": 25,
+    "sequential": 65559
+  },
+  "candidates": [
+    {
+      "path": "cell_MosRam._unused_pins",
+      "module": "cell_MosRam",
+      "name": "_unused_pins",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 149,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.a",
+      "module": "cell_MosRam",
+      "name": "a",
+      "category": "combinational_review",
+      "width": 8,
+      "unpacked_dimensions": [],
+      "bits": 8,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 64,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.addr",
+      "module": "cell_MosRam",
+      "name": "addr",
+      "category": "combinational_review",
+      "width": 16,
+      "unpacked_dimensions": [],
+      "bits": 16,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 82,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.cas_d",
+      "module": "cell_MosRam",
+      "name": "cas_d",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 75,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.col",
+      "module": "cell_MosRam",
+      "name": "col",
+      "category": "sequential",
+      "width": 8,
+      "unpacked_dimensions": [],
+      "bits": 8,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 46,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.dout",
+      "module": "cell_MosRam",
+      "name": "dout",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 62,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.dout_r",
+      "module": "cell_MosRam",
+      "name": "dout_r",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 106,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.mem",
+      "module": "cell_MosRam",
+      "name": "mem",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [
+        [
+          0,
+          65535
+        ]
+      ],
+      "bits": 65536,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 61,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.p14",
+      "module": "cell_MosRam",
+      "name": "p14",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 34,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.ras_d",
+      "module": "cell_MosRam",
+      "name": "ras_d",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 75,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.row",
+      "module": "cell_MosRam",
+      "name": "row",
+      "category": "sequential",
+      "width": 8,
+      "unpacked_dimensions": [],
+      "bits": 8,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 46,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.we_d",
+      "module": "cell_MosRam",
+      "name": "we_d",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 110,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.write_data",
+      "module": "cell_MosRam",
+      "name": "write_data",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 110,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MosRam.write_pending",
+      "module": "cell_MosRam",
+      "name": "write_pending",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v",
+      "line": 110,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

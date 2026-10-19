@@ -1,0 +1,315 @@
+{
+  "status": "PASS",
+  "scope": "Two isolated original MosRam sockets14/16 vs independent exact-advance/state adapters; matched50MHz staged-input/positive-edge neighbors,20ns embedded paths. Counts include shell/admin/pruning; no full MemX/global barrier/physical FPGA save/load or speed qualification.",
+  "results": {
+    "baseline": {
+      "resources": {
+        "alms": 59,
+        "registers": 57,
+        "ram_bits": 81920,
+        "ram_blocks": 10
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 8.489,
+          "hold": 0.455,
+          "mpw": 8.818
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 8.342,
+          "hold": 0.433,
+          "mpw": 8.808
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 8.691,
+          "hold": 0.157,
+          "mpw": 8.415
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 8.688,
+          "hold": 0.217,
+          "mpw": 8.484
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 9,
+          "10230": 1,
+          "13024": 1,
+          "13410": 42
+        },
+        "fit": {
+          "292013": 1
+        }
+      },
+      "macros": [
+        {
+          "address_bits": 16,
+          "instance": "cell_MosRam:bank_16|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "AUTO",
+            "WIDTH_A": "1",
+            "WIDTH_B": "1",
+            "NUMWORDS_A": "65536",
+            "NUMWORDS_B": "65536",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "address_bits": 14,
+          "instance": "cell_MosRam:bank_14|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "AUTO",
+            "WIDTH_A": "1",
+            "WIDTH_B": "1",
+            "NUMWORDS_A": "16384",
+            "NUMWORDS_B": "16384",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        }
+      ],
+      "physical": [
+        {
+          "Name": "cell_MosRam:bank_14|altsyncram:mem_rtl_0|altsyncram_ocn1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "16384",
+          "Port A Width": "1",
+          "Port B Depth": "16384",
+          "Port B Width": "1",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "16384",
+          "Implementation Port A Depth": "16384",
+          "Implementation Port A Width": "1",
+          "Implementation Port B Depth": "16384",
+          "Implementation Port B Width": "1",
+          "Implementation Bits": "16384",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X41_Y17_N0, M10K_X38_Y17_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "cell_MosRam:bank_16|altsyncram:mem_rtl_0|altsyncram_2dn1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "65536",
+          "Port A Width": "1",
+          "Port B Depth": "65536",
+          "Port B Width": "1",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "65536",
+          "Implementation Port A Depth": "65536",
+          "Implementation Port A Width": "1",
+          "Implementation Port B Depth": "65536",
+          "Implementation Port B Width": "1",
+          "Implementation Bits": "65536",
+          "M10K blocks": "8",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X38_Y18_N0, M10K_X38_Y21_N0, M10K_X38_Y20_N0, M10K_X38_Y19_N0, M10K_X41_Y21_N0, M10K_X41_Y18_N0, M10K_X41_Y19_N0, M10K_X41_Y20_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        }
+      ]
+    },
+    "snapshot": {
+      "resources": {
+        "alms": 137,
+        "registers": 256,
+        "ram_bits": 81920,
+        "ram_blocks": 10
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 7.671,
+          "hold": 0.406,
+          "mpw": 8.783
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 7.533,
+          "hold": 0.453,
+          "mpw": 8.809
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 8.269,
+          "hold": 0.166,
+          "mpw": 8.416
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 8.198,
+          "hold": 0.181,
+          "mpw": 8.484
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 2,
+          "10230": 1
+        },
+        "fit": {
+          "292013": 1
+        }
+      },
+      "macros": [
+        {
+          "address_bits": 16,
+          "instance": "cell_MosRam_snapshot:bank_16|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "AUTO",
+            "WIDTH_A": "1",
+            "WIDTH_B": "1",
+            "NUMWORDS_A": "65536",
+            "NUMWORDS_B": "65536",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "address_bits": 14,
+          "instance": "cell_MosRam_snapshot:bank_14|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "AUTO",
+            "WIDTH_A": "1",
+            "WIDTH_B": "1",
+            "NUMWORDS_A": "16384",
+            "NUMWORDS_B": "16384",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        }
+      ],
+      "physical": [
+        {
+          "Name": "cell_MosRam_snapshot:bank_14|altsyncram:mem_rtl_0|altsyncram_k9q1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "16384",
+          "Port A Width": "1",
+          "Port B Depth": "16384",
+          "Port B Width": "1",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "16384",
+          "Implementation Port A Depth": "16384",
+          "Implementation Port A Width": "1",
+          "Implementation Port B Depth": "16384",
+          "Implementation Port B Width": "1",
+          "Implementation Bits": "16384",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X38_Y38_N0, M10K_X38_Y37_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "cell_MosRam_snapshot:bank_16|altsyncram:mem_rtl_0|altsyncram_u9q1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "65536",
+          "Port A Width": "1",
+          "Port B Depth": "65536",
+          "Port B Width": "1",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "65536",
+          "Implementation Port A Depth": "65536",
+          "Implementation Port A Width": "1",
+          "Implementation Port B Depth": "65536",
+          "Implementation Port B Width": "1",
+          "Implementation Bits": "65536",
+          "M10K blocks": "8",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X38_Y36_N0, M10K_X38_Y35_N0, M10K_X38_Y34_N0, M10K_X41_Y34_N0, M10K_X41_Y37_N0, M10K_X41_Y35_N0, M10K_X41_Y38_N0, M10K_X41_Y36_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        }
+      ]
+    }
+  },
+  "delta": {
+    "alms": 78,
+    "registers": 199,
+    "ram_bits": 0,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.166,
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "compiled source/SDC differs:snapshot/cell_MosRam_snapshot.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "compiled source/SDC differs:snapshot/bank.sdc"
+    },
+    {
+      "case": "macro",
+      "rejected": true,
+      "diagnostic": "QSF/macro changed"
+    },
+    {
+      "case": "old_data",
+      "rejected": true,
+      "diagnostic": "('MosRam macro differs', 16, 'READ_DURING_WRITE_MODE_MIXED_PORTS', ['NEW_DATA'])"
+    },
+    {
+      "case": "physical_old_data",
+      "rejected": true,
+      "diagnostic": "('physical MosRam differs', 14, 'Mixed Width RDW Mode', 'New data')"
+    },
+    {
+      "case": "ram_count",
+      "rejected": true,
+      "diagnostic": "RAM geometry/packing differs"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation:snapshot/hold/7_slow_1100mv_-40c"
+    },
+    {
+      "case": "warning",
+      "rejected": true,
+      "diagnostic": "('unreviewed warning increase', 'map', Counter({'10999': 1}))"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_MosRam",
+  "-Wno-fatal",
+  "-GADDR_BITS=14",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-mosram-classify-v2-20261019/14/cell.xml",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_MosRam.v"
+]

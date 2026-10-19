@@ -1,0 +1,23 @@
+{
+  "time_utc": "2026-10-19 12:59:00 UTC",
+  "old_main": 21577,
+  "old_server": 21576,
+  "staging_main": 23386,
+  "main_pid": 23403,
+  "server_pid": 23400,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "server_sha256": "c59962490772f12d061ec61aa64e6a567144d26d7802a28349a8d9a044eda87e",
+  "rbf_sha256": "0bbe092f1e10476dc3cc465418836f94a3e06c04ce5f08530c055fbfc52dd7cf",
+  "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "main_log": "/tmp/dorado56b-main.log",
+  "disk_trace": "/tmp/dorado56b-disk.jsonl",
+  "preserved_old_volume": {
+    "path": "/media/fat/games/DoradoRTL/Cedar55_20261019/cedar-work.pack",
+    "bytes": 63578624,
+    "sha256": "7dc9846986dc1121769fd95557e21e8c1b67292736cdc0f8b3a3d87a0a81dde2",
+    "guest_boot": "Normal guest Boot after Viewers/input and rtl55persist.txt close/readback; actual MP state recorded in normal-boot-qualification.json; no cold marker readback or full snapshot claimed",
+    "host_boundary": "Actual normal Main loader active-DDR and disk barriers, followed by normal temporary Main exit",
+    "fpga_snapshot": false
+  },
+  "phase": "Full Native56b load completed; cache-ready and fresh DDR grant required"
+}

@@ -1,0 +1,79 @@
+{
+  "module": "cell_MosRam_snapshot",
+  "address_bits": 16,
+  "index_bits": 17,
+  "words": 65536,
+  "width": 1,
+  "transport_bits": 18,
+  "ram": {
+    "words": 65536,
+    "width": 1,
+    "indices": [
+      0,
+      65535
+    ]
+  },
+  "history": {
+    "first_word": 65536,
+    "words": 2,
+    "width": 23,
+    "fields": [
+      {
+        "name": "row",
+        "width": 8,
+        "lsb": 0
+      },
+      {
+        "name": "col",
+        "width": 8,
+        "lsb": 8
+      },
+      {
+        "name": "ras_d",
+        "width": 1,
+        "lsb": 16
+      },
+      {
+        "name": "cas_d",
+        "width": 1,
+        "lsb": 17
+      },
+      {
+        "name": "dout",
+        "width": 1,
+        "lsb": 18
+      },
+      {
+        "name": "dout_r",
+        "width": 1,
+        "lsb": 19
+      },
+      {
+        "name": "we_d",
+        "width": 1,
+        "lsb": 20
+      },
+      {
+        "name": "write_pending",
+        "width": 1,
+        "lsb": 21
+      },
+      {
+        "name": "write_data",
+        "width": 1,
+        "lsb": 22
+      }
+    ]
+  },
+  "modeled_state_bits": 65559,
+  "original_sha256": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+  "valid_indices": [
+    0,
+    65537
+  ],
+  "invalid_indices": [
+    65538,
+    131071
+  ],
+  "scope": "Single original14/16-bit MosRam socket; complete modeled bit state, not global consumers/phase/backend or machine snapshots"
+}

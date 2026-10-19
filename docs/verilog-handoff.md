@@ -2,7 +2,7 @@
 
 ## Current objective (2026-10-19 UTC)
 
-**LIVE Native56b original firmware/new BFN113/actual845 PASS; login qualification next.**
+**LIVE Native56b login/base34/final ACK PASS; BootEssentials active. MosRam primitive qualification PASS.**
 Normal deploy78010 TERMINAL12:59:00UTC, Main23403/server23400, temporary23386
 normally exited. RBF0bbe092f1e10476dc3cc465418836f94a3e06c04ce5f08530c055fbfc52dd7cf.
 Same50MHz/SYSPER4/SDRAM/no raw cache/direct DDR/policies; seven board adapters
@@ -14,10 +14,31 @@ Main no ring/probeDSO. Setup35828, C watcher7703 and three pushes59767 TERMINAL.
 Actual new BFN113 observed and C released; original845 now visible. Initial
 issue1/state43pause ended normally, as in55; no extra reset/retry. Collector68278
 TERMINAL. Current/tmp/dorado56b-main.log,/tmp/dorado56b-disk.jsonl, run/server
-Cedar56b_20261019, localcedar56b-launch. No live observer yet. Next capture actual
-Cedar login, prepare measured33-sample->Guest recipe, then one bounded loader
-observer/new finalACK/full desktop/mouse/exact keyboard/warm marker. New speed
-not measured; last qualified55idle1,947,777issues/s, no new gain claim.
+Cedar56b_20261019, localcedar56b-launch. Visible login and actual Guest PASS.
+Measurement69472 TERMINAL: three10s windows mean1,947,741.690issues/s,
+matching55; no gain. Same33-sample measurement->Guest cadence, preceding
+manual gate varies. Base34/33BCD/1,345,843bytes/final guestACK321.952726..
+322.161282s; whole-loader issues530,173,424..533,584,518/interior1.651306..
+1.651517M/s,46replays(allTioga). Queue/drop counter nonzero; CRC/RX/abort0.
+No causal replay diagnosis or pinned repeat/speed promotion. Observer57449/
+remote23698 TERMINAL by stop after finalACK, independently absent; do not
+restart. Collector5590 TERMINAL; all34served sources hash-match after timing,
+not physical payload hashes. Later exact archive under native56b-field/post-loader.
+Lowercase n+Return accepted actual profile confirmation directly; BootEssentials
+now advances. Full56bdesktop/mouse/exact keyboard/warm marker remains pending.
+
+Next MosRam primitive14/16original/oracle/physical-probe/all81,964bits/invalid
+indices/padding/complete destructive restore/recapture/firstpendingwrite/20,000
+cycles PASS. All independent row/column/history/pending/output fields preserved.
+Eleven brokenRTL plus unsupported density reject; freshXML12damagedschemas per
+density reject. Matched isolated fits86624 /home/alans/mister/SnapshotMosRam_20261019
+and final read-only audit PASS fourconditions,min+0.166ns.81,920RAMbits/tenM10Ks
+retained,59->137ALM/57->256regs include shell/admin/pruning, not enabled wholecore.
+AUTO source/type labels retained; actual2/8M10Kcounts/locations/zeroMLAB/OLD_DATA
+proved. Eight corrupt-fit controls reject; initial audit label expectations were
+corrected without RTL/SDC refit. Evidence snapshot-mosram. Complete MemX model
+(21independent64Kplanes plus all histories/FFs/smallfiles/14boardbits/eightPROMs)
+classification/restore/timing/fullcore integration is next; no production change.
 
 Retired55 passes full Viewers/Clock/Watch/Edit/real mouse/Cmd/initialized separate
 focus/exact short and alphabet/digit echoes, warm ///rtl55persist.txt create/
@@ -2174,7 +2195,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify actual native delay2 MemD state, including37input-pipeline bits and generated-scope XML coverage; simulation/classification/matched fits(+0.107ns).
 - [x] Integrate actual native2 MemD into56b; full-core31summary/148detailed/four-condition timing(+0.116ns)/RAM inference/source audit pass, all admin inactive.
 - [x] Normal55Boot812 and actual Main barriers preserve volume; fresh-seed56b load/new DDR epoch/original firmware/new BFN113/C release/actual845 pass.
-- [ ] Complete56bCedar login/idle measurement/base loader/finalACK/full desktop/input/warm marker; next remaining device/ARM/global state.
+- [x] Complete56bCedar login/idle measurement/base34/finalACK; observer57449/23698 terminal/absent, No accepted.
+- [ ] Complete56bBootEssentials/full desktop/input/warm marker.
+- [x] Qualify independent MosRam14/16 complete-state primitive original/oracle/restore/freshXML/matched timing(+0.166ns).
+- [ ] Complete MemX board-state classification/restore/timing and fullcore hardware qualification; then remaining device/ARM/global state.
 - [ ] Finish remaining board/device/ARM state and atomic snapshot bundle with actual FPGA Cedar restore.
 - [ ] Finish original60ns clock/enable and timer migration; final three fresh boots, coherent snapshot restore, persistence, pinned measurements and two-hour combined stress.
 

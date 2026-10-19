@@ -387,3 +387,21 @@ Eleven bad source/QSF/hold/RAM controls reject. Read-only audit dependency/
 scoped-control fixes preserved without RTL/SDC change/refit. RBF0bbe092f,
 not deployed; original-firmware hardware qualification remains next. Evidence
 reports/2026-10-19-native56b-memd. Global snapshots and60ns remain open.
+
+
+## Independent MosRam socket state (2026-10-19)
+
+`generate_mosram.py`, `test_mosram.py/.cpp`, `classify_mosram.py` and
+`fit_mosram.py` qualify14/16address-bit original sockets independently. All
+RAM plus21/23history bits (row/column, RAS/CAS/WE, pending write/data, raw
+read pipeline and held output) are exported; no per-socket history merging.
+81,964modeled bits/all invalid indices/padding/destructive RAM+history restore/
+quiet recapture/firstpendingwrite and20,000morecycles pass against original+
+independent oracle+physical probes. Eleven brokenRTLs/unsupported density reject;
+freshXML12bad-schema controls per density reject. Matched50MHz/fourconditions
+min+0.166ns,no cuts/unconstrained I/O,81,920bits/tenM10Ks retained. AUTO style
+and table Type remain original; actual2/8M10Klocations and zero MLABs/OLD_DATA
+prove placement.59->137ALM/57->256regs include shell/admin/pruning; eight corrupt
+fits reject. Earlier label/diagnostic-only audit failures retained; no RTL/SDC
+refit. Evidence reports/2026-10-19-snapshot-mosram. Full MemX classification/
+restore/timing/integration/global device/ARM snapshot state still required.
