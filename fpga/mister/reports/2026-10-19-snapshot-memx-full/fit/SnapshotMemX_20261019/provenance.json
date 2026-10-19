@@ -1,0 +1,4109 @@
+{
+  "kind": "MemX",
+  "scope": "Isolated complete modeled MemX; original continuous baseline vs exact-advance adapter. Matched50MHz/negative-edge external input stage then positive-edge launch/capture shell/20ns embedded paths/2ns max0ns min virtual I/O; counts include shell/pruning. Small-file scan outputs require every consumer held externally; no global barrier, physical machine snapshot or speed claim.",
+  "manifest": {
+    "module": "MemX_full_snapshot_experiment",
+    "original_module": "MemX_m_Rev_m_Ch",
+    "original_sha256": "709e14c98631a0923251f7a93ba5075fbecf27b6dac3347f52086c2b513c1816",
+    "ff": [
+      {
+        "index": 0,
+        "word": 0,
+        "package": "u_a03",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 1,
+        "word": 131072,
+        "package": "u_a17",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 2,
+        "word": 262144,
+        "package": "u_a18",
+        "kind": "cell_MC10141",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 4,
+            "lsb": 4
+          },
+          {
+            "name": "s_pre",
+            "width": 2,
+            "lsb": 8
+          },
+          {
+            "name": "dr_pre",
+            "width": 1,
+            "lsb": 10
+          },
+          {
+            "name": "dl_pre",
+            "width": 1,
+            "lsb": 11
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 3,
+        "word": 393216,
+        "package": "u_a21",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 4,
+        "word": 524288,
+        "package": "u_a23",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 5,
+        "word": 655360,
+        "package": "u_b01",
+        "kind": "cell_MC10175",
+        "width": 5,
+        "fields": [
+          {
+            "name": "q",
+            "width": 5,
+            "lsb": 0
+          }
+        ]
+      },
+      {
+        "index": 6,
+        "word": 786432,
+        "package": "u_b23",
+        "kind": "cell_MC10141",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 4,
+            "lsb": 4
+          },
+          {
+            "name": "s_pre",
+            "width": 2,
+            "lsb": 8
+          },
+          {
+            "name": "dr_pre",
+            "width": 1,
+            "lsb": 10
+          },
+          {
+            "name": "dl_pre",
+            "width": 1,
+            "lsb": 11
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 7,
+        "word": 917504,
+        "package": "u_b24",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 8,
+        "word": 1048576,
+        "package": "u_c01",
+        "kind": "cell_MC10231",
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "index": 9,
+        "word": 1179648,
+        "package": "u_c02",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 10,
+        "word": 1310720,
+        "package": "u_c22",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 11,
+        "word": 1441792,
+        "package": "u_d01",
+        "kind": "cell_MC10175",
+        "width": 5,
+        "fields": [
+          {
+            "name": "q",
+            "width": 5,
+            "lsb": 0
+          }
+        ]
+      },
+      {
+        "index": 12,
+        "word": 1572864,
+        "package": "u_d18",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 13,
+        "word": 1703936,
+        "package": "u_d22",
+        "kind": "cell_MC10141",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 4,
+            "lsb": 4
+          },
+          {
+            "name": "s_pre",
+            "width": 2,
+            "lsb": 8
+          },
+          {
+            "name": "dr_pre",
+            "width": 1,
+            "lsb": 10
+          },
+          {
+            "name": "dl_pre",
+            "width": 1,
+            "lsb": 11
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 14,
+        "word": 1835008,
+        "package": "u_e18",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 15,
+        "word": 1966080,
+        "package": "u_e19",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 16,
+        "word": 2097152,
+        "package": "u_e22",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 17,
+        "word": 2228224,
+        "package": "u_e23",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 18,
+        "word": 2359296,
+        "package": "u_e24",
+        "kind": "cell_MC10231",
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "index": 19,
+        "word": 2490368,
+        "package": "u_f01",
+        "kind": "cell_MC10175",
+        "width": 5,
+        "fields": [
+          {
+            "name": "q",
+            "width": 5,
+            "lsb": 0
+          }
+        ]
+      },
+      {
+        "index": 20,
+        "word": 2621440,
+        "package": "u_f03",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 21,
+        "word": 2752512,
+        "package": "u_f04",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 22,
+        "word": 2883584,
+        "package": "u_f18",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 23,
+        "word": 3014656,
+        "package": "u_f19",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 24,
+        "word": 3145728,
+        "package": "u_g01",
+        "kind": "cell_MC10175",
+        "width": 5,
+        "fields": [
+          {
+            "name": "q",
+            "width": 5,
+            "lsb": 0
+          }
+        ]
+      },
+      {
+        "index": 25,
+        "word": 3276800,
+        "package": "u_g05",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 26,
+        "word": 3407872,
+        "package": "u_g06",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 27,
+        "word": 3538944,
+        "package": "u_g07",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 28,
+        "word": 3670016,
+        "package": "u_g18",
+        "kind": "cell_MC10173",
+        "width": 4,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          }
+        ]
+      },
+      {
+        "index": 29,
+        "word": 3801088,
+        "package": "u_g19",
+        "kind": "cell_MC10173",
+        "width": 4,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          }
+        ]
+      },
+      {
+        "index": 30,
+        "word": 3932160,
+        "package": "u_g23",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 31,
+        "word": 4063232,
+        "package": "u_h05",
+        "kind": "cell_MC10141",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 4,
+            "lsb": 4
+          },
+          {
+            "name": "s_pre",
+            "width": 2,
+            "lsb": 8
+          },
+          {
+            "name": "dr_pre",
+            "width": 1,
+            "lsb": 10
+          },
+          {
+            "name": "dl_pre",
+            "width": 1,
+            "lsb": 11
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 32,
+        "word": 4194304,
+        "package": "u_h06",
+        "kind": "cell_MC10141",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 4,
+            "lsb": 4
+          },
+          {
+            "name": "s_pre",
+            "width": 2,
+            "lsb": 8
+          },
+          {
+            "name": "dr_pre",
+            "width": 1,
+            "lsb": 10
+          },
+          {
+            "name": "dl_pre",
+            "width": 1,
+            "lsb": 11
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 33,
+        "word": 4325376,
+        "package": "u_h08",
+        "kind": "cell_F10000",
+        "width": 9,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 4,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 8
+          }
+        ]
+      },
+      {
+        "index": 34,
+        "word": 4456448,
+        "package": "u_h09",
+        "kind": "cell_MC10141",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 4,
+            "lsb": 4
+          },
+          {
+            "name": "s_pre",
+            "width": 2,
+            "lsb": 8
+          },
+          {
+            "name": "dr_pre",
+            "width": 1,
+            "lsb": 10
+          },
+          {
+            "name": "dl_pre",
+            "width": 1,
+            "lsb": 11
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 35,
+        "word": 4587520,
+        "package": "u_h12",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 36,
+        "word": 4718592,
+        "package": "u_h14",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 37,
+        "word": 4849664,
+        "package": "u_h15",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 38,
+        "word": 4980736,
+        "package": "u_h18",
+        "kind": "cell_MC10141",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 4,
+            "lsb": 4
+          },
+          {
+            "name": "s_pre",
+            "width": 2,
+            "lsb": 8
+          },
+          {
+            "name": "dr_pre",
+            "width": 1,
+            "lsb": 10
+          },
+          {
+            "name": "dl_pre",
+            "width": 1,
+            "lsb": 11
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 39,
+        "word": 5111808,
+        "package": "u_h22",
+        "kind": "cell_MC10141",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 4,
+            "lsb": 4
+          },
+          {
+            "name": "s_pre",
+            "width": 2,
+            "lsb": 8
+          },
+          {
+            "name": "dr_pre",
+            "width": 1,
+            "lsb": 10
+          },
+          {
+            "name": "dl_pre",
+            "width": 1,
+            "lsb": 11
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 40,
+        "word": 5242880,
+        "package": "u_h24",
+        "kind": "cell_MC10141",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 4,
+            "lsb": 4
+          },
+          {
+            "name": "s_pre",
+            "width": 2,
+            "lsb": 8
+          },
+          {
+            "name": "dr_pre",
+            "width": 1,
+            "lsb": 10
+          },
+          {
+            "name": "dl_pre",
+            "width": 1,
+            "lsb": 11
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 41,
+        "word": 5373952,
+        "package": "u_i03",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 42,
+        "word": 5505024,
+        "package": "u_i05",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 43,
+        "word": 5636096,
+        "package": "u_i09",
+        "kind": "cell_MC10141",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 4,
+            "lsb": 4
+          },
+          {
+            "name": "s_pre",
+            "width": 2,
+            "lsb": 8
+          },
+          {
+            "name": "dr_pre",
+            "width": 1,
+            "lsb": 10
+          },
+          {
+            "name": "dl_pre",
+            "width": 1,
+            "lsb": 11
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 44,
+        "word": 5767168,
+        "package": "u_i10",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 45,
+        "word": 5898240,
+        "package": "u_i15",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 46,
+        "word": 6029312,
+        "package": "u_i22",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 47,
+        "word": 6160384,
+        "package": "u_j01",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 48,
+        "word": 6291456,
+        "package": "u_j03",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 49,
+        "word": 6422528,
+        "package": "u_j08",
+        "kind": "cell_MC10135",
+        "width": 7,
+        "fields": [
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "jk_pre",
+            "width": 4,
+            "lsb": 2
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 6
+          }
+        ]
+      },
+      {
+        "index": 50,
+        "word": 6553600,
+        "package": "u_j11",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 51,
+        "word": 6684672,
+        "package": "u_j12",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 52,
+        "word": 6815744,
+        "package": "u_j16",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 53,
+        "word": 6946816,
+        "package": "u_j20",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 54,
+        "word": 7077888,
+        "package": "u_j21",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 55,
+        "word": 7208960,
+        "package": "u_j22",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 56,
+        "word": 7340032,
+        "package": "u_j24",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 57,
+        "word": 7471104,
+        "package": "u_k01",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 58,
+        "word": 7602176,
+        "package": "u_k02",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 59,
+        "word": 7733248,
+        "package": "u_k05",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 60,
+        "word": 7864320,
+        "package": "u_k09",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 61,
+        "word": 7995392,
+        "package": "u_k13",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 62,
+        "word": 8126464,
+        "package": "u_k14",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 63,
+        "word": 8257536,
+        "package": "u_k17",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 64,
+        "word": 8388608,
+        "package": "u_k20",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 65,
+        "word": 8519680,
+        "package": "u_k21",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 66,
+        "word": 8650752,
+        "package": "u_l02",
+        "kind": "cell_SE10231",
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "index": 67,
+        "word": 8781824,
+        "package": "u_l03",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 68,
+        "word": 8912896,
+        "package": "u_l07",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 69,
+        "word": 9043968,
+        "package": "u_l10",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 70,
+        "word": 9175040,
+        "package": "u_l16",
+        "kind": "cell_F10016",
+        "width": 11,
+        "fields": [
+          {
+            "name": "q",
+            "width": 4,
+            "lsb": 0
+          },
+          {
+            "name": "setup_pre",
+            "width": 6,
+            "lsb": 4
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 10
+          }
+        ]
+      },
+      {
+        "index": 71,
+        "word": 9306112,
+        "package": "u_l19",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 72,
+        "word": 9437184,
+        "package": "u_l21",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "index": 73,
+        "word": 9568256,
+        "package": "u_l23",
+        "kind": "cell_MC10176",
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      }
+    ],
+    "files": [
+      {
+        "index": 74,
+        "word": 9699328,
+        "package": "u_c21",
+        "kind": "cell_F10145A",
+        "ram": {
+          "words": 16,
+          "width": 4,
+          "indices": [
+            0,
+            15
+          ]
+        },
+        "write_window": {
+          "index": 16,
+          "width": 10,
+          "fields": [
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "a_lat",
+              "width": 4,
+              "lsb": 1
+            },
+            {
+              "name": "d_lat",
+              "width": 4,
+              "lsb": 5
+            },
+            {
+              "name": "ce_lat",
+              "width": 1,
+              "lsb": 9
+            }
+          ]
+        },
+        "memory_index": 0
+      },
+      {
+        "index": 75,
+        "word": 9830400,
+        "package": "u_e16",
+        "kind": "cell_F10145A",
+        "ram": {
+          "words": 16,
+          "width": 4,
+          "indices": [
+            0,
+            15
+          ]
+        },
+        "write_window": {
+          "index": 16,
+          "width": 10,
+          "fields": [
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "a_lat",
+              "width": 4,
+              "lsb": 1
+            },
+            {
+              "name": "d_lat",
+              "width": 4,
+              "lsb": 5
+            },
+            {
+              "name": "ce_lat",
+              "width": 1,
+              "lsb": 9
+            }
+          ]
+        },
+        "memory_index": 1
+      },
+      {
+        "index": 76,
+        "word": 9961472,
+        "package": "u_e20",
+        "kind": "cell_F10145A",
+        "ram": {
+          "words": 16,
+          "width": 4,
+          "indices": [
+            0,
+            15
+          ]
+        },
+        "write_window": {
+          "index": 16,
+          "width": 10,
+          "fields": [
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "a_lat",
+              "width": 4,
+              "lsb": 1
+            },
+            {
+              "name": "d_lat",
+              "width": 4,
+              "lsb": 5
+            },
+            {
+              "name": "ce_lat",
+              "width": 1,
+              "lsb": 9
+            }
+          ]
+        },
+        "memory_index": 2
+      },
+      {
+        "index": 77,
+        "word": 10092544,
+        "package": "u_e21",
+        "kind": "cell_F10145A",
+        "ram": {
+          "words": 16,
+          "width": 4,
+          "indices": [
+            0,
+            15
+          ]
+        },
+        "write_window": {
+          "index": 16,
+          "width": 10,
+          "fields": [
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "a_lat",
+              "width": 4,
+              "lsb": 1
+            },
+            {
+              "name": "d_lat",
+              "width": 4,
+              "lsb": 5
+            },
+            {
+              "name": "ce_lat",
+              "width": 1,
+              "lsb": 9
+            }
+          ]
+        },
+        "memory_index": 3
+      },
+      {
+        "index": 78,
+        "word": 10223616,
+        "package": "u_f13",
+        "kind": "cell_F10145A",
+        "ram": {
+          "words": 16,
+          "width": 4,
+          "indices": [
+            0,
+            15
+          ]
+        },
+        "write_window": {
+          "index": 16,
+          "width": 10,
+          "fields": [
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "a_lat",
+              "width": 4,
+              "lsb": 1
+            },
+            {
+              "name": "d_lat",
+              "width": 4,
+              "lsb": 5
+            },
+            {
+              "name": "ce_lat",
+              "width": 1,
+              "lsb": 9
+            }
+          ]
+        },
+        "memory_index": 4
+      },
+      {
+        "index": 79,
+        "word": 10354688,
+        "package": "u_f14",
+        "kind": "cell_F10145A",
+        "ram": {
+          "words": 16,
+          "width": 4,
+          "indices": [
+            0,
+            15
+          ]
+        },
+        "write_window": {
+          "index": 16,
+          "width": 10,
+          "fields": [
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "a_lat",
+              "width": 4,
+              "lsb": 1
+            },
+            {
+              "name": "d_lat",
+              "width": 4,
+              "lsb": 5
+            },
+            {
+              "name": "ce_lat",
+              "width": 1,
+              "lsb": 9
+            }
+          ]
+        },
+        "memory_index": 5
+      },
+      {
+        "index": 80,
+        "word": 10485760,
+        "package": "u_f15",
+        "kind": "cell_F10145A",
+        "ram": {
+          "words": 16,
+          "width": 4,
+          "indices": [
+            0,
+            15
+          ]
+        },
+        "write_window": {
+          "index": 16,
+          "width": 10,
+          "fields": [
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "a_lat",
+              "width": 4,
+              "lsb": 1
+            },
+            {
+              "name": "d_lat",
+              "width": 4,
+              "lsb": 5
+            },
+            {
+              "name": "ce_lat",
+              "width": 1,
+              "lsb": 9
+            }
+          ]
+        },
+        "memory_index": 6
+      },
+      {
+        "index": 81,
+        "word": 10616832,
+        "package": "u_f16",
+        "kind": "cell_F10145A",
+        "ram": {
+          "words": 16,
+          "width": 4,
+          "indices": [
+            0,
+            15
+          ]
+        },
+        "write_window": {
+          "index": 16,
+          "width": 10,
+          "fields": [
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "a_lat",
+              "width": 4,
+              "lsb": 1
+            },
+            {
+              "name": "d_lat",
+              "width": 4,
+              "lsb": 5
+            },
+            {
+              "name": "ce_lat",
+              "width": 1,
+              "lsb": 9
+            }
+          ]
+        },
+        "memory_index": 7
+      },
+      {
+        "index": 82,
+        "word": 10747904,
+        "package": "u_f17",
+        "kind": "cell_F10145A",
+        "ram": {
+          "words": 16,
+          "width": 4,
+          "indices": [
+            0,
+            15
+          ]
+        },
+        "write_window": {
+          "index": 16,
+          "width": 10,
+          "fields": [
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "a_lat",
+              "width": 4,
+              "lsb": 1
+            },
+            {
+              "name": "d_lat",
+              "width": 4,
+              "lsb": 5
+            },
+            {
+              "name": "ce_lat",
+              "width": 1,
+              "lsb": 9
+            }
+          ]
+        },
+        "memory_index": 8
+      },
+      {
+        "index": 83,
+        "word": 10878976,
+        "package": "u_f21",
+        "kind": "cell_F10145A",
+        "ram": {
+          "words": 16,
+          "width": 4,
+          "indices": [
+            0,
+            15
+          ]
+        },
+        "write_window": {
+          "index": 16,
+          "width": 10,
+          "fields": [
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "a_lat",
+              "width": 4,
+              "lsb": 1
+            },
+            {
+              "name": "d_lat",
+              "width": 4,
+              "lsb": 5
+            },
+            {
+              "name": "ce_lat",
+              "width": 1,
+              "lsb": 9
+            }
+          ]
+        },
+        "memory_index": 9
+      }
+    ],
+    "rams": [
+      {
+        "index": 84,
+        "word": 11010048,
+        "package": "u_a04",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 10
+      },
+      {
+        "index": 85,
+        "word": 11141120,
+        "package": "u_a05",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 11
+      },
+      {
+        "index": 86,
+        "word": 11272192,
+        "package": "u_a06",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 12
+      },
+      {
+        "index": 87,
+        "word": 11403264,
+        "package": "u_a07",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 13
+      },
+      {
+        "index": 88,
+        "word": 11534336,
+        "package": "u_a08",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 14
+      },
+      {
+        "index": 89,
+        "word": 11665408,
+        "package": "u_a09",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 15
+      },
+      {
+        "index": 90,
+        "word": 11796480,
+        "package": "u_a10",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 16
+      },
+      {
+        "index": 91,
+        "word": 11927552,
+        "package": "u_a11",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 17
+      },
+      {
+        "index": 92,
+        "word": 12058624,
+        "package": "u_a12",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 18
+      },
+      {
+        "index": 93,
+        "word": 12189696,
+        "package": "u_a13",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 19
+      },
+      {
+        "index": 94,
+        "word": 12320768,
+        "package": "u_a14",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 20
+      },
+      {
+        "index": 95,
+        "word": 12451840,
+        "package": "u_d04",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 21
+      },
+      {
+        "index": 96,
+        "word": 12582912,
+        "package": "u_d05",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 22
+      },
+      {
+        "index": 97,
+        "word": 12713984,
+        "package": "u_d06",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 23
+      },
+      {
+        "index": 98,
+        "word": 12845056,
+        "package": "u_d07",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 24
+      },
+      {
+        "index": 99,
+        "word": 12976128,
+        "package": "u_d08",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 25
+      },
+      {
+        "index": 100,
+        "word": 13107200,
+        "package": "u_d09",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 26
+      },
+      {
+        "index": 101,
+        "word": 13238272,
+        "package": "u_d10",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 27
+      },
+      {
+        "index": 102,
+        "word": 13369344,
+        "package": "u_d11",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 28
+      },
+      {
+        "index": 103,
+        "word": 13500416,
+        "package": "u_d12",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 29
+      },
+      {
+        "index": 104,
+        "word": 13631488,
+        "package": "u_d13",
+        "kind": "cell_MosRam",
+        "address_bits": 16,
+        "words": 65536,
+        "width": 1,
+        "history": {
+          "first_word": 65536,
+          "words": 2,
+          "width": 23,
+          "fields": [
+            {
+              "name": "row",
+              "width": 8,
+              "lsb": 0
+            },
+            {
+              "name": "col",
+              "width": 8,
+              "lsb": 8
+            },
+            {
+              "name": "ras_d",
+              "width": 1,
+              "lsb": 16
+            },
+            {
+              "name": "cas_d",
+              "width": 1,
+              "lsb": 17
+            },
+            {
+              "name": "dout",
+              "width": 1,
+              "lsb": 18
+            },
+            {
+              "name": "dout_r",
+              "width": 1,
+              "lsb": 19
+            },
+            {
+              "name": "we_d",
+              "width": 1,
+              "lsb": 20
+            },
+            {
+              "name": "write_pending",
+              "width": 1,
+              "lsb": 21
+            },
+            {
+              "name": "write_data",
+              "width": 1,
+              "lsb": 22
+            }
+          ]
+        },
+        "memory_index": 30
+      }
+    ],
+    "phase": {
+      "package_index": 105,
+      "word": 13762560,
+      "width": 14,
+      "fields": [
+        {
+          "name": "Clk1_p_Aa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "Clk1_p_Ab",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "Clk1_p_Ab__lag1",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "Clk1_p_Ab__lag2",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "Clk1_p_Ba",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "Clk1_p_Bb",
+          "width": 1,
+          "lsb": 5
+        },
+        {
+          "name": "Clk1_p_Bc",
+          "width": 1,
+          "lsb": 6
+        },
+        {
+          "name": "Clk1_p_Ca",
+          "width": 1,
+          "lsb": 7
+        },
+        {
+          "name": "Clk1_p_Cb",
+          "width": 1,
+          "lsb": 8
+        },
+        {
+          "name": "Clk1_p_Cc",
+          "width": 1,
+          "lsb": 9
+        },
+        {
+          "name": "mapbuf_fh_delay",
+          "width": 3,
+          "lsb": 10
+        },
+        {
+          "name": "sin_select_clock",
+          "width": 1,
+          "lsb": 13
+        }
+      ]
+    },
+    "logical_state_bits": 1378312,
+    "index_bits": 24,
+    "row_bits": 17,
+    "ff_bits": 819,
+    "ram_bits": 1376896,
+    "map_history_bits": 483,
+    "write_window_bits": 100,
+    "phase_bits": 14,
+    "immutable_proms": [
+      {
+        "package": "u_g15",
+        "file": "verilog/proms/packages/MemX-g15.mem",
+        "sha256": "be3f5aabe0a069e51869bedd09f14c48ede0880762abbeee5c3d4f5a958d68cc",
+        "words": 32,
+        "width": 8
+      },
+      {
+        "package": "u_h11",
+        "file": "verilog/proms/packages/MemX-h11.mem",
+        "sha256": "a7ae2f43e9c89d6adaf3949de1512ff7534b623644e25cc70acd987b2a47bb1c",
+        "words": 32,
+        "width": 8
+      },
+      {
+        "package": "u_i12",
+        "file": "verilog/proms/packages/MemX-i12.mem",
+        "sha256": "67590dbb76115b3afb247f963bf32122ef9828d1dd653ac65b8623677f0c1492",
+        "words": 32,
+        "width": 8
+      },
+      {
+        "package": "u_i14",
+        "file": "verilog/proms/packages/MemX-i14.mem",
+        "sha256": "706d0dd034f063d5807a1186f7009e4b01e90884be2fe799affedf25465f6b61",
+        "words": 32,
+        "width": 8
+      },
+      {
+        "package": "u_j13",
+        "file": "verilog/proms/packages/MemX-j13.mem",
+        "sha256": "747d9c2c37cf9962d326cab4d2009a0230e6de2f724ce99f2679880c2945291e",
+        "words": 32,
+        "width": 8
+      },
+      {
+        "package": "u_j14",
+        "file": "verilog/proms/packages/MemX-j14.mem",
+        "sha256": "f2243a5dc078d5112b59df26c52e8498f6b796bae2dc98aab49e10cd05021e16",
+        "words": 32,
+        "width": 8
+      },
+      {
+        "package": "u_l11",
+        "file": "verilog/proms/packages/MemX-l11.mem",
+        "sha256": "d0b1ed0773111d57ebd37c797feac5068561a35731e9bad35f273883ee36f274",
+        "words": 32,
+        "width": 8
+      },
+      {
+        "package": "u_l12",
+        "file": "verilog/proms/packages/MemX-l12.mem",
+        "sha256": "c55a27f683adf4ca4d994fb77e9cfbcf3c343a513a6abdc3f3b4b8a4431cec22",
+        "words": 32,
+        "width": 8
+      }
+    ],
+    "original_sources": {
+      "verilog/cells/cell_F10000.v": "ce17c47889977a87a28de0aa59ca917bd778984a4e5b08f21021a2ccd8801ee6",
+      "verilog/cells/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+      "verilog/cells/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+      "verilog/cells/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+      "verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+      "verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+      "verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+      "verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+      "verilog/cells/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+      "verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+      "verilog/cells/cell_MC10113.v": "3ad34b4dc8d3026412b4d300ce28f3a214fa42d3d6e1c1cc1afead9e601dec0b",
+      "verilog/cells/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+      "verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+      "verilog/cells/cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+      "verilog/cells/cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+      "verilog/cells/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+      "verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+      "verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+      "verilog/cells/cell_MC10159.v": "cdd04d5587a7427677bc5fe1f3ab694c52ad8d70b078919d265cd0036aa92f32",
+      "verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+      "verilog/cells/cell_MC10171.v": "cf6cea0c9e776032c109a46f8eb6e9a6f3b88bdf941a121e3b0bd3b31abed7d1",
+      "verilog/cells/cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+      "verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+      "verilog/cells/cell_MC10175.v": "81ce9ab49d5a9788c1f93dd67704a27a7e0848243a7d10c9aec2d48deec1c0f1",
+      "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+      "verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+      "verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+      "verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+      "verilog/cells/cell_MC10211.v": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d",
+      "verilog/cells/cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+      "verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+      "verilog/cells/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+      "verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+      "verilog/cells/cell_MC1674.v": "1de8063fe6c32fbb339f97a65d3660510b6e58b5337478e149a702e825fd7c3b",
+      "verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+      "verilog/cells/cell_MosRam.v": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+      "verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+      "verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+      "verilog/cells/cell_SE10231.v": "b22f08f8f6e79eafbac3d1446e6593d10482033b2b3b2edfc29f207e62e5872c",
+      "verilog/cells/cell_SG10139.v": "bcf5d25bac812a4143cb6e7fc893ab746837711d7038d3b4a496e7f228b9189d"
+    },
+    "generated_sha256": "00673cc20bf35ec5bc147b2ec1d1ecc8343e6749e66d37fe629d8618d6eab5f3",
+    "cloned_sources": {
+      "cell_F10016_snapshot.v": "6e4a8a7a9693da4d75ce9b8f935687e0df187a257659792e252f1ba37d3190c4",
+      "cell_MC10141_snapshot.v": "2ce357063c805920ce1f4583f4d3d22e9fe32a01fbd3782b9ab06c6c85502df0",
+      "cell_MC10175_snapshot.v": "cdf7e1124e7ef3cf8d8deeda514957e4bdc6fd4d1f55854bdc671e3b62db2280",
+      "cell_MC10231_snapshot.v": "17bf1e9fd267e3b0325c7c4794d6818eef2f50bd1cf27c7f536b0cbda26048e2",
+      "cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e",
+      "cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+      "cell_F10000_snapshot.v": "e4731ecd911d3789f6af5b621f4c1909844c565782717776cd245ccad3560df5",
+      "cell_MC10135_snapshot.v": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+      "cell_SE10231_snapshot.v": "607df39d45682c2e09ec2c72c3adffe752272f3901bbb727a8ad51004ff6950a",
+      "cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+      "cell_MosRam_snapshot.sv": "79424f988cf243e8f6015c3f6012411a094cdbd3e0e01bee5a636f0d8ebee50c"
+    },
+    "scope": "Complete modeled frozen native64K-map MemX; every socket history independent,2-state. No external/global barrier,device/ARM state or physical machine snapshot"
+  },
+  "driver_sha256": "2f3c017aea35aea123f354ad1669cb519a33652f38c7a616d344a4a6695fe146",
+  "source_board_sha256": "709e14c98631a0923251f7a93ba5075fbecf27b6dac3347f52086c2b513c1816",
+  "source_hashes": {
+    "fpga/mister/snapshot/fit_memx_full.py": "2f3c017aea35aea123f354ad1669cb519a33652f38c7a616d344a4a6695fe146",
+    "fpga/mister/snapshot/generate_memx_full.py": "ae800a4723c6dc5417125da4ef1c0a36c8b0f767c454156abb387d638d90fc40",
+    "fpga/mister/snapshot/generate_mosram.py": "809ea5aada366924d1e0a889d6f23ce6cc57f5b6ce3ab107657620501acbeede",
+    "fpga/mister/snapshot/generate_jk.py": "77ba8b5a719e394c7c5c27e55fc95424c2a1f40686d92bc32116b88325fbf2ed",
+    "fpga/mister/snapshot/generate_processor_ff.py": "1b29faf28cebdd406df8befb106bcb9fe1597303d1c8749fd036d98341ddbbaf",
+    "fpga/mister/snapshot/test_memx_full.py": "c79f1974e8a18018ef229aeb006a25facf363c84b8e3ea838f74ef382088604a",
+    "fpga/mister/snapshot/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "fpga/mister/snapshot/generate_contb_full.py": "9058fedbfec998ee4217a758cd7030f00941a7740952715ebbe7cb0801293a5d",
+    "fpga/mister/snapshot/generate_contb.py": "70c3a50a8d705b210563d84b6c272e8d2c072f01fb1197705df2c71144705710",
+    "fpga/mister/snapshot/generate_f10145.py": "81850df20cbff4b934b13e3890a0efd3c469345c423c37586ff0b4a20c80d875",
+    "fpga/mister/snapshot/audit_contb_im.py": "51e06b61c69461b2d8baae1b8be7462c9f02692c70401bc6ac571e534f2c1083",
+    "fpga/mister/snapshot/fit_conta_full.py": "c5c907916f0c3b742fe075065912d54dad4e5f6dbc924f628b626d18499b48a1",
+    "fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_F10000.v": "ce17c47889977a87a28de0aa59ca917bd778984a4e5b08f21021a2ccd8801ee6",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10113.v": "3ad34b4dc8d3026412b4d300ce28f3a214fa42d3d6e1c1cc1afead9e601dec0b",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10159.v": "cdd04d5587a7427677bc5fe1f3ab694c52ad8d70b078919d265cd0036aa92f32",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10171.v": "cf6cea0c9e776032c109a46f8eb6e9a6f3b88bdf941a121e3b0bd3b31abed7d1",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10175.v": "81ce9ab49d5a9788c1f93dd67704a27a7e0848243a7d10c9aec2d48deec1c0f1",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10211.v": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC1674.v": "1de8063fe6c32fbb339f97a65d3660510b6e58b5337478e149a702e825fd7c3b",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MosRam.v": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_SE10231.v": "b22f08f8f6e79eafbac3d1446e6593d10482033b2b3b2edfc29f207e62e5872c",
+    "build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_SG10139.v": "bcf5d25bac812a4143cb6e7fc893ab746837711d7038d3b4a496e7f228b9189d",
+    "verilog/proms/packages/MemX-g15.mem": "be3f5aabe0a069e51869bedd09f14c48ede0880762abbeee5c3d4f5a958d68cc",
+    "verilog/proms/packages/MemX-h11.mem": "a7ae2f43e9c89d6adaf3949de1512ff7534b623644e25cc70acd987b2a47bb1c",
+    "verilog/proms/packages/MemX-i12.mem": "67590dbb76115b3afb247f963bf32122ef9828d1dd653ac65b8623677f0c1492",
+    "verilog/proms/packages/MemX-i14.mem": "706d0dd034f063d5807a1186f7009e4b01e90884be2fe799affedf25465f6b61",
+    "verilog/proms/packages/MemX-j13.mem": "747d9c2c37cf9962d326cab4d2009a0230e6de2f724ce99f2679880c2945291e",
+    "verilog/proms/packages/MemX-j14.mem": "f2243a5dc078d5112b59df26c52e8498f6b796bae2dc98aab49e10cd05021e16",
+    "verilog/proms/packages/MemX-l11.mem": "d0b1ed0773111d57ebd37c797feac5068561a35731e9bad35f273883ee36f274",
+    "verilog/proms/packages/MemX-l12.mem": "c55a27f683adf4ca4d994fb77e9cfbcf3c343a513a6abdc3f3b4b8a4431cec22",
+    "tools/sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+    "tools/sil_ecldict.py": "f2449ce5c2ac3346b8da06fd35514a586187704d5e417fc1098261944a5e1167",
+    "tools/dorado_proms.py": "c6e0c0db35bb311e88a79e0410b7255dcf1aec94ede2e3e3b9bc0f4ea4b7edc1",
+    "tools/firmware_eproms.py": "6da5f2089f89906db9e8f9f2437e806b3759ded7be18927b3b960c7fdaf971a6",
+    "tools/sil_to_verilog.py": "85cb44aedd88d11fa95fbffa913794f8340b721264af4ae74450fbee851fabd2"
+  },
+  "compiled_files": {
+    "snapshot/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "snapshot/cell_MC1674.v": "1de8063fe6c32fbb339f97a65d3660510b6e58b5337478e149a702e825fd7c3b",
+    "snapshot/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "snapshot/cell_MosRam_snapshot.sv": "79424f988cf243e8f6015c3f6012411a094cdbd3e0e01bee5a636f0d8ebee50c",
+    "snapshot/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "snapshot/cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "snapshot/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+    "snapshot/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "snapshot/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+    "snapshot/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "snapshot/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "snapshot/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "snapshot/cell_F10016_snapshot.v": "6e4a8a7a9693da4d75ce9b8f935687e0df187a257659792e252f1ba37d3190c4",
+    "snapshot/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "snapshot/cell_MC10211.v": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d",
+    "snapshot/MemX_snapshot.sv": "00673cc20bf35ec5bc147b2ec1d1ecc8343e6749e66d37fe629d8618d6eab5f3",
+    "snapshot/cell_MC10175_snapshot.v": "cdf7e1124e7ef3cf8d8deeda514957e4bdc6fd4d1f55854bdc671e3b62db2280",
+    "snapshot/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+    "snapshot/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "snapshot/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+    "snapshot/cell_F10000_snapshot.v": "e4731ecd911d3789f6af5b621f4c1909844c565782717776cd245ccad3560df5",
+    "snapshot/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+    "snapshot/MemX_original.v": "709e14c98631a0923251f7a93ba5075fbecf27b6dac3347f52086c2b513c1816",
+    "snapshot/cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+    "snapshot/cell_SG10139.v": "bcf5d25bac812a4143cb6e7fc893ab746837711d7038d3b4a496e7f228b9189d",
+    "snapshot/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+    "snapshot/top.sv": "20d99502f8c9cb6b77ee0e0e2349b72c92700beeaf42bec69d411ff7af9d55bb",
+    "snapshot/cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+    "snapshot/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "snapshot/cell_F10000.v": "ce17c47889977a87a28de0aa59ca917bd778984a4e5b08f21021a2ccd8801ee6",
+    "snapshot/cell_SE10231_snapshot.v": "607df39d45682c2e09ec2c72c3adffe752272f3901bbb727a8ad51004ff6950a",
+    "snapshot/cell_MosRam.v": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+    "snapshot/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+    "snapshot/cell_MC10231_snapshot.v": "17bf1e9fd267e3b0325c7c4794d6818eef2f50bd1cf27c7f536b0cbda26048e2",
+    "snapshot/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+    "snapshot/cell_MC10113.v": "3ad34b4dc8d3026412b4d300ce28f3a214fa42d3d6e1c1cc1afead9e601dec0b",
+    "snapshot/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "snapshot/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "snapshot/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+    "snapshot/cell_MC10141_snapshot.v": "2ce357063c805920ce1f4583f4d3d22e9fe32a01fbd3782b9ab06c6c85502df0",
+    "snapshot/cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e",
+    "snapshot/cell_MC10159.v": "cdd04d5587a7427677bc5fe1f3ab694c52ad8d70b078919d265cd0036aa92f32",
+    "snapshot/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "snapshot/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+    "snapshot/cell_SE10231.v": "b22f08f8f6e79eafbac3d1446e6593d10482033b2b3b2edfc29f207e62e5872c",
+    "snapshot/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "snapshot/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "snapshot/cell_MC10135_snapshot.v": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+    "snapshot/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "snapshot/cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "snapshot/snapshot_fit.qsf": "ef2e3031e7b80b6ca05d47b513de163002e6f45af9d267472c4fb97c30b5746b",
+    "snapshot/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "snapshot/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+    "snapshot/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "snapshot/cell_MC10171.v": "cf6cea0c9e776032c109a46f8eb6e9a6f3b88bdf941a121e3b0bd3b31abed7d1",
+    "snapshot/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "snapshot/cell_MC10175.v": "81ce9ab49d5a9788c1f93dd67704a27a7e0848243a7d10c9aec2d48deec1c0f1",
+    "snapshot/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "baseline/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "baseline/cell_MC1674.v": "1de8063fe6c32fbb339f97a65d3660510b6e58b5337478e149a702e825fd7c3b",
+    "baseline/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "baseline/cell_MosRam_snapshot.sv": "79424f988cf243e8f6015c3f6012411a094cdbd3e0e01bee5a636f0d8ebee50c",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "baseline/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+    "baseline/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "baseline/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+    "baseline/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "baseline/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "baseline/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "baseline/cell_F10016_snapshot.v": "6e4a8a7a9693da4d75ce9b8f935687e0df187a257659792e252f1ba37d3190c4",
+    "baseline/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "baseline/cell_MC10211.v": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d",
+    "baseline/MemX_snapshot.sv": "00673cc20bf35ec5bc147b2ec1d1ecc8343e6749e66d37fe629d8618d6eab5f3",
+    "baseline/cell_MC10175_snapshot.v": "cdf7e1124e7ef3cf8d8deeda514957e4bdc6fd4d1f55854bdc671e3b62db2280",
+    "baseline/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+    "baseline/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "baseline/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+    "baseline/cell_F10000_snapshot.v": "e4731ecd911d3789f6af5b621f4c1909844c565782717776cd245ccad3560df5",
+    "baseline/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+    "baseline/MemX_original.v": "709e14c98631a0923251f7a93ba5075fbecf27b6dac3347f52086c2b513c1816",
+    "baseline/cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+    "baseline/cell_SG10139.v": "bcf5d25bac812a4143cb6e7fc893ab746837711d7038d3b4a496e7f228b9189d",
+    "baseline/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+    "baseline/top.sv": "20d99502f8c9cb6b77ee0e0e2349b72c92700beeaf42bec69d411ff7af9d55bb",
+    "baseline/cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+    "baseline/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "baseline/cell_F10000.v": "ce17c47889977a87a28de0aa59ca917bd778984a4e5b08f21021a2ccd8801ee6",
+    "baseline/cell_SE10231_snapshot.v": "607df39d45682c2e09ec2c72c3adffe752272f3901bbb727a8ad51004ff6950a",
+    "baseline/cell_MosRam.v": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+    "baseline/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+    "baseline/cell_MC10231_snapshot.v": "17bf1e9fd267e3b0325c7c4794d6818eef2f50bd1cf27c7f536b0cbda26048e2",
+    "baseline/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+    "baseline/cell_MC10113.v": "3ad34b4dc8d3026412b4d300ce28f3a214fa42d3d6e1c1cc1afead9e601dec0b",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "baseline/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+    "baseline/cell_MC10141_snapshot.v": "2ce357063c805920ce1f4583f4d3d22e9fe32a01fbd3782b9ab06c6c85502df0",
+    "baseline/cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e",
+    "baseline/cell_MC10159.v": "cdd04d5587a7427677bc5fe1f3ab694c52ad8d70b078919d265cd0036aa92f32",
+    "baseline/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "baseline/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+    "baseline/cell_SE10231.v": "b22f08f8f6e79eafbac3d1446e6593d10482033b2b3b2edfc29f207e62e5872c",
+    "baseline/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/cell_MC10135_snapshot.v": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+    "baseline/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "baseline/cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "baseline/snapshot_fit.qsf": "93d0b211baab06c4c6c2f03e90fb996b63311b091b900c93d826f6784b8e2244",
+    "baseline/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "baseline/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+    "baseline/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "baseline/cell_MC10171.v": "cf6cea0c9e776032c109a46f8eb6e9a6f3b88bdf941a121e3b0bd3b31abed7d1",
+    "baseline/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "baseline/cell_MC10175.v": "81ce9ab49d5a9788c1f93dd67704a27a7e0848243a7d10c9aec2d48deec1c0f1",
+    "baseline/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "executed-sources/tools/sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+    "executed-sources/tools/sil_ecldict.py": "f2449ce5c2ac3346b8da06fd35514a586187704d5e417fc1098261944a5e1167",
+    "executed-sources/tools/sil_to_verilog.py": "85cb44aedd88d11fa95fbffa913794f8340b721264af4ae74450fbee851fabd2",
+    "executed-sources/tools/firmware_eproms.py": "6da5f2089f89906db9e8f9f2437e806b3759ded7be18927b3b960c7fdaf971a6",
+    "executed-sources/tools/dorado_proms.py": "c6e0c0db35bb311e88a79e0410b7255dcf1aec94ede2e3e3b9bc0f4ea4b7edc1",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC1674.v": "1de8063fe6c32fbb339f97a65d3660510b6e58b5337478e149a702e825fd7c3b",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10211.v": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_SG10139.v": "bcf5d25bac812a4143cb6e7fc893ab746837711d7038d3b4a496e7f228b9189d",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_F10000.v": "ce17c47889977a87a28de0aa59ca917bd778984a4e5b08f21021a2ccd8801ee6",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MosRam.v": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10113.v": "3ad34b4dc8d3026412b4d300ce28f3a214fa42d3d6e1c1cc1afead9e601dec0b",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10159.v": "cdd04d5587a7427677bc5fe1f3ab694c52ad8d70b078919d265cd0036aa92f32",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_SE10231.v": "b22f08f8f6e79eafbac3d1446e6593d10482033b2b3b2edfc29f207e62e5872c",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10171.v": "cf6cea0c9e776032c109a46f8eb6e9a6f3b88bdf941a121e3b0bd3b31abed7d1",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10175.v": "81ce9ab49d5a9788c1f93dd67704a27a7e0848243a7d10c9aec2d48deec1c0f1",
+    "executed-sources/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "executed-sources/fpga/mister/snapshot/generate_f10145.py": "81850df20cbff4b934b13e3890a0efd3c469345c423c37586ff0b4a20c80d875",
+    "executed-sources/fpga/mister/snapshot/fit_conta_full.py": "c5c907916f0c3b742fe075065912d54dad4e5f6dbc924f628b626d18499b48a1",
+    "executed-sources/fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "executed-sources/fpga/mister/snapshot/generate_mosram.py": "809ea5aada366924d1e0a889d6f23ce6cc57f5b6ce3ab107657620501acbeede",
+    "executed-sources/fpga/mister/snapshot/audit_contb_im.py": "51e06b61c69461b2d8baae1b8be7462c9f02692c70401bc6ac571e534f2c1083",
+    "executed-sources/fpga/mister/snapshot/generate_processor_ff.py": "1b29faf28cebdd406df8befb106bcb9fe1597303d1c8749fd036d98341ddbbaf",
+    "executed-sources/fpga/mister/snapshot/fit_memx_full.py": "2f3c017aea35aea123f354ad1669cb519a33652f38c7a616d344a4a6695fe146",
+    "executed-sources/fpga/mister/snapshot/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "executed-sources/fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "executed-sources/fpga/mister/snapshot/generate_contb_full.py": "9058fedbfec998ee4217a758cd7030f00941a7740952715ebbe7cb0801293a5d",
+    "executed-sources/fpga/mister/snapshot/test_memx_full.py": "c79f1974e8a18018ef229aeb006a25facf363c84b8e3ea838f74ef382088604a",
+    "executed-sources/fpga/mister/snapshot/generate_jk.py": "77ba8b5a719e394c7c5c27e55fc95424c2a1f40686d92bc32116b88325fbf2ed",
+    "executed-sources/fpga/mister/snapshot/generate_memx_full.py": "ae800a4723c6dc5417125da4ef1c0a36c8b0f767c454156abb387d638d90fc40",
+    "executed-sources/fpga/mister/snapshot/generate_contb.py": "70c3a50a8d705b210563d84b6c272e8d2c072f01fb1197705df2c71144705710",
+    "executed-sources/verilog/proms/packages/MemX-j14.mem": "f2243a5dc078d5112b59df26c52e8498f6b796bae2dc98aab49e10cd05021e16",
+    "executed-sources/verilog/proms/packages/MemX-l12.mem": "c55a27f683adf4ca4d994fb77e9cfbcf3c343a513a6abdc3f3b4b8a4431cec22",
+    "executed-sources/verilog/proms/packages/MemX-l11.mem": "d0b1ed0773111d57ebd37c797feac5068561a35731e9bad35f273883ee36f274",
+    "executed-sources/verilog/proms/packages/MemX-j13.mem": "747d9c2c37cf9962d326cab4d2009a0230e6de2f724ce99f2679880c2945291e",
+    "executed-sources/verilog/proms/packages/MemX-h11.mem": "a7ae2f43e9c89d6adaf3949de1512ff7534b623644e25cc70acd987b2a47bb1c",
+    "executed-sources/verilog/proms/packages/MemX-i14.mem": "706d0dd034f063d5807a1186f7009e4b01e90884be2fe799affedf25465f6b61",
+    "executed-sources/verilog/proms/packages/MemX-i12.mem": "67590dbb76115b3afb247f963bf32122ef9828d1dd653ac65b8623677f0c1492",
+    "executed-sources/verilog/proms/packages/MemX-g15.mem": "be3f5aabe0a069e51869bedd09f14c48ede0880762abbeee5c3d4f5a958d68cc",
+    "baseline/verilog/proms/packages/MemX-j14.mem": "f2243a5dc078d5112b59df26c52e8498f6b796bae2dc98aab49e10cd05021e16",
+    "baseline/verilog/proms/packages/MemX-l12.mem": "c55a27f683adf4ca4d994fb77e9cfbcf3c343a513a6abdc3f3b4b8a4431cec22",
+    "baseline/verilog/proms/packages/MemX-l11.mem": "d0b1ed0773111d57ebd37c797feac5068561a35731e9bad35f273883ee36f274",
+    "baseline/verilog/proms/packages/MemX-j13.mem": "747d9c2c37cf9962d326cab4d2009a0230e6de2f724ce99f2679880c2945291e",
+    "baseline/verilog/proms/packages/MemX-h11.mem": "a7ae2f43e9c89d6adaf3949de1512ff7534b623644e25cc70acd987b2a47bb1c",
+    "baseline/verilog/proms/packages/MemX-i14.mem": "706d0dd034f063d5807a1186f7009e4b01e90884be2fe799affedf25465f6b61",
+    "baseline/verilog/proms/packages/MemX-i12.mem": "67590dbb76115b3afb247f963bf32122ef9828d1dd653ac65b8623677f0c1492",
+    "baseline/verilog/proms/packages/MemX-g15.mem": "be3f5aabe0a069e51869bedd09f14c48ede0880762abbeee5c3d4f5a958d68cc",
+    "snapshot/verilog/proms/packages/MemX-j14.mem": "f2243a5dc078d5112b59df26c52e8498f6b796bae2dc98aab49e10cd05021e16",
+    "snapshot/verilog/proms/packages/MemX-l12.mem": "c55a27f683adf4ca4d994fb77e9cfbcf3c343a513a6abdc3f3b4b8a4431cec22",
+    "snapshot/verilog/proms/packages/MemX-l11.mem": "d0b1ed0773111d57ebd37c797feac5068561a35731e9bad35f273883ee36f274",
+    "snapshot/verilog/proms/packages/MemX-j13.mem": "747d9c2c37cf9962d326cab4d2009a0230e6de2f724ce99f2679880c2945291e",
+    "snapshot/verilog/proms/packages/MemX-h11.mem": "a7ae2f43e9c89d6adaf3949de1512ff7534b623644e25cc70acd987b2a47bb1c",
+    "snapshot/verilog/proms/packages/MemX-i14.mem": "706d0dd034f063d5807a1186f7009e4b01e90884be2fe799affedf25465f6b61",
+    "snapshot/verilog/proms/packages/MemX-i12.mem": "67590dbb76115b3afb247f963bf32122ef9828d1dd653ac65b8623677f0c1492",
+    "snapshot/verilog/proms/packages/MemX-g15.mem": "be3f5aabe0a069e51869bedd09f14c48ede0880762abbeee5c3d4f5a958d68cc"
+  },
+  "expected_qsf": {
+    "baseline": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name VERILOG_MACRO \"DORADO_F10145_LOGIC=1\"\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE MemX_snapshot.sv\nset_global_assignment -name SYSTEMVERILOG_FILE MemX_original.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_F10016_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10141_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10175_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10231_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10176_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10173_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_F10000_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10135_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_SE10231_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_F10145A_snapshot.sv\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MosRam_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_F10000.v\nset_global_assignment -name VERILOG_FILE cell_F10016.v\nset_global_assignment -name VERILOG_FILE cell_F10145A.v\nset_global_assignment -name VERILOG_FILE cell_MC10100.v\nset_global_assignment -name VERILOG_FILE cell_MC10102.v\nset_global_assignment -name VERILOG_FILE cell_MC10103.v\nset_global_assignment -name VERILOG_FILE cell_MC10104.v\nset_global_assignment -name VERILOG_FILE cell_MC10105.v\nset_global_assignment -name VERILOG_FILE cell_MC10106.v\nset_global_assignment -name VERILOG_FILE cell_MC10109.v\nset_global_assignment -name VERILOG_FILE cell_MC10113.v\nset_global_assignment -name VERILOG_FILE cell_MC10117.v\nset_global_assignment -name VERILOG_FILE cell_MC10121.v\nset_global_assignment -name VERILOG_FILE cell_MC10124.v\nset_global_assignment -name VERILOG_FILE cell_MC10125.v\nset_global_assignment -name VERILOG_FILE cell_MC10135.v\nset_global_assignment -name VERILOG_FILE cell_MC10141.v\nset_global_assignment -name VERILOG_FILE cell_MC10158.v\nset_global_assignment -name VERILOG_FILE cell_MC10159.v\nset_global_assignment -name VERILOG_FILE cell_MC10170.v\nset_global_assignment -name VERILOG_FILE cell_MC10171.v\nset_global_assignment -name VERILOG_FILE cell_MC10173.v\nset_global_assignment -name VERILOG_FILE cell_MC10174.v\nset_global_assignment -name VERILOG_FILE cell_MC10175.v\nset_global_assignment -name VERILOG_FILE cell_MC10176.v\nset_global_assignment -name VERILOG_FILE cell_MC10195.v\nset_global_assignment -name VERILOG_FILE cell_MC10197.v\nset_global_assignment -name VERILOG_FILE cell_MC10210.v\nset_global_assignment -name VERILOG_FILE cell_MC10211.v\nset_global_assignment -name VERILOG_FILE cell_MC10212.v\nset_global_assignment -name VERILOG_FILE cell_MC10231.v\nset_global_assignment -name VERILOG_FILE cell_MC1660.v\nset_global_assignment -name VERILOG_FILE cell_MC1662.v\nset_global_assignment -name VERILOG_FILE cell_MC1674.v\nset_global_assignment -name VERILOG_FILE cell_MU10164.v\nset_global_assignment -name VERILOG_FILE cell_MosRam.v\nset_global_assignment -name VERILOG_FILE cell_SE10210.v\nset_global_assignment -name VERILOG_FILE cell_SE10212.v\nset_global_assignment -name VERILOG_FILE cell_SE10231.v\nset_global_assignment -name VERILOG_FILE cell_SG10139.v\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to stimulus[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze\nset_instance_assignment -name VIRTUAL_PIN ON -to held\nset_instance_assignment -name VIRTUAL_PIN ON -to request\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to state_data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to q[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen\nset_instance_assignment -name VIRTUAL_PIN ON -to done\nset_instance_assignment -name VIRTUAL_PIN ON -to error\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\n",
+    "snapshot": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name VERILOG_MACRO \"DORADO_F10145_LOGIC=1\"\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE MemX_snapshot.sv\nset_global_assignment -name SYSTEMVERILOG_FILE MemX_original.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_F10016_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10141_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10175_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10231_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10176_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10173_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_F10000_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC10135_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_SE10231_snapshot.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_F10145A_snapshot.sv\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MosRam_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_F10000.v\nset_global_assignment -name VERILOG_FILE cell_F10016.v\nset_global_assignment -name VERILOG_FILE cell_F10145A.v\nset_global_assignment -name VERILOG_FILE cell_MC10100.v\nset_global_assignment -name VERILOG_FILE cell_MC10102.v\nset_global_assignment -name VERILOG_FILE cell_MC10103.v\nset_global_assignment -name VERILOG_FILE cell_MC10104.v\nset_global_assignment -name VERILOG_FILE cell_MC10105.v\nset_global_assignment -name VERILOG_FILE cell_MC10106.v\nset_global_assignment -name VERILOG_FILE cell_MC10109.v\nset_global_assignment -name VERILOG_FILE cell_MC10113.v\nset_global_assignment -name VERILOG_FILE cell_MC10117.v\nset_global_assignment -name VERILOG_FILE cell_MC10121.v\nset_global_assignment -name VERILOG_FILE cell_MC10124.v\nset_global_assignment -name VERILOG_FILE cell_MC10125.v\nset_global_assignment -name VERILOG_FILE cell_MC10135.v\nset_global_assignment -name VERILOG_FILE cell_MC10141.v\nset_global_assignment -name VERILOG_FILE cell_MC10158.v\nset_global_assignment -name VERILOG_FILE cell_MC10159.v\nset_global_assignment -name VERILOG_FILE cell_MC10170.v\nset_global_assignment -name VERILOG_FILE cell_MC10171.v\nset_global_assignment -name VERILOG_FILE cell_MC10173.v\nset_global_assignment -name VERILOG_FILE cell_MC10174.v\nset_global_assignment -name VERILOG_FILE cell_MC10175.v\nset_global_assignment -name VERILOG_FILE cell_MC10176.v\nset_global_assignment -name VERILOG_FILE cell_MC10195.v\nset_global_assignment -name VERILOG_FILE cell_MC10197.v\nset_global_assignment -name VERILOG_FILE cell_MC10210.v\nset_global_assignment -name VERILOG_FILE cell_MC10211.v\nset_global_assignment -name VERILOG_FILE cell_MC10212.v\nset_global_assignment -name VERILOG_FILE cell_MC10231.v\nset_global_assignment -name VERILOG_FILE cell_MC1660.v\nset_global_assignment -name VERILOG_FILE cell_MC1662.v\nset_global_assignment -name VERILOG_FILE cell_MC1674.v\nset_global_assignment -name VERILOG_FILE cell_MU10164.v\nset_global_assignment -name VERILOG_FILE cell_MosRam.v\nset_global_assignment -name VERILOG_FILE cell_SE10210.v\nset_global_assignment -name VERILOG_FILE cell_SE10212.v\nset_global_assignment -name VERILOG_FILE cell_SE10231.v\nset_global_assignment -name VERILOG_FILE cell_SG10139.v\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to stimulus[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze\nset_instance_assignment -name VIRTUAL_PIN ON -to held\nset_instance_assignment -name VIRTUAL_PIN ON -to request\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to state_data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to q[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen\nset_instance_assignment -name VIRTUAL_PIN ON -to done\nset_instance_assignment -name VIRTUAL_PIN ON -to error\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_global_assignment -name VERILOG_MACRO \"SNAPSHOT_BANK_EXPERIMENT=1\"\n"
+  }
+}

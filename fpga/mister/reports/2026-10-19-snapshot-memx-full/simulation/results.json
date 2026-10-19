@@ -1,0 +1,122 @@
+{
+  "scope": "Complete modeled frozen native64K-map MemX; every socket history independent,2-state. No external/global barrier,device/ARM state or physical machine snapshot",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated_ff",
+      "returncode": 1,
+      "expected_failure": "board auxiliary state differs"
+    },
+    {
+      "case": "ungated_phase",
+      "returncode": 1,
+      "expected_failure": "board auxiliary state differs"
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "running request accepted"
+    },
+    {
+      "case": "freeze_without_held",
+      "returncode": 1,
+      "expected_failure": "unheld freeze accepted"
+    },
+    {
+      "case": "response_truncation",
+      "returncode": 1,
+      "expected_failure": "aux state export differs"
+    },
+    {
+      "case": "invalid_alias",
+      "returncode": 1,
+      "expected_failure": [
+        "invalid state access accepted",
+        "board auxiliary state differs"
+      ]
+    },
+    {
+      "case": "lost_map_history",
+      "returncode": 1,
+      "expected_failure": "aux bit write/readback differs"
+    },
+    {
+      "case": "ungated_map_read",
+      "returncode": 1,
+      "expected_failure": "board auxiliary state differs"
+    },
+    {
+      "case": "lost_small_window",
+      "returncode": 1,
+      "expected_failure": [
+        "aux bit write/readback differs",
+        "board auxiliary state differs"
+      ]
+    }
+  ],
+  "source_hashes": {
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_memx_full.py": "c79f1974e8a18018ef229aeb006a25facf363c84b8e3ea838f74ef382088604a",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_memx_full.cpp": "3c1a0427dfd9ff8236d818127bf74a3efaba9b01f754f08e3d5a2e414695cd27",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_memx_full.py": "ae800a4723c6dc5417125da4ef1c0a36c8b0f767c454156abb387d638d90fc40",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_mosram.py": "809ea5aada366924d1e0a889d6f23ce6cc57f5b6ce3ab107657620501acbeede",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_contb_full.py": "9058fedbfec998ee4217a758cd7030f00941a7740952715ebbe7cb0801293a5d",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_contb.py": "70c3a50a8d705b210563d84b6c272e8d2c072f01fb1197705df2c71144705710",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_processor_ff.py": "1b29faf28cebdd406df8befb106bcb9fe1597303d1c8749fd036d98341ddbbaf",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_jk.py": "77ba8b5a719e394c7c5c27e55fc95424c2a1f40686d92bc32116b88325fbf2ed",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_f10145.py": "81850df20cbff4b934b13e3890a0efd3c469345c423c37586ff0b4a20c80d875",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/generated/MemX-Rev-Ch.v": "709e14c98631a0923251f7a93ba5075fbecf27b6dac3347f52086c2b513c1816",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_F10000.v": "ce17c47889977a87a28de0aa59ca917bd778984a4e5b08f21021a2ccd8801ee6",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10113.v": "3ad34b4dc8d3026412b4d300ce28f3a214fa42d3d6e1c1cc1afead9e601dec0b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10159.v": "cdd04d5587a7427677bc5fe1f3ab694c52ad8d70b078919d265cd0036aa92f32",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10171.v": "cf6cea0c9e776032c109a46f8eb6e9a6f3b88bdf941a121e3b0bd3b31abed7d1",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10175.v": "81ce9ab49d5a9788c1f93dd67704a27a7e0848243a7d10c9aec2d48deec1c0f1",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10211.v": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MC1674.v": "1de8063fe6c32fbb339f97a65d3660510b6e58b5337478e149a702e825fd7c3b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_MosRam.v": "f6038d02e45ab7ba89054d6248b65ab2bd70b1b92e12c933cbfc589f7a60a26d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_SE10231.v": "b22f08f8f6e79eafbac3d1446e6593d10482033b2b3b2edfc29f207e62e5872c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/cells/cell_SG10139.v": "bcf5d25bac812a4143cb6e7fc893ab746837711d7038d3b4a496e7f228b9189d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/proms/packages/MemX-g15.mem": "be3f5aabe0a069e51869bedd09f14c48ede0880762abbeee5c3d4f5a958d68cc",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/proms/packages/MemX-h11.mem": "a7ae2f43e9c89d6adaf3949de1512ff7534b623644e25cc70acd987b2a47bb1c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/proms/packages/MemX-i12.mem": "67590dbb76115b3afb247f963bf32122ef9828d1dd653ac65b8623677f0c1492",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/proms/packages/MemX-i14.mem": "706d0dd034f063d5807a1186f7009e4b01e90884be2fe799affedf25465f6b61",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/proms/packages/MemX-j13.mem": "747d9c2c37cf9962d326cab4d2009a0230e6de2f724ce99f2679880c2945291e",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/proms/packages/MemX-j14.mem": "f2243a5dc078d5112b59df26c52e8498f6b796bae2dc98aab49e10cd05021e16",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/proms/packages/MemX-l11.mem": "d0b1ed0773111d57ebd37c797feac5068561a35731e9bad35f273883ee36f274",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native55-memd-baseline-src/verilog/proms/packages/MemX-l12.mem": "c55a27f683adf4ca4d994fb77e9cfbcf3c343a513a6abdc3f3b4b8a4431cec22"
+  }
+}

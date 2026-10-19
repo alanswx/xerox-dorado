@@ -1,5 +1,13 @@
 # Native56b original-firmware hardware qualification
 
+Latest: full Viewers/Ready/Clock/WatchTool/EditTool, actual mouse/Cmd click,
+second initialized CommandTool and separate focus, exact short and alphabet/
+digit echoes, and warm ///rtl56bpersist.txt create/close/type readback PASS.
+Read-only desktop collection has 95,817 complete disk records with no recorded
+errors or trace loss. Captures, input logs, provenance and raw logs are in
+`desktop/`. No normal guest Boot boundary or cold marker readback yet.
+Earlier startup/loader collections below retain their original scope/time.
+
 Normally loaded2026-10-19 12:59:00UTC, Main23403/server23400; temporary23386
 normally exited. RBF0bbe092f; original f3bce2a8seed untouched before finalcache.
 Actual Main SPI74 flags0x16/fault/errors0, epochf0eca3ad955c5ee2; daemon alone

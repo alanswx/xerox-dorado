@@ -42,6 +42,42 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Latest: Native56b full desktop/input/warm file PASS; complete modeled MemX qualification PASS; Native57 fitting.**
+Same live Main23403/server23400/RBF0bbe092f,50MHz/SYSPER4/SDRAM/directDDR,
+all snapshot admin inactive. Viewers/Ready/Clock/Watch/Edit, actual Cmd mouse
+click, initialized second CommandTool/separate focus737,608, exact short and
+alphabet/digit echoes and normal ///rtl56bpersist.txt create/close/type pass.
+Read-only collection:95,817complete disk records/no recorded errors/loss.
+No normal56bBoot/cold marker yet. Idle1.947742Missues/s; no speed gain.
+Evidence native56b-field/desktop; localcedar56b-launch.
+
+Complete modeled MemX now passes all1,378,312mutable bits/2,048immutablePROM
+bits, independent21socket histories, destructive whole-state restore/recapture/
+firstpendingwrite/20,000more.26,630,466host edges/26,419,185requests/all24-bit
+indices; nine brokenRTL reject. FreshXML18damagedschemas reject. Matched50MHz
+isolated fit42440 TERMINAL, all4conditions min+0.131ns;1,376,256RAMbits/
+168M10Ks retained, all21OLD_DATA geometries/uniquephysical locations proven.
+Ten corrupt-fit controls reject. Evidence snapshot-memx-full; raw text unchanged.
+
+Native57 build40422 remains live: /home/alans/mister/Dorado_Native57_20261019,
+currently quartus_fit. Frozen56b plus MemXboard/newMosRamhelper only;10shared
+helpers reused byte-identical, clocks/wrapper/SDCs/policies/nativeMemDdelay2
+unchanged, ALL admin inactive. Exact executing builder v1 preserved locally.
+Its corner-script substitution kept Native56 report labels (crossingsNative57);
+audit_native_memx.py requires exact unchanged scripts and all164categories/
+31summary/32board-corner crossings. Future builder now fixes labels and adds
+PROMs to the prebuild source checks; final audit explicitly checks all8actual
+baseline/candidate PROM bytes regardless. No fit restart or timing mutation.
+Read-only audit sources staged Native57_Audit_20261019; do not audit until all
+builder stages terminal. Current fullcore timing/deployment NOT qualified.
+
+Next TODOs: finish57 all-device audit/archive/check-in before normal reload;
+normal56bguestBoot/captureactualcode/Main barriers/preservepack; fresh57original
+firmware/Cedar/input measurement. Then DispY (actual DispY_field.v, not generic
+board), DskEth, BaseBoard, wrapper/backends/input/ARMserver/diskgeneration and
+atomic global bundle/actualFPGArestore. Original60ns/timermigration and final
+3freshboots/coldpersistence/pinnedperformance/2hstress remain required.
+
 Live56b visible login/Guest/base34/33BCD/1,345,843bytes/final guest ACK now PASS,
 321.952726..322.161282s; issue bounds530,173,424..533,584,518/interior1.651306..
 1.651517M/s,46Tioga replays. Idle1,947,741.690issues/s matches55, no gain.
